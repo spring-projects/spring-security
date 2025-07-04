@@ -57,12 +57,17 @@ import org.springframework.util.PropertyPlaceholderHelper;
  * {@code @HasRole} annotation found on a given {@link AnnotatedElement}.
  *
  * <p>
+ * Meta-annotations that use enum values can use {@link ExpressionTemplateValueProvider} to
+ * provide custom placeholder values.
+ *
+ * <p>
  * Since the process of synthesis is expensive, it is recommended to cache the synthesized
  * result to prevent multiple computations.
  *
  * @param <A> the annotation to search for and synthesize
  * @author Josh Cummings
  * @author DingHao
+ * @author Mike Heath
  * @since 6.4
  */
 final class ExpressionTemplateSecurityAnnotationScanner<A extends Annotation>
@@ -72,6 +77,7 @@ final class ExpressionTemplateSecurityAnnotationScanner<A extends Annotation>
 
 	static {
 		conversionService.addConverter(new ClassToStringConverter());
+		conversionService.addConverter(new ExpressionTemplateValueProviderConverter());
 	}
 
 	private final Class<A> type;
@@ -156,6 +162,20 @@ final class ExpressionTemplateSecurityAnnotationScanner<A extends Annotation>
 		@Override
 		public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
 			return (source != null) ? source.toString() : null;
+		}
+
+	}
+
+	static class ExpressionTemplateValueProviderConverter implements GenericConverter {
+
+		@Override
+		public Set<ConvertiblePair> getConvertibleTypes() {
+			return Collections.singleton(new ConvertiblePair(ExpressionTemplateValueProvider.class, String.class));
+		}
+
+		@Override
+		public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+			return (source != null) ? ((ExpressionTemplateValueProvider)source).getExpressionTemplateValue() : null;
 		}
 
 	}
