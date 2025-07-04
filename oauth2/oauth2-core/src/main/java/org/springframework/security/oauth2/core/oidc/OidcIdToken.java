@@ -73,6 +73,23 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		return this.claims;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null || this.getClass() != obj.getClass()) {
+			return false;
+		}
+		OidcIdToken that = (OidcIdToken) obj;
+		return this.getClaims().equals(that.getClaims());
+	}
+
+	@Override
+	public int hashCode() {
+		return this.getClaims().hashCode();
+	}
+
 	/**
 	 * Create a {@link Builder} based on the given token value
 	 * @param tokenValue the token value to use
