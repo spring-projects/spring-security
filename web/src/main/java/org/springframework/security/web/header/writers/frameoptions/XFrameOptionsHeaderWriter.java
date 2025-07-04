@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,7 @@ import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.util.Assert;
 
 /**
- * {@code HeaderWriter} implementation for the X-Frame-Options headers. When using the
- * ALLOW-FROM directive the actual value is determined by a {@code AllowFromStrategy}.
+ * {@code HeaderWriter} implementation for the X-Frame-Options headers.
  *
  * @author Marten Deinum
  * @author Rob Winch
@@ -34,8 +33,6 @@ import org.springframework.util.Assert;
 public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 
 	public static final String XFRAME_OPTIONS_HEADER = "X-Frame-Options";
-
-	private final AllowFromStrategy allowFromStrategy;
 
 	private final XFrameOptionsMode frameOptionsMode;
 
@@ -49,34 +46,10 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 	/**
 	 * Creates a new instance
 	 * @param frameOptionsMode the {@link XFrameOptionsMode} to use. If using
-	 * {@link XFrameOptionsMode#ALLOW_FROM}, use Content-Security-Policy with the <a href=
-	 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors">frame-ancestors</a>
-	 * directive instead.
 	 */
 	public XFrameOptionsHeaderWriter(XFrameOptionsMode frameOptionsMode) {
 		Assert.notNull(frameOptionsMode, "frameOptionsMode cannot be null");
-		Assert.isTrue(!XFrameOptionsMode.ALLOW_FROM.equals(frameOptionsMode),
-				"ALLOW_FROM requires an AllowFromStrategy. Please use "
-						+ "FrameOptionsHeaderWriter(AllowFromStrategy allowFromStrategy) instead");
 		this.frameOptionsMode = frameOptionsMode;
-		this.allowFromStrategy = null;
-	}
-
-	/**
-	 * Creates a new instance with {@link XFrameOptionsMode#ALLOW_FROM}.
-	 * @param allowFromStrategy the strategy for determining what the value for ALLOW_FROM
-	 * is.
-	 * @deprecated ALLOW-FROM is an obsolete directive that no longer works in modern
-	 * browsers. Instead use Content-Security-Policy with the <a href=
-	 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors">frame-ancestors</a>
-	 * directive.
-	 * @see AllowFromStrategy
-	 */
-	@Deprecated
-	public XFrameOptionsHeaderWriter(AllowFromStrategy allowFromStrategy) {
-		Assert.notNull(allowFromStrategy, "allowFromStrategy cannot be null");
-		this.frameOptionsMode = XFrameOptionsMode.ALLOW_FROM;
-		this.allowFromStrategy = allowFromStrategy;
 	}
 
 	/**
@@ -86,23 +59,7 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 	 */
 	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
-		if (XFrameOptionsMode.ALLOW_FROM.equals(this.frameOptionsMode)) {
-			String allowFromValue = this.allowFromStrategy.getAllowFromValue(request);
-			if (XFrameOptionsMode.DENY.getMode().equals(allowFromValue)) {
-				if (!response.containsHeader(XFRAME_OPTIONS_HEADER)) {
-					response.setHeader(XFRAME_OPTIONS_HEADER, XFrameOptionsMode.DENY.getMode());
-				}
-			}
-			else if (allowFromValue != null) {
-				if (!response.containsHeader(XFRAME_OPTIONS_HEADER)) {
-					response.setHeader(XFRAME_OPTIONS_HEADER,
-							XFrameOptionsMode.ALLOW_FROM.getMode() + " " + allowFromValue);
-				}
-			}
-		}
-		else {
-			response.setHeader(XFRAME_OPTIONS_HEADER, this.frameOptionsMode.getMode());
-		}
+		response.setHeader(XFRAME_OPTIONS_HEADER, this.frameOptionsMode.getMode());
 	}
 
 	/**
@@ -115,16 +72,7 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 
 		DENY("DENY"),
 
-		SAMEORIGIN("SAMEORIGIN"),
-
-		/**
-		 * @deprecated ALLOW-FROM is an obsolete directive that no longer works in modern
-		 * browsers. Instead use Content-Security-Policy with the <a href=
-		 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors">frame-ancestors</a>
-		 * directive.
-		 */
-		@Deprecated
-		ALLOW_FROM("ALLOW-FROM");
+		SAMEORIGIN("SAMEORIGIN");
 
 		private final String mode;
 
@@ -134,7 +82,7 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 
 		/**
 		 * Gets the mode for the X-Frame-Options header value. For example, DENY,
-		 * SAMEORIGIN, ALLOW-FROM. Cannot be null.
+		 * SAMEORIGIN. Cannot be null.
 		 * @return the mode for the X-Frame-Options header value.
 		 */
 		private String getMode() {
