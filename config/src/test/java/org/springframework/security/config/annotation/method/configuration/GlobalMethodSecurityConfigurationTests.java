@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -542,9 +542,7 @@ public class GlobalMethodSecurityConfigurationTests {
 
 		@Bean
 		RoleHierarchy roleHierarchy() {
-			RoleHierarchyImpl result = new RoleHierarchyImpl();
-			result.setHierarchy("ROLE_USER > ROLE_ADMIN");
-			return result;
+			return RoleHierarchyImpl.fromHierarchy("ROLE_USER > ROLE_ADMIN");
 		}
 
 	}

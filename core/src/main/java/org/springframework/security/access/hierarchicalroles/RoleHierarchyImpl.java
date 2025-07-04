@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ import org.springframework.util.Assert;
  * @author Michael Mayr
  * @author Josh Cummings
  */
-public class RoleHierarchyImpl implements RoleHierarchy {
+public final class RoleHierarchyImpl implements RoleHierarchy {
 
 	private static final Log logger = LogFactory.getLog(RoleHierarchyImpl.class);
 
@@ -87,14 +87,6 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 	 * role name contains a set of all roles reachable from this role in 1 or more steps
 	 */
 	private Map<String, Set<GrantedAuthority>> rolesReachableInOneOrMoreStepsMap = null;
-
-	/**
-	 * @deprecated Use {@link RoleHierarchyImpl#fromHierarchy} instead
-	 */
-	@Deprecated
-	public RoleHierarchyImpl() {
-
-	}
 
 	private RoleHierarchyImpl(Map<String, Set<GrantedAuthority>> hierarchy) {
 		this.rolesReachableInOneOrMoreStepsMap = buildRolesReachableInOneOrMoreStepsMap(hierarchy);
@@ -137,24 +129,6 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 	public static Builder withRolePrefix(String rolePrefix) {
 		Assert.notNull(rolePrefix, "rolePrefix must not be null");
 		return new Builder(rolePrefix);
-	}
-
-	/**
-	 * Set the role hierarchy and pre-calculate for every role the set of all reachable
-	 * roles, i.e. all roles lower in the hierarchy of every given role. Pre-calculation
-	 * is done for performance reasons (reachable roles can then be calculated in O(1)
-	 * time). During pre-calculation, cycles in role hierarchy are detected and will cause
-	 * a <tt>CycleInRoleHierarchyException</tt> to be thrown.
-	 * @param roleHierarchyStringRepresentation - String definition of the role hierarchy.
-	 * @deprecated Use {@link RoleHierarchyImpl#fromHierarchy} instead
-	 */
-	@Deprecated
-	public void setHierarchy(String roleHierarchyStringRepresentation) {
-		logger.debug(LogMessage.format("setHierarchy() - The following role hierarchy was set: %s",
-				roleHierarchyStringRepresentation));
-		Map<String, Set<GrantedAuthority>> hierarchy = buildRolesReachableInOneStepMap(
-				roleHierarchyStringRepresentation);
-		this.rolesReachableInOneOrMoreStepsMap = buildRolesReachableInOneOrMoreStepsMap(hierarchy);
 	}
 
 	@Override

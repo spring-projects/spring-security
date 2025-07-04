@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,8 +96,7 @@ public class DefaultMessageSecurityExpressionHandlerTests {
 	@Test
 	public void roleHierarchy() {
 		this.authentication = new TestingAuthenticationToken("admin", "pass", "ROLE_ADMIN");
-		RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-		roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_USER");
+		RoleHierarchyImpl roleHierarchy = RoleHierarchyImpl.fromHierarchy("ROLE_ADMIN > ROLE_USER");
 		this.handler.setRoleHierarchy(roleHierarchy);
 		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.message);
 		Expression expression = this.handler.getExpressionParser().parseExpression("hasRole('ROLE_USER')");

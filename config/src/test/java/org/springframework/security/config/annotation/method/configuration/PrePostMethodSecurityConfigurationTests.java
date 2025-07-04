@@ -1566,9 +1566,7 @@ public class PrePostMethodSecurityConfigurationTests {
 
 		@Bean
 		static RoleHierarchy roleHierarchy() {
-			RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
-			roleHierarchyImpl.setHierarchy("ROLE_ADMIN > ROLE_USER");
-			return roleHierarchyImpl;
+			return RoleHierarchyImpl.fromHierarchy("ROLE_ADMIN > ROLE_USER");
 		}
 
 	}
