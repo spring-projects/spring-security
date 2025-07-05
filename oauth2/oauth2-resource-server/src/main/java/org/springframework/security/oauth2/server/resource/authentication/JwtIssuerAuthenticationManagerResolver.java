@@ -109,8 +109,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	 *     Map&lt;String, AuthenticationManager&gt; authenticationManagers = new HashMap&lt;&gt;();
 	 *     authenticationManagers.put("https://issuerOne.example.org", managerOne);
 	 *     authenticationManagers.put("https://issuerTwo.example.org", managerTwo);
-	 *     JwtAuthenticationManagerResolver resolver = new JwtAuthenticationManagerResolver
-	 *     	(authenticationManagers::get);
+	 *     JwtIssuerAuthenticationManagerResolver resolver = new JwtIssuerAuthenticationManagerResolver(authenticationManagers::get);
 	 * </pre>
 	 *
 	 * The keys in the {@link Map} are the allowed issuers.
