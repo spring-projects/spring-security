@@ -50,6 +50,7 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  * @param <O> The object that this builder returns
  * @param <B> The type of this builder (that is returned by the base class)
  * @author Rob Winch
+ * @author DingHao
  * @see WebSecurity
  */
 public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBuilder<O>>
@@ -365,8 +366,10 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 		for (SecurityConfigurer<O, B> configurer : configurers) {
 			configurer.init((B) this);
 		}
-		for (SecurityConfigurer<O, B> configurer : this.configurersAddedInInitializing) {
-			configurer.init((B) this);
+		while (!this.configurersAddedInInitializing.isEmpty()) {
+			for (SecurityConfigurer<O, B> configurer : getConfigurersInInitializing()) {
+				configurer.init((B) this);
+			}
 		}
 	}
 
@@ -383,6 +386,12 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 		for (List<SecurityConfigurer<O, B>> configs : this.configurers.values()) {
 			result.addAll(configs);
 		}
+		return result;
+	}
+
+	private List<SecurityConfigurer<O, B>> getConfigurersInInitializing() {
+		List<SecurityConfigurer<O, B>> result = new ArrayList<>(this.configurersAddedInInitializing);
+		this.configurersAddedInInitializing.clear();
 		return result;
 	}
 
