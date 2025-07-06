@@ -71,6 +71,7 @@ import org.springframework.security.saml2.provider.service.web.authentication.lo
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestFilter;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestRepository;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestValidatorParametersResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutResponseFilter;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutResponseResolver;
 import org.springframework.security.web.SecurityFilterChain;
@@ -543,6 +544,22 @@ public class Saml2LogoutConfigurerTests {
 
 	}
 
+	@Test
+	public void saml2LogoutWhenCustomLogoutRequestParametersResolverBeanThenUses() throws Exception {
+		this.spring.register(Saml2DefaultsWithLogoutRequestParametersResolverBeanConfig.class).autowire();
+		this.mvc.perform(post("/logout").with(authentication(this.user)).with(csrf()));
+		verify(Saml2DefaultsWithLogoutRequestParametersResolverBeanConfig.logoutRequestParametersResolver)
+			.resolve(any(), eq(this.user));
+	}
+
+	@Test
+	public void saml2LogoutWhenCustomLogoutRequestParametersResolverSetThenUses() throws Exception {
+		this.spring.register(Saml2DefaultsWithLogoutRequestParametersResolverSetConfig.class).autowire();
+		this.mvc.perform(post("/logout").with(authentication(this.user)).with(csrf()));
+		verify(Saml2DefaultsWithLogoutRequestParametersResolverSetConfig.logoutRequestParametersResolver).resolve(any(),
+				eq(this.user));
+	}
+
 	private <T> T getBean(Class<T> clazz) {
 		return this.spring.getContext().getBean(clazz);
 	}
@@ -720,6 +737,55 @@ public class Saml2LogoutConfigurerTests {
 		@Bean
 		Saml2LogoutResponseResolver logoutResponseResolver() {
 			return this.logoutResponseResolver;
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@Import(Saml2LoginConfigBeans.class)
+	static class Saml2DefaultsWithLogoutRequestParametersResolverBeanConfig {
+
+		static Saml2LogoutRequestValidatorParametersResolver logoutRequestParametersResolver = mock(
+				Saml2LogoutRequestValidatorParametersResolver.class);
+
+		@Bean
+		SecurityFilterChain web(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests((authorize) -> authorize.anyRequest().authenticated())
+				.saml2Login(withDefaults())
+				.saml2Logout(withDefaults());
+			return http.build();
+			// @formatter:on
+		}
+
+		@Bean
+		Saml2LogoutRequestValidatorParametersResolver logoutRequestParametersResolver() {
+			return logoutRequestParametersResolver;
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@Import(Saml2LoginConfigBeans.class)
+	static class Saml2DefaultsWithLogoutRequestParametersResolverSetConfig {
+
+		static Saml2LogoutRequestValidatorParametersResolver logoutRequestParametersResolver = mock(
+				Saml2LogoutRequestValidatorParametersResolver.class);
+
+		@Bean
+		SecurityFilterChain web(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests((authorize) -> authorize.anyRequest().authenticated())
+				.saml2Login(withDefaults())
+				.saml2Logout((logout) -> logout
+					.logoutRequest((logoutRequest) -> logoutRequest
+						.logoutRequestParametersResolver(logoutRequestParametersResolver)));
+			return http.build();
+			// @formatter:on
 		}
 
 	}
