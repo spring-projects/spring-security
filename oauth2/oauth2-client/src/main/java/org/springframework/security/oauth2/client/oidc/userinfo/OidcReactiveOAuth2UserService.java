@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -198,23 +198,22 @@ public class OidcReactiveOAuth2UserService implements ReactiveOAuth2UserService<
 	 * 			var accessToken = userRequest.getAccessToken();
 	 * 			var grantedAuthorities = new HashSet&lt;GrantedAuthority&gt;();
 	 * 			// TODO: Map authorities from the access token
-	 * 			var userNameAttributeName = "preferred_username";
-	 * 			return Mono.just(new DefaultOidcUser(
-	 * 				grantedAuthorities,
-	 * 				userRequest.getIdToken(),
-	 * 				userInfo,
-	 * 				userNameAttributeName
-	 * 			));
+	 * 			var username = "preferred_username";
+	 *     		return Mono.just(DefaultOidcUser.withUsername(username)
+	 *         		.authorities(grantedAuthorities)
+	 *         		.idToken(userRequest.getIdToken())
+	 *         		.userInfo(userInfo)
+	 *         		.build());
 	 * 		};
 	 * 	}
 	 * </pre>
 	 * <p>
-	 * Note that you can access the {@code userNameAttributeName} via the
-	 * {@link ClientRegistration} as follows: <pre>
-	 * 	var userNameAttributeName = userRequest.getClientRegistration()
-	 * 		.getProviderDetails()
-	 * 		.getUserInfoEndpoint()
-	 * 		.getUserNameAttributeName();
+	 * Note that you can access the username expression via the {@link ClientRegistration}
+	 * as follows: <pre>
+	 *  var usernameExpression = userRequest.getClientRegistration()
+	 *  	.getProviderDetails()
+	 *   	.getUserInfoEndpoint()
+	 *   	.getUsernameExpression();
 	 * </pre>
 	 * <p>
 	 * By default, a {@link DefaultOidcUser} is created with authorities mapped as
