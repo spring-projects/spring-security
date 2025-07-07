@@ -241,8 +241,7 @@ public class AuthenticationManagerBuilderTests {
 
 		@Bean
 		AuthenticationProvider authenticationProvider() throws Exception {
-			DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService());
-			return provider;
+			return new DaoAuthenticationProvider(userDetailsService());
 		}
 
 		@Bean
