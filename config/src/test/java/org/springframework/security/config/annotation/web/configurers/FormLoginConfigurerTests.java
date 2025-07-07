@@ -430,7 +430,7 @@ public class FormLoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.formLogin((login) -> login
 					.loginPage("/login"));
@@ -453,7 +453,7 @@ public class FormLoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().hasRole("USER")
 				)
 				.formLogin(withDefaults());
@@ -476,7 +476,7 @@ public class FormLoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.formLogin((login) -> login
 					.permitAll());
@@ -494,7 +494,7 @@ public class FormLoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.formLogin((login) -> login
 					.loginPage("/authenticate")
@@ -515,7 +515,7 @@ public class FormLoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().hasRole("USER")
 				)
 				.formLogin((formLogin) -> formLogin
@@ -537,7 +537,7 @@ public class FormLoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated())
 				.formLogin((login) -> login
 					.loginProcessingUrl("/loginCheck")
@@ -569,7 +569,7 @@ public class FormLoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().authenticated()
 				)
 				.formLogin((formLogin) -> formLogin
@@ -604,7 +604,7 @@ public class FormLoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.formLogin((login) -> login
 					.permitAll())
@@ -630,7 +630,7 @@ public class FormLoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.formLogin((login) -> login
 					.failureHandler(FAILURE_HANDLER)
@@ -673,7 +673,7 @@ public class FormLoginConfigurerTests {
 			http
 				.csrf((csrf) -> csrf
 					.disable())
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated())
 				.formLogin((login) -> login
 					.failureForwardUrl("/failure_forward_url")

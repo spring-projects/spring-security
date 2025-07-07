@@ -84,7 +84,7 @@ public class HttpSecurityAuthenticationManagerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.authorizeRequests((authz) -> authz
+					.authorizeHttpRequests((authz) -> authz
 							.anyRequest().authenticated()
 					)
 					.httpBasic(withDefaults())
@@ -106,7 +106,7 @@ public class HttpSecurityAuthenticationManagerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.authorizeRequests((authz) -> authz
+					.authorizeHttpRequests((authz) -> authz
 						.anyRequest().authenticated()
 					)
 					.httpBasic(withDefaults())

@@ -182,7 +182,7 @@ public class NamespaceHttpCustomFilterTests {
 			// @formatter:off
 			TestHttpSecurities.disableDefaults(http);
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.addFilterBefore(new CustomFilter(), UsernamePasswordAuthenticationFilter.class);
 			return http.build();

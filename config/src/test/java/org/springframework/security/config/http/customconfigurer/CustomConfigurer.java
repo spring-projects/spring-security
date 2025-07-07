@@ -44,7 +44,7 @@ public class CustomConfigurer extends SecurityConfigurerAdapter<DefaultSecurityF
 		context.getAutowireCapableBeanFactory().autowireBean(this);
 		// @formatter:off
 		http
-			.authorizeRequests((requests) -> requests
+			.authorizeHttpRequests((requests) -> requests
 				.requestMatchers(pathPattern(this.permitAllPattern)).permitAll()
 				.anyRequest().authenticated());
 		// @formatter:on

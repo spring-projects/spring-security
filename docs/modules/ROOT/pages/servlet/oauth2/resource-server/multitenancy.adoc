@@ -71,7 +71,7 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 http {
-    authorizeRequests {
+    authorizeHttpRequests {
         authorize(anyRequest, authenticated)
     }
     oauth2ResourceServer {
@@ -133,7 +133,7 @@ Kotlin::
 val customAuthenticationManagerResolver = JwtIssuerAuthenticationManagerResolver
     .fromTrustedIssuers("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo")
 http {
-    authorizeRequests {
+    authorizeHttpRequests {
         authorize(anyRequest, authenticated)
     }
     oauth2ResourceServer {
@@ -213,7 +213,7 @@ private fun addManager(authenticationManagers: MutableMap<String, Authentication
 val customAuthenticationManagerResolver: JwtIssuerAuthenticationManagerResolver =
     JwtIssuerAuthenticationManagerResolver(authenticationManagers::get)
 http {
-    authorizeRequests {
+    authorizeHttpRequests {
         authorize(anyRequest, authenticated)
     }
     oauth2ResourceServer {

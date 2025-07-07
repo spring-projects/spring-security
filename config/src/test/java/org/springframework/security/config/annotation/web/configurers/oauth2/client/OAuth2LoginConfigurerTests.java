@@ -900,7 +900,7 @@ public class OAuth2LoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated())
 				.securityContext((context) -> context
 					.securityContextRepository(securityContextRepository()))
@@ -1353,7 +1353,7 @@ public class OAuth2LoginConfigurerTests {
 		SecurityFilterChain configureFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated())
 				.securityContext((context) -> context
 					.securityContextRepository(securityContextRepository()))

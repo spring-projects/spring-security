@@ -562,7 +562,7 @@ public class Saml2LogoutConfigurerTests {
 		SecurityFilterChain web(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize.anyRequest().authenticated())
+				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 				.logout((logout) -> logout.addLogoutHandler(this.mockLogoutHandler))
 				.saml2Login(withDefaults())
 				.saml2Logout(withDefaults());
@@ -588,7 +588,7 @@ public class Saml2LogoutConfigurerTests {
 		SecurityFilterChain web(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize.anyRequest().authenticated())
+				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 				.logout((logout) -> logout.logoutSuccessHandler(this.mockLogoutSuccessHandler))
 				.saml2Login(withDefaults())
 				.saml2Logout(withDefaults())
@@ -615,7 +615,7 @@ public class Saml2LogoutConfigurerTests {
 		SecurityFilterChain web(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize.anyRequest().authenticated())
+				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 				.logout((logout) -> logout.addLogoutHandler(this.mockLogoutHandler))
 				.saml2Login(withDefaults())
 				.saml2Logout((saml2) -> saml2.addObjectPostProcessor(new ObjectPostProcessor<LogoutFilter>() {
@@ -647,7 +647,7 @@ public class Saml2LogoutConfigurerTests {
 		SecurityFilterChain web(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize.anyRequest().authenticated())
+				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 				.saml2Login(withDefaults())
 				.saml2Logout(withDefaults());
 			return http.build();
@@ -680,7 +680,7 @@ public class Saml2LogoutConfigurerTests {
 		SecurityFilterChain web(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize.anyRequest().authenticated())
+				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 				.saml2Login(withDefaults())
 				.saml2Logout((logout) -> logout
 					.logoutRequest((request) -> request

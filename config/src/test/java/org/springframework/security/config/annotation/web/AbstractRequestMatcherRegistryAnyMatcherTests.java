@@ -85,7 +85,7 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated()
 					.requestMatchers(pathPattern("/demo/**")).permitAll());
 			return http.build();
@@ -102,7 +102,7 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 		SecurityFilterChain filterChain(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated()
 					.requestMatchers(builder.matcher("/demo/**")).permitAll());
 			return http.build();
@@ -119,7 +119,7 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated()
 					.requestMatchers(new RegexRequestMatcher(".*", null)).permitAll());
 			return http.build();
@@ -136,7 +136,7 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated()
 					.anyRequest().permitAll());
 			return http.build();
@@ -153,7 +153,7 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated()
 					.requestMatchers(pathPattern("/**")).permitAll());
 			return http.build();

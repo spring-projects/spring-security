@@ -118,7 +118,7 @@ public class NamespaceHttpInterceptUrlTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests.requestMatchers(
+				.authorizeHttpRequests((requests) -> requests.requestMatchers(
 					// the line below is similar to intercept-url@pattern:
 					//    <intercept-url pattern="/users**" access="hasRole('ROLE_ADMIN')"/>
 					//" access="hasRole('ROLE_ADMIN')"/>

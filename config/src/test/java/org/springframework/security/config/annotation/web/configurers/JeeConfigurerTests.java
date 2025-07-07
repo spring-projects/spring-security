@@ -209,7 +209,7 @@ public class JeeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().hasRole("USER")
 				)
 				.jee((jee) -> jee
@@ -229,7 +229,7 @@ public class JeeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().hasRole("USER")
 				)
 				.jee((jee) -> jee
@@ -252,7 +252,7 @@ public class JeeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().hasRole("USER")
 				)
 				.jee((jee) -> jee

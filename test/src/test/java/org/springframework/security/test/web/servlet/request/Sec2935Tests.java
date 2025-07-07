@@ -133,7 +133,7 @@ public class Sec2935Tests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.requestMatchers("/admin/**").hasRole("ADMIN")
 					.anyRequest().authenticated())
 				.httpBasic(withDefaults());

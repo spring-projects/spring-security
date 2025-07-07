@@ -34,9 +34,9 @@ import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.TestingAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
-import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens
@@ -113,7 +113,7 @@ class OpaqueTokenDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 oauth2ResourceServer {
@@ -159,7 +159,7 @@ class OpaqueTokenDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 oauth2ResourceServer {
@@ -198,7 +198,7 @@ class OpaqueTokenDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 oauth2ResourceServer {
@@ -242,7 +242,7 @@ class OpaqueTokenDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 oauth2ResourceServer {

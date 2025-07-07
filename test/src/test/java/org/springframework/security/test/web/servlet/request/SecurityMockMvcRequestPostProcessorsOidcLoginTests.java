@@ -156,7 +156,7 @@ public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.requestMatchers("/admin/**").hasAuthority("SCOPE_admin")
 					.anyRequest().hasAuthority("SCOPE_read"))
 				.oauth2Login(withDefaults());

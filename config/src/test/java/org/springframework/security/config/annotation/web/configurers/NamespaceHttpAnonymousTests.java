@@ -99,7 +99,7 @@ public class NamespaceHttpAnonymousTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.requestMatchers("/type").anonymous()
 					.anyRequest().denyAll());
 			return http.build();
@@ -116,8 +116,7 @@ public class NamespaceHttpAnonymousTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
-					.anyRequest().permitAll())
+				.authorizeHttpRequests((requests) -> requests.anyRequest().anonymous())
 				.anonymous((anonymous) -> anonymous.disable());
 			// @formatter:on
 			return http.build();
@@ -139,7 +138,7 @@ public class NamespaceHttpAnonymousTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.requestMatchers("/type").hasRole("ANON")
 					.anyRequest().denyAll())
 				.anonymous((anonymous) -> anonymous
@@ -159,7 +158,7 @@ public class NamespaceHttpAnonymousTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.requestMatchers("/key").anonymous()
 					.anyRequest().denyAll())
 				.anonymous((anonymous) -> anonymous.key("AnonymousKeyConfig"));
@@ -178,7 +177,7 @@ public class NamespaceHttpAnonymousTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.requestMatchers("/principal").anonymous()
 					.anyRequest().denyAll())
 				.anonymous((anonymous) -> anonymous.principal("AnonymousUsernameConfig"));

@@ -152,7 +152,7 @@ public class HttpConfigurationTests {
 				.securityMatchers((security) -> security
 					.requestMatchers(pathPattern("/api/**"))
 					.requestMatchers(pathPattern("/oauth/**")))
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.httpBasic(withDefaults());
 			return http.build();

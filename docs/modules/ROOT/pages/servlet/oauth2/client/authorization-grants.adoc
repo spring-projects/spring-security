@@ -193,7 +193,7 @@ class SecurityConfig {
     @Bean
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize(anyRequest, authenticated)
             }
             oauth2Login {

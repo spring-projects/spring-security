@@ -138,7 +138,7 @@ public class WebSecurityTests {
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().denyAll());
 			// @formatter:on
 			return http.build();
@@ -178,7 +178,7 @@ public class WebSecurityTests {
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().denyAll());
 			// @formatter:on
 			return http.build();

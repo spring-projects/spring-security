@@ -707,7 +707,7 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated())
 				.formLogin(withDefaults())
 				.csrf((csrf) -> csrf
@@ -733,7 +733,7 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated())
 				.formLogin(withDefaults())
 				.csrf((csrf) -> csrf
@@ -937,7 +937,7 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().permitAll())
 				.formLogin(withDefaults())
 				.httpBasic(withDefaults());

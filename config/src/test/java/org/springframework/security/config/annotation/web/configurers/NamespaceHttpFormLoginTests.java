@@ -125,7 +125,7 @@ public class NamespaceHttpFormLoginTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.formLogin(withDefaults());
 			return http.build();
@@ -143,7 +143,7 @@ public class NamespaceHttpFormLoginTests {
 			boolean alwaysUseDefaultSuccess = true;
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.formLogin((login) -> login
 					.usernameParameter("username") // form-login@username-parameter
@@ -168,7 +168,7 @@ public class NamespaceHttpFormLoginTests {
 			successHandler.setDefaultTargetUrl("/custom/targetUrl");
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.formLogin((login) -> login
 					.loginPage("/login")

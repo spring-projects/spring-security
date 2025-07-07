@@ -142,7 +142,7 @@ class OAuth2ClientDslTests {
                         accessTokenResponseClient = CLIENT
                     }
                 }
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
             }

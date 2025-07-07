@@ -669,7 +669,7 @@ open class WebSecurityConfig {
                     sameOrigin = true
                 }
             }
-            authorizeRequests {
+            authorizeHttpRequests {
                 // ...
             }
             // ...

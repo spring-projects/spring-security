@@ -38,7 +38,9 @@ import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.expression.DefaultHttpSecurityExpressionHandler;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -84,11 +86,13 @@ public class Sec2758Tests {
 	static class SecurityConfig {
 
 		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		SecurityFilterChain filterChain(HttpSecurity http, WebExpressionAuthorizationManager.Builder authz)
+				throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
-					.anyRequest().access("hasAnyRole('CUSTOM')"));
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().access(authz.expression("hasAnyRole('CUSTOM')"))
+				);
 			return http.build();
 			// @formatter:on
 		}
@@ -101,6 +105,16 @@ public class Sec2758Tests {
 		@Bean
 		static DefaultRolesPrefixPostProcessor defaultRolesPrefixPostProcessor() {
 			return new DefaultRolesPrefixPostProcessor();
+		}
+
+		@Bean
+		static WebExpressionAuthorizationManager.Builder authz(DefaultHttpSecurityExpressionHandler expressionHandler) {
+			return WebExpressionAuthorizationManager.withExpressionHandler(expressionHandler);
+		}
+
+		@Bean
+		static DefaultHttpSecurityExpressionHandler expressionHandler() {
+			return new DefaultHttpSecurityExpressionHandler();
 		}
 
 		@RestController
@@ -139,6 +153,9 @@ public class Sec2758Tests {
 			}
 			if (bean instanceof DefaultWebSecurityExpressionHandler) {
 				((DefaultWebSecurityExpressionHandler) bean).setDefaultRolePrefix(null);
+			}
+			if (bean instanceof DefaultHttpSecurityExpressionHandler http) {
+				http.setDefaultRolePrefix("");
 			}
 			return bean;
 		}

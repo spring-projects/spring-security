@@ -67,7 +67,7 @@ class ExceptionHandlingDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 exceptionHandling { }
@@ -91,7 +91,7 @@ class ExceptionHandlingDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 exceptionHandling {
@@ -121,7 +121,7 @@ class ExceptionHandlingDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize("/admin", hasAuthority("ROLE_ADMIN"))
                     authorize(anyRequest, authenticated)
                 }
@@ -154,7 +154,7 @@ class ExceptionHandlingDslTests {
             val customAccessDeniedHandler = AccessDeniedHandlerImpl()
             customAccessDeniedHandler.setErrorPage("/access-denied")
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize("/admin", hasAuthority("ROLE_ADMIN"))
                     authorize(anyRequest, authenticated)
                 }
@@ -197,7 +197,7 @@ class ExceptionHandlingDslTests {
             customAccessDeniedHandler2.setErrorPage("/access-denied2")
             val builder = PathPatternRequestMatcher.withDefaults()
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize("/admin1", hasAuthority("ROLE_ADMIN"))
                     authorize("/admin2", hasAuthority("ROLE_ADMIN"))
                     authorize(anyRequest, authenticated)
@@ -229,7 +229,7 @@ class ExceptionHandlingDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 exceptionHandling {
@@ -267,7 +267,7 @@ class ExceptionHandlingDslTests {
             val customAuthenticationEntryPoint2 = LoginUrlAuthenticationEntryPoint("/custom-login2")
             val builder = PathPatternRequestMatcher.withDefaults();
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 exceptionHandling {

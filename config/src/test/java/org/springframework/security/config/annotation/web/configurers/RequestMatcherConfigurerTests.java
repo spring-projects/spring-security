@@ -82,7 +82,7 @@ public class RequestMatcherConfigurerTests {
 					.requestMatchers(pathPattern("/api/**")))
 				.securityMatchers((security) -> security
 					.requestMatchers(pathPattern("/oauth/**")))
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().denyAll());
 			return http.build();
 			// @formatter:on
@@ -104,7 +104,7 @@ public class RequestMatcherConfigurerTests {
 				.securityMatchers((securityMatchers) -> securityMatchers
 						.requestMatchers(pathPattern("/oauth/**"))
 				)
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().denyAll()
 				);
 			return http.build();

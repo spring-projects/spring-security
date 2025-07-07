@@ -250,7 +250,7 @@ public class HttpBasicConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().authenticated()
 				)
 				.httpBasic(withDefaults());
@@ -273,7 +273,7 @@ public class HttpBasicConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated())
 				.httpBasic(withDefaults());
 			// @formatter:on
@@ -297,7 +297,7 @@ public class HttpBasicConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated())
 				.httpBasic((basic) -> basic
 					.authenticationEntryPoint(ENTRY_POINT));
@@ -322,7 +322,7 @@ public class HttpBasicConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated())
 				.httpBasic((basic) -> basic
 					.authenticationEntryPoint(ENTRY_POINT))

@@ -88,7 +88,7 @@ public class NamespaceHttpRequestCacheTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated())
 				.requestCache((cache) -> cache
 					.requestCache(requestCache()));
@@ -116,7 +116,7 @@ public class NamespaceHttpRequestCacheTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated());
 			// @formatter:on
 			return http.build();

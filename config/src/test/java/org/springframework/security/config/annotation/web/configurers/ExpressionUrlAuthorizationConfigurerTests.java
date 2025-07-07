@@ -18,27 +18,30 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.access.PermissionEvaluator;
-import org.springframework.security.access.event.AuthorizedEvent;
-import org.springframework.security.access.expression.SecurityExpressionHandler;
-import org.springframework.security.access.expression.SecurityExpressionOperations;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
-import org.springframework.security.access.vote.AffirmativeBased;
-import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationEventPublisher;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
+import org.springframework.security.authorization.event.AuthorizationEvent;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -51,12 +54,13 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
-import org.springframework.security.web.access.expression.WebExpressionVoter;
+import org.springframework.security.web.access.IpAddressAuthorizationManager;
+import org.springframework.security.web.access.expression.DefaultHttpSecurityExpressionHandler;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.security.web.access.expression.WebSecurityExpressionRoot;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
+import org.springframework.stereotype.Component;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -67,9 +71,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -79,7 +80,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Tests for {@link ExpressionUrlAuthorizationConfigurer}
+ * Tests for {@link AuthorizeHttpRequestsConfigurer}
  *
  * @author Rob Winch
  * @author Eleftheria Stein
@@ -98,14 +99,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		assertThatExceptionOfType(BeanCreationException.class)
 			.isThrownBy(() -> this.spring.register(HasRoleStartingWithRoleConfig.class).autowire())
 			.withRootCauseInstanceOf(IllegalArgumentException.class)
-			.withMessageContaining(
-					"role should not start with 'ROLE_' since it is automatically inserted. Got 'ROLE_USER'");
-	}
-
-	@Test
-	public void configureWhenNoCustomAccessDecisionManagerThenUsesAffirmativeBased() {
-		this.spring.register(NoSpecificAccessDecisionManagerConfig.class).autowire();
-		verify(NoSpecificAccessDecisionManagerConfig.objectPostProcessor).postProcess(any(AffirmativeBased.class));
+			.withMessageContaining("ROLE_USER should not start with ROLE_");
 	}
 
 	@Test
@@ -113,7 +107,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		assertThatExceptionOfType(BeanCreationException.class)
 			.isThrownBy(() -> this.spring.register(NoRequestsConfig.class).autowire())
 			.withMessageContaining(
-					"At least one mapping is required (i.e. authorizeRequests().anyRequest().authenticated())");
+					"At least one mapping is required (for example, authorizeHttpRequests().anyRequest().authenticated())");
 	}
 
 	@Test
@@ -510,13 +504,6 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
 	}
 
-	// SEC-3011
-	@Test
-	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnAccessDecisionManager() {
-		this.spring.register(Sec3011Config.class).autowire();
-		verify(Sec3011Config.objectPostProcessor).postProcess(any(AccessDecisionManager.class));
-	}
-
 	@Test
 	public void getWhenRegisteringPermissionEvaluatorAndPermissionWithIdAndTypeMatchesThenRespondsWithOk()
 			throws Exception {
@@ -567,33 +554,10 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("ROLE_USER"));
 			return http.build();
 			// @formatter:on
-		}
-
-	}
-
-	@Configuration
-	@EnableWebSecurity
-	static class NoSpecificAccessDecisionManagerConfig {
-
-		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
-
-		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests((requests) -> requests
-					.anyRequest().hasRole("USER"));
-			return http.build();
-			// @formatter:on
-		}
-
-		@Bean
-		static ObjectPostProcessor<Object> objectPostProcessor() {
-			return objectPostProcessor;
 		}
 
 	}
@@ -606,7 +570,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests(withDefaults());
+				.authorizeHttpRequests(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -622,7 +586,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.requestMatchers("/a").authenticated()
 					.anyRequest());
 			return http.build();
@@ -640,7 +604,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasAnyAuthority("ROLE_USER"));
 			return http.build();
 			// @formatter:on
@@ -657,7 +621,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasAuthority("ROLE_USER"));
 			return http.build();
 			// @formatter:on
@@ -674,7 +638,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasAnyAuthority("ROLE_USER", "ROLE_ADMIN"));
 			return http.build();
 			// @formatter:on
@@ -690,7 +654,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasAnyRole("USER"));
 			return http.build();
 			// @formatter:on
@@ -706,7 +670,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasAnyRole("USER"));
 			return http.build();
 			// @formatter:on
@@ -727,7 +691,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasAnyRole("USER"));
 			return http.build();
 			// @formatter:on
@@ -748,7 +712,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasAnyRole("USER", "ADMIN"));
 			return http.build();
 			// @formatter:on
@@ -764,7 +728,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasAnyRole("USER", "ADMIN"));
 			return http.build();
 			// @formatter:on
@@ -785,7 +749,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasAnyRole("USER", "ADMIN"));
 			return http.build();
 			// @formatter:on
@@ -807,8 +771,9 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
-				.authorizeRequests((requests) -> requests
-					.anyRequest().hasIpAddress("192.168.1.0"));
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().access(IpAddressAuthorizationManager.hasIpAddress("192.168.1.0"))
+				);
 			return http.build();
 			// @formatter:on
 		}
@@ -824,7 +789,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().anonymous());
 			return http.build();
 			// @formatter:on
@@ -842,7 +807,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 			http
 				.rememberMe(withDefaults())
 				.httpBasic(withDefaults())
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().rememberMe());
 			// @formatter:on
 			return http.build();
@@ -864,7 +829,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().denyAll());
 			return http.build();
 			// @formatter:on
@@ -881,7 +846,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().not().denyAll());
 			return http.build();
 			// @formatter:on
@@ -899,7 +864,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 			http
 				.rememberMe(withDefaults())
 				.httpBasic(withDefaults())
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().fullyAuthenticated());
 			return http.build();
 			// @formatter:on
@@ -918,12 +883,13 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			WebExpressionAuthorizationManager authz = new WebExpressionAuthorizationManager(
+					"hasRole('ROLE_USER') or request.method == 'GET'");
 			// @formatter:off
 			http
 				.rememberMe(withDefaults())
 				.httpBasic(withDefaults())
-				.authorizeRequests((requests) -> requests
-					.anyRequest().access("hasRole('ROLE_USER') or request.method == 'GET'"));
+				.authorizeHttpRequests((requests) -> requests.anyRequest().access(authz));
 			return http.build();
 			// @formatter:on
 		}
@@ -944,9 +910,9 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated())
-				.authorizeRequests(withDefaults());
+				.authorizeHttpRequests(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -960,15 +926,10 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			SecurityExpressionHandler<FilterInvocation> handler = new DefaultWebSecurityExpressionHandler();
-			WebExpressionVoter expressionVoter = new WebExpressionVoter();
-			AffirmativeBased adm = new AffirmativeBased(Collections.singletonList(expressionVoter));
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
-					.expressionHandler(handler)
-					.accessDecisionManager(adm)
-					.filterSecurityInterceptorOncePerRequest(true)
+				.authorizeHttpRequests((requests) -> requests
+					.shouldFilterAllDispatcherTypes(false)
 					.requestMatchers("/a", "/b").hasRole("ADMIN")
 					.anyRequest().permitAll())
 				.formLogin(withDefaults());
@@ -986,33 +947,31 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
-					.anyRequest().permitAll()
-					.withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
-						@Override
-						public <O extends FilterSecurityInterceptor> O postProcess(
-								O fsi) {
-							fsi.setPublishAuthorizationSuccess(true);
-							return fsi;
-						}
-					}));
+				.authorizeHttpRequests((requests) -> requests.anyRequest().permitAll());
 			return http.build();
 			// @formatter:on
 		}
 
 		@Bean
-		ApplicationListener<AuthorizedEvent> applicationListener() {
+		AuthorizationEventPublisher publisher(ApplicationEventPublisher publisher) {
+			SpringAuthorizationEventPublisher authzEvents = new SpringAuthorizationEventPublisher(publisher);
+			authzEvents.setShouldPublishResult((result) -> true);
+			return authzEvents;
+		}
+
+		@Bean
+		ApplicationListener<AuthorizationEvent> applicationListener() {
 			return new AuthorizedEventApplicationListener();
 		}
 
 	}
 
-	static class AuthorizedEventApplicationListener implements ApplicationListener<AuthorizedEvent> {
+	static class AuthorizedEventApplicationListener implements ApplicationListener<AuthorizationEvent> {
 
-		static final List<AuthorizedEvent> EVENTS = new ArrayList<>();
+		static final List<AuthorizationEvent> EVENTS = new ArrayList<>();
 
 		@Override
-		public void onApplicationEvent(AuthorizedEvent event) {
+		public void onApplicationEvent(AuthorizationEvent event) {
 			EVENTS.add(event);
 		}
 
@@ -1028,14 +987,22 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	static class UseBeansInExpressions {
 
 		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		SecurityFilterChain filterChain(HttpSecurity http, ApplicationContext context) throws Exception {
+			WebExpressionAuthorizationManager user = new WebExpressionAuthorizationManager(
+					"@permission.check(authentication,'user')");
+			DefaultHttpSecurityExpressionHandler expressionHandler = new DefaultHttpSecurityExpressionHandler();
+			expressionHandler.setApplicationContext(context);
+			user.setExpressionHandler(expressionHandler);
+			WebExpressionAuthorizationManager admin = new WebExpressionAuthorizationManager(
+					"@permission.check(authentication,'admin')");
+			admin.setExpressionHandler(expressionHandler);
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.requestMatchers("/admin").hasRole("ADMIN")
 					.requestMatchers("/user").hasRole("USER")
-					.requestMatchers("/allow").access("@permission.check(authentication,'user')")
-					.anyRequest().access("@permission.check(authentication,'admin')"));
+					.requestMatchers("/allow").access(user)
+					.anyRequest().access(admin));
 			return http.build();
 			// @formatter:on
 		}
@@ -1062,14 +1029,17 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			WebExpressionAuthorizationManager user = new WebExpressionAuthorizationManager("check('user')");
+			user.setExpressionHandler(expressionHandler());
+			WebExpressionAuthorizationManager admin = new WebExpressionAuthorizationManager("check('admin')");
+			admin.setExpressionHandler(expressionHandler());
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
-					.expressionHandler(expressionHandler())
+				.authorizeHttpRequests((requests) -> requests
 					.requestMatchers("/admin").hasRole("ADMIN")
 					.requestMatchers("/user").hasRole("USER")
-					.requestMatchers("/allow").access("check('user')")
-					.anyRequest().access("check('admin')"));
+					.requestMatchers("/allow").access(user)
+					.anyRequest().access(admin));
 			return http.build();
 			// @formatter:on
 		}
@@ -1079,24 +1049,24 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 			return new CustomExpressionHandler();
 		}
 
-		static class CustomExpressionHandler extends DefaultWebSecurityExpressionHandler {
+		static class CustomExpressionHandler extends DefaultHttpSecurityExpressionHandler {
 
 			@Override
-			protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
-					FilterInvocation fi) {
-				WebSecurityExpressionRoot root = new CustomExpressionRoot(authentication, fi);
-				root.setPermissionEvaluator(getPermissionEvaluator());
-				root.setTrustResolver(new AuthenticationTrustResolverImpl());
-				root.setRoleHierarchy(getRoleHierarchy());
-				return root;
+			public EvaluationContext createEvaluationContext(Supplier<Authentication> authentication,
+					RequestAuthorizationContext context) {
+				StandardEvaluationContext ctx = (StandardEvaluationContext) super.createEvaluationContext(
+						authentication, context);
+				WebSecurityExpressionRoot delegate = (WebSecurityExpressionRoot) ctx.getRootObject().getValue();
+				ctx.setRootObject(new CustomExpressionRoot(delegate));
+				return ctx;
 			}
 
 		}
 
 		static class CustomExpressionRoot extends WebSecurityExpressionRoot {
 
-			CustomExpressionRoot(Authentication a, FilterInvocation fi) {
-				super(a, fi);
+			CustomExpressionRoot(WebSecurityExpressionRoot root) {
+				super(root::getAuthentication, root.request);
 			}
 
 			public boolean check(String customArg) {
@@ -1108,48 +1078,20 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
-	@Configuration(proxyBeanMethods = false)
-	@EnableWebSecurity
-	static class Sec3011Config {
-
-		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
-
-		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			// @formatter:off
-				http
-				.authorizeRequests((requests) -> requests
-					.anyRequest().authenticated());
-			// @formatter:on
-			return http.build();
-		}
-
-		@Bean
-		UserDetailsService userDetailsService() {
-			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
-		}
-
-		@Bean
-		static ObjectPostProcessor<Object> objectPostProcessor() {
-			return objectPostProcessor;
-		}
-
-	}
-
 	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class PermissionEvaluatorConfig {
 
 		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		SecurityFilterChain filterChain(HttpSecurity http, PermissionEvaluatorAuthorizations authz) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
-					.requestMatchers("/allow").access("hasPermission('ID', 'TYPE', 'PERMISSION')")
-					.requestMatchers("/allowObject").access("hasPermission('TESTOBJ', 'PERMISSION')")
-					.requestMatchers("/deny").access("hasPermission('ID', 'TYPE', 'NO PERMISSION')")
-					.requestMatchers("/denyObject").access("hasPermission('TESTOBJ', 'NO PERMISSION')")
+				.authorizeHttpRequests((requests) -> requests
+					.requestMatchers("/allow").access(authz.hasPermission("TESTOBJ", "PERMISSION"))
+					.requestMatchers("/allowObject").access(authz.hasPermission("TESTOBJ", "PERMISSION"))
+					.requestMatchers("/deny").access(authz.hasPermission("ID", "TYPE", "NO PERMISSION"))
+					.requestMatchers("/denyObject").access(authz.hasPermission("TESTOBJ", "NO PERMISSION"))
 					.anyRequest().permitAll());
 			return http.build();
 			// @formatter:on
@@ -1172,6 +1114,29 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 			};
 		}
 
+		@Component
+		static class PermissionEvaluatorAuthorizations {
+
+			private final PermissionEvaluator permissions;
+
+			PermissionEvaluatorAuthorizations(PermissionEvaluator permissions) {
+				this.permissions = permissions;
+			}
+
+			AuthorizationManager<RequestAuthorizationContext> hasPermission(Object targetDomainObject,
+					Object permission) {
+				return (auth, request) -> new AuthorizationDecision(
+						this.permissions.hasPermission(auth.get(), targetDomainObject, permission));
+			}
+
+			AuthorizationManager<RequestAuthorizationContext> hasPermission(Serializable targetId, String targetType,
+					Object permission) {
+				return (auth, request) -> new AuthorizationDecision(
+						this.permissions.hasPermission(auth.get(), targetId, targetType, permission));
+			}
+
+		}
+
 	}
 
 	@Configuration
@@ -1183,9 +1148,9 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
-					.requestMatchers("/allow").access("hasRole('MEMBER')")
-					.requestMatchers("/deny").access("hasRole('ADMIN')")
+				.authorizeHttpRequests((requests) -> requests
+					.requestMatchers("/allow").hasRole("MEMBER")
+					.requestMatchers("/deny").hasRole("ADMIN")
 					.anyRequest().permitAll());
 			return http.build();
 			// @formatter:on

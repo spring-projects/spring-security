@@ -87,7 +87,7 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().denyAll())
 				.exceptionHandling((handling) -> handling
 					.defaultAccessDeniedHandlerFor(
@@ -113,7 +113,7 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().denyAll()
 				)
 				.exceptionHandling((exceptionHandling) -> exceptionHandling
@@ -143,7 +143,7 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().denyAll())
 				.exceptionHandling((handling) -> handling
 					.defaultAccessDeniedHandlerFor(

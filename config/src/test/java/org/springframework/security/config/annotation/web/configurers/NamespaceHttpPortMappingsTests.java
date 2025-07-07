@@ -70,7 +70,7 @@ public class NamespaceHttpPortMappingsTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.portMapper((mapper) -> mapper
 					.http(9080).mapsTo(9443))

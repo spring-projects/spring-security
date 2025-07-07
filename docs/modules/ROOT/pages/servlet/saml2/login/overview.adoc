@@ -357,7 +357,7 @@ Kotlin::
 @Bean
 open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     http {
-        authorizeRequests {
+        authorizeHttpRequests {
             authorize(anyRequest, authenticated)
         }
         saml2Login { }
@@ -404,7 +404,7 @@ class MyCustomSecurityConfiguration {
     @Bean
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize("/messages/**", hasAuthority("ROLE_USER"))
                 authorize(anyRequest, authenticated)
             }
@@ -571,7 +571,7 @@ class MyCustomSecurityConfiguration {
     @Bean
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize("/messages/**", hasAuthority("ROLE_USER"))
                 authorize(anyRequest, authenticated)
             }

@@ -40,7 +40,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher
  *     @Bean
  *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
  *         http {
- *             authorizeRequests {
+ *             authorizeHttpRequests {
  *                 authorize("/public", permitAll)
  *                 authorize(anyRequest, authenticated)
  *             }

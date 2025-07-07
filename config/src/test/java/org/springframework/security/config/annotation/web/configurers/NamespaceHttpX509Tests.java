@@ -154,7 +154,7 @@ public class NamespaceHttpX509Tests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.x509(withDefaults());
 			// @formatter:on
@@ -182,7 +182,7 @@ public class NamespaceHttpX509Tests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.x509((x509) -> x509
 					.authenticationDetailsSource(authenticationDetailsSource()));
@@ -216,7 +216,7 @@ public class NamespaceHttpX509Tests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.x509((x509) -> x509
 					.subjectPrincipalRegex("CN=(.*?)@example.com(?:,|$)"));
@@ -245,7 +245,7 @@ public class NamespaceHttpX509Tests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.x509((x509) -> x509
 					.x509PrincipalExtractor(this::extractCommonName));
@@ -279,7 +279,7 @@ public class NamespaceHttpX509Tests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.x509((x509) -> x509
 					.userDetailsService((username) -> USER));
@@ -308,7 +308,7 @@ public class NamespaceHttpX509Tests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.x509((x509) -> x509
 					.authenticationUserDetailsService((authentication) -> USER));

@@ -43,7 +43,7 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
@@ -121,7 +121,7 @@ public class DefaultFiltersTests {
 		assertThat(classes).contains(SecurityContextHolderAwareRequestFilter.class);
 		assertThat(classes).contains(AnonymousAuthenticationFilter.class);
 		assertThat(classes).contains(ExceptionTranslationFilter.class);
-		assertThat(classes).contains(FilterSecurityInterceptor.class);
+		assertThat(classes).contains(AuthorizationFilter.class);
 	}
 
 	@Test
@@ -190,7 +190,7 @@ public class DefaultFiltersTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"));
 			return http.build();
 			// @formatter:on

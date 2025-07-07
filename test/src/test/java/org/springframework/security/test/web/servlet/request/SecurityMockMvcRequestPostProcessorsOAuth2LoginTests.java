@@ -158,7 +158,7 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2LoginTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.requestMatchers("/admin/**").hasAuthority("SCOPE_admin")
 						.anyRequest().hasAuthority("SCOPE_read")
 				).oauth2Login(withDefaults());

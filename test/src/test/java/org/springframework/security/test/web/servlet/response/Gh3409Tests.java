@@ -99,7 +99,7 @@ public class Gh3409Tests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.requestMatchers("/public/**").permitAll()
 					.anyRequest().authenticated())
 				.formLogin(withDefaults())

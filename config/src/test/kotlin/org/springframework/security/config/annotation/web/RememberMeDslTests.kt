@@ -16,11 +16,7 @@
 
 package org.springframework.security.config.annotation.web
 
-import io.mockk.every
-import io.mockk.justRun
-import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.verify
+import io.mockk.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
@@ -396,7 +392,7 @@ internal class RememberMeDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, hasRole("USER"))
                 }
                 formLogin {}
@@ -412,7 +408,7 @@ internal class RememberMeDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, hasRole("USER"))
                 }
                 formLogin {}
@@ -483,7 +479,7 @@ internal class RememberMeDslTests {
         @Bean
         open fun securityFilterChainWithKey(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 formLogin {}

@@ -99,7 +99,7 @@ public class CustomConfigAuthenticationTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated())
 				.securityContext((context) -> context
 					.securityContextRepository(securityContextRepository()))

@@ -520,7 +520,7 @@ public class Saml2LoginConfigurerTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			http.authorizeRequests((authz) -> authz.anyRequest().authenticated())
+			http.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
 				.saml2Login((saml2) -> saml2.failureHandler(authenticationFailureHandler));
 			return http.build();
 		}
@@ -536,7 +536,7 @@ public class Saml2LoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authz) -> authz
+				.authorizeHttpRequests((authz) -> authz
 					.anyRequest().authenticated()
 				)
 				.saml2Login(Customizer.withDefaults());
@@ -574,7 +574,7 @@ public class Saml2LoginConfigurerTests {
 				throws Exception {
 			// @formatter:off
 			http
-					.authorizeRequests((authz) -> authz
+					.authorizeHttpRequests((authz) -> authz
 						.anyRequest().authenticated()
 					)
 					.saml2Login((saml2) -> saml2
@@ -612,7 +612,7 @@ public class Saml2LoginConfigurerTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			http.authorizeRequests((authz) -> authz.anyRequest().authenticated())
+			http.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
 				.saml2Login((saml2) -> saml2.authenticationConverter(authenticationConverter));
 			return http.build();
 		}
@@ -651,7 +651,7 @@ public class Saml2LoginConfigurerTests {
 
 		@Bean
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-			http.authorizeRequests((authz) -> authz.anyRequest().authenticated());
+			http.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated());
 			http.saml2Login(withDefaults());
 			return http.build();
 		}
@@ -672,7 +672,7 @@ public class Saml2LoginConfigurerTests {
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authz) -> authz.anyRequest().authenticated())
+				.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
 				.saml2Login((saml2) -> saml2.loginProcessingUrl("/my/custom/url"));
 			// @formatter:on
 			return http.build();
@@ -697,7 +697,7 @@ public class Saml2LoginConfigurerTests {
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authz) -> authz.anyRequest().authenticated())
+				.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
 				.saml2Login((saml2) -> saml2.authenticationRequestUri("/custom/auth/{registrationId}"));
 			// @formatter:on
 			return http.build();
@@ -731,7 +731,7 @@ public class Saml2LoginConfigurerTests {
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.authorizeRequests((authz) -> authz.anyRequest().authenticated())
+					.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
 					.saml2Login((saml2) -> saml2
 						.loginProcessingUrl("/my/custom/url")
 						.authenticationConverter(AUTHENTICATION_CONVERTER)
@@ -754,7 +754,7 @@ public class Saml2LoginConfigurerTests {
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.authorizeRequests((authz) -> authz.anyRequest().authenticated())
+					.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
 					.saml2Login((saml2) -> saml2.loginProcessingUrl("/my/custom/url"));
 			// @formatter:on
 			return http.build();

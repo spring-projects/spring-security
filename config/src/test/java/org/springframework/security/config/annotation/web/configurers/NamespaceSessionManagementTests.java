@@ -288,7 +288,7 @@ public class NamespaceSessionManagementTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated())
 				.httpBasic(withDefaults())
 				.sessionManagement((management) -> management

@@ -183,7 +183,7 @@ public class NamespaceHttpBasicTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.httpBasic(withDefaults());
 			return http.build();
@@ -200,7 +200,7 @@ public class NamespaceHttpBasicTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().hasRole("USER")
 				)
 				.httpBasic(withDefaults());
@@ -218,7 +218,7 @@ public class NamespaceHttpBasicTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.httpBasic((basic) -> basic.realmName("Custom Realm"));
 			return http.build();
@@ -235,7 +235,7 @@ public class NamespaceHttpBasicTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().hasRole("USER")
 				)
 				.httpBasic((httpBasicConfig) -> httpBasicConfig.realmName("Custom Realm"));
@@ -302,7 +302,7 @@ public class NamespaceHttpBasicTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.httpBasic((basic) -> basic
 					.authenticationEntryPoint(this.authenticationEntryPoint));
@@ -322,7 +322,7 @@ public class NamespaceHttpBasicTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().hasRole("USER")
 				)
 				.httpBasic((httpBasicConfig) -> httpBasicConfig.authenticationEntryPoint(this.authenticationEntryPoint));

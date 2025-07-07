@@ -94,7 +94,7 @@ class HttpBasicDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 httpBasic {}
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
             }
@@ -121,7 +121,7 @@ class HttpBasicDslTests {
                 httpBasic {
                     realmName = "Custom Realm"
                 }
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
             }
@@ -154,7 +154,7 @@ class HttpBasicDslTests {
                 httpBasic {
                     authenticationEntryPoint = ENTRY_POINT
                 }
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
             }
@@ -193,7 +193,7 @@ class HttpBasicDslTests {
                 httpBasic {
                     authenticationDetailsSource = AUTHENTICATION_DETAILS_SOURCE
                 }
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
             }

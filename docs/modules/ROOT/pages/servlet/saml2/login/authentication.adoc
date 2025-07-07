@@ -179,7 +179,7 @@ open class SecurityConfig {
                 })
         )
         http {
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize(anyRequest, authenticated)
             }
             saml2Login {
@@ -300,7 +300,7 @@ open class SecurityConfig {
         val authenticationProvider = OpenSaml5AuthenticationProvider()
         authenticationProvider.setResponseAuthenticationConverter(this.authenticationConverter)
         http {
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize(anyRequest, authenticated)
             }
             saml2Login {
@@ -443,7 +443,7 @@ open class SecurityConfig {
             MySaml2Authentication(userDetails, authentication) <3>
         }
         http {
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize(anyRequest, authenticated)
             }
             saml2Login {
@@ -803,7 +803,7 @@ open class SecurityConfig {
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         val customAuthenticationManager: AuthenticationManager = MySaml2AuthenticationManager(...)
         http {
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize(anyRequest, authenticated)
             }
             saml2Login {

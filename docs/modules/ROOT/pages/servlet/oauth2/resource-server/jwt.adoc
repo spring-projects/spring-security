@@ -189,7 +189,7 @@ Kotlin::
 @Bean
 open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     http {
-        authorizeRequests {
+        authorizeHttpRequests {
             authorize(anyRequest, authenticated)
         }
         oauth2ResourceServer {
@@ -246,7 +246,7 @@ class MyCustomSecurityConfiguration {
     @Bean
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize("/messages/**", hasScope("message:read"))
                 authorize(anyRequest, authenticated)
             }
@@ -378,7 +378,7 @@ class DirectlyConfiguredJwkSetUri {
     @Bean
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize(anyRequest, authenticated)
             }
             oauth2ResourceServer {
@@ -448,7 +448,7 @@ class DirectlyConfiguredJwtDecoder {
     @Bean
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize(anyRequest, authenticated)
             }
             oauth2ResourceServer {
@@ -900,7 +900,7 @@ class DirectlyConfiguredJwkSetUri {
     @Bean
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize("/contacts/**", hasScope("contacts"))
                 authorize("/messages/**", hasScope("messages"))
                 authorize(anyRequest, authenticated)
@@ -1138,7 +1138,7 @@ class CustomAuthenticationConverterConfig {
     @Bean
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
        http {
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize(anyRequest, authenticated)
             }
            oauth2ResourceServer {

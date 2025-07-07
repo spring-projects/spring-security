@@ -218,7 +218,7 @@ Kotlin::
 @Bean
 open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     http {
-        authorizeRequests {
+        authorizeHttpRequests {
             authorize(anyRequest, authenticated)
         }
         oauth2ResourceServer {
@@ -275,7 +275,7 @@ class MyCustomSecurityConfiguration {
     @Bean
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize("/messages/**", hasScope("SCOPE_message:read"))
                 authorize(anyRequest, authenticated)
             }
@@ -424,7 +424,7 @@ class DirectlyConfiguredIntrospectionUri {
     @Bean
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize(anyRequest, authenticated)
             }
             oauth2ResourceServer {
@@ -495,7 +495,7 @@ class DirectlyConfiguredIntrospector {
     @Bean
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize(anyRequest, authenticated)
             }
             oauth2ResourceServer {
@@ -589,7 +589,7 @@ class MappedAuthorities {
     @Bean
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
        http {
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize("/contacts/**", hasScope("contacts"))
                 authorize("/messages/**", hasScope("messages"))
                 authorize(anyRequest, authenticated)

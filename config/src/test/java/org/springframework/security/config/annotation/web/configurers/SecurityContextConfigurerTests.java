@@ -204,7 +204,7 @@ public class SecurityContextConfigurerTests {
 				.addFilter(new WebAsyncManagerIntegrationFilter())
 				.anonymous(withDefaults())
 				.securityContext(withDefaults())
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().permitAll())
 				.httpBasic(withDefaults());
 			// @formatter:on

@@ -331,8 +331,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.anyRequest().hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin((formLogin) -&gt;
@@ -465,8 +465,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.jee((jee) -&gt;
@@ -545,8 +545,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.x509(withDefaults());
@@ -582,8 +582,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin(withDefaults())
@@ -865,8 +865,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.requestCache((requestCache) -&gt;
@@ -904,8 +904,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			// sample exception handling customization
@@ -1042,8 +1042,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin(withDefaults())
@@ -1098,8 +1098,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin(withDefaults())
@@ -1135,8 +1135,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin(withDefaults())
@@ -1188,8 +1188,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin(withDefaults());
@@ -1218,8 +1218,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin((formLogin) -&gt;
@@ -1298,8 +1298,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.anyRequest().authenticated()
 	 * 			)
 	 * 			.saml2Login(withDefaults());
@@ -1387,7 +1387,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *		&#064;Bean
 	 *		public SecurityFilterChain web(HttpSecurity http) throws Exception {
 	 *			http
-	 *				.authorizeRequests((authorize) -&gt; authorize
+	 *				.authorizeHttpRequests((authorize) -&gt; authorize
 	 *					.anyRequest().authenticated()
 	 *				)
 	 *				.saml2Login(withDefaults())
@@ -1516,8 +1516,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.anyRequest().authenticated()
 	 * 			)
 	 * 			.oauth2Login(withDefaults());
@@ -1596,8 +1596,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.anyRequest().authenticated()
 	 * 			)
 	 * 			.oauth2Client(withDefaults());
@@ -1635,8 +1635,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.anyRequest().authenticated()
 	 * 			)
 	 * 			.oauth2ResourceServer((oauth2ResourceServer) -&gt;
@@ -1731,8 +1731,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin(withDefaults())
@@ -1833,8 +1833,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.httpBasic(withDefaults());
@@ -1878,8 +1878,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests(authorizeRequests -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests(authorizeHttpRequests -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.passwordManagement(passwordManagement -&gt;

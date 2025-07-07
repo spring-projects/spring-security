@@ -57,8 +57,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import org.springframework.web.util.WebUtils
 import java.util.function.Supplier
 
@@ -608,34 +606,6 @@ class AuthorizeHttpRequestsDslTests {
             @RequestMapping("/path")
             fun path() {
             }
-        }
-    }
-
-    @Test
-    fun `request when both authorizeRequests and authorizeHttpRequests configured then exception`() {
-        assertThatThrownBy { this.spring.register(BothAuthorizeRequestsConfig::class.java).autowire() }
-            .isInstanceOf(UnsatisfiedDependencyException::class.java)
-            .hasRootCauseInstanceOf(IllegalStateException::class.java)
-            .hasMessageContaining(
-                "authorizeHttpRequests cannot be used in conjunction with authorizeRequests. Please select just one."
-            )
-    }
-
-    @Configuration
-    @EnableWebSecurity
-    @EnableWebMvc
-    open class BothAuthorizeRequestsConfig {
-        @Bean
-        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-            http {
-                authorizeRequests {
-                    authorize(anyRequest, permitAll)
-                }
-                authorizeHttpRequests {
-                    authorize(anyRequest, denyAll)
-                }
-            }
-            return http.build()
         }
     }
 

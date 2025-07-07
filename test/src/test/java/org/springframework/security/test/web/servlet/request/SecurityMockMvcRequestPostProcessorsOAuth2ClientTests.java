@@ -181,7 +181,7 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2ClientTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authz) -> authz
+				.authorizeHttpRequests((authz) -> authz
 						.anyRequest().permitAll()
 				)
 				.oauth2Client(withDefaults());

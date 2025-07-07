@@ -40,6 +40,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.servlet.MockServletContext;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
@@ -205,7 +206,7 @@ public class AuthorizeRequestsTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.requestMatchers(pathPattern(HttpMethod.POST, "/**")).denyAll());
 			// @formatter:on
 			return http.build();
@@ -226,7 +227,7 @@ public class AuthorizeRequestsTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.requestMatchers(pathPattern(HttpMethod.POST, "/**")).denyAll()
 				);
 			// @formatter:on
@@ -249,10 +250,11 @@ public class AuthorizeRequestsTests {
 			PathPatternParser parser = new PathPatternParser();
 			parser.setCaseSensitive(false);
 			PathPatternRequestMatcher.Builder builder = PathPatternRequestMatcher.withPathPatternParser(parser);
+			WebExpressionAuthorizationManager authz = new WebExpressionAuthorizationManager("#user == 'user'");
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
-					.requestMatchers(builder.matcher("/user/{user}")).access("#user == 'user'")
+				.authorizeHttpRequests((requests) -> requests
+					.requestMatchers(builder.matcher("/user/{user}")).access(authz)
 					.anyRequest().denyAll());
 			// @formatter:on
 			return http.build();
@@ -274,10 +276,12 @@ public class AuthorizeRequestsTests {
 			PathPatternParser parser = new PathPatternParser();
 			parser.setCaseSensitive(false);
 			PathPatternRequestMatcher.Builder builder = PathPatternRequestMatcher.withPathPatternParser(parser);
+			WebExpressionAuthorizationManager authz = new WebExpressionAuthorizationManager("#userName == 'user'");
+
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
-					.requestMatchers(builder.matcher("/user/{userName}")).access("#userName == 'user'")
+				.authorizeHttpRequests((requests) -> requests
+					.requestMatchers(builder.matcher("/user/{userName}")).access(authz)
 					.anyRequest().denyAll());
 			// @formatter:on
 			return http.build();
@@ -298,7 +302,7 @@ public class AuthorizeRequestsTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("ADMIN"));
 			// @formatter:on
 			return http.build();
@@ -326,7 +330,7 @@ public class AuthorizeRequestsTests {
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.requestMatchers("/path").denyAll());
 			// @formatter:on
 			return http.build();
@@ -359,7 +363,7 @@ public class AuthorizeRequestsTests {
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.requestMatchers("/path").denyAll()
 				);
 			// @formatter:on
@@ -394,7 +398,7 @@ public class AuthorizeRequestsTests {
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.requestMatchers(spring.matcher("/path")).denyAll());
 			// @formatter:on
 			return http.build();
@@ -428,7 +432,7 @@ public class AuthorizeRequestsTests {
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.requestMatchers(spring.matcher("/path")).denyAll()
 				);
 			// @formatter:on
@@ -459,11 +463,12 @@ public class AuthorizeRequestsTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			WebExpressionAuthorizationManager authz = new WebExpressionAuthorizationManager("#userName == 'user'");
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
-				.authorizeRequests((requests) -> requests
-					.requestMatchers("/user/{userName}").access("#userName == 'user'"));
+				.authorizeHttpRequests((requests) -> requests
+					.requestMatchers("/user/{userName}").access(authz));
 			// @formatter:on
 			return http.build();
 		}
@@ -492,11 +497,12 @@ public class AuthorizeRequestsTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			WebExpressionAuthorizationManager authz = new WebExpressionAuthorizationManager("#userName == 'user'");
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
-				.authorizeRequests((authorize) -> authorize
-						.requestMatchers("/user/{userName}").access("#userName == 'user'")
+				.authorizeHttpRequests((authorize) -> authorize
+						.requestMatchers("/user/{userName}").access(authz)
 				);
 			// @formatter:on
 			return http.build();
@@ -529,7 +535,7 @@ public class AuthorizeRequestsTests {
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.requestMatchers("/user").denyAll());
 			// @formatter:on
 			return http.build();

@@ -84,14 +84,6 @@ public class PermitAllSupportTests {
 					"permitAll only works with either HttpSecurity.authorizeRequests() or HttpSecurity.authorizeHttpRequests()");
 	}
 
-	@Test
-	public void configureWhenBothAuthorizeRequestsAndAuthorizeHttpRequestsThenException() {
-		assertThatExceptionOfType(BeanCreationException.class)
-			.isThrownBy(() -> this.spring.register(PermitAllConfigWithBothConfigs.class).autowire())
-			.withMessageContaining(
-					"permitAll only works with either HttpSecurity.authorizeRequests() or HttpSecurity.authorizeHttpRequests()");
-	}
-
 	@Configuration
 	@EnableWebSecurity
 	static class PermitAllConfig {
@@ -100,7 +92,7 @@ public class PermitAllSupportTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated())
 				.formLogin((login) -> login
 					.loginPage("/xyz").permitAll()
@@ -119,27 +111,6 @@ public class PermitAllSupportTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeHttpRequests((authorize) -> authorize
-					.anyRequest().authenticated())
-				.formLogin((login) -> login
-					.loginPage("/xyz").permitAll()
-					.loginProcessingUrl("/abc?def").permitAll());
-			return http.build();
-			// @formatter:on
-		}
-
-	}
-
-	@Configuration
-	@EnableWebSecurity
-	static class PermitAllConfigWithBothConfigs {
-
-		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests((requests) -> requests
-					.anyRequest().authenticated())
 				.authorizeHttpRequests((authorize) -> authorize
 					.anyRequest().authenticated())
 				.formLogin((login) -> login
