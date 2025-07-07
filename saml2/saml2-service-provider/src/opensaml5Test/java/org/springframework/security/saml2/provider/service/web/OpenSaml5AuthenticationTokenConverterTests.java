@@ -42,6 +42,7 @@ import org.springframework.security.saml2.provider.service.authentication.TestOp
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
+import org.springframework.security.web.servlet.TestMockHttpServletRequests;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.util.UriUtils;
 
@@ -216,15 +217,11 @@ public final class OpenSaml5AuthenticationTokenConverterTests {
 	}
 
 	private MockHttpServletRequest post(String uri) {
-		MockHttpServletRequest request = new MockHttpServletRequest("POST", uri);
-		request.setServletPath(uri);
-		return request;
+		return TestMockHttpServletRequests.post(uri).build();
 	}
 
 	private MockHttpServletRequest get(String uri) {
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
-		request.setServletPath(uri);
-		return request;
+		return TestMockHttpServletRequests.get(uri).build();
 	}
 
 	private <T extends SignableSAMLObject> T signed(T toSign) {

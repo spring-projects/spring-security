@@ -55,6 +55,5 @@
 			</user-service>
 		</authentication-provider>
 	</authentication-manager>
-	
-	<b:import resource="handlermappingintrospector.xml"/>
+
 </b:beans>

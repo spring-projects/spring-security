@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,27 +62,31 @@ class WebTestUtilsRuntimeHintsTests {
 			.onType(TypeReference
 				.of("org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy"))
 			.withMemberCategory(MemberCategory.INVOKE_DECLARED_METHODS)).accepts(this.hints);
+		assertThat(RuntimeHintsPredicates.reflection()
+			.onType(TypeReference
+				.of("org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration$CompositeFilterChainProxy"))
+			.withMemberCategory(MemberCategory.INVOKE_DECLARED_METHODS)).accepts(this.hints);
 	}
 
 	@Test
 	void csrfFilterHasHints() {
 		assertThat(RuntimeHintsPredicates.reflection()
 			.onType(CsrfFilter.class)
-			.withMemberCategories(MemberCategory.DECLARED_FIELDS)).accepts(this.hints);
+			.withMemberCategories(MemberCategory.ACCESS_DECLARED_FIELDS)).accepts(this.hints);
 	}
 
 	@Test
 	void securityContextPersistenceFilterHasHints() {
 		assertThat(RuntimeHintsPredicates.reflection()
 			.onType(SecurityContextPersistenceFilter.class)
-			.withMemberCategories(MemberCategory.DECLARED_FIELDS)).accepts(this.hints);
+			.withMemberCategories(MemberCategory.ACCESS_DECLARED_FIELDS)).accepts(this.hints);
 	}
 
 	@Test
 	void securityContextHolderFilterHasHints() {
 		assertThat(RuntimeHintsPredicates.reflection()
 			.onType(SecurityContextHolderFilter.class)
-			.withMemberCategories(MemberCategory.DECLARED_FIELDS)).accepts(this.hints);
+			.withMemberCategories(MemberCategory.ACCESS_DECLARED_FIELDS)).accepts(this.hints);
 	}
 
 }

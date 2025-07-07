@@ -83,18 +83,12 @@ class RequiresChannelDslTests {
         this.spring.register(MvcMatcherServletPathConfig::class.java).autowire()
 
         this.mockMvc.perform(MockMvcRequestBuilders.get("/spring/path")
-                .with { request ->
-                    request.servletPath = "/spring"
-                    request
-                })
+                .servletPath("/spring"))
                 .andExpect(status().isFound)
                 .andExpect(redirectedUrl("https://localhost/spring/path"))
 
         this.mockMvc.perform(MockMvcRequestBuilders.get("/other/path")
-                .with { request ->
-                    request.servletPath = "/other"
-                    request
-                })
+                .servletPath("/other"))
                 .andExpect(MockMvcResultMatchers.status().isOk)
     }
 

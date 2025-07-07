@@ -58,6 +58,6 @@ abstract class AbstractRequestMatcherDsl {
     protected abstract class AuthorizationManagerRule(open val rule: AuthorizationManager<RequestAuthorizationContext>)
 
     protected enum class PatternType {
-        ANT, MVC
+        ANT, MVC, PATH;
     }
 }

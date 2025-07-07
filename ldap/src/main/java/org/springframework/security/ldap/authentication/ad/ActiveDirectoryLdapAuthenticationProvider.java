@@ -307,8 +307,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 				throw ex;
 			}
 			// If we found no results, then the username/password did not match
-			UsernameNotFoundException userNameNotFoundException = new UsernameNotFoundException(
-					"User " + username + " not found in directory.", ex);
+			UsernameNotFoundException userNameNotFoundException = UsernameNotFoundException.fromUsername(username, ex);
 			throw badCredentials(userNameNotFoundException);
 		}
 	}

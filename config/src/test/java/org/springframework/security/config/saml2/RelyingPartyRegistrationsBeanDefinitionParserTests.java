@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.saml2.provider.service.registration.AssertingPartyMetadata;
 import org.springframework.security.saml2.provider.service.registration.InMemoryRelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
@@ -40,6 +41,7 @@ import org.springframework.security.saml2.provider.service.web.authentication.Op
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 
 /**
  * Tests for {@link RelyingPartyRegistrationsBeanDefinitionParser}.
@@ -151,8 +153,7 @@ public class RelyingPartyRegistrationsBeanDefinitionParserTests {
 			.isInstanceOf(InMemoryRelyingPartyRegistrationRepository.class);
 		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationRepository
 			.findByRegistrationId("one");
-		RelyingPartyRegistration.AssertingPartyDetails assertingPartyDetails = relyingPartyRegistration
-			.getAssertingPartyDetails();
+		AssertingPartyMetadata assertingPartyMetadata = relyingPartyRegistration.getAssertingPartyMetadata();
 		assertThat(relyingPartyRegistration).isNotNull();
 		assertThat(relyingPartyRegistration.getRegistrationId()).isEqualTo("one");
 		assertThat(relyingPartyRegistration.getEntityId())
@@ -160,15 +161,15 @@ public class RelyingPartyRegistrationsBeanDefinitionParserTests {
 		assertThat(relyingPartyRegistration.getAssertionConsumerServiceLocation())
 			.isEqualTo("{baseUrl}/login/saml2/sso/{registrationId}");
 		assertThat(relyingPartyRegistration.getAssertionConsumerServiceBinding()).isEqualTo(Saml2MessageBinding.POST);
-		assertThat(assertingPartyDetails.getEntityId())
+		assertThat(assertingPartyMetadata.getEntityId())
 			.isEqualTo("https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/metadata.php");
-		assertThat(assertingPartyDetails.getWantAuthnRequestsSigned()).isFalse();
-		assertThat(assertingPartyDetails.getVerificationX509Credentials()).hasSize(1);
-		assertThat(assertingPartyDetails.getEncryptionX509Credentials()).hasSize(1);
-		assertThat(assertingPartyDetails.getSingleSignOnServiceLocation())
+		assertThat(assertingPartyMetadata.getWantAuthnRequestsSigned()).isFalse();
+		assertThat(assertingPartyMetadata.getVerificationX509Credentials()).hasSize(1);
+		assertThat(assertingPartyMetadata.getEncryptionX509Credentials()).hasSize(1);
+		assertThat(assertingPartyMetadata.getSingleSignOnServiceLocation())
 			.isEqualTo("https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/SSOService.php");
-		assertThat(assertingPartyDetails.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
-		assertThat(assertingPartyDetails.getSigningAlgorithms())
+		assertThat(assertingPartyMetadata.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
+		assertThat(assertingPartyMetadata.getSigningAlgorithms())
 			.containsExactly("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
 	}
 
@@ -186,8 +187,7 @@ public class RelyingPartyRegistrationsBeanDefinitionParserTests {
 			.isInstanceOf(InMemoryRelyingPartyRegistrationRepository.class);
 		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationRepository
 			.findByRegistrationId("one");
-		RelyingPartyRegistration.AssertingPartyDetails assertingPartyDetails = relyingPartyRegistration
-			.getAssertingPartyDetails();
+		AssertingPartyMetadata assertingPartyMetadata = relyingPartyRegistration.getAssertingPartyMetadata();
 		assertThat(relyingPartyRegistration).isNotNull();
 		assertThat(relyingPartyRegistration.getRegistrationId()).isEqualTo("one");
 		assertThat(relyingPartyRegistration.getEntityId()).isEqualTo("https://rp.example.org");
@@ -195,15 +195,15 @@ public class RelyingPartyRegistrationsBeanDefinitionParserTests {
 			.isEqualTo("https://rp.example.org/location");
 		assertThat(relyingPartyRegistration.getAssertionConsumerServiceBinding())
 			.isEqualTo(Saml2MessageBinding.REDIRECT);
-		assertThat(assertingPartyDetails.getEntityId())
+		assertThat(assertingPartyMetadata.getEntityId())
 			.isEqualTo("https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/metadata.php");
-		assertThat(assertingPartyDetails.getWantAuthnRequestsSigned()).isFalse();
-		assertThat(assertingPartyDetails.getVerificationX509Credentials()).hasSize(1);
-		assertThat(assertingPartyDetails.getEncryptionX509Credentials()).hasSize(1);
-		assertThat(assertingPartyDetails.getSingleSignOnServiceLocation())
+		assertThat(assertingPartyMetadata.getWantAuthnRequestsSigned()).isFalse();
+		assertThat(assertingPartyMetadata.getVerificationX509Credentials()).hasSize(1);
+		assertThat(assertingPartyMetadata.getEncryptionX509Credentials()).hasSize(1);
+		assertThat(assertingPartyMetadata.getSingleSignOnServiceLocation())
 			.isEqualTo("https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/SSOService.php");
-		assertThat(assertingPartyDetails.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
-		assertThat(assertingPartyDetails.getSigningAlgorithms())
+		assertThat(assertingPartyMetadata.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
+		assertThat(assertingPartyMetadata.getSigningAlgorithms())
 			.containsExactly("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
 	}
 
@@ -214,8 +214,7 @@ public class RelyingPartyRegistrationsBeanDefinitionParserTests {
 			.isInstanceOf(InMemoryRelyingPartyRegistrationRepository.class);
 		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationRepository
 			.findByRegistrationId("one");
-		RelyingPartyRegistration.AssertingPartyDetails assertingPartyDetails = relyingPartyRegistration
-			.getAssertingPartyDetails();
+		AssertingPartyMetadata assertingPartyMetadata = relyingPartyRegistration.getAssertingPartyMetadata();
 		assertThat(relyingPartyRegistration).isNotNull();
 		assertThat(relyingPartyRegistration.getRegistrationId()).isEqualTo("one");
 		assertThat(relyingPartyRegistration.getEntityId())
@@ -224,14 +223,14 @@ public class RelyingPartyRegistrationsBeanDefinitionParserTests {
 			.isEqualTo("{baseUrl}/login/saml2/sso/{registrationId}");
 		assertThat(relyingPartyRegistration.getAssertionConsumerServiceBinding())
 			.isEqualTo(Saml2MessageBinding.REDIRECT);
-		assertThat(assertingPartyDetails.getEntityId()).isEqualTo("https://accounts.google.com/o/saml2/idp/entity-id");
-		assertThat(assertingPartyDetails.getWantAuthnRequestsSigned()).isTrue();
-		assertThat(assertingPartyDetails.getSingleSignOnServiceLocation())
+		assertThat(assertingPartyMetadata.getEntityId()).isEqualTo("https://accounts.google.com/o/saml2/idp/entity-id");
+		assertThat(assertingPartyMetadata.getWantAuthnRequestsSigned()).isTrue();
+		assertThat(assertingPartyMetadata.getSingleSignOnServiceLocation())
 			.isEqualTo("https://accounts.google.com/o/saml2/idp/sso-url");
-		assertThat(assertingPartyDetails.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.POST);
-		assertThat(assertingPartyDetails.getVerificationX509Credentials()).hasSize(1);
-		assertThat(assertingPartyDetails.getEncryptionX509Credentials()).hasSize(1);
-		assertThat(assertingPartyDetails.getSigningAlgorithms())
+		assertThat(assertingPartyMetadata.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.POST);
+		assertThat(assertingPartyMetadata.getVerificationX509Credentials()).hasSize(1);
+		assertThat(assertingPartyMetadata.getEncryptionX509Credentials()).hasSize(1);
+		assertThat(assertingPartyMetadata.getSigningAlgorithms())
 			.containsExactly("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
 	}
 
@@ -241,9 +240,9 @@ public class RelyingPartyRegistrationsBeanDefinitionParserTests {
 		assertThat(this.relyingPartyRegistrationRepository)
 			.isInstanceOf(InMemoryRelyingPartyRegistrationRepository.class);
 		RelyingPartyRegistration one = this.relyingPartyRegistrationRepository.findByRegistrationId("one");
-		RelyingPartyRegistration.AssertingPartyDetails google = one.getAssertingPartyDetails();
+		AssertingPartyMetadata google = one.getAssertingPartyMetadata();
 		RelyingPartyRegistration two = this.relyingPartyRegistrationRepository.findByRegistrationId("two");
-		RelyingPartyRegistration.AssertingPartyDetails simpleSaml = two.getAssertingPartyDetails();
+		AssertingPartyMetadata simpleSaml = two.getAssertingPartyMetadata();
 		assertThat(one).isNotNull();
 		assertThat(one.getRegistrationId()).isEqualTo("one");
 		assertThat(one.getEntityId()).isEqualTo("{baseUrl}/saml2/service-provider-metadata/{registrationId}");
@@ -282,9 +281,7 @@ public class RelyingPartyRegistrationsBeanDefinitionParserTests {
 		Converter<HttpServletRequest, String> relayStateResolver = this.spring.getContext().getBean(Converter.class);
 		OpenSaml4AuthenticationRequestResolver authenticationRequestResolver = this.spring.getContext()
 			.getBean(OpenSaml4AuthenticationRequestResolver.class);
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setRequestURI("/saml2/authenticate/one");
-		request.setServletPath("/saml2/authenticate/one");
+		MockHttpServletRequest request = get("/saml2/authenticate/one").build();
 		authenticationRequestResolver.resolve(request);
 		verify(relayStateResolver).convert(request);
 	}

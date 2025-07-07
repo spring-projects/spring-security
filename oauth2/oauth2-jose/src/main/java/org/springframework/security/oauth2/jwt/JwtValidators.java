@@ -75,8 +75,8 @@ public final class JwtValidators {
 	 * supplied
 	 */
 	public static OAuth2TokenValidator<Jwt> createDefault() {
-		return new DelegatingOAuth2TokenValidator<>(
-				Arrays.asList(new JwtTimestampValidator(), new X509CertificateThumbprintValidator(
+		return new DelegatingOAuth2TokenValidator<>(Arrays.asList(JwtTypeValidator.jwt(), new JwtTimestampValidator(),
+				new X509CertificateThumbprintValidator(
 						X509CertificateThumbprintValidator.DEFAULT_X509_CERTIFICATE_SUPPLIER)));
 	}
 
@@ -103,6 +103,10 @@ public final class JwtValidators {
 				JwtTimestampValidator.class);
 		if (jwtTimestampValidator == null) {
 			tokenValidators.add(0, new JwtTimestampValidator());
+		}
+		JwtTypeValidator typeValidator = CollectionUtils.findValueOfType(tokenValidators, JwtTypeValidator.class);
+		if (typeValidator == null) {
+			tokenValidators.add(0, JwtTypeValidator.jwt());
 		}
 		return new DelegatingOAuth2TokenValidator<>(tokenValidators);
 	}

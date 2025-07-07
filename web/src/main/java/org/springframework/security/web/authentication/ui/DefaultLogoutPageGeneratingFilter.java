@@ -28,10 +28,11 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * Generates a default log out page.
@@ -41,7 +42,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  */
 public class DefaultLogoutPageGeneratingFilter extends OncePerRequestFilter {
 
-	private RequestMatcher matcher = PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/logout");
+	private RequestMatcher matcher = pathPattern(HttpMethod.GET, "/logout");
 
 	private Function<HttpServletRequest, Map<String, String>> resolveHiddenInputs = (request) -> Collections.emptyMap();
 

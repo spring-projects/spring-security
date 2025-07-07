@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,9 +79,9 @@ public class DelegatingReactiveAuthorizationManagerTests {
 	@Test
 	public void checkWhenFirstMatchesThenNoMoreMatchersAndNoMoreDelegatesInvoked() {
 		given(this.match1.matches(any())).willReturn(ServerWebExchangeMatcher.MatchResult.match());
-		given(this.delegate1.check(eq(this.authentication), any(AuthorizationContext.class)))
+		given(this.delegate1.authorize(eq(this.authentication), any(AuthorizationContext.class)))
 			.willReturn(Mono.just(this.decision));
-		assertThat(this.manager.check(this.authentication, this.exchange).block()).isEqualTo(this.decision);
+		assertThat(this.manager.authorize(this.authentication, this.exchange).block()).isEqualTo(this.decision);
 		verifyNoMoreInteractions(this.match2, this.delegate2);
 	}
 
@@ -89,9 +89,9 @@ public class DelegatingReactiveAuthorizationManagerTests {
 	public void checkWhenSecondMatchesThenNoMoreMatchersAndNoMoreDelegatesInvoked() {
 		given(this.match1.matches(any())).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 		given(this.match2.matches(any())).willReturn(ServerWebExchangeMatcher.MatchResult.match());
-		given(this.delegate2.check(eq(this.authentication), any(AuthorizationContext.class)))
+		given(this.delegate2.authorize(eq(this.authentication), any(AuthorizationContext.class)))
 			.willReturn(Mono.just(this.decision));
-		assertThat(this.manager.check(this.authentication, this.exchange).block()).isEqualTo(this.decision);
+		assertThat(this.manager.authorize(this.authentication, this.exchange).block()).isEqualTo(this.decision);
 		verifyNoMoreInteractions(this.delegate1);
 	}
 

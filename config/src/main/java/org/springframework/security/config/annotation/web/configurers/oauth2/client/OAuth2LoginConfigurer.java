@@ -38,7 +38,6 @@ import org.springframework.core.ResolvableType;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
-import org.springframework.security.config.annotation.web.RequestMatcherFactory;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -53,9 +52,9 @@ import org.springframework.security.core.session.SessionIdChangedEvent;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
-import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.RestClientAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizedClientRefreshedEventListener;
 import org.springframework.security.oauth2.client.oidc.session.InMemoryOidcSessionRegistry;
@@ -155,7 +154,7 @@ import org.springframework.util.ReflectionUtils;
  * @author Kazuki Shimizu
  * @author Ngoc Nhan
  * @since 5.0
- * @see HttpSecurity#oauth2Login()
+ * @see HttpSecurity#oauth2Login(Customizer)
  * @see OAuth2AuthorizationRequestRedirectFilter
  * @see OAuth2LoginAuthenticationFilter
  * @see ClientRegistrationRepository
@@ -247,18 +246,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	/**
-	 * Returns the {@link AuthorizationEndpointConfig} for configuring the Authorization
-	 * Server's Authorization Endpoint.
-	 * @return the {@link AuthorizationEndpointConfig}
-	 * @deprecated For removal in 7.0. Use {@link #authorizationEndpoint(Customizer)}
-	 * instead
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public AuthorizationEndpointConfig authorizationEndpoint() {
-		return this.authorizationEndpointConfig;
-	}
-
-	/**
 	 * Configures the Authorization Server's Authorization Endpoint.
 	 * @param authorizationEndpointCustomizer the {@link Customizer} to provide more
 	 * options for the {@link AuthorizationEndpointConfig}
@@ -268,21 +255,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			Customizer<AuthorizationEndpointConfig> authorizationEndpointCustomizer) {
 		authorizationEndpointCustomizer.customize(this.authorizationEndpointConfig);
 		return this;
-	}
-
-	/**
-	 * Returns the {@link TokenEndpointConfig} for configuring the Authorization Server's
-	 * Token Endpoint.
-	 * @return the {@link TokenEndpointConfig}
-	 * @deprecated For removal in 7.0. Use {@link #tokenEndpoint(Customizer)} or
-	 * {@code tokenEndpoint(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public TokenEndpointConfig tokenEndpoint() {
-		return this.tokenEndpointConfig;
 	}
 
 	/**
@@ -298,18 +270,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	/**
-	 * Returns the {@link RedirectionEndpointConfig} for configuring the Client's
-	 * Redirection Endpoint.
-	 * @return the {@link RedirectionEndpointConfig}
-	 * @deprecated For removal in 7.0. Use {@link #redirectionEndpoint(Customizer)}
-	 * instead
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public RedirectionEndpointConfig redirectionEndpoint() {
-		return this.redirectionEndpointConfig;
-	}
-
-	/**
 	 * Configures the Client's Redirection Endpoint.
 	 * @param redirectionEndpointCustomizer the {@link Customizer} to provide more options
 	 * for the {@link RedirectionEndpointConfig}
@@ -319,21 +279,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			Customizer<RedirectionEndpointConfig> redirectionEndpointCustomizer) {
 		redirectionEndpointCustomizer.customize(this.redirectionEndpointConfig);
 		return this;
-	}
-
-	/**
-	 * Returns the {@link UserInfoEndpointConfig} for configuring the Authorization
-	 * Server's UserInfo Endpoint.
-	 * @return the {@link UserInfoEndpointConfig}
-	 * @deprecated For removal in 7.0. Use {@link #userInfoEndpoint(Customizer)} or
-	 * {@code userInfoEndpoint(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public UserInfoEndpointConfig userInfoEndpoint() {
-		return this.userInfoEndpointConfig;
 	}
 
 	/**
@@ -351,7 +296,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	public void init(B http) throws Exception {
 		OAuth2LoginAuthenticationFilter authenticationFilter = new OAuth2LoginAuthenticationFilter(
 				this.getClientRegistrationRepository(), this.getAuthorizedClientRepository(), this.loginProcessingUrl);
-		RequestMatcher processUri = RequestMatcherFactory.matcher(this.loginProcessingUrl);
+		RequestMatcher processUri = getRequestMatcherBuilder().matcher(this.loginProcessingUrl);
 		authenticationFilter.setRequiresAuthenticationRequestMatcher(processUri);
 		authenticationFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		this.setAuthenticationFilter(authenticationFilter);
@@ -404,11 +349,9 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 				oidcAuthorizationCodeAuthenticationProvider.setAuthoritiesMapper(userAuthoritiesMapper);
 				oidcAuthorizedClientRefreshedEventListener.setAuthoritiesMapper(userAuthoritiesMapper);
 			}
-			oidcAuthorizationCodeAuthenticationProvider = this.postProcess(oidcAuthorizationCodeAuthenticationProvider);
-			http.authenticationProvider(oidcAuthorizationCodeAuthenticationProvider);
+			http.authenticationProvider(this.postProcess(oidcAuthorizationCodeAuthenticationProvider));
 
-			oidcAuthorizedClientRefreshedEventListener = this.postProcess(oidcAuthorizedClientRefreshedEventListener);
-			registerDelegateApplicationListener(oidcAuthorizedClientRefreshedEventListener);
+			registerDelegateApplicationListener(this.postProcess(oidcAuthorizedClientRefreshedEventListener));
 			configureOidcUserRefreshedEventListener(http);
 		}
 		else {
@@ -437,7 +380,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		OAuth2LoginAuthenticationFilter authenticationFilter = this.getAuthenticationFilter();
 		if (this.redirectionEndpointConfig.authorizationResponseBaseUri != null) {
 			authenticationFilter.setRequiresAuthenticationRequestMatcher(
-					RequestMatcherFactory.matcher(this.redirectionEndpointConfig.authorizationResponseBaseUri));
+					getRequestMatcherBuilder().matcher(this.redirectionEndpointConfig.authorizationResponseBaseUri));
 		}
 		if (this.authorizationEndpointConfig.authorizationRequestRepository != null) {
 			authenticationFilter
@@ -449,7 +392,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	@Override
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
-		return RequestMatcherFactory.matcher(loginProcessingUrl);
+		return getRequestMatcherBuilder().matcher(loginProcessingUrl);
 	}
 
 	private OAuth2AuthorizationRequestResolver getAuthorizationRequestResolver() {
@@ -518,7 +461,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		ResolvableType resolvableType = ResolvableType.forClassWithGenerics(OAuth2AccessTokenResponseClient.class,
 				OAuth2AuthorizationCodeGrantRequest.class);
 		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> bean = getBeanOrNull(resolvableType);
-		return (bean != null) ? bean : new DefaultAuthorizationCodeTokenResponseClient();
+		return (bean != null) ? bean : new RestClientAuthorizationCodeTokenResponseClient();
 	}
 
 	private OAuth2UserService<OidcUserRequest, OidcUser> getOidcUserService() {
@@ -587,8 +530,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	private AuthenticationEntryPoint getLoginEntryPoint(B http, String providerLoginPage) {
-		RequestMatcher loginPageMatcher = RequestMatcherFactory.matcher(this.getLoginPage());
-		RequestMatcher faviconMatcher = RequestMatcherFactory.matcher("/favicon.ico");
+		RequestMatcher loginPageMatcher = getRequestMatcherBuilder().matcher(this.getLoginPage());
+		RequestMatcher faviconMatcher = getRequestMatcherBuilder().matcher("/favicon.ico");
 		RequestMatcher defaultEntryPointMatcher = this.getAuthenticationEntryPointMatcher(http);
 		RequestMatcher defaultLoginPageMatcher = new AndRequestMatcher(
 				new OrRequestMatcher(loginPageMatcher, faviconMatcher), defaultEntryPointMatcher);
@@ -724,17 +667,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			return this;
 		}
 
-		/**
-		 * Returns the {@link OAuth2LoginConfigurer} for further configuration.
-		 * @return the {@link OAuth2LoginConfigurer}
-		 * @deprecated For removal in 7.0. Use {@link #authorizationEndpoint(Customizer)}
-		 * instead
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public OAuth2LoginConfigurer<B> and() {
-			return OAuth2LoginConfigurer.this;
-		}
-
 	}
 
 	/**
@@ -761,20 +693,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			return this;
 		}
 
-		/**
-		 * Returns the {@link OAuth2LoginConfigurer} for further configuration.
-		 * @return the {@link OAuth2LoginConfigurer}
-		 * @deprecated For removal in 7.0. Use {@link #tokenEndpoint(Customizer)} or
-		 * {@code tokenEndpoint(Customizer.withDefaults())} to stick with defaults. See
-		 * the <a href=
-		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-		 * for more details.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public OAuth2LoginConfigurer<B> and() {
-			return OAuth2LoginConfigurer.this;
-		}
-
 	}
 
 	/**
@@ -797,17 +715,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			Assert.hasText(authorizationResponseBaseUri, "authorizationResponseBaseUri cannot be empty");
 			this.authorizationResponseBaseUri = authorizationResponseBaseUri;
 			return this;
-		}
-
-		/**
-		 * Returns the {@link OAuth2LoginConfigurer} for further configuration.
-		 * @return the {@link OAuth2LoginConfigurer}
-		 * @deprecated For removal in 7.0. Use {@link #redirectionEndpoint(Customizer)}
-		 * instead
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public OAuth2LoginConfigurer<B> and() {
-			return OAuth2LoginConfigurer.this;
 		}
 
 	}
@@ -862,17 +769,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			OAuth2LoginConfigurer.this.getBuilder()
 				.setSharedObject(GrantedAuthoritiesMapper.class, userAuthoritiesMapper);
 			return this;
-		}
-
-		/**
-		 * Returns the {@link OAuth2LoginConfigurer} for further configuration.
-		 * @return the {@link OAuth2LoginConfigurer}
-		 * @deprecated For removal in 7.0. Use {@link #userInfoEndpoint(Customizer)}
-		 * instead
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public OAuth2LoginConfigurer<B> and() {
-			return OAuth2LoginConfigurer.this;
 		}
 
 	}

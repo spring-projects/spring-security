@@ -39,11 +39,13 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.util.pattern.PathPattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 
 /**
  * Tests {@link FilterChainProxy}.
@@ -120,7 +122,7 @@ public class FilterChainProxyConfigTests {
 
 	private String getPattern(SecurityFilterChain chain) {
 		RequestMatcher requestMatcher = ((DefaultSecurityFilterChain) chain).getRequestMatcher();
-		return (String) ReflectionTestUtils.getField(requestMatcher, "pattern");
+		return ((PathPattern) ReflectionTestUtils.getField(requestMatcher, "pattern")).getPatternString();
 	}
 
 	private void checkPathAndFilterOrder(FilterChainProxy filterChainProxy) {
@@ -143,13 +145,12 @@ public class FilterChainProxyConfigTests {
 	}
 
 	private void doNormalOperation(FilterChainProxy filterChainProxy) throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
-		request.setServletPath("/foo/secure/super/somefile.html");
+		MockHttpServletRequest request = get("/foo/secure/super/somefile.html").build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain chain = mock(FilterChain.class);
 		filterChainProxy.doFilter(request, response, chain);
 		verify(chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-		request.setServletPath("/a/path/which/doesnt/match/any/filter.html");
+		request = get("/a/path/which/doesnt/match/any/filter.html").build();
 		chain = mock(FilterChain.class);
 		filterChainProxy.doFilter(request, response, chain);
 		verify(chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));

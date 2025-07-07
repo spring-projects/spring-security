@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.io.ObjectOutputStream;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -39,11 +40,14 @@ import org.opensaml.core.xml.schema.XSDateTime;
 import org.opensaml.core.xml.schema.impl.XSDateTimeBuilder;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.common.assertion.ValidationContext;
+import org.opensaml.saml.common.assertion.ValidationResult;
+import org.opensaml.saml.saml2.assertion.ConditionValidator;
 import org.opensaml.saml.saml2.assertion.SAML2AssertionValidationParameters;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.opensaml.saml.saml2.core.AttributeValue;
+import org.opensaml.saml.saml2.core.AudienceRestriction;
 import org.opensaml.saml.saml2.core.Conditions;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.EncryptedAttribute;
@@ -68,12 +72,17 @@ import org.opensaml.xmlsec.signature.support.SignatureConstants;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ResponseValidatorResult;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider.AssertionValidator;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider.ResponseAuthenticationConverter;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider.ResponseToken;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider.ResponseValidator;
 import org.springframework.security.saml2.provider.service.authentication.TestCustomOpenSaml5Objects.CustomOpenSamlObject;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
@@ -87,6 +96,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * Tests for {@link OpenSaml5AuthenticationProvider}
@@ -386,6 +396,24 @@ public class OpenSaml5AuthenticationProviderTests {
 		this.provider.authenticate(token);
 	}
 
+	// gh-16367
+	@Test
+	public void authenticateWhenEncryptedAssertionWithSignatureThenEncryptedAssertionStillAvailable() {
+		Response response = response();
+		Assertion assertion = TestOpenSamlObjects.signed(assertion(),
+				TestSaml2X509Credentials.assertingPartySigningCredential(), RELYING_PARTY_ENTITY_ID);
+		EncryptedAssertion encryptedAssertion = TestOpenSamlObjects.encrypted(assertion,
+				TestSaml2X509Credentials.assertingPartyEncryptingCredential());
+		response.getEncryptedAssertions().add(encryptedAssertion);
+		Saml2AuthenticationToken token = token(signed(response), decrypting(verifying(registration())));
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
+		provider.setResponseValidator((t) -> {
+			assertThat(t.getResponse().getEncryptedAssertions()).isNotEmpty();
+			return Saml2ResponseValidatorResult.success();
+		});
+		provider.authenticate(token);
+	}
+
 	@Test
 	public void authenticateWhenEncryptedAssertionWithResponseSignatureThenItSucceeds() {
 		Response response = response();
@@ -410,6 +438,26 @@ public class OpenSaml5AuthenticationProviderTests {
 		this.provider.authenticate(token);
 	}
 
+	// gh-16367
+	@Test
+	public void authenticateWhenEncryptedNameIdWithSignatureThenEncryptedNameIdStillAvailable() {
+		Response response = response();
+		Assertion assertion = assertion();
+		NameID nameId = assertion.getSubject().getNameID();
+		EncryptedID encryptedID = TestOpenSamlObjects.encrypted(nameId,
+				TestSaml2X509Credentials.assertingPartyEncryptingCredential());
+		assertion.getSubject().setNameID(null);
+		assertion.getSubject().setEncryptedID(encryptedID);
+		response.getAssertions().add(signed(assertion));
+		Saml2AuthenticationToken token = token(response, decrypting(verifying(registration())));
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
+		provider.setAssertionValidator((t) -> {
+			assertThat(t.getAssertion().getSubject().getEncryptedID()).isNotNull();
+			return Saml2ResponseValidatorResult.success();
+		});
+		provider.authenticate(token);
+	}
+
 	@Test
 	public void authenticateWhenEncryptedAttributeThenDecrypts() {
 		Response response = response();
@@ -424,6 +472,26 @@ public class OpenSaml5AuthenticationProviderTests {
 		Saml2Authentication authentication = (Saml2Authentication) this.provider.authenticate(token);
 		Saml2AuthenticatedPrincipal principal = (Saml2AuthenticatedPrincipal) authentication.getPrincipal();
 		assertThat(principal.getAttribute("name")).containsExactly("value");
+	}
+
+	// gh-16367
+	@Test
+	public void authenticateWhenEncryptedAttributeThenEncryptedAttributesStillAvailable() {
+		Response response = response();
+		Assertion assertion = assertion();
+		EncryptedAttribute attribute = TestOpenSamlObjects.encrypted("name", "value",
+				TestSaml2X509Credentials.assertingPartyEncryptingCredential());
+		AttributeStatement statement = build(AttributeStatement.DEFAULT_ELEMENT_NAME);
+		statement.getEncryptedAttributes().add(attribute);
+		assertion.getAttributeStatements().add(statement);
+		response.getAssertions().add(assertion);
+		Saml2AuthenticationToken token = token(signed(response), decrypting(verifying(registration())));
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
+		provider.setAssertionValidator((t) -> {
+			assertThat(t.getAssertion().getAttributeStatements().get(0).getEncryptedAttributes()).isNotEmpty();
+			return Saml2ResponseValidatorResult.success();
+		});
+		provider.authenticate(token);
 	}
 
 	@Test
@@ -557,6 +625,25 @@ public class OpenSaml5AuthenticationProviderTests {
 	}
 
 	@Test
+	public void authenticateWhenAssertionValidatorListThenUses() throws Exception {
+		ConditionValidator custom = mock(ConditionValidator.class);
+		given(custom.getServicedCondition()).willReturn(AudienceRestriction.DEFAULT_ELEMENT_NAME);
+		given(custom.validate(any(), any(), any())).willReturn(ValidationResult.INVALID);
+		AssertionValidator validator = AssertionValidator.builder().conditionValidators((c) -> c.add(custom)).build();
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
+		provider.setAssertionValidator(validator);
+		Response response = TestOpenSamlObjects.signedResponseWithOneAssertion((r) -> r.getAssertions()
+			.get(0)
+			.getConditions()
+			.getConditions()
+			.add(build(AudienceRestriction.DEFAULT_ELEMENT_NAME)));
+		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		assertThatExceptionOfType(Saml2AuthenticationException.class).isThrownBy(() -> provider.authenticate(token))
+			.withMessageContaining("AudienceRestriction");
+		verify(custom).validate(any(), any(), any());
+	}
+
+	@Test
 	public void authenticateWhenDefaultConditionValidatorNotUsedThenSignatureStillChecked() {
 		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
 		provider.setAssertionValidator((assertionToken) -> Saml2ResponseValidatorResult.success());
@@ -634,6 +721,47 @@ public class OpenSaml5AuthenticationProviderTests {
 		Saml2AuthenticationToken token = token(response, verifying(registration()));
 		provider.authenticate(token);
 		verify(authenticationConverter).convert(any());
+	}
+
+	@Test
+	public void authenticateWhenResponseAuthenticationConverterComponentConfiguredThenUses() {
+		Converter<Assertion, Collection<GrantedAuthority>> grantedAuthoritiesConverter = mock(Converter.class);
+		given(grantedAuthoritiesConverter.convert(any())).willReturn(AuthorityUtils.createAuthorityList("CUSTOM"));
+		ResponseAuthenticationConverter authenticationConverter = new ResponseAuthenticationConverter();
+		authenticationConverter.setGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
+		provider.setResponseAuthenticationConverter(authenticationConverter);
+		Response response = TestOpenSamlObjects.signedResponseWithOneAssertion();
+		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		Authentication authentication = provider.authenticate(token);
+		assertThat(AuthorityUtils.authorityListToSet(authentication.getAuthorities())).containsExactly("CUSTOM");
+		verify(grantedAuthoritiesConverter).convert(any());
+	}
+
+	@Test
+	public void authenticateWhenValidateResponseAfterAssertionsThenCanHaveResponseAuthenticationConverterThatDoesntNeedANameID() {
+		Converter<ResponseToken, Saml2Authentication> responseAuthenticationConverter = mock(Converter.class);
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
+		provider.setValidateResponseAfterAssertions(true);
+		provider.setResponseAuthenticationConverter(responseAuthenticationConverter);
+		Response response = TestOpenSamlObjects
+			.signedResponseWithOneAssertion((r) -> r.getAssertions().get(0).setSubject(null));
+		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		provider.authenticate(token);
+		verify(responseAuthenticationConverter).convert(any());
+	}
+
+	@Test
+	public void authenticateWhenValidateResponseBeforeAssertionsThenMustHaveNameID() {
+		Converter<ResponseToken, Saml2Authentication> responseAuthenticationConverter = mock(Converter.class);
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
+		provider.setValidateResponseAfterAssertions(false);
+		provider.setResponseAuthenticationConverter(responseAuthenticationConverter);
+		Response response = TestOpenSamlObjects
+			.signedResponseWithOneAssertion((r) -> r.getAssertions().get(0).setSubject(null));
+		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		assertThatExceptionOfType(Saml2AuthenticationException.class).isThrownBy(() -> provider.authenticate(token));
+		verifyNoInteractions(responseAuthenticationConverter);
 	}
 
 	@Test
@@ -729,6 +857,22 @@ public class OpenSaml5AuthenticationProviderTests {
 			.willReturn(Saml2ResponseValidatorResult.success());
 		provider.authenticate(token);
 		verify(validator).convert(any(OpenSaml5AuthenticationProvider.ResponseToken.class));
+	}
+
+	@Test
+	public void authenticateWhenCustomSetOfResponseValidatorsThenUses() {
+		Converter<OpenSaml5AuthenticationProvider.ResponseToken, Saml2ResponseValidatorResult> validator = mock(
+				Converter.class);
+		given(validator.convert(any()))
+			.willReturn(Saml2ResponseValidatorResult.failure(new Saml2Error("error", "description")));
+		ResponseValidator responseValidator = new ResponseValidator(validator);
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
+		provider.setResponseValidator(responseValidator);
+		Response response = TestOpenSamlObjects.signedResponseWithOneAssertion();
+		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		assertThatExceptionOfType(Saml2AuthenticationException.class).isThrownBy(() -> provider.authenticate(token))
+			.withMessageContaining("description");
+		verify(validator).convert(any());
 	}
 
 	@Test
@@ -831,6 +975,15 @@ public class OpenSaml5AuthenticationProviderTests {
 		provider.authenticate(token);
 	}
 
+	// gh-16989
+	@Test
+	public void authenticateWhenNullIssuerThenNoNullPointer() {
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
+		Response response = TestOpenSamlObjects.signedResponseWithOneAssertion((r) -> r.setIssuer(null));
+		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		assertThatExceptionOfType(Saml2AuthenticationException.class).isThrownBy(() -> provider.authenticate(token));
+	}
+
 	private <T extends XMLObject> T build(QName qName) {
 		return (T) XMLObjectProviderRegistrySupport.getBuilderFactory().getBuilder(qName).buildObject(qName);
 	}
@@ -929,11 +1082,11 @@ public class OpenSaml5AuthenticationProviderTests {
 		return TestRelyingPartyRegistrations.noCredentials()
 			.entityId(RELYING_PARTY_ENTITY_ID)
 			.assertionConsumerServiceLocation(DESTINATION)
-			.assertingPartyDetails((party) -> party.entityId(ASSERTING_PARTY_ENTITY_ID));
+			.assertingPartyMetadata((party) -> party.entityId(ASSERTING_PARTY_ENTITY_ID));
 	}
 
 	private RelyingPartyRegistration.Builder verifying(RelyingPartyRegistration.Builder builder) {
-		return builder.assertingPartyDetails((party) -> party
+		return builder.assertingPartyMetadata((party) -> party
 			.verificationX509Credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())));
 	}
 

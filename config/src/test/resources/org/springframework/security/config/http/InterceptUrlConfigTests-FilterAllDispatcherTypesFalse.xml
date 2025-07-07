@@ -33,15 +33,15 @@
 
 	<b:bean name="path" class="org.springframework.security.config.http.InterceptUrlConfigTests.PathController"/>
 	<b:bean name="error" class="org.springframework.security.config.http.InterceptUrlConfigTests.ErrorController"/>
-	
+
 	<b:bean name="errorRequestMatcher" class="org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher">
 		<b:constructor-arg value="ERROR"/>
 	</b:bean>
-	
-	<b:bean name="errorPathRequestMatcher" class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
+
+	<b:bean name="errorPathRequestMatcher" class="org.springframework.security.config.http.PathPatternRequestMatcherFactoryBean">
 		<b:constructor-arg value="/error"/>
 	</b:bean>
-	
+
 	<b:bean name="pathErrorRequestMatcher" class="org.springframework.security.web.util.matcher.AndRequestMatcher">
 		<b:constructor-arg>
 			<b:list>

@@ -22,7 +22,6 @@ import java.util.function.Supplier;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.ResolvableTypeProvider;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 
@@ -33,21 +32,10 @@ import org.springframework.security.core.Authentication;
  * @author Josh Cummings
  * @since 5.7
  */
-@SuppressWarnings("serial")
 public class AuthorizationGrantedEvent<T> extends AuthorizationEvent implements ResolvableTypeProvider {
 
 	@Serial
 	private static final long serialVersionUID = -8690818228055810339L;
-
-	/**
-	 * @deprecated please use a constructor that takes an
-	 * {@link org.springframework.security.authorization.AuthorizationResult}
-	 */
-	@Deprecated
-	public AuthorizationGrantedEvent(Supplier<Authentication> authentication, T object,
-			AuthorizationDecision decision) {
-		super(authentication, object, decision);
-	}
 
 	/**
 	 * @since 6.4

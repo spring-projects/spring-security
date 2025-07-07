@@ -359,7 +359,7 @@ Java::
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) {
     http
-        .sessionManagement(session -> session
+        .sessionManagement((session) -> session
             .maximumSessions(1)
         );
     return http.build();
@@ -412,7 +412,7 @@ Java::
 public SecurityFilterChain filterChain(HttpSecurity http) {
 	AuthorizationManager<?> isAdmin = AuthorityAuthorizationManager.hasRole("ADMIN");
     http
-        .sessionManagement(session -> session
+        .sessionManagement((session) -> session
             .maximumSessions((authentication) -> isAdmin.authorize(() -> authentication, null).isGranted() ? -1 : 1)
         );
     return http.build();
@@ -504,7 +504,7 @@ Java::
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) {
     http
-        .sessionManagement(session -> session
+        .sessionManagement((session) -> session
             .maximumSessions(1)
             .maxSessionsPreventsLogin(true)
         );
@@ -589,6 +589,13 @@ public class MaximumSessionsPreventLoginTests {
 If you are using a customized authentication filter for form-based login, then you have to configure concurrent session control support explicitly.
 You can try it using the {gh-samples-url}/servlet/spring-boot/java/session-management/maximum-sessions-prevent-login[Maximum Sessions Prevent Login sample].
 
+[NOTE]
+=====
+If you are using a custom implementation of `UserDetails`, ensure you override the **equals()** and **hashCode()** methods.
+The default `SessionRegistry` implementation in Spring Security relies on an in-memory Map that uses these methods to correctly identify and manage user sessions.
+Failing to override them may lead to issues where session tracking and user comparison behave unexpectedly.
+=====
+
 == Detecting Timeouts
 
 Sessions expire on their own, and there is nothing that needs to be done to ensure that a security context gets removed.
@@ -605,7 +612,7 @@ Java::
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) {
     http
-        .sessionManagement(session -> session
+        .sessionManagement((session) -> session
             .invalidSessionUrl("/invalidSession")
         );
     return http.build();
@@ -656,7 +663,7 @@ Java::
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) {
     http
-        .sessionManagement(session -> session
+        .sessionManagement((session) -> session
             .invalidSessionStrategy(new MyCustomInvalidSessionStrategy())
         );
     return http.build();
@@ -760,7 +767,7 @@ Java::
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) {
     http
-        .logout(logout -> logout
+        .logout((logout) -> logout
             .deleteCookies("JSESSIONID")
         );
     return http.build();
@@ -964,7 +971,7 @@ Java::
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) {
     http
-        .sessionManagement(session -> session
+        .sessionManagement((session) -> session
             .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
         );
     return http.build();

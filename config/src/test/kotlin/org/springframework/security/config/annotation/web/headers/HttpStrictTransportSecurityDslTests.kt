@@ -29,7 +29,7 @@ import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.server.header.StrictTransportSecurityServerHttpHeadersWriter
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 
@@ -148,7 +148,7 @@ class HttpStrictTransportSecurityDslTests {
                 headers {
                     defaultsDisabled = true
                     httpStrictTransportSecurity {
-                        requestMatcher = AntPathRequestMatcher("/secure/**")
+                        requestMatcher = PathPatternRequestMatcher.pathPattern("/secure/**")
                     }
                 }
             }

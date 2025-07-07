@@ -117,14 +117,6 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
 		return this;
 	}
 
-	@Deprecated(since = "6.4", forRemoval = true)
-	@Override
-	public UrlAuthorizationConfigurer<H> withObjectPostProcessor(
-			org.springframework.security.config.annotation.ObjectPostProcessor<?> objectPostProcessor) {
-		addObjectPostProcessor(objectPostProcessor);
-		return this;
-	}
-
 	/**
 	 * Creates the default {@link AccessDecisionVoter} instances used if an
 	 * {@link AccessDecisionManager} was not specified.
@@ -248,7 +240,7 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		public H and() {
-			return UrlAuthorizationConfigurer.this.and();
+			return UrlAuthorizationConfigurer.this.getBuilder();
 		}
 
 	}

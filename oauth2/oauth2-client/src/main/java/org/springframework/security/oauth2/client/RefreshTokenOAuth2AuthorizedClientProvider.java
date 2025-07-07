@@ -27,9 +27,9 @@ import java.util.Set;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.lang.Nullable;
-import org.springframework.security.oauth2.client.endpoint.DefaultRefreshTokenTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.RestClientRefreshTokenTokenResponseClient;
 import org.springframework.security.oauth2.client.event.OAuth2AuthorizedClientRefreshedEvent;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
@@ -44,12 +44,12 @@ import org.springframework.util.Assert;
  * @author Joe Grandja
  * @since 5.2
  * @see OAuth2AuthorizedClientProvider
- * @see DefaultRefreshTokenTokenResponseClient
+ * @see RestClientRefreshTokenTokenResponseClient
  */
 public final class RefreshTokenOAuth2AuthorizedClientProvider
 		implements OAuth2AuthorizedClientProvider, ApplicationEventPublisherAware {
 
-	private OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient = new DefaultRefreshTokenTokenResponseClient();
+	private OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient = new RestClientRefreshTokenTokenResponseClient();
 
 	private ApplicationEventPublisher applicationEventPublisher;
 

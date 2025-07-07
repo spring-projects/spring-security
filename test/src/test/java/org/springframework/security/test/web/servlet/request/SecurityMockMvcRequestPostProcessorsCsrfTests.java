@@ -164,7 +164,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 		HttpSessionCsrfTokenRepository repo = new HttpSessionCsrfTokenRepository();
 		CsrfTokenRequestHandler handler = new XorCsrfTokenRequestAttributeHandler();
 		DeferredCsrfToken deferredCsrfToken = repo.loadDeferredToken(request, response);
-		handler.handle(request, response, deferredCsrfToken::get);
+		handler.handle(request, response, deferredCsrfToken);
 		CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
 		MockHttpServletRequestBuilder requestWithCsrf = post("/")
 			.param(token.getParameterName(), token.getToken())

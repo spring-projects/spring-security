@@ -22,6 +22,7 @@ import java.util.Set;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.authority.mapping.SimpleMappableAttributesRetriever;
@@ -77,7 +78,7 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends Abstr
 
 	/**
 	 * Creates a new instance
-	 * @see HttpSecurity#jee()
+	 * @see HttpSecurity#jee(Customizer)
 	 */
 	public JeeConfigurer() {
 	}

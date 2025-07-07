@@ -22,7 +22,8 @@ import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.web.DefaultSecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * @author Rob Winch
@@ -43,16 +44,16 @@ public class CustomConfigurer extends SecurityConfigurerAdapter<DefaultSecurityF
 		context.getAutowireCapableBeanFactory().autowireBean(this);
 		// @formatter:off
 		http
-			.authorizeRequests()
-				.requestMatchers(new AntPathRequestMatcher(this.permitAllPattern)).permitAll()
-				.anyRequest().authenticated();
+			.authorizeRequests((requests) -> requests
+				.requestMatchers(pathPattern(this.permitAllPattern)).permitAll()
+				.anyRequest().authenticated());
 		// @formatter:on
 		if (http.getConfigurer(FormLoginConfigurer.class) == null) {
 			// only apply if formLogin() was not invoked by the user
 			// @formatter:off
 			http
-				.formLogin()
-					.loginPage(this.loginPage);
+				.formLogin((login) -> login
+					.loginPage(this.loginPage));
 			// @formatter:on
 		}
 	}

@@ -85,7 +85,7 @@ final class HtmlUnitWebTestClient {
 			}
 			return request;
 		}
-		return request.body(BodyInserters.fromObject(requestBody));
+		return request.body(BodyInserters.fromProducer(requestBody, String.class));
 	}
 
 	private MultiValueMap<String, String> formData(List<NameValuePair> params) {
@@ -161,7 +161,7 @@ final class HtmlUnitWebTestClient {
 					redirectUrl = scheme + "://" + host + location.toASCIIString();
 				}
 				// @formatter:off
-				ClientRequest redirect = ClientRequest.method(HttpMethod.GET, URI.create(redirectUrl))
+				ClientRequest redirect = ClientRequest.create(HttpMethod.GET, URI.create(redirectUrl))
 						.headers((headers) -> headers.addAll(request.headers()))
 						.cookies((cookies) -> cookies.addAll(request.cookies()))
 						.attributes((attributes) -> attributes.putAll(request.attributes()))

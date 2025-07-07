@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,13 +22,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.ResolvableType;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.EncoderHttpMessageWriter;
@@ -54,7 +54,8 @@ import org.springframework.web.util.UriComponentsBuilder;
  * Back-Channel Logout Token and invalidates each one.
  *
  * @author Josh Cummings
- * @since 6.4
+ * @author Andrey Litvitski
+ * @since 6.2
  * @see <a target="_blank" href=
  * "https://openid.net/specs/openid-connect-backchannel-1_0.html">OIDC Back-Channel Logout
  * Spec</a>
@@ -170,7 +171,7 @@ public final class OidcBackChannelServerLogoutHandler implements ServerLogoutHan
 	}
 
 	private Mono<Void> handleLogoutFailure(ServerWebExchange exchange, OAuth2Error error) {
-		exchange.getResponse().setRawStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+		exchange.getResponse().setRawStatusCode(HttpStatus.BAD_REQUEST.value());
 		return this.errorHttpMessageConverter.write(Mono.just(error), ResolvableType.forClass(Object.class),
 				ResolvableType.forClass(Object.class), MediaType.APPLICATION_JSON, exchange.getRequest(),
 				exchange.getResponse(), Collections.emptyMap());

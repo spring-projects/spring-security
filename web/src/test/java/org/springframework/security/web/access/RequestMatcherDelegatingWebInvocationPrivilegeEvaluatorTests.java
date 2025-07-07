@@ -22,16 +22,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcherEntry;
-import org.springframework.web.util.ServletRequestPathUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -75,7 +71,7 @@ class RequestMatcherDelegatingWebInvocationPrivilegeEvaluatorTests {
 	@Test
 	void isAllowedWhenNotMatchThenAllowed() {
 		RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> notMatch = entry(this.alwaysDeny,
-				TestWebInvocationPrivilegeEvaluator.alwaysAllow());
+				TestWebInvocationPrivilegeEvaluators.alwaysAllow());
 		WebInvocationPrivilegeEvaluator delegating = evaluator(notMatch);
 		assertThat(delegating.isAllowed(this.uri, this.authentication)).isTrue();
 		verify(notMatch.getRequestMatcher()).matches(any());
@@ -96,9 +92,9 @@ class RequestMatcherDelegatingWebInvocationPrivilegeEvaluatorTests {
 	@Test
 	void isAllowedWhenNotMatchThenMatchThenOnlySecondDelegateInvoked() {
 		RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> notMatchDelegate = entry(this.alwaysDeny,
-				TestWebInvocationPrivilegeEvaluator.alwaysAllow());
+				TestWebInvocationPrivilegeEvaluators.alwaysAllow());
 		RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> matchDelegate = entry(this.alwaysMatch,
-				TestWebInvocationPrivilegeEvaluator.alwaysAllow());
+				TestWebInvocationPrivilegeEvaluators.alwaysAllow());
 		RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> spyNotMatchDelegate = spy(notMatchDelegate);
 		RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> spyMatchDelegate = spy(matchDelegate);
 
@@ -120,8 +116,8 @@ class RequestMatcherDelegatingWebInvocationPrivilegeEvaluatorTests {
 
 	@Test
 	void isAllowedWhenFirstDelegateDenyThenDoNotInvokeOthers() {
-		WebInvocationPrivilegeEvaluator deny = TestWebInvocationPrivilegeEvaluator.alwaysDeny();
-		WebInvocationPrivilegeEvaluator allow = TestWebInvocationPrivilegeEvaluator.alwaysAllow();
+		WebInvocationPrivilegeEvaluator deny = TestWebInvocationPrivilegeEvaluators.alwaysDeny();
+		WebInvocationPrivilegeEvaluator allow = TestWebInvocationPrivilegeEvaluators.alwaysAllow();
 		WebInvocationPrivilegeEvaluator spyDeny = spy(deny);
 		WebInvocationPrivilegeEvaluator spyAllow = spy(allow);
 		RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> delegate = entry(this.alwaysMatch, spyDeny,
@@ -136,7 +132,7 @@ class RequestMatcherDelegatingWebInvocationPrivilegeEvaluatorTests {
 
 	@Test
 	void isAllowedWhenDifferentArgumentsThenCallSpecificIsAllowedInDelegate() {
-		WebInvocationPrivilegeEvaluator deny = TestWebInvocationPrivilegeEvaluator.alwaysDeny();
+		WebInvocationPrivilegeEvaluator deny = TestWebInvocationPrivilegeEvaluators.alwaysDeny();
 		WebInvocationPrivilegeEvaluator spyDeny = spy(deny);
 		RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> delegate = entry(this.alwaysMatch, spyDeny);
 
@@ -178,30 +174,17 @@ class RequestMatcherDelegatingWebInvocationPrivilegeEvaluatorTests {
 			.withMessageContaining("requestMatcher cannot be null");
 	}
 
-	// gh-16771
-	@Test
-	void isAllowedWhenInvokesDelegateThenCachesRequestPath() {
-		PathPatternRequestMatcher path = PathPatternRequestMatcher.withDefaults().matcher("/path/**");
-		PathPatternRequestMatcher any = PathPatternRequestMatcher.withDefaults().matcher("/**");
-		WebInvocationPrivilegeEvaluator delegating = evaluator(deny(path), deny(any));
-		try (MockedStatic<ServletRequestPathUtils> utils = Mockito.mockStatic(ServletRequestPathUtils.class,
-				Mockito.CALLS_REAL_METHODS)) {
-			delegating.isAllowed("/uri", null);
-			utils.verify(() -> ServletRequestPathUtils.parseAndCache(any()), times(1));
-		}
-	}
-
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private RequestMatcherDelegatingWebInvocationPrivilegeEvaluator evaluator(RequestMatcherEntry... entries) {
 		return new RequestMatcherDelegatingWebInvocationPrivilegeEvaluator(List.of(entries));
 	}
 
 	private RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> allow(RequestMatcher requestMatcher) {
-		return entry(requestMatcher, TestWebInvocationPrivilegeEvaluator.alwaysAllow());
+		return entry(requestMatcher, TestWebInvocationPrivilegeEvaluators.alwaysAllow());
 	}
 
 	private RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> deny(RequestMatcher requestMatcher) {
-		return entry(requestMatcher, TestWebInvocationPrivilegeEvaluator.alwaysDeny());
+		return entry(requestMatcher, TestWebInvocationPrivilegeEvaluators.alwaysDeny());
 	}
 
 	private RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> entry(RequestMatcher requestMatcher,

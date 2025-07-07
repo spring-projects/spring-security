@@ -43,8 +43,8 @@ public class StaticServerHttpHeadersWriter implements ServerHttpHeadersWriter {
 		// Note: We need to ensure that the following algorithm compares headers
 		// case insensitively, which should be true of headers.containsKey().
 		boolean containsNoHeadersToAdd = true;
-		for (String headerName : this.headersToAdd.keySet()) {
-			if (headers.containsKey(headerName)) {
+		for (String headerName : this.headersToAdd.headerNames()) {
+			if (headers.containsHeader(headerName)) {
 				containsNoHeadersToAdd = false;
 				break;
 			}

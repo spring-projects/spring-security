@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,6 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationObservationContext;
-import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
 import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
 import org.springframework.security.config.ObjectPostProcessor;
@@ -55,7 +54,6 @@ import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.observation.SecurityObservationSettings;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
-import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -68,7 +66,6 @@ import org.springframework.security.web.access.expression.WebExpressionAuthoriza
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.test.web.servlet.MockMvc;
@@ -81,13 +78,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -147,7 +142,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	public void configureWhenMvcMatcherAfterAnyRequestThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
 			.isThrownBy(() -> this.spring.register(AfterAnyRequestConfig.class).autowire())
-			.withMessageContaining("Can't configure mvcMatchers after anyRequest");
+			.withMessageContaining("Can't configure requestMatchers after anyRequest");
 	}
 
 	@Test
@@ -155,7 +150,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		CustomAuthorizationManagerConfig.authorizationManager = mock(AuthorizationManager.class);
 		this.spring.register(CustomAuthorizationManagerConfig.class, BasicController.class).autowire();
 		this.mvc.perform(get("/")).andExpect(status().isOk());
-		verify(CustomAuthorizationManagerConfig.authorizationManager).check(any(), any());
+		verify(CustomAuthorizationManagerConfig.authorizationManager).authorize(any(), any());
 	}
 
 	@Test
@@ -163,7 +158,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		CustomAuthorizationManagerNoParameterConfig.authorizationManager = mock(AuthorizationManager.class);
 		this.spring.register(CustomAuthorizationManagerNoParameterConfig.class, BasicController.class).autowire();
 		this.mvc.perform(get("/")).andExpect(status().isOk());
-		verify(CustomAuthorizationManagerNoParameterConfig.authorizationManager).check(any(), any());
+		verify(CustomAuthorizationManagerNoParameterConfig.authorizationManager).authorize(any(), any());
 	}
 
 	@Test
@@ -685,7 +680,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	@Test
 	public void requestMatchersWhenMultipleDispatcherServletsAndPathBeanThenAllows() throws Exception {
-		this.spring.register(MvcRequestMatcherBuilderConfig.class, BasicController.class)
+		this.spring.register(PathPatternRequestMatcherBuilderConfig.class, BasicController.class)
 			.postProcessor((context) -> context.getServletContext()
 				.addServlet("otherDispatcherServlet", DispatcherServlet.class)
 				.addMapping("/mvc"))
@@ -758,7 +753,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeHttpRequests();
+				.authorizeHttpRequests(withDefaults());
 			// @formatter:on
 
 			return http.build();
@@ -789,8 +784,8 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.authorizeHttpRequests()
-					.anyRequest();
+				.authorizeHttpRequests((authorize) -> authorize
+					.anyRequest());
 			// @formatter:on
 
 			return http.build();
@@ -806,7 +801,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.authorizeHttpRequests((requests) -> requests
+					.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().authenticated()
 						.requestMatchers("/path").hasRole("USER")
 					)
@@ -826,7 +821,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.authorizeHttpRequests((requests) -> requests
+					.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().access(authorizationManager)
 					)
 					.build();
@@ -845,8 +840,8 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeHttpRequests()
-					.anyRequest().access(authorizationManager);
+				.authorizeHttpRequests((authorize) -> authorize
+					.anyRequest().access(authorizationManager));
 			// @formatter:on
 
 			return http.build();
@@ -864,7 +859,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.authorizeHttpRequests((requests) -> requests
+					.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().authenticated()
 					)
 					.build();
@@ -895,12 +890,11 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.httpBasic()
-						.and()
-					.authorizeHttpRequests((requests) -> requests
+				.httpBasic(withDefaults())
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().hasAnyAuthority("ROLE_USER")
-					)
-					.build();
+				)
+				.build();
 			// @formatter:on
 		}
 
@@ -914,12 +908,11 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.httpBasic()
-						.and()
-					.authorizeHttpRequests((requests) -> requests
+				.httpBasic(withDefaults())
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().hasAuthority("ROLE_USER")
-					)
-					.build();
+				)
+				.build();
 			// @formatter:on
 		}
 
@@ -933,12 +926,11 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.httpBasic()
-						.and()
-					.authorizeHttpRequests((requests) -> requests
+				.httpBasic(withDefaults())
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-					)
-					.build();
+				)
+				.build();
 			// @formatter:on
 		}
 
@@ -952,7 +944,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.authorizeHttpRequests((requests) -> requests
+					.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().hasRole("USER")
 					)
 					.build();
@@ -969,7 +961,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.authorizeHttpRequests((requests) -> requests
+					.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().hasRole("USER")
 					)
 					.build();
@@ -993,7 +985,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.authorizeHttpRequests((requests) -> requests
+					.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().hasAnyRole("USER", "ADMIN")
 					)
 					.build();
@@ -1010,12 +1002,11 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.httpBasic()
-						.and()
-					.authorizeHttpRequests((requests) -> requests
+				.httpBasic(withDefaults())
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().denyAll()
-					)
-					.build();
+				)
+				.build();
 			// @formatter:on
 		}
 
@@ -1029,7 +1020,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.authorizeHttpRequests((requests) -> requests
+					.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().permitAll()
 					)
 					.build();
@@ -1046,13 +1037,12 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.httpBasic()
-						.and()
-					.authorizeHttpRequests((requests) -> requests
+				.httpBasic(withDefaults())
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().authenticated()
-					)
-					.authorizeHttpRequests(withDefaults())
-					.build();
+				)
+				.authorizeHttpRequests(withDefaults())
+				.build();
 			// @formatter:on
 		}
 
@@ -1064,13 +1054,11 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	static class ServletPathConfig {
 
 		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
-			MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector)
-				.servletPath("/spring");
+		SecurityFilterChain filterChain(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
 			// @formatter:off
 			return http
-					.authorizeHttpRequests((requests) -> requests
-						.requestMatchers(mvcMatcherBuilder.pattern("/")).hasRole("ADMIN")
+					.authorizeHttpRequests((authorize) -> authorize
+						.requestMatchers(builder.basePath("/spring").matcher("/")).hasRole("ADMIN")
 					)
 					.build();
 			// @formatter:on
@@ -1086,12 +1074,11 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.httpBasic()
-						.and()
-					.authorizeHttpRequests((requests) -> requests
+				.httpBasic(withDefaults())
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().authenticated()
-					)
-					.build();
+				)
+				.build();
 			// @formatter:on
 		}
 
@@ -1111,7 +1098,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.authorizeHttpRequests((requests) -> requests
+					.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().access(new WebExpressionAuthorizationManager("hasRole('USER')"))
 					)
 					.build();
@@ -1128,7 +1115,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.authorizeHttpRequests((requests) -> requests
+					.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().access(new WebExpressionAuthorizationManager("hasRole('USER') or hasRole('ADMIN')"))
 					)
 					.build();
@@ -1145,7 +1132,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.authorizeHttpRequests((requests) -> requests
+					.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().access(new WebExpressionAuthorizationManager("hasIpAddress('127.0.0.1')"))
 					)
 					.build();
@@ -1164,7 +1151,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
-				.authorizeHttpRequests((requests) -> requests
+				.authorizeHttpRequests((authorize) -> authorize
 					.requestMatchers("/user/{username}").access(new WebExpressionAuthorizationManager("#username == 'user'"))
 					.requestMatchers("/v2/user/{username}").hasVariable("username").equalTo(Authentication::getName)
 				);
@@ -1199,7 +1186,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 			http
 				.httpBasic(withDefaults())
 				.rememberMe(withDefaults())
-				.authorizeHttpRequests((requests) -> requests
+				.authorizeHttpRequests((authorize) -> authorize
 					.anyRequest().fullyAuthenticated()
 				);
 			// @formatter:on
@@ -1223,7 +1210,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 			http
 				.httpBasic(withDefaults())
 				.rememberMe(withDefaults())
-				.authorizeHttpRequests((requests) -> requests
+				.authorizeHttpRequests((authorize) -> authorize
 					.anyRequest().rememberMe()
 				);
 			// @formatter:on
@@ -1246,7 +1233,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
-				.authorizeHttpRequests((requests) -> requests
+				.authorizeHttpRequests((authorize) -> authorize
 					.anyRequest().anonymous()
 				);
 			// @formatter:on
@@ -1264,7 +1251,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
-				.authorizeHttpRequests((requests) -> requests
+				.authorizeHttpRequests((authorize) -> authorize
 					.anyRequest().not().authenticated()
 				);
 			// @formatter:on
@@ -1280,8 +1267,6 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 		@Bean
 		AuthorizationEventPublisher authorizationEventPublisher() {
-			doCallRealMethod().when(this.publisher)
-				.publishAuthorizationEvent(any(), any(), any(AuthorizationResult.class));
 			return this.publisher;
 		}
 
@@ -1360,7 +1345,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
-	static class MvcRequestMatcherBuilderConfig {
+	static class PathPatternRequestMatcherBuilderConfig {
 
 		@Bean
 		SecurityFilterChain security(HttpSecurity http) throws Exception {
@@ -1394,11 +1379,6 @@ public class AuthorizeHttpRequestsConfigurerTests {
 			// @formatter:on
 
 			return http.build();
-		}
-
-		@Bean
-		PathPatternRequestMatcherBuilderFactoryBean pathPatternFactoryBean() {
-			return new PathPatternRequestMatcherBuilderFactoryBean();
 		}
 
 	}

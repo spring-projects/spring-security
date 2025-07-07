@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult;
@@ -35,6 +36,7 @@ import org.springframework.web.server.ServerWebExchange;
 /**
  * @author Rob Winch
  * @author Mathieu Ouellet
+ * @author Evgeniy Cheban
  * @since 5.0
  */
 public final class DelegatingReactiveAuthorizationManager implements ReactiveAuthorizationManager<ServerWebExchange> {
@@ -48,12 +50,8 @@ public final class DelegatingReactiveAuthorizationManager implements ReactiveAut
 		this.mappings = mappings;
 	}
 
-	/**
-	 * @deprecated please use {@link #authorize(Mono, Object)} instead
-	 */
-	@Deprecated
 	@Override
-	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, ServerWebExchange exchange) {
+	public Mono<AuthorizationResult> authorize(Mono<Authentication> authentication, ServerWebExchange exchange) {
 		return Flux.fromIterable(this.mappings)
 			.concatMap((mapping) -> mapping.getMatcher()
 				.matches(exchange)
@@ -63,10 +61,10 @@ public final class DelegatingReactiveAuthorizationManager implements ReactiveAut
 					logger.debug(LogMessage.of(() -> "Checking authorization on '"
 							+ exchange.getRequest().getPath().pathWithinApplication() + "' using "
 							+ mapping.getEntry()));
-					return mapping.getEntry().check(authentication, new AuthorizationContext(exchange, variables));
+					return mapping.getEntry().authorize(authentication, new AuthorizationContext(exchange, variables));
 				}))
 			.next()
-			.defaultIfEmpty(new AuthorizationDecision(false));
+			.switchIfEmpty(Mono.fromCallable(() -> new AuthorizationDecision(false)));
 	}
 
 	public static DelegatingReactiveAuthorizationManager.Builder builder() {

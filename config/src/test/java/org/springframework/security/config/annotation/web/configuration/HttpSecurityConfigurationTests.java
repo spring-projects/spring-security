@@ -524,7 +524,7 @@ public class HttpSecurityConfigurationTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.authorizeHttpRequests((requests) -> requests
+					.authorizeHttpRequests((authorize) -> authorize
 							.anyRequest().authenticated()
 					)
 					.authorizeRequests((requests) -> requests
@@ -547,7 +547,7 @@ public class HttpSecurityConfigurationTests {
 					.authorizeRequests((requests) -> requests
 							.anyRequest().authenticated()
 					)
-					.authorizeHttpRequests((requests) -> requests
+					.authorizeHttpRequests((authorize) -> authorize
 							.anyRequest().authenticated()
 					)
 					.build();
@@ -634,7 +634,7 @@ public class HttpSecurityConfigurationTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.authorizeHttpRequests((requests) -> requests
+					.authorizeHttpRequests((authorize) -> authorize
 							.anyRequest().authenticated()
 					);
 			// @formatter:on

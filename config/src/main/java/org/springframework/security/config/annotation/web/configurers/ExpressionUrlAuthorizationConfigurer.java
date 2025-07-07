@@ -29,6 +29,7 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -77,7 +78,7 @@ import org.springframework.util.StringUtils;
  * @author Yanming Zhou
  * @author Ngoc Nhan
  * @since 3.2
- * @see org.springframework.security.config.annotation.web.builders.HttpSecurity#authorizeRequests()
+ * @see org.springframework.security.config.annotation.web.builders.HttpSecurity#authorizeRequests(Customizer)
  * @deprecated Use {@link AuthorizeHttpRequestsConfigurer} instead
  */
 @Deprecated
@@ -104,7 +105,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 
 	/**
 	 * Creates a new instance
-	 * @see HttpSecurity#authorizeRequests()
+	 * @see HttpSecurity#authorizeRequests(Customizer)
 	 */
 	public ExpressionUrlAuthorizationConfigurer(ApplicationContext context) {
 		GrantedAuthorityDefaults grantedAuthorityDefaults = context.getBeanProvider(GrantedAuthorityDefaults.class)
@@ -239,18 +240,8 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 			return this;
 		}
 
-		/**
-		 * @deprecated
-		 */
-		@Deprecated(since = "6.4", forRemoval = true)
-		public ExpressionInterceptUrlRegistry withObjectPostProcessor(
-				org.springframework.security.config.annotation.ObjectPostProcessor<?> objectPostProcessor) {
-			addObjectPostProcessor(objectPostProcessor);
-			return this;
-		}
-
 		public H and() {
-			return ExpressionUrlAuthorizationConfigurer.this.and();
+			return ExpressionUrlAuthorizationConfigurer.this.getBuilder();
 		}
 
 	}

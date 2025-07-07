@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -386,6 +386,24 @@ public class OpenSaml4AuthenticationProviderTests {
 		this.provider.authenticate(token);
 	}
 
+	// gh-16367
+	@Test
+	public void authenticateWhenEncryptedAssertionWithSignatureThenEncryptedAssertionStillAvailable() {
+		Response response = response();
+		Assertion assertion = TestOpenSamlObjects.signed(assertion(),
+				TestSaml2X509Credentials.assertingPartySigningCredential(), RELYING_PARTY_ENTITY_ID);
+		EncryptedAssertion encryptedAssertion = TestOpenSamlObjects.encrypted(assertion,
+				TestSaml2X509Credentials.assertingPartyEncryptingCredential());
+		response.getEncryptedAssertions().add(encryptedAssertion);
+		Saml2AuthenticationToken token = token(signed(response), decrypting(verifying(registration())));
+		OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+		provider.setResponseValidator((t) -> {
+			assertThat(t.getResponse().getEncryptedAssertions()).isNotEmpty();
+			return Saml2ResponseValidatorResult.success();
+		});
+		provider.authenticate(token);
+	}
+
 	@Test
 	public void authenticateWhenEncryptedAssertionWithResponseSignatureThenItSucceeds() {
 		Response response = response();
@@ -410,6 +428,26 @@ public class OpenSaml4AuthenticationProviderTests {
 		this.provider.authenticate(token);
 	}
 
+	// gh-16367
+	@Test
+	public void authenticateWhenEncryptedNameIdWithSignatureThenEncryptedNameIdStillAvailable() {
+		Response response = response();
+		Assertion assertion = assertion();
+		NameID nameId = assertion.getSubject().getNameID();
+		EncryptedID encryptedID = TestOpenSamlObjects.encrypted(nameId,
+				TestSaml2X509Credentials.assertingPartyEncryptingCredential());
+		assertion.getSubject().setNameID(null);
+		assertion.getSubject().setEncryptedID(encryptedID);
+		response.getAssertions().add(signed(assertion));
+		Saml2AuthenticationToken token = token(response, decrypting(verifying(registration())));
+		OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+		provider.setAssertionValidator((t) -> {
+			assertThat(t.getAssertion().getSubject().getEncryptedID()).isNotNull();
+			return Saml2ResponseValidatorResult.success();
+		});
+		provider.authenticate(token);
+	}
+
 	@Test
 	public void authenticateWhenEncryptedAttributeThenDecrypts() {
 		Response response = response();
@@ -424,6 +462,26 @@ public class OpenSaml4AuthenticationProviderTests {
 		Saml2Authentication authentication = (Saml2Authentication) this.provider.authenticate(token);
 		Saml2AuthenticatedPrincipal principal = (Saml2AuthenticatedPrincipal) authentication.getPrincipal();
 		assertThat(principal.getAttribute("name")).containsExactly("value");
+	}
+
+	// gh-16367
+	@Test
+	public void authenticateWhenEncryptedAttributeThenEncryptedAttributesStillAvailable() {
+		Response response = response();
+		Assertion assertion = assertion();
+		EncryptedAttribute attribute = TestOpenSamlObjects.encrypted("name", "value",
+				TestSaml2X509Credentials.assertingPartyEncryptingCredential());
+		AttributeStatement statement = build(AttributeStatement.DEFAULT_ELEMENT_NAME);
+		statement.getEncryptedAttributes().add(attribute);
+		assertion.getAttributeStatements().add(statement);
+		response.getAssertions().add(assertion);
+		Saml2AuthenticationToken token = token(signed(response), decrypting(verifying(registration())));
+		OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+		provider.setAssertionValidator((t) -> {
+			assertThat(t.getAssertion().getAttributeStatements().get(0).getEncryptedAttributes()).isNotEmpty();
+			return Saml2ResponseValidatorResult.success();
+		});
+		provider.authenticate(token);
 	}
 
 	@Test
@@ -831,6 +889,15 @@ public class OpenSaml4AuthenticationProviderTests {
 		provider.authenticate(token);
 	}
 
+	// gh-16989
+	@Test
+	public void authenticateWhenNullIssuerThenNoNullPointer() {
+		OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+		Response response = TestOpenSamlObjects.signedResponseWithOneAssertion((r) -> r.setIssuer(null));
+		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		assertThatExceptionOfType(Saml2AuthenticationException.class).isThrownBy(() -> provider.authenticate(token));
+	}
+
 	private <T extends XMLObject> T build(QName qName) {
 		return (T) XMLObjectProviderRegistrySupport.getBuilderFactory().getBuilder(qName).buildObject(qName);
 	}
@@ -929,11 +996,11 @@ public class OpenSaml4AuthenticationProviderTests {
 		return TestRelyingPartyRegistrations.noCredentials()
 			.entityId(RELYING_PARTY_ENTITY_ID)
 			.assertionConsumerServiceLocation(DESTINATION)
-			.assertingPartyDetails((party) -> party.entityId(ASSERTING_PARTY_ENTITY_ID));
+			.assertingPartyMetadata((party) -> party.entityId(ASSERTING_PARTY_ENTITY_ID));
 	}
 
 	private RelyingPartyRegistration.Builder verifying(RelyingPartyRegistration.Builder builder) {
-		return builder.assertingPartyDetails((party) -> party
+		return builder.assertingPartyMetadata((party) -> party
 			.verificationX509Credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())));
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,17 +51,6 @@ public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>>
 	}
 
 	/**
-	 * Return the {@link SecurityBuilder} when done using the {@link SecurityConfigurer}.
-	 * This is useful for method chaining.
-	 * @return the {@link SecurityBuilder} for further customizations
-	 * @deprecated For removal in 7.0. Use the lambda based configuration instead.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public B and() {
-		return getBuilder();
-	}
-
-	/**
 	 * Gets the {@link SecurityBuilder}. Cannot be null.
 	 * @return the {@link SecurityBuilder}
 	 * @throws IllegalStateException if {@link SecurityBuilder} is null
@@ -89,15 +78,6 @@ public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>>
 	 * @param objectPostProcessor the {@link ObjectPostProcessor} to use
 	 */
 	public void addObjectPostProcessor(ObjectPostProcessor<?> objectPostProcessor) {
-		this.objectPostProcessor.addObjectPostProcessor(objectPostProcessor);
-	}
-
-	/**
-	 * @deprecated
-	 */
-	@Deprecated(since = "6.4", forRemoval = true)
-	public void addObjectPostProcessor(
-			org.springframework.security.config.annotation.ObjectPostProcessor<?> objectPostProcessor) {
 		this.objectPostProcessor.addObjectPostProcessor(objectPostProcessor);
 	}
 

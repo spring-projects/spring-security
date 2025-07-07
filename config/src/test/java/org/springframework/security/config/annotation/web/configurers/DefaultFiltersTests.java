@@ -31,7 +31,7 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.TestHttpSecurity;
+import org.springframework.security.config.annotation.web.builders.TestHttpSecurities;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.test.SpringTestContext;
@@ -63,6 +63,7 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
  * @author Rob Winch
@@ -127,8 +128,7 @@ public class DefaultFiltersTests {
 	public void defaultFiltersPermitAll() throws IOException, ServletException {
 		this.spring.register(DefaultFiltersConfigPermitAll.class, UserDetailsServiceConfig.class);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		MockHttpServletRequest request = new MockHttpServletRequest("POST", "");
-		request.setServletPath("/logout");
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout");
 		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "BaseSpringSpec_CSRFTOKEN");
 		CsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
 		repository.saveToken(csrfToken, request, response);
@@ -169,8 +169,8 @@ public class DefaultFiltersTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			TestHttpSecurity.disableDefaults(http);
-			http.formLogin();
+			TestHttpSecurities.disableDefaults(http);
+			http.formLogin(withDefaults());
 			return http.build();
 		}
 
@@ -190,8 +190,8 @@ public class DefaultFiltersTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER");
+				.authorizeRequests((requests) -> requests
+					.anyRequest().hasRole("USER"));
 			return http.build();
 			// @formatter:on
 		}

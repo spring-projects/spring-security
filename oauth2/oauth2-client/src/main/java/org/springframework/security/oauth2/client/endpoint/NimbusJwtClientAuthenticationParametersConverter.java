@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,8 +67,8 @@ import org.springframework.util.MultiValueMap;
  * @since 5.5
  * @see Converter
  * @see com.nimbusds.jose.jwk.JWK
- * @see OAuth2AuthorizationCodeGrantRequestEntityConverter#addParametersConverter(Converter)
- * @see OAuth2ClientCredentialsGrantRequestEntityConverter#addParametersConverter(Converter)
+ * @see RestClientAuthorizationCodeTokenResponseClient#addParametersConverter(Converter)
+ * @see RestClientClientCredentialsTokenResponseClient#addParametersConverter(Converter)
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7523#section-2.2">2.2
  * Using JWTs for Client Authentication</a>
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7521#section-4.2">4.2

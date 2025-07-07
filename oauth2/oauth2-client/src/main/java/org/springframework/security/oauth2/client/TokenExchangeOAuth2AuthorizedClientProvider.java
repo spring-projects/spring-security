@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import java.time.Instant;
 import java.util.function.Function;
 
 import org.springframework.lang.Nullable;
-import org.springframework.security.oauth2.client.endpoint.DefaultTokenExchangeTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.RestClientTokenExchangeTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.TokenExchangeGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -39,11 +39,11 @@ import org.springframework.util.Assert;
  * @author Steve Riesenberg
  * @since 6.3
  * @see OAuth2AuthorizedClientProvider
- * @see DefaultTokenExchangeTokenResponseClient
+ * @see RestClientTokenExchangeTokenResponseClient
  */
 public final class TokenExchangeOAuth2AuthorizedClientProvider implements OAuth2AuthorizedClientProvider {
 
-	private OAuth2AccessTokenResponseClient<TokenExchangeGrantRequest> accessTokenResponseClient = new DefaultTokenExchangeTokenResponseClient();
+	private OAuth2AccessTokenResponseClient<TokenExchangeGrantRequest> accessTokenResponseClient = new RestClientTokenExchangeTokenResponseClient();
 
 	private Function<OAuth2AuthorizationContext, OAuth2Token> subjectTokenResolver = this::resolveSubjectToken;
 

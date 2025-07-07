@@ -267,7 +267,7 @@ public class FilterInvocation {
 
 		@Override
 		public Enumeration<String> getHeaderNames() {
-			return Collections.enumeration(this.headers.keySet());
+			return Collections.enumeration(this.headers.headerNames());
 		}
 
 		@Override

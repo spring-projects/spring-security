@@ -27,6 +27,7 @@ import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2X509Credential;
+import org.springframework.security.saml2.provider.service.authentication.Saml2ResponseAssertionAccessor;
 import org.springframework.security.saml2.provider.service.authentication.logout.OpenSamlOperations.VerificationConfigurer;
 import org.springframework.security.saml2.provider.service.authentication.logout.OpenSamlOperations.VerificationConfigurer.RedirectParameters;
 import org.springframework.security.saml2.provider.service.registration.AssertingPartyMetadata;
@@ -142,8 +143,9 @@ class BaseOpenSamlLogoutRequestValidator implements Saml2LogoutRequestValidator 
 	}
 
 	private void validateNameId(NameID nameId, Authentication authentication, Collection<Saml2Error> errors) {
-		String name = nameId.getValue();
-		if (!name.equals(authentication.getName())) {
+		String name = (authentication.getCredentials() instanceof Saml2ResponseAssertionAccessor assertion)
+				? assertion.getNameId() : authentication.getName();
+		if (!nameId.getValue().equals(name)) {
 			errors.add(new Saml2Error(Saml2ErrorCodes.INVALID_REQUEST,
 					"Failed to match subject in LogoutRequest with currently logged in user"));
 		}

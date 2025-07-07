@@ -39,16 +39,10 @@
 	</b:bean>
 
 	<b:bean class="org.springframework.security.config.http.OAuth2AuthorizedClientManagerRegistrarTests"
-			factory-method="authorizedClientManagerConsumer"/>
-
-	<b:bean class="org.springframework.security.config.http.OAuth2AuthorizedClientManagerRegistrarTests"
 			factory-method="refreshTokenAccessTokenResponseClient"/>
 
 	<b:bean class="org.springframework.security.config.http.OAuth2AuthorizedClientManagerRegistrarTests"
 			factory-method="clientCredentialsAccessTokenResponseClient"/>
-
-	<b:bean class="org.springframework.security.config.http.OAuth2AuthorizedClientManagerRegistrarTests"
-			factory-method="passwordAccessTokenResponseClient"/>
 
 	<b:bean class="org.springframework.security.config.http.OAuth2AuthorizedClientManagerRegistrarTests"
 			factory-method="jwtBearerAccessTokenResponseClient"/>

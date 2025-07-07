@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public final class TestRelyingPartyRegistrations {
 			.assertionConsumerServiceLocation(assertionConsumerServiceLocation)
 			.singleLogoutServiceLocation(singleLogoutServiceLocation)
 			.signingX509Credentials((c) -> c.add(signingCredential))
-			.assertingPartyDetails((a) -> a.entityId(apEntityId)
+			.assertingPartyMetadata((a) -> a.entityId(apEntityId)
 				.singleSignOnServiceLocation(singleSignOnServiceLocation)
 				.verificationX509Credentials((c) -> c.add(verificationCertificate)));
 	}
@@ -55,7 +55,7 @@ public final class TestRelyingPartyRegistrations {
 			.singleLogoutServiceLocation("https://rp.example.org/logout/saml2/request")
 			.singleLogoutServiceResponseLocation("https://rp.example.org/logout/saml2/response")
 			.assertionConsumerServiceLocation("https://rp.example.org/acs")
-			.assertingPartyDetails((party) -> party.entityId("ap-entity-id")
+			.assertingPartyMetadata((party) -> party.entityId("ap-entity-id")
 				.singleSignOnServiceLocation("https://ap.example.org/sso")
 				.singleLogoutServiceLocation("https://ap.example.org/logout/saml2/request")
 				.singleLogoutServiceResponseLocation("https://ap.example.org/logout/saml2/response"));
@@ -67,7 +67,7 @@ public final class TestRelyingPartyRegistrations {
 				.add(org.springframework.security.saml2.core.TestSaml2X509Credentials.relyingPartySigningCredential()))
 			.decryptionX509Credentials((c) -> c.add(org.springframework.security.saml2.core.TestSaml2X509Credentials
 				.relyingPartyDecryptingCredential()))
-			.assertingPartyDetails((party) -> party.verificationX509Credentials(
+			.assertingPartyMetadata((party) -> party.verificationX509Credentials(
 					(c) -> c.add(org.springframework.security.saml2.core.TestSaml2X509Credentials
 						.relyingPartyVerifyingCredential())));
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.web.access.AuthorizationManagerWebInvocationPrivilegeEvaluator.HttpServletRequestTransformer;
+import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -38,6 +39,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 @ExtendWith(MockitoExtension.class)
 class AuthorizationManagerWebInvocationPrivilegeEvaluatorTests {
@@ -60,25 +62,22 @@ class AuthorizationManagerWebInvocationPrivilegeEvaluatorTests {
 
 	@Test
 	void isAllowedWhenAuthorizationManagerAllowsThenAllowedTrue() {
-		given(this.authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(true));
-		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
+		given(this.authorizationManager.authorize(any(), any())).willReturn(new AuthorizationDecision(true));
 		boolean allowed = this.privilegeEvaluator.isAllowed("/test", TestAuthentication.authenticatedUser());
 		assertThat(allowed).isTrue();
-		verify(this.authorizationManager).check(any(), any());
+		verify(this.authorizationManager).authorize(any(), any());
 	}
 
 	@Test
 	void isAllowedWhenAuthorizationManagerDeniesAllowedFalse() {
-		given(this.authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(false));
-		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
+		given(this.authorizationManager.authorize(any(), any())).willReturn(new AuthorizationDecision(false));
 		boolean allowed = this.privilegeEvaluator.isAllowed("/test", TestAuthentication.authenticatedUser());
 		assertThat(allowed).isFalse();
 	}
 
 	@Test
 	void isAllowedWhenAuthorizationManagerAbstainsThenAllowedTrue() {
-		given(this.authorizationManager.check(any(), any())).willReturn(null);
-		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
+		given(this.authorizationManager.authorize(any(), any())).willReturn(null);
 		boolean allowed = this.privilegeEvaluator.isAllowed("/test", TestAuthentication.authenticatedUser());
 		assertThat(allowed).isTrue();
 	}
@@ -86,11 +85,10 @@ class AuthorizationManagerWebInvocationPrivilegeEvaluatorTests {
 	@Test
 	void isAllowedWhenServletContextExistsThenFilterInvocationHasServletContext() {
 		ServletContext servletContext = new MockServletContext();
-		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		this.privilegeEvaluator.setServletContext(servletContext);
 		this.privilegeEvaluator.isAllowed("/test", TestAuthentication.authenticatedUser());
 		ArgumentCaptor<HttpServletRequest> captor = ArgumentCaptor.forClass(HttpServletRequest.class);
-		verify(this.authorizationManager).check(any(), captor.capture());
+		verify(this.authorizationManager).authorize(any(), captor.capture());
 		assertThat(captor.getValue().getServletContext()).isSameAs(servletContext);
 	}
 
@@ -103,12 +101,26 @@ class AuthorizationManagerWebInvocationPrivilegeEvaluatorTests {
 	void isAllowedWhenRequestTransformerThenUsesRequestTransformerResult() {
 		HttpServletRequest request = new MockHttpServletRequest();
 		given(this.requestTransformer.transform(any())).willReturn(request);
-		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		this.privilegeEvaluator.setRequestTransformer(this.requestTransformer);
 
 		this.privilegeEvaluator.isAllowed("/test", TestAuthentication.authenticatedUser());
 
-		verify(this.authorizationManager).check(any(), eq(request));
+		verify(this.authorizationManager).authorize(any(), eq(request));
+	}
+
+	// gh-16771
+	@Test
+	void isAllowedWhenInvokesDelegateThenCachesRequestPath() {
+		RequestMatcherDelegatingAuthorizationManager authorizationManager = RequestMatcherDelegatingAuthorizationManager
+			.builder()
+			.add(pathPattern("/test/**"),
+					(authentication, ctx) -> this.authorizationManager.authorize(authentication, ctx.getRequest()))
+			.build();
+		AuthorizationManagerWebInvocationPrivilegeEvaluator privilegeEvaluator = new AuthorizationManagerWebInvocationPrivilegeEvaluator(
+				authorizationManager);
+		privilegeEvaluator.setRequestTransformer(new PathPatternRequestTransformer());
+		privilegeEvaluator.isAllowed("/test", TestAuthentication.authenticatedUser());
+		verify(this.authorizationManager).authorize(any(), any());
 	}
 
 }

@@ -73,6 +73,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
  * @author Rob Winch
@@ -289,7 +290,7 @@ public class OAuth2ClientSpecTests {
 		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.oauth2Client();
+				.oauth2Client(withDefaults());
 			// @formatter:on
 			return http.build();
 		}
@@ -348,12 +349,11 @@ public class OAuth2ClientSpecTests {
 		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.oauth2Client()
+				.oauth2Client((client) -> client
 					.authenticationConverter(this.authenticationConverter)
 					.authenticationManager(this.manager)
 					.authorizationRequestRepository(this.authorizationRequestRepository)
-					.authorizationRequestResolver(this.resolver)
-					.and()
+					.authorizationRequestResolver(this.resolver))
 				.requestCache((c) -> c.requestCache(this.requestCache));
 			// @formatter:on
 			return http.build();
@@ -377,8 +377,7 @@ public class OAuth2ClientSpecTests {
 		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-				.oauth2Client((oauth2Client) ->
-					oauth2Client
+				.oauth2Client((oauth2Client) -> oauth2Client
 						.authenticationConverter(this.authenticationConverter)
 						.authenticationManager(this.manager)
 						.authorizationRequestRepository(this.authorizationRequestRepository))

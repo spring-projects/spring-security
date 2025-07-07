@@ -22,7 +22,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Deprecated
@@ -45,10 +44,7 @@ public final class RequestMatcherFactoryBean implements FactoryBean<RequestMatch
 
 	@Override
 	public RequestMatcher getObject() throws Exception {
-		if (this.builder != null) {
-			return this.builder.matcher(this.method, this.path);
-		}
-		return new AntPathRequestMatcher(this.path, (this.method != null) ? this.method.name() : null);
+		return this.builder.matcher(this.method, this.path);
 	}
 
 	@Override
@@ -58,7 +54,7 @@ public final class RequestMatcherFactoryBean implements FactoryBean<RequestMatch
 
 	@Override
 	public void setApplicationContext(ApplicationContext context) throws BeansException {
-		this.builder = context.getBeanProvider(PathPatternRequestMatcher.Builder.class).getIfUnique();
+		this.builder = context.getBean(PathPatternRequestMatcher.Builder.class);
 	}
 
 }

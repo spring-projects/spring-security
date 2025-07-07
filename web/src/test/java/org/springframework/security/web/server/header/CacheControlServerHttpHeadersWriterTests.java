@@ -42,7 +42,7 @@ public class CacheControlServerHttpHeadersWriterTests {
 	@Test
 	public void writeHeadersWhenCacheHeadersThenWritesAllCacheControl() {
 		this.writer.writeHttpHeaders(this.exchange);
-		assertThat(this.headers).hasSize(3);
+		assertThat(this.headers.headerNames()).hasSize(3);
 		assertThat(this.headers.get(HttpHeaders.CACHE_CONTROL))
 			.containsOnly(CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE);
 		assertThat(this.headers.get(HttpHeaders.EXPIRES))
@@ -63,7 +63,7 @@ public class CacheControlServerHttpHeadersWriterTests {
 		String pragma = "1";
 		this.headers.set(HttpHeaders.PRAGMA, pragma);
 		this.writer.writeHttpHeaders(this.exchange);
-		assertThat(this.headers).hasSize(1);
+		assertThat(this.headers.headerNames()).hasSize(1);
 		assertThat(this.headers.get(HttpHeaders.PRAGMA)).containsOnly(pragma);
 	}
 
@@ -72,7 +72,7 @@ public class CacheControlServerHttpHeadersWriterTests {
 		String expires = "1";
 		this.headers.set(HttpHeaders.EXPIRES, expires);
 		this.writer.writeHttpHeaders(this.exchange);
-		assertThat(this.headers).hasSize(1);
+		assertThat(this.headers.headerNames()).hasSize(1);
 		assertThat(this.headers.get(HttpHeaders.EXPIRES)).containsOnly(expires);
 	}
 
@@ -81,7 +81,7 @@ public class CacheControlServerHttpHeadersWriterTests {
 	public void writeHeadersWhenNotModifiedThenNoCacheControlHeaders() {
 		this.exchange.getResponse().setStatusCode(HttpStatus.NOT_MODIFIED);
 		this.writer.writeHttpHeaders(this.exchange);
-		assertThat(this.headers).isEmpty();
+		assertThat(this.headers.headerNames()).isEmpty();
 	}
 
 }

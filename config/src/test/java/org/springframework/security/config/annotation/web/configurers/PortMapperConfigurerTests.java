@@ -32,6 +32,7 @@ import org.springframework.security.web.PortMapperImpl;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 
@@ -73,13 +74,11 @@ public class PortMapperConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.requiresChannel()
-					.anyRequest().requiresSecure()
-					.and()
-				.portMapper()
-					.http(543).mapsTo(123)
-					.and()
-				.portMapper();
+				.requiresChannel((channel) -> channel
+					.anyRequest().requiresSecure())
+				.portMapper((mapper) -> mapper
+					.http(543).mapsTo(123))
+				.portMapper(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -94,12 +93,10 @@ public class PortMapperConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.requiresChannel((requiresChannel) ->
-					requiresChannel
+				.requiresChannel((requiresChannel) -> requiresChannel
 					.anyRequest().requiresSecure()
 				)
-				.portMapper((portMapper) ->
-					portMapper
+				.portMapper((portMapper) -> portMapper
 						.http(543).mapsTo(123)
 				);
 			return http.build();
@@ -118,12 +115,10 @@ public class PortMapperConfigurerTests {
 			customPortMapper.setPortMappings(Collections.singletonMap("543", "123"));
 			// @formatter:off
 			http
-				.requiresChannel((requiresChannel) ->
-					requiresChannel
+				.requiresChannel((requiresChannel) -> requiresChannel
 						.anyRequest().requiresSecure()
 				)
-				.portMapper((portMapper) ->
-					portMapper
+				.portMapper((portMapper) -> portMapper
 						.portMapper(customPortMapper)
 				);
 			return http.build();

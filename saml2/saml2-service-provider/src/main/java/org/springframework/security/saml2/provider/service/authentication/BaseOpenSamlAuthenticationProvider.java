@@ -110,6 +110,8 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 
 	private Converter<ResponseToken, ? extends AbstractAuthenticationToken> responseAuthenticationConverter = createDefaultResponseAuthenticationConverter();
 
+	private boolean validateResponseAfterAssertions = false;
+
 	private static final Set<String> includeChildStatusCodes = new HashSet<>(
 			Arrays.asList(StatusCode.REQUESTER, StatusCode.RESPONDER, StatusCode.VERSION_MISMATCH));
 
@@ -143,6 +145,10 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 		this.responseAuthenticationConverter = responseAuthenticationConverter;
 	}
 
+	void setValidateResponseAfterAssertions(boolean validateResponseAfterAssertions) {
+		this.validateResponseAfterAssertions = validateResponseAfterAssertions;
+	}
+
 	static Converter<ResponseToken, Saml2ResponseValidatorResult> createDefaultResponseValidator() {
 		return (responseToken) -> {
 			Response response = responseToken.getResponse();
@@ -160,7 +166,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 			String inResponseTo = response.getInResponseTo();
 			result = result.concat(validateInResponseTo(token.getAuthenticationRequest(), inResponseTo));
 
-			String issuer = response.getIssuer().getValue();
+			String issuer = issuer(response);
 			String destination = response.getDestination();
 			String location = token.getRelyingPartyRegistration().getAssertionConsumerServiceLocation();
 			if (StringUtils.hasText(destination) && !destination.equals(location)) {
@@ -183,7 +189,14 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 		};
 	}
 
-	private static List<String> getStatusCodes(Response response) {
+	private static String issuer(Response response) {
+		if (response.getIssuer() == null) {
+			return null;
+		}
+		return response.getIssuer().getValue();
+	}
+
+	static List<String> getStatusCodes(Response response) {
 		if (response.getStatus() == null) {
 			return List.of(StatusCode.SUCCESS);
 		}
@@ -206,7 +219,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 		return List.of(parentStatusCodeValue, childStatusCodeValue);
 	}
 
-	private static boolean isSuccess(List<String> statusCodes) {
+	static boolean isSuccess(List<String> statusCodes) {
 		if (statusCodes.size() != 1) {
 			return false;
 		}
@@ -215,7 +228,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 		return StatusCode.SUCCESS.equals(statusCode);
 	}
 
-	private static Saml2ResponseValidatorResult validateInResponseTo(AbstractSaml2AuthenticationRequest storedRequest,
+	static Saml2ResponseValidatorResult validateInResponseTo(AbstractSaml2AuthenticationRequest storedRequest,
 			String inResponseTo) {
 		if (!StringUtils.hasText(inResponseTo)) {
 			return Saml2ResponseValidatorResult.success();
@@ -289,7 +302,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 			throw ex;
 		}
 		catch (Exception ex) {
-			throw createAuthenticationException(Saml2ErrorCodes.INTERNAL_VALIDATION_ERROR, ex.getMessage(), ex);
+			throw new Saml2AuthenticationException(Saml2Error.internalValidationError(ex.getMessage()), ex);
 		}
 	}
 
@@ -303,12 +316,12 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 			return this.saml.deserialize(response);
 		}
 		catch (Exception ex) {
-			throw createAuthenticationException(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA, ex.getMessage(), ex);
+			throw new Saml2AuthenticationException(Saml2Error.malformedResponseData(ex.getMessage()), ex);
 		}
 	}
 
 	private void process(Saml2AuthenticationToken token, Response response) {
-		String issuer = response.getIssuer().getValue();
+		String issuer = issuer(response);
 		this.logger.debug(LogMessage.format("Processing SAML response from %s", issuer));
 		boolean responseSigned = response.isSigned();
 
@@ -321,7 +334,9 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 			result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_SIGNATURE,
 					"Did not decrypt response [" + response.getID() + "] since it is not signed"));
 		}
-		result = result.concat(this.responseValidator.convert(responseToken));
+		if (!this.validateResponseAfterAssertions) {
+			result = result.concat(this.responseValidator.convert(responseToken));
+		}
 		boolean allAssertionsSigned = true;
 		for (Assertion assertion : response.getAssertions()) {
 			AssertionToken assertionToken = new AssertionToken(assertion, token);
@@ -337,11 +352,16 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 					+ "Please either sign the response or all of the assertions.";
 			result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_SIGNATURE, description));
 		}
-		Assertion firstAssertion = CollectionUtils.firstElement(response.getAssertions());
-		if (firstAssertion != null && !hasName(firstAssertion)) {
-			Saml2Error error = new Saml2Error(Saml2ErrorCodes.SUBJECT_NOT_FOUND,
-					"Assertion [" + firstAssertion.getID() + "] is missing a subject");
-			result = result.concat(error);
+		if (this.validateResponseAfterAssertions) {
+			result = result.concat(this.responseValidator.convert(responseToken));
+		}
+		else {
+			Assertion firstAssertion = CollectionUtils.firstElement(response.getAssertions());
+			if (firstAssertion != null && !hasName(firstAssertion)) {
+				Saml2Error error = new Saml2Error(Saml2ErrorCodes.SUBJECT_NOT_FOUND,
+						"Assertion [" + firstAssertion.getID() + "] is missing a subject");
+				result = result.concat(error);
+			}
 		}
 
 		if (result.hasErrors()) {
@@ -355,7 +375,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 					.debug("Found " + errors.size() + " validation errors in SAML response [" + response.getID() + "]");
 			}
 			Saml2Error first = errors.iterator().next();
-			throw createAuthenticationException(first.getErrorCode(), first.getDescription(), null);
+			throw new Saml2AuthenticationException(first);
 		}
 		else {
 			if (this.logger.isDebugEnabled()) {
@@ -388,7 +408,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 				this.saml.withDecryptionKeys(registration.getDecryptionX509Credentials()).decrypt(response);
 			}
 			catch (Exception ex) {
-				throw createAuthenticationException(Saml2ErrorCodes.DECRYPTION_ERROR, ex.getMessage(), ex);
+				throw new Saml2AuthenticationException(Saml2Error.decryptionError(ex.getMessage()), ex);
 			}
 		};
 	}
@@ -417,12 +437,12 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 				this.saml.withDecryptionKeys(registration.getDecryptionX509Credentials()).decrypt(assertion);
 			}
 			catch (Exception ex) {
-				throw createAuthenticationException(Saml2ErrorCodes.DECRYPTION_ERROR, ex.getMessage(), ex);
+				throw new Saml2AuthenticationException(Saml2Error.decryptionError(ex.getMessage()), ex);
 			}
 		};
 	}
 
-	private boolean hasName(Assertion assertion) {
+	static boolean hasName(Assertion assertion) {
 		if (assertion == null) {
 			return false;
 		}
@@ -435,7 +455,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 		return assertion.getSubject().getNameID().getValue() != null;
 	}
 
-	private static Map<String, List<Object>> getAssertionAttributes(Assertion assertion) {
+	static Map<String, List<Object>> getAssertionAttributes(Assertion assertion) {
 		MultiValueMap<String, Object> attributeMap = new LinkedMultiValueMap<>();
 		for (AttributeStatement attributeStatement : assertion.getAttributeStatements()) {
 			for (Attribute attribute : attributeStatement.getAttributes()) {
@@ -452,7 +472,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 		return new LinkedHashMap<>(attributeMap); // gh-11785
 	}
 
-	private static List<String> getSessionIndexes(Assertion assertion) {
+	static List<String> getSessionIndexes(Assertion assertion) {
 		List<String> sessionIndexes = new ArrayList<>();
 		for (AuthnStatement statement : assertion.getAuthnStatements()) {
 			sessionIndexes.add(statement.getSessionIndex());
@@ -481,11 +501,6 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 			return ((XSDateTime) xmlObject).getValue();
 		}
 		return xmlObject;
-	}
-
-	private static Saml2AuthenticationException createAuthenticationException(String code, String message,
-			Exception cause) {
-		return new Saml2AuthenticationException(new Saml2Error(code, message), cause);
 	}
 
 	private static Converter<AssertionToken, Saml2ResponseValidatorResult> createAssertionValidator(String errorCode,

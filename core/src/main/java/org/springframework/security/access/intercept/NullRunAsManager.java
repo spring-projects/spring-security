@@ -28,7 +28,9 @@ import org.springframework.security.core.Authentication;
  * functionality.
  *
  * @author Ben Alex
+ * @deprecated please see {@link RunAsManager} deprecation notice
  */
+@Deprecated
 final class NullRunAsManager implements RunAsManager {
 
 	@Override

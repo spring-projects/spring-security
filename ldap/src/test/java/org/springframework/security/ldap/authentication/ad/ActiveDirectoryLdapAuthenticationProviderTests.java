@@ -29,7 +29,6 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.apache.directory.shared.ldap.util.EmptyEnumeration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -175,7 +174,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	@Test
 	public void noUserSearchCausesUsernameNotFound() throws Exception {
 		given(this.ctx.search(any(Name.class), any(String.class), any(Object[].class), any(SearchControls.class)))
-			.willReturn(new EmptyEnumeration<>());
+			.willReturn(new MockNamingEnumeration(null));
 		this.provider.contextFactory = createContextFactoryReturning(this.ctx);
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> this.provider.authenticate(this.joe));
 	}

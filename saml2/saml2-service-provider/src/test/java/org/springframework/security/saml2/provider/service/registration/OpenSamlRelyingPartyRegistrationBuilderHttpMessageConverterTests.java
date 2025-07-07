@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,7 +102,7 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverterTests {
 		RelyingPartyRegistration registration = this.converter.read(RelyingPartyRegistration.Builder.class, response)
 			.registrationId("one")
 			.build();
-		RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
+		AssertingPartyMetadata details = registration.getAssertingPartyMetadata();
 		assertThat(details.getWantAuthnRequestsSigned()).isFalse();
 		assertThat(details.getSingleSignOnServiceLocation()).isEqualTo("sso-location");
 		assertThat(details.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
@@ -128,7 +128,7 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverterTests {
 		RelyingPartyRegistration registration = this.converter.read(RelyingPartyRegistration.Builder.class, response)
 			.registrationId("one")
 			.build();
-		RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
+		AssertingPartyMetadata details = registration.getAssertingPartyMetadata();
 		assertThat(details.getWantAuthnRequestsSigned()).isFalse();
 		assertThat(details.getSingleSignOnServiceLocation()).isEqualTo("sso-location");
 		assertThat(details.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
@@ -149,7 +149,7 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverterTests {
 		RelyingPartyRegistration registration = this.converter.read(RelyingPartyRegistration.Builder.class, response)
 			.registrationId("one")
 			.build();
-		RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
+		AssertingPartyMetadata details = registration.getAssertingPartyMetadata();
 		assertThat(details.getVerificationX509Credentials().iterator().next().getCertificate())
 			.isEqualTo(x509Certificate(CERTIFICATE));
 		assertThat(details.getEncryptionX509Credentials()).hasSize(1);

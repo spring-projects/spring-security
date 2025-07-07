@@ -18,7 +18,7 @@ jobs:
       matrix:
         branch: [ '5.8.x', '6.2.x', '6.3.x', 'main' ]
     steps:
-      - uses: spring-io/spring-doc-actions/update-antora-spring-ui@c2038265125ec6f305a4a041d892ee44c156a754
+      - uses: spring-io/spring-doc-actions/update-antora-spring-ui@e28269199d1d27975cf7f65e16d6095c555b3cd0
         name: Update
         with:
           docs-branch: ${{ matrix.branch }}
@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Update on docs-build
     steps:
-      - uses: spring-io/spring-doc-actions/update-antora-spring-ui@c2038265125ec6f305a4a041d892ee44c156a754
+      - uses: spring-io/spring-doc-actions/update-antora-spring-ui@e28269199d1d27975cf7f65e16d6095c555b3cd0
         name: Update
         with:
           docs-branch: 'docs-build'

@@ -43,13 +43,11 @@ import org.springframework.security.oauth2.client.DelegatingOAuth2AuthorizedClie
 import org.springframework.security.oauth2.client.JwtBearerOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
-import org.springframework.security.oauth2.client.PasswordOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.RefreshTokenOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.TokenExchangeOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.endpoint.JwtBearerGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
-import org.springframework.security.oauth2.client.endpoint.OAuth2PasswordGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.TokenExchangeGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -78,7 +76,6 @@ final class OAuth2AuthorizedClientManagerRegistrar implements BeanDefinitionRegi
 			AuthorizationCodeOAuth2AuthorizedClientProvider.class,
 			RefreshTokenOAuth2AuthorizedClientProvider.class,
 			ClientCredentialsOAuth2AuthorizedClientProvider.class,
-			PasswordOAuth2AuthorizedClientProvider.class,
 			JwtBearerOAuth2AuthorizedClientProvider.class,
 			TokenExchangeOAuth2AuthorizedClientProvider.class
 	);
@@ -133,7 +130,6 @@ final class OAuth2AuthorizedClientManagerRegistrar implements BeanDefinitionRegi
 			authorizedClientProviders.add(getAuthorizationCodeAuthorizedClientProvider(authorizedClientProviderBeans));
 			authorizedClientProviders.add(getRefreshTokenAuthorizedClientProvider(authorizedClientProviderBeans));
 			authorizedClientProviders.add(getClientCredentialsAuthorizedClientProvider(authorizedClientProviderBeans));
-			authorizedClientProviders.add(getPasswordAuthorizedClientProvider(authorizedClientProviderBeans));
 
 			OAuth2AuthorizedClientProvider jwtBearerAuthorizedClientProvider = getJwtBearerAuthorizedClientProvider(
 					authorizedClientProviderBeans);
@@ -218,24 +214,6 @@ final class OAuth2AuthorizedClientManagerRegistrar implements BeanDefinitionRegi
 		OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient = getBeanOfType(
 				ResolvableType.forClassWithGenerics(OAuth2AccessTokenResponseClient.class,
 						OAuth2ClientCredentialsGrantRequest.class));
-		if (accessTokenResponseClient != null) {
-			authorizedClientProvider.setAccessTokenResponseClient(accessTokenResponseClient);
-		}
-
-		return authorizedClientProvider;
-	}
-
-	private OAuth2AuthorizedClientProvider getPasswordAuthorizedClientProvider(
-			Collection<OAuth2AuthorizedClientProvider> authorizedClientProviders) {
-		PasswordOAuth2AuthorizedClientProvider authorizedClientProvider = getAuthorizedClientProviderByType(
-				authorizedClientProviders, PasswordOAuth2AuthorizedClientProvider.class);
-		if (authorizedClientProvider == null) {
-			authorizedClientProvider = new PasswordOAuth2AuthorizedClientProvider();
-		}
-
-		OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> accessTokenResponseClient = getBeanOfType(
-				ResolvableType.forClassWithGenerics(OAuth2AccessTokenResponseClient.class,
-						OAuth2PasswordGrantRequest.class));
 		if (accessTokenResponseClient != null) {
 			authorizedClientProvider.setAccessTokenResponseClient(accessTokenResponseClient);
 		}

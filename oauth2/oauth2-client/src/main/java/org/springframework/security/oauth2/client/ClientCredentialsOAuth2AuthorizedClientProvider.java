@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,9 @@ import java.time.Duration;
 import java.time.Instant;
 
 import org.springframework.lang.Nullable;
-import org.springframework.security.oauth2.client.endpoint.DefaultClientCredentialsTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.RestClientClientCredentialsTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
@@ -38,11 +38,11 @@ import org.springframework.util.Assert;
  * @author Joe Grandja
  * @since 5.2
  * @see OAuth2AuthorizedClientProvider
- * @see DefaultClientCredentialsTokenResponseClient
+ * @see RestClientClientCredentialsTokenResponseClient
  */
 public final class ClientCredentialsOAuth2AuthorizedClientProvider implements OAuth2AuthorizedClientProvider {
 
-	private OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient = new DefaultClientCredentialsTokenResponseClient();
+	private OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient = new RestClientClientCredentialsTokenResponseClient();
 
 	private Duration clockSkew = Duration.ofSeconds(60);
 

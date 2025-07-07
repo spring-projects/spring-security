@@ -18,6 +18,7 @@ dependencies {
 
 	testImplementation project(path: ':spring-security-oauth2-core', configuration: 'tests')
 	testImplementation project(path: ':spring-security-oauth2-jose', configuration: 'tests')
+	testImplementation project(path: ':spring-security-web', configuration: 'tests')
 	testImplementation 'com.squareup.okhttp3:mockwebserver'
 	testImplementation 'io.micrometer:context-propagation'
 	testImplementation 'io.projectreactor.netty:reactor-netty'

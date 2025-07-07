@@ -22,11 +22,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpMethod;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 public class AbstractConfigAttributeRequestMatcherRegistryTests {
 
@@ -55,19 +56,18 @@ public class AbstractConfigAttributeRequestMatcherRegistryTests {
 	}
 
 	@Test
-	public void testGetRequestMatcherIsTypeAntPathRequestMatcher() {
-		List<RequestMatcher> requestMatchers = this.registry
-			.requestMatchers(new AntPathRequestMatcher("/a.*", HttpMethod.GET.name()));
+	public void testGetRequestMatcherIsTypePathPatternRequestMatcher() {
+		List<RequestMatcher> requestMatchers = this.registry.requestMatchers(pathPattern(HttpMethod.GET, "/a.*"));
 		for (RequestMatcher requestMatcher : requestMatchers) {
-			assertThat(requestMatcher).isInstanceOf(AntPathRequestMatcher.class);
+			assertThat(requestMatcher).isInstanceOf(PathPatternRequestMatcher.class);
 		}
 	}
 
 	@Test
-	public void testRequestMatcherIsTypeAntPathRequestMatcher() {
-		List<RequestMatcher> requestMatchers = this.registry.requestMatchers(new AntPathRequestMatcher("/a.*"));
+	public void testRequestMatcherIsTypePathPatternRequestMatcher() {
+		List<RequestMatcher> requestMatchers = this.registry.requestMatchers(pathPattern("/a.*"));
 		for (RequestMatcher requestMatcher : requestMatchers) {
-			assertThat(requestMatcher).isInstanceOf(AntPathRequestMatcher.class);
+			assertThat(requestMatcher).isInstanceOf(PathPatternRequestMatcher.class);
 		}
 	}
 

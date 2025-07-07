@@ -18,21 +18,18 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 /**
  * Adds {@link CorsFilter} to the Spring Security filter chain. If a bean by the name of
  * corsFilter is provided, that {@link CorsFilter} is used. Else if
  * corsConfigurationSource is defined, then that {@link CorsConfiguration} is used.
- * Otherwise, if Spring MVC is on the classpath a {@link HandlerMappingIntrospector} is
- * used.
  *
  * @param <H> the builder to return.
  * @author Rob Winch
@@ -44,20 +41,12 @@ public class CorsConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHt
 
 	private static final String CORS_FILTER_BEAN_NAME = "corsFilter";
 
-	private static final String HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector";
-
-	private static final boolean mvcPresent;
-
 	private CorsConfigurationSource configurationSource;
-
-	static {
-		mvcPresent = ClassUtils.isPresent(HANDLER_MAPPING_INTROSPECTOR, CorsConfigurer.class.getClassLoader());
-	}
 
 	/**
 	 * Creates a new instance
 	 *
-	 * @see HttpSecurity#cors()
+	 * @see HttpSecurity#cors(Customizer)
 	 */
 	public CorsConfigurer() {
 	}
@@ -90,10 +79,7 @@ public class CorsConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHt
 					CorsConfigurationSource.class);
 			return new CorsFilter(configurationSource);
 		}
-		if (mvcPresent) {
-			return MvcCorsFilter.getMvcCorsFilter(context);
-		}
-		return null;
+		return MvcCorsFilter.getMvcCorsFilter(context);
 	}
 
 	static class MvcCorsFilter {

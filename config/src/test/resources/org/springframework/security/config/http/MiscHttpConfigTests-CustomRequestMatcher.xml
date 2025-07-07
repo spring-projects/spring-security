@@ -32,7 +32,7 @@
 		<http-basic/>
 	</http>
 
-	<b:bean name="matcher" class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
+	<b:bean name="matcher" class="org.springframework.security.config.http.PathPatternRequestMatcherFactoryBean">
 		<b:constructor-arg value="/unprotected"/>
 	</b:bean>
 

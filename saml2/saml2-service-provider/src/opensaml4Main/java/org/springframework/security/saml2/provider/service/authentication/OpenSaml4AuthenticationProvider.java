@@ -85,6 +85,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 	 */
 	public OpenSaml4AuthenticationProvider() {
 		this.delegate = new BaseOpenSamlAuthenticationProvider(new OpenSaml4Template());
+		this.delegate.setValidateResponseAfterAssertions(false);
 	}
 
 	/**

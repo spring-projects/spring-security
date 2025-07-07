@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,7 +111,7 @@ public final class AuthenticatedAuthorizationManager<T> implements Authorization
 	 * @return an {@link AuthorizationDecision}
 	 */
 	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication, T object) {
+	public AuthorizationResult authorize(Supplier<Authentication> authentication, T object) {
 		boolean granted = this.authorizationStrategy.isGranted(authentication.get());
 		return new AuthorizationDecision(granted);
 	}

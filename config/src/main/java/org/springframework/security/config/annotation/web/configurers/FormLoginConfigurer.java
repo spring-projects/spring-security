@@ -17,8 +17,8 @@
 package org.springframework.security.config.annotation.web.configurers;
 
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
-import org.springframework.security.config.annotation.web.RequestMatcherFactory;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -74,7 +74,7 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 
 	/**
 	 * Creates a new instance
-	 * @see HttpSecurity#formLogin()
+	 * @see HttpSecurity#formLogin(Customizer)
 	 */
 	public FormLoginConfigurer() {
 		super(new UsernamePasswordAuthenticationFilter(), null);
@@ -235,7 +235,7 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 
 	@Override
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
-		return RequestMatcherFactory.matcher(HttpMethod.POST, loginProcessingUrl);
+		return getRequestMatcherBuilder().matcher(HttpMethod.POST, loginProcessingUrl);
 	}
 
 	/**

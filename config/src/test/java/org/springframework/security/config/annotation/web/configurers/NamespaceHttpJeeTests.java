@@ -104,11 +104,10 @@ public class NamespaceHttpJeeTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("user")
-					.and()
-				.jee()
-					.mappableRoles("user", "admin");
+				.authorizeRequests((requests) -> requests
+					.anyRequest().hasRole("user"))
+				.jee((jee) -> jee
+					.mappableRoles("user", "admin"));
 			return http.build();
 			// @formatter:on
 		}
@@ -126,12 +125,11 @@ public class NamespaceHttpJeeTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("user")
-					.and()
-				.jee()
+				.authorizeRequests((requests) -> requests
+					.anyRequest().hasRole("user"))
+				.jee((jee) -> jee
 					.mappableAuthorities("ROLE_user", "ROLE_admin")
-					.authenticatedUserDetailsService(this.authenticationUserDetailsService);
+					.authenticatedUserDetailsService(this.authenticationUserDetailsService));
 			return http.build();
 			// @formatter:on
 		}

@@ -23,8 +23,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2Error;
-import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AssertionAuthentication;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
@@ -33,10 +33,11 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
+
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * An OpenSAML-based implementation of
@@ -53,9 +54,8 @@ final class BaseOpenSamlLogoutRequestValidatorParametersResolver
 
 	private final RelyingPartyRegistrationRepository registrations;
 
-	private RequestMatcher requestMatcher = new OrRequestMatcher(
-			PathPatternRequestMatcher.withDefaults().matcher("/logout/saml2/slo/{registrationId}"),
-			PathPatternRequestMatcher.withDefaults().matcher("/logout/saml2/slo"));
+	private RequestMatcher requestMatcher = new OrRequestMatcher(pathPattern("/logout/saml2/slo/{registrationId}"),
+			pathPattern("/logout/saml2/slo"));
 
 	/**
 	 * Constructs a {@link BaseOpenSamlLogoutRequestValidatorParametersResolver}
@@ -134,8 +134,11 @@ final class BaseOpenSamlLogoutRequestValidatorParametersResolver
 		if (authentication == null) {
 			return null;
 		}
-		if (authentication.getPrincipal() instanceof Saml2AuthenticatedPrincipal principal) {
-			return principal.getRelyingPartyRegistrationId();
+		if (authentication instanceof Saml2AssertionAuthentication saml2) {
+			return saml2.getRelyingPartyRegistrationId();
+		}
+		if (authentication.getPrincipal() instanceof Saml2AuthenticatedPrincipal saml2) {
+			return saml2.getRelyingPartyRegistrationId();
 		}
 		return null;
 	}
@@ -145,8 +148,7 @@ final class BaseOpenSamlLogoutRequestValidatorParametersResolver
 		RelyingPartyRegistration registration = this.registrations.findByRegistrationId(registrationId);
 		if (registration == null) {
 			throw new Saml2AuthenticationException(
-					new Saml2Error(Saml2ErrorCodes.RELYING_PARTY_REGISTRATION_NOT_FOUND, "registration not found"),
-					"registration not found");
+					Saml2Error.relyingPartyRegistrationNotFound("registration not found"));
 		}
 		return logoutRequestByRegistration(request, registration, authentication);
 	}

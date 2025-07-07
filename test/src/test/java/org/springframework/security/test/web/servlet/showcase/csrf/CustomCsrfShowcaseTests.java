@@ -84,8 +84,8 @@ public class CustomCsrfShowcaseTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.csrf()
-					.csrfTokenRepository(repo());
+				.csrf((csrf) -> csrf
+					.csrfTokenRepository(repo()));
 			return http.build();
 			// @formatter:on
 		}

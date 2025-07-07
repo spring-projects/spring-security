@@ -2,7 +2,6 @@ apply plugin: 'io.spring.convention.spring-module'
 
 dependencies {
 	management platform(project(":spring-security-dependencies"))
-	optional 'org.springframework:spring-jcl'
 	optional 'org.springframework:spring-core'
 	optional 'org.bouncycastle:bcpkix-jdk18on'
 

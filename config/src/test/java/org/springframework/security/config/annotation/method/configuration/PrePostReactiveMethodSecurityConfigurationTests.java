@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,8 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.annotation.Secured;
@@ -54,9 +56,8 @@ import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.method.AuthorizationAdvisor;
 import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory;
+import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory.TargetVisitor;
 import org.springframework.security.authorization.method.AuthorizeReturnObject;
-import org.springframework.security.authorization.method.PrePostTemplateDefaults;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
@@ -65,6 +66,7 @@ import org.springframework.security.test.context.annotation.SecurityTestExecutio
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.stereotype.Component;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.web.servlet.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -266,7 +268,7 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodeWhenParameterizedPreAuthorizeMetaAnnotationThenPasses(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -275,7 +277,7 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodRoleWhenPreAuthorizeMetaAnnotationHardcodedParameterThenPasses(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -284,7 +286,7 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	public void methodWhenParameterizedAnnotationThenFails(Class<?> config) {
 		this.spring.register(config).autowire();
 		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
@@ -293,7 +295,7 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser(authorities = "SCOPE_message:read")
 	public void methodWhenMultiplePlaceholdersHasAuthorityThenPasses(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -302,7 +304,7 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser(roles = "ADMIN")
 	public void methodWhenMultiplePlaceholdersHasRoleThenPasses(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -311,7 +313,7 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodWhenPostAuthorizeMetaAnnotationThenAuthorizes(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -322,7 +324,7 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodWhenPreFilterMetaAnnotationThenFilters(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -332,7 +334,7 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodWhenPostFilterMetaAnnotationThenFilters(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -359,6 +361,48 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 		Flight flight = flights.findById("1").block();
 		assertThatNoException().isThrownBy(flight::getSeats);
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> flight.getAltitude().block());
+	}
+
+	@Test
+	@WithMockUser(authorities = "airplane:read")
+	public void findByIdWhenAuthorizedResponseEntityThenAuthorizes() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		Flight flight = flights.webFindById("1").block().getBody();
+		assertThatNoException().isThrownBy(() -> flight.getAltitude().block());
+		assertThatNoException().isThrownBy(() -> flight.getSeats().block());
+	}
+
+	@Test
+	@WithMockUser(authorities = "seating:read")
+	public void findByIdWhenUnauthorizedResponseEntityThenDenies() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		Flight flight = flights.webFindById("1").block().getBody();
+		assertThatNoException().isThrownBy(() -> flight.getSeats().block());
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> flight.getAltitude().block());
+	}
+
+	@Test
+	@WithMockUser(authorities = "airplane:read")
+	public void findByIdWhenAuthorizedModelAndViewThenAuthorizes() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		Flight flight = (Flight) flights.webViewFindById("1").block().getModel().get("flight");
+		assertThatNoException().isThrownBy(() -> flight.getAltitude().block());
+		assertThatNoException().isThrownBy(() -> flight.getSeats().block());
+		assertThat(flights.webViewFindById("5").block().getModel().get("flight")).isNull();
+	}
+
+	@Test
+	@WithMockUser(authorities = "seating:read")
+	public void findByIdWhenUnauthorizedModelAndViewThenDenies() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		Flight flight = (Flight) flights.webViewFindById("1").block().getModel().get("flight");
+		assertThatNoException().isThrownBy(() -> flight.getSeats().block());
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> flight.getAltitude().block());
+		assertThat(flights.webViewFindById("5").block().getModel().get("flight")).isNull();
 	}
 
 	@Test
@@ -521,22 +565,6 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 
 	@Configuration
 	@EnableReactiveMethodSecurity
-	static class LegacyMetaAnnotationPlaceholderConfig {
-
-		@Bean
-		PrePostTemplateDefaults methodSecurityDefaults() {
-			return new PrePostTemplateDefaults();
-		}
-
-		@Bean
-		MetaAnnotationService metaAnnotationService() {
-			return new MetaAnnotationService();
-		}
-
-	}
-
-	@Configuration
-	@EnableReactiveMethodSecurity
 	static class MetaAnnotationPlaceholderConfig {
 
 		@Bean
@@ -659,8 +687,8 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 
 		@Bean
 		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-		static Customizer<AuthorizationAdvisorProxyFactory> skipValueTypes() {
-			return (f) -> f.setTargetVisitor(AuthorizationAdvisorProxyFactory.TargetVisitor.defaultsSkipValueTypes());
+		static TargetVisitor skipValueTypes() {
+			return TargetVisitor.defaultsSkipValueTypes();
 		}
 
 		@Bean
@@ -722,6 +750,22 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 		Mono<Void> remove(String id) {
 			this.flights.remove(id);
 			return Mono.empty();
+		}
+
+		Mono<ResponseEntity<Flight>> webFindById(String id) {
+			Flight flight = this.flights.get(id);
+			if (flight == null) {
+				return Mono.just(ResponseEntity.notFound().build());
+			}
+			return Mono.just(ResponseEntity.ok(flight));
+		}
+
+		Mono<ModelAndView> webViewFindById(String id) {
+			Flight flight = this.flights.get(id);
+			if (flight == null) {
+				return Mono.just(new ModelAndView("error", HttpStatusCode.valueOf(404)));
+			}
+			return Mono.just(new ModelAndView("flights", Map.of("flight", flight)));
 		}
 
 	}

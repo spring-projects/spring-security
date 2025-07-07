@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,6 @@ import org.springframework.security.authorization.method.PostAuthorizeReactiveAu
 import org.springframework.security.authorization.method.PostFilterAuthorizationReactiveMethodInterceptor;
 import org.springframework.security.authorization.method.PreAuthorizeReactiveAuthorizationManager;
 import org.springframework.security.authorization.method.PreFilterAuthorizationReactiveMethodInterceptor;
-import org.springframework.security.authorization.method.PrePostTemplateDefaults;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
@@ -83,10 +82,11 @@ final class ReactiveAuthorizationManagerMethodSecurityConfiguration
 
 	private final AuthorizationManagerAfterReactiveMethodInterceptor postAuthorizeMethodInterceptor;
 
-	@Autowired(required = false)
-	ReactiveAuthorizationManagerMethodSecurityConfiguration(MethodSecurityExpressionHandler expressionHandler,
+	ReactiveAuthorizationManagerMethodSecurityConfiguration(
+			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlers,
 			ObjectProvider<ObjectPostProcessor<ReactiveAuthorizationManager<MethodInvocation>>> preAuthorizePostProcessor,
 			ObjectProvider<ObjectPostProcessor<ReactiveAuthorizationManager<MethodInvocationResult>>> postAuthorizePostProcessor) {
+		MethodSecurityExpressionHandler expressionHandler = expressionHandlers.getIfUnique();
 		if (expressionHandler != null) {
 			this.preFilterMethodInterceptor = new PreFilterAuthorizationReactiveMethodInterceptor(expressionHandler);
 			this.preAuthorizeAuthorizationManager = new PreAuthorizeReactiveAuthorizationManager(expressionHandler);
@@ -109,14 +109,6 @@ final class ReactiveAuthorizationManagerMethodSecurityConfiguration
 	public void setApplicationContext(ApplicationContext context) throws BeansException {
 		this.preAuthorizeAuthorizationManager.setApplicationContext(context);
 		this.postAuthorizeAuthorizationManager.setApplicationContext(context);
-	}
-
-	@Autowired(required = false)
-	void setTemplateDefaults(PrePostTemplateDefaults templateDefaults) {
-		this.preFilterMethodInterceptor.setTemplateDefaults(templateDefaults);
-		this.preAuthorizeAuthorizationManager.setTemplateDefaults(templateDefaults);
-		this.postAuthorizeAuthorizationManager.setTemplateDefaults(templateDefaults);
-		this.postFilterMethodInterceptor.setTemplateDefaults(templateDefaults);
 	}
 
 	@Autowired(required = false)

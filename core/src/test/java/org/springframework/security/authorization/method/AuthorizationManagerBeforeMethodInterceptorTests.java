@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,6 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -71,11 +70,10 @@ public class AuthorizationManagerBeforeMethodInterceptorTests {
 	public void beforeWhenMockAuthorizationManagerThenCheck() throws Throwable {
 		MethodInvocation mockMethodInvocation = mock(MethodInvocation.class);
 		AuthorizationManager<MethodInvocation> mockAuthorizationManager = mock(AuthorizationManager.class);
-		given(mockAuthorizationManager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationManagerBeforeMethodInterceptor advice = new AuthorizationManagerBeforeMethodInterceptor(
 				Pointcut.TRUE, mockAuthorizationManager);
 		advice.invoke(mockMethodInvocation);
-		verify(mockAuthorizationManager).check(any(Supplier.class), eq(mockMethodInvocation));
+		verify(mockAuthorizationManager).authorize(any(Supplier.class), eq(mockMethodInvocation));
 	}
 
 	@Test
@@ -125,7 +123,6 @@ public class AuthorizationManagerBeforeMethodInterceptorTests {
 		AuthorizationManagerBeforeMethodInterceptor advice = new AuthorizationManagerBeforeMethodInterceptor(
 				Pointcut.TRUE, AuthenticatedAuthorizationManager.authenticated());
 		AuthorizationEventPublisher eventPublisher = mock(AuthorizationEventPublisher.class);
-		doCallRealMethod().when(eventPublisher).publishAuthorizationEvent(any(), any(), any(AuthorizationResult.class));
 		advice.setAuthorizationEventPublisher(eventPublisher);
 
 		SecurityContext securityContext = new SecurityContextImpl();
@@ -144,9 +141,8 @@ public class AuthorizationManagerBeforeMethodInterceptorTests {
 	@Test
 	public void invokeWhenCustomAuthorizationDeniedExceptionThenThrows() {
 		AuthorizationManager<MethodInvocation> manager = mock(AuthorizationManager.class);
-		given(manager.check(any(), any()))
+		given(manager.authorize(any(), any()))
 			.willThrow(new MyAuthzDeniedException("denied", new AuthorizationDecision(false)));
-		given(manager.authorize(any(), any())).willCallRealMethod();
 		AuthorizationManagerBeforeMethodInterceptor advice = new AuthorizationManagerBeforeMethodInterceptor(
 				Pointcut.TRUE, manager);
 		assertThatExceptionOfType(MyAuthzDeniedException.class).isThrownBy(() -> advice.invoke(null));

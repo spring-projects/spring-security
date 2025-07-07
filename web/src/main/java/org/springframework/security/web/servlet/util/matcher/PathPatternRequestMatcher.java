@@ -71,6 +71,40 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	}
 
 	/**
+	 * Construct a {@link PathPatternRequestMatcher} using the {@link PathPatternParser}
+	 * defaults.
+	 * <p>
+	 * If you are configuring a custom {@link PathPatternParser}, please use
+	 * {@link #withPathPatternParser} instead.
+	 * @param pattern the URI pattern to match
+	 * @return a {@link PathPatternRequestMatcher} that matches requests to the given
+	 * {@code pattern}
+	 * @since 7.0
+	 * @see PathPattern
+	 */
+	public static PathPatternRequestMatcher pathPattern(String pattern) {
+		return pathPattern(null, pattern);
+	}
+
+	/**
+	 * Construct a {@link PathPatternRequestMatcher} using the {@link PathPatternParser}
+	 * defaults.
+	 * <p>
+	 * If you are configuring a custom {@link PathPatternParser}, please use
+	 * {@link #withPathPatternParser} instead.
+	 * @param method the HTTP method to match, {@code null} indicates that the method does
+	 * not matter
+	 * @param pattern the URI pattern to match
+	 * @return a {@link PathPatternRequestMatcher} that matches requests to the given
+	 * {@code pattern} and {@code method}
+	 * @since 7.0
+	 * @see PathPattern
+	 */
+	public static PathPatternRequestMatcher pathPattern(@Nullable HttpMethod method, String pattern) {
+		return withDefaults().matcher(method, pattern);
+	}
+
+	/**
 	 * Use {@link PathPatternParser#defaultInstance} to parse path patterns.
 	 * @return a {@link Builder} that treats URIs as relative to the context path, if any
 	 */
@@ -138,7 +172,7 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 		if (!(o instanceof PathPatternRequestMatcher that)) {
 			return false;
 		}
-		return Objects.equals(this.pattern, that.pattern);
+		return Objects.equals(this.pattern, that.pattern) && Objects.equals(this.method, that.method);
 	}
 
 	/**
@@ -146,7 +180,7 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 */
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.pattern);
+		return Objects.hash(this.pattern, this.method);
 	}
 
 	/**
@@ -168,11 +202,13 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 * <p>
 	 * To match a request URI like {@code /app/servlet/my/resource/**} where {@code /app}
 	 * is the context path, you can do
-	 * {@code PathPatternRequestMatcher.withDefaults().matcher("/servlet/my/resource/**")}
+	 * {@code PathPatternRequestMatcher.pathPattern("/servlet/my/resource/**")}
 	 *
 	 * <p>
 	 * If you have many paths that have a common path prefix, you can use
-	 * {@link #basePath} to reduce repetition like so: <code>
+	 * {@link #basePath} to reduce repetition like so:
+	 *
+	 * <pre>
 	 *     PathPatternRequestMatcher.Builder mvc = withDefaults().basePath("/mvc");
 	 *     http
 	 *         .authorizeHttpRequests((authorize) -> authorize
@@ -180,7 +216,7 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 *              .requestMatchers(mvc.matcher("/admin/**")).hasAuthority("admin")
 	 *         )
 	 *             ...
-	 * </code>
+	 * </pre>
 	 */
 	public static final class Builder {
 

@@ -86,7 +86,7 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
 
 	@Override
 	public Collection<ConfigAttribute> getAttributes(Object object) {
-		final HttpServletRequest request = ((FilterInvocation) object).getRequest();
+		final HttpServletRequest request = getHttpServletRequest(object);
 		int count = 0;
 		for (Map.Entry<RequestMatcher, Collection<ConfigAttribute>> entry : this.requestMap.entrySet()) {
 			if (entry.getKey().matches(request)) {
@@ -105,6 +105,16 @@ public class DefaultFilterInvocationSecurityMetadataSource implements FilterInvo
 	@Override
 	public boolean supports(Class<?> clazz) {
 		return FilterInvocation.class.isAssignableFrom(clazz);
+	}
+
+	private HttpServletRequest getHttpServletRequest(Object object) {
+		if (object instanceof FilterInvocation invocation) {
+			return invocation.getHttpRequest();
+		}
+		if (object instanceof HttpServletRequest request) {
+			return request;
+		}
+		throw new IllegalArgumentException("object must be of type FilterInvocation or HttpServletRequest");
 	}
 
 }

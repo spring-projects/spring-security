@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ import org.springframework.security.saml2.provider.service.metadata.Saml2Metadat
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -44,6 +43,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * Tests for {@link Saml2MetadataFilter}
@@ -100,7 +100,7 @@ public class Saml2MetadataFilterTests {
 	public void doFilterWhenRelyingPartyRegistrationFoundThenInvokesMetadataResolver() throws Exception {
 		MockHttpServletRequest request = uri("/saml2/service-provider-metadata/validRegistration");
 		RelyingPartyRegistration validRegistration = TestRelyingPartyRegistrations.noCredentials()
-			.assertingPartyDetails((party) -> party
+			.assertingPartyMetadata((party) -> party
 				.verificationX509Credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
 			.build();
 		String generatedMetadata = "<xml>test</xml>";
@@ -129,7 +129,7 @@ public class Saml2MetadataFilterTests {
 	@Test
 	public void doFilterWhenCustomRequestMatcherThenUses() throws Exception {
 		MockHttpServletRequest request = uri("/path");
-		this.filter.setRequestMatcher(new AntPathRequestMatcher("/path"));
+		this.filter.setRequestMatcher(pathPattern("/path"));
 		this.filter.doFilter(request, this.response, this.chain);
 		verifyNoInteractions(this.chain);
 		verify(this.repository).findByRegistrationId("path");
@@ -159,7 +159,7 @@ public class Saml2MetadataFilterTests {
 		RelyingPartyRegistrationResolver resolver = new DefaultRelyingPartyRegistrationResolver(
 				(id) -> this.repository.findByRegistrationId("registration-id"));
 		this.filter = new Saml2MetadataFilter(resolver, this.resolver);
-		this.filter.setRequestMatcher(new AntPathRequestMatcher("/metadata"));
+		this.filter.setRequestMatcher(pathPattern("/metadata"));
 		MockHttpServletRequest request = uri("/metadata");
 		this.filter.doFilter(request, this.response, new MockFilterChain());
 		verify(this.repository).findByRegistrationId("registration-id");
@@ -173,7 +173,7 @@ public class Saml2MetadataFilterTests {
 		given(this.resolver.resolve(any(RelyingPartyRegistration.class))).willReturn("metadata");
 		this.filter = new Saml2MetadataFilter((id) -> this.repository.findByRegistrationId("registration-id"),
 				this.resolver);
-		this.filter.setRequestMatcher(new AntPathRequestMatcher("/metadata"));
+		this.filter.setRequestMatcher(pathPattern("/metadata"));
 		MockHttpServletRequest request = uri("/metadata");
 		this.filter.doFilter(request, this.response, new MockFilterChain());
 		verify(this.repository).findByRegistrationId("registration-id");

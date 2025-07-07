@@ -224,7 +224,7 @@ public class ServletApiConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.servletApi();
+				.servletApi(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -253,7 +253,7 @@ public class ServletApiConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.authorizeHttpRequests((requests) -> requests
+					.authorizeHttpRequests((authorize) -> authorize
 							.anyRequest().authenticated()
 					)
 					.httpBasic(Customizer.withDefaults())
@@ -286,13 +286,11 @@ public class ServletApiConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.exceptionHandling()
-					.authenticationEntryPoint(ENTRYPOINT)
-					.and()
-				.formLogin();
+				.authorizeRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.exceptionHandling((handling) -> handling
+					.authenticationEntryPoint(ENTRYPOINT))
+				.formLogin(withDefaults());
 			// @formatter:on
 			return http.build();
 		}
@@ -312,10 +310,9 @@ public class ServletApiConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.servletApi()
-					.rolePrefix("PERMISSION_")
-					.and()
-				.servletApi();
+				.servletApi((api) -> api
+					.rolePrefix("PERMISSION_"))
+				.servletApi(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -362,8 +359,7 @@ public class ServletApiConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.servletApi((servletApi) ->
-					servletApi
+				.servletApi((servletApi) -> servletApi
 						.rolePrefix("PERMISSION_")
 				);
 			return http.build();
@@ -392,8 +388,8 @@ public class ServletApiConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.servletApi().and()
-				.logout();
+				.servletApi(withDefaults())
+				.logout(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -408,7 +404,7 @@ public class ServletApiConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.csrf().disable();
+				.csrf((csrf) -> csrf.disable());
 			return http.build();
 			// @formatter:on
 		}

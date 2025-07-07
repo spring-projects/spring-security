@@ -1,0 +1,17 @@
+name: "CodeQL Advanced"
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule
+    - cron: '0 5 * * *'
+permissions: read-all
+jobs:
+  codeql-analysis-call:
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    uses: spring-io/github-actions/.github/workflows/codeql-analysis.yml@1

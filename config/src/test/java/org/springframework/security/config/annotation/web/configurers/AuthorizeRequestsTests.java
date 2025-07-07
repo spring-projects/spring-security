@@ -42,19 +42,17 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.servlet.MockServletContext;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
+import org.springframework.web.util.pattern.PathPatternParser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
 import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * @author Rob Winch
@@ -79,7 +77,6 @@ public class AuthorizeRequestsTests {
 	public void setup() {
 		this.servletContext = spy(MockServletContext.mvc());
 		this.request = new MockHttpServletRequest(this.servletContext, "GET", "");
-		this.request.setMethod("GET");
 		this.response = new MockHttpServletResponse();
 		this.chain = new MockFilterChain();
 	}
@@ -113,10 +110,12 @@ public class AuthorizeRequestsTests {
 	public void antMatchersPathVariables() throws Exception {
 		loadConfig(AntPatchersPathVariables.class);
 		this.request.setServletPath("/user/user");
+		this.request.setRequestURI("/user/user");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 		this.setup();
 		this.request.setServletPath("/user/deny");
+		this.request.setRequestURI("/user/deny");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
 	}
@@ -125,11 +124,15 @@ public class AuthorizeRequestsTests {
 	@Test
 	public void antMatchersPathVariablesCaseInsensitive() throws Exception {
 		loadConfig(AntPatchersPathVariables.class);
+		this.request.setRequestURI("/USER/user");
 		this.request.setServletPath("/USER/user");
+		this.request.setRequestURI("/USER/user");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 		this.setup();
+		this.request.setRequestURI("/USER/deny");
 		this.request.setServletPath("/USER/deny");
+		this.request.setRequestURI("/USER/deny");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
 	}
@@ -139,10 +142,12 @@ public class AuthorizeRequestsTests {
 	public void antMatchersPathVariablesCaseInsensitiveCamelCaseVariables() throws Exception {
 		loadConfig(AntMatchersPathVariablesCamelCaseVariables.class);
 		this.request.setServletPath("/USER/user");
+		this.request.setRequestURI("/USER/user");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 		this.setup();
 		this.request.setServletPath("/USER/deny");
+		this.request.setRequestURI("/USER/deny");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
 	}
@@ -156,67 +161,6 @@ public class AuthorizeRequestsTests {
 				AuthorityUtils.createAuthorityList("ROLE_USER")));
 		this.request.getSession()
 			.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-	}
-
-	@Test
-	public void mvcMatcher() throws Exception {
-		loadConfig(MvcMatcherConfig.class, LegacyMvcMatchingConfig.class);
-		this.request.setRequestURI("/path");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
-		setup();
-		this.request.setRequestURI("/path.html");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
-		setup();
-		this.request.setServletPath("/path/");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
-	}
-
-	@Test
-	public void requestWhenMvcMatcherDenyAllThenRespondsWithUnauthorized() throws Exception {
-		loadConfig(MvcMatcherInLambdaConfig.class, LegacyMvcMatchingConfig.class);
-		this.request.setRequestURI("/path");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
-		setup();
-		this.request.setRequestURI("/path.html");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
-		setup();
-		this.request.setServletPath("/path/");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
-	}
-
-	@Test
-	public void requestWhenMvcMatcherServletPathDenyAllThenMatchesOnServletPath() throws Exception {
-		loadConfig(MvcMatcherServletPathInLambdaConfig.class, LegacyMvcMatchingConfig.class);
-		this.request.setServletPath("/spring");
-		this.request.setRequestURI("/spring/path");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
-		setup();
-		this.request.setServletPath("/spring");
-		this.request.setRequestURI("/spring/path.html");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
-		setup();
-		this.request.setServletPath("/spring");
-		this.request.setRequestURI("/spring/path/");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
-		setup();
-		this.request.setServletPath("/foo");
-		this.request.setRequestURI("/foo/path");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-		setup();
-		this.request.setServletPath("/");
-		this.request.setRequestURI("/path");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
@@ -245,35 +189,6 @@ public class AuthorizeRequestsTests {
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 
-	@Test
-	public void mvcMatcherServletPath() throws Exception {
-		loadConfig(MvcMatcherServletPathConfig.class, LegacyMvcMatchingConfig.class);
-		this.request.setServletPath("/spring");
-		this.request.setRequestURI("/spring/path");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
-		setup();
-		this.request.setServletPath("/spring");
-		this.request.setRequestURI("/spring/path.html");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
-		setup();
-		this.request.setServletPath("/spring");
-		this.request.setRequestURI("/spring/path/");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
-		setup();
-		this.request.setServletPath("/foo");
-		this.request.setRequestURI("/foo/path");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-		setup();
-		this.request.setServletPath("/");
-		this.request.setRequestURI("/path");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-	}
-
 	public void loadConfig(Class<?>... configs) {
 		this.context = new AnnotationConfigWebApplicationContext();
 		this.context.register(configs);
@@ -290,8 +205,8 @@ public class AuthorizeRequestsTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.requestMatchers(new AntPathRequestMatcher("/**", HttpMethod.POST.name())).denyAll();
+				.authorizeRequests((requests) -> requests
+					.requestMatchers(pathPattern(HttpMethod.POST, "/**")).denyAll());
 			// @formatter:on
 			return http.build();
 		}
@@ -311,9 +226,8 @@ public class AuthorizeRequestsTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorizeRequests) ->
-					authorizeRequests
-						.requestMatchers(new AntPathRequestMatcher("/**", HttpMethod.POST.name())).denyAll()
+				.authorizeRequests((authorize) -> authorize
+						.requestMatchers(pathPattern(HttpMethod.POST, "/**")).denyAll()
 				);
 			// @formatter:on
 			return http.build();
@@ -332,11 +246,14 @@ public class AuthorizeRequestsTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			PathPatternParser parser = new PathPatternParser();
+			parser.setCaseSensitive(false);
+			PathPatternRequestMatcher.Builder builder = PathPatternRequestMatcher.withPathPatternParser(parser);
 			// @formatter:off
 			http
-				.authorizeRequests()
-				.requestMatchers(new AntPathRequestMatcher("/user/{user}", null, false)).access("#user == 'user'")
-				.anyRequest().denyAll();
+				.authorizeRequests((requests) -> requests
+					.requestMatchers(builder.matcher("/user/{user}")).access("#user == 'user'")
+					.anyRequest().denyAll());
 			// @formatter:on
 			return http.build();
 		}
@@ -354,11 +271,14 @@ public class AuthorizeRequestsTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			PathPatternParser parser = new PathPatternParser();
+			parser.setCaseSensitive(false);
+			PathPatternRequestMatcher.Builder builder = PathPatternRequestMatcher.withPathPatternParser(parser);
 			// @formatter:off
 			http
-				.authorizeRequests()
-				.requestMatchers(new AntPathRequestMatcher("/user/{userName}", null, false)).access("#userName == 'user'")
-				.anyRequest().denyAll();
+				.authorizeRequests((requests) -> requests
+					.requestMatchers(builder.matcher("/user/{userName}")).access("#userName == 'user'")
+					.anyRequest().denyAll());
 			// @formatter:on
 			return http.build();
 		}
@@ -378,8 +298,8 @@ public class AuthorizeRequestsTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("ADMIN");
+				.authorizeRequests((requests) -> requests
+					.anyRequest().hasRole("ADMIN"));
 			// @formatter:on
 			return http.build();
 		}
@@ -407,9 +327,9 @@ public class AuthorizeRequestsTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.httpBasic().and()
-				.authorizeRequests()
-					.requestMatchers("/path").denyAll();
+				.httpBasic(withDefaults())
+				.authorizeRequests((requests) -> requests
+					.requestMatchers("/path").denyAll());
 			// @formatter:on
 			return http.build();
 		}
@@ -441,8 +361,7 @@ public class AuthorizeRequestsTests {
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
-				.authorizeRequests((authorizeRequests) ->
-					authorizeRequests
+				.authorizeRequests((authorize) -> authorize
 						.requestMatchers("/path").denyAll()
 				);
 			// @formatter:on
@@ -472,14 +391,13 @@ public class AuthorizeRequestsTests {
 	static class MvcMatcherServletPathConfig {
 
 		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
-			MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector)
-				.servletPath("/spring");
+		SecurityFilterChain filterChain(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
+			PathPatternRequestMatcher.Builder spring = builder.basePath("/spring");
 			// @formatter:off
 			http
-				.httpBasic().and()
-				.authorizeRequests()
-					.requestMatchers(mvcMatcherBuilder.pattern("/path")).denyAll();
+				.httpBasic(withDefaults())
+				.authorizeRequests((requests) -> requests
+					.requestMatchers(spring.matcher("/path")).denyAll());
 			// @formatter:on
 			return http.build();
 		}
@@ -507,15 +425,13 @@ public class AuthorizeRequestsTests {
 	static class MvcMatcherServletPathInLambdaConfig {
 
 		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
-			MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector)
-				.servletPath("/spring");
+		SecurityFilterChain filterChain(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
+			PathPatternRequestMatcher.Builder spring = builder.basePath("/spring");
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
-				.authorizeRequests((authorizeRequests) ->
-					authorizeRequests
-						.requestMatchers(mvcMatcherBuilder.pattern("/path")).denyAll()
+				.authorizeRequests((authorize) -> authorize
+						.requestMatchers(spring.matcher("/path")).denyAll()
 				);
 			// @formatter:on
 			return http.build();
@@ -547,9 +463,9 @@ public class AuthorizeRequestsTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.httpBasic().and()
-				.authorizeRequests()
-					.requestMatchers("/user/{userName}").access("#userName == 'user'");
+				.httpBasic(withDefaults())
+				.authorizeRequests((requests) -> requests
+					.requestMatchers("/user/{userName}").access("#userName == 'user'"));
 			// @formatter:on
 			return http.build();
 		}
@@ -581,8 +497,7 @@ public class AuthorizeRequestsTests {
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
-				.authorizeRequests((authorizeRequests) ->
-					authorizeRequests
+				.authorizeRequests((authorize) -> authorize
 						.requestMatchers("/user/{userName}").access("#userName == 'user'")
 				);
 			// @formatter:on
@@ -615,9 +530,9 @@ public class AuthorizeRequestsTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.httpBasic().and()
-				.authorizeRequests()
-					.requestMatchers("/user").denyAll();
+				.httpBasic(withDefaults())
+				.authorizeRequests((requests) -> requests
+					.requestMatchers("/user").denyAll());
 			// @formatter:on
 			return http.build();
 		}
@@ -635,17 +550,6 @@ public class AuthorizeRequestsTests {
 				return "path";
 			}
 
-		}
-
-	}
-
-	@Configuration
-	static class LegacyMvcMatchingConfig implements WebMvcConfigurer {
-
-		@Override
-		public void configurePathMatch(PathMatchConfigurer configurer) {
-			configurer.setUseSuffixPatternMatch(true);
-			configurer.setUseTrailingSlashMatch(true);
 		}
 
 	}

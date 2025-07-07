@@ -281,7 +281,7 @@ public class ServerHttpSecurityConfigurationTests {
 		SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-					.authorizeExchange((exchange) -> exchange
+					.authorizeExchange((authorize) -> authorize
 						.anyExchange().authenticated()
 					)
 					.formLogin(Customizer.withDefaults());
@@ -300,7 +300,7 @@ public class ServerHttpSecurityConfigurationTests {
 		SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
 			// @formatter:off
 			http
-					.authorizeExchange((exchange) -> exchange
+					.authorizeExchange((authorize) -> authorize
 						.anyExchange().authenticated()
 					)
 					.formLogin((form) -> form

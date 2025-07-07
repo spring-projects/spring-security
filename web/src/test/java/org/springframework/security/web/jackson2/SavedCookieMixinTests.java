@@ -42,11 +42,9 @@ public class SavedCookieMixinTests extends AbstractMixinTests {
 		+ "\"@class\": \"org.springframework.security.web.savedrequest.SavedCookie\", "
 		+ "\"name\": \"SESSION\", "
 		+ "\"value\": \"123456789\", "
-		+ "\"comment\": null, "
 		+ "\"maxAge\": -1, "
 		+ "\"path\": null, "
 		+ "\"secure\":false, "
-		+ "\"version\": 0, "
 		+ "\"domain\": null"
 	+ "}";
 	// @formatter:on
@@ -95,8 +93,6 @@ public class SavedCookieMixinTests extends AbstractMixinTests {
 		assertThat(savedCookie.getName()).isEqualTo("SESSION");
 		assertThat(savedCookie.getValue()).isEqualTo("123456789");
 		assertThat(savedCookie.isSecure()).isEqualTo(false);
-		assertThat(savedCookie.getVersion()).isZero();
-		assertThat(savedCookie.getComment()).isNull();
 	}
 
 }

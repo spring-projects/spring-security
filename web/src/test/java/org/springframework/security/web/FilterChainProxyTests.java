@@ -64,6 +64,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 
 /**
  * @author Luke Taylor
@@ -96,8 +97,7 @@ public class FilterChainProxyTests {
 		}).given(this.filter).doFilter(any(), any(), any());
 		this.fcp = new FilterChainProxy(new DefaultSecurityFilterChain(this.matcher, Arrays.asList(this.filter)));
 		this.fcp.setFilterChainValidator(mock(FilterChainProxy.FilterChainValidator.class));
-		this.request = new MockHttpServletRequest("GET", "");
-		this.request.setServletPath("/path");
+		this.request = get("/path").build();
 		this.response = new MockHttpServletResponse();
 		this.chain = mock(FilterChain.class);
 	}

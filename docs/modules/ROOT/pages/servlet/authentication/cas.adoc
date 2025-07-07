@@ -448,7 +448,7 @@ You can find an example of the updates required to accept all proxies below.
 	</bean>
 </property>
 <property name="statelessTicketCache">
-	<bean class="org.springframework.security.cas.authentication.EhCacheBasedTicketCache">
+	<bean class="org.springframework.security.cas.authentication.SpringCacheBasedTicketCache">
 	<property name="cache">
 		<bean class="net.sf.ehcache.Cache"
 			init-method="initialise" destroy-method="dispose">

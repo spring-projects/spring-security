@@ -41,7 +41,6 @@ import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.ForwardAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.ForwardAuthenticationSuccessHandler;
 import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -52,6 +51,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * @author Rob Winch
@@ -367,7 +367,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 		ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
-		filter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/no-matching"));
+		filter.setRequiresAuthenticationRequestMatcher(pathPattern("/no-matching"));
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		filter.setAuthenticationManager(am);
 		filter.afterPropertiesSet();
@@ -381,7 +381,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain chain = new MockFilterChain();
 		ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
-		filter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/**"));
+		filter.setRequiresAuthenticationRequestMatcher(pathPattern("/**"));
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		filter.setAuthenticationManager(am);
 		filter.afterPropertiesSet();

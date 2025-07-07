@@ -30,6 +30,7 @@ import org.springframework.security.saml2.provider.service.registration.InMemory
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
+import org.springframework.security.web.servlet.TestMockHttpServletRequests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -121,9 +122,7 @@ public final class RequestMatcherMetadataResponseResolverTests {
 	}
 
 	private MockHttpServletRequest get(String uri) {
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
-		request.setServletPath(uri);
-		return request;
+		return TestMockHttpServletRequests.get(uri).build();
 	}
 
 	private RelyingPartyRegistration withEntityId(String entityId) {

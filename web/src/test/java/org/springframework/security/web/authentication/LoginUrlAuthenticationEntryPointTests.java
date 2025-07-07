@@ -28,6 +28,7 @@ import org.springframework.security.web.PortMapperImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 
 /**
  * Tests {@link LoginUrlAuthenticationEntryPoint}.
@@ -73,12 +74,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 
 	@Test
 	public void testHttpsOperationFromOriginalHttpUrl() throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setRequestURI("/some_path");
-		request.setScheme("http");
-		request.setServerName("www.example.com");
-		request.setContextPath("/bigWebApp");
-		request.setServerPort(80);
+		MockHttpServletRequest request = get("http://127.0.0.1").requestUri("/bigWebApp", "/some_path", null).build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint("/hello");
 		ep.setPortMapper(new PortMapperImpl());
@@ -87,17 +83,17 @@ public class LoginUrlAuthenticationEntryPointTests {
 		ep.setPortResolver(new MockPortResolver(80, 443));
 		ep.afterPropertiesSet();
 		ep.commence(request, response, null);
-		assertThat(response.getRedirectedUrl()).isEqualTo("https://www.example.com/bigWebApp/hello");
+		assertThat(response.getRedirectedUrl()).isEqualTo("https://127.0.0.1/bigWebApp/hello");
 		request.setServerPort(8080);
 		response = new MockHttpServletResponse();
 		ep.setPortResolver(new MockPortResolver(8080, 8443));
 		ep.commence(request, response, null);
-		assertThat(response.getRedirectedUrl()).isEqualTo("https://www.example.com:8443/bigWebApp/hello");
+		assertThat(response.getRedirectedUrl()).isEqualTo("https://127.0.0.1:8443/bigWebApp/hello");
 		// Now test an unusual custom HTTP:HTTPS is handled properly
 		request.setServerPort(8888);
 		response = new MockHttpServletResponse();
 		ep.commence(request, response, null);
-		assertThat(response.getRedirectedUrl()).isEqualTo("https://www.example.com:8443/bigWebApp/hello");
+		assertThat(response.getRedirectedUrl()).isEqualTo("https://127.0.0.1:8443/bigWebApp/hello");
 		PortMapperImpl portMapper = new PortMapperImpl();
 		Map<String, String> map = new HashMap<>();
 		map.put("8888", "9999");
@@ -110,17 +106,13 @@ public class LoginUrlAuthenticationEntryPointTests {
 		ep.setPortResolver(new MockPortResolver(8888, 9999));
 		ep.afterPropertiesSet();
 		ep.commence(request, response, null);
-		assertThat(response.getRedirectedUrl()).isEqualTo("https://www.example.com:9999/bigWebApp/hello");
+		assertThat(response.getRedirectedUrl()).isEqualTo("https://127.0.0.1:9999/bigWebApp/hello");
 	}
 
 	@Test
 	public void testHttpsOperationFromOriginalHttpsUrl() throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setRequestURI("/some_path");
-		request.setScheme("https");
-		request.setServerName("www.example.com");
-		request.setContextPath("/bigWebApp");
-		request.setServerPort(443);
+		MockHttpServletRequest request = get("https://www.example.com:443").requestUri("/bigWebApp", "/some_path", null)
+			.build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint("/hello");
 		ep.setPortMapper(new PortMapperImpl());
@@ -149,13 +141,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 		ep.setPortMapper(new PortMapperImpl());
 		ep.setPortResolver(new MockPortResolver(80, 443));
 		ep.afterPropertiesSet();
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setRequestURI("/some_path");
-		request.setContextPath("/bigWebApp");
-		request.setScheme("http");
-		request.setServerName("localhost");
-		request.setContextPath("/bigWebApp");
-		request.setServerPort(80);
+		MockHttpServletRequest request = get().requestUri("/bigWebApp", "/some_path", null).build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		ep.commence(request, response, null);
 		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/bigWebApp/hello");
@@ -167,13 +153,8 @@ public class LoginUrlAuthenticationEntryPointTests {
 		ep.setPortResolver(new MockPortResolver(8888, 1234));
 		ep.setForceHttps(true);
 		ep.afterPropertiesSet();
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setRequestURI("/some_path");
-		request.setContextPath("/bigWebApp");
-		request.setScheme("http");
-		request.setServerName("localhost");
-		request.setContextPath("/bigWebApp");
-		request.setServerPort(8888); // NB: Port we can't resolve
+		MockHttpServletRequest request = get("http://localhost:8888").requestUri("/bigWebApp", "/some_path", null)
+			.build(); // NB: Port we can't resolve
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		ep.commence(request, response, null);
 		// Response doesn't switch to HTTPS, as we didn't know HTTP port 8888 to HTTP port
@@ -186,14 +167,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint("/hello");
 		ep.setUseForward(true);
 		ep.afterPropertiesSet();
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setRequestURI("/bigWebApp/some_path");
-		request.setServletPath("/some_path");
-		request.setContextPath("/bigWebApp");
-		request.setScheme("http");
-		request.setServerName("www.example.com");
-		request.setContextPath("/bigWebApp");
-		request.setServerPort(80);
+		MockHttpServletRequest request = get().requestUri("/bigWebApp", "/some_path", null).build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		ep.commence(request, response, null);
 		assertThat(response.getForwardedUrl()).isEqualTo("/hello");
@@ -205,17 +179,10 @@ public class LoginUrlAuthenticationEntryPointTests {
 		ep.setUseForward(true);
 		ep.setForceHttps(true);
 		ep.afterPropertiesSet();
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setRequestURI("/bigWebApp/some_path");
-		request.setServletPath("/some_path");
-		request.setContextPath("/bigWebApp");
-		request.setScheme("http");
-		request.setServerName("www.example.com");
-		request.setContextPath("/bigWebApp");
-		request.setServerPort(80);
+		MockHttpServletRequest request = get("http://127.0.0.1").requestUri("/bigWebApp", "/some_path", null).build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		ep.commence(request, response, null);
-		assertThat(response.getRedirectedUrl()).isEqualTo("https://www.example.com/bigWebApp/some_path");
+		assertThat(response.getRedirectedUrl()).isEqualTo("https://127.0.0.1/bigWebApp/some_path");
 	}
 
 	// SEC-1498

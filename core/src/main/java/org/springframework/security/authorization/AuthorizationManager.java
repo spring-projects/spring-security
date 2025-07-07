@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,22 +39,11 @@ public interface AuthorizationManager<T> {
 	 * @throws AccessDeniedException if access is not granted
 	 */
 	default void verify(Supplier<Authentication> authentication, T object) {
-		AuthorizationDecision decision = check(authentication, object);
-		if (decision != null && !decision.isGranted()) {
-			throw new AuthorizationDeniedException("Access Denied", decision);
+		AuthorizationResult result = authorize(authentication, object);
+		if (result != null && !result.isGranted()) {
+			throw new AuthorizationDeniedException("Access Denied", result);
 		}
 	}
-
-	/**
-	 * Determines if access is granted for a specific authentication and object.
-	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param object the {@link T} object to check
-	 * @return an {@link AuthorizationDecision} or null if no decision could be made
-	 * @deprecated please use {@link #authorize(Supplier, Object)} instead
-	 */
-	@Nullable
-	@Deprecated
-	AuthorizationDecision check(Supplier<Authentication> authentication, T object);
 
 	/**
 	 * Determines if access is granted for a specific authentication and object.
@@ -65,8 +54,6 @@ public interface AuthorizationManager<T> {
 	 * @since 6.4
 	 */
 	@Nullable
-	default AuthorizationResult authorize(Supplier<Authentication> authentication, T object) {
-		return check(authentication, object);
-	}
+	AuthorizationResult authorize(Supplier<Authentication> authentication, T object);
 
 }

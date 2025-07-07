@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,18 +47,6 @@ public final class OAuth2AuthorizationContext {
 	 */
 	public static final String REQUEST_SCOPE_ATTRIBUTE_NAME = OAuth2AuthorizationContext.class.getName()
 		.concat(".REQUEST_SCOPE");
-
-	/**
-	 * The name of the {@link #getAttribute(String) attribute} in the context associated
-	 * to the value for the resource owner's username.
-	 */
-	public static final String USERNAME_ATTRIBUTE_NAME = OAuth2AuthorizationContext.class.getName().concat(".USERNAME");
-
-	/**
-	 * The name of the {@link #getAttribute(String) attribute} in the context associated
-	 * to the value for the resource owner's password.
-	 */
-	public static final String PASSWORD_ATTRIBUTE_NAME = OAuth2AuthorizationContext.class.getName().concat(".PASSWORD");
 
 	private ClientRegistration clientRegistration;
 

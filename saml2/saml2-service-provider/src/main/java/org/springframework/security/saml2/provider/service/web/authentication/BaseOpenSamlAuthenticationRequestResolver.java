@@ -57,6 +57,8 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatchers;
 import org.springframework.util.Assert;
 
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
+
 /**
  * For internal use only. Intended for consolidating common behavior related to minting a
  * SAML 2.0 Authn Request.
@@ -222,7 +224,7 @@ class BaseOpenSamlAuthenticationRequestResolver implements Saml2AuthenticationRe
 
 		PathPatternQueryRequestMatcher(String path, String... params) {
 			List<RequestMatcher> matchers = new ArrayList<>();
-			matchers.add(PathPatternRequestMatcher.withDefaults().matcher(path));
+			matchers.add(pathPattern(path));
 			for (String param : params) {
 				String[] parts = param.split("=");
 				if (parts.length == 1) {

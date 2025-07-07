@@ -42,6 +42,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 
 /**
  * Tests for {@link OidcUserRefreshedEventListener}.
@@ -64,8 +65,7 @@ public class OidcUserRefreshedEventListenerTests {
 		this.eventListener = new OidcUserRefreshedEventListener();
 		this.eventListener.setSecurityContextRepository(this.securityContextRepository);
 
-		this.request = new MockHttpServletRequest("GET", "");
-		this.request.setServletPath("/");
+		this.request = get("/").build();
 		this.response = new MockHttpServletResponse();
 	}
 

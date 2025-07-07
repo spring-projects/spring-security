@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Consumer;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +30,6 @@ import reactor.core.publisher.Mono;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.MediaType;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -47,7 +42,6 @@ import org.springframework.security.oauth2.client.JwtBearerReactiveOAuth2Authori
 import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.PasswordReactiveOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.RefreshTokenReactiveOAuth2AuthorizedClientProvider;
@@ -56,14 +50,12 @@ import org.springframework.security.oauth2.client.endpoint.AbstractOAuth2Authori
 import org.springframework.security.oauth2.client.endpoint.JwtBearerGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
-import org.springframework.security.oauth2.client.endpoint.OAuth2PasswordGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.TokenExchangeGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.InMemoryReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.DefaultReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.WebSessionServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -73,13 +65,11 @@ import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
 import org.springframework.security.oauth2.jwt.JoseHeaderNames;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -266,53 +256,6 @@ public class ReactiveOAuth2AuthorizedClientManagerConfigurationTests {
 	}
 
 	@Test
-	public void authorizeWhenPasswordAccessTokenResponseClientBeanThenUsed() {
-		this.spring.register(CustomAccessTokenResponseClientsConfig.class).autowire();
-		testPasswordGrant();
-	}
-
-	@Test
-	public void authorizeWhenPasswordAuthorizedClientProviderBeanThenUsed() {
-		this.spring.register(CustomAuthorizedClientProvidersConfig.class).autowire();
-		testPasswordGrant();
-	}
-
-	private void testPasswordGrant() {
-		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
-		given(MOCK_RESPONSE_CLIENT.getTokenResponse(any(OAuth2PasswordGrantRequest.class)))
-			.willReturn(Mono.just(accessTokenResponse));
-
-		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
-		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId("facebook")
-			.block();
-		assertThat(clientRegistration).isNotNull();
-		MockServerHttpRequest request = MockServerHttpRequest.post("/")
-			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-			.body("username=user&password=password");
-		this.exchange = MockServerWebExchange.builder(request).build();
-		// @formatter:off
-		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
-				.withClientRegistrationId(clientRegistration.getRegistrationId())
-				.principal(authentication)
-				.attribute(ServerWebExchange.class.getName(), this.exchange)
-				.build();
-		// @formatter:on
-		OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(authorizeRequest).block();
-		assertThat(authorizedClient).isNotNull();
-
-		ArgumentCaptor<OAuth2PasswordGrantRequest> grantRequestCaptor = ArgumentCaptor
-			.forClass(OAuth2PasswordGrantRequest.class);
-		verify(MOCK_RESPONSE_CLIENT).getTokenResponse(grantRequestCaptor.capture());
-
-		OAuth2PasswordGrantRequest grantRequest = grantRequestCaptor.getValue();
-		assertThat(grantRequest.getClientRegistration().getRegistrationId())
-			.isEqualTo(clientRegistration.getRegistrationId());
-		assertThat(grantRequest.getGrantType()).isEqualTo(AuthorizationGrantType.PASSWORD);
-		assertThat(grantRequest.getUsername()).isEqualTo("user");
-		assertThat(grantRequest.getPassword()).isEqualTo("password");
-	}
-
-	@Test
 	public void authorizeWhenJwtBearerAccessTokenResponseClientBeanThenUsed() {
 		this.spring.register(CustomAccessTokenResponseClientsConfig.class).autowire();
 		testJwtBearerGrant();
@@ -452,11 +395,6 @@ public class ReactiveOAuth2AuthorizedClientManagerConfigurationTests {
 		}
 
 		@Bean
-		ReactiveOAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> passwordAccessTokenResponseClient() {
-			return new MockAccessTokenResponseClient<>();
-		}
-
-		@Bean
 		ReactiveOAuth2AccessTokenResponseClient<JwtBearerGrantRequest> jwtBearerAccessTokenResponseClient() {
 			return new MockAccessTokenResponseClient<>();
 		}
@@ -487,13 +425,6 @@ public class ReactiveOAuth2AuthorizedClientManagerConfigurationTests {
 		@Bean
 		ClientCredentialsReactiveOAuth2AuthorizedClientProvider clientCredentials() {
 			ClientCredentialsReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = new ClientCredentialsReactiveOAuth2AuthorizedClientProvider();
-			authorizedClientProvider.setAccessTokenResponseClient(new MockAccessTokenResponseClient<>());
-			return authorizedClientProvider;
-		}
-
-		@Bean
-		PasswordReactiveOAuth2AuthorizedClientProvider password() {
-			PasswordReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = new PasswordReactiveOAuth2AuthorizedClientProvider();
 			authorizedClientProvider.setAccessTokenResponseClient(new MockAccessTokenResponseClient<>());
 			return authorizedClientProvider;
 		}
@@ -530,11 +461,6 @@ public class ReactiveOAuth2AuthorizedClientManagerConfigurationTests {
 						.clientSecret("github-client-secret")
 						.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
 						.build(),
-					CommonOAuth2Provider.FACEBOOK.getBuilder("facebook")
-						.clientId("facebook-client-id")
-						.clientSecret("facebook-client-secret")
-						.authorizationGrantType(AuthorizationGrantType.PASSWORD)
-						.build(),
 					CommonOAuth2Provider.OKTA.getBuilder("okta")
 						.clientId("okta-client-id")
 						.clientSecret("okta-client-secret")
@@ -549,29 +475,6 @@ public class ReactiveOAuth2AuthorizedClientManagerConfigurationTests {
 						.scope("user.read", "user.write")
 						.build());
 			// @formatter:on
-		}
-
-		@Bean
-		Consumer<DefaultReactiveOAuth2AuthorizedClientManager> authorizedClientManagerConsumer() {
-			return (authorizedClientManager) -> authorizedClientManager
-				.setContextAttributesMapper((authorizeRequest) -> {
-					ServerWebExchange exchange = Objects
-						.requireNonNull(authorizeRequest.getAttribute(ServerWebExchange.class.getName()));
-					return exchange.getFormData().map((parameters) -> {
-						String username = parameters.getFirst(OAuth2ParameterNames.USERNAME);
-						String password = parameters.getFirst(OAuth2ParameterNames.PASSWORD);
-
-						Map<String, Object> attributes = Collections.emptyMap();
-						if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
-							attributes = new HashMap<>();
-							attributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, username);
-							attributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, password);
-						}
-
-						return attributes;
-					});
-				});
-
 		}
 
 	}

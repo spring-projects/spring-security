@@ -166,13 +166,9 @@ The top-level package is `org.springframework.security.ldap`.
 |
 | Data exception classes are required.
 
-| apache-ds
-| 1.5.5
-| Required if you are using an embedded LDAP server (optional). If you use `apache-ds`, the `apacheds-core`, `apacheds-core-entry`, `apacheds-protocol-shared`, `apacheds-protocol-ldap` and `apacheds-server-jndi` modules are required.
-
-| shared-ldap
-| 0.9.15
-| Required if you are using an embedded LDAP server (optional).
+| com.unboundid:unboundid-ldapsdk
+|
+| Required if using an embedded LDAP server
 
 | ldapsdk
 | 4.1

@@ -28,6 +28,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 import static org.springframework.security.web.util.matcher.RegexRequestMatcher.regexMatcher;
 
 /**
@@ -50,8 +51,7 @@ public class RegexRequestMatcherTests {
 	@Test
 	public void matchesIfHttpMethodAndPathMatch() {
 		RegexRequestMatcher matcher = new RegexRequestMatcher(".*", "GET");
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/anything");
-		request.setServletPath("/anything");
+		MockHttpServletRequest request = get("/anything").build();
 		assertThat(matcher.matches(request)).isTrue();
 	}
 

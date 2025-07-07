@@ -16,7 +16,6 @@
 
 package org.springframework.security.access.annotation;
 
-import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,10 +26,8 @@ import jakarta.annotation.security.RolesAllowed;
  * @author Luke Taylor
  */
 @PermitAll
+@SuppressWarnings("serial")
 public class Jsr250BusinessServiceImpl implements BusinessService {
-
-	@Serial
-	private static final long serialVersionUID = -7550211450382764339L;
 
 	@Override
 	@RolesAllowed("ROLE_USER")

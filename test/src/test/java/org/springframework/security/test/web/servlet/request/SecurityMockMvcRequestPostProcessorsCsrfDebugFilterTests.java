@@ -63,7 +63,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfDebugFilterTests {
 
 		@Bean
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-			http.csrf().csrfTokenRepository(cookieCsrfTokenRepository);
+			http.csrf((csrf) -> csrf.csrfTokenRepository(cookieCsrfTokenRepository));
 			return http.build();
 		}
 

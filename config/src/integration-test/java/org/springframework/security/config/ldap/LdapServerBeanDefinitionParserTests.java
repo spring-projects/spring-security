@@ -26,7 +26,7 @@ import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
-import org.springframework.security.ldap.server.ApacheDSContainer;
+import org.springframework.security.ldap.server.UnboundIdContainer;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -92,9 +92,9 @@ public class LdapServerBeanDefinitionParserTests {
 	@Test
 	public void defaultLdifFileIsSuccessful() {
 		this.appCtx = new InMemoryXmlApplicationContext("<ldap-server/>");
-		ApacheDSContainer dsContainer = this.appCtx.getBean(ApacheDSContainer.class);
+		UnboundIdContainer dsContainer = this.appCtx.getBean(UnboundIdContainer.class);
 
-		assertThat(ReflectionTestUtils.getField(dsContainer, "ldifResources")).isEqualTo("classpath*:*.ldif");
+		assertThat(ReflectionTestUtils.getField(dsContainer, "ldif")).isEqualTo("classpath*:*.ldif");
 	}
 
 	private int getDefaultPort() throws IOException {

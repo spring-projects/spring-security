@@ -165,8 +165,8 @@ public class GrantedAuthorityDefaultsJcTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().access("hasRole('USER')");
+				.authorizeRequests((requests) -> requests
+					.anyRequest().access("hasRole('USER')"));
 			return http.build();
 			// @formatter:on
 		}

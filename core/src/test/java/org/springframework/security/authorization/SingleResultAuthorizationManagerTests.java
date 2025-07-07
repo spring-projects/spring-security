@@ -43,7 +43,7 @@ public class SingleResultAuthorizationManagerTests {
 	void checkWhenManagerWithGrantedDecisionIsCreatedThenAuthorizes() {
 		this.manager = new SingleResultAuthorizationManager<>(new AuthorizationDecision(true));
 
-		AuthorizationResult result = this.manager.check(null, null);
+		AuthorizationResult result = this.manager.authorize(null, null);
 
 		assertThat(result.isGranted()).isTrue();
 	}
@@ -52,7 +52,7 @@ public class SingleResultAuthorizationManagerTests {
 	void checkWhenManagerWithGrantedCustomAuthorizationResultIsCreatedThenFails() {
 		this.manager = new SingleResultAuthorizationManager<>((AuthorizationResult) () -> true);
 
-		assertThatIllegalArgumentException().isThrownBy(() -> this.manager.check(null, null));
+		assertThatIllegalArgumentException().isThrownBy(() -> this.manager.authorize(null, null));
 	}
 
 	@Test

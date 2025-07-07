@@ -27,7 +27,7 @@ spring:
             ...
 ----
 
-The following example shows how to configure `DefaultAuthorizationCodeTokenResponseClient` to disable URL encoding of the client credentials:
+The following example shows how to configure `RestClientAuthorizationCodeTokenResponseClient` to disable URL encoding of the client credentials:
 
 [tabs]
 ======
@@ -39,13 +39,9 @@ DefaultOAuth2TokenRequestHeadersConverter<OAuth2AuthorizationCodeGrantRequest> h
 		new DefaultOAuth2TokenRequestHeadersConverter<>();
 headersConverter.setEncodeClientCredentials(false);
 
-OAuth2AuthorizationCodeGrantRequestEntityConverter requestEntityConverter =
-		new OAuth2AuthorizationCodeGrantRequestEntityConverter();
-requestEntityConverter.setHeadersConverter(headersConverter);
-
-DefaultAuthorizationCodeTokenResponseClient tokenResponseClient =
-		new DefaultAuthorizationCodeTokenResponseClient();
-tokenResponseClient.setRequestEntityConverter(requestEntityConverter);
+RestClientAuthorizationCodeTokenResponseClient tokenResponseClient =
+		new RestClientAuthorizationCodeTokenResponseClient();
+tokenResponseClient.setHeadersConverter(headersConverter);
 ----
 
 Kotlin::
@@ -55,11 +51,8 @@ Kotlin::
 val headersConverter = DefaultOAuth2TokenRequestHeadersConverter<OAuth2AuthorizationCodeGrantRequest>()
 headersConverter.setEncodeClientCredentials(false)
 
-val requestEntityConverter = OAuth2AuthorizationCodeGrantRequestEntityConverter()
-requestEntityConverter.setHeadersConverter(headersConverter)
-
-val tokenResponseClient = DefaultAuthorizationCodeTokenResponseClient()
-tokenResponseClient.setRequestEntityConverter(requestEntityConverter)
+val tokenResponseClient = RestClientAuthorizationCodeTokenResponseClient()
+tokenResponseClient.setHeadersConverter(headersConverter)
 ----
 ======
 
@@ -119,7 +112,7 @@ spring:
             ...
 ----
 
-The following example shows how to configure `DefaultAuthorizationCodeTokenResponseClient`:
+The following example shows how to configure `RestClientAuthorizationCodeTokenResponseClient`:
 
 [tabs]
 ======
@@ -140,14 +133,10 @@ Function<ClientRegistration, JWK> jwkResolver = (clientRegistration) -> {
 	return null;
 };
 
-OAuth2AuthorizationCodeGrantRequestEntityConverter requestEntityConverter =
-		new OAuth2AuthorizationCodeGrantRequestEntityConverter();
-requestEntityConverter.addParametersConverter(
+RestClientAuthorizationCodeTokenResponseClient tokenResponseClient =
+		new RestClientAuthorizationCodeTokenResponseClient();
+tokenResponseClient.addParametersConverter(
 		new NimbusJwtClientAuthenticationParametersConverter<>(jwkResolver));
-
-DefaultAuthorizationCodeTokenResponseClient tokenResponseClient =
-		new DefaultAuthorizationCodeTokenResponseClient();
-tokenResponseClient.setRequestEntityConverter(requestEntityConverter);
 ----
 
 Kotlin::
@@ -168,13 +157,10 @@ val jwkResolver: Function<ClientRegistration, JWK> =
         null
     }
 
-val requestEntityConverter = OAuth2AuthorizationCodeGrantRequestEntityConverter()
-requestEntityConverter.addParametersConverter(
+val tokenResponseClient = RestClientAuthorizationCodeTokenResponseClient()
+tokenResponseClient.addParametersConverter(
     NimbusJwtClientAuthenticationParametersConverter(jwkResolver)
 )
-
-val tokenResponseClient = DefaultAuthorizationCodeTokenResponseClient()
-tokenResponseClient.setRequestEntityConverter(requestEntityConverter)
 ----
 ======
 
@@ -198,7 +184,7 @@ spring:
             ...
 ----
 
-The following example shows how to configure `DefaultClientCredentialsTokenResponseClient`:
+The following example shows how to configure `RestClientClientCredentialsTokenResponseClient`:
 
 [tabs]
 ======
@@ -218,14 +204,10 @@ Function<ClientRegistration, JWK> jwkResolver = (clientRegistration) -> {
 	return null;
 };
 
-OAuth2ClientCredentialsGrantRequestEntityConverter requestEntityConverter =
-		new OAuth2ClientCredentialsGrantRequestEntityConverter();
-requestEntityConverter.addParametersConverter(
+RestClientClientCredentialsTokenResponseClient tokenResponseClient =
+		new RestClientClientCredentialsTokenResponseClient();
+tokenResponseClient.addParametersConverter(
 		new NimbusJwtClientAuthenticationParametersConverter<>(jwkResolver));
-
-DefaultClientCredentialsTokenResponseClient tokenResponseClient =
-		new DefaultClientCredentialsTokenResponseClient();
-tokenResponseClient.setRequestEntityConverter(requestEntityConverter);
 ----
 
 Kotlin::
@@ -245,13 +227,10 @@ val jwkResolver = Function<ClientRegistration, JWK?> { clientRegistration: Clien
     null
 }
 
-val requestEntityConverter = OAuth2ClientCredentialsGrantRequestEntityConverter()
-requestEntityConverter.addParametersConverter(
+val tokenResponseClient = RestClientClientCredentialsTokenResponseClient()
+tokenResponseClient.addParametersConverter(
     NimbusJwtClientAuthenticationParametersConverter(jwkResolver)
 )
-
-val tokenResponseClient = DefaultClientCredentialsTokenResponseClient()
-tokenResponseClient.setRequestEntityConverter(requestEntityConverter)
 ----
 ======
 

@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 
 /**
  * @author Luke Taylor
@@ -34,8 +35,7 @@ public class DefaultHttpFirewallTests {
 	public void unnormalizedPathsAreRejected() {
 		DefaultHttpFirewall fw = new DefaultHttpFirewall();
 		for (String path : this.unnormalizedPaths) {
-			MockHttpServletRequest request = new MockHttpServletRequest();
-			request.setServletPath(path);
+			MockHttpServletRequest request = get().requestUri(path).build();
 			assertThatExceptionOfType(RequestRejectedException.class)
 				.isThrownBy(() -> fw.getFirewalledRequest(request));
 			request.setPathInfo(path);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,19 +70,6 @@ public final class TestClientRegistrations {
 				.registrationId("client-credentials")
 				.clientId("client-id")
 				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS);
-		// @formatter:on
-	}
-
-	public static ClientRegistration.Builder password() {
-		// @formatter:off
-		return ClientRegistration.withRegistrationId("password")
-				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
-				.scope("read", "write")
-				.tokenUri("https://example.com/login/oauth/access_token")
-				.clientName("Client Name")
-				.clientId("client-id")
-				.clientSecret("client-secret");
 		// @formatter:on
 	}
 

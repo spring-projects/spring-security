@@ -41,4 +41,8 @@ public class InMemoryUserDetailsManagerConfigurer<B extends ProviderManagerBuild
 		super(new InMemoryUserDetailsManager(new ArrayList<>()));
 	}
 
+	public B and() {
+		return getBuilder();
+	}
+
 }

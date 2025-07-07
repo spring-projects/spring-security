@@ -55,6 +55,7 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 
 /**
  * Tests for {@link OAuth2AuthorizationRequestRedirectFilter}.
@@ -127,8 +128,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 	@Test
 	public void doFilterWhenNotAuthorizationRequestThenNextFilter() throws Exception {
 		String requestUri = "/path";
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
-		request.setServletPath(requestUri);
+		MockHttpServletRequest request = get(requestUri).build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 		this.filter.doFilter(request, response, filterChain);
@@ -139,8 +139,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 	public void doFilterWhenAuthorizationRequestWithInvalidClientThenStatusInternalServerError() throws Exception {
 		String requestUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI + "/"
 				+ this.registration1.getRegistrationId() + "-invalid";
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
-		request.setServletPath(requestUri);
+		MockHttpServletRequest request = get(requestUri).build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 		this.filter.doFilter(request, response, filterChain);
@@ -154,8 +153,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 			throws Exception {
 		String requestUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI + "/"
 				+ this.registration1.getRegistrationId() + "-invalid";
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
-		request.setServletPath(requestUri);
+		MockHttpServletRequest request = get(requestUri).build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 		this.filter.setAuthenticationFailureHandler((request1, response1, ex) -> {
@@ -178,8 +176,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 	public void doFilterWhenAuthorizationRequestOAuth2LoginThenRedirectForAuthorization() throws Exception {
 		String requestUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI + "/"
 				+ this.registration1.getRegistrationId();
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
-		request.setServletPath(requestUri);
+		MockHttpServletRequest request = get(requestUri).build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 		this.filter.doFilter(request, response, filterChain);
@@ -193,8 +190,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 	public void doFilterWhenAuthorizationRequestOAuth2LoginThenAuthorizationRequestSaved() throws Exception {
 		String requestUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI + "/"
 				+ this.registration2.getRegistrationId();
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
-		request.setServletPath(requestUri);
+		MockHttpServletRequest request = get(requestUri).build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 		AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = mock(
@@ -212,8 +208,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		this.filter = new OAuth2AuthorizationRequestRedirectFilter(this.clientRegistrationRepository,
 				authorizationRequestBaseUri);
 		String requestUri = authorizationRequestBaseUri + "/" + this.registration1.getRegistrationId();
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
-		request.setServletPath(requestUri);
+		MockHttpServletRequest request = get(requestUri).build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 		this.filter.doFilter(request, response, filterChain);
@@ -227,8 +222,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 	public void doFilterWhenNotAuthorizationRequestAndClientAuthorizationRequiredExceptionThrownThenRedirectForAuthorization()
 			throws Exception {
 		String requestUri = "/path";
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
-		request.setServletPath(requestUri);
+		MockHttpServletRequest request = get(requestUri).build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 		willThrow(new ClientAuthorizationRequiredException(this.registration1.getRegistrationId())).given(filterChain)
@@ -245,8 +239,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 	public void doFilterWhenNotAuthorizationRequestAndClientAuthorizationRequiredExceptionThrownButAuthorizationRequestNotResolvedThenStatusInternalServerError()
 			throws Exception {
 		String requestUri = "/path";
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
-		request.setServletPath(requestUri);
+		MockHttpServletRequest request = get(requestUri).build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 		willThrow(new ClientAuthorizationRequiredException(this.registration1.getRegistrationId())).given(filterChain)
@@ -266,8 +259,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 			throws Exception {
 		String requestUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI + "/"
 				+ this.registration1.getRegistrationId();
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
-		request.setServletPath(requestUri);
+		MockHttpServletRequest request = get(requestUri).build();
 		request.addParameter("idp", "https://other.provider.com");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
@@ -295,8 +287,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 			throws Exception {
 		String requestUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI + "/"
 				+ this.registration1.getRegistrationId();
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
-		request.setServletPath(requestUri);
+		MockHttpServletRequest request = get(requestUri).build();
 		String loginHintParamName = "login_hint";
 		request.addParameter(loginHintParamName, "user@provider.com");
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -335,8 +326,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 			throws Exception {
 		String requestUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI + "/"
 				+ this.registration1.getRegistrationId();
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
-		request.setServletPath(requestUri);
+		MockHttpServletRequest request = get(requestUri).build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 		RedirectStrategy customRedirectStrategy = (httpRequest, httpResponse, url) -> {
@@ -363,8 +353,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 	public void doFilterWhenNotAuthorizationRequestAndClientAuthorizationRequiredExceptionThrownThenSaveRequestBeforeCommitted()
 			throws Exception {
 		String requestUri = "/path";
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
-		request.setServletPath(requestUri);
+		MockHttpServletRequest request = get(requestUri).build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 		willAnswer((invocation) -> assertThat((invocation.<HttpServletResponse>getArgument(1)).isCommitted()).isFalse())

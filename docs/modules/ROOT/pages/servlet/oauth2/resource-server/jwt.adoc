@@ -174,7 +174,7 @@ Java::
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
-        .authorizeHttpRequests(authorize -> authorize
+        .authorizeHttpRequests((authorize) -> authorize
             .anyRequest().authenticated()
         )
         .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()));
@@ -220,12 +220,12 @@ public class MyCustomSecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(authorize -> authorize
+            .authorizeHttpRequests((authorize) -> authorize
                 .requestMatchers("/messages/**").access(hasScope("message:read"))
                 .anyRequest().authenticated()
             )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt
+            .oauth2ResourceServer((oauth2) -> oauth2
+                .jwt((jwt) -> jwt
                     .jwtAuthenticationConverter(myConverter())
                 )
             );
@@ -355,11 +355,11 @@ public class DirectlyConfiguredJwkSetUri {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(authorize -> authorize
+            .authorizeHttpRequests((authorize) -> authorize
                 .anyRequest().authenticated()
             )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt
+            .oauth2ResourceServer((oauth2) -> oauth2
+                .jwt((jwt) -> jwt
                     .jwkSetUri("https://idp.example.com/.well-known/jwks.json")
                 )
             );
@@ -425,11 +425,11 @@ public class DirectlyConfiguredJwtDecoder {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(authorize -> authorize
+            .authorizeHttpRequests((authorize) -> authorize
                 .anyRequest().authenticated()
             )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt
+            .oauth2ResourceServer((oauth2) -> oauth2
+                .jwt((jwt) -> jwt
                     .decoder(myCustomDecoder())
                 )
             );
@@ -875,12 +875,12 @@ public class DirectlyConfiguredJwkSetUri {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(authorize -> authorize
+            .authorizeHttpRequests((authorize) -> authorize
                 .requestMatchers("/contacts/**").access(hasScope("contacts"))
                 .requestMatchers("/messages/**").access(hasScope("messages"))
                 .anyRequest().authenticated()
             )
-            .oauth2ResourceServer(oauth2 -> oauth2
+            .oauth2ResourceServer((oauth2) -> oauth2
                 .jwt(Customizer.withDefaults())
             );
         return http.build();
@@ -1107,11 +1107,11 @@ public class CustomAuthenticationConverterConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(authorize -> authorize
+            .authorizeHttpRequests((authorize) -> authorize
                 .anyRequest().authenticated()
             )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt
+            .oauth2ResourceServer((oauth2) -> oauth2
+                .jwt((jwt) -> jwt
                     .jwtAuthenticationConverter(new CustomAuthenticationConverter())
                 )
             );

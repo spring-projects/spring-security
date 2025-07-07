@@ -33,12 +33,16 @@ public enum PayloadInterceptorOrder implements Ordered {
 	/**
 	 * Where basic authentication is placed.
 	 * @see RSocketSecurity#basicAuthentication(Customizer)
+	 * @deprecated please see {@link PayloadInterceptorOrder#AUTHENTICATION}
 	 */
+	@Deprecated
 	BASIC_AUTHENTICATION,
 	/**
 	 * Where JWT based authentication is performed.
 	 * @see RSocketSecurity#jwt(Customizer)
+	 * @deprecated please see {@link PayloadInterceptorOrder#AUTHENTICATION}
 	 */
+	@Deprecated
 	JWT_AUTHENTICATION,
 	/**
 	 * A generic placeholder for other types of authentication.

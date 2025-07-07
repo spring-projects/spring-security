@@ -1,0 +1,17 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id 'kotlin'
+}
+
+project.plugins.withId("org.jetbrains.kotlin.jvm", (kotlinProject) -> {
+    project.tasks.withType(KotlinCompile).configureEach {
+        kotlinOptions {
+            languageVersion = '2.2'
+            apiVersion = '2.2'
+            freeCompilerArgs = ["-Xjsr305=strict", "-Xsuppress-version-warnings"]
+            jvmTarget = '17'
+
+        }
+    }
+})

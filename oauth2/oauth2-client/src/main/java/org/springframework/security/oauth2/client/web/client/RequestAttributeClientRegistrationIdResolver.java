@@ -23,7 +23,7 @@ import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.util.Assert;
+import org.springframework.security.oauth2.client.web.ClientAttributes;
 
 /**
  * A strategy for resolving a {@code clientRegistrationId} from an intercepted request
@@ -36,13 +36,9 @@ import org.springframework.util.Assert;
 public final class RequestAttributeClientRegistrationIdResolver
 		implements OAuth2ClientHttpRequestInterceptor.ClientRegistrationIdResolver {
 
-	private static final String CLIENT_REGISTRATION_ID_ATTR_NAME = RequestAttributeClientRegistrationIdResolver.class
-		.getName()
-		.concat(".clientRegistrationId");
-
 	@Override
 	public String resolve(HttpRequest request) {
-		return (String) request.getAttributes().get(CLIENT_REGISTRATION_ID_ATTR_NAME);
+		return ClientAttributes.resolveClientRegistrationId(request.getAttributes());
 	}
 
 	/**
@@ -54,8 +50,7 @@ public final class RequestAttributeClientRegistrationIdResolver
 	 * @return the {@link Consumer} to populate the attributes
 	 */
 	public static Consumer<Map<String, Object>> clientRegistrationId(String clientRegistrationId) {
-		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
-		return (attributes) -> attributes.put(CLIENT_REGISTRATION_ID_ATTR_NAME, clientRegistrationId);
+		return ClientAttributes.clientRegistrationId(clientRegistrationId);
 	}
 
 }

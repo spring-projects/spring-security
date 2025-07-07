@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.security.access.annotation.BusinessService;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.authentication.TestAuthentication;
-import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.util.SimpleMethodInvocation;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -84,7 +84,7 @@ class MethodExpressionAuthorizationManagerTests {
 	@Test
 	void checkWhenExpressionHasRoleAdminConfiguredAndRoleAdminThenGrantedDecision() {
 		MethodExpressionAuthorizationManager manager = new MethodExpressionAuthorizationManager("hasRole('ADMIN')");
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedAdmin,
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedAdmin,
 				new SimpleMethodInvocation(new Object(),
 						ReflectionUtils.getRequiredMethod(BusinessService.class, "someAdminMethod")));
 		assertThat(decision).isNotNull();
@@ -94,7 +94,7 @@ class MethodExpressionAuthorizationManagerTests {
 	@Test
 	void checkWhenExpressionHasRoleAdminConfiguredAndRoleUserThenDeniedDecision() {
 		MethodExpressionAuthorizationManager manager = new MethodExpressionAuthorizationManager("hasRole('ADMIN')");
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser,
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedUser,
 				new SimpleMethodInvocation(new Object(),
 						ReflectionUtils.getRequiredMethod(BusinessService.class, "someAdminMethod")));
 		assertThat(decision).isNotNull();

@@ -44,8 +44,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 /**
  * Tests for [AuthorizeRequestsDsl]
@@ -135,26 +133,6 @@ class AuthorizeRequestsDslTests {
                 }
     }
 
-    @Test
-    fun `request when allowed by mvc then responds with OK`() {
-        this.spring.register(AuthorizeRequestsByMvcConfig::class.java, LegacyMvcMatchingConfig::class.java).autowire()
-
-        this.mockMvc.get("/path")
-                .andExpect {
-                    status { isOk() }
-                }
-
-        this.mockMvc.get("/path.html")
-                .andExpect {
-                    status { isOk() }
-                }
-
-        this.mockMvc.get("/path/")
-                .andExpect {
-                    status { isOk() }
-                }
-    }
-
     @Configuration
     @EnableWebSecurity
     @EnableWebMvc
@@ -176,14 +154,6 @@ class AuthorizeRequestsDslTests {
             fun path(): String {
                 return "ok"
             }
-        }
-    }
-
-    @Configuration
-    open class LegacyMvcMatchingConfig : WebMvcConfigurer {
-        override fun configurePathMatch(configurer: PathMatchConfigurer) {
-            configurer.setUseSuffixPatternMatch(true)
-            configurer.setUseTrailingSlashMatch(true)
         }
     }
 
@@ -433,17 +403,11 @@ class AuthorizeRequestsDslTests {
         this.spring.register(MvcMatcherServletPathConfig::class.java).autowire()
 
         this.mockMvc.perform(MockMvcRequestBuilders.get("/spring/path")
-                .with { request ->
-                    request.servletPath = "/spring"
-                    request
-                })
+                .servletPath("/spring"))
                 .andExpect(status().isForbidden)
 
         this.mockMvc.perform(MockMvcRequestBuilders.get("/other/path")
-                .with { request ->
-                    request.servletPath = "/other"
-                    request
-                })
+                .servletPath("/other"))
                 .andExpect(status().isOk)
     }
 
@@ -542,28 +506,15 @@ class AuthorizeRequestsDslTests {
         this.spring.register(MvcMatcherServletPathConfig::class.java).autowire()
 
         this.mockMvc.perform(MockMvcRequestBuilders.get("/spring/path")
-            .with { request ->
-                request.apply {
-                    servletPath = "/spring"
-                }
-            })
+            .servletPath("/spring"))
             .andExpect(status().isForbidden)
 
         this.mockMvc.perform(MockMvcRequestBuilders.put("/spring/path")
-            .with { request ->
-                request.apply {
-                    servletPath = "/spring"
-                    csrf()
-                }
-            })
+            .servletPath("/spring"))
             .andExpect(status().isForbidden)
 
         this.mockMvc.perform(MockMvcRequestBuilders.get("/other/path")
-            .with { request ->
-                request.apply {
-                    servletPath = "/other"
-                }
-            })
+            .servletPath("/other"))
             .andExpect(status().isOk)
     }
 }

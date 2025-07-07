@@ -72,6 +72,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 
 /**
  * Tests for {@link OAuth2AuthorizationCodeGrantFilter}.
@@ -154,8 +155,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 	@Test
 	public void doFilterWhenNotAuthorizationResponseThenNotProcessed() throws Exception {
 		String requestUri = "/path";
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
-		request.setServletPath(requestUri);
+		MockHttpServletRequest request = get(requestUri).build();
 		// NOTE: A valid Authorization Response contains either a 'code' or 'error'
 		// parameter.
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -328,8 +328,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 	@Test
 	public void doFilterWhenAuthorizationSucceedsAndHasSavedRequestThenRedirectToSavedRequest() throws Exception {
 		String requestUri = "/saved-request";
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
-		request.setServletPath(requestUri);
+		MockHttpServletRequest request = get(requestUri).build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		RequestCache requestCache = new HttpSessionRequestCache();
 		requestCache.saveRequest(request, response);
@@ -430,8 +429,7 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 
 	private static MockHttpServletRequest createAuthorizationRequest(String requestUri,
 			Map<String, String> parameters) {
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
-		request.setServletPath(requestUri);
+		MockHttpServletRequest request = get(requestUri).build();
 		if (!CollectionUtils.isEmpty(parameters)) {
 			parameters.forEach(request::addParameter);
 			request.setQueryString(parameters.entrySet()

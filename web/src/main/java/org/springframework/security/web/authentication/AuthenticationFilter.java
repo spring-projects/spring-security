@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,6 +64,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * </ul>
  *
  * @author Sergey Bespalov
+ * @author Andrey Litvitski
  * @since 5.2.0
  */
 public class AuthenticationFilter extends OncePerRequestFilter {
@@ -191,6 +192,15 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 		catch (AuthenticationException ex) {
 			unsuccessfulAuthentication(request, response, ex);
 		}
+	}
+
+	@Override
+	protected String getAlreadyFilteredAttributeName() {
+		String name = getFilterName();
+		if (name == null) {
+			name = getClass().getName().concat("-" + System.identityHashCode(this));
+		}
+		return name + ALREADY_FILTERED_SUFFIX;
 	}
 
 	private void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,

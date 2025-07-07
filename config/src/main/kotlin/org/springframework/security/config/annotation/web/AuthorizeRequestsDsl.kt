@@ -19,11 +19,9 @@ package org.springframework.security.config.annotation.web
 import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher
 import org.springframework.security.web.util.matcher.AnyRequestMatcher
 import org.springframework.security.web.util.matcher.RequestMatcher
-import org.springframework.util.ClassUtils
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector
 
 /**
  * A Kotlin DSL to configure [HttpSecurity] request authorization using idiomatic Kotlin code.
@@ -33,13 +31,7 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector
  */
 class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
     private val authorizationRules = mutableListOf<AuthorizationRule>()
-
-    private val HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME = "mvcHandlerMappingIntrospector"
-    private val HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector"
-    private val MVC_PRESENT = ClassUtils.isPresent(
-            HANDLER_MAPPING_INTROSPECTOR,
-            AuthorizeRequestsDsl::class.java.classLoader)
-    private val PATTERN_TYPE = if (MVC_PRESENT) PatternType.MVC else PatternType.ANT
+    private val PATTERN_TYPE = PatternType.PATH;
 
     /**
      * Adds a request authorization rule.
@@ -226,17 +218,13 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
                 when (rule) {
                     is MatcherAuthorizationRule -> requests.requestMatchers(rule.matcher).access(rule.rule)
                     is PatternAuthorizationRule -> {
-                        when (rule.patternType) {
-                            PatternType.ANT -> requests.requestMatchers(rule.httpMethod, rule.pattern).access(rule.rule)
-                            PatternType.MVC -> {
-                                val introspector = requests.applicationContext.getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME, HandlerMappingIntrospector::class.java)
-                                val mvcMatcher = MvcRequestMatcher.Builder(introspector)
-                                    .servletPath(rule.servletPath)
-                                    .pattern(rule.pattern)
-                                mvcMatcher.setMethod(rule.httpMethod)
-                                requests.requestMatchers(mvcMatcher).access(rule.rule)
-                            }
+                        var builder = requests.applicationContext.getBeanProvider(
+                            PathPatternRequestMatcher.Builder::class.java)
+                                .getIfUnique(PathPatternRequestMatcher::withDefaults);
+                        if (rule.servletPath != null) {
+                            builder = builder.basePath(rule.servletPath)
                         }
+                        requests.requestMatchers(builder.matcher(rule.httpMethod, rule.pattern)).access(rule.rule)
                     }
                 }
             }

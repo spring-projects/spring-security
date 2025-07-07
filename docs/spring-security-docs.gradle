@@ -2,6 +2,7 @@ plugins {
 	id 'org.antora' version '1.0.0'
 	id 'io.spring.antora.generate-antora-yml' version '0.0.1'
 	id 'io.spring.convention.repository'
+	id 'security-kotlin'
 }
 
 apply plugin: 'io.spring.convention.docs'
@@ -33,10 +34,25 @@ tasks.register("generateAntoraResources") {
 
 dependencies {
 	testImplementation platform(project(':spring-security-dependencies'))
+	testImplementation project(':spring-security-config')
+	testImplementation project(path : ':spring-security-config', configuration : 'tests')
+	testImplementation project(':spring-security-test')
+	testImplementation project(':spring-security-oauth2-client')
+	testImplementation 'com.squareup.okhttp3:mockwebserver'
 	testImplementation 'com.unboundid:unboundid-ldapsdk'
 	testImplementation libs.webauthn4j.core
-	testImplementation 'org.apache.directory.server:apacheds-core'
+	testImplementation 'org.jetbrains.kotlin:kotlin-reflect'
+	testImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 	testImplementation 'org.springframework:spring-core'
+	testImplementation 'org.springframework:spring-test'
+
+	testImplementation 'org.springframework:spring-webmvc'
+	testImplementation 'jakarta.servlet:jakarta.servlet-api'
+	testImplementation 'io.mockk:mockk'
+	testImplementation "org.junit.jupiter:junit-jupiter-api"
+	testImplementation "org.junit.jupiter:junit-jupiter-params"
+	testImplementation "org.junit.jupiter:junit-jupiter-engine"
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 def generateAttributes() {
@@ -77,4 +93,8 @@ def resolvedVersions(Configuration configuration) {
 	return configuration.resolvedConfiguration
 				.resolvedArtifacts
 				.collectEntries { [(it.name + '-version'): it.moduleVersion.id.version] }
+}
+
+test {
+	useJUnitPlatform()
 }

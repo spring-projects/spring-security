@@ -126,11 +126,6 @@ public class HttpsRedirectConfigurerTests {
 			return http.build();
 		}
 
-		@Bean
-		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder() {
-			return new PathPatternRequestMatcherBuilderFactoryBean();
-		}
-
 	}
 
 	@Configuration

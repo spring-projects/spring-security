@@ -60,6 +60,7 @@ import static org.mockito.BDDMockito.verify;
  *
  * @author Luke Taylor
  * @author dae won
+ * @author Junhyeok Lee
  */
 public class JdbcUserDetailsManagerTests {
 
@@ -190,6 +191,11 @@ public class JdbcUserDetailsManagerTests {
 	}
 
 	@Test
+	public void userExistsReturnsFalseForNullUsername() {
+		assertThat(this.manager.userExists(null)).isFalse();
+	}
+
+	@Test
 	public void userExistsReturnsTrueForExistingUsername() {
 		insertJoe();
 		assertThat(this.manager.userExists("joe")).isTrue();
@@ -279,10 +285,9 @@ public class JdbcUserDetailsManagerTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void createGroupInsertsCorrectData() {
 		this.manager.createGroup("TEST_GROUP", AuthorityUtils.createAuthorityList("ROLE_X", "ROLE_Y"));
-		List roles = this.template.queryForList("select ga.authority from groups g, group_authorities ga "
+		List<?> roles = this.template.queryForList("select ga.authority from groups g, group_authorities ga "
 				+ "where ga.group_id = g.id " + "and g.group_name = 'TEST_GROUP'");
 		assertThat(roles).hasSize(2);
 	}
@@ -361,7 +366,7 @@ public class JdbcUserDetailsManagerTests {
 
 	// SEC-2166
 	@Test
-	public void createNewAuthenticationUsesNullPasswordToKeepPassordsSave() {
+	public void createNewAuthenticationUsesNullPasswordToKeepPasswordSave() {
 		insertJoe();
 		UsernamePasswordAuthenticationToken currentAuth = UsernamePasswordAuthenticationToken.authenticated("joe", null,
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
@@ -405,6 +410,23 @@ public class JdbcUserDetailsManagerTests {
 		verify(mockMapper).mapRow(any(), anyInt());
 	}
 
+	@Test
+	void updatePasswordWhenDisabledReturnOriginalUser() {
+		insertJoe();
+		this.manager.updatePassword(joe, "new");
+		UserDetails newJoe = this.manager.loadUserByUsername("joe");
+		assertThat(newJoe.getPassword()).isEqualTo("password");
+	}
+
+	@Test
+	void updatePasswordWhenEnabledShouldUpdatePassword() {
+		insertJoe();
+		this.manager.setEnableUpdatePassword(true);
+		this.manager.updatePassword(joe, "new");
+		UserDetails newJoe = this.manager.loadUserByUsername("joe");
+		assertThat(newJoe.getPassword()).isEqualTo("new");
+	}
+
 	private Authentication authenticateJoe() {
 		UsernamePasswordAuthenticationToken auth = UsernamePasswordAuthenticationToken.authenticated("joe", "password",
 				joe.getAuthorities());
@@ -420,9 +442,9 @@ public class JdbcUserDetailsManagerTests {
 		this.cache.putUserInCache(joe);
 	}
 
-	private class MockUserCache implements UserCache {
+	private static class MockUserCache implements UserCache {
 
-		private Map<String, UserDetails> cache = new HashMap<>();
+		private final Map<String, UserDetails> cache = new HashMap<>();
 
 		@Override
 		public UserDetails getUserFromCache(String username) {

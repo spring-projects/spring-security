@@ -87,8 +87,8 @@ public class Sec2758Tests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-			.authorizeRequests()
-			.anyRequest().access("hasAnyRole('CUSTOM')");
+				.authorizeRequests((requests) -> requests
+					.anyRequest().access("hasAnyRole('CUSTOM')"));
 			return http.build();
 			// @formatter:on
 		}

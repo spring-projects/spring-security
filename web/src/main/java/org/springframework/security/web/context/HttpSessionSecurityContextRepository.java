@@ -115,7 +115,9 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 	 * If the session is null, the context object is null or the context object stored in
 	 * the session is not an instance of {@code SecurityContext}, a new context object
 	 * will be generated and returned.
+	 * @deprecated please see {@link SecurityContextRepository#loadContext}
 	 */
+	@Deprecated
 	@Override
 	public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
 		HttpServletRequest request = requestResponseHolder.getRequest();

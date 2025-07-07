@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,12 +61,8 @@ public final class ObservationAuthorizationManager<T>
 		}
 	}
 
-	/**
-	 * @deprecated please use {@link #authorize(Supplier, Object)} instead
-	 */
-	@Deprecated
 	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication, T object) {
+	public AuthorizationResult authorize(Supplier<Authentication> authentication, T object) {
 		AuthorizationObservationContext<T> context = new AuthorizationObservationContext<>(object);
 		Supplier<Authentication> wrapped = () -> {
 			context.setAuthentication(authentication.get());
@@ -74,13 +70,13 @@ public final class ObservationAuthorizationManager<T>
 		};
 		Observation observation = Observation.createNotStarted(this.convention, () -> context, this.registry).start();
 		try (Observation.Scope scope = observation.openScope()) {
-			AuthorizationDecision decision = this.delegate.check(wrapped, object);
-			context.setAuthorizationResult(decision);
-			if (decision != null && !decision.isGranted()) {
+			AuthorizationResult result = this.delegate.authorize(wrapped, object);
+			context.setAuthorizationResult(result);
+			if (result != null && !result.isGranted()) {
 				observation.error(new AccessDeniedException(
 						this.messages.getMessage("AbstractAccessDecisionManager.accessDenied", "Access Denied")));
 			}
-			return decision;
+			return result;
 		}
 		catch (Throwable ex) {
 			observation.error(ex);

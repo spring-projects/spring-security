@@ -32,7 +32,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
-import org.springframework.security.ldap.server.ApacheDSContainer;
 import org.springframework.security.ldap.server.UnboundIdContainer;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
@@ -47,7 +46,7 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 	private static final String CONTEXT_SOURCE_CLASS = "org.springframework.security.ldap.DefaultSpringSecurityContextSource";
 
 	/**
-	 * Defines the Url of the ldap server to use. If not specified, an embedded apache DS
+	 * Defines the Url of the ldap server to use. If not specified, an embedded UnboundID
 	 * instance will be created
 	 */
 	private static final String ATT_URL = "url";
@@ -78,22 +77,15 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final int DEFAULT_PORT = 33389;
 
-	private static final String APACHEDS_CLASSNAME = "org.apache.directory.server.core.DefaultDirectoryService";
-
 	private static final String UNBOUNID_CLASSNAME = "com.unboundid.ldap.listener.InMemoryDirectoryServer";
-
-	private static final String APACHEDS_CONTAINER_CLASSNAME = "org.springframework.security.ldap.server.ApacheDSContainer";
 
 	private static final String UNBOUNDID_CONTAINER_CLASSNAME = "org.springframework.security.ldap.server.UnboundIdContainer";
 
 	private static final boolean unboundIdPresent;
 
-	private static final boolean apacheDsPresent;
-
 	static {
 		ClassLoader classLoader = LdapServerBeanDefinitionParser.class.getClassLoader();
 		unboundIdPresent = ClassUtils.isPresent(UNBOUNID_CLASSNAME, classLoader);
-		apacheDsPresent = ClassUtils.isPresent(APACHEDS_CLASSNAME, classLoader);
 	}
 
 	@Override
@@ -128,10 +120,9 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 	/**
 	 * Will be called if no url attribute is supplied.
 	 *
-	 * Registers beans to create an embedded apache directory server.
+	 * Registers beans to create an embedded UnboundID Server.
 	 * @return the BeanDefinition for the ContextSource for the embedded server.
 	 *
-	 * @see ApacheDSContainer
 	 * @see UnboundIdContainer
 	 */
 	private RootBeanDefinition createEmbeddedServer(Element element, ParserContext parserContext) {
@@ -162,8 +153,7 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		ldapContainer.getConstructorArgumentValues().addGenericArgumentValue(ldifs);
 		ldapContainer.getPropertyValues().addPropertyValue("port", getPort(element));
-		if (parserContext.getRegistry().containsBeanDefinition(BeanIds.EMBEDDED_APACHE_DS)
-				|| parserContext.getRegistry().containsBeanDefinition(BeanIds.EMBEDDED_UNBOUNDID)) {
+		if (parserContext.getRegistry().containsBeanDefinition(BeanIds.EMBEDDED_UNBOUNDID)) {
 			parserContext.getReaderContext()
 				.error("Only one embedded server bean is allowed per application context", element);
 		}
@@ -175,9 +165,6 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private RootBeanDefinition getRootBeanDefinition(String mode) {
-		if (isApacheDsEnabled(mode)) {
-			return new RootBeanDefinition(APACHEDS_CONTAINER_CLASSNAME, null, null);
-		}
 		if (isUnboundidEnabled(mode)) {
 			return new RootBeanDefinition(UNBOUNDID_CONTAINER_CLASSNAME, null, null);
 		}
@@ -185,17 +172,10 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private String resolveBeanId(String mode) {
-		if (isApacheDsEnabled(mode)) {
-			return BeanIds.EMBEDDED_APACHE_DS;
-		}
 		if (isUnboundidEnabled(mode)) {
 			return BeanIds.EMBEDDED_UNBOUNDID;
 		}
 		return null;
-	}
-
-	private boolean isApacheDsEnabled(String mode) {
-		return "apacheds".equals(mode) || apacheDsPresent;
 	}
 
 	private boolean isUnboundidEnabled(String mode) {
@@ -233,10 +213,6 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 		}
 
 		private int getPort() {
-			if (apacheDsPresent) {
-				ApacheDSContainer apacheDSContainer = this.applicationContext.getBean(ApacheDSContainer.class);
-				return apacheDSContainer.getLocalPort();
-			}
 			if (unboundIdPresent) {
 				UnboundIdContainer unboundIdContainer = this.applicationContext.getBean(UnboundIdContainer.class);
 				return unboundIdContainer.getPort();

@@ -41,7 +41,7 @@ class ContentTypeOptionsServerHttpHeadersWriterTests {
 	@Test
 	void writeHeadersWhenNoHeadersThenWriteHeaders() {
 		this.writer.writeHttpHeaders(this.exchange);
-		assertThat(this.headers).hasSize(1);
+		assertThat(this.headers.headerNames()).hasSize(1);
 		assertThat(this.headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS))
 			.containsOnly(ContentTypeOptionsServerHttpHeadersWriter.NOSNIFF);
 	}
@@ -51,7 +51,7 @@ class ContentTypeOptionsServerHttpHeadersWriterTests {
 		String headerValue = "value";
 		this.headers.set(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS, headerValue);
 		this.writer.writeHttpHeaders(this.exchange);
-		assertThat(this.headers).hasSize(1);
+		assertThat(this.headers.headerNames()).hasSize(1);
 		assertThat(this.headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS))
 			.containsOnly(headerValue);
 	}

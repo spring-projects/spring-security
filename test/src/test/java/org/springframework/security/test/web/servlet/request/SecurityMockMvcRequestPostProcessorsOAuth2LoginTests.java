@@ -55,6 +55,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.mockito.Mockito.mock;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -158,9 +159,9 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2LoginTests {
 			// @formatter:off
 			http
 				.authorizeRequests((authorize) -> authorize
-					.requestMatchers("/admin/**").hasAuthority("SCOPE_admin")
-					.anyRequest().hasAuthority("SCOPE_read")
-				).oauth2Login();
+						.requestMatchers("/admin/**").hasAuthority("SCOPE_admin")
+						.anyRequest().hasAuthority("SCOPE_read")
+				).oauth2Login(withDefaults());
 			return http.build();
 			// @formatter:on
 		}

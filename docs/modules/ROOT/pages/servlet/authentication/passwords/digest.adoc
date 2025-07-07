@@ -64,7 +64,7 @@ DigestAuthenticationFilter digestAuthenticationFilter() {
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	http
 		// ...
-		.exceptionHandling(e -> e.authenticationEntryPoint(authenticationEntryPoint()))
+		.exceptionHandling((e) -> e.authenticationEntryPoint(authenticationEntryPoint()))
 		.addFilter(digestAuthenticationFilter());
 	return http.build();
 }

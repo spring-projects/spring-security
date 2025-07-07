@@ -111,7 +111,7 @@ final class Argon2EncodingUtils {
 			case "argon2d" -> new Argon2Parameters.Builder(Argon2Parameters.ARGON2_d);
 			case "argon2i" -> new Argon2Parameters.Builder(Argon2Parameters.ARGON2_i);
 			case "argon2id" -> new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id);
-			default -> throw new IllegalArgumentException("Invalid algorithm type: " + parts[0]);
+			default -> throw new IllegalArgumentException("Invalid algorithm type: " + parts[1]);
 		};
 		if (parts[currentPart].startsWith("v=")) {
 			paramsBuilder.withVersion(Integer.parseInt(parts[currentPart].substring(2)));

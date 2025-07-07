@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,6 @@ import org.springframework.core.codec.CharSequenceEncoder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.codec.EncoderHttpMessageWriter;
 import org.springframework.http.codec.FormHttpMessageWriter;
 import org.springframework.http.codec.HttpMessageWriter;
@@ -65,7 +64,6 @@ import org.springframework.security.oauth2.client.ClientAuthorizationException;
 import org.springframework.security.oauth2.client.ClientCredentialsReactiveOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.InMemoryReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.JwtBearerReactiveOAuth2AuthorizedClientProvider;
-import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizationFailureHandler;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProvider;
@@ -74,7 +72,6 @@ import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClient
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.JwtBearerGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
-import org.springframework.security.oauth2.client.endpoint.OAuth2PasswordGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -90,12 +87,10 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.TestJwts;
-import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -134,9 +129,6 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Mock
 	private ReactiveOAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> refreshTokenTokenResponseClient;
-
-	@Mock
-	private ReactiveOAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> passwordTokenResponseClient;
 
 	@Mock
 	private ReactiveOAuth2AccessTokenResponseClient<JwtBearerGrantRequest> jwtBearerTokenResponseClient;
@@ -181,7 +173,6 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 						(configurer) -> configurer.accessTokenResponseClient(this.refreshTokenTokenResponseClient))
 				.clientCredentials(
 						(configurer) -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))
-				.password((configurer) -> configurer.accessTokenResponseClient(this.passwordTokenResponseClient))
 				.provider(jwtBearerAuthorizedClientProvider)
 				.build();
 		// @formatter:on
@@ -704,59 +695,6 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		given(this.exchange.getResponse().statusCode()).willReturn(HttpStatus.BAD_REQUEST);
 		this.function.filter(request, this.exchange).contextWrite(serverWebExchange()).block();
 		verify(this.authorizationFailureHandler, never()).onAuthorizationFailure(any(), any(), any());
-	}
-
-	@Test
-	public void filterWhenPasswordClientNotAuthorizedThenGetNewToken() {
-		setupMocks();
-		TestingAuthenticationToken authentication = new TestingAuthenticationToken("test", "this");
-		ClientRegistration registration = TestClientRegistrations.password().build();
-		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("new-token")
-			.tokenType(OAuth2AccessToken.TokenType.BEARER)
-			.expiresIn(360)
-			.build();
-		given(this.passwordTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
-		given(this.clientRegistrationRepository.findByRegistrationId(eq(registration.getRegistrationId())))
-			.willReturn(Mono.just(registration));
-		given(this.authorizedClientRepository.loadAuthorizedClient(eq(registration.getRegistrationId()),
-				eq(authentication), any()))
-			.willReturn(Mono.empty());
-		// Set custom contextAttributesMapper capable of mapping the form parameters
-		this.authorizedClientManager.setContextAttributesMapper((authorizeRequest) -> {
-			ServerWebExchange serverWebExchange = authorizeRequest.getAttribute(ServerWebExchange.class.getName());
-			return Mono.just(serverWebExchange).flatMap(ServerWebExchange::getFormData).map((formData) -> {
-				Map<String, Object> contextAttributes = new HashMap<>();
-				String username = formData.getFirst(OAuth2ParameterNames.USERNAME);
-				String password = formData.getFirst(OAuth2ParameterNames.PASSWORD);
-				if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
-					contextAttributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, username);
-					contextAttributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, password);
-				}
-				return contextAttributes;
-			});
-		});
-		this.serverWebExchange = MockServerWebExchange
-			.builder(MockServerHttpRequest.post("/")
-				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-				.body("username=username&password=password"))
-			.build();
-		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
-			.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction
-				.clientRegistrationId(registration.getRegistrationId()))
-			.build();
-		this.function.filter(request, this.exchange)
-			.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
-			.contextWrite(serverWebExchange())
-			.block();
-		verify(this.passwordTokenResponseClient).getTokenResponse(any());
-		verify(this.authorizedClientRepository).saveAuthorizedClient(any(), eq(authentication), any());
-		List<ClientRequest> requests = this.exchange.getRequests();
-		assertThat(requests).hasSize(1);
-		ClientRequest request1 = requests.get(0);
-		assertThat(request1.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer new-token");
-		assertThat(request1.url().toASCIIString()).isEqualTo("https://example.com");
-		assertThat(request1.method()).isEqualTo(HttpMethod.GET);
-		assertThat(getBody(request1)).isEmpty();
 	}
 
 	@Test

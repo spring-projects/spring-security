@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,16 +50,7 @@ abstract class StdConverters {
 		@Override
 		public ClientAuthenticationMethod convert(JsonNode jsonNode) {
 			String value = JsonNodeUtils.findStringValue(jsonNode, "value");
-			if (ClientAuthenticationMethod.CLIENT_SECRET_BASIC.getValue().equalsIgnoreCase(value)) {
-				return ClientAuthenticationMethod.CLIENT_SECRET_BASIC;
-			}
-			if (ClientAuthenticationMethod.CLIENT_SECRET_POST.getValue().equalsIgnoreCase(value)) {
-				return ClientAuthenticationMethod.CLIENT_SECRET_POST;
-			}
-			if (ClientAuthenticationMethod.NONE.getValue().equalsIgnoreCase(value)) {
-				return ClientAuthenticationMethod.NONE;
-			}
-			return null;
+			return ClientAuthenticationMethod.valueOf(value);
 		}
 
 	}
@@ -74,9 +65,6 @@ abstract class StdConverters {
 			}
 			if (AuthorizationGrantType.CLIENT_CREDENTIALS.getValue().equalsIgnoreCase(value)) {
 				return AuthorizationGrantType.CLIENT_CREDENTIALS;
-			}
-			if (AuthorizationGrantType.PASSWORD.getValue().equalsIgnoreCase(value)) {
-				return AuthorizationGrantType.PASSWORD;
 			}
 			return new AuthorizationGrantType(value);
 		}

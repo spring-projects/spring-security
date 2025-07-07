@@ -33,6 +33,7 @@ import io.micrometer.observation.ObservationHandler;
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.observation.ObservationTextPublisher;
 import jakarta.annotation.security.DenyAll;
+import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import org.springframework.aop.Advisor;
+import org.springframework.aop.Pointcut;
 import org.springframework.aop.config.AopConfigUtils;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.JdkRegexpMethodPointcut;
@@ -60,6 +62,19 @@ import org.springframework.context.annotation.Role;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.annotation.AnnotationConfigurationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.GeoPage;
+import org.springframework.data.geo.GeoResult;
+import org.springframework.data.geo.GeoResults;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.annotation.BusinessService;
@@ -78,7 +93,6 @@ import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
 import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
 import org.springframework.security.authorization.method.AuthorizationAdvisor;
@@ -89,9 +103,8 @@ import org.springframework.security.authorization.method.AuthorizationManagerBef
 import org.springframework.security.authorization.method.AuthorizeReturnObject;
 import org.springframework.security.authorization.method.MethodAuthorizationDeniedHandler;
 import org.springframework.security.authorization.method.MethodInvocationResult;
-import org.springframework.security.authorization.method.PrePostTemplateDefaults;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.observation.SecurityObservationSettings;
 import org.springframework.security.config.test.SpringTestContext;
@@ -103,12 +116,24 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener;
+import org.springframework.security.web.util.ThrowableAnalyzer;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -116,13 +141,15 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.clearInvocations;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Tests for {@link PrePostMethodSecurityConfiguration}.
@@ -143,6 +170,9 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	@Autowired(required = false)
 	BusinessService businessService;
+
+	@Autowired(required = false)
+	MockMvc mvc;
 
 	@WithMockUser
 	@Test
@@ -634,7 +664,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodeWhenParameterizedPreAuthorizeMetaAnnotationThenPasses(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -643,7 +673,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodRoleWhenPreAuthorizeMetaAnnotationHardcodedParameterThenPasses(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -652,7 +682,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	public void methodWhenParameterizedAnnotationThenFails(Class<?> config) {
 		this.spring.register(config).autowire();
 		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
@@ -661,7 +691,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser(authorities = "SCOPE_message:read")
 	public void methodWhenMultiplePlaceholdersHasAuthorityThenPasses(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -670,7 +700,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser(roles = "ADMIN")
 	public void methodWhenMultiplePlaceholdersHasRoleThenPasses(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -679,7 +709,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodWhenPostAuthorizeMetaAnnotationThenAuthorizes(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -690,7 +720,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodWhenPreFilterMetaAnnotationThenFilters(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -700,7 +730,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodWhenPostFilterMetaAnnotationThenFilters(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -730,6 +760,71 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@Test
+	@WithMockUser(authorities = "airplane:read")
+	public void findGeoResultByIdWhenAuthorizedResultThenAuthorizes() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		GeoResult<Flight> geoResultFlight = flights.findGeoResultFlightById("1");
+		Flight flight = geoResultFlight.getContent();
+		assertThatNoException().isThrownBy(flight::getAltitude);
+		assertThatNoException().isThrownBy(flight::getSeats);
+	}
+
+	@Test
+	@WithMockUser(authorities = "seating:read")
+	public void findGeoResultByIdWhenUnauthorizedResultThenDenies() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		GeoResult<Flight> geoResultFlight = flights.findGeoResultFlightById("1");
+		Flight flight = geoResultFlight.getContent();
+		assertThatNoException().isThrownBy(flight::getSeats);
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(flight::getAltitude);
+	}
+
+	@Test
+	@WithMockUser(authorities = "airplane:read")
+	public void findByIdWhenAuthorizedResponseEntityThenAuthorizes() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		Flight flight = flights.webFindById("1").getBody();
+		assertThatNoException().isThrownBy(flight::getAltitude);
+		assertThatNoException().isThrownBy(flight::getSeats);
+		assertThat(flights.webFindById("5").getBody()).isNull();
+	}
+
+	@Test
+	@WithMockUser(authorities = "seating:read")
+	public void findByIdWhenUnauthorizedResponseEntityThenDenies() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		Flight flight = flights.webFindById("1").getBody();
+		assertThatNoException().isThrownBy(flight::getSeats);
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(flight::getAltitude);
+	}
+
+	@Test
+	@WithMockUser(authorities = "airplane:read")
+	public void findByIdWhenAuthorizedModelAndViewThenAuthorizes() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		Flight flight = (Flight) flights.webViewFindById("1").getModel().get("flight");
+		assertThatNoException().isThrownBy(flight::getAltitude);
+		assertThatNoException().isThrownBy(flight::getSeats);
+		assertThat(flights.webViewFindById("5").getModel().get("flight")).isNull();
+	}
+
+	@Test
+	@WithMockUser(authorities = "seating:read")
+	public void findByIdWhenUnauthorizedModelAndViewThenDenies() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		Flight flight = (Flight) flights.webViewFindById("1").getModel().get("flight");
+		assertThatNoException().isThrownBy(flight::getSeats);
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(flight::getAltitude);
+		assertThat(flights.webViewFindById("5").getModel().get("flight")).isNull();
+	}
+
+	@Test
 	@WithMockUser(authorities = "seating:read")
 	public void findAllWhenUnauthorizedResultThenDenies() {
 		this.spring.register(AuthorizeResultConfig.class).autowire();
@@ -754,6 +849,46 @@ public class PrePostMethodSecurityConfigurationTests {
 		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
 		flights.findAll()
 			.forEachRemaining((flight) -> assertThat(flight.getPassengers()).extracting(Passenger::getName)
+				.doesNotContain("Kevin Mitnick"));
+	}
+
+	@Test
+	@WithMockUser(authorities = "airplane:read")
+	public void findPageWhenPostFilterThenFilters() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		flights.findPage()
+			.forEach((flight) -> assertThat(flight.getPassengers()).extracting(Passenger::getName)
+				.doesNotContain("Kevin Mitnick"));
+	}
+
+	@Test
+	@WithMockUser(authorities = "airplane:read")
+	public void findSliceWhenPostFilterThenFilters() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		flights.findSlice()
+			.forEach((flight) -> assertThat(flight.getPassengers()).extracting(Passenger::getName)
+				.doesNotContain("Kevin Mitnick"));
+	}
+
+	@Test
+	@WithMockUser(authorities = "airplane:read")
+	public void findGeoPageWhenPostFilterThenFilters() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		flights.findGeoPage()
+			.forEach((flight) -> assertThat(flight.getContent().getPassengers()).extracting(Passenger::getName)
+				.doesNotContain("Kevin Mitnick"));
+	}
+
+	@Test
+	@WithMockUser(authorities = "airplane:read")
+	public void findGeoResultsWhenPostFilterThenFilters() {
+		this.spring.register(AuthorizeResultConfig.class).autowire();
+		FlightRepository flights = this.spring.getContext().getBean(FlightRepository.class);
+		flights.findGeoResults()
+			.forEach((flight) -> assertThat(flight.getContent().getPassengers()).extracting(Passenger::getName)
 				.doesNotContain("Kevin Mitnick"));
 	}
 
@@ -855,18 +990,6 @@ public class PrePostMethodSecurityConfigurationTests {
 		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
 		String result = service.preAuthorizeDeniedMethodWithNoMaskAnnotation();
 		assertThat(result).isEqualTo("classmask");
-	}
-
-	@Test
-	@WithMockUser
-	void postAuthorizeWhenNullDeniedMetaAnnotationThanWorks() {
-		this.spring
-			.register(MethodSecurityServiceEnabledConfig.class, LegacyMetaAnnotationPlaceholderConfig.class,
-					MethodSecurityService.NullPostProcessor.class)
-			.autowire();
-		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
-		String result = service.postAuthorizeDeniedWithNullDenied();
-		assertThat(result).isNull();
 	}
 
 	@Test
@@ -1134,6 +1257,97 @@ public class PrePostMethodSecurityConfigurationTests {
 		}
 	}
 
+	@Test
+	void getWhenPostAuthorizeAuthenticationNameMatchesThenRespondsWithOk() throws Exception {
+		this.spring.register(WebMvcMethodSecurityConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/authorized-person")
+				.param("name", "rob")
+				.with(user("rob"));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
+	}
+
+	@Test
+	void getWhenPostAuthorizeAuthenticationNameNotMatchThenRespondsWithForbidden() throws Exception {
+		this.spring.register(WebMvcMethodSecurityConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/authorized-person")
+				.param("name", "john")
+				.with(user("rob"));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
+	}
+
+	@Test
+	void getWhenPostAuthorizeWithinServiceAuthenticationNameMatchesThenRespondsWithOk() throws Exception {
+		this.spring.register(WebMvcMethodSecurityConfig.class, BasicController.class, BasicService.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/greetings/authorized-person")
+				.param("name", "rob")
+				.with(user("rob"));
+		// @formatter:on
+		MvcResult mvcResult = this.mvc.perform(requestWithUser).andExpect(status().isOk()).andReturn();
+		assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo("Hello: rob");
+	}
+
+	@Test
+	void getWhenPostAuthorizeWithinServiceAuthenticationNameNotMatchThenCustomHandlerRespondsWithForbidden()
+			throws Exception {
+		this.spring
+			.register(WebMvcMethodSecurityConfig.class, BasicController.class, BasicService.class,
+					BasicControllerAdvice.class)
+			.autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/greetings/authorized-person")
+				.param("name", "john")
+				.with(user("rob"));
+		// @formatter:on
+		MvcResult mvcResult = this.mvc.perform(requestWithUser).andExpect(status().isForbidden()).andReturn();
+		assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo("""
+				{"message":"Access Denied"}\
+				""");
+	}
+
+	@Test
+	void getWhenPostAuthorizeAuthenticationNameNotMatchThenCustomHandlerRespondsWithForbidden() throws Exception {
+		this.spring
+			.register(WebMvcMethodSecurityConfig.class, BasicController.class, BasicService.class,
+					BasicControllerAdvice.class)
+			.autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/authorized-person")
+				.param("name", "john")
+				.with(user("rob"));
+		// @formatter:on
+		MvcResult mvcResult = this.mvc.perform(requestWithUser).andExpect(status().isForbidden()).andReturn();
+		assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo("""
+				{"message":"Could not write JSON: Access Denied"}\
+				""");
+	}
+
+	@Test
+	void getWhenCustomAdvisorAuthenticationNameMatchesThenRespondsWithOk() throws Exception {
+		this.spring.register(WebMvcMethodSecurityCustomAdvisorConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/authorized-person")
+				.param("name", "rob")
+				.with(user("rob"));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
+	}
+
+	@Test
+	void getWhenCustomAdvisorAuthenticationNameNotMatchThenRespondsWithForbidden() throws Exception {
+		this.spring.register(WebMvcMethodSecurityCustomAdvisorConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/authorized-person")
+				.param("name", "john")
+				.with(user("rob"));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
+	}
+
 	private static Consumer<ConfigurableWebApplicationContext> disallowBeanOverriding() {
 		return (context) -> ((AnnotationConfigWebApplicationContext) context).setAllowBeanDefinitionOverriding(false);
 	}
@@ -1326,8 +1540,6 @@ public class PrePostMethodSecurityConfigurationTests {
 
 		@Bean
 		AuthorizationEventPublisher authorizationEventPublisher() {
-			doCallRealMethod().when(this.publisher)
-				.publishAuthorizationEvent(any(), any(), any(AuthorizationResult.class));
 			return this.publisher;
 		}
 
@@ -1464,22 +1676,6 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	@Configuration
 	@EnableMethodSecurity
-	static class LegacyMetaAnnotationPlaceholderConfig {
-
-		@Bean
-		PrePostTemplateDefaults methodSecurityDefaults() {
-			return new PrePostTemplateDefaults();
-		}
-
-		@Bean
-		MetaAnnotationService metaAnnotationService() {
-			return new MetaAnnotationService();
-		}
-
-	}
-
-	@Configuration
-	@EnableMethodSecurity
 	static class MetaAnnotationPlaceholderConfig {
 
 		@Bean
@@ -1601,8 +1797,8 @@ public class PrePostMethodSecurityConfigurationTests {
 
 		@Bean
 		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-		static Customizer<AuthorizationAdvisorProxyFactory> skipValueTypes() {
-			return (f) -> f.setTargetVisitor(TargetVisitor.defaultsSkipValueTypes());
+		static TargetVisitor skipValueTypes() {
+			return TargetVisitor.defaultsSkipValueTypes();
 		}
 
 		@Bean
@@ -1633,8 +1829,37 @@ public class PrePostMethodSecurityConfigurationTests {
 			return this.flights.values().iterator();
 		}
 
+		Page<Flight> findPage() {
+			return new PageImpl<>(new ArrayList<>(this.flights.values()));
+		}
+
+		Slice<Flight> findSlice() {
+			return new SliceImpl<>(new ArrayList<>(this.flights.values()));
+		}
+
+		GeoPage<Flight> findGeoPage() {
+			List<GeoResult<Flight>> results = new ArrayList<>();
+			for (Flight flight : this.flights.values()) {
+				results.add(new GeoResult<>(flight, new Distance(flight.altitude)));
+			}
+			return new GeoPage<>(new GeoResults<>(results));
+		}
+
+		GeoResults<Flight> findGeoResults() {
+			List<GeoResult<Flight>> results = new ArrayList<>();
+			for (Flight flight : this.flights.values()) {
+				results.add(new GeoResult<>(flight, new Distance(flight.altitude)));
+			}
+			return new GeoResults<>(results);
+		}
+
 		Flight findById(String id) {
 			return this.flights.get(id);
+		}
+
+		GeoResult<Flight> findGeoResultFlightById(String id) {
+			Flight flight = this.flights.get(id);
+			return new GeoResult<>(flight, new Distance(flight.altitude));
 		}
 
 		Flight save(Flight flight) {
@@ -1644,6 +1869,22 @@ public class PrePostMethodSecurityConfigurationTests {
 
 		void remove(String id) {
 			this.flights.remove(id);
+		}
+
+		ResponseEntity<Flight> webFindById(String id) {
+			Flight flight = this.flights.get(id);
+			if (flight == null) {
+				return ResponseEntity.notFound().build();
+			}
+			return ResponseEntity.ok(flight);
+		}
+
+		ModelAndView webViewFindById(String id) {
+			Flight flight = this.flights.get(id);
+			if (flight == null) {
+				return new ModelAndView("error", HttpStatusCode.valueOf(404));
+			}
+			return new ModelAndView("flights", Map.of("flight", flight));
 		}
 
 	}
@@ -1844,6 +2085,120 @@ public class PrePostMethodSecurityConfigurationTests {
 		@EventListener
 		void onRequestDenied(AuthorizationDeniedEvent<? extends MethodInvocation> denied) {
 			this.invocations++;
+		}
+
+	}
+
+	@EnableWebMvc
+	@EnableWebSecurity
+	@EnableMethodSecurity
+	static class WebMvcMethodSecurityConfig {
+
+	}
+
+	@EnableWebMvc
+	@EnableWebSecurity
+	@EnableMethodSecurity
+	static class WebMvcMethodSecurityCustomAdvisorConfig {
+
+		@Bean
+		AuthorizationAdvisor customAdvisor(SecurityContextHolderStrategy strategy) {
+			JdkRegexpMethodPointcut pointcut = new JdkRegexpMethodPointcut();
+			pointcut.setPattern(".*AuthorizedPerson.*getName");
+			return new AuthorizationAdvisor() {
+				@Override
+				public Object invoke(MethodInvocation mi) throws Throwable {
+					Authentication auth = strategy.getContext().getAuthentication();
+					Object result = mi.proceed();
+					if (auth.getName().equals(result)) {
+						return result;
+					}
+					throw new AccessDeniedException("Access Denied for User '" + auth.getName() + "'");
+				}
+
+				@Override
+				public Pointcut getPointcut() {
+					return pointcut;
+				}
+
+				@Override
+				public Advice getAdvice() {
+					return this;
+				}
+
+				@Override
+				public int getOrder() {
+					return AuthorizationInterceptorsOrder.POST_FILTER.getOrder() + 1;
+				}
+			};
+		}
+
+	}
+
+	@RestController
+	static class BasicController {
+
+		@Autowired(required = false)
+		BasicService service;
+
+		@GetMapping("/greetings/authorized-person")
+		String getAuthorizedPersonGreeting(@RequestParam String name) {
+			AuthorizedPerson authorizedPerson = this.service.getAuthorizedPerson(name);
+			return "Hello: " + authorizedPerson.getName();
+		}
+
+		@AuthorizeReturnObject
+		@GetMapping(value = "/authorized-person", produces = MediaType.APPLICATION_JSON_VALUE)
+		AuthorizedPerson getAuthorizedPerson(@RequestParam String name) {
+			return new AuthorizedPerson(name);
+		}
+
+	}
+
+	@ControllerAdvice
+	static class BasicControllerAdvice {
+
+		@ExceptionHandler(AccessDeniedException.class)
+		ResponseEntity<Map<String, String>> handleAccessDenied(AccessDeniedException ex) {
+			Map<String, String> responseBody = Map.of("message", ex.getMessage());
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseBody);
+		}
+
+		@ExceptionHandler(HttpMessageNotWritableException.class)
+		ResponseEntity<Map<String, String>> handleHttpMessageNotWritable(HttpMessageNotWritableException ex) {
+			ThrowableAnalyzer throwableAnalyzer = new ThrowableAnalyzer();
+			Throwable[] causeChain = throwableAnalyzer.determineCauseChain(ex);
+			Throwable t = throwableAnalyzer.getFirstThrowableOfType(AccessDeniedException.class, causeChain);
+			if (t != null) {
+				Map<String, String> responseBody = Map.of("message", ex.getMessage());
+				return ResponseEntity.status(HttpStatus.FORBIDDEN).body(responseBody);
+			}
+			throw ex;
+		}
+
+	}
+
+	@Service
+	static class BasicService {
+
+		@AuthorizeReturnObject
+		AuthorizedPerson getAuthorizedPerson(String name) {
+			return new AuthorizedPerson(name);
+		}
+
+	}
+
+	public static class AuthorizedPerson {
+
+		final String name;
+
+		AuthorizedPerson(String name) {
+			this.name = name;
+		}
+
+		@PostAuthorize("returnObject == authentication.name")
+		public String getName() {
+			return this.name;
 		}
 
 	}

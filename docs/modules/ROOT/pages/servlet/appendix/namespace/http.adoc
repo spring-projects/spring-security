@@ -128,7 +128,7 @@ This is helpful when, for example, wanting to run HTTP locally and HTTPS in prod
 Defines the `RequestMatcher` strategy used in the `FilterChainProxy` and the beans created by the `intercept-url` to match incoming requests.
 Options are currently `mvc`, `ant`, `regex` and `ciRegex`, for Spring MVC, ant, regular-expression and case-insensitive regular-expression respectively.
 A separate instance is created for each <<nsa-intercept-url,intercept-url>> element using its <<nsa-intercept-url-pattern,pattern>>, <<nsa-intercept-url-method,method>> and <<nsa-intercept-url-servlet-path,servlet-path>> attributes.
-Ant paths are matched using an `AntPathRequestMatcher`, regular expressions are matched using a `RegexRequestMatcher` and for Spring MVC path matching the `MvcRequestMatcher` is used.
+By default, paths are matched using a `PathPatternRequestMatcher`; however, regular expressions are matched using a `RegexRequestMatcher`.
 See the Javadoc for these classes for more details on exactly how the matching is performed.
 MVC is the default strategy if Spring MVC is present in the classpath, if not, Ant paths are used.
 
@@ -226,7 +226,8 @@ Defines a reference to a Spring bean of type `AccessDeniedHandler`.
 [[nsa-cors]]
 == <cors>
 This element allows for configuring a `CorsFilter`.
-If no `CorsFilter` or `CorsConfigurationSource` is specified and Spring MVC is on the classpath, a `HandlerMappingIntrospector` is used as the `CorsConfigurationSource`.
+Either a `CorsFilter` or a `CorsConfigurationSource` must be specified.
+If Spring MVC is present, then it will attempt to look up its `CorsConfigurationSource`.
 
 [[nsa-cors-attributes]]
 === <cors> Attributes
@@ -1266,11 +1267,17 @@ Reference to an `AuthenticationManagerResolver` which will resolve the `Authenti
 
 [[nsa-oauth2-resource-server-bearer-token-resolver-ref]]
 * **bearer-token-resolver-ref**
-Reference to a `BearerTokenResolver` which will retrieve the bearer token from the request
+Reference to a `BearerTokenResolver` which will retrieve the bearer token from the request.
+This cannot be used in conjunction with `authentication-converter-ref`
 
 [[nsa-oauth2-resource-server-entry-point-ref]]
 * **entry-point-ref**
 Reference to a `AuthenticationEntryPoint` which will handle unauthorized requests
+
+[[nsa-oauth2-resource-server-authentication-converter-ref]]
+* **authentication-converter-ref**
+Reference to a `AuthenticationConverter` which convert request to authentication.
+This cannot be used in conjunction with `bearer-token-resolver-ref`
 
 [[nsa-jwt]]
 == <jwt>
@@ -2211,6 +2218,10 @@ A `PreAuthenticatedAuthenticationProvider` will also be created which delegates 
 [[nsa-x509-authentication-details-source-ref]]
 * **authentication-details-source-ref**
 A reference to an `AuthenticationDetailsSource`
+
+[[nsa-x509-principal-extractor-ref]]
+* **principal-extractor-ref**
+Reference to an `X509PrincipalExtractor` which will be used by the authentication filter.
 
 
 [[nsa-x509-subject-principal-regex]]

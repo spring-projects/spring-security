@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ import org.springframework.util.CollectionUtils;
  *	String registrationId = "simplesamlphp";
  *
  * 	String relyingPartyEntityId = "{baseUrl}/saml2/service-provider-metadata/{registrationId}";
- *	String assertionConsumerServiceLocation = "{baseUrl}/login/saml2/sso/{registrationId}";
+ *	String assertingConsumerServiceLocation = "{baseUrl}/login/saml2/sso/{registrationId}";
  *	Saml2X509Credential relyingPartySigningCredential = ...;
  *
  *	String assertingPartyEntityId = "https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/metadata.php";
@@ -56,7 +56,7 @@ import org.springframework.util.CollectionUtils;
  * 			.entityId(relyingPartyEntityId)
  * 			.assertionConsumerServiceLocation(assertingConsumerServiceLocation)
  * 		 	.signingX509Credentials((c) -&gt; c.add(relyingPartySigningCredential))
- * 			.assertingPartyDetails((details) -&gt; details
+ * 			.assertingPartyMetadata((metadata) -&gt; metadata
  * 				.entityId(assertingPartyEntityId));
  * 				.singleSignOnServiceLocation(singleSignOnServiceLocation))
  * 				.verifyingX509Credentials((c) -&gt; c.add(assertingPartyVerificationCredential))
@@ -145,7 +145,7 @@ public class RelyingPartyRegistration implements Serializable {
 		Assert.notNull(assertionConsumerServiceBinding, "assertionConsumerServiceBinding cannot be null");
 		Assert.isTrue(singleLogoutServiceLocation == null || !CollectionUtils.isEmpty(singleLogoutServiceBindings),
 				"singleLogoutServiceBindings cannot be null or empty when singleLogoutServiceLocation is set");
-		Assert.notNull(assertingPartyMetadata, "assertingPartyDetails cannot be null");
+		Assert.notNull(assertingPartyMetadata, "assertingPartyMetadata cannot be null");
 		Assert.notNull(decryptionX509Credentials, "decryptionX509Credentials cannot be null");
 		for (Saml2X509Credential c : decryptionX509Credentials) {
 			Assert.notNull(c, "decryptionX509Credentials cannot contain null elements");
@@ -353,21 +353,8 @@ public class RelyingPartyRegistration implements Serializable {
 	}
 
 	/**
-	 * Get the configuration details for the Asserting Party
-	 * @return the {@link AssertingPartyDetails}
-	 * @since 5.4
-	 * @deprecated Use {@link #getAssertingPartyMetadata()} instead
-	 */
-	@Deprecated
-	public AssertingPartyDetails getAssertingPartyDetails() {
-		Assert.isInstanceOf(AssertingPartyDetails.class, this.assertingPartyMetadata,
-				"This class was initialized with an AssertingPartyMetadata, please call #getAssertingPartyMetadata instead");
-		return (AssertingPartyDetails) this.assertingPartyMetadata;
-	}
-
-	/**
 	 * Get the metadata for the Asserting Party
-	 * @return the {@link AssertingPartyDetails}
+	 * @return the {@link AssertingPartyMetadata}
 	 * @since 6.4
 	 */
 	public AssertingPartyMetadata getAssertingPartyMetadata() {
@@ -386,25 +373,9 @@ public class RelyingPartyRegistration implements Serializable {
 	}
 
 	/**
-	 * @param assertingPartyDetails the asserting party metadata
-	 * @return {@code Builder} to create a {@code RelyingPartyRegistration} object
-	 * @deprecated Use {@link #withAssertingPartyMetadata} instead
-	 */
-	@Deprecated(forRemoval = true, since = "6.4")
-	public static Builder withAssertingPartyDetails(AssertingPartyDetails assertingPartyDetails) {
-		Assert.notNull(assertingPartyDetails, "assertingPartyDetails cannot be null");
-		return new Builder(assertingPartyDetails.getEntityId(), assertingPartyDetails.mutate());
-	}
-
-	/**
 	 * Creates a {@code RelyingPartyRegistration} {@link Builder} with a
 	 * {@code registrationId} equivalent to the asserting party entity id. Also
 	 * initializes to the contents of the given {@link AssertingPartyMetadata}.
-	 *
-	 * <p>
-	 * Presented as a convenience method when working with
-	 * {@link AssertingPartyMetadataRepository} return values. As such, only supports
-	 * {@link AssertingPartyMetadata} instances of type {@link AssertingPartyDetails}.
 	 * @param metadata the metadata used to initialize the
 	 * {@link RelyingPartyRegistration} {@link Builder}
 	 * @return {@link Builder} to create a {@link RelyingPartyRegistration} object
@@ -413,43 +384,6 @@ public class RelyingPartyRegistration implements Serializable {
 	public static Builder withAssertingPartyMetadata(AssertingPartyMetadata metadata) {
 		Assert.notNull(metadata, "assertingPartyMetadata cannot be null");
 		return new Builder(metadata.getEntityId(), metadata.mutate());
-	}
-
-	/**
-	 * Creates a {@code RelyingPartyRegistration} {@link Builder} based on an existing
-	 * object
-	 * @param registration the {@code RelyingPartyRegistration}
-	 * @return {@code Builder} to create a {@code RelyingPartyRegistration} object
-	 * @deprecated Use {@link #mutate()} instead
-	 */
-	@Deprecated(forRemoval = true, since = "6.1")
-	public static Builder withRelyingPartyRegistration(RelyingPartyRegistration registration) {
-		Assert.notNull(registration, "registration cannot be null");
-		return withRegistrationId(registration.getRegistrationId()).entityId(registration.getEntityId())
-			.signingX509Credentials((c) -> c.addAll(registration.getSigningX509Credentials()))
-			.decryptionX509Credentials((c) -> c.addAll(registration.getDecryptionX509Credentials()))
-			.assertionConsumerServiceLocation(registration.getAssertionConsumerServiceLocation())
-			.assertionConsumerServiceBinding(registration.getAssertionConsumerServiceBinding())
-			.singleLogoutServiceLocation(registration.getSingleLogoutServiceLocation())
-			.singleLogoutServiceResponseLocation(registration.getSingleLogoutServiceResponseLocation())
-			.singleLogoutServiceBindings((c) -> c.addAll(registration.getSingleLogoutServiceBindings()))
-			.nameIdFormat(registration.getNameIdFormat())
-			.authnRequestsSigned(registration.isAuthnRequestsSigned())
-			.assertingPartyDetails((assertingParty) -> assertingParty
-				.entityId(registration.getAssertingPartyDetails().getEntityId())
-				.wantAuthnRequestsSigned(registration.getAssertingPartyDetails().getWantAuthnRequestsSigned())
-				.signingAlgorithms((algorithms) -> algorithms
-					.addAll(registration.getAssertingPartyDetails().getSigningAlgorithms()))
-				.verificationX509Credentials(
-						(c) -> c.addAll(registration.getAssertingPartyDetails().getVerificationX509Credentials()))
-				.encryptionX509Credentials(
-						(c) -> c.addAll(registration.getAssertingPartyDetails().getEncryptionX509Credentials()))
-				.singleSignOnServiceLocation(registration.getAssertingPartyDetails().getSingleSignOnServiceLocation())
-				.singleSignOnServiceBinding(registration.getAssertingPartyDetails().getSingleSignOnServiceBinding())
-				.singleLogoutServiceLocation(registration.getAssertingPartyDetails().getSingleLogoutServiceLocation())
-				.singleLogoutServiceResponseLocation(
-						registration.getAssertingPartyDetails().getSingleLogoutServiceResponseLocation())
-				.singleLogoutServiceBinding(registration.getAssertingPartyDetails().getSingleLogoutServiceBinding()));
 	}
 
 	/**
@@ -1056,7 +990,7 @@ public class RelyingPartyRegistration implements Serializable {
 
 		/**
 		 * Set the NameID format
-		 * @param nameIdFormat
+		 * @param nameIdFormat the given NameID format
 		 * @return the {@link Builder} for further configuration
 		 * @since 5.7
 		 */
@@ -1080,21 +1014,6 @@ public class RelyingPartyRegistration implements Serializable {
 		 */
 		public Builder authnRequestsSigned(Boolean authnRequestsSigned) {
 			this.authnRequestsSigned = authnRequestsSigned;
-			return this;
-		}
-
-		/**
-		 * Apply this {@link Consumer} to further configure the Asserting Party details
-		 * @param assertingPartyDetails The {@link Consumer} to apply
-		 * @return the {@link Builder} for further configuration
-		 * @since 5.4
-		 * @deprecated Use {@link #assertingPartyMetadata} instead
-		 */
-		@Deprecated(forRemoval = true, since = "6.4")
-		public Builder assertingPartyDetails(Consumer<AssertingPartyDetails.Builder> assertingPartyDetails) {
-			Assert.isInstanceOf(AssertingPartyDetails.Builder.class, this.assertingPartyMetadataBuilder,
-					"This class was constructed with an AssertingPartyMetadata instance, as such, please use #assertingPartyMetadata");
-			assertingPartyDetails.accept((AssertingPartyDetails.Builder) this.assertingPartyMetadataBuilder);
 			return this;
 		}
 

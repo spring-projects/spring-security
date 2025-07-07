@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,19 +34,6 @@ class PointcutDelegatingAuthorizationManager implements AuthorizationManager<Met
 
 	PointcutDelegatingAuthorizationManager(Map<Pointcut, AuthorizationManager<MethodInvocation>> managers) {
 		this.managers = managers;
-	}
-
-	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation object) {
-		AuthorizationResult result = authorize(authentication, object);
-		if (result == null) {
-			return null;
-		}
-		if (result instanceof AuthorizationDecision decision) {
-			return decision;
-		}
-		throw new IllegalArgumentException(
-				"Please either call authorize or ensure that the returned result is of type AuthorizationDecision");
 	}
 
 	@Override

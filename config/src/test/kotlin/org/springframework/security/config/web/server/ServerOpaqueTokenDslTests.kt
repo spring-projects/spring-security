@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,8 @@ import org.springframework.http.HttpHeaders
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
-import org.springframework.security.oauth2.server.resource.introspection.NimbusReactiveOpaqueTokenIntrospector
 import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector
+import org.springframework.security.oauth2.server.resource.introspection.SpringReactiveOpaqueTokenIntrospector
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.config.EnableWebFlux
@@ -103,7 +103,7 @@ class ServerOpaqueTokenDslTests {
 
         @Bean
         open fun tokenIntrospectionClient(): ReactiveOpaqueTokenIntrospector {
-            return NimbusReactiveOpaqueTokenIntrospector(mockWebServer().url("/introspect").toString(), "client", "secret")
+            return SpringReactiveOpaqueTokenIntrospector(mockWebServer().url("/introspect").toString(), "client", "secret")
         }
     }
 
@@ -138,7 +138,7 @@ class ServerOpaqueTokenDslTests {
                 }
                 oauth2ResourceServer {
                     opaqueToken {
-                        introspector = NimbusReactiveOpaqueTokenIntrospector(mockWebServer().url("/introspector").toString(), "client", "secret")
+                        introspector = SpringReactiveOpaqueTokenIntrospector(mockWebServer().url("/introspector").toString(), "client", "secret")
                     }
                 }
             }
