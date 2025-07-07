@@ -38,8 +38,8 @@ import org.springframework.web.util.pattern.PathPatternParser;
  * (that is, it should exclude any context path).
  *
  * <p>
- * You can provide the servlet path in {@link PathPatternRequestMatcher#servletPath} and
- * reuse for multiple matchers.
+ * You can provide the servlet path in {@link PathPatternRequestMatcher.Builder#basePath}
+ * and reuse for multiple matchers.
  *
  * <p>
  * Note that the {@link org.springframework.web.servlet.HandlerMapping} that contains the
@@ -55,14 +55,12 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 
 	private final PathPattern pattern;
 
-	private RequestMatcher servletPath = AnyRequestMatcher.INSTANCE;
-
 	private RequestMatcher method = AnyRequestMatcher.INSTANCE;
 
 	/**
 	 * Creates a {@link PathPatternRequestMatcher} that uses the provided {@code pattern}.
 	 * <p>
-	 * The {@code pattern} should be relative to the servlet path
+	 * The {@code pattern} should be relative to the context path
 	 * </p>
 	 * @param pattern the pattern used to match
 	 */
@@ -136,9 +134,6 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 */
 	@Override
 	public MatchResult matcher(HttpServletRequest request) {
-		if (!this.servletPath.matches(request)) {
-			return MatchResult.notMatch();
-		}
 		if (!this.method.matches(request)) {
 			return MatchResult.notMatch();
 		}
@@ -266,8 +261,9 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 		 * also be followed by {@code /**} to signify all URIs under a given path.
 		 *
 		 * <p>
-		 * These must be specified relative to any servlet path prefix (meaning you should
-		 * exclude the context path and any servlet path prefix in stating your pattern).
+		 * These must be specified relative to any context path prefix. A
+		 * {@link #basePath} may be specified to reuse a common prefix, for example a
+		 * servlet path.
 		 *
 		 * <p>
 		 * The following are valid patterns and their meaning
@@ -300,8 +296,9 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 		 * also be followed by {@code /**} to signify all URIs under a given path.
 		 *
 		 * <p>
-		 * These must be specified relative to any servlet path prefix (meaning you should
-		 * exclude the context path and any servlet path prefix in stating your pattern).
+		 * These must be specified relative to any context path prefix. A
+		 * {@link #basePath} may be specified to reuse a common prefix, for example a
+		 * servlet path.
 		 *
 		 * <p>
 		 * The following are valid patterns and their meaning
