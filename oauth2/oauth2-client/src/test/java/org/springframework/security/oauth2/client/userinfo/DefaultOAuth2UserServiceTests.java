@@ -556,6 +556,29 @@ public class DefaultOAuth2UserServiceTests {
 		assertThat(user.getName()).isEqualTo("primary_user");
 	}
 
+	@Test
+	public void loadUserWhenUsernameExpressionWithComplexConditionalThenEvaluateCorrectly() {
+		// @formatter:off
+		String userInfoResponse = "{\n"
+			+ "   \"user_data\": {\n"
+			+ "       \"preferred_username\": \"preferredUser\",\n"
+			+ "       \"email\": \"user@example.com\",\n"
+			+ "       \"is_verified\": true\n"
+			+ "   },\n"
+			+ "   \"backup_name\": \"backupUser\"\n"
+			+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(userInfoResponse));
+		String userInfoUri = this.server.url("/user").toString();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri)
+			.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
+			.usernameExpression("user_data?.is_verified == true ? user_data.preferred_username : backup_name")
+			.build();
+		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
+		assertThat(user.getName()).isEqualTo("preferredUser");
+		assertThat(user.getAttributes()).hasSize(2);
+	}
+
 	private DefaultOAuth2UserService withMockResponse(Map<String, Object> response) {
 		ResponseEntity<Map<String, Object>> responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
 		Converter<OAuth2UserRequest, RequestEntity<?>> requestEntityConverter = mock(Converter.class);

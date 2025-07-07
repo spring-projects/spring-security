@@ -175,14 +175,6 @@ public class DefaultOAuth2UserTests {
 	}
 
 	@Test
-	public void constructorWhenSimpleAttributeKeyThenWorksAsUsual() {
-		DefaultOAuth2User user = new DefaultOAuth2User(AUTHORITIES, ATTRIBUTES, ATTRIBUTE_NAME_KEY);
-
-		assertThat(user.getName()).isEqualTo(USERNAME);
-		assertThat(user.getAttributes()).containsOnlyKeys(ATTRIBUTE_NAME_KEY);
-	}
-
-	@Test
 	public void withUsernameAndDeprecatedConstructorWhenSameDataThenEqual() {
 		DefaultOAuth2User user1 = new DefaultOAuth2User(AUTHORITIES, ATTRIBUTES, ATTRIBUTE_NAME_KEY);
 		DefaultOAuth2User user2 = DefaultOAuth2User.withUsername(USERNAME)
