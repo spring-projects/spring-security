@@ -74,7 +74,7 @@ Because ``AuthorizationGrantedEvent``s have the potential to be quite noisy, the
 
 In fact, publishing these events will likely require some business logic on your part to ensure that your application is not inundated with noisy authorization events.
 
-You can create your own event publisher that filters success events.
+You can provide your own predicate that filters success events.
 For example, the following publisher only publishes authorization grants where `ROLE_ADMIN` was required:
 
 [tabs]
@@ -83,44 +83,20 @@ Java::
 +
 [source,java,role="primary"]
 ----
-@Component
-public class MyAuthorizationEventPublisher implements AuthorizationEventPublisher {
-    private final ApplicationEventPublisher publisher;
-    private final AuthorizationEventPublisher delegate;
-
-    public MyAuthorizationEventPublisher(ApplicationEventPublisher publisher) {
-        this.publisher = publisher;
-        this.delegate = new SpringAuthorizationEventPublisher(publisher);
-    }
-
-    @Override
-    public <T> void publishAuthorizationEvent(Supplier<Authentication> authentication,
-        T object, AuthorizationResult result) {
-        if (result == null) {
-            return;
-        }
+@Bean
+AuthorizationEventPublisher authorizationEventPublisher() {
+    SpringAuthorizationEventPublisher eventPublisher = new SpringAuthorizationEventPublisher();
+    eventPublisher.setShouldPublishEvent((result) -> {
         if (!result.isGranted()) {
-            this.delegate.publishAuthorizationEvent(authentication, object, result);
-            return;
+            return true;
         }
-        if (shouldThisEventBePublished(result)) {
-            AuthorizationGrantedEvent granted = new AuthorizationGrantedEvent(
-                authentication, object, result);
-            this.publisher.publishEvent(granted);
-        }
-    }
-
-    private boolean shouldThisEventBePublished(AuthorizationResult result) {
-        if (result instanceof AuthorityAuthorizationDecision authorityAuthorizationDecision) {
-            Collection<GrantedAuthority> authorities = authorityAuthorizationDecision.getAuthorities();
-            for (GrantedAuthority authority : authorities) {
-                if ("ROLE_ADMIN".equals(authority.getAuthority())) {
-                    return true;
-                }
-            }
+        if (result instanceof AuthorityAuthorizationDecision decision) {
+            Collection<GrantedAuthority> authorities = decision.getAuthorities();
+            return AuthorityUtils.authorityListToSet(authorities).contains("ROLE_ADMIN");
         }
         return false;
-    }
+    });
+    return eventPublisher;
 }
 ----
 
@@ -128,41 +104,20 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
-@Component
-class MyAuthorizationEventPublisher(val publisher: ApplicationEventPublisher,
-    val delegate: SpringAuthorizationEventPublisher = SpringAuthorizationEventPublisher(publisher)):
-    AuthorizationEventPublisher {
-
-    override fun <T : Any?> publishAuthorizationEvent(
-        authentication: Supplier<Authentication>?,
-        `object`: T,
-        result: AuthorizationResult?
-    ) {
-        if (result == null) {
-            return
+@Bean
+fun authorizationEventPublisher(): AuthorizationEventPublisher {
+    val eventPublisher = SpringAuthorizationEventPublisher()
+    eventPublisher.setShouldPublishEvent { (result) ->
+        if (!result.isGranted()) {
+            return true
         }
-        if (!result.isGranted) {
-            this.delegate.publishAuthorizationEvent(authentication, `object`, result)
-            return
-        }
-        if (shouldThisEventBePublished(result)) {
-            val granted = AuthorizationGrantedEvent(authentication, `object`, result)
-            this.publisher.publishEvent(granted)
-        }
-    }
-
-    private fun shouldThisEventBePublished(result: AuthorizationResult): Boolean {
-        if (decision !is AuthorityAuthorizationDecision) {
-            return false
-        }
-        val authorities = decision.authorities
-        for (authority in authorities) {
-            if ("ROLE_ADMIN" == authority.authority) {
-                return true
-            }
+        if (decision is AuthorityAuthorizationDecision) {
+            val authorities = decision.getAuthorities()
+            return AuthorityUtils.authorityListToSet(authorities).contains("ROLE_ADMIN")
         }
         return false
     }
+    return eventPublisher
 }
 ----
 ======
