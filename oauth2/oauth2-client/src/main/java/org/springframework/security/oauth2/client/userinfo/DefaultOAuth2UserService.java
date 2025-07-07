@@ -20,12 +20,8 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
-import org.springframework.context.expression.MapAccessor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.SimpleEvaluationContext;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
@@ -76,10 +72,6 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 
 	private static final String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
 
-	private static final String INVALID_USERNAME_EXPRESSION_ERROR_CODE = "invalid_username_expression";
-
-	private static final ExpressionParser expressionParser = new SpelExpressionParser();
-
 	private static final ParameterizedTypeReference<Map<String, Object>> PARAMETERIZED_RESPONSE_TYPE = new ParameterizedTypeReference<>() {
 	};
 
@@ -104,15 +96,9 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 		ResponseEntity<Map<String, Object>> response = getResponse(userRequest, request);
 		OAuth2AccessToken token = userRequest.getAccessToken();
 		Map<String, Object> attributes = this.attributesConverter.convert(userRequest).convert(response.getBody());
-
-		String evaluatedUsername = evaluateUsername(attributes, usernameExpression);
-
-		Collection<GrantedAuthority> authorities = getAuthorities(token, attributes, evaluatedUsername);
-
-		return DefaultOAuth2User.withUsername(evaluatedUsername)
-			.authorities(authorities)
-			.attributes(attributes)
-			.build();
+		String username = OAuth2UsernameExpressionUtils.evaluateUsername(attributes, usernameExpression);
+		Collection<GrantedAuthority> authorities = getAuthorities(token, attributes, username);
+		return DefaultOAuth2User.withUsername(username).authorities(authorities).attributes(attributes).build();
 	}
 
 	private String getUsernameExpression(OAuth2UserRequest userRequest) {
@@ -136,30 +122,6 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
 		return usernameExpression;
-	}
-
-	private String evaluateUsername(Map<String, Object> attributes, String usernameExpression) {
-		Object value = null;
-
-		try {
-			SimpleEvaluationContext context = SimpleEvaluationContext.forPropertyAccessors(new MapAccessor())
-				.withRootObject(attributes)
-				.build();
-			value = expressionParser.parseExpression(usernameExpression).getValue(context);
-		}
-		catch (Exception ex) {
-			OAuth2Error oauth2Error = new OAuth2Error(INVALID_USERNAME_EXPRESSION_ERROR_CODE,
-					"Invalid username expression or SPEL expression: " + usernameExpression, null);
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
-		}
-
-		if (value == null) {
-			OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
-					"An error occurred while attempting to retrieve the UserInfo Resource: username cannot be null",
-					null);
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-		}
-		return value.toString();
 	}
 
 	/**

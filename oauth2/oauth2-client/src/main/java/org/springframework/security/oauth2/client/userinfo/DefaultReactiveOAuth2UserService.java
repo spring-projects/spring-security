@@ -25,12 +25,8 @@ import com.nimbusds.openid.connect.sdk.UserInfoErrorResponse;
 import net.minidev.json.JSONObject;
 import reactor.core.publisher.Mono;
 
-import org.springframework.context.expression.MapAccessor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.SimpleEvaluationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -77,10 +73,6 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 	private static final String MISSING_USER_INFO_URI_ERROR_CODE = "missing_user_info_uri";
 
 	private static final String MISSING_USER_NAME_ATTRIBUTE_ERROR_CODE = "missing_user_name_attribute";
-
-	private static final String INVALID_USERNAME_EXPRESSION_ERROR_CODE = "invalid_username_expression";
-
-	private static final ExpressionParser expressionParser = new SpelExpressionParser();
 
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<>() {
 	};
@@ -129,7 +121,7 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 					.bodyToMono(DefaultReactiveOAuth2UserService.STRING_OBJECT_MAP)
 					.mapNotNull((attributes) -> this.attributesConverter.convert(userRequest).convert(attributes));
 			return userAttributes.map((attrs) -> {
-					String username = evaluateUsername(attrs, usernameExpression);
+					String username = OAuth2UsernameExpressionUtils.evaluateUsername(attrs, usernameExpression);
 					Set<GrantedAuthority> authorities = new HashSet<>();
 					authorities.add(OAuth2UserAuthority.withUsername(username)
 						.attributes(attrs)
@@ -185,32 +177,6 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
 		return usernameExpression;
-	}
-
-	private String evaluateUsername(Map<String, Object> attributes, String usernameExpression) {
-		Object value = null;
-
-		try {
-			SimpleEvaluationContext context = SimpleEvaluationContext.forPropertyAccessors(new MapAccessor())
-				.withRootObject(attributes)
-				.build();
-			value = expressionParser.parseExpression(usernameExpression).getValue(context);
-		}
-		catch (Exception ex) {
-			OAuth2Error oauth2Error = new OAuth2Error(INVALID_USERNAME_EXPRESSION_ERROR_CODE,
-					"Invalid username expression or SPEL expression: " + usernameExpression, null);
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
-
-		}
-
-		if (value == null) {
-			OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
-					"An error occurred while attempting to retrieve the UserInfo Resource: username cannot be null",
-					null);
-			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
-		}
-
-		return value.toString();
 	}
 
 	private WebClient.RequestHeadersSpec<?> getRequestHeaderSpec(OAuth2UserRequest userRequest, String userInfoUri,
