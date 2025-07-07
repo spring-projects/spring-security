@@ -36,6 +36,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -109,6 +110,15 @@ public class EnableWebSecurityTests {
 		Child childBean = this.spring.getContext().getBean(Child.class);
 		Parent parentBean = this.spring.getContext().getBean(Parent.class);
 		assertThat(parentBean.getChild()).isNotSameAs(childBean);
+	}
+
+	// gh-17484
+	@Test
+	void configureWhenEnableWebSecuritySeparateFromSecurityFilterChainThenWires() {
+		try (AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext()) {
+			context.register(TestConfiguration.class, EnableWebSecurityConfiguration.class);
+			context.refresh();
+		}
 	}
 
 	@Configuration
@@ -223,6 +233,22 @@ public class EnableWebSecurityTests {
 
 		Child() {
 		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class TestConfiguration {
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			return http.build();
+		}
+
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
+	static class EnableWebSecurityConfiguration {
 
 	}
 

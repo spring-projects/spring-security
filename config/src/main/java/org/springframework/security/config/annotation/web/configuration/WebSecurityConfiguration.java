@@ -42,7 +42,6 @@ import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.Fallback;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
@@ -58,7 +57,6 @@ import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.crypto.RsaKeyConversionServicePostProcessor;
-import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.context.DelegatingApplicationListener;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.FilterChainProxy;
@@ -142,12 +140,6 @@ public class WebSecurityConfiguration implements ImportAware {
 	@DependsOn(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME)
 	public WebInvocationPrivilegeEvaluator privilegeEvaluator() {
 		return this.webSecurity.getPrivilegeEvaluator();
-	}
-
-	@Bean
-	@Fallback
-	public PathPatternRequestMatcherBuilderFactoryBean pathPatternRequestMatcherBuilder() {
-		return new PathPatternRequestMatcherBuilderFactoryBean();
 	}
 
 	/**
