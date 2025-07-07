@@ -4,6 +4,7 @@
 Spring Security provides a number of optional integrations with Spring MVC.
 This section covers the integration in further detail.
 
+[[mvc-enablewebmvcsecurity]]
 [[mvc-enablewebsecurity]]
 == @EnableWebSecurity
 
