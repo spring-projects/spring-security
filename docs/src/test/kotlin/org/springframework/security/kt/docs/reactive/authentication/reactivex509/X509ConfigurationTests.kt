@@ -26,6 +26,7 @@ import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder.Http200RestController
 import org.springframework.security.web.authentication.preauth.x509.X509TestUtils
+import org.springframework.test.web.reactive.server.UserWebTestClientConfigurer.x509
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.WebTestClientConfigurer
 import org.springframework.util.Assert
@@ -87,15 +88,6 @@ class X509ConfigurationTests {
         // @formatter:on
     }
 
-    private class SslInfoOverrideWebFilter(private val sslInfo: SslInfo) : WebFilter {
-        override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
-            val sslInfoRequest = exchange.getRequest().mutate().sslInfo(sslInfo)
-                .build()
-            val sslInfoExchange = exchange.mutate().request(sslInfoRequest).build()
-            return chain.filter(sslInfoExchange)
-        }
-    }
-
     private fun <T : Certificate?> loadCert(location: String): T {
         try {
             ClassPathResource(location).getInputStream().use { `is` ->
@@ -104,30 +96,6 @@ class X509ConfigurationTests {
             }
         } catch (ex: Exception) {
             throw IllegalArgumentException(ex)
-        }
-    }
-
-    companion object {
-        private fun x509(certificate: X509Certificate): WebTestClientConfigurer {
-            return WebTestClientConfigurer { builder: WebTestClient.Builder, httpHandlerBuilder: WebHttpHandlerBuilder?, connector: ClientHttpConnector? ->
-
-                val sslInfo: SslInfo = object : SslInfo {
-                    override fun getSessionId(): String {
-                        return "sessionId"
-                    }
-
-                    override fun getPeerCertificates(): Array<X509Certificate> {
-                        return arrayOf(certificate)
-                    }
-                }
-                Assert.notNull(httpHandlerBuilder, "httpHandlerBuilder should not be null")
-                httpHandlerBuilder!!.filters(Consumer { filters: MutableList<WebFilter> ->
-                    filters.add(
-                        0,
-                        SslInfoOverrideWebFilter(sslInfo)
-                    )
-                })
-            }
         }
     }
 }

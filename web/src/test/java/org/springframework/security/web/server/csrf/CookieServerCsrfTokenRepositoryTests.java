@@ -16,7 +16,6 @@
 
 package org.springframework.security.web.server.csrf;
 
-import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
@@ -179,7 +178,7 @@ class CookieServerCsrfTokenRepositoryTests {
 
 	@Test
 	void saveTokenWhenSslInfoPresentThenSecure() {
-		this.request.sslInfo(new MockSslInfo());
+		this.request.sslInfo(SslInfo.from("sessionId"));
 		MockServerWebExchange exchange = MockServerWebExchange.from(this.request);
 		this.csrfTokenRepository.saveToken(exchange, createToken()).block();
 		ResponseCookie cookie = exchange.getResponse().getCookies().getFirst(this.expectedCookieName);
@@ -239,7 +238,7 @@ class CookieServerCsrfTokenRepositoryTests {
 	@Test
 	void saveTokenWhenSecureFlagFalseAndSslInfoThenNotSecure() {
 		MockServerWebExchange exchange = MockServerWebExchange.from(this.request);
-		this.request.sslInfo(new MockSslInfo());
+		this.request.sslInfo(SslInfo.from("sessionId"));
 		this.csrfTokenRepository.setSecure(false);
 		this.csrfTokenRepository.saveToken(exchange, createToken()).block();
 		ResponseCookie cookie = exchange.getResponse().getCookies().getFirst(this.expectedCookieName);
@@ -250,7 +249,7 @@ class CookieServerCsrfTokenRepositoryTests {
 	@Test
 	void saveTokenWhenSecureFlagFalseAndSslInfoThenNotSecureUsingCustomizer() {
 		MockServerWebExchange exchange = MockServerWebExchange.from(this.request);
-		this.request.sslInfo(new MockSslInfo());
+		this.request.sslInfo(SslInfo.from("sessionId"));
 		this.csrfTokenRepository.setCookieCustomizer((customizer) -> customizer.secure(false));
 		this.csrfTokenRepository.saveToken(exchange, createToken()).block();
 		ResponseCookie cookie = exchange.getResponse().getCookies().getFirst(this.expectedCookieName);
@@ -399,20 +398,6 @@ class CookieServerCsrfTokenRepositoryTests {
 
 	private static CsrfToken createToken(String headerName, String parameterName, String tokenValue) {
 		return new DefaultCsrfToken(headerName, parameterName, tokenValue);
-	}
-
-	static class MockSslInfo implements SslInfo {
-
-		@Override
-		public String getSessionId() {
-			return "sessionId";
-		}
-
-		@Override
-		public X509Certificate[] getPeerCertificates() {
-			return new X509Certificate[] {};
-		}
-
 	}
 
 }

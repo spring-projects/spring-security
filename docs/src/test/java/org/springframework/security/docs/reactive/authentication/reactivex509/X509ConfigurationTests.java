@@ -21,31 +21,20 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
-import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import reactor.core.publisher.Mono;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.client.reactive.ClientHttpConnector;
-import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.http.server.reactive.SslInfo;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.authentication.preauth.x509.X509TestUtils;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.test.web.reactive.server.WebTestClientConfigurer;
-import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
-import org.springframework.web.server.WebFilterChain;
-import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
 
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.x509;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.reactive.server.UserWebTestClientConfigurer.x509;
 
 /**
  * Tests {@link CustomX509Configuration}.
@@ -94,46 +83,6 @@ public class X509ConfigurationTests {
 				.exchange()
 				.expectStatus().isOk();
 		// @formatter:on
-	}
-
-	private static @NotNull WebTestClientConfigurer x509(X509Certificate certificate) {
-		return (builder, httpHandlerBuilder, connector) -> {
-			builder.apply(new WebTestClientConfigurer() {
-				@Override
-				public void afterConfigurerAdded(WebTestClient.Builder builder,
-						@Nullable WebHttpHandlerBuilder httpHandlerBuilder,
-						@Nullable ClientHttpConnector connector) {
-					SslInfo sslInfo = new SslInfo() {
-						@Override
-						public @Nullable String getSessionId() {
-							return "sessionId";
-						}
-
-						@Override
-						public X509Certificate @Nullable [] getPeerCertificates() {
-							return new X509Certificate[] {  certificate };
-						}
-					};
-					httpHandlerBuilder.filters((filters) -> filters.add(0, new SslInfoOverrideWebFilter(sslInfo)));
-				}
-			});
-		};
-	}
-
-	private static class SslInfoOverrideWebFilter implements WebFilter {
-		private final SslInfo sslInfo;
-
-		private SslInfoOverrideWebFilter(SslInfo sslInfo) {
-			this.sslInfo = sslInfo;
-		}
-
-		@Override
-		public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-			ServerHttpRequest sslInfoRequest = exchange.getRequest().mutate().sslInfo(sslInfo)
-					.build();
-			ServerWebExchange sslInfoExchange = exchange.mutate().request(sslInfoRequest).build();
-			return chain.filter(sslInfoExchange);
-		}
 	}
 
 	private <T extends Certificate> T loadCert(String location) {
