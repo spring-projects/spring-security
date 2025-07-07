@@ -44,6 +44,7 @@ import org.springframework.messaging.handler.invocation.HandlerMethodArgumentRes
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.support.ChannelInterceptor;
+import org.springframework.messaging.support.ExecutorSubscribableChannel;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.expression.SecurityExpressionOperations;
@@ -494,6 +495,16 @@ public class WebSocketMessageBrokerConfigTests {
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
 			.withCauseInstanceOf(AccessDeniedException.class);
 		verify(authorizationManager).check(any(), any());
+	}
+
+	@Test
+	public void configureWhenCsrfChannelInterceptorBeanThenUses() {
+		this.spring.configLocations(xml("CustomCsrfInterceptor")).autowire();
+		ExecutorSubscribableChannel channel = this.spring.getContext()
+			.getBean("clientInboundChannel", ExecutorSubscribableChannel.class);
+		ChannelInterceptor interceptor = this.spring.getContext()
+			.getBean("csrfChannelInterceptor", ChannelInterceptor.class);
+		assertThat(channel.getInterceptors()).contains(interceptor);
 	}
 
 	private String xml(String configName) {
