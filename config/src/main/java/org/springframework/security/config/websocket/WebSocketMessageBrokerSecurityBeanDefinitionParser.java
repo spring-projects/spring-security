@@ -301,6 +301,8 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 
 		private static final String CLIENT_INBOUND_CHANNEL_BEAN_ID = "clientInboundChannel";
 
+		private static final String CSRF_CHANNEL_INTERCEPTOR_BEAN_ID = "csrfChannelInterceptor";
+
 		private static final String INTERCEPTORS_PROP = "interceptors";
 
 		private static final String CUSTOM_ARG_RESOLVERS_PROP = "customArgumentResolvers";
@@ -364,7 +366,12 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 			ManagedList<Object> interceptors = new ManagedList();
 			interceptors.add(new RootBeanDefinition(SecurityContextChannelInterceptor.class));
 			if (!this.sameOriginDisabled) {
-				interceptors.add(new RootBeanDefinition(CsrfChannelInterceptor.class));
+				if (!registry.containsBeanDefinition(CSRF_CHANNEL_INTERCEPTOR_BEAN_ID)) {
+					interceptors.add(new RootBeanDefinition(CsrfChannelInterceptor.class));
+				}
+				else {
+					interceptors.add(new RuntimeBeanReference(CSRF_CHANNEL_INTERCEPTOR_BEAN_ID));
+				}
 			}
 			interceptors.add(registry.getBeanDefinition(this.inboundSecurityInterceptorId));
 			BeanDefinition inboundChannel = registry.getBeanDefinition(CLIENT_INBOUND_CHANNEL_BEAN_ID);
