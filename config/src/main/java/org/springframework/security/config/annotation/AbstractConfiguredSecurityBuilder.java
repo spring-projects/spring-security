@@ -114,24 +114,6 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	}
 
 	/**
-	 * Applies a {@link SecurityConfigurerAdapter} to this {@link SecurityBuilder} and
-	 * invokes {@link SecurityConfigurerAdapter#setBuilder(SecurityBuilder)}.
-	 * @param configurer
-	 * @return the {@link SecurityConfigurerAdapter} for further customizations
-	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use
-	 * {@link #with(SecurityConfigurerAdapter, Customizer)} instead.
-	 */
-	@Deprecated(since = "6.2", forRemoval = true)
-	@SuppressWarnings("unchecked")
-	public <C extends SecurityConfigurerAdapter<O, B>> C apply(C configurer) throws Exception {
-		configurer.addObjectPostProcessor(this.objectPostProcessor);
-		configurer.setBuilder((B) this);
-		add(configurer);
-		return configurer;
-	}
-
-	/**
 	 * Applies a {@link SecurityConfigurer} to this {@link SecurityBuilder} overriding any
 	 * {@link SecurityConfigurer} of the exact same class. Note that object hierarchies
 	 * are not considered.
@@ -162,7 +144,6 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * @throws Exception
 	 * @since 7.0
 	 */
-	@SuppressWarnings("unchecked")
 	public <C extends SecurityConfigurerAdapter<O, B>> B with(C configurer) throws Exception {
 		return with(configurer, Customizer.withDefaults());
 	}
