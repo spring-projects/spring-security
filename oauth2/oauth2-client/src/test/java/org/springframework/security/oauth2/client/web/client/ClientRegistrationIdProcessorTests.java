@@ -45,7 +45,7 @@ class ClientRegistrationIdProcessorTests {
 	void processWhenClientRegistrationIdPresentThenSet() {
 		HttpRequestValues.Builder builder = HttpRequestValues.builder();
 		Method hasClientRegistrationId = ReflectionUtils.findMethod(RestService.class, "hasClientRegistrationId");
-		this.processor.process(hasClientRegistrationId, null, builder);
+		this.processor.process(hasClientRegistrationId, null, null, builder);
 
 		String registrationId = ClientAttributes.resolveClientRegistrationId(builder.build().getAttributes());
 		assertThat(registrationId).isEqualTo(RestService.REGISTRATION_ID);
@@ -55,7 +55,7 @@ class ClientRegistrationIdProcessorTests {
 	void processWhenMetaClientRegistrationIdPresentThenSet() {
 		HttpRequestValues.Builder builder = HttpRequestValues.builder();
 		Method hasClientRegistrationId = ReflectionUtils.findMethod(RestService.class, "hasMetaClientRegistrationId");
-		this.processor.process(hasClientRegistrationId, null, builder);
+		this.processor.process(hasClientRegistrationId, null, null, builder);
 
 		String registrationId = ClientAttributes.resolveClientRegistrationId(builder.build().getAttributes());
 		assertThat(registrationId).isEqualTo(RestService.REGISTRATION_ID);
@@ -65,7 +65,7 @@ class ClientRegistrationIdProcessorTests {
 	void processWhenNoClientRegistrationIdPresentThenNull() {
 		HttpRequestValues.Builder builder = HttpRequestValues.builder();
 		Method hasClientRegistrationId = ReflectionUtils.findMethod(RestService.class, "noClientRegistrationId");
-		this.processor.process(hasClientRegistrationId, null, builder);
+		this.processor.process(hasClientRegistrationId, null, null, builder);
 
 		String registrationId = ClientAttributes.resolveClientRegistrationId(builder.build().getAttributes());
 		assertThat(registrationId).isNull();
