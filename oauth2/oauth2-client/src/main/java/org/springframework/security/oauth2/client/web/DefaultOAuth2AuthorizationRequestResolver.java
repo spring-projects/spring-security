@@ -184,8 +184,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 				// value.
 				applyNonce(builder);
 			}
-			if (ClientAuthenticationMethod.NONE.equals(clientRegistration.getClientAuthenticationMethod())
-					|| clientRegistration.getClientSettings().isRequireProofKey()) {
+			if (clientRegistration.getClientSettings().isRequireProofKey()) {
 				DEFAULT_PKCE_APPLIER.accept(builder);
 			}
 			return builder;

@@ -293,6 +293,6 @@ spring:
 
 [NOTE]
 ====
-Public Clients are supported using https://tools.ietf.org/html/rfc7636[Proof Key for Code Exchange] (PKCE).
-PKCE will automatically be used when `client-authentication-method` is set to "none" (`ClientAuthenticationMethod.NONE`).
+https://tools.ietf.org/html/rfc7636[Proof Key for Code Exchange] (PKCE) will be enabled by default for public as well as confidential clients. Refer https://docs.spring.io/spring-security/reference/servlet/oauth2/client/client-authentication.html#oauth2-client-authentication-public[this
+section] to disable PKCE.
 ====

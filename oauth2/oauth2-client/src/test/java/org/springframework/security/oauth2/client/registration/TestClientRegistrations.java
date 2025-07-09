@@ -64,6 +64,21 @@ public final class TestClientRegistrations {
 		// @formatter:on
 	}
 
+	private static ClientRegistration.Builder publicClientRegistrationWithNoPkce() {
+		return ClientRegistration.withRegistrationId("no-pkce")
+				.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
+				.clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
+				.clientSettings(ClientRegistration.ClientSettings.builder().requireProofKey(false).build())
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.scope("read:user")
+				.authorizationUri("https://example.com/login/oauth/authorize")
+				.tokenUri("https://example.com/login/oauth/access_token")
+				.userInfoUri("https://api.example.com/user")
+				.userNameAttributeName("id")
+				.clientName("Client Name")
+				.clientSecret(null);
+	}
+
 	public static ClientRegistration.Builder clientCredentials() {
 		// @formatter:off
 		return clientRegistration()

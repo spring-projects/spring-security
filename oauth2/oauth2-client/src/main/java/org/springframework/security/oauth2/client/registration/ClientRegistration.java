@@ -757,7 +757,7 @@ public final class ClientRegistration implements Serializable {
 		private boolean requireProofKey;
 
 		private ClientSettings() {
-
+			this.requireProofKey = true;
 		}
 
 		public boolean isRequireProofKey() {

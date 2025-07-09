@@ -196,8 +196,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 				// value.
 				applyNonce(builder);
 			}
-			if (ClientAuthenticationMethod.NONE.equals(clientRegistration.getClientAuthenticationMethod())
-					|| clientRegistration.getClientSettings().isRequireProofKey()) {
+			if (clientRegistration.getClientSettings().isRequireProofKey()) {
 				DEFAULT_PKCE_APPLIER.accept(builder);
 			}
 			return builder;

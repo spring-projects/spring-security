@@ -58,6 +58,8 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 
 	private ClientRegistration pkceClientRegistration;
 
+	private ClientRegistration nonProofKeyPublicClientRegistration;
+
 	private ClientRegistration fineRedirectUriTemplateRegistration;
 
 	private ClientRegistration publicClientRegistration;
@@ -373,9 +375,14 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 					+ "redirect_uri=http://localhost/login/oauth2/code/registration-id-2");
 	}
 
+	// private client with proof key
+	// public client with proof key
+	// private client without proof key
+	// public client without proof key
+
 	@Test
 	public void resolveWhenAuthorizationRequestWithValidPublicClientThenResolves() {
-		ClientRegistration clientRegistration = this.publicClientRegistration;
+		ClientRegistration clientRegistration = this.publicClientRegistration; // change to private client registration
 		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
 		request.setServletPath(requestUri);
@@ -425,6 +432,25 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		request.setServletPath(requestUri);
 		authorizationRequest = this.resolver.resolve(request);
 		assertPkceApplied(authorizationRequest, clientRegistration);
+	}
+
+	@Test
+	public void resolveWhenAuthorizationRequestApplyPkceToConfidentialClientThenApplied() {
+		// pkce enabled by default for private clients
+		ClientRegistration clientRegistration = this.registration1;
+		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
+		MockHttpServletRequest request = get(requestUri).build();
+		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
+		assertPkceApplied(authorizationRequest, clientRegistration);
+	}
+
+	@Test
+	public void resolveWhenAuthorizationRequestApplyPkceToPublicClientWithRequireProofKeyFalseThenApplied() {
+		ClientRegistration clientRegistration = this.nonProofKeyPublicClientRegistration; // change to non proof key public client
+		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
+		MockHttpServletRequest request = get(requestUri).build();
+		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
+		assertPkceNotApplied(authorizationRequest, clientRegistration);
 	}
 
 	// gh-6548
@@ -593,7 +619,6 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 			.clientId("client-id-3")
 			.clientSecret("client-secret");
 	}
-
 	private static ClientRegistration.Builder fineRedirectUriTemplateClientRegistration() {
 		// @formatter:off
 		return ClientRegistration.withRegistrationId("fine-redirect-uri-template-client-registration")
