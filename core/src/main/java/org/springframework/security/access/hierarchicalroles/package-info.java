@@ -17,4 +17,7 @@
 /**
  * Role hierarchy implementation.
  */
+@NullMarked
 package org.springframework.security.access.hierarchicalroles;
+
+import org.jspecify.annotations.NullMarked;

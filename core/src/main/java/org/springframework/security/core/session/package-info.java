@@ -22,4 +22,7 @@
  * core part of the web-based concurrent session control, but the code is not dependent on
  * any of the servlet APIs.
  */
+@NullMarked
 package org.springframework.security.core.session;
+
+import org.jspecify.annotations.NullMarked;

@@ -18,4 +18,8 @@
  * Implementations of {@link org.springframework.security.core.userdetails.UserCache
  * UserCache}.
  */
+
+@NullMarked
 package org.springframework.security.core.userdetails.cache;
+
+import org.jspecify.annotations.NullMarked;

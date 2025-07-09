@@ -23,17 +23,20 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.core.log.LogMessage;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
+import org.springframework.expression.TypedValue;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.access.PermissionCacheOptimizer;
 import org.springframework.security.access.expression.AbstractSecurityExpressionHandler;
@@ -64,7 +67,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 
 	private ParameterNameDiscoverer parameterNameDiscoverer = new DefaultSecurityParameterNameDiscoverer();
 
-	private PermissionCacheOptimizer permissionCacheOptimizer = null;
+	private @Nullable PermissionCacheOptimizer permissionCacheOptimizer = null;
 
 	private String defaultRolePrefix = "ROLE_";
 
@@ -85,7 +88,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 		MethodSecurityExpressionOperations root = createSecurityExpressionRoot(authentication, mi);
 		MethodSecurityEvaluationContext ctx = new MethodSecurityEvaluationContext(root, mi,
 				getParameterNameDiscoverer());
-		ctx.setBeanResolver(getBeanResolver());
+		Optional.ofNullable(getBeanResolver()).ifPresent(ctx::setBeanResolver);
 		return ctx;
 	}
 
@@ -104,7 +107,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 		root.setThis(invocation.getThis());
 		root.setPermissionEvaluator(getPermissionEvaluator());
 		root.setTrustResolver(getTrustResolver());
-		root.setRoleHierarchy(getRoleHierarchy());
+		Optional.ofNullable(getRoleHierarchy()).ifPresent(root::setRoleHierarchy);
 		root.setDefaultRolePrefix(getDefaultRolePrefix());
 		return root;
 	}
@@ -119,14 +122,15 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	 * {@link Stream}
 	 */
 	@Override
-	public Object filter(Object filterTarget, Expression filterExpression, EvaluationContext ctx) {
+	public Object filter(@Nullable Object filterTarget, Expression filterExpression, EvaluationContext ctx) {
 		MethodSecurityExpressionOperations rootObject = (MethodSecurityExpressionOperations) ctx.getRootObject()
 			.getValue();
+		Assert.notNull(rootObject, "rootObject cannot be null");
 		this.logger.debug(LogMessage.format("Filtering with expression: %s", filterExpression.getExpressionString()));
 		if (filterTarget instanceof Collection) {
 			return filterCollection((Collection<?>) filterTarget, filterExpression, ctx, rootObject);
 		}
-		if (filterTarget.getClass().isArray()) {
+		if (filterTarget != null && filterTarget.getClass().isArray()) {
 			return filterArray((Object[]) filterTarget, filterExpression, ctx, rootObject);
 		}
 		if (filterTarget instanceof Map) {
@@ -259,8 +263,13 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	}
 
 	@Override
-	public void setReturnObject(Object returnObject, EvaluationContext ctx) {
-		((MethodSecurityExpressionOperations) ctx.getRootObject().getValue()).setReturnObject(returnObject);
+	public void setReturnObject(@Nullable Object returnObject, EvaluationContext ctx) {
+		TypedValue rootObject = ctx.getRootObject();
+		Assert.notNull(rootObject, "rootObject cannot be null");
+		MethodSecurityExpressionOperations methodOperations = (MethodSecurityExpressionOperations) rootObject
+			.getValue();
+		Assert.notNull(methodOperations, "MethodSecurityExpressionOperations cannot be null");
+		methodOperations.setReturnObject(returnObject);
 	}
 
 	/**

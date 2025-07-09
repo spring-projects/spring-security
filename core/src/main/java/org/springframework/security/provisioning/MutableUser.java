@@ -18,6 +18,8 @@ package org.springframework.security.provisioning;
 
 import java.util.Collection;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,7 +32,7 @@ class MutableUser implements MutableUserDetails {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	private String password;
+	private @Nullable String password;
 
 	private final UserDetails delegate;
 
@@ -40,12 +42,12 @@ class MutableUser implements MutableUserDetails {
 	}
 
 	@Override
-	public String getPassword() {
+	public @Nullable String getPassword() {
 		return this.password;
 	}
 
 	@Override
-	public void setPassword(String password) {
+	public void setPassword(@Nullable String password) {
 		this.password = password;
 	}
 

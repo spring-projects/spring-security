@@ -141,10 +141,31 @@ public class UserTests {
 	@Test
 	public void testNullValuesRejected() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new User(null, "koala", true, true, true, true, ROLE_12));
-		assertThatIllegalArgumentException().isThrownBy(() -> new User("rod", null, true, true, true, true, ROLE_12));
 		List<GrantedAuthority> auths = AuthorityUtils.createAuthorityList("ROLE_ONE");
 		auths.add(null);
 		assertThatIllegalArgumentException().isThrownBy(() -> new User("rod", "koala", true, true, true, true, auths));
+	}
+
+	/**
+	 * This is allowed because the password can become null when
+	 * {@link User#eraseCredentials()} is called.
+	 */
+	@Test
+	public void constructorStringStringBooleanBooleanBooleanBooleanListWhenNullPasswordThenNullPassword() {
+		List<GrantedAuthority> auths = AuthorityUtils.createAuthorityList("ROLE_ONE");
+		User rod = new User("rod", null, true, true, true, true, auths);
+		assertThat(rod.getPassword()).isNull();
+	}
+
+	/**
+	 * This is allowed because the password can become null when
+	 * {@link User#eraseCredentials()} is called.
+	 */
+	@Test
+	public void constructorStringStringListWhenNullPasswordThenNoException() {
+		List<GrantedAuthority> auths = AuthorityUtils.createAuthorityList("ROLE_ONE");
+		User rod = new User("rod", null, auths);
+		assertThat(rod.getPassword()).isNull();
 	}
 
 	@Test
@@ -252,6 +273,27 @@ public class UserTests {
 			.build();
 		// @formatter:on
 		assertThat(withEncodedPassword.getPassword()).isEqualTo("passwordencoded");
+	}
+
+	/**
+	 * This is allowed because the password can become null when
+	 * {@link User#eraseCredentials()} is called.
+	 */
+	@Test
+	public void withUsernameWhenNullPasswordThenNoException() {
+		assertThat(User.withUsername("user").build().getPassword()).isNull();
+	}
+
+	@Test
+	public void withUsernameWhenPasswordNullAndEncoderThenEncoderNotUsed() {
+		Function<String, String> encoder = (p) -> "encoded";
+		// @formatter:off
+		UserDetails withEncodedPassword = User.withUsername("user")
+				.passwordEncoder(encoder)
+				.roles("USER")
+				.build();
+		// @formatter:on
+		assertThat(withEncodedPassword.getPassword()).isNull();
 	}
 
 }

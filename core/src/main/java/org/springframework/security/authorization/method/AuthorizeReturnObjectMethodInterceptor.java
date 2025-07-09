@@ -21,6 +21,7 @@ import java.util.function.Predicate;
 
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.Pointcuts;
@@ -39,7 +40,8 @@ import org.springframework.util.ClassUtils;
  */
 public final class AuthorizeReturnObjectMethodInterceptor implements AuthorizationAdvisor {
 
-	private AuthorizationProxyFactory authorizationProxyFactory;
+	@SuppressWarnings("NullAway.Init")
+	private @Nullable AuthorizationProxyFactory authorizationProxyFactory;
 
 	private Pointcut pointcut = Pointcuts.intersection(
 			new MethodReturnTypePointcut(Predicate.not(ClassUtils::isVoidType)),
@@ -66,7 +68,7 @@ public final class AuthorizeReturnObjectMethodInterceptor implements Authorizati
 	}
 
 	@Override
-	public Object invoke(MethodInvocation mi) throws Throwable {
+	public @Nullable Object invoke(MethodInvocation mi) throws Throwable {
 		Object result = mi.proceed();
 		if (result == null) {
 			return null;

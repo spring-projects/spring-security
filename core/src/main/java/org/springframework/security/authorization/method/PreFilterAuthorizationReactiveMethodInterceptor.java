@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -98,9 +99,9 @@ public final class PreFilterAuthorizationReactiveMethodInterceptor implements Au
 	 * @return the {@link Publisher} to use
 	 */
 	@Override
-	public Object invoke(MethodInvocation mi) throws Throwable {
+	public @Nullable Object invoke(MethodInvocation mi) throws Throwable {
 		PreFilterExpressionAttributeRegistry.PreFilterExpressionAttribute attribute = this.registry.getAttribute(mi);
-		if (attribute == PreFilterExpressionAttributeRegistry.PreFilterExpressionAttribute.NULL_ATTRIBUTE) {
+		if (attribute == null) {
 			return ReactiveMethodInvocationUtils.proceed(mi);
 		}
 		FilterTarget filterTarget = findFilterTarget(attribute.getFilterTarget(), mi);
@@ -160,7 +161,7 @@ public final class PreFilterAuthorizationReactiveMethodInterceptor implements Au
 		return new FilterTarget((Publisher<?>) value, index);
 	}
 
-	private boolean isMultiValue(Class<?> returnType, ReactiveAdapter adapter) {
+	private boolean isMultiValue(Class<?> returnType, @Nullable ReactiveAdapter adapter) {
 		if (Flux.class.isAssignableFrom(returnType)) {
 			return true;
 		}
@@ -171,7 +172,9 @@ public final class PreFilterAuthorizationReactiveMethodInterceptor implements Au
 		MethodSecurityExpressionOperations rootObject = (MethodSecurityExpressionOperations) ctx.getRootObject()
 			.getValue();
 		return Mono.from(filterTarget).filterWhen((filterObject) -> {
-			rootObject.setFilterObject(filterObject);
+			if (rootObject != null) {
+				rootObject.setFilterObject(filterObject);
+			}
 			return ReactiveExpressionUtils.evaluateAsBoolean(filterExpression, ctx);
 		});
 	}
@@ -180,7 +183,9 @@ public final class PreFilterAuthorizationReactiveMethodInterceptor implements Au
 		MethodSecurityExpressionOperations rootObject = (MethodSecurityExpressionOperations) ctx.getRootObject()
 			.getValue();
 		return Flux.from(filterTarget).filterWhen((filterObject) -> {
-			rootObject.setFilterObject(filterObject);
+			if (rootObject != null) {
+				rootObject.setFilterObject(filterObject);
+			}
 			return ReactiveExpressionUtils.evaluateAsBoolean(filterExpression, ctx);
 		});
 	}

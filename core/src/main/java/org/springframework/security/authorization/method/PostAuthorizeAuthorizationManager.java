@@ -19,6 +19,7 @@ package org.springframework.security.authorization.method;
 import java.util.function.Supplier;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.expression.EvaluationContext;
@@ -85,9 +86,9 @@ public final class PostAuthorizeAuthorizationManager
 	 * {@link PostAuthorize} annotation is not present
 	 */
 	@Override
-	public AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocationResult mi) {
+	public @Nullable AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocationResult mi) {
 		ExpressionAttribute attribute = this.registry.getAttribute(mi.getMethodInvocation());
-		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
+		if (attribute == null) {
 			return null;
 		}
 		MethodSecurityExpressionHandler expressionHandler = this.registry.getExpressionHandler();
@@ -97,14 +98,15 @@ public final class PostAuthorizeAuthorizationManager
 	}
 
 	@Override
-	public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
+	public @Nullable Object handleDeniedInvocation(MethodInvocation methodInvocation,
+			AuthorizationResult authorizationResult) {
 		ExpressionAttribute attribute = this.registry.getAttribute(methodInvocation);
 		PostAuthorizeExpressionAttribute postAuthorizeAttribute = (PostAuthorizeExpressionAttribute) attribute;
 		return postAuthorizeAttribute.getHandler().handleDeniedInvocation(methodInvocation, authorizationResult);
 	}
 
 	@Override
-	public Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
+	public @Nullable Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
 			AuthorizationResult authorizationResult) {
 		ExpressionAttribute attribute = this.registry.getAttribute(methodInvocationResult.getMethodInvocation());
 		PostAuthorizeExpressionAttribute postAuthorizeAttribute = (PostAuthorizeExpressionAttribute) attribute;

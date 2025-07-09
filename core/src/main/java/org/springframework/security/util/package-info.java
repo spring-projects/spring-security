@@ -21,4 +21,7 @@
  * This package should be standalone - it should not have dependencies on other parts of
  * the framework, just on external libraries and the JDK.
  */
+@NullMarked
 package org.springframework.security.util;
+
+import org.jspecify.annotations.NullMarked;

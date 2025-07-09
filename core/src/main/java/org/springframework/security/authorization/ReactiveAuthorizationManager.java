@@ -16,6 +16,7 @@
 
 package org.springframework.security.authorization;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.access.AccessDeniedException;
@@ -29,7 +30,7 @@ import org.springframework.security.core.Authentication;
  * @author Rob Winch
  * @since 5.0
  */
-public interface ReactiveAuthorizationManager<T> {
+public interface ReactiveAuthorizationManager<@Nullable T> {
 
 	/**
 	 * Determines if access should be granted for a specific authentication and object

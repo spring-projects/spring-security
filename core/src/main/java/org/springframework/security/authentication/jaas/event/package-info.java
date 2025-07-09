@@ -18,4 +18,7 @@
  * JAAS authentication events which can be published to the Spring application context by
  * the JAAS authentication provider.
  */
+@NullMarked
 package org.springframework.security.authentication.jaas.event;
+
+import org.jspecify.annotations.NullMarked;

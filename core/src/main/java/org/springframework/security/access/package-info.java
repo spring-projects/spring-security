@@ -21,4 +21,7 @@
  * {@link org.springframework.security.access.AccessDecisionManager AccessDecisionManager}
  * interface.
  */
+@NullMarked
 package org.springframework.security.access;
+
+import org.jspecify.annotations.NullMarked;

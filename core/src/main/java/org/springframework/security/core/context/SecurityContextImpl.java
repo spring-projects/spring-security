@@ -16,6 +16,8 @@
 
 package org.springframework.security.core.context;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.ObjectUtils;
@@ -31,7 +33,7 @@ public class SecurityContextImpl implements SecurityContext {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	private Authentication authentication;
+	private @Nullable Authentication authentication;
 
 	public SecurityContextImpl() {
 	}
@@ -55,7 +57,7 @@ public class SecurityContextImpl implements SecurityContext {
 	}
 
 	@Override
-	public Authentication getAuthentication() {
+	public @Nullable Authentication getAuthentication() {
 		return this.authentication;
 	}
 
@@ -65,7 +67,7 @@ public class SecurityContextImpl implements SecurityContext {
 	}
 
 	@Override
-	public void setAuthentication(Authentication authentication) {
+	public void setAuthentication(@Nullable Authentication authentication) {
 		this.authentication = authentication;
 	}
 

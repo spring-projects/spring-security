@@ -16,6 +16,8 @@
 
 package org.springframework.security.access.expression.method;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.access.expression.SecurityExpressionOperations;
 
 /**
@@ -29,12 +31,12 @@ public interface MethodSecurityExpressionOperations extends SecurityExpressionOp
 
 	void setFilterObject(Object filterObject);
 
-	Object getFilterObject();
+	@Nullable Object getFilterObject();
 
-	void setReturnObject(Object returnObject);
+	void setReturnObject(@Nullable Object returnObject);
 
-	Object getReturnObject();
+	@Nullable Object getReturnObject();
 
-	Object getThis();
+	@Nullable Object getThis();
 
 }

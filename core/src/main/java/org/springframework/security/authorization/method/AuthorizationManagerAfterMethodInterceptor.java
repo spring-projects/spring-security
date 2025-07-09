@@ -23,6 +23,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.aop.Pointcut;
 import org.springframework.core.log.LogMessage;
@@ -117,7 +118,7 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 	 * @throws AccessDeniedException if access is not granted
 	 */
 	@Override
-	public Object invoke(MethodInvocation mi) throws Throwable {
+	public @Nullable Object invoke(MethodInvocation mi) throws Throwable {
 		Object result;
 		try {
 			result = mi.proceed();
@@ -179,11 +180,13 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 		this.securityContextHolderStrategy = () -> strategy;
 	}
 
-	private Object attemptAuthorization(MethodInvocation mi, Object result) {
+	private @Nullable Object attemptAuthorization(MethodInvocation mi, @Nullable Object result) {
 		this.logger.debug(LogMessage.of(() -> "Authorizing method invocation " + mi));
 		MethodInvocationResult object = new MethodInvocationResult(mi, result);
 		AuthorizationResult authorizationResult = this.authorizationManager.authorize(this::getAuthentication, object);
-		this.eventPublisher.publishAuthorizationEvent(this::getAuthentication, object, authorizationResult);
+		if (authorizationResult != null) {
+			this.eventPublisher.publishAuthorizationEvent(this::getAuthentication, object, authorizationResult);
+		}
 		if (authorizationResult != null && !authorizationResult.isGranted()) {
 			this.logger.debug(LogMessage.of(() -> "Failed to authorize " + mi + " with authorization manager "
 					+ this.authorizationManager + " and authorizationResult " + authorizationResult));
@@ -193,7 +196,7 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 		return result;
 	}
 
-	private Object handlePostInvocationDenied(MethodInvocationResult mi, AuthorizationResult result) {
+	private @Nullable Object handlePostInvocationDenied(MethodInvocationResult mi, AuthorizationResult result) {
 		if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler deniedHandler) {
 			return deniedHandler.handleDeniedInvocationResult(mi, result);
 		}

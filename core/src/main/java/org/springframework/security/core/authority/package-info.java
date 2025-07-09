@@ -17,4 +17,7 @@
 /**
  * The default implementation of the {@code GrantedAuthority} interface.
  */
+@NullMarked
 package org.springframework.security.core.authority;
+
+import org.jspecify.annotations.NullMarked;

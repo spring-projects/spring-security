@@ -27,4 +27,7 @@
  * {@link org.springframework.security.core.context.SecurityContextHolder
  * SecurityContextHolder}.
  */
+@NullMarked
 package org.springframework.security.core.context;
+
+import org.jspecify.annotations.NullMarked;

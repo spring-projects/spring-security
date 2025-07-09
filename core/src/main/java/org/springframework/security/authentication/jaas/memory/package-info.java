@@ -17,4 +17,7 @@
 /**
  * An in memory JAAS implementation.
  */
+@NullMarked
 package org.springframework.security.authentication.jaas.memory;
+
+import org.jspecify.annotations.NullMarked;

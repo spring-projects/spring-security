@@ -18,6 +18,8 @@ package org.springframework.security.authentication;
 
 import java.io.Serial;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * <p>
  * Thrown if an authentication request could not be processed due to a system problem that
@@ -42,7 +44,7 @@ public class InternalAuthenticationServiceException extends AuthenticationServic
 	@Serial
 	private static final long serialVersionUID = -6029644854192497840L;
 
-	public InternalAuthenticationServiceException(String message, Throwable cause) {
+	public InternalAuthenticationServiceException(@Nullable String message, Throwable cause) {
 		super(message, cause);
 	}
 

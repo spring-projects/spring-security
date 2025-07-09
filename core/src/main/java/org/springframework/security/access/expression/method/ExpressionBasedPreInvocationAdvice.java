@@ -19,6 +19,7 @@ package org.springframework.security.access.expression.method;
 import java.util.Collection;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.NullUnmarked;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -37,6 +38,7 @@ import org.springframework.util.Assert;
  * {@link org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor}
  * instead
  */
+@NullUnmarked
 @Deprecated
 public class ExpressionBasedPreInvocationAdvice implements PreInvocationAuthorizationAdvice {
 

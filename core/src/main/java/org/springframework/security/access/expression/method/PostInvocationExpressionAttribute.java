@@ -16,6 +16,8 @@
 
 package org.springframework.security.access.expression.method;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.expression.Expression;
 import org.springframework.expression.ParseException;
 import org.springframework.security.access.prepost.PostInvocationAttribute;
@@ -36,7 +38,7 @@ class PostInvocationExpressionAttribute extends AbstractExpressionBasedMethodCon
 		super(filterExpression, authorizeExpression);
 	}
 
-	PostInvocationExpressionAttribute(Expression filterExpression, Expression authorizeExpression)
+	PostInvocationExpressionAttribute(@Nullable Expression filterExpression, @Nullable Expression authorizeExpression)
 			throws ParseException {
 		super(filterExpression, authorizeExpression);
 	}

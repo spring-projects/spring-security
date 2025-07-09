@@ -16,6 +16,9 @@
 
 package org.springframework.security.access.intercept;
 
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
@@ -44,12 +47,14 @@ import org.springframework.util.Assert;
  * class is only used by now-deprecated components. There is not yet an equivalent
  * replacement in Spring Security.
  */
+@NullUnmarked
 @Deprecated
 public class RunAsImplAuthenticationProvider implements InitializingBean, AuthenticationProvider, MessageSourceAware {
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
-	private String key;
+	@SuppressWarnings("NullAway.Init")
+	private @Nullable String key;
 
 	@Override
 	public void afterPropertiesSet() {

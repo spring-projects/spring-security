@@ -21,6 +21,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -45,7 +47,7 @@ public final class DelegatingSecurityContextScheduledExecutorService extends Del
 	 * {@link DelegatingSecurityContextCallable}.
 	 */
 	public DelegatingSecurityContextScheduledExecutorService(ScheduledExecutorService delegateScheduledExecutorService,
-			SecurityContext securityContext) {
+			@Nullable SecurityContext securityContext) {
 		super(delegateScheduledExecutorService, securityContext);
 	}
 

@@ -46,7 +46,7 @@ import org.springframework.security.crypto.keygen.KeyGenerators;
  * indicate that this is a legacy implementation and using it is considered insecure.
  */
 @Deprecated
-public class LdapShaPasswordEncoder implements PasswordEncoder {
+public class LdapShaPasswordEncoder extends AbstractValidatingPasswordEncoder {
 
 	/** The number of bytes in a SHA hash */
 	private static final int SHA_LENGTH = 20;
@@ -88,17 +88,17 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 	 * Calculates the hash of password (and salt bytes, if supplied) and returns a base64
 	 * encoded concatenation of the hash and salt, prefixed with {SHA} (or {SSHA} if salt
 	 * was used).
-	 * @param rawPass the password to be encoded.
+	 * @param rawPassword the password to be encoded.
 	 * @return the encoded password in the specified format
 	 *
 	 */
 	@Override
-	public String encode(CharSequence rawPass) {
+	protected String encodeNonNullPassword(String rawPassword) {
 		byte[] salt = this.saltGenerator.generateKey();
-		return encode(rawPass, salt);
+		return encode(rawPassword, salt);
 	}
 
-	private String encode(@Nullable CharSequence rawPassword, byte @Nullable [] salt) {
+	private String encode(CharSequence rawPassword, byte @Nullable [] salt) {
 		MessageDigest sha = getSha(rawPassword);
 		if (salt != null) {
 			sha.update(salt);
@@ -108,7 +108,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 		return prefix + Utf8.decode(Base64.getEncoder().encode(hash));
 	}
 
-	private MessageDigest getSha(@Nullable CharSequence rawPassword) {
+	private MessageDigest getSha(CharSequence rawPassword) {
 		try {
 			MessageDigest sha = MessageDigest.getInstance("SHA");
 			sha.update(Utf8.encode(rawPassword));
@@ -143,11 +143,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 	 * @return true if they match (independent of the case of the prefix).
 	 */
 	@Override
-	public boolean matches(CharSequence rawPassword, String encodedPassword) {
-		return matches((rawPassword != null) ? rawPassword.toString() : null, encodedPassword);
-	}
-
-	private boolean matches(@Nullable String rawPassword, String encodedPassword) {
+	protected boolean matchesNonNull(String rawPassword, String encodedPassword) {
 		String prefix = extractPrefix(encodedPassword);
 		if (prefix == null) {
 			return PasswordEncoderUtils.equals(encodedPassword, rawPassword);

@@ -28,6 +28,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.log.LogMessage;
@@ -93,7 +94,7 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 	}
 
 	@Override
-	public SessionInformation getSessionInformation(String sessionId) {
+	public @Nullable SessionInformation getSessionInformation(String sessionId) {
 		Assert.hasText(sessionId, "SessionId required as per interface contract");
 		return this.sessionIds.get(sessionId);
 	}

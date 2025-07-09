@@ -20,7 +20,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.function.Function;
 
-import reactor.util.annotation.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.expression.Expression;
@@ -54,19 +54,18 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 				PostAuthorizeAuthorizationManager.class);
 	}
 
-	@NonNull
 	@Override
-	ExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
+	@Nullable ExpressionAttribute resolveAttribute(Method method, @Nullable Class<?> targetClass) {
 		PostAuthorize postAuthorize = findPostAuthorizeAnnotation(method, targetClass);
 		if (postAuthorize == null) {
-			return ExpressionAttribute.NULL_ATTRIBUTE;
+			return null;
 		}
 		Expression expression = getExpressionHandler().getExpressionParser().parseExpression(postAuthorize.value());
 		MethodAuthorizationDeniedHandler deniedHandler = resolveHandler(method, targetClass);
 		return new PostAuthorizeExpressionAttribute(expression, deniedHandler);
 	}
 
-	private MethodAuthorizationDeniedHandler resolveHandler(Method method, Class<?> targetClass) {
+	private MethodAuthorizationDeniedHandler resolveHandler(Method method, @Nullable Class<?> targetClass) {
 		Class<?> targetClassToUse = targetClass(method, targetClass);
 		HandleAuthorizationDenied deniedHandler = this.handleAuthorizationDeniedScanner.scan(method, targetClassToUse);
 		if (deniedHandler != null) {
@@ -75,7 +74,7 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 		return this.defaultHandler;
 	}
 
-	private PostAuthorize findPostAuthorizeAnnotation(Method method, Class<?> targetClass) {
+	private @Nullable PostAuthorize findPostAuthorizeAnnotation(Method method, @Nullable Class<?> targetClass) {
 		Class<?> targetClassToUse = targetClass(method, targetClass);
 		return this.postAuthorizeScanner.scan(method, targetClassToUse);
 	}

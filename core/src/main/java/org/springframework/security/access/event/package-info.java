@@ -17,4 +17,7 @@
 /**
  * Authorization event and listener classes.
  */
+@NullMarked
 package org.springframework.security.access.event;
+
+import org.jspecify.annotations.NullMarked;

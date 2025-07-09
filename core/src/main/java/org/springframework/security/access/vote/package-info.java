@@ -17,4 +17,7 @@
 /**
  * Implements a vote-based approach to authorization decisions.
  */
+@NullMarked
 package org.springframework.security.access.vote;
+
+import org.jspecify.annotations.NullMarked;

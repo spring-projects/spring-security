@@ -17,6 +17,7 @@
 package org.springframework.security.authorization.method;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 import reactor.core.Exceptions;
 
 /**
@@ -27,7 +28,7 @@ import reactor.core.Exceptions;
  */
 final class ReactiveMethodInvocationUtils {
 
-	static <T> T proceed(MethodInvocation mi) {
+	static <T> @Nullable T proceed(MethodInvocation mi) {
 		try {
 			return (T) mi.proceed();
 		}

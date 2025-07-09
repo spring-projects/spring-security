@@ -22,6 +22,8 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.log.LogMessage;
@@ -52,12 +54,14 @@ import org.springframework.util.CollectionUtils;
  * @see org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor
  * @deprecated Use delegation with {@link AuthorizationManager}
  */
+@NullUnmarked
 @Deprecated
 public class AfterInvocationProviderManager implements AfterInvocationManager, InitializingBean {
 
 	protected static final Log logger = LogFactory.getLog(AfterInvocationProviderManager.class);
 
-	private List<AfterInvocationProvider> providers;
+	@SuppressWarnings("NullAway.Init")
+	private @Nullable List<AfterInvocationProvider> providers;
 
 	@Override
 	public void afterPropertiesSet() {

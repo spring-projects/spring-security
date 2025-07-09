@@ -40,6 +40,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.log.LogMessage;
@@ -126,7 +127,7 @@ public final class SecurityJackson2Modules {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static Module loadAndGetInstance(String className, ClassLoader loader) {
+	private static @Nullable Module loadAndGetInstance(String className, ClassLoader loader) {
 		try {
 			Class<? extends Module> securityModule = (Class<? extends Module>) ClassUtils.forName(className, loader);
 			if (securityModule != null) {

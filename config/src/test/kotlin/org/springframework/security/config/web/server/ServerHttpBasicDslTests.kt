@@ -151,7 +151,7 @@ class ServerHttpBasicDslTests {
     }
 
     class NoopReactiveAuthenticationManager: ReactiveAuthenticationManager {
-        override fun authenticate(authentication: Authentication?): Mono<Authentication> {
+        override fun authenticate(authentication: Authentication): Mono<Authentication> {
             return Mono.empty()
         }
     }

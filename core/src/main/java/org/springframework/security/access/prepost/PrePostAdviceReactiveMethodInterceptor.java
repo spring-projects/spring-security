@@ -22,6 +22,8 @@ import java.util.Collection;
 import kotlinx.coroutines.reactive.ReactiveFlowKt;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
@@ -54,6 +56,7 @@ import org.springframework.util.Assert;
  * or
  * {@link org.springframework.security.authorization.method.AuthorizationManagerAfterReactiveMethodInterceptor}
  */
+@NullUnmarked
 @Deprecated
 public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor {
 
@@ -142,7 +145,7 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 			.map((r) -> (attr != null) ? this.postAdvice.after(auth, invocation, attr, r) : r));
 	}
 
-	private static <T extends Publisher<?>> T proceed(final MethodInvocation invocation) {
+	private static <T extends Publisher<?>> @Nullable T proceed(final MethodInvocation invocation) {
 		try {
 			return (T) invocation.proceed();
 		}
@@ -151,7 +154,7 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 		}
 	}
 
-	private static Object flowProceed(final MethodInvocation invocation) {
+	private static @Nullable Object flowProceed(final MethodInvocation invocation) {
 		try {
 			return invocation.proceed();
 		}
@@ -160,7 +163,7 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 		}
 	}
 
-	private static PostInvocationAttribute findPostInvocationAttribute(Collection<ConfigAttribute> config) {
+	private static @Nullable PostInvocationAttribute findPostInvocationAttribute(Collection<ConfigAttribute> config) {
 		for (ConfigAttribute attribute : config) {
 			if (attribute instanceof PostInvocationAttribute) {
 				return (PostInvocationAttribute) attribute;
@@ -169,7 +172,7 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 		return null;
 	}
 
-	private static PreInvocationAttribute findPreInvocationAttribute(Collection<ConfigAttribute> config) {
+	private static @Nullable PreInvocationAttribute findPreInvocationAttribute(Collection<ConfigAttribute> config) {
 		for (ConfigAttribute attribute : config) {
 			if (attribute instanceof PreInvocationAttribute) {
 				return (PreInvocationAttribute) attribute;

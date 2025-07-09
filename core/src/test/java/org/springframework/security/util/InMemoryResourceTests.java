@@ -28,7 +28,7 @@ public class InMemoryResourceTests {
 	@Test
 	public void resourceContainsExpectedData() throws Exception {
 		InMemoryResource resource = new InMemoryResource("blah");
-		assertThat(resource.getDescription()).isNull();
+		assertThat(resource.getDescription()).isEmpty();
 		assertThat(resource.hashCode()).isEqualTo(1);
 		assertThat(resource.getInputStream()).isNotNull();
 	}

@@ -17,6 +17,7 @@
 package org.springframework.security.authorization.method;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.AuthorizationResult;
@@ -30,7 +31,8 @@ import org.springframework.security.authorization.AuthorizationResult;
 public final class NullReturningMethodAuthorizationDeniedHandler implements MethodAuthorizationDeniedHandler {
 
 	@Override
-	public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
+	public @Nullable Object handleDeniedInvocation(MethodInvocation methodInvocation,
+			AuthorizationResult authorizationResult) {
 		if (authorizationResult instanceof AuthorizationDeniedException exception) {
 			throw exception;
 		}
@@ -38,7 +40,7 @@ public final class NullReturningMethodAuthorizationDeniedHandler implements Meth
 	}
 
 	@Override
-	public Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
+	public @Nullable Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
 			AuthorizationResult authorizationResult) {
 		if (authorizationResult instanceof AuthorizationDeniedException exception) {
 			throw exception;

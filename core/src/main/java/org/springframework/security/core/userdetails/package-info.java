@@ -24,4 +24,7 @@
  * {@link org.springframework.security.core.userdetails.AuthenticationUserDetailsService
  * AuthenticationUserDetailsService}.
  */
+@NullMarked
 package org.springframework.security.core.userdetails;
+
+import org.jspecify.annotations.NullMarked;

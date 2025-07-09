@@ -29,7 +29,7 @@ import java.util.Set;
  */
 public class SimpleMappableAttributesRetriever implements MappableAttributesRetriever {
 
-	private Set<String> mappableAttributes = null;
+	private Set<String> mappableAttributes = new HashSet<>();
 
 	@Override
 	public Set<String> getMappableAttributes() {

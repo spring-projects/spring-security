@@ -18,6 +18,8 @@ package org.springframework.security.scheduling;
 
 import java.util.concurrent.Callable;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.scheduling.SchedulingTaskExecutor;
 import org.springframework.security.concurrent.DelegatingSecurityContextCallable;
@@ -46,7 +48,7 @@ public class DelegatingSecurityContextSchedulingTaskExecutor extends DelegatingS
 	 * {@link DelegatingSecurityContextCallable}
 	 */
 	public DelegatingSecurityContextSchedulingTaskExecutor(SchedulingTaskExecutor delegateSchedulingTaskExecutor,
-			SecurityContext securityContext) {
+			@Nullable SecurityContext securityContext) {
 		super(delegateSchedulingTaskExecutor, securityContext);
 	}
 

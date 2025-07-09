@@ -34,8 +34,9 @@ import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.NonNull;
+
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
 /**
@@ -162,8 +163,7 @@ public final class RsaKeyConverters {
 		}
 
 		@Override
-		@NonNull
-		public RSAPublicKey convert(List<String> lines) {
+		public @NonNull RSAPublicKey convert(List<String> lines) {
 			StringBuilder base64Encoded = new StringBuilder();
 			for (String line : lines) {
 				if (isNotX509PemWrapper(line)) {
@@ -194,8 +194,7 @@ public final class RsaKeyConverters {
 		}
 
 		@Override
-		@NonNull
-		public RSAPublicKey convert(List<String> lines) {
+		public @NonNull RSAPublicKey convert(List<String> lines) {
 			StringBuilder base64Encoded = new StringBuilder();
 			for (String line : lines) {
 				if (isNotX509CertificateWrapper(line)) {

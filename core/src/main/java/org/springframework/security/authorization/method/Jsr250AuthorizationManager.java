@@ -28,8 +28,8 @@ import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
-import org.springframework.lang.NonNull;
 import org.springframework.security.authorization.AuthoritiesAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationResult;
@@ -83,7 +83,8 @@ public final class Jsr250AuthorizationManager implements AuthorizationManager<Me
 	 * {@inheritDoc}
 	 */
 	@Override
-	public AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocation methodInvocation) {
+	public @Nullable AuthorizationResult authorize(Supplier<Authentication> authentication,
+			MethodInvocation methodInvocation) {
 		AuthorizationManager<MethodInvocation> delegate = this.registry.getManager(methodInvocation);
 		return delegate.authorize(authentication, methodInvocation);
 	}
@@ -93,9 +94,8 @@ public final class Jsr250AuthorizationManager implements AuthorizationManager<Me
 		private final SecurityAnnotationScanner<?> scanner = SecurityAnnotationScanners
 			.requireUnique(List.of(DenyAll.class, PermitAll.class, RolesAllowed.class));
 
-		@NonNull
 		@Override
-		AuthorizationManager<MethodInvocation> resolveManager(Method method, Class<?> targetClass) {
+		AuthorizationManager<MethodInvocation> resolveManager(Method method, @Nullable Class<?> targetClass) {
 			Annotation annotation = findJsr250Annotation(method, targetClass);
 			if (annotation instanceof DenyAll) {
 				return SingleResultAuthorizationManager.denyAll();
@@ -104,14 +104,13 @@ public final class Jsr250AuthorizationManager implements AuthorizationManager<Me
 				return SingleResultAuthorizationManager.permitAll();
 			}
 			if (annotation instanceof RolesAllowed rolesAllowed) {
-				return (AuthorizationManagerCheckAdapter<MethodInvocation>) (a,
-						o) -> Jsr250AuthorizationManager.this.authoritiesAuthorizationManager.authorize(a,
-								getAllowedRolesWithPrefix(rolesAllowed));
+				return (a, o) -> Jsr250AuthorizationManager.this.authoritiesAuthorizationManager.authorize(a,
+						getAllowedRolesWithPrefix(rolesAllowed));
 			}
 			return NULL_MANAGER;
 		}
 
-		private Annotation findJsr250Annotation(Method method, Class<?> targetClass) {
+		private @Nullable Annotation findJsr250Annotation(Method method, @Nullable Class<?> targetClass) {
 			Class<?> targetClassToUse = (targetClass != null) ? targetClass : method.getDeclaringClass();
 			return this.scanner.scan(method, targetClassToUse);
 		}
@@ -123,13 +122,6 @@ public final class Jsr250AuthorizationManager implements AuthorizationManager<Me
 			}
 			return roles;
 		}
-
-	}
-
-	private interface AuthorizationManagerCheckAdapter<T> extends AuthorizationManager<T> {
-
-		@Override
-		AuthorizationResult authorize(Supplier<Authentication> authentication, T object);
 
 	}
 

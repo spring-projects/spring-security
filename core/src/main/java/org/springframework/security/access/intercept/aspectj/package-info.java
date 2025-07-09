@@ -18,4 +18,7 @@
  * Enforces security for AspectJ <code>JointPoint</code>s, delegating secure object
  * callbacks to the calling aspect.
  */
+@NullMarked
 package org.springframework.security.access.intercept.aspectj;
+
+import org.jspecify.annotations.NullMarked;

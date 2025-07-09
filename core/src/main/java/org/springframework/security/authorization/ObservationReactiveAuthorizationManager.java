@@ -21,6 +21,7 @@ import io.micrometer.observation.ObservationConvention;
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.observation.contextpropagation.ObservationThreadLocalAccessor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.access.AccessDeniedException;
@@ -92,12 +93,13 @@ public final class ObservationReactiveAuthorizationManager<T>
 	}
 
 	@Override
-	public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
+	public @Nullable Object handleDeniedInvocation(MethodInvocation methodInvocation,
+			AuthorizationResult authorizationResult) {
 		return this.handler.handleDeniedInvocation(methodInvocation, authorizationResult);
 	}
 
 	@Override
-	public Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
+	public @Nullable Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
 			AuthorizationResult authorizationResult) {
 		return this.handler.handleDeniedInvocationResult(methodInvocationResult, authorizationResult);
 	}

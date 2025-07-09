@@ -18,4 +18,7 @@
  * Provides {@code SecurityMetadataSource} implementations for securing Java method
  * invocations via different AOP libraries.
  */
+@NullMarked
 package org.springframework.security.access.method;
+
+import org.jspecify.annotations.NullMarked;

@@ -16,6 +16,8 @@
 
 package org.springframework.security.authorization;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A factory for wrapping arbitrary objects in authorization-related advice
  *
@@ -37,6 +39,6 @@ public interface AuthorizationProxyFactory {
 	 * @throws org.springframework.aop.framework.AopConfigException if a proxy cannot be
 	 * created
 	 */
-	<T> T proxy(T object);
+	<T> @Nullable T proxy(@Nullable T object);
 
 }

@@ -87,6 +87,7 @@ import org.springframework.util.Assert;
  */
 public class DefaultJaasAuthenticationProvider extends AbstractJaasAuthenticationProvider {
 
+	@SuppressWarnings("NullAway.Init")
 	private Configuration configuration;
 
 	@Override

@@ -16,6 +16,7 @@
 
 package org.springframework.security.authorization.method;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.expression.EvaluationContext;
@@ -49,7 +50,7 @@ final class ReactiveExpressionUtils {
 		});
 	}
 
-	private static Mono<AuthorizationResult> adapt(Expression expr, Object value) {
+	private static Mono<AuthorizationResult> adapt(Expression expr, @Nullable Object value) {
 		if (value instanceof Boolean granted) {
 			return Mono.just(new ExpressionAuthorizationDecision(granted, expr));
 		}

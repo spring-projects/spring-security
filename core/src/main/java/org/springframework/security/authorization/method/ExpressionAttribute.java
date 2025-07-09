@@ -26,11 +26,6 @@ import org.springframework.expression.Expression;
  */
 class ExpressionAttribute {
 
-	/**
-	 * Represents an empty attribute with null {@link Expression}.
-	 */
-	static final ExpressionAttribute NULL_ATTRIBUTE = new ExpressionAttribute(null);
-
 	private final Expression expression;
 
 	/**

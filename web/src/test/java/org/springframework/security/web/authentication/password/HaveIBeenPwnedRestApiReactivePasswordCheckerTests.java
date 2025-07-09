@@ -102,4 +102,11 @@ class HaveIBeenPwnedRestApiReactivePasswordCheckerTests {
 			.verifyComplete();
 	}
 
+	@Test
+	void checkWhenNullThenNotCompromised() {
+		StepVerifier.create(this.passwordChecker.check(null))
+			.assertNext((check) -> assertThat(check.isCompromised()).isFalse())
+			.verifyComplete();
+	}
+
 }

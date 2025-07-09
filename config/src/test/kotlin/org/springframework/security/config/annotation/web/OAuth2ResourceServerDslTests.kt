@@ -242,7 +242,7 @@ class OAuth2ResourceServerDslTests {
 
     class MockAuthenticationManager(var authentication: Authentication) : AuthenticationManager {
 
-        override fun authenticate(authentication: Authentication?): Authentication {
+        override fun authenticate(authentication: Authentication): Authentication {
             return this.authentication
         }
 

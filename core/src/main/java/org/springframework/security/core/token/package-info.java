@@ -17,4 +17,7 @@
 /**
  * A service for building secure random tokens.
  */
+@NullMarked
 package org.springframework.security.core.token;
+
+import org.jspecify.annotations.NullMarked;

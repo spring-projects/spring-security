@@ -22,8 +22,10 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.SpringVersion;
+import org.springframework.util.Assert;
 
 /**
  * Internal class used for checking version compatibility in a deployed application.
@@ -42,7 +44,7 @@ public final class SpringSecurityCoreVersion {
 	 */
 	public static final long SERIAL_VERSION_UID = 620L;
 
-	static final String MIN_SPRING_VERSION = getSpringVersion();
+	static final @Nullable String MIN_SPRING_VERSION = getSpringVersion();
 
 	static {
 		performVersionChecks();
@@ -59,7 +61,7 @@ public final class SpringSecurityCoreVersion {
 	 * Perform version checks with specific min Spring Version
 	 * @param minSpringVersion
 	 */
-	private static void performVersionChecks(String minSpringVersion) {
+	private static void performVersionChecks(@Nullable String minSpringVersion) {
 		if (minSpringVersion == null) {
 			return;
 		}
@@ -69,6 +71,8 @@ public final class SpringSecurityCoreVersion {
 		if (disableChecks(springVersion, version)) {
 			return;
 		}
+		// should be disabled if springVersion is null
+		Assert.notNull(springVersion, "springVersion cannot be null");
 		logger.info("You are running with Spring Security Core " + version);
 		if (new ComparableVersion(springVersion).compareTo(new ComparableVersion(minSpringVersion)) < 0) {
 			logger.warn("**** You are advised to use Spring " + minSpringVersion
@@ -76,7 +80,7 @@ public final class SpringSecurityCoreVersion {
 		}
 	}
 
-	public static String getVersion() {
+	public static @Nullable String getVersion() {
 		Package pkg = SpringSecurityCoreVersion.class.getPackage();
 		return (pkg != null) ? pkg.getImplementationVersion() : null;
 	}
@@ -88,7 +92,7 @@ public final class SpringSecurityCoreVersion {
 	 * @param springSecurityVersion
 	 * @return
 	 */
-	private static boolean disableChecks(String springVersion, String springSecurityVersion) {
+	private static boolean disableChecks(@Nullable String springVersion, @Nullable String springSecurityVersion) {
 		if (springVersion == null || springVersion.equals(springSecurityVersion)) {
 			return true;
 		}
@@ -99,7 +103,7 @@ public final class SpringSecurityCoreVersion {
 	 * Loads the spring version or null if it cannot be found.
 	 * @return
 	 */
-	private static String getSpringVersion() {
+	private static @Nullable String getSpringVersion() {
 		Properties properties = new Properties();
 		try (InputStream is = SpringSecurityCoreVersion.class.getClassLoader()
 			.getResourceAsStream("META-INF/spring-security.versions")) {

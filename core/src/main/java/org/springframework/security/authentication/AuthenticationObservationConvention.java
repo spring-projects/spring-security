@@ -21,9 +21,7 @@ import java.util.Locale;
 import io.micrometer.common.KeyValues;
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationConvention;
-import org.jetbrains.annotations.NotNull;
-
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * An {@link ObservationConvention} for translating authentications into
@@ -63,9 +61,8 @@ public final class AuthenticationObservationConvention
 	/**
 	 * {@inheritDoc}
 	 */
-	@NotNull
 	@Override
-	public KeyValues getLowCardinalityKeyValues(@NonNull AuthenticationObservationContext context) {
+	public @NonNull KeyValues getLowCardinalityKeyValues(@NonNull AuthenticationObservationContext context) {
 		return KeyValues.of("authentication.request.type", getAuthenticationType(context))
 			.and("authentication.method", getAuthenticationMethod(context))
 			.and("authentication.result.type", getAuthenticationResult(context))
@@ -104,7 +101,7 @@ public final class AuthenticationObservationConvention
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean supportsContext(@NotNull Observation.Context context) {
+	public boolean supportsContext(Observation.Context context) {
 		return context instanceof AuthenticationObservationContext;
 	}
 

@@ -26,6 +26,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.aop.Pointcut;
 import org.springframework.core.log.LogMessage;
@@ -192,7 +193,7 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 	 * @throws AccessDeniedException if access is not granted
 	 */
 	@Override
-	public Object invoke(MethodInvocation mi) throws Throwable {
+	public @Nullable Object invoke(MethodInvocation mi) throws Throwable {
 		return attemptAuthorization(mi);
 	}
 
@@ -244,7 +245,7 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 		this.securityContextHolderStrategy = () -> securityContextHolderStrategy;
 	}
 
-	private Object attemptAuthorization(MethodInvocation mi) throws Throwable {
+	private @Nullable Object attemptAuthorization(MethodInvocation mi) throws Throwable {
 		this.logger.debug(LogMessage.of(() -> "Authorizing method invocation " + mi));
 		AuthorizationResult result;
 		try {
@@ -253,7 +254,9 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 		catch (AuthorizationDeniedException denied) {
 			return handle(mi, denied);
 		}
-		this.eventPublisher.publishAuthorizationEvent(this::getAuthentication, mi, result);
+		if (result != null) {
+			this.eventPublisher.publishAuthorizationEvent(this::getAuthentication, mi, result);
+		}
 		if (result != null && !result.isGranted()) {
 			this.logger.debug(LogMessage.of(() -> "Failed to authorize " + mi + " with authorization manager "
 					+ this.authorizationManager + " and result " + result));
@@ -263,7 +266,7 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 		return proceed(mi);
 	}
 
-	private Object proceed(MethodInvocation mi) throws Throwable {
+	private @Nullable Object proceed(MethodInvocation mi) throws Throwable {
 		try {
 			return mi.proceed();
 		}
@@ -275,14 +278,14 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 		}
 	}
 
-	private Object handle(MethodInvocation mi, AuthorizationDeniedException denied) {
+	private @Nullable Object handle(MethodInvocation mi, AuthorizationDeniedException denied) {
 		if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler handler) {
 			return handler.handleDeniedInvocation(mi, denied);
 		}
 		return this.defaultHandler.handleDeniedInvocation(mi, denied);
 	}
 
-	private Object handle(MethodInvocation mi, AuthorizationResult result) {
+	private @Nullable Object handle(MethodInvocation mi, AuthorizationResult result) {
 		if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler handler) {
 			return handler.handleDeniedInvocation(mi, result);
 		}

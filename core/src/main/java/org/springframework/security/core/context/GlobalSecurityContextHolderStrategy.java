@@ -16,6 +16,8 @@
 
 package org.springframework.security.core.context;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -29,7 +31,7 @@ import org.springframework.util.Assert;
  */
 final class GlobalSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
 
-	private static SecurityContext contextHolder;
+	private static @Nullable SecurityContext contextHolder;
 
 	@Override
 	public void clearContext() {

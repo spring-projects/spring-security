@@ -18,6 +18,8 @@ package org.springframework.security.concurrent;
 
 import java.util.concurrent.Callable;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -55,7 +57,7 @@ public final class DelegatingSecurityContextCallable<V> implements Callable<V> {
 	 * The {@link SecurityContext} that was on the {@link SecurityContextHolder} prior to
 	 * being set to the delegateSecurityContext.
 	 */
-	private SecurityContext originalSecurityContext;
+	private @Nullable SecurityContext originalSecurityContext;
 
 	/**
 	 * Creates a new {@link DelegatingSecurityContextCallable} with a specific
@@ -142,7 +144,7 @@ public final class DelegatingSecurityContextCallable<V> implements Callable<V> {
 				: new DelegatingSecurityContextCallable<>(delegate);
 	}
 
-	static <V> Callable<V> create(Callable<V> delegate, SecurityContext securityContext,
+	static <V> Callable<V> create(Callable<V> delegate, @Nullable SecurityContext securityContext,
 			SecurityContextHolderStrategy securityContextHolderStrategy) {
 		Assert.notNull(delegate, "delegate cannot be null");
 		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");

@@ -22,6 +22,8 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEvent;
@@ -114,6 +116,7 @@ import org.springframework.util.CollectionUtils;
  * {@link org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor}
  * for method security.
  */
+@NullUnmarked
 @Deprecated
 public abstract class AbstractSecurityInterceptor
 		implements InitializingBean, ApplicationEventPublisherAware, MessageSourceAware {
@@ -125,11 +128,11 @@ public abstract class AbstractSecurityInterceptor
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
-	private ApplicationEventPublisher eventPublisher;
+	private @Nullable ApplicationEventPublisher eventPublisher;
 
-	private AccessDecisionManager accessDecisionManager;
+	private @Nullable AccessDecisionManager accessDecisionManager;
 
-	private AfterInvocationManager afterInvocationManager;
+	private @Nullable AfterInvocationManager afterInvocationManager;
 
 	private AuthenticationManager authenticationManager = new NoOpAuthenticationManager();
 
@@ -190,7 +193,7 @@ public abstract class AbstractSecurityInterceptor
 		}
 	}
 
-	protected InterceptorStatusToken beforeInvocation(Object object) {
+	protected @Nullable InterceptorStatusToken beforeInvocation(Object object) {
 		Assert.notNull(object, "Object was null");
 		if (!getSecureObjectClass().isAssignableFrom(object.getClass())) {
 			throw new IllegalArgumentException("Security invocation attempted for object " + object.getClass().getName()
@@ -291,7 +294,7 @@ public abstract class AbstractSecurityInterceptor
 	 * @return the object the secure object invocation should ultimately return to its
 	 * caller (may be <tt>null</tt>)
 	 */
-	protected Object afterInvocation(InterceptorStatusToken token, Object returnedObject) {
+	protected Object afterInvocation(InterceptorStatusToken token, @Nullable Object returnedObject) {
 		if (token == null) {
 			// public object
 			return returnedObject;

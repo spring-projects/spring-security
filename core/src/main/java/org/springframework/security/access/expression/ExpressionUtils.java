@@ -27,7 +27,12 @@ public final class ExpressionUtils {
 
 	public static boolean evaluateAsBoolean(Expression expr, EvaluationContext ctx) {
 		try {
-			return expr.getValue(ctx, Boolean.class);
+			Boolean result = expr.getValue(ctx, Boolean.class);
+			if (result == null) {
+				throw new IllegalArgumentException(
+						"Expression was null but expected boolean result '" + expr.getExpressionString() + "'");
+			}
+			return result;
 		}
 		catch (EvaluationException ex) {
 			throw new IllegalArgumentException("Failed to evaluate expression '" + expr.getExpressionString() + "'",

@@ -46,6 +46,7 @@ public final class ObservationAuthenticationManager implements AuthenticationMan
 	}
 
 	@Override
+	@SuppressWarnings("NullAway") // Dataflow analysis limitation
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		AuthenticationObservationContext context = new AuthenticationObservationContext();
 		context.setAuthenticationRequest(authentication);

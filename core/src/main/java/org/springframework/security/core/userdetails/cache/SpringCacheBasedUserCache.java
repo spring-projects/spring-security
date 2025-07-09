@@ -18,6 +18,7 @@ package org.springframework.security.core.userdetails.cache;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.cache.Cache;
 import org.springframework.core.log.LogMessage;
@@ -43,7 +44,7 @@ public class SpringCacheBasedUserCache implements UserCache {
 	}
 
 	@Override
-	public UserDetails getUserFromCache(String username) {
+	public @Nullable UserDetails getUserFromCache(String username) {
 		Cache.ValueWrapper element = (username != null) ? this.cache.get(username) : null;
 		logger.debug(LogMessage.of(() -> "Cache hit: " + (element != null) + "; username: " + username));
 		return (element != null) ? (UserDetails) element.get() : null;

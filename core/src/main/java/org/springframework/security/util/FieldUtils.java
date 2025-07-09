@@ -18,6 +18,8 @@ package org.springframework.security.util;
 
 import java.lang.reflect.Field;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
@@ -78,7 +80,7 @@ public final class FieldUtils {
 
 	}
 
-	public static Object getProtectedFieldValue(String protectedField, Object object) {
+	public static @Nullable Object getProtectedFieldValue(String protectedField, Object object) {
 		Field field = FieldUtils.getField(object.getClass(), protectedField);
 		try {
 			field.setAccessible(true);

@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * <p>
  * Generic implementation of version comparison.
@@ -72,7 +74,8 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 
 	private String value;
 
-	private String canonical;
+	@SuppressWarnings("NullAway.Init")
+	private @Nullable String canonical;
 
 	private ListItem items;
 
@@ -88,7 +91,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 
 		int LIST_ITEM = 2;
 
-		int compareTo(Item item);
+		int compareTo(@Nullable Item item);
 
 		int getType();
 
@@ -125,7 +128,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		}
 
 		@Override
-		public int compareTo(Item item) {
+		public int compareTo(@Nullable Item item) {
 			if (item == null) {
 				return (value == 0) ? 0 : 1; // 1.0 == 1, 1.1 > 1
 			}
@@ -189,7 +192,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		}
 
 		@Override
-		public int compareTo(Item item) {
+		public int compareTo(@Nullable Item item) {
 			if (item == null) {
 				return (value == 0) ? 0 : 1; // 1.0 == 1, 1.1 > 1
 			}
@@ -253,7 +256,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		}
 
 		@Override
-		public int compareTo(Item item) {
+		public int compareTo(@Nullable Item item) {
 			if (item == null) {
 				return BigInteger.ZERO.equals(value) ? 0 : 1; // 1.0 == 1, 1.1 > 1
 			}
@@ -361,7 +364,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		}
 
 		@Override
-		public int compareTo(Item item) {
+		public int compareTo(@Nullable Item item) {
 			if (item == null) {
 				// 1-rc < 1, 1-ga > 1
 				return comparableQualifier(value).compareTo(RELEASE_VERSION_INDEX);
@@ -433,7 +436,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		}
 
 		@Override
-		public int compareTo(Item item) {
+		public int compareTo(@Nullable Item item) {
 			if (item == null) {
 				if (isEmpty()) {
 					return 0; // 1-0 = 1- (normalize) = 1

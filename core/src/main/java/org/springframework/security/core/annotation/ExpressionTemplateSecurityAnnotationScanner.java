@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.GenericConverter;
@@ -89,7 +91,7 @@ final class ExpressionTemplateSecurityAnnotationScanner<A extends Annotation>
 	}
 
 	@Override
-	MergedAnnotation<A> merge(AnnotatedElement element, Class<?> targetClass) {
+	@Nullable MergedAnnotation<A> merge(AnnotatedElement element, @Nullable Class<?> targetClass) {
 		if (element instanceof Parameter parameter) {
 			MergedAnnotation<A> annotation = this.unique.merge(parameter, targetClass);
 			if (annotation == null) {
@@ -154,7 +156,7 @@ final class ExpressionTemplateSecurityAnnotationScanner<A extends Annotation>
 		}
 
 		@Override
-		public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+		public @Nullable Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
 			return (source != null) ? source.toString() : null;
 		}
 

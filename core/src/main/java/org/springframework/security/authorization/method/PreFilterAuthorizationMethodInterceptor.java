@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.aop.Pointcut;
 import org.springframework.expression.EvaluationContext;
@@ -126,9 +127,9 @@ public final class PreFilterAuthorizationMethodInterceptor implements Authorizat
 	 * @param mi the {@link MethodInvocation} to check
 	 */
 	@Override
-	public Object invoke(MethodInvocation mi) throws Throwable {
+	public @Nullable Object invoke(MethodInvocation mi) throws Throwable {
 		PreFilterExpressionAttributeRegistry.PreFilterExpressionAttribute attribute = this.registry.getAttribute(mi);
-		if (attribute == PreFilterExpressionAttributeRegistry.PreFilterExpressionAttribute.NULL_ATTRIBUTE) {
+		if (attribute == null) {
 			return mi.proceed();
 		}
 		MethodSecurityExpressionHandler expressionHandler = this.registry.getExpressionHandler();

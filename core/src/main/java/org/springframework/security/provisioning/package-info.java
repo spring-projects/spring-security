@@ -18,4 +18,7 @@
  * Contains simple user and authority group account provisioning interfaces together with
  * a a JDBC-based implementation.
  */
+@NullMarked
 package org.springframework.security.provisioning;
+
+import org.jspecify.annotations.NullMarked;

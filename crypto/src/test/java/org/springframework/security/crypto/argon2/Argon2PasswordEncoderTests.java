@@ -19,6 +19,7 @@ package org.springframework.security.crypto.argon2;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -26,6 +27,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
+import org.springframework.security.crypto.password.AbstractPasswordEncoderValidationTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -34,56 +36,59 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Simeon Macke
  */
 @ExtendWith(MockitoExtension.class)
-public class Argon2PasswordEncoderTests {
+public class Argon2PasswordEncoderTests extends AbstractPasswordEncoderValidationTests {
 
 	@Mock
 	private BytesKeyGenerator keyGeneratorMock;
 
-	private Argon2PasswordEncoder encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_2();
+	@BeforeEach
+	void setup() {
+		setEncoder(Argon2PasswordEncoder.defaultsForSpringSecurity_v5_2());
+	}
 
 	@Test
-	public void encodeDoesNotEqualPassword() {
-		String result = this.encoder.encode("password");
+	public void encodedNonNullPasswordDoesNotEqualPassword() {
+		String result = getEncoder().encode("password");
 		assertThat(result).isNotEqualTo("password");
 	}
 
 	@Test
-	public void encodeWhenEqualPasswordThenMatches() {
-		String result = this.encoder.encode("password");
-		assertThat(this.encoder.matches("password", result)).isTrue();
+	public void encodedNonNullPasswordWhenEqualPasswordThenMatches() {
+		String result = getEncoder().encode("password");
+		assertThat(getEncoder().matches("password", result)).isTrue();
 	}
 
 	@Test
-	public void encodeWhenEqualWithUnicodeThenMatches() {
-		String result = this.encoder.encode("passw\u9292rd");
-		assertThat(this.encoder.matches("pass\u9292\u9292rd", result)).isFalse();
-		assertThat(this.encoder.matches("passw\u9292rd", result)).isTrue();
+	public void encodedNonNullPasswordWhenEqualWithUnicodeThenMatches() {
+		String result = getEncoder().encode("passw\u9292rd");
+		assertThat(getEncoder().matches("pass\u9292\u9292rd", result)).isFalse();
+		assertThat(getEncoder().matches("passw\u9292rd", result)).isTrue();
 	}
 
 	@Test
-	public void encodeWhenNotEqualThenNotMatches() {
-		String result = this.encoder.encode("password");
-		assertThat(this.encoder.matches("bogus", result)).isFalse();
+	public void encodedNonNullPasswordWhenNotEqualThenNotMatches() {
+		String result = getEncoder().encode("password");
+		assertThat(getEncoder().matches("bogus", result)).isFalse();
 	}
 
 	@Test
-	public void encodeWhenEqualPasswordWithCustomParamsThenMatches() {
-		this.encoder = new Argon2PasswordEncoder(20, 64, 4, 256, 4);
-		String result = this.encoder.encode("password");
-		assertThat(this.encoder.matches("password", result)).isTrue();
+	public void encodedNonNullPasswordWhenEqualPasswordWithCustomParamsThenMatches() {
+		setEncoder(new Argon2PasswordEncoder(20, 64, 4, 256, 4));
+		String result = getEncoder().encode("password");
+		assertThat(getEncoder().matches("password", result)).isTrue();
 	}
 
 	@Test
-	public void encodeWhenRanTwiceThenResultsNotEqual() {
+	public void encodedNonNullPasswordWhenRanTwiceThenResultsNotEqual() {
 		String password = "secret";
-		assertThat(this.encoder.encode(password)).isNotEqualTo(this.encoder.encode(password));
+		assertThat(getEncoder().encode(password)).isNotEqualTo(getEncoder().encode(password));
 	}
 
 	@Test
-	public void encodeWhenRanTwiceWithCustomParamsThenNotEquals() {
-		this.encoder = new Argon2PasswordEncoder(20, 64, 4, 256, 4);
+	public void encodedNonNullPasswordWhenRanTwiceWithCustomParamsThenNotEquals() {
+		setEncoder(new Argon2PasswordEncoder(20, 64, 4, 256, 4));
 		String password = "secret";
-		assertThat(this.encoder.encode(password)).isNotEqualTo(this.encoder.encode(password));
+		assertThat(getEncoder().encode(password)).isNotEqualTo(getEncoder().encode(password));
 	}
 
 	@Test
@@ -97,55 +102,56 @@ public class Argon2PasswordEncoderTests {
 
 	@Test
 	public void matchesWhenEncodedPassIsNullThenFalse() {
-		assertThat(this.encoder.matches("password", null)).isFalse();
+		assertThat(getEncoder().matches("password", null)).isFalse();
 	}
 
 	@Test
 	public void matchesWhenEncodedPassIsEmptyThenFalse() {
-		assertThat(this.encoder.matches("password", "")).isFalse();
+		assertThat(getEncoder().matches("password", "")).isFalse();
 	}
 
 	@Test
 	public void matchesWhenEncodedPassIsBogusThenFalse() {
-		assertThat(this.encoder.matches("password", "012345678901234567890123456789")).isFalse();
+		assertThat(getEncoder().matches("password", "012345678901234567890123456789")).isFalse();
 	}
 
 	@Test
-	public void encodeWhenUsingPredictableSaltThenEqualTestHash() throws Exception {
+	public void encodedNonNullPasswordWhenUsingPredictableSaltThenEqualTestHash() throws Exception {
 		injectPredictableSaltGen();
-		String hash = this.encoder.encode("sometestpassword");
+		String hash = getEncoder().encode("sometestpassword");
 		assertThat(hash).isEqualTo(
 				"$argon2id$v=19$m=4096,t=3,p=1$QUFBQUFBQUFBQUFBQUFBQQ$hmmTNyJlwbb6HAvFoHFWF+u03fdb0F2qA+39oPlcAqo");
 	}
 
 	@Test
-	public void encodeWhenUsingPredictableSaltWithCustomParamsThenEqualTestHash() throws Exception {
-		this.encoder = new Argon2PasswordEncoder(16, 32, 4, 512, 5);
+	public void encodedNonNullPasswordWhenUsingPredictableSaltWithCustomParamsThenEqualTestHash() throws Exception {
+		setEncoder(new Argon2PasswordEncoder(16, 32, 4, 512, 5));
 		injectPredictableSaltGen();
-		String hash = this.encoder.encode("sometestpassword");
+		String hash = getEncoder().encode("sometestpassword");
 		assertThat(hash).isEqualTo(
 				"$argon2id$v=19$m=512,t=5,p=4$QUFBQUFBQUFBQUFBQUFBQQ$PNv4C3K50bz3rmON+LtFpdisD7ePieLNq+l5iUHgc1k");
 	}
 
 	@Test
-	public void encodeWhenUsingPredictableSaltWithDefaultsForSpringSecurity_v5_8ThenEqualTestHash() throws Exception {
-		this.encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
+	public void encodedNonNullPasswordWhenUsingPredictableSaltWithDefaultsForSpringSecurity_v5_8ThenEqualTestHash()
+			throws Exception {
+		setEncoder(Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8());
 		injectPredictableSaltGen();
-		String hash = this.encoder.encode("sometestpassword");
+		String hash = getEncoder().encode("sometestpassword");
 		assertThat(hash).isEqualTo(
 				"$argon2id$v=19$m=16384,t=2,p=1$QUFBQUFBQUFBQUFBQUFBQQ$zGt5MiNPSUOo4/7jBcJMayCPfcsLJ4c0WUxhwGDIYPw");
 	}
 
 	@Test
 	public void upgradeEncodingWhenSameEncodingThenFalse() {
-		String hash = this.encoder.encode("password");
-		assertThat(this.encoder.upgradeEncoding(hash)).isFalse();
+		String hash = getEncoder().encode("password");
+		assertThat(getEncoder().upgradeEncoding(hash)).isFalse();
 	}
 
 	@Test
 	public void upgradeEncodingWhenSameStandardParamsThenFalse() {
 		Argon2PasswordEncoder newEncoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_2();
-		String hash = this.encoder.encode("password");
+		String hash = getEncoder().encode("password");
 		assertThat(newEncoder.upgradeEncoding(hash)).isFalse();
 	}
 
@@ -183,17 +189,17 @@ public class Argon2PasswordEncoderTests {
 
 	@Test
 	public void upgradeEncodingWhenEncodedPassIsNullThenFalse() {
-		assertThat(this.encoder.upgradeEncoding(null)).isFalse();
+		assertThat(getEncoder().upgradeEncoding(null)).isFalse();
 	}
 
 	@Test
 	public void upgradeEncodingWhenEncodedPassIsEmptyThenFalse() {
-		assertThat(this.encoder.upgradeEncoding("")).isFalse();
+		assertThat(getEncoder().upgradeEncoding("")).isFalse();
 	}
 
 	@Test
 	public void upgradeEncodingWhenEncodedPassIsBogusThenThrowException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.encoder.upgradeEncoding("thisIsNoValidHash"));
+		assertThatIllegalArgumentException().isThrownBy(() -> getEncoder().upgradeEncoding("thisIsNoValidHash"));
 	}
 
 	private void injectPredictableSaltGen() throws Exception {
@@ -203,9 +209,9 @@ public class Argon2PasswordEncoderTests {
 		// we can't use the @InjectMock-annotation because the salt-generator is set in
 		// the constructor
 		// and Mockito will only inject mocks if they are null
-		Field saltGen = this.encoder.getClass().getDeclaredField("saltGenerator");
+		Field saltGen = getEncoder().getClass().getDeclaredField("saltGenerator");
 		saltGen.setAccessible(true);
-		saltGen.set(this.encoder, this.keyGeneratorMock);
+		saltGen.set(getEncoder(), this.keyGeneratorMock);
 		saltGen.setAccessible(false);
 	}
 

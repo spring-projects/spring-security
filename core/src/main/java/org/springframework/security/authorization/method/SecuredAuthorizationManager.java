@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.MethodClassKey;
 import org.springframework.security.access.annotation.Secured;
@@ -67,7 +68,7 @@ public final class SecuredAuthorizationManager implements AuthorizationManager<M
 	}
 
 	@Override
-	public AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocation mi) {
+	public @Nullable AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocation mi) {
 		Set<String> authorities = getAuthorities(mi);
 		return authorities.isEmpty() ? null
 				: this.authoritiesAuthorizationManager.authorize(authentication, authorities);
@@ -81,12 +82,12 @@ public final class SecuredAuthorizationManager implements AuthorizationManager<M
 		return this.cachedAuthorities.computeIfAbsent(cacheKey, (k) -> resolveAuthorities(method, targetClass));
 	}
 
-	private Set<String> resolveAuthorities(Method method, Class<?> targetClass) {
+	private Set<String> resolveAuthorities(Method method, @Nullable Class<?> targetClass) {
 		Secured secured = findSecuredAnnotation(method, targetClass);
 		return (secured != null) ? Set.of(secured.value()) : Collections.emptySet();
 	}
 
-	private Secured findSecuredAnnotation(Method method, Class<?> targetClass) {
+	private @Nullable Secured findSecuredAnnotation(Method method, @Nullable Class<?> targetClass) {
 		Class<?> targetClassToUse = (targetClass != null) ? targetClass : method.getDeclaringClass();
 		return this.scanner.scan(method, targetClassToUse);
 	}

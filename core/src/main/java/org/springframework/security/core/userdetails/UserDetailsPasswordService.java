@@ -16,6 +16,8 @@
 
 package org.springframework.security.core.userdetails;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * An API for changing a {@link UserDetails} password.
  *
@@ -23,6 +25,8 @@ package org.springframework.security.core.userdetails;
  * @since 5.1
  */
 public interface UserDetailsPasswordService {
+
+	UserDetailsPasswordService NOOP = (user, newPassword) -> user;
 
 	/**
 	 * Modify the specified user's password. This should change the user's password in the
@@ -32,6 +36,6 @@ public interface UserDetailsPasswordService {
 	 * {@code PasswordEncoder}
 	 * @return the updated UserDetails with the new password
 	 */
-	UserDetails updatePassword(UserDetails user, String newPassword);
+	UserDetails updatePassword(UserDetails user, @Nullable String newPassword);
 
 }

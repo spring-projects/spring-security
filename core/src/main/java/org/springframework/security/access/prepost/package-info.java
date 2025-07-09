@@ -21,4 +21,7 @@
  * Other than the annotations themselves, the classes should be regarded as for internal
  * framework use and are liable to change without notice.
  */
+@NullMarked
 package org.springframework.security.access.prepost;
+
+import org.jspecify.annotations.NullMarked;

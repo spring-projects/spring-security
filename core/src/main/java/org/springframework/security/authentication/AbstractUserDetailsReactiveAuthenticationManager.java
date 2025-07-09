@@ -18,6 +18,7 @@ package org.springframework.security.authentication;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -60,7 +61,7 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager
 
 	private PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
-	private ReactiveUserDetailsPasswordService userDetailsPasswordService;
+	private ReactiveUserDetailsPasswordService userDetailsPasswordService = ReactiveUserDetailsPasswordService.NOOP;
 
 	private Scheduler scheduler = Schedulers.boundedElastic();
 
@@ -68,7 +69,7 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager
 
 	private UserDetailsChecker postAuthenticationChecks = this::defaultPostAuthenticationChecks;
 
-	private ReactiveCompromisedPasswordChecker compromisedPasswordChecker;
+	private @Nullable ReactiveCompromisedPasswordChecker compromisedPasswordChecker;
 
 	private void defaultPreAuthenticationChecks(UserDetails user) {
 		if (!user.isAccountNonLocked()) {
@@ -99,7 +100,8 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager
 	@Override
 	public Mono<Authentication> authenticate(Authentication authentication) {
 		String username = authentication.getName();
-		String presentedPassword = (String) authentication.getCredentials();
+		String presentedPassword = (authentication.getCredentials() != null)
+				? authentication.getCredentials().toString() : null;
 		// @formatter:off
 		return retrieveUser(username)
 				.doOnNext(this.preAuthenticationChecks::check)
@@ -113,7 +115,7 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager
 		// @formatter:on
 	}
 
-	private Mono<Void> checkCompromisedPassword(String password) {
+	private Mono<Void> checkCompromisedPassword(@Nullable String password) {
 		if (this.compromisedPasswordChecker == null) {
 			return Mono.empty();
 		}
@@ -123,9 +125,10 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager
 					"The provided password is compromised, please change your password")));
 	}
 
-	private Mono<UserDetails> upgradeEncodingIfNecessary(UserDetails userDetails, String presentedPassword) {
-		boolean upgradeEncoding = this.userDetailsPasswordService != null
-				&& this.passwordEncoder.upgradeEncoding(userDetails.getPassword());
+	private Mono<UserDetails> upgradeEncodingIfNecessary(UserDetails userDetails, @Nullable String presentedPassword) {
+		String existingEncodedPassword = userDetails.getPassword();
+		boolean upgradeEncoding = existingEncodedPassword != null
+				&& this.passwordEncoder.upgradeEncoding(existingEncodedPassword);
 		if (upgradeEncoding) {
 			String newPassword = this.passwordEncoder.encode(presentedPassword);
 			return this.userDetailsPasswordService.updatePassword(userDetails, newPassword);
@@ -170,6 +173,7 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager
 	 * @param userDetailsPasswordService the service to use
 	 */
 	public void setUserDetailsPasswordService(ReactiveUserDetailsPasswordService userDetailsPasswordService) {
+		Assert.notNull(userDetailsPasswordService, "userDetailsPasswordService cannot be null");
 		this.userDetailsPasswordService = userDetailsPasswordService;
 	}
 

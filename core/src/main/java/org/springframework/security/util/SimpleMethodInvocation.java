@@ -20,6 +20,9 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
+
+import org.springframework.util.Assert;
 
 /**
  * Represents the AOP Alliance <code>MethodInvocation</code>.
@@ -28,19 +31,22 @@ import org.aopalliance.intercept.MethodInvocation;
  */
 public class SimpleMethodInvocation implements MethodInvocation {
 
-	private Method method;
+	private @Nullable Method method;
 
 	private Object[] arguments;
 
-	private Object targetObject;
+	private @Nullable Object targetObject;
 
-	public SimpleMethodInvocation(Object targetObject, Method method, Object... arguments) {
+	// @formatter:off See https://github.com/spring-io/spring-javaformat/issues/
+	public SimpleMethodInvocation(@Nullable Object targetObject, Method method, Object @Nullable... arguments) {
 		this.targetObject = targetObject;
 		this.method = method;
 		this.arguments = (arguments != null) ? arguments : new Object[0];
 	}
+	// @formatter:on
 
 	public SimpleMethodInvocation() {
+		this.arguments = new Object[0];
 	}
 
 	@Override
@@ -50,6 +56,7 @@ public class SimpleMethodInvocation implements MethodInvocation {
 
 	@Override
 	public Method getMethod() {
+		Assert.state(this.method != null, "method cannot be null");
 		return this.method;
 	}
 
@@ -59,7 +66,7 @@ public class SimpleMethodInvocation implements MethodInvocation {
 	}
 
 	@Override
-	public Object getThis() {
+	public @Nullable Object getThis() {
 		return this.targetObject;
 	}
 

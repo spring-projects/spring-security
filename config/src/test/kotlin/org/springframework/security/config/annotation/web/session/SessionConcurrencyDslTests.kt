@@ -217,7 +217,7 @@ class SessionConcurrencyDslTests {
                 sessionManagement {
                     sessionConcurrency {
                         maximumSessions {
-                            authentication -> if (isAdmin.authorize({ authentication }, null)!!.isGranted) -1 else 1
+                            authentication -> if (isAdmin.authorize({ authentication }, "")!!.isGranted) -1 else 1
                         }
                         maxSessionsPreventsLogin = true
                     }

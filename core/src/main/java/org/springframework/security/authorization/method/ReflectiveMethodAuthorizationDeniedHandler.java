@@ -19,6 +19,7 @@ package org.springframework.security.authorization.method;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authorization.AuthorizationResult;
 
@@ -39,13 +40,14 @@ final class ReflectiveMethodAuthorizationDeniedHandler implements MethodAuthoriz
 	}
 
 	@Override
-	public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
+	public @Nullable Object handleDeniedInvocation(MethodInvocation methodInvocation,
+			AuthorizationResult authorizationResult) {
 		return constructMethodAuthorizationDeniedHandler().handleDeniedInvocation(methodInvocation,
 				authorizationResult);
 	}
 
 	@Override
-	public Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
+	public @Nullable Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
 			AuthorizationResult authorizationResult) {
 		return constructMethodAuthorizationDeniedHandler().handleDeniedInvocationResult(methodInvocationResult,
 				authorizationResult);

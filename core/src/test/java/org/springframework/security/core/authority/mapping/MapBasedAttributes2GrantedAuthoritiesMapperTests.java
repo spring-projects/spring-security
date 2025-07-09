@@ -37,12 +37,6 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 public class MapBasedAttributes2GrantedAuthoritiesMapperTests {
 
 	@Test
-	public void testAfterPropertiesSetNoMap() throws Exception {
-		MapBasedAttributes2GrantedAuthoritiesMapper mapper = new MapBasedAttributes2GrantedAuthoritiesMapper();
-		assertThatIllegalArgumentException().isThrownBy(mapper::afterPropertiesSet);
-	}
-
-	@Test
 	public void testAfterPropertiesSetEmptyMap() throws Exception {
 		MapBasedAttributes2GrantedAuthoritiesMapper mapper = new MapBasedAttributes2GrantedAuthoritiesMapper();
 		assertThatIllegalArgumentException()

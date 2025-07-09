@@ -17,8 +17,8 @@
 package org.springframework.security.authorization.method;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
-import org.springframework.lang.Nullable;
 import org.springframework.security.authorization.AuthorizationResult;
 
 /**
@@ -41,8 +41,7 @@ public interface MethodAuthorizationDeniedHandler {
 	 * @return a replacement result for the denied method invocation, or null, or a
 	 * {@link reactor.core.publisher.Mono} for reactive applications
 	 */
-	@Nullable
-	Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult);
+	@Nullable Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult);
 
 	/**
 	 * Handle denied method invocations, implementations might either throw an
@@ -56,8 +55,7 @@ public interface MethodAuthorizationDeniedHandler {
 	 * @return a replacement result for the denied method invocation, or null, or a
 	 * {@link reactor.core.publisher.Mono} for reactive applications
 	 */
-	@Nullable
-	default Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
+	default @Nullable Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
 			AuthorizationResult authorizationResult) {
 		return handleDeniedInvocation(methodInvocationResult.getMethodInvocation(), authorizationResult);
 	}

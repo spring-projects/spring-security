@@ -17,4 +17,7 @@
 /**
  * An {@code AuthenticationProvider} which relies upon a data access object.
  */
+@NullMarked
 package org.springframework.security.authentication.dao;
+
+import org.jspecify.annotations.NullMarked;

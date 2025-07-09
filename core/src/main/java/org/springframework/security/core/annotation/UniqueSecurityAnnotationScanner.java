@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.MethodClassKey;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationConfigurationException;
@@ -109,7 +111,7 @@ final class UniqueSecurityAnnotationScanner<A extends Annotation> extends Abstra
 	}
 
 	@Override
-	MergedAnnotation<A> merge(AnnotatedElement element, Class<?> targetClass) {
+	MergedAnnotation<A> merge(AnnotatedElement element, @Nullable Class<?> targetClass) {
 		if (element instanceof Parameter parameter) {
 			return this.uniqueParameterAnnotationCache.computeIfAbsent(parameter, (p) -> {
 				List<MergedAnnotation<A>> annotations = findParameterAnnotations(p);
@@ -125,7 +127,8 @@ final class UniqueSecurityAnnotationScanner<A extends Annotation> extends Abstra
 		throw new AnnotationConfigurationException("Unsupported element of type " + element.getClass());
 	}
 
-	private MergedAnnotation<A> requireUnique(AnnotatedElement element, List<MergedAnnotation<A>> annotations) {
+	private @Nullable MergedAnnotation<A> requireUnique(AnnotatedElement element,
+			List<MergedAnnotation<A>> annotations) {
 		return switch (annotations.size()) {
 			case 0 -> null;
 			case 1 -> annotations.get(0);
@@ -193,7 +196,7 @@ final class UniqueSecurityAnnotationScanner<A extends Annotation> extends Abstra
 		return Collections.emptyList();
 	}
 
-	private List<MergedAnnotation<A>> findMethodAnnotations(Method method, Class<?> targetClass) {
+	private List<MergedAnnotation<A>> findMethodAnnotations(Method method, @Nullable Class<?> targetClass) {
 		// The method may be on an interface, but we need attributes from the target
 		// class.
 		// If the target class is null, the method will be unchanged.
@@ -265,7 +268,7 @@ final class UniqueSecurityAnnotationScanner<A extends Annotation> extends Abstra
 			.toList();
 	}
 
-	private static Method findMethod(Method method, Class<?> targetClass) {
+	private static @Nullable Method findMethod(Method method, Class<?> targetClass) {
 		for (Method candidate : targetClass.getDeclaredMethods()) {
 			if (candidate.equals(method)) {
 				return candidate;

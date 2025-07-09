@@ -22,4 +22,7 @@
  * context. These events are received by all registered Spring
  * <code>ApplicationListener</code>s.
  */
+@NullMarked
 package org.springframework.security.authentication.event;
+
+import org.jspecify.annotations.NullMarked;

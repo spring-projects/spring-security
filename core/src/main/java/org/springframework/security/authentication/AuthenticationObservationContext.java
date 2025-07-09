@@ -17,6 +17,7 @@
 package org.springframework.security.authentication;
 
 import io.micrometer.observation.Observation;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
@@ -29,17 +30,17 @@ import org.springframework.util.Assert;
  */
 public class AuthenticationObservationContext extends Observation.Context {
 
-	private Authentication authenticationRequest;
+	private @Nullable Authentication authenticationRequest;
 
-	private Class<?> authenticationManager;
+	private @Nullable Class<?> authenticationManager;
 
-	private Authentication authenticationResult;
+	private @Nullable Authentication authenticationResult;
 
 	/**
 	 * Get the {@link Authentication} request that was observed
 	 * @return the observed {@link Authentication} request
 	 */
-	public Authentication getAuthenticationRequest() {
+	public @Nullable Authentication getAuthenticationRequest() {
 		return this.authenticationRequest;
 	}
 
@@ -60,7 +61,7 @@ public class AuthenticationObservationContext extends Observation.Context {
 	 * observed. In that case, this returns {@code null}.
 	 * @return any observed {@link Authentication} result, {@code null} otherwise
 	 */
-	public Authentication getAuthenticationResult() {
+	public @Nullable Authentication getAuthenticationResult() {
 		return this.authenticationResult;
 	}
 
@@ -76,7 +77,7 @@ public class AuthenticationObservationContext extends Observation.Context {
 	 * Get the {@link AuthenticationManager} class that processed the authentication
 	 * @return the observed {@link AuthenticationManager} class
 	 */
-	public Class<?> getAuthenticationManagerClass() {
+	public @Nullable Class<?> getAuthenticationManagerClass() {
 		return this.authenticationManager;
 	}
 

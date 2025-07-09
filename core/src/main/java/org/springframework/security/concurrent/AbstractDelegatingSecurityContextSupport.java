@@ -18,6 +18,8 @@ package org.springframework.security.concurrent;
 
 import java.util.concurrent.Callable;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -36,7 +38,7 @@ abstract class AbstractDelegatingSecurityContextSupport {
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
-	private final SecurityContext securityContext;
+	private final @Nullable SecurityContext securityContext;
 
 	/**
 	 * Creates a new {@link AbstractDelegatingSecurityContextSupport} that uses the
@@ -46,7 +48,7 @@ abstract class AbstractDelegatingSecurityContextSupport {
 	 * {@link DelegatingSecurityContextCallable} or null to default to the current
 	 * {@link SecurityContext}.
 	 */
-	AbstractDelegatingSecurityContextSupport(SecurityContext securityContext) {
+	AbstractDelegatingSecurityContextSupport(@Nullable SecurityContext securityContext) {
 		this.securityContext = securityContext;
 	}
 

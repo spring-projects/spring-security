@@ -18,4 +18,7 @@
  * Exposes a JDBC-based authentication repository, implementing
  * {@code org.springframework.security.core.userdetails.UserDetailsService UserDetailsService}.
  */
+@NullMarked
 package org.springframework.security.core.userdetails.jdbc;
+
+import org.jspecify.annotations.NullMarked;

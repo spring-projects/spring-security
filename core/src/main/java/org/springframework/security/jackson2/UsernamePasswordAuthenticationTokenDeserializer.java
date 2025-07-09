@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.MissingNode;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -91,7 +92,7 @@ class UsernamePasswordAuthenticationTokenDeserializer extends JsonDeserializer<U
 		return token;
 	}
 
-	private Object getCredentials(JsonNode credentialsNode) {
+	private @Nullable Object getCredentials(JsonNode credentialsNode) {
 		if (credentialsNode.isNull() || credentialsNode.isMissingNode()) {
 			return null;
 		}

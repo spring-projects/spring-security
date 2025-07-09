@@ -16,6 +16,8 @@
 
 package org.springframework.security.task;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.concurrent.DelegatingSecurityContextExecutor;
 import org.springframework.security.concurrent.DelegatingSecurityContextRunnable;
@@ -39,7 +41,8 @@ public class DelegatingSecurityContextTaskExecutor extends DelegatingSecurityCon
 	 * @param securityContext the {@link SecurityContext} to use for each
 	 * {@link DelegatingSecurityContextRunnable}
 	 */
-	public DelegatingSecurityContextTaskExecutor(TaskExecutor delegateTaskExecutor, SecurityContext securityContext) {
+	public DelegatingSecurityContextTaskExecutor(TaskExecutor delegateTaskExecutor,
+			@Nullable SecurityContext securityContext) {
 		super(delegateTaskExecutor, securityContext);
 	}
 

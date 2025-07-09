@@ -18,6 +18,8 @@ package org.springframework.security.access.expression.method;
 
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.core.Authentication;
 
@@ -30,11 +32,11 @@ import org.springframework.security.core.Authentication;
  */
 class MethodSecurityExpressionRoot extends SecurityExpressionRoot implements MethodSecurityExpressionOperations {
 
-	private Object filterObject;
+	private @Nullable Object filterObject;
 
-	private Object returnObject;
+	private @Nullable Object returnObject;
 
-	private Object target;
+	private @Nullable Object target;
 
 	MethodSecurityExpressionRoot(Authentication a) {
 		super(a);
@@ -50,17 +52,17 @@ class MethodSecurityExpressionRoot extends SecurityExpressionRoot implements Met
 	}
 
 	@Override
-	public Object getFilterObject() {
+	public @Nullable Object getFilterObject() {
 		return this.filterObject;
 	}
 
 	@Override
-	public void setReturnObject(Object returnObject) {
+	public void setReturnObject(@Nullable Object returnObject) {
 		this.returnObject = returnObject;
 	}
 
 	@Override
-	public Object getReturnObject() {
+	public @Nullable Object getReturnObject() {
 		return this.returnObject;
 	}
 
@@ -70,12 +72,12 @@ class MethodSecurityExpressionRoot extends SecurityExpressionRoot implements Met
 	 * protected.
 	 * @param target the target object on which the method in is being invoked.
 	 */
-	void setThis(Object target) {
+	void setThis(@Nullable Object target) {
 		this.target = target;
 	}
 
 	@Override
-	public Object getThis() {
+	public @Nullable Object getThis() {
 		return this.target;
 	}
 

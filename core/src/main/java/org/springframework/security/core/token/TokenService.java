@@ -16,6 +16,8 @@
 
 package org.springframework.security.core.token;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Provides a mechanism to allocate and rebuild secure, randomised tokens.
  *
@@ -61,6 +63,6 @@ public interface TokenService {
 	 * @return the token, or <code>null</code> if the token was not issued by this
 	 * <code>TokenService</code>
 	 */
-	Token verifyToken(String key);
+	@Nullable Token verifyToken(String key);
 
 }

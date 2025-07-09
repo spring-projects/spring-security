@@ -16,6 +16,7 @@
 
 package org.springframework.security.core.userdetails;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 /**
@@ -26,6 +27,8 @@ import reactor.core.publisher.Mono;
  */
 public interface ReactiveUserDetailsPasswordService {
 
+	ReactiveUserDetailsPasswordService NOOP = (user, newPassword) -> Mono.just(user);
+
 	/**
 	 * Modify the specified user's password. This should change the user's password in the
 	 * persistent user repository (database, LDAP etc).
@@ -33,6 +36,6 @@ public interface ReactiveUserDetailsPasswordService {
 	 * @param newPassword the password to change to
 	 * @return the updated UserDetails with the new password
 	 */
-	Mono<UserDetails> updatePassword(UserDetails user, String newPassword);
+	Mono<UserDetails> updatePassword(UserDetails user, @Nullable String newPassword);
 
 }

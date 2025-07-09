@@ -16,6 +16,8 @@
 
 package org.springframework.security.access.prepost;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.security.authorization.AuthorizationManager;
 
@@ -29,9 +31,10 @@ import org.springframework.security.authorization.AuthorizationManager;
 @Deprecated
 public interface PrePostInvocationAttributeFactory extends AopInfrastructureBean {
 
-	PreInvocationAttribute createPreInvocationAttribute(String preFilterAttribute, String filterObject,
-			String preAuthorizeAttribute);
+	PreInvocationAttribute createPreInvocationAttribute(@Nullable String preFilterAttribute,
+			@Nullable String filterObject, @Nullable String preAuthorizeAttribute);
 
-	PostInvocationAttribute createPostInvocationAttribute(String postFilterAttribute, String postAuthorizeAttribute);
+	PostInvocationAttribute createPostInvocationAttribute(@Nullable String postFilterAttribute,
+			@Nullable String postAuthorizeAttribute);
 
 }

@@ -101,4 +101,23 @@ public class ObservationSecurityContextChangedListenerTests {
 			.isEqualTo(ObservationSecurityContextChangedListener.SECURITY_CONTEXT_CREATED);
 	}
 
+	@Test
+	void securityContextChangedWhenClearedEventThenAddsClearedEventToObservation() {
+		Observation observation = mock(Observation.class);
+		given(this.observationRegistry.getCurrentObservation()).willReturn(observation);
+		this.tested.securityContextChanged(new SecurityContextChangedEvent(this.one, new SecurityContextImpl()));
+		ArgumentCaptor<Observation.Event> event = ArgumentCaptor.forClass(Observation.Event.class);
+		verify(observation).event(event.capture());
+		assertThat(event.getValue().getName())
+			.isEqualTo(ObservationSecurityContextChangedListener.SECURITY_CONTEXT_CLEARED);
+	}
+
+	@Test
+	void securityContextChangedWhenBothNullThenNoNullPointerException() {
+		Observation observation = mock(Observation.class);
+		given(this.observationRegistry.getCurrentObservation()).willReturn(observation);
+		this.tested.securityContextChanged(
+				new SecurityContextChangedEvent(new SecurityContextImpl(), new SecurityContextImpl()));
+	}
+
 }

@@ -30,6 +30,7 @@ import java.util.function.Function;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
@@ -66,7 +67,7 @@ public class User implements UserDetails, CredentialsContainer {
 
 	private static final Log logger = LogFactory.getLog(User.class);
 
-	private String password;
+	private @Nullable String password;
 
 	private final String username;
 
@@ -83,7 +84,7 @@ public class User implements UserDetails, CredentialsContainer {
 	/**
 	 * Calls the more complex constructor with all boolean arguments set to {@code true}.
 	 */
-	public User(String username, String password, Collection<? extends GrantedAuthority> authorities) {
+	public User(String username, @Nullable String password, Collection<? extends GrantedAuthority> authorities) {
 		this(username, password, true, true, true, true, authorities);
 	}
 
@@ -104,11 +105,10 @@ public class User implements UserDetails, CredentialsContainer {
 	 * @throws IllegalArgumentException if a <code>null</code> value was passed either as
 	 * a parameter or as an element in the <code>GrantedAuthority</code> collection
 	 */
-	public User(String username, String password, boolean enabled, boolean accountNonExpired,
+	public User(String username, @Nullable String password, boolean enabled, boolean accountNonExpired,
 			boolean credentialsNonExpired, boolean accountNonLocked,
 			Collection<? extends GrantedAuthority> authorities) {
-		Assert.isTrue(username != null && !"".equals(username) && password != null,
-				"Cannot pass null or empty values to constructor");
+		Assert.isTrue(username != null && !"".equals(username), "Cannot pass null or empty values to constructor");
 		this.username = username;
 		this.password = password;
 		this.enabled = enabled;
@@ -124,7 +124,7 @@ public class User implements UserDetails, CredentialsContainer {
 	}
 
 	@Override
-	public String getPassword() {
+	public @Nullable String getPassword() {
 		return this.password;
 	}
 
@@ -289,14 +289,17 @@ public class User implements UserDetails, CredentialsContainer {
 
 	public static UserBuilder withUserDetails(UserDetails userDetails) {
 		// @formatter:off
-		return withUsername(userDetails.getUsername())
-				.password(userDetails.getPassword())
+		UserBuilder result = withUsername(userDetails.getUsername())
 				.accountExpired(!userDetails.isAccountNonExpired())
 				.accountLocked(!userDetails.isAccountNonLocked())
 				.authorities(userDetails.getAuthorities())
 				.credentialsExpired(!userDetails.isCredentialsNonExpired())
 				.disabled(!userDetails.isEnabled());
 		// @formatter:on
+		if (userDetails.getPassword() != null) {
+			result.password(userDetails.getPassword());
+		}
+		return result;
 	}
 
 	private static class AuthorityComparator implements Comparator<GrantedAuthority>, Serializable {
@@ -325,9 +328,9 @@ public class User implements UserDetails, CredentialsContainer {
 	 */
 	public static final class UserBuilder {
 
-		private String username;
+		private @Nullable String username;
 
-		private String password;
+		private @Nullable String password;
 
 		private List<GrantedAuthority> authorities = new ArrayList<>();
 
@@ -339,7 +342,7 @@ public class User implements UserDetails, CredentialsContainer {
 
 		private boolean disabled;
 
-		private Function<String, String> passwordEncoder = (password) -> password;
+		private Function<@Nullable String, @Nullable String> passwordEncoder = (password) -> password;
 
 		/**
 		 * Creates a new instance
@@ -361,12 +364,11 @@ public class User implements UserDetails, CredentialsContainer {
 
 		/**
 		 * Populates the password. This attribute is required.
-		 * @param password the password. Cannot be null.
+		 * @param password the password.
 		 * @return the {@link UserBuilder} for method chaining (i.e. to populate
 		 * additional attributes for this user)
 		 */
-		public UserBuilder password(String password) {
-			Assert.notNull(password, "password cannot be null");
+		public UserBuilder password(@Nullable String password) {
 			this.password = password;
 			return this;
 		}
@@ -378,7 +380,7 @@ public class User implements UserDetails, CredentialsContainer {
 		 * @return the {@link UserBuilder} for method chaining (i.e. to populate
 		 * additional attributes for this user)
 		 */
-		public UserBuilder passwordEncoder(Function<String, String> encoder) {
+		public UserBuilder passwordEncoder(Function<@Nullable String, @Nullable String> encoder) {
 			Assert.notNull(encoder, "encoder cannot be null");
 			this.passwordEncoder = encoder;
 			return this;
@@ -503,7 +505,8 @@ public class User implements UserDetails, CredentialsContainer {
 		}
 
 		public UserDetails build() {
-			String encodedPassword = this.passwordEncoder.apply(this.password);
+			Assert.notNull(this.username, "username cannot be null");
+			String encodedPassword = (this.password != null) ? this.passwordEncoder.apply(this.password) : null;
 			return new User(this.username, encodedPassword, !this.disabled, !this.accountExpired,
 					!this.credentialsExpired, !this.accountLocked, this.authorities);
 		}

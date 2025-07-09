@@ -16,6 +16,7 @@
 
 package org.springframework.security.authentication.password;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 /**
@@ -27,10 +28,12 @@ import reactor.core.publisher.Mono;
 public interface ReactiveCompromisedPasswordChecker {
 
 	/**
-	 * Check whether the password is compromised
+	 * Check whether the password is compromised. If password is null, then the return
+	 * value must be false for {@link CompromisedPasswordDecision#isCompromised()} since a
+	 * null password represents no password (e.g. the user leverages Passkeys instead).
 	 * @param password the password to check
 	 * @return a {@link Mono} containing the {@link CompromisedPasswordDecision}
 	 */
-	Mono<CompromisedPasswordDecision> check(String password);
+	Mono<CompromisedPasswordDecision> check(@Nullable String password);
 
 }

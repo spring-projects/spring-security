@@ -20,7 +20,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An interface to scan for and synthesize an annotation on a type, method, or method
@@ -62,8 +62,7 @@ public interface SecurityAnnotationScanner<A extends Annotation> {
 	 * @param targetClass the target class for the method
 	 * @return the synthesized annotation or {@code null} if not found
 	 */
-	@Nullable
-	A scan(Method method, Class<?> targetClass);
+	@Nullable A scan(Method method, Class<?> targetClass);
 
 	/**
 	 * Scan for an annotation of type {@code A}, starting from the given method parameter.
@@ -78,7 +77,6 @@ public interface SecurityAnnotationScanner<A extends Annotation> {
 	 * @param element the element to search
 	 * @return the synthesized annotation or {@code null} if not found
 	 */
-	@Nullable
-	A scan(Parameter parameter);
+	@Nullable A scan(Parameter parameter);
 
 }

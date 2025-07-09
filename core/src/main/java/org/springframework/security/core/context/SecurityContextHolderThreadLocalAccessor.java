@@ -17,6 +17,7 @@
 package org.springframework.security.core.context;
 
 import io.micrometer.context.ThreadLocalAccessor;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.util.Assert;
 
@@ -42,7 +43,7 @@ public final class SecurityContextHolderThreadLocalAccessor implements ThreadLoc
 	}
 
 	@Override
-	public SecurityContext getValue() {
+	public @Nullable SecurityContext getValue() {
 		SecurityContext securityContext = SecurityContextHolder.getContext();
 		SecurityContext emptyContext = SecurityContextHolder.createEmptyContext();
 

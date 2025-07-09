@@ -22,6 +22,8 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.concurrent.ScheduledFuture;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.Trigger;
@@ -41,7 +43,7 @@ public class DelegatingSecurityContextTaskScheduler implements TaskScheduler {
 
 	private final TaskScheduler delegate;
 
-	private final SecurityContext securityContext;
+	private final @Nullable SecurityContext securityContext;
 
 	/**
 	 * Creates a new {@link DelegatingSecurityContextTaskScheduler} that uses the
@@ -54,7 +56,7 @@ public class DelegatingSecurityContextTaskScheduler implements TaskScheduler {
 	 * @since 5.6
 	 */
 	public DelegatingSecurityContextTaskScheduler(TaskScheduler delegateTaskScheduler,
-			SecurityContext securityContext) {
+			@Nullable SecurityContext securityContext) {
 		Assert.notNull(delegateTaskScheduler, "delegateTaskScheduler cannot be null");
 		this.delegate = delegateTaskScheduler;
 		this.securityContext = securityContext;
@@ -70,7 +72,7 @@ public class DelegatingSecurityContextTaskScheduler implements TaskScheduler {
 	}
 
 	@Override
-	public ScheduledFuture<?> schedule(Runnable task, Trigger trigger) {
+	public @Nullable ScheduledFuture<?> schedule(Runnable task, Trigger trigger) {
 		return this.delegate.schedule(wrap(task), trigger);
 	}
 

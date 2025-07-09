@@ -23,7 +23,7 @@ import org.bouncycastle.crypto.params.Argon2Parameters;
 
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.AbstractValidatingPasswordEncoder;
 
 /**
  * <p>
@@ -44,7 +44,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * @author Simeon Macke
  * @since 5.3
  */
-public class Argon2PasswordEncoder implements PasswordEncoder {
+public class Argon2PasswordEncoder extends AbstractValidatingPasswordEncoder {
 
 	private static final int DEFAULT_SALT_LENGTH = 16;
 
@@ -108,7 +108,7 @@ public class Argon2PasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
-	public String encode(CharSequence rawPassword) {
+	protected String encodeNonNullPassword(String rawPassword) {
 		byte[] salt = this.saltGenerator.generateKey();
 		byte[] hash = new byte[this.hashLength];
 		// @formatter:off
@@ -127,11 +127,7 @@ public class Argon2PasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
-	public boolean matches(CharSequence rawPassword, String encodedPassword) {
-		if (encodedPassword == null) {
-			this.logger.warn("password hash is null");
-			return false;
-		}
+	protected boolean matchesNonNull(String rawPassword, String encodedPassword) {
 		Argon2EncodingUtils.Argon2Hash decoded;
 		try {
 			decoded = Argon2EncodingUtils.decode(encodedPassword);
@@ -148,11 +144,7 @@ public class Argon2PasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
-	public boolean upgradeEncoding(String encodedPassword) {
-		if (encodedPassword == null || encodedPassword.length() == 0) {
-			this.logger.warn("password hash is null");
-			return false;
-		}
+	protected boolean upgradeEncodingNonNull(String encodedPassword) {
 		Argon2Parameters parameters = Argon2EncodingUtils.decode(encodedPassword).getParameters();
 		return parameters.getMemory() < this.memory || parameters.getIterations() < this.iterations;
 	}

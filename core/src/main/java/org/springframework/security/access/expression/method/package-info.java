@@ -19,4 +19,7 @@
  *
  * @since 3.0
  */
+@NullMarked
 package org.springframework.security.access.expression.method;
+
+import org.jspecify.annotations.NullMarked;

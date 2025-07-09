@@ -17,4 +17,7 @@
 /**
  * Exposes an in-memory authentication repository.
  */
+@NullMarked
 package org.springframework.security.core.userdetails.memory;
+
+import org.jspecify.annotations.NullMarked;

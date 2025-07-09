@@ -16,6 +16,8 @@
 
 package org.springframework.security.access.expression;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.expression.BeanFactoryResolver;
@@ -43,9 +45,9 @@ public abstract class AbstractSecurityExpressionHandler<T>
 
 	private ExpressionParser expressionParser = new SpelExpressionParser();
 
-	private BeanResolver beanResolver;
+	private @Nullable BeanResolver beanResolver;
 
-	private RoleHierarchy roleHierarchy;
+	private @Nullable RoleHierarchy roleHierarchy;
 
 	private PermissionEvaluator permissionEvaluator = new DenyAllPermissionEvaluator();
 
@@ -71,7 +73,9 @@ public abstract class AbstractSecurityExpressionHandler<T>
 	public final EvaluationContext createEvaluationContext(Authentication authentication, T invocation) {
 		SecurityExpressionOperations root = createSecurityExpressionRoot(authentication, invocation);
 		StandardEvaluationContext ctx = createEvaluationContextInternal(authentication, invocation);
-		ctx.setBeanResolver(this.beanResolver);
+		if (this.beanResolver != null) {
+			ctx.setBeanResolver(this.beanResolver);
+		}
 		ctx.setRootObject(root);
 		return ctx;
 	}
@@ -101,7 +105,7 @@ public abstract class AbstractSecurityExpressionHandler<T>
 	protected abstract SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
 			T invocation);
 
-	protected RoleHierarchy getRoleHierarchy() {
+	protected @Nullable RoleHierarchy getRoleHierarchy() {
 		return this.roleHierarchy;
 	}
 
@@ -117,7 +121,7 @@ public abstract class AbstractSecurityExpressionHandler<T>
 		this.permissionEvaluator = permissionEvaluator;
 	}
 
-	protected BeanResolver getBeanResolver() {
+	protected @Nullable BeanResolver getBeanResolver() {
 		return this.beanResolver;
 	}
 

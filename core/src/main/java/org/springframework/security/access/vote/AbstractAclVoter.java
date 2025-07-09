@@ -17,6 +17,8 @@
 package org.springframework.security.access.vote;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AuthorizationServiceException;
@@ -30,10 +32,12 @@ import org.springframework.util.Assert;
  * @deprecated Now used by only-deprecated classes. Generally speaking, in-memory ACL is
  * no longer advised, so no replacement is planned at this point.
  */
+@NullUnmarked
 @Deprecated
 public abstract class AbstractAclVoter implements AccessDecisionVoter<MethodInvocation> {
 
-	private Class<?> processDomainObjectClass;
+	@SuppressWarnings("NullAway.Init")
+	private @Nullable Class<?> processDomainObjectClass;
 
 	protected Object getDomainObjectInstance(MethodInvocation invocation) {
 		Object[] args = invocation.getArguments();

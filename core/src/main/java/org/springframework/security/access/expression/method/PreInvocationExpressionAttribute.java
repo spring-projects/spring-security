@@ -16,6 +16,8 @@
 
 package org.springframework.security.access.expression.method;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.expression.Expression;
 import org.springframework.expression.ParseException;
 import org.springframework.security.access.prepost.PreInvocationAttribute;
@@ -40,8 +42,8 @@ class PreInvocationExpressionAttribute extends AbstractExpressionBasedMethodConf
 		this.filterTarget = filterTarget;
 	}
 
-	PreInvocationExpressionAttribute(Expression filterExpression, String filterTarget, Expression authorizeExpression)
-			throws ParseException {
+	PreInvocationExpressionAttribute(@Nullable Expression filterExpression, String filterTarget,
+			Expression authorizeExpression) throws ParseException {
 		super(filterExpression, authorizeExpression);
 		this.filterTarget = filterTarget;
 	}

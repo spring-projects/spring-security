@@ -20,9 +20,10 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.function.Function;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.expression.Expression;
-import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.SecurityAnnotationScanner;
@@ -53,19 +54,18 @@ final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAt
 				PreAuthorizeAuthorizationManager.class);
 	}
 
-	@NonNull
 	@Override
-	ExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
+	@Nullable ExpressionAttribute resolveAttribute(Method method, @Nullable Class<?> targetClass) {
 		PreAuthorize preAuthorize = findPreAuthorizeAnnotation(method, targetClass);
 		if (preAuthorize == null) {
-			return ExpressionAttribute.NULL_ATTRIBUTE;
+			return null;
 		}
 		Expression expression = getExpressionHandler().getExpressionParser().parseExpression(preAuthorize.value());
 		MethodAuthorizationDeniedHandler handler = resolveHandler(method, targetClass);
 		return new PreAuthorizeExpressionAttribute(expression, handler);
 	}
 
-	private MethodAuthorizationDeniedHandler resolveHandler(Method method, Class<?> targetClass) {
+	private MethodAuthorizationDeniedHandler resolveHandler(Method method, @Nullable Class<?> targetClass) {
 		Class<?> targetClassToUse = targetClass(method, targetClass);
 		HandleAuthorizationDenied deniedHandler = this.handleAuthorizationDeniedScanner.scan(method, targetClassToUse);
 		if (deniedHandler != null) {
@@ -74,7 +74,7 @@ final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAt
 		return this.defaultHandler;
 	}
 
-	private PreAuthorize findPreAuthorizeAnnotation(Method method, Class<?> targetClass) {
+	private @Nullable PreAuthorize findPreAuthorizeAnnotation(Method method, @Nullable Class<?> targetClass) {
 		Class<?> targetClassToUse = targetClass(method, targetClass);
 		return this.preAuthorizeScanner.scan(method, targetClassToUse);
 	}

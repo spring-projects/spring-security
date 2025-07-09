@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.ConfigAttribute;
@@ -54,6 +57,7 @@ import org.springframework.util.ClassUtils;
  * {@link org.springframework.security.authorization.method.PostAuthorizeAuthorizationManager}
  * instead
  */
+@NullUnmarked
 @Deprecated
 public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecurityMetadataSource {
 
@@ -98,7 +102,7 @@ public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecur
 	}
 
 	@Override
-	public Collection<ConfigAttribute> getAllConfigAttributes() {
+	public @Nullable Collection<ConfigAttribute> getAllConfigAttributes() {
 		return null;
 	}
 
@@ -108,7 +112,8 @@ public class PrePostAnnotationSecurityMetadataSource extends AbstractMethodSecur
 	 * for the logic of this method. The ordering here is slightly different in that we
 	 * consider method-specific annotations on an interface before class-level ones.
 	 */
-	private <A extends Annotation> A findAnnotation(Method method, Class<?> targetClass, Class<A> annotationClass) {
+	private <A extends Annotation> @Nullable A findAnnotation(Method method, Class<?> targetClass,
+			Class<A> annotationClass) {
 		// The method may be on an interface, but we need attributes from the target
 		// class.
 		// If the target class is null, the method will be unchanged.

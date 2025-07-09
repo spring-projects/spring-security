@@ -16,6 +16,8 @@
 
 package org.springframework.security.aot.hint;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.jdbc.core.JdbcOperations;
@@ -33,7 +35,7 @@ import org.springframework.security.authentication.ott.OneTimeTokenService;
 class OneTimeTokenRuntimeHints implements RuntimeHintsRegistrar {
 
 	@Override
-	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+	public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
 		hints.resources().registerPattern("org/springframework/security/core/ott/jdbc/one-time-tokens-schema.sql");
 	}
 

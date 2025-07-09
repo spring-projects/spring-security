@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -57,7 +59,7 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
 	}
 
 	@Override
-	public Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
+	public Collection<ConfigAttribute> getAttributes(Method method, @Nullable Class<?> targetClass) {
 		DefaultCacheKey cacheKey = new DefaultCacheKey(method, targetClass);
 		synchronized (this.attributeCache) {
 			Collection<ConfigAttribute> cached = this.attributeCache.get(cacheKey);
@@ -104,9 +106,9 @@ public final class DelegatingMethodSecurityMetadataSource extends AbstractMethod
 
 		private final Method method;
 
-		private final Class<?> targetClass;
+		private final @Nullable Class<?> targetClass;
 
-		DefaultCacheKey(Method method, Class<?> targetClass) {
+		DefaultCacheKey(Method method, @Nullable Class<?> targetClass) {
 			this.method = method;
 			this.targetClass = targetClass;
 		}

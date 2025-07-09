@@ -26,4 +26,7 @@
  * {@link org.springframework.security.authentication.AuthenticationProvider
  * AuthenticationProvider}s to which it delegates authentication requests.
  */
+@NullMarked
 package org.springframework.security.authentication;
+
+import org.jspecify.annotations.NullMarked;

@@ -28,7 +28,7 @@ import org.springframework.security.crypto.util.EncodingUtils;
  *
  * @author Rob Worsnop
  */
-public abstract class AbstractPasswordEncoder implements PasswordEncoder {
+public abstract class AbstractPasswordEncoder extends AbstractValidatingPasswordEncoder {
 
 	private final BytesKeyGenerator saltGenerator;
 
@@ -37,29 +37,29 @@ public abstract class AbstractPasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
-	public String encode(CharSequence rawPassword) {
+	protected String encodeNonNullPassword(String rawPassword) {
 		byte[] salt = this.saltGenerator.generateKey();
 		byte[] encoded = encodeAndConcatenate(rawPassword, salt);
 		return String.valueOf(Hex.encode(encoded));
 	}
 
 	@Override
-	public boolean matches(CharSequence rawPassword, String encodedPassword) {
+	protected boolean matchesNonNull(String rawPassword, String encodedPassword) {
 		byte[] digested = Hex.decode(encodedPassword);
 		byte[] salt = EncodingUtils.subArray(digested, 0, this.saltGenerator.getKeyLength());
-		return matches(digested, encodeAndConcatenate(rawPassword, salt));
+		return matchesNonNull(digested, encodeAndConcatenate(rawPassword, salt));
 	}
 
-	protected abstract byte[] encode(CharSequence rawPassword, byte[] salt);
+	protected abstract byte[] encodedNonNullPassword(CharSequence rawPassword, byte[] salt);
 
 	protected byte[] encodeAndConcatenate(CharSequence rawPassword, byte[] salt) {
-		return EncodingUtils.concatenate(salt, encode(rawPassword, salt));
+		return EncodingUtils.concatenate(salt, encodedNonNullPassword(rawPassword, salt));
 	}
 
 	/**
 	 * Constant time comparison to prevent against timing attacks.
 	 */
-	protected static boolean matches(byte[] expected, byte[] actual) {
+	protected static boolean matchesNonNull(byte[] expected, byte[] actual) {
 		return MessageDigest.isEqual(expected, actual);
 	}
 

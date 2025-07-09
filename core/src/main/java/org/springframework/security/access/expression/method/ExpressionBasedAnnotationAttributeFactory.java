@@ -16,12 +16,16 @@
 
 package org.springframework.security.access.expression.method;
 
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.ParseException;
 import org.springframework.security.access.prepost.PostInvocationAttribute;
 import org.springframework.security.access.prepost.PreInvocationAttribute;
 import org.springframework.security.access.prepost.PrePostInvocationAttributeFactory;
+import org.springframework.util.Assert;
 
 /**
  * {@link PrePostInvocationAttributeFactory} which interprets the annotation value as an
@@ -33,16 +37,18 @@ import org.springframework.security.access.prepost.PrePostInvocationAttributeFac
  * @deprecated Use {@link org.springframework.security.authorization.AuthorizationManager}
  * interceptors instead
  */
+@NullUnmarked
 @Deprecated
 public class ExpressionBasedAnnotationAttributeFactory implements PrePostInvocationAttributeFactory {
 
 	private final Object parserLock = new Object();
 
-	private ExpressionParser parser;
+	private @Nullable ExpressionParser parser;
 
 	private MethodSecurityExpressionHandler handler;
 
 	public ExpressionBasedAnnotationAttributeFactory(MethodSecurityExpressionHandler handler) {
+		Assert.notNull(handler, "handler cannot be null");
 		this.handler = handler;
 	}
 
@@ -64,7 +70,7 @@ public class ExpressionBasedAnnotationAttributeFactory implements PrePostInvocat
 	}
 
 	@Override
-	public PostInvocationAttribute createPostInvocationAttribute(String postFilterAttribute,
+	public @Nullable PostInvocationAttribute createPostInvocationAttribute(String postFilterAttribute,
 			String postAuthorizeAttribute) {
 		try {
 			ExpressionParser parser = getParser();

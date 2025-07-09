@@ -78,7 +78,7 @@ import org.springframework.security.crypto.keygen.StringKeyGenerator;
  * indicate that this is a legacy implementation and using it is considered insecure.
  */
 @Deprecated
-public class Md4PasswordEncoder implements PasswordEncoder {
+public class Md4PasswordEncoder extends AbstractValidatingPasswordEncoder {
 
 	private static final String PREFIX = "{";
 
@@ -100,7 +100,7 @@ public class Md4PasswordEncoder implements PasswordEncoder {
 	 * encodeHashAsBase64 is enabled.
 	 */
 	@Override
-	public String encode(CharSequence rawPassword) {
+	public String encodeNonNullPassword(String rawPassword) {
 		String salt = PREFIX + this.saltGenerator.generateKey() + SUFFIX;
 		return digest(salt, rawPassword);
 	}
@@ -114,11 +114,11 @@ public class Md4PasswordEncoder implements PasswordEncoder {
 		Md4 md4 = new Md4();
 		md4.update(saltedPasswordBytes, 0, saltedPasswordBytes.length);
 		byte[] digest = md4.digest();
-		String encoded = encode(digest);
+		String encoded = encodedNonNullPassword(digest);
 		return salt + encoded;
 	}
 
-	private String encode(byte[] digest) {
+	private String encodedNonNullPassword(byte[] digest) {
 		if (this.encodeHashAsBase64) {
 			return Utf8.decode(Base64.getEncoder().encode(digest));
 		}
@@ -133,7 +133,7 @@ public class Md4PasswordEncoder implements PasswordEncoder {
 	 * @return true or false
 	 */
 	@Override
-	public boolean matches(CharSequence rawPassword, String encodedPassword) {
+	protected boolean matchesNonNull(String rawPassword, String encodedPassword) {
 		String salt = extractSalt(encodedPassword);
 		String rawPasswordEncoded = digest(salt, rawPassword);
 		return PasswordEncoderUtils.equals(encodedPassword.toString(), rawPasswordEncoded);

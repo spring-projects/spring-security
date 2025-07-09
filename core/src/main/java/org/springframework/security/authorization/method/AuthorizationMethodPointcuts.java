@@ -17,6 +17,7 @@
 package org.springframework.security.authorization.method;
 
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
 
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.ComposablePointcut;
@@ -47,6 +48,10 @@ final class AuthorizationMethodPointcuts {
 			else {
 				pointcut.union(classOrMethod(annotation));
 			}
+		}
+		if (pointcut == null) {
+			throw new IllegalStateException(
+					"Unable to find a pointcut for annotations " + Arrays.toString(annotations));
 		}
 		return pointcut;
 	}

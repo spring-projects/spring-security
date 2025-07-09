@@ -24,7 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.Nullable;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.AbstractValidatingPasswordEncoder;
 
 /**
  * Implementation of PasswordEncoder that uses the BCrypt strong hashing function. Clients
@@ -34,7 +34,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  *
  * @author Dave Syer
  */
-public class BCryptPasswordEncoder implements PasswordEncoder {
+public class BCryptPasswordEncoder extends AbstractValidatingPasswordEncoder {
 
 	private Pattern BCRYPT_PATTERN = Pattern.compile("\\A\\$2(a|y|b)?\\$(\\d\\d)\\$[./0-9A-Za-z]{53}");
 
@@ -103,10 +103,7 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
-	public String encode(CharSequence rawPassword) {
-		if (rawPassword == null) {
-			throw new IllegalArgumentException("rawPassword cannot be null");
-		}
+	protected String encodeNonNullPassword(String rawPassword) {
 		String salt = getSalt();
 		return BCrypt.hashpw(rawPassword.toString(), salt);
 	}
@@ -119,14 +116,7 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
-	public boolean matches(CharSequence rawPassword, String encodedPassword) {
-		if (rawPassword == null) {
-			throw new IllegalArgumentException("rawPassword cannot be null");
-		}
-		if (encodedPassword == null || encodedPassword.length() == 0) {
-			this.logger.warn("Empty encoded password");
-			return false;
-		}
+	protected boolean matchesNonNull(String rawPassword, String encodedPassword) {
 		if (!this.BCRYPT_PATTERN.matcher(encodedPassword).matches()) {
 			this.logger.warn("Encoded password does not look like BCrypt");
 			return false;
@@ -135,11 +125,7 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
-	public boolean upgradeEncoding(String encodedPassword) {
-		if (encodedPassword == null || encodedPassword.length() == 0) {
-			this.logger.warn("Empty encoded password");
-			return false;
-		}
+	protected boolean upgradeEncodingNonNull(String encodedPassword) {
 		Matcher matcher = this.BCRYPT_PATTERN.matcher(encodedPassword);
 		if (!matcher.matches()) {
 			throw new IllegalArgumentException("Encoded password does not look like BCrypt: " + encodedPassword);

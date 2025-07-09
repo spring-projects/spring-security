@@ -16,7 +16,7 @@
 
 package org.springframework.security.authentication.password;
 
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An API for checking if a password has been compromised.
@@ -27,11 +27,12 @@ import org.springframework.lang.NonNull;
 public interface CompromisedPasswordChecker {
 
 	/**
-	 * Check whether the password is compromised
+	 * Check whether the password is compromised. If password is null, then the return
+	 * value must be false for {@link CompromisedPasswordDecision#isCompromised()} since a
+	 * null password represents no password (e.g. the user leverages Passkeys instead).
 	 * @param password the password to check
 	 * @return a non-null {@link CompromisedPasswordDecision}
 	 */
-	@NonNull
-	CompromisedPasswordDecision check(String password);
+	CompromisedPasswordDecision check(@Nullable String password);
 
 }

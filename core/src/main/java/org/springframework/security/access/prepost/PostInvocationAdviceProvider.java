@@ -21,6 +21,8 @@ import java.util.Collection;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AfterInvocationProvider;
@@ -40,6 +42,7 @@ import org.springframework.security.core.Authentication;
  * {@link org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor}
  * instead
  */
+@NullUnmarked
 @Deprecated
 public class PostInvocationAdviceProvider implements AfterInvocationProvider {
 
@@ -62,7 +65,7 @@ public class PostInvocationAdviceProvider implements AfterInvocationProvider {
 				returnedObject);
 	}
 
-	private PostInvocationAttribute findPostInvocationAttribute(Collection<ConfigAttribute> config) {
+	private @Nullable PostInvocationAttribute findPostInvocationAttribute(Collection<ConfigAttribute> config) {
 		for (ConfigAttribute attribute : config) {
 			if (attribute instanceof PostInvocationAttribute) {
 				return (PostInvocationAttribute) attribute;

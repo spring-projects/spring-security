@@ -25,6 +25,7 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
@@ -61,7 +62,8 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
-	private AuthenticationManager authenticationManager;
+	@SuppressWarnings("NullAway.Init")
+	private @Nullable AuthenticationManager authenticationManager;
 
 	public InMemoryUserDetailsManager() {
 	}
@@ -153,9 +155,12 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 	}
 
 	@Override
-	public UserDetails updatePassword(UserDetails user, String newPassword) {
+	public UserDetails updatePassword(UserDetails user, @Nullable String newPassword) {
 		String username = user.getUsername();
 		MutableUserDetails mutableUser = this.users.get(username.toLowerCase(Locale.ROOT));
+		if (mutableUser == null) {
+			throw new RuntimeException("user '" + username + "' does not exist");
+		}
 		mutableUser.setPassword(newPassword);
 		return mutableUser;
 	}

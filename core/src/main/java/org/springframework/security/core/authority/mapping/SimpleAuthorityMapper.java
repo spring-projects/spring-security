@@ -21,6 +21,8 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -36,7 +38,7 @@ import org.springframework.util.Assert;
  */
 public final class SimpleAuthorityMapper implements GrantedAuthoritiesMapper, InitializingBean {
 
-	private GrantedAuthority defaultAuthority;
+	private @Nullable GrantedAuthority defaultAuthority;
 
 	private String prefix = "ROLE_";
 

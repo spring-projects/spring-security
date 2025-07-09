@@ -26,6 +26,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -50,7 +52,7 @@ public class DelegatingSecurityContextExecutorService extends DelegatingSecurity
 	 * {@link DelegatingSecurityContextCallable}.
 	 */
 	public DelegatingSecurityContextExecutorService(ExecutorService delegateExecutorService,
-			SecurityContext securityContext) {
+			@Nullable SecurityContext securityContext) {
 		super(delegateExecutorService, securityContext);
 	}
 
@@ -132,7 +134,7 @@ public class DelegatingSecurityContextExecutorService extends DelegatingSecurity
 		return getDelegate().invokeAny(tasks, timeout, unit);
 	}
 
-	private <T> Collection<Callable<T>> createTasks(Collection<Callable<T>> tasks) {
+	private <T> @Nullable Collection<Callable<T>> createTasks(Collection<Callable<T>> tasks) {
 		if (tasks == null) {
 			return null;
 		}

@@ -31,6 +31,7 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEventPublisher;
@@ -119,11 +120,12 @@ import org.springframework.util.ObjectUtils;
 public abstract class AbstractJaasAuthenticationProvider implements AuthenticationProvider,
 		ApplicationEventPublisherAware, InitializingBean, ApplicationListener<SessionDestroyedEvent> {
 
-	private ApplicationEventPublisher applicationEventPublisher;
+	private ApplicationEventPublisher applicationEventPublisher = (event) -> {
+	};
 
-	private AuthorityGranter[] authorityGranters;
+	private AuthorityGranter[] authorityGranters = new AuthorityGranter[0];
 
-	private JaasAuthenticationCallbackHandler[] callbackHandlers;
+	private JaasAuthenticationCallbackHandler[] callbackHandlers = new JaasAuthenticationCallbackHandler[0];
 
 	protected final Log log = LogFactory.getLog(getClass());
 
@@ -159,7 +161,7 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 	 * loginContext.login() method fail.
 	 */
 	@Override
-	public Authentication authenticate(Authentication auth) throws AuthenticationException {
+	public @Nullable Authentication authenticate(Authentication auth) throws AuthenticationException {
 		if (!(auth instanceof UsernamePasswordAuthenticationToken request)) {
 			return null;
 		}
@@ -303,6 +305,7 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 	 * @see JaasAuthenticationProvider
 	 */
 	public void setAuthorityGranters(AuthorityGranter[] authorityGranters) {
+		Assert.notNull(authorityGranters, "authorityGranters cannot be null");
 		this.authorityGranters = authorityGranters;
 	}
 
@@ -323,6 +326,7 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 	 * @param callbackHandlers Array of JAASAuthenticationCallbackHandlers
 	 */
 	public void setCallbackHandlers(JaasAuthenticationCallbackHandler[] callbackHandlers) {
+		Assert.notNull(callbackHandlers, "callbackHandlers cannot be null");
 		this.callbackHandlers = callbackHandlers;
 	}
 
@@ -354,6 +358,7 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 
 	@Override
 	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+		Assert.notNull(applicationEventPublisher, "applicationEventPublisher cannot be null");
 		this.applicationEventPublisher = applicationEventPublisher;
 	}
 

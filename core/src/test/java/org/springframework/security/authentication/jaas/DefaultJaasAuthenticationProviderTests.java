@@ -32,7 +32,6 @@ import org.mockito.ArgumentCaptor;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.jaas.event.JaasAuthenticationFailedEvent;
@@ -91,8 +90,7 @@ public class DefaultJaasAuthenticationProviderTests {
 
 	@Test
 	public void afterPropertiesSetNullAuthorityGranters() throws Exception {
-		this.provider.setAuthorityGranters(null);
-		assertThatIllegalArgumentException().isThrownBy(this.provider::afterPropertiesSet);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.provider.setAuthorityGranters(null));
 	}
 
 	@Test
@@ -212,10 +210,7 @@ public class DefaultJaasAuthenticationProviderTests {
 
 	@Test
 	public void publishNullPublisher() {
-		this.provider.setApplicationEventPublisher(null);
-		AuthenticationException ae = new BadCredentialsException("Failed to login");
-		this.provider.publishFailureEvent(this.token, ae);
-		this.provider.publishSuccessEvent(this.token);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.provider.setApplicationEventPublisher(null));
 	}
 
 	@Test

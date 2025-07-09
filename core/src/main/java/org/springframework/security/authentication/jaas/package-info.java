@@ -17,4 +17,7 @@
 /**
  * An authentication provider for JAAS.
  */
+@NullMarked
 package org.springframework.security.authentication.jaas;
+
+import org.jspecify.annotations.NullMarked;

@@ -17,6 +17,7 @@
 package org.springframework.security.authorization.method;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.util.Assert;
 
@@ -31,14 +32,14 @@ public class MethodInvocationResult {
 
 	private final MethodInvocation methodInvocation;
 
-	private final Object result;
+	private @Nullable final Object result;
 
 	/**
 	 * Construct a {@link MethodInvocationResult} with the provided parameters
 	 * @param methodInvocation the already-invoked {@link MethodInvocation}
 	 * @param result the value returned from the {@link MethodInvocation}
 	 */
-	public MethodInvocationResult(MethodInvocation methodInvocation, Object result) {
+	public MethodInvocationResult(MethodInvocation methodInvocation, @Nullable Object result) {
 		Assert.notNull(methodInvocation, "methodInvocation cannot be null");
 		this.methodInvocation = methodInvocation;
 		this.result = result;
@@ -56,7 +57,7 @@ public class MethodInvocationResult {
 	 * Return the result of the already-invoked {@link MethodInvocation}
 	 * @return the result
 	 */
-	public Object getResult() {
+	public @Nullable Object getResult() {
 		return this.result;
 	}
 

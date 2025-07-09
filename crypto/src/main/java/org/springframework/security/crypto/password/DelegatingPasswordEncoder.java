@@ -125,7 +125,7 @@ import org.jspecify.annotations.Nullable;
  * @since 5.0
  * @see org.springframework.security.crypto.factory.PasswordEncoderFactories
  */
-public class DelegatingPasswordEncoder implements PasswordEncoder {
+public class DelegatingPasswordEncoder extends AbstractValidatingPasswordEncoder {
 
 	private static final String DEFAULT_ID_PREFIX = "{";
 
@@ -233,18 +233,12 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
-	public String encode(CharSequence rawPassword) {
-		if (rawPassword == null) {
-			throw new IllegalArgumentException("rawPassword cannot be null");
-		}
+	protected String encodeNonNullPassword(String rawPassword) {
 		return this.idPrefix + this.idForEncode + this.idSuffix + this.passwordEncoderForEncode.encode(rawPassword);
 	}
 
 	@Override
-	public boolean matches(CharSequence rawPassword, String prefixEncodedPassword) {
-		if (rawPassword == null && prefixEncodedPassword == null) {
-			return true;
-		}
+	protected boolean matchesNonNull(String rawPassword, String prefixEncodedPassword) {
 		String id = extractId(prefixEncodedPassword);
 		PasswordEncoder delegate = this.idToPasswordEncoder.get(id);
 		if (delegate == null) {
@@ -270,10 +264,7 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
-	public boolean upgradeEncoding(@Nullable String prefixEncodedPassword) {
-		if (prefixEncodedPassword == null) {
-			return false;
-		}
+	protected boolean upgradeEncodingNonNull(String prefixEncodedPassword) {
 		String id = extractId(prefixEncodedPassword);
 		if (!this.idForEncode.equalsIgnoreCase(id)) {
 			return true;
@@ -293,15 +284,15 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 	 * Default {@link PasswordEncoder} that throws an exception telling that a suitable
 	 * {@link PasswordEncoder} for the id could not be found.
 	 */
-	private class UnmappedIdPasswordEncoder implements PasswordEncoder {
+	private class UnmappedIdPasswordEncoder extends AbstractValidatingPasswordEncoder {
 
 		@Override
-		public String encode(CharSequence rawPassword) {
+		protected String encodeNonNullPassword(String rawPassword) {
 			throw new UnsupportedOperationException("encode is not supported");
 		}
 
 		@Override
-		public boolean matches(CharSequence rawPassword, String prefixEncodedPassword) {
+		protected boolean matchesNonNull(String rawPassword, String prefixEncodedPassword) {
 			String id = extractId(prefixEncodedPassword);
 			if (id != null && !id.isBlank()) {
 				throw new IllegalArgumentException(String.format(NO_PASSWORD_ENCODER_MAPPED, id));

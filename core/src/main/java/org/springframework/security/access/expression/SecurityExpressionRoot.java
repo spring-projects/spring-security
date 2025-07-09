@@ -21,9 +21,12 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -41,11 +44,11 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 
 	private final Supplier<Authentication> authentication;
 
-	private AuthenticationTrustResolver trustResolver;
+	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
-	private RoleHierarchy roleHierarchy;
+	private @Nullable RoleHierarchy roleHierarchy;
 
-	private Set<String> roles;
+	private @Nullable Set<String> roles;
 
 	private String defaultRolePrefix = "ROLE_";
 
@@ -59,7 +62,7 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	 */
 	public final boolean denyAll = false;
 
-	private PermissionEvaluator permissionEvaluator;
+	private PermissionEvaluator permissionEvaluator = new DenyAllPermissionEvaluator();
 
 	public final String read = "read";
 
@@ -114,7 +117,7 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 		return hasAnyAuthorityName(this.defaultRolePrefix, roles);
 	}
 
-	private boolean hasAnyAuthorityName(String prefix, String... roles) {
+	private boolean hasAnyAuthorityName(@Nullable String prefix, String... roles) {
 		Set<String> roleSet = getAuthoritySet();
 		for (String role : roles) {
 			String defaultedRole = getRoleWithDefaultPrefix(prefix, role);
@@ -166,7 +169,7 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	 * {@link #getAuthentication()}
 	 * @return
 	 */
-	public Object getPrincipal() {
+	public @Nullable Object getPrincipal() {
 		return getAuthentication().getPrincipal();
 	}
 
@@ -218,6 +221,7 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	}
 
 	public void setPermissionEvaluator(PermissionEvaluator permissionEvaluator) {
+		Assert.notNull(permissionEvaluator, "permissionEvaluator cannot be null");
 		this.permissionEvaluator = permissionEvaluator;
 	}
 
@@ -228,7 +232,7 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	 * @param role
 	 * @return
 	 */
-	private static String getRoleWithDefaultPrefix(String defaultRolePrefix, String role) {
+	private static String getRoleWithDefaultPrefix(@Nullable String defaultRolePrefix, String role) {
 		if (role == null) {
 			return role;
 		}

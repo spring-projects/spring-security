@@ -19,6 +19,8 @@ package org.springframework.security.task;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.security.concurrent.DelegatingSecurityContextCallable;
 import org.springframework.security.concurrent.DelegatingSecurityContextRunnable;
@@ -45,7 +47,7 @@ public class DelegatingSecurityContextAsyncTaskExecutor extends DelegatingSecuri
 	 * {@link DelegatingSecurityContextCallable}
 	 */
 	public DelegatingSecurityContextAsyncTaskExecutor(AsyncTaskExecutor delegateAsyncTaskExecutor,
-			SecurityContext securityContext) {
+			@Nullable SecurityContext securityContext) {
 		super(delegateAsyncTaskExecutor, securityContext);
 	}
 

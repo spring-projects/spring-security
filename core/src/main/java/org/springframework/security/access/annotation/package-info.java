@@ -17,4 +17,7 @@
 /**
  * Support for JSR-250 and Spring Security {@code @Secured} annotations.
  */
+@NullMarked
 package org.springframework.security.access.annotation;
+
+import org.jspecify.annotations.NullMarked;

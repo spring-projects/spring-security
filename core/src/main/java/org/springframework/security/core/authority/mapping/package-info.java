@@ -21,4 +21,7 @@
  * Provides a layer of indirection between a security data repository and the logical
  * authorities required within an application.
  */
+@NullMarked
 package org.springframework.security.core.authority.mapping;
+
+import org.jspecify.annotations.NullMarked;

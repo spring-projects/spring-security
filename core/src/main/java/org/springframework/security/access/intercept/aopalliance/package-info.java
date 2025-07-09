@@ -18,4 +18,7 @@
  * Enforces security for AOP Alliance <code>MethodInvocation</code>s, such as via Spring
  * AOP.
  */
+@NullMarked
 package org.springframework.security.access.intercept.aopalliance;
+
+import org.jspecify.annotations.NullMarked;

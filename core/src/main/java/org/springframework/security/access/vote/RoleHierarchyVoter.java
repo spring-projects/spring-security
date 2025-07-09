@@ -18,6 +18,9 @@ package org.springframework.security.access.vote;
 
 import java.util.Collection;
 
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -33,10 +36,12 @@ import org.springframework.util.Assert;
  * {@link org.springframework.security.authorization.AuthorityAuthorizationManager#setRoleHierarchy}
  * instead
  */
+@NullUnmarked
 @Deprecated
 public class RoleHierarchyVoter extends RoleVoter {
 
-	private RoleHierarchy roleHierarchy = null;
+	@SuppressWarnings("NullAway")
+	private @Nullable RoleHierarchy roleHierarchy = null;
 
 	public RoleHierarchyVoter(RoleHierarchy roleHierarchy) {
 		Assert.notNull(roleHierarchy, "RoleHierarchy must not be null");

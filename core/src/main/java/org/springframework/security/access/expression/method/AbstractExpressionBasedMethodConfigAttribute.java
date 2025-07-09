@@ -16,6 +16,9 @@
 
 package org.springframework.security.access.expression.method;
 
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.expression.Expression;
 import org.springframework.expression.ParseException;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -35,12 +38,13 @@ import org.springframework.util.Assert;
  * @deprecated Use {@link org.springframework.security.authorization.AuthorizationManager}
  * interceptors instead
  */
+@NullUnmarked
 @Deprecated
 abstract class AbstractExpressionBasedMethodConfigAttribute implements ConfigAttribute {
 
-	private final Expression filterExpression;
+	private final @Nullable Expression filterExpression;
 
-	private final Expression authorizeExpression;
+	private final @Nullable Expression authorizeExpression;
 
 	/**
 	 * Parses the supplied expressions as Spring-EL.
@@ -71,7 +75,7 @@ abstract class AbstractExpressionBasedMethodConfigAttribute implements ConfigAtt
 	}
 
 	@Override
-	public String getAttribute() {
+	public @Nullable String getAttribute() {
 		return null;
 	}
 

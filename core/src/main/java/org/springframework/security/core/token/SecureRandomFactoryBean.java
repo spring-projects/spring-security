@@ -19,6 +19,8 @@ package org.springframework.security.core.token;
 import java.io.InputStream;
 import java.security.SecureRandom;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
@@ -34,7 +36,7 @@ public class SecureRandomFactoryBean implements FactoryBean<SecureRandom> {
 
 	private String algorithm = "SHA1PRNG";
 
-	private Resource seed;
+	private @Nullable Resource seed;
 
 	@Override
 	public SecureRandom getObject() throws Exception {

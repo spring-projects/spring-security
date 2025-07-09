@@ -33,4 +33,7 @@
  * an appropriate {@link org.springframework.security.access.SecurityMetadataSource} for
  * the type of resources the secure object represents.
  */
+@NullMarked
 package org.springframework.security.access.intercept;
+
+import org.jspecify.annotations.NullMarked;

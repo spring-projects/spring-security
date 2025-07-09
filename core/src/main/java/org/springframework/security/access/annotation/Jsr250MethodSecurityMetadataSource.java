@@ -25,6 +25,8 @@ import java.util.List;
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.access.ConfigAttribute;
@@ -39,6 +41,7 @@ import org.springframework.security.access.method.AbstractFallbackMethodSecurity
  * {@link org.springframework.security.authorization.method.Jsr250AuthorizationManager}
  * instead
  */
+@NullUnmarked
 @Deprecated
 public class Jsr250MethodSecurityMetadataSource extends AbstractFallbackMethodSecurityMetadataSource {
 
@@ -71,11 +74,11 @@ public class Jsr250MethodSecurityMetadataSource extends AbstractFallbackMethodSe
 	}
 
 	@Override
-	public Collection<ConfigAttribute> getAllConfigAttributes() {
+	public @Nullable Collection<ConfigAttribute> getAllConfigAttributes() {
 		return null;
 	}
 
-	private List<ConfigAttribute> processAnnotations(Annotation[] annotations) {
+	private @Nullable List<ConfigAttribute> processAnnotations(Annotation @Nullable [] annotations) {
 		if (annotations == null || annotations.length == 0) {
 			return null;
 		}
