@@ -542,7 +542,7 @@ For example, you can throw a custom exception with any additional information av
 ----
 OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
 provider.setResponseValidator((responseToken) -> {
-	Saml2ResponseValidatorResult result = OpenSamlAuthenticationProvider
+	Saml2ResponseValidatorResult result = OpenSaml4AuthenticationProvider
 		.createDefaultResponseValidator()
 		.convert(responseToken)
 		.concat(myCustomValidator.convert(responseToken));

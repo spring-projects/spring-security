@@ -49,7 +49,7 @@ This filter calls its configured `AuthenticationConverter` to create a `Saml2Aut
 This converter additionally resolves the <<servlet-saml2login-relyingpartyregistration, `RelyingPartyRegistration`>> and supplies it to `Saml2AuthenticationToken`.
 
 image:{icondir}/number_2.png[] Next, the filter passes the token to its configured xref:servlet/authentication/architecture.adoc#servlet-authentication-providermanager[`AuthenticationManager`].
-By default, it uses the <<servlet-saml2login-architecture,`OpenSamlAuthenticationProvider`>>.
+By default, it uses the <<servlet-saml2login-architecture,`OpenSaml4AuthenticationProvider`>>.
 
 image:{icondir}/number_3.png[] If authentication fails, then _Failure_.
 
@@ -184,9 +184,9 @@ To achieve this, any interfaces or classes where Spring Security uses OpenSAML i
 This makes it possible for you to switch out OpenSAML for some other library or an unsupported version of OpenSAML.
 
 As a natural outcome of these two goals, Spring Security's SAML API is quite small relative to other modules.
-Instead, such classes as `OpenSamlAuthenticationRequestFactory` and `OpenSamlAuthenticationProvider` expose `Converter` implementations that customize various steps in the authentication process.
+Instead, such classes as `OpenSamlXAuthenticationRequestFactory` and `OpenSamlXAuthenticationProvider` expose `Converter` implementations that customize various steps in the authentication process.
 
-For example, once your application receives a `SAMLResponse` and delegates to `Saml2WebSsoAuthenticationFilter`, the filter delegates to `OpenSamlAuthenticationProvider`:
+For example, once your application receives a `SAMLResponse` and delegates to `Saml2WebSsoAuthenticationFilter`, the filter delegates to `OpenSamlXAuthenticationProvider`:
 
 .Authenticating an OpenSAML `Response`
 image:{figures}/opensamlauthenticationprovider.png[]
