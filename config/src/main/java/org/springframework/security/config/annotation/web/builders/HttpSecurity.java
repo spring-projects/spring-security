@@ -2106,7 +2106,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		if (existingConfig != null) {
 			return existingConfig;
 		}
-		return apply(configurer);
+		with(configurer);
+		return configurer;
 	}
 
 	private ObjectPostProcessor<AuthenticationManager> getAuthenticationManagerPostProcessor() {

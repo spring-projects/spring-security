@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.util.Assert;
 
@@ -83,7 +84,7 @@ public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>>
 
 	/**
 	 * Sets the {@link SecurityBuilder} to be used. This is automatically set when using
-	 * {@link AbstractConfiguredSecurityBuilder#apply(SecurityConfigurerAdapter)}
+	 * {@link AbstractConfiguredSecurityBuilder#with(SecurityConfigurerAdapter, Customizer)}
 	 * @param builder the {@link SecurityBuilder} to set
 	 */
 	public void setBuilder(B builder) {

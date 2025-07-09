@@ -106,7 +106,8 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
         configurer: C,
         configuration: C.() -> Unit = { }
     ): C {
-        return this.http.apply(configurer).apply(configuration)
+        this.http.with(configurer, configuration)
+        return configurer
     }
 
     /**

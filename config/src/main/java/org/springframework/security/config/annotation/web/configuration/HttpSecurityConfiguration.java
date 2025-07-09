@@ -123,7 +123,7 @@ class HttpSecurityConfiguration {
 			.requestCache(withDefaults())
 			.anonymous(withDefaults())
 			.servletApi(withDefaults())
-			.apply(new DefaultLoginPageConfigurer<>());
+			.with(new DefaultLoginPageConfigurer<>());
 		http.logout(withDefaults());
 		// @formatter:on
 		applyCorsIfAvailable(http);
@@ -153,7 +153,7 @@ class HttpSecurityConfiguration {
 		List<AbstractHttpConfigurer> defaultHttpConfigurers = SpringFactoriesLoader
 			.loadFactories(AbstractHttpConfigurer.class, classLoader);
 		for (AbstractHttpConfigurer configurer : defaultHttpConfigurers) {
-			http.apply(configurer);
+			http.with(configurer);
 		}
 	}
 
