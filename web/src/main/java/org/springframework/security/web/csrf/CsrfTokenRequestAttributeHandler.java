@@ -60,7 +60,6 @@ public class CsrfTokenRequestAttributeHandler implements CsrfTokenRequestHandler
 		Assert.notNull(response, "response cannot be null");
 		Assert.notNull(deferredCsrfToken, "deferredCsrfToken cannot be null");
 
-		request.setAttribute(HttpServletResponse.class.getName(), response);
 		CsrfToken csrfToken = new SupplierCsrfToken(deferredCsrfToken);
 		request.setAttribute(CsrfToken.class.getName(), csrfToken);
 		String csrfAttrName = (this.csrfRequestAttributeName != null) ? this.csrfRequestAttributeName
