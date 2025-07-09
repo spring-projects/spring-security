@@ -53,7 +53,6 @@ import org.springframework.security.config.annotation.web.configurers.ChannelSec
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
-import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
@@ -610,125 +609,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	public HttpSecurity rememberMe(Customizer<RememberMeConfigurer<HttpSecurity>> rememberMeCustomizer)
 			throws Exception {
 		rememberMeCustomizer.customize(getOrApply(new RememberMeConfigurer<>()));
-		return HttpSecurity.this;
-	}
-
-	/**
-	 * Allows restricting access based upon the {@link HttpServletRequest} using
-	 * {@link RequestMatcher} implementations (i.e. via URL patterns).
-	 *
-	 * <h2>Example Configurations</h2>
-	 *
-	 * The most basic example is to configure all URLs to require the role "ROLE_USER".
-	 * The configuration below requires authentication to every URL and will grant access
-	 * to both the user "admin" and "user".
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class AuthorizeUrlsSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
-	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 			)
-	 * 			.formLogin(withDefaults());
-	 * 		return http.build();
-	 * 	}
-	 *
-	 * 	&#064;Bean
-	 * 	public UserDetailsService userDetailsService() {
-	 * 		UserDetails user = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;user&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;USER&quot;)
-	 * 			.build();
-	 * 		UserDetails admin = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;admin&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;ADMIN&quot;, &quot;USER&quot;)
-	 * 			.build();
-	 * 		return new InMemoryUserDetailsManager(user, admin);
-	 * 	}
-	 * }
-	 * </pre>
-	 *
-	 * We can also configure multiple URLs. The configuration below requires
-	 * authentication to every URL and will grant access to URLs starting with /admin/ to
-	 * only the "admin" user. All other URLs either user can access.
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class AuthorizeUrlsSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
-	 * 					.requestMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
-	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 			)
-	 * 			.formLogin(withDefaults());
-	 * 		return http.build();
-	 * 	}
-	 *
-	 * 	&#064;Bean
-	 * 	public UserDetailsService userDetailsService() {
-	 * 		UserDetails user = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;user&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;USER&quot;)
-	 * 			.build();
-	 * 		UserDetails admin = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;admin&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;ADMIN&quot;, &quot;USER&quot;)
-	 * 			.build();
-	 * 		return new InMemoryUserDetailsManager(user, admin);
-	 * 	}
-	 * }
-	 * </pre>
-	 *
-	 * Note that the matchers are considered in order. Therefore, the following is invalid
-	 * because the first matcher matches every request and will never get to the second
-	 * mapping:
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class AuthorizeUrlsSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		 http
-	 * 		 	.authorizeRequests((authorizeRequests) -&gt;
-	 * 		 		authorizeRequests
-	 * 			 		.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 			 		.requestMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
-	 * 		 	);
-	 * 		return http.build();
-	 * 	}
-	 * }
-	 * </pre>
-	 * @param authorizeRequestsCustomizer the {@link Customizer} to provide more options
-	 * for the {@link ExpressionUrlAuthorizationConfigurer.ExpressionInterceptUrlRegistry}
-	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #authorizeHttpRequests(Customizer)}
-	 * instead
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public HttpSecurity authorizeRequests(
-			Customizer<ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry> authorizeRequestsCustomizer)
-			throws Exception {
-		ApplicationContext context = getContext();
-		authorizeRequestsCustomizer
-			.customize(getOrApply(new ExpressionUrlAuthorizationConfigurer<>(context)).getRegistry());
 		return HttpSecurity.this;
 	}
 
@@ -1936,12 +1816,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	@SuppressWarnings("unchecked")
 	@Override
 	protected DefaultSecurityFilterChain performBuild() {
-		ExpressionUrlAuthorizationConfigurer<?> expressionConfigurer = getConfigurer(
-				ExpressionUrlAuthorizationConfigurer.class);
-		AuthorizeHttpRequestsConfigurer<?> httpConfigurer = getConfigurer(AuthorizeHttpRequestsConfigurer.class);
-		boolean oneConfigurerPresent = expressionConfigurer == null ^ httpConfigurer == null;
-		Assert.state((expressionConfigurer == null && httpConfigurer == null) || oneConfigurerPresent,
-				"authorizeHttpRequests cannot be used in conjunction with authorizeRequests. Please select just one.");
 		this.filters.sort(OrderComparator.INSTANCE);
 		List<Filter> sortedFilters = new ArrayList<>(this.filters.size());
 		for (Filter filter : this.filters) {

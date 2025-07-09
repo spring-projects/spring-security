@@ -81,7 +81,7 @@ public class PermitAllSupportTests {
 		assertThatExceptionOfType(BeanCreationException.class)
 			.isThrownBy(() -> this.spring.register(NoAuthorizedUrlsConfig.class).autowire())
 			.withMessageContaining(
-					"permitAll only works with either HttpSecurity.authorizeRequests() or HttpSecurity.authorizeHttpRequests()");
+					"permitAll only works with HttpSecurity.authorizeHttpRequests(). Please define one.");
 	}
 
 	@Configuration

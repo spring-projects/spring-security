@@ -23,7 +23,6 @@
 	<suppress files="ELRequestMatcherContext\.java" checks="SpringMethodVisibility"/>
 	<suppress files="EnableWebFluxSecurityTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="ExpressionBasedPreInvocationAdviceTests\.java" checks="SpringMethodVisibility"/>
-	<suppress files="ExpressionUrlAuthorizationConfigurerTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="Jsr250MethodSecurityMetadataSourceTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="MapBasedMethodSecurityMetadataSourceTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="OAuth2ResourceServerBeanDefinitionParserTests\.java" checks="SpringMethodVisibility"/>

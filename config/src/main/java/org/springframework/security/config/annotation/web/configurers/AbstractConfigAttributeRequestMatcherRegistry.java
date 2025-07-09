@@ -36,8 +36,6 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @since 3.2
  * @see ChannelSecurityConfigurer
- * @see UrlAuthorizationConfigurer
- * @see ExpressionUrlAuthorizationConfigurer
  * @deprecated In modern Spring Security APIs, each API manages its own configuration
  * context. As such there is no direct replacement for this interface. In the case of
  * method security, please see {@link SecurityAnnotationScanner} and

@@ -254,39 +254,6 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      *     @Bean
      *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
      *         http {
-     *             authorizeRequests {
-     *                 authorize("/public", permitAll)
-     *                 authorize(anyRequest, authenticated)
-     *             }
-     *         }
-     *         return http.build()
-     *     }
-     * }
-     * ```
-     *
-     * @param authorizeRequestsConfiguration custom configuration that specifies
-     * access for requests
-     * @see [AuthorizeRequestsDsl]
-     */
-    @Deprecated(message = "Since 6.4. Use authorizeHttpRequests instead")
-    fun authorizeRequests(authorizeRequestsConfiguration: AuthorizeRequestsDsl.() -> Unit) {
-        val authorizeRequestsCustomizer = AuthorizeRequestsDsl().apply(authorizeRequestsConfiguration).get()
-        this.http.authorizeRequests(authorizeRequestsCustomizer)
-    }
-
-    /**
-     * Allows restricting access based upon the [HttpServletRequest]
-     *
-     * Example:
-     *
-     * ```
-     * @Configuration
-     * @EnableWebSecurity
-     * class SecurityConfig {
-     *
-     *     @Bean
-     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-     *         http {
      *             authorizeHttpRequests {
      *                 authorize("/public", permitAll)
      *                 authorize(anyRequest, authenticated)
