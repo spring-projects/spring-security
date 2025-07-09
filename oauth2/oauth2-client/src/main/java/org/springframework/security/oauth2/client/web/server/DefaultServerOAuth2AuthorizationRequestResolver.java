@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -196,8 +196,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 				// value.
 				applyNonce(builder);
 			}
-			if (ClientAuthenticationMethod.NONE.equals(clientRegistration.getClientAuthenticationMethod())
-					|| clientRegistration.getClientSettings().isRequireProofKey()) {
+			if (clientRegistration.getClientSettings().isRequireProofKey()) {
 				DEFAULT_PKCE_APPLIER.accept(builder);
 			}
 			return builder;
