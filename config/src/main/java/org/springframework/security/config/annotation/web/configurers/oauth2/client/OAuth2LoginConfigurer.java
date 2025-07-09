@@ -87,6 +87,7 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
@@ -176,6 +177,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	private OAuth2AuthorizedClientRepository authorizedClientRepository;
 
+	private SecurityContextRepository securityContextRepository;
+
 	/**
 	 * Sets the repository of client registrations.
 	 * @param clientRegistrationRepository the repository of client registrations
@@ -226,6 +229,12 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	public OAuth2LoginConfigurer<B> loginProcessingUrl(String loginProcessingUrl) {
 		Assert.hasText(loginProcessingUrl, "loginProcessingUrl cannot be empty");
 		this.loginProcessingUrl = loginProcessingUrl;
+		return this;
+	}
+
+	@Override
+	public OAuth2LoginConfigurer<B> securityContextRepository(SecurityContextRepository securityContextRepository) {
+		this.securityContextRepository = securityContextRepository;
 		return this;
 	}
 
@@ -347,6 +356,9 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		OAuth2LoginAuthenticationFilter authenticationFilter = new OAuth2LoginAuthenticationFilter(
 				this.getClientRegistrationRepository(), this.getAuthorizedClientRepository(), this.loginProcessingUrl);
 		authenticationFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
+		if (this.securityContextRepository != null) {
+			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
+		}
 		this.setAuthenticationFilter(authenticationFilter);
 		super.loginProcessingUrl(this.loginProcessingUrl);
 		if (this.loginPage != null) {
