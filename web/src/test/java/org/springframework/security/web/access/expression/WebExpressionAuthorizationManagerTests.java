@@ -18,6 +18,7 @@ package org.springframework.security.web.access.expression;
 
 import org.junit.jupiter.api.Test;
 
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -100,6 +101,51 @@ class WebExpressionAuthorizationManagerTests {
 				new RequestAuthorizationContext(new MockHttpServletRequest()));
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
+	}
+
+	@Test
+	void authorizeWhenDefaultsThenEvaluatesExpressionsReferencingBeans() {
+		GenericApplicationContext context = new GenericApplicationContext();
+		context.registerBean("bean", WebExpressionAuthorizationManagerTests.class, () -> this);
+		context.refresh();
+		WebExpressionAuthorizationManager.Builder builder = WebExpressionAuthorizationManager.withDefaults();
+		builder.setApplicationContext(context);
+		WebExpressionAuthorizationManager manager = builder
+			.expression("@bean.class.simpleName.startsWith('WebExpression')");
+		AuthorizationResult result = manager.authorize(TestAuthentication::authenticatedUser,
+				new RequestAuthorizationContext(new MockHttpServletRequest()));
+		assertThat(result.isGranted()).isTrue();
+	}
+
+	@Test
+	void authorizeWhenDefaultsAsBeanThenEvaluatesExpressionsReferencingBeans() {
+		GenericApplicationContext context = new GenericApplicationContext();
+		context.registerBean("bean", WebExpressionAuthorizationManagerTests.class, () -> this);
+		context.registerBean("builder", WebExpressionAuthorizationManager.Builder.class,
+				WebExpressionAuthorizationManager::withDefaults);
+		context.refresh();
+		WebExpressionAuthorizationManager.Builder builder = context
+			.getBean(WebExpressionAuthorizationManager.Builder.class);
+		WebExpressionAuthorizationManager manager = builder
+			.expression("@bean.class.simpleName.startsWith('WebExpression')");
+		AuthorizationResult result = manager.authorize(TestAuthentication::authenticatedUser,
+				new RequestAuthorizationContext(new MockHttpServletRequest()));
+		assertThat(result.isGranted()).isTrue();
+	}
+
+	@Test
+	void authorizeWhenExpressionHandlerHasBeanProviderThenEvaluatesExpressionsReferencingBeans() {
+		GenericApplicationContext context = new GenericApplicationContext();
+		context.registerBean("bean", WebExpressionAuthorizationManagerTests.class, () -> this);
+		context.refresh();
+		DefaultHttpSecurityExpressionHandler expressionHandler = new DefaultHttpSecurityExpressionHandler();
+		expressionHandler.setApplicationContext(context);
+		WebExpressionAuthorizationManager manager = WebExpressionAuthorizationManager
+			.withExpressionHandler(expressionHandler)
+			.expression("@bean.class.simpleName.startsWith('WebExpression')");
+		AuthorizationResult result = manager.authorize(TestAuthentication::authenticatedUser,
+				new RequestAuthorizationContext(new MockHttpServletRequest()));
+		assertThat(result.isGranted()).isTrue();
 	}
 
 }

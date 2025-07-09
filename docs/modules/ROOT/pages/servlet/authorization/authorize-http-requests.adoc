@@ -996,6 +996,29 @@ Kotlin::
 ----
 ======
 
+To migrate several, you can use `WebExpressionAuthorizationManager#withDefaults`:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+WebExpressionAuthorizationManager.Builder authz = WebExpressionAuthorizationManager.withDefaults();
+.requestMatchers("/test/**").access(authz.expression("hasRole('ADMIN') && hasRole('USER')"))
+.requestMatchers("/test/**").access(authz.expression("permitAll"))
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+var authz = WebExpressionAuthorizationManager.withDefaults()
+.requestMatchers("/test/**").access(authz.expression("hasRole('ADMIN') && hasRole('USER')"))
+.requestMatchers("/test/**").access(authz.expression("permitAll"))
+----
+======
+
 If you are referring to a bean in your expression like so: `@webSecurity.check(authentication, request)`, it's recommended that you instead call the bean directly, which will look something like the following:
 
 [tabs]
@@ -1019,7 +1042,32 @@ Kotlin::
 
 For complex instructions that include bean references as well as other expressions, it is recommended that you change those to implement `AuthorizationManager` and refer to them by calling `.access(AuthorizationManager)`.
 
-If you are not able to do that, you can configure a javadoc:org.springframework.security.web.access.expression.DefaultHttpSecurityExpressionHandler[] with a bean resolver and supply that to `WebExpressionAuthorizationManager#setExpressionhandler`.
+If you are not able to do that, you can publish javadoc:org.springframework.security.web.access.expression.WebExpressionAuthorizationManager$Builder[] as a bean:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+WebExpressionAuthorizationManager.Builder authz() {
+	return WebExpressionAuthorizationManager.withDefaults();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authz(): WebExpressionAuthorizationManager.Builder {
+	return WebExpressionAuthorizationManager.withDefaults()
+}
+----
+======
+
+Then, expressions passed to that builder will be able to refer to beans.
 
 [[security-matchers]]
 == Security Matchers
