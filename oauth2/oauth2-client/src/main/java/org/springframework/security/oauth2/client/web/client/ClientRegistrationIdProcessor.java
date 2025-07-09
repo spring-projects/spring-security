@@ -38,7 +38,8 @@ public final class ClientRegistrationIdProcessor implements HttpRequestValues.Pr
 	public static ClientRegistrationIdProcessor DEFAULT_INSTANCE = new ClientRegistrationIdProcessor();
 
 	@Override
-	public void process(Method method, MethodParameter[] parameters, @Nullable Object[] arguments, HttpRequestValues.Builder builder) {
+	public void process(Method method, MethodParameter[] parameters, @Nullable Object[] arguments,
+			HttpRequestValues.Builder builder) {
 		ClientRegistrationId registeredId = AnnotationUtils.findAnnotation(method, ClientRegistrationId.class);
 		if (registeredId != null) {
 			String registrationId = registeredId.registrationId();
