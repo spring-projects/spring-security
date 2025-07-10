@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -35,8 +34,6 @@ import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.StaticHeadersWriter;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
-import org.springframework.security.web.header.writers.frameoptions.StaticAllowFromStrategy;
-import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
@@ -100,13 +97,6 @@ public class NamespaceHttpHeadersTests {
 	public void requestWhenFrameOptionsSameOriginThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(FrameOptionsSameOriginConfig.class).autowire();
 		this.mvc.perform(get("/")).andExpect(includes(Collections.singletonMap("X-Frame-Options", "SAMEORIGIN")));
-	}
-
-	@Test
-	public void requestWhenFrameOptionsAllowFromThenBehaviorMatchesNamespace() throws Exception {
-		this.spring.register(FrameOptionsAllowFromConfig.class).autowire();
-		this.mvc.perform(get("/"))
-			.andExpect(includes(Collections.singletonMap("X-Frame-Options", "ALLOW-FROM https://example.com")));
 	}
 
 	@Test
@@ -237,25 +227,6 @@ public class NamespaceHttpHeadersTests {
 					// frame-options@policy=SAMEORIGIN
 					.defaultsDisabled()
 					.frameOptions((frameOptions) -> frameOptions.sameOrigin()));
-			return http.build();
-			// @formatter:on
-		}
-
-	}
-
-	@Configuration
-	@EnableWebSecurity
-	static class FrameOptionsAllowFromConfig {
-
-		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.headers((headers) -> headers
-					// frame-options@ref
-					.defaultsDisabled()
-					.addHeaderWriter(new XFrameOptionsHeaderWriter(
-						new StaticAllowFromStrategy(URI.create("https://example.com")))));
 			return http.build();
 			// @formatter:on
 		}
