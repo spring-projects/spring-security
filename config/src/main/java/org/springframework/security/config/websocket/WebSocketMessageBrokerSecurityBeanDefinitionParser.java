@@ -55,6 +55,7 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.config.Elements;
+import org.springframework.security.config.http.MessageMatcherFactoryBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -68,7 +69,6 @@ import org.springframework.security.messaging.access.intercept.MessageMatcherDel
 import org.springframework.security.messaging.context.AuthenticationPrincipalArgumentResolver;
 import org.springframework.security.messaging.context.SecurityContextChannelInterceptor;
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
-import org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher;
 import org.springframework.security.messaging.util.matcher.SimpMessageTypeMatcher;
 import org.springframework.security.messaging.web.csrf.XorCsrfChannelInterceptor;
 import org.springframework.security.messaging.web.socket.server.CsrfTokenHandshakeInterceptor;
@@ -275,25 +275,18 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 			matcher.addConstructorArgValue(messageType);
 			return matcher.getBeanDefinition();
 		}
-		String factoryName = null;
-		if (hasPattern && hasMessageType) {
+		BeanDefinitionBuilder matcher = BeanDefinitionBuilder.rootBeanDefinition(MessageMatcherFactoryBean.class);
+		matcher.addConstructorArgValue(matcherPattern);
+		if (hasMessageType) {
 			SimpMessageType type = SimpMessageType.valueOf(messageType);
-			if (SimpMessageType.MESSAGE == type) {
-				factoryName = "createMessageMatcher";
-			}
-			else if (SimpMessageType.SUBSCRIBE == type) {
-				factoryName = "createSubscribeMatcher";
-			}
-			else {
+			matcher.addConstructorArgValue(type);
+			if (SimpMessageType.SUBSCRIBE != type && SimpMessageType.MESSAGE != type) {
 				parserContext.getReaderContext()
 					.error("Cannot use intercept-websocket@message-type=" + messageType
 							+ " with a pattern because the type does not have a destination.", interceptMessage);
 			}
 		}
-		BeanDefinitionBuilder matcher = BeanDefinitionBuilder.rootBeanDefinition(SimpDestinationMessageMatcher.class);
-		matcher.setFactoryMethod(factoryName);
-		matcher.addConstructorArgValue(matcherPattern);
-		matcher.addConstructorArgValue(new RuntimeBeanReference("springSecurityMessagePathMatcher"));
+		matcher.addPropertyValue("pathMatcher", new RuntimeBeanReference("springSecurityMessagePathMatcher"));
 		return matcher.getBeanDefinition();
 	}
 

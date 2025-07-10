@@ -343,6 +343,32 @@ public class WebSocketMessageBrokerConfigTests {
 	}
 
 	@Test
+	public void sendWhenPathPatternFactoryBeanThenConstructsPatternsWithPathPattern() {
+		this.spring.configLocations(xml("SubscribeInterceptTypePathPattern")).autowire();
+		Message<?> message = message("/permitAll", SimpMessageType.SUBSCRIBE);
+		send(message);
+		message = message("/permitAll", SimpMessageType.UNSUBSCRIBE);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+			.withCauseInstanceOf(AccessDeniedException.class);
+		message = message("/anyOther", SimpMessageType.SUBSCRIBE);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+			.withCauseInstanceOf(AccessDeniedException.class);
+	}
+
+	@Test
+	public void sendWhenCaseInsensitivePathPatternParserThenMatchesMixedCase() {
+		this.spring.configLocations(xml("SubscribeInterceptTypePathPatternParser")).autowire();
+		Message<?> message = message("/peRmItAll", SimpMessageType.SUBSCRIBE);
+		send(message);
+		message = message("/peRmKtAll", SimpMessageType.UNSUBSCRIBE);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+			.withCauseInstanceOf(AccessDeniedException.class);
+		message = message("/aNyOtHer", SimpMessageType.SUBSCRIBE);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+			.withCauseInstanceOf(AccessDeniedException.class);
+	}
+
+	@Test
 	public void configureWhenUsingConnectMessageTypeThenAutowireFails() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
 			.isThrownBy(() -> this.spring.configLocations(xml("ConnectInterceptTypeConfig")).autowire());
