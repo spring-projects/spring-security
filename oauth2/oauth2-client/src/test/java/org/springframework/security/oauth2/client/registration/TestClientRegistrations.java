@@ -64,7 +64,7 @@ public final class TestClientRegistrations {
 		// @formatter:on
 	}
 
-	private static ClientRegistration.Builder publicClientRegistrationWithNoPkce() {
+	public static ClientRegistration.Builder publicClientRegistrationWithNoPkce() {
 		return ClientRegistration.withRegistrationId("no-pkce")
 				.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
 				.clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
@@ -76,6 +76,7 @@ public final class TestClientRegistrations {
 				.userInfoUri("https://api.example.com/user")
 				.userNameAttributeName("id")
 				.clientName("Client Name")
+				.clientId("client-id")
 				.clientSecret(null);
 	}
 

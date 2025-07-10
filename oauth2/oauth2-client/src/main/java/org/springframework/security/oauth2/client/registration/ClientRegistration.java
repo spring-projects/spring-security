@@ -756,9 +756,7 @@ public final class ClientRegistration implements Serializable {
 
 		private boolean requireProofKey;
 
-		private ClientSettings() {
-			this.requireProofKey = true;
-		}
+		private ClientSettings() {}
 
 		public boolean isRequireProofKey() {
 			return this.requireProofKey;
@@ -794,6 +792,7 @@ public final class ClientRegistration implements Serializable {
 			private boolean requireProofKey;
 
 			private Builder() {
+				this.requireProofKey = true;
 			}
 
 			/**
