@@ -147,6 +147,29 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	/**
 	 * Applies a {@link SecurityConfigurerAdapter} to this {@link SecurityBuilder} and
 	 * invokes {@link SecurityConfigurerAdapter#setBuilder(SecurityBuilder)}.
+	 *
+	 * <p>
+	 * A shortcut for applying a configurer as-is, or in other words: <code>
+	 *     .with(new MyConfigurer())
+	 * </code>
+	 *
+	 * <p>
+	 * Is identical to: <code>
+	 *     .with(new MyConfigurer(), Customizer.withDefaults())
+	 * </code>
+	 * @param configurer
+	 * @return the {@link SecurityBuilder} for further customizations
+	 * @throws Exception
+	 * @since 7.0
+	 */
+	@SuppressWarnings("unchecked")
+	public <C extends SecurityConfigurerAdapter<O, B>> B with(C configurer) throws Exception {
+		return with(configurer, Customizer.withDefaults());
+	}
+
+	/**
+	 * Applies a {@link SecurityConfigurerAdapter} to this {@link SecurityBuilder} and
+	 * invokes {@link SecurityConfigurerAdapter#setBuilder(SecurityBuilder)}.
 	 * @param configurer
 	 * @return the {@link SecurityBuilder} for further customizations
 	 * @throws Exception
