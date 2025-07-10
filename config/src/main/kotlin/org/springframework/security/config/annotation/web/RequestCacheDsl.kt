@@ -32,10 +32,22 @@ import org.springframework.security.web.savedrequest.RequestCache
 class RequestCacheDsl {
     var requestCache: RequestCache? = null
 
+    private var disabled = false
+
+    /**
+     * Disables the request cache.
+     */
+    fun disable() {
+        disabled = true
+    }
+
     internal fun get(): (RequestCacheConfigurer<HttpSecurity>) -> Unit {
         return { requestCacheConfig ->
             requestCache?.also {
                 requestCacheConfig.requestCache(requestCache)
+            }
+            if (disabled) {
+                requestCacheConfig.disable()
             }
         }
     }
