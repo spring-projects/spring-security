@@ -23,9 +23,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
 import org.springframework.security.messaging.util.matcher.PathPatternMessageMatcher;
-import org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.PathMatcher;
 
 @Deprecated
 public final class MessageMatcherFactoryBean implements FactoryBean<MessageMatcher<?>>, ApplicationContextAware {
@@ -35,8 +32,6 @@ public final class MessageMatcherFactoryBean implements FactoryBean<MessageMatch
 	private final SimpMessageType method;
 
 	private final String path;
-
-	private PathMatcher pathMatcher = new AntPathMatcher();
 
 	public MessageMatcherFactoryBean(String path) {
 		this(path, null);
@@ -49,16 +44,7 @@ public final class MessageMatcherFactoryBean implements FactoryBean<MessageMatch
 
 	@Override
 	public MessageMatcher<?> getObject() throws Exception {
-		if (this.builder != null) {
-			return this.builder.matcher(this.method, this.path);
-		}
-		if (this.method == SimpMessageType.SUBSCRIBE) {
-			return SimpDestinationMessageMatcher.createSubscribeMatcher(this.path, this.pathMatcher);
-		}
-		if (this.method == SimpMessageType.MESSAGE) {
-			return SimpDestinationMessageMatcher.createMessageMatcher(this.path, this.pathMatcher);
-		}
-		return new SimpDestinationMessageMatcher(this.path, this.pathMatcher);
+		return this.builder.matcher(this.method, this.path);
 	}
 
 	@Override
@@ -66,13 +52,9 @@ public final class MessageMatcherFactoryBean implements FactoryBean<MessageMatch
 		return null;
 	}
 
-	public void setPathMatcher(PathMatcher pathMatcher) {
-		this.pathMatcher = pathMatcher;
-	}
-
 	@Override
 	public void setApplicationContext(ApplicationContext context) throws BeansException {
-		this.builder = context.getBeanProvider(PathPatternMessageMatcher.Builder.class).getIfUnique();
+		this.builder = context.getBean(PathPatternMessageMatcher.Builder.class);
 	}
 
 }

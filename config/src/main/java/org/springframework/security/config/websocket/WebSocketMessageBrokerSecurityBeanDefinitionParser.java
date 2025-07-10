@@ -31,9 +31,9 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
@@ -56,6 +56,7 @@ import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.config.Elements;
 import org.springframework.security.config.http.MessageMatcherFactoryBean;
+import org.springframework.security.config.web.messaging.PathPatternMessageMatcherBuilderFactoryBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -134,7 +135,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 
 	private static final String TYPE_ATTR = "type";
 
-	private static final String PATH_MATCHER_BEAN_NAME = "springSecurityMessagePathMatcher";
+	private static final String MESSAGE_MATCHER_BUILDER_BEAN_NAME = "HttpConfigurationBuilder-pathPatternMessageMatcherBuilder";
 
 	/**
 	 * @param element
@@ -144,13 +145,17 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		String id = element.getAttribute(ID_ATTR);
+		if (!parserContext.getRegistry().containsBeanDefinition(MESSAGE_MATCHER_BUILDER_BEAN_NAME)) {
+			BeanDefinitionBuilder pathPatternMessageMatcherBuilder = BeanDefinitionBuilder
+				.rootBeanDefinition(PathPatternMessageMatcherBuilderFactoryBean.class);
+			pathPatternMessageMatcherBuilder.setFallback(true);
+			BeanDefinition bean = pathPatternMessageMatcherBuilder.getBeanDefinition();
+			parserContext.registerBeanComponent(new BeanComponentDefinition(bean, MESSAGE_MATCHER_BUILDER_BEAN_NAME));
+		}
 		String inSecurityInterceptorName = parseAuthorization(element, parserContext);
 		BeanDefinitionRegistry registry = parserContext.getRegistry();
 		if (StringUtils.hasText(id)) {
 			registry.registerAlias(inSecurityInterceptorName, id);
-			if (!registry.containsBeanDefinition(PATH_MATCHER_BEAN_NAME)) {
-				registry.registerBeanDefinition(PATH_MATCHER_BEAN_NAME, new RootBeanDefinition(AntPathMatcher.class));
-			}
 		}
 		else {
 			boolean sameOriginDisabled = Boolean.parseBoolean(element.getAttribute(DISABLED_ATTR));
@@ -286,7 +291,6 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 							+ " with a pattern because the type does not have a destination.", interceptMessage);
 			}
 		}
-		matcher.addPropertyValue("pathMatcher", new RuntimeBeanReference("springSecurityMessagePathMatcher"));
 		return matcher.getBeanDefinition();
 	}
 
@@ -342,13 +346,6 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 					}
 					argResolvers.add(beanDefinition);
 					bd.getPropertyValues().add(CUSTOM_ARG_RESOLVERS_PROP, argResolvers);
-					if (!registry.containsBeanDefinition(PATH_MATCHER_BEAN_NAME)) {
-						PropertyValue pathMatcherProp = bd.getPropertyValues().getPropertyValue("pathMatcher");
-						Object pathMatcher = (pathMatcherProp != null) ? pathMatcherProp.getValue() : null;
-						if (pathMatcher instanceof BeanReference) {
-							registry.registerAlias(((BeanReference) pathMatcher).getBeanName(), PATH_MATCHER_BEAN_NAME);
-						}
-					}
 				}
 				else if (CSRF_HANDSHAKE_HANDLER_CLASSES.contains(beanClassName)) {
 					addCsrfTokenHandshakeInterceptor(bd);
@@ -376,9 +373,6 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 				interceptors.addAll(currentInterceptors);
 			}
 			inboundChannel.getPropertyValues().add(INTERCEPTORS_PROP, interceptors);
-			if (!registry.containsBeanDefinition(PATH_MATCHER_BEAN_NAME)) {
-				registry.registerBeanDefinition(PATH_MATCHER_BEAN_NAME, new RootBeanDefinition(AntPathMatcher.class));
-			}
 		}
 
 		private void addCsrfTokenHandshakeInterceptor(BeanDefinition bd) {

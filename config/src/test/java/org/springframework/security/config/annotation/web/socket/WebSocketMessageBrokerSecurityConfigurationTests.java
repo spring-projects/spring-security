@@ -45,6 +45,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.MethodParameter;
+import org.springframework.http.server.PathContainer;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.messaging.Message;
@@ -70,6 +71,7 @@ import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.observation.SecurityObservationSettings;
+import org.springframework.security.config.web.messaging.PathPatternMessageMatcherBuilderFactoryBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -99,6 +101,7 @@ import org.springframework.web.socket.server.HandshakeHandler;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 import org.springframework.web.socket.sockjs.transport.handler.SockJsWebSocketHandler;
 import org.springframework.web.socket.sockjs.transport.session.WebSocketServerSockJsSession;
+import org.springframework.web.util.pattern.PathPatternParser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -507,6 +510,13 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 	@Import(SyncExecutorConfig.class)
 	static class MsmsRegistryCustomPatternMatcherConfig implements WebSocketMessageBrokerConfigurer {
 
+		@Bean
+		PathPatternMessageMatcherBuilderFactoryBean messageMatcherBuilder() {
+			PathPatternParser parser = new PathPatternParser();
+			parser.setPathOptions(PathContainer.Options.MESSAGE_ROUTE);
+			return new PathPatternMessageMatcherBuilderFactoryBean(parser);
+		}
+
 		// @formatter:off
 		@Override
 		public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -518,7 +528,6 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 
 		@Override
 		public void configureMessageBroker(MessageBrokerRegistry registry) {
-			registry.setPathMatcher(new AntPathMatcher("."));
 			registry.enableSimpleBroker("/queue/", "/topic/");
 			registry.setApplicationDestinationPrefixes("/app");
 		}
@@ -567,7 +576,6 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		@Bean
 		AuthorizationManager<Message<?>> authorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
 			messages
-					.simpDestPathMatcher(new AntPathMatcher())
 					.simpDestMatchers("/app/a/*").permitAll()
 					.anyMessage().denyAll();
 			return messages.build();

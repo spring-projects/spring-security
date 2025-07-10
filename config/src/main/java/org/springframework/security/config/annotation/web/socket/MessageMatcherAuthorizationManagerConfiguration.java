@@ -16,29 +16,24 @@
 
 package org.springframework.security.config.annotation.web.socket;
 
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Fallback;
 import org.springframework.context.annotation.Scope;
-import org.springframework.messaging.simp.annotation.support.SimpAnnotationMethodMessageHandler;
+import org.springframework.security.config.web.messaging.PathPatternMessageMatcherBuilderFactoryBean;
 import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager;
-import org.springframework.security.messaging.util.matcher.MessageMatcherFactory;
-import org.springframework.util.AntPathMatcher;
 
 final class MessageMatcherAuthorizationManagerConfiguration {
 
 	@Bean
+	@Fallback
+	PathPatternMessageMatcherBuilderFactoryBean messageMatcherBuilderFactoryBean() {
+		return new PathPatternMessageMatcherBuilderFactoryBean();
+	}
+
+	@Bean
 	@Scope("prototype")
-	MessageMatcherDelegatingAuthorizationManager.Builder messageAuthorizationManagerBuilder(
-			ApplicationContext context) {
-		MessageMatcherFactory.setApplicationContext(context);
-		if (MessageMatcherFactory.usesPathPatterns()) {
-			return MessageMatcherDelegatingAuthorizationManager.builder();
-		}
-		return MessageMatcherDelegatingAuthorizationManager.builder()
-			.simpDestPathMatcher(
-					() -> (context.getBeanNamesForType(SimpAnnotationMethodMessageHandler.class).length > 0)
-							? context.getBean(SimpAnnotationMethodMessageHandler.class).getPathMatcher()
-							: new AntPathMatcher());
+	MessageMatcherDelegatingAuthorizationManager.Builder messageAuthorizationManagerBuilder() {
+		return MessageMatcherDelegatingAuthorizationManager.builder();
 	}
 
 }

@@ -23,6 +23,9 @@ import java.util.function.Supplier;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.log.LogMessage;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessageType;
@@ -33,15 +36,10 @@ import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.SingleResultAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
-import org.springframework.security.messaging.util.matcher.MessageMatcherFactory;
 import org.springframework.security.messaging.util.matcher.PathPatternMessageMatcher;
-import org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher;
 import org.springframework.security.messaging.util.matcher.SimpMessageTypeMatcher;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.PathMatcher;
-import org.springframework.util.function.SingletonSupplier;
 
 public final class MessageMatcherDelegatingAuthorizationManager implements AuthorizationManager<Message<?>> {
 
@@ -99,12 +97,11 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 	/**
 	 * A builder for {@link MessageMatcherDelegatingAuthorizationManager}.
 	 */
-	public static final class Builder {
+	public static final class Builder implements ApplicationContextAware {
 
 		private final List<Entry<AuthorizationManager<MessageAuthorizationContext<?>>>> mappings = new ArrayList<>();
 
-		@Deprecated
-		private Supplier<PathMatcher> pathMatcher = AntPathMatcher::new;
+		private PathPatternMessageMatcher.Builder messageMatcherBuilder = PathPatternMessageMatcher.withDefaults();
 
 		public Builder() {
 		}
@@ -142,11 +139,9 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		}
 
 		/**
-		 * Maps a {@link List} of {@link SimpDestinationMessageMatcher} (or
-		 * {@link PathPatternMessageMatcher} if the application has configured a
-		 * {@link PathPatternMessageMatcher.Builder} bean) instances without regard to the
-		 * {@link SimpMessageType}. If no destination is found on the Message, then the
-		 * Matcher returns false.
+		 * Maps a {@link List} of {@link PathPatternMessageMatcher}s instances without
+		 * regard to the {@link SimpMessageType}. If no destination is found on the
+		 * Message, then the Matcher returns false.
 		 * @param patterns the patterns to create {@code MessageMatcher}s from.
 		 */
 		public Builder.Constraint simpDestMatchers(String... patterns) {
@@ -154,10 +149,8 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		}
 
 		/**
-		 * Maps a {@link List} of {@link SimpDestinationMessageMatcher} (or
-		 * {@link PathPatternMessageMatcher} if the application has configured a
-		 * {@link PathPatternMessageMatcher.Builder} bean) instances that match on
-		 * {@code SimpMessageType.MESSAGE}. If no destination is found on the Message,
+		 * Maps a {@link List} of {@link PathPatternMessageMatcher}s instances that match
+		 * on {@code SimpMessageType.MESSAGE}. If no destination is found on the Message,
 		 * then the Matcher returns false.
 		 * @param patterns the patterns to create {@code MessageMatcher}s from.
 		 */
@@ -166,11 +159,9 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		}
 
 		/**
-		 * Maps a {@link List} of {@link SimpDestinationMessageMatcher} (or
-		 * {@link PathPatternMessageMatcher} if the application has configured a
-		 * {@link PathPatternMessageMatcher.Builder} bean) instances that match on
-		 * {@code SimpMessageType.SUBSCRIBE}. If no destination is found on the Message,
-		 * then the Matcher returns false.
+		 * Maps a {@link List} of {@link PathPatternMessageMatcher}s instances that match
+		 * on {@code SimpMessageType.SUBSCRIBE}. If no destination is found on the
+		 * Message, then the Matcher returns false.
 		 * @param patterns the patterns to create {@code MessageMatcher}s from.
 		 */
 		public Builder.Constraint simpSubscribeDestMatchers(String... patterns) {
@@ -178,10 +169,8 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		}
 
 		/**
-		 * Maps a {@link List} of {@link SimpDestinationMessageMatcher} (or
-		 * {@link PathPatternMessageMatcher} if the application has configured a
-		 * {@link PathPatternMessageMatcher.Builder} bean) instances. If no destination is
-		 * found on the Message, then the Matcher returns false.
+		 * Maps a {@link List} of {@link PathPatternMessageMatcher} instances. If no
+		 * destination is found on the Message, then the Matcher returns false.
 		 * @param type the {@link SimpMessageType} to match on. If null, the
 		 * {@link SimpMessageType} is not considered for matching.
 		 * @param patterns the patterns to create {@code MessageMatcher}s from.
@@ -191,42 +180,10 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		private Builder.Constraint simpDestMatchers(SimpMessageType type, String... patterns) {
 			List<MessageMatcher<?>> matchers = new ArrayList<>(patterns.length);
 			for (String pattern : patterns) {
-				MessageMatcher<Object> matcher = MessageMatcherFactory.usesPathPatterns()
-						? MessageMatcherFactory.matcher(type, pattern)
-						: new LazySimpDestinationMessageMatcher(pattern, type);
+				MessageMatcher<Object> matcher = this.messageMatcherBuilder.matcher(type, pattern);
 				matchers.add(matcher);
 			}
 			return new Builder.Constraint(matchers);
-		}
-
-		/**
-		 * The {@link PathMatcher} to be used with the
-		 * {@link Builder#simpDestMatchers(String...)}. The default is to use the default
-		 * constructor of {@link AntPathMatcher}.
-		 * @param pathMatcher the {@link PathMatcher} to use. Cannot be null.
-		 * @return the {@link Builder} for further customization.
-		 * @deprecated
-		 */
-		@Deprecated
-		public Builder simpDestPathMatcher(PathMatcher pathMatcher) {
-			Assert.notNull(pathMatcher, "pathMatcher cannot be null");
-			this.pathMatcher = () -> pathMatcher;
-			return this;
-		}
-
-		/**
-		 * The {@link PathMatcher} to be used with the
-		 * {@link Builder#simpDestMatchers(String...)}. Use this method to delay the
-		 * computation or lookup of the {@link PathMatcher}.
-		 * @param pathMatcher the {@link PathMatcher} to use. Cannot be null.
-		 * @return the {@link Builder} for further customization.
-		 * @deprecated
-		 */
-		@Deprecated
-		public Builder simpDestPathMatcher(Supplier<PathMatcher> pathMatcher) {
-			Assert.notNull(pathMatcher, "pathMatcher cannot be null");
-			this.pathMatcher = pathMatcher;
-			return this;
 		}
 
 		/**
@@ -246,6 +203,12 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 
 		public AuthorizationManager<Message<?>> build() {
 			return new MessageMatcherDelegatingAuthorizationManager(this.mappings);
+		}
+
+		@Override
+		public void setApplicationContext(ApplicationContext context) throws BeansException {
+			this.messageMatcherBuilder = context.getBeanProvider(PathPatternMessageMatcher.Builder.class)
+				.getIfUnique(PathPatternMessageMatcher::withDefaults);
 		}
 
 		/**
@@ -375,39 +338,6 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 					Builder.this.mappings.add(new Entry<>(messageMatcher, authorizationManager));
 				}
 				return Builder.this;
-			}
-
-		}
-
-		@Deprecated
-		private final class LazySimpDestinationMessageMatcher implements MessageMatcher<Object> {
-
-			private final Supplier<SimpDestinationMessageMatcher> delegate;
-
-			private LazySimpDestinationMessageMatcher(String pattern, SimpMessageType type) {
-				this.delegate = SingletonSupplier.of(() -> {
-					PathMatcher pathMatcher = Builder.this.pathMatcher.get();
-					if (type == null) {
-						return new SimpDestinationMessageMatcher(pattern, pathMatcher);
-					}
-					if (SimpMessageType.MESSAGE == type) {
-						return SimpDestinationMessageMatcher.createMessageMatcher(pattern, pathMatcher);
-					}
-					if (SimpMessageType.SUBSCRIBE == type) {
-						return SimpDestinationMessageMatcher.createSubscribeMatcher(pattern, pathMatcher);
-					}
-					throw new IllegalStateException(type + " is not supported since it does not have a destination");
-				});
-			}
-
-			@Override
-			public boolean matches(Message<?> message) {
-				return this.delegate.get().matches(message);
-			}
-
-			@Override
-			public MatchResult matcher(Message<?> message) {
-				return this.delegate.get().matcher(message);
 			}
 
 		}

@@ -78,6 +78,7 @@ public class MessageExpressionVoterTests {
 	@Test
 	public void voteGranted() {
 		given(this.expression.getValue(any(EvaluationContext.class), eq(Boolean.class))).willReturn(true);
+		given(this.matcher.matcher(any())).willCallRealMethod();
 		assertThat(this.voter.vote(this.authentication, this.message, this.attributes))
 			.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
 	}
@@ -85,6 +86,7 @@ public class MessageExpressionVoterTests {
 	@Test
 	public void voteDenied() {
 		given(this.expression.getValue(any(EvaluationContext.class), eq(Boolean.class))).willReturn(false);
+		given(this.matcher.matcher(any())).willCallRealMethod();
 		assertThat(this.voter.vote(this.authentication, this.message, this.attributes))
 			.isEqualTo(AccessDecisionVoter.ACCESS_DENIED);
 	}
@@ -127,6 +129,7 @@ public class MessageExpressionVoterTests {
 		given(this.expressionHandler.createEvaluationContext(this.authentication, this.message))
 			.willReturn(this.evaluationContext);
 		given(this.expression.getValue(this.evaluationContext, Boolean.class)).willReturn(true);
+		given(this.matcher.matcher(any())).willCallRealMethod();
 		assertThat(this.voter.vote(this.authentication, this.message, this.attributes))
 			.isEqualTo(AccessDecisionVoter.ACCESS_GRANTED);
 		verify(this.expressionHandler).createEvaluationContext(this.authentication, this.message);
