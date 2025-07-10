@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -330,6 +330,32 @@ public class WebSocketMessageBrokerConfigTests {
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
 			.withCauseInstanceOf(AccessDeniedException.class);
 		message = message("/anyOther", SimpMessageType.SUBSCRIBE);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+			.withCauseInstanceOf(AccessDeniedException.class);
+	}
+
+	@Test
+	public void sendWhenPathPatternFactoryBeanThenConstructsPatternsWithPathPattern() {
+		this.spring.configLocations(xml("SubscribeInterceptTypePathPattern")).autowire();
+		Message<?> message = message("/permitAll", SimpMessageType.SUBSCRIBE);
+		send(message);
+		message = message("/permitAll", SimpMessageType.UNSUBSCRIBE);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+			.withCauseInstanceOf(AccessDeniedException.class);
+		message = message("/anyOther", SimpMessageType.SUBSCRIBE);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+			.withCauseInstanceOf(AccessDeniedException.class);
+	}
+
+	@Test
+	public void sendWhenCaseInsensitivePathPatternParserThenMatchesMixedCase() {
+		this.spring.configLocations(xml("SubscribeInterceptTypePathPatternParser")).autowire();
+		Message<?> message = message("/peRmItAll", SimpMessageType.SUBSCRIBE);
+		send(message);
+		message = message("/peRmKtAll", SimpMessageType.UNSUBSCRIBE);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+			.withCauseInstanceOf(AccessDeniedException.class);
+		message = message("/aNyOtHer", SimpMessageType.SUBSCRIBE);
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
 			.withCauseInstanceOf(AccessDeniedException.class);
 	}
