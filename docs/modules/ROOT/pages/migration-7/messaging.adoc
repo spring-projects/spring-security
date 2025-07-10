@@ -1,0 +1,40 @@
+== Messaging Migrations
+
+[[use-path-pattern]]
+== Use PathPatternMessageMatcher by Default
+
+In Spring Security 7, `SimpDestMessageMatcher` is no longer supported and will use `PathPatternMessageMatcher` by default.
+
+To check how prepared you are for this change, you can publish this bean:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+PathPatternMessageMatcherBuilderFactoryBean messageMatcherBuilder() {
+	return new PathPatternMessageMatcherBuilderFactoryBean();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun messageMatcherBuilder(): PathPatternMessageMatcherBuilderFactoryBean {
+    return PathPatternMessageMatcherBuilderFactoryBean()
+}
+----
+
+Xml::
++
+[source,xml,role="secondary"]
+----
+<b:bean class="org.springframework.security.config.web.messaging.PathPatternMessageMatcherBuilderFactoryBean"/>
+----
+======
+
+This will tell the Spring Security DSL to use `PathPatternMessageMatcher` for all message matchers that it constructs.
