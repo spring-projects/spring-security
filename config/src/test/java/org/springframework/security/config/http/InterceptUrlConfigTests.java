@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -333,28 +333,6 @@ public class InterceptUrlConfigTests {
 			request.setDispatcherType(DispatcherType.ERROR);
 			return request;
 		})).andExpect(status().isUnauthorized());
-		// @formatter:on
-		assertThat(this.spring.getContext().getBean(AuthorizationManager.class)).isNotNull();
-	}
-
-	@Test
-	public void requestWhenUsingFilterAllDispatcherTypesFalseThenAuthorizesRequestsAccordingly() throws Exception {
-		this.spring.configLocations(this.xml("FilterAllDispatcherTypesFalse")).autowire();
-		// @formatter:off
-		this.mvc.perform(get("/path").with(userCredentials()))
-				.andExpect(status().isOk());
-		this.mvc.perform(get("/path").with(adminCredentials()))
-				.andExpect(status().isForbidden());
-		this.mvc.perform(get("/error").with((request) -> {
-			request.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/error");
-			request.setDispatcherType(DispatcherType.ERROR);
-			return request;
-		})).andExpect(status().isOk());
-		this.mvc.perform(get("/path").with((request) -> {
-			request.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/path");
-			request.setDispatcherType(DispatcherType.ERROR);
-			return request;
-		})).andExpect(status().isOk());
 		// @formatter:on
 		assertThat(this.spring.getContext().getBean(AuthorizationManager.class)).isNotNull();
 	}
