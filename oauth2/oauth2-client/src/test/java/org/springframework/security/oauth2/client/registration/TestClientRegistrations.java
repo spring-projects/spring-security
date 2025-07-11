@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,6 +62,21 @@ public final class TestClientRegistrations {
 				.clientId("client-id-2")
 				.clientSecret("client-secret");
 		// @formatter:on
+	}
+
+	private static ClientRegistration.Builder publicClientRegistrationWithNoPkce() {
+		return ClientRegistration.withRegistrationId("no-pkce")
+				.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
+				.clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
+				.clientSettings(ClientRegistration.ClientSettings.builder().requireProofKey(false).build())
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.scope("read:user")
+				.authorizationUri("https://example.com/login/oauth/authorize")
+				.tokenUri("https://example.com/login/oauth/access_token")
+				.userInfoUri("https://api.example.com/user")
+				.userNameAttributeName("id")
+				.clientName("Client Name")
+				.clientSecret(null);
 	}
 
 	public static ClientRegistration.Builder clientCredentials() {
