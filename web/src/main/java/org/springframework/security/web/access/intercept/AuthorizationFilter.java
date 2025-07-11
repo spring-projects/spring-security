@@ -163,36 +163,6 @@ public class AuthorizationFilter extends GenericFilterBean {
 		return this.authorizationManager;
 	}
 
-	/**
-	 * Sets whether to filter all dispatcher types.
-	 * @param shouldFilterAllDispatcherTypes should filter all dispatcher types. Default
-	 * is {@code true}
-	 * @since 5.7
-	 * @deprecated Permit access to the {@link jakarta.servlet.DispatcherType} instead.
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class SecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http
-	 * 		 	.authorizeHttpRequests((authorize) -&gt; authorize
-	 * 				.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
-	 * 			 	// ...
-	 * 		 	);
-	 * 		return http.build();
-	 * 	}
-	 * }
-	 * </pre>
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public void setShouldFilterAllDispatcherTypes(boolean shouldFilterAllDispatcherTypes) {
-		this.observeOncePerRequest = !shouldFilterAllDispatcherTypes;
-		this.filterErrorDispatch = shouldFilterAllDispatcherTypes;
-		this.filterAsyncDispatch = shouldFilterAllDispatcherTypes;
-	}
-
 	public boolean isObserveOncePerRequest() {
 		return this.observeOncePerRequest;
 	}

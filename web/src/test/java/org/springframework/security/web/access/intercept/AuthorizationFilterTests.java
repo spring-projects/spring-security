@@ -210,7 +210,9 @@ public class AuthorizationFilterTests {
 	public void doFilterWhenErrorAndShouldFilterAllDispatcherTypesFalseThenDoNotFilter() throws Exception {
 		AuthorizationManager<HttpServletRequest> authorizationManager = mock(AuthorizationManager.class);
 		AuthorizationFilter authorizationFilter = new AuthorizationFilter(authorizationManager);
-		authorizationFilter.setShouldFilterAllDispatcherTypes(false);
+		authorizationFilter.setObserveOncePerRequest(true);
+		authorizationFilter.setFilterErrorDispatch(false);
+		authorizationFilter.setFilterAsyncDispatch(false);
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/path");
 		mockRequest.setDispatcherType(DispatcherType.ERROR);
 		mockRequest.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/error");
