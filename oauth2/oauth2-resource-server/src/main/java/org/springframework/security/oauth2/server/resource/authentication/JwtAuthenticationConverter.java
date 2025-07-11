@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.util.Collection;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.util.Assert;
@@ -30,10 +31,12 @@ import org.springframework.util.Assert;
  * @author Josh Cummings
  * @author Evgeniy Cheban
  * @author Olivier Antoine
+ * @author Andrey Litvitski
  * @since 5.1
  */
 public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
+	private Converter<Jwt, OAuth2AuthenticatedPrincipal> jwtPrincipalConverter;
 	private Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
 
 	private String principalClaimName = JwtClaimNames.SUB;
@@ -42,8 +45,26 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
 	public final AbstractAuthenticationToken convert(Jwt jwt) {
 		Collection<GrantedAuthority> authorities = this.jwtGrantedAuthoritiesConverter.convert(jwt);
 
-		String principalClaimValue = jwt.getClaimAsString(this.principalClaimName);
-		return new JwtAuthenticationToken(jwt, authorities, principalClaimValue);
+		if (this.jwtPrincipalConverter == null) {
+			String principalClaimValue = jwt.getClaimAsString(this.principalClaimName);
+			return new JwtAuthenticationToken(jwt, authorities, principalClaimValue);
+		} else {
+			OAuth2AuthenticatedPrincipal principal = this.jwtPrincipalConverter.convert(jwt);
+			authorities.addAll(principal.getAuthorities());
+			return new JwtAuthenticationToken(jwt, principal, authorities);
+		}
+	}
+
+	/**
+	 * Sets the {@link Converter Converter&lt;Jwt, Collection&lt;OAuth2AuthenticatedPrincipal&gt;&gt;}
+	 * to use.
+	 * @param jwtPrincipalConverter The converter
+	 * @since 6.5.0
+	 */
+	public void setJwtPrincipalConverter(
+			Converter<Jwt, OAuth2AuthenticatedPrincipal> jwtPrincipalConverter) {
+		Assert.notNull(jwtPrincipalConverter, "jwtPrincipalConverter cannot be null");
+		this.jwtPrincipalConverter = jwtPrincipalConverter;
 	}
 
 	/**
