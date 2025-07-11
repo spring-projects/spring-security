@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,10 @@ package org.springframework.security.oauth2.client.oidc.userinfo;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -27,6 +30,7 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.TestOidcIdTokens;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,6 +43,9 @@ public class OidcUserRequestUtilsTests {
 
 	private ClientRegistration.Builder registration = TestClientRegistrations.clientRegistration();
 
+	private Set<String> accessibleScopes = new HashSet<>(
+			Arrays.asList(OidcScopes.PROFILE, OidcScopes.EMAIL, OidcScopes.ADDRESS, OidcScopes.PHONE));
+
 	OidcIdToken idToken = TestOidcIdTokens.idToken().build();
 
 	OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "token", Instant.now(),
@@ -46,25 +53,26 @@ public class OidcUserRequestUtilsTests {
 
 	@Test
 	public void shouldRetrieveUserInfoWhenEndpointDefinedAndScopesOverlapThenTrue() {
-		assertThat(OidcUserRequestUtils.shouldRetrieveUserInfo(userRequest())).isTrue();
+		accessibleScopes.add("read:user");
+		assertThat(OidcUserRequestUtils.shouldRetrieveUserInfo(userRequest(), accessibleScopes)).isTrue();
 	}
 
 	@Test
 	public void shouldRetrieveUserInfoWhenNoUserInfoUriThenFalse() {
 		this.registration.userInfoUri(null);
-		assertThat(OidcUserRequestUtils.shouldRetrieveUserInfo(userRequest())).isFalse();
+		assertThat(OidcUserRequestUtils.shouldRetrieveUserInfo(userRequest(), accessibleScopes)).isFalse();
 	}
 
 	@Test
 	public void shouldRetrieveUserInfoWhenDifferentScopesThenFalse() {
 		this.registration.scope("notintoken");
-		assertThat(OidcUserRequestUtils.shouldRetrieveUserInfo(userRequest())).isFalse();
+		assertThat(OidcUserRequestUtils.shouldRetrieveUserInfo(userRequest(), accessibleScopes)).isFalse();
 	}
 
 	@Test
 	public void shouldRetrieveUserInfoWhenNotAuthorizationCodeThenFalse() {
 		this.registration.authorizationGrantType(AuthorizationGrantType.IMPLICIT);
-		assertThat(OidcUserRequestUtils.shouldRetrieveUserInfo(userRequest())).isFalse();
+		assertThat(OidcUserRequestUtils.shouldRetrieveUserInfo(userRequest(), accessibleScopes)).isFalse();
 	}
 
 	private OidcUserRequest userRequest() {
