@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
  * This mixin class is used to serialize/deserialize {@link DefaultOAuth2User}.
  *
  * @author Joe Grandja
+ * @author YooBin Yoon
  * @since 5.3
  * @see DefaultOAuth2User
  * @see OAuth2ClientJackson2Module
@@ -45,7 +46,7 @@ abstract class DefaultOAuth2UserMixin {
 	@JsonCreator
 	DefaultOAuth2UserMixin(@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities,
 			@JsonProperty("attributes") Map<String, Object> attributes,
-			@JsonProperty("nameAttributeKey") String nameAttributeKey) {
+			@JsonProperty("nameAttributeKey") String nameAttributeKey, @JsonProperty("username") String username) {
 	}
 
 }
