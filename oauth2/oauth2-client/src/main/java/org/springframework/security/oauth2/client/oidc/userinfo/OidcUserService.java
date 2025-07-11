@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -48,7 +47,6 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -105,7 +103,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
 		Assert.notNull(userRequest, "userRequest cannot be null");
 		OidcUserInfo userInfo = null;
-		if (this.shouldRetrieveUserInfo(userRequest)) {
+		if (OidcUserRequestUtils.shouldRetrieveUserInfo(userRequest, accessibleScopes)) {
 			OAuth2User oauth2User = this.oauth2UserService.loadUser(userRequest);
 			Map<String, Object> claims = getClaims(userRequest, oauth2User);
 			userInfo = new OidcUserInfo(claims);
@@ -152,37 +150,6 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 			return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo, userNameAttributeName);
 		}
 		return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo);
-	}
-
-	private boolean shouldRetrieveUserInfo(OidcUserRequest userRequest) {
-		// Auto-disabled if UserInfo Endpoint URI is not provided
-		ProviderDetails providerDetails = userRequest.getClientRegistration().getProviderDetails();
-		if (StringUtils.isEmpty(providerDetails.getUserInfoEndpoint().getUri())) {
-			return false;
-		}
-		// The Claims requested by the profile, email, address, and phone scope values
-		// are returned from the UserInfo Endpoint (as described in Section 5.3.2),
-		// when a response_type value is used that results in an Access Token being
-		// issued.
-		// However, when no Access Token is issued, which is the case for the
-		// response_type=id_token,
-		// the resulting Claims are returned in the ID Token.
-		// The Authorization Code Grant Flow, which is response_type=code, results in an
-		// Access Token being issued.
-		if (AuthorizationGrantType.AUTHORIZATION_CODE
-				.equals(userRequest.getClientRegistration().getAuthorizationGrantType())) {
-			// Return true if there is at least one match between the authorized scope(s)
-			// and accessible scope(s)
-			//
-			// Also return true if authorized scope(s) is empty, because the provider has
-			// not indicated which scopes are accessible via the access token
-			// @formatter:off
-			return this.accessibleScopes.isEmpty()
-					|| CollectionUtils.isEmpty(userRequest.getAccessToken().getScopes())
-					|| CollectionUtils.containsAny(userRequest.getAccessToken().getScopes(), this.accessibleScopes);
-			// @formatter:on
-		}
-		return false;
 	}
 
 	/**

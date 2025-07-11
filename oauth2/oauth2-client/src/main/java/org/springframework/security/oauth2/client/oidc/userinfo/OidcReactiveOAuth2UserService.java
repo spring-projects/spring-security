@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,10 @@
 package org.springframework.security.oauth2.client.oidc.userinfo;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.convert.TypeDescriptor;
@@ -65,6 +63,9 @@ public class OidcReactiveOAuth2UserService implements ReactiveOAuth2UserService<
 
 	private static final Converter<Map<String, Object>, Map<String, Object>> DEFAULT_CLAIM_TYPE_CONVERTER = new ClaimTypeConverter(
 			createDefaultClaimTypeConverters());
+
+	private Set<String> accessibleScopes = new HashSet<>(
+			Arrays.asList(OidcScopes.PROFILE, OidcScopes.EMAIL, OidcScopes.ADDRESS, OidcScopes.PHONE));
 
 	private ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService = new DefaultReactiveOAuth2UserService();
 
@@ -123,7 +124,7 @@ public class OidcReactiveOAuth2UserService implements ReactiveOAuth2UserService<
 	}
 
 	private Mono<OidcUserInfo> getUserInfo(OidcUserRequest userRequest) {
-		if (!OidcUserRequestUtils.shouldRetrieveUserInfo(userRequest)) {
+		if (!OidcUserRequestUtils.shouldRetrieveUserInfo(userRequest, accessibleScopes)) {
 			return Mono.empty();
 		}
 		// @formatter:off
@@ -167,6 +168,22 @@ public class OidcReactiveOAuth2UserService implements ReactiveOAuth2UserService<
 			Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory) {
 		Assert.notNull(claimTypeConverterFactory, "claimTypeConverterFactory cannot be null");
 		this.claimTypeConverterFactory = claimTypeConverterFactory;
+	}
+
+	/**
+	 * Sets the scope(s) that allow access to the user info resource. The default is
+	 * {@link OidcScopes#PROFILE profile}, {@link OidcScopes#EMAIL email},
+	 * {@link OidcScopes#ADDRESS address} and {@link OidcScopes#PHONE phone}. The scope(s)
+	 * are checked against the "granted" scope(s) associated to the
+	 * {@link OidcUserRequest#getAccessToken() access token} to determine if the user info
+	 * resource is accessible or not. If there is at least one match, the user info
+	 * resource will be requested, otherwise it will not.
+	 * @param accessibleScopes the scope(s) that allow access to the user info resource
+	 * @since 5.6
+	 */
+	public final void setAccessibleScopes(Set<String> accessibleScopes) {
+		Assert.notNull(accessibleScopes, "accessibleScopes cannot be null");
+		this.accessibleScopes = accessibleScopes;
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
+import java.util.Set;
 
 /**
  * Utilities for working with the {@link OidcUserRequest}
@@ -42,10 +44,11 @@ final class OidcUserRequestUtils {
 	 * @param userRequest
 	 * @return
 	 */
-	static boolean shouldRetrieveUserInfo(OidcUserRequest userRequest) {
+	static boolean shouldRetrieveUserInfo(OidcUserRequest userRequest, Set<String> accessibleScopes) {
 		// Auto-disabled if UserInfo Endpoint URI is not provided
 		ClientRegistration clientRegistration = userRequest.getClientRegistration();
-		if (StringUtils.isEmpty(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri())) {
+		ClientRegistration.ProviderDetails providerDetails = clientRegistration.getProviderDetails();
+		if (StringUtils.isEmpty(providerDetails.getUserInfoEndpoint().getUri())) {
 			return false;
 		}
 		// The Claims requested by the profile, email, address, and phone scope values
@@ -59,9 +62,15 @@ final class OidcUserRequestUtils {
 		// Access Token being issued.
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
 			// Return true if there is at least one match between the authorized scope(s)
-			// and UserInfo scope(s)
-			return CollectionUtils.containsAny(userRequest.getAccessToken().getScopes(),
-					userRequest.getClientRegistration().getScopes());
+			// and accessible scope(s)
+			//
+			// Also return true if authorized scope(s) is empty, because the provider has
+			// not indicated which scopes are accessible via the access token
+			// @formatter:off
+			return accessibleScopes.isEmpty()
+					|| CollectionUtils.isEmpty(userRequest.getAccessToken().getScopes())
+					|| CollectionUtils.containsAny(userRequest.getAccessToken().getScopes(), accessibleScopes);
+			// @formatter:on
 		}
 		return false;
 	}
