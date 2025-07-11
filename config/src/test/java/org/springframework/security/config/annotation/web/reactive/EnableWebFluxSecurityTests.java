@@ -377,9 +377,7 @@ public class EnableWebFluxSecurityTests {
 		@Bean
 		SecurityWebFilterChain apiHttpSecurity(ServerHttpSecurity http) {
 			http.securityMatcher(new PathPatternParserServerWebExchangeMatcher("/api/**"))
-				.authorizeExchange()
-				.anyExchange()
-				.denyAll();
+				.authorizeExchange((authorize) -> authorize.anyExchange().denyAll());
 			return http.build();
 		}
 

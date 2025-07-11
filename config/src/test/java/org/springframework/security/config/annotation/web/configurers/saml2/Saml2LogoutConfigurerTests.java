@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
@@ -76,7 +77,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.TestMockHttpServletRequests;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -96,6 +97,7 @@ import static org.mockito.Mockito.spy;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -158,8 +160,7 @@ public class Saml2LogoutConfigurerTests {
 				Collections.emptyMap());
 		principal.setRelyingPartyRegistrationId("registration-id");
 		this.user = new Saml2Authentication(principal, "response", AuthorityUtils.createAuthorityList("ROLE_USER"));
-		this.request = new MockHttpServletRequest("POST", "");
-		this.request.setServletPath("/login/saml2/sso/test-rp");
+		this.request = TestMockHttpServletRequests.post("/login/saml2/sso/test-rp").build();
 		this.response = new MockHttpServletResponse();
 	}
 
@@ -389,14 +390,14 @@ public class Saml2LogoutConfigurerTests {
 	}
 
 	@Test
-	public void saml2LogoutRequestWhenInvalidSamlRequestThen401() throws Exception {
+	public void saml2LogoutRequestWhenInvalidSamlRequestThen302Redirect() throws Exception {
 		this.spring.register(Saml2LogoutDefaultsConfig.class).autowire();
 		this.mvc
 			.perform(get("/logout/saml2/slo").param("SAMLRequest", this.apLogoutRequest)
 				.param("RelayState", this.apLogoutRequestRelayState)
 				.param("SigAlg", this.apLogoutRequestSigAlg)
 				.with(authentication(this.user)))
-			.andExpect(status().isUnauthorized());
+			.andExpect(status().isFound());
 		verifyNoInteractions(getBean(LogoutHandler.class));
 	}
 
@@ -561,7 +562,7 @@ public class Saml2LogoutConfigurerTests {
 		SecurityFilterChain web(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize.anyRequest().authenticated())
+				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 				.logout((logout) -> logout.addLogoutHandler(this.mockLogoutHandler))
 				.saml2Login(withDefaults())
 				.saml2Logout(withDefaults());
@@ -587,11 +588,11 @@ public class Saml2LogoutConfigurerTests {
 		SecurityFilterChain web(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize.anyRequest().authenticated())
+				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 				.logout((logout) -> logout.logoutSuccessHandler(this.mockLogoutSuccessHandler))
 				.saml2Login(withDefaults())
 				.saml2Logout(withDefaults())
-				.csrf().disable();
+				.csrf((csrf) -> csrf.disable());
 			return http.build();
 			// @formatter:on
 		}
@@ -614,13 +615,13 @@ public class Saml2LogoutConfigurerTests {
 		SecurityFilterChain web(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize.anyRequest().authenticated())
+				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 				.logout((logout) -> logout.addLogoutHandler(this.mockLogoutHandler))
 				.saml2Login(withDefaults())
 				.saml2Logout((saml2) -> saml2.addObjectPostProcessor(new ObjectPostProcessor<LogoutFilter>() {
 					@Override
 					public <O extends LogoutFilter> O postProcess(O filter) {
-						filter.setLogoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"));
+						filter.setLogoutRequestMatcher(pathPattern(HttpMethod.GET, "/logout"));
 						return filter;
 					}
 				}));
@@ -646,7 +647,7 @@ public class Saml2LogoutConfigurerTests {
 		SecurityFilterChain web(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize.anyRequest().authenticated())
+				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 				.saml2Login(withDefaults())
 				.saml2Logout(withDefaults());
 			return http.build();
@@ -679,7 +680,7 @@ public class Saml2LogoutConfigurerTests {
 		SecurityFilterChain web(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize.anyRequest().authenticated())
+				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 				.saml2Login(withDefaults())
 				.saml2Logout((logout) -> logout
 					.logoutRequest((request) -> request
@@ -731,14 +732,14 @@ public class Saml2LogoutConfigurerTests {
 			Saml2X509Credential verification = TestSaml2X509Credentials.relyingPartyVerifyingCredential();
 			RelyingPartyRegistration.Builder withCreds = TestRelyingPartyRegistrations.noCredentials()
 				.signingX509Credentials(credential(signing))
-				.assertingPartyDetails((party) -> party.verificationX509Credentials(credential(verification)));
+				.assertingPartyMetadata((party) -> party.verificationX509Credentials(credential(verification)));
 			RelyingPartyRegistration post = withCreds.build();
 			RelyingPartyRegistration get = withCreds.registrationId("get")
 				.singleLogoutServiceBinding(Saml2MessageBinding.REDIRECT)
 				.build();
 			RelyingPartyRegistration ap = withCreds.registrationId("ap")
 				.entityId("ap-entity-id")
-				.assertingPartyDetails(
+				.assertingPartyMetadata(
 						(party) -> party.singleLogoutServiceLocation("https://rp.example.org/logout/saml2/request")
 							.singleLogoutServiceResponseLocation("https://rp.example.org/logout/saml2/response"))
 				.build();

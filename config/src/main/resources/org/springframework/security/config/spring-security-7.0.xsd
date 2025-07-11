@@ -224,13 +224,12 @@
       </xs:attribute>
       <xs:attribute name="mode">
          <xs:annotation>
-            <xs:documentation>Explicitly specifies which embedded ldap server should use. Values are 'apacheds' and
+            <xs:documentation>Explicitly specifies which embedded ldap server should use. The only supported value is
                 'unboundid'. By default, it will depends if the library is available in the classpath.
                 </xs:documentation>
          </xs:annotation>
          <xs:simpleType>
             <xs:restriction base="xs:token">
-               <xs:enumeration value="apacheds"/>
                <xs:enumeration value="unboundid"/>
             </xs:restriction>
          </xs:simpleType>
@@ -1999,6 +1998,12 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="authentication-converter-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to a AuthenticationConverter
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="jwt">
       <xs:annotation>
@@ -2911,6 +2916,12 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="principal-extractor-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to an X509PrincipalExtractor which will be used by the authentication filter
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="jee">
       <xs:annotation>
@@ -3306,8 +3317,8 @@
   </xs:attributeGroup>
   <xs:element name="cors">
       <xs:annotation>
-         <xs:documentation>Element for configuration of CorsFilter. If no CorsFilter or CorsConfigurationSource is
-                specified a HandlerMappingIntrospector is used as the CorsConfigurationSource
+         <xs:documentation>Element for configuration of CorsFilter. A CorsConfigurationSource must be specified. If
+                Spring MVC is present, then it will attempt to look up its `CorsConfigurationSource`.
                 </xs:documentation>
       </xs:annotation>
       <xs:complexType>
@@ -3668,6 +3679,7 @@
             <xs:restriction base="xs:token">
                <xs:enumeration value="unsafe-none"/>
                <xs:enumeration value="require-corp"/>
+               <xs:enumeration value="credentialless"/>
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>

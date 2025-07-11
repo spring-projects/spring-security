@@ -119,7 +119,7 @@ import org.springframework.security.oauth2.server.resource.web.server.BearerToke
 import org.springframework.security.oauth2.server.resource.web.server.authentication.ServerBearerTokenAuthenticationConverter;
 import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
-import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
+import org.springframework.security.web.authentication.preauth.x509.SubjectX500PrincipalExtractor;
 import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint;
@@ -270,10 +270,8 @@ import org.springframework.web.util.pattern.PathPatternParser;
  *     &#064;Bean
  *     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
  *         http
- *             .authorizeExchange()
- *               .anyExchange().authenticated()
- *             .and()
- *               .httpBasic().and()
+ *             .authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
+ *             .httpBasic(Customizer.withDefaults())
  *               .formLogin();
  *             return http.build();
  *     }
@@ -298,6 +296,7 @@ import org.springframework.web.util.pattern.PathPatternParser;
  * @author Parikshit Dutta
  * @author Ankur Pathak
  * @author Alexey Nesterov
+ * @author Yanming Zhou
  * @since 5.0
  */
 public class ServerHttpSecurity {
@@ -445,48 +444,6 @@ public class ServerHttpSecurity {
 	 * 	public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 * 	    http
 	 * 	        // ...
-	 * 	        .redirectToHttps();
-	 * 	    return http.build();
-	 * 	}
-	 * </pre>
-	 *
-	 * Then all non-HTTPS requests will be redirected to HTTPS.
-	 *
-	 * Typically, all requests should be HTTPS; however, the focus for redirection can
-	 * also be narrowed:
-	 *
-	 * <pre class="code">
-	 *  &#064;Bean
-	 * 	public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-	 * 	    http
-	 * 	        // ...
-	 * 	        .redirectToHttps()
-	 * 	            .httpsRedirectWhen((serverWebExchange) -&gt;
-	 * 	            	serverWebExchange.getRequest().getHeaders().containsKey("X-Requires-Https"))
-	 * 	    return http.build();
-	 * 	}
-	 * </pre>
-	 * @return the {@link HttpsRedirectSpec} to customize
-	 * @deprecated For removal in 7.0. Use {@link #redirectToHttps(Customizer)} or
-	 * {@code redirectToHttps(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public HttpsRedirectSpec redirectToHttps() {
-		this.httpsRedirectSpec = new HttpsRedirectSpec();
-		return this.httpsRedirectSpec;
-	}
-
-	/**
-	 * Configures HTTPS redirection rules. If the default is used:
-	 *
-	 * <pre class="code">
-	 *  &#064;Bean
-	 * 	public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-	 * 	    http
-	 * 	        // ...
 	 * 	        .redirectToHttps(withDefaults());
 	 * 	    return http.build();
 	 * 	}
@@ -518,53 +475,6 @@ public class ServerHttpSecurity {
 		this.httpsRedirectSpec = new HttpsRedirectSpec();
 		httpsRedirectCustomizer.customize(this.httpsRedirectSpec);
 		return this;
-	}
-
-	/**
-	 * Configures <a href=
-	 * "https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)_Prevention_Cheat_Sheet">CSRF
-	 * Protection</a> which is enabled by default. You can disable it using:
-	 *
-	 * <pre class="code">
-	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-	 *      http
-	 *          // ...
-	 *          .csrf().disabled();
-	 *      return http.build();
-	 *  }
-	 * </pre>
-	 *
-	 * Additional configuration options can be seen below:
-	 *
-	 *
-	 * <pre class="code">
-	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-	 *      http
-	 *          // ...
-	 *          .csrf()
-	 *              // Handle CSRF failures
-	 *              .accessDeniedHandler(accessDeniedHandler)
-	 *              // Custom persistence of CSRF Token
-	 *              .csrfTokenRepository(csrfTokenRepository)
-	 *              // custom matching when CSRF protection is enabled
-	 *              .requireCsrfProtectionMatcher(matcher);
-	 *      return http.build();
-	 *  }
-	 * </pre>
-	 * @return the {@link CsrfSpec} to customize
-	 * @deprecated For removal in 7.0. Use {@link #csrf(Customizer)} or
-	 * {@code csrf(Customizer.withDefaults())} to stick with defaults. See the <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public CsrfSpec csrf() {
-		if (this.csrf == null) {
-			this.csrf = new CsrfSpec();
-		}
-		return this.csrf;
 	}
 
 	/**
@@ -622,26 +532,6 @@ public class ServerHttpSecurity {
 	 * {@link CorsSpec#configurationSource(CorsConfigurationSource)} is invoked it will be
 	 * used instead. If neither has been configured, the Cors configuration will do
 	 * nothing.
-	 * @return the {@link CorsSpec} to customize
-	 * @deprecated For removal in 7.0. Use {@link #cors(Customizer)} or
-	 * {@code cors(Customizer.withDefaults())} to stick with defaults. See the <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public CorsSpec cors() {
-		if (this.cors == null) {
-			this.cors = new CorsSpec();
-		}
-		return this.cors;
-	}
-
-	/**
-	 * Configures CORS headers. By default if a {@link CorsConfigurationSource} Bean is
-	 * found, it will be used to create a {@link CorsWebFilter}. If
-	 * {@link CorsSpec#configurationSource(CorsConfigurationSource)} is invoked it will be
-	 * used instead. If neither has been configured, the Cors configuration will do
-	 * nothing.
 	 * @param corsCustomizer the {@link Customizer} to provide more options for the
 	 * {@link CorsSpec}
 	 * @return the {@link ServerHttpSecurity} to customize
@@ -652,36 +542,6 @@ public class ServerHttpSecurity {
 		}
 		corsCustomizer.customize(this.cors);
 		return this;
-	}
-
-	/**
-	 * Enables and Configures anonymous authentication. Anonymous Authentication is
-	 * disabled by default.
-	 *
-	 * <pre class="code">
-	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-	 *      http
-	 *          // ...
-	 *          .anonymous().key("key")
-	 *          .authorities("ROLE_ANONYMOUS");
-	 *      return http.build();
-	 *  }
-	 * </pre>
-	 * @return the {@link AnonymousSpec} to customize
-	 * @since 5.2.0
-	 * @deprecated For removal in 7.0. Use {@link #anonymous(Customizer)} or
-	 * {@code anonymous(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public AnonymousSpec anonymous() {
-		if (this.anonymous == null) {
-			this.anonymous = new AnonymousSpec();
-		}
-		return this.anonymous;
 	}
 
 	/**
@@ -711,37 +571,6 @@ public class ServerHttpSecurity {
 		}
 		anonymousCustomizer.customize(this.anonymous);
 		return this;
-	}
-
-	/**
-	 * Configures HTTP Basic authentication. An example configuration is provided below:
-	 *
-	 * <pre class="code">
-	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-	 *      http
-	 *          // ...
-	 *          .httpBasic()
-	 *              // used for authenticating the credentials
-	 *              .authenticationManager(authenticationManager)
-	 *              // Custom persistence of the authentication
-	 *              .securityContextRepository(securityContextRepository);
-	 *      return http.build();
-	 *  }
-	 * </pre>
-	 * @return the {@link HttpBasicSpec} to customize
-	 * @deprecated For removal in 7.0. Use {@link #httpBasic(Customizer)} or
-	 * {@code httpBasic(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public HttpBasicSpec httpBasic() {
-		if (this.httpBasic == null) {
-			this.httpBasic = new HttpBasicSpec();
-		}
-		return this.httpBasic;
 	}
 
 	/**
@@ -812,34 +641,6 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .passwordManagement();
-	 *      return http.build();
-	 *  }
-	 * </pre>
-	 * @return the {@link PasswordManagementSpec} to customize
-	 * @since 5.6
-	 * @deprecated For removal in 7.0. Use {@link #passwordManagement(Customizer)} or
-	 * {@code passwordManagement(Customizer.withDefaults())} to stick with defaults. See
-	 * the <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public PasswordManagementSpec passwordManagement() {
-		if (this.passwordManagement == null) {
-			this.passwordManagement = new PasswordManagementSpec();
-		}
-		return this.passwordManagement;
-	}
-
-	/**
-	 * Configures password management. An example configuration is provided below:
-	 *
-	 * <pre class="code">
-	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-	 *      http
-	 *          // ...
 	 *          .passwordManagement(passwordManagement -&gt;
 	 *          	// Custom change password page.
 	 *          	passwordManagement.changePasswordPage("/custom-change-password-page")
@@ -858,41 +659,6 @@ public class ServerHttpSecurity {
 		}
 		passwordManagementCustomizer.customize(this.passwordManagement);
 		return this;
-	}
-
-	/**
-	 * Configures form based authentication. An example configuration is provided below:
-	 *
-	 * <pre class="code">
-	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-	 *      http
-	 *          // ...
-	 *          .formLogin()
-	 *              // used for authenticating the credentials
-	 *              .authenticationManager(authenticationManager)
-	 *              // Custom persistence of the authentication
-	 *              .securityContextRepository(securityContextRepository)
-	 *              // expect a log in page at "/authenticate"
-	 *              // a POST "/authenticate" is where authentication occurs
-	 *              // error page at "/authenticate?error"
-	 *              .loginPage("/authenticate");
-	 *      return http.build();
-	 *  }
-	 * </pre>
-	 * @return the {@link FormLoginSpec} to customize
-	 * @deprecated For removal in 7.0. Use {@link #formLogin(Customizer)} or
-	 * {@code formLogin(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public FormLoginSpec formLogin() {
-		if (this.formLogin == null) {
-			this.formLogin = new FormLoginSpec();
-		}
-		return this.formLogin;
 	}
 
 	/**
@@ -936,39 +702,6 @@ public class ServerHttpSecurity {
 	 *  &#064;Bean
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
-	 *          .x509()
-	 *          	.authenticationManager(authenticationManager)
-	 *              .principalExtractor(principalExtractor);
-	 *      return http.build();
-	 *  }
-	 * </pre>
-	 *
-	 * Note that if extractor is not specified, {@link SubjectDnX509PrincipalExtractor}
-	 * will be used. If authenticationManager is not specified,
-	 * {@link ReactivePreAuthenticatedAuthenticationManager} will be used.
-	 * @return the {@link X509Spec} to customize
-	 * @since 5.2
-	 * @deprecated For removal in 7.0. Use {@link #x509(Customizer)} or
-	 * {@code x509(Customizer.withDefaults())} to stick with defaults. See the <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public X509Spec x509() {
-		if (this.x509 == null) {
-			this.x509 = new X509Spec();
-		}
-
-		return this.x509;
-	}
-
-	/**
-	 * Configures x509 authentication using a certificate provided by a client.
-	 *
-	 * <pre class="code">
-	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-	 *      http
 	 *          .x509((x509) -&gt;
 	 *              x509
 	 *          	    .authenticationManager(authenticationManager)
@@ -978,8 +711,8 @@ public class ServerHttpSecurity {
 	 *  }
 	 * </pre>
 	 *
-	 * Note that if extractor is not specified, {@link SubjectDnX509PrincipalExtractor}
-	 * will be used. If authenticationManager is not specified,
+	 * Note that if extractor is not specified, {@link SubjectX500PrincipalExtractor} will
+	 * be used. If authenticationManager is not specified,
 	 * {@link ReactivePreAuthenticatedAuthenticationManager} will be used.
 	 * @param x509Customizer the {@link Customizer} to provide more options for the
 	 * {@link X509Spec}
@@ -992,36 +725,6 @@ public class ServerHttpSecurity {
 		}
 		x509Customizer.customize(this.x509);
 		return this;
-	}
-
-	/**
-	 * Configures authentication support using an OAuth 2.0 and/or OpenID Connect 1.0
-	 * Provider.
-	 *
-	 * <pre class="code">
-	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-	 *      http
-	 *          // ...
-	 *          .oauth2Login()
-	 *              .authenticationConverter(authenticationConverter)
-	 *              .authenticationManager(manager);
-	 *      return http.build();
-	 *  }
-	 * </pre>
-	 * @return the {@link OAuth2LoginSpec} to customize
-	 * @deprecated For removal in 7.0. Use {@link #oauth2Login(Customizer)} or
-	 * {@code oauth2Login(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public OAuth2LoginSpec oauth2Login() {
-		if (this.oauth2Login == null) {
-			this.oauth2Login = new OAuth2LoginSpec();
-		}
-		return this.oauth2Login;
 	}
 
 	/**
@@ -1061,35 +764,6 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .oauth2Client()
-	 *              .clientRegistrationRepository(clientRegistrationRepository)
-	 *              .authorizedClientRepository(authorizedClientRepository);
-	 *      return http.build();
-	 *  }
-	 * </pre>
-	 * @return the {@link OAuth2ClientSpec} to customize
-	 * @deprecated For removal in 7.0. Use {@link #oauth2Client(Customizer)} or
-	 * {@code oauth2Client(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public OAuth2ClientSpec oauth2Client() {
-		if (this.client == null) {
-			this.client = new OAuth2ClientSpec();
-		}
-		return this.client;
-	}
-
-	/**
-	 * Configures the OAuth2 client.
-	 *
-	 * <pre class="code">
-	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-	 *      http
-	 *          // ...
 	 *          .oauth2Client((oauth2Client) -&gt;
 	 *              oauth2Client
 	 *                  .clientRegistrationRepository(clientRegistrationRepository)
@@ -1108,32 +782,6 @@ public class ServerHttpSecurity {
 		}
 		oauth2ClientCustomizer.customize(this.client);
 		return this;
-	}
-
-	/**
-	 * Configures OAuth 2.0 Resource Server support.
-	 *
-	 * <pre class="code">
-	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-	 *      http
-	 *          // ...
-	 *          .oauth2ResourceServer()
-	 *              .jwt()
-	 *                  .publicKey(publicKey());
-	 *      return http.build();
-	 *  }
-	 * </pre>
-	 * @return the {@link OAuth2ResourceServerSpec} to customize
-	 * @deprecated For removal in 7.0. Use {@link #oauth2ResourceServer(Customizer)}
-	 * instead
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public OAuth2ResourceServerSpec oauth2ResourceServer() {
-		if (this.resourceServer == null) {
-			this.resourceServer = new OAuth2ResourceServerSpec();
-		}
-		return this.resourceServer;
 	}
 
 	/**
@@ -1216,52 +864,6 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .headers()
-	 *              // customize frame options to be same origin
-	 *              .frameOptions()
-	 *                  .mode(XFrameOptionsServerHttpHeadersWriter.Mode.SAMEORIGIN)
-	 *                  .and()
-	 *              // disable cache control
-	 *              .cache().disable();
-	 *      return http.build();
-	 *  }
-	 * </pre>
-	 * @return the {@link HeaderSpec} to customize
-	 * @deprecated For removal in 7.0. Use {@link #headers(Customizer)} or
-	 * {@code headers(Customizer.withDefaults())} to stick with defaults. See the <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public HeaderSpec headers() {
-		if (this.headers == null) {
-			this.headers = new HeaderSpec();
-		}
-		return this.headers;
-	}
-
-	/**
-	 * Configures HTTP Response Headers. The default headers are:
-	 *
-	 * <pre>
-	 * Cache-Control: no-cache, no-store, max-age=0, must-revalidate
-	 * Pragma: no-cache
-	 * Expires: 0
-	 * X-Content-Type-Options: nosniff
-	 * Strict-Transport-Security: max-age=31536000 ; includeSubDomains
-	 * X-Frame-Options: DENY
-	 * X-XSS-Protection: 0
-	 * </pre>
-	 *
-	 * such that "Strict-Transport-Security" is only added on secure requests.
-	 *
-	 * An example configuration is provided below:
-	 *
-	 * <pre class="code">
-	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-	 *      http
-	 *          // ...
 	 *          .headers((headers) -&gt;
 	 *              headers
 	 *                  // customize frame options to be same origin
@@ -1299,36 +901,6 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .exceptionHandling()
-	 *              // customize how to request for authentication
-	 *              .authenticationEntryPoint(entryPoint);
-	 *      return http.build();
-	 *  }
-	 * </pre>
-	 * @return the {@link ExceptionHandlingSpec} to customize
-	 * @deprecated For removal in 7.0. Use {@link #exceptionHandling(Customizer)} or
-	 * {@code exceptionHandling(Customizer.withDefaults())} to stick with defaults. See
-	 * the <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public ExceptionHandlingSpec exceptionHandling() {
-		if (this.exceptionHandling == null) {
-			this.exceptionHandling = new ExceptionHandlingSpec();
-		}
-		return this.exceptionHandling;
-	}
-
-	/**
-	 * Configures exception handling (i.e. handles when authentication is requested). An
-	 * example configuration can be found below:
-	 *
-	 * <pre class="code">
-	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-	 *      http
-	 *          // ...
 	 *          .exceptionHandling((exceptionHandling) -&gt;
 	 *              exceptionHandling
 	 *                  // customize how to request for authentication
@@ -1347,49 +919,6 @@ public class ServerHttpSecurity {
 		}
 		exceptionHandlingCustomizer.customize(this.exceptionHandling);
 		return this;
-	}
-
-	/**
-	 * Configures authorization. An example configuration can be found below:
-	 *
-	 * <pre class="code">
-	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-	 *      http
-	 *          // ...
-	 *          .authorizeExchange()
-	 *              // any URL that starts with /admin/ requires the role "ROLE_ADMIN"
-	 *              .pathMatchers("/admin/**").hasRole("ADMIN")
-	 *              // a POST to /users requires the role "USER_POST"
-	 *              .pathMatchers(HttpMethod.POST, "/users").hasAuthority("USER_POST")
-	 *              // a request to /users/{username} requires the current authentication's username
-	 *              // to be equal to the {username}
-	 *              .pathMatchers("/users/{username}").access((authentication, context) -&gt;
-	 *                  authentication
-	 *                      .map(Authentication::getName)
-	 *                      .map((username) -&gt; username.equals(context.getVariables().get("username")))
-	 *                      .map(AuthorizationDecision::new)
-	 *              )
-	 *              // allows providing a custom matching strategy that requires the role "ROLE_CUSTOM"
-	 *              .matchers(customMatcher).hasRole("CUSTOM")
-	 *              // any other request requires the user to be authenticated
-	 *              .anyExchange().authenticated();
-	 *      return http.build();
-	 *  }
-	 * </pre>
-	 * @return the {@link AuthorizeExchangeSpec} to customize
-	 * @deprecated For removal in 7.0. Use {@link #authorizeExchange(Customizer)} or
-	 * {@code authorizeExchange(Customizer.withDefaults())} to stick with defaults. See
-	 * the <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public AuthorizeExchangeSpec authorizeExchange() {
-		if (this.authorizeExchange == null) {
-			this.authorizeExchange = new AuthorizeExchangeSpec();
-		}
-		return this.authorizeExchange;
 	}
 
 	/**
@@ -1442,38 +971,6 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .logout()
-	 *              // configures how log out is done
-	 *              .logoutHandler(logoutHandler)
-	 *              // log out will be performed on POST /signout
-	 *              .logoutUrl("/signout")
-	 *              // configure what is done on logout success
-	 *              .logoutSuccessHandler(successHandler);
-	 *      return http.build();
-	 *  }
-	 * </pre>
-	 * @return the {@link LogoutSpec} to customize
-	 * @deprecated For removal in 7.0. Use {@link #logout(Customizer)} or
-	 * {@code logout(Customizer.withDefaults())} to stick with defaults. See the <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public LogoutSpec logout() {
-		if (this.logout == null) {
-			this.logout = new LogoutSpec();
-		}
-		return this.logout;
-	}
-
-	/**
-	 * Configures log out. An example configuration can be found below:
-	 *
-	 * <pre class="code">
-	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-	 *      http
-	 *          // ...
 	 *          .logout((logout) -&gt;
 	 *              logout
 	 *                  // configures how log out is done
@@ -1496,34 +993,6 @@ public class ServerHttpSecurity {
 		}
 		logoutCustomizer.customize(this.logout);
 		return this;
-	}
-
-	/**
-	 * Configures the request cache which is used when a flow is interrupted (i.e. due to
-	 * requesting credentials) so that the request can be replayed after authentication.
-	 * An example configuration can be found below:
-	 *
-	 * <pre class="code">
-	 *  &#064;Bean
-	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-	 *      http
-	 *          // ...
-	 *          .requestCache()
-	 *              // configures how the request is cached
-	 *              .requestCache(requestCache);
-	 *      return http.build();
-	 *  }
-	 * </pre>
-	 * @return the {@link RequestCacheSpec} to customize
-	 * @deprecated For removal in 7.0. Use {@link #requestCache(Customizer)} or
-	 * {@code requestCache(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public RequestCacheSpec requestCache() {
-		return this.requestCache;
 	}
 
 	/**
@@ -1856,7 +1325,7 @@ public class ServerHttpSecurity {
 	 *
 	 * @author Rob Winch
 	 * @since 5.0
-	 * @see #authorizeExchange()
+	 * @see #authorizeExchange(Customizer)
 	 */
 	public class AuthorizeExchangeSpec extends AbstractServerWebExchangeMatcherRegistry<AuthorizeExchangeSpec.Access> {
 
@@ -1880,17 +1349,6 @@ public class ServerHttpSecurity {
 			ObjectProvider<ObjectPostProcessor<ReactiveAuthorizationManager<ServerWebExchange>>> postProcessor = getBeanProvider(
 					type);
 			postProcessor.ifUnique((p) -> this.postProcessor = p);
-		}
-
-		/**
-		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
-		 * @return the {@link ServerHttpSecurity} to continue configuring
-		 * @deprecated For removal in 7.0. Use {@link #authorizeExchange(Customizer)}
-		 * instead
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public ServerHttpSecurity and() {
-			return ServerHttpSecurity.this;
 		}
 
 		/**
@@ -2305,7 +1763,7 @@ public class ServerHttpSecurity {
 	 *
 	 * @author Josh Cummings
 	 * @since 5.1
-	 * @see #redirectToHttps()
+	 * @see #redirectToHttps(Customizer)
 	 */
 	public class HttpsRedirectSpec {
 
@@ -2360,16 +1818,6 @@ public class ServerHttpSecurity {
 			http.addFilterAt(httpsRedirectWebFilter, SecurityWebFiltersOrder.HTTPS_REDIRECT);
 		}
 
-		/**
-		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
-		 * @return the {@link ServerHttpSecurity} to continue configuring
-		 * @deprecated use {@link #redirectToHttps(Customizer)}
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public ServerHttpSecurity and() {
-			return ServerHttpSecurity.this;
-		}
-
 	}
 
 	/**
@@ -2379,7 +1827,7 @@ public class ServerHttpSecurity {
 	 *
 	 * @author Rob Winch
 	 * @since 5.0
-	 * @see #csrf()
+	 * @see #csrf(Customizer)
 	 */
 	public final class CsrfSpec {
 
@@ -2441,20 +1889,6 @@ public class ServerHttpSecurity {
 		}
 
 		/**
-		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
-		 * @return the {@link ServerHttpSecurity} to continue configuring
-		 * @deprecated For removal in 7.0. Use {@link #csrf(Customizer)} or
-		 * {@code csrf(Customizer.withDefaults())} to stick with defaults. See the
-		 * <a href=
-		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-		 * for more details.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public ServerHttpSecurity and() {
-			return ServerHttpSecurity.this;
-		}
-
-		/**
 		 * Disables CSRF Protection. Disabling CSRF Protection is only recommended when
 		 * the application is never used within a browser.
 		 * @return the {@link ServerHttpSecurity} to continue configuring
@@ -2482,7 +1916,7 @@ public class ServerHttpSecurity {
 	 *
 	 * @author Rob Winch
 	 * @since 5.0
-	 * @see #exceptionHandling()
+	 * @see #exceptionHandling(Customizer)
 	 */
 	public final class ExceptionHandlingSpec {
 
@@ -2512,17 +1946,6 @@ public class ServerHttpSecurity {
 			return this;
 		}
 
-		/**
-		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
-		 * @return the {@link ServerHttpSecurity} to continue configuring
-		 * @deprecated For removal in 7.0. Use {@link #exceptionHandling(Customizer)}
-		 * instead
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public ServerHttpSecurity and() {
-			return ServerHttpSecurity.this;
-		}
-
 	}
 
 	/**
@@ -2531,7 +1954,7 @@ public class ServerHttpSecurity {
 	 *
 	 * @author Rob Winch
 	 * @since 5.0
-	 * @see #requestCache()
+	 * @see #requestCache(Customizer)
 	 */
 	public final class RequestCacheSpec {
 
@@ -2558,26 +1981,12 @@ public class ServerHttpSecurity {
 		}
 
 		/**
-		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
-		 * @return the {@link ServerHttpSecurity} to continue configuring
-		 * @deprecated For removal in 7.0. Use {@link #requestCache(Customizer)} or
-		 * {@code requestCache(Customizer.withDefaults())} to stick with defaults. See the
-		 * <a href=
-		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-		 * for more details.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public ServerHttpSecurity and() {
-			return ServerHttpSecurity.this;
-		}
-
-		/**
 		 * Disables the {@link RequestCacheSpec}
 		 * @return the {@link ServerHttpSecurity} to continue configuring
 		 */
 		public ServerHttpSecurity disable() {
 			this.requestCache = NoOpServerRequestCache.getInstance();
-			return and();
+			return ServerHttpSecurity.this;
 		}
 
 	}
@@ -2587,7 +1996,7 @@ public class ServerHttpSecurity {
 	 *
 	 * @author Rob Winch
 	 * @since 5.0
-	 * @see #httpBasic()
+	 * @see #httpBasic(Customizer)
 	 */
 	public final class HttpBasicSpec {
 
@@ -2699,20 +2108,6 @@ public class ServerHttpSecurity {
 		}
 
 		/**
-		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
-		 * @return the {@link ServerHttpSecurity} to continue configuring
-		 * @deprecated For removal in 7.0. Use {@link #httpBasic(Customizer)} or
-		 * {@code httpBasic(Customizer.withDefaults())} to stick with defaults. See the
-		 * <a href=
-		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-		 * for more details.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public ServerHttpSecurity and() {
-			return ServerHttpSecurity.this;
-		}
-
-		/**
 		 * Disables HTTP Basic authentication.
 		 * @return the {@link ServerHttpSecurity} to continue configuring
 		 */
@@ -2785,17 +2180,6 @@ public class ServerHttpSecurity {
 			return this;
 		}
 
-		/**
-		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}.
-		 * @return the {@link ServerHttpSecurity} to continue configuring
-		 * @deprecated For removal in 7.0. Use {@link #passwordManagement(Customizer)}
-		 * instead
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public ServerHttpSecurity and() {
-			return ServerHttpSecurity.this;
-		}
-
 		protected void configure(ServerHttpSecurity http) {
 			ExchangeMatcherRedirectWebFilter changePasswordWebFilter = new ExchangeMatcherRedirectWebFilter(
 					new PathPatternParserServerWebExchangeMatcher(WELL_KNOWN_CHANGE_PASSWORD_PATTERN),
@@ -2813,7 +2197,7 @@ public class ServerHttpSecurity {
 	 *
 	 * @author Rob Winch
 	 * @since 5.0
-	 * @see #formLogin()
+	 * @see #formLogin(Customizer)
 	 */
 	public final class FormLoginSpec {
 
@@ -2970,20 +2354,6 @@ public class ServerHttpSecurity {
 		}
 
 		/**
-		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
-		 * @return the {@link ServerHttpSecurity} to continue configuring
-		 * @deprecated For removal in 7.0. Use {@link #formLogin(Customizer)} or
-		 * {@code formLogin(Customizer.withDefaults())} to stick with defaults. See the
-		 * <a href=
-		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-		 * for more details.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public ServerHttpSecurity and() {
-			return ServerHttpSecurity.this;
-		}
-
-		/**
 		 * Disables HTTP Basic authentication.
 		 * @return the {@link ServerHttpSecurity} to continue configuring
 		 */
@@ -3079,7 +2449,7 @@ public class ServerHttpSecurity {
 	 *
 	 * @author Rob Winch
 	 * @since 5.0
-	 * @see #headers()
+	 * @see #headers(Customizer)
 	 */
 	public final class HeaderSpec {
 
@@ -3117,40 +2487,12 @@ public class ServerHttpSecurity {
 		}
 
 		/**
-		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
-		 * @return the {@link ServerHttpSecurity} to continue configuring
-		 * @deprecated For removal in 7.0. Use {@link #headers(Customizer)} or
-		 * {@code headers(Customizer.withDefaults())} to stick with defaults. See the
-		 * <a href=
-		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-		 * for more details.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public ServerHttpSecurity and() {
-			return ServerHttpSecurity.this;
-		}
-
-		/**
 		 * Disables http response headers
 		 * @return the {@link ServerHttpSecurity} to continue configuring
 		 */
 		public ServerHttpSecurity disable() {
 			ServerHttpSecurity.this.headers = null;
 			return ServerHttpSecurity.this;
-		}
-
-		/**
-		 * Configures cache control headers
-		 * @return the {@link CacheSpec} to configure
-		 * @deprecated For removal in 7.0. Use {@link #cache(Customizer)} or
-		 * {@code cache(Customizer.withDefaults())} to stick with defaults. See the
-		 * <a href=
-		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-		 * for more details.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public CacheSpec cache() {
-			return new CacheSpec();
 		}
 
 		/**
@@ -3166,17 +2508,6 @@ public class ServerHttpSecurity {
 
 		/**
 		 * Configures content type response headers
-		 * @return the {@link ContentTypeOptionsSpec} to configure
-		 * @deprecated For removal in 7.0. Use {@link #contentTypeOptions(Customizer)}
-		 * instead
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public ContentTypeOptionsSpec contentTypeOptions() {
-			return new ContentTypeOptionsSpec();
-		}
-
-		/**
-		 * Configures content type response headers
 		 * @param contentTypeOptionsCustomizer the {@link Customizer} to provide more
 		 * options for the {@link ContentTypeOptionsSpec}
 		 * @return the {@link HeaderSpec} to customize
@@ -3184,20 +2515,6 @@ public class ServerHttpSecurity {
 		public HeaderSpec contentTypeOptions(Customizer<ContentTypeOptionsSpec> contentTypeOptionsCustomizer) {
 			contentTypeOptionsCustomizer.customize(new ContentTypeOptionsSpec());
 			return this;
-		}
-
-		/**
-		 * Configures frame options response headers
-		 * @return the {@link FrameOptionsSpec} to configure
-		 * @deprecated For removal in 7.0. Use {@link #frameOptions(Customizer)} or
-		 * {@code frameOptions(Customizer.withDefaults())} to stick with defaults. See the
-		 * <a href=
-		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-		 * for more details.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public FrameOptionsSpec frameOptions() {
-			return new FrameOptionsSpec();
 		}
 
 		/**
@@ -3226,20 +2543,6 @@ public class ServerHttpSecurity {
 
 		/**
 		 * Configures the Strict Transport Security response headers
-		 * @return the {@link HstsSpec} to configure
-		 * @deprecated For removal in 7.0. Use {@link #hsts(Customizer)} or
-		 * {@code hsts(Customizer.withDefaults())} to stick with defaults. See the
-		 * <a href=
-		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-		 * for more details.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public HstsSpec hsts() {
-			return new HstsSpec();
-		}
-
-		/**
-		 * Configures the Strict Transport Security response headers
 		 * @param hstsCustomizer the {@link Customizer} to provide more options for the
 		 * {@link HstsSpec}
 		 * @return the {@link HeaderSpec} to customize
@@ -3257,20 +2560,6 @@ public class ServerHttpSecurity {
 
 		/**
 		 * Configures x-xss-protection response header.
-		 * @return the {@link XssProtectionSpec} to configure
-		 * @deprecated For removal in 7.0. Use {@link #xssProtection(Customizer)} or
-		 * {@code xssProtection(Customizer.withDefaults())} to stick with defaults. See
-		 * the <a href=
-		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-		 * for more details.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public XssProtectionSpec xssProtection() {
-			return new XssProtectionSpec();
-		}
-
-		/**
-		 * Configures x-xss-protection response header.
 		 * @param xssProtectionCustomizer the {@link Customizer} to provide more options
 		 * for the {@link XssProtectionSpec}
 		 * @return the {@link HeaderSpec} to customize
@@ -3278,18 +2567,6 @@ public class ServerHttpSecurity {
 		public HeaderSpec xssProtection(Customizer<XssProtectionSpec> xssProtectionCustomizer) {
 			xssProtectionCustomizer.customize(new XssProtectionSpec());
 			return this;
-		}
-
-		/**
-		 * Configures {@code Content-Security-Policy} response header.
-		 * @param policyDirectives the policy directive(s)
-		 * @return the {@link ContentSecurityPolicySpec} to configure
-		 * @deprecated For removal in 7.0. Use {@link #contentSecurityPolicy(Customizer)}
-		 * instead.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public ContentSecurityPolicySpec contentSecurityPolicy(String policyDirectives) {
-			return new ContentSecurityPolicySpec(policyDirectives);
 		}
 
 		/**
@@ -3317,17 +2594,6 @@ public class ServerHttpSecurity {
 
 		/**
 		 * Configures {@code Permissions-Policy} response header.
-		 * @return the {@link PermissionsPolicySpec} to configure
-		 * @deprecated For removal in 7.0. Use {@link #permissionsPolicy(Customizer)}
-		 * instead.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public PermissionsPolicySpec permissionsPolicy() {
-			return new PermissionsPolicySpec();
-		}
-
-		/**
-		 * Configures {@code Permissions-Policy} response header.
 		 * @param permissionsPolicyCustomizer the {@link Customizer} to provide more
 		 * options for the {@link PermissionsPolicySpec}
 		 * @return the {@link HeaderSpec} to customize
@@ -3339,29 +2605,6 @@ public class ServerHttpSecurity {
 
 		/**
 		 * Configures {@code Referrer-Policy} response header.
-		 * @param referrerPolicy the policy to use
-		 * @return the {@link ReferrerPolicySpec} to configure
-		 * @deprecated For removal in 7.0. Use {@link #referrerPolicy(Customizer)}
-		 * instead.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public ReferrerPolicySpec referrerPolicy(ReferrerPolicy referrerPolicy) {
-			return new ReferrerPolicySpec(referrerPolicy);
-		}
-
-		/**
-		 * Configures {@code Referrer-Policy} response header.
-		 * @return the {@link ReferrerPolicySpec} to configure
-		 * @deprecated For removal in 7.0. Use {@link #referrerPolicy(Customizer)}
-		 * instead.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public ReferrerPolicySpec referrerPolicy() {
-			return new ReferrerPolicySpec();
-		}
-
-		/**
-		 * Configures {@code Referrer-Policy} response header.
 		 * @param referrerPolicyCustomizer the {@link Customizer} to provide more options
 		 * for the {@link ReferrerPolicySpec}
 		 * @return the {@link HeaderSpec} to customize
@@ -3369,21 +2612,6 @@ public class ServerHttpSecurity {
 		public HeaderSpec referrerPolicy(Customizer<ReferrerPolicySpec> referrerPolicyCustomizer) {
 			referrerPolicyCustomizer.customize(new ReferrerPolicySpec());
 			return this;
-		}
-
-		/**
-		 * Configures the <a href=
-		 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Opener-Policy">
-		 * Cross-Origin-Opener-Policy</a> header.
-		 * @return the {@link CrossOriginOpenerPolicySpec} to configure
-		 * @since 5.7
-		 * @deprecated For removal in 7.0. Use
-		 * {@link #crossOriginOpenerPolicy(Customizer)} instead.
-		 * @see CrossOriginOpenerPolicyServerHttpHeadersWriter
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public CrossOriginOpenerPolicySpec crossOriginOpenerPolicy() {
-			return new CrossOriginOpenerPolicySpec();
 		}
 
 		/**
@@ -3404,21 +2632,6 @@ public class ServerHttpSecurity {
 		 * Configures the <a href=
 		 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Embedder-Policy">
 		 * Cross-Origin-Embedder-Policy</a> header.
-		 * @return the {@link CrossOriginEmbedderPolicySpec} to configure
-		 * @since 5.7
-		 * @deprecated For removal in 7.0. Use
-		 * {@link #crossOriginEmbedderPolicy(Customizer)} instead.
-		 * @see CrossOriginEmbedderPolicyServerHttpHeadersWriter
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public CrossOriginEmbedderPolicySpec crossOriginEmbedderPolicy() {
-			return new CrossOriginEmbedderPolicySpec();
-		}
-
-		/**
-		 * Configures the <a href=
-		 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Embedder-Policy">
-		 * Cross-Origin-Embedder-Policy</a> header.
 		 * @return the {@link HeaderSpec} to customize
 		 * @since 5.7
 		 * @see CrossOriginEmbedderPolicyServerHttpHeadersWriter
@@ -3427,21 +2640,6 @@ public class ServerHttpSecurity {
 				Customizer<CrossOriginEmbedderPolicySpec> crossOriginEmbedderPolicyCustomizer) {
 			crossOriginEmbedderPolicyCustomizer.customize(new CrossOriginEmbedderPolicySpec());
 			return this;
-		}
-
-		/**
-		 * Configures the <a href=
-		 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Resource-Policy">
-		 * Cross-Origin-Resource-Policy</a> header.
-		 * @return the {@link CrossOriginResourcePolicySpec} to configure
-		 * @since 5.7
-		 * @deprecated For removal in 7.0. Use
-		 * {@link #crossOriginResourcePolicy(Customizer)} instead.
-		 * @see CrossOriginResourcePolicyServerHttpHeadersWriter
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public CrossOriginResourcePolicySpec crossOriginResourcePolicy() {
-			return new CrossOriginResourcePolicySpec();
 		}
 
 		/**
@@ -3518,18 +2716,6 @@ public class ServerHttpSecurity {
 			 */
 			public HeaderSpec mode(XFrameOptionsServerHttpHeadersWriter.Mode mode) {
 				HeaderSpec.this.frameOptions.setMode(mode);
-				return and();
-			}
-
-			/**
-			 * Allows method chaining to continue configuring the
-			 * {@link ServerHttpSecurity}
-			 * @return the {@link HeaderSpec} to continue configuring
-			 * @deprecated For removal in 7.0. Use {@link #frameOptions(Customizer)}
-			 * instead
-			 */
-			@Deprecated(since = "6.1", forRemoval = true)
-			private HeaderSpec and() {
 				return HeaderSpec.this;
 			}
 
@@ -3539,7 +2725,7 @@ public class ServerHttpSecurity {
 			 */
 			public HeaderSpec disable() {
 				HeaderSpec.this.writers.remove(HeaderSpec.this.frameOptions);
-				return and();
+				return HeaderSpec.this;
 			}
 
 		}
@@ -3590,21 +2776,6 @@ public class ServerHttpSecurity {
 			public HstsSpec preload(boolean preload) {
 				HeaderSpec.this.hsts.setPreload(preload);
 				return this;
-			}
-
-			/**
-			 * Allows method chaining to continue configuring the
-			 * {@link ServerHttpSecurity}
-			 * @return the {@link HeaderSpec} to continue configuring
-			 * @deprecated For removal in 7.0. Use {@link #hsts(Customizer)} or
-			 * {@code hsts(Customizer.withDefaults())} to stick with defaults. See the
-			 * <a href=
-			 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-			 * for more details.
-			 */
-			@Deprecated(since = "6.1", forRemoval = true)
-			public HeaderSpec and() {
-				return HeaderSpec.this;
 			}
 
 			/**
@@ -3687,18 +2858,6 @@ public class ServerHttpSecurity {
 				return HeaderSpec.this;
 			}
 
-			/**
-			 * Allows method chaining to continue configuring the
-			 * {@link ServerHttpSecurity}.
-			 * @return the {@link HeaderSpec} to continue configuring
-			 * @deprecated For removal in 7.0. Use
-			 * {@link #contentSecurityPolicy(Customizer)} instead
-			 */
-			@Deprecated(since = "6.1", forRemoval = true)
-			public HeaderSpec and() {
-				return HeaderSpec.this;
-			}
-
 			private ContentSecurityPolicySpec(String policyDirectives) {
 				HeaderSpec.this.contentSecurityPolicy.setPolicyDirectives(policyDirectives);
 			}
@@ -3752,18 +2911,6 @@ public class ServerHttpSecurity {
 				return this;
 			}
 
-			/**
-			 * Allows method chaining to continue configuring the
-			 * {@link ServerHttpSecurity}.
-			 * @return the {@link HeaderSpec} to continue configuring
-			 * @deprecated For removal in 7.0. Use {@link #permissionsPolicy(Customizer)}
-			 * instead
-			 */
-			@Deprecated(since = "6.1", forRemoval = true)
-			public HeaderSpec and() {
-				return HeaderSpec.this;
-			}
-
 		}
 
 		/**
@@ -3792,18 +2939,6 @@ public class ServerHttpSecurity {
 				return this;
 			}
 
-			/**
-			 * Allows method chaining to continue configuring the
-			 * {@link ServerHttpSecurity}.
-			 * @return the {@link HeaderSpec} to continue configuring
-			 * @deprecated For removal in 7.0. Use {@link #referrerPolicy(Customizer)}
-			 * instead
-			 */
-			@Deprecated(since = "6.1", forRemoval = true)
-			public HeaderSpec and() {
-				return HeaderSpec.this;
-			}
-
 		}
 
 		/**
@@ -3824,18 +2959,6 @@ public class ServerHttpSecurity {
 			public CrossOriginOpenerPolicySpec policy(CrossOriginOpenerPolicy openerPolicy) {
 				HeaderSpec.this.crossOriginOpenerPolicy.setPolicy(openerPolicy);
 				return this;
-			}
-
-			/**
-			 * Allows method chaining to continue configuring the
-			 * {@link ServerHttpSecurity}.
-			 * @return the {@link HeaderSpec} to continue configuring
-			 * @deprecated For removal in 7.0. Use
-			 * {@link #crossOriginOpenerPolicy(Customizer)} instead
-			 */
-			@Deprecated(since = "6.1", forRemoval = true)
-			public HeaderSpec and() {
-				return HeaderSpec.this;
 			}
 
 		}
@@ -3860,18 +2983,6 @@ public class ServerHttpSecurity {
 				return this;
 			}
 
-			/**
-			 * Allows method chaining to continue configuring the
-			 * {@link ServerHttpSecurity}.
-			 * @return the {@link HeaderSpec} to continue configuring
-			 * @deprecated For removal in 7.0. Use
-			 * {@link #crossOriginEmbedderPolicy(Customizer)} instead
-			 */
-			@Deprecated(since = "6.1", forRemoval = true)
-			public HeaderSpec and() {
-				return HeaderSpec.this;
-			}
-
 		}
 
 		/**
@@ -3894,18 +3005,6 @@ public class ServerHttpSecurity {
 				return this;
 			}
 
-			/**
-			 * Allows method chaining to continue configuring the
-			 * {@link ServerHttpSecurity}.
-			 * @return the {@link HeaderSpec} to continue configuring
-			 * @deprecated For removal in 7.0. Use
-			 * {@link #crossOriginResourcePolicy(Customizer)} instead
-			 */
-			@Deprecated(since = "6.1", forRemoval = true)
-			public HeaderSpec and() {
-				return HeaderSpec.this;
-			}
-
 		}
 
 	}
@@ -3915,7 +3014,7 @@ public class ServerHttpSecurity {
 	 *
 	 * @author Shazin Sadakath
 	 * @since 5.0
-	 * @see #logout()
+	 * @see #logout(Customizer)
 	 */
 	public final class LogoutSpec {
 
@@ -3975,26 +3074,12 @@ public class ServerHttpSecurity {
 		}
 
 		/**
-		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
-		 * @return the {@link ServerHttpSecurity} to continue configuring
-		 * @deprecated For removal in 7.0. Use {@link #logout(Customizer)} or
-		 * {@code logout(Customizer.withDefaults())} to stick with defaults. See the
-		 * <a href=
-		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-		 * for more details.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public ServerHttpSecurity and() {
-			return ServerHttpSecurity.this;
-		}
-
-		/**
 		 * Disables log out
 		 * @return the {@link ServerHttpSecurity} to continue configuring
 		 */
 		public ServerHttpSecurity disable() {
 			ServerHttpSecurity.this.logout = null;
-			return and();
+			return ServerHttpSecurity.this;
 		}
 
 		private ServerLogoutHandler createLogoutHandler() {
@@ -4091,20 +3176,6 @@ public class ServerHttpSecurity {
 			return ServerHttpSecurity.this;
 		}
 
-		/**
-		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
-		 * @return the {@link ServerHttpSecurity} to continue configuring
-		 * @deprecated For removal in 7.0. Use {@link #cors(Customizer)} or
-		 * {@code cors(Customizer.withDefaults())} to stick with defaults. See the
-		 * <a href=
-		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-		 * for more details.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public ServerHttpSecurity and() {
-			return ServerHttpSecurity.this;
-		}
-
 		protected void configure(ServerHttpSecurity http) {
 			CorsWebFilter corsFilter = getCorsFilter();
 			if (corsFilter != null) {
@@ -4135,7 +3206,7 @@ public class ServerHttpSecurity {
 	 *
 	 * @author Alexey Nesterov
 	 * @since 5.2
-	 * @see #x509()
+	 * @see #x509(Customizer)
 	 */
 	public final class X509Spec {
 
@@ -4156,18 +3227,6 @@ public class ServerHttpSecurity {
 			return this;
 		}
 
-		/**
-		 * @deprecated For removal in 7.0. Use {@link #x509(Customizer)} or
-		 * {@code x509(Customizer.withDefaults())} to stick with defaults. See the
-		 * <a href=
-		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-		 * for more details.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public ServerHttpSecurity and() {
-			return ServerHttpSecurity.this;
-		}
-
 		protected void configure(ServerHttpSecurity http) {
 			ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
 			X509PrincipalExtractor principalExtractor = getPrincipalExtractor();
@@ -4180,7 +3239,7 @@ public class ServerHttpSecurity {
 			if (this.principalExtractor != null) {
 				return this.principalExtractor;
 			}
-			return new SubjectDnX509PrincipalExtractor();
+			return new SubjectX500PrincipalExtractor();
 		}
 
 		private ReactiveAuthenticationManager getAuthenticationManager() {
@@ -4466,20 +3525,6 @@ public class ServerHttpSecurity {
 			Assert.hasText(loginPage, "loginPage cannot be empty");
 			this.loginPage = loginPage;
 			return this;
-		}
-
-		/**
-		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
-		 * @return the {@link ServerHttpSecurity} to continue configuring
-		 * @deprecated For removal in 7.0. Use {@link #oauth2Login(Customizer)} or
-		 * {@code oauth2Login(Customizer.withDefaults())} to stick with defaults. See the
-		 * <a href=
-		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-		 * for more details.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public ServerHttpSecurity and() {
-			return ServerHttpSecurity.this;
 		}
 
 		protected void configure(ServerHttpSecurity http) {
@@ -5000,20 +4045,6 @@ public class ServerHttpSecurity {
 			return this.authorizationRedirectStrategy;
 		}
 
-		/**
-		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
-		 * @return the {@link ServerHttpSecurity} to continue configuring
-		 * @deprecated For removal in 7.0. Use {@link #oauth2Client(Customizer)} or
-		 * {@code oauth2Client(Customizer.withDefaults())} to stick with defaults. See the
-		 * <a href=
-		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-		 * for more details.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public ServerHttpSecurity and() {
-			return ServerHttpSecurity.this;
-		}
-
 		protected void configure(ServerHttpSecurity http) {
 			ServerOAuth2AuthorizedClientRepository authorizedClientRepository = getAuthorizedClientRepository();
 			ServerAuthenticationConverter authenticationConverter = getAuthenticationConverter();
@@ -5156,22 +4187,6 @@ public class ServerHttpSecurity {
 
 		/**
 		 * Enables JWT Resource Server support.
-		 * @return the {@link JwtSpec} for additional configuration
-		 * @deprecated For removal in 7.0. Use {@link #jwt(Customizer)} or
-		 * {@code jwt(Customizer.withDefaults())} to stick with defaults. See the <a href=
-		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-		 * for more details.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public JwtSpec jwt() {
-			if (this.jwt == null) {
-				this.jwt = new JwtSpec();
-			}
-			return this.jwt;
-		}
-
-		/**
-		 * Enables JWT Resource Server support.
 		 * @param jwtCustomizer the {@link Customizer} to provide more options for the
 		 * {@link JwtSpec}
 		 * @return the {@link OAuth2ResourceServerSpec} to customize
@@ -5182,23 +4197,6 @@ public class ServerHttpSecurity {
 			}
 			jwtCustomizer.customize(this.jwt);
 			return this;
-		}
-
-		/**
-		 * Enables Opaque Token Resource Server support.
-		 * @return the {@link OpaqueTokenSpec} for additional configuration
-		 * @deprecated For removal in 7.0. Use {@link #opaqueToken(Customizer)} or
-		 * {@code opaqueToken(Customizer.withDefaults())} to stick with defaults. See the
-		 * <a href=
-		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-		 * for more details.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public OpaqueTokenSpec opaqueToken() {
-			if (this.opaqueToken == null) {
-				this.opaqueToken = new OpaqueTokenSpec();
-			}
-			return this.opaqueToken;
 		}
 
 		/**
@@ -5274,7 +4272,7 @@ public class ServerHttpSecurity {
 				AndServerWebExchangeMatcher matcher = new AndServerWebExchangeMatcher(
 						CsrfWebFilter.DEFAULT_CSRF_MATCHER,
 						new NegatedServerWebExchangeMatcher(this.authenticationConverterServerWebExchangeMatcher));
-				http.csrf().requireCsrfProtectionMatcher(matcher);
+				http.csrf((csrf) -> csrf.requireCsrfProtectionMatcher(matcher));
 			}
 		}
 
@@ -5283,15 +4281,6 @@ public class ServerHttpSecurity {
 				return this.authenticationFailureHandler;
 			}
 			return new ServerAuthenticationEntryPointFailureHandler(this.entryPoint);
-		}
-
-		/**
-		 * @deprecated For removal in 7.0. Use {@link #oauth2ResourceServer(Customizer)}
-		 * instead
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public ServerHttpSecurity and() {
-			return ServerHttpSecurity.this;
 		}
 
 		/**
@@ -5363,18 +4352,6 @@ public class ServerHttpSecurity {
 				return this;
 			}
 
-			/**
-			 * @deprecated For removal in 7.0. Use {@link #jwt(Customizer)} or
-			 * {@code jwt(Customizer.withDefaults())} to stick with defaults. See the
-			 * <a href=
-			 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-			 * for more details.
-			 */
-			@Deprecated(since = "6.1", forRemoval = true)
-			public OAuth2ResourceServerSpec and() {
-				return OAuth2ResourceServerSpec.this;
-			}
-
 			protected void configure(ServerHttpSecurity http) {
 				ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
 				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(authenticationManager);
@@ -5443,8 +4420,11 @@ public class ServerHttpSecurity {
 			public OpaqueTokenSpec introspectionUri(String introspectionUri) {
 				Assert.hasText(introspectionUri, "introspectionUri cannot be empty");
 				this.introspectionUri = introspectionUri;
-				this.introspector = () -> new SpringReactiveOpaqueTokenIntrospector(this.introspectionUri,
-						this.clientId, this.clientSecret);
+				this.introspector = () -> SpringReactiveOpaqueTokenIntrospector
+					.withIntrospectionUri(this.introspectionUri)
+					.clientId(this.clientId)
+					.clientSecret(this.clientSecret)
+					.build();
 				return this;
 			}
 
@@ -5459,8 +4439,11 @@ public class ServerHttpSecurity {
 				Assert.notNull(clientSecret, "clientSecret cannot be null");
 				this.clientId = clientId;
 				this.clientSecret = clientSecret;
-				this.introspector = () -> new SpringReactiveOpaqueTokenIntrospector(this.introspectionUri,
-						this.clientId, this.clientSecret);
+				this.introspector = () -> SpringReactiveOpaqueTokenIntrospector
+					.withIntrospectionUri(this.introspectionUri)
+					.clientId(this.clientId)
+					.clientSecret(this.clientSecret)
+					.build();
 				return this;
 			}
 
@@ -5475,18 +4458,6 @@ public class ServerHttpSecurity {
 				Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
 				this.authenticationConverter = authenticationConverter;
 				return this;
-			}
-
-			/**
-			 * Allows method chaining to continue configuring the
-			 * {@link ServerHttpSecurity}
-			 * @return the {@link ServerHttpSecurity} to continue configuring
-			 * @deprecated For removal in 7.0. Use {@link #opaqueToken(Customizer)}
-			 * instead
-			 */
-			@Deprecated(since = "6.1", forRemoval = true)
-			public OAuth2ResourceServerSpec and() {
-				return OAuth2ResourceServerSpec.this;
 			}
 
 			protected ReactiveAuthenticationManager getAuthenticationManager() {
@@ -5575,11 +4546,6 @@ public class ServerHttpSecurity {
 			}
 			backChannelLogoutConfigurer.customize(this.backChannel);
 			return this;
-		}
-
-		@Deprecated(forRemoval = true, since = "6.2")
-		public ServerHttpSecurity and() {
-			return ServerHttpSecurity.this;
 		}
 
 		void configure(ServerHttpSecurity http) {
@@ -5878,20 +4844,6 @@ public class ServerHttpSecurity {
 		public AnonymousSpec authenticationFilter(AnonymousAuthenticationWebFilter authenticationFilter) {
 			this.authenticationFilter = authenticationFilter;
 			return this;
-		}
-
-		/**
-		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
-		 * @return the {@link ServerHttpSecurity} to continue configuring
-		 * @deprecated For removal in 7.0. Use {@link #anonymous(Customizer)} or
-		 * {@code anonymous(Customizer.withDefaults())} to stick with defaults. See the
-		 * <a href=
-		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-		 * for more details.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public ServerHttpSecurity and() {
-			return ServerHttpSecurity.this;
 		}
 
 		/**

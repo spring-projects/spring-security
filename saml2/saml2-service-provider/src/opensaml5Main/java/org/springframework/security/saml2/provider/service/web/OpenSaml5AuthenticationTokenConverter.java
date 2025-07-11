@@ -101,4 +101,14 @@ public final class OpenSaml5AuthenticationTokenConverter implements Authenticati
 		this.delegate.setRequestMatcher(requestMatcher);
 	}
 
+	/**
+	 * Use the given {@code shouldConvertGetRequests} to convert {@code GET} requests.
+	 * Default is {@code true}.
+	 * @param shouldConvertGetRequests the {@code shouldConvertGetRequests} to use
+	 * @since 7.0
+	 */
+	public void setShouldConvertGetRequests(boolean shouldConvertGetRequests) {
+		this.delegate.setShouldConvertGetRequests(shouldConvertGetRequests);
+	}
+
 }

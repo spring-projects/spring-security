@@ -15,12 +15,6 @@ dependencies {
 	optional 'com.fasterxml.jackson.core:jackson-databind'
 	optional 'ldapsdk:ldapsdk'
 	optional "com.unboundid:unboundid-ldapsdk"
-	optional "org.apache.directory.server:apacheds-core"
-	optional "org.apache.directory.server:apacheds-core-entry"
-	optional "org.apache.directory.server:apacheds-protocol-shared"
-	optional "org.apache.directory.server:apacheds-protocol-ldap"
-	optional "org.apache.directory.server:apacheds-server-jndi"
-	optional 'org.apache.directory.shared:shared-ldap'
 	api ('org.springframework.ldap:spring-ldap-core') {
 		exclude(group: 'commons-logging', module: 'commons-logging')
 		exclude(group: 'org.springframework', module: 'spring-beans')

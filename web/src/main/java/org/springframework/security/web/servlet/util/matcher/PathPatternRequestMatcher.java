@@ -38,8 +38,8 @@ import org.springframework.web.util.pattern.PathPatternParser;
  * (that is, it should exclude any context path).
  *
  * <p>
- * You can provide the servlet path in {@link PathPatternRequestMatcher#servletPath} and
- * reuse for multiple matchers.
+ * You can provide the servlet path in {@link PathPatternRequestMatcher.Builder#basePath}
+ * and reuse for multiple matchers.
  *
  * <p>
  * Note that the {@link org.springframework.web.servlet.HandlerMapping} that contains the
@@ -55,19 +55,51 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 
 	private final PathPattern pattern;
 
-	private RequestMatcher servletPath = AnyRequestMatcher.INSTANCE;
-
 	private RequestMatcher method = AnyRequestMatcher.INSTANCE;
 
 	/**
 	 * Creates a {@link PathPatternRequestMatcher} that uses the provided {@code pattern}.
 	 * <p>
-	 * The {@code pattern} should be relative to the servlet path
+	 * The {@code pattern} should be relative to the context path
 	 * </p>
 	 * @param pattern the pattern used to match
 	 */
 	private PathPatternRequestMatcher(PathPattern pattern) {
 		this.pattern = pattern;
+	}
+
+	/**
+	 * Construct a {@link PathPatternRequestMatcher} using the {@link PathPatternParser}
+	 * defaults.
+	 * <p>
+	 * If you are configuring a custom {@link PathPatternParser}, please use
+	 * {@link #withPathPatternParser} instead.
+	 * @param pattern the URI pattern to match
+	 * @return a {@link PathPatternRequestMatcher} that matches requests to the given
+	 * {@code pattern}
+	 * @since 7.0
+	 * @see PathPattern
+	 */
+	public static PathPatternRequestMatcher pathPattern(String pattern) {
+		return pathPattern(null, pattern);
+	}
+
+	/**
+	 * Construct a {@link PathPatternRequestMatcher} using the {@link PathPatternParser}
+	 * defaults.
+	 * <p>
+	 * If you are configuring a custom {@link PathPatternParser}, please use
+	 * {@link #withPathPatternParser} instead.
+	 * @param method the HTTP method to match, {@code null} indicates that the method does
+	 * not matter
+	 * @param pattern the URI pattern to match
+	 * @return a {@link PathPatternRequestMatcher} that matches requests to the given
+	 * {@code pattern} and {@code method}
+	 * @since 7.0
+	 * @see PathPattern
+	 */
+	public static PathPatternRequestMatcher pathPattern(@Nullable HttpMethod method, String pattern) {
+		return withDefaults().matcher(method, pattern);
 	}
 
 	/**
@@ -102,9 +134,6 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 */
 	@Override
 	public MatchResult matcher(HttpServletRequest request) {
-		if (!this.servletPath.matches(request)) {
-			return MatchResult.notMatch();
-		}
 		if (!this.method.matches(request)) {
 			return MatchResult.notMatch();
 		}
@@ -138,7 +167,7 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 		if (!(o instanceof PathPatternRequestMatcher that)) {
 			return false;
 		}
-		return Objects.equals(this.pattern, that.pattern);
+		return Objects.equals(this.pattern, that.pattern) && Objects.equals(this.method, that.method);
 	}
 
 	/**
@@ -146,7 +175,7 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 */
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.pattern);
+		return Objects.hash(this.pattern, this.method);
 	}
 
 	/**
@@ -168,7 +197,7 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 * <p>
 	 * To match a request URI like {@code /app/servlet/my/resource/**} where {@code /app}
 	 * is the context path, you can do
-	 * {@code PathPatternRequestMatcher.withDefaults().matcher("/servlet/my/resource/**")}
+	 * {@code PathPatternRequestMatcher.pathPattern("/servlet/my/resource/**")}
 	 *
 	 * <p>
 	 * If you have many paths that have a common path prefix, you can use
@@ -232,8 +261,9 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 		 * also be followed by {@code /**} to signify all URIs under a given path.
 		 *
 		 * <p>
-		 * These must be specified relative to any servlet path prefix (meaning you should
-		 * exclude the context path and any servlet path prefix in stating your pattern).
+		 * These must be specified relative to any context path prefix. A
+		 * {@link #basePath} may be specified to reuse a common prefix, for example a
+		 * servlet path.
 		 *
 		 * <p>
 		 * The following are valid patterns and their meaning
@@ -266,8 +296,9 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 		 * also be followed by {@code /**} to signify all URIs under a given path.
 		 *
 		 * <p>
-		 * These must be specified relative to any servlet path prefix (meaning you should
-		 * exclude the context path and any servlet path prefix in stating your pattern).
+		 * These must be specified relative to any context path prefix. A
+		 * {@link #basePath} may be specified to reuse a common prefix, for example a
+		 * servlet path.
 		 *
 		 * <p>
 		 * The following are valid patterns and their meaning

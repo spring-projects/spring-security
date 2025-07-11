@@ -46,7 +46,7 @@ public class CheckExpectedBranchVersionPlugin implements Plugin<Project> {
 			task.setDescription("Check if the project version matches the branch version");
 			task.onlyIf("skipCheckExpectedBranchVersion property is false or not present", CheckExpectedBranchVersionPlugin::skipPropertyFalseOrNotPresent);
 			task.getVersion().convention(project.provider(() -> project.getVersion().toString()));
-			task.getBranchName().convention(project.getProviders().exec(execSpec -> execSpec.setCommandLine("git", "symbolic-ref", "--short", "HEAD")).getStandardOutput().getAsText());
+			task.getBranchName().convention(project.getProviders().exec((execSpec) -> execSpec.setCommandLine("git", "symbolic-ref", "--short", "HEAD")).getStandardOutput().getAsText());
 			task.getOutputFile().convention(project.getLayout().getBuildDirectory().file("check-expected-branch-version"));
 		});
 		project.getTasks().named(JavaBasePlugin.CHECK_TASK_NAME, checkTask -> checkTask.dependsOn(checkExpectedBranchVersionTask));

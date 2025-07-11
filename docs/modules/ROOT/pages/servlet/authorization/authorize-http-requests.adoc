@@ -741,7 +741,7 @@ import static org.springframework.security.authorization.AuthorityAuthorizationM
 SecurityFilterChain web(HttpSecurity http) throws Exception {
 	http
 		// ...
-		.authorizeHttpRequests(authorize -> authorize                                  // <1>
+		.authorizeHttpRequests((authorize) -> authorize                                  // <1>
             .dispatcherTypeMatchers(FORWARD, ERROR).permitAll() // <2>
 			.requestMatchers("/static/**", "/signup", "/about").permitAll()         // <3>
 			.requestMatchers("/admin/**").hasRole("ADMIN")                             // <4>
@@ -861,7 +861,7 @@ Java::
 @Component
 public final class OpenPolicyAgentAuthorizationManager implements AuthorizationManager<RequestAuthorizationContext> {
     @Override
-    public AuthorizationDecision check(Supplier<Authentication> authentication, RequestAuthorizationContext context) {
+    public AuthorizationResult authorize(Supplier<Authentication> authentication, RequestAuthorizationContext context) {
         // make request to Open Policy Agent
     }
 }
@@ -996,6 +996,29 @@ Kotlin::
 ----
 ======
 
+To migrate several, you can use `WebExpressionAuthorizationManager#withDefaults`:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+WebExpressionAuthorizationManager.Builder authz = WebExpressionAuthorizationManager.withDefaults();
+.requestMatchers("/test/**").access(authz.expression("hasRole('ADMIN') && hasRole('USER')"))
+.requestMatchers("/test/**").access(authz.expression("permitAll"))
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+var authz = WebExpressionAuthorizationManager.withDefaults()
+.requestMatchers("/test/**").access(authz.expression("hasRole('ADMIN') && hasRole('USER')"))
+.requestMatchers("/test/**").access(authz.expression("permitAll"))
+----
+======
+
 If you are referring to a bean in your expression like so: `@webSecurity.check(authentication, request)`, it's recommended that you instead call the bean directly, which will look something like the following:
 
 [tabs]
@@ -1019,7 +1042,32 @@ Kotlin::
 
 For complex instructions that include bean references as well as other expressions, it is recommended that you change those to implement `AuthorizationManager` and refer to them by calling `.access(AuthorizationManager)`.
 
-If you are not able to do that, you can configure a javadoc:org.springframework.security.web.access.expression.DefaultHttpSecurityExpressionHandler[] with a bean resolver and supply that to `WebExpressionAuthorizationManager#setExpressionhandler`.
+If you are not able to do that, you can publish javadoc:org.springframework.security.web.access.expression.WebExpressionAuthorizationManager$Builder[] as a bean:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+WebExpressionAuthorizationManager.Builder authz() {
+	return WebExpressionAuthorizationManager.withDefaults();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authz(): WebExpressionAuthorizationManager.Builder {
+	return WebExpressionAuthorizationManager.withDefaults()
+}
+----
+======
+
+Then, expressions passed to that builder will be able to refer to beans.
 
 [[security-matchers]]
 == Security Matchers
@@ -1043,7 +1091,7 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
 			.securityMatcher("/api/**")                            <1>
-			.authorizeHttpRequests(authorize -> authorize
+			.authorizeHttpRequests((authorize) -> authorize
 				.requestMatchers("/api/user/**").hasRole("USER")   <2>
 				.requestMatchers("/api/admin/**").hasRole("ADMIN") <3>
 				.anyRequest().authenticated()                      <4>
@@ -1084,7 +1132,7 @@ open class SecurityConfig {
 <3> Allow access to URLs that start with `/api/admin/` to users with the `ADMIN` role
 <4> Any other request that doesn't match the rules above, will require authentication
 
-The `securityMatcher(s)` and `requestMatcher(s)` methods will decide which `RequestMatcher` implementation fits best for your application: If {spring-framework-reference-url}web.html#spring-web[Spring MVC] is in the classpath, then javadoc:org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher[] will be used, otherwise, javadoc:org.springframework.security.web.util.matcher.AntPathRequestMatcher[] will be used.
+The `securityMatcher(s)` and `requestMatcher(s)` methods will construct ``RequestMatcher``s using a javadoc:org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher$Builder[] bean, if available.
 You can read more about the Spring MVC integration xref:servlet/integrations/mvc.adoc[here].
 
 If you want to use a specific `RequestMatcher`, just pass an implementation to the `securityMatcher` and/or `requestMatcher` methods:
@@ -1095,7 +1143,7 @@ Java::
 +
 [source,java,role="primary"]
 ----
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher; <1>
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.withDefaults; <1>
 import static org.springframework.security.web.util.matcher.RegexRequestMatcher.regexMatcher;
 
 @Configuration
@@ -1106,8 +1154,8 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
 			.securityMatcher(antMatcher("/api/**"))                              <2>
-			.authorizeHttpRequests(authorize -> authorize
-				.requestMatchers(antMatcher("/api/user/**")).hasRole("USER")     <3>
+			.authorizeHttpRequests((authorize) -> authorize
+				.requestMatchers(withDefaults().matcher("/api/user/**")).hasRole("USER")     <3>
 				.requestMatchers(regexMatcher("/api/admin/.*")).hasRole("ADMIN") <4>
 				.requestMatchers(new MyCustomRequestMatcher()).hasRole("SUPERVISOR")     <5>
 				.anyRequest().authenticated()
@@ -1130,7 +1178,7 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher <1>
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.withDefaults <1>
 import org.springframework.security.web.util.matcher.RegexRequestMatcher.regexMatcher
 
 @Configuration
@@ -1142,7 +1190,7 @@ open class SecurityConfig {
         http {
             securityMatcher(antMatcher("/api/**"))                               <2>
             authorizeHttpRequests {
-                authorize(antMatcher("/api/user/**"), hasRole("USER"))           <3>
+                authorize(withDefaults().matcher("/api/user/**"), hasRole("USER"))           <3>
                 authorize(regexMatcher("/api/admin/**"), hasRole("ADMIN"))       <4>
                 authorize(MyCustomRequestMatcher(), hasRole("SUPERVISOR"))       <5>
                 authorize(anyRequest, authenticated)
@@ -1155,9 +1203,9 @@ open class SecurityConfig {
 ----
 ======
 
-<1> Import the static factory methods from `AntPathRequestMatcher` and `RegexRequestMatcher` to create `RequestMatcher` instances.
-<2> Configure `HttpSecurity` to only be applied to URLs that start with `/api/`, using `AntPathRequestMatcher`
-<3> Allow access to URLs that start with `/api/user/` to users with the `USER` role, using `AntPathRequestMatcher`
+<1> Import the static factory methods from `PathPatternRequestMatcher` and `RegexRequestMatcher` to create `RequestMatcher` instances.
+<2> Configure `HttpSecurity` to only be applied to URLs that start with `/api/`, using `PathPatternRequestMatcher`
+<3> Allow access to URLs that start with `/api/user/` to users with the `USER` role, using `PathPatternRequestMatcher`
 <4> Allow access to URLs that start with `/api/admin/` to users with the `ADMIN` role, using `RegexRequestMatcher`
 <5> Allow access to URLs that match the `MyCustomRequestMatcher` to users with the `SUPERVISOR` role, using a custom `RequestMatcher`
 

@@ -426,7 +426,7 @@ rsocket
 		authz
 			.setup().hasRole("SETUP") // <1>
 			.route("fetch.profile.me").authenticated() // <2>
-			.matcher(payloadExchange -> isMatch(payloadExchange)) // <3>
+			.matcher((payloadExchange) -> payloadExchange(payloadExchange)) // <3>
 				.hasRole("CUSTOM")
 			.route("fetch.profile.{username}") // <4>
 				.access((authentication, context) -> checkFriends(authentication, context))

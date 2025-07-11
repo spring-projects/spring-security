@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ class WebMvcSecurityRuntimeHints implements RuntimeHintsRegistrar {
 	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
 		hints.reflection()
 			.registerType(WebSecurityExpressionRoot.class, (builder) -> builder
-				.withMembers(MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.DECLARED_FIELDS));
+				.withMembers(MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.ACCESS_DECLARED_FIELDS));
 		hints.reflection()
 			.registerType(
 					TypeReference

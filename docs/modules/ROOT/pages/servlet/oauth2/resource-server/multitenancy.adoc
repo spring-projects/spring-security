@@ -58,10 +58,10 @@ Java::
 [source,java,role="primary"]
 ----
 http
-    .authorizeHttpRequests(authorize -> authorize
+    .authorizeHttpRequests((authorize) -> authorize
         .anyRequest().authenticated()
     )
-    .oauth2ResourceServer(oauth2 -> oauth2
+    .oauth2ResourceServer((oauth2) -> oauth2
         .authenticationManagerResolver(this.tokenAuthenticationManagerResolver)
     );
 ----
@@ -71,7 +71,7 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 http {
-    authorizeRequests {
+    authorizeHttpRequests {
         authorize(anyRequest, authenticated)
     }
     oauth2ResourceServer {
@@ -118,10 +118,10 @@ JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = JwtIssuer
     .fromTrustedIssuers("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo");
 
 http
-    .authorizeHttpRequests(authorize -> authorize
+    .authorizeHttpRequests((authorize) -> authorize
         .anyRequest().authenticated()
     )
-    .oauth2ResourceServer(oauth2 -> oauth2
+    .oauth2ResourceServer((oauth2) -> oauth2
         .authenticationManagerResolver(authenticationManagerResolver)
     );
 ----
@@ -133,7 +133,7 @@ Kotlin::
 val customAuthenticationManagerResolver = JwtIssuerAuthenticationManagerResolver
     .fromTrustedIssuers("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo")
 http {
-    authorizeRequests {
+    authorizeHttpRequests {
         authorize(anyRequest, authenticated)
     }
     oauth2ResourceServer {
@@ -189,10 +189,10 @@ JwtIssuerAuthenticationManagerResolver authenticationManagerResolver =
         new JwtIssuerAuthenticationManagerResolver(authenticationManagers::get);
 
 http
-    .authorizeHttpRequests(authorize -> authorize
+    .authorizeHttpRequests((authorize) -> authorize
         .anyRequest().authenticated()
     )
-    .oauth2ResourceServer(oauth2 -> oauth2
+    .oauth2ResourceServer((oauth2) -> oauth2
         .authenticationManagerResolver(authenticationManagerResolver)
     );
 ----
@@ -213,7 +213,7 @@ private fun addManager(authenticationManagers: MutableMap<String, Authentication
 val customAuthenticationManagerResolver: JwtIssuerAuthenticationManagerResolver =
     JwtIssuerAuthenticationManagerResolver(authenticationManagers::get)
 http {
-    authorizeRequests {
+    authorizeHttpRequests {
         authorize(anyRequest, authenticated)
     }
     oauth2ResourceServer {
@@ -265,7 +265,7 @@ public class TenantJWSKeySelector
 
 	private JWSKeySelector<SecurityContext> fromTenant(String tenant) {
 		return Optional.ofNullable(this.tenants.findById(tenant)) <3>
-		        .map(t -> t.getAttrbute("jwks_uri"))
+		        .map((t) -> t.getAttrbute("jwks_uri"))
 				.map(this::fromUri)
 				.orElseThrow(() -> new IllegalArgumentException("unknown tenant"));
 	}

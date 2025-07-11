@@ -47,6 +47,6 @@
 		<csrf disabled="true"/>
 	</http>
 
-	<beans:bean class="org.springframework.web.servlet.handler.HandlerMappingIntrospector" name="mvcHandlerMappingIntrospector"/>
+	<beans:bean class="org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean"/>
 
 </beans:beans>

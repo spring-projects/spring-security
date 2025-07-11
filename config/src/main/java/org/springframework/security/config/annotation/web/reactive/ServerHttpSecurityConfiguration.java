@@ -43,6 +43,8 @@ import org.springframework.security.web.reactive.result.method.annotation.Curren
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 /**
  * @author Rob Winch
  * @author Dan Zheng
@@ -156,8 +158,8 @@ class ServerHttpSecurityConfiguration {
 		ContextAwareServerHttpSecurity http = new ContextAwareServerHttpSecurity();
 		// @formatter:off
 		return http.authenticationManager(authenticationManager())
-			.headers().and()
-			.logout().and();
+			.headers(withDefaults())
+			.logout(withDefaults());
 		// @formatter:on
 	}
 

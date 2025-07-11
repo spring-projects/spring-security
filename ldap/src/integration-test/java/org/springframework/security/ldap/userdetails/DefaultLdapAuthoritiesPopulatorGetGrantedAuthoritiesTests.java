@@ -31,7 +31,7 @@ import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
-import org.springframework.security.ldap.server.ApacheDSContainer;
+import org.springframework.security.ldap.server.UnboundIdContainer;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(
-		classes = DefaultLdapAuthoritiesPopulatorGetGrantedAuthoritiesTests.ApacheDsContainerWithUndefinedGroupRoleAttributeConfig.class)
+		classes = DefaultLdapAuthoritiesPopulatorGetGrantedAuthoritiesTests.UnboundIdContainerWithUndefinedGroupRoleAttributeConfig.class)
 public class DefaultLdapAuthoritiesPopulatorGetGrantedAuthoritiesTests {
 
 	@Autowired
@@ -77,22 +77,22 @@ public class DefaultLdapAuthoritiesPopulatorGetGrantedAuthoritiesTests {
 	}
 
 	@Configuration
-	static class ApacheDsContainerWithUndefinedGroupRoleAttributeConfig implements DisposableBean {
+	static class UnboundIdContainerWithUndefinedGroupRoleAttributeConfig implements DisposableBean {
 
-		private ApacheDSContainer container;
+		private UnboundIdContainer container;
 
 		@Bean
-		ApacheDSContainer ldapContainer() throws Exception {
-			this.container = new ApacheDSContainer("dc=springframework,dc=org",
+		UnboundIdContainer ldapContainer() {
+			this.container = new UnboundIdContainer("dc=springframework,dc=org",
 					"classpath:test-server-with-undefined-group-role-attributes.ldif");
 			this.container.setPort(0);
 			return this.container;
 		}
 
 		@Bean
-		ContextSource contextSource(ApacheDSContainer ldapContainer) {
+		ContextSource contextSource(UnboundIdContainer ldapContainer) {
 			return new DefaultSpringSecurityContextSource(
-					"ldap://127.0.0.1:" + ldapContainer.getLocalPort() + "/dc=springframework,dc=org");
+					"ldap://127.0.0.1:" + ldapContainer.getPort() + "/dc=springframework,dc=org");
 		}
 
 		@Override

@@ -27,8 +27,8 @@ import org.opensaml.core.Version;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
-import org.springframework.security.config.annotation.web.RequestMatcherFactory;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -43,7 +43,6 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.web.HttpSessionSaml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.web.OpenSaml4AuthenticationTokenConverter;
 import org.springframework.security.saml2.provider.service.web.OpenSaml5AuthenticationTokenConverter;
-import org.springframework.security.saml2.provider.service.web.OpenSamlAuthenticationTokenConverter;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
 import org.springframework.security.saml2.provider.service.web.Saml2WebSsoAuthenticationRequestFilter;
@@ -111,7 +110,7 @@ import org.springframework.util.StringUtils;
  * </ul>
  *
  * @since 5.2
- * @see HttpSecurity#saml2Login()
+ * @see HttpSecurity#saml2Login(Customizer)
  * @see Saml2WebSsoAuthenticationFilter
  * @see Saml2WebSsoAuthenticationRequestFilter
  * @see RelyingPartyRegistrationRepository
@@ -236,7 +235,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		this.authenticationRequestParams = new String[parts.length - 1];
 		System.arraycopy(parts, 1, this.authenticationRequestParams, 0, parts.length - 1);
 		this.authenticationRequestMatcher = new PathQueryRequestMatcher(
-				RequestMatcherFactory.matcher(this.authenticationRequestUri), this.authenticationRequestParams);
+				getRequestMatcherBuilder().matcher(this.authenticationRequestUri), this.authenticationRequestParams);
 		return this;
 	}
 
@@ -253,13 +252,13 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	@Override
 	public Saml2LoginConfigurer<B> loginProcessingUrl(String loginProcessingUrl) {
 		Assert.hasText(loginProcessingUrl, "loginProcessingUrl cannot be empty");
-		this.loginProcessingUrl = RequestMatcherFactory.matcher(loginProcessingUrl);
+		this.loginProcessingUrl = getRequestMatcherBuilder().matcher(loginProcessingUrl);
 		return this;
 	}
 
 	@Override
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
-		return RequestMatcherFactory.matcher(loginProcessingUrl);
+		return getRequestMatcherBuilder().matcher(loginProcessingUrl);
 	}
 
 	/**
@@ -337,8 +336,8 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	private AuthenticationEntryPoint getLoginEntryPoint(B http, String providerLoginPage) {
-		RequestMatcher loginPageMatcher = RequestMatcherFactory.matcher(this.getLoginPage());
-		RequestMatcher faviconMatcher = RequestMatcherFactory.matcher("/favicon.ico");
+		RequestMatcher loginPageMatcher = getRequestMatcherBuilder().matcher(this.getLoginPage());
+		RequestMatcher faviconMatcher = getRequestMatcherBuilder().matcher("/favicon.ico");
 		RequestMatcher defaultEntryPointMatcher = this.getAuthenticationEntryPointMatcher(http);
 		RequestMatcher defaultLoginPageMatcher = new AndRequestMatcher(
 				new OrRequestMatcher(loginPageMatcher, faviconMatcher), defaultEntryPointMatcher);
@@ -392,9 +391,9 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	private RequestMatcher getAuthenticationRequestMatcher() {
 		if (this.authenticationRequestMatcher == null) {
 			this.authenticationRequestMatcher = RequestMatchers.anyOf(
-					RequestMatcherFactory
+					getRequestMatcherBuilder()
 						.matcher(Saml2AuthenticationRequestResolver.DEFAULT_AUTHENTICATION_REQUEST_URI),
-					new PathQueryRequestMatcher(RequestMatcherFactory.matcher(this.authenticationRequestUri),
+					new PathQueryRequestMatcher(getRequestMatcherBuilder().matcher(this.authenticationRequestUri),
 							this.authenticationRequestParams));
 		}
 		return this.authenticationRequestMatcher;
@@ -403,8 +402,8 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	private RequestMatcher getLoginProcessingEndpoint() {
 		if (this.loginProcessingUrl == null) {
 			this.loginProcessingUrl = RequestMatchers.anyOf(
-					RequestMatcherFactory.matcher(Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI),
-					RequestMatcherFactory.matcher("/login/saml2/sso"));
+					getRequestMatcherBuilder().matcher(Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI),
+					getRequestMatcherBuilder().matcher("/login/saml2/sso"));
 		}
 
 		return this.loginProcessingUrl;
@@ -416,9 +415,6 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		}
 		AuthenticationConverter authenticationConverterBean = getBeanOrNull(http,
 				Saml2AuthenticationTokenConverter.class);
-		if (authenticationConverterBean == null) {
-			authenticationConverterBean = getBeanOrNull(http, OpenSamlAuthenticationTokenConverter.class);
-		}
 		if (authenticationConverterBean != null) {
 			return authenticationConverterBean;
 		}

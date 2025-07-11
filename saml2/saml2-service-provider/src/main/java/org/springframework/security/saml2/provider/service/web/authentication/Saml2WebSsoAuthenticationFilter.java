@@ -34,10 +34,11 @@ import org.springframework.security.saml2.provider.service.web.Saml2Authenticati
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
+
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * @since 5.2
@@ -47,8 +48,7 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 	public static final String DEFAULT_FILTER_PROCESSES_URI = "/login/saml2/sso/{registrationId}";
 
 	private static final RequestMatcher DEFAULT_REQUEST_MATCHER = new OrRequestMatcher(
-			PathPatternRequestMatcher.withDefaults().matcher(DEFAULT_FILTER_PROCESSES_URI),
-			PathPatternRequestMatcher.withDefaults().matcher("/login/saml2/sso"));
+			pathPattern(DEFAULT_FILTER_PROCESSES_URI), pathPattern("/login/saml2/sso"));
 
 	private final AuthenticationConverter authenticationConverter;
 
@@ -64,7 +64,7 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 	 */
 	public Saml2WebSsoAuthenticationFilter(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
 		this(relyingPartyRegistrationRepository, DEFAULT_FILTER_PROCESSES_URI);
-		RequestMatcher processUri = PathPatternRequestMatcher.withDefaults().matcher(DEFAULT_FILTER_PROCESSES_URI);
+		RequestMatcher processUri = pathPattern(DEFAULT_FILTER_PROCESSES_URI);
 		setRequiresAuthenticationRequestMatcher(processUri);
 	}
 

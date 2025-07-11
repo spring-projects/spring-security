@@ -99,7 +99,7 @@ class AuthorizationCodeGrantDslTests {
                         authorizationRequestRepository = REQUEST_REPOSITORY
                     }
                 }
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
             }
@@ -133,7 +133,7 @@ class AuthorizationCodeGrantDslTests {
                         authorizationRedirectStrategy = REDIRECT_STRATEGY
                     }
                 }
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
             }
@@ -187,7 +187,7 @@ class AuthorizationCodeGrantDslTests {
                         accessTokenResponseClient = CLIENT
                     }
                 }
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
             }
@@ -226,7 +226,7 @@ class AuthorizationCodeGrantDslTests {
                         authorizationRequestResolver = requestResolver
                     }
                 }
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
             }

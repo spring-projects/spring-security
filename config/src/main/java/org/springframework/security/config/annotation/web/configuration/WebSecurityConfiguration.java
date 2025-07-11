@@ -69,7 +69,6 @@ import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.web.filter.CompositeFilter;
 import org.springframework.web.filter.ServletRequestPathFilter;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 /**
  * Uses a {@link WebSecurity} to create the {@link FilterChainProxy} that performs the web
@@ -209,12 +208,11 @@ public class WebSecurityConfiguration implements ImportAware {
 	/**
 	 * Used to ensure Spring MVC request matching is cached.
 	 *
-	 * Creates a {@link BeanDefinitionRegistryPostProcessor} that detects if a bean named
-	 * HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME is defined. If so, it moves the
+	 * Creates a {@link BeanDefinitionRegistryPostProcessor} that moves the
 	 * AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME to another bean name
 	 * and then adds a {@link CompositeFilter} that contains
-	 * {@link HandlerMappingIntrospector#createCacheFilter()} and the original
-	 * FilterChainProxy under the original Bean name.
+	 * {@link ServletRequestPathFilter} and the original FilterChainProxy under the
+	 * original Bean name.
 	 * @return
 	 */
 	@Bean

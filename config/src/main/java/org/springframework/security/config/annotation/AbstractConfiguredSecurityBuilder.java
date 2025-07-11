@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,15 +79,6 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 		this(objectPostProcessor, false);
 	}
 
-	/**
-	 * @deprecated
-	 */
-	@Deprecated(since = "6.4", forRemoval = true)
-	protected AbstractConfiguredSecurityBuilder(
-			org.springframework.security.config.annotation.ObjectPostProcessor<Object> objectPostProcessor) {
-		this(objectPostProcessor, false);
-	}
-
 	/***
 	 * Creates a new instance with the provided {@link ObjectPostProcessor}. This post
 	 * processor must support Object since there are many types of objects that may be
@@ -97,18 +88,6 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * {@link SecurityConfigurer}'s when performing apply
 	 */
 	protected AbstractConfiguredSecurityBuilder(ObjectPostProcessor<Object> objectPostProcessor,
-			boolean allowConfigurersOfSameType) {
-		Assert.notNull(objectPostProcessor, "objectPostProcessor cannot be null");
-		this.objectPostProcessor = objectPostProcessor;
-		this.allowConfigurersOfSameType = allowConfigurersOfSameType;
-	}
-
-	/**
-	 * @deprecated
-	 */
-	@Deprecated(since = "6.4", forRemoval = true)
-	protected AbstractConfiguredSecurityBuilder(
-			org.springframework.security.config.annotation.ObjectPostProcessor<Object> objectPostProcessor,
 			boolean allowConfigurersOfSameType) {
 		Assert.notNull(objectPostProcessor, "objectPostProcessor cannot be null");
 		this.objectPostProcessor = objectPostProcessor;
@@ -163,6 +142,29 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	public <C extends SecurityConfigurer<O, B>> C apply(C configurer) throws Exception {
 		add(configurer);
 		return configurer;
+	}
+
+	/**
+	 * Applies a {@link SecurityConfigurerAdapter} to this {@link SecurityBuilder} and
+	 * invokes {@link SecurityConfigurerAdapter#setBuilder(SecurityBuilder)}.
+	 *
+	 * <p>
+	 * A shortcut for applying a configurer as-is, or in other words: <code>
+	 *     .with(new MyConfigurer())
+	 * </code>
+	 *
+	 * <p>
+	 * Is identical to: <code>
+	 *     .with(new MyConfigurer(), Customizer.withDefaults())
+	 * </code>
+	 * @param configurer
+	 * @return the {@link SecurityBuilder} for further customizations
+	 * @throws Exception
+	 * @since 7.0
+	 */
+	@SuppressWarnings("unchecked")
+	public <C extends SecurityConfigurerAdapter<O, B>> B with(C configurer) throws Exception {
+		return with(configurer, Customizer.withDefaults());
 	}
 
 	/**

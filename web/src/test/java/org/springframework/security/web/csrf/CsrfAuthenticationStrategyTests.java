@@ -118,9 +118,10 @@ public class CsrfAuthenticationStrategyTests {
 	// SEC-2872
 	@Test
 	public void delaySavingCsrf() {
-		this.strategy = new CsrfAuthenticationStrategy(new LazyCsrfTokenRepository(this.csrfTokenRepository));
+		this.strategy = new CsrfAuthenticationStrategy(this.csrfTokenRepository);
 		given(this.csrfTokenRepository.loadToken(this.request)).willReturn(this.existingToken, (CsrfToken) null);
 		given(this.csrfTokenRepository.generateToken(this.request)).willReturn(this.generatedToken);
+		given(this.csrfTokenRepository.loadDeferredToken(any(), any())).willCallRealMethod();
 		this.strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), this.request,
 				this.response);
 		verify(this.csrfTokenRepository).saveToken(null, this.request, this.response);

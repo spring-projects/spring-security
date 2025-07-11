@@ -54,6 +54,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.x509;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -153,10 +154,9 @@ public class NamespaceHttpX509Tests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.x509();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.x509(withDefaults());
 			// @formatter:on
 			return http.build();
 		}
@@ -182,11 +182,10 @@ public class NamespaceHttpX509Tests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.x509()
-					.authenticationDetailsSource(authenticationDetailsSource());
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.x509((x509) -> x509
+					.authenticationDetailsSource(authenticationDetailsSource()));
 			// @formatter:on
 			return http.build();
 		}
@@ -217,11 +216,10 @@ public class NamespaceHttpX509Tests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.x509()
-					.subjectPrincipalRegex("CN=(.*?)@example.com(?:,|$)");
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.x509((x509) -> x509
+					.subjectPrincipalRegex("CN=(.*?)@example.com(?:,|$)"));
 			// @formatter:on
 			return http.build();
 		}
@@ -247,11 +245,10 @@ public class NamespaceHttpX509Tests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.x509()
-					.x509PrincipalExtractor(this::extractCommonName);
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.x509((x509) -> x509
+					.x509PrincipalExtractor(this::extractCommonName));
 			// @formatter:on
 			return http.build();
 		}
@@ -282,11 +279,10 @@ public class NamespaceHttpX509Tests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.x509()
-					.userDetailsService((username) -> USER);
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.x509((x509) -> x509
+					.userDetailsService((username) -> USER));
 			// @formatter:on
 			return http.build();
 		}
@@ -312,11 +308,10 @@ public class NamespaceHttpX509Tests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.x509()
-					.authenticationUserDetailsService((authentication) -> USER);
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.x509((x509) -> x509
+					.authenticationUserDetailsService((authentication) -> USER));
 			// @formatter:on
 			return http.build();
 		}

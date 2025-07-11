@@ -23,7 +23,6 @@ import org.springframework.expression.Expression;
 import org.springframework.messaging.Message;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
-import org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher;
 import org.springframework.util.Assert;
 
 /**
@@ -42,7 +41,7 @@ class MessageExpressionConfigAttribute implements ConfigAttribute, EvaluationCon
 
 	private final Expression authorizeExpression;
 
-	private final MessageMatcher<?> matcher;
+	private final MessageMatcher<Object> matcher;
 
 	/**
 	 * Creates a new instance
@@ -53,7 +52,7 @@ class MessageExpressionConfigAttribute implements ConfigAttribute, EvaluationCon
 		Assert.notNull(authorizeExpression, "authorizeExpression cannot be null");
 		Assert.notNull(matcher, "matcher cannot be null");
 		this.authorizeExpression = authorizeExpression;
-		this.matcher = matcher;
+		this.matcher = (MessageMatcher<Object>) matcher;
 	}
 
 	Expression getAuthorizeExpression() {
@@ -72,12 +71,9 @@ class MessageExpressionConfigAttribute implements ConfigAttribute, EvaluationCon
 
 	@Override
 	public EvaluationContext postProcess(EvaluationContext ctx, Message<?> message) {
-		if (this.matcher instanceof SimpDestinationMessageMatcher) {
-			Map<String, String> variables = ((SimpDestinationMessageMatcher) this.matcher)
-				.extractPathVariables(message);
-			for (Map.Entry<String, String> entry : variables.entrySet()) {
-				ctx.setVariable(entry.getKey(), entry.getValue());
-			}
+		Map<String, String> variables = this.matcher.matcher(message).getVariables();
+		for (Map.Entry<String, String> entry : variables.entrySet()) {
+			ctx.setVariable(entry.getKey(), entry.getValue());
 		}
 		return ctx;
 	}

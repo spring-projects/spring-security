@@ -40,7 +40,7 @@ import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.logout.LogoutHandler
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
 
@@ -102,7 +102,7 @@ class LogoutDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 logout {
-                    logoutRequestMatcher = AntPathRequestMatcher("/custom/logout")
+                    logoutRequestMatcher = PathPatternRequestMatcher.pathPattern("/custom/logout")
                 }
             }
             return http.build()
@@ -179,7 +179,7 @@ class LogoutDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 logout {
@@ -307,8 +307,9 @@ class LogoutDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 logout {
-                    logoutRequestMatcher = AntPathRequestMatcher("/logout/**")
-                    defaultLogoutSuccessHandlerFor(SimpleUrlLogoutSuccessHandler(), AntPathRequestMatcher("/logout/custom"))
+                    logoutRequestMatcher = PathPatternRequestMatcher.pathPattern("/logout/**")
+                    defaultLogoutSuccessHandlerFor(SimpleUrlLogoutSuccessHandler(),
+                        PathPatternRequestMatcher.pathPattern("/logout/custom"))
                 }
             }
             return http.build()

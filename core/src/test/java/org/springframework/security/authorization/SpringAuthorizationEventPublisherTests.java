@@ -16,6 +16,7 @@
 
 package org.springframework.security.authorization;
 
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -26,10 +27,13 @@ import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
 import org.springframework.security.core.Authentication;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Tests for {@link SpringAuthorizationEventPublisher}
@@ -62,6 +66,18 @@ public class SpringAuthorizationEventPublisherTests {
 		AuthorizationDecision decision = new AuthorizationDecision(false);
 		this.authorizationEventPublisher.publishAuthorizationEvent(this.authentication, mock(Object.class), decision);
 		verify(this.applicationEventPublisher).publishEvent(isA(AuthorizationDeniedEvent.class));
+	}
+
+	@Test
+	public void publishWhenPredicateMatchesThenEvent() {
+		Predicate<AuthorizationResult> test = mock(Predicate.class);
+		given(test.test(any())).willReturn(true, false);
+		this.authorizationEventPublisher.setShouldPublishResult(test);
+		AuthorizationResult result = new AuthorizationDecision(false);
+		this.authorizationEventPublisher.publishAuthorizationEvent(this.authentication, mock(Object.class), result);
+		verify(this.applicationEventPublisher).publishEvent(isA(AuthorizationDeniedEvent.class));
+		this.authorizationEventPublisher.publishAuthorizationEvent(this.authentication, mock(Object.class), result);
+		verifyNoMoreInteractions(this.applicationEventPublisher);
 	}
 
 }

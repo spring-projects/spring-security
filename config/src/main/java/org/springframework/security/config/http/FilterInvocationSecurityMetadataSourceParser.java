@@ -159,7 +159,7 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 			if (!StringUtils.hasText(servletPath)) {
 				servletPath = null;
 			}
-			else if (!MatcherType.mvc.equals(matcherType)) {
+			else if (!MatcherType.path.equals(matcherType)) {
 				parserContext.getReaderContext()
 					.error(ATT_SERVLET_PATH + " is not applicable for request-matcher: '" + matcherType.name() + "'",
 							urlElt);

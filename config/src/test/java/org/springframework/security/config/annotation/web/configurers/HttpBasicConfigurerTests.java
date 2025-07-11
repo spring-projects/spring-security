@@ -221,7 +221,7 @@ public class HttpBasicConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.httpBasic();
+				.httpBasic(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -250,8 +250,7 @@ public class HttpBasicConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorizeRequests) ->
-					authorizeRequests
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().authenticated()
 				)
 				.httpBasic(withDefaults());
@@ -274,10 +273,9 @@ public class HttpBasicConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.httpBasic();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.httpBasic(withDefaults());
 			// @formatter:on
 			return http.build();
 		}
@@ -299,11 +297,10 @@ public class HttpBasicConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.httpBasic()
-					.authenticationEntryPoint(ENTRY_POINT);
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.httpBasic((basic) -> basic
+					.authenticationEntryPoint(ENTRY_POINT));
 			// @formatter:on
 			return http.build();
 		}
@@ -325,13 +322,11 @@ public class HttpBasicConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.httpBasic()
-					.authenticationEntryPoint(ENTRY_POINT)
-					.and()
-				.httpBasic();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.httpBasic((basic) -> basic
+					.authenticationEntryPoint(ENTRY_POINT))
+				.httpBasic(withDefaults());
 			// @formatter:on
 			return http.build();
 		}
@@ -351,9 +346,8 @@ public class HttpBasicConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.httpBasic()
-					.and()
-				.rememberMe();
+				.httpBasic(withDefaults())
+				.rememberMe(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -397,8 +391,8 @@ public class HttpBasicConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.httpBasic()
-					.securityContextRepository(SECURITY_CONTEXT_REPOSITORY);
+				.httpBasic((basic) -> basic
+					.securityContextRepository(SECURITY_CONTEXT_REPOSITORY));
 			// @formatter:on
 			return http.build();
 		}

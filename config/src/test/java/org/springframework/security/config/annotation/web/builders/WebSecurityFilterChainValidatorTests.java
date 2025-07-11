@@ -31,7 +31,7 @@ import org.springframework.security.web.UnreachableFilterChainException;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatchers;
@@ -49,6 +49,8 @@ public class WebSecurityFilterChainValidatorTests {
 
 	private final WebSecurityFilterChainValidator validator = new WebSecurityFilterChainValidator();
 
+	private final PathPatternRequestMatcher.Builder builder = PathPatternRequestMatcher.withDefaults();
+
 	@Mock
 	private AnonymousAuthenticationFilter authenticationFilter;
 
@@ -60,7 +62,7 @@ public class WebSecurityFilterChainValidatorTests {
 
 	@Test
 	void validateWhenFilterSecurityInterceptorConfiguredThenValidates() {
-		SecurityFilterChain chain = new DefaultSecurityFilterChain(AntPathRequestMatcher.antMatcher("/api"),
+		SecurityFilterChain chain = new DefaultSecurityFilterChain(this.builder.matcher("/api"),
 				this.authenticationFilter, this.exceptionTranslationFilter, this.authorizationInterceptor);
 		FilterChainProxy proxy = new FilterChainProxy(List.of(chain));
 
@@ -69,7 +71,7 @@ public class WebSecurityFilterChainValidatorTests {
 
 	@Test
 	void validateWhenAnyRequestMatcherIsPresentThenUnreachableFilterChainException() {
-		SecurityFilterChain chain1 = new DefaultSecurityFilterChain(AntPathRequestMatcher.antMatcher("/api"),
+		SecurityFilterChain chain1 = new DefaultSecurityFilterChain(this.builder.matcher("/api"),
 				this.authenticationFilter, this.exceptionTranslationFilter, this.authorizationInterceptor);
 		SecurityFilterChain chain2 = new DefaultSecurityFilterChain(AnyRequestMatcher.INSTANCE,
 				this.authenticationFilter, this.exceptionTranslationFilter, this.authorizationInterceptor);
@@ -84,9 +86,9 @@ public class WebSecurityFilterChainValidatorTests {
 
 	@Test
 	void validateWhenSameRequestMatchersArePresentThenUnreachableFilterChainException() {
-		SecurityFilterChain chain1 = new DefaultSecurityFilterChain(AntPathRequestMatcher.antMatcher("/api"),
+		SecurityFilterChain chain1 = new DefaultSecurityFilterChain(this.builder.matcher("/api"),
 				this.authenticationFilter, this.exceptionTranslationFilter, this.authorizationInterceptor);
-		SecurityFilterChain chain2 = new DefaultSecurityFilterChain(AntPathRequestMatcher.antMatcher("/api"),
+		SecurityFilterChain chain2 = new DefaultSecurityFilterChain(this.builder.matcher("/api"),
 				this.authenticationFilter, this.exceptionTranslationFilter, this.authorizationInterceptor);
 		List<SecurityFilterChain> chains = new ArrayList<>();
 		chains.add(chain2);
@@ -99,10 +101,12 @@ public class WebSecurityFilterChainValidatorTests {
 
 	@Test
 	void validateWhenSameComposedRequestMatchersArePresentThenUnreachableFilterChainException() {
-		RequestMatcher matcher1 = RequestMatchers.anyOf(RequestMatchers.allOf(AntPathRequestMatcher.antMatcher("/api"),
-				AntPathRequestMatcher.antMatcher("*.do")), AntPathRequestMatcher.antMatcher("/admin"));
-		RequestMatcher matcher2 = RequestMatchers.anyOf(RequestMatchers.allOf(AntPathRequestMatcher.antMatcher("/api"),
-				AntPathRequestMatcher.antMatcher("*.do")), AntPathRequestMatcher.antMatcher("/admin"));
+		RequestMatcher matcher1 = RequestMatchers.anyOf(
+				RequestMatchers.allOf(this.builder.matcher("/api"), this.builder.matcher("/*.do")),
+				this.builder.matcher("/admin"));
+		RequestMatcher matcher2 = RequestMatchers.anyOf(
+				RequestMatchers.allOf(this.builder.matcher("/api"), this.builder.matcher("/*.do")),
+				this.builder.matcher("/admin"));
 		SecurityFilterChain chain1 = new DefaultSecurityFilterChain(matcher1, this.authenticationFilter,
 				this.exceptionTranslationFilter, this.authorizationInterceptor);
 		SecurityFilterChain chain2 = new DefaultSecurityFilterChain(matcher2, this.authenticationFilter,

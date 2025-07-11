@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,9 @@ import java.time.Instant;
 import java.util.function.Function;
 
 import org.springframework.lang.Nullable;
-import org.springframework.security.oauth2.client.endpoint.DefaultJwtBearerTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.JwtBearerGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.RestClientJwtBearerTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
@@ -40,11 +40,11 @@ import org.springframework.util.Assert;
  * @author Joe Grandja
  * @since 5.5
  * @see OAuth2AuthorizedClientProvider
- * @see DefaultJwtBearerTokenResponseClient
+ * @see RestClientJwtBearerTokenResponseClient
  */
 public final class JwtBearerOAuth2AuthorizedClientProvider implements OAuth2AuthorizedClientProvider {
 
-	private OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> accessTokenResponseClient = new DefaultJwtBearerTokenResponseClient();
+	private OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> accessTokenResponseClient = new RestClientJwtBearerTokenResponseClient();
 
 	private Function<OAuth2AuthorizationContext, Jwt> jwtAssertionResolver = this::resolveJwtAssertion;
 

@@ -109,16 +109,6 @@ public final class OAuth2ParameterNames {
 	public static final String REFRESH_TOKEN = "refresh_token";
 
 	/**
-	 * {@code username} - used in Access Token Request.
-	 */
-	public static final String USERNAME = "username";
-
-	/**
-	 * {@code password} - used in Access Token Request.
-	 */
-	public static final String PASSWORD = "password";
-
-	/**
 	 * {@code error} - used in Authorization Response and Access Token Response.
 	 */
 	public static final String ERROR = "error";

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -555,103 +555,6 @@ public class ClientRegistrationTests {
 	public void buildWhenScopesContainAnInvalidCharacterThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> TestClientRegistrations.clientCredentials().scope("an\"invalid\"scope").build());
-	}
-
-	@Test
-	public void buildWhenPasswordGrantAllAttributesProvidedThenAllAttributesAreSet() {
-		// @formatter:off
-		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
-				.clientId(CLIENT_ID)
-				.clientSecret(CLIENT_SECRET)
-				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
-				.scope(SCOPES.toArray(new String[0]))
-				.tokenUri(TOKEN_URI)
-				.clientName(CLIENT_NAME)
-				.build();
-		// @formatter:on
-		assertThat(registration.getRegistrationId()).isEqualTo(REGISTRATION_ID);
-		assertThat(registration.getClientId()).isEqualTo(CLIENT_ID);
-		assertThat(registration.getClientSecret()).isEqualTo(CLIENT_SECRET);
-		assertThat(registration.getClientAuthenticationMethod())
-			.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
-		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.PASSWORD);
-		assertThat(registration.getScopes()).isEqualTo(SCOPES);
-		assertThat(registration.getProviderDetails().getTokenUri()).isEqualTo(TOKEN_URI);
-		assertThat(registration.getClientName()).isEqualTo(CLIENT_NAME);
-	}
-
-	@Test
-	public void buildWhenPasswordGrantRegistrationIdIsNullThenThrowIllegalArgumentException() {
-		// @formatter:off
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> ClientRegistration.withRegistrationId(null)
-						.clientId(CLIENT_ID)
-						.clientSecret(CLIENT_SECRET)
-						.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-						.authorizationGrantType(AuthorizationGrantType.PASSWORD)
-						.tokenUri(TOKEN_URI)
-						.build()
-				);
-		// @formatter:on
-	}
-
-	@Test
-	public void buildWhenPasswordGrantClientIdIsNullThenThrowIllegalArgumentException() {
-		// @formatter:off
-		assertThatIllegalArgumentException().isThrownBy(() -> ClientRegistration
-				.withRegistrationId(REGISTRATION_ID)
-				.clientId(null)
-				.clientSecret(CLIENT_SECRET)
-				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
-				.tokenUri(TOKEN_URI)
-				.build()
-		);
-		// @formatter:on
-	}
-
-	@Test
-	public void buildWhenPasswordGrantClientSecretIsNullThenDefaultToEmpty() {
-		// @formatter:off
-		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
-				.clientId(CLIENT_ID)
-				.clientSecret(null)
-				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
-				.tokenUri(TOKEN_URI)
-				.build();
-		// @formatter:on
-		assertThat(clientRegistration.getClientSecret()).isEqualTo("");
-	}
-
-	@Test
-	public void buildWhenPasswordGrantClientAuthenticationMethodNotProvidedThenDefaultToBasic() {
-		// @formatter:off
-		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
-				.clientId(CLIENT_ID)
-				.clientSecret(CLIENT_SECRET)
-				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
-				.tokenUri(TOKEN_URI)
-				.build();
-		// @formatter:on
-		assertThat(clientRegistration.getClientAuthenticationMethod())
-			.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
-	}
-
-	@Test
-	public void buildWhenPasswordGrantTokenUriIsNullThenThrowIllegalArgumentException() {
-		// @formatter:off
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> ClientRegistration.withRegistrationId(REGISTRATION_ID)
-						.clientId(CLIENT_ID)
-						.clientSecret(CLIENT_SECRET)
-						.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-						.authorizationGrantType(AuthorizationGrantType.PASSWORD)
-						.tokenUri(null)
-						.build()
-				);
-		// @formatter:on
 	}
 
 	@Test

@@ -38,12 +38,8 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy
-import org.springframework.security.web.csrf.CsrfTokenRepository
-import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler
-import org.springframework.security.web.csrf.CsrfTokenRequestHandler
-import org.springframework.security.web.csrf.DefaultCsrfToken
-import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher
+import org.springframework.security.web.csrf.*
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
@@ -176,7 +172,7 @@ class CsrfDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 csrf {
-                    requireCsrfProtectionMatcher = AntPathRequestMatcher("/test1")
+                    requireCsrfProtectionMatcher = PathPatternRequestMatcher.pathPattern("/test1")
                 }
             }
             return http.build()
@@ -247,8 +243,8 @@ class CsrfDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 csrf {
-                    requireCsrfProtectionMatcher = AntPathRequestMatcher("/**")
-                    ignoringRequestMatchers(AntPathRequestMatcher("/test2"))
+                    requireCsrfProtectionMatcher = PathPatternRequestMatcher.pathPattern("/**")
+                    ignoringRequestMatchers(PathPatternRequestMatcher.pathPattern("/test2"))
                 }
             }
             return http.build()
@@ -279,7 +275,7 @@ class CsrfDslTests {
         open fun filterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 csrf {
-                    requireCsrfProtectionMatcher = AntPathRequestMatcher("/**")
+                    requireCsrfProtectionMatcher = PathPatternRequestMatcher.pathPattern("/**")
                     ignoringRequestMatchers("/test2")
                 }
             }

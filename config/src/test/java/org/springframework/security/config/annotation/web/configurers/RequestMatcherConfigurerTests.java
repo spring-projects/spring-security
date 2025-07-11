@@ -27,9 +27,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -78,14 +78,12 @@ public class RequestMatcherConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.securityMatchers()
-					.requestMatchers(new AntPathRequestMatcher("/api/**"))
-					.and()
-				.securityMatchers()
-					.requestMatchers(new AntPathRequestMatcher("/oauth/**"))
-					.and()
-				.authorizeRequests()
-					.anyRequest().denyAll();
+				.securityMatchers((security) -> security
+					.requestMatchers(pathPattern("/api/**")))
+				.securityMatchers((security) -> security
+					.requestMatchers(pathPattern("/oauth/**")))
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().denyAll());
 			return http.build();
 			// @formatter:on
 		}
@@ -100,16 +98,13 @@ public class RequestMatcherConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.securityMatchers((matchers) ->
-					matchers
-						.requestMatchers(new AntPathRequestMatcher("/api/**"))
+				.securityMatchers((secure) -> secure
+						.requestMatchers(pathPattern("/api/**"))
 				)
-				.securityMatchers((matchers) ->
-					matchers
-						.requestMatchers(new AntPathRequestMatcher("/oauth/**"))
+				.securityMatchers((securityMatchers) -> securityMatchers
+						.requestMatchers(pathPattern("/oauth/**"))
 				)
-				.authorizeRequests((authorizeRequests) ->
-					authorizeRequests
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().denyAll()
 				);
 			return http.build();

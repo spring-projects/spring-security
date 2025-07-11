@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ import org.springframework.security.web.access.intercept.FilterInvocationSecurit
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -124,8 +124,7 @@ public class DefaultFilterChainValidatorTests {
 
 	@Test
 	public void validateCheckLoginPageAllowsAnonymous() {
-		given(this.authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(false));
-		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
+		given(this.authorizationManager.authorize(any(), any())).willReturn(new AuthorizationDecision(false));
 		this.validator.validate(this.chainAuthorizationFilter);
 		verify(this.logger).warn("Anonymous access to the login page doesn't appear to be enabled. "
 				+ "This is almost certainly an error. Please check your configuration allows unauthenticated "
@@ -144,12 +143,13 @@ public class DefaultFilterChainValidatorTests {
 
 	@Test
 	void validateWhenSameRequestMatchersArePresentThenUnreachableFilterChainException() {
+		PathPatternRequestMatcher.Builder builder = PathPatternRequestMatcher.withDefaults();
 		AnonymousAuthenticationFilter authenticationFilter = mock(AnonymousAuthenticationFilter.class);
 		ExceptionTranslationFilter exceptionTranslationFilter = mock(ExceptionTranslationFilter.class);
-		SecurityFilterChain chain1 = new DefaultSecurityFilterChain(AntPathRequestMatcher.antMatcher("/api"),
-				authenticationFilter, exceptionTranslationFilter, this.authorizationInterceptor);
-		SecurityFilterChain chain2 = new DefaultSecurityFilterChain(AntPathRequestMatcher.antMatcher("/api"),
-				authenticationFilter, exceptionTranslationFilter, this.authorizationInterceptor);
+		SecurityFilterChain chain1 = new DefaultSecurityFilterChain(builder.matcher("/api"), authenticationFilter,
+				exceptionTranslationFilter, this.authorizationInterceptor);
+		SecurityFilterChain chain2 = new DefaultSecurityFilterChain(builder.matcher("/api"), authenticationFilter,
+				exceptionTranslationFilter, this.authorizationInterceptor);
 		List<SecurityFilterChain> chains = new ArrayList<>();
 		chains.add(chain2);
 		chains.add(chain1);

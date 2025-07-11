@@ -80,8 +80,7 @@ public class DaoAuthenticationProviderTests {
 	@Test
 	public void testAuthenticateFailsForIncorrectPasswordCase() {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("rod", "KOala");
-		DaoAuthenticationProvider provider = createProvider();
-		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
+		DaoAuthenticationProvider provider = createProvider(new MockUserDetailsServiceUserRod());
 		provider.setUserCache(new MockUserCache());
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> provider.authenticate(token));
 	}
@@ -89,8 +88,7 @@ public class DaoAuthenticationProviderTests {
 	@Test
 	public void testReceivedBadCredentialsWhenCredentialsNotProvided() {
 		// Test related to SEC-434
-		DaoAuthenticationProvider provider = createProvider();
-		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
+		DaoAuthenticationProvider provider = createProvider(new MockUserDetailsServiceUserRod());
 		provider.setUserCache(new MockUserCache());
 		UsernamePasswordAuthenticationToken authenticationToken = UsernamePasswordAuthenticationToken
 			.unauthenticated("rod", null);
@@ -102,8 +100,7 @@ public class DaoAuthenticationProviderTests {
 	public void testAuthenticateFailsIfAccountExpired() {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("peter",
 				"opal");
-		DaoAuthenticationProvider provider = createProvider();
-		provider.setUserDetailsService(new MockUserDetailsServiceUserPeterAccountExpired());
+		DaoAuthenticationProvider provider = createProvider(new MockUserDetailsServiceUserPeterAccountExpired());
 		provider.setUserCache(new MockUserCache());
 		assertThatExceptionOfType(AccountExpiredException.class).isThrownBy(() -> provider.authenticate(token));
 	}
@@ -112,16 +109,14 @@ public class DaoAuthenticationProviderTests {
 	public void testAuthenticateFailsIfAccountLocked() {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("peter",
 				"opal");
-		DaoAuthenticationProvider provider = createProvider();
-		provider.setUserDetailsService(new MockUserDetailsServiceUserPeterAccountLocked());
+		DaoAuthenticationProvider provider = createProvider(new MockUserDetailsServiceUserPeterAccountLocked());
 		provider.setUserCache(new MockUserCache());
 		assertThatExceptionOfType(LockedException.class).isThrownBy(() -> provider.authenticate(token));
 	}
 
 	@Test
 	public void testAuthenticateFailsIfCredentialsExpired() {
-		DaoAuthenticationProvider provider = createProvider();
-		provider.setUserDetailsService(new MockUserDetailsServiceUserPeterCredentialsExpired());
+		DaoAuthenticationProvider provider = createProvider(new MockUserDetailsServiceUserPeterCredentialsExpired());
 		provider.setUserCache(new MockUserCache());
 		assertThatExceptionOfType(CredentialsExpiredException.class).isThrownBy(
 				() -> provider.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("peter", "opal")));
@@ -135,8 +130,7 @@ public class DaoAuthenticationProviderTests {
 	public void testAuthenticateFailsIfUserDisabled() {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("peter",
 				"opal");
-		DaoAuthenticationProvider provider = createProvider();
-		provider.setUserDetailsService(new MockUserDetailsServiceUserPeter());
+		DaoAuthenticationProvider provider = createProvider(new MockUserDetailsServiceUserPeter());
 		provider.setUserCache(new MockUserCache());
 		assertThatExceptionOfType(DisabledException.class).isThrownBy(() -> provider.authenticate(token));
 	}
@@ -144,8 +138,7 @@ public class DaoAuthenticationProviderTests {
 	@Test
 	public void testAuthenticateFailsWhenAuthenticationDaoHasBackendFailure() {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("rod", "koala");
-		DaoAuthenticationProvider provider = createProvider();
-		provider.setUserDetailsService(new MockUserDetailsServiceSimulateBackendError());
+		DaoAuthenticationProvider provider = createProvider(new MockUserDetailsServiceSimulateBackendError());
 		provider.setUserCache(new MockUserCache());
 		assertThatExceptionOfType(InternalAuthenticationServiceException.class)
 			.isThrownBy(() -> provider.authenticate(token));
@@ -154,8 +147,7 @@ public class DaoAuthenticationProviderTests {
 	@Test
 	public void testAuthenticateFailsWithEmptyUsername() {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(null, "koala");
-		DaoAuthenticationProvider provider = createProvider();
-		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
+		DaoAuthenticationProvider provider = createProvider(new MockUserDetailsServiceUserRod());
 		provider.setUserCache(new MockUserCache());
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> provider.authenticate(token));
 	}
@@ -164,8 +156,7 @@ public class DaoAuthenticationProviderTests {
 	public void testAuthenticateFailsWithInvalidPassword() {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("rod",
 				"INVALID_PASSWORD");
-		DaoAuthenticationProvider provider = createProvider();
-		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
+		DaoAuthenticationProvider provider = createProvider(new MockUserDetailsServiceUserRod());
 		provider.setUserCache(new MockUserCache());
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> provider.authenticate(token));
 	}
@@ -174,10 +165,9 @@ public class DaoAuthenticationProviderTests {
 	public void testAuthenticateFailsWithInvalidUsernameAndHideUserNotFoundExceptionFalse() {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("INVALID_USER",
 				"koala");
-		DaoAuthenticationProvider provider = createProvider();
+		DaoAuthenticationProvider provider = createProvider(new MockUserDetailsServiceUserRod());
 		provider.setHideUserNotFoundExceptions(false); // we want
 														// UsernameNotFoundExceptions
-		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
 		provider.setUserCache(new MockUserCache());
 		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> provider.authenticate(token));
 	}
@@ -186,9 +176,8 @@ public class DaoAuthenticationProviderTests {
 	public void testAuthenticateFailsWithInvalidUsernameAndHideUserNotFoundExceptionsWithDefaultOfTrue() {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("INVALID_USER",
 				"koala");
-		DaoAuthenticationProvider provider = createProvider();
-		assertThat(provider.isHideUserNotFoundExceptions()).isTrue();
-		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
+		assertThat(createProvider(null).isHideUserNotFoundExceptions()).isTrue();
+		DaoAuthenticationProvider provider = createProvider(new MockUserDetailsServiceUserRod());
 		provider.setUserCache(new MockUserCache());
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> provider.authenticate(token));
 	}
@@ -197,9 +186,8 @@ public class DaoAuthenticationProviderTests {
 	public void testAuthenticateFailsWithInvalidUsernameAndChangePasswordEncoder() {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("INVALID_USER",
 				"koala");
-		DaoAuthenticationProvider provider = createProvider();
-		assertThat(provider.isHideUserNotFoundExceptions()).isTrue();
-		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
+		assertThat(createProvider(null).isHideUserNotFoundExceptions()).isTrue();
+		DaoAuthenticationProvider provider = createProvider(new MockUserDetailsServiceUserRod());
 		provider.setUserCache(new MockUserCache());
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> provider.authenticate(token));
 		provider.setPasswordEncoder(PasswordEncoderFactories.createDelegatingPasswordEncoder());
@@ -209,8 +197,7 @@ public class DaoAuthenticationProviderTests {
 	@Test
 	public void testAuthenticateFailsWithMixedCaseUsernameIfDefaultChanged() {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("RoD", "koala");
-		DaoAuthenticationProvider provider = createProvider();
-		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
+		DaoAuthenticationProvider provider = createProvider(new MockUserDetailsServiceUserRod());
 		provider.setUserCache(new MockUserCache());
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> provider.authenticate(token));
 	}
@@ -219,8 +206,7 @@ public class DaoAuthenticationProviderTests {
 	public void testAuthenticates() {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("rod", "koala");
 		token.setDetails("192.168.0.1");
-		DaoAuthenticationProvider provider = createProvider();
-		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
+		DaoAuthenticationProvider provider = createProvider(new MockUserDetailsServiceUserRod());
 		provider.setUserCache(new MockUserCache());
 		Authentication result = provider.authenticate(token);
 		if (!(result instanceof UsernamePasswordAuthenticationToken)) {
@@ -236,8 +222,7 @@ public class DaoAuthenticationProviderTests {
 	@Test
 	public void testAuthenticatesASecondTime() {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("rod", "koala");
-		DaoAuthenticationProvider provider = createProvider();
-		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
+		DaoAuthenticationProvider provider = createProvider(new MockUserDetailsServiceUserRod());
 		provider.setUserCache(new MockUserCache());
 		Authentication result = provider.authenticate(token);
 		if (!(result instanceof UsernamePasswordAuthenticationToken)) {
@@ -254,8 +239,7 @@ public class DaoAuthenticationProviderTests {
 	@Test
 	public void testAuthenticatesWithForcePrincipalAsString() {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("rod", "koala");
-		DaoAuthenticationProvider provider = createProvider();
-		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
+		DaoAuthenticationProvider provider = createProvider(new MockUserDetailsServiceUserRod());
 		provider.setUserCache(new MockUserCache());
 		provider.setForcePrincipalAsString(true);
 		Authentication result = provider.authenticate(token);
@@ -276,9 +260,8 @@ public class DaoAuthenticationProviderTests {
 		PasswordEncoder encoder = mock(PasswordEncoder.class);
 		UserDetailsService userDetailsService = mock(UserDetailsService.class);
 		UserDetailsPasswordService passwordManager = mock(UserDetailsPasswordService.class);
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
 		provider.setPasswordEncoder(encoder);
-		provider.setUserDetailsService(userDetailsService);
 		provider.setUserDetailsPasswordService(passwordManager);
 		UserDetails user = PasswordEncodedUser.user();
 		given(encoder.matches(any(), any())).willReturn(true);
@@ -298,9 +281,8 @@ public class DaoAuthenticationProviderTests {
 		PasswordEncoder encoder = mock(PasswordEncoder.class);
 		UserDetailsService userDetailsService = mock(UserDetailsService.class);
 		UserDetailsPasswordService passwordManager = mock(UserDetailsPasswordService.class);
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
 		provider.setPasswordEncoder(encoder);
-		provider.setUserDetailsService(userDetailsService);
 		provider.setUserDetailsPasswordService(passwordManager);
 		UserDetails user = PasswordEncodedUser.user();
 		given(encoder.matches(any(), any())).willReturn(false);
@@ -316,9 +298,8 @@ public class DaoAuthenticationProviderTests {
 		PasswordEncoder encoder = mock(PasswordEncoder.class);
 		UserDetailsService userDetailsService = mock(UserDetailsService.class);
 		UserDetailsPasswordService passwordManager = mock(UserDetailsPasswordService.class);
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
 		provider.setPasswordEncoder(encoder);
-		provider.setUserDetailsService(userDetailsService);
 		provider.setUserDetailsPasswordService(passwordManager);
 		UserDetails user = PasswordEncodedUser.user();
 		given(encoder.matches(any(), any())).willReturn(true);
@@ -331,15 +312,14 @@ public class DaoAuthenticationProviderTests {
 	@Test
 	public void testDetectsNullBeingReturnedFromAuthenticationDao() {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("rod", "koala");
-		DaoAuthenticationProvider provider = createProvider();
-		provider.setUserDetailsService(new MockUserDetailsServiceReturnsNull());
+		DaoAuthenticationProvider provider = createProvider(new MockUserDetailsServiceReturnsNull());
 		assertThatExceptionOfType(AuthenticationServiceException.class).isThrownBy(() -> provider.authenticate(token))
 			.withMessage("UserDetailsService returned null, which is an interface contract violation");
 	}
 
 	@Test
 	public void testGettersSetters() {
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(null);
 		provider.setPasswordEncoder(new BCryptPasswordEncoder());
 		assertThat(provider.getPasswordEncoder().getClass()).isEqualTo(BCryptPasswordEncoder.class);
 		provider.setUserCache(new SpringCacheBasedUserCache(mock(Cache.class)));
@@ -354,8 +334,7 @@ public class DaoAuthenticationProviderTests {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("rod", "koala");
 		MockUserDetailsServiceUserRod authenticationDao = new MockUserDetailsServiceUserRod();
 		MockUserCache cache = new MockUserCache();
-		DaoAuthenticationProvider provider = createProvider();
-		provider.setUserDetailsService(authenticationDao);
+		DaoAuthenticationProvider provider = createProvider(authenticationDao);
 		provider.setUserCache(cache);
 		// This will work, as password still "koala"
 		provider.authenticate(token);
@@ -373,14 +352,13 @@ public class DaoAuthenticationProviderTests {
 
 	@Test
 	public void testStartupFailsIfNoAuthenticationDao() throws Exception {
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(null);
 		assertThatIllegalArgumentException().isThrownBy(provider::afterPropertiesSet);
 	}
 
 	@Test
 	public void testStartupFailsIfNoUserCacheSet() throws Exception {
-		DaoAuthenticationProvider provider = createProvider();
-		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
+		DaoAuthenticationProvider provider = createProvider(new MockUserDetailsServiceUserRod());
 		assertThat(provider.getUserCache().getClass()).isEqualTo(NullUserCache.class);
 		provider.setUserCache(null);
 		assertThatIllegalArgumentException().isThrownBy(provider::afterPropertiesSet);
@@ -388,9 +366,8 @@ public class DaoAuthenticationProviderTests {
 
 	@Test
 	public void testStartupSuccess() throws Exception {
-		DaoAuthenticationProvider provider = createProvider();
 		UserDetailsService userDetailsService = new MockUserDetailsServiceUserRod();
-		provider.setUserDetailsService(userDetailsService);
+		DaoAuthenticationProvider provider = createProvider(userDetailsService);
 		provider.setUserCache(new MockUserCache());
 		assertThat(provider.getUserDetailsService()).isEqualTo(userDetailsService);
 		provider.afterPropertiesSet();
@@ -398,7 +375,7 @@ public class DaoAuthenticationProviderTests {
 
 	@Test
 	public void testSupports() {
-		DaoAuthenticationProvider provider = createProvider();
+		DaoAuthenticationProvider provider = createProvider(null);
 		assertThat(provider.supports(UsernamePasswordAuthenticationToken.class)).isTrue();
 		assertThat(!provider.supports(TestingAuthenticationToken.class)).isTrue();
 	}
@@ -410,10 +387,9 @@ public class DaoAuthenticationProviderTests {
 				"koala");
 		PasswordEncoder encoder = mock(PasswordEncoder.class);
 		given(encoder.encode(anyString())).willReturn("koala");
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(new MockUserDetailsServiceUserRod());
 		provider.setHideUserNotFoundExceptions(false);
 		provider.setPasswordEncoder(encoder);
-		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
 		provider.afterPropertiesSet();
 		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> provider.authenticate(token));
 		// ensure encoder invoked w/ non-null strings since PasswordEncoder impls may fail
@@ -426,12 +402,11 @@ public class DaoAuthenticationProviderTests {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("missing",
 				"koala");
 		PasswordEncoder encoder = new BCryptPasswordEncoder();
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-		provider.setHideUserNotFoundExceptions(false);
-		provider.setPasswordEncoder(encoder);
 		MockUserDetailsServiceUserRod userDetailsService = new MockUserDetailsServiceUserRod();
 		userDetailsService.password = encoder.encode((CharSequence) token.getCredentials());
-		provider.setUserDetailsService(userDetailsService);
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+		provider.setHideUserNotFoundExceptions(false);
+		provider.setPasswordEncoder(encoder);
 		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> provider.authenticate(token));
 	}
 
@@ -439,16 +414,15 @@ public class DaoAuthenticationProviderTests {
 	public void testUserNotFoundDefaultEncoder() {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("missing",
 				null);
-		DaoAuthenticationProvider provider = createProvider();
+		DaoAuthenticationProvider provider = createProvider(new MockUserDetailsServiceUserRod());
 		provider.setHideUserNotFoundExceptions(false);
-		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
 		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> provider.authenticate(token));
 	}
 
 	@Test
 	public void constructWhenPasswordEncoderProvidedThenSets() {
-		DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider(
-				NoOpPasswordEncoder.getInstance());
+		DaoAuthenticationProvider daoAuthenticationProvider = createProvider(null);
+		daoAuthenticationProvider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
 		assertThat(daoAuthenticationProvider.getPasswordEncoder()).isSameAs(NoOpPasswordEncoder.getInstance());
 	}
 
@@ -463,12 +437,11 @@ public class DaoAuthenticationProviderTests {
 		UsernamePasswordAuthenticationToken notFoundUser = UsernamePasswordAuthenticationToken
 			.unauthenticated("notFound", "koala");
 		PasswordEncoder encoder = new BCryptPasswordEncoder(10, new SecureRandom());
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-		provider.setHideUserNotFoundExceptions(false);
-		provider.setPasswordEncoder(encoder);
 		MockUserDetailsServiceUserRod userDetailsService = new MockUserDetailsServiceUserRod();
 		userDetailsService.password = encoder.encode((CharSequence) foundUser.getCredentials());
-		provider.setUserDetailsService(userDetailsService);
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+		provider.setHideUserNotFoundExceptions(false);
+		provider.setPasswordEncoder(encoder);
 		int sampleSize = 100;
 		List<Long> userFoundTimes = new ArrayList<>(sampleSize);
 		for (int i = 0; i < sampleSize; i++) {
@@ -500,24 +473,22 @@ public class DaoAuthenticationProviderTests {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("missing",
 				null);
 		PasswordEncoder encoder = mock(PasswordEncoder.class);
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(new MockUserDetailsServiceUserRod());
 		provider.setHideUserNotFoundExceptions(false);
 		provider.setPasswordEncoder(encoder);
-		provider.setUserDetailsService(new MockUserDetailsServiceUserRod());
 		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> provider.authenticate(token));
 		verify(encoder, times(0)).matches(anyString(), anyString());
 	}
 
 	@Test
 	void authenticateWhenPasswordLeakedThenException() {
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-		provider.setPasswordEncoder(PasswordEncoderFactories.createDelegatingPasswordEncoder());
 		UserDetails user = User.withDefaultPasswordEncoder()
 			.username("user")
 			.password("password")
 			.roles("USER")
 			.build();
-		provider.setUserDetailsService(withUsers(user));
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(withUsers(user));
+		provider.setPasswordEncoder(PasswordEncoderFactories.createDelegatingPasswordEncoder());
 		provider.setCompromisedPasswordChecker(new TestCompromisedPasswordChecker());
 		assertThatExceptionOfType(CompromisedPasswordException.class).isThrownBy(
 				() -> provider.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password")))
@@ -526,14 +497,13 @@ public class DaoAuthenticationProviderTests {
 
 	@Test
 	void authenticateWhenPasswordNotLeakedThenNoException() {
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-		provider.setPasswordEncoder(PasswordEncoderFactories.createDelegatingPasswordEncoder());
 		UserDetails user = User.withDefaultPasswordEncoder()
 			.username("user")
 			.password("strongpassword")
 			.roles("USER")
 			.build();
-		provider.setUserDetailsService(withUsers(user));
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(withUsers(user));
+		provider.setPasswordEncoder(PasswordEncoderFactories.createDelegatingPasswordEncoder());
 		provider.setCompromisedPasswordChecker(new TestCompromisedPasswordChecker());
 		Authentication authentication = provider
 			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "strongpassword"));
@@ -544,8 +514,8 @@ public class DaoAuthenticationProviderTests {
 		return new InMemoryUserDetailsManager(users);
 	}
 
-	private DaoAuthenticationProvider createProvider() {
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+	private DaoAuthenticationProvider createProvider(UserDetailsService userDetailsService) {
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
 		provider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
 		return provider;
 	}

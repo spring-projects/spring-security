@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,15 +70,6 @@ public class AuthenticationManagerBuilder
 	 * @param objectPostProcessor the {@link ObjectPostProcessor} instance to use.
 	 */
 	public AuthenticationManagerBuilder(ObjectPostProcessor<Object> objectPostProcessor) {
-		super(objectPostProcessor, true);
-	}
-
-	/**
-	 * @deprecated
-	 */
-	@Deprecated(since = "6.4", forRemoval = true)
-	public AuthenticationManagerBuilder(
-			org.springframework.security.config.annotation.ObjectPostProcessor<Object> objectPostProcessor) {
 		super(objectPostProcessor, true);
 	}
 
@@ -204,7 +195,9 @@ public class AuthenticationManagerBuilder
 	 * @throws Exception if an error occurs when adding the LDAP authentication
 	 */
 	public LdapAuthenticationProviderConfigurer<AuthenticationManagerBuilder> ldapAuthentication() throws Exception {
-		return apply(new LdapAuthenticationProviderConfigurer<>());
+		LdapAuthenticationProviderConfigurer<AuthenticationManagerBuilder> ldap = new LdapAuthenticationProviderConfigurer<>();
+		with(ldap);
+		return ldap;
 	}
 
 	/**
@@ -286,7 +279,8 @@ public class AuthenticationManagerBuilder
 	private <C extends UserDetailsAwareConfigurer<AuthenticationManagerBuilder, ? extends UserDetailsService>> C apply(
 			C configurer) throws Exception {
 		this.defaultUserDetailsService = configurer.getUserDetailsService();
-		return super.apply(configurer);
+		with(configurer);
+		return configurer;
 	}
 
 }

@@ -67,30 +67,6 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
 	 * parameters
 	 * @param trustedIssuers an array of trusted issuers
-	 * @deprecated use {@link #fromTrustedIssuers(String...)}
-	 */
-	@Deprecated(since = "6.2", forRemoval = true)
-	public JwtIssuerAuthenticationManagerResolver(String... trustedIssuers) {
-		this(Set.of(trustedIssuers));
-	}
-
-	/**
-	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
-	 * parameters
-	 * @param trustedIssuers a collection of trusted issuers
-	 * @deprecated use {@link #fromTrustedIssuers(Collection)}
-	 */
-	@Deprecated(since = "6.2", forRemoval = true)
-	public JwtIssuerAuthenticationManagerResolver(Collection<String> trustedIssuers) {
-		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
-		this.authenticationManager = new ResolvingAuthenticationManager(
-				new TrustedIssuerJwtAuthenticationManagerResolver(Set.copyOf(trustedIssuers)::contains));
-	}
-
-	/**
-	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
-	 * parameters
-	 * @param trustedIssuers an array of trusted issuers
 	 * @since 6.2
 	 */
 	public static JwtIssuerAuthenticationManagerResolver fromTrustedIssuers(String... trustedIssuers) {
@@ -133,8 +109,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	 *     Map&lt;String, AuthenticationManager&gt; authenticationManagers = new HashMap&lt;&gt;();
 	 *     authenticationManagers.put("https://issuerOne.example.org", managerOne);
 	 *     authenticationManagers.put("https://issuerTwo.example.org", managerTwo);
-	 *     JwtAuthenticationManagerResolver resolver = new JwtAuthenticationManagerResolver
-	 *     	(authenticationManagers::get);
+	 *     JwtIssuerAuthenticationManagerResolver resolver = new JwtIssuerAuthenticationManagerResolver(authenticationManagers::get);
 	 * </pre>
 	 *
 	 * The keys in the {@link Map} are the allowed issuers.

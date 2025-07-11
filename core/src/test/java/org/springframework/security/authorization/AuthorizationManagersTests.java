@@ -31,7 +31,7 @@ class AuthorizationManagersTests {
 	void checkAnyOfWhenOneGrantedThenGrantedDecision() {
 		AuthorizationManager<?> composed = AuthorizationManagers.anyOf(SingleResultAuthorizationManager.permitAll(),
 				SingleResultAuthorizationManager.permitAll());
-		AuthorizationDecision decision = composed.check(null, null);
+		AuthorizationResult decision = composed.authorize(null, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -41,7 +41,7 @@ class AuthorizationManagersTests {
 		AuthorizationDecision allAbstainDefaultDecision = new AuthorizationDecision(false);
 		AuthorizationManager<?> composed = AuthorizationManagers.anyOf(allAbstainDefaultDecision,
 				(a, o) -> new AuthorizationDecision(false), (a, o) -> new AuthorizationDecision(true));
-		AuthorizationDecision decision = composed.check(null, null);
+		AuthorizationResult decision = composed.authorize(null, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -51,7 +51,7 @@ class AuthorizationManagersTests {
 	void checkAnyOfWhenAllNonAbstainingDeniesThenDeniedDecision() {
 		AuthorizationManager<?> composed = AuthorizationManagers.anyOf((a, o) -> new AuthorizationDecision(false),
 				(a, o) -> null);
-		AuthorizationDecision decision = composed.check(null, null);
+		AuthorizationResult decision = composed.authorize(null, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -59,7 +59,7 @@ class AuthorizationManagersTests {
 	@Test
 	void checkAnyOfWhenEmptyThenDeniedDecision() {
 		AuthorizationManager<?> composed = AuthorizationManagers.anyOf();
-		AuthorizationDecision decision = composed.check(null, null);
+		AuthorizationResult decision = composed.authorize(null, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -68,7 +68,7 @@ class AuthorizationManagersTests {
 	void checkAnyOfWithAllAbstainDefaultDecisionIsDeniedWhenEmptyThenDeniedDecision() {
 		AuthorizationDecision allAbstainDefaultDecision = new AuthorizationDecision(false);
 		AuthorizationManager<?> composed = AuthorizationManagers.anyOf(allAbstainDefaultDecision);
-		AuthorizationDecision decision = composed.check(null, null);
+		AuthorizationResult decision = composed.authorize(null, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -77,7 +77,7 @@ class AuthorizationManagersTests {
 	void checkAnyOfWithAllAbstainDefaultDecisionIsGrantedWhenEmptyThenGrantedDecision() {
 		AuthorizationDecision allAbstainDefaultDecision = new AuthorizationDecision(true);
 		AuthorizationManager<?> composed = AuthorizationManagers.anyOf(allAbstainDefaultDecision);
-		AuthorizationDecision decision = composed.check(null, null);
+		AuthorizationResult decision = composed.authorize(null, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -86,7 +86,7 @@ class AuthorizationManagersTests {
 	void checkAnyOfWithAllAbstainDefaultDecisionIsAbstainWhenEmptyThenAbstainDecision() {
 		AuthorizationDecision allAbstainDefaultDecision = null;
 		AuthorizationManager<?> composed = AuthorizationManagers.anyOf(allAbstainDefaultDecision);
-		AuthorizationDecision decision = composed.check(null, null);
+		AuthorizationResult decision = composed.authorize(null, null);
 		assertThat(decision).isNull();
 	}
 
@@ -94,7 +94,7 @@ class AuthorizationManagersTests {
 	void checkAnyOfWhenAllAbstainDefaultDecisionIsGrantedAndAllManagersAbstainThenGrantedDecision() {
 		AuthorizationDecision allAbstainDefaultDecision = new AuthorizationDecision(true);
 		AuthorizationManager<?> composed = AuthorizationManagers.anyOf(allAbstainDefaultDecision, (a, o) -> null);
-		AuthorizationDecision decision = composed.check(null, null);
+		AuthorizationResult decision = composed.authorize(null, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -103,7 +103,7 @@ class AuthorizationManagersTests {
 	void checkAnyOfWhenAllAbstainDefaultDecisionIsDeniedAndAllManagersAbstainThenDeniedDecision() {
 		AuthorizationDecision allAbstainDefaultDecision = new AuthorizationDecision(false);
 		AuthorizationManager<?> composed = AuthorizationManagers.anyOf(allAbstainDefaultDecision, (a, o) -> null);
-		AuthorizationDecision decision = composed.check(null, null);
+		AuthorizationResult decision = composed.authorize(null, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -112,7 +112,7 @@ class AuthorizationManagersTests {
 	void checkAnyOfWhenAllAbstainDefaultDecisionIsAbstainAndAllManagersAbstainThenAbstainDecision() {
 		AuthorizationDecision allAbstainDefaultDecision = null;
 		AuthorizationManager<?> composed = AuthorizationManagers.anyOf(allAbstainDefaultDecision, (a, o) -> null);
-		AuthorizationDecision decision = composed.check(null, null);
+		AuthorizationResult decision = composed.authorize(null, null);
 		assertThat(decision).isNull();
 	}
 
@@ -120,7 +120,7 @@ class AuthorizationManagersTests {
 	void checkAllOfWhenAllGrantedThenGrantedDecision() {
 		AuthorizationManager<?> composed = AuthorizationManagers.allOf(SingleResultAuthorizationManager.permitAll(),
 				SingleResultAuthorizationManager.permitAll());
-		AuthorizationDecision decision = composed.check(null, null);
+		AuthorizationResult decision = composed.authorize(null, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -130,7 +130,7 @@ class AuthorizationManagersTests {
 		AuthorizationDecision allAbstainDefaultDecision = new AuthorizationDecision(false);
 		AuthorizationManager<?> composed = AuthorizationManagers.allOf(allAbstainDefaultDecision,
 				(a, o) -> new AuthorizationDecision(true), (a, o) -> new AuthorizationDecision(true));
-		AuthorizationDecision decision = composed.check(null, null);
+		AuthorizationResult decision = composed.authorize(null, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -140,7 +140,7 @@ class AuthorizationManagersTests {
 	void checkAllOfWhenAllNonAbstainingGrantsThenGrantedDecision() {
 		AuthorizationManager<?> composed = AuthorizationManagers.allOf((a, o) -> new AuthorizationDecision(true),
 				(a, o) -> null);
-		AuthorizationDecision decision = composed.check(null, null);
+		AuthorizationResult decision = composed.authorize(null, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -149,7 +149,7 @@ class AuthorizationManagersTests {
 	void checkAllOfWhenOneDeniedThenDeniedDecision() {
 		AuthorizationManager<?> composed = AuthorizationManagers.allOf((a, o) -> new AuthorizationDecision(true),
 				(a, o) -> new AuthorizationDecision(false));
-		AuthorizationDecision decision = composed.check(null, null);
+		AuthorizationResult decision = composed.authorize(null, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -159,7 +159,7 @@ class AuthorizationManagersTests {
 		AuthorizationDecision allAbstainDefaultDecision = new AuthorizationDecision(true);
 		AuthorizationManager<?> composed = AuthorizationManagers.allOf(allAbstainDefaultDecision,
 				SingleResultAuthorizationManager.permitAll(), SingleResultAuthorizationManager.denyAll());
-		AuthorizationDecision decision = composed.check(null, null);
+		AuthorizationResult decision = composed.authorize(null, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -167,7 +167,7 @@ class AuthorizationManagersTests {
 	@Test
 	void checkAllOfWhenEmptyThenGrantedDecision() {
 		AuthorizationManager<?> composed = AuthorizationManagers.allOf();
-		AuthorizationDecision decision = composed.check(null, null);
+		AuthorizationResult decision = composed.authorize(null, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -176,7 +176,7 @@ class AuthorizationManagersTests {
 	void checkAllOfWithAllAbstainDefaultDecisionIsDeniedWhenEmptyThenDeniedDecision() {
 		AuthorizationDecision allAbstainDefaultDecision = new AuthorizationDecision(false);
 		AuthorizationManager<?> composed = AuthorizationManagers.allOf(allAbstainDefaultDecision);
-		AuthorizationDecision decision = composed.check(null, null);
+		AuthorizationResult decision = composed.authorize(null, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -185,7 +185,7 @@ class AuthorizationManagersTests {
 	void checkAllOfWithAllAbstainDefaultDecisionIsGrantedWhenEmptyThenGrantedDecision() {
 		AuthorizationDecision allAbstainDefaultDecision = new AuthorizationDecision(true);
 		AuthorizationManager<?> composed = AuthorizationManagers.allOf(allAbstainDefaultDecision);
-		AuthorizationDecision decision = composed.check(null, null);
+		AuthorizationResult decision = composed.authorize(null, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -194,7 +194,7 @@ class AuthorizationManagersTests {
 	void checkAllOfWithAllAbstainDefaultDecisionIsAbstainWhenEmptyThenAbstainDecision() {
 		AuthorizationDecision allAbstainDefaultDecision = null;
 		AuthorizationManager<?> composed = AuthorizationManagers.allOf(allAbstainDefaultDecision);
-		AuthorizationDecision decision = composed.check(null, null);
+		AuthorizationResult decision = composed.authorize(null, null);
 		assertThat(decision).isNull();
 	}
 
@@ -202,7 +202,7 @@ class AuthorizationManagersTests {
 	void checkAllOfWhenAllAbstainDefaultDecisionIsDeniedAndAllManagersAbstainThenDeniedDecision() {
 		AuthorizationDecision allAbstainDefaultDecision = new AuthorizationDecision(false);
 		AuthorizationManager<?> composed = AuthorizationManagers.allOf(allAbstainDefaultDecision, (a, o) -> null);
-		AuthorizationDecision decision = composed.check(null, null);
+		AuthorizationResult decision = composed.authorize(null, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -211,7 +211,7 @@ class AuthorizationManagersTests {
 	void checkAllOfWhenAllAbstainDefaultDecisionIsGrantedAndAllManagersAbstainThenGrantedDecision() {
 		AuthorizationDecision allAbstainDefaultDecision = new AuthorizationDecision(true);
 		AuthorizationManager<?> composed = AuthorizationManagers.allOf(allAbstainDefaultDecision, (a, o) -> null);
-		AuthorizationDecision decision = composed.check(null, null);
+		AuthorizationResult decision = composed.authorize(null, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -220,21 +220,21 @@ class AuthorizationManagersTests {
 	void checkAllOfWhenAllAbstainDefaultDecisionIsAbstainAndAllManagersAbstainThenAbstainDecision() {
 		AuthorizationDecision allAbstainDefaultDecision = null;
 		AuthorizationManager<?> composed = AuthorizationManagers.allOf(allAbstainDefaultDecision, (a, o) -> null);
-		AuthorizationDecision decision = composed.check(null, null);
+		AuthorizationResult decision = composed.authorize(null, null);
 		assertThat(decision).isNull();
 	}
 
 	@Test
 	void checkNotWhenEmptyThenAbstainedDecision() {
 		AuthorizationManager<?> negated = AuthorizationManagers.not((a, o) -> null);
-		AuthorizationDecision decision = negated.check(null, null);
+		AuthorizationResult decision = negated.authorize(null, null);
 		assertThat(decision).isNull();
 	}
 
 	@Test
 	void checkNotWhenGrantedThenDeniedDecision() {
 		AuthorizationManager<?> negated = AuthorizationManagers.not((a, o) -> new AuthorizationDecision(true));
-		AuthorizationDecision decision = negated.check(null, null);
+		AuthorizationResult decision = negated.authorize(null, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}

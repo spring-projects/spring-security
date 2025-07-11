@@ -24,9 +24,9 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationProvider;
-import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.RestClientAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
@@ -142,18 +142,6 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	/**
-	 * Returns the {@link AuthorizationCodeGrantConfigurer} for configuring the OAuth 2.0
-	 * Authorization Code Grant.
-	 * @return the {@link AuthorizationCodeGrantConfigurer}
-	 * @deprecated For removal in 7.0. Use {@link #authorizationCodeGrant(Customizer)}
-	 * instead
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public AuthorizationCodeGrantConfigurer authorizationCodeGrant() {
-		return this.authorizationCodeGrantConfigurer;
-	}
-
-	/**
 	 * Configures the OAuth 2.0 Authorization Code Grant.
 	 * @param authorizationCodeGrantCustomizer the {@link Customizer} to provide more
 	 * options for the {@link AuthorizationCodeGrantConfigurer}
@@ -242,17 +230,6 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 			return this;
 		}
 
-		/**
-		 * Returns the {@link OAuth2ClientConfigurer} for further configuration.
-		 * @return the {@link OAuth2ClientConfigurer}
-		 * @deprecated For removal in 7.0. Use {@link #authorizationCodeGrant(Customizer)}
-		 * instead
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public OAuth2ClientConfigurer<B> and() {
-			return OAuth2ClientConfigurer.this;
-		}
-
 		private void init(B builder) {
 			OAuth2AuthorizationCodeAuthenticationProvider authorizationCodeAuthenticationProvider = new OAuth2AuthorizationCodeAuthenticationProvider(
 					getAccessTokenResponseClient());
@@ -320,7 +297,7 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 			ResolvableType resolvableType = ResolvableType.forClassWithGenerics(OAuth2AccessTokenResponseClient.class,
 					OAuth2AuthorizationCodeGrantRequest.class);
 			OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> bean = getBeanOrNull(resolvableType);
-			return (bean != null) ? bean : new DefaultAuthorizationCodeTokenResponseClient();
+			return (bean != null) ? bean : new RestClientAuthorizationCodeTokenResponseClient();
 		}
 
 		private ClientRegistrationRepository getClientRegistrationRepository(B builder) {

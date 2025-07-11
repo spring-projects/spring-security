@@ -201,10 +201,10 @@ Java::
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
-        .authorizeHttpRequests(authorize -> authorize
+        .authorizeHttpRequests((authorize) -> authorize
             .anyRequest().authenticated()
         )
-        .oauth2ResourceServer(oauth2 -> oauth2
+        .oauth2ResourceServer((oauth2) -> oauth2
             .opaqueToken(Customizer.withDefaults())
         );
     return http.build();
@@ -218,7 +218,7 @@ Kotlin::
 @Bean
 open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     http {
-        authorizeRequests {
+        authorizeHttpRequests {
             authorize(anyRequest, authenticated)
         }
         oauth2ResourceServer {
@@ -249,12 +249,12 @@ public class MyCustomSecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(authorize -> authorize
+            .authorizeHttpRequests((authorize) -> authorize
                 .requestMatchers("/messages/**").access(hasScope("message:read"))
                 .anyRequest().authenticated()
             )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .opaqueToken(opaqueToken -> opaqueToken
+            .oauth2ResourceServer((oauth2) -> oauth2
+                .opaqueToken((opaqueToken) -> opaqueToken
                     .introspector(myIntrospector())
                 )
             );
@@ -275,7 +275,7 @@ class MyCustomSecurityConfiguration {
     @Bean
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize("/messages/**", hasScope("SCOPE_message:read"))
                 authorize(anyRequest, authenticated)
             }
@@ -400,11 +400,11 @@ public class DirectlyConfiguredIntrospectionUri {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(authorize -> authorize
+            .authorizeHttpRequests((authorize) -> authorize
                 .anyRequest().authenticated()
             )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .opaqueToken(opaqueToken -> opaqueToken
+            .oauth2ResourceServer((oauth2) -> oauth2
+                .opaqueToken((opaqueToken) -> opaqueToken
                     .introspectionUri("https://idp.example.com/introspect")
                     .introspectionClientCredentials("client", "secret")
                 )
@@ -424,7 +424,7 @@ class DirectlyConfiguredIntrospectionUri {
     @Bean
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize(anyRequest, authenticated)
             }
             oauth2ResourceServer {
@@ -472,11 +472,11 @@ public class DirectlyConfiguredIntrospector {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(authorize -> authorize
+            .authorizeHttpRequests((authorize) -> authorize
                 .anyRequest().authenticated()
             )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .opaqueToken(opaqueToken -> opaqueToken
+            .oauth2ResourceServer((oauth2) -> oauth2
+                .opaqueToken((opaqueToken) -> opaqueToken
                     .introspector(myCustomIntrospector())
                 )
             );
@@ -495,7 +495,7 @@ class DirectlyConfiguredIntrospector {
     @Bean
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize(anyRequest, authenticated)
             }
             oauth2ResourceServer {
@@ -564,12 +564,12 @@ public class MappedAuthorities {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+            .authorizeHttpRequests((authorizeRequests) -> authorizeRequests
                 .requestMatchers("/contacts/**").access(hasScope("contacts"))
                 .requestMatchers("/messages/**").access(hasScope("messages"))
                 .anyRequest().authenticated()
             )
-            .oauth2ResourceServer(oauth2 -> oauth2
+            .oauth2ResourceServer((oauth2) -> oauth2
                 .opaqueToken(Customizer.withDefaults())
             );
         return http.build();
@@ -589,7 +589,7 @@ class MappedAuthorities {
     @Bean
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
        http {
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize("/contacts/**", hasScope("contacts"))
                 authorize("/messages/**", hasScope("messages"))
                 authorize(anyRequest, authenticated)

@@ -387,10 +387,9 @@ public class DefaultLoginPageConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.formLogin();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.formLogin(withDefaults());
 			// @formatter:on
 			return http.build();
 		}
@@ -410,13 +409,11 @@ public class DefaultLoginPageConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.logout()
-					.logoutSuccessHandler(new SimpleUrlLogoutSuccessHandler())
-					.and()
-				.formLogin();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.logout((logout) -> logout
+					.logoutSuccessHandler(new SimpleUrlLogoutSuccessHandler()))
+				.formLogin(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -431,13 +428,11 @@ public class DefaultLoginPageConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.logout()
-					.logoutSuccessUrl("/login?logout")
-					.and()
-				.formLogin();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.logout((logout) -> logout
+					.logoutSuccessUrl("/login?logout"))
+				.formLogin(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -452,12 +447,10 @@ public class DefaultLoginPageConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.formLogin()
-					.and()
-				.rememberMe();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.formLogin(withDefaults())
+				.rememberMe(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -477,13 +470,11 @@ public class DefaultLoginPageConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.exceptionHandling()
-					.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
-					.and()
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.formLogin();
+				.exceptionHandling((handling) -> handling
+					.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")))
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.formLogin(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -500,9 +491,8 @@ public class DefaultLoginPageConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.exceptionHandling()
-					.and()
-				.formLogin();
+				.exceptionHandling(withDefaults())
+				.formLogin(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -522,7 +512,7 @@ public class DefaultLoginPageConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 					.anyRequest().authenticated()
 				)
 				.formLogin(withDefaults());
@@ -540,7 +530,7 @@ public class DefaultLoginPageConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.authorizeRequests((authorize) -> authorize
+					.authorizeHttpRequests((authorize) -> authorize
 							.anyRequest().authenticated()
 					)
 					.formLogin(withDefaults())

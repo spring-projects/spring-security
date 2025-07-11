@@ -63,13 +63,12 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.UrlUtils;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
-import org.springframework.web.util.UrlPathHelper;
+
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * Switch User processing filter responsible for user context switching.
@@ -129,9 +128,9 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
-	private RequestMatcher exitUserMatcher = createMatcher("/logout/impersonate", true);
+	private RequestMatcher exitUserMatcher = createMatcher("/logout/impersonate");
 
-	private RequestMatcher switchUserMatcher = createMatcher("/login/impersonate", true);
+	private RequestMatcher switchUserMatcher = createMatcher("/login/impersonate");
 
 	private String targetUrl;
 
@@ -408,7 +407,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 	public void setExitUserUrl(String exitUserUrl) {
 		Assert.isTrue(UrlUtils.isValidRedirectUrl(exitUserUrl),
 				"exitUserUrl cannot be empty and must be a valid redirect URL");
-		this.exitUserMatcher = createMatcher(exitUserUrl, false);
+		this.exitUserMatcher = createMatcher(exitUserUrl);
 	}
 
 	/**
@@ -428,7 +427,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 	public void setSwitchUserUrl(String switchUserUrl) {
 		Assert.isTrue(UrlUtils.isValidRedirectUrl(switchUserUrl),
 				"switchUserUrl cannot be empty and must be a valid redirect URL");
-		this.switchUserMatcher = createMatcher(switchUserUrl, false);
+		this.switchUserMatcher = createMatcher(switchUserUrl);
 	}
 
 	/**
@@ -547,11 +546,8 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 		this.securityContextRepository = securityContextRepository;
 	}
 
-	private static RequestMatcher createMatcher(String pattern, boolean usePathPatterns) {
-		if (usePathPatterns) {
-			return PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, pattern);
-		}
-		return new AntPathRequestMatcher(pattern, "POST", true, new UrlPathHelper());
+	private static RequestMatcher createMatcher(String pattern) {
+		return pathPattern(HttpMethod.POST, pattern);
 	}
 
 }

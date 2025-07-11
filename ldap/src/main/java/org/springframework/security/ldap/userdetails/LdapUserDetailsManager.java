@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,6 @@ import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.AttributesMapperCallbackHandler;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
-import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.SearchExecutor;
 import org.springframework.ldap.support.LdapNameBuilder;
@@ -154,7 +153,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 				return new DirContextAdapter(attrs, LdapUtils.getFullDn(dn, ctx));
 			}
 			catch (NameNotFoundException ex) {
-				throw new UsernameNotFoundException("User " + username + " not found", ex);
+				throw UsernameNotFoundException.fromUsername(username, ex);
 			}
 		});
 	}
@@ -289,39 +288,23 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	 * Creates a DN from a group name.
 	 * @param group the name of the group
 	 * @return the DN of the corresponding group, including the groupSearchBase
-	 * @deprecated
 	 */
-	@Deprecated
-	protected DistinguishedName buildGroupDn(String group) {
-		DistinguishedName dn = new DistinguishedName(this.groupSearchBase);
-		dn.add(this.groupRoleAttributeName, group.toLowerCase(Locale.ROOT));
-		return dn;
-	}
-
-	protected LdapName buildGroupName(String group) {
-		return LdapNameBuilder.newInstance(buildGroupDn(group)).build();
+	protected LdapName buildGroupDn(String group) {
+		return LdapNameBuilder.newInstance(this.groupSearchBase)
+			.add(this.groupRoleAttributeName, group.toLowerCase(Locale.ROOT))
+			.build();
 	}
 
 	protected void copyToContext(UserDetails user, DirContextAdapter ctx) {
 		this.userDetailsMapper.mapUserToContext(user, ctx);
 	}
 
-	@Deprecated
-	protected void addAuthorities(DistinguishedName userDn, Collection<? extends GrantedAuthority> authorities) {
+	protected void addAuthorities(LdapName userDn, Collection<? extends GrantedAuthority> authorities) {
 		modifyAuthorities(LdapNameBuilder.newInstance(userDn).build(), authorities, DirContext.ADD_ATTRIBUTE);
 	}
 
-	protected void addAuthorities(LdapName userDn, Collection<? extends GrantedAuthority> authorities) {
-		addAuthorities(new DistinguishedName(userDn), authorities);
-	}
-
-	@Deprecated
-	protected void removeAuthorities(DistinguishedName userDn, Collection<? extends GrantedAuthority> authorities) {
-		modifyAuthorities(LdapNameBuilder.newInstance(userDn).build(), authorities, DirContext.REMOVE_ATTRIBUTE);
-	}
-
 	protected void removeAuthorities(LdapName userDn, Collection<? extends GrantedAuthority> authorities) {
-		removeAuthorities(new DistinguishedName(userDn), authorities);
+		modifyAuthorities(LdapNameBuilder.newInstance(userDn).build(), authorities, DirContext.REMOVE_ATTRIBUTE);
 	}
 
 	private void modifyAuthorities(final LdapName userDn, final Collection<? extends GrantedAuthority> authorities,
@@ -332,7 +315,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 				LdapName fullDn = LdapUtils.getFullDn(userDn, ctx);
 				ModificationItem addGroup = new ModificationItem(modType,
 						new BasicAttribute(this.groupMemberAttributeName, fullDn.toString()));
-				ctx.modifyAttributes(buildGroupName(group), new ModificationItem[] { addGroup });
+				ctx.modifyAttributes(buildGroupDn(group), new ModificationItem[] { addGroup });
 			}
 			return null;
 		});

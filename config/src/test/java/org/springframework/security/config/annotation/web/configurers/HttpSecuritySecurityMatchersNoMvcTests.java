@@ -37,7 +37,7 @@ import org.springframework.security.test.support.ClassPathExclusions;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,6 +45,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
  * @author Marcus Da Coregio
@@ -66,7 +67,7 @@ public class HttpSecuritySecurityMatchersNoMvcTests {
 
 	@BeforeEach
 	public void setup() throws Exception {
-		this.request = new MockHttpServletRequest("GET", "");
+		this.request = new MockHttpServletRequest();
 		this.request.setMethod("GET");
 		this.response = new MockHttpServletResponse();
 		this.chain = new MockFilterChain();
@@ -82,15 +83,15 @@ public class HttpSecuritySecurityMatchersNoMvcTests {
 	@Test
 	public void securityMatcherWhenNoMvcThenAntMatcher() throws Exception {
 		loadConfig(SecurityMatcherNoMvcConfig.class);
-		this.request.setServletPath("/path");
+		this.request.setRequestURI("/path");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 		setup();
-		this.request.setServletPath("/path.html");
+		this.request.setRequestURI("/path.html");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 		setup();
-		this.request.setServletPath("/path/");
+		this.request.setRequestURI("/path/");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		List<RequestMatcher> requestMatchers = this.springSecurityFilterChain.getFilterChains()
 			.stream()
@@ -100,7 +101,7 @@ public class HttpSecuritySecurityMatchersNoMvcTests {
 			.findFirst()
 			.get();
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-		assertThat(requestMatchers).hasOnlyElementsOfType(AntPathRequestMatcher.class);
+		assertThat(requestMatchers).hasOnlyElementsOfType(PathPatternRequestMatcher.class);
 	}
 
 	public void loadConfig(Class<?>... configs) {
@@ -121,9 +122,9 @@ public class HttpSecuritySecurityMatchersNoMvcTests {
 			// @formatter:off
 			http
 				.securityMatcher("/path")
-				.httpBasic().and()
-				.authorizeHttpRequests()
-					.anyRequest().denyAll();
+				.httpBasic(withDefaults())
+				.authorizeHttpRequests((authorize) -> authorize
+					.anyRequest().denyAll());
 			// @formatter:on
 			return http.build();
 		}

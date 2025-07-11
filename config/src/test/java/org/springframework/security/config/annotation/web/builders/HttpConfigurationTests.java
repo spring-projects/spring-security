@@ -39,7 +39,6 @@ import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -48,6 +47,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -148,14 +149,12 @@ public class HttpConfigurationTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.securityMatchers()
-					.requestMatchers(new AntPathRequestMatcher("/api/**"))
-					.requestMatchers(new AntPathRequestMatcher("/oauth/**"))
-					.and()
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.httpBasic();
+				.securityMatchers((security) -> security
+					.requestMatchers(pathPattern("/api/**"))
+					.requestMatchers(pathPattern("/oauth/**")))
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.httpBasic(withDefaults());
 			return http.build();
 			// @formatter:on
 		}

@@ -16,6 +16,10 @@
 
 package org.springframework.security.config.annotation.web.builders;
 
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.function.Supplier;
+
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 
@@ -25,17 +29,20 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.jaas.JaasAuthenticationToken;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.config.annotation.web.configurers.UrlAuthorizationConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
@@ -47,15 +54,15 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.expression.ExpressionBasedFilterInvocationSecurityMetadataSource;
-import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
-import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.context.NullSecurityContextRepository;
 import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Controller;
@@ -71,9 +78,11 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -97,14 +106,12 @@ public class NamespaceHttpTests {
 
 	@Test // http@access-decision-manager-ref
 	public void configureWhenAccessDecisionManagerSetThenVerifyUse() throws Exception {
-		AccessDecisionManagerRefConfig.ACCESS_DECISION_MANAGER = mock(AccessDecisionManager.class);
-		given(AccessDecisionManagerRefConfig.ACCESS_DECISION_MANAGER.supports(FilterInvocation.class)).willReturn(true);
-		given(AccessDecisionManagerRefConfig.ACCESS_DECISION_MANAGER.supports(any(ConfigAttribute.class)))
-			.willReturn(true);
 		this.spring.register(AccessDecisionManagerRefConfig.class).autowire();
+		AccessDecisionManager accessDecisionManager = this.spring.getContext().getBean(AccessDecisionManager.class);
+		given(accessDecisionManager.supports(FilterInvocation.class)).willReturn(true);
+		given(accessDecisionManager.supports(any(ConfigAttribute.class))).willReturn(true);
 		this.mockMvc.perform(get("/"));
-		verify(AccessDecisionManagerRefConfig.ACCESS_DECISION_MANAGER, times(1)).decide(any(Authentication.class),
-				any(), anyCollection());
+		verify(accessDecisionManager, times(1)).decide(any(Authentication.class), any(), anyCollection());
 	}
 
 	@Test // http@access-denied-page
@@ -194,13 +201,13 @@ public class NamespaceHttpTests {
 	}
 
 	@Test // http@request-matcher-ref ant
-	public void configureWhenAntPatternMatchingThenAntPathRequestMatcherUsed() {
+	public void configureWhenAntPatternMatchingThenPathPatternRequestMatcherUsed() {
 		this.spring.register(RequestMatcherAntConfig.class).autowire();
 		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
 		assertThat(filterChainProxy.getFilterChains().get(0)).isInstanceOf(DefaultSecurityFilterChain.class);
 		DefaultSecurityFilterChain securityFilterChain = (DefaultSecurityFilterChain) filterChainProxy.getFilterChains()
 			.get(0);
-		assertThat(securityFilterChain.getRequestMatcher()).isInstanceOf(AntPathRequestMatcher.class);
+		assertThat(securityFilterChain.getRequestMatcher()).isInstanceOf(PathPatternRequestMatcher.class);
 	}
 
 	@Test // http@request-matcher-ref regex
@@ -225,21 +232,19 @@ public class NamespaceHttpTests {
 	}
 
 	@Test // http@security=none
-	public void configureWhenIgnoredAntPatternsThenAntPathRequestMatcherUsedWithNoFilters() {
+	public void configureWhenIgnoredAntPatternsThenPathPatternRequestMatcherUsedWithNoFilters() {
 		this.spring.register(SecurityNoneConfig.class).autowire();
 		FilterChainProxy filterChainProxy = this.spring.getContext().getBean(FilterChainProxy.class);
 		assertThat(filterChainProxy.getFilterChains().get(0)).isInstanceOf(DefaultSecurityFilterChain.class);
 		DefaultSecurityFilterChain securityFilterChain = (DefaultSecurityFilterChain) filterChainProxy.getFilterChains()
 			.get(0);
-		assertThat(securityFilterChain.getRequestMatcher()).isInstanceOf(AntPathRequestMatcher.class);
-		assertThat(((AntPathRequestMatcher) securityFilterChain.getRequestMatcher()).getPattern())
-			.isEqualTo("/resources/**");
+		assertThat(securityFilterChain.getRequestMatcher()).isInstanceOf(PathPatternRequestMatcher.class);
+		assertThat(securityFilterChain.getRequestMatcher()).isEqualTo(pathPattern("/resources/**"));
 		assertThat(securityFilterChain.getFilters()).isEmpty();
 		assertThat(filterChainProxy.getFilterChains().get(1)).isInstanceOf(DefaultSecurityFilterChain.class);
 		securityFilterChain = (DefaultSecurityFilterChain) filterChainProxy.getFilterChains().get(1);
-		assertThat(securityFilterChain.getRequestMatcher()).isInstanceOf(AntPathRequestMatcher.class);
-		assertThat(((AntPathRequestMatcher) securityFilterChain.getRequestMatcher()).getPattern())
-			.isEqualTo("/public/**");
+		assertThat(securityFilterChain.getRequestMatcher()).isInstanceOf(PathPatternRequestMatcher.class);
+		assertThat(securityFilterChain.getRequestMatcher()).isEqualTo(pathPattern("/public/**"));
 		assertThat(securityFilterChain.getFilters()).isEmpty();
 	}
 
@@ -267,37 +272,59 @@ public class NamespaceHttpTests {
 			.isAssignableFrom(MainController.HTTP_SERVLET_REQUEST_TYPE);
 	}
 
-	@Test // http@use-expressions=true
-	public void configureWhenUseExpressionsEnabledThenExpressionBasedSecurityMetadataSource() {
-		this.spring.register(UseExpressionsConfig.class).autowire();
-		UseExpressionsConfig config = this.spring.getContext().getBean(UseExpressionsConfig.class);
-		assertThat(ExpressionBasedFilterInvocationSecurityMetadataSource.class)
-			.isAssignableFrom(config.filterInvocationSecurityMetadataSourceType);
-	}
-
-	@Test // http@use-expressions=false
-	public void configureWhenUseExpressionsDisabledThenDefaultSecurityMetadataSource() {
-		this.spring.register(DisableUseExpressionsConfig.class).autowire();
-		DisableUseExpressionsConfig config = this.spring.getContext().getBean(DisableUseExpressionsConfig.class);
-		assertThat(DefaultFilterInvocationSecurityMetadataSource.class)
-			.isAssignableFrom(config.filterInvocationSecurityMetadataSourceType);
-	}
-
 	@Configuration
 	@EnableWebSecurity
 	static class AccessDecisionManagerRefConfig {
 
-		static AccessDecisionManager ACCESS_DECISION_MANAGER;
+		AccessDecisionManager accessDecisionManager = mock(AccessDecisionManager.class);
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().permitAll()
-				.accessDecisionManager(ACCESS_DECISION_MANAGER);
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().access(new AccessAuthorizationManagerAdapter(this.accessDecisionManager, "permitAll"))
+				);
 			return http.build();
 			// @formatter:on
+		}
+
+		@Bean
+		AccessDecisionManager accessDecisionManager() {
+			return this.accessDecisionManager;
+		}
+
+		private static final class AccessAuthorizationManagerAdapter
+				implements AuthorizationManager<RequestAuthorizationContext> {
+
+			private final AccessDecisionManager delegate;
+
+			private final SecurityMetadataSource metadataSource;
+
+			private AccessAuthorizationManagerAdapter(AccessDecisionManager delegate, String expression) {
+				this.delegate = delegate;
+				LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> mappings = new LinkedHashMap<>();
+				mappings.put(AnyRequestMatcher.INSTANCE, SecurityConfig.createList(expression));
+				DefaultWebSecurityExpressionHandler handler = new DefaultWebSecurityExpressionHandler();
+				this.metadataSource = new ExpressionBasedFilterInvocationSecurityMetadataSource(mappings, handler);
+			}
+
+			@Override
+			public AuthorizationResult authorize(Supplier<Authentication> authentication,
+					RequestAuthorizationContext object) {
+				HttpServletRequest request = object.getRequest();
+				FilterInvocation invocation = new FilterInvocation(request.getContextPath(), request.getServletPath(),
+						request.getPathInfo(), request.getQueryString(), request.getMethod());
+				Collection<ConfigAttribute> attributes = this.metadataSource.getAttributes(invocation);
+				try {
+					this.delegate.decide(authentication.get(), invocation, attributes);
+					return new AuthorizationDecision(true);
+				}
+				catch (AccessDeniedException ex) {
+					return new AuthorizationDecision(false);
+				}
+			}
+
 		}
 
 	}
@@ -311,12 +338,11 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
+				.authorizeHttpRequests((requests) -> requests
 					.requestMatchers("/admin").hasRole("ADMIN")
-					.anyRequest().authenticated()
-					.and()
-				.exceptionHandling()
-					.accessDeniedPage("/AccessDeniedPage");
+					.anyRequest().authenticated())
+				.exceptionHandling((handling) -> handling
+					.accessDeniedPage("/AccessDeniedPage"));
 			return http.build();
 			// @formatter:on
 		}
@@ -338,10 +364,9 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.formLogin();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.formLogin(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -356,11 +381,10 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().permitAll()
-					.and()
-				.sessionManagement()
-					.sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().permitAll())
+				.sessionManagement((management) -> management
+					.sessionCreationPolicy(SessionCreationPolicy.ALWAYS));
 			return http.build();
 			// @formatter:on
 		}
@@ -375,11 +399,10 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().permitAll()
-					.and()
-				.sessionManagement()
-					.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().permitAll())
+				.sessionManagement((management) -> management
+					.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 			return http.build();
 			// @formatter:on
 		}
@@ -395,14 +418,12 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
+				.authorizeHttpRequests((requests) -> requests
 					.requestMatchers("/unsecure").permitAll()
-					.anyRequest().authenticated()
-					.and()
-				.sessionManagement()
-					.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-					.and()
-				.formLogin();
+					.anyRequest().authenticated())
+				.sessionManagement((management) -> management
+					.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+				.formLogin(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -417,11 +438,10 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().anonymous()
-					.and()
-				.sessionManagement()
-					.sessionCreationPolicy(SessionCreationPolicy.NEVER);
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().anonymous())
+				.sessionManagement((management) -> management
+					.sessionCreationPolicy(SessionCreationPolicy.NEVER));
 			return http.build();
 			// @formatter:on
 		}
@@ -436,13 +456,11 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.exceptionHandling()
-					.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/entry-point"))
-					.and()
-				.formLogin();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.exceptionHandling((handling) -> handling
+					.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/entry-point")))
+				.formLogin(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -472,11 +490,10 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.httpBasic()
-					.realmName("RealmConfig");
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.httpBasic((basic) -> basic
+					.realmName("RealmConfig"));
 			return http.build();
 			// @formatter:on
 		}
@@ -491,7 +508,7 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.securityMatcher(new AntPathRequestMatcher("/api/**"));
+				.securityMatcher(pathPattern("/api/**"));
 			return http.build();
 			// @formatter:on
 		}
@@ -543,8 +560,9 @@ public class NamespaceHttpTests {
 
 		@Bean
 		WebSecurityCustomizer webSecurityCustomizer() {
+			PathPatternRequestMatcher.Builder builder = PathPatternRequestMatcher.withDefaults();
 			return (web) -> web.ignoring()
-				.requestMatchers(new AntPathRequestMatcher("/resources/**"), new AntPathRequestMatcher("/public/**"));
+				.requestMatchers(builder.matcher("/resources/**"), builder.matcher("/public/**"));
 		}
 
 		@Bean
@@ -562,13 +580,11 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.securityContext()
-					.securityContextRepository(new NullSecurityContextRepository())
-					.and()
-				.formLogin();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.securityContext((context) -> context
+					.securityContextRepository(new NullSecurityContextRepository()))
+				.formLogin(withDefaults());
 			// @formatter:on
 			return http.build();
 		}
@@ -588,11 +604,10 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().permitAll()
-					.and()
-				.servletApi()
-					.disable();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().permitAll())
+				.servletApi((api) -> api
+					.disable());
 			return http.build();
 			// @formatter:on
 		}
@@ -607,8 +622,8 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().permitAll();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().permitAll());
 			return http.build();
 			// @formatter:on
 		}
@@ -624,78 +639,6 @@ public class NamespaceHttpTests {
 		String index(HttpServletRequest request) {
 			HTTP_SERVLET_REQUEST_TYPE = request.getClass();
 			return "index";
-		}
-
-	}
-
-	@Configuration
-	@EnableWebSecurity
-	@EnableWebMvc
-	static class UseExpressionsConfig {
-
-		private Class<? extends FilterInvocationSecurityMetadataSource> filterInvocationSecurityMetadataSourceType;
-
-		private HttpSecurity httpSecurity;
-
-		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests()
-					.requestMatchers("/users**", "/sessions/**").hasRole("USER")
-					.requestMatchers("/signup").permitAll()
-					.anyRequest().hasRole("USER");
-			this.httpSecurity = http;
-			return http.build();
-			// @formatter:on
-		}
-
-		@Bean
-		@DependsOn("filterChain")
-		WebSecurityCustomizer webSecurityCustomizer() {
-			return (web) -> web.postBuildAction(() -> {
-				FilterSecurityInterceptor securityInterceptor = this.httpSecurity
-					.getSharedObject(FilterSecurityInterceptor.class);
-				UseExpressionsConfig.this.filterInvocationSecurityMetadataSourceType = securityInterceptor
-					.getSecurityMetadataSource()
-					.getClass();
-			});
-		}
-
-	}
-
-	@Configuration
-	@EnableWebSecurity
-	@EnableWebMvc
-	static class DisableUseExpressionsConfig {
-
-		private Class<? extends FilterInvocationSecurityMetadataSource> filterInvocationSecurityMetadataSourceType;
-
-		private HttpSecurity httpSecurity;
-
-		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http, ApplicationContext context) throws Exception {
-			// @formatter:off
-			http
-				.apply(new UrlAuthorizationConfigurer<>(context)).getRegistry()
-					.requestMatchers("/users**", "/sessions/**").hasRole("USER")
-					.requestMatchers("/signup").hasRole("ANONYMOUS")
-					.anyRequest().hasRole("USER");
-			this.httpSecurity = http;
-			return http.build();
-			// @formatter:on
-		}
-
-		@Bean
-		@DependsOn("filterChain")
-		WebSecurityCustomizer webSecurityCustomizer() {
-			return (web) -> web.postBuildAction(() -> {
-				FilterSecurityInterceptor securityInterceptor = this.httpSecurity
-					.getSharedObject(FilterSecurityInterceptor.class);
-				DisableUseExpressionsConfig.this.filterInvocationSecurityMetadataSourceType = securityInterceptor
-					.getSecurityMetadataSource()
-					.getClass();
-			});
 		}
 
 	}

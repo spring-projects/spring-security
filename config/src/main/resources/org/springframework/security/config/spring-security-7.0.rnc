@@ -84,8 +84,8 @@ ldap-server.attlist &=
 	## Optional root suffix for the embedded LDAP server. Default is "dc=springframework,dc=org"
 	attribute root { xsd:string }?
 ldap-server.attlist &=
-	## Explicitly specifies which embedded ldap server should use. Values are 'apacheds' and 'unboundid'. By default, it will depends if the library is available in the classpath.
-	attribute mode { "apacheds" | "unboundid" }?
+	## Explicitly specifies which embedded ldap server should use. The only supported value is 'unboundid'. By default, it will depends if the library is available in the classpath.
+	attribute mode { "unboundid" }?
 
 ldap-server-ref-attribute =
 	## The optional server to use. If omitted, and a default LDAP server is registered (using <ldap-server> with no Id), that server will be used.
@@ -650,6 +650,9 @@ oauth2-resource-server.attlist &=
 oauth2-resource-server.attlist &=
 	## Reference to a AuthenticationEntryPoint
 	attribute entry-point-ref {xsd:token}?
+oauth2-resource-server.attlist &=
+	## Reference to a AuthenticationConverter
+	attribute authentication-converter-ref {xsd:token}?
 
 jwt =
     ## Configures JWT authentication
@@ -1050,6 +1053,9 @@ x509.attlist &=
 x509.attlist &=
 	## Reference to an AuthenticationDetailsSource which will be used by the authentication filter
 	attribute authentication-details-source-ref {xsd:token}?
+x509.attlist &=
+	## Reference to an X509PrincipalExtractor which will be used by the authentication filter
+	attribute principal-extractor-ref {xsd:token}?
 
 jee =
 	## Adds a J2eePreAuthenticatedProcessingFilter to the filter chain to provide integration with container authentication.
@@ -1177,7 +1183,7 @@ hsts-options.attlist &=
 	attribute preload {xsd:boolean}?
 
 cors =
-## Element for configuration of CorsFilter. If no CorsFilter or CorsConfigurationSource is specified a HandlerMappingIntrospector is used as the CorsConfigurationSource
+## Element for configuration of CorsFilter. A CorsConfigurationSource must be specified. If Spring MVC is present, then it will attempt to look up its `CorsConfigurationSource`.
 element cors { cors-options.attlist }
 cors-options.attlist &=
 	ref?
@@ -1308,7 +1314,7 @@ cross-origin-embedder-policy =
 	element cross-origin-embedder-policy {cross-origin-embedder-policy-options.attlist,empty}
 cross-origin-embedder-policy-options.attlist &=
 	## The policies for the Cross-Origin-Embedder-Policy header.
-	attribute policy {"unsafe-none","require-corp"}?
+	attribute policy {"unsafe-none","require-corp", "credentialless"}?
 
 cross-origin-resource-policy =
 	## Adds support for Cross-Origin-Resource-Policy header

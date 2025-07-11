@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,6 @@
 package org.springframework.security.oauth2.client.web;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
@@ -35,7 +33,6 @@ import reactor.util.context.Context;
 
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.support.ExecutorServiceAdapter;
-import org.springframework.http.MediaType;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -465,42 +462,6 @@ public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 				eq(this.serverWebExchange));
 		this.saveAuthorizedClientProbe.assertWasSubscribed();
 		verify(this.authorizedClientRepository, never()).removeAuthorizedClient(any(), any(), any());
-	}
-
-	@Test
-	public void authorizeWhenRequestFormParameterUsernamePasswordThenMappedToContext() {
-		given(this.clientRegistrationRepository.findByRegistrationId(eq(this.clientRegistration.getRegistrationId())))
-			.willReturn(Mono.just(this.clientRegistration));
-		given(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class)))
-			.willReturn(Mono.just(this.authorizedClient));
-		// Set custom contextAttributesMapper capable of mapping the form parameters
-		this.authorizedClientManager.setContextAttributesMapper(
-				(authorizeRequest) -> currentServerWebExchange().flatMap(ServerWebExchange::getFormData)
-					.map((formData) -> {
-						Map<String, Object> contextAttributes = new HashMap<>();
-						String username = formData.getFirst(OAuth2ParameterNames.USERNAME);
-						contextAttributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, username);
-						String password = formData.getFirst(OAuth2ParameterNames.PASSWORD);
-						contextAttributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, password);
-						return contextAttributes;
-					}));
-		this.serverWebExchange = MockServerWebExchange
-			.builder(MockServerHttpRequest.post("/")
-				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-				.body("username=username&password=password"))
-			.build();
-		this.context = Context.of(ServerWebExchange.class, this.serverWebExchange);
-		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
-			.withClientRegistrationId(this.clientRegistration.getRegistrationId())
-			.principal(this.principal)
-			.build();
-		this.authorizedClientManager.authorize(authorizeRequest).contextWrite(this.context).block();
-		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
-		OAuth2AuthorizationContext authorizationContext = this.authorizationContextCaptor.getValue();
-		String username = authorizationContext.getAttribute(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME);
-		assertThat(username).isEqualTo("username");
-		String password = authorizationContext.getAttribute(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME);
-		assertThat(password).isEqualTo("password");
 	}
 
 	@SuppressWarnings("unchecked")

@@ -40,7 +40,9 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.UnreachableFilterChainException;
+import org.springframework.security.web.access.AuthorizationManagerWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.access.PathPatternRequestTransformer;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
@@ -60,6 +62,8 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 	private static final Authentication TEST = new TestingAuthenticationToken("", "", Collections.emptyList());
 
 	private final Log logger = LogFactory.getLog(getClass());
+
+	private final AuthorizationManagerWebInvocationPrivilegeEvaluator.HttpServletRequestTransformer requestTransformer = new PathPatternRequestTransformer();
 
 	@Override
 	public void validate(FilterChainProxy fcp) {
@@ -122,11 +126,11 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 			}
 			if (authorizationFilter != null && filterSecurityInterceptor != null) {
 				this.logger.warn(
-						"It is not recommended to use authorizeRequests in the configuration. Please only use authorizeHttpRequests");
+						"It is not recommended to use authorizeRequests or FilterSecurityInterceptor in the configuration. Please only use authorizeHttpRequests");
 			}
 			if (filterSecurityInterceptor != null) {
 				this.logger.warn(
-						"Usage of authorizeRequests is deprecated. Please use authorizeHttpRequests in the configuration");
+						"Usage of authorizeRequests and FilterSecurityInterceptor are deprecated. Please use authorizeHttpRequests in the configuration");
 			}
 			authorizationFilter = null;
 			filterSecurityInterceptor = null;
@@ -188,7 +192,8 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 		String loginPage = ((LoginUrlAuthenticationEntryPoint) exceptions.getAuthenticationEntryPoint())
 			.getLoginFormUrl();
 		this.logger.info("Checking whether login URL '" + loginPage + "' is accessible with your configuration");
-		FilterInvocation loginRequest = new FilterInvocation(loginPage, "POST");
+		FilterInvocation invocation = new FilterInvocation(loginPage, "POST");
+		HttpServletRequest loginRequest = this.requestTransformer.transform(invocation.getRequest());
 		List<Filter> filters = null;
 		try {
 			filters = fcp.getFilters(loginPage);
@@ -237,7 +242,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 		}
 	}
 
-	private boolean checkLoginPageIsPublic(List<Filter> filters, FilterInvocation loginRequest) {
+	private boolean checkLoginPageIsPublic(List<Filter> filters, HttpServletRequest loginRequest) {
 		FilterSecurityInterceptor authorizationInterceptor = getFilter(FilterSecurityInterceptor.class, filters);
 		if (authorizationInterceptor != null) {
 			FilterInvocationSecurityMetadataSource fids = authorizationInterceptor.getSecurityMetadataSource();
@@ -257,7 +262,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 			AuthorizationManager<HttpServletRequest> authorizationManager = authorizationFilter
 				.getAuthorizationManager();
 			try {
-				AuthorizationResult result = authorizationManager.authorize(() -> TEST, loginRequest.getHttpRequest());
+				AuthorizationResult result = authorizationManager.authorize(() -> TEST, loginRequest);
 				return result != null && result.isGranted();
 			}
 			catch (Exception ex) {
@@ -267,7 +272,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 		return false;
 	}
 
-	private Supplier<Boolean> deriveAnonymousCheck(List<Filter> filters, FilterInvocation loginRequest,
+	private Supplier<Boolean> deriveAnonymousCheck(List<Filter> filters, HttpServletRequest loginRequest,
 			AnonymousAuthenticationToken token) {
 		FilterSecurityInterceptor authorizationInterceptor = getFilter(FilterSecurityInterceptor.class, filters);
 		if (authorizationInterceptor != null) {
@@ -288,7 +293,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 			return () -> {
 				AuthorizationManager<HttpServletRequest> authorizationManager = authorizationFilter
 					.getAuthorizationManager();
-				AuthorizationResult result = authorizationManager.authorize(() -> token, loginRequest.getHttpRequest());
+				AuthorizationResult result = authorizationManager.authorize(() -> token, loginRequest);
 				return result != null && result.isGranted();
 			};
 		}

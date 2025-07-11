@@ -22,17 +22,17 @@ public class OAuth2LoginSecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-			.oauth2Login(oauth2 -> oauth2
-			    .authorizationEndpoint(authorization -> authorization
+			.oauth2Login((oauth2) -> oauth2
+			    .authorizationEndpoint((authorization) -> authorization
 			            ...
 			    )
-			    .redirectionEndpoint(redirection -> redirection
+			    .redirectionEndpoint((redirection) -> redirection
 			            ...
 			    )
-			    .tokenEndpoint(token -> token
+			    .tokenEndpoint((token) -> token
 			            ...
 			    )
-			    .userInfoEndpoint(userInfo -> userInfo
+			    .userInfoEndpoint((userInfo) -> userInfo
 			            ...
 			    )
 			);
@@ -108,23 +108,23 @@ public class OAuth2LoginSecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-			.oauth2Login(oauth2 -> oauth2
+			.oauth2Login((oauth2) -> oauth2
 			    .clientRegistrationRepository(this.clientRegistrationRepository())
 			    .authorizedClientRepository(this.authorizedClientRepository())
 			    .authorizedClientService(this.authorizedClientService())
 			    .loginPage("/login")
-			    .authorizationEndpoint(authorization -> authorization
+			    .authorizationEndpoint((authorization) -> authorization
 			        .baseUri(this.authorizationRequestBaseUri())
 			        .authorizationRequestRepository(this.authorizationRequestRepository())
 			        .authorizationRequestResolver(this.authorizationRequestResolver())
 			    )
-			    .redirectionEndpoint(redirection -> redirection
+			    .redirectionEndpoint((redirection) -> redirection
 			        .baseUri(this.authorizationResponseBaseUri())
 			    )
-			    .tokenEndpoint(token -> token
+			    .tokenEndpoint((token) -> token
 			        .accessTokenResponseClient(this.accessTokenResponseClient())
 			    )
-			    .userInfoEndpoint(userInfo -> userInfo
+			    .userInfoEndpoint((userInfo) -> userInfo
 			        .userAuthoritiesMapper(this.userAuthoritiesMapper())
 			        .userService(this.oauth2UserService())
 			        .oidcUserService(this.oidcUserService())
@@ -250,10 +250,10 @@ public class OAuth2LoginSecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-			.oauth2Login(oauth2 -> oauth2
+			.oauth2Login((oauth2) -> oauth2
 			    .loginPage("/login/oauth2")
 			    ...
-			    .authorizationEndpoint(authorization -> authorization
+			    .authorizationEndpoint((authorization) -> authorization
 			        .baseUri("/login/oauth2/authorization")
 			        ...
 			    )
@@ -345,8 +345,8 @@ public class OAuth2LoginSecurityConfig {
     @Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-			.oauth2Login(oauth2 -> oauth2
-			    .redirectionEndpoint(redirection -> redirection
+			.oauth2Login((oauth2) -> oauth2
+			    .redirectionEndpoint((redirection) -> redirection
 			        .baseUri("/login/oauth2/callback/*")
 			        ...
 			    )
@@ -469,8 +469,8 @@ public class OAuth2LoginSecurityConfig {
     @Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-			.oauth2Login(oauth2 -> oauth2
-			    .userInfoEndpoint(userInfo -> userInfo
+			.oauth2Login((oauth2) -> oauth2
+			    .userInfoEndpoint((userInfo) -> userInfo
 			        .userAuthoritiesMapper(this.userAuthoritiesMapper())
 			        ...
 			    )
@@ -636,8 +636,8 @@ public class OAuth2LoginSecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-			.oauth2Login(oauth2 -> oauth2
-			    .userInfoEndpoint(userInfo -> userInfo
+			.oauth2Login((oauth2) -> oauth2
+			    .userInfoEndpoint((userInfo) -> userInfo
 			        .oidcUserService(this.oidcUserService())
 			        ...
 			    )
@@ -776,8 +776,8 @@ public class OAuth2LoginSecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-			.oauth2Login(oauth2 -> oauth2
-			    .userInfoEndpoint(userInfo -> userInfo
+			.oauth2Login((oauth2) -> oauth2
+			    .userInfoEndpoint((userInfo) -> userInfo
 			        .userService(this.oauth2UserService())
 			        ...
 			    )
@@ -844,8 +844,8 @@ public class OAuth2LoginSecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-			.oauth2Login(oauth2 -> oauth2
-				.userInfoEndpoint(userInfo -> userInfo
+			.oauth2Login((oauth2) -> oauth2
+				.userInfoEndpoint((userInfo) -> userInfo
 				    .oidcUserService(this.oidcUserService())
 				    ...
 			    )
@@ -911,7 +911,7 @@ Java::
 @Bean
 public JwtDecoderFactory<ClientRegistration> idTokenDecoderFactory() {
 	OidcIdTokenDecoderFactory idTokenDecoderFactory = new OidcIdTokenDecoderFactory();
-	idTokenDecoderFactory.setJwsAlgorithmResolver(clientRegistration -> MacAlgorithm.HS256);
+	idTokenDecoderFactory.setJwsAlgorithmResolver((clientRegistration) -> clientRegistration.HS256);
 	return idTokenDecoderFactory;
 }
 ----

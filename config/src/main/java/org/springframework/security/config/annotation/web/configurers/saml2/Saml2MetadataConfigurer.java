@@ -22,7 +22,6 @@ import org.opensaml.core.Version;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
-import org.springframework.security.config.annotation.web.RequestMatcherFactory;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.saml2.provider.service.metadata.OpenSaml4MetadataResolver;
@@ -111,12 +110,12 @@ public class Saml2MetadataConfigurer<H extends HttpSecurityBuilder<H>>
 			if (USE_OPENSAML_5) {
 				RequestMatcherMetadataResponseResolver metadata = new RequestMatcherMetadataResponseResolver(
 						registrations, new OpenSaml5MetadataResolver());
-				metadata.setRequestMatcher(RequestMatcherFactory.matcher(metadataUrl));
+				metadata.setRequestMatcher(getRequestMatcherBuilder().matcher(metadataUrl));
 				return metadata;
 			}
 			RequestMatcherMetadataResponseResolver metadata = new RequestMatcherMetadataResponseResolver(registrations,
 					new OpenSaml4MetadataResolver());
-			metadata.setRequestMatcher(RequestMatcherFactory.matcher(metadataUrl));
+			metadata.setRequestMatcher(getRequestMatcherBuilder().matcher(metadataUrl));
 			return metadata;
 		};
 		return this;

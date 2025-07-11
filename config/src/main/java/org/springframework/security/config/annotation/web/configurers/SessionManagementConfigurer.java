@@ -152,7 +152,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Creates a new instance
-	 * @see HttpSecurity#sessionManagement()
+	 * @see HttpSecurity#sessionManagement(Customizer)
 	 */
 	public SessionManagementConfigurer() {
 	}
@@ -773,17 +773,6 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		public ConcurrencyControlConfigurer sessionRegistry(SessionRegistry sessionRegistry) {
 			SessionManagementConfigurer.this.sessionRegistry = sessionRegistry;
 			return this;
-		}
-
-		/**
-		 * Used to chain back to the {@link SessionManagementConfigurer}
-		 * @return the {@link SessionManagementConfigurer} for further customizations
-		 * @deprecated For removal in 7.0. Use {@link #sessionConcurrency(Customizer)}
-		 * instead
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public SessionManagementConfigurer<H> and() {
-			return SessionManagementConfigurer.this;
 		}
 
 	}

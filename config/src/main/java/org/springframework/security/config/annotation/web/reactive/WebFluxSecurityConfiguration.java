@@ -40,6 +40,8 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.reactive.result.view.AbstractView;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 /**
  * @author Rob Winch
  * @since 5.0
@@ -121,13 +123,13 @@ class WebFluxSecurityConfiguration {
 	 * @return
 	 */
 	private SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-		http.authorizeExchange().anyExchange().authenticated();
+		http.authorizeExchange((authorize) -> authorize.anyExchange().authenticated());
 		if (isOAuth2Present && OAuth2ClasspathGuard.shouldConfigure(this.context)) {
 			OAuth2ClasspathGuard.configure(this.context, http);
 		}
 		else {
-			http.httpBasic();
-			http.formLogin();
+			http.httpBasic(withDefaults());
+			http.formLogin(withDefaults());
 		}
 		SecurityWebFilterChain result = http.build();
 		return result;
@@ -136,8 +138,8 @@ class WebFluxSecurityConfiguration {
 	private static class OAuth2ClasspathGuard {
 
 		static void configure(ApplicationContext context, ServerHttpSecurity http) {
-			http.oauth2Login();
-			http.oauth2Client();
+			http.oauth2Login(withDefaults());
+			http.oauth2Client(withDefaults());
 		}
 
 		static boolean shouldConfigure(ApplicationContext context) {

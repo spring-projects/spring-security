@@ -130,13 +130,12 @@ public class SecurityMockMvcRequestPostProcessorsOpaqueTokenTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
+				.authorizeHttpRequests((requests) -> requests
 					.requestMatchers("/admin/**").hasAuthority("SCOPE_admin")
-					.anyRequest().hasAuthority("SCOPE_read")
-					.and()
-				.oauth2ResourceServer()
-					.opaqueToken()
-						.introspector(mock(OpaqueTokenIntrospector.class));
+					.anyRequest().hasAuthority("SCOPE_read"))
+				.oauth2ResourceServer((server) -> server
+					.opaqueToken((opaqueToken) -> opaqueToken
+						.introspector(mock(OpaqueTokenIntrospector.class))));
 			return http.build();
 			// @formatter:on
 		}

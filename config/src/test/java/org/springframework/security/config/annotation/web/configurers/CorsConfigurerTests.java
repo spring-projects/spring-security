@@ -204,10 +204,9 @@ public class CorsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.cors();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.cors(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -223,10 +222,9 @@ public class CorsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.cors();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.cors(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -253,8 +251,7 @@ public class CorsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorizeRequests) ->
-					authorizeRequests
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().authenticated()
 				)
 				.cors(withDefaults());
@@ -283,10 +280,9 @@ public class CorsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.cors();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.cors(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -311,8 +307,7 @@ public class CorsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorizeRequests) ->
-					authorizeRequests
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().authenticated()
 				)
 				.cors(withDefaults());
@@ -340,10 +335,9 @@ public class CorsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.cors();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.cors(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -368,8 +362,7 @@ public class CorsConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorizeRequests) ->
-					authorizeRequests
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().authenticated()
 				)
 				.cors(withDefaults());

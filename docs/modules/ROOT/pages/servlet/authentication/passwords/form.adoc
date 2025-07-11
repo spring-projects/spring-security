@@ -120,7 +120,7 @@ Java::
 ----
 public SecurityFilterChain filterChain(HttpSecurity http) {
 	http
-		.formLogin(form -> form
+		.formLogin((form) -> form
 			.loginPage("/login")
 			.permitAll()
 		);

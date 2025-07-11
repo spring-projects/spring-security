@@ -140,7 +140,7 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
 
 	/**
 	 * Sets the parameter name which will be used to obtain the password from the login
-	 * request..
+	 * request.
 	 * @param passwordParameter the parameter name. Defaults to "password".
 	 */
 	public void setPasswordParameter(String passwordParameter) {

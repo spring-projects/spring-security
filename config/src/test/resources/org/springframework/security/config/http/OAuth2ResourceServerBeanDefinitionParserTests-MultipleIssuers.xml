@@ -22,8 +22,9 @@
 		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<b:bean name="authenticationManagerResolver"
-			class="org.springframework.security.oauth2.server.resource.authentication.JwtIssuerAuthenticationManagerResolver">
-		<b:constructor-arg>
+			class="org.springframework.security.oauth2.server.resource.authentication.JwtIssuerAuthenticationManagerResolver"
+			factory-method="fromTrustedIssuers">
+		<b:constructor-arg type="java.lang.String[]">
 			<b:list>
 				<b:value>${issuer-one}</b:value>
 				<b:value>${issuer-two}</b:value>
@@ -38,5 +39,4 @@
 	</http>
 
 	<b:import resource="userservice.xml"/>
-	<b:import resource="handlermappingintrospector.xml"/>
 </b:beans>

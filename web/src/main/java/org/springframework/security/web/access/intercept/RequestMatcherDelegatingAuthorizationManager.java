@@ -30,6 +30,7 @@ import org.springframework.security.authorization.AuthenticatedAuthorizationMana
 import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.SingleResultAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.util.UrlUtils;
@@ -61,19 +62,8 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 		this.mappings = mappings;
 	}
 
-	/**
-	 * Delegates to a specific {@link AuthorizationManager} based on a
-	 * {@link RequestMatcher} evaluation.
-	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param request the {@link HttpServletRequest} to check
-	 * @return an {@link AuthorizationDecision}. If there is no {@link RequestMatcher}
-	 * matching the request, or the {@link AuthorizationManager} could not decide, then
-	 * null is returned
-	 * @deprecated please use {@link #authorize(Supplier, Object)} instead
-	 */
-	@Deprecated
 	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication, HttpServletRequest request) {
+	public AuthorizationResult authorize(Supplier<Authentication> authentication, HttpServletRequest request) {
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace(LogMessage.format("Authorizing %s", requestLine(request)));
 		}
@@ -87,7 +77,7 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 					this.logger.trace(
 							LogMessage.format("Checking authorization on %s using %s", requestLine(request), manager));
 				}
-				return manager.check(authentication,
+				return manager.authorize(authentication,
 						new RequestAuthorizationContext(request, matchResult.getVariables()));
 			}
 		}

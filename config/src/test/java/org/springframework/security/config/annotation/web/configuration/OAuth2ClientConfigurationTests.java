@@ -58,6 +58,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -272,10 +273,9 @@ public class OAuth2ClientConfigurationTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.oauth2Login();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.oauth2Login(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -311,10 +311,9 @@ public class OAuth2ClientConfigurationTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.oauth2Login();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.oauth2Login(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -330,10 +329,9 @@ public class OAuth2ClientConfigurationTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.oauth2Login();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.oauth2Login(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -369,10 +367,9 @@ public class OAuth2ClientConfigurationTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.oauth2Login();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.oauth2Login(withDefaults());
 			return http.build();
 			// @formatter:on
 		}

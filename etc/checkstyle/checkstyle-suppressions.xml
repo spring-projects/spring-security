@@ -17,14 +17,12 @@
 
 	<!-- Method Visibility that we can't reduce -->
 	<suppress files="AbstractAclVoterTests\.java" checks="SpringMethodVisibility"/>
-	<suppress files="AbstractSecurityWebSocketMessageBrokerConfigurerTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="AnnotationParameterNameDiscovererTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="AnnotationSecurityAspectTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="AuthenticationPrincipalArgumentResolverTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="ELRequestMatcherContext\.java" checks="SpringMethodVisibility"/>
 	<suppress files="EnableWebFluxSecurityTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="ExpressionBasedPreInvocationAdviceTests\.java" checks="SpringMethodVisibility"/>
-	<suppress files="ExpressionUrlAuthorizationConfigurerTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="Jsr250MethodSecurityMetadataSourceTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="MapBasedMethodSecurityMetadataSourceTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="OAuth2ResourceServerBeanDefinitionParserTests\.java" checks="SpringMethodVisibility"/>
@@ -35,7 +33,6 @@
 	<suppress files="WebSocketMessageBrokerConfigTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="WebSecurityConfigurationTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="WithSecurityContextTestExecutionListenerTests\.java" checks="SpringMethodVisibility"/>
-	<suppress files="AbstractOAuth2AuthorizationGrantRequestEntityConverter\.java" checks="SpringMethodVisibility"/>
 	<suppress files="JoseHeader\.java" checks="SpringMethodVisibility"/>
 	<suppress files="DefaultLoginPageGeneratingFilterTests\.java" checks="SpringLeadingWhitespace"/>
 	<suppress files="AuthenticationException\.java" checks="MutableException"/>

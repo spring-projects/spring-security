@@ -35,5 +35,4 @@
 	<b:bean name="unsecured" class="org.springframework.security.config.http.PlaceHolderAndELConfigTests.SimpleController"/>
 
 	<b:import resource="userservice.xml"/>
-	<b:import resource="handlermappingintrospector.xml"/>
 </b:beans>

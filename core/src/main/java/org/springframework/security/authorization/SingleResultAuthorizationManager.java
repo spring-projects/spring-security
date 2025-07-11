@@ -44,15 +44,10 @@ public final class SingleResultAuthorizationManager<C> implements AuthorizationM
 	}
 
 	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication, C object) {
+	public AuthorizationResult authorize(Supplier<Authentication> authentication, C object) {
 		if (!(this.result instanceof AuthorizationDecision)) {
 			throw new IllegalArgumentException("result should be AuthorizationDecision");
 		}
-		return (AuthorizationDecision) this.result;
-	}
-
-	@Override
-	public AuthorizationResult authorize(Supplier<Authentication> authentication, C object) {
 		return this.result;
 	}
 

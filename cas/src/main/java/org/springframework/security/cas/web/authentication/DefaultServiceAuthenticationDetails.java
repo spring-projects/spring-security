@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import org.springframework.security.cas.authentication.ServiceAuthenticationDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
@@ -60,7 +61,7 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 
 	/**
 	 * Returns the current URL minus the artifact parameter and its value, if present.
-	 * @see org.springframework.security.cas.web.authentication.ServiceAuthenticationDetails#getServiceUrl()
+	 * @see org.springframework.security.cas.authentication.ServiceAuthenticationDetails#getServiceUrl()
 	 */
 	@Override
 	public String getServiceUrl() {

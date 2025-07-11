@@ -185,7 +185,7 @@ XML::
 			class="org.springframework.security.authentication.ProviderManager">
 		<constructor-arg>
 			<bean class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
-				<property name="userDetailsService" ref="userDetailsService" />
+				<constructor-arg name="userDetailsService" ref="userDetailsService" />
 				<property name="passwordEncoder" ref="passwordEncoder" />
 			</bean>
 		</constructor-arg>
@@ -416,8 +416,7 @@ public class SecurityConfig {
 	}
 
 	private AuthenticationManager authenticationManager() {
-		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-		authenticationProvider.setUserDetailsService(userDetailsService());
+		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(userDetailsService());
 		authenticationProvider.setPasswordEncoder(passwordEncoder());
 
 		ProviderManager providerManager = new ProviderManager(authenticationProvider);
@@ -456,7 +455,7 @@ XML::
 			class="org.springframework.security.authentication.ProviderManager">
 		<constructor-arg>
 			<bean class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
-				<property name="userDetailsService" ref="userDetailsService" />
+				<constructor-arg name="userDetailsService" ref="userDetailsService" />
 				<property name="passwordEncoder" ref="passwordEncoder" />
 			</bean>
 		</constructor-arg>

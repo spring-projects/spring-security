@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer;
 import org.springframework.security.config.annotation.authentication.configurers.provisioning.JdbcUserDetailsManagerConfigurer;
 import org.springframework.security.config.annotation.authentication.configurers.userdetails.DaoAuthenticationConfigurer;
-import org.springframework.security.config.annotation.web.RequestMatcherFactory;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.DefaultLoginPageConfigurer;
@@ -105,7 +104,6 @@ class HttpSecurityConfiguration {
 	@Bean(HTTPSECURITY_BEAN_NAME)
 	@Scope("prototype")
 	HttpSecurity httpSecurity() throws Exception {
-		RequestMatcherFactory.setApplicationContext(this.context);
 		LazyPasswordEncoder passwordEncoder = new LazyPasswordEncoder(this.context);
 		AuthenticationManagerBuilder authenticationBuilder = new DefaultPasswordEncoderAuthenticationManagerBuilder(
 				this.objectPostProcessor, passwordEncoder);
@@ -125,7 +123,7 @@ class HttpSecurityConfiguration {
 			.requestCache(withDefaults())
 			.anonymous(withDefaults())
 			.servletApi(withDefaults())
-			.apply(new DefaultLoginPageConfigurer<>());
+			.with(new DefaultLoginPageConfigurer<>());
 		http.logout(withDefaults());
 		// @formatter:on
 		applyCorsIfAvailable(http);
@@ -155,7 +153,7 @@ class HttpSecurityConfiguration {
 		List<AbstractHttpConfigurer> defaultHttpConfigurers = SpringFactoriesLoader
 			.loadFactories(AbstractHttpConfigurer.class, classLoader);
 		for (AbstractHttpConfigurer configurer : defaultHttpConfigurers) {
-			http.apply(configurer);
+			http.with(configurer);
 		}
 	}
 
@@ -175,17 +173,6 @@ class HttpSecurityConfiguration {
 		 * @param objectPostProcessor the {@link ObjectPostProcessor} instance to use.
 		 */
 		DefaultPasswordEncoderAuthenticationManagerBuilder(ObjectPostProcessor<Object> objectPostProcessor,
-				PasswordEncoder defaultPasswordEncoder) {
-			super(objectPostProcessor);
-			this.defaultPasswordEncoder = defaultPasswordEncoder;
-		}
-
-		/**
-		 * @deprecated
-		 */
-		@Deprecated(since = "6.4", forRemoval = true)
-		DefaultPasswordEncoderAuthenticationManagerBuilder(
-				org.springframework.security.config.annotation.ObjectPostProcessor<Object> objectPostProcessor,
 				PasswordEncoder defaultPasswordEncoder) {
 			super(objectPostProcessor);
 			this.defaultPasswordEncoder = defaultPasswordEncoder;

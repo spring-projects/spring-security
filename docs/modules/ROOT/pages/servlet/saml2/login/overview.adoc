@@ -49,7 +49,7 @@ This filter calls its configured `AuthenticationConverter` to create a `Saml2Aut
 This converter additionally resolves the <<servlet-saml2login-relyingpartyregistration, `RelyingPartyRegistration`>> and supplies it to `Saml2AuthenticationToken`.
 
 image:{icondir}/number_2.png[] Next, the filter passes the token to its configured xref:servlet/authentication/architecture.adoc#servlet-authentication-providermanager[`AuthenticationManager`].
-By default, it uses the <<servlet-saml2login-architecture,`OpenSamlAuthenticationProvider`>>.
+By default, it uses the <<servlet-saml2login-architecture,`OpenSaml4AuthenticationProvider`>>.
 
 image:{icondir}/number_3.png[] If authentication fails, then _Failure_.
 
@@ -184,9 +184,9 @@ To achieve this, any interfaces or classes where Spring Security uses OpenSAML i
 This makes it possible for you to switch out OpenSAML for some other library or an unsupported version of OpenSAML.
 
 As a natural outcome of these two goals, Spring Security's SAML API is quite small relative to other modules.
-Instead, such classes as `OpenSamlAuthenticationRequestFactory` and `OpenSamlAuthenticationProvider` expose `Converter` implementations that customize various steps in the authentication process.
+Instead, such classes as `OpenSamlXAuthenticationRequestFactory` and `OpenSamlXAuthenticationProvider` expose `Converter` implementations that customize various steps in the authentication process.
 
-For example, once your application receives a `SAMLResponse` and delegates to `Saml2WebSsoAuthenticationFilter`, the filter delegates to `OpenSamlAuthenticationProvider`:
+For example, once your application receives a `SAMLResponse` and delegates to `Saml2WebSsoAuthenticationFilter`, the filter delegates to `OpenSamlXAuthenticationProvider`:
 
 .Authenticating an OpenSAML `Response`
 image:{figures}/opensamlauthenticationprovider.png[]
@@ -342,7 +342,7 @@ Java::
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
-        .authorizeHttpRequests(authorize -> authorize
+        .authorizeHttpRequests((authorize) -> authorize
             .anyRequest().authenticated()
         )
         .saml2Login(withDefaults());
@@ -357,7 +357,7 @@ Kotlin::
 @Bean
 open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     http {
-        authorizeRequests {
+        authorizeHttpRequests {
             authorize(anyRequest, authenticated)
         }
         saml2Login { }
@@ -384,7 +384,7 @@ public class MyCustomSecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(authorize -> authorize
+            .authorizeHttpRequests((authorize) -> authorize
                 .requestMatchers("/messages/**").hasAuthority("ROLE_USER")
                 .anyRequest().authenticated()
             )
@@ -404,7 +404,7 @@ class MyCustomSecurityConfiguration {
     @Bean
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize("/messages/**", hasAuthority("ROLE_USER"))
                 authorize(anyRequest, authenticated)
             }
@@ -486,11 +486,11 @@ public RelyingPartyRegistrationRepository relyingPartyRegistrations() throws Exc
     Saml2X509Credential credential = Saml2X509Credential.verification(certificate);
     RelyingPartyRegistration registration = RelyingPartyRegistration
             .withRegistrationId("example")
-            .assertingPartyMetadata(party -> party
+            .assertingPartyMetadata((party) -> party
                 .entityId("https://idp.example.com/issuer")
                 .singleSignOnServiceLocation("https://idp.example.com/SSO.saml2")
                 .wantAuthnRequestsSigned(false)
-                .verificationX509Credentials(c -> c.add(credential))
+                .verificationX509Credentials((c) -> c.add(credential))
             )
             .build();
     return new InMemoryRelyingPartyRegistrationRepository(registration);
@@ -549,11 +549,11 @@ public class MyCustomSecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(authorize -> authorize
+            .authorizeHttpRequests((authorize) -> authorize
                 .requestMatchers("/messages/**").hasAuthority("ROLE_USER")
                 .anyRequest().authenticated()
             )
-            .saml2Login(saml2 -> saml2
+            .saml2Login((saml2) -> saml2
                 .relyingPartyRegistrationRepository(relyingPartyRegistrations())
             );
         return http.build();
@@ -571,7 +571,7 @@ class MyCustomSecurityConfiguration {
     @Bean
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
-            authorizeRequests {
+            authorizeHttpRequests {
                 authorize("/messages/**", hasAuthority("ROLE_USER"))
                 authorize(anyRequest, authenticated)
             }
@@ -699,11 +699,11 @@ Java::
 ----
 RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId("my-id")
         .entityId("{baseUrl}/{registrationId}")
-        .decryptionX509Credentials(c -> c.add(relyingPartyDecryptingCredential()))
+        .decryptionX509Credentials((c) -> c.add(relyingPartyDecryptingCredential()))
         .assertionConsumerServiceLocation("/my-login-endpoint/{registrationId}")
-        .assertingPartyMetadata(party -> party
+        .assertingPartyMetadata((party) -> party
                 .entityId("https://ap.example.org")
-                .verificationX509Credentials(c -> c.add(assertingPartyVerifyingCredential()))
+                .verificationX509Credentials((c) -> c.add(assertingPartyVerifyingCredential()))
                 .singleSignOnServiceLocation("https://ap.example.org/SSO.saml2")
         )
         .build();
@@ -913,7 +913,7 @@ private RelyingPartyRegistration.Builder
         addRelyingPartyDetails(RelyingPartyRegistration.Builder builder) {
 
     Saml2X509Credential signingCredential = ...
-    builder.signingX509Credentials(c -> c.addAll(signingCredential));
+    builder.signingX509Credentials((c) -> c.addAll(signingCredential));
     // ... other relying party configurations
 }
 

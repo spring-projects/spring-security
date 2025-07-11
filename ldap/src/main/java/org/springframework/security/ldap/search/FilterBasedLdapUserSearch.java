@@ -104,7 +104,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 		}
 		catch (IncorrectResultSizeDataAccessException ex) {
 			if (ex.getActualSize() == 0) {
-				throw new UsernameNotFoundException("User " + username + " not found in directory.");
+				throw UsernameNotFoundException.fromUsername(username);
 			}
 			// Search should never return multiple results if properly configured
 			throw ex;

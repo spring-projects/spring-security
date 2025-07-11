@@ -285,10 +285,9 @@ public class JdbcUserDetailsManagerTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void createGroupInsertsCorrectData() {
 		this.manager.createGroup("TEST_GROUP", AuthorityUtils.createAuthorityList("ROLE_X", "ROLE_Y"));
-		List roles = this.template.queryForList("select ga.authority from groups g, group_authorities ga "
+		List<?> roles = this.template.queryForList("select ga.authority from groups g, group_authorities ga "
 				+ "where ga.group_id = g.id " + "and g.group_name = 'TEST_GROUP'");
 		assertThat(roles).hasSize(2);
 	}
@@ -367,7 +366,7 @@ public class JdbcUserDetailsManagerTests {
 
 	// SEC-2166
 	@Test
-	public void createNewAuthenticationUsesNullPasswordToKeepPassordsSave() {
+	public void createNewAuthenticationUsesNullPasswordToKeepPasswordSave() {
 		insertJoe();
 		UsernamePasswordAuthenticationToken currentAuth = UsernamePasswordAuthenticationToken.authenticated("joe", null,
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
@@ -443,9 +442,9 @@ public class JdbcUserDetailsManagerTests {
 		this.cache.putUserInCache(joe);
 	}
 
-	private class MockUserCache implements UserCache {
+	private static class MockUserCache implements UserCache {
 
-		private Map<String, UserDetails> cache = new HashMap<>();
+		private final Map<String, UserDetails> cache = new HashMap<>();
 
 		@Override
 		public UserDetails getUserFromCache(String username) {

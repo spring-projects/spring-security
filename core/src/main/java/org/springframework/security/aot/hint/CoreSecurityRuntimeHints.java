@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@ class CoreSecurityRuntimeHints implements RuntimeHintsRegistrar {
 			.registerTypes(
 					List.of(TypeReference.of(SecurityExpressionOperations.class),
 							TypeReference.of(SecurityExpressionRoot.class)),
-					(builder) -> builder.withMembers(MemberCategory.DECLARED_FIELDS,
+					(builder) -> builder.withMembers(MemberCategory.ACCESS_DECLARED_FIELDS,
 							MemberCategory.INVOKE_DECLARED_METHODS));
 	}
 

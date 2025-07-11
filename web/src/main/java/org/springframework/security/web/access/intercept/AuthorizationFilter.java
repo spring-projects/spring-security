@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -230,12 +229,6 @@ public class AuthorizationFilter extends GenericFilterBean {
 	}
 
 	private static class NoopAuthorizationEventPublisher implements AuthorizationEventPublisher {
-
-		@Override
-		public <T> void publishAuthorizationEvent(Supplier<Authentication> authentication, T object,
-				AuthorizationDecision decision) {
-
-		}
 
 		@Override
 		public <T> void publishAuthorizationEvent(Supplier<Authentication> authentication, T object,

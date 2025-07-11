@@ -112,11 +112,10 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().denyAll()
-					.and()
-				.exceptionHandling()
-					.accessDeniedPage("/AccessDeniedPageConfig");
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().denyAll())
+				.exceptionHandling((handling) -> handling
+					.accessDeniedPage("/AccessDeniedPageConfig"));
 			return http.build();
 			// @formatter:on
 		}
@@ -131,12 +130,10 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorizeRequests) ->
-					authorizeRequests
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().denyAll()
 				)
-				.exceptionHandling((exceptionHandling) ->
-					exceptionHandling.accessDeniedPage("/AccessDeniedPageConfig")
+				.exceptionHandling((exceptionHandling) -> exceptionHandling.accessDeniedPage("/AccessDeniedPageConfig")
 				);
 			return http.build();
 			// @formatter:on
@@ -152,11 +149,10 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().denyAll()
-					.and()
-				.exceptionHandling()
-					.accessDeniedHandler(accessDeniedHandler());
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().denyAll())
+				.exceptionHandling((handling) -> handling
+					.accessDeniedHandler(accessDeniedHandler()));
 			return http.build();
 			// @formatter:on
 		}
@@ -178,12 +174,10 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorizeRequests) ->
-					authorizeRequests
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().denyAll()
 				)
-				.exceptionHandling((exceptionHandling) ->
-						exceptionHandling.accessDeniedHandler(accessDeniedHandler())
+				.exceptionHandling((exceptionHandling) -> exceptionHandling.accessDeniedHandler(accessDeniedHandler())
 				);
 			return http.build();
 			// @formatter:on

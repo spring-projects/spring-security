@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.servlet.configuration.EnableWebMvcSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.config.users.AuthenticationTestConfiguration;
@@ -103,17 +102,6 @@ public class AuthenticationConfigurationTests {
 	public void orderingAutowiredOnEnableWebSecurity() {
 		this.spring
 			.register(AuthenticationTestConfiguration.class, WebSecurityConfig.class,
-					GlobalMethodSecurityAutowiredConfig.class, ServicesConfig.class)
-			.autowire();
-		SecurityContextHolder.getContext()
-			.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
-		this.service.run();
-	}
-
-	@Test
-	public void orderingAutowiredOnEnableWebMvcSecurity() {
-		this.spring
-			.register(AuthenticationTestConfiguration.class, WebMvcSecurityConfig.class,
 					GlobalMethodSecurityAutowiredConfig.class, ServicesConfig.class)
 			.autowire();
 		SecurityContextHolder.getContext()
@@ -359,12 +347,6 @@ public class AuthenticationConfigurationTests {
 	}
 
 	@Configuration
-	@EnableWebMvcSecurity
-	static class WebMvcSecurityConfig {
-
-	}
-
-	@Configuration
 	static class NoOpGlobalAuthenticationConfigurerAdapter extends GlobalAuthenticationConfigurerAdapter {
 
 	}
@@ -503,8 +485,7 @@ public class AuthenticationConfigurationTests {
 			UserDetails user = User.withUserDetails(PasswordEncodedUser.user()).username("boot").build();
 			List<UserDetails> users = Arrays.asList(user);
 			InMemoryUserDetailsManager inMemory = new InMemoryUserDetailsManager(users);
-			DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-			provider.setUserDetailsService(inMemory);
+			DaoAuthenticationProvider provider = new DaoAuthenticationProvider(inMemory);
 			auth.authenticationProvider(provider);
 		}
 

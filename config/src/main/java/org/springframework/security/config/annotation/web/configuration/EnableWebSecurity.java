@@ -46,8 +46,9 @@ import org.springframework.security.web.SecurityFilterChain;
  *
  * 	&#064;Bean
  * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
- * 		http.authorizeHttpRequests().requestMatchers(&quot;/public/**&quot;).permitAll().anyRequest()
- * 				.hasRole(&quot;USER&quot;).and()
+ * 		http.authorizeHttpRequests((authorize) -&gt; authorize
+ * 			.requestMatchers(&quot;/public/**&quot;).permitAll()
+ * 			.anyRequest().hasRole(&quot;USER&quot;))
  * 				// Possibly more configuration ...
  * 				.formLogin() // enable form based log in
  * 				// set permitAll for all URLs associated with Form Login
@@ -82,7 +83,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Target(ElementType.TYPE)
 @Documented
 @Import({ WebSecurityConfiguration.class, SpringWebMvcImportSelector.class, OAuth2ImportSelector.class,
-		HttpSecurityConfiguration.class, ObservationImportSelector.class })
+		HttpSecurityConfiguration.class, ObservationImportSelector.class, AuthorizationConfiguration.class })
 @EnableGlobalAuthentication
 public @interface EnableWebSecurity {
 

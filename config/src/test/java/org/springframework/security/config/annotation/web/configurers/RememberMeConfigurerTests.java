@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -365,12 +365,10 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.formLogin()
-					.and()
-				.rememberMe();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.formLogin(withDefaults())
+				.rememberMe(withDefaults());
 			// @formatter:on
 			return http.build();
 		}
@@ -378,8 +376,8 @@ public class RememberMeConfigurerTests {
 		@Autowired
 		void configure(AuthenticationManagerBuilder auth) {
 			User user = (User) PasswordEncodedUser.user();
-			DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-			provider.setUserDetailsService(new InMemoryUserDetailsManager(Collections.singletonList(user)));
+			DaoAuthenticationProvider provider = new DaoAuthenticationProvider(
+					new InMemoryUserDetailsManager(Collections.singletonList(user)));
 			// @formatter:off
 			auth
 				.authenticationProvider(provider);
@@ -398,8 +396,8 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.rememberMe()
-					.userDetailsService(new AuthenticationManagerBuilder(this.objectPostProcessor).getDefaultUserDetailsService());
+				.rememberMe((me) -> me
+					.userDetailsService(new AuthenticationManagerBuilder(this.objectPostProcessor).getDefaultUserDetailsService()));
 			// @formatter:on
 			return http.build();
 		}
@@ -435,12 +433,10 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.httpBasic()
-					.and()
-				.rememberMe()
-					.userDetailsService(userDetailsService)
-					.and()
-				.rememberMe();
+				.httpBasic(withDefaults())
+				.rememberMe((me) -> me
+					.userDetailsService(userDetailsService))
+				.rememberMe(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -489,12 +485,10 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.formLogin()
-					.and()
-				.rememberMe();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.formLogin(withDefaults())
+				.rememberMe(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -514,8 +508,7 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorizeRequests) ->
-					authorizeRequests
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().hasRole("USER")
 				)
 				.formLogin(withDefaults())
@@ -539,13 +532,11 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.formLogin()
-					.and()
-				.rememberMe()
-					.rememberMeCookieDomain("spring.io");
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.formLogin(withDefaults())
+				.rememberMe((me) -> me
+					.rememberMeCookieDomain("spring.io"));
 			return http.build();
 			// @formatter:on
 		}
@@ -565,13 +556,11 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorizeRequests) ->
-					authorizeRequests
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().hasRole("USER")
 				)
 				.formLogin(withDefaults())
-				.rememberMe((rememberMe) ->
-					rememberMe
+				.rememberMe((rememberMe) -> rememberMe
 						.rememberMeCookieDomain("spring.io")
 				);
 			return http.build();
@@ -595,15 +584,13 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.formLogin()
-					.and()
-				.rememberMe()
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.formLogin(withDefaults())
+				.rememberMe((me) -> me
 					.rememberMeCookieName("SPRING_COOKIE_DOMAIN")
 					.rememberMeCookieDomain("spring.io")
-					.rememberMeServices(REMEMBER_ME);
+					.rememberMeServices(REMEMBER_ME));
 			return http.build();
 			// @formatter:on
 		}
@@ -627,13 +614,11 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
-				.formLogin()
-					.and()
-				.rememberMe()
-					.rememberMeServices(new TokenBasedRememberMeServices("key", userDetailsService()));
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
+				.formLogin(withDefaults())
+				.rememberMe((me) -> me
+					.rememberMeServices(new TokenBasedRememberMeServices("key", userDetailsService())));
 			return http.build();
 			// @formatter:on
 		}
@@ -648,12 +633,10 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.authorizeRequests((authorizeRequests) ->
-							authorizeRequests
+					.authorizeHttpRequests((authorize) -> authorize
 									.anyRequest().hasRole("USER")
 					)
-					.sessionManagement((sessionManagement) ->
-							sessionManagement
+					.sessionManagement((sessionManagement) -> sessionManagement
 									.maximumSessions(1)
 					)
 					.formLogin(withDefaults())

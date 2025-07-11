@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -168,10 +168,9 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements Application
 
 	@Test
 	public void targetCustomAuthorizationManagerUsed() {
-		given(this.mockAuthorizationManager.authorize(any(), any())).willCallRealMethod();
-		given(this.mockAuthorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(true));
+		given(this.mockAuthorizationManager.authorize(any(), any())).willReturn(new AuthorizationDecision(true));
 		this.targetCustomAuthorizationManager.doSomething();
-		verify(this.mockAuthorizationManager).check(any(), any());
+		verify(this.mockAuthorizationManager).authorize(any(), any());
 	}
 
 	@Override

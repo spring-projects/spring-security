@@ -25,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.config.Customizer.withDefaults
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -127,7 +128,7 @@ class FormLoginDslTests {
     open class DisabledConfig {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-            http.formLogin()
+            http.formLogin(withDefaults())
             http {
                 formLogin {
                     disable()
@@ -155,7 +156,7 @@ class FormLoginDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 formLogin {}
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
             }
@@ -183,7 +184,7 @@ class FormLoginDslTests {
                 formLogin {
                     loginPage = "/log-in"
                 }
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
             }
@@ -355,7 +356,7 @@ class FormLoginDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 formLogin {

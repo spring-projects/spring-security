@@ -30,12 +30,12 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.config.http.SecurityFiltersAssertions;
+import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -86,7 +86,7 @@ public class XsdDocumentedTests {
 				.flatMap(XmlNode::children)
 				.flatMap(XmlNode::children)
 				.map((node) -> node.attribute("value"))
-				.filter(StringUtils::isNotEmpty)
+				.filter(StringUtils::hasText)
 				.collect(Collectors.toList());
 		// @formatter:on
 		SecurityFiltersAssertions.assertEquals(nodes);
@@ -129,7 +129,7 @@ public class XsdDocumentedTests {
 				.flatMap(XmlNode::children)
 				.flatMap(XmlNode::children)
 				.map((node) -> node.attribute("value"))
-				.filter(StringUtils::isNotEmpty)
+				.filter(StringUtils::hasText)
 				.collect(Collectors.toList());
 		// @formatter:on
 		assertThat(nodes).isEqualTo(expected);

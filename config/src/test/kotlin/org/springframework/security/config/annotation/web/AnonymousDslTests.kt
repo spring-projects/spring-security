@@ -145,7 +145,7 @@ class AnonymousDslTests {
                 anonymous {
                     authorities = listOf(SimpleGrantedAuthority("TEST"))
                 }
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, hasAuthority("TEST"))
                 }
             }

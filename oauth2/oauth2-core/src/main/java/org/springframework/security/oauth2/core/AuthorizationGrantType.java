@@ -27,9 +27,9 @@ import org.springframework.util.Assert;
  * access token.
  *
  * <p>
- * The OAuth 2.0 Authorization Framework defines four standard grant types: authorization
- * code, implicit, resource owner password credentials, and client credentials. It also
- * provides an extensibility mechanism for defining additional grant types.
+ * The OAuth 2.0 Authorization Framework defines the standard grant types: authorization
+ * code, refresh token and client credentials. It also provides an extensibility mechanism
+ * for defining additional grant types.
  *
  * @author Joe Grandja
  * @author Steve Riesenberg
@@ -46,15 +46,6 @@ public final class AuthorizationGrantType implements Serializable {
 	public static final AuthorizationGrantType REFRESH_TOKEN = new AuthorizationGrantType("refresh_token");
 
 	public static final AuthorizationGrantType CLIENT_CREDENTIALS = new AuthorizationGrantType("client_credentials");
-
-	/**
-	 * @deprecated The OAuth 2.0 Security Best Current Practice disallows the use of the
-	 * Resource Owner Password Credentials grant. See reference <a target="_blank" href=
-	 * "https://datatracker.ietf.org/doc/html/rfc9700#section-2.4">OAuth 2.0 Security Best
-	 * Current Practice.</a>
-	 */
-	@Deprecated(since = "5.8", forRemoval = true)
-	public static final AuthorizationGrantType PASSWORD = new AuthorizationGrantType("password");
 
 	/**
 	 * @since 5.5

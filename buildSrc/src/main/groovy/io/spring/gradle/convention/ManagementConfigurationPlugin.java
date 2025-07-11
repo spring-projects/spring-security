@@ -61,7 +61,7 @@ public class ManagementConfigurationPlugin implements Plugin<Project> {
 				PublishingExtension publishing = project.getExtensions().getByType(PublishingExtension.class);
 				publishing.getPublications().withType(MavenPublication.class, (mavenPublication -> {
 					mavenPublication.versionMapping((versions) ->
-							versions.allVariants(versionMapping -> versionMapping.fromResolutionResult())
+							versions.allVariants((versionMapping) -> versionMapping.fromResolutionResult())
 					);
 				}));
 			});

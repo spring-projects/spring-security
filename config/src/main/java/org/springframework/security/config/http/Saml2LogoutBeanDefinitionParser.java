@@ -32,6 +32,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
+import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
+import org.springframework.security.saml2.provider.service.authentication.Saml2ResponseAssertionAccessor;
 import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestFilter;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutResponseFilter;
@@ -239,7 +241,13 @@ final class Saml2LogoutBeanDefinitionParser implements BeanDefinitionParser {
 			if (authentication == null) {
 				return false;
 			}
-			return authentication.getPrincipal() instanceof Saml2AuthenticatedPrincipal;
+			if (authentication.getPrincipal() instanceof Saml2AuthenticatedPrincipal) {
+				return true;
+			}
+			if (authentication.getCredentials() instanceof Saml2ResponseAssertionAccessor) {
+				return true;
+			}
+			return authentication instanceof Saml2Authentication;
 		}
 
 		public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {

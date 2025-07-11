@@ -106,7 +106,9 @@ dependencies {
 	provided 'jakarta.servlet:jakarta.servlet-api'
 
 	optional 'com.fasterxml.jackson.core:jackson-databind'
+	optional 'org.springframework:spring-jdbc'
 
+	testImplementation project(path: ':spring-security-web', configuration: 'tests')
 	testImplementation 'com.squareup.okhttp3:mockwebserver'
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.skyscreamer:jsonassert"
@@ -118,6 +120,7 @@ dependencies {
 	testImplementation "org.springframework:spring-test"
 
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testRuntimeOnly 'org.hsqldb:hsqldb'
 }
 
 jar {

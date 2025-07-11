@@ -99,16 +99,14 @@ public class CustomConfigAuthenticationTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.securityContext()
-					.securityContextRepository(securityContextRepository())
-					.and()
-				.formLogin()
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.securityContext((context) -> context
+					.securityContextRepository(securityContextRepository()))
+				.formLogin((login) -> login
 					.usernameParameter("user")
 					.passwordParameter("pass")
-					.loginPage("/authenticate");
+					.loginPage("/authenticate"));
 			return http.build();
 			// @formatter:on
 		}

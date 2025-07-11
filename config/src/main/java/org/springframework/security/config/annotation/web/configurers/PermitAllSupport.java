@@ -18,10 +18,8 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.authorization.SingleResultAuthorizationManager;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
-import org.springframework.security.config.annotation.web.configurers.AbstractConfigAttributeRequestMatcherRegistry.UrlMapping;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
@@ -47,25 +45,14 @@ final class PermitAllSupport {
 	@SuppressWarnings("unchecked")
 	static void permitAll(HttpSecurityBuilder<? extends HttpSecurityBuilder<?>> http,
 			RequestMatcher... requestMatchers) {
-		ExpressionUrlAuthorizationConfigurer<?> configurer = http
-			.getConfigurer(ExpressionUrlAuthorizationConfigurer.class);
 		AuthorizeHttpRequestsConfigurer<?> httpConfigurer = http.getConfigurer(AuthorizeHttpRequestsConfigurer.class);
 
-		boolean oneConfigurerPresent = configurer == null ^ httpConfigurer == null;
-		Assert.state(oneConfigurerPresent,
-				"permitAll only works with either HttpSecurity.authorizeRequests() or HttpSecurity.authorizeHttpRequests(). "
-						+ "Please define one or the other but not both.");
+		Assert.state(httpConfigurer != null,
+				"permitAll only works with HttpSecurity.authorizeHttpRequests(). Please define one.");
 
 		for (RequestMatcher matcher : requestMatchers) {
 			if (matcher != null) {
-				if (configurer != null) {
-					configurer.getRegistry()
-						.addMapping(0, new UrlMapping(matcher,
-								SecurityConfig.createList(ExpressionUrlAuthorizationConfigurer.permitAll)));
-				}
-				else {
-					httpConfigurer.addFirst(matcher, SingleResultAuthorizationManager.permitAll());
-				}
+				httpConfigurer.addFirst(matcher, SingleResultAuthorizationManager.permitAll());
 			}
 		}
 	}

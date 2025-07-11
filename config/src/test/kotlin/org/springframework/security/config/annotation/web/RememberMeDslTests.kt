@@ -16,11 +16,7 @@
 
 package org.springframework.security.config.annotation.web
 
-import io.mockk.every
-import io.mockk.justRun
-import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.verify
+import io.mockk.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
@@ -51,7 +47,6 @@ import org.springframework.security.web.authentication.RememberMeServices
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.test.web.servlet.MockHttpServletRequestDsl
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
@@ -397,7 +392,7 @@ internal class RememberMeDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, hasRole("USER"))
                 }
                 formLogin {}
@@ -413,7 +408,7 @@ internal class RememberMeDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, hasRole("USER"))
                 }
                 formLogin {}
@@ -472,7 +467,7 @@ internal class RememberMeDslTests {
         @Order(0)
         open fun securityFilterChainWithoutKey(http: HttpSecurity): SecurityFilterChain {
             http {
-                securityMatcher(AntPathRequestMatcher("/without-key/**"))
+                securityMatcher("/without-key/**")
                 formLogin {
                     loginProcessingUrl = "/without-key/login"
                 }
@@ -484,7 +479,7 @@ internal class RememberMeDslTests {
         @Bean
         open fun securityFilterChainWithKey(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 formLogin {}

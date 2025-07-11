@@ -31,8 +31,8 @@ import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.ldap.ApacheDsContainerConfig;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
+import org.springframework.security.ldap.UnboundIdContainerConfig;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Eddú Meléndez
  */
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = ApacheDsContainerConfig.class)
+@ContextConfiguration(classes = UnboundIdContainerConfig.class)
 @SuppressWarnings({ "deprecation" })
 public class DefaultLdapAuthoritiesPopulatorTests {
 

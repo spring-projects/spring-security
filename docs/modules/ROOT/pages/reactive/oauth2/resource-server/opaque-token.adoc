@@ -176,7 +176,7 @@ Java::
 @Bean
 SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
-		.authorizeExchange(exchanges -> exchanges
+		.authorizeExchange((authorize) -> authorize
 			.anyExchange().authenticated()
 		)
 		.oauth2ResourceServer(ServerHttpSecurity.OAuth2ResourceServerSpec::opaqueToken)
@@ -221,12 +221,12 @@ public class MyCustomSecurityConfiguration {
     @Bean
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
-            .authorizeExchange(exchanges -> exchanges
+            .authorizeExchange((authorize) -> authorize
                 .pathMatchers("/messages/**").access(hasScope("message:read"))
                 .anyExchange().authenticated()
             )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .opaqueToken(opaqueToken -> opaqueToken
+            .oauth2ResourceServer((oauth2) -> oauth2
+                .opaqueToken((opaqueToken) -> opaqueToken
                     .introspector(myIntrospector())
                 )
             );
@@ -310,11 +310,11 @@ public class DirectlyConfiguredIntrospectionUri {
     @Bean
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
-            .authorizeExchange(exchanges -> exchanges
+            .authorizeExchange((authorize) -> authorize
                 .anyExchange().authenticated()
             )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .opaqueToken(opaqueToken -> opaqueToken
+            .oauth2ResourceServer((oauth2) -> oauth2
+                .opaqueToken((opaqueToken) -> opaqueToken
                     .introspectionUri("https://idp.example.com/introspect")
                     .introspectionClientCredentials("client", "secret")
                 )
@@ -364,11 +364,11 @@ public class DirectlyConfiguredIntrospector {
     @Bean
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
-            .authorizeExchange(exchanges -> exchanges
+            .authorizeExchange((authorize) -> authorize
                 .anyExchange().authenticated()
             )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .opaqueToken(opaqueToken -> opaqueToken
+            .oauth2ResourceServer((oauth2) -> oauth2
+                .opaqueToken((opaqueToken) -> opaqueToken
                     .introspector(myCustomIntrospector())
                 )
             );
@@ -457,7 +457,7 @@ public class MappedAuthorities {
     @Bean
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
-            .authorizeExchange(exchange -> exchange
+            .authorizeExchange((authorize) -> authorize
                 .pathMatchers("/contacts/**").access(hasScope("contacts"))
                 .pathMatchers("/messages/**").access(hasScope("messages"))
                 .anyExchange().authenticated()
@@ -543,7 +543,7 @@ public class CustomAuthoritiesOpaqueTokenIntrospector implements ReactiveOpaqueT
 
     public Mono<OAuth2AuthenticatedPrincipal> introspect(String token) {
         return this.delegate.introspect(token)
-                .map(principal -> new DefaultOAuth2AuthenticatedPrincipal(
+                .map((principal) -> principal DefaultOAuth2AuthenticatedPrincipal(
                         principal.getName(), principal.getAttributes(), extractAuthorities(principal)));
     }
 
@@ -650,8 +650,8 @@ public class JwtOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntrospect
 
 	public Mono<OAuth2AuthenticatedPrincipal> introspect(String token) {
 		return this.delegate.introspect(token)
-				.flatMap(principal -> this.jwtDecoder.decode(token))
-				.map(jwt -> new DefaultOAuth2AuthenticatedPrincipal(jwt.getClaims(), NO_AUTHORITIES));
+				.flatMap((principal) -> principal.jwtDecoder.decode(token))
+				.map((jwt) -> jwt DefaultOAuth2AuthenticatedPrincipal(jwt.getClaims(), NO_AUTHORITIES));
 	}
 
 	private static class ParseOnlyJWTProcessor implements Converter<JWT, Mono<JWTClaimsSet>> {

@@ -43,7 +43,7 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
@@ -63,6 +63,7 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
  * @author Rob Winch
@@ -120,15 +121,14 @@ public class DefaultFiltersTests {
 		assertThat(classes).contains(SecurityContextHolderAwareRequestFilter.class);
 		assertThat(classes).contains(AnonymousAuthenticationFilter.class);
 		assertThat(classes).contains(ExceptionTranslationFilter.class);
-		assertThat(classes).contains(FilterSecurityInterceptor.class);
+		assertThat(classes).contains(AuthorizationFilter.class);
 	}
 
 	@Test
 	public void defaultFiltersPermitAll() throws IOException, ServletException {
 		this.spring.register(DefaultFiltersConfigPermitAll.class, UserDetailsServiceConfig.class);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		MockHttpServletRequest request = new MockHttpServletRequest("POST", "");
-		request.setServletPath("/logout");
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout");
 		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "BaseSpringSpec_CSRFTOKEN");
 		CsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
 		repository.saveToken(csrfToken, request, response);
@@ -170,7 +170,7 @@ public class DefaultFiltersTests {
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			TestHttpSecurities.disableDefaults(http);
-			http.formLogin();
+			http.formLogin(withDefaults());
 			return http.build();
 		}
 
@@ -190,8 +190,8 @@ public class DefaultFiltersTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER");
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().hasRole("USER"));
 			return http.build();
 			// @formatter:on
 		}

@@ -324,7 +324,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		private Function<ReactiveRemoteJWKSource, Mono<Set<JWSAlgorithm>>> defaultAlgorithms = (source) -> Mono
 			.just(Set.of(JWSAlgorithm.RS256));
 
-		private JOSEObjectTypeVerifier<JWKSecurityContext> typeVerifier = JWT_TYPE_VERIFIER;
+		private JOSEObjectTypeVerifier<JWKSecurityContext> typeVerifier = NO_TYPE_VERIFIER;
 
 		private Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
 
@@ -547,7 +547,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 
 		private JWSAlgorithm jwsAlgorithm;
 
-		private JOSEObjectTypeVerifier<SecurityContext> typeVerifier = JWT_TYPE_VERIFIER;
+		private JOSEObjectTypeVerifier<SecurityContext> typeVerifier = NO_TYPE_VERIFIER;
 
 		private Consumer<ConfigurableJWTProcessor<SecurityContext>> jwtProcessorCustomizer;
 
@@ -682,7 +682,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 
 		private JWSAlgorithm jwsAlgorithm = JWSAlgorithm.HS256;
 
-		private JOSEObjectTypeVerifier<SecurityContext> typeVerifier = JWT_TYPE_VERIFIER;
+		private JOSEObjectTypeVerifier<SecurityContext> typeVerifier = NO_TYPE_VERIFIER;
 
 		private Consumer<ConfigurableJWTProcessor<SecurityContext>> jwtProcessorCustomizer;
 
@@ -814,7 +814,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 
 		private JWSAlgorithm jwsAlgorithm = JWSAlgorithm.RS256;
 
-		private JOSEObjectTypeVerifier<JWKSecurityContext> typeVerifier = JWT_TYPE_VERIFIER;
+		private JOSEObjectTypeVerifier<JWKSecurityContext> typeVerifier = NO_TYPE_VERIFIER;
 
 		private Consumer<ConfigurableJWTProcessor<JWKSecurityContext>> jwtProcessorCustomizer;
 

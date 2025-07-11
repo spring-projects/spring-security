@@ -57,11 +57,11 @@ public class OAuth2LoginSecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-			.authorizeHttpRequests(authorize -> authorize
+			.authorizeHttpRequests((authorize) -> authorize
 				.anyRequest().authenticated()
 			)
 			.oauth2Login(withDefaults())
-			.logout(logout -> logout
+			.logout((logout) -> logout
 				.logoutSuccessHandler(oidcLogoutSuccessHandler())
 			);
 		return http.build();
@@ -173,7 +173,7 @@ fun oidcLogoutHandler(): OidcBackChannelLogoutHandler {
 @Bean
 open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     http {
-        authorizeRequests {
+        authorizeHttpRequests {
             authorize(anyRequest, authenticated)
         }
         oauth2Login { }

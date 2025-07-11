@@ -48,6 +48,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
  * Tests to verify that all the functionality of &lt;custom-filter&gt; attributes is
@@ -110,7 +111,7 @@ public class NamespaceHttpCustomFilterTests {
 			// @formatter:off
 			http
 				.addFilterBefore(new CustomFilter(), UsernamePasswordAuthenticationFilter.class)
-				.formLogin();
+				.formLogin(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -126,7 +127,7 @@ public class NamespaceHttpCustomFilterTests {
 			// @formatter:off
 			http
 				.addFilterAfter(new CustomFilter(), UsernamePasswordAuthenticationFilter.class)
-				.formLogin();
+				.formLogin(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -181,9 +182,8 @@ public class NamespaceHttpCustomFilterTests {
 			// @formatter:off
 			TestHttpSecurities.disableDefaults(http);
 			http
-				.authorizeRequests()
-					.anyRequest().hasRole("USER")
-					.and()
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().hasRole("USER"))
 				.addFilterBefore(new CustomFilter(), UsernamePasswordAuthenticationFilter.class);
 			return http.build();
 			// @formatter:on
