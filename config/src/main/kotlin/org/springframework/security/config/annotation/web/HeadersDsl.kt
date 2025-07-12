@@ -166,7 +166,6 @@ class HeadersDsl {
      *
      * @param policyDirectives policyDirectives the security policy directive(s)
      */
-    @Deprecated("Use 'permissionsPolicy { }' instead.")
     fun featurePolicy(policyDirectives: String) {
         this.featurePolicyDirectives = policyDirectives
     }
