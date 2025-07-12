@@ -35,11 +35,12 @@ import org.springframework.util.StringUtils;
  *
  * @author Luke Taylor
  * @author Steve Riesenberg
+ * @author Andrey Litvitski
  * @since 3.0.2
  */
 public final class IpAddressMatcher implements RequestMatcher {
 
-	private static Pattern IPV4 = Pattern.compile("\\d{0,3}.\\d{0,3}.\\d{0,3}.\\d{0,3}(/\\d{0,3})?");
+	private static Pattern IPV4 = Pattern.compile("^\\d{1,3}(?:\\.\\d{1,3}){0,3}(?:/\\d{1,2})?$");
 
 	private final InetAddress requiredAddress;
 
