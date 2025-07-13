@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -34,6 +33,7 @@ import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.HttpMessageEncoder;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.lang.NonNull;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.util.MimeType;
 
@@ -41,7 +41,7 @@ class OAuth2ErrorEncoder implements HttpMessageEncoder<OAuth2Error> {
 
 	private final HttpMessageConverter<Object> messageConverter = HttpMessageConverters.getJsonMessageConverter();
 
-	@NotNull
+	@NonNull
 	@Override
 	public List<MediaType> getStreamingMediaTypes() {
 		return List.of();
@@ -52,7 +52,7 @@ class OAuth2ErrorEncoder implements HttpMessageEncoder<OAuth2Error> {
 		return getEncodableMimeTypes().contains(mimeType);
 	}
 
-	@NotNull
+	@NonNull
 	@Override
 	public Flux<DataBuffer> encode(Publisher<? extends OAuth2Error> error, DataBufferFactory bufferFactory,
 			ResolvableType elementType, MimeType mimeType, Map<String, Object> hints) {
@@ -68,7 +68,7 @@ class OAuth2ErrorEncoder implements HttpMessageEncoder<OAuth2Error> {
 		}).map(bufferFactory::wrap).flux();
 	}
 
-	@NotNull
+	@NonNull
 	@Override
 	public List<MimeType> getEncodableMimeTypes() {
 		return List.of(MediaType.APPLICATION_JSON);
@@ -78,13 +78,13 @@ class OAuth2ErrorEncoder implements HttpMessageEncoder<OAuth2Error> {
 
 		private final ByteArrayOutputStream body = new ByteArrayOutputStream();
 
-		@NotNull
+		@NonNull
 		@Override
 		public ByteArrayOutputStream getBody() {
 			return this.body;
 		}
 
-		@NotNull
+		@NonNull
 		@Override
 		public HttpHeaders getHeaders() {
 			return new HttpHeaders();
