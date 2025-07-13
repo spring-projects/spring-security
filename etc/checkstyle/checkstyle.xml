@@ -47,5 +47,10 @@
 					  value="String.toUpperCase() should be String.toUpperCase(Locale.ROOT) or String.toUpperCase(Locale.ENGLISH)"/>
 			<property name="ignoreComments" value="true"/>
 		</module>
+		<module name="com.puppycrawl.tools.checkstyle.checks.imports.IllegalImportCheck">
+			<property name="id" value="bannedImports"/>
+			<property name="regexp" value="true"/>
+			<property name="illegalPkgs" value="org.jetbrains.annotations, reactor.util.annotation, javax.annotation"/>
+		</module>
 	</module>
 </module>

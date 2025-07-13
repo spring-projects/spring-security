@@ -45,7 +45,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
 import org.apache.http.HttpStatus;
 import org.assertj.core.api.iterable.Extractor;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.stubbing.Answer;
@@ -55,6 +54,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
+import org.springframework.lang.NonNull;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
@@ -908,17 +908,17 @@ public class MiscHttpConfigTests {
 		return proxy.getFilters(url);
 	}
 
-	@NotNull
+	@NonNull
 	private static RequestPostProcessor userCredentials() {
 		return httpBasic("user", "password");
 	}
 
-	@NotNull
+	@NonNull
 	private static RequestPostProcessor adminCredentials() {
 		return httpBasic("admin", "password");
 	}
 
-	@NotNull
+	@NonNull
 	private static RequestPostProcessor postCredentials() {
 		return httpBasic("poster", "password");
 	}

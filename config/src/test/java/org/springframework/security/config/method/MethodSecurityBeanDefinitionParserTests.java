@@ -24,12 +24,12 @@ import java.util.function.Supplier;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotationConfigurationException;
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.PermissionEvaluator;
@@ -474,7 +474,7 @@ public class MethodSecurityBeanDefinitionParserTests {
 
 		@Nullable
 		@Override
-		public Object invoke(@NotNull MethodInvocation invocation) {
+		public Object invoke(@NonNull MethodInvocation invocation) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			if ("bob".equals(auth.getName())) {
 				return "granted";
