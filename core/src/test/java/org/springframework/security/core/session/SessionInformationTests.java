@@ -26,6 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests {@link SessionInformation}.
  *
  * @author Ben Alex
+ * @author Andrey Litvitski
  */
 public class SessionInformationTests {
 
@@ -34,10 +35,12 @@ public class SessionInformationTests {
 		Object principal = "Some principal object";
 		String sessionId = "1234567890";
 		Date currentDate = new Date();
-		SessionInformation info = new SessionInformation(principal, sessionId, currentDate);
+		SessionInformation info = new SessionInformation(principal, sessionId, new Date(currentDate.getTime()),
+				new Date(currentDate.getTime()));
 		assertThat(info.getPrincipal()).isEqualTo(principal);
 		assertThat(info.getSessionId()).isEqualTo(sessionId);
 		assertThat(info.getLastRequest()).isEqualTo(currentDate);
+		assertThat(info.getCreatedTime()).isEqualTo(currentDate);
 		Thread.sleep(10);
 		info.refreshLastRequest();
 		assertThat(info.getLastRequest().after(currentDate)).isTrue();

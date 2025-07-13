@@ -276,7 +276,7 @@ public class ConcurrentSessionFilterTests {
 	private SessionRegistry mockSessionRegistry() {
 		SessionRegistry registry = mock(SessionRegistry.class);
 		SessionInformation information = new SessionInformation("user", "sessionId",
-				new Date(System.currentTimeMillis() - 1000));
+				new Date(System.currentTimeMillis() - 1000), new Date());
 		information.expireNow();
 		given(registry.getSessionInformation(anyString())).willReturn(information);
 		return registry;

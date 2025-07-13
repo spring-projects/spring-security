@@ -256,7 +256,7 @@ final class SerializationSamples {
 		generatorByClassName.put(OAuth2AuthorizationExchange.class, (r) -> TestOAuth2AuthorizationExchanges.success());
 		generatorByClassName.put(OidcUserInfo.class, (r) -> OidcUserInfo.builder().email("email@example.com").build());
 		generatorByClassName.put(SessionInformation.class,
-				(r) -> new SessionInformation(user, r.alphanumeric(4), new Date(1704378933936L)));
+				(r) -> new SessionInformation(user, r.alphanumeric(4), new Date(1704378933936L), new Date()));
 		generatorByClassName.put(ReactiveSessionInformation.class,
 				(r) -> new ReactiveSessionInformation(user, r.alphanumeric(4), Instant.ofEpochMilli(1704378933936L)));
 		generatorByClassName.put(OAuth2AccessToken.class, (r) -> TestOAuth2AccessTokens.scopes("scope"));
