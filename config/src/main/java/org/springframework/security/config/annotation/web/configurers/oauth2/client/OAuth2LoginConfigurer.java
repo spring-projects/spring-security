@@ -83,7 +83,6 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
@@ -556,10 +555,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		RequestMatcher formLoginNotEnabled = getFormLoginNotEnabledRequestMatcher(http);
 		LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints = new LinkedHashMap<>();
 		LoginUrlAuthenticationEntryPoint loginUrlEntryPoint = new LoginUrlAuthenticationEntryPoint(providerLoginPage);
-		PortResolver portResolver = getBeanOrNull(ResolvableType.forClass(PortResolver.class));
-		if (portResolver != null) {
-			loginUrlEntryPoint.setPortResolver(portResolver);
-		}
 		entryPoints.put(new AndRequestMatcher(notXRequestedWith, new NegatedRequestMatcher(defaultLoginPageMatcher),
 				formLoginNotEnabled), loginUrlEntryPoint);
 		DelegatingAuthenticationEntryPoint loginEntryPoint = new DelegatingAuthenticationEntryPoint(entryPoints);

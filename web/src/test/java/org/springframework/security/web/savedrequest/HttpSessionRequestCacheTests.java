@@ -28,7 +28,6 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.web.PortResolverImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -78,8 +77,7 @@ public class HttpSessionRequestCacheTests {
 			@Override
 			public void saveRequest(HttpServletRequest request, HttpServletResponse response) {
 				request.getSession()
-					.setAttribute(SAVED_REQUEST,
-							new CustomSavedRequest(new DefaultSavedRequest(request, new PortResolverImpl())));
+					.setAttribute(SAVED_REQUEST, new CustomSavedRequest(new DefaultSavedRequest(request)));
 			}
 		};
 		cache.saveRequest(request, response);

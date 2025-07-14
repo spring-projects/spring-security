@@ -29,7 +29,6 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.PortMapper;
-import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -273,10 +272,6 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 		PortMapper portMapper = http.getSharedObject(PortMapper.class);
 		if (portMapper != null) {
 			this.authenticationEntryPoint.setPortMapper(portMapper);
-		}
-		PortResolver portResolver = getBeanOrNull(http, PortResolver.class);
-		if (portResolver != null) {
-			this.authenticationEntryPoint.setPortResolver(portResolver);
 		}
 		RequestCache requestCache = http.getSharedObject(RequestCache.class);
 		if (requestCache != null) {

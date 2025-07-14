@@ -189,7 +189,6 @@ import org.springframework.security.saml2.provider.service.authentication.logout
 import org.springframework.security.saml2.provider.service.registration.OpenSamlAssertingPartyDetails;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
-import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.authentication.AuthenticationFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
@@ -605,7 +604,7 @@ final class SerializationSamples {
 			request.addParameter("parameter", "value");
 			request.setPathInfo("/path");
 			request.addPreferredLocale(Locale.ENGLISH);
-			return new SimpleSavedRequest(new DefaultSavedRequest(request, new PortResolverImpl(), "continue"));
+			return new SimpleSavedRequest(new DefaultSavedRequest(request, "continue"));
 		});
 
 		generatorByClassName.put(HttpSessionIdChangedEvent.class,

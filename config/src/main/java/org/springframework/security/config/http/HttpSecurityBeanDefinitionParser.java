@@ -57,7 +57,6 @@ import org.springframework.security.config.authentication.AuthenticationManagerF
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.ObservationFilterChainDecorator;
-import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.firewall.ObservationMarkingRequestRejectedHandler;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.util.StringUtils;
@@ -151,19 +150,18 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 			return createSecurityFilterChainBean(element, pc, Collections.emptyList());
 		}
 		BeanReference portMapper = createPortMapper(element, pc);
-		BeanReference portResolver = createPortResolver(portMapper, pc);
 		ManagedList<BeanReference> authenticationProviders = new ManagedList<>();
 		BeanReference authenticationManager = createAuthenticationManager(element, pc, authenticationProviders);
 		boolean forceAutoConfig = isDefaultHttpConfig(element);
 		BeanMetadataElement observationRegistry = getObservationRegistry(element);
 		HttpConfigurationBuilder httpBldr = new HttpConfigurationBuilder(element, forceAutoConfig, pc, portMapper,
-				portResolver, authenticationManager, observationRegistry);
+				authenticationManager, observationRegistry);
 		httpBldr.getSecurityContextRepositoryForAuthenticationFilters();
 		AuthenticationConfigBuilder authBldr = new AuthenticationConfigBuilder(element, forceAutoConfig, pc,
 				httpBldr.getSessionCreationPolicy(), httpBldr.getRequestCache(), authenticationManager,
 				httpBldr.getSecurityContextHolderStrategyForAuthenticationFilters(),
 				httpBldr.getSecurityContextRepositoryForAuthenticationFilters(), httpBldr.getSessionStrategy(),
-				portMapper, portResolver, httpBldr.getCsrfLogoutHandler());
+				portMapper, httpBldr.getCsrfLogoutHandler());
 		httpBldr.setLogoutHandlers(authBldr.getLogoutHandlers());
 		httpBldr.setEntryPoint(authBldr.getEntryPointBean());
 		httpBldr.setAccessDeniedHandler(authBldr.getAccessDeniedHandlerBean());
@@ -239,18 +237,6 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		String portMapperName = pc.getReaderContext().generateBeanName(portMapper);
 		pc.registerBeanComponent(new BeanComponentDefinition(portMapper, portMapperName));
 		return new RuntimeBeanReference(portMapperName);
-	}
-
-	private RuntimeBeanReference createPortResolver(BeanReference portMapper, ParserContext pc) {
-		String beanName = "portResolver";
-		if (pc.getRegistry().containsBeanDefinition(beanName)) {
-			return new RuntimeBeanReference(beanName);
-		}
-		RootBeanDefinition portResolver = new RootBeanDefinition(PortResolverImpl.class);
-		portResolver.getPropertyValues().addPropertyValue("portMapper", portMapper);
-		String portResolverName = pc.getReaderContext().generateBeanName(portResolver);
-		pc.registerBeanComponent(new BeanComponentDefinition(portResolver, portResolverName));
-		return new RuntimeBeanReference(portResolverName);
 	}
 
 	/**
