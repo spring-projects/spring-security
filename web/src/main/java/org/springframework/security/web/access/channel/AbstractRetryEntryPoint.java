@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,6 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.PortMapperImpl;
-import org.springframework.security.web.PortResolver;
-import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.util.Assert;
 
@@ -44,8 +42,6 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private PortMapper portMapper = new PortMapperImpl();
-
-	private PortResolver portResolver = new PortResolverImpl();
 
 	/**
 	 * The scheme ("http://" or "https://")
@@ -68,7 +64,7 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 	public void commence(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String queryString = request.getQueryString();
 		String redirectUrl = request.getRequestURI() + ((queryString != null) ? ("?" + queryString) : "");
-		Integer currentPort = this.portResolver.getServerPort(request);
+		Integer currentPort = this.portMapper.getServerPort(request);
 		Integer redirectPort = getMappedPort(currentPort);
 		if (redirectPort != null) {
 			boolean includePort = redirectPort != this.standardPort;
@@ -88,17 +84,6 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 	public void setPortMapper(PortMapper portMapper) {
 		Assert.notNull(portMapper, "portMapper cannot be null");
 		this.portMapper = portMapper;
-	}
-
-	@Deprecated(forRemoval = true)
-	public void setPortResolver(PortResolver portResolver) {
-		Assert.notNull(portResolver, "portResolver cannot be null");
-		this.portResolver = portResolver;
-	}
-
-	@Deprecated(forRemoval = true)
-	protected final PortResolver getPortResolver() {
-		return this.portResolver;
 	}
 
 	/**
