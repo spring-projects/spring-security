@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.web.PortResolverImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -35,7 +34,7 @@ public class SavedRequestAwareWrapperTests {
 
 	private SavedRequestAwareWrapper createWrapper(MockHttpServletRequest requestToSave,
 			MockHttpServletRequest requestToWrap) {
-		DefaultSavedRequest saved = new DefaultSavedRequest(requestToSave, new PortResolverImpl());
+		DefaultSavedRequest saved = new DefaultSavedRequest(requestToSave);
 		return new SavedRequestAwareWrapper(saved, requestToWrap);
 	}
 

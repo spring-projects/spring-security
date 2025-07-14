@@ -21,7 +21,6 @@ import java.net.URL;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.MockPortResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,7 +34,7 @@ public class DefaultSavedRequestTests {
 	public void headersAreCaseInsensitive() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("USER-aGenT", "Mozilla");
-		DefaultSavedRequest saved = new DefaultSavedRequest(request, new MockPortResolver(8080, 8443));
+		DefaultSavedRequest saved = new DefaultSavedRequest(request);
 		assertThat(saved.getHeaderValues("user-agent").get(0)).isEqualTo("Mozilla");
 	}
 
@@ -44,7 +43,7 @@ public class DefaultSavedRequestTests {
 	public void discardsIfNoneMatchHeader() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("If-None-Match", "somehashvalue");
-		DefaultSavedRequest saved = new DefaultSavedRequest(request, new MockPortResolver(8080, 8443));
+		DefaultSavedRequest saved = new DefaultSavedRequest(request);
 		assertThat(saved.getHeaderValues("if-none-match")).isEmpty();
 	}
 
@@ -54,15 +53,14 @@ public class DefaultSavedRequestTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addParameter("AnotHerTest", "Hi dad");
 		request.addParameter("thisisatest", "Hi mom");
-		DefaultSavedRequest saved = new DefaultSavedRequest(request, new MockPortResolver(8080, 8443));
+		DefaultSavedRequest saved = new DefaultSavedRequest(request);
 		assertThat(saved.getParameterValues("thisisatest")[0]).isEqualTo("Hi mom");
 		assertThat(saved.getParameterValues("anothertest")).isNull();
 	}
 
 	@Test
 	public void getRedirectUrlWhenNoQueryAndDefaultMatchingRequestParameterNameThenNoQuery() throws Exception {
-		DefaultSavedRequest savedRequest = new DefaultSavedRequest(new MockHttpServletRequest(),
-				new MockPortResolver(8080, 8443));
+		DefaultSavedRequest savedRequest = new DefaultSavedRequest(new MockHttpServletRequest());
 		assertThat(savedRequest.getParameterMap()).doesNotContainKey("success");
 		assertThat(new URL(savedRequest.getRedirectUrl())).hasNoQuery();
 	}
@@ -71,23 +69,21 @@ public class DefaultSavedRequestTests {
 	public void getRedirectUrlWhenQueryAndDefaultMatchingRequestParameterNameNullThenNoQuery() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setQueryString("foo=bar");
-		DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, new MockPortResolver(8080, 8443), null);
+		DefaultSavedRequest savedRequest = new DefaultSavedRequest(request);
 		assertThat(savedRequest.getParameterMap()).doesNotContainKey("success");
 		assertThat(new URL(savedRequest.getRedirectUrl())).hasQuery("foo=bar");
 	}
 
 	@Test
 	public void getRedirectUrlWhenNoQueryAndNullMatchingRequestParameterNameThenNoQuery() throws Exception {
-		DefaultSavedRequest savedRequest = new DefaultSavedRequest(new MockHttpServletRequest(),
-				new MockPortResolver(8080, 8443), null);
+		DefaultSavedRequest savedRequest = new DefaultSavedRequest(new MockHttpServletRequest());
 		assertThat(savedRequest.getParameterMap()).doesNotContainKey("success");
 		assertThat(new URL(savedRequest.getRedirectUrl())).hasNoQuery();
 	}
 
 	@Test
 	public void getRedirectUrlWhenNoQueryAndMatchingRequestParameterNameThenQuery() throws Exception {
-		DefaultSavedRequest savedRequest = new DefaultSavedRequest(new MockHttpServletRequest(),
-				new MockPortResolver(8080, 8443), "success");
+		DefaultSavedRequest savedRequest = new DefaultSavedRequest(new MockHttpServletRequest(), "success");
 		assertThat(savedRequest.getParameterMap()).doesNotContainKey("success");
 		assertThat(new URL(savedRequest.getRedirectUrl())).hasQuery("success");
 	}
@@ -96,8 +92,7 @@ public class DefaultSavedRequestTests {
 	public void getRedirectUrlWhenQueryEmptyAndMatchingRequestParameterNameThenQuery() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setQueryString("");
-		DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, new MockPortResolver(8080, 8443),
-				"success");
+		DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, "success");
 		assertThat(savedRequest.getParameterMap()).doesNotContainKey("success");
 		assertThat(new URL(savedRequest.getRedirectUrl())).hasQuery("success");
 	}
@@ -106,8 +101,7 @@ public class DefaultSavedRequestTests {
 	public void getRedirectUrlWhenQueryEndsAmpersandAndMatchingRequestParameterNameThenQuery() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setQueryString("foo=bar&");
-		DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, new MockPortResolver(8080, 8443),
-				"success");
+		DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, "success");
 		assertThat(savedRequest.getParameterMap()).doesNotContainKey("success");
 		assertThat(new URL(savedRequest.getRedirectUrl())).hasQuery("foo=bar&success");
 	}
@@ -116,8 +110,7 @@ public class DefaultSavedRequestTests {
 	public void getRedirectUrlWhenQueryDoesNotEndAmpersandAndMatchingRequestParameterNameThenQuery() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setQueryString("foo=bar");
-		DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, new MockPortResolver(8080, 8443),
-				"success");
+		DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, "success");
 		assertThat(savedRequest.getParameterMap()).doesNotContainKey("success");
 		assertThat(new URL(savedRequest.getRedirectUrl())).hasQuery("foo=bar&success");
 	}
@@ -127,8 +120,7 @@ public class DefaultSavedRequestTests {
 	public void getRedirectUrlWhenQueryAlreadyHasSuccessThenDoesNotAdd() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setQueryString("foo=bar&success");
-		DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, new MockPortResolver(8080, 8443),
-				"success");
+		DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, "success");
 		assertThat(savedRequest.getRedirectUrl()).contains("foo=bar&success");
 	}
 

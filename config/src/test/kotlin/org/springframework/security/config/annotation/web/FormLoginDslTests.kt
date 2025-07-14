@@ -35,7 +35,6 @@ import org.springframework.security.core.userdetails.User
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated
-import org.springframework.security.web.PortResolver
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
@@ -239,29 +238,6 @@ class FormLoginDslTests {
                 }
             }
             return http.build()
-        }
-    }
-
-    @Test
-    fun `portResolerBean is used`() {
-        this.spring.register(PortResolverBeanConfig::class.java, AllSecuredConfig::class.java, UserConfig::class.java).autowire()
-
-        val portResolver = this.spring.context.getBean(PortResolver::class.java)
-        every { portResolver.getServerPort(any()) }.returns(1234)
-        this.mockMvc.get("/")
-            .andExpect {
-                status().isFound
-                redirectedUrl("http://localhost:1234/login")
-            }
-
-        verify { portResolver.getServerPort(any()) }
-    }
-
-    @Configuration
-    open class PortResolverBeanConfig {
-        @Bean
-        open fun portResolverBean(): PortResolver {
-            return mockk()
         }
     }
 

@@ -16,6 +16,9 @@
 
 package org.springframework.security.web;
 
+import java.util.Locale;
+
+import jakarta.servlet.ServletRequest;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -45,5 +48,23 @@ public interface PortMapper {
 	 * @return the HTTPS port or <code>null</code> if unknown
 	 */
 	@Nullable Integer lookupHttpsPort(Integer httpPort);
+
+	/**
+	 * Get server port from request and automatically apply the configured mapping.
+	 * @param request ServletRequest
+	 * @return the mapped port
+	 */
+	default Integer getServerPort(ServletRequest request) {
+		int serverPort = request.getServerPort();
+		String scheme = request.getScheme().toLowerCase(Locale.ENGLISH);
+		Integer mappedPort = null;
+		if ("http".equals(scheme)) {
+			mappedPort = lookupHttpPort(serverPort);
+		}
+		else if ("https".equals(scheme)) {
+			mappedPort = lookupHttpsPort(serverPort);
+		}
+		return (mappedPort != null) ? mappedPort : serverPort;
+	}
 
 }

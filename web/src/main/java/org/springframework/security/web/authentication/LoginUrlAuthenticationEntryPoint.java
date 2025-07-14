@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
@@ -33,8 +34,6 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.PortMapperImpl;
-import org.springframework.security.web.PortResolver;
-import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.util.RedirectUrlBuilder;
@@ -71,8 +70,6 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 
 	private PortMapper portMapper = new PortMapperImpl();
 
-	private PortResolver portResolver = new PortResolverImpl();
-
 	private String loginFormUrl;
 
 	private boolean forceHttps = false;
@@ -100,7 +97,6 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 		Assert.isTrue(!this.useForward || !UrlUtils.isAbsoluteUrl(this.loginFormUrl),
 				"useForward must be false if using an absolute loginFormURL");
 		Assert.notNull(this.portMapper, "portMapper must be specified");
-		Assert.notNull(this.portResolver, "portResolver must be specified");
 	}
 
 	/**
@@ -129,7 +125,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 			return;
 		}
 		String redirectUrl = null;
-		if (this.forceHttps && "http".equals(request.getScheme())) {
+		if (requiresRewrite(request)) {
 			// First redirect the current request to HTTPS. When that request is received,
 			// the forward to the login page will be used.
 			redirectUrl = buildHttpsRedirectUrlForRequest(request);
@@ -161,7 +157,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	}
 
 	private String httpsUri(HttpServletRequest request, String path) {
-		int serverPort = this.portResolver.getServerPort(request);
+		int serverPort = getServerPort(request);
 		Integer httpsPort = this.portMapper.lookupHttpsPort(serverPort);
 		if (httpsPort == null) {
 			logger.warn(LogMessage.format("Unable to redirect to HTTPS as no port mapping found for HTTP port %s",
@@ -178,7 +174,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 		RedirectUrlBuilder urlBuilder = new RedirectUrlBuilder();
 		urlBuilder.setScheme(request.getScheme());
 		urlBuilder.setServerName(request.getServerName());
-		urlBuilder.setPort(this.portResolver.getServerPort(request));
+		urlBuilder.setPort(getServerPort(request));
 		urlBuilder.setContextPath(request.getContextPath());
 		urlBuilder.setPathInfo(path);
 		return urlBuilder;
@@ -190,7 +186,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	 */
 	protected @Nullable String buildHttpsRedirectUrlForRequest(HttpServletRequest request)
 			throws IOException, ServletException {
-		int serverPort = this.portResolver.getServerPort(request);
+		int serverPort = getServerPort(request);
 		Integer httpsPort = this.portMapper.lookupHttpsPort(serverPort);
 		if (httpsPort != null) {
 			RedirectUrlBuilder urlBuilder = new RedirectUrlBuilder();
@@ -207,6 +203,10 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 		logger.warn(
 				LogMessage.format("Unable to redirect to HTTPS as no port mapping found for HTTP port %s", serverPort));
 		return null;
+	}
+
+	public int getServerPort(ServletRequest request) {
+		return this.portMapper.getServerPort(request);
 	}
 
 	/**
@@ -235,17 +235,6 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 
 	protected PortMapper getPortMapper() {
 		return this.portMapper;
-	}
-
-	@Deprecated(forRemoval = true)
-	public void setPortResolver(PortResolver portResolver) {
-		Assert.notNull(portResolver, "portResolver cannot be null");
-		this.portResolver = portResolver;
-	}
-
-	@Deprecated(forRemoval = true)
-	protected PortResolver getPortResolver() {
-		return this.portResolver;
 	}
 
 	/**
