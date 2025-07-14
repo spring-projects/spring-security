@@ -115,8 +115,6 @@ public class FilterInvocation {
 	/**
 	 * Indicates the URL that the user agent used for this request.
 	 * <p>
-	 * The returned URL does <b>not</b> reflect the port number determined from a
-	 * {@link org.springframework.security.web.PortResolver}.
 	 * @return the full URL of this request
 	 */
 	public String getFullRequestUrl() {
