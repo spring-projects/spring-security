@@ -201,8 +201,6 @@ class HttpConfigurationBuilder {
 
 	private final BeanReference portMapper;
 
-	private final BeanReference portResolver;
-
 	private BeanReference fsi;
 
 	private BeanReference requestCache;
@@ -228,12 +226,11 @@ class HttpConfigurationBuilder {
 	private boolean addAllAuth;
 
 	HttpConfigurationBuilder(Element element, boolean addAllAuth, ParserContext pc, BeanReference portMapper,
-			BeanReference portResolver, BeanReference authenticationManager, BeanMetadataElement observationRegistry) {
+			BeanReference authenticationManager, BeanMetadataElement observationRegistry) {
 		this.httpElt = element;
 		this.addAllAuth = addAllAuth;
 		this.pc = pc;
 		this.portMapper = portMapper;
-		this.portResolver = portResolver;
 		this.matcherType = MatcherType.fromElementOrMvc(element);
 		this.interceptUrls = DomUtils.getChildElementsByTagName(element, Elements.INTERCEPT_URL);
 		validateInterceptUrls(pc);
@@ -693,9 +690,7 @@ class HttpConfigurationBuilder {
 		RootBeanDefinition retryWithHttp = new RootBeanDefinition(RetryWithHttpEntryPoint.class);
 		RootBeanDefinition retryWithHttps = new RootBeanDefinition(RetryWithHttpsEntryPoint.class);
 		retryWithHttp.getPropertyValues().addPropertyValue("portMapper", this.portMapper);
-		retryWithHttp.getPropertyValues().addPropertyValue("portResolver", this.portResolver);
 		retryWithHttps.getPropertyValues().addPropertyValue("portMapper", this.portMapper);
-		retryWithHttps.getPropertyValues().addPropertyValue("portResolver", this.portResolver);
 		secureChannelProcessor.getPropertyValues().addPropertyValue("entryPoint", retryWithHttps);
 		RootBeanDefinition inSecureChannelProcessor = new RootBeanDefinition(InsecureChannelProcessor.class);
 		inSecureChannelProcessor.getPropertyValues().addPropertyValue("entryPoint", retryWithHttp);
@@ -751,7 +746,6 @@ class HttpConfigurationBuilder {
 				requestCacheBldr = BeanDefinitionBuilder.rootBeanDefinition(HttpSessionRequestCache.class);
 				requestCacheBldr.addPropertyValue("createSessionAllowed",
 						this.sessionPolicy == SessionCreationPolicy.IF_REQUIRED);
-				requestCacheBldr.addPropertyValue("portResolver", this.portResolver);
 				if (this.csrfFilter != null) {
 					BeanDefinitionBuilder requestCacheMatcherBldr = BeanDefinitionBuilder
 						.rootBeanDefinition(RequestMatcherFactoryBean.class);
