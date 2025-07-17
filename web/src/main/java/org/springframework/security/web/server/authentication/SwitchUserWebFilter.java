@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,12 +23,12 @@ import java.util.Optional;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpMethod;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -215,8 +215,7 @@ public class SwitchUserWebFilter implements WebFilter {
 		return exchange.getRequest().getQueryParams().getFirst(SPRING_SECURITY_SWITCH_USERNAME_KEY);
 	}
 
-	@NonNull
-	private Mono<Authentication> attemptSwitchUser(Authentication currentAuthentication, String userName) {
+	@NonNull private Mono<Authentication> attemptSwitchUser(Authentication currentAuthentication, String userName) {
 		Assert.notNull(userName, "The userName can not be null.");
 		this.logger.debug(LogMessage.format("Attempting to switch to user [%s]", userName));
 		return this.userDetailsService.findByUsername(userName)
@@ -225,8 +224,7 @@ public class SwitchUserWebFilter implements WebFilter {
 			.map((userDetails) -> createSwitchUserToken(userDetails, currentAuthentication));
 	}
 
-	@NonNull
-	private Authentication attemptExitUser(Authentication currentAuthentication) {
+	@NonNull private Authentication attemptExitUser(Authentication currentAuthentication) {
 		Optional<Authentication> sourceAuthentication = extractSourceAuthentication(currentAuthentication);
 		if (sourceAuthentication.isEmpty()) {
 			this.logger.debug("Failed to find original user");

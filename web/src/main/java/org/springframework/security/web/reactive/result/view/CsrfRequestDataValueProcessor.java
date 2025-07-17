@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
+
 import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.web.reactive.result.view.RequestDataValueProcessor;
 import org.springframework.web.server.ServerWebExchange;
