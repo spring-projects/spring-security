@@ -50,7 +50,7 @@ ldapsdk = "ldapsdk:ldapsdk:4.1"
 net-sourceforge-htmlunit = "net.sourceforge.htmlunit:htmlunit:2.70.0"
 org-htmlunit-htmlunit = "org.htmlunit:htmlunit:4.11.1"
 org-apache-httpcomponents-httpclient = "org.apache.httpcomponents:httpclient:4.5.14"
-org-apache-maven-maven-resolver-provider = "org.apache.maven:maven-resolver-provider:3.9.10"
+org-apache-maven-maven-resolver-provider = "org.apache.maven:maven-resolver-provider:3.9.11"
 org-apache-maven-resolver-maven-resolver-connector-basic = { module = "org.apache.maven.resolver:maven-resolver-connector-basic", version.ref = "org-apache-maven-resolver" }
 org-apache-maven-resolver-maven-resolver-impl = { module = "org.apache.maven.resolver:maven-resolver-impl", version.ref = "org-apache-maven-resolver" }
 org-apache-maven-resolver-maven-resolver-transport-http = { module = "org.apache.maven.resolver:maven-resolver-transport-http", version.ref = "org-apache-maven-resolver" }
