@@ -32,15 +32,17 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.Lifecycle;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.core.io.Resource;
 import org.springframework.lang.NonNull;
 import org.springframework.util.StringUtils;
 
 /**
  * @author Eddú Meléndez
+ * @author Andrey Litvitski
  */
-public class UnboundIdContainer
-		implements EmbeddedLdapServerContainer, InitializingBean, DisposableBean, Lifecycle, ApplicationContextAware {
+public class UnboundIdContainer implements EmbeddedLdapServerContainer, InitializingBean, DisposableBean,
+		SmartLifecycle, ApplicationContextAware {
 
 	private InMemoryDirectoryServer directoryServer;
 
@@ -140,6 +142,22 @@ public class UnboundIdContainer
 	@Override
 	public boolean isRunning() {
 		return this.running;
+	}
+
+	@Override
+	public boolean isAutoStartup() {
+		return true;
+	}
+
+	@Override
+	public void stop(Runnable callback) {
+		stop();
+		callback.run();
+	}
+
+	@Override
+	public int getPhase() {
+		return 0;
 	}
 
 }
