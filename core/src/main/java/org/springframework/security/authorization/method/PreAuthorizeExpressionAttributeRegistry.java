@@ -20,9 +20,10 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.function.Function;
 
+import org.jspecify.annotations.NonNull;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.expression.Expression;
-import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.SecurityAnnotationScanner;

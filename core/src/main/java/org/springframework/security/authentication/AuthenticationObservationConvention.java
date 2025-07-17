@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,7 @@ import java.util.Locale;
 import io.micrometer.common.KeyValues;
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationConvention;
-import org.jetbrains.annotations.NotNull;
-
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * An {@link ObservationConvention} for translating authentications into
@@ -63,7 +61,7 @@ public final class AuthenticationObservationConvention
 	/**
 	 * {@inheritDoc}
 	 */
-	@NotNull
+	@NonNull
 	@Override
 	public KeyValues getLowCardinalityKeyValues(@NonNull AuthenticationObservationContext context) {
 		return KeyValues.of("authentication.request.type", getAuthenticationType(context))
@@ -104,7 +102,7 @@ public final class AuthenticationObservationConvention
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean supportsContext(@NotNull Observation.Context context) {
+	public boolean supportsContext(Observation.@NonNull Context context) {
 		return context instanceof AuthenticationObservationContext;
 	}
 

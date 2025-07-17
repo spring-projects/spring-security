@@ -40,6 +40,7 @@ import java.util.stream.Stream;
 
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.NonNull;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -49,7 +50,6 @@ import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
-import org.springframework.lang.NonNull;
 import org.springframework.security.authorization.AuthorizationProxyFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -278,8 +278,7 @@ public final class AuthorizationAdvisorProxyFactory implements AuthorizationProx
 	}
 
 	@Override
-	@NonNull
-	public Iterator<AuthorizationAdvisor> iterator() {
+	@NonNull public Iterator<AuthorizationAdvisor> iterator() {
 		return this.advisors.iterator();
 	}
 

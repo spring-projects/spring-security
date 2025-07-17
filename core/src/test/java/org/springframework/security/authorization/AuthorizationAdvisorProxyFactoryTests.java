@@ -36,7 +36,7 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.aop.Pointcut;
@@ -443,7 +443,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 		}
 
 		@Override
-		public int compareTo(@NotNull User that) {
+		public int compareTo(@NonNull User that) {
 			return this.id.compareTo(that.getId());
 		}
 
@@ -453,7 +453,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 
 		List<User> users = List.of(new User("1", "first", "last"));
 
-		@NotNull
+		@NonNull
 		@Override
 		public Iterator<User> iterator() {
 			return this.users.iterator();
