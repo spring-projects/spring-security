@@ -37,6 +37,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.DefaultLdapUsernameToDnMapper;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.ldap.UnboundIdContainerConfig;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -53,6 +54,8 @@ import static org.mockito.Mockito.verify;
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = UnboundIdContainerConfig.class)
+// FIXME: See https://github.com/spring-projects/spring-security/issues/17543
+@DirtiesContext
 public class LdapUserDetailsManagerTests {
 
 	@Autowired
