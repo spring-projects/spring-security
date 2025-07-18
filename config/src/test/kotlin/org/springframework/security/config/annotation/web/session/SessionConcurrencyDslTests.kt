@@ -101,7 +101,7 @@ class SessionConcurrencyDslTests {
         mockkObject(ExpiredUrlConfig.SESSION_REGISTRY)
 
         val session = MockHttpSession()
-        val sessionInformation = SessionInformation("", session.id, Date(0))
+        val sessionInformation = SessionInformation("", session.id, Date(0), Date())
         sessionInformation.expireNow()
         every { ExpiredUrlConfig.SESSION_REGISTRY.getSessionInformation(any()) } returns sessionInformation
 
@@ -141,7 +141,7 @@ class SessionConcurrencyDslTests {
         mockkObject(ExpiredSessionStrategyConfig.SESSION_REGISTRY)
 
         val session = MockHttpSession()
-        val sessionInformation = SessionInformation("", session.id, Date(0))
+        val sessionInformation = SessionInformation("", session.id, Date(0), Date())
         sessionInformation.expireNow()
         every { ExpiredSessionStrategyConfig.SESSION_REGISTRY.getSessionInformation(any()) } returns sessionInformation
 
