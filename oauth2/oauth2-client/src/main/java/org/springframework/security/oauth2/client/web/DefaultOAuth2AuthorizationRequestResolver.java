@@ -31,7 +31,6 @@ import org.springframework.security.crypto.keygen.StringKeyGenerator;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
@@ -184,8 +183,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 				// value.
 				applyNonce(builder);
 			}
-			if (ClientAuthenticationMethod.NONE.equals(clientRegistration.getClientAuthenticationMethod())
-					|| clientRegistration.getClientSettings().isRequireProofKey()) {
+			if (clientRegistration.getClientSettings().isRequireProofKey()) {
 				DEFAULT_PKCE_APPLIER.accept(builder);
 			}
 			return builder;
