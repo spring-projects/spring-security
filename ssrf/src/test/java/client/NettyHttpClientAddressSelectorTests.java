@@ -159,7 +159,8 @@ class NettyHttpClientAddressSelectorTests {
         // which our selector derives from the first element.
         List<SocketAddress> result = selector.select(mockConfig, () -> addresses);
         assertEquals(List.of(
-                createInetSocketAddress("1.1.1.1", 80)
+                createInetSocketAddress("1.1.1.1", 80),
+                createInetSocketAddress("1.1.1.1", 443)
         ), result);
     }
 
@@ -188,11 +189,6 @@ class NettyHttpClientAddressSelectorTests {
         InetSocketAddress allowedAddress = createInetSocketAddress("1.1.1.1", 80);
         InetSocketAddress deniedAddress = createInetSocketAddress("8.8.8.8", 80);
 
-        // The current implementation will only return filtered InetSocketAddress types.
-        // Non-InetSocketAddress types are effectively dropped if any filtering occurs,
-        // or if the list is reconstructed. This test verifies that.
-        // If the intention was to keep non-InetSocketAddress types, the implementation would need adjustment.
-
         List<SocketAddress> addresses = List.of(
                 allowedAddress,
                 deniedAddress,
@@ -201,8 +197,7 @@ class NettyHttpClientAddressSelectorTests {
 
         List<SocketAddress> result = selector.select(mockConfig, () -> addresses);
 
-        // Based on current implementation, non-InetSocketAddress are filtered out
-        // when the list is reconstructed from filtered InetSocketAddress(es).
-        assertEquals(List.of(allowedAddress), result);
+        // The current implementation keeps non-InetSocketAddress types in the result.
+        assertEquals(List.of(allowedAddress, nonInetAddress), result);
     }
 }
