@@ -49,7 +49,7 @@ final class AuthorizationProxyDataConfiguration implements AopInfrastructureBean
 		return new DataTargetVisitor();
 	}
 
-	private static final class DataTargetVisitor implements AuthorizationAdvisorProxyFactory.TargetVisitor, Ordered {
+	static final class DataTargetVisitor implements AuthorizationAdvisorProxyFactory.TargetVisitor, Ordered {
 
 		private static final int DEFAULT_ORDER = 200;
 
