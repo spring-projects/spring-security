@@ -71,6 +71,33 @@ class RequestCacheDslTests {
     }
 
     @Test
+    fun `GET when request cache disabled then redirected to index page`() {
+        this.spring.register(RequestCacheDisabledConfig::class.java).autowire()
+
+        this.mockMvc.get("/test")
+
+        this.mockMvc.perform(formLogin())
+            .andExpect {
+                redirectedUrl("/")
+            }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    open class RequestCacheDisabledConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                requestCache {
+                    disable()
+                }
+                formLogin { }
+            }
+            return http.build()
+        }
+    }
+
+    @Test
     fun `GET when custom request cache then custom request cache used`() {
         this.spring.register(CustomRequestCacheConfig::class.java).autowire()
 
