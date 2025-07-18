@@ -38,9 +38,6 @@ class ReactiveMethodSecuritySelector implements ImportSelector {
 	private static final boolean isDataPresent = ClassUtils
 		.isPresent("org.springframework.security.data.aot.hint.AuthorizeReturnObjectDataHintsRegistrar", null);
 
-	private static final boolean isWebPresent = ClassUtils.isPresent("org.springframework.web.server.ServerWebExchange",
-			null);
-
 	private static final boolean isObservabilityPresent = ClassUtils
 		.isPresent("io.micrometer.observation.ObservationRegistry", null);
 
@@ -63,9 +60,6 @@ class ReactiveMethodSecuritySelector implements ImportSelector {
 		}
 		if (isDataPresent) {
 			imports.add(AuthorizationProxyDataConfiguration.class.getName());
-		}
-		if (isWebPresent) {
-			imports.add(AuthorizationProxyWebConfiguration.class.getName());
 		}
 		if (isObservabilityPresent) {
 			imports.add(ReactiveMethodObservationConfiguration.class.getName());
