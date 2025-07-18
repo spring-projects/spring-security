@@ -181,6 +181,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	private OAuth2AuthorizedClientRepository authorizedClientRepository;
 
+	private SecurityContextRepository securityContextRepository;
+
 	/**
 	 * Sets the repository of client registrations.
 	 * @param clientRegistrationRepository the repository of client registrations
@@ -231,6 +233,17 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	public OAuth2LoginConfigurer<B> loginProcessingUrl(String loginProcessingUrl) {
 		Assert.hasText(loginProcessingUrl, "loginProcessingUrl cannot be empty");
 		this.loginProcessingUrl = loginProcessingUrl;
+		return this;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextRepository} to use.
+	 * @param securityContextRepository the {@link SecurityContextRepository} to use
+	 * @return the {@link OAuth2LoginConfigurer} for further configuration
+	 */
+	@Override
+	public OAuth2LoginConfigurer<B> securityContextRepository(SecurityContextRepository securityContextRepository) {
+		this.securityContextRepository = securityContextRepository;
 		return this;
 	}
 
@@ -354,6 +367,9 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		RequestMatcher processUri = RequestMatcherFactory.matcher(this.loginProcessingUrl);
 		authenticationFilter.setRequiresAuthenticationRequestMatcher(processUri);
 		authenticationFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
+		if (this.securityContextRepository != null) {
+			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
+		}
 		this.setAuthenticationFilter(authenticationFilter);
 		super.loginProcessingUrl(this.loginProcessingUrl);
 		if (this.loginPage != null) {
