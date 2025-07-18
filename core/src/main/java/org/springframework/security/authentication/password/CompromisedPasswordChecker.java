@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package org.springframework.security.authentication.password;
 
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * An API for checking if a password has been compromised.
@@ -31,7 +31,6 @@ public interface CompromisedPasswordChecker {
 	 * @param password the password to check
 	 * @return a non-null {@link CompromisedPasswordDecision}
 	 */
-	@NonNull
-	CompromisedPasswordDecision check(String password);
+	@NonNull CompromisedPasswordDecision check(String password);
 
 }

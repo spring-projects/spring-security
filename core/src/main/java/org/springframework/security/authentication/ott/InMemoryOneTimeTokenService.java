@@ -22,7 +22,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
+
 import org.springframework.util.Assert;
 
 /**
@@ -41,8 +42,7 @@ public final class InMemoryOneTimeTokenService implements OneTimeTokenService {
 	private Clock clock = Clock.systemUTC();
 
 	@Override
-	@NonNull
-	public OneTimeToken generate(GenerateOneTimeTokenRequest request) {
+	@NonNull public OneTimeToken generate(GenerateOneTimeTokenRequest request) {
 		String token = UUID.randomUUID().toString();
 		Instant expiresAt = this.clock.instant().plus(request.getExpiresIn());
 		OneTimeToken ott = new DefaultOneTimeToken(token, request.getUsername(), expiresAt);

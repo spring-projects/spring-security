@@ -21,9 +21,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.NonNull;
 
 import org.springframework.core.MethodClassKey;
-import org.springframework.lang.NonNull;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
@@ -86,8 +86,7 @@ abstract class AbstractExpressionAttributeRegistry<T extends ExpressionAttribute
 	 * @param targetClass the target class
 	 * @return the non-null {@link ExpressionAttribute}
 	 */
-	@NonNull
-	abstract T resolveAttribute(Method method, Class<?> targetClass);
+	@NonNull abstract T resolveAttribute(Method method, Class<?> targetClass);
 
 	Class<?> targetClass(Method method, Class<?> targetClass) {
 		return (targetClass != null) ? targetClass : method.getDeclaringClass();
