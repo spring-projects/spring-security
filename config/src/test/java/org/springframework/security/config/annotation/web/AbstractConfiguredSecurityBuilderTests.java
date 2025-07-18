@@ -163,6 +163,34 @@ public class AbstractConfiguredSecurityBuilderTests {
 		assertThat(this.builder.getConfigurers(TestSecurityConfigurer.class)).hasSize(1);
 	}
 
+	@Test
+	public void withWhenConfigurerAddInitializing() throws Exception {
+		this.builder.with(new FooConfigurer(), Customizer.withDefaults());
+		assertThat(this.builder.build()).isEqualTo("success");
+	}
+
+	private static class FooConfigurer extends SecurityConfigurerAdapter<Object, TestConfiguredSecurityBuilder> {
+
+		@Override
+		public void init(TestConfiguredSecurityBuilder builder) throws Exception {
+			builder.with(new BarConfigurer(), Customizer.withDefaults());
+		}
+
+	}
+
+	private static class BarConfigurer extends SecurityConfigurerAdapter<Object, TestConfiguredSecurityBuilder> {
+
+		@Override
+		public void init(TestConfiguredSecurityBuilder http) throws Exception {
+			http.with(new CooConfigurer(), Customizer.withDefaults());
+		}
+
+	}
+
+	private static class CooConfigurer extends SecurityConfigurerAdapter<Object, TestConfiguredSecurityBuilder> {
+
+	}
+
 	private static class ApplyAndRemoveSecurityConfigurer
 			extends SecurityConfigurerAdapter<Object, TestConfiguredSecurityBuilder> {
 
