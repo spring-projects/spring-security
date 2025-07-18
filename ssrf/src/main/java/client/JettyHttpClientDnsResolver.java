@@ -36,19 +36,31 @@ public class JettyHttpClientDnsResolver implements SocketAddressResolver {
 		this.securityDnsHandler = securityDnsHandler;
 	}
 
+	/**
+	 * Creates a new instance using Jetty's default
+	 * as the delegate resolver.
+	 * @param securityDnsHandler The handler to apply security rules to the resolved addresses.
+	 */
+	public JettyHttpClientDnsResolver(SecurityDnsHandler securityDnsHandler) {
+		// Call the primary constructor, using the fully qualified name for the nested static class
+		SocketAddressResolver resolver = new SocketAddressResolver.Sync();
+		this.delegate = resolver;
+		this.securityDnsHandler = securityDnsHandler;
+	}
+
 
 	@Override
-	public void resolve(String host, int port, Promise<List<InetSocketAddress>> promise) {
+	public void resolve(String host, int port, Promise<List<InetSocketAddress>> outerPromise) {
 		this.delegate.resolve(host, port, new Promise<>() {
 
 			@Override
 			public void succeeded(List<InetSocketAddress> candidates) {
-				Promise.super.succeeded(securityDnsHandler.handleInetSocketAddresses(candidates, port));
+				outerPromise.succeeded(securityDnsHandler.handleInetSocketAddresses(candidates, port));
 			}
 
 			@Override
 			public void failed(Throwable ex) {
-				Promise.super.failed(ex);
+				outerPromise.failed(ex);
 			}
 		});
 	}

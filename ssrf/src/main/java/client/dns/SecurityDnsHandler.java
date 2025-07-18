@@ -18,6 +18,7 @@ package client.dns;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,9 +42,13 @@ public final class SecurityDnsHandler {
 	private final boolean reportOnly;
 
 
-	private SecurityDnsHandler(InetAddressFilter filter, boolean reportOnly) {
+	public SecurityDnsHandler(InetAddressFilter filter, boolean reportOnly) {
 		this.inetAddressFilter = filter;
 		this.reportOnly = reportOnly;
+	}
+
+	public boolean getReportMode() {
+		return this.reportOnly;
 	}
 
 
@@ -64,10 +69,9 @@ public final class SecurityDnsHandler {
 			logger.error("Blocked IP addresses: " + candidateAddresses);
 		}
 
-		if (candidateAddresses.size() == blocked.size()) {
-			if (this.reportOnly) {
-				return candidateAddresses;
-			}
+
+		if (this.reportOnly) {
+			return candidateAddresses;
 		}
 
 		ArrayList<InetAddress> result = new ArrayList<>(candidateAddresses);
@@ -75,10 +79,42 @@ public final class SecurityDnsHandler {
 		return result;
 	}
 
+	public List<InetSocketAddress> handleInetSocketAddresses(List<InetSocketAddress> candidates) {
+		if (candidates == null || candidates.isEmpty()) {
+			return candidates;
+		}
+		List<InetAddress> input = candidates.stream().map(InetSocketAddress::getAddress).distinct().toList();
+		List<InetAddress> output = handleAddresses(input);
+		// Use the original port for each address
+		return candidates.stream()
+				.filter(isa -> output.contains(isa.getAddress()))
+				.toList();
+	}
+
 	public List<InetSocketAddress> handleInetSocketAddresses(List<InetSocketAddress> candidates, int port) {
-		List<InetAddress> input = candidates.stream().map(InetSocketAddress::getAddress).toList();
+		List<InetAddress> input = candidates.stream().map(InetSocketAddress::getAddress).distinct().toList();
 		List<InetAddress> output = handleAddresses(input);
 		return output.stream().map(address -> new InetSocketAddress(address, port)).toList();
+	}
+
+	public List<SocketAddress> handleSocketAddresses(List<? extends SocketAddress> candidates) {
+		if (candidates == null || candidates.isEmpty()) {
+			return new ArrayList<>(candidates);
+		}
+		// Extract InetSocketAddress instances
+		List<InetSocketAddress> inetCandidates = candidates.stream()
+				.filter(InetSocketAddress.class::isInstance)
+				.map(InetSocketAddress.class::cast)
+				.toList();
+
+		List<InetSocketAddress> filteredInet = handleInetSocketAddresses(inetCandidates);
+
+		// Only keep those InetSocketAddress that passed the filter, and preserve order
+		return new ArrayList<SocketAddress>(
+				candidates.stream()
+					.filter(sa -> !(sa instanceof InetSocketAddress) || filteredInet.contains(sa))
+					.toList()
+		);
 	}
 
 
@@ -102,7 +138,7 @@ public final class SecurityDnsHandler {
 		private boolean reportOnly;
 
 
-		private Builder blockAllExternal(boolean block) {
+		public Builder blockAllExternal(boolean block) {
 			this.blockAllExternal = block;
 			return this;
 		}

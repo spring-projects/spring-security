@@ -16,15 +16,14 @@ repositories {
 
 dependencies {
 	// Use JUnit Jupiter for testing.
-	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
 	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
 	testImplementation 'org.mockito:mockito-core:5.14.2'
-	// testImplementation 'org.mockito:mockito-inline:5.14.2'
 	testImplementation "org.mockito:mockito-junit-jupiter:5.14.2"
 	testImplementation 'org.springframework:spring-context:' + springVersion
 	testImplementation "org.apache.httpcomponents.client5:httpclient5:5.4.3"
 	testImplementation "org.apache.httpcomponents.core5:httpcore5-reactive:5.2.5"
-	testImplementation 'org.eclipse.jetty:jetty-client:12.1.0.alpha2'
+	testImplementation 'org.eclipse.jetty:jetty-client:11.0.20'
 
 	api 'org.springframework:spring-web:' + springVersion
 	api 'org.springframework:spring-core:' + springVersion
@@ -32,7 +31,7 @@ dependencies {
 	api "org.apache.httpcomponents.client5:httpclient5:5.4.3"
 	api "org.apache.httpcomponents.core5:httpcore5-reactive:5.2.5"
 
-	api 'org.eclipse.jetty:jetty-client:12.1.0.alpha2'
+	api 'org.eclipse.jetty:jetty-client:11.0.20'
 
 	api 'io.projectreactor:reactor-core:3.6.11'
 
@@ -52,7 +51,22 @@ dependencies {
 	implementation "org.springframework:spring-context:$springVersion"
 
 	// Reactor Netty HTTP Client (REQUIRED for reactor.netty.http.client.HttpClient)
-	api 'io.projectreactor.netty:reactor-netty-http:1.1.15' // Use latest version
+	// api 'io.projectreactor.netty:reactor-netty-http:1.2.5' // Use latest version
+	api 'io.projectreactor.netty:reactor-netty-http:1.2.6'
+
+	// Import the BOM for Reactor Netty
+    implementation platform('io.projectreactor:reactor-bom:2025.0.0-M3') // Use the appropriate version
+
+    // Add Reactor Netty dependencies
+    // implementation 'io.projectreactor.netty:reactor-netty-core'
+    // implementation 'io.projectreactor.netty:reactor-netty-transport'
+
+	implementation 'io.projectreactor.netty:reactor-netty-core:1.1.13'
+
+	implementation 'io.projectreactor.netty:reactor-netty:1.2.6'
+
+	testImplementation 'org.eclipse.jetty:jetty-client:11.0.20'
+
 }
 
 tasks.named('test') {

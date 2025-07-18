@@ -27,7 +27,7 @@ import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.Nullable;
 
 
-final class DefaultInetAddressFilter implements InetAddressFilter {
+public final class DefaultInetAddressFilter implements InetAddressFilter {
 
 	private final List<IpAddressMatcher> allowList;
 
@@ -38,9 +38,14 @@ final class DefaultInetAddressFilter implements InetAddressFilter {
 	private final List<InetAddressFilter> customFilters;
 
 
-	DefaultInetAddressFilter(
+	public DefaultInetAddressFilter(
 			List<String> allowList, List<String> denyList, boolean blockExternal, boolean blockInternal,
 			List<InetAddressFilter> customFilters) {
+
+		if (!allowList.isEmpty() && !denyList.isEmpty()) {
+			throw new IllegalArgumentException(
+					"Logic inconsistency: allowList and denyList cannot be used at the same time");
+		}
 
 		this.allowList = initIpList(allowList);
 		this.denyList = initIpList(denyList);
@@ -55,24 +60,42 @@ final class DefaultInetAddressFilter implements InetAddressFilter {
 
 	@Override
 	public boolean filterAddress(InetAddress address) {
-		if (!passBlockMode(address) || !passDenyList(address) && !passAllowList(address)) {
-			return false;
+		// A block is final. Check all block conditions first.
+
+		// 1. Block mode
+		if (!passBlockMode(address)) {
+			return true; // Block
 		}
+
+		// 2. Deny list
+		if (!passDenyList(address)) {
+			return true; // Block
+		}
+
+		// 3. Custom filters
 		for (InetAddressFilter filter : this.customFilters) {
-			if (!filter.filterAddress(address)) {
-				return false;
+			if (filter.filterAddress(address)) { // true from custom filter means block
+				return true; // Block
 			}
 		}
-		return true;
+
+		// If an allow list is configured, the address MUST be on it to be allowed.
+		// This check is done after block rules, so block rules take precedence.
+		if (!this.allowList.isEmpty()) {
+			return !passAllowList(address); // Block if it doesn't pass the allow list
+		}
+
+		// If we reach here, no rules have blocked the address.
+		return false; // Allow
 	}
 
 	private boolean passBlockMode(InetAddress address) {
 		if (this.blockMode != null) {
 			if (this.blockMode == BlockMode.EXTERNAL) {
-				return !isInternalIp(address);
+				return isInternalIp(address);
 			}
 			if (this.blockMode == BlockMode.INTERNAL) {
-				return isInternalIp(address);
+				return !isInternalIp(address);
 			}
 		}
 		return true;

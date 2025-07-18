@@ -23,8 +23,8 @@ import java.net.InetAddress;
 public interface InetAddressFilter {
 
 	/**
-	 * Return {@code true} if the address should be used, and {@code false} if
-	 * it should be filtered out.
+	 * Return {@code true} if the address should be filtered out, and {@code false} if
+	 * it should be used.
 	 */
 	boolean filterAddress(InetAddress address);
 

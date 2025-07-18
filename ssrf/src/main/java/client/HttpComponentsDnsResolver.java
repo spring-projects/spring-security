@@ -23,6 +23,7 @@ import java.util.List;
 
 import client.dns.SecurityDnsHandler;
 import org.apache.hc.client5.http.DnsResolver;
+import org.apache.hc.client5.http.SystemDefaultDnsResolver;
 
 public class HttpComponentsDnsResolver implements DnsResolver {
 
@@ -34,6 +35,10 @@ public class HttpComponentsDnsResolver implements DnsResolver {
 	public HttpComponentsDnsResolver(DnsResolver delegate, SecurityDnsHandler securityDnsHandler) {
 		this.delegate = delegate;
 		this.securityDnsHandler = securityDnsHandler;
+	}
+
+	public HttpComponentsDnsResolver(SecurityDnsHandler securityDnsHandler) {
+		this(SystemDefaultDnsResolver.INSTANCE, securityDnsHandler);
 	}
 
 
