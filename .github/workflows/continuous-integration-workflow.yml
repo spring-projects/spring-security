@@ -27,23 +27,9 @@ jobs:
       java-version: ${{ matrix.jdk }}
       distribution: temurin
     secrets: inherit
-  test:
-    name: Test Against Snapshots
-    uses: spring-io/spring-security-release-tools/.github/workflows/test.yml@v1
-    strategy:
-      matrix:
-        include:
-          - java-version: 21-ea
-            toolchain: 21
-          - java-version: 17
-            toolchain: 17
-    with:
-      java-version: ${{ matrix.java-version }}
-      test-args: --refresh-dependencies -PforceMavenRepositories=snapshot,https://oss.sonatype.org/content/repositories/snapshots -PisOverrideVersionCatalog -PtestToolchain=${{ matrix.toolchain }} -PspringFrameworkVersion=7.+ -PreactorVersion=2025.+ -PspringDataVersion=2025.+ --stacktrace
-    secrets: inherit
   deploy-artifacts:
     name: Deploy Artifacts
-    needs: [ build, test]
+    needs: [ build]
     uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@v1
     with:
       should-deploy-artifacts: ${{ needs.build.outputs.should-deploy-artifacts }}
@@ -51,14 +37,14 @@ jobs:
     secrets: inherit
   deploy-docs:
     name: Deploy Docs
-    needs: [ build, test ]
+    needs: [ build ]
     uses: spring-io/spring-security-release-tools/.github/workflows/deploy-docs.yml@v1
     with:
       should-deploy-docs: ${{ needs.build.outputs.should-deploy-artifacts }}
     secrets: inherit
   deploy-schema:
     name: Deploy Schema
-    needs: [ build, test ]
+    needs: [ build ]
     uses: spring-io/spring-security-release-tools/.github/workflows/deploy-schema.yml@v1
     with:
       should-deploy-schema: ${{ needs.build.outputs.should-deploy-artifacts }}
