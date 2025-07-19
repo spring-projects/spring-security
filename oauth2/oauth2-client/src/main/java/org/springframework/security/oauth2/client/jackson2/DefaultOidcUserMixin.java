@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
-@JsonIgnoreProperties(value = { "attributes" }, ignoreUnknown = true)
+@JsonIgnoreProperties(value = { "attributes", "username" }, ignoreUnknown = true)
 abstract class DefaultOidcUserMixin {
 
 	@JsonCreator

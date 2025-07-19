@@ -31,18 +31,19 @@ public final class ClientRegistration {
 		private UserInfoEndpoint userInfoEndpoint;
 		private String jwkSetUri;	<11>
 		private String issuerUri;	<12>
-        private Map<String, Object> configurationMetadata;  <13>
+		private Map<String, Object> configurationMetadata;	<13>
 
 		public class UserInfoEndpoint {
 			private String uri;	<14>
-            private AuthenticationMethod authenticationMethod;  <15>
+			private AuthenticationMethod authenticationMethod;	<15>
 			private String userNameAttributeName;	<16>
+			private String usernameExpression;	<17>
 
 		}
 	}
 
 	public static final class ClientSettings {
-		private boolean requireProofKey; // <17>
+		private boolean requireProofKey; // <18>
 	}
 }
 ----
@@ -68,8 +69,9 @@ This information is available only if the Spring Boot property `spring.security.
 <14> `(userInfoEndpoint)uri`: The UserInfo Endpoint URI used to access the claims and attributes of the authenticated end-user.
 <15> `(userInfoEndpoint)authenticationMethod`: The authentication method used when sending the access token to the UserInfo Endpoint.
 The supported values are *header*, *form*, and *query*.
-<16> `userNameAttributeName`: The name of the attribute returned in the UserInfo Response that references the Name or Identifier of the end-user.
-<17> [[oauth2Client-client-registration-requireProofKey]]`requireProofKey`: If `true` or if `authorizationGrantType` is `none`, then PKCE will be enabled by default.
+<16> `userNameAttributeName`: The name of the attribute returned in the UserInfo Response that references the Name or Identifier of the end-user. Deprecated - use usernameExpression instead.
+<17> `usernameExpression`: A SpEL expression used to extract the username from the UserInfo Response. Supports accessing nested attributes (e.g., "data.username") and complex expressions (e.g., "preferred_username ?: email").
+<18> [[oauth2Client-client-registration-requireProofKey]]`requireProofKey`: If `true` or if `authorizationGrantType` is `none`, then PKCE will be enabled by default.
 
 You can initially configure a `ClientRegistration` by using discovery of an OpenID Connect Provider's https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[Configuration endpoint] or an Authorization Server's https://tools.ietf.org/html/rfc8414#section-3[Metadata endpoint].
 
