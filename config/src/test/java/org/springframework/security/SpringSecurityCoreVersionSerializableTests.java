@@ -91,8 +91,8 @@ class SpringSecurityCoreVersionSerializableTests {
 				Object deserialized = objectInputStream.readObject();
 				// Ignore transient fields Event classes extend from EventObject which has
 				// transient source property
-				Set<String> transientFieldNames = new HashSet();
-				Set<Class<?>> visitedClasses = new HashSet();
+				Set<String> transientFieldNames = new HashSet<>();
+				Set<Class<?>> visitedClasses = new HashSet<>();
 				collectTransientFieldNames(transientFieldNames, visitedClasses, clazz);
 				assertThat(deserialized).usingRecursiveComparison()
 					.ignoringFields(transientFieldNames.toArray(new String[0]))
