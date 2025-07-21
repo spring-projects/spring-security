@@ -34,7 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.UncategorizedLdapException;
 import org.springframework.ldap.core.ContextExecutor;
 import org.springframework.security.crypto.codec.Utf8;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -47,8 +46,6 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = UnboundIdContainerConfig.class)
-// FIXME: See https://github.com/spring-projects/spring-security/issues/17543
-@DirtiesContext
 public class SpringSecurityLdapTemplateITests {
 
 	@Autowired

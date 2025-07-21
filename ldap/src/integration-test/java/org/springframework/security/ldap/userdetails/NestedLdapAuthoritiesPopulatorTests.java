@@ -29,7 +29,6 @@ import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.ldap.UnboundIdContainerConfig;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -41,8 +40,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = UnboundIdContainerConfig.class)
-// FIXME: See https://github.com/spring-projects/spring-security/issues/17543
-@DirtiesContext
 public class NestedLdapAuthoritiesPopulatorTests {
 
 	@Autowired

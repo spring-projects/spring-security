@@ -33,7 +33,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.ldap.UnboundIdContainerConfig;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -46,8 +45,6 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = UnboundIdContainerConfig.class)
-// FIXME: See https://github.com/spring-projects/spring-security/issues/17543
-@DirtiesContext
 @SuppressWarnings({ "deprecation" })
 public class DefaultLdapAuthoritiesPopulatorTests {
 
