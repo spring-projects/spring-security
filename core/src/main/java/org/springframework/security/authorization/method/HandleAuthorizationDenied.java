@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import java.lang.annotation.Target;
  * thrown during method invocation
  *
  * @author Marcus da Coregio
+ * @author Evgeniy Cheban
  * @since 6.3
  * @see AuthorizationManagerAfterMethodInterceptor
  * @see AuthorizationManagerBeforeMethodInterceptor
@@ -46,5 +47,14 @@ public @interface HandleAuthorizationDenied {
 	 * @return
 	 */
 	Class<? extends MethodAuthorizationDeniedHandler> handlerClass() default ThrowingMethodAuthorizationDeniedHandler.class;
+
+	/**
+	 * Specifies a {@link MethodAuthorizationDeniedHandler} bean name to be used to handle
+	 * denied method invocation.
+	 * @return the {@link MethodAuthorizationDeniedHandler} bean name to be used to handle
+	 * denied method invocation
+	 * @since 6.5
+	 */
+	String handler() default "";
 
 }
