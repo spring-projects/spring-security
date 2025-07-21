@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -166,6 +166,21 @@ public class HttpSessionRequestCacheTests {
 		verify(request, never()).getParameterValues(anyString());
 		verify(request, never()).getParameterNames();
 		verify(request, never()).getParameterMap();
+	}
+
+	// gh-16656
+	@Test
+	public void getMatchingRequestWhenMatchingRequestPathContainsPercentSignThenLookedUp() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setServletPath("/30 % off");
+		HttpSessionRequestCache cache = new HttpSessionRequestCache();
+		cache.saveRequest(request, new MockHttpServletResponse());
+		MockHttpServletRequest requestToMatch = new MockHttpServletRequest();
+		requestToMatch.setServletPath("/30 % off");
+		requestToMatch.setQueryString("continue");
+		requestToMatch.setSession(request.getSession());
+		HttpServletRequest matchingRequest = cache.getMatchingRequest(requestToMatch, new MockHttpServletResponse());
+		assertThat(matchingRequest).isNotNull();
 	}
 
 	private static final class CustomSavedRequest implements SavedRequest {

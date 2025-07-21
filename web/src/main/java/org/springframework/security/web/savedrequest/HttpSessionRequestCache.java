@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,11 +103,11 @@ public class HttpSessionRequestCache implements RequestCache {
 	@Override
 	public HttpServletRequest getMatchingRequest(HttpServletRequest request, HttpServletResponse response) {
 		if (this.matchingRequestParameterName != null) {
-			if (!StringUtils.hasText(request.getQueryString())
-					|| !UriComponentsBuilder.fromUriString(UrlUtils.buildRequestUrl(request))
-						.build()
-						.getQueryParams()
-						.containsKey(this.matchingRequestParameterName)) {
+			if (!StringUtils.hasText(request.getQueryString()) || !UriComponentsBuilder.newInstance()
+				.query(request.getQueryString())
+				.build()
+				.getQueryParams()
+				.containsKey(this.matchingRequestParameterName)) {
 				this.logger.trace(
 						"matchingRequestParameterName is required for getMatchingRequest to lookup a value, but not provided");
 				return null;
