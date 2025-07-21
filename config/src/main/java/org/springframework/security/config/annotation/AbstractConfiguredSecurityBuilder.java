@@ -60,7 +60,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 
 	private final LinkedHashMap<Class<? extends SecurityConfigurer<O, B>>, List<SecurityConfigurer<O, B>>> configurers = new LinkedHashMap<>();
 
-	private final List<SecurityConfigurer<O, B>> configurersAddedInInitializing = new ArrayList<>();
+	private List<SecurityConfigurer<O, B>> configurersAddedInInitializing = new ArrayList<>();
 
 	private final Map<Class<?>, Object> sharedObjects = new HashMap<>();
 
@@ -388,7 +388,9 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 			configurer.init((B) this);
 		}
 		while (!this.configurersAddedInInitializing.isEmpty()) {
-			for (SecurityConfigurer<O, B> configurer : getConfigurersInInitializing()) {
+			List<SecurityConfigurer<O, B>> toInit = this.configurersAddedInInitializing;
+			this.configurersAddedInInitializing = new ArrayList<>();
+			for (SecurityConfigurer<O, B> configurer : toInit) {
 				configurer.init((B) this);
 			}
 		}
@@ -407,12 +409,6 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 		for (List<SecurityConfigurer<O, B>> configs : this.configurers.values()) {
 			result.addAll(configs);
 		}
-		return result;
-	}
-
-	private List<SecurityConfigurer<O, B>> getConfigurersInInitializing() {
-		List<SecurityConfigurer<O, B>> result = new ArrayList<>(this.configurersAddedInInitializing);
-		this.configurersAddedInInitializing.clear();
 		return result;
 	}
 
