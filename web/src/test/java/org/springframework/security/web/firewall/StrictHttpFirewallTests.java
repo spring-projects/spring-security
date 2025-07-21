@@ -27,6 +27,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 
 /**
  * @author Rob Winch
@@ -112,8 +113,7 @@ public class StrictHttpFirewallTests {
 	@Test
 	public void getFirewalledRequestWhenServletPathNotNormalizedThenThrowsRequestRejectedException() {
 		for (String path : this.unnormalizedPaths) {
-			this.request = new MockHttpServletRequest("GET", "");
-			this.request.setServletPath(path);
+			this.request = get().requestUri(path).build();
 			assertThatExceptionOfType(RequestRejectedException.class)
 				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 		}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,30 +67,6 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
 	 * parameters
 	 * @param trustedIssuers an array of trusted issuers
-	 * @deprecated use {@link #fromTrustedIssuers(String...)}
-	 */
-	@Deprecated(since = "6.2", forRemoval = true)
-	public JwtIssuerAuthenticationManagerResolver(String... trustedIssuers) {
-		this(Set.of(trustedIssuers));
-	}
-
-	/**
-	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
-	 * parameters
-	 * @param trustedIssuers a collection of trusted issuers
-	 * @deprecated use {@link #fromTrustedIssuers(Collection)}
-	 */
-	@Deprecated(since = "6.2", forRemoval = true)
-	public JwtIssuerAuthenticationManagerResolver(Collection<String> trustedIssuers) {
-		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
-		this.authenticationManager = new ResolvingAuthenticationManager(
-				new TrustedIssuerJwtAuthenticationManagerResolver(Set.copyOf(trustedIssuers)::contains));
-	}
-
-	/**
-	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
-	 * parameters
-	 * @param trustedIssuers an array of trusted issuers
 	 * @since 6.2
 	 */
 	public static JwtIssuerAuthenticationManagerResolver fromTrustedIssuers(String... trustedIssuers) {
@@ -133,8 +109,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	 *     Map&lt;String, AuthenticationManager&gt; authenticationManagers = new HashMap&lt;&gt;();
 	 *     authenticationManagers.put("https://issuerOne.example.org", managerOne);
 	 *     authenticationManagers.put("https://issuerTwo.example.org", managerTwo);
-	 *     JwtAuthenticationManagerResolver resolver = new JwtAuthenticationManagerResolver
-	 *     	(authenticationManagers::get);
+	 *     JwtIssuerAuthenticationManagerResolver resolver = new JwtIssuerAuthenticationManagerResolver(authenticationManagers::get);
 	 * </pre>
 	 *
 	 * The keys in the {@link Map} are the allowed issuers.
@@ -176,9 +151,17 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 			String issuer = this.issuerConverter.convert(token);
 			AuthenticationManager authenticationManager = this.issuerAuthenticationManagerResolver.resolve(issuer);
 			if (authenticationManager == null) {
-				throw new InvalidBearerTokenException("Invalid issuer");
+				AuthenticationException ex = new InvalidBearerTokenException("Invalid issuer");
+				ex.setAuthenticationRequest(authentication);
+				throw ex;
 			}
-			return authenticationManager.authenticate(authentication);
+			try {
+				return authenticationManager.authenticate(authentication);
+			}
+			catch (AuthenticationException ex) {
+				ex.setAuthenticationRequest(authentication);
+				throw ex;
+			}
 		}
 
 	}
@@ -194,10 +177,14 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 					return issuer;
 				}
 			}
-			catch (Exception ex) {
-				throw new InvalidBearerTokenException(ex.getMessage(), ex);
+			catch (Exception cause) {
+				AuthenticationException ex = new InvalidBearerTokenException(cause.getMessage(), cause);
+				ex.setAuthenticationRequest(authentication);
+				throw ex;
 			}
-			throw new InvalidBearerTokenException("Missing issuer");
+			AuthenticationException ex = new InvalidBearerTokenException("Missing issuer");
+			ex.setAuthenticationRequest(authentication);
+			throw ex;
 		}
 
 	}

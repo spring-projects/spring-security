@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.csrf;
 
+import java.io.Serial;
+
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -25,8 +27,10 @@ import jakarta.servlet.http.HttpServletRequest;
  * @author Rob Winch
  * @since 3.2
  */
-@SuppressWarnings("serial")
 public class InvalidCsrfTokenException extends CsrfException {
+
+	@Serial
+	private static final long serialVersionUID = -7745955098435417418L;
 
 	/**
 	 * @param expectedAccessToken

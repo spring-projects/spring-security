@@ -2,7 +2,7 @@
 [[jc]]
 = Java Configuration
 
-General support for https://docs.spring.io/spring/docs/3.1.x/spring-framework-reference/html/beans.html#beans-java[Java configuration] was added to Spring Framework in Spring 3.1.
+General support for {spring-framework-reference-url}core/beans/java.html[Java configuration] was added to Spring Framework in Spring 3.1.
 Spring Security 3.2 introduced Java configuration to let users configure Spring Security without the use of any XML.
 
 If you are familiar with the xref:servlet/configuration/xml-namespace.adoc#ns-config[Security Namespace Configuration], you should find quite a few similarities between it and Spring Security Java configuration.
@@ -64,7 +64,7 @@ This configuration is not complex or extensive, but it does a lot:
 === AbstractSecurityWebApplicationInitializer
 
 The next step is to register the `springSecurityFilterChain` with the WAR file.
-You can do so in Java configuration with https://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-container-config[Spring's `WebApplicationInitializer` support] in a Servlet 3.0+ environment.
+You can do so in Java configuration with {spring-framework-reference-url}web/webmvc/mvc-servlet/container-config.html[Spring's `WebApplicationInitializer` support] in a Servlet 3.0+ environment.
 Not surprisingly, Spring Security provides a base class (`AbstractSecurityWebApplicationInitializer`) to ensure that the `springSecurityFilterChain` gets registered for you.
 The way in which we use `AbstractSecurityWebApplicationInitializer` differs depending on if we are already using Spring or if Spring Security is the only Spring component in our application.
 
@@ -132,7 +132,7 @@ public class MvcWebApplicationInitializer extends
 ----
 
 The reason for this is that Spring Security needs to be able to inspect some Spring MVC configuration in order to appropriately configure xref:servlet/authorization/authorize-http-requests.adoc#authorizing-endpoints[underlying request matchers], so they need to be in the same application context.
-Placing Spring Security in `getRootConfigClasses` places it into a parent application context that may not be able to find Spring MVC's `HandlerMappingIntrospector`.
+Placing Spring Security in `getRootConfigClasses` places it into a parent application context that may not be able to find Spring MVC's `PathPatternParser`.
 
 ==== Configuring for Multiple Spring MVC Dispatchers
 
@@ -173,7 +173,7 @@ It is configured with the following default implementation:
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	http
-		.authorizeHttpRequests(authorize -> authorize
+		.authorizeHttpRequests((authorize) -> authorize
 			.anyRequest().authenticated()
 		)
 		.formLogin(Customizer.withDefaults())
@@ -228,7 +228,7 @@ public class MultiHttpSecurityConfig {
 	public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
 		http
 			.securityMatcher("/api/**")                              <3>
-			.authorizeHttpRequests(authorize -> authorize
+			.authorizeHttpRequests((authorize) -> authorize
 				.anyRequest().hasRole("ADMIN")
 			)
 			.httpBasic(Customizer.withDefaults());
@@ -238,7 +238,7 @@ public class MultiHttpSecurityConfig {
 	@Bean                                                            <4>
 	public SecurityFilterChain formLoginFilterChain(HttpSecurity http) throws Exception {
 		http
-			.authorizeHttpRequests(authorize -> authorize
+			.authorizeHttpRequests((authorize) -> authorize
 				.anyRequest().authenticated()
 			)
 			.formLogin(Customizer.withDefaults());
@@ -297,7 +297,7 @@ public class PartialSecurityConfig {
 	public SecurityFilterChain securedFilterChain(HttpSecurity http) throws Exception {
 		http
 			.securityMatcher("/secured/**")                            <1>
-			.authorizeHttpRequests(authorize -> authorize
+			.authorizeHttpRequests((authorize) -> authorize
 				.requestMatchers("/secured/user").hasRole("USER")      <2>
 				.requestMatchers("/secured/admin").hasRole("ADMIN")    <3>
 				.anyRequest().authenticated()                          <4>
@@ -357,15 +357,15 @@ public class SecuredSecurityConfig {
 	public SecurityFilterChain securedFilterChain(HttpSecurity http) throws Exception {
 		http
 			.securityMatcher("/secured/**")                            <1>
-			.authorizeHttpRequests(authorize -> authorize
+			.authorizeHttpRequests((authorize) -> authorize
 				.anyRequest().authenticated()                          <2>
 			)
-			.formLogin(formLogin -> formLogin                          <3>
+			.formLogin((formLogin) -> formLogin                          <3>
 				.loginPage("/secured/login")
 				.loginProcessingUrl("/secured/login")
 				.permitAll()
 			)
-			.logout(logout -> logout                                   <4>
+			.logout((logout) -> logout                                   <4>
 				.logoutUrl("/secured/logout")
 				.logoutSuccessUrl("/secured/login?logout")
 				.permitAll()
@@ -377,7 +377,7 @@ public class SecuredSecurityConfig {
 	@Bean
 	public SecurityFilterChain defaultFilterChain(HttpSecurity http) throws Exception {
 		http
-			.authorizeHttpRequests(authorize -> authorize
+			.authorizeHttpRequests((authorize) -> authorize
 				.anyRequest().denyAll()                                <5>
 			);
 		return http.build();
@@ -424,7 +424,7 @@ public class BankingSecurityConfig {
         String[] approvalsPaths = { "/accounts/approvals/**", "/loans/approvals/**", "/credit-cards/approvals/**" };
         http
             .securityMatcher(approvalsPaths)
-            .authorizeHttpRequests(authorize -> authorize
+            .authorizeHttpRequests((authorize) -> authorize
 				.anyRequest().hasRole("ADMIN")
             )
             .httpBasic(Customizer.withDefaults());
@@ -438,7 +438,7 @@ public class BankingSecurityConfig {
 		String[] viewBalancePaths = { "/balances/**" };
         http
 			.securityMatcher(bankingPaths)
-			.authorizeHttpRequests(authorize -> authorize
+			.authorizeHttpRequests((authorize) -> authorize
 				.requestMatchers(viewBalancePaths).hasRole("VIEW_BALANCE")
 				.anyRequest().hasRole("USER")
             );
@@ -449,15 +449,15 @@ public class BankingSecurityConfig {
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
 		String[] allowedPaths = { "/", "/user-login", "/user-logout", "/notices", "/contact", "/register" };
         http
-            .authorizeHttpRequests(authorize -> authorize
+            .authorizeHttpRequests((authorize) -> authorize
 				.requestMatchers(allowedPaths).permitAll()
 				.anyRequest().authenticated()
             )
-			.formLogin(formLogin -> formLogin
+			.formLogin((formLogin) -> formLogin
 				.loginPage("/user-login")
 				.loginProcessingUrl("/user-login")
 			)
-			.logout(logout -> logout
+			.logout((logout) -> logout
 				.logoutUrl("/user-logout")
 				.logoutSuccessUrl("/?logout")
 			);
@@ -680,7 +680,7 @@ For example, to configure the `filterSecurityPublishAuthorizationSuccess` proper
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	http
-		.authorizeHttpRequests(authorize -> authorize
+		.authorizeHttpRequests((authorize) -> authorize
 			.anyRequest().authenticated()
 			.withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
 				public <O extends FilterSecurityInterceptor> O postProcess(

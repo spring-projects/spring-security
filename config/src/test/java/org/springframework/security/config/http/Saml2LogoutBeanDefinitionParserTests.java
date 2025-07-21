@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,6 +63,7 @@ import org.springframework.web.util.UriUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
@@ -133,8 +134,7 @@ public class Saml2LogoutBeanDefinitionParserTests {
 		principal.setRelyingPartyRegistrationId("registration-id");
 		this.saml2User = new Saml2Authentication(principal, "response",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
-		this.request = new MockHttpServletRequest("POST", "");
-		this.request.setServletPath("/login/saml2/sso/test-rp");
+		this.request = new MockHttpServletRequest("POST", "/login/saml2/sso/test-rp");
 		this.response = new MockHttpServletResponse();
 	}
 
@@ -286,15 +286,16 @@ public class Saml2LogoutBeanDefinitionParserTests {
 			.andExpect(status().isBadRequest());
 	}
 
+	// gh-14635
 	@Test
-	public void saml2LogoutRequestWhenInvalidSamlRequestThen401() throws Exception {
+	public void saml2LogoutRequestWhenInvalidSamlRequestThen302Redirect() throws Exception {
 		this.spring.configLocations(this.xml("Default")).autowire();
 		this.mvc
 			.perform(get("/logout/saml2/slo").param("SAMLRequest", this.apLogoutRequest)
 				.param("RelayState", this.apLogoutRequestRelayState)
 				.param("SigAlg", this.apLogoutRequestSigAlg)
 				.with(authentication(this.saml2User)))
-			.andExpect(status().isUnauthorized());
+			.andExpect(status().isFound());
 	}
 
 	@Test
@@ -378,6 +379,22 @@ public class Saml2LogoutBeanDefinitionParserTests {
 			.willReturn(Saml2LogoutValidatorResult.success());
 		this.mvc.perform(get("/logout/saml2/slo").param("SAMLResponse", "samlResponse")).andReturn();
 		verify(getBean(Saml2LogoutResponseValidator.class)).validate(any());
+	}
+
+	// gh-11363
+	@Test
+	public void saml2LogoutWhenCustomLogoutRequestRepositoryThenUses() throws Exception {
+		this.spring.configLocations(this.xml("CustomComponents")).autowire();
+		RelyingPartyRegistration registration = this.repository.findByRegistrationId("get");
+		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
+			.samlRequest(this.rpLogoutRequest)
+			.id(this.rpLogoutRequestId)
+			.relayState(this.rpLogoutRequestRelayState)
+			.parameters((params) -> params.put("Signature", this.rpLogoutRequestSignature))
+			.build();
+		given(getBean(Saml2LogoutRequestResolver.class).resolve(any(), any())).willReturn(logoutRequest);
+		this.mvc.perform(post("/logout").with(authentication(this.saml2User)).with(csrf()));
+		verify(getBean(Saml2LogoutRequestRepository.class)).saveLogoutRequest(eq(logoutRequest), any(), any());
 	}
 
 	private <T> T getBean(Class<T> clazz) {

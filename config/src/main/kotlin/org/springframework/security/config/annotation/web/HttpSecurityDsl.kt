@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher
  *     @Bean
  *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
  *         http {
- *             authorizeRequests {
+ *             authorizeHttpRequests {
  *                 authorize("/public", permitAll)
  *                 authorize(anyRequest, authenticated)
  *             }
@@ -73,7 +73,6 @@ operator fun HttpSecurity.invoke(httpConfiguration: HttpSecurityDsl.() -> Unit) 
  */
 @SecurityMarker
 class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecurityDsl.() -> Unit) {
-    private val HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector"
 
     var authenticationManager: AuthenticationManager? = null
     val context: ApplicationContext = http.getSharedObject(ApplicationContext::class.java)
@@ -107,7 +106,8 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
         configurer: C,
         configuration: C.() -> Unit = { }
     ): C {
-        return this.http.apply(configurer).apply(configuration)
+        this.http.with(configurer, configuration)
+        return configurer
     }
 
     /**
@@ -192,7 +192,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      *     @Bean
      *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
      *         http {
-     *             securityMatcher(AntPathRequestMatcher("/private/&ast;&ast;"))
+     *             securityMatcher(pathPattern("/private/&ast;&ast;"))
      *             formLogin {
      *                 loginPage = "/log-in"
      *             }
@@ -240,39 +240,6 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
     fun formLogin(formLoginConfiguration: FormLoginDsl.() -> Unit) {
         val loginCustomizer = FormLoginDsl().apply(formLoginConfiguration).get()
         this.http.formLogin(loginCustomizer)
-    }
-
-    /**
-     * Allows restricting access based upon the [HttpServletRequest]
-     *
-     * Example:
-     *
-     * ```
-     * @Configuration
-     * @EnableWebSecurity
-     * class SecurityConfig {
-     *
-     *     @Bean
-     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-     *         http {
-     *             authorizeRequests {
-     *                 authorize("/public", permitAll)
-     *                 authorize(anyRequest, authenticated)
-     *             }
-     *         }
-     *         return http.build()
-     *     }
-     * }
-     * ```
-     *
-     * @param authorizeRequestsConfiguration custom configuration that specifies
-     * access for requests
-     * @see [AuthorizeRequestsDsl]
-     */
-    @Deprecated(message = "Since 6.4. Use authorizeHttpRequests instead")
-    fun authorizeRequests(authorizeRequestsConfiguration: AuthorizeRequestsDsl.() -> Unit) {
-        val authorizeRequestsCustomizer = AuthorizeRequestsDsl().apply(authorizeRequestsConfiguration).get()
-        this.http.authorizeRequests(authorizeRequestsCustomizer)
     }
 
     /**
@@ -527,10 +494,45 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * @param requiresChannelConfiguration custom configuration that specifies
      * channel security
      * @see [RequiresChannelDsl]
+     * @deprecated please use [redirectToHttps] instead
      */
+    @Deprecated(message="since 6.5 use redirectToHttps instead")
     fun requiresChannel(requiresChannelConfiguration: RequiresChannelDsl.() -> Unit) {
         val requiresChannelCustomizer = RequiresChannelDsl().apply(requiresChannelConfiguration).get()
         this.http.requiresChannel(requiresChannelCustomizer)
+    }
+
+    /**
+     * Configures channel security. In order for this configuration to be useful at least
+     * one mapping to a required channel must be provided.
+     *
+     * Example:
+     *
+     * The example below demonstrates how to require HTTPS for every request. Only
+     * requiring HTTPS for some requests is supported, for example if you need to differentiate
+     * between local and production deployments.
+     *
+     * ```
+     * @Configuration
+     * @EnableWebSecurity
+     * class RequireHttpsConfig {
+     *
+     * 	@Bean
+     * 	fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     * 		http {
+     * 			redirectToHttps { }
+     * 		}
+     * 		return http.build();
+     * 	}
+     * }
+     * ```
+     * @param httpsRedirectConfiguration custom configuration to apply to HTTPS redirect rules
+     * @see [HttpsRedirectDsl]
+     * @since 6.5
+     */
+    fun redirectToHttps(httpsRedirectConfiguration: HttpsRedirectDsl.() -> Unit) {
+        val httpsRedirectCustomizer = HttpsRedirectDsl().apply(httpsRedirectConfiguration).get()
+        this.http.redirectToHttps(httpsRedirectCustomizer)
     }
 
     /**

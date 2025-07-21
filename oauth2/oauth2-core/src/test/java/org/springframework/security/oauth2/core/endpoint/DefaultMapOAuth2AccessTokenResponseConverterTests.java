@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,6 +96,18 @@ public class DefaultMapOAuth2AccessTokenResponseConverterTests {
 		Map<String, Object> additionalParameters = converted.getAdditionalParameters();
 		assertThat(additionalParameters).isNotNull();
 		assertThat(additionalParameters).isEmpty();
+	}
+
+	@Test
+	public void shouldConvertDPoPToken() {
+		Map<String, Object> map = new HashMap<>();
+		map.put("access_token", "access-token-1234");
+		map.put("token_type", "dpop");
+		OAuth2AccessTokenResponse converted = this.messageConverter.convert(map);
+		OAuth2AccessToken accessToken = converted.getAccessToken();
+		assertThat(accessToken).isNotNull();
+		assertThat(accessToken.getTokenValue()).isEqualTo("access-token-1234");
+		assertThat(accessToken.getTokenType()).isEqualTo(OAuth2AccessToken.TokenType.DPOP);
 	}
 
 	@Test

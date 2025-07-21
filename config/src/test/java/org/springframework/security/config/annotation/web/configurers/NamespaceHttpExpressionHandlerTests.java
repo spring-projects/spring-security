@@ -37,7 +37,8 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
+import org.springframework.security.web.access.expression.DefaultHttpSecurityExpressionHandler;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -94,16 +95,27 @@ public class NamespaceHttpExpressionHandlerTests {
 		}
 
 		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			DefaultWebSecurityExpressionHandler handler = new DefaultWebSecurityExpressionHandler();
-			handler.setExpressionParser(expressionParser());
+		SecurityFilterChain filterChain(HttpSecurity http, WebExpressionAuthorizationManager.Builder authz)
+				throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.expressionHandler(handler)
-					.anyRequest().access("hasRole('USER')");
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().access(authz.expression("hasRole('USER')"))
+				);
 			// @formatter:on
 			return http.build();
+		}
+
+		@Bean
+		WebExpressionAuthorizationManager.Builder expressions(DefaultHttpSecurityExpressionHandler expressionHandler) {
+			return WebExpressionAuthorizationManager.withExpressionHandler(expressionHandler);
+		}
+
+		@Bean
+		DefaultHttpSecurityExpressionHandler expressionHandler(ExpressionParser expressionParser) {
+			DefaultHttpSecurityExpressionHandler expressionHandler = new DefaultHttpSecurityExpressionHandler();
+			expressionHandler.setExpressionParser(expressionParser);
+			return expressionHandler;
 		}
 
 		@Bean

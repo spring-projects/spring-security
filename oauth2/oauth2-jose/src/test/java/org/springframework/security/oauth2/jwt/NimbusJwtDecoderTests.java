@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
@@ -60,7 +61,6 @@ import org.mockito.ArgumentCaptor;
 
 import org.springframework.cache.Cache;
 import org.springframework.cache.concurrent.ConcurrentMapCache;
-import org.springframework.cache.support.SimpleValueWrapper;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpStatus;
@@ -459,10 +459,8 @@ public class NimbusJwtDecoderTests {
 		// @formatter:off
 		NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(publicKey)
 				.signatureAlgorithm(SignatureAlgorithm.RS256)
-				.jwtProcessorCustomizer((p) -> p
-						.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS")))
-				)
 				.build();
+		decoder.setJwtValidator(JwtValidators.createDefaultWithValidators(new JwtTypeValidator("JWS")));
 		// @formatter:on
 		assertThat(decoder.decode(signedJwt.serialize()).hasClaim(JwtClaimNames.EXP)).isNotNull();
 	}
@@ -560,6 +558,15 @@ public class NimbusJwtDecoderTests {
 		// @formatter:on
 	}
 
+	@Test
+	public void withJwkSourceWhenDefaultsThenUsesProvidedJwkSource() throws Exception {
+		JWKSource<SecurityContext> source = mock(JWKSource.class);
+		given(source.get(any(), any())).willReturn(JWKSet.parse(JWK_SET).getKeys());
+		NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSource(source).build();
+		Jwt jwt = decoder.decode(SIGNED_JWT);
+		assertThat(jwt.getClaimAsString("sub")).isEqualTo("test-subject");
+	}
+
 	// gh-8730
 	@Test
 	public void withSecretKeyWhenUsingCustomTypeHeaderThenSuccessfullyDecodes() throws Exception {
@@ -576,10 +583,8 @@ public class NimbusJwtDecoderTests {
 		// @formatter:off
 		NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(secretKey)
 				.macAlgorithm(MacAlgorithm.HS256)
-				.jwtProcessorCustomizer((p) -> p
-						.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("JWS")))
-				)
 				.build();
+		decoder.setJwtValidator(JwtValidators.createDefaultWithValidators(new JwtTypeValidator("JWS")));
 		// @formatter:on
 		assertThat(decoder.decode(signedJwt.serialize()).hasClaim(JwtClaimNames.EXP)).isNotNull();
 	}
@@ -702,9 +707,8 @@ public class NimbusJwtDecoderTests {
 	@Test
 	public void decodeWhenCacheThenRetrieveFromCache() throws Exception {
 		RestOperations restOperations = mock(RestOperations.class);
-		Cache cache = mock(Cache.class);
-		given(cache.get(eq(JWK_SET_URI), eq(String.class))).willReturn(JWK_SET);
-		given(cache.get(eq(JWK_SET_URI))).willReturn(mock(Cache.ValueWrapper.class));
+		Cache cache = new ConcurrentMapCache("cache");
+		cache.put(JWK_SET_URI, JWK_SET);
 		// @formatter:off
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI)
 				.cache(cache)
@@ -712,9 +716,7 @@ public class NimbusJwtDecoderTests {
 				.build();
 		// @formatter:on
 		jwtDecoder.decode(SIGNED_JWT);
-		verify(cache).get(eq(JWK_SET_URI), eq(String.class));
-		verify(cache, times(2)).get(eq(JWK_SET_URI));
-		verifyNoMoreInteractions(cache);
+		assertThat(cache.get(JWK_SET_URI, String.class)).isSameAs(JWK_SET);
 		verifyNoInteractions(restOperations);
 	}
 
@@ -722,9 +724,8 @@ public class NimbusJwtDecoderTests {
 	@Test
 	public void decodeWhenCacheAndUnknownKidShouldTriggerFetchOfJwkSet() throws JOSEException {
 		RestOperations restOperations = mock(RestOperations.class);
-		Cache cache = mock(Cache.class);
-		given(cache.get(eq(JWK_SET_URI), eq(String.class))).willReturn(JWK_SET);
-		given(cache.get(eq(JWK_SET_URI))).willReturn(new SimpleValueWrapper(JWK_SET));
+		Cache cache = new ConcurrentMapCache("cache");
+		cache.put(JWK_SET_URI, JWK_SET);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
 			.willReturn(new ResponseEntity<>(NEW_KID_JWK_SET, HttpStatus.OK));
 
@@ -794,9 +795,8 @@ public class NimbusJwtDecoderTests {
 	@Test
 	public void decodeWhenCacheIsConfiguredAndParseFailsOnCachedValueThenExceptionIgnored() {
 		RestOperations restOperations = mock(RestOperations.class);
-		Cache cache = mock(Cache.class);
-		given(cache.get(eq(JWK_SET_URI), eq(String.class))).willReturn(JWK_SET);
-		given(cache.get(eq(JWK_SET_URI))).willReturn(mock(Cache.ValueWrapper.class));
+		Cache cache = new ConcurrentMapCache("cache");
+		cache.put(JWK_SET_URI, JWK_SET);
 		// @formatter:off
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI)
 				.cache(cache)
@@ -804,9 +804,7 @@ public class NimbusJwtDecoderTests {
 				.build();
 		// @formatter:on
 		jwtDecoder.decode(SIGNED_JWT);
-		verify(cache).get(eq(JWK_SET_URI), eq(String.class));
-		verify(cache, times(2)).get(eq(JWK_SET_URI));
-		verifyNoMoreInteractions(cache);
+		assertThat(cache.get(JWK_SET_URI, String.class)).isSameAs(JWK_SET);
 		verifyNoInteractions(restOperations);
 
 	}
@@ -838,6 +836,31 @@ public class NimbusJwtDecoderTests {
 				.isThrownBy(() -> NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI).jwtProcessorCustomizer(null))
 				.withMessage("jwtProcessorCustomizer cannot be null");
 		// @formatter:on
+	}
+
+	@Test
+	public void decodeWhenPublicKeyValidateTypeFalseThenSkipsNimbusTypeValidation() throws Exception {
+		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(TestKeys.DEFAULT_PUBLIC_KEY)
+			.validateType(false)
+			.build();
+		jwtDecoder.setJwtValidator((jwt) -> OAuth2TokenValidatorResult.success());
+		RSAPrivateKey privateKey = TestKeys.DEFAULT_PRIVATE_KEY;
+		SignedJWT jwt = signedJwt(privateKey,
+				new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JOSE).build(),
+				new JWTClaimsSet.Builder().subject("subject").build());
+		jwtDecoder.decode(jwt.serialize());
+	}
+
+	@Test
+	public void decodeWhenSecretKeyValidateTypeFalseThenSkipsNimbusTypeValidation() throws Exception {
+		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(TestKeys.DEFAULT_SECRET_KEY)
+			.validateType(false)
+			.build();
+		jwtDecoder.setJwtValidator((jwt) -> OAuth2TokenValidatorResult.success());
+		SignedJWT jwt = signedJwt(TestKeys.DEFAULT_SECRET_KEY,
+				new JWSHeader.Builder(JWSAlgorithm.HS256).type(JOSEObjectType.JOSE).build(),
+				new JWTClaimsSet.Builder().subject("subject").build());
+		jwtDecoder.decode(jwt.serialize());
 	}
 
 	private RSAPublicKey key() throws InvalidKeySpecException {

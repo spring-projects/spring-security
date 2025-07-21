@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import org.opensaml.saml.saml2.core.Response;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2Error;
-import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
@@ -31,10 +30,11 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers.UriResolver;
 import org.springframework.security.web.authentication.AuthenticationConverter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
+
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 final class BaseOpenSamlAuthenticationTokenConverter implements AuthenticationConverter {
 
@@ -46,11 +46,12 @@ final class BaseOpenSamlAuthenticationTokenConverter implements AuthenticationCo
 
 	private final RelyingPartyRegistrationRepository registrations;
 
-	private RequestMatcher requestMatcher = new OrRequestMatcher(
-			new AntPathRequestMatcher("/login/saml2/sso/{registrationId}"),
-			new AntPathRequestMatcher("/login/saml2/sso"));
+	private RequestMatcher requestMatcher = new OrRequestMatcher(pathPattern("/login/saml2/sso/{registrationId}"),
+			pathPattern("/login/saml2/sso"));
 
 	private Saml2AuthenticationRequestRepository<?> authenticationRequests = new HttpSessionSaml2AuthenticationRequestRepository();
+
+	private boolean shouldConvertGetRequests = true;
 
 	/**
 	 * Constructs a {@link BaseOpenSamlAuthenticationTokenConverter} given a repository
@@ -173,17 +174,22 @@ final class BaseOpenSamlAuthenticationTokenConverter implements AuthenticationCo
 		this.requestMatcher = requestMatcher;
 	}
 
+	void setShouldConvertGetRequests(boolean shouldConvertGetRequests) {
+		this.shouldConvertGetRequests = shouldConvertGetRequests;
+	}
+
 	private String decode(HttpServletRequest request) {
 		String encoded = request.getParameter(Saml2ParameterNames.SAML_RESPONSE);
+		boolean isGet = HttpMethod.GET.matches(request.getMethod());
+		if (!this.shouldConvertGetRequests && isGet) {
+			return null;
+		}
+		Saml2Utils.DecodingConfigurer decoding = Saml2Utils.withEncoded(encoded).requireBase64(true).inflate(isGet);
 		try {
-			return Saml2Utils.withEncoded(encoded)
-				.requireBase64(true)
-				.inflate(HttpMethod.GET.matches(request.getMethod()))
-				.decode();
+			return decoding.decode();
 		}
 		catch (Exception ex) {
-			throw new Saml2AuthenticationException(new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE, ex.getMessage()),
-					ex);
+			throw new Saml2AuthenticationException(Saml2Error.invalidResponse(ex.getMessage()), ex);
 		}
 	}
 

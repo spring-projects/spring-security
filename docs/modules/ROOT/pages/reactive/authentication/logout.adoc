@@ -24,7 +24,7 @@ SecurityWebFilterChain http(ServerHttpSecurity http) throws Exception {
     );
 
     http
-        .authorizeExchange((exchange) -> exchange.anyExchange().authenticated())
+        .authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
         .logout((logout) -> logout.logoutHandler(logoutHandler));
 
     return http.build();
@@ -40,7 +40,7 @@ fun http(http: ServerHttpSecurity): SecurityWebFilterChain {
     val customLogoutHandler = DelegatingServerLogoutHandler(
         SecurityContextServerLogoutHandler(), WebSessionServerLogoutHandler()
     )
-    
+
     return http {
         authorizeExchange {
             authorize(anyExchange, authenticated)

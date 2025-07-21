@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,10 +34,11 @@ import org.springframework.security.saml2.provider.service.registration.Iterable
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
+
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * An implementation of {@link Saml2MetadataResponseResolver} that identifies which
@@ -51,9 +52,8 @@ public class RequestMatcherMetadataResponseResolver implements Saml2MetadataResp
 	private static final String DEFAULT_METADATA_FILENAME = "saml-{registrationId}-metadata.xml";
 
 	private RequestMatcher matcher = new OrRequestMatcher(
-			new AntPathRequestMatcher("/saml2/service-provider-metadata/{registrationId}"),
-			new AntPathRequestMatcher("/saml2/metadata/{registrationId}"),
-			new AntPathRequestMatcher("/saml2/metadata"));
+			pathPattern("/saml2/service-provider-metadata/{registrationId}"),
+			pathPattern("/saml2/metadata/{registrationId}"), pathPattern("/saml2/metadata"));
 
 	private String filename = DEFAULT_METADATA_FILENAME;
 
@@ -62,8 +62,7 @@ public class RequestMatcherMetadataResponseResolver implements Saml2MetadataResp
 	private final Saml2MetadataResolver metadata;
 
 	/**
-	 * Construct a
-	 * {@link org.springframework.security.saml2.provider.service.metadata.RequestMatcherMetadataResponseResolver}
+	 * Construct a {@link RequestMatcherMetadataResponseResolver}
 	 * @param registrations the source for relying party metadata
 	 * @param metadata the strategy for converting {@link RelyingPartyRegistration}s into
 	 * metadata

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.mockwebserver.Dispatcher;
@@ -261,6 +262,52 @@ public class SpringReactiveOpaqueTokenIntrospectorTests {
 			.isThrownBy(() -> new SpringReactiveOpaqueTokenIntrospector(INTROSPECTION_URL, null));
 	}
 
+	@Test
+	public void introspectWithoutEncodeClientCredentialsThenExceptionIsThrown() throws Exception {
+		try (MockWebServer server = new MockWebServer()) {
+			String response = """
+					{
+						"active": true,
+						"username": "client%&1"
+					}
+					""";
+			server.setDispatcher(requiresAuth("client%25%261", "secret%40%242", response));
+			String introspectUri = server.url("/introspect").toString();
+			ReactiveOpaqueTokenIntrospector introspectionClient = new SpringReactiveOpaqueTokenIntrospector(
+					introspectUri, "client%&1", "secret@$2");
+			// @formatter:off
+			assertThatExceptionOfType(OAuth2IntrospectionException.class)
+					.isThrownBy(() -> introspectionClient.introspect("token").block());
+			// @formatter:on
+		}
+	}
+
+	@Test
+	public void introspectWithEncodeClientCredentialsThenOk() throws Exception {
+		try (MockWebServer server = new MockWebServer()) {
+			String response = """
+					{
+						"active": true,
+						"username": "client&1"
+					}
+					""";
+			server.setDispatcher(requiresAuth("client%261", "secret%40%242", response));
+			String introspectUri = server.url("/introspect").toString();
+			ReactiveOpaqueTokenIntrospector introspectionClient = SpringReactiveOpaqueTokenIntrospector
+				.withIntrospectionUri(introspectUri)
+				.clientId("client&1")
+				.clientSecret("secret@$2")
+				.build();
+			OAuth2AuthenticatedPrincipal authority = introspectionClient.introspect("token").block();
+			// @formatter:off
+			assertThat(authority.getAttributes())
+					.isNotNull()
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.ACTIVE, true)
+					.containsEntry(OAuth2TokenIntrospectionClaimNames.USERNAME, "client&1");
+			// @formatter:on
+		}
+	}
+
 	private WebClient mockResponse(String response) {
 		return mockResponse(toMap(response));
 	}
@@ -276,7 +323,10 @@ public class SpringReactiveOpaqueTokenIntrospectorTests {
 		ClientResponse.Headers headers = mock(ClientResponse.Headers.class);
 		given(headers.contentType()).willReturn(Optional.of(MediaType.APPLICATION_JSON));
 		given(clientResponse.headers()).willReturn(headers);
-		given(spec.exchange()).willReturn(Mono.just(clientResponse));
+		given(spec.exchangeToMono(any())).willAnswer((invocation) -> {
+			Function<ClientResponse, Mono<ClientResponse>> fun = invocation.getArgument(0);
+			return fun.apply(clientResponse);
+		});
 		return webClient;
 	}
 
@@ -295,7 +345,7 @@ public class SpringReactiveOpaqueTokenIntrospectorTests {
 		WebClient.RequestBodyUriSpec spec = spy(real.post());
 		WebClient webClient = spy(WebClient.class);
 		given(webClient.post()).willReturn(spec);
-		given(spec.exchange()).willThrow(ex);
+		given(spec.exchangeToMono(any())).willThrow(ex);
 		return webClient;
 	}
 

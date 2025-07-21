@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.util.Assert;
 
@@ -48,17 +49,6 @@ public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>>
 
 	@Override
 	public void configure(B builder) throws Exception {
-	}
-
-	/**
-	 * Return the {@link SecurityBuilder} when done using the {@link SecurityConfigurer}.
-	 * This is useful for method chaining.
-	 * @return the {@link SecurityBuilder} for further customizations
-	 * @deprecated For removal in 7.0. Use the lambda based configuration instead.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public B and() {
-		return getBuilder();
 	}
 
 	/**
@@ -94,7 +84,7 @@ public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>>
 
 	/**
 	 * Sets the {@link SecurityBuilder} to be used. This is automatically set when using
-	 * {@link AbstractConfiguredSecurityBuilder#apply(SecurityConfigurerAdapter)}
+	 * {@link AbstractConfiguredSecurityBuilder#with(SecurityConfigurerAdapter, Customizer)}
 	 * @param builder the {@link SecurityBuilder} to set
 	 */
 	public void setBuilder(B builder) {

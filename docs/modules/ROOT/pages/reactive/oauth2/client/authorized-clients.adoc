@@ -1,9 +1,10 @@
-[[oauth2Client-additional-features]]
-= Authorized Clients
+[[oauth2-client-additional-features]]
+= [[oauth2Client-additional-features]]Authorized Client Features
 
+This section covers additional features provided by Spring Security for OAuth2 Client.
 
-[[oauth2Client-registered-authorized-client]]
-== Resolving an Authorized Client
+[[oauth2-client-registered-authorized-client]]
+== [[oauth2Client-registered-authorized-client]]Resolving an Authorized Client
 
 The `@RegisteredOAuth2AuthorizedClient` annotation provides the capability of resolving a method parameter to an argument value of type `OAuth2AuthorizedClient`.
 This is a convenient alternative compared to accessing the `OAuth2AuthorizedClient` using the `ReactiveOAuth2AuthorizedClientManager` or `ReactiveOAuth2AuthorizedClientService`.
@@ -42,21 +43,19 @@ class OAuth2ClientController {
 ----
 ======
 
-The `@RegisteredOAuth2AuthorizedClient` annotation is handled by `OAuth2AuthorizedClientArgumentResolver`, which directly uses a <<oauth2Client-authorized-manager-provider, ReactiveOAuth2AuthorizedClientManager>> and therefore inherits it's capabilities.
+The `@RegisteredOAuth2AuthorizedClient` annotation is handled by `OAuth2AuthorizedClientArgumentResolver`, which directly uses a xref:reactive/oauth2/client/core.adoc#oauth2Client-authorized-manager-provider[ReactiveOAuth2AuthorizedClientManager] and therefore inherits it's capabilities.
 
-
-[[oauth2Client-webclient-webflux]]
-== WebClient integration for Reactive Environments
+[[oauth2-client-web-client]]
+== [[oauth2Client-webclient-webflux]]WebClient integration for Reactive Environments
 
 The OAuth 2.0 Client support integrates with `WebClient` using an `ExchangeFilterFunction`.
 
 The `ServerOAuth2AuthorizedClientExchangeFilterFunction` provides a simple mechanism for requesting protected resources by using an `OAuth2AuthorizedClient` and including the associated `OAuth2AccessToken` as a Bearer Token.
-It directly uses an <<oauth2Client-authorized-manager-provider, ReactiveOAuth2AuthorizedClientManager>> and therefore inherits the following capabilities:
+It directly uses an xref:reactive/oauth2/client/core.adoc#oauth2Client-authorized-manager-provider[ReactiveOAuth2AuthorizedClientManager] and therefore inherits the following capabilities:
 
 * An `OAuth2AccessToken` will be requested if the client has not yet been authorized.
 ** `authorization_code` - triggers the Authorization Request redirect to initiate the flow
 ** `client_credentials` - the access token is obtained directly from the Token Endpoint
-** `password` - the access token is obtained directly from the Token Endpoint
 * If the `OAuth2AccessToken` is expired, it will be refreshed (or renewed) if a `ReactiveOAuth2AuthorizedClientProvider` is available to perform the authorization
 
 The following code shows an example of how to configure `WebClient` with OAuth 2.0 Client support:
@@ -91,6 +90,7 @@ fun webClient(authorizedClientManager: ReactiveOAuth2AuthorizedClientManager): W
 ----
 ======
 
+[[oauth2-client-web-client-authorized-client]]
 === Providing the Authorized Client
 
 The `ServerOAuth2AuthorizedClientExchangeFilterFunction` determines the client to use (for a request) by resolving the `OAuth2AuthorizedClient` from the `ClientRequest.attributes()` (request attributes).
@@ -184,7 +184,7 @@ fun index(): Mono<String> {
 ======
 <1> `clientRegistrationId()` is a `static` method in `ServerOAuth2AuthorizedClientExchangeFilterFunction`.
 
-
+[[oauth2-client-web-client-default-authorized-client]]
 === Defaulting the Authorized Client
 
 If neither `OAuth2AuthorizedClient` or `ClientRegistration.getRegistrationId()` is provided as a request attribute, the `ServerOAuth2AuthorizedClientExchangeFilterFunction` can determine the _default_ client to use depending on it's configuration.
@@ -226,7 +226,9 @@ fun webClient(authorizedClientManager: ReactiveOAuth2AuthorizedClientManager): W
 ======
 
 [WARNING]
+====
 It is recommended to be cautious with this feature since all HTTP requests will receive the access token.
+====
 
 Alternatively, if `setDefaultClientRegistrationId("okta")` is configured with a valid `ClientRegistration`, the `OAuth2AccessToken` associated with the `OAuth2AuthorizedClient` is used.
 
@@ -265,4 +267,6 @@ fun webClient(authorizedClientManager: ReactiveOAuth2AuthorizedClientManager): W
 ======
 
 [WARNING]
+====
 It is recommended to be cautious with this feature since all HTTP requests will receive the access token.
+====

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.http.server.reactive.MockServerHttpResponse;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 public class HttpStatusServerAccessDeniedHandlerTests {
 
 	@Mock
-	private ServerWebExchange exchange;
+	private MockServerWebExchange exchange;
 
 	private HttpStatus httpStatus = HttpStatus.FORBIDDEN;
 
@@ -62,7 +62,9 @@ public class HttpStatusServerAccessDeniedHandlerTests {
 	public void commenceWhenSubscribeThenStatusSet() {
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 		this.handler.handle(this.exchange, this.exception).block();
-		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(this.httpStatus);
+		MockServerHttpResponse response = this.exchange.getResponse();
+		assertThat(response.getStatusCode()).isEqualTo(this.httpStatus);
+		assertThat(response.getBodyAsString().block()).isEqualTo("Access Denied");
 	}
 
 	@Test
@@ -71,7 +73,9 @@ public class HttpStatusServerAccessDeniedHandlerTests {
 		this.handler = new HttpStatusServerAccessDeniedHandler(this.httpStatus);
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 		this.handler.handle(this.exchange, this.exception).block();
-		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(this.httpStatus);
+		MockServerHttpResponse response = this.exchange.getResponse();
+		assertThat(response.getStatusCode()).isEqualTo(this.httpStatus);
+		assertThat(response.getBodyAsString().block()).isEqualTo("Access Denied");
 	}
 
 }

@@ -35,6 +35,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
@@ -45,6 +46,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -70,7 +72,7 @@ public class FormLoginConfigTests {
 
 	@Test
 	public void getProtectedPageWhenFormLoginConfiguredThenRedirectsToDefaultLoginPage() throws Exception {
-		this.spring.configLocations(this.xml("WithAntRequestMatcher")).autowire();
+		this.spring.configLocations(this.xml("WithRequestMatcher")).autowire();
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(redirectedUrl("http://localhost/login"));
@@ -208,6 +210,17 @@ public class FormLoginConfigTests {
 		this.mvc.perform(loginRequest)
 				.andExpect(redirectedUrl("/login?error"));
 		// @formatter:on
+	}
+
+	@Test
+	public void portResolver() throws Exception {
+		this.spring.configLocations(this.xml("PortResolverBean")).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/requires-authentication"))
+				.andExpect(status().is3xxRedirection());
+		// @formatter:on
+		PortResolver portResolver = this.spring.getContext().getBean(PortResolver.class);
+		verify(portResolver, atLeastOnce()).getServerPort(any());
 	}
 
 	private Filter getFilter(ApplicationContext context, Class<? extends Filter> filterClass) {

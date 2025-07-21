@@ -22,7 +22,7 @@
 	xmlns:tx="http://www.springframework.org/schema/tx"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 		http://www.springframework.org/schema/tx https://www.springframework.org/schema/tx/spring-tx.xsd
-		http://www.springframework.org/schema/security org/springframework/security/config/spring-security-6.4.xsd">
+		http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd">
 
 	<tx:annotation-driven />
 

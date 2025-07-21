@@ -117,7 +117,7 @@ class RedirectionEndpointDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 oauth2Login {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 
 package org.springframework.security.config.http;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
@@ -33,6 +35,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.UnreachableFilterChainException;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
@@ -40,9 +44,12 @@ import org.springframework.security.web.access.intercept.FilterInvocationSecurit
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
@@ -97,6 +104,11 @@ public class DefaultFilterChainValidatorTests {
 		ReflectionTestUtils.setField(this.validator, "logger", this.logger);
 	}
 
+	@Test
+	void validateWhenFilterSecurityInterceptorConfiguredThenValidates() {
+		assertThatNoException().isThrownBy(() -> this.validator.validate(this.chain));
+	}
+
 	// SEC-1878
 	@SuppressWarnings("unchecked")
 	@Test
@@ -112,8 +124,7 @@ public class DefaultFilterChainValidatorTests {
 
 	@Test
 	public void validateCheckLoginPageAllowsAnonymous() {
-		given(this.authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(false));
-		given(this.authorizationManager.authorize(any(), any())).willCallRealMethod();
+		given(this.authorizationManager.authorize(any(), any())).willReturn(new AuthorizationDecision(false));
 		this.validator.validate(this.chainAuthorizationFilter);
 		verify(this.logger).warn("Anonymous access to the login page doesn't appear to be enabled. "
 				+ "This is almost certainly an error. Please check your configuration allows unauthenticated "
@@ -128,6 +139,24 @@ public class DefaultFilterChainValidatorTests {
 		this.authorizationInterceptor.setSecurityMetadataSource(customMetaDataSource);
 		this.validator.validate(this.chain);
 		verify(customMetaDataSource, atLeastOnce()).getAttributes(any());
+	}
+
+	@Test
+	void validateWhenSameRequestMatchersArePresentThenUnreachableFilterChainException() {
+		PathPatternRequestMatcher.Builder builder = PathPatternRequestMatcher.withDefaults();
+		AnonymousAuthenticationFilter authenticationFilter = mock(AnonymousAuthenticationFilter.class);
+		ExceptionTranslationFilter exceptionTranslationFilter = mock(ExceptionTranslationFilter.class);
+		SecurityFilterChain chain1 = new DefaultSecurityFilterChain(builder.matcher("/api"), authenticationFilter,
+				exceptionTranslationFilter, this.authorizationInterceptor);
+		SecurityFilterChain chain2 = new DefaultSecurityFilterChain(builder.matcher("/api"), authenticationFilter,
+				exceptionTranslationFilter, this.authorizationInterceptor);
+		List<SecurityFilterChain> chains = new ArrayList<>();
+		chains.add(chain2);
+		chains.add(chain1);
+		FilterChainProxy proxy = new FilterChainProxy(chains);
+
+		assertThatExceptionOfType(UnreachableFilterChainException.class)
+			.isThrownBy(() -> this.validator.validate(proxy));
 	}
 
 }

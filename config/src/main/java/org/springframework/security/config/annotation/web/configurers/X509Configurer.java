@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
@@ -90,7 +91,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * Creates a new instance
 	 *
-	 * @see HttpSecurity#x509()
+	 * @see HttpSecurity#x509(Customizer)
 	 */
 	public X509Configurer() {
 	}
@@ -161,7 +162,10 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 	 * @param subjectPrincipalRegex the regex to extract the user principal from the
 	 * certificate (i.e. "CN=(.*?)(?:,|$)").
 	 * @return the {@link X509Configurer} for further customizations
+	 * @deprecated Please use {{@link #x509PrincipalExtractor(X509PrincipalExtractor)}
+	 * instead
 	 */
+	@Deprecated
 	public X509Configurer<H> subjectPrincipalRegex(String subjectPrincipalRegex) {
 		SubjectDnX509PrincipalExtractor principalExtractor = new SubjectDnX509PrincipalExtractor();
 		principalExtractor.setSubjectDnRegex(subjectPrincipalRegex);

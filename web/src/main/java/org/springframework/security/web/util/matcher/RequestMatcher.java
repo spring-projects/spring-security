@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public interface RequestMatcher {
 	boolean matches(HttpServletRequest request);
 
 	/**
-	 * Returns a MatchResult for this RequestMatcher The default implementation returns
+	 * Returns a MatchResult for this RequestMatcher. The default implementation returns
 	 * {@link Collections#emptyMap()} when {@link MatchResult#getVariables()} is invoked.
 	 * @return the MatchResult from comparing this RequestMatcher against the
 	 * HttpServletRequest
@@ -50,7 +50,7 @@ public interface RequestMatcher {
 	}
 
 	/**
-	 * The result of matching against an HttpServletRequest Contains the status, true or
+	 * The result of matching against an HttpServletRequest contains the status, true or
 	 * false, of the match and if present, any variables extracted from the match
 	 *
 	 * @since 5.2
@@ -86,7 +86,7 @@ public interface RequestMatcher {
 
 		/**
 		 * Creates an instance of {@link MatchResult} that is a match with no variables
-		 * @return
+		 * @return {@link MatchResult} that is a match with no variables
 		 */
 		public static MatchResult match() {
 			return new MatchResult(true, Collections.emptyMap());
@@ -95,8 +95,8 @@ public interface RequestMatcher {
 		/**
 		 * Creates an instance of {@link MatchResult} that is a match with the specified
 		 * variables
-		 * @param variables
-		 * @return
+		 * @param variables the specified variables
+		 * @return {@link MatchResult} that is a match with the specified variables
 		 */
 		public static MatchResult match(Map<String, String> variables) {
 			return new MatchResult(true, variables);
@@ -104,7 +104,7 @@ public interface RequestMatcher {
 
 		/**
 		 * Creates an instance of {@link MatchResult} that is not a match.
-		 * @return
+		 * @return {@link MatchResult} that is not a match
 		 */
 		public static MatchResult notMatch() {
 			return new MatchResult(false, Collections.emptyMap());

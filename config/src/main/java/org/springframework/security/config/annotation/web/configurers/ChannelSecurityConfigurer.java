@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,7 @@ import java.util.List;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.ObjectPostProcessor;
-import org.springframework.security.config.annotation.SecurityBuilder;
-import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.DefaultRedirectStrategy;
@@ -78,7 +75,9 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * @author Rob Winch
  * @author Onur Kagan Ozcan
  * @since 3.2
+ * @deprecated please use {@link HttpsRedirectConfigurer} instead
  */
+@Deprecated
 public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<ChannelSecurityConfigurer<H>, H> {
 
@@ -94,7 +93,7 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Creates a new instance
-	 * @see HttpSecurity#requiresChannel()
+	 * @see HttpSecurity#requiresChannel(Customizer)
 	 */
 	public ChannelSecurityConfigurer(ApplicationContext context) {
 		this.REGISTRY = new ChannelRequestMatcherRegistry(context);
@@ -147,6 +146,10 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 		return this.REGISTRY;
 	}
 
+	/**
+	 * @deprecated no replacement planned
+	 */
+	@Deprecated
 	public final class ChannelRequestMatcherRegistry
 			extends AbstractConfigAttributeRequestMatcherRegistry<RequiresChannelUrl> {
 
@@ -191,20 +194,12 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 			return this;
 		}
 
-		/**
-		 * Return the {@link SecurityBuilder} when done using the
-		 * {@link SecurityConfigurer}. This is useful for method chaining.
-		 * @return the type of {@link HttpSecurityBuilder} that is being configured
-		 * @deprecated For removal in 7.0. Use
-		 * {@link HttpSecurity#requiresChannel(Customizer)} instead
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public H and() {
-			return ChannelSecurityConfigurer.this.and();
-		}
-
 	}
 
+	/**
+	 * @deprecated no replacement planned
+	 */
+	@Deprecated
 	public class RequiresChannelUrl {
 
 		protected List<? extends RequestMatcher> requestMatchers;

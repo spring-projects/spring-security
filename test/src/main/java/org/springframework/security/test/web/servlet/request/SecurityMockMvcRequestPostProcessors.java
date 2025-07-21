@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -524,7 +524,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 			TestCsrfTokenRepository.enable(request);
 			MockHttpServletResponse response = new MockHttpServletResponse();
 			DeferredCsrfToken deferredCsrfToken = repository.loadDeferredToken(request, response);
-			handler.handle(request, response, deferredCsrfToken::get);
+			handler.handle(request, response, deferredCsrfToken);
 			CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
 			String tokenValue = this.useInvalidToken ? INVALID_TOKEN_VALUE : token.getToken();
 			if (this.asHeader) {
@@ -1156,7 +1156,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		/**
 		 * Mutate the attributes using the given {@link Consumer}
-		 * @param attributesConsumer The {@link Consumer} for mutating the {@Map} of
+		 * @param attributesConsumer The {@link Consumer} for mutating the {@code Map} of
 		 * attributes
 		 * @return the {@link OpaqueTokenRequestPostProcessor} for further configuration
 		 */
@@ -1317,7 +1317,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		/**
 		 * Mutate the attributes using the given {@link Consumer}
-		 * @param attributesConsumer The {@link Consumer} for mutating the {@Map} of
+		 * @param attributesConsumer The {@link Consumer} for mutating the {@code Map} of
 		 * attributes
 		 * @return the {@link OAuth2LoginRequestPostProcessor} for further configuration
 		 */
@@ -1369,8 +1369,10 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		private ClientRegistration.Builder clientRegistrationBuilder() {
 			return ClientRegistration.withRegistrationId("test")
-				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri("https://client.example.com")
 				.clientId("test-client")
+				.authorizationUri("https://authorize-uri.example.org")
 				.tokenUri("https://token-uri.example.org");
 		}
 
@@ -1504,8 +1506,10 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		private ClientRegistration.Builder clientRegistrationBuilder() {
 			return ClientRegistration.withRegistrationId("test")
-				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri("https://client.example.com")
 				.clientId("test-client")
+				.authorizationUri("https://authorize-uri.example.org")
 				.tokenUri("https://token-uri.example.org");
 		}
 
@@ -1627,9 +1631,11 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		private ClientRegistration.Builder clientRegistrationBuilder() {
 			return ClientRegistration.withRegistrationId(this.registrationId)
-				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri("https://client.example.com")
 				.clientId("test-client")
 				.clientSecret("test-secret")
+				.authorizationUri("https://idp.example.org/oauth/authorize")
 				.tokenUri("https://idp.example.org/oauth/token");
 		}
 

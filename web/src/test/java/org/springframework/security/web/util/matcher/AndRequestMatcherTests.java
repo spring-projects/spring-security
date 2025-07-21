@@ -33,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * @author Rob Winch
@@ -59,7 +60,7 @@ public class AndRequestMatcherTests {
 
 	@Test
 	public void constructorListOfDoesNotThrowNullPointer() {
-		new AndRequestMatcher(List.of(new AntPathRequestMatcher("/test")));
+		new AndRequestMatcher(List.of(pathPattern("/test")));
 	}
 
 	@Test

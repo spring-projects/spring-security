@@ -26,7 +26,6 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ObservationAuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -66,14 +65,13 @@ public class AuthenticationManagerFactoryBean implements FactoryBean<Authenticat
 			if (uds == null) {
 				throw new NoSuchBeanDefinitionException(BeanIds.AUTHENTICATION_MANAGER, MISSING_BEAN_ERROR_MESSAGE);
 			}
-			DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-			provider.setUserDetailsService(uds);
+			DaoAuthenticationProvider provider = new DaoAuthenticationProvider(uds);
 			PasswordEncoder passwordEncoder = this.bf.getBeanProvider(PasswordEncoder.class).getIfUnique();
 			if (passwordEncoder != null) {
 				provider.setPasswordEncoder(passwordEncoder);
 			}
 			provider.afterPropertiesSet();
-			ProviderManager manager = new ProviderManager(Arrays.<AuthenticationProvider>asList(provider));
+			ProviderManager manager = new ProviderManager(Arrays.asList(provider));
 			if (this.observationRegistry.isNoop()) {
 				return manager;
 			}

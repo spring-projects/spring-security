@@ -45,6 +45,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.MethodParameter;
+import org.springframework.http.server.PathContainer;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.messaging.Message;
@@ -68,8 +69,9 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
-import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.observation.SecurityObservationSettings;
+import org.springframework.security.config.web.messaging.PathPatternMessageMatcherBuilderFactoryBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -99,6 +101,7 @@ import org.springframework.web.socket.server.HandshakeHandler;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 import org.springframework.web.socket.sockjs.transport.handler.SockJsWebSocketHandler;
 import org.springframework.web.socket.sockjs.transport.session.WebSocketServerSockJsSession;
+import org.springframework.web.util.pattern.PathPatternParser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -438,6 +441,12 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		verifyNoInteractions(observationHandler);
 	}
 
+	// gh-16011
+	@Test
+	public void enableWebSocketSecurityWhenWebSocketSecurityUsedThenAutowires() {
+		loadConfig(WithWebSecurity.class);
+	}
+
 	private void assertHandshake(HttpServletRequest request) {
 		TestHandshakeHandler handshakeHandler = this.context.getBean(TestHandshakeHandler.class);
 		assertThatCsrfToken(handshakeHandler.attributes.get(CsrfToken.class.getName())).isEqualTo(this.token);
@@ -489,6 +498,7 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 
 	private void loadConfig(Class<?>... configs) {
 		this.context = new AnnotationConfigWebApplicationContext();
+		this.context.setAllowBeanDefinitionOverriding(false);
 		this.context.register(configs);
 		this.context.setServletConfig(new MockServletConfig());
 		this.context.refresh();
@@ -499,6 +509,13 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 	@EnableWebSocketSecurity
 	@Import(SyncExecutorConfig.class)
 	static class MsmsRegistryCustomPatternMatcherConfig implements WebSocketMessageBrokerConfigurer {
+
+		@Bean
+		PathPatternMessageMatcherBuilderFactoryBean messageMatcherBuilder() {
+			PathPatternParser parser = new PathPatternParser();
+			parser.setPathOptions(PathContainer.Options.MESSAGE_ROUTE);
+			return new PathPatternMessageMatcherBuilderFactoryBean(parser);
+		}
 
 		// @formatter:off
 		@Override
@@ -511,7 +528,6 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 
 		@Override
 		public void configureMessageBroker(MessageBrokerRegistry registry) {
-			registry.setPathMatcher(new AntPathMatcher("."));
 			registry.enableSimpleBroker("/queue/", "/topic/");
 			registry.setApplicationDestinationPrefixes("/app");
 		}
@@ -560,7 +576,6 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		@Bean
 		AuthorizationManager<Message<?>> authorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
 			messages
-					.simpDestPathMatcher(new AntPathMatcher())
 					.simpDestMatchers("/app/a/*").permitAll()
 					.anyMessage().denyAll();
 			return messages.build();
@@ -870,37 +885,6 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 
 	}
 
-	@Configuration
-	@EnableWebSocketSecurity
-	@EnableWebSocketMessageBroker
-	@Import(SyncExecutorConfig.class)
-	static class UsingLegacyConfigurerConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
-
-		@Override
-		public void registerStompEndpoints(StompEndpointRegistry registry) {
-			// @formatter:off
-			registry.addEndpoint("/websocket")
-					.setHandshakeHandler(testHandshakeHandler())
-					.addInterceptors(new HttpSessionHandshakeInterceptor());
-			// @formatter:on
-		}
-
-		@Override
-		public void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
-			// @formatter:off
-			messages
-					.simpDestMatchers("/permitAll/**").permitAll()
-					.anyMessage().denyAll();
-			// @formatter:on
-		}
-
-		@Bean
-		TestHandshakeHandler testHandshakeHandler() {
-			return new TestHandshakeHandler();
-		}
-
-	}
-
 	@Configuration(proxyBeanMethods = false)
 	@EnableWebSocketSecurity
 	@EnableWebSocketMessageBroker
@@ -936,6 +920,13 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		TestHandshakeHandler testHandshakeHandler() {
 			return new TestHandshakeHandler();
 		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@EnableWebSecurity
+	@Import(WebSocketSecurityConfig.class)
+	static class WithWebSecurity {
 
 	}
 

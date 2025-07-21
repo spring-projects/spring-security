@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,29 @@
 
 package org.springframework.security.config.annotation.web.configuration;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.factory.BeanClassLoaderAware;
+import org.springframework.beans.BeanMetadataElement;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -45,11 +58,17 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.crypto.RsaKeyConversionServicePostProcessor;
 import org.springframework.security.context.DelegatingApplicationListener;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
+import org.springframework.security.web.debug.DebugFilter;
+import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.RequestRejectedHandler;
+import org.springframework.web.filter.CompositeFilter;
+import org.springframework.web.filter.ServletRequestPathFilter;
 
 /**
  * Uses a {@link WebSecurity} to create the {@link FilterChainProxy} that performs the web
@@ -65,25 +84,15 @@ import org.springframework.security.web.context.AbstractSecurityWebApplicationIn
  * @see WebSecurity
  */
 @Configuration(proxyBeanMethods = false)
-public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAware {
+public class WebSecurityConfiguration implements ImportAware {
 
 	private WebSecurity webSecurity;
 
 	private Boolean debugEnabled;
 
-	private List<SecurityConfigurer<Filter, WebSecurity>> webSecurityConfigurers;
-
 	private List<SecurityFilterChain> securityFilterChains = Collections.emptyList();
 
 	private List<WebSecurityCustomizer> webSecurityCustomizers = Collections.emptyList();
-
-	private ClassLoader beanClassLoader;
-
-	@Autowired(required = false)
-	private ObjectPostProcessor<Object> objectObjectPostProcessor;
-
-	@Autowired(required = false)
-	private HttpSecurity httpSecurity;
 
 	@Bean
 	public static DelegatingApplicationListener delegatingApplicationListener() {
@@ -102,14 +111,15 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 	 * @throws Exception
 	 */
 	@Bean(name = AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME)
-	public Filter springSecurityFilterChain() throws Exception {
+	public Filter springSecurityFilterChain(ObjectProvider<HttpSecurity> provider) throws Exception {
 		boolean hasFilterChain = !this.securityFilterChains.isEmpty();
 		if (!hasFilterChain) {
 			this.webSecurity.addSecurityFilterChainBuilder(() -> {
-				this.httpSecurity.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated());
-				this.httpSecurity.formLogin(Customizer.withDefaults());
-				this.httpSecurity.httpBasic(Customizer.withDefaults());
-				return this.httpSecurity.build();
+				HttpSecurity httpSecurity = provider.getObject();
+				httpSecurity.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated());
+				httpSecurity.formLogin(Customizer.withDefaults());
+				httpSecurity.httpBasic(Customizer.withDefaults());
+				return httpSecurity.build();
 			});
 		}
 		for (SecurityFilterChain securityFilterChain : this.securityFilterChains) {
@@ -167,7 +177,6 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 		for (SecurityConfigurer<Filter, WebSecurity> webSecurityConfigurer : webSecurityConfigurers) {
 			this.webSecurity.apply(webSecurityConfigurer);
 		}
-		this.webSecurityConfigurers = webSecurityConfigurers;
 	}
 
 	@Autowired(required = false)
@@ -196,9 +205,48 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 		}
 	}
 
-	@Override
-	public void setBeanClassLoader(ClassLoader classLoader) {
-		this.beanClassLoader = classLoader;
+	/**
+	 * Used to ensure Spring MVC request matching is cached.
+	 *
+	 * Creates a {@link BeanDefinitionRegistryPostProcessor} that moves the
+	 * AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME to another bean name
+	 * and then adds a {@link CompositeFilter} that contains
+	 * {@link ServletRequestPathFilter} and the original FilterChainProxy under the
+	 * original Bean name.
+	 * @return
+	 */
+	@Bean
+	static BeanDefinitionRegistryPostProcessor springSecurityPathPatternParserBeanDefinitionRegistryPostProcessor() {
+		return new BeanDefinitionRegistryPostProcessor() {
+			@Override
+			public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+			}
+
+			@Override
+			public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+				BeanDefinition filterChainProxy = registry
+					.getBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME);
+
+				if (filterChainProxy.getResolvableType().isInstance(CompositeFilterChainProxy.class)) {
+					return;
+				}
+
+				BeanDefinitionBuilder pppCacheFilterBldr = BeanDefinitionBuilder
+					.rootBeanDefinition(ServletRequestPathFilter.class)
+					.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+
+				ManagedList<BeanMetadataElement> filters = new ManagedList<>();
+				filters.add(pppCacheFilterBldr.getBeanDefinition());
+				filters.add(filterChainProxy);
+				BeanDefinitionBuilder compositeSpringSecurityFilterChainBldr = BeanDefinitionBuilder
+					.rootBeanDefinition(CompositeFilterChainProxy.class)
+					.addConstructorArgValue(filters);
+
+				registry.removeBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME);
+				registry.registerBeanDefinition(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME,
+						compositeSpringSecurityFilterChainBldr.getBeanDefinition());
+			}
+		};
 	}
 
 	/**
@@ -230,6 +278,123 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 				}
 			}
 			return Ordered.LOWEST_PRECEDENCE;
+		}
+
+	}
+
+	/**
+	 * Extends {@link FilterChainProxy} to provide as much passivity as possible but
+	 * delegates to {@link CompositeFilter} for
+	 * {@link #doFilter(ServletRequest, ServletResponse, FilterChain)}.
+	 */
+	static class CompositeFilterChainProxy extends FilterChainProxy {
+
+		/**
+		 * Used for {@link #doFilter(ServletRequest, ServletResponse, FilterChain)}
+		 */
+		private final Filter doFilterDelegate;
+
+		private final FilterChainProxy springSecurityFilterChain;
+
+		/**
+		 * Creates a new instance
+		 * @param filters the Filters to delegate to. One of which must be
+		 * FilterChainProxy.
+		 */
+		CompositeFilterChainProxy(List<? extends Filter> filters) {
+			this.doFilterDelegate = createDoFilterDelegate(filters);
+			this.springSecurityFilterChain = findFilterChainProxy(filters);
+		}
+
+		@Override
+		public void afterPropertiesSet() {
+			this.springSecurityFilterChain.afterPropertiesSet();
+		}
+
+		@Override
+		public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+				throws IOException, ServletException {
+			this.doFilterDelegate.doFilter(request, response, chain);
+		}
+
+		@Override
+		public List<Filter> getFilters(String url) {
+			return this.springSecurityFilterChain.getFilters(url);
+		}
+
+		@Override
+		public List<SecurityFilterChain> getFilterChains() {
+			return this.springSecurityFilterChain.getFilterChains();
+		}
+
+		@Override
+		public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+			this.springSecurityFilterChain.setSecurityContextHolderStrategy(securityContextHolderStrategy);
+		}
+
+		@Override
+		public void setFilterChainValidator(FilterChainValidator filterChainValidator) {
+			this.springSecurityFilterChain.setFilterChainValidator(filterChainValidator);
+		}
+
+		@Override
+		public void setFilterChainDecorator(FilterChainDecorator filterChainDecorator) {
+			this.springSecurityFilterChain.setFilterChainDecorator(filterChainDecorator);
+		}
+
+		@Override
+		public void setFirewall(HttpFirewall firewall) {
+			this.springSecurityFilterChain.setFirewall(firewall);
+		}
+
+		@Override
+		public void setRequestRejectedHandler(RequestRejectedHandler requestRejectedHandler) {
+			this.springSecurityFilterChain.setRequestRejectedHandler(requestRejectedHandler);
+		}
+
+		/**
+		 * Used through reflection by Spring Security's Test support to lookup the
+		 * FilterChainProxy Filters for a specific HttpServletRequest.
+		 * @param request
+		 * @return
+		 */
+		private List<? extends Filter> getFilters(HttpServletRequest request) {
+			List<SecurityFilterChain> filterChains = this.springSecurityFilterChain.getFilterChains();
+			for (SecurityFilterChain chain : filterChains) {
+				if (chain.matches(request)) {
+					return chain.getFilters();
+				}
+			}
+			return null;
+		}
+
+		/**
+		 * Creates the Filter to delegate to for doFilter
+		 * @param filters the Filters to delegate to.
+		 * @return the Filter for doFilter
+		 */
+		private static Filter createDoFilterDelegate(List<? extends Filter> filters) {
+			CompositeFilter delegate = new CompositeFilter();
+			delegate.setFilters(filters);
+			return delegate;
+		}
+
+		/**
+		 * Find the FilterChainProxy in a List of Filter
+		 * @param filters
+		 * @return non-null FilterChainProxy
+		 * @throws IllegalStateException if the FilterChainProxy cannot be found
+		 */
+		private static FilterChainProxy findFilterChainProxy(List<? extends Filter> filters) {
+			for (Filter filter : filters) {
+				if (filter instanceof FilterChainProxy fcp) {
+					return fcp;
+				}
+				if (filter instanceof DebugFilter debugFilter) {
+					return debugFilter.getFilterChainProxy();
+				}
+			}
+			throw new IllegalStateException("Couldn't find FilterChainProxy in " + filters);
 		}
 
 	}

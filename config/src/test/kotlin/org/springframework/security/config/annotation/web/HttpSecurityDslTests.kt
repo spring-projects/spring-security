@@ -168,7 +168,7 @@ class HttpSecurityDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 securityMatcher(RegexRequestMatcher("/path", null))
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
             }
@@ -227,7 +227,7 @@ class HttpSecurityDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 securityMatcher("/path")
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
             }
@@ -284,7 +284,7 @@ class HttpSecurityDslTests {
             http {
                 securityMatcher("/path1")
                 securityMatcher(RegexRequestMatcher("/path2", null))
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
             }
@@ -337,7 +337,7 @@ class HttpSecurityDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authenticationManager = AuthenticationManagerConfig.AUTHENTICATION_MANAGER
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 httpBasic { }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.config.http;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.servlet.ServletRequest;
@@ -44,12 +45,13 @@ import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.config.Elements;
 import org.springframework.security.config.http.GrantedAuthorityDefaultsParserUtils.AbstractGrantedAuthorityDefaultsBeanFactory;
+import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.access.AuthorizationManagerWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator;
-import org.springframework.security.web.access.HandlerMappingIntrospectorRequestTransformer;
+import org.springframework.security.web.access.PathPatternRequestTransformer;
 import org.springframework.security.web.access.channel.ChannelDecisionManagerImpl;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.access.channel.InsecureChannelProcessor;
@@ -81,12 +83,11 @@ import org.springframework.security.web.session.ForceEagerSessionCreationFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy;
 import org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.transport.HttpsRedirectFilter;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 /**
  * Stateful class which helps HttpSecurityBDP to create the configuration for the
@@ -97,11 +98,6 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
  * @since 3.0
  */
 class HttpConfigurationBuilder {
-
-	private static final String HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector";
-
-	private static final boolean mvcPresent = ClassUtils.isPresent(HANDLER_MAPPING_INTROSPECTOR,
-			HttpConfigurationBuilder.class.getClassLoader());
 
 	private static final String ATT_CREATE_SESSION = "create-session";
 
@@ -120,6 +116,10 @@ class HttpConfigurationBuilder {
 	private static final String ATT_OBSERVATION_REGISTRY_REF = "observation-registry-ref";
 
 	private static final String ATT_SESSION_AUTH_STRATEGY_REF = "session-authentication-strategy-ref";
+
+	private static final String ATT_MAX_SESSIONS_REF = "max-sessions-ref";
+
+	private static final String ATT_MAX_SESSIONS = "max-sessions";
 
 	private static final String ATT_SESSION_AUTH_ERROR_URL = "session-authentication-error-url";
 
@@ -159,6 +159,8 @@ class HttpConfigurationBuilder {
 
 	private static final String DEF_JAAS_API_PROVISION = "false";
 
+	private static final String REQUEST_MATCHER_BUILDER_BEAN_NAME = "HttpConfigurationBuilder-pathPatternRequestMatcherBuilder";
+
 	private final Element httpElt;
 
 	private final ParserContext pc;
@@ -170,6 +172,8 @@ class HttpConfigurationBuilder {
 	private final MatcherType matcherType;
 
 	private BeanDefinition cpf;
+
+	private BeanDefinition httpsRedirectFilter;
 
 	private BeanDefinition securityContextPersistenceFilter;
 
@@ -236,6 +240,13 @@ class HttpConfigurationBuilder {
 		String createSession = element.getAttribute(ATT_CREATE_SESSION);
 		this.sessionPolicy = !StringUtils.hasText(createSession) ? SessionCreationPolicy.IF_REQUIRED
 				: createPolicy(createSession);
+		if (!this.pc.getRegistry().containsBeanDefinition(REQUEST_MATCHER_BUILDER_BEAN_NAME)) {
+			BeanDefinitionBuilder pathPatternRequestMatcherBuilder = BeanDefinitionBuilder
+				.rootBeanDefinition(PathPatternRequestMatcherBuilderFactoryBean.class);
+			pathPatternRequestMatcherBuilder.setFallback(true);
+			BeanDefinition bean = pathPatternRequestMatcherBuilder.getBeanDefinition();
+			this.pc.registerBeanComponent(new BeanComponentDefinition(bean, REQUEST_MATCHER_BUILDER_BEAN_NAME));
+		}
 		createSecurityContextHolderStrategy();
 		createForceEagerSessionCreationFilter();
 		createDisableEncodeUrlFilter();
@@ -247,6 +258,7 @@ class HttpConfigurationBuilder {
 		createServletApiFilter(authenticationManager);
 		createJaasApiFilter();
 		createChannelProcessingFilter();
+		createHttpsRedirectFilter();
 		createFilterSecurity(authenticationManager);
 		createAddHeadersFilter();
 		createCorsFilter();
@@ -313,7 +325,7 @@ class HttpConfigurationBuilder {
 
 	// Needed to account for placeholders
 	static String createPath(String path, boolean lowerCase) {
-		return lowerCase ? path.toLowerCase() : path;
+		return lowerCase ? path.toLowerCase(Locale.ENGLISH) : path;
 	}
 
 	BeanMetadataElement getSecurityContextHolderStrategyForAuthenticationFilters() {
@@ -484,9 +496,15 @@ class HttpConfigurationBuilder {
 			concurrentSessionStrategy.addConstructorArgValue(this.sessionRegistryRef);
 			String maxSessions = this.pc.getReaderContext()
 				.getEnvironment()
-				.resolvePlaceholders(sessionCtrlElt.getAttribute("max-sessions"));
+				.resolvePlaceholders(sessionCtrlElt.getAttribute(ATT_MAX_SESSIONS));
 			if (StringUtils.hasText(maxSessions)) {
 				concurrentSessionStrategy.addPropertyValue("maximumSessions", maxSessions);
+			}
+			String maxSessionsRef = this.pc.getReaderContext()
+				.getEnvironment()
+				.resolvePlaceholders(sessionCtrlElt.getAttribute(ATT_MAX_SESSIONS_REF));
+			if (StringUtils.hasText(maxSessionsRef)) {
+				concurrentSessionStrategy.addPropertyReference("maximumSessions", maxSessionsRef);
 			}
 			String exceptionIfMaximumExceeded = sessionCtrlElt.getAttribute("error-if-maximum-exceeded");
 			if (StringUtils.hasText(exceptionIfMaximumExceeded)) {
@@ -590,6 +608,12 @@ class HttpConfigurationBuilder {
 				.error("Cannot use 'expired-url' attribute and 'expired-session-strategy-ref'" + " attribute together.",
 						source);
 		}
+		String maxSessions = element.getAttribute(ATT_MAX_SESSIONS);
+		String maxSessionsRef = element.getAttribute(ATT_MAX_SESSIONS_REF);
+		if (StringUtils.hasText(maxSessions) && StringUtils.hasText(maxSessionsRef)) {
+			this.pc.getReaderContext()
+				.error("Cannot use 'max-sessions' attribute and 'max-sessions-ref' attribute together.", source);
+		}
 		if (StringUtils.hasText(expiryUrl)) {
 			BeanDefinitionBuilder expiredSessionBldr = BeanDefinitionBuilder
 				.rootBeanDefinition(SimpleRedirectSessionInformationExpiredStrategy.class);
@@ -639,6 +663,19 @@ class HttpConfigurationBuilder {
 		}
 	}
 
+	private void createHttpsRedirectFilter() {
+		String ref = this.httpElt
+			.getAttribute(HttpSecurityBeanDefinitionParser.ATT_REDIRECT_TO_HTTPS_REQUEST_MATCHER_REF);
+		if (!StringUtils.hasText(ref)) {
+			return;
+		}
+		RootBeanDefinition channelFilter = new RootBeanDefinition(HttpsRedirectFilter.class);
+		channelFilter.getPropertyValues().addPropertyValue("requestMatcher", new RuntimeBeanReference(ref));
+		channelFilter.getPropertyValues().addPropertyValue("portMapper", this.portMapper);
+		this.httpsRedirectFilter = channelFilter;
+	}
+
+	@Deprecated
 	private void createChannelProcessingFilter() {
 		ManagedMap<BeanMetadataElement, BeanDefinition> channelRequestMap = parseInterceptUrlsForChannelSecurity();
 		if (channelRequestMap.isEmpty()) {
@@ -674,7 +711,9 @@ class HttpConfigurationBuilder {
 	 * Parses the intercept-url elements to obtain the map used by channel security. This
 	 * will be empty unless the <tt>requires-channel</tt> attribute has been used on a URL
 	 * path.
+	 * @deprecated please use {@link #createHttpsRedirectFilter} instead
 	 */
+	@Deprecated
 	private ManagedMap<BeanMetadataElement, BeanDefinition> parseInterceptUrlsForChannelSecurity() {
 		ManagedMap<BeanMetadataElement, BeanDefinition> channelRequestMap = new ManagedMap<>();
 		for (Element urlElt : this.interceptUrls) {
@@ -715,7 +754,7 @@ class HttpConfigurationBuilder {
 				requestCacheBldr.addPropertyValue("portResolver", this.portResolver);
 				if (this.csrfFilter != null) {
 					BeanDefinitionBuilder requestCacheMatcherBldr = BeanDefinitionBuilder
-						.rootBeanDefinition(AntPathRequestMatcher.class);
+						.rootBeanDefinition(RequestMatcherFactoryBean.class);
 					requestCacheMatcherBldr.addConstructorArgValue("/**");
 					requestCacheMatcherBldr.addConstructorArgValue("GET");
 					requestCacheBldr.addPropertyValue("requestMatcher", requestCacheMatcherBldr.getBeanDefinition());
@@ -757,10 +796,8 @@ class HttpConfigurationBuilder {
 		BeanDefinitionBuilder wipeBldr = BeanDefinitionBuilder
 			.rootBeanDefinition(AuthorizationManagerWebInvocationPrivilegeEvaluator.class)
 			.addConstructorArgReference(authorizationFilterParser.getAuthorizationManagerRef());
-		if (mvcPresent) {
-			wipeBldr.addPropertyValue("requestTransformer",
-					new RootBeanDefinition(HandlerMappingIntrospectorRequestTransformerFactoryBean.class));
-		}
+		wipeBldr.addPropertyValue("requestTransformer",
+				new RootBeanDefinition(PathPatternRequestTransformerFactoryBean.class));
 		BeanDefinition wipe = wipeBldr.getBeanDefinition();
 		this.pc.registerBeanComponent(
 				new BeanComponentDefinition(wipe, this.pc.getReaderContext().generateBeanName(wipe)));
@@ -880,6 +917,9 @@ class HttpConfigurationBuilder {
 		if (this.disableUrlRewriteFilter != null) {
 			filters.add(new OrderDecorator(this.disableUrlRewriteFilter, SecurityFilters.DISABLE_ENCODE_URL_FILTER));
 		}
+		if (this.httpsRedirectFilter != null) {
+			filters.add(new OrderDecorator(this.httpsRedirectFilter, SecurityFilters.HTTPS_REDIRECT_FILTER));
+		}
 		if (this.cpf != null) {
 			filters.add(new OrderDecorator(this.cpf, SecurityFilters.CHANNEL_FILTER));
 		}
@@ -927,7 +967,7 @@ class HttpConfigurationBuilder {
 		return BeanDefinitionBuilder.rootBeanDefinition(ObservationRegistryFactory.class).getBeanDefinition();
 	}
 
-	static class HandlerMappingIntrospectorRequestTransformerFactoryBean
+	static class PathPatternRequestTransformerFactoryBean
 			implements FactoryBean<AuthorizationManagerWebInvocationPrivilegeEvaluator.HttpServletRequestTransformer>,
 			ApplicationContextAware {
 
@@ -936,10 +976,14 @@ class HttpConfigurationBuilder {
 		@Override
 		public AuthorizationManagerWebInvocationPrivilegeEvaluator.HttpServletRequestTransformer getObject()
 				throws Exception {
-			HandlerMappingIntrospector hmi = this.applicationContext.getBeanProvider(HandlerMappingIntrospector.class)
-				.getIfAvailable();
-			return (hmi != null) ? new HandlerMappingIntrospectorRequestTransformer(hmi)
-					: AuthorizationManagerWebInvocationPrivilegeEvaluator.HttpServletRequestTransformer.IDENTITY;
+			AuthorizationManagerWebInvocationPrivilegeEvaluator.HttpServletRequestTransformer requestTransformer = this.applicationContext
+				.getBeanProvider(
+						AuthorizationManagerWebInvocationPrivilegeEvaluator.HttpServletRequestTransformer.class)
+				.getIfUnique();
+			if (requestTransformer != null) {
+				return requestTransformer;
+			}
+			return new PathPatternRequestTransformer();
 		}
 
 		@Override

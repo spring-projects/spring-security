@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.security.AccessController;
 import java.security.Principal;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -91,6 +92,7 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
+import org.springframework.security.web.authentication.preauth.x509.X509TestUtils;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter;
 import org.springframework.security.web.authentication.ui.DefaultResourcesFilter;
@@ -109,6 +111,7 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.DisableEncodeUrlFilter;
+import org.springframework.security.web.transport.HttpsRedirectFilter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -350,6 +353,21 @@ public class MiscHttpConfigTests {
 	}
 
 	@Test
+	public void configureWhenRedirectToHttpsThenFilterAdded() {
+		this.spring.configLocations(xml("RedirectToHttpsRequiresHttpsAny")).autowire();
+		assertThat(getFilter(HttpsRedirectFilter.class)).isNotNull();
+	}
+
+	@Test
+	public void getWhenRedirectToHttpsAnyThenRedirects() throws Exception {
+		this.spring.configLocations(xml("RedirectToHttpsRequiresHttpsAny")).autowire();
+		// @formatter:off
+		this.mvc.perform(get("http://localhost"))
+				.andExpect(redirectedUrl("https://localhost"));
+		// @formatter:on
+	}
+
+	@Test
 	public void getWhenPortsMappedThenRedirectedAccordingly() throws Exception {
 		this.spring.configLocations(xml("PortsMappedInterceptUrlMethodRequiresAny")).autowire();
 		// @formatter:off
@@ -380,6 +398,27 @@ public class MiscHttpConfigTests {
 		this.spring.configLocations(xml("X509")).autowire();
 		assertThat(getFilters("/")).extracting((Extractor<Filter, Class<?>>) (filter) -> filter.getClass())
 			.containsSubsequence(CsrfFilter.class, X509AuthenticationFilter.class, ExceptionTranslationFilter.class);
+	}
+
+	@Test
+	public void getWhenUsingX509PrincipalExtractorRef() throws Exception {
+		this.spring.configLocations(xml("X509PrincipalExtractorRef")).autowire();
+		X509Certificate certificate = X509TestUtils.buildTestCertificate();
+		RequestPostProcessor x509 = x509(certificate);
+		// @formatter:off
+		this.mvc.perform(get("/protected").with(x509))
+				.andExpect(status().isOk());
+		// @formatter:on
+	}
+
+	@Test
+	public void getWhenUsingX509PrincipalExtractorRefAndSubjectPrincipalRegex() throws Exception {
+		String xmlResourceName = "X509PrincipalExtractorRefAndSubjectPrincipalRegex";
+		// @formatter:off
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+			.isThrownBy(() -> this.spring.configLocations(xml(xmlResourceName)).autowire())
+			.withMessage("Configuration problem: The attribute 'principal-extractor-ref' cannot be used together with the 'subject-principal-regex' attribute within <x509>\n" + "Offending resource: class path resource [org/springframework/security/config/http/MiscHttpConfigTests-X509PrincipalExtractorRefAndSubjectPrincipalRegex.xml]");
+		// @formatter:on
 	}
 
 	@Test

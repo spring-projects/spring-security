@@ -16,6 +16,8 @@
 
 package org.springframework.security.core.userdetails;
 
+import java.io.Serial;
+
 import org.springframework.security.core.AuthenticationException;
 
 /**
@@ -26,12 +28,18 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class UsernameNotFoundException extends AuthenticationException {
 
+	@Serial
+	private static final long serialVersionUID = 1410688585992297006L;
+
+	private final String name;
+
 	/**
 	 * Constructs a <code>UsernameNotFoundException</code> with the specified message.
 	 * @param msg the detail message.
 	 */
 	public UsernameNotFoundException(String msg) {
 		super(msg);
+		this.name = null;
 	}
 
 	/**
@@ -42,6 +50,42 @@ public class UsernameNotFoundException extends AuthenticationException {
 	 */
 	public UsernameNotFoundException(String msg, Throwable cause) {
 		super(msg, cause);
+		this.name = null;
+	}
+
+	private UsernameNotFoundException(String msg, String name, Throwable cause) {
+		super(msg, cause);
+		this.name = name;
+	}
+
+	/**
+	 * Construct an exception based on a specific username
+	 * @param username the invalid username
+	 * @return the {@link UsernameNotFoundException}
+	 * @since 7.0
+	 */
+	public static UsernameNotFoundException fromUsername(String username) {
+		return fromUsername(username, null);
+	}
+
+	/**
+	 * Construct an exception based on a specific username
+	 * @param username the invalid username
+	 * @param cause any underlying cause
+	 * @return the {@link UsernameNotFoundException}
+	 * @since 7.0
+	 */
+	public static UsernameNotFoundException fromUsername(String username, Throwable cause) {
+		return new UsernameNotFoundException("user not found", username, cause);
+	}
+
+	/**
+	 * Get the username that couldn't be found
+	 * @return the username
+	 * @since 7.0
+	 */
+	public String getName() {
+		return this.name;
 	}
 
 }

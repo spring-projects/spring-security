@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +21,16 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.security.web.authentication.switchuser.SwitchUserGrantedAuthority;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 
 /**
  * Jackson module for spring-security-web. This module register
- * {@link DefaultCsrfTokenMixin} and {@link PreAuthenticatedAuthenticationTokenMixin}. If
- * no default typing enabled by default then it'll enable it because typing info is needed
- * to properly serialize/deserialize objects. In order to use this module just add this
- * module into your ObjectMapper configuration.
+ * {@link DefaultCsrfTokenMixin}, {@link PreAuthenticatedAuthenticationTokenMixin} and
+ * {@link SwitchUserGrantedAuthorityMixIn}. If no default typing enabled by default then
+ * it'll enable it because typing info is needed to properly serialize/deserialize
+ * objects. In order to use this module just add this module into your ObjectMapper
+ * configuration.
  *
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
@@ -40,6 +42,7 @@ import org.springframework.security.web.csrf.DefaultCsrfToken;
  * @since 4.2
  * @see SecurityJackson2Modules
  */
+@SuppressWarnings("serial")
 public class WebJackson2Module extends SimpleModule {
 
 	public WebJackson2Module() {
@@ -52,6 +55,7 @@ public class WebJackson2Module extends SimpleModule {
 		context.setMixInAnnotations(DefaultCsrfToken.class, DefaultCsrfTokenMixin.class);
 		context.setMixInAnnotations(PreAuthenticatedAuthenticationToken.class,
 				PreAuthenticatedAuthenticationTokenMixin.class);
+		context.setMixInAnnotations(SwitchUserGrantedAuthority.class, SwitchUserGrantedAuthorityMixIn.class);
 	}
 
 }

@@ -25,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.config.Customizer.withDefaults
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -34,6 +35,7 @@ import org.springframework.security.core.userdetails.User
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated
+import org.springframework.security.web.PortResolver
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
@@ -126,7 +128,7 @@ class FormLoginDslTests {
     open class DisabledConfig {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-            http.formLogin()
+            http.formLogin(withDefaults())
             http {
                 formLogin {
                     disable()
@@ -154,7 +156,7 @@ class FormLoginDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 formLogin {}
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
             }
@@ -182,7 +184,7 @@ class FormLoginDslTests {
                 formLogin {
                     loginPage = "/log-in"
                 }
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
             }
@@ -237,6 +239,29 @@ class FormLoginDslTests {
                 }
             }
             return http.build()
+        }
+    }
+
+    @Test
+    fun `portResolerBean is used`() {
+        this.spring.register(PortResolverBeanConfig::class.java, AllSecuredConfig::class.java, UserConfig::class.java).autowire()
+
+        val portResolver = this.spring.context.getBean(PortResolver::class.java)
+        every { portResolver.getServerPort(any()) }.returns(1234)
+        this.mockMvc.get("/")
+            .andExpect {
+                status().isFound
+                redirectedUrl("http://localhost:1234/login")
+            }
+
+        verify { portResolver.getServerPort(any()) }
+    }
+
+    @Configuration
+    open class PortResolverBeanConfig {
+        @Bean
+        open fun portResolverBean(): PortResolver {
+            return mockk()
         }
     }
 
@@ -331,7 +356,7 @@ class FormLoginDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 formLogin {

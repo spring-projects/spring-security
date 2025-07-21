@@ -52,6 +52,66 @@ public class Saml2Error implements Serializable {
 	}
 
 	/**
+	 * Construct an {@link Saml2ErrorCodes#INVALID_RESPONSE} error
+	 * @param description the error description
+	 * @return the resulting {@link Saml2Error}
+	 * @since 7.0
+	 */
+	public static Saml2Error invalidResponse(String description) {
+		return new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE, description);
+	}
+
+	/**
+	 * Construct an {@link Saml2ErrorCodes#INTERNAL_VALIDATION_ERROR} error
+	 * @param description the error description
+	 * @return the resulting {@link Saml2Error}
+	 * @since 7.0
+	 */
+	public static Saml2Error internalValidationError(String description) {
+		return new Saml2Error(Saml2ErrorCodes.INTERNAL_VALIDATION_ERROR, description);
+	}
+
+	/**
+	 * Construct an {@link Saml2ErrorCodes#MALFORMED_RESPONSE_DATA} error
+	 * @param description the error description
+	 * @return the resulting {@link Saml2Error}
+	 * @since 7.0
+	 */
+	public static Saml2Error malformedResponseData(String description) {
+		return new Saml2Error(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA, description);
+	}
+
+	/**
+	 * Construct an {@link Saml2ErrorCodes#DECRYPTION_ERROR} error
+	 * @param description the error description
+	 * @return the resulting {@link Saml2Error}
+	 * @since 7.0
+	 */
+	public static Saml2Error decryptionError(String description) {
+		return new Saml2Error(Saml2ErrorCodes.DECRYPTION_ERROR, description);
+	}
+
+	/**
+	 * Construct an {@link Saml2ErrorCodes#RELYING_PARTY_REGISTRATION_NOT_FOUND} error
+	 * @param description the error description
+	 * @return the resulting {@link Saml2Error}
+	 * @since 7.0
+	 */
+	public static Saml2Error relyingPartyRegistrationNotFound(String description) {
+		return new Saml2Error(Saml2ErrorCodes.RELYING_PARTY_REGISTRATION_NOT_FOUND, description);
+	}
+
+	/**
+	 * Construct an {@link Saml2ErrorCodes#SUBJECT_NOT_FOUND} error
+	 * @param description the error description
+	 * @return the resulting {@link Saml2Error}
+	 * @since 7.0
+	 */
+	public static Saml2Error subjectNotFound(String description) {
+		return new Saml2Error(Saml2ErrorCodes.SUBJECT_NOT_FOUND, description);
+	}
+
+	/**
 	 * Returns the error code.
 	 * @return the error code
 	 */

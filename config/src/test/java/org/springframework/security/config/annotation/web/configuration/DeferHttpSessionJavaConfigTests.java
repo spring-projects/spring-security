@@ -78,7 +78,7 @@ public class DeferHttpSessionJavaConfigTests {
 		DefaultSecurityFilterChain springSecurity(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeHttpRequests((requests) -> requests
+				.authorizeHttpRequests((authorize) -> authorize
 					.anyRequest().permitAll()
 				)
 				.sessionManagement((sessions) -> sessions

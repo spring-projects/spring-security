@@ -16,15 +16,17 @@
 
 package org.springframework.security.authentication;
 
+import java.io.Serial;
+
 import org.springframework.security.core.AuthenticationException;
 
 /**
  * Thrown if an authentication request is rejected because the credentials are not
  * sufficiently trusted.
  * <p>
- * {@link org.springframework.security.access.AccessDecisionVoter}s will typically throw
- * this exception if they are dissatisfied with the level of the authentication, such as
- * if performed using a remember-me mechanism or anonymously. The
+ * {@link org.springframework.security.authorization.AuthorizationManager}s will typically
+ * throw this exception if they are dissatisfied with the level of the authentication,
+ * such as if performed using a remember-me mechanism or anonymously. The
  * {@code ExceptionTranslationFilter} will then typically cause the
  * {@code AuthenticationEntryPoint} to be called, allowing the principal to authenticate
  * with a stronger level of authentication.
@@ -32,6 +34,9 @@ import org.springframework.security.core.AuthenticationException;
  * @author Ben Alex
  */
 public class InsufficientAuthenticationException extends AuthenticationException {
+
+	@Serial
+	private static final long serialVersionUID = -5514084346181236128L;
 
 	/**
 	 * Constructs an <code>InsufficientAuthenticationException</code> with the specified

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutResponse;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
@@ -32,7 +33,7 @@ import org.springframework.util.Assert;
 
 /**
  * A {@link Saml2LogoutResponseResolver} for resolving SAML 2.0 Logout Responses with
- * OpenSAML 4
+ * OpenSAML 5
  *
  * @author Josh Cummings
  * @since 5.6
@@ -64,6 +65,15 @@ public final class OpenSaml5LogoutResponseResolver implements Saml2LogoutRespons
 	@Override
 	public Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication) {
 		return this.delegate.resolve(request, authentication);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication,
+			Saml2AuthenticationException exception) {
+		return this.delegate.resolve(request, authentication, exception);
 	}
 
 	/**

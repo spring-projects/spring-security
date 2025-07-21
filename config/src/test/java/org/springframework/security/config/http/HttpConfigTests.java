@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,14 +90,13 @@ public class HttpConfigTests {
 		this.spring.configLocations(this.xml("AuthorizationManager")).autowire();
 		AuthorizationManager<HttpServletRequest> authorizationManager = this.spring.getContext()
 			.getBean(AuthorizationManager.class);
-		given(authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(false));
-		given(authorizationManager.authorize(any(), any())).willCallRealMethod();
+		given(authorizationManager.authorize(any(), any())).willReturn(new AuthorizationDecision(false));
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().isFound())
 				.andExpect(redirectedUrl("http://localhost/login"));
 		// @formatter:on
-		verify(authorizationManager).check(any(), any());
+		verify(authorizationManager).authorize(any(), any());
 	}
 
 	@Test

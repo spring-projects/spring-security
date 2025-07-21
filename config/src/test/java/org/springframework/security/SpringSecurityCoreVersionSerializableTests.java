@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.security;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -25,70 +27,29 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.apereo.cas.client.validation.AssertionImpl;
-import org.instancio.Instancio;
-import org.instancio.InstancioApi;
-import org.instancio.Select;
-import org.instancio.generator.Generator;
+import org.apache.commons.lang3.ObjectUtils;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
-import org.springframework.security.access.intercept.RunAsUserToken;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.authentication.RememberMeAuthenticationToken;
-import org.springframework.security.authentication.TestAuthentication;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.jaas.JaasAuthenticationToken;
-import org.springframework.security.cas.authentication.CasAssertionAuthenticationToken;
-import org.springframework.security.cas.authentication.CasAuthenticationToken;
-import org.springframework.security.cas.authentication.CasServiceTicketAuthenticationToken;
 import org.springframework.security.core.SpringSecurityCoreVersion;
-import org.springframework.security.core.session.ReactiveSessionInformation;
-import org.springframework.security.core.session.SessionInformation;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
-import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
-import org.springframework.security.oauth2.client.authentication.TestOAuth2AuthenticationTokens;
-import org.springframework.security.oauth2.client.authentication.TestOAuth2AuthorizationCodeAuthenticationTokens;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
-import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
-import org.springframework.security.oauth2.core.TestOAuth2AuthenticatedPrincipals;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
-import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationExchanges;
-import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests;
-import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses;
-import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
-import org.springframework.security.oauth2.core.user.TestOAuth2Users;
-import org.springframework.security.oauth2.jwt.TestJwts;
-import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
-import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -109,120 +70,50 @@ import static org.assertj.core.api.Assertions.fail;
  */
 class SpringSecurityCoreVersionSerializableTests {
 
-	private static final Map<Class<?>, Generator<?>> generatorByClassName = new HashMap<>();
-
 	static final long securitySerialVersionUid = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
 	static Path currentVersionFolder = Paths.get("src/test/resources/serialized/" + getCurrentVersion());
 
 	static Path previousVersionFolder = Paths.get("src/test/resources/serialized/" + getPreviousVersion());
 
-	static {
-		ClientRegistration.Builder clientRegistrationBuilder = TestClientRegistrations.clientRegistration();
-		ClientRegistration clientRegistration = clientRegistrationBuilder.build();
-		UserDetails user = TestAuthentication.user();
-		WebAuthenticationDetails details = new WebAuthenticationDetails("remote", "sessionId");
-		generatorByClassName.put(DefaultOAuth2User.class, (r) -> TestOAuth2Users.create());
-		generatorByClassName.put(ClientRegistration.class, (r) -> clientRegistration);
-		generatorByClassName.put(ClientRegistration.ProviderDetails.class,
-				(r) -> clientRegistration.getProviderDetails());
-		generatorByClassName.put(ClientRegistration.ProviderDetails.UserInfoEndpoint.class,
-				(r) -> clientRegistration.getProviderDetails().getUserInfoEndpoint());
-		generatorByClassName.put(ClientRegistration.Builder.class, (r) -> clientRegistrationBuilder);
-		generatorByClassName.put(OAuth2AuthorizationRequest.class,
-				(r) -> TestOAuth2AuthorizationRequests.request().build());
-		generatorByClassName.put(OAuth2AuthorizationResponse.class,
-				(r) -> TestOAuth2AuthorizationResponses.success().build());
-		generatorByClassName.put(OAuth2AuthorizedClient.class,
-				(r) -> new OAuth2AuthorizedClient(clientRegistration, "principal", TestOAuth2AccessTokens.noScopes()));
-		generatorByClassName.put(OAuth2UserAuthority.class, (r) -> new OAuth2UserAuthority(Map.of("username", "user")));
-		generatorByClassName.put(OAuth2AuthorizationExchange.class, (r) -> TestOAuth2AuthorizationExchanges.success());
-		generatorByClassName.put(OidcUserInfo.class, (r) -> OidcUserInfo.builder().email("email@example.com").build());
-		generatorByClassName.put(SessionInformation.class,
-				(r) -> new SessionInformation(user, r.alphanumeric(4), new Date(1704378933936L)));
-		generatorByClassName.put(ReactiveSessionInformation.class,
-				(r) -> new ReactiveSessionInformation(user, r.alphanumeric(4), Instant.ofEpochMilli(1704378933936L)));
-		generatorByClassName.put(OAuth2LoginAuthenticationToken.class, (r) -> {
-			var token = new OAuth2LoginAuthenticationToken(clientRegistration,
-					TestOAuth2AuthorizationExchanges.success());
-			token.setDetails(details);
-			return token;
-		});
-		generatorByClassName.put(OAuth2AuthorizationCodeAuthenticationToken.class, (r) -> {
-			var token = TestOAuth2AuthorizationCodeAuthenticationTokens.authenticated();
-			token.setDetails(details);
-			return token;
-		});
-		generatorByClassName
-			.put(org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken.class, (r) -> {
-				var token = new org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken(
-						"token");
-				token.setDetails(details);
-				return token;
-			});
-		generatorByClassName.put(BearerTokenAuthenticationToken.class, (r) -> {
-			var token = new BearerTokenAuthenticationToken("token");
-			token.setDetails(details);
-			return token;
-		});
-		generatorByClassName.put(BearerTokenAuthentication.class, (r) -> {
-			var token = new BearerTokenAuthentication(TestOAuth2AuthenticatedPrincipals.active(),
-					TestOAuth2AccessTokens.noScopes(), user.getAuthorities());
-			token.setDetails(details);
-			return token;
-		});
-		generatorByClassName.put(OAuth2AuthenticationToken.class, (r) -> {
-			var token = TestOAuth2AuthenticationTokens.authenticated();
-			token.setDetails(details);
-			return token;
-		});
-		generatorByClassName.put(JwtAuthenticationToken.class, (r) -> {
-			var token = new JwtAuthenticationToken(TestJwts.user());
-			token.setDetails(details);
-			return token;
-		});
-		generatorByClassName.put(RunAsUserToken.class, (r) -> {
-			RunAsUserToken token = new RunAsUserToken("key", user, "creds", user.getAuthorities(),
-					AnonymousAuthenticationToken.class);
-			token.setDetails(details);
-			return token;
-		});
-		generatorByClassName.put(CasServiceTicketAuthenticationToken.class, (r) -> {
-			CasServiceTicketAuthenticationToken token = CasServiceTicketAuthenticationToken.stateless("creds");
-			token.setDetails(details);
-			return token;
-		});
-		generatorByClassName.put(CasAuthenticationToken.class, (r) -> {
-			var token = new CasAuthenticationToken("key", user, "Password", user.getAuthorities(), user,
-					new AssertionImpl("test"));
-			token.setDetails(details);
-			return token;
-		});
-		generatorByClassName.put(CasAssertionAuthenticationToken.class, (r) -> {
-			var token = new CasAssertionAuthenticationToken(new AssertionImpl("test"), "ticket");
-			token.setDetails(details);
-			return token;
-		});
-		generatorByClassName.put(RememberMeAuthenticationToken.class, (r) -> {
-			RememberMeAuthenticationToken token = new RememberMeAuthenticationToken("key", user, user.getAuthorities());
-			token.setDetails(details);
-			return token;
-		});
-		generatorByClassName.put(PreAuthenticatedAuthenticationToken.class, (r) -> {
-			PreAuthenticatedAuthenticationToken token = new PreAuthenticatedAuthenticationToken(user, "creds",
-					user.getAuthorities());
-			token.setDetails(details);
-			return token;
-		});
-		generatorByClassName.put(UsernamePasswordAuthenticationToken.class, (r) -> {
-			var token = UsernamePasswordAuthenticationToken.unauthenticated(user, "creds");
-			token.setDetails(details);
-			return token;
-		});
-		generatorByClassName.put(JaasAuthenticationToken.class, (r) -> {
-			var token = new JaasAuthenticationToken(user, "creds", null);
-			token.setDetails(details);
-			return token;
+	@ParameterizedTest
+	@MethodSource("getClassesToSerialize")
+	void serializeAndDeserializeAreEqual(Class<?> clazz) throws Exception {
+		Object expected = SerializationSamples.instancioWithDefaults(clazz).create();
+		assertThat(expected).isInstanceOf(clazz);
+		try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+				ObjectOutputStream objectOutputStream = new ObjectOutputStream(out)) {
+			objectOutputStream.writeObject(expected);
+			objectOutputStream.flush();
+
+			try (ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+					ObjectInputStream objectInputStream = new ObjectInputStream(in)) {
+				Object deserialized = objectInputStream.readObject();
+				// Ignore transient fields Event classes extend from EventObject which has
+				// transient source property
+				Set<String> transientFieldNames = new HashSet();
+				Set<Class<?>> visitedClasses = new HashSet();
+				collectTransientFieldNames(transientFieldNames, visitedClasses, clazz);
+				assertThat(deserialized).usingRecursiveComparison()
+					.ignoringFields(transientFieldNames.toArray(new String[0]))
+					// RuntimeExceptions do not fully work but ensure the message does
+					.withComparatorForType((lhs, rhs) -> ObjectUtils.compare(lhs.getMessage(), rhs.getMessage()),
+							RuntimeException.class)
+					.isEqualTo(expected);
+			}
+		}
+	}
+
+	private static void collectTransientFieldNames(Set<String> transientFieldNames, Set<Class<?>> visitedClasses,
+			Class<?> clazz) {
+		if (!visitedClasses.add(clazz) || clazz.isPrimitive()) {
+			return;
+		}
+		ReflectionUtils.doWithFields(clazz, (field) -> {
+			if (Modifier.isTransient(field.getModifiers())) {
+				transientFieldNames.add(field.getName());
+			}
+			collectTransientFieldNames(transientFieldNames, visitedClasses, field.getType());
 		});
 	}
 
@@ -237,10 +128,10 @@ class SpringSecurityCoreVersionSerializableTests {
 			return;
 		}
 		Files.createFile(filePath);
-		Object instance = instancioWithDefaults(clazz).create();
-		assertThat(instance).isInstanceOf(clazz);
 		try (FileOutputStream fileOutputStream = new FileOutputStream(file);
 				ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
+			Object instance = SerializationSamples.instancioWithDefaults(clazz).create();
+			assertThat(instance).isInstanceOf(clazz);
 			objectOutputStream.writeObject(instance);
 			objectOutputStream.flush();
 		}
@@ -251,7 +142,28 @@ class SpringSecurityCoreVersionSerializableTests {
 	}
 
 	@ParameterizedTest
-	@MethodSource("getFilesToDeserialize")
+	@MethodSource("getCurrentSerializedFiles")
+	void shouldBeAbleToDeserializeClassFromCurrentVersion(Path filePath) {
+		try (FileInputStream fileInputStream = new FileInputStream(filePath.toFile());
+				ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
+			Object obj = objectInputStream.readObject();
+			Class<?> clazz = Class.forName(filePath.getFileName().toString().replace(".serialized", ""));
+			assertThat(obj).isInstanceOf(clazz);
+		}
+		catch (IOException | ClassNotFoundException ex) {
+			fail("Could not deserialize " + filePath, ex);
+		}
+	}
+
+	static Stream<Path> getCurrentSerializedFiles() throws Exception {
+		assertThat(currentVersionFolder.toFile().exists())
+			.as("Make sure that the " + currentVersionFolder + " exists and is not empty")
+			.isTrue();
+		return getClassesToSerialize().map((clazz) -> currentVersionFolder.resolve(clazz.getName() + ".serialized"));
+	}
+
+	@ParameterizedTest
+	@MethodSource("getPreviousSerializedFiles")
 	void shouldBeAbleToDeserializeClassFromPreviousVersion(Path filePath) {
 		try (FileInputStream fileInputStream = new FileInputStream(filePath.toFile());
 				ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
@@ -264,7 +176,7 @@ class SpringSecurityCoreVersionSerializableTests {
 		}
 	}
 
-	static Stream<Path> getFilesToDeserialize() throws IOException {
+	static Stream<Path> getPreviousSerializedFiles() throws IOException {
 		assertThat(previousVersionFolder.toFile().exists())
 			.as("Make sure that the " + previousVersionFolder + " exists and is not empty")
 			.isTrue();
@@ -277,6 +189,44 @@ class SpringSecurityCoreVersionSerializableTests {
 		return Files.list(previousVersionFolder);
 	}
 
+	@Test
+	void allSerializableClassesShouldHaveSerialVersionOrSuppressWarnings() throws Exception {
+		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+		provider.addIncludeFilter(new AssignableTypeFilter(Serializable.class));
+		List<Class<?>> classes = new ArrayList<>();
+
+		Set<BeanDefinition> components = provider.findCandidateComponents("org/springframework/security");
+		for (BeanDefinition component : components) {
+			Class<?> clazz = Class.forName(component.getBeanClassName());
+			if (clazz.isEnum()) {
+				continue;
+			}
+			if (clazz.getName().contains("Tests")) {
+				continue;
+			}
+			boolean hasSerialVersion = Stream.of(clazz.getDeclaredFields())
+				.map(Field::getName)
+				.anyMatch((n) -> n.equals("serialVersionUID"));
+			SuppressWarnings suppressWarnings = clazz.getAnnotation(SuppressWarnings.class);
+			boolean hasSerialIgnore = suppressWarnings == null
+					|| Arrays.asList(suppressWarnings.value()).contains("Serial");
+			if (!hasSerialVersion && !hasSerialIgnore) {
+				classes.add(clazz);
+				continue;
+			}
+			boolean isReachable = Modifier.isPublic(clazz.getModifiers());
+			boolean hasSampleSerialization = currentVersionFolder.resolve(clazz.getName() + ".serialized")
+				.toFile()
+				.exists();
+			if (hasSerialVersion && isReachable && !hasSampleSerialization) {
+				classes.add(clazz);
+			}
+		}
+		assertThat(classes).describedAs(
+				"Found Serializable classes that are either missing a serialVersionUID or a @SuppressWarnings or a sample serialized file")
+			.isEmpty();
+	}
+
 	static Stream<Class<?>> getClassesToSerialize() throws Exception {
 		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
 		provider.addIncludeFilter(new AssignableTypeFilter(Serializable.class));
@@ -286,21 +236,17 @@ class SpringSecurityCoreVersionSerializableTests {
 		for (BeanDefinition component : components) {
 			Class<?> clazz = Class.forName(component.getBeanClassName());
 			boolean isAbstract = Modifier.isAbstract(clazz.getModifiers());
+			if (isAbstract) {
+				continue;
+			}
 			boolean matchesExpectedSerialVersion = ObjectStreamClass.lookup(clazz)
 				.getSerialVersionUID() == securitySerialVersionUid;
-			if (!isAbstract && matchesExpectedSerialVersion) {
+			boolean isUnderTest = SerializationSamples.generatorByClassName.containsKey(clazz);
+			if (matchesExpectedSerialVersion || isUnderTest) {
 				classes.add(clazz);
 			}
 		}
 		return classes.stream();
-	}
-
-	private static InstancioApi<?> instancioWithDefaults(Class<?> clazz) {
-		InstancioApi<?> instancio = Instancio.of(clazz);
-		if (generatorByClassName.containsKey(clazz)) {
-			instancio.supply(Select.all(clazz), generatorByClassName.get(clazz));
-		}
-		return instancio;
 	}
 
 	private static String getCurrentVersion() {
@@ -314,6 +260,12 @@ class SpringSecurityCoreVersionSerializableTests {
 		String version = System.getProperty("springSecurityVersion");
 		String[] parts = version.split("\\.");
 		parts[1] = String.valueOf(Integer.parseInt(parts[1]) - 1);
+		// FIXME: the 7 should not be hardcoded
+		if ("7".equals(parts[0]) && "-1".equals(parts[1])) {
+			// if it is version 7.0.x, the previous version is 6.5.x
+			parts[0] = String.valueOf(Integer.parseInt(parts[0]) - 1);
+			parts[1] = "5"; // FIXME: this should not be hard coded
+		}
 		parts[2] = "x";
 		return String.join(".", parts);
 	}

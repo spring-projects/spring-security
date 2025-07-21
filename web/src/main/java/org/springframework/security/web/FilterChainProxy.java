@@ -34,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.web.access.PathPatternRequestTransformer;
 import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.HttpStatusRequestRejectedHandler;
@@ -258,7 +259,9 @@ public class FilterChainProxy extends GenericFilterBean {
 	 * @return matching filter list
 	 */
 	public List<Filter> getFilters(String url) {
-		return getFilters(this.firewall.getFirewalledRequest(new FilterInvocation(url, "GET").getRequest()));
+		PathPatternRequestTransformer requestTransformer = new PathPatternRequestTransformer();
+		HttpServletRequest transformed = requestTransformer.transform(new FilterInvocation(url, "GET").getRequest());
+		return getFilters(this.firewall.getFirewalledRequest(transformed));
 	}
 
 	/**
@@ -443,6 +446,25 @@ public class FilterChainProxy extends GenericFilterBean {
 		@Override
 		public FilterChain decorate(FilterChain original, List<Filter> filters) {
 			return new VirtualFilterChain(original, filters);
+		}
+
+	}
+
+	private static final class FirewallFilter implements Filter {
+
+		private final HttpFirewall firewall;
+
+		private FirewallFilter(HttpFirewall firewall) {
+			this.firewall = firewall;
+		}
+
+		@Override
+		public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+				throws IOException, ServletException {
+			HttpServletRequest request = (HttpServletRequest) servletRequest;
+			HttpServletResponse response = (HttpServletResponse) servletResponse;
+			filterChain.doFilter(this.firewall.getFirewalledRequest(request),
+					this.firewall.getFirewalledResponse(response));
 		}
 
 	}

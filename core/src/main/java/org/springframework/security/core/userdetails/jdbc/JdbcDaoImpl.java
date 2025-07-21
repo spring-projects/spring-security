@@ -226,10 +226,10 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 	 * @return a list of GrantedAuthority objects for the user
 	 */
 	protected List<GrantedAuthority> loadUserAuthorities(String username) {
-		return getJdbcTemplate().query(this.authoritiesByUsernameQuery, new String[] { username }, (rs, rowNum) -> {
+		return getJdbcTemplate().query(this.authoritiesByUsernameQuery, (rs, rowNum) -> {
 			String roleName = JdbcDaoImpl.this.rolePrefix + rs.getString(2);
 			return new SimpleGrantedAuthority(roleName);
-		});
+		}, username);
 	}
 
 	/**
@@ -238,11 +238,10 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 	 * @return a list of GrantedAuthority objects for the user
 	 */
 	protected List<GrantedAuthority> loadGroupAuthorities(String username) {
-		return getJdbcTemplate().query(this.groupAuthoritiesByUsernameQuery, new String[] { username },
-				(rs, rowNum) -> {
-					String roleName = getRolePrefix() + rs.getString(3);
-					return new SimpleGrantedAuthority(roleName);
-				});
+		return getJdbcTemplate().query(this.groupAuthoritiesByUsernameQuery, (rs, rowNum) -> {
+			String roleName = getRolePrefix() + rs.getString(3);
+			return new SimpleGrantedAuthority(roleName);
+		}, username);
 	}
 
 	/**

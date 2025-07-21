@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.function.Consumer;
 
-import javax.annotation.Nonnull;
-
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
 import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
@@ -50,6 +48,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.saml2.Saml2Exception;
+import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.provider.service.registration.BaseOpenSamlAssertingPartyMetadataRepository.MetadataResolverAdapter;
 import org.springframework.util.Assert;
 
@@ -67,6 +66,10 @@ import org.springframework.util.Assert;
  * @see RelyingPartyRegistrations
  */
 public final class OpenSaml4AssertingPartyMetadataRepository implements AssertingPartyMetadataRepository {
+
+	static {
+		OpenSamlInitializationService.initialize();
+	}
 
 	private final BaseOpenSamlAssertingPartyMetadataRepository delegate;
 
@@ -260,7 +263,7 @@ public final class OpenSaml4AssertingPartyMetadataRepository implements Assertin
 				return this.resource.getFile();
 			}
 
-			@Nonnull
+			@NonNull
 			@Override
 			public InputStream getInputStream() throws IOException {
 				return this.resource.getInputStream();

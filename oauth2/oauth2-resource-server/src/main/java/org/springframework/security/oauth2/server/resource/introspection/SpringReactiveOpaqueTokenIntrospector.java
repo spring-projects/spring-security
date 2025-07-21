@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,10 @@
 
 package org.springframework.security.oauth2.server.resource.introspection;
 
+import java.io.Serial;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,9 +74,11 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 	 * Creates a {@code OpaqueTokenReactiveAuthenticationManager} with the provided
 	 * parameters
 	 * @param introspectionUri The introspection endpoint uri
-	 * @param clientId The client id authorized to introspect
-	 * @param clientSecret The client secret for the authorized client
+	 * @param clientId The URL-encoded client id authorized to introspect
+	 * @param clientSecret The URL-encoded client secret authorized to introspect
+	 * @deprecated Please use {@link SpringReactiveOpaqueTokenIntrospector.Builder}
 	 */
+	@Deprecated(since = "6.5", forRemoval = true)
 	public SpringReactiveOpaqueTokenIntrospector(String introspectionUri, String clientId, String clientSecret) {
 		Assert.hasText(introspectionUri, "introspectionUri cannot be empty");
 		Assert.hasText(clientId, "clientId cannot be empty");
@@ -100,7 +105,6 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		// @formatter:off
 		return Mono.just(token)
 				.flatMap(this::makeRequest)
-				.flatMap(this::adaptToNimbusResponse)
 				.map(this::convertClaimsSet)
 				.flatMap(this.authenticationConverter::convert)
 				.cast(OAuth2AuthenticatedPrincipal.class)
@@ -108,13 +112,13 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		// @formatter:on
 	}
 
-	private Mono<ClientResponse> makeRequest(String token) {
+	private Mono<Map<String, Object>> makeRequest(String token) {
 		// @formatter:off
 		return this.webClient.post()
 				.uri(this.introspectionUri)
 				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
 				.body(BodyInserters.fromFormData("token", token))
-				.exchange();
+				.exchangeToMono(this::adaptToNimbusResponse);
 		// @formatter:on
 	}
 
@@ -222,8 +226,23 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		return authorities;
 	}
 
+	/**
+	 * Creates a {@code SpringReactiveOpaqueTokenIntrospector.Builder} with the given
+	 * introspection endpoint uri
+	 * @param introspectionUri The introspection endpoint uri
+	 * @return the {@link SpringReactiveOpaqueTokenIntrospector.Builder}
+	 * @since 6.5
+	 */
+	public static Builder withIntrospectionUri(String introspectionUri) {
+
+		return new Builder(introspectionUri);
+	}
+
 	// gh-7563
 	private static final class ArrayListFromString extends ArrayList<String> {
+
+		@Serial
+		private static final long serialVersionUID = 9182779930765511117L;
 
 		ArrayListFromString(String... elements) {
 			super(Arrays.asList(elements));
@@ -241,6 +260,64 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 				return list;
 			}
 			return OAuth2TokenIntrospectionClaimAccessor.super.getScopes();
+		}
+
+	}
+
+	/**
+	 * Used to build {@link SpringReactiveOpaqueTokenIntrospector}.
+	 *
+	 * @author Ngoc Nhan
+	 * @since 6.5
+	 */
+	public static final class Builder {
+
+		private final String introspectionUri;
+
+		private String clientId;
+
+		private String clientSecret;
+
+		private Builder(String introspectionUri) {
+			this.introspectionUri = introspectionUri;
+		}
+
+		/**
+		 * The builder will {@link URLEncoder encode} the client id that you provide, so
+		 * please give the unencoded value.
+		 * @param clientId The unencoded client id
+		 * @return the {@link SpringReactiveOpaqueTokenIntrospector.Builder}
+		 * @since 6.5
+		 */
+		public Builder clientId(String clientId) {
+			Assert.notNull(clientId, "clientId cannot be null");
+			this.clientId = URLEncoder.encode(clientId, StandardCharsets.UTF_8);
+			return this;
+		}
+
+		/**
+		 * The builder will {@link URLEncoder encode} the client secret that you provide,
+		 * so please give the unencoded value.
+		 * @param clientSecret The unencoded client secret
+		 * @return the {@link SpringReactiveOpaqueTokenIntrospector.Builder}
+		 * @since 6.5
+		 */
+		public Builder clientSecret(String clientSecret) {
+			Assert.notNull(clientSecret, "clientSecret cannot be null");
+			this.clientSecret = URLEncoder.encode(clientSecret, StandardCharsets.UTF_8);
+			return this;
+		}
+
+		/**
+		 * Creates a {@code SpringReactiveOpaqueTokenIntrospector}
+		 * @return the {@link SpringReactiveOpaqueTokenIntrospector}
+		 * @since 6.5
+		 */
+		public SpringReactiveOpaqueTokenIntrospector build() {
+			WebClient webClient = WebClient.builder()
+				.defaultHeaders((h) -> h.setBasicAuth(this.clientId, this.clientSecret))
+				.build();
+			return new SpringReactiveOpaqueTokenIntrospector(this.introspectionUri, webClient);
 		}
 
 	}

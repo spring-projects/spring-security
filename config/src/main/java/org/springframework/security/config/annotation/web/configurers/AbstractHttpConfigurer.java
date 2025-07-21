@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,17 +25,21 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.DefaultSecurityFilterChain;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 /**
  * Adds a convenient base class for {@link SecurityConfigurer} instances that operate on
  * {@link HttpSecurity}.
  *
  * @author Rob Winch
+ * @author Ding Hao
  */
 public abstract class AbstractHttpConfigurer<T extends AbstractHttpConfigurer<T, B>, B extends HttpSecurityBuilder<B>>
 		extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, B> {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy;
+
+	private PathPatternRequestMatcher.Builder requestMatcherBuilder;
 
 	/**
 	 * Disables the {@link AbstractHttpConfigurer} by removing it. After doing so a fresh
@@ -59,14 +63,18 @@ public abstract class AbstractHttpConfigurer<T extends AbstractHttpConfigurer<T,
 			return this.securityContextHolderStrategy;
 		}
 		ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
-		String[] names = context.getBeanNamesForType(SecurityContextHolderStrategy.class);
-		if (names.length == 1) {
-			this.securityContextHolderStrategy = context.getBean(SecurityContextHolderStrategy.class);
-		}
-		else {
-			this.securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
-		}
+		this.securityContextHolderStrategy = context.getBeanProvider(SecurityContextHolderStrategy.class)
+			.getIfUnique(SecurityContextHolder::getContextHolderStrategy);
 		return this.securityContextHolderStrategy;
+	}
+
+	protected PathPatternRequestMatcher.Builder getRequestMatcherBuilder() {
+		if (this.requestMatcherBuilder != null) {
+			return this.requestMatcherBuilder;
+		}
+		ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
+		this.requestMatcherBuilder = context.getBean(PathPatternRequestMatcher.Builder.class);
+		return this.requestMatcherBuilder;
 	}
 
 }

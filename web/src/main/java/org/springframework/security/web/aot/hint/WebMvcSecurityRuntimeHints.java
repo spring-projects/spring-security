@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.springframework.security.web.access.expression.WebSecurityExpressionR
  * {@link RuntimeHintsRegistrar} for WebMVC classes
  *
  * @author Marcus Da Coregio
+ * @author Daniel Garnier-Moiroux
  * @since 6.0
  */
 class WebMvcSecurityRuntimeHints implements RuntimeHintsRegistrar {
@@ -35,7 +36,7 @@ class WebMvcSecurityRuntimeHints implements RuntimeHintsRegistrar {
 	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
 		hints.reflection()
 			.registerType(WebSecurityExpressionRoot.class, (builder) -> builder
-				.withMembers(MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.DECLARED_FIELDS));
+				.withMembers(MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.ACCESS_DECLARED_FIELDS));
 		hints.reflection()
 			.registerType(
 					TypeReference
@@ -45,6 +46,12 @@ class WebMvcSecurityRuntimeHints implements RuntimeHintsRegistrar {
 		ClassPathResource css = new ClassPathResource("org/springframework/security/default-ui.css");
 		if (css.exists()) {
 			hints.resources().registerResource(css);
+		}
+
+		ClassPathResource webauthnJavascript = new ClassPathResource(
+				"org/springframework/security/spring-security-webauthn.js");
+		if (webauthnJavascript.exists()) {
+			hints.resources().registerResource(webauthnJavascript);
 		}
 
 	}

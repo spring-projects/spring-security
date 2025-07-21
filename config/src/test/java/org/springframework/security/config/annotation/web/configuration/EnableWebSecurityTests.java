@@ -16,8 +16,13 @@
 
 package org.springframework.security.config.annotation.web.configuration;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -28,14 +33,18 @@ import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.debug.DebugFilter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -52,9 +61,19 @@ public class EnableWebSecurityTests {
 	private MockMvc mockMvc;
 
 	@Test
-	public void loadConfigWhenChildConfigExtendsSecurityConfigThenSecurityConfigInherited() {
+	public void loadConfigWhenChildConfigExtendsSecurityConfigThenSecurityConfigInherited() throws Exception {
+		Appender<ILoggingEvent> appender = mockAppenderFor("Spring Security Debugger");
 		this.spring.register(ChildSecurityConfig.class).autowire();
-		this.spring.getContext().getBean("springSecurityFilterChain", DebugFilter.class);
+		this.mockMvc.perform(get("/"));
+		verify(appender, atLeastOnce()).doAppend(any(ILoggingEvent.class));
+	}
+
+	private Appender<ILoggingEvent> mockAppenderFor(String name) {
+		Appender<ILoggingEvent> appender = mock(Appender.class);
+		Logger logger = (Logger) LoggerFactory.getLogger(name);
+		logger.setLevel(Level.DEBUG);
+		logger.addAppender(appender);
+		return appender;
 	}
 
 	// gh-14370
@@ -91,6 +110,15 @@ public class EnableWebSecurityTests {
 		Child childBean = this.spring.getContext().getBean(Child.class);
 		Parent parentBean = this.spring.getContext().getBean(Parent.class);
 		assertThat(parentBean.getChild()).isNotSameAs(childBean);
+	}
+
+	// gh-17484
+	@Test
+	void configureWhenEnableWebSecuritySeparateFromSecurityFilterChainThenWires() {
+		try (AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext()) {
+			context.register(TestConfiguration.class, EnableWebSecurityConfiguration.class);
+			context.refresh();
+		}
 	}
 
 	@Configuration
@@ -205,6 +233,22 @@ public class EnableWebSecurityTests {
 
 		Child() {
 		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class TestConfiguration {
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			return http.build();
+		}
+
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
+	static class EnableWebSecurityConfiguration {
 
 	}
 

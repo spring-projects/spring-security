@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2022 the original author or authors.
+ * Copyright 2004-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,8 +56,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * <p>
  * If an {@link AuthenticationException} is detected, the filter will launch the
  * <code>authenticationEntryPoint</code>. This allows common handling of authentication
- * failures originating from any subclass of
- * {@link org.springframework.security.access.intercept.AbstractSecurityInterceptor}.
+ * failures originating from Web or Method Security.
  * <p>
  * If an {@link AccessDeniedException} is detected, the filter will determine whether or
  * not the user is an anonymous user. If they are an anonymous user, the
@@ -194,10 +193,11 @@ public class ExceptionTranslationFilter extends GenericFilterBean implements Mes
 				logger.trace(LogMessage.format("Sending %s to authentication entry point since access is denied",
 						authentication), exception);
 			}
-			sendStartAuthentication(request, response, chain,
-					new InsufficientAuthenticationException(
-							this.messages.getMessage("ExceptionTranslationFilter.insufficientAuthentication",
-									"Full authentication is required to access this resource")));
+			AuthenticationException ex = new InsufficientAuthenticationException(
+					this.messages.getMessage("ExceptionTranslationFilter.insufficientAuthentication",
+							"Full authentication is required to access this resource"));
+			ex.setAuthenticationRequest(authentication);
+			sendStartAuthentication(request, response, chain, ex);
 		}
 		else {
 			if (logger.isTraceEnabled()) {

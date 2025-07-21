@@ -74,6 +74,9 @@ public class HttpSessionEventPublisher implements HttpSessionListener, HttpSessi
 		extracted(event.getSession(), new HttpSessionDestroyedEvent(event.getSession()));
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	@Override
 	public void sessionIdChanged(HttpSessionEvent event, String oldSessionId) {
 		extracted(event.getSession(), new HttpSessionIdChangedEvent(event.getSession(), oldSessionId));

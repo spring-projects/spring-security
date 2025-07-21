@@ -153,7 +153,7 @@ A `ClientRegistration` can be initially configured using discovery of an OpenID 
 [[webflux-oauth2-login-common-oauth2-provider]]
 == CommonOAuth2Provider
 
-`CommonOAuth2Provider` pre-defines a set of default client properties for a number of well known providers: Google, GitHub, Facebook, and Okta.
+`CommonOAuth2Provider` pre-defines a set of default client properties for a number of well known providers: Google, GitHub, Facebook, X, and Okta.
 
 For example, the `authorization-uri`, `token-uri`, and `user-info-uri` do not change often for a Provider.
 Therefore, it makes sense to provide default values in order to reduce the required configuration.
@@ -337,7 +337,7 @@ public class OAuth2LoginSecurityConfig {
 	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 		http
-			.authorizeExchange(authorize -> authorize
+			.authorizeExchange((authorize) -> authorize
 				.anyExchange().authenticated()
 			)
 			.oauth2Login(withDefaults());
@@ -390,7 +390,7 @@ public class OAuth2LoginConfig {
 	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 		http
-			.authorizeExchange(authorize -> authorize
+			.authorizeExchange((authorize) -> authorize
 				.anyExchange().authenticated()
 			)
 			.oauth2Login(withDefaults());
@@ -487,7 +487,7 @@ public class OAuth2LoginConfig {
 	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 		http
-			.authorizeExchange(authorize -> authorize
+			.authorizeExchange((authorize) -> authorize
 				.anyExchange().authenticated()
 			)
 			.oauth2Login(withDefaults());

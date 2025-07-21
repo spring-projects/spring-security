@@ -31,7 +31,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.TestDeferredSecurityContext;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.TestHttpSecurity;
+import org.springframework.security.config.annotation.web.builders.TestHttpSecurities;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
@@ -152,7 +152,7 @@ public class SecurityContextConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.securityContext();
+				.securityContext(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -183,10 +183,9 @@ public class SecurityContextConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.securityContext()
-					.securityContextRepository(SCR)
-					.and()
-				.securityContext();
+				.securityContext((context) -> context
+					.securityContextRepository(SCR))
+				.securityContext(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -199,18 +198,15 @@ public class SecurityContextConfigurerTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			TestHttpSecurity.disableDefaults(http);
+			TestHttpSecurities.disableDefaults(http);
 			// @formatter:off
 			http
 				.addFilter(new WebAsyncManagerIntegrationFilter())
-				.anonymous()
-					.and()
-				.securityContext()
-					.and()
-				.authorizeRequests()
-					.anyRequest().permitAll()
-					.and()
-				.httpBasic();
+				.anonymous(withDefaults())
+				.securityContext(withDefaults())
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().permitAll())
+				.httpBasic(withDefaults());
 			// @formatter:on
 			return http.build();
 		}
@@ -273,8 +269,7 @@ public class SecurityContextConfigurerTests {
 			// @formatter:off
 			http
 					.formLogin(withDefaults())
-					.securityContext((securityContext) ->
-							securityContext
+					.securityContext((securityContext) -> securityContext
 									.securityContextRepository(new NullSecurityContextRepository())
 					);
 			// @formatter:on

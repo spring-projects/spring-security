@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.core.oidc.user;
 
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +36,9 @@ import org.springframework.util.Assert;
  * @see OidcUser
  */
 public class OidcUserAuthority extends OAuth2UserAuthority {
+
+	@Serial
+	private static final long serialVersionUID = -4675866280835753141L;
 
 	private final OidcIdToken idToken;
 

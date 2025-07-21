@@ -359,7 +359,7 @@ Java::
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) {
     http
-        .sessionManagement(session -> session
+        .sessionManagement((session) -> session
             .maximumSessions(1)
         );
     return http.build();
@@ -399,7 +399,62 @@ XML::
 
 This will prevent a user from logging in multiple times - a second login will cause the first to be invalidated.
 
-Using Spring Boot, you can test the above configuration scenario the following way:
+You can also adjust this based on who the user is.
+For example, administrators may be able to have more than one session:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) {
+	AuthorizationManager<?> isAdmin = AuthorityAuthorizationManager.hasRole("ADMIN");
+    http
+        .sessionManagement((session) -> session
+            .maximumSessions((authentication) -> isAdmin.authorize(() -> authentication, null).isGranted() ? -1 : 1)
+        );
+    return http.build();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun filterChain(http: HttpSecurity): SecurityFilterChain {
+    val isAdmin: AuthorizationManager<*> = AuthorityAuthorizationManager.hasRole("ADMIN")
+    http {
+        sessionManagement {
+            sessionConcurrency {
+                maximumSessions {
+                    authentication -> if (isAdmin.authorize({ authentication }, null)!!.isGranted) -1 else 1
+                }
+            }
+        }
+    }
+    return http.build()
+}
+----
+
+XML::
++
+[source,xml,role="secondary"]
+----
+<http>
+...
+<session-management>
+    <concurrency-control max-sessions-ref="sessionLimit" />
+</session-management>
+</http>
+
+<b:bean id="sessionLimit" class="my.SessionLimitImplementation"/>
+----
+======
+
+Using Spring Boot, you can test the above configurations in the following way:
 
 [tabs]
 ======
@@ -449,7 +504,7 @@ Java::
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) {
     http
-        .sessionManagement(session -> session
+        .sessionManagement((session) -> session
             .maximumSessions(1)
             .maxSessionsPreventsLogin(true)
         );
@@ -534,6 +589,13 @@ public class MaximumSessionsPreventLoginTests {
 If you are using a customized authentication filter for form-based login, then you have to configure concurrent session control support explicitly.
 You can try it using the {gh-samples-url}/servlet/spring-boot/java/session-management/maximum-sessions-prevent-login[Maximum Sessions Prevent Login sample].
 
+[NOTE]
+=====
+If you are using a custom implementation of `UserDetails`, ensure you override the **equals()** and **hashCode()** methods.
+The default `SessionRegistry` implementation in Spring Security relies on an in-memory Map that uses these methods to correctly identify and manage user sessions.
+Failing to override them may lead to issues where session tracking and user comparison behave unexpectedly.
+=====
+
 == Detecting Timeouts
 
 Sessions expire on their own, and there is nothing that needs to be done to ensure that a security context gets removed.
@@ -550,7 +612,7 @@ Java::
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) {
     http
-        .sessionManagement(session -> session
+        .sessionManagement((session) -> session
             .invalidSessionUrl("/invalidSession")
         );
     return http.build();
@@ -601,7 +663,7 @@ Java::
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) {
     http
-        .sessionManagement(session -> session
+        .sessionManagement((session) -> session
             .invalidSessionStrategy(new MyCustomInvalidSessionStrategy())
         );
     return http.build();
@@ -705,7 +767,7 @@ Java::
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) {
     http
-        .logout(logout -> logout
+        .logout((logout) -> logout
             .deleteCookies("JSESSIONID")
         );
     return http.build();
@@ -909,7 +971,7 @@ Java::
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) {
     http
-        .sessionManagement(session -> session
+        .sessionManagement((session) -> session
             .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
         );
     return http.build();

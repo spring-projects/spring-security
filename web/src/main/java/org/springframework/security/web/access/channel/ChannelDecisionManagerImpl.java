@@ -26,6 +26,7 @@ import jakarta.servlet.ServletException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
 /**
@@ -44,7 +45,10 @@ import org.springframework.util.Assert;
  * channel processors will be skipped (see SEC-494, SEC-335).
  *
  * @author Ben Alex
+ * @deprecated no replacement is planned, though consider using a custom
+ * {@link RequestMatcher} for any sophisticated decision-making
  */
+@Deprecated
 public class ChannelDecisionManagerImpl implements ChannelDecisionManager, InitializingBean {
 
 	public static final String ANY_CHANNEL = "ANY_CHANNEL";

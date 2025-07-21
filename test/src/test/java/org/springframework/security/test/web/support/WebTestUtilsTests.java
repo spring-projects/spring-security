@@ -41,13 +41,13 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 @ExtendWith(MockitoExtension.class)
 public class WebTestUtilsTests {
@@ -191,7 +191,7 @@ public class WebTestUtilsTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			http.csrf().disable();
+			http.csrf((csrf) -> csrf.disable());
 			return http.build();
 		}
 
@@ -208,11 +208,10 @@ public class WebTestUtilsTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.csrf()
-					.csrfTokenRepository(CSRF_REPO)
-					.and()
-				.securityContext()
-					.securityContextRepository(CONTEXT_REPO);
+				.csrf((csrf) -> csrf
+					.csrfTokenRepository(CSRF_REPO))
+				.securityContext((context) -> context
+					.securityContextRepository(CONTEXT_REPO));
 			return http.build();
 			// @formatter:on
 		}
@@ -227,7 +226,7 @@ public class WebTestUtilsTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.securityMatcher(new AntPathRequestMatcher("/willnotmatchthis"));
+				.securityMatcher(pathPattern("/willnotmatchthis"));
 			return http.build();
 			// @formatter:on
 		}

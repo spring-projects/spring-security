@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.client;
 
+import java.io.Serial;
+
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.util.Assert;
@@ -29,6 +31,9 @@ import org.springframework.util.Assert;
  * @see OAuth2AuthorizedClient
  */
 public class ClientAuthorizationException extends OAuth2AuthorizationException {
+
+	@Serial
+	private static final long serialVersionUID = 4710713969265443271L;
 
 	private final String clientRegistrationId;
 

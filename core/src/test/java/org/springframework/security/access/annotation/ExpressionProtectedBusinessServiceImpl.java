@@ -23,6 +23,7 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreFilter;
 
+@SuppressWarnings("serial")
 public class ExpressionProtectedBusinessServiceImpl implements BusinessService {
 
 	@Override

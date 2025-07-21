@@ -16,8 +16,7 @@
 
 package org.springframework.security.config.annotation.authentication.configuration;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -67,9 +66,10 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 
 		@Override
 		public void configure(AuthenticationManagerBuilder auth) throws Exception {
-			List<BeanWithName<UserDetailsService>> userDetailsServices = getBeansWithName(UserDetailsService.class);
+			String[] beanNames = InitializeUserDetailsBeanManagerConfigurer.this.context
+				.getBeanNamesForType(UserDetailsService.class);
 			if (auth.isConfigured()) {
-				if (!userDetailsServices.isEmpty()) {
+				if (beanNames.length > 0) {
 					this.logger.warn("Global AuthenticationManager configured with an AuthenticationProvider bean. "
 							+ "UserDetailsService beans will not be used by Spring Security for automatically configuring username/password login. "
 							+ "Consider removing the AuthenticationProvider bean. "
@@ -80,30 +80,25 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 				return;
 			}
 
-			if (userDetailsServices.isEmpty()) {
+			if (beanNames.length == 0) {
 				return;
 			}
-			else if (userDetailsServices.size() > 1) {
-				List<String> beanNames = userDetailsServices.stream().map(BeanWithName::getName).toList();
+			else if (beanNames.length > 1) {
 				this.logger.warn(LogMessage.format("Found %s UserDetailsService beans, with names %s. "
 						+ "Global Authentication Manager will not use a UserDetailsService for username/password login. "
-						+ "Consider publishing a single UserDetailsService bean.", userDetailsServices.size(),
-						beanNames));
+						+ "Consider publishing a single UserDetailsService bean.", beanNames.length,
+						Arrays.toString(beanNames)));
 				return;
 			}
-			UserDetailsService userDetailsService = userDetailsServices.get(0).getBean();
-			String userDetailsServiceBeanName = userDetailsServices.get(0).getName();
+			UserDetailsService userDetailsService = InitializeUserDetailsBeanManagerConfigurer.this.context
+				.getBean(beanNames[0], UserDetailsService.class);
 			PasswordEncoder passwordEncoder = getBeanOrNull(PasswordEncoder.class);
 			UserDetailsPasswordService passwordManager = getBeanOrNull(UserDetailsPasswordService.class);
 			CompromisedPasswordChecker passwordChecker = getBeanOrNull(CompromisedPasswordChecker.class);
-			DaoAuthenticationProvider provider;
+			DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
 			if (passwordEncoder != null) {
-				provider = new DaoAuthenticationProvider(passwordEncoder);
+				provider.setPasswordEncoder(passwordEncoder);
 			}
-			else {
-				provider = new DaoAuthenticationProvider();
-			}
-			provider.setUserDetailsService(userDetailsService);
 			if (passwordManager != null) {
 				provider.setUserDetailsPasswordService(passwordManager);
 			}
@@ -113,8 +108,7 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 			provider.afterPropertiesSet();
 			auth.authenticationProvider(provider);
 			this.logger.info(LogMessage.format(
-					"Global AuthenticationManager configured with UserDetailsService bean with name %s",
-					userDetailsServiceBeanName));
+					"Global AuthenticationManager configured with UserDetailsService bean with name %s", beanNames[0]));
 		}
 
 		/**
@@ -123,41 +117,6 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 		 */
 		private <T> T getBeanOrNull(Class<T> type) {
 			return InitializeUserDetailsBeanManagerConfigurer.this.context.getBeanProvider(type).getIfUnique();
-		}
-
-		/**
-		 * @return a list of beans of the requested class, along with their names. If
-		 * there are no registered beans of that type, the list is empty.
-		 */
-		private <T> List<BeanWithName<T>> getBeansWithName(Class<T> type) {
-			List<BeanWithName<T>> beanWithNames = new ArrayList<>();
-			String[] beanNames = InitializeUserDetailsBeanManagerConfigurer.this.context.getBeanNamesForType(type);
-			for (String beanName : beanNames) {
-				T bean = InitializeUserDetailsBeanManagerConfigurer.this.context.getBean(beanName, type);
-				beanWithNames.add(new BeanWithName<>(bean, beanName));
-			}
-			return beanWithNames;
-		}
-
-		static class BeanWithName<T> {
-
-			private final T bean;
-
-			private final String name;
-
-			BeanWithName(T bean, String name) {
-				this.bean = bean;
-				this.name = name;
-			}
-
-			T getBean() {
-				return this.bean;
-			}
-
-			String getName() {
-				return this.name;
-			}
-
 		}
 
 	}

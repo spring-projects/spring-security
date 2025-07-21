@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.lang.Nullable;
-import org.springframework.security.oauth2.client.endpoint.DefaultRefreshTokenTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.RestClientRefreshTokenTokenResponseClient;
+import org.springframework.security.oauth2.client.event.OAuth2AuthorizedClientRefreshedEvent;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Token;
@@ -41,11 +44,14 @@ import org.springframework.util.Assert;
  * @author Joe Grandja
  * @since 5.2
  * @see OAuth2AuthorizedClientProvider
- * @see DefaultRefreshTokenTokenResponseClient
+ * @see RestClientRefreshTokenTokenResponseClient
  */
-public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2AuthorizedClientProvider {
+public final class RefreshTokenOAuth2AuthorizedClientProvider
+		implements OAuth2AuthorizedClientProvider, ApplicationEventPublisherAware {
 
-	private OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient = new DefaultRefreshTokenTokenResponseClient();
+	private OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient = new RestClientRefreshTokenTokenResponseClient();
+
+	private ApplicationEventPublisher applicationEventPublisher;
 
 	private Duration clockSkew = Duration.ofSeconds(60);
 
@@ -91,8 +97,18 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 				authorizedClient.getClientRegistration(), authorizedClient.getAccessToken(),
 				authorizedClient.getRefreshToken(), scopes);
 		OAuth2AccessTokenResponse tokenResponse = getTokenResponse(authorizedClient, refreshTokenGrantRequest);
-		return new OAuth2AuthorizedClient(context.getAuthorizedClient().getClientRegistration(),
-				context.getPrincipal().getName(), tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
+
+		OAuth2AuthorizedClient refreshedAuthorizedClient = new OAuth2AuthorizedClient(
+				authorizedClient.getClientRegistration(), context.getPrincipal().getName(),
+				tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
+
+		if (this.applicationEventPublisher != null) {
+			OAuth2AuthorizedClientRefreshedEvent authorizedClientRefreshedEvent = new OAuth2AuthorizedClientRefreshedEvent(
+					tokenResponse, refreshedAuthorizedClient);
+			this.applicationEventPublisher.publishEvent(authorizedClientRefreshedEvent);
+		}
+
+		return refreshedAuthorizedClient;
 	}
 
 	private OAuth2AccessTokenResponse getTokenResponse(OAuth2AuthorizedClient authorizedClient,
@@ -147,6 +163,12 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 	public void setClock(Clock clock) {
 		Assert.notNull(clock, "clock cannot be null");
 		this.clock = clock;
+	}
+
+	@Override
+	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+		Assert.notNull(applicationEventPublisher, "applicationEventPublisher cannot be null");
+		this.applicationEventPublisher = applicationEventPublisher;
 	}
 
 }

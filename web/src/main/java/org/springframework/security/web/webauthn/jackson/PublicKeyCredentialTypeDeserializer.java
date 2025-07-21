@@ -31,6 +31,7 @@ import org.springframework.security.web.webauthn.api.PublicKeyCredentialType;
  * @author Rob Winch
  * @since 6.4
  */
+@SuppressWarnings("serial")
 class PublicKeyCredentialTypeDeserializer extends StdDeserializer<PublicKeyCredentialType> {
 
 	/**

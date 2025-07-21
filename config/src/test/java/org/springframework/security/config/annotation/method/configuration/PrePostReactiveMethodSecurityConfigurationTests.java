@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,9 +54,8 @@ import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.method.AuthorizationAdvisor;
 import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory;
+import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory.TargetVisitor;
 import org.springframework.security.authorization.method.AuthorizeReturnObject;
-import org.springframework.security.authorization.method.PrePostTemplateDefaults;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
@@ -266,7 +265,7 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodeWhenParameterizedPreAuthorizeMetaAnnotationThenPasses(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -275,7 +274,7 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodRoleWhenPreAuthorizeMetaAnnotationHardcodedParameterThenPasses(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -284,7 +283,7 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	public void methodWhenParameterizedAnnotationThenFails(Class<?> config) {
 		this.spring.register(config).autowire();
 		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
@@ -293,7 +292,7 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser(authorities = "SCOPE_message:read")
 	public void methodWhenMultiplePlaceholdersHasAuthorityThenPasses(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -302,7 +301,7 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser(roles = "ADMIN")
 	public void methodWhenMultiplePlaceholdersHasRoleThenPasses(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -311,7 +310,7 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodWhenPostAuthorizeMetaAnnotationThenAuthorizes(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -322,7 +321,7 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodWhenPreFilterMetaAnnotationThenFilters(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -332,7 +331,7 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodWhenPostFilterMetaAnnotationThenFilters(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -521,22 +520,6 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 
 	@Configuration
 	@EnableReactiveMethodSecurity
-	static class LegacyMetaAnnotationPlaceholderConfig {
-
-		@Bean
-		PrePostTemplateDefaults methodSecurityDefaults() {
-			return new PrePostTemplateDefaults();
-		}
-
-		@Bean
-		MetaAnnotationService metaAnnotationService() {
-			return new MetaAnnotationService();
-		}
-
-	}
-
-	@Configuration
-	@EnableReactiveMethodSecurity
 	static class MetaAnnotationPlaceholderConfig {
 
 		@Bean
@@ -659,8 +642,8 @@ public class PrePostReactiveMethodSecurityConfigurationTests {
 
 		@Bean
 		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-		static Customizer<AuthorizationAdvisorProxyFactory> skipValueTypes() {
-			return (f) -> f.setTargetVisitor(AuthorizationAdvisorProxyFactory.TargetVisitor.defaultsSkipValueTypes());
+		static TargetVisitor skipValueTypes() {
+			return TargetVisitor.defaultsSkipValueTypes();
 		}
 
 		@Bean

@@ -2,7 +2,6 @@ apply plugin: 'io.spring.convention.spring-module'
 
 dependencies {
 	management platform(project(":spring-security-dependencies"))
-	optional 'org.springframework:spring-jcl'
 	optional 'org.springframework:spring-core'
 	optional 'org.bouncycastle:bcpkix-jdk18on'
 
@@ -13,4 +12,6 @@ dependencies {
 	testImplementation "org.mockito:mockito-core"
 	testImplementation "org.mockito:mockito-junit-jupiter"
 	testImplementation "org.springframework:spring-test"
+
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

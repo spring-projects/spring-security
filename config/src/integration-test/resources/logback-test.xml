@@ -7,7 +7,6 @@
 
 	<logger name="org.springframework.security" level="${sec.log.level:-WARN}"/>
 
-	<logger name="org.apache.directory" level="ERROR"/>
 	<logger name="JdbmTable" level="INFO"/>
 	<logger name="JdbmIndex" level="INFO"/>
 	<logger name="org.apache.mina" level="WARN"/>

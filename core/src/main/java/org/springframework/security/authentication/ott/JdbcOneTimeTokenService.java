@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Clock;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,7 +81,7 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 	// @formatter:on
 
 	// @formatter:off
-	private static final String SAVE_AUTHORIZED_CLIENT_SQL = "INSERT INTO " + TABLE_NAME
+	private static final String SAVE_ONE_TIME_TOKEN_SQL = "INSERT INTO " + TABLE_NAME
 			+ " (" + COLUMN_NAMES + ") VALUES (?, ?, ?)";
 	// @formatter:on
 
@@ -97,7 +96,7 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 	// @formatter:on
 
 	// @formatter:off
-	private static final String DELETE_SESSIONS_BY_EXPIRY_TIME_QUERY = "DELETE FROM "
+	private static final String DELETE_ONE_TIME_TOKENS_BY_EXPIRY_TIME_QUERY = "DELETE FROM "
 			+ TABLE_NAME
 			+ " WHERE expires_at < ?";
 	// @formatter:on
@@ -113,7 +112,7 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 	}
 
 	/**
-	 * Sets the chron expression used for cleaning up expired sessions. The default is to
+	 * Sets the chron expression used for cleaning up expired tokens. The default is to
 	 * run hourly.
 	 *
 	 * For more advanced use cases the cleanupCron may be set to null which will disable
@@ -132,8 +131,8 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 	public OneTimeToken generate(GenerateOneTimeTokenRequest request) {
 		Assert.notNull(request, "generateOneTimeTokenRequest cannot be null");
 		String token = UUID.randomUUID().toString();
-		Instant fiveMinutesFromNow = this.clock.instant().plus(Duration.ofMinutes(5));
-		OneTimeToken oneTimeToken = new DefaultOneTimeToken(token, request.getUsername(), fiveMinutesFromNow);
+		Instant expiresAt = this.clock.instant().plus(request.getExpiresIn());
+		OneTimeToken oneTimeToken = new DefaultOneTimeToken(token, request.getUsername(), expiresAt);
 		insertOneTimeToken(oneTimeToken);
 		return oneTimeToken;
 	}
@@ -141,7 +140,7 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 	private void insertOneTimeToken(OneTimeToken oneTimeToken) {
 		List<SqlParameterValue> parameters = this.oneTimeTokenParametersMapper.apply(oneTimeToken);
 		PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters.toArray());
-		this.jdbcOperations.update(SAVE_AUTHORIZED_CLIENT_SQL, pss);
+		this.jdbcOperations.update(SAVE_ONE_TIME_TOKEN_SQL, pss);
 	}
 
 	@Override
@@ -190,9 +189,10 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 	}
 
 	public void cleanupExpiredTokens() {
-		List<SqlParameterValue> parameters = List.of(new SqlParameterValue(Types.TIMESTAMP, Instant.now()));
+		List<SqlParameterValue> parameters = List
+			.of(new SqlParameterValue(Types.TIMESTAMP, Timestamp.from(Instant.now())));
 		PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters.toArray());
-		int deletedCount = this.jdbcOperations.update(DELETE_SESSIONS_BY_EXPIRY_TIME_QUERY, pss);
+		int deletedCount = this.jdbcOperations.update(DELETE_ONE_TIME_TOKENS_BY_EXPIRY_TIME_QUERY, pss);
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug("Cleaned up " + deletedCount + " expired tokens");
 		}

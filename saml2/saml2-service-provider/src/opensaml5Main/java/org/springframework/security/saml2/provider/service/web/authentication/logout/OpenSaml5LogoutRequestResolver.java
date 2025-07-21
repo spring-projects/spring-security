@@ -33,7 +33,7 @@ import org.springframework.util.Assert;
 
 /**
  * A {@link Saml2LogoutRequestResolver} for resolving SAML 2.0 Logout Requests with
- * OpenSAML 4
+ * OpenSAML 5
  *
  * @author Josh Cummings
  * @author Gerhard Haege

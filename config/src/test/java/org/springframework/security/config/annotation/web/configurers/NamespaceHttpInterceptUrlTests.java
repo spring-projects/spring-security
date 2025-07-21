@@ -118,7 +118,7 @@ public class NamespaceHttpInterceptUrlTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests().requestMatchers(
+				.authorizeHttpRequests((requests) -> requests.requestMatchers(
 					// the line below is similar to intercept-url@pattern:
 					//    <intercept-url pattern="/users**" access="hasRole('ROLE_ADMIN')"/>
 					//" access="hasRole('ROLE_ADMIN')"/>
@@ -128,14 +128,13 @@ public class NamespaceHttpInterceptUrlTests {
 					//" access="hasRole('ROLE_ADMIN')" method="POST"/>
 HttpMethod.POST, "/admin/post", "/admin/another-post/**").hasRole("ADMIN")
 					.requestMatchers("/signup").permitAll()
-					.anyRequest().hasRole("USER")
-					.and()
-				.requiresChannel().requestMatchers("/login", "/secured/**")
+					.anyRequest().hasRole("USER"))
+				.requiresChannel((channel) -> channel.requestMatchers("/login", "/secured/**")
 					// NOTE: channel security is configured separately of authorization (i.e. intercept-url@access
 					// the line below is similar to intercept-url@requires-channel="https":
 					//    <intercept-url pattern="/login" requires-channel="https"/>
 					//" requires-channel="https"/>
-				.requiresSecure().anyRequest().requiresInsecure();
+				.requiresSecure().anyRequest().requiresInsecure());
 			// @formatter:on
 			return http.build();
 		}

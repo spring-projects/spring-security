@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationManagers;
+import org.springframework.security.authorization.SingleResultAuthorizationManager;
 import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
@@ -56,9 +57,6 @@ import org.springframework.util.function.SingletonSupplier;
  */
 public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<AuthorizeHttpRequestsConfigurer<H>, H> {
-
-	static final AuthorizationManager<RequestAuthorizationContext> permitAllAuthorizationManager = (a,
-			o) -> new AuthorizationDecision(true);
 
 	private final AuthorizationManagerRequestMatcherRegistry registry;
 
@@ -112,7 +110,6 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		AuthorizationManager<HttpServletRequest> authorizationManager = this.registry.createAuthorizationManager();
 		AuthorizationFilter authorizationFilter = new AuthorizationFilter(authorizationManager);
 		authorizationFilter.setAuthorizationEventPublisher(this.publisher);
-		authorizationFilter.setShouldFilterAllDispatcherTypes(this.registry.shouldFilterAllDispatcherTypes);
 		authorizationFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		http.addFilter(postProcess(authorizationFilter));
 	}
@@ -146,8 +143,6 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 
 		private int mappingCount;
 
-		private boolean shouldFilterAllDispatcherTypes = true;
-
 		private AuthorizationManagerRequestMatcherRegistry(ApplicationContext context) {
 			setApplicationContext(context);
 		}
@@ -170,7 +165,8 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 							+ ". Try completing it with something like requestUrls().<something>.hasRole('USER')");
 			Assert.state(this.mappingCount > 0,
 					"At least one mapping is required (for example, authorizeHttpRequests().anyRequest().authenticated())");
-			RequestMatcherDelegatingAuthorizationManager manager = postProcess(this.managerBuilder.build());
+			AuthorizationManager<HttpServletRequest> manager = postProcess(
+					(AuthorizationManager<HttpServletRequest>) this.managerBuilder.build());
 			return AuthorizeHttpRequestsConfigurer.this.postProcessor.postProcess(manager);
 		}
 
@@ -190,47 +186,6 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 				ObjectPostProcessor<?> objectPostProcessor) {
 			addObjectPostProcessor(objectPostProcessor);
 			return this;
-		}
-
-		/**
-		 * Sets whether all dispatcher types should be filtered.
-		 * @param shouldFilter should filter all dispatcher types. Default is {@code true}
-		 * @return the {@link AuthorizationManagerRequestMatcherRegistry} for further
-		 * customizations
-		 * @since 5.7
-		 * @deprecated Permit access to the {@link jakarta.servlet.DispatcherType}
-		 * instead. <pre>
-		 * &#064;Configuration
-		 * &#064;EnableWebSecurity
-		 * public class SecurityConfig {
-		 *
-		 * 	&#064;Bean
-		 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		 * 		http
-		 * 		 	.authorizeHttpRequests((authorize) -&gt; authorize
-		 * 				.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
-		 * 			 	// ...
-		 * 		 	);
-		 * 		return http.build();
-		 * 	}
-		 * }
-		 * </pre>
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public AuthorizationManagerRequestMatcherRegistry shouldFilterAllDispatcherTypes(boolean shouldFilter) {
-			this.shouldFilterAllDispatcherTypes = shouldFilter;
-			return this;
-		}
-
-		/**
-		 * Return the {@link HttpSecurityBuilder} when done using the
-		 * {@link AuthorizeHttpRequestsConfigurer}. This is useful for method chaining.
-		 * @return the {@link HttpSecurityBuilder} for further customizations
-		 * @deprecated For removal in 7.0. Use the lambda based configuration instead.
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public H and() {
-			return AuthorizeHttpRequestsConfigurer.this.and();
 		}
 
 	}
@@ -276,7 +231,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * customizations
 		 */
 		public AuthorizationManagerRequestMatcherRegistry permitAll() {
-			return access(permitAllAuthorizationManager);
+			return access(SingleResultAuthorizationManager.permitAll());
 		}
 
 		/**
@@ -285,7 +240,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * customizations
 		 */
 		public AuthorizationManagerRequestMatcherRegistry denyAll() {
-			return access((a, o) -> new AuthorizationDecision(false));
+			return access(SingleResultAuthorizationManager.denyAll());
 		}
 
 		/**

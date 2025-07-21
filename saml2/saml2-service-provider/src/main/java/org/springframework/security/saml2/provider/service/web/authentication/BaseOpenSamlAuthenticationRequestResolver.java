@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,12 +50,14 @@ import org.springframework.security.saml2.provider.service.registration.Saml2Mes
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers.UriResolver;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.ParameterRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatchers;
 import org.springframework.util.Assert;
+
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * For internal use only. Intended for consolidating common behavior related to minting a
@@ -82,8 +84,9 @@ class BaseOpenSamlAuthenticationRequestResolver implements Saml2AuthenticationRe
 	private final NameIDPolicyBuilder nameIdPolicyBuilder;
 
 	private RequestMatcher requestMatcher = RequestMatchers.anyOf(
-			new AntPathRequestMatcher(Saml2AuthenticationRequestResolver.DEFAULT_AUTHENTICATION_REQUEST_URI),
-			new AntPathQueryRequestMatcher("/saml2/authenticate", "registrationId={registrationId}"));
+			PathPatternRequestMatcher.withDefaults()
+				.matcher(Saml2AuthenticationRequestResolver.DEFAULT_AUTHENTICATION_REQUEST_URI),
+			new PathPatternQueryRequestMatcher("/saml2/authenticate", "registrationId={registrationId}"));
 
 	private Clock clock = Clock.systemUTC();
 
@@ -215,13 +218,13 @@ class BaseOpenSamlAuthenticationRequestResolver implements Saml2AuthenticationRe
 		return this.saml.serialize(authnRequest).serialize();
 	}
 
-	private static final class AntPathQueryRequestMatcher implements RequestMatcher {
+	private static final class PathPatternQueryRequestMatcher implements RequestMatcher {
 
 		private final RequestMatcher matcher;
 
-		AntPathQueryRequestMatcher(String path, String... params) {
+		PathPatternQueryRequestMatcher(String path, String... params) {
 			List<RequestMatcher> matchers = new ArrayList<>();
-			matchers.add(new AntPathRequestMatcher(path));
+			matchers.add(pathPattern(path));
 			for (String param : params) {
 				String[] parts = param.split("=");
 				if (parts.length == 1) {

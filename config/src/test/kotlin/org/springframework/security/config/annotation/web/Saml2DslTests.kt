@@ -106,13 +106,13 @@ class Saml2DslTests {
                             InMemoryRelyingPartyRegistrationRepository(
                                     RelyingPartyRegistration.withRegistrationId("samlId")
                                             .assertionConsumerServiceLocation("{baseUrl}" + Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI)
-                                            .assertingPartyDetails { a -> a
+                                            .assertingPartyMetadata { a -> a
                                                 .verificationX509Credentials { c -> c
                                                     .add(Saml2X509Credential(loadCert("rod.cer"), Saml2X509Credential.Saml2X509CredentialType.VERIFICATION))
                                                 }
                                             }
-                                            .assertingPartyDetails { c -> c.singleSignOnServiceLocation("ssoUrl") }
-                                            .assertingPartyDetails { c -> c.entityId("entityId") }
+                                            .assertingPartyMetadata { c -> c.singleSignOnServiceLocation("ssoUrl") }
+                                            .assertingPartyMetadata { c -> c.entityId("entityId") }
                                             .build()
                             )
                 }
@@ -152,7 +152,7 @@ class Saml2DslTests {
             this.mockMvc.perform(request).andExpect(MockMvcResultMatchers.status().isFound()).andReturn()
         val redirectedUrl = result.response.redirectedUrl
         Assertions.assertThat(redirectedUrl)
-            .startsWith(registration.assertingPartyDetails.singleSignOnServiceLocation)
+            .startsWith(registration.assertingPartyMetadata.singleSignOnServiceLocation)
     }
 
     @Configuration

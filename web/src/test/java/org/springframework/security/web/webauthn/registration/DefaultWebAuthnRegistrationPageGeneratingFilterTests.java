@@ -31,11 +31,11 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
-import org.springframework.security.web.webauthn.api.Bytes;
 import org.springframework.security.web.webauthn.api.ImmutableCredentialRecord;
 import org.springframework.security.web.webauthn.api.ImmutablePublicKeyCredentialUserEntity;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
-import org.springframework.security.web.webauthn.api.TestCredentialRecord;
+import org.springframework.security.web.webauthn.api.TestBytes;
+import org.springframework.security.web.webauthn.api.TestCredentialRecords;
 import org.springframework.security.web.webauthn.management.PublicKeyCredentialUserEntityRepository;
 import org.springframework.security.web.webauthn.management.UserCredentialRepository;
 import org.springframework.test.web.servlet.MockMvc;
@@ -88,12 +88,12 @@ class DefaultWebAuthnRegistrationPageGeneratingFilterTests {
 	void doFilterThenCsrfDataAttrsPresent() throws Exception {
 		PublicKeyCredentialUserEntity userEntity = ImmutablePublicKeyCredentialUserEntity.builder()
 			.name("user")
-			.id(Bytes.random())
+			.id(TestBytes.get())
 			.displayName("User")
 			.build();
 		given(this.userEntities.findByUsername(any())).willReturn(userEntity);
 		given(this.userCredentials.findByUserId(userEntity.getId()))
-			.willReturn(Arrays.asList(TestCredentialRecord.userCredential().build()));
+			.willReturn(Arrays.asList(TestCredentialRecords.userCredential().build()));
 		String body = bodyAsString(matchingRequest());
 		assertThat(body).contains("setupRegistration({\"X-CSRF-TOKEN\" : \"CSRF_TOKEN\"}");
 		assertThat(body.replaceAll("\\s", "")).contains("""
@@ -115,7 +115,7 @@ class DefaultWebAuthnRegistrationPageGeneratingFilterTests {
 	void doFilterWhenNoCredentialsThenNoResults() throws Exception {
 		PublicKeyCredentialUserEntity userEntity = ImmutablePublicKeyCredentialUserEntity.builder()
 			.name("user")
-			.id(Bytes.random())
+			.id(TestBytes.get())
 			.displayName("User")
 			.build();
 		given(this.userEntities.findByUsername(any())).willReturn(userEntity);
@@ -129,11 +129,11 @@ class DefaultWebAuthnRegistrationPageGeneratingFilterTests {
 	void doFilterWhenResultsThenDisplayed() throws Exception {
 		PublicKeyCredentialUserEntity userEntity = ImmutablePublicKeyCredentialUserEntity.builder()
 			.name("user")
-			.id(Bytes.random())
+			.id(TestBytes.get())
 			.displayName("User")
 			.build();
 
-		ImmutableCredentialRecord credential = TestCredentialRecord.userCredential()
+		ImmutableCredentialRecord credential = TestCredentialRecords.userCredential()
 			.created(LocalDateTime.of(2024, 9, 17, 10, 10, 42, 999_999_999).toInstant(ZoneOffset.UTC))
 			.lastUsed(LocalDateTime.of(2024, 9, 18, 11, 11, 42, 999_999_999).toInstant(ZoneOffset.UTC))
 			.build();
@@ -225,10 +225,10 @@ class DefaultWebAuthnRegistrationPageGeneratingFilterTests {
 		assertThat(label).isNotEqualTo(htmlEncodedLabel);
 		PublicKeyCredentialUserEntity userEntity = ImmutablePublicKeyCredentialUserEntity.builder()
 			.name("user")
-			.id(Bytes.random())
+			.id(TestBytes.get())
 			.displayName("User")
 			.build();
-		ImmutableCredentialRecord credential = TestCredentialRecord.userCredential().label(label).build();
+		ImmutableCredentialRecord credential = TestCredentialRecords.userCredential().label(label).build();
 		given(this.userEntities.findByUsername(any())).willReturn(userEntity);
 		given(this.userCredentials.findByUserId(userEntity.getId())).willReturn(Arrays.asList(credential));
 		String body = bodyAsString(matchingRequest());
@@ -240,10 +240,10 @@ class DefaultWebAuthnRegistrationPageGeneratingFilterTests {
 	void doFilterWhenContextEmptyThenUrlsEmptyPrefix() throws Exception {
 		PublicKeyCredentialUserEntity userEntity = ImmutablePublicKeyCredentialUserEntity.builder()
 			.name("user")
-			.id(Bytes.random())
+			.id(TestBytes.get())
 			.displayName("User")
 			.build();
-		ImmutableCredentialRecord credential = TestCredentialRecord.userCredential().build();
+		ImmutableCredentialRecord credential = TestCredentialRecords.userCredential().build();
 		given(this.userEntities.findByUsername(any())).willReturn(userEntity);
 		given(this.userCredentials.findByUserId(userEntity.getId())).willReturn(Arrays.asList(credential));
 		String body = bodyAsString(matchingRequest());
@@ -256,10 +256,10 @@ class DefaultWebAuthnRegistrationPageGeneratingFilterTests {
 	void doFilterWhenContextNotEmptyThenUrlsPrefixed() throws Exception {
 		PublicKeyCredentialUserEntity userEntity = ImmutablePublicKeyCredentialUserEntity.builder()
 			.name("user")
-			.id(Bytes.random())
+			.id(TestBytes.get())
 			.displayName("User")
 			.build();
-		ImmutableCredentialRecord credential = TestCredentialRecord.userCredential().build();
+		ImmutableCredentialRecord credential = TestCredentialRecords.userCredential().build();
 		given(this.userEntities.findByUsername(any())).willReturn(userEntity);
 		given(this.userCredentials.findByUserId(userEntity.getId())).willReturn(Arrays.asList(credential));
 		String body = bodyAsString(matchingRequest("/foo"));

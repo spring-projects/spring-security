@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,12 +56,8 @@ public final class ObservationReactiveAuthorizationManager<T>
 		}
 	}
 
-	/**
-	 * @deprecated please use {@link #authorize(Mono, Object)} instead
-	 */
-	@Deprecated
 	@Override
-	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, T object) {
+	public Mono<AuthorizationResult> authorize(Mono<Authentication> authentication, T object) {
 		AuthorizationObservationContext<T> context = new AuthorizationObservationContext<>(object);
 		Mono<Authentication> wrapped = authentication.map((auth) -> {
 			context.setAuthentication(auth);
@@ -71,9 +67,9 @@ public final class ObservationReactiveAuthorizationManager<T>
 			Observation observation = Observation.createNotStarted(this.convention, () -> context, this.registry)
 				.parentObservation(contextView.getOrDefault(ObservationThreadLocalAccessor.KEY, null))
 				.start();
-			return this.delegate.check(wrapped, object).doOnSuccess((decision) -> {
-				context.setAuthorizationResult(decision);
-				if (decision == null || !decision.isGranted()) {
+			return this.delegate.authorize(wrapped, object).doOnSuccess((result) -> {
+				context.setAuthorizationResult(result);
+				if (result == null || !result.isGranted()) {
 					observation.error(new AccessDeniedException("Access Denied"));
 				}
 				observation.stop();

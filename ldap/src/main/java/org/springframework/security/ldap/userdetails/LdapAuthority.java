@@ -16,6 +16,7 @@
 
 package org.springframework.security.ldap.userdetails;
 
+import java.io.Serial;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,9 @@ import org.springframework.util.Assert;
  * @author Filip Hanik
  */
 public class LdapAuthority implements GrantedAuthority {
+
+	@Serial
+	private static final long serialVersionUID = 343193700821611354L;
 
 	private final String dn;
 

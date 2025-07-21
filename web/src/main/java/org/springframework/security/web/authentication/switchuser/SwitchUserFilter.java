@@ -35,6 +35,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.core.log.LogMessage;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -63,11 +64,11 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.UrlUtils;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
-import org.springframework.web.util.UrlPathHelper;
+
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * Switch User processing filter responsible for user context switching.
@@ -546,7 +547,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 	}
 
 	private static RequestMatcher createMatcher(String pattern) {
-		return new AntPathRequestMatcher(pattern, "POST", true, new UrlPathHelper());
+		return pathPattern(HttpMethod.POST, pattern);
 	}
 
 }

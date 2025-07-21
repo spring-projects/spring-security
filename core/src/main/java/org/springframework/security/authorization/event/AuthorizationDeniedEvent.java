@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,8 @@ package org.springframework.security.authorization.event;
 import java.util.function.Supplier;
 
 import org.springframework.context.ApplicationEvent;
-import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.core.ResolvableType;
+import org.springframework.core.ResolvableTypeProvider;
 import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 
@@ -30,15 +31,8 @@ import org.springframework.security.core.Authentication;
  * @author Josh Cummings
  * @since 5.7
  */
-public class AuthorizationDeniedEvent<T> extends AuthorizationEvent {
-
-	/**
-	 * @deprecated Please use an {@link AuthorizationResult} constructor instead
-	 */
-	@Deprecated
-	public AuthorizationDeniedEvent(Supplier<Authentication> authentication, T object, AuthorizationDecision decision) {
-		super(authentication, object, decision);
-	}
+@SuppressWarnings("serial")
+public class AuthorizationDeniedEvent<T> extends AuthorizationEvent implements ResolvableTypeProvider {
 
 	/**
 	 * @since 6.4
@@ -56,6 +50,16 @@ public class AuthorizationDeniedEvent<T> extends AuthorizationEvent {
 	@SuppressWarnings("unchecked")
 	public T getObject() {
 		return (T) getSource();
+	}
+
+	/**
+	 * Get {@link ResolvableType} of this class.
+	 * @return {@link ResolvableType}
+	 * @since 6.5
+	 */
+	@Override
+	public ResolvableType getResolvableType() {
+		return ResolvableType.forClassWithGenerics(getClass(), ResolvableType.forInstance(getObject()));
 	}
 
 }

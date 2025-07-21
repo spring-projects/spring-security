@@ -16,7 +16,13 @@
 
 package org.springframework.security.core.annotation;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -33,6 +39,9 @@ public class UniqueSecurityAnnotationScannerTests {
 
 	private UniqueSecurityAnnotationScanner<PreAuthorize> scanner = new UniqueSecurityAnnotationScanner<>(
 			PreAuthorize.class);
+
+	private UniqueSecurityAnnotationScanner<CustomParameterAnnotation> parameterScanner = new UniqueSecurityAnnotationScanner<>(
+			CustomParameterAnnotation.class);
 
 	@Test
 	void scanWhenAnnotationOnInterfaceThenResolves() throws Exception {
@@ -249,6 +258,148 @@ public class UniqueSecurityAnnotationScannerTests {
 		Class<?> targetClass = ClassInheritingAbstractClassNoAnnotations.class;
 		PreAuthorize preAuthorize = this.scanner.scan(method, targetClass);
 		assertThat(preAuthorize).isNull();
+	}
+
+	@Test
+	void scanParameterAnnotationWhenAnnotationOnInterface() throws Exception {
+		Parameter parameter = UserService.class.getDeclaredMethod("add", String.class).getParameters()[0];
+		CustomParameterAnnotation customParameterAnnotation = this.parameterScanner.scan(parameter);
+		assertThat(customParameterAnnotation.value()).isEqualTo("one");
+	}
+
+	@Test
+	void scanParameterAnnotationWhenClassInheritingInterfaceAnnotation() throws Exception {
+		Parameter parameter = UserServiceImpl.class.getDeclaredMethod("add", String.class).getParameters()[0];
+		CustomParameterAnnotation customParameterAnnotation = this.parameterScanner.scan(parameter);
+		assertThat(customParameterAnnotation.value()).isEqualTo("one");
+	}
+
+	@Test
+	void scanParameterAnnotationWhenClassOverridingMethodOverridingInterface() throws Exception {
+		Parameter parameter = UserServiceImpl.class.getDeclaredMethod("get", String.class).getParameters()[0];
+		CustomParameterAnnotation customParameterAnnotation = this.parameterScanner.scan(parameter);
+		assertThat(customParameterAnnotation.value()).isEqualTo("five");
+	}
+
+	@Test
+	void scanParameterAnnotationWhenMultipleMethodInheritanceThenException() throws Exception {
+		Parameter parameter = UserServiceImpl.class.getDeclaredMethod("list", String.class).getParameters()[0];
+		assertThatExceptionOfType(AnnotationConfigurationException.class)
+			.isThrownBy(() -> this.parameterScanner.scan(parameter));
+	}
+
+	@Test
+	void scanParameterAnnotationWhenInterfaceNoAnnotationsThenException() throws Exception {
+		Parameter parameter = UserServiceImpl.class.getDeclaredMethod("delete", String.class).getParameters()[0];
+		assertThatExceptionOfType(AnnotationConfigurationException.class)
+			.isThrownBy(() -> this.parameterScanner.scan(parameter));
+	}
+
+	// gh-16751
+	@Test
+	void scanWhenAnnotationOnParameterizedInterfaceTheLocates() throws Exception {
+		Method method = MyServiceImpl.class.getDeclaredMethod("get", String.class);
+		PreAuthorize pre = this.scanner.scan(method, method.getDeclaringClass());
+		assertThat(pre).isNotNull();
+	}
+
+	// gh-16751
+	@Test
+	void scanWhenAnnotationOnParameterizedSuperClassThenLocates() throws Exception {
+		Method method = MyServiceImpl.class.getDeclaredMethod("getExt", Long.class);
+		PreAuthorize pre = this.scanner.scan(method, method.getDeclaringClass());
+		assertThat(pre).isNotNull();
+	}
+
+	// gh-16751
+	@Test
+	void scanWhenAnnotationOnParameterizedMethodThenLocates() throws Exception {
+		Method method = MyServiceImpl.class.getDeclaredMethod("getExtByClass", Class.class, Long.class);
+		PreAuthorize pre = this.scanner.scan(method, method.getDeclaringClass());
+		assertThat(pre).isNotNull();
+	}
+
+	@Test
+	void scanParameterAnnotationWhenPresentInParentAndInterfaceThenException() throws Exception {
+		Parameter parameter = DefaultUserService.class.getDeclaredMethod("batch", String[].class).getParameters()[0];
+		assertThatExceptionOfType(AnnotationConfigurationException.class)
+			.isThrownBy(() -> this.parameterScanner.scan(parameter));
+	}
+
+	interface UserService {
+
+		void add(@CustomParameterAnnotation("one") String user);
+
+		List<String> list(@CustomParameterAnnotation("two") String user);
+
+		String get(@CustomParameterAnnotation("three") String user);
+
+		void delete(@CustomParameterAnnotation("five") String user);
+
+	}
+
+	interface OtherUserService {
+
+		List<String> list(@CustomParameterAnnotation("four") String user);
+
+	}
+
+	interface ThirdPartyUserService {
+
+		void delete(@CustomParameterAnnotation("five") String user);
+
+	}
+
+	interface RemoteUserService extends ThirdPartyUserService {
+
+		void batch(@CustomParameterAnnotation("six") String... user);
+
+	}
+
+	static class UserServiceImpl implements UserService, OtherUserService, RemoteUserService {
+
+		@Override
+		public void add(String user) {
+
+		}
+
+		@Override
+		public List<String> list(String user) {
+			return List.of(user);
+		}
+
+		@Override
+		public String get(@CustomParameterAnnotation("five") String user) {
+			return user;
+		}
+
+		@Override
+		public void delete(String user) {
+
+		}
+
+		@Override
+		public void batch(@CustomParameterAnnotation("seven") String... user) {
+
+		}
+
+	}
+
+	static class DefaultUserService extends UserServiceImpl implements RemoteUserService {
+
+		@Override
+		public void batch(String... user) {
+
+		}
+
+	}
+
+	@Target({ ElementType.PARAMETER })
+	@Retention(RetentionPolicy.RUNTIME)
+	@interface CustomParameterAnnotation {
+
+		String value();
+
 	}
 
 	@PreAuthorize("one")
@@ -574,6 +725,42 @@ public class UniqueSecurityAnnotationScannerTests {
 
 	@PreAuthorize("twentynine")
 	private static class ClassInheritingAbstractClassNoAnnotations extends AbstractClassNoAnnotations {
+
+	}
+
+	interface MyService<C, U> {
+
+		@PreAuthorize("thirty")
+		C get(U u);
+
+	}
+
+	abstract static class MyServiceExt<T> implements MyService<Integer, String> {
+
+		@PreAuthorize("thirtyone")
+		abstract T getExt(T t);
+
+		@PreAuthorize("thirtytwo")
+		abstract <S extends Number> S getExtByClass(Class<S> clazz, T t);
+
+	}
+
+	static class MyServiceImpl extends MyServiceExt<Long> {
+
+		@Override
+		public Integer get(final String s) {
+			return 0;
+		}
+
+		@Override
+		Long getExt(Long o) {
+			return 0L;
+		}
+
+		@Override
+		<S extends Number> S getExtByClass(Class<S> clazz, Long l) {
+			return null;
+		}
 
 	}
 

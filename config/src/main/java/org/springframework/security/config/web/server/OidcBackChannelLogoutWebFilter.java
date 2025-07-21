@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,17 @@
 
 package org.springframework.security.config.web.server;
 
-import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 
-import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.core.ResolvableType;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.EncoderHttpMessageWriter;
+import org.springframework.http.codec.HttpMessageWriter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -46,6 +47,7 @@ import org.springframework.web.server.WebFilterChain;
  * A filter for the Client-side OIDC Back-Channel Logout endpoint
  *
  * @author Josh Cummings
+ * @author Andrey Litvitski
  * @since 6.2
  * @see <a target="_blank" href=
  * "https://openid.net/specs/openid-connect-backchannel-1_0.html">OIDC Back-Channel Logout
@@ -60,6 +62,9 @@ class OidcBackChannelLogoutWebFilter implements WebFilter {
 	private final ReactiveAuthenticationManager authenticationManager;
 
 	private final ServerLogoutHandler logoutHandler;
+
+	private final HttpMessageWriter<OAuth2Error> errorHttpMessageConverter = new EncoderHttpMessageWriter<>(
+			new OAuth2ErrorEncoder());
 
 	/**
 	 * Construct an {@link OidcBackChannelLogoutWebFilter}
@@ -85,7 +90,7 @@ class OidcBackChannelLogoutWebFilter implements WebFilter {
 			if (ex instanceof AuthenticationServiceException) {
 				return Mono.error(ex);
 			}
-			return handleAuthenticationFailure(exchange.getResponse(), ex).then(Mono.empty());
+			return handleAuthenticationFailure(exchange, ex).then(Mono.empty());
 		})
 			.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
 			.flatMap(this.authenticationManager::authenticate)
@@ -94,7 +99,7 @@ class OidcBackChannelLogoutWebFilter implements WebFilter {
 				if (ex instanceof AuthenticationServiceException) {
 					return Mono.error(ex);
 				}
-				return handleAuthenticationFailure(exchange.getResponse(), ex).then(Mono.empty());
+				return handleAuthenticationFailure(exchange, ex).then(Mono.empty());
 			})
 			.flatMap((authentication) -> {
 				WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
@@ -102,19 +107,12 @@ class OidcBackChannelLogoutWebFilter implements WebFilter {
 			});
 	}
 
-	private Mono<Void> handleAuthenticationFailure(ServerHttpResponse response, Exception ex) {
+	private Mono<Void> handleAuthenticationFailure(ServerWebExchange exchange, Exception ex) {
 		this.logger.debug("Failed to process OIDC Back-Channel Logout", ex);
-		response.setRawStatusCode(HttpServletResponse.SC_BAD_REQUEST);
-		OAuth2Error error = oauth2Error(ex);
-		byte[] bytes = String.format("""
-				{
-					"error_code": "%s",
-					"error_description": "%s",
-					"error_uri: "%s"
-				}
-				""", error.getErrorCode(), error.getDescription(), error.getUri()).getBytes(StandardCharsets.UTF_8);
-		DataBuffer buffer = response.bufferFactory().wrap(bytes);
-		return response.writeWith(Flux.just(buffer));
+		exchange.getResponse().setRawStatusCode(HttpStatus.BAD_REQUEST.value());
+		return this.errorHttpMessageConverter.write(Mono.just(oauth2Error(ex)), ResolvableType.forClass(Object.class),
+				ResolvableType.forClass(Object.class), MediaType.APPLICATION_JSON, exchange.getRequest(),
+				exchange.getResponse(), Collections.emptyMap());
 	}
 
 	private OAuth2Error oauth2Error(Exception ex) {

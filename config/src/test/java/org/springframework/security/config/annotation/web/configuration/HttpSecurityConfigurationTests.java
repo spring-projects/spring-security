@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -85,7 +84,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -313,22 +311,6 @@ public class HttpSecurityConfigurationTests {
 	}
 
 	@Test
-	public void configureWhenAuthorizeHttpRequestsBeforeAuthorizeRequestThenException() {
-		assertThatExceptionOfType(BeanCreationException.class)
-			.isThrownBy(() -> this.spring.register(AuthorizeHttpRequestsBeforeAuthorizeRequestsConfig.class).autowire())
-			.withMessageContaining(
-					"authorizeHttpRequests cannot be used in conjunction with authorizeRequests. Please select just one.");
-	}
-
-	@Test
-	public void configureWhenAuthorizeHttpRequestsAfterAuthorizeRequestThenException() {
-		assertThatExceptionOfType(BeanCreationException.class)
-			.isThrownBy(() -> this.spring.register(AuthorizeHttpRequestsAfterAuthorizeRequestsConfig.class).autowire())
-			.withMessageContaining(
-					"authorizeHttpRequests cannot be used in conjunction with authorizeRequests. Please select just one.");
-	}
-
-	@Test
 	public void configureWhenDefaultConfigurerAsSpringFactoryThenDefaultConfigurerApplied() {
 		DefaultConfigurer configurer = new DefaultConfigurer();
 		this.springFactoriesLoader
@@ -472,7 +454,7 @@ public class HttpSecurityConfigurationTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.authorizeRequests((authorize) -> authorize
+					.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().permitAll()
 					)
 					.build();
@@ -489,7 +471,7 @@ public class HttpSecurityConfigurationTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			return http
-					.authorizeRequests((authorize) -> authorize
+					.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().authenticated()
 					)
 					.formLogin(withDefaults())
@@ -512,46 +494,6 @@ public class HttpSecurityConfigurationTests {
 					.build();
 			// @formatter:on
 			return new InMemoryUserDetailsManager(user);
-		}
-
-	}
-
-	@Configuration
-	@EnableWebSecurity
-	static class AuthorizeHttpRequestsBeforeAuthorizeRequestsConfig {
-
-		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			// @formatter:off
-			return http
-					.authorizeHttpRequests((requests) -> requests
-							.anyRequest().authenticated()
-					)
-					.authorizeRequests((requests) -> requests
-							.anyRequest().authenticated()
-					)
-					.build();
-			// @formatter:on
-		}
-
-	}
-
-	@Configuration
-	@EnableWebSecurity
-	static class AuthorizeHttpRequestsAfterAuthorizeRequestsConfig {
-
-		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			// @formatter:off
-			return http
-					.authorizeRequests((requests) -> requests
-							.anyRequest().authenticated()
-					)
-					.authorizeHttpRequests((requests) -> requests
-							.anyRequest().authenticated()
-					)
-					.build();
-			// @formatter:on
 		}
 
 	}
@@ -634,7 +576,7 @@ public class HttpSecurityConfigurationTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.authorizeHttpRequests((requests) -> requests
+					.authorizeHttpRequests((authorize) -> authorize
 							.anyRequest().authenticated()
 					);
 			// @formatter:on
@@ -688,7 +630,7 @@ public class HttpSecurityConfigurationTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			http.apply(CustomDsl.customDsl());
+			http.with(CustomDsl.customDsl());
 			return http.build();
 		}
 

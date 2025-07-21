@@ -166,7 +166,7 @@ class SecurityConfig {
 [[oauth2-resource-server-access-token-opaque]]
 ==== Opaque Token Support
 
-The following example configures an `OpaqueTokenIntrospector` bean using Spring Boot configuration properties:
+The following example configures an `ReactiveOpaqueTokenIntrospector` bean using Spring Boot configuration properties:
 
 [source,yaml]
 ----
@@ -953,7 +953,6 @@ public class SecurityConfig {
 				.authorizationCode()
 				.refreshToken()
 				.clientCredentials()
-				.password()
 				.provider(new JwtBearerReactiveOAuth2AuthorizedClientProvider())
 				.build();
 
@@ -984,7 +983,6 @@ class SecurityConfig {
 			.authorizationCode()
 			.refreshToken()
 			.clientCredentials()
-			.password()
 			.provider(JwtBearerReactiveOAuth2AuthorizedClientProvider())
 			.build()
 
@@ -1273,7 +1271,6 @@ Spring Security automatically resolves the following generic types of `ReactiveO
 * `OAuth2AuthorizationCodeGrantRequest` (see `WebClientReactiveAuthorizationCodeTokenResponseClient`)
 * `OAuth2RefreshTokenGrantRequest` (see `WebClientReactiveRefreshTokenTokenResponseClient`)
 * `OAuth2ClientCredentialsGrantRequest` (see `WebClientReactiveClientCredentialsTokenResponseClient`)
-* `OAuth2PasswordGrantRequest` (see `WebClientReactivePasswordTokenResponseClient`)
 * `JwtBearerGrantRequest` (see `WebClientReactiveJwtBearerTokenResponseClient`)
 * `TokenExchangeGrantRequest` (see `WebClientReactiveTokenExchangeTokenResponseClient`)
 
@@ -1335,15 +1332,6 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public ReactiveOAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> passwordAccessTokenResponseClient() {
-		WebClientReactivePasswordTokenResponseClient accessTokenResponseClient =
-			new WebClientReactivePasswordTokenResponseClient();
-		accessTokenResponseClient.setWebClient(webClient());
-
-		return accessTokenResponseClient;
-	}
-
-	@Bean
 	public ReactiveOAuth2AccessTokenResponseClient<JwtBearerGrantRequest> jwtBearerAccessTokenResponseClient() {
 		WebClientReactiveJwtBearerTokenResponseClient accessTokenResponseClient =
 			new WebClientReactiveJwtBearerTokenResponseClient();
@@ -1395,14 +1383,6 @@ class SecurityConfig {
 	@Bean
 	fun clientCredentialsAccessTokenResponseClient(): ReactiveOAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> {
 		val accessTokenResponseClient = WebClientReactiveClientCredentialsTokenResponseClient()
-		accessTokenResponseClient.setWebClient(webClient())
-
-		return accessTokenResponseClient
-	}
-
-	@Bean
-	fun passwordAccessTokenResponseClient(): ReactiveOAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> {
-		val accessTokenResponseClient = WebClientReactivePasswordTokenResponseClient()
 		accessTokenResponseClient.setWebClient(webClient())
 
 		return accessTokenResponseClient
@@ -1477,10 +1457,6 @@ public class SecurityConfig {
 			new WebClientReactiveClientCredentialsTokenResponseClient();
 		clientCredentialsAccessTokenResponseClient.setWebClient(webClient());
 
-		WebClientReactivePasswordTokenResponseClient passwordAccessTokenResponseClient =
-			new WebClientReactivePasswordTokenResponseClient();
-		passwordAccessTokenResponseClient.setWebClient(webClient());
-
 		WebClientReactiveJwtBearerTokenResponseClient jwtBearerAccessTokenResponseClient =
 			new WebClientReactiveJwtBearerTokenResponseClient();
 		jwtBearerAccessTokenResponseClient.setWebClient(webClient());
@@ -1505,9 +1481,6 @@ public class SecurityConfig {
 				)
 				.clientCredentials((clientCredentials) -> clientCredentials
 					.accessTokenResponseClient(clientCredentialsAccessTokenResponseClient)
-				)
-				.password((password) -> password
-					.accessTokenResponseClient(passwordAccessTokenResponseClient)
 				)
 				.provider(jwtBearerAuthorizedClientProvider)
 				.provider(tokenExchangeAuthorizedClientProvider)
@@ -1557,9 +1530,6 @@ class SecurityConfig {
 		val clientCredentialsAccessTokenResponseClient = WebClientReactiveClientCredentialsTokenResponseClient()
 		clientCredentialsAccessTokenResponseClient.setWebClient(webClient())
 
-		val passwordAccessTokenResponseClient = WebClientReactivePasswordTokenResponseClient()
-		passwordAccessTokenResponseClient.setWebClient(webClient())
-
 		val jwtBearerAccessTokenResponseClient = WebClientReactiveJwtBearerTokenResponseClient()
 		jwtBearerAccessTokenResponseClient.setWebClient(webClient())
 
@@ -1579,9 +1549,6 @@ class SecurityConfig {
 			}
 			.clientCredentials { clientCredentials ->
 				clientCredentials.accessTokenResponseClient(clientCredentialsAccessTokenResponseClient)
-			}
-			.password { password ->
-				password.accessTokenResponseClient(passwordAccessTokenResponseClient)
 			}
 			.provider(jwtBearerAuthorizedClientProvider)
 			.provider(tokenExchangeAuthorizedClientProvider)
@@ -1608,7 +1575,7 @@ class SecurityConfig {
 [[further-reading]]
 == Further Reading
 
-This preceding sections introduced Spring Security's support for OAuth2 with examples for common scenarios.
+The preceding sections introduced Spring Security's support for OAuth2 with examples for common scenarios.
 You can read more about OAuth2 Client and Resource Server in the following sections of the reference documentation:
 
 * xref:reactive/oauth2/login/index.adoc[]

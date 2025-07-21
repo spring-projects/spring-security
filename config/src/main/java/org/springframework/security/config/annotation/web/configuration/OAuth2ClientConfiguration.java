@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,8 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.annotation.AnnotationBeanNameGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -48,13 +50,11 @@ import org.springframework.security.oauth2.client.DelegatingOAuth2AuthorizedClie
 import org.springframework.security.oauth2.client.JwtBearerOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
-import org.springframework.security.oauth2.client.PasswordOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.RefreshTokenOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.TokenExchangeOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.endpoint.JwtBearerGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
-import org.springframework.security.oauth2.client.endpoint.OAuth2PasswordGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.TokenExchangeGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -160,7 +160,7 @@ final class OAuth2ClientConfiguration {
 	 * @since 6.2.0
 	 */
 	static final class OAuth2AuthorizedClientManagerRegistrar
-			implements BeanDefinitionRegistryPostProcessor, BeanFactoryAware {
+			implements ApplicationEventPublisherAware, BeanDefinitionRegistryPostProcessor, BeanFactoryAware {
 
 		static final String BEAN_NAME = "authorizedClientManagerRegistrar";
 
@@ -171,13 +171,14 @@ final class OAuth2ClientConfiguration {
 				AuthorizationCodeOAuth2AuthorizedClientProvider.class,
 				RefreshTokenOAuth2AuthorizedClientProvider.class,
 				ClientCredentialsOAuth2AuthorizedClientProvider.class,
-				PasswordOAuth2AuthorizedClientProvider.class,
 				JwtBearerOAuth2AuthorizedClientProvider.class,
 				TokenExchangeOAuth2AuthorizedClientProvider.class
 		);
 		// @formatter:on
 
 		private final AnnotationBeanNameGenerator beanNameGenerator = new AnnotationBeanNameGenerator();
+
+		private ApplicationEventPublisher applicationEventPublisher;
 
 		private ListableBeanFactory beanFactory;
 
@@ -237,7 +238,6 @@ final class OAuth2ClientConfiguration {
 				authorizedClientProviders.add(getRefreshTokenAuthorizedClientProvider(authorizedClientProviderBeans));
 				authorizedClientProviders
 					.add(getClientCredentialsAuthorizedClientProvider(authorizedClientProviderBeans));
-				authorizedClientProviders.add(getPasswordAuthorizedClientProvider(authorizedClientProviderBeans));
 
 				OAuth2AuthorizedClientProvider jwtBearerAuthorizedClientProvider = getJwtBearerAuthorizedClientProvider(
 						authorizedClientProviderBeans);
@@ -302,6 +302,10 @@ final class OAuth2ClientConfiguration {
 				authorizedClientProvider.setAccessTokenResponseClient(accessTokenResponseClient);
 			}
 
+			if (this.applicationEventPublisher != null) {
+				authorizedClientProvider.setApplicationEventPublisher(this.applicationEventPublisher);
+			}
+
 			return authorizedClientProvider;
 		}
 
@@ -316,24 +320,6 @@ final class OAuth2ClientConfiguration {
 			OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient = getBeanOfType(
 					ResolvableType.forClassWithGenerics(OAuth2AccessTokenResponseClient.class,
 							OAuth2ClientCredentialsGrantRequest.class));
-			if (accessTokenResponseClient != null) {
-				authorizedClientProvider.setAccessTokenResponseClient(accessTokenResponseClient);
-			}
-
-			return authorizedClientProvider;
-		}
-
-		private OAuth2AuthorizedClientProvider getPasswordAuthorizedClientProvider(
-				Collection<OAuth2AuthorizedClientProvider> authorizedClientProviders) {
-			PasswordOAuth2AuthorizedClientProvider authorizedClientProvider = getAuthorizedClientProviderByType(
-					authorizedClientProviders, PasswordOAuth2AuthorizedClientProvider.class);
-			if (authorizedClientProvider == null) {
-				authorizedClientProvider = new PasswordOAuth2AuthorizedClientProvider();
-			}
-
-			OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> accessTokenResponseClient = getBeanOfType(
-					ResolvableType.forClassWithGenerics(OAuth2AccessTokenResponseClient.class,
-							OAuth2PasswordGrantRequest.class));
 			if (accessTokenResponseClient != null) {
 				authorizedClientProvider.setAccessTokenResponseClient(accessTokenResponseClient);
 			}
@@ -421,6 +407,11 @@ final class OAuth2ClientConfiguration {
 		private <T> T getBeanOfType(ResolvableType resolvableType) {
 			ObjectProvider<T> objectProvider = this.beanFactory.getBeanProvider(resolvableType, true);
 			return objectProvider.getIfAvailable();
+		}
+
+		@Override
+		public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+			this.applicationEventPublisher = applicationEventPublisher;
 		}
 
 	}

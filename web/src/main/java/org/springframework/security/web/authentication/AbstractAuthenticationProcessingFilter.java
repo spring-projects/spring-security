@@ -31,6 +31,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.core.log.LogMessage;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -45,10 +46,11 @@ import org.springframework.security.web.authentication.session.NullAuthenticated
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
+
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * Abstract processor of browser-based HTTP-based authentication requests.
@@ -122,6 +124,11 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 
 	protected AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
+	private AuthenticationConverter authenticationConverter = (request) -> {
+		throw new AuthenticationCredentialsNotFoundException(
+				"Please either configure an AuthenticationConverter or override attemptAuthentication when extending AbstractAuthenticationProcessingFilter");
+	};
+
 	private AuthenticationManager authenticationManager;
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
@@ -131,6 +138,8 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	private RequestMatcher requiresAuthenticationRequestMatcher;
 
 	private boolean continueChainBeforeSuccessfulAuthentication = false;
+
+	private boolean continueChainWhenNoAuthenticationResult;
 
 	private SessionAuthenticationStrategy sessionStrategy = new NullAuthenticatedSessionStrategy();
 
@@ -230,6 +239,10 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 		try {
 			Authentication authenticationResult = attemptAuthentication(request, response);
 			if (authenticationResult == null) {
+				if (this.continueChainWhenNoAuthenticationResult) {
+					chain.doFilter(request, response);
+					return;
+				}
 				// return immediately as subclass has indicated that it hasn't completed
 				return;
 			}
@@ -292,8 +305,18 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 * @return the authenticated user token, or null if authentication is incomplete.
 	 * @throws AuthenticationException if authentication fails.
 	 */
-	public abstract Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-			throws AuthenticationException, IOException, ServletException;
+	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+			throws AuthenticationException, IOException, ServletException {
+		Authentication authentication = this.authenticationConverter.convert(request);
+		if (authentication == null) {
+			return null;
+		}
+		Authentication result = this.authenticationManager.authenticate(authentication);
+		if (result == null) {
+			throw new ServletException("AuthenticationManager should not return null Authentication object.");
+		}
+		return result;
+	}
 
 	/**
 	 * Default behaviour for successful authentication.
@@ -338,7 +361,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 * <ol>
 	 * <li>Clears the {@link SecurityContextHolder}</li>
 	 * <li>Stores the exception in the session (if it exists or
-	 * <tt>allowSesssionCreation</tt> is set to <tt>true</tt>)</li>
+	 * <tt>allowSessionCreation</tt> is set to <tt>true</tt>)</li>
 	 * <li>Informs the configured <tt>RememberMeServices</tt> of the failed login</li>
 	 * <li>Delegates additional behaviour to the
 	 * {@link AuthenticationFailureHandler}.</li>
@@ -354,6 +377,12 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 		this.failureHandler.onAuthenticationFailure(request, response, failed);
 	}
 
+	public void setAuthenticationConverter(AuthenticationConverter authenticationConverter) {
+		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
+		this.authenticationConverter = authenticationConverter;
+		this.continueChainWhenNoAuthenticationResult = true;
+	}
+
 	protected AuthenticationManager getAuthenticationManager() {
 		return this.authenticationManager;
 	}
@@ -367,11 +396,11 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 * @param filterProcessesUrl
 	 */
 	public void setFilterProcessesUrl(String filterProcessesUrl) {
-		setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher(filterProcessesUrl));
+		setRequiresAuthenticationRequestMatcher(pathPattern(filterProcessesUrl));
 	}
 
 	public final void setRequiresAuthenticationRequestMatcher(RequestMatcher requestMatcher) {
-		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
+		Assert.notNull(requestMatcher, "requestMatcher cannot be null or empty");
 		this.requiresAuthenticationRequestMatcher = requestMatcher;
 	}
 

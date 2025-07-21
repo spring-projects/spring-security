@@ -91,7 +91,7 @@ public class BearerTokenServerAuthenticationEntryPointTests {
 	@Test
 	public void commenceWhenNoSubscriberThenNothingHappens() {
 		this.entryPoint.commence(this.exchange, new BadCredentialsException(""));
-		assertThat(getResponse().getHeaders()).isEmpty();
+		assertThat(getResponse().getHeaders().headerNames()).isEmpty();
 		assertThat(getResponse().getStatusCode()).isNull();
 	}
 

@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.io.Serial;
+
 /**
  * Base exception for all JSON Web Token (JWT) related errors.
  *
@@ -23,6 +25,9 @@ package org.springframework.security.oauth2.jwt;
  * @since 5.0
  */
 public class JwtException extends RuntimeException {
+
+	@Serial
+	private static final long serialVersionUID = -3070197880233583797L;
 
 	/**
 	 * Constructs a {@code JwtException} using the provided parameters.

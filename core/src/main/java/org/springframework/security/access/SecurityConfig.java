@@ -16,9 +16,12 @@
 
 package org.springframework.security.access;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.core.annotation.SecurityAnnotationScanner;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -26,8 +29,18 @@ import org.springframework.util.StringUtils;
  * Stores a {@link ConfigAttribute} as a <code>String</code>.
  *
  * @author Ben Alex
+ * @deprecated In modern Spring Security APIs, each API manages its own configuration
+ * context. As such there is no direct replacement for this interface. In the case of
+ * method security, please see {@link SecurityAnnotationScanner} and
+ * {@link AuthorizationManager}. In the case of channel security, please see
+ * {@code HttpsRedirectFilter}. In the case of web security, please see
+ * {@link AuthorizationManager}.
  */
+@Deprecated
 public class SecurityConfig implements ConfigAttribute {
+
+	@Serial
+	private static final long serialVersionUID = -7138084564199804304L;
 
 	private final String attrib;
 

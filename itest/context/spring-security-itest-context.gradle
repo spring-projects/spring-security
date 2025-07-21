@@ -9,7 +9,8 @@ dependencies {
 	implementation 'org.springframework:spring-context'
 	implementation 'org.springframework:spring-tx'
 
-	testImplementation project(':spring-security-web')
+	testImplementation project(path: ':spring-security-web')
+	testImplementation project(path: ':spring-security-web', configuration: 'tests')
 	testImplementation 'jakarta.servlet:jakarta.servlet-api'
 	testImplementation 'org.springframework:spring-web'
 	testImplementation "org.assertj:assertj-core"
@@ -22,6 +23,7 @@ dependencies {
 
 	testRuntimeOnly project(':spring-security-config')
 	testRuntimeOnly 'org.aspectj:aspectjweaver'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 System.setProperty('python.cachedir.skip', 'true')

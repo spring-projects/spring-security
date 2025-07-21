@@ -205,6 +205,78 @@ This will ensure that:
 <5> Any other message of type MESSAGE or SUBSCRIBE is rejected. Due to 6 we do not need this step, but it illustrates how one can match on specific message types.
 <6> Any other Message is rejected. This is a good idea to ensure that you do not miss any messages.
 
+[[migrating-spel-expressions]]
+=== Migrating SpEL Expressions
+
+If you are migrating from an older version of Spring Security, your destination matchers may include SpEL expressions.
+It's recommended that these be changed to using concrete implementations of `AuthorizationManager` since this is independently testable.
+
+However, to ease migration, you can also use a class like the following:
+
+[source,java]
+----
+public final class MessageExpressionAuthorizationManager implements AuthorizationManager<MessageAuthorizationContext<?>> {
+
+	private SecurityExpressionHandler<Message<?>> expressionHandler = new DefaultMessageSecurityExpressionHandler();
+
+	private Expression expression;
+
+	public MessageExpressionAuthorizationManager(String expressionString) {
+		Assert.hasText(expressionString, "expressionString cannot be empty");
+		this.expression = this.expressionHandler.getExpressionParser().parseExpression(expressionString);
+	}
+
+	@Override
+	public AuthorizationResult authorize(Supplier<Authentication> authentication, MessageAuthorizationContext<?> context) {
+		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication, context.getMessage());
+		boolean granted = ExpressionUtils.evaluateAsBoolean(this.expression, ctx);
+		return new ExpressionAuthorizationDecision(granted, this.expression);
+	}
+
+}
+----
+
+And specify an instance for each matcher that you cannot get migrate:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Configuration
+public class WebSocketSecurityConfig {
+
+    @Bean
+    public AuthorizationManager<Message<?>> messageAuthorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
+        messages
+                // ...
+                .simpSubscribeDestMatchers("/topic/friends/{friend}").access(new MessageExpressionAuthorizationManager("#friends == 'john"));
+                // ...
+
+        return messages.build();
+    }
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+open class WebSocketSecurityConfig {
+    fun messageAuthorizationManager(messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<?> {
+        messages
+            // ..
+            .simpSubscribeDestMatchers("/topic/friends/{friends}").access(MessageExpressionAuthorizationManager("#friends == 'john"))
+            // ...
+
+        return messages.build()
+    }
+}
+----
+======
+
 [[websocket-authorization-notes]]
 === WebSocket Authorization Notes
 
@@ -368,7 +440,7 @@ public class WebSocketSecurityConfig implements WebSocketMessageBrokerConfigurer
     private final ApplicationContext applicationContext;
 
     private final AuthorizationManager<Message<?>> authorizationManager;
-    
+
     public WebSocketSecurityConfig(ApplicationContext applicationContext, AuthorizationManager<Message<?>> authorizationManager) {
         this.applicationContext = applicationContext;
         this.authorizationManager = authorizationManager;
@@ -417,43 +489,6 @@ Xml::
 <websocket-message-broker use-authorization-manager="true" same-origin-disabled="true">
     <intercept-message pattern="/**" access="authenticated"/>
 </websocket-message-broker>
-----
-======
-
-On the other hand, if you are using the <<legacy-websocket-configuration,legacy `AbstractSecurityWebSocketMessageBrokerConfigurer`>> and you want to allow other domains to access your site, you can disable Spring Security's protection.
-For example, in Java Configuration you can use the following:
-
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Configuration
-public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
-
-    ...
-
-    @Override
-    protected boolean sameOriginDisabled() {
-        return true;
-    }
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Configuration
-open class WebSocketSecurityConfig : AbstractSecurityWebSocketMessageBrokerConfigurer() {
-
-    // ...
-
-    override fun sameOriginDisabled(): Boolean {
-        return true
-    }
-}
 ----
 ======
 
@@ -535,8 +570,8 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             // ...
-            .headers(headers -> headers
-                .frameOptions(frameOptions -> frameOptions
+            .headers((headers) -> headers
+                .frameOptions((frameOptions) -> frameOptions
                      .sameOrigin()
                 )
         );
@@ -598,17 +633,17 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf
+            .csrf((csrf) -> csrf
                 // ignore our stomp endpoints since they are protected using Stomp headers
                 .ignoringRequestMatchers("/chat/**")
             )
-            .headers(headers -> headers
+            .headers((headers) -> headers
                 // allow same origin to frame our site to support iframe SockJS
-                .frameOptions(frameOptions -> frameOptions
+                .frameOptions((frameOptions) -> frameOptions
                     .sameOrigin()
                 )
             )
-            .authorizeHttpRequests(authorize -> authorize
+            .authorizeHttpRequests((authorize) -> authorize
                 ...
             )
             ...
@@ -634,7 +669,7 @@ open class WebSecurityConfig {
                     sameOrigin = true
                 }
             }
-            authorizeRequests {
+            authorizeHttpRequests {
                 // ...
             }
             // ...
@@ -663,7 +698,7 @@ If we use XML-based configuration, we can use thexref:servlet/appendix/namespace
     <b:constructor-arg value="#{T(org.springframework.security.web.csrf.CsrfFilter).DEFAULT_CSRF_MATCHER}"/>
     <b:constructor-arg>
         <b:bean class="org.springframework.security.web.util.matcher.NegatedRequestMatcher">
-          <b:bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
+          <b:bean class="org.springframework.security.config.http.PathPatternRequestMatcherFactoryBean">
             <b:constructor-arg value="/chat/**"/>
           </b:bean>
         </b:bean>
@@ -674,46 +709,5 @@ If we use XML-based configuration, we can use thexref:servlet/appendix/namespace
 [[legacy-websocket-configuration]]
 == Legacy WebSocket Configuration
 
-Before Spring Security 5.8, the way to configure messaging authorization using Java Configuration, was to extend the `AbstractSecurityWebSocketMessageBrokerConfigurer` and configure the `MessageSecurityMetadataSourceRegistry`.
-For example:
-
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Configuration
-public class WebSocketSecurityConfig
-      extends AbstractSecurityWebSocketMessageBrokerConfigurer { // <1> <2>
-
-    protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
-        messages
-                .simpDestMatchers("/user/**").authenticated() // <3>
-    }
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Configuration
-open class WebSocketSecurityConfig : AbstractSecurityWebSocketMessageBrokerConfigurer() { // <1> <2>
-    override fun configureInbound(messages: MessageSecurityMetadataSourceRegistry) {
-        messages.simpDestMatchers("/user/**").authenticated() // <3>
-    }
-}
-----
-======
-
-This will ensure that:
-
-<1> Any inbound CONNECT message requires a valid CSRF token to enforce <<websocket-sameorigin,Same Origin Policy>>
-<2> The SecurityContextHolder is populated with the user within the simpUser header attribute for any inbound request.
-<3> Our messages require the proper authorization. Specifically, any inbound message that starts with "/user/" will require ROLE_USER. Additional details on authorization can be found in <<websocket-authorization>>
-
-Using the legacy configuration is helpful in the event that you have a custom `SecurityExpressionHandler` that extends `AbstractSecurityExpressionHandler` and overrides `createEvaluationContextInternal` or `createSecurityExpressionRoot`.
-In order to defer `Authorization` lookup, the new `AuthorizationManager` API does not invoke these when evaluating expressions.
-
-If you are using XML, you can use the legacy APIs simply by not using the `use-authorization-manager` element or setting it to `false`.
+`AbstractSecurityWebSocketMessageBrokerConfigurer` and `MessageSecurityMetadataSourceRegistry` are removed as of Spring Security 7.
+Please see https://docs.spring.io/spring-security/reference/5.8/migration/servlet/authorization.html#_use_authorizationmanager_for_message_security[the 5.8 migration guide] for guidance.

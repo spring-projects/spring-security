@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,7 +123,7 @@ public class AuthorityAuthorizationManagerTests {
 				"ROLE_USER");
 		Object object = new Object();
 
-		assertThat(manager.check(authentication, object).isGranted()).isTrue();
+		assertThat(manager.authorize(authentication, object).isGranted()).isTrue();
 	}
 
 	@Test
@@ -133,7 +133,7 @@ public class AuthorityAuthorizationManagerTests {
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		Object object = new Object();
 
-		assertThat(manager.check(authentication, object).isGranted()).isFalse();
+		assertThat(manager.authorize(authentication, object).isGranted()).isFalse();
 	}
 
 	@Test
@@ -144,7 +144,7 @@ public class AuthorityAuthorizationManagerTests {
 				"USER");
 		Object object = new Object();
 
-		assertThat(manager.check(authentication, object).isGranted()).isTrue();
+		assertThat(manager.authorize(authentication, object).isGranted()).isTrue();
 	}
 
 	@Test
@@ -154,7 +154,7 @@ public class AuthorityAuthorizationManagerTests {
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "USER");
 		Object object = new Object();
 
-		assertThat(manager.check(authentication, object).isGranted()).isFalse();
+		assertThat(manager.authorize(authentication, object).isGranted()).isFalse();
 	}
 
 	@Test
@@ -166,7 +166,7 @@ public class AuthorityAuthorizationManagerTests {
 				Collections.singletonList(customGrantedAuthority));
 		Object object = new Object();
 
-		assertThat(manager.check(authentication, object).isGranted()).isTrue();
+		assertThat(manager.authorize(authentication, object).isGranted()).isTrue();
 	}
 
 	@Test
@@ -178,7 +178,7 @@ public class AuthorityAuthorizationManagerTests {
 				Collections.singletonList(customGrantedAuthority));
 		Object object = new Object();
 
-		assertThat(manager.check(authentication, object).isGranted()).isFalse();
+		assertThat(manager.authorize(authentication, object).isGranted()).isFalse();
 	}
 
 	@Test
@@ -188,7 +188,7 @@ public class AuthorityAuthorizationManagerTests {
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		Object object = new Object();
 
-		assertThat(manager.check(authentication, object).isGranted()).isTrue();
+		assertThat(manager.authorize(authentication, object).isGranted()).isTrue();
 	}
 
 	@Test
@@ -199,7 +199,7 @@ public class AuthorityAuthorizationManagerTests {
 				"ROLE_ANONYMOUS");
 		Object object = new Object();
 
-		assertThat(manager.check(authentication, object).isGranted()).isFalse();
+		assertThat(manager.authorize(authentication, object).isGranted()).isFalse();
 	}
 
 	@Test
@@ -210,7 +210,7 @@ public class AuthorityAuthorizationManagerTests {
 				"CUSTOM_USER");
 		Object object = new Object();
 
-		assertThat(manager.check(authentication, object).isGranted()).isTrue();
+		assertThat(manager.authorize(authentication, object).isGranted()).isTrue();
 	}
 
 	@Test
@@ -220,7 +220,7 @@ public class AuthorityAuthorizationManagerTests {
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "USER");
 		Object object = new Object();
 
-		assertThat(manager.check(authentication, object).isGranted()).isTrue();
+		assertThat(manager.authorize(authentication, object).isGranted()).isTrue();
 	}
 
 	@Test
@@ -230,7 +230,7 @@ public class AuthorityAuthorizationManagerTests {
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ANONYMOUS");
 		Object object = new Object();
 
-		assertThat(manager.check(authentication, object).isGranted()).isFalse();
+		assertThat(manager.authorize(authentication, object).isGranted()).isFalse();
 	}
 
 	@Test
@@ -243,7 +243,7 @@ public class AuthorityAuthorizationManagerTests {
 	@Test
 	public void setRoleHierarchyWhenNotNullThenVerifyRoleHierarchy() {
 		AuthorityAuthorizationManager<Object> manager = AuthorityAuthorizationManager.hasRole("USER");
-		RoleHierarchy roleHierarchy = new RoleHierarchyImpl();
+		RoleHierarchy roleHierarchy = RoleHierarchyImpl.withDefaultRolePrefix().build();
 		manager.setRoleHierarchy(roleHierarchy);
 		assertThat(manager).extracting("delegate").extracting("roleHierarchy").isEqualTo(roleHierarchy);
 	}
@@ -257,13 +257,12 @@ public class AuthorityAuthorizationManagerTests {
 	@Test
 	public void hasRoleWhenRoleHierarchySetThenGreaterRoleTakesPrecedence() {
 		AuthorityAuthorizationManager<Object> manager = AuthorityAuthorizationManager.hasRole("USER");
-		RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-		roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_USER");
+		RoleHierarchyImpl roleHierarchy = RoleHierarchyImpl.fromHierarchy("ROLE_ADMIN > ROLE_USER");
 		manager.setRoleHierarchy(roleHierarchy);
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password",
 				"ROLE_ADMIN");
 		Object object = new Object();
-		assertThat(manager.check(authentication, object).isGranted()).isTrue();
+		assertThat(manager.authorize(authentication, object).isGranted()).isTrue();
 	}
 
 	// gh-13079

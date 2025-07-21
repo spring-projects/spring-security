@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -37,6 +36,7 @@ import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.util.JSONObjectUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import net.minidev.json.JSONObject;
 import okhttp3.mockwebserver.MockResponse;
@@ -50,16 +50,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.w3c.dom.Element;
 
-import org.springframework.beans.BeanMetadataElement;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
-import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParserDelegate;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.xml.XmlReaderContext;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
@@ -85,12 +84,14 @@ import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.TestJwts;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
+import org.springframework.security.oauth2.server.resource.introspection.SpringOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
+import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -140,7 +141,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void getWhenValidBearerTokenThenAcceptsRequest() throws Exception {
 		this.spring.configLocations(xml("JwtRestOperations"), xml("Jwt")).autowire();
-		mockRestOperations(jwks("Default"));
+		mockJwksRestOperations(jwks("Default"));
 		String token = this.token("ValidNoScopes");
 		// @formatter:off
 		this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
@@ -151,7 +152,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void getWhenCustomSecurityContextHolderStrategyThenUses() throws Exception {
 		this.spring.configLocations(xml("JwtRestOperations"), xml("JwtCustomSecurityContextHolderStrategy")).autowire();
-		mockRestOperations(jwks("Default"));
+		mockJwksRestOperations(jwks("Default"));
 		String token = this.token("ValidNoScopes");
 		// @formatter:off
 		this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
@@ -176,7 +177,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void getWhenExpiredBearerTokenThenInvalidToken() throws Exception {
 		this.spring.configLocations(xml("JwtRestOperations"), xml("Jwt")).autowire();
-		mockRestOperations(jwks("Default"));
+		mockJwksRestOperations(jwks("Default"));
 		String token = this.token("Expired");
 		// @formatter:off
 		this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
@@ -188,7 +189,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void getWhenBadJwkEndpointThen500() throws Exception {
 		this.spring.configLocations(xml("JwtRestOperations"), xml("Jwt")).autowire();
-		mockRestOperations("malformed");
+		mockJwksRestOperations("malformed");
 		String token = this.token("ValidNoScopes");
 		// @formatter:off
 		assertThatExceptionOfType(AuthenticationServiceException.class)
@@ -220,7 +221,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void getWhenMalformedPayloadThenInvalidToken() throws Exception {
 		this.spring.configLocations(xml("JwtRestOperations"), xml("Jwt")).autowire();
-		mockRestOperations(jwks("Default"));
+		mockJwksRestOperations(jwks("Default"));
 		String token = this.token("MalformedPayload");
 		// @formatter:off
 		this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
@@ -243,7 +244,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void getWhenBearerTokenBeforeNotBeforeThenInvalidToken() throws Exception {
 		this.spring.configLocations(xml("JwtRestOperations"), xml("Jwt")).autowire();
-		this.mockRestOperations(jwks("Default"));
+		this.mockJwksRestOperations(jwks("Default"));
 		String token = this.token("TooEarly");
 		// @formatter:off
 		this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
@@ -300,7 +301,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void getWhenSufficientlyScopedBearerTokenThenAcceptsRequest() throws Exception {
 		this.spring.configLocations(xml("JwtRestOperations"), xml("Jwt")).autowire();
-		mockRestOperations(jwks("Default"));
+		mockJwksRestOperations(jwks("Default"));
 		String token = this.token("ValidMessageReadScope");
 		// @formatter:off
 		this.mvc.perform(get("/requires-read-scope").header("Authorization", "Bearer " + token))
@@ -311,7 +312,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void getWhenInsufficientScopeThenInsufficientScopeError() throws Exception {
 		this.spring.configLocations(xml("JwtRestOperations"), xml("Jwt")).autowire();
-		mockRestOperations(jwks("Default"));
+		mockJwksRestOperations(jwks("Default"));
 		String token = this.token("ValidNoScopes");
 		// @formatter:off
 		this.mvc.perform(get("/requires-read-scope").header("Authorization", "Bearer " + token))
@@ -323,7 +324,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void getWhenInsufficientScpThenInsufficientScopeError() throws Exception {
 		this.spring.configLocations(xml("JwtRestOperations"), xml("Jwt")).autowire();
-		mockRestOperations(jwks("Default"));
+		mockJwksRestOperations(jwks("Default"));
 		String token = this.token("ValidMessageWriteScp");
 		// @formatter:off
 		this.mvc.perform(get("/requires-read-scope").header("Authorization", "Bearer " + token))
@@ -335,7 +336,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void getWhenAuthorizationServerHasNoMatchingKeyThenInvalidToken() throws Exception {
 		this.spring.configLocations(xml("JwtRestOperations"), xml("Jwt")).autowire();
-		mockRestOperations(jwks("Empty"));
+		mockJwksRestOperations(jwks("Empty"));
 		String token = this.token("ValidNoScopes");
 		// @formatter:off
 		this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
@@ -347,7 +348,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void getWhenAuthorizationServerHasMultipleMatchingKeysThenOk() throws Exception {
 		this.spring.configLocations(xml("JwtRestOperations"), xml("Jwt")).autowire();
-		mockRestOperations(jwks("TwoKeys"));
+		mockJwksRestOperations(jwks("TwoKeys"));
 		String token = this.token("ValidNoScopes");
 		// @formatter:off
 		this.mvc.perform(get("/authenticated").header("Authorization", "Bearer " + token))
@@ -358,7 +359,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void getWhenKeyMatchesByKidThenOk() throws Exception {
 		this.spring.configLocations(xml("JwtRestOperations"), xml("Jwt")).autowire();
-		mockRestOperations(jwks("TwoKeys"));
+		mockJwksRestOperations(jwks("TwoKeys"));
 		String token = this.token("Kid");
 		// @formatter:off
 		this.mvc.perform(get("/authenticated").header("Authorization", "Bearer " + token))
@@ -369,7 +370,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void postWhenValidBearerTokenAndNoCsrfTokenThenOk() throws Exception {
 		this.spring.configLocations(xml("JwtRestOperations"), xml("Jwt")).autowire();
-		mockRestOperations(jwks("Default"));
+		mockJwksRestOperations(jwks("Default"));
 		String token = this.token("ValidNoScopes");
 		// @formatter:off
 		this.mvc.perform(post("/authenticated").header("Authorization", "Bearer " + token))
@@ -391,7 +392,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void postWhenExpiredBearerTokenAndNoCsrfThenInvalidToken() throws Exception {
 		this.spring.configLocations(xml("JwtRestOperations"), xml("Jwt")).autowire();
-		mockRestOperations(jwks("Default"));
+		mockJwksRestOperations(jwks("Default"));
 		String token = this.token("Expired");
 		// @formatter:off
 		this.mvc.perform(post("/authenticated").header("Authorization", "Bearer " + token))
@@ -403,7 +404,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void requestWhenJwtThenSessionIsNotCreated() throws Exception {
 		this.spring.configLocations(xml("JwtRestOperations"), xml("Jwt")).autowire();
-		mockRestOperations(jwks("Default"));
+		mockJwksRestOperations(jwks("Default"));
 		String token = this.token("ValidNoScopes");
 		// @formatter:off
 		MvcResult result = this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
@@ -439,7 +440,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void requestWhenSessionManagementConfiguredThenUses() throws Exception {
 		this.spring.configLocations(xml("JwtRestOperations"), xml("AlwaysSessionCreation")).autowire();
-		mockRestOperations(jwks("Default"));
+		mockJwksRestOperations(jwks("Default"));
 		String token = this.token("ValidNoScopes");
 		// @formatter:off
 		MvcResult result = this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
@@ -460,6 +461,24 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		this.mvc.perform(get("/")).andExpect(status().isNotFound());
 		verify(decoder).decode("token");
 		verify(bearerTokenResolver).resolve(any(HttpServletRequest.class));
+	}
+
+	@Test
+	public void getWhenCustomAuthenticationConverterThenUses() throws Exception {
+		this.spring
+			.configLocations(xml("MockAuthenticationConverter"), xml("MockJwtDecoder"), xml("AuthenticationConverter"))
+			.autowire();
+		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
+		given(decoder.decode("token")).willReturn(TestJwts.jwt().build());
+		AuthenticationConverter authenticationConverter = this.spring.getContext()
+			.getBean(AuthenticationConverter.class);
+		given(authenticationConverter.convert(any(HttpServletRequest.class)))
+			.willReturn(new BearerTokenAuthenticationToken("token"));
+
+		this.mvc.perform(get("/")).andExpect(status().isNotFound());
+
+		verify(decoder).decode("token");
+		verify(authenticationConverter).convert(any(HttpServletRequest.class));
 	}
 
 	@Test
@@ -522,14 +541,6 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	}
 
 	@Test
-	public void getBearerTokenResolverWhenNoResolverSpecifiedThenTheDefaultIsUsed() {
-		OAuth2ResourceServerBeanDefinitionParser oauth2 = new OAuth2ResourceServerBeanDefinitionParser(
-				mock(BeanReference.class), mock(List.class), mock(Map.class), mock(Map.class), mock(List.class),
-				mock(BeanMetadataElement.class));
-		assertThat(oauth2.getBearerTokenResolver(mock(Element.class))).isInstanceOf(RootBeanDefinition.class);
-	}
-
-	@Test
 	public void requestWhenCustomJwtDecoderThenUsed() throws Exception {
 		this.spring.configLocations(xml("MockJwtDecoder"), xml("Jwt")).autowire();
 		JwtDecoder decoder = this.spring.getContext().getBean(JwtDecoder.class);
@@ -543,6 +554,12 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	public void configureWhenDecoderAndJwkSetUriThenException() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
 			.isThrownBy(() -> this.spring.configLocations(xml("JwtDecoderAndJwkSetUri")).autowire());
+	}
+
+	@Test
+	public void configureWhenAuthenticationConverterAndJwkSetUriThenException() {
+		assertThatExceptionOfType(BeanDefinitionStoreException.class).isThrownBy(
+				() -> this.spring.configLocations(xml("AuthenticationConverterAndBearerTokenResolver")).autowire());
 	}
 
 	@Test
@@ -572,7 +589,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void requestWhenCustomJwtValidatorFailsThenCorrespondingErrorMessage() throws Exception {
 		this.spring.configLocations(xml("MockJwtValidator"), xml("Jwt")).autowire();
-		mockRestOperations(jwks("Default"));
+		mockJwksRestOperations(jwks("Default"));
 		String token = this.token("ValidNoScopes");
 		OAuth2TokenValidator<Jwt> jwtValidator = this.spring.getContext().getBean(OAuth2TokenValidator.class);
 		OAuth2Error error = new OAuth2Error("custom-error", "custom-description", "custom-uri");
@@ -587,7 +604,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void requestWhenClockSkewSetThenTimestampWindowRelaxedAccordingly() throws Exception {
 		this.spring.configLocations(xml("UnexpiredJwtClockSkew"), xml("Jwt")).autowire();
-		mockRestOperations(jwks("Default"));
+		mockJwksRestOperations(jwks("Default"));
 		String token = this.token("ExpiresAt4687177990");
 		// @formatter:off
 		this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
@@ -598,7 +615,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void requestWhenClockSkewSetButJwtStillTooLateThenReportsExpired() throws Exception {
 		this.spring.configLocations(xml("ExpiredJwtClockSkew"), xml("Jwt")).autowire();
-		mockRestOperations(jwks("Default"));
+		mockJwksRestOperations(jwks("Default"));
 		String token = this.token("ExpiresAt4687177990");
 		// @formatter:off
 		this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
@@ -660,7 +677,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void getWhenIntrospectingThenOk() throws Exception {
 		this.spring.configLocations(xml("OpaqueTokenRestOperations"), xml("OpaqueToken")).autowire();
-		mockRestOperations(json("Active"));
+		mockJsonRestOperations(json("Active"));
 		// @formatter:off
 		this.mvc.perform(get("/authenticated").header("Authorization", "Bearer token"))
 				.andExpect(status().isNotFound());
@@ -671,7 +688,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	public void configureWhenIntrospectingWithAuthenticationConverterThenUses() throws Exception {
 		this.spring.configLocations(xml("OpaqueTokenRestOperations"), xml("OpaqueTokenAndAuthenticationConverter"))
 			.autowire();
-		mockRestOperations(json("Active"));
+		mockJsonRestOperations(json("Active"));
 		OpaqueTokenAuthenticationConverter converter = bean(OpaqueTokenAuthenticationConverter.class);
 		given(converter.convert(any(), any())).willReturn(new TestingAuthenticationToken("user", "pass", "app"));
 		// @formatter:off
@@ -684,7 +701,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void getWhenIntrospectionFailsThenUnauthorized() throws Exception {
 		this.spring.configLocations(xml("OpaqueTokenRestOperations"), xml("OpaqueToken")).autowire();
-		mockRestOperations(json("Inactive"));
+		mockJsonRestOperations(json("Inactive"));
 		// @formatter:off
 		MockHttpServletRequestBuilder request = get("/")
 				.header("Authorization", "Bearer token");
@@ -697,7 +714,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void getWhenIntrospectionLacksScopeThenForbidden() throws Exception {
 		this.spring.configLocations(xml("OpaqueTokenRestOperations"), xml("OpaqueToken")).autowire();
-		mockRestOperations(json("ActiveNoScopes"));
+		mockJsonRestOperations(json("ActiveNoScopes"));
 		// @formatter:off
 		this.mvc.perform(get("/requires-read-scope").header("Authorization", "Bearer token"))
 				.andExpect(status().isForbidden())
@@ -803,7 +820,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void getWhenAlsoUsingHttpBasicThenCorrectProviderEngages() throws Exception {
 		this.spring.configLocations(xml("JwtRestOperations"), xml("BasicAndResourceServer")).autowire();
-		mockRestOperations(jwks("Default"));
+		mockJwksRestOperations(jwks("Default"));
 		String token = this.token("ValidNoScopes");
 		// @formatter:off
 		this.mvc.perform(get("/authenticated").header("Authorization", "Bearer " + token))
@@ -948,12 +965,27 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 			.setBody(response));
 	}
 
-	private void mockRestOperations(String response) {
+	private void mockJwksRestOperations(String response) {
 		RestOperations rest = this.spring.getContext().getBean(RestOperations.class);
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		ResponseEntity<String> entity = new ResponseEntity<>(response, headers, HttpStatus.OK);
 		given(rest.exchange(any(RequestEntity.class), eq(String.class))).willReturn(entity);
+	}
+
+	private void mockJsonRestOperations(String response) {
+		try {
+			RestOperations rest = this.spring.getContext().getBean(RestOperations.class);
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_JSON);
+			ResponseEntity<Map<String, Object>> entity = new ResponseEntity<>(JSONObjectUtils.parse(response), headers,
+					HttpStatus.OK);
+			given(rest.exchange(any(RequestEntity.class), eq(new ParameterizedTypeReference<Map<String, Object>>() {
+			}))).willReturn(entity);
+		}
+		catch (Exception ex) {
+			throw new IllegalArgumentException(ex);
+		}
 	}
 
 	private String json(String name) throws IOException {
@@ -1032,7 +1064,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 
 		@Override
 		public OpaqueTokenIntrospector getObject() throws Exception {
-			return new NimbusOpaqueTokenIntrospector("https://idp.example.org", this.rest);
+			return new SpringOpaqueTokenIntrospector("https://idp.example.org", this.rest);
 		}
 
 		@Override

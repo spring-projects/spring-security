@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package org.springframework.security.web.webauthn.api;
 
 import java.io.Serial;
-import java.io.Serializable;
 
 /**
  * <a href=
@@ -29,10 +28,10 @@ import java.io.Serializable;
  * @author Rob Winch
  * @since 6.4
  */
-public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCredentialUserEntity, Serializable {
+public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCredentialUserEntity {
 
 	@Serial
-	private static final long serialVersionUID = -3487418268223398299L;
+	private static final long serialVersionUID = -3438693960347279759L;
 
 	/**
 	 * When inherited by PublicKeyCredentialUserEntity, it is a human-palatable identifier
@@ -46,7 +45,7 @@ public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCr
 	 * name's value, or displaying the value to the user.
 	 *
 	 * This string MAY contain language and direction metadata. Relying Parties SHOULD
-	 * consider providing this information. See § 6.4.2 Language and Direction Encoding
+	 * consider providing this information. See 6.4.2 Language and Direction Encoding
 	 * about how this metadata is encoded.
 	 *
 	 * Clients SHOULD perform enforcement, as prescribed in Section 3.4.3 of [RFC8265] for
@@ -66,8 +65,8 @@ public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCr
 	 * 6.1 of [RFC8266].
 	 *
 	 * The user handle MUST NOT contain personally identifying information about the user,
-	 * such as a username or e-mail address; see § 14.6.1 User Handle Contents for
-	 * details. The user handle MUST NOT be empty, though it MAY be null.
+	 * such as a username or e-mail address; see 14.6.1 User Handle Contents for details.
+	 * The user handle MUST NOT be empty, though it MAY be null.
 	 *
 	 * Note: the user handle ought not be a constant value across different accounts, even
 	 * for non-discoverable credentials, because some authenticators always create
@@ -77,16 +76,16 @@ public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCr
 	private final Bytes id;
 
 	/**
-	 * A human-palatable name for the user account, intended only for display. For
-	 * example, "Alex Müller" or "田中倫". The Relying Party SHOULD let the user choose this,
-	 * and SHOULD NOT restrict the choice more than necessary.
+	 * A human-palatable name for the user account, intended only for display. The Relying
+	 * Party SHOULD let the user choose this, and SHOULD NOT restrict the choice more than
+	 * necessary.
 	 *
 	 * Relying Parties SHOULD perform enforcement, as prescribed in Section 2.3 of
 	 * [RFC8266] for the Nickname Profile of the PRECIS FreeformClass [RFC8264], when
 	 * setting displayName's value, or displaying the value to the user.
 	 *
 	 * This string MAY contain language and direction metadata. Relying Parties SHOULD
-	 * consider providing this information. See § 6.4.2 Language and Direction Encoding
+	 * consider providing this information. See 6.4.2 Language and Direction Encoding
 	 * about how this metadata is encoded.
 	 *
 	 * Clients SHOULD perform enforcement, as prescribed in Section 2.3 of [RFC8266] for
@@ -99,8 +98,8 @@ public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCr
 	 * value, and not allow overflow into other elements [css-overflow-3].
 	 *
 	 * Authenticators MUST accept and store a 64-byte minimum length for a displayName
-	 * member’s value. Authenticators MAY truncate a displayName member’s value so that it
-	 * fits within 64 bytes. See § 6.4.1 String Truncation about truncation and other
+	 * member's value. Authenticators MAY truncate a displayName member's value so that it
+	 * fits within 64 bytes. See 6.4.1 String Truncation about truncation and other
 	 * considerations.
 	 */
 	private final String displayName;

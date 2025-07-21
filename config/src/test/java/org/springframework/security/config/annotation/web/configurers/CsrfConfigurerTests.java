@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,6 @@ import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -84,6 +83,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.head;
@@ -93,6 +93,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -613,6 +614,37 @@ public class CsrfConfigurerTests {
 		assertThat(cookies).isEmpty();
 	}
 
+	@Test
+	public void spaConfigForbidden() throws Exception {
+		this.spring.register(CsrfSpaConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
+			.autowire();
+		this.mvc.perform(post("/")).andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void spaConfigOk() throws Exception {
+		this.spring.register(CsrfSpaConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
+			.autowire();
+		this.mvc.perform(post("/").with(csrf())).andExpect(status().isOk());
+	}
+
+	@Test
+	public void spaConfigDoubleSubmit() throws Exception {
+		this.spring.register(CsrfSpaConfig.class, AllowHttpMethodsFirewallConfig.class, BasicController.class)
+			.autowire();
+		var token = this.mvc.perform(post("/"))
+			.andExpect(status().isForbidden())
+			.andExpect(cookie().exists("XSRF-TOKEN"))
+			.andReturn()
+			.getResponse()
+			.getCookie("XSRF-TOKEN");
+
+		this.mvc
+			.perform(post("/").header("X-XSRF-TOKEN", token.getValue())
+				.cookie(new Cookie("XSRF-TOKEN", token.getValue())))
+			.andExpect(status().isOk());
+	}
+
 	@Configuration
 	static class AllowHttpMethodsFirewallConfig {
 
@@ -644,8 +676,8 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.csrf()
-					.disable();
+				.csrf((csrf) -> csrf
+					.disable());
 			return http.build();
 			// @formatter:on
 		}
@@ -675,13 +707,11 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.formLogin()
-					.and()
-				.csrf()
-					.disable();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.formLogin(withDefaults())
+				.csrf((csrf) -> csrf
+					.disable());
 			// @formatter:on
 			return http.build();
 		}
@@ -703,13 +733,11 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.formLogin()
-					.and()
-				.csrf()
-					.csrfTokenRepository(REPO);
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.formLogin(withDefaults())
+				.csrf((csrf) -> csrf
+					.csrfTokenRepository(REPO));
 			// @formatter:on
 			return http.build();
 		}
@@ -729,10 +757,9 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.csrf()
-					.and()
-				.sessionManagement()
-					.invalidSessionUrl("/error/sessionError");
+				.csrf(withDefaults())
+				.sessionManagement((management) -> management
+					.invalidSessionUrl("/error/sessionError"));
 			return http.build();
 			// @formatter:on
 		}
@@ -749,8 +776,8 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.csrf()
-					.requireCsrfProtectionMatcher(MATCHER);
+				.csrf((csrf) -> csrf
+					.requireCsrfProtectionMatcher(MATCHER));
 			return http.build();
 			// @formatter:on
 		}
@@ -784,10 +811,9 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.formLogin()
-					.and()
-				.csrf()
-					.csrfTokenRepository(REPO);
+				.formLogin(withDefaults())
+				.csrf((csrf) -> csrf
+					.csrfTokenRepository(REPO));
 			// @formatter:on
 			return http.build();
 		}
@@ -827,8 +853,8 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.exceptionHandling()
-					.accessDeniedHandler(DENIED_HANDLER);
+				.exceptionHandling((handling) -> handling
+					.accessDeniedHandler(DENIED_HANDLER));
 			return http.build();
 			// @formatter:on
 		}
@@ -847,8 +873,8 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.exceptionHandling()
-					.defaultAccessDeniedHandlerFor(DENIED_HANDLER, MATCHER);
+				.exceptionHandling((handling) -> handling
+					.defaultAccessDeniedHandlerFor(DENIED_HANDLER, MATCHER));
 			return http.build();
 			// @formatter:on
 		}
@@ -863,7 +889,7 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.formLogin();
+				.formLogin(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -878,10 +904,9 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.formLogin()
-					.and()
-				.logout()
-					.logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
+				.formLogin(withDefaults())
+				.logout((logout) -> logout
+					.logoutRequestMatcher(pathPattern("/logout")));
 			return http.build();
 			// @formatter:on
 		}
@@ -896,8 +921,8 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.csrf()
-					.requireCsrfProtectionMatcher(null);
+				.csrf((csrf) -> csrf
+					.requireCsrfProtectionMatcher(null));
 			return http.build();
 			// @formatter:on
 		}
@@ -912,12 +937,10 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().permitAll()
-					.and()
-				.formLogin()
-					.and()
-				.httpBasic();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().permitAll())
+				.formLogin(withDefaults())
+				.httpBasic(withDefaults());
 			// @formatter:on
 			return http.build();
 		}
@@ -937,8 +960,8 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.csrf()
-					.sessionAuthenticationStrategy(null);
+				.csrf((csrf) -> csrf
+					.sessionAuthenticationStrategy(null));
 			return http.build();
 			// @formatter:on
 		}
@@ -955,10 +978,9 @@ public class CsrfConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.formLogin()
-					.and()
-					.csrf()
-					.sessionAuthenticationStrategy(STRATEGY);
+				.formLogin(withDefaults())
+				.csrf((csrf) -> csrf
+					.sessionAuthenticationStrategy(STRATEGY));
 			// @formatter:on
 			return http.build();
 		}
@@ -1002,6 +1024,18 @@ public class CsrfConfigurerTests {
 					.inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class CsrfSpaConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			http.csrf(CsrfConfigurer::spa);
+			return http.build();
 		}
 
 	}

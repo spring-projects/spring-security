@@ -22,7 +22,7 @@ import javax.naming.directory.BasicAttributes;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.ldap.core.DirContextAdapter;
-import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.ldap.support.LdapNameBuilder;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,7 +58,7 @@ public class LdapUserDetailsMapperTests {
 		mapper.setRoleAttributes(new String[] { "userRole", "nonRetrievedAttribute" });
 		BasicAttributes attrs = new BasicAttributes();
 		attrs.put(new BasicAttribute("userRole", "x"));
-		DirContextAdapter ctx = new DirContextAdapter(attrs, new DistinguishedName("cn=someName"));
+		DirContextAdapter ctx = new DirContextAdapter(attrs, LdapNameBuilder.newInstance("cn=someName").build());
 		ctx.setAttributeValue("uid", "ani");
 		LdapUserDetailsImpl user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx, "ani",
 				AuthorityUtils.NO_AUTHORITIES);
@@ -72,7 +72,7 @@ public class LdapUserDetailsMapperTests {
 		mapper.setPasswordAttributeName("myappsPassword");
 		BasicAttributes attrs = new BasicAttributes();
 		attrs.put(new BasicAttribute("myappsPassword", "mypassword".getBytes()));
-		DirContextAdapter ctx = new DirContextAdapter(attrs, new DistinguishedName("cn=someName"));
+		DirContextAdapter ctx = new DirContextAdapter(attrs, LdapNameBuilder.newInstance("cn=someName").build());
 		ctx.setAttributeValue("uid", "ani");
 		LdapUserDetails user = (LdapUserDetailsImpl) mapper.mapUserFromContext(ctx, "ani",
 				AuthorityUtils.NO_AUTHORITIES);

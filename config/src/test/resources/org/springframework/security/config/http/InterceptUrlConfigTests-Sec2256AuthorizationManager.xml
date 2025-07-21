@@ -34,5 +34,4 @@
 	<b:bean name="path" class="org.springframework.security.config.http.InterceptUrlConfigTests.PathController"/>
 
 	<b:import resource="userservice.xml"/>
-	<b:import resource="handlermappingintrospector.xml"/>
 </b:beans>

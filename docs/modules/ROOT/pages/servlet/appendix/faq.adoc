@@ -363,7 +363,7 @@ This section addresses common Spring Security architecture questions:
 . <<appendix-faq-namespace-to-bean-mapping>>
 . <<appendix-faq-role-prefix>>
 . <<appendix-faq-what-dependencies>>
-. <<appendix-faq-apacheds-deps>>
+. <<appendix-faq-unboundid-deps>>
 . <<appendix-faq-what-is-userdetailservice>>
 
 
@@ -412,30 +412,39 @@ The reference manual also includes <<appendix-namespace,an appendix>> that lists
 If you build your project with Maven, adding the appropriate Spring Security modules as dependencies to your `pom.xml` file automatically pulls in the core jars that the framework requires.
 Any that are marked as "`optional`" in the Spring Security `pom.xml` files have to be added to your own `pom.xml` file if you need them.
 
+[[appendix-faq-unboundid-deps]]
+=== What dependences are needed to run an embedded UnboundID LDAP server?
+
+You need to add the following dependency to your project:
+
+[tabs]
+======
+Maven::
++
+[source,maven,role="primary"]
+----
+<dependency>
+		<groupId>com.unboundid</groupId>
+		<artifactId>unboundid-ldapsdk</artifactId>
+		<version>7.0.1</version>
+		<scope>runtime</scope>
+</dependency>
+----
+
+Gradle::
++
+[source,gradle,role="secondary"]
+----
+implementation 'com.unboundid:unboundid-ldapsdk:7.0.1'
+----
+======
+
+
 [[appendix-faq-apacheds-deps]]
 === What dependencies are needed to run an embedded ApacheDS LDAP server?
 
-If you use Maven, you need to add the following to your `pom.xml` file dependencies:
-
-[source]
-----
-
-<dependency>
-		<groupId>org.apache.directory.server</groupId>
-		<artifactId>apacheds-core</artifactId>
-		<version>1.5.5</version>
-		<scope>runtime</scope>
-</dependency>
-<dependency>
-		<groupId>org.apache.directory.server</groupId>
-		<artifactId>apacheds-server-jndi</artifactId>
-		<version>1.5.5</version>
-		<scope>runtime</scope>
-</dependency>
-
-----
-
-The other required jars should be pulled in transitively.
+Spring Security 7 removes support for Apache DS.
+Please use <<appendix-faq-unboundid-deps,UnboundID>> instead.
 
 [[appendix-faq-what-is-userdetailservice]]
 === What is a UserDetailsService and do I need one?
@@ -519,12 +528,8 @@ A security-conscious organization should be aware that the benefits of their dil
 If you have taken this into account (perhaps by using multiple layers of security within your application), Spring Security lets you fully customize the source of security metadata.
 You can make it fully dynamic if you choose.
 
-Both method and web security are protected by subclasses of `AbstractSecurityInterceptor`, which is configured with a `SecurityMetadataSource` from which it obtains the metadata for a particular method or filter invocation.
-For web security, the interceptor class is `FilterSecurityInterceptor`, and it uses the `FilterInvocationSecurityMetadataSource` marker interface. The "`secured object`" type it operates on is a `FilterInvocation`. The default implementation (which is used both in the namespace `<http>` and when configuring the interceptor explicitly) stores the list of URL patterns and their corresponding list of "`configuration attributes`" (instances of `ConfigAttribute`) in an in-memory map.
-
-To load the data from an alternative source, you must use an explicitly declared security filter chain (typically Spring Security's `FilterChainProxy`) to customize the `FilterSecurityInterceptor` bean.
-You cannot use the namespace.
-You would then implement `FilterInvocationSecurityMetadataSource` to load the data as you please for a particular `FilterInvocation`. The `FilterInvocation` object contains the `HttpServletRequest`, so you can obtain the URL or any other relevant information on which to base your decision, based on what the list of returned attributes contains. A basic outline would look something like the following example:
+Both method and web security are protected by implementations of `AuthorizationManager`.
+For web security, you can supply your own implementation of `AuthorizationManager<RequestAuthorizationContext>` and supply it to the filter chain DSL like so:
 
 [tabs]
 ======
@@ -532,59 +537,99 @@ Java::
 +
 [source,java,role="primary"]
 ----
+@Component
+public class DynamicAuthorizationManager implements AuthorizationManager<RequestAuthorizationContext> {
+	private final MyExternalAuthorizationService authz;
 
-	public class MyFilterSecurityMetadataSource implements FilterInvocationSecurityMetadataSource {
+	// ...
 
-		public List<ConfigAttribute> getAttributes(Object object) {
-			FilterInvocation fi = (FilterInvocation) object;
-				String url = fi.getRequestUrl();
-				String httpMethod = fi.getRequest().getMethod();
-				List<ConfigAttribute> attributes = new ArrayList<ConfigAttribute>();
+    @Override
+    public AuthorizationResult authorize(Supplier<Authentication> authentication, RequestAuthorizationContext context) {
+		// query the external service
+    }
+}
 
-				// Lookup your database (or other source) using this information and populate the
-				// list of attributes
+// ...
 
-				return attributes;
-		}
-
-		public Collection<ConfigAttribute> getAllConfigAttributes() {
-			return null;
-		}
-
-		public boolean supports(Class<?> clazz) {
-			return FilterInvocation.class.isAssignableFrom(clazz);
-		}
-	}
-
+http
+    .authorizeHttpRequests((authorize) -> authorize.anyRequest().access(dynamicAuthorizationManager))
 ----
 
 Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
-class MyFilterSecurityMetadataSource : FilterInvocationSecurityMetadataSource {
-    override fun getAttributes(securedObject: Any): List<ConfigAttribute> {
-        val fi = securedObject as FilterInvocation
-        val url = fi.requestUrl
-        val httpMethod = fi.request.method
+@Component
+class DynamicAuthorizationManager : AuthorizationManager<RequestAuthorizationContext?> {
+    private val rules: MyAuthorizationRulesRepository? = null
 
-        // Lookup your database (or other source) using this information and populate the
-        // list of attributes
-        return ArrayList()
+    // ...
+
+    override fun authorize(authentication: Supplier<Authentication?>?, context: RequestAuthorizationContext?): AuthorizationResult {
+		// look up rules from the database
     }
+}
 
-    override fun getAllConfigAttributes(): Collection<ConfigAttribute>? {
-        return null
-    }
+// ...
 
-    override fun supports(clazz: Class<*>): Boolean {
-        return FilterInvocation::class.java.isAssignableFrom(clazz)
+http {
+    authorizeHttpRequests {
+        authorize(anyRequest, dynamicAuthorizationManager)
     }
 }
 ----
 ======
 
-For more information, look at the code for `DefaultFilterInvocationSecurityMetadataSource`.
+For method security, you can supply your own implementation of `AuthorizationManager<MethodInvocation>` and supply it to Spring AOP like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Component
+public class DynamicAuthorizationManager implements AuthorizationManager<MethodInvocation> {
+	private final MyExternalAuthorizationService authz;
+
+	// ...
+
+    @Override
+    public AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocation invocation) {
+		// query the external service
+    }
+}
+
+// ...
+
+@Bean
+static Advisor securedAuthorizationAdvisor(DynamicAuthorizationManager dynamicAuthorizationManager) {
+    return AuthorizationManagerBeforeMethodInterceptor.secured(dynamicAuthorizationManager)
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Component
+class DynamicAuthorizationManager : AuthorizationManager<MethodInvocation?> {
+    private val authz: MyExternalAuthorizationService? = null
+
+     // ...
+    override fun authorize(authentication: Supplier<Authentication?>?, invocation: MethodInvocation?): AuthorizationResult {
+		// query the external service
+    }
+}
+
+companion object {
+    @Bean
+    fun securedAuthorizationAdvisor(dynamicAuthorizationManager: DynamicAuthorizationManager): Advisor {
+        return AuthorizationManagerBeforeMethodInterceptor.preAuthorize(dynamicAuthorizationManager)
+    }
+}
+----
+======
 
 
 [[appendix-faq-ldap-authorities]]
@@ -649,7 +694,7 @@ class MyAuthoritiesPopulator : LdapAuthoritiesPopulator {
 
 You would then add a bean of this type to your application context and inject it into the `LdapAuthenticationProvider`. This is covered in the section on configuring LDAP by using explicit Spring beans in the LDAP chapter of the reference manual.
 Note that you cannot use the namespace for configuration in this case.
-You should also consult the security-api-url[Javadoc] for the relevant classes and interfaces.
+You should also consult the {security-api-url}[Javadoc] for the relevant classes and interfaces.
 
 
 [[appendix-faq-namespace-post-processor]]

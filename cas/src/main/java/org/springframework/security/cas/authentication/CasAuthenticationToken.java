@@ -115,15 +115,8 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 		if (!super.equals(obj)) {
 			return false;
 		}
-		if (obj instanceof CasAuthenticationToken) {
-			CasAuthenticationToken test = (CasAuthenticationToken) obj;
-			if (!this.assertion.equals(test.getAssertion())) {
-				return false;
-			}
-			if (this.getKeyHash() != test.getKeyHash()) {
-				return false;
-			}
-			return true;
+		if (obj instanceof CasAuthenticationToken test) {
+			return this.assertion.equals(test.getAssertion()) && this.getKeyHash() == test.getKeyHash();
 		}
 		return false;
 	}

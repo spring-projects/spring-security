@@ -46,6 +46,7 @@ import org.springframework.security.ldap.userdetails.Person;
  * @since 5.7
  * @see SecurityJackson2Modules
  */
+@SuppressWarnings("serial")
 public class LdapJackson2Module extends SimpleModule {
 
 	public LdapJackson2Module() {

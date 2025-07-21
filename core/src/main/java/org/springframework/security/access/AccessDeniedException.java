@@ -16,6 +16,8 @@
 
 package org.springframework.security.access;
 
+import java.io.Serial;
+
 /**
  * Thrown if an {@link org.springframework.security.core.Authentication Authentication}
  * object does not hold a required authority.
@@ -23,6 +25,9 @@ package org.springframework.security.access;
  * @author Ben Alex
  */
 public class AccessDeniedException extends RuntimeException {
+
+	@Serial
+	private static final long serialVersionUID = 6395817500121599533L;
 
 	/**
 	 * Constructs an <code>AccessDeniedException</code> with the specified message.

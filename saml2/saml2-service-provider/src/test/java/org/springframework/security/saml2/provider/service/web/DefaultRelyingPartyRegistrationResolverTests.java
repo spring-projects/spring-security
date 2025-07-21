@@ -43,7 +43,8 @@ public class DefaultRelyingPartyRegistrationResolverTests {
 
 	@Test
 	public void resolveWhenRequestContainsRegistrationIdThenResolves() {
-		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET",
+				"/some/path/" + this.registration.getRegistrationId());
 		request.setPathInfo("/some/path/" + this.registration.getRegistrationId());
 		RelyingPartyRegistration registration = this.resolver.convert(request);
 		assertThat(registration).isNotNull();

@@ -44,7 +44,12 @@ public final class DelegatingSecurityContextRepository implements SecurityContex
 		this.delegates = delegates;
 	}
 
+	/**
+	 * @deprecated
+	 * @see SecurityContextRepository#loadContext
+	 */
 	@Override
+	@Deprecated
 	public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
 		SecurityContext result = null;
 		for (SecurityContextRepository delegate : this.delegates) {

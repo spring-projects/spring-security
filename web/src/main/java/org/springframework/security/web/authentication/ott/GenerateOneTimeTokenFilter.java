@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,12 +27,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ott.GenerateOneTimeTokenRequest;
 import org.springframework.security.authentication.ott.OneTimeToken;
 import org.springframework.security.authentication.ott.OneTimeTokenService;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 /**
  * Filter that process a One-Time Token generation request.
@@ -43,11 +42,16 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
  */
 public final class GenerateOneTimeTokenFilter extends OncePerRequestFilter {
 
+	public static final String DEFAULT_GENERATE_URL = "/ott/generate";
+
 	private final OneTimeTokenService tokenService;
 
 	private final OneTimeTokenGenerationSuccessHandler tokenGenerationSuccessHandler;
 
-	private RequestMatcher requestMatcher = antMatcher(HttpMethod.POST, "/ott/generate");
+	private RequestMatcher requestMatcher = PathPatternRequestMatcher.withDefaults()
+		.matcher(HttpMethod.POST, DEFAULT_GENERATE_URL);
+
+	private GenerateOneTimeTokenRequestResolver requestResolver = new DefaultGenerateOneTimeTokenRequestResolver();
 
 	public GenerateOneTimeTokenFilter(OneTimeTokenService tokenService,
 			OneTimeTokenGenerationSuccessHandler tokenGenerationSuccessHandler) {
@@ -69,8 +73,12 @@ public final class GenerateOneTimeTokenFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 			return;
 		}
-		GenerateOneTimeTokenRequest generateRequest = new GenerateOneTimeTokenRequest(username);
+		GenerateOneTimeTokenRequest generateRequest = this.requestResolver.resolve(request);
 		OneTimeToken ott = this.tokenService.generate(generateRequest);
+		if (generateRequest == null) {
+			filterChain.doFilter(request, response);
+			return;
+		}
 		this.tokenGenerationSuccessHandler.handle(request, response, ott);
 	}
 
@@ -81,6 +89,17 @@ public final class GenerateOneTimeTokenFilter extends OncePerRequestFilter {
 	public void setRequestMatcher(RequestMatcher requestMatcher) {
 		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
 		this.requestMatcher = requestMatcher;
+	}
+
+	/**
+	 * Use the given {@link GenerateOneTimeTokenRequestResolver} to resolve
+	 * {@link GenerateOneTimeTokenRequest}.
+	 * @param requestResolver {@link GenerateOneTimeTokenRequestResolver}
+	 * @since 6.5
+	 */
+	public void setRequestResolver(GenerateOneTimeTokenRequestResolver requestResolver) {
+		Assert.notNull(requestResolver, "requestResolver cannot be null");
+		this.requestResolver = requestResolver;
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,7 +84,7 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	 */
 	public static CookieServerCsrfTokenRepository withHttpOnlyFalse() {
 		CookieServerCsrfTokenRepository result = new CookieServerCsrfTokenRepository();
-		result.setCookieCustomizer((cookie) -> cookie.httpOnly(false));
+		result.cookieHttpOnly = false;
 		return result;
 	}
 
@@ -125,14 +125,6 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	}
 
 	/**
-	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
-	 */
-	@Deprecated(since = "6.1")
-	public void setCookieHttpOnly(boolean cookieHttpOnly) {
-		this.cookieHttpOnly = cookieHttpOnly;
-	}
-
-	/**
 	 * Sets the cookie name
 	 * @param cookieName The cookie name
 	 */
@@ -165,33 +157,6 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	 */
 	public void setCookiePath(String cookiePath) {
 		this.cookiePath = cookiePath;
-	}
-
-	/**
-	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
-	 */
-	@Deprecated(since = "6.1")
-	public void setCookieDomain(String cookieDomain) {
-		this.cookieDomain = cookieDomain;
-	}
-
-	/**
-	 * @since 5.5
-	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
-	 */
-	@Deprecated(since = "6.1")
-	public void setSecure(boolean secure) {
-		this.secure = secure;
-	}
-
-	/**
-	 * @since 5.8
-	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
-	 */
-	@Deprecated(since = "6.1")
-	public void setCookieMaxAge(int cookieMaxAge) {
-		Assert.isTrue(cookieMaxAge != 0, "cookieMaxAge cannot be zero");
-		this.cookieMaxAge = cookieMaxAge;
 	}
 
 	private CsrfToken createCsrfToken() {

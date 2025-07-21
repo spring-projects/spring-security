@@ -30,11 +30,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.util.UrlUtils;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
+
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * Logs a principal out.
@@ -140,7 +141,7 @@ public class LogoutFilter extends GenericFilterBean {
 	}
 
 	public void setFilterProcessesUrl(String filterProcessesUrl) {
-		this.logoutRequestMatcher = new AntPathRequestMatcher(filterProcessesUrl);
+		this.logoutRequestMatcher = pathPattern(filterProcessesUrl);
 	}
 
 }

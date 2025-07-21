@@ -1,5 +1,5 @@
 [[oauth2-client]]
-= [[oauth2client]]OAuth 2.0 Client
+= OAuth 2.0 Client
 :page-section-summary-toc: 1
 
 The OAuth 2.0 Client features provide support for the Client role as defined in the https://tools.ietf.org/html/rfc6749#section-1.1[OAuth 2.0 Authorization Framework].
@@ -10,12 +10,11 @@ At a high-level, the core features available are:
 * xref:servlet/oauth2/client/authorization-grants.adoc#oauth2-client-authorization-code[Authorization Code]
 * xref:servlet/oauth2/client/authorization-grants.adoc#oauth2-client-refresh-token[Refresh Token]
 * xref:servlet/oauth2/client/authorization-grants.adoc#oauth2-client-client-credentials[Client Credentials]
-* xref:servlet/oauth2/client/authorization-grants.adoc#oauth2-client-password[Resource Owner Password Credentials]
 * xref:servlet/oauth2/client/authorization-grants.adoc#oauth2-client-jwt-bearer[JWT Bearer]
 * xref:servlet/oauth2/client/authorization-grants.adoc#oauth2-client-token-exchange[Token Exchange]
 
 .Client Authentication support
-* xref:servlet/oauth2/client/client-authentication.adoc#oauth2-client-jwt-bearer-authentication[JWT Bearer]
+* xref:servlet/oauth2/client/client-authentication.adoc#oauth2-client-authentication-jwt-bearer[JWT Bearer]
 
 .HTTP Client support (for requesting protected resources)
 * xref:servlet/oauth2/client/authorized-clients.adoc#oauth2-client-rest-client[`RestClient` integration]
@@ -40,11 +39,11 @@ public class OAuth2ClientSecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-			.oauth2Client(oauth2 -> oauth2
+			.oauth2Client((oauth2) -> oauth2
 				.clientRegistrationRepository(this.clientRegistrationRepository())
 				.authorizedClientRepository(this.authorizedClientRepository())
 				.authorizedClientService(this.authorizedClientService())
-				.authorizationCodeGrant(codeGrant -> codeGrant
+				.authorizationCodeGrant((codeGrant) -> codeGrant
 					.authorizationRequestRepository(this.authorizationRequestRepository())
 					.authorizationRequestResolver(this.authorizationRequestResolver())
 					.accessTokenResponseClient(this.accessTokenResponseClient())
@@ -104,7 +103,7 @@ The following code shows the complete configuration options available in the xre
 
 The `OAuth2AuthorizedClientManager` is responsible for managing the authorization (or re-authorization) of an OAuth 2.0 Client, in collaboration with one or more `OAuth2AuthorizedClientProvider`(s).
 
-The following code shows an example of how to register an `OAuth2AuthorizedClientManager` `@Bean` and associate it with an `OAuth2AuthorizedClientProvider` composite that provides support for the `authorization_code`, `refresh_token`, `client_credentials`, and `password` authorization grant types:
+The following code shows an example of how to register an `OAuth2AuthorizedClientManager` `@Bean` and associate it with an `OAuth2AuthorizedClientProvider` composite that provides support for the `authorization_code`, `refresh_token` and `client_credentials` authorization grant types:
 
 [tabs]
 ======
@@ -122,7 +121,6 @@ public OAuth2AuthorizedClientManager authorizedClientManager(
 					.authorizationCode()
 					.refreshToken()
 					.clientCredentials()
-					.password()
 					.build();
 
 	DefaultOAuth2AuthorizedClientManager authorizedClientManager =
@@ -146,7 +144,6 @@ fun authorizedClientManager(
             .authorizationCode()
             .refreshToken()
             .clientCredentials()
-            .password()
             .build()
     val authorizedClientManager = DefaultOAuth2AuthorizedClientManager(
             clientRegistrationRepository, authorizedClientRepository)

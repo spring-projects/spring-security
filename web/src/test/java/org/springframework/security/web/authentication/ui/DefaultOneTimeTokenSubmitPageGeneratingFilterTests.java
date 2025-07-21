@@ -27,6 +27,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 
 /**
  * Tests for {@link DefaultOneTimeTokenSubmitPageGeneratingFilter}
@@ -37,7 +38,7 @@ class DefaultOneTimeTokenSubmitPageGeneratingFilterTests {
 
 	DefaultOneTimeTokenSubmitPageGeneratingFilter filter = new DefaultOneTimeTokenSubmitPageGeneratingFilter();
 
-	MockHttpServletRequest request = new MockHttpServletRequest();
+	MockHttpServletRequest request;
 
 	MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -45,8 +46,7 @@ class DefaultOneTimeTokenSubmitPageGeneratingFilterTests {
 
 	@BeforeEach
 	void setup() {
-		this.request.setMethod("GET");
-		this.request.setServletPath("/login/ott");
+		this.request = get("/login/ott").build();
 	}
 
 	@Test
@@ -79,9 +79,9 @@ class DefaultOneTimeTokenSubmitPageGeneratingFilterTests {
 
 	@Test
 	void setContextThenGenerates() throws Exception {
-		this.request.setContextPath("/context");
+		MockHttpServletRequest request = get().requestUri("/context", "/login/ott", null).build();
 		this.filter.setLoginProcessingUrl("/login/another");
-		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
+		this.filter.doFilterInternal(request, this.response, this.filterChain);
 		String response = this.response.getContentAsString();
 		assertThat(response).contains("<form class=\"login-form\" action=\"/context/login/another\" method=\"post\">");
 	}
@@ -99,7 +99,7 @@ class DefaultOneTimeTokenSubmitPageGeneratingFilterTests {
 	void filterThenRenders() throws Exception {
 		this.request.setParameter("token", "this<>!@#\"");
 		this.filter.setLoginProcessingUrl("/login/another");
-		this.filter.setResolveHiddenInputs((request) -> Map.of("_csrf", "csrf-token-value"));
+		this.filter.setResolveHiddenInputs((r) -> Map.of("_csrf", "csrf-token-value"));
 		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
 		String response = this.response.getContentAsString();
 		assertThat(response).isEqualTo(

@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import org.springframework.security.authentication.AnonymousAuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -57,7 +58,7 @@ public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Creates a new instance
-	 * @see HttpSecurity#anonymous()
+	 * @see HttpSecurity#anonymous(Customizer)
 	 */
 	public AnonymousConfigurer() {
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,9 @@ public class CredProtectAuthenticationExtensionsClientInput
 	@Serial
 	private static final long serialVersionUID = 1594370832009118794L;
 
+	@Serial
+	private static final long serialVersionUID = -6418175591005843455L;
+
 	private final CredProtect input;
 
 	public CredProtectAuthenticationExtensionsClientInput(CredProtect input) {
@@ -49,7 +52,10 @@ public class CredProtectAuthenticationExtensionsClientInput
 		return this.input;
 	}
 
-	public static class CredProtect {
+	public static class CredProtect implements Serializable {
+
+		@Serial
+		private static final long serialVersionUID = 109597301115842688L;
 
 		private final ProtectionPolicy credProtectionPolicy;
 

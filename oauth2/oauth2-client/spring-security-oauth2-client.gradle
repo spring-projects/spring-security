@@ -18,7 +18,9 @@ dependencies {
 
 	testImplementation project(path: ':spring-security-oauth2-core', configuration: 'tests')
 	testImplementation project(path: ':spring-security-oauth2-jose', configuration: 'tests')
+	testImplementation project(path: ':spring-security-web', configuration: 'tests')
 	testImplementation 'com.squareup.okhttp3:mockwebserver'
+	testImplementation 'io.micrometer:context-propagation'
 	testImplementation 'io.projectreactor.netty:reactor-netty'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.skyscreamer:jsonassert'
@@ -33,6 +35,7 @@ dependencies {
 	testImplementation "org.springframework:spring-test"
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 	provided 'jakarta.servlet:jakarta.servlet-api'
 }

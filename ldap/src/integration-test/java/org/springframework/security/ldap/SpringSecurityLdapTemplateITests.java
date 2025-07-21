@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.UncategorizedLdapException;
 import org.springframework.ldap.core.ContextExecutor;
 import org.springframework.security.crypto.codec.Utf8;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -45,7 +46,9 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Eddú Meléndez
  */
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = ApacheDsContainerConfig.class)
+@ContextConfiguration(classes = UnboundIdContainerConfig.class)
+// FIXME: See https://github.com/spring-projects/spring-security/issues/17543
+@DirtiesContext
 public class SpringSecurityLdapTemplateITests {
 
 	@Autowired
@@ -116,10 +119,10 @@ public class SpringSecurityLdapTemplateITests {
 		assertThat(values).hasSize(1);
 		Map<String, List<String>> record = values.iterator().next();
 		assertAttributeValue(record, "uid", "bob");
-		assertAttributeValue(record, "objectclass", "top", "person", "organizationalPerson", "inetOrgPerson");
+		assertAttributeValue(record, "objectClass", "top", "person", "organizationalPerson", "inetOrgPerson");
 		assertAttributeValue(record, "cn", "Bob Hamilton");
 		assertAttributeValue(record, "sn", "Hamilton");
-		assertThat(record.containsKey("userPassword")).isFalse();
+		assertThat(record.containsKey("userPassword")).isTrue();
 	}
 
 	@Test
@@ -129,10 +132,10 @@ public class SpringSecurityLdapTemplateITests {
 		assertThat(values).hasSize(1);
 		Map<String, List<String>> record = values.iterator().next();
 		assertAttributeValue(record, "uid", "bob");
-		assertAttributeValue(record, "objectclass", "top", "person", "organizationalPerson", "inetOrgPerson");
+		assertAttributeValue(record, "objectClass", "top", "person", "organizationalPerson", "inetOrgPerson");
 		assertAttributeValue(record, "cn", "Bob Hamilton");
 		assertAttributeValue(record, "sn", "Hamilton");
-		assertThat(record.containsKey("userPassword")).isFalse();
+		assertThat(record.containsKey("userPassword")).isTrue();
 	}
 
 	@Test
@@ -145,7 +148,7 @@ public class SpringSecurityLdapTemplateITests {
 		assertAttributeValue(record, "cn", "Bob Hamilton");
 		assertAttributeValue(record, "sn", "Hamilton");
 		assertThat(record.containsKey("userPassword")).isFalse();
-		assertThat(record.containsKey("objectclass")).isFalse();
+		assertThat(record.containsKey("objectClass")).isFalse();
 	}
 
 	protected void assertAttributeValue(Map<String, List<String>> record, String attributeName, String... values) {

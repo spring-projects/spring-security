@@ -4,7 +4,7 @@ import trang.RncToXsd
 
 apply plugin: 'io.spring.convention.spring-module'
 apply plugin: 'trang'
-apply plugin: 'kotlin'
+apply plugin: 'security-kotlin'
 
 configurations {
 	opensaml5 {
@@ -78,12 +78,6 @@ dependencies {
 		exclude group: 'commons-logging', module: 'commons-logging'
 		exclude group: 'xml-apis', module: 'xml-apis'
 	}
-	testImplementation "org.apache.directory.server:apacheds-core"
-	testImplementation "org.apache.directory.server:apacheds-core-entry"
-	testImplementation "org.apache.directory.server:apacheds-protocol-shared"
-	testImplementation "org.apache.directory.server:apacheds-protocol-ldap"
-	testImplementation "org.apache.directory.server:apacheds-server-jndi"
-	testImplementation 'org.apache.directory.shared:shared-ldap'
 	testImplementation "com.unboundid:unboundid-ldapsdk"
 	testImplementation 'jakarta.persistence:jakarta.persistence-api'
 	testImplementation "org.hibernate.orm:hibernate-core"
@@ -122,8 +116,12 @@ dependencies {
 		exclude group: "org.slf4j", module: "jcl-over-slf4j"
 	}
 	testImplementation libs.org.instancio.instancio.junit
+	testImplementation libs.org.eclipse.jetty.jetty.server
+	testImplementation libs.org.eclipse.jetty.jetty.servlet
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
 
 def rncToXsd = tasks.named('rncToXsd', RncToXsd)
@@ -155,18 +153,20 @@ tasks.named('sourcesJar', Jar).configure {
 	}
 }
 
-tasks.withType(KotlinCompile).configureEach {
-	kotlinOptions {
-		languageVersion = "1.7"
-		apiVersion = "1.7"
-		freeCompilerArgs = ["-Xjsr305=strict", "-Xsuppress-version-warnings"]
-		jvmTarget = "17"
-	}
-}
-
 configure(project.tasks.withType(Test)) {
 	doFirst {
 		systemProperties['springSecurityVersion'] = version
+	}
+}
+
+test {
+	onOutput { descriptor, event ->
+		if (!project.hasProperty('serialization')) {
+			return
+		}
+		if (descriptor.name=='listClassesMissingSerialVersion()') {
+			logger.lifecycle(event.message)
+		}
 	}
 }
 

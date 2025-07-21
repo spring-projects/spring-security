@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -182,7 +183,7 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 		List<CredentialRecord> credentialRecords = this.userCredentials.findByUserId(userEntity.getId());
 
 		PublicKeyCredentialCreationOptions options = PublicKeyCredentialCreationOptions.builder()
-			.attestation(AttestationConveyancePreference.DIRECT)
+			.attestation(AttestationConveyancePreference.NONE)
 			.pubKeyCredParams(PublicKeyCredentialParameters.EdDSA, PublicKeyCredentialParameters.ES256,
 					PublicKeyCredentialParameters.RS256)
 			.authenticatorSelection(authenticatorSelection)
@@ -198,7 +199,7 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 	}
 
 	private static List<PublicKeyCredentialDescriptor> credentialDescriptors(List<CredentialRecord> credentialRecords) {
-		List result = new ArrayList();
+		List<PublicKeyCredentialDescriptor> result = new ArrayList<>();
 		for (CredentialRecord credentialRecord : credentialRecords) {
 			Bytes id = Bytes.fromBase64(credentialRecord.getCredentialId().toBase64UrlString());
 			PublicKeyCredentialDescriptor credentialDescriptor = PublicKeyCredentialDescriptor.builder()
@@ -254,7 +255,9 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 		boolean userPresenceRequired = true;
 		List<com.webauthn4j.data.PublicKeyCredentialParameters> pubKeyCredParams = convertCredentialParamsToWebauthn4j(
 				creationOptions.getPubKeyCredParams());
-		RegistrationRequest webauthn4jRegistrationRequest = new RegistrationRequest(attestationObject, clientDataJSON);
+		Set<String> transports = convertTransportsToString(response);
+		RegistrationRequest webauthn4jRegistrationRequest = new RegistrationRequest(attestationObject, clientDataJSON,
+				transports);
 		RegistrationParameters registrationParameters = new RegistrationParameters(serverProperty, pubKeyCredParams,
 				userVerificationRequired, userPresenceRequired);
 		RegistrationData registrationData = this.webAuthnManager.validate(webauthn4jRegistrationRequest,
@@ -281,6 +284,17 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 			.build();
 		this.userCredentials.save(userCredential);
 		return userCredential;
+	}
+
+	private static Set<String> convertTransportsToString(AuthenticatorAttestationResponse response) {
+		if (response.getTransports() == null) {
+			return null;
+		}
+		Set<String> transports = new HashSet<>(response.getTransports().size());
+		for (AuthenticatorTransport transport : response.getTransports()) {
+			transports.add(transport.getValue());
+		}
+		return transports;
 	}
 
 	private List<com.webauthn4j.data.PublicKeyCredentialParameters> convertCredentialParamsToWebauthn4j(
@@ -319,9 +333,7 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 	public PublicKeyCredentialRequestOptions createCredentialRequestOptions(
 			PublicKeyCredentialRequestOptionsRequest request) {
 		Authentication authentication = request.getAuthentication();
-		// FIXME: do not load credentialRecords if anonymous
-		PublicKeyCredentialUserEntity userEntity = findUserEntityOrCreateAndSave(authentication.getName());
-		List<CredentialRecord> credentialRecords = this.userCredentials.findByUserId(userEntity.getId());
+		List<CredentialRecord> credentialRecords = findCredentialRecords(authentication);
 		return PublicKeyCredentialRequestOptions.builder()
 			.allowCredentials(credentialDescriptors(credentialRecords))
 			.challenge(Bytes.random())
@@ -330,6 +342,17 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 			.userVerification(UserVerificationRequirement.PREFERRED)
 			.customize(this.customizeRequestOptions)
 			.build();
+	}
+
+	private List<CredentialRecord> findCredentialRecords(Authentication authentication) {
+		if (!this.trustResolver.isAuthenticated(authentication)) {
+			return Collections.emptyList();
+		}
+		PublicKeyCredentialUserEntity userEntity = this.userEntities.findByUsername(authentication.getName());
+		if (userEntity == null) {
+			return Collections.emptyList();
+		}
+		return this.userCredentials.findByUserId(userEntity.getId());
 	}
 
 	@Override
@@ -349,9 +372,6 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 
 		Authenticator authenticator = new AuthenticatorImpl(data, attestationObject.getAttestationStatement(),
 				credentialRecord.getSignatureCount());
-		if (authenticator == null) {
-			throw new IllegalStateException("No authenticator found");
-		}
 		Set<Origin> origins = toOrigins();
 		Challenge challenge = new DefaultChallenge(requestOptions.getChallenge().getBytes());
 		// FIXME: should populate this

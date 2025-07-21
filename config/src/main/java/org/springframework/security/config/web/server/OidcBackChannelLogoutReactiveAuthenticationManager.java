@@ -18,10 +18,6 @@ package org.springframework.security.config.web.server;
 
 import java.util.function.Function;
 
-import com.nimbusds.jose.JOSEObjectType;
-import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
-import com.nimbusds.jose.proc.JOSEObjectTypeVerifier;
-import com.nimbusds.jose.proc.JWKSecurityContext;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -41,6 +37,7 @@ import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
+import org.springframework.security.oauth2.jwt.JwtTypeValidator;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
@@ -72,8 +69,10 @@ final class OidcBackChannelLogoutReactiveAuthenticationManager implements Reacti
 	 * Construct an {@link OidcBackChannelLogoutReactiveAuthenticationManager}
 	 */
 	OidcBackChannelLogoutReactiveAuthenticationManager() {
+		JwtTypeValidator type = new JwtTypeValidator("JWT", "logout+jwt");
+		type.setAllowEmpty(true);
 		Function<ClientRegistration, OAuth2TokenValidator<Jwt>> jwtValidator = (clientRegistration) -> JwtValidators
-			.createDefaultWithValidators(new OidcBackChannelLogoutTokenValidator(clientRegistration));
+			.createDefaultWithValidators(type, new OidcBackChannelLogoutTokenValidator(clientRegistration));
 		this.logoutTokenDecoderFactory = (clientRegistration) -> {
 			String jwkSetUri = clientRegistration.getProviderDetails().getJwkSetUri();
 			if (!StringUtils.hasText(jwkSetUri)) {
@@ -84,11 +83,7 @@ final class OidcBackChannelLogoutReactiveAuthenticationManager implements Reacti
 						null);
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
-			JOSEObjectTypeVerifier<JWKSecurityContext> typeVerifier = new DefaultJOSEObjectTypeVerifier<>(null,
-					JOSEObjectType.JWT, new JOSEObjectType("logout+jwt"));
-			NimbusReactiveJwtDecoder decoder = NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri)
-				.jwtProcessorCustomizer((processor) -> processor.setJWSTypeVerifier(typeVerifier))
-				.build();
+			NimbusReactiveJwtDecoder decoder = NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri).build();
 			decoder.setJwtValidator(jwtValidator.apply(clientRegistration));
 			decoder.setClaimSetConverter(
 					new ClaimTypeConverter(OidcIdTokenDecoderFactory.createDefaultClaimTypeConverters()));

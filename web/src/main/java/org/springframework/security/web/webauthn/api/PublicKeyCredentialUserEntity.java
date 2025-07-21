@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,7 @@
 
 package org.springframework.security.web.webauthn.api;
 
-import org.springframework.security.web.webauthn.management.RelyingPartyAuthenticationRequest;
-import org.springframework.security.web.webauthn.management.WebAuthnRelyingPartyOperations;
+import java.io.Serializable;
 
 import java.io.Serializable;
 
@@ -30,7 +29,7 @@ import java.io.Serializable;
  *
  * @author Rob Winch
  * @since 6.4
- * @see WebAuthnRelyingPartyOperations#authenticate(RelyingPartyAuthenticationRequest)
+ * @see org.springframework.security.web.webauthn.management.WebAuthnRelyingPartyOperations#authenticate(org.springframework.security.web.webauthn.management.RelyingPartyAuthenticationRequest)
  */
 public interface PublicKeyCredentialUserEntity extends Serializable {
 

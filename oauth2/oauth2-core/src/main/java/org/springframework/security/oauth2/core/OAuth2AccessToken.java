@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.core;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Collections;
@@ -40,6 +41,9 @@ import org.springframework.util.Assert;
  * 1.4 Access Token</a>
  */
 public class OAuth2AccessToken extends AbstractOAuth2Token {
+
+	@Serial
+	private static final long serialVersionUID = -3041884478533441940L;
 
 	private final TokenType tokenType;
 
@@ -103,9 +107,19 @@ public class OAuth2AccessToken extends AbstractOAuth2Token {
 
 		public static final TokenType BEARER = new TokenType("Bearer");
 
+		/**
+		 * @since 6.5
+		 */
+		public static final TokenType DPOP = new TokenType("DPoP");
+
 		private final String value;
 
-		private TokenType(String value) {
+		/**
+		 * Constructs a {@code TokenType} using the provided value.
+		 * @param value the value of the token type
+		 * @since 6.5
+		 */
+		public TokenType(String value) {
 			Assert.hasText(value, "value cannot be empty");
 			this.value = value;
 		}

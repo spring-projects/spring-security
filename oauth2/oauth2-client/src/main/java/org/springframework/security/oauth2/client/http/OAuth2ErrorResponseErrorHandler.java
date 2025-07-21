@@ -17,10 +17,12 @@
 package org.springframework.security.oauth2.client.http;
 
 import java.io.IOException;
+import java.net.URI;
 
 import com.nimbusds.oauth2.sdk.token.BearerTokenError;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -53,9 +55,9 @@ public class OAuth2ErrorResponseErrorHandler implements ResponseErrorHandler {
 	}
 
 	@Override
-	public void handleError(ClientHttpResponse response) throws IOException {
+	public void handleError(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
 		if (HttpStatus.BAD_REQUEST.value() != response.getStatusCode().value()) {
-			this.defaultErrorHandler.handleError(response);
+			this.defaultErrorHandler.handleError(url, method, response);
 		}
 		// A Bearer Token Error may be in the WWW-Authenticate response header
 		// See https://tools.ietf.org/html/rfc6750#section-3

@@ -47,6 +47,7 @@ import org.springframework.security.web.authentication.session.NullAuthenticated
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
+import org.springframework.security.web.authentication.session.SessionLimit;
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.NullSecurityContextRepository;
@@ -123,7 +124,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private SessionRegistry sessionRegistry;
 
-	private Integer maximumSessions;
+	private SessionLimit sessionLimit;
 
 	private String expiredUrl;
 
@@ -151,7 +152,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Creates a new instance
-	 * @see HttpSecurity#sessionManagement()
+	 * @see HttpSecurity#sessionManagement(Customizer)
 	 */
 	public SessionManagementConfigurer() {
 	}
@@ -329,7 +330,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link SessionManagementConfigurer} for further customizations
 	 */
 	public ConcurrencyControlConfigurer maximumSessions(int maximumSessions) {
-		this.maximumSessions = maximumSessions;
+		this.sessionLimit = SessionLimit.of(maximumSessions);
 		this.propertiesThatRequireImplicitAuthentication.add("maximumSessions = " + maximumSessions);
 		return new ConcurrencyControlConfigurer();
 	}
@@ -570,7 +571,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 			SessionRegistry sessionRegistry = getSessionRegistry(http);
 			ConcurrentSessionControlAuthenticationStrategy concurrentSessionControlStrategy = new ConcurrentSessionControlAuthenticationStrategy(
 					sessionRegistry);
-			concurrentSessionControlStrategy.setMaximumSessions(this.maximumSessions);
+			concurrentSessionControlStrategy.setMaximumSessions(this.sessionLimit);
 			concurrentSessionControlStrategy.setExceptionIfMaximumExceeded(this.maxSessionsPreventsLogin);
 			concurrentSessionControlStrategy = postProcess(concurrentSessionControlStrategy);
 			RegisterSessionAuthenticationStrategy registerSessionStrategy = new RegisterSessionAuthenticationStrategy(
@@ -614,7 +615,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return
 	 */
 	private boolean isConcurrentSessionControlEnabled() {
-		return this.maximumSessions != null;
+		return this.sessionLimit != null;
 	}
 
 	/**
@@ -706,7 +707,19 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
 		 */
 		public ConcurrencyControlConfigurer maximumSessions(int maximumSessions) {
-			SessionManagementConfigurer.this.maximumSessions = maximumSessions;
+			SessionManagementConfigurer.this.sessionLimit = SessionLimit.of(maximumSessions);
+			return this;
+		}
+
+		/**
+		 * Determines the behaviour when a session limit is detected.
+		 * @param sessionLimit the {@link SessionLimit} to check the maximum number of
+		 * sessions for a user
+		 * @return the {@link ConcurrencyControlConfigurer} for further customizations
+		 * @since 6.5
+		 */
+		public ConcurrencyControlConfigurer maximumSessions(SessionLimit sessionLimit) {
+			SessionManagementConfigurer.this.sessionLimit = sessionLimit;
 			return this;
 		}
 
@@ -760,17 +773,6 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		public ConcurrencyControlConfigurer sessionRegistry(SessionRegistry sessionRegistry) {
 			SessionManagementConfigurer.this.sessionRegistry = sessionRegistry;
 			return this;
-		}
-
-		/**
-		 * Used to chain back to the {@link SessionManagementConfigurer}
-		 * @return the {@link SessionManagementConfigurer} for further customizations
-		 * @deprecated For removal in 7.0. Use {@link #sessionConcurrency(Customizer)}
-		 * instead
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public SessionManagementConfigurer<H> and() {
-			return SessionManagementConfigurer.this;
 		}
 
 	}

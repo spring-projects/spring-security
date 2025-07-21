@@ -17,10 +17,10 @@
 package org.springframework.security.web.method.annotation;
 
 import java.lang.annotation.Annotation;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.core.MethodParameter;
+import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.expression.BeanResolver;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
@@ -84,12 +84,14 @@ public final class CurrentSecurityContextArgumentResolver implements HandlerMeth
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
-	private final Map<MethodParameter, Annotation> cachedAttributes = new ConcurrentHashMap<>();
-
 	private ExpressionParser parser = new SpelExpressionParser();
 
+	private final Class<CurrentSecurityContext> annotationType = CurrentSecurityContext.class;
+
 	private SecurityAnnotationScanner<CurrentSecurityContext> scanner = SecurityAnnotationScanners
-		.requireUnique(CurrentSecurityContext.class);
+		.requireUnique(this.annotationType);
+
+	private boolean useAnnotationTemplate = false;
 
 	private BeanResolver beanResolver;
 
@@ -144,6 +146,7 @@ public final class CurrentSecurityContextArgumentResolver implements HandlerMeth
 	 * @since 6.4
 	 */
 	public void setTemplateDefaults(AnnotationTemplateExpressionDefaults templateDefaults) {
+		this.useAnnotationTemplate = templateDefaults != null;
 		this.scanner = SecurityAnnotationScanners.requireUnique(CurrentSecurityContext.class, templateDefaults);
 	}
 
@@ -175,10 +178,22 @@ public final class CurrentSecurityContextArgumentResolver implements HandlerMeth
 	 * @param parameter the {@link MethodParameter} to search for an {@link Annotation}
 	 * @return the {@link Annotation} that was found or null.
 	 */
-	@SuppressWarnings("unchecked")
-	private <T extends Annotation> T findMethodAnnotation(MethodParameter parameter) {
-		return (T) this.cachedAttributes.computeIfAbsent(parameter,
-				(methodParameter) -> this.scanner.scan(methodParameter.getParameter()));
+	private CurrentSecurityContext findMethodAnnotation(MethodParameter parameter) {
+		if (this.useAnnotationTemplate) {
+			return this.scanner.scan(parameter.getParameter());
+		}
+		CurrentSecurityContext annotation = parameter.getParameterAnnotation(this.annotationType);
+		if (annotation != null) {
+			return annotation;
+		}
+		Annotation[] annotationsToSearch = parameter.getParameterAnnotations();
+		for (Annotation toSearch : annotationsToSearch) {
+			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(), this.annotationType);
+			if (annotation != null) {
+				return MergedAnnotations.from(toSearch).get(this.annotationType).synthesize();
+			}
+		}
+		return null;
 	}
 
 }

@@ -55,6 +55,7 @@ public class Authz {
 		return Mono.just(checkResult(result));
 	}
 
+	@SuppressWarnings("serial")
 	public static class AuthzResult extends AuthorizationDecision {
 
 		public AuthzResult(boolean granted) {

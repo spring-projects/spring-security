@@ -32,7 +32,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.access.AccessDeniedHandlerImpl
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
@@ -67,7 +67,7 @@ class ExceptionHandlingDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 exceptionHandling { }
@@ -91,7 +91,7 @@ class ExceptionHandlingDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 exceptionHandling {
@@ -121,7 +121,7 @@ class ExceptionHandlingDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize("/admin", hasAuthority("ROLE_ADMIN"))
                     authorize(anyRequest, authenticated)
                 }
@@ -154,7 +154,7 @@ class ExceptionHandlingDslTests {
             val customAccessDeniedHandler = AccessDeniedHandlerImpl()
             customAccessDeniedHandler.setErrorPage("/access-denied")
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize("/admin", hasAuthority("ROLE_ADMIN"))
                     authorize(anyRequest, authenticated)
                 }
@@ -195,15 +195,16 @@ class ExceptionHandlingDslTests {
             customAccessDeniedHandler1.setErrorPage("/access-denied1")
             val customAccessDeniedHandler2 = AccessDeniedHandlerImpl()
             customAccessDeniedHandler2.setErrorPage("/access-denied2")
+            val builder = PathPatternRequestMatcher.withDefaults()
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize("/admin1", hasAuthority("ROLE_ADMIN"))
                     authorize("/admin2", hasAuthority("ROLE_ADMIN"))
                     authorize(anyRequest, authenticated)
                 }
                 exceptionHandling {
-                    defaultAccessDeniedHandlerFor(customAccessDeniedHandler1, AntPathRequestMatcher("/admin1"))
-                    defaultAccessDeniedHandlerFor(customAccessDeniedHandler2, AntPathRequestMatcher("/admin2"))
+                    defaultAccessDeniedHandlerFor(customAccessDeniedHandler1, builder.matcher("/admin1"))
+                    defaultAccessDeniedHandlerFor(customAccessDeniedHandler2, builder.matcher("/admin2"))
                 }
             }
             return http.build()
@@ -228,7 +229,7 @@ class ExceptionHandlingDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 exceptionHandling {
@@ -264,13 +265,14 @@ class ExceptionHandlingDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             val customAuthenticationEntryPoint1 = LoginUrlAuthenticationEntryPoint("/custom-login1")
             val customAuthenticationEntryPoint2 = LoginUrlAuthenticationEntryPoint("/custom-login2")
+            val builder = PathPatternRequestMatcher.withDefaults();
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 exceptionHandling {
-                    defaultAuthenticationEntryPointFor(customAuthenticationEntryPoint1, AntPathRequestMatcher("/secured1"))
-                    defaultAuthenticationEntryPointFor(customAuthenticationEntryPoint2, AntPathRequestMatcher("/secured2"))
+                    defaultAuthenticationEntryPointFor(customAuthenticationEntryPoint1, builder.matcher("/secured1"))
+                    defaultAuthenticationEntryPointFor(customAuthenticationEntryPoint2, builder.matcher("/secured2"))
                 }
             }
             return http.build()

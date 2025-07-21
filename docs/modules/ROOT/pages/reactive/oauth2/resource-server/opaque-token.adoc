@@ -3,9 +3,8 @@
 [[webflux-oauth2resourceserver-opaque-minimaldependencies]]
 == Minimal Dependencies for Introspection
 As described in xref:servlet/oauth2/resource-server/jwt.adoc#oauth2resourceserver-jwt-minimaldependencies[Minimal Dependencies for JWT], most Resource Server support is collected in `spring-security-oauth2-resource-server`.
-However, unless you provide a custom <<webflux-oauth2resourceserver-opaque-introspector-bean,`ReactiveOpaqueTokenIntrospector`>>, the Resource Server falls back to `ReactiveOpaqueTokenIntrospector`.
-This means that both `spring-security-oauth2-resource-server` and `oauth2-oidc-sdk` are necessary to have a working minimal Resource Server that supports opaque Bearer Tokens.
-See `spring-security-oauth2-resource-server` in order to determine the correct version for `oauth2-oidc-sdk`.
+However, unless you provide a custom <<webflux-oauth2resourceserver-opaque-introspector-bean,`ReactiveOpaqueTokenIntrospector`>>, the Resource Server falls back to `SpringReactiveOpaqueTokenIntrospector`.
+This means that only `spring-security-oauth2-resource-server` is necessary to have a working minimal Resource Server that supports opaque Bearer Tokens.
 
 [[webflux-oauth2resourceserver-opaque-minimalconfiguration]]
 == Minimal Configuration for Introspection
@@ -29,7 +28,7 @@ spring:
   security:
     oauth2:
       resourceserver:
-        opaque-token:
+        opaquetoken:
           introspection-uri: https://idp.example.com/introspect
           client-id: client
           client-secret: secret
@@ -177,7 +176,7 @@ Java::
 @Bean
 SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	http
-		.authorizeExchange(exchanges -> exchanges
+		.authorizeExchange((authorize) -> authorize
 			.anyExchange().authenticated()
 		)
 		.oauth2ResourceServer(ServerHttpSecurity.OAuth2ResourceServerSpec::opaqueToken)
@@ -222,12 +221,12 @@ public class MyCustomSecurityConfiguration {
     @Bean
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
-            .authorizeExchange(exchanges -> exchanges
+            .authorizeExchange((authorize) -> authorize
                 .pathMatchers("/messages/**").access(hasScope("message:read"))
                 .anyExchange().authenticated()
             )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .opaqueToken(opaqueToken -> opaqueToken
+            .oauth2ResourceServer((oauth2) -> oauth2
+                .opaqueToken((opaqueToken) -> opaqueToken
                     .introspector(myIntrospector())
                 )
             );
@@ -273,7 +272,8 @@ Java::
 ----
 @Bean
 public ReactiveOpaqueTokenIntrospector introspector() {
-    return new NimbusReactiveOpaqueTokenIntrospector(introspectionUri, clientId, clientSecret);
+    return SpringReactiveOpaqueTokenIntrospector.withIntrospectionUri(introspectionUri)
+        .clientId(clientId).clientSecret(clientSecret).build();
 }
 ----
 
@@ -283,7 +283,8 @@ Kotlin::
 ----
 @Bean
 fun introspector(): ReactiveOpaqueTokenIntrospector {
-    return NimbusReactiveOpaqueTokenIntrospector(introspectionUri, clientId, clientSecret)
+    return SpringReactiveOpaqueTokenIntrospector.withIntrospectionUri(introspectionUri)
+        .clientId(clientId).clientSecret(clientSecret).build()
 }
 ----
 ======
@@ -309,11 +310,11 @@ public class DirectlyConfiguredIntrospectionUri {
     @Bean
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
-            .authorizeExchange(exchanges -> exchanges
+            .authorizeExchange((authorize) -> authorize
                 .anyExchange().authenticated()
             )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .opaqueToken(opaqueToken -> opaqueToken
+            .oauth2ResourceServer((oauth2) -> oauth2
+                .opaqueToken((opaqueToken) -> opaqueToken
                     .introspectionUri("https://idp.example.com/introspect")
                     .introspectionClientCredentials("client", "secret")
                 )
@@ -363,11 +364,11 @@ public class DirectlyConfiguredIntrospector {
     @Bean
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
-            .authorizeExchange(exchanges -> exchanges
+            .authorizeExchange((authorize) -> authorize
                 .anyExchange().authenticated()
             )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .opaqueToken(opaqueToken -> opaqueToken
+            .oauth2ResourceServer((oauth2) -> oauth2
+                .opaqueToken((opaqueToken) -> opaqueToken
                     .introspector(myCustomIntrospector())
                 )
             );
@@ -396,7 +397,7 @@ fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain 
 ----
 ======
 
-This is handy when deeper configuration, such as <<webflux-oauth2resourceserver-opaque-authorization-extraction,authority mapping>>or <<webflux-oauth2resourceserver-opaque-jwt-introspector,JWT revocation>>, is necessary.
+This is handy when deeper configuration, such as <<webflux-oauth2resourceserver-opaque-authorization-extraction,authority mapping>> or <<webflux-oauth2resourceserver-opaque-jwt-introspector,JWT revocation>>, is necessary.
 
 [[webflux-oauth2resourceserver-opaque-introspector-bean]]
 === Exposing a `ReactiveOpaqueTokenIntrospector` `@Bean`
@@ -411,7 +412,8 @@ Java::
 ----
 @Bean
 public ReactiveOpaqueTokenIntrospector introspector() {
-    return new NimbusReactiveOpaqueTokenIntrospector(introspectionUri, clientId, clientSecret);
+    return SpringReactiveOpaqueTokenIntrospector.withIntrospectionUri(introspectionUri)
+        .clientId(clientId).clientSecret(clientSecret).build()
 }
 ----
 
@@ -421,7 +423,8 @@ Kotlin::
 ----
 @Bean
 fun introspector(): ReactiveOpaqueTokenIntrospector {
-    return NimbusReactiveOpaqueTokenIntrospector(introspectionUri, clientId, clientSecret)
+    return SpringReactiveOpaqueTokenIntrospector.withIntrospectionUri(introspectionUri)
+        .clientId(clientId).clientSecret(clientSecret).build()
 }
 ----
 ======
@@ -454,7 +457,7 @@ public class MappedAuthorities {
     @Bean
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
-            .authorizeExchange(exchange -> exchange
+            .authorizeExchange((authorize) -> authorize
                 .pathMatchers("/contacts/**").access(hasScope("contacts"))
                 .pathMatchers("/messages/**").access(hasScope("messages"))
                 .anyExchange().authenticated()
@@ -534,12 +537,13 @@ Java::
 [source,java,role="primary"]
 ----
 public class CustomAuthoritiesOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntrospector {
-    private ReactiveOpaqueTokenIntrospector delegate =
-            new NimbusReactiveOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret");
+    private ReactiveOpaqueTokenIntrospector delegate = SpringReactiveOpaqueTokenIntrospector
+            .withIntrospectionUri("https://idp.example.org/introspect")
+            .clientId("client").clientSecret("secret").build();
 
     public Mono<OAuth2AuthenticatedPrincipal> introspect(String token) {
         return this.delegate.introspect(token)
-                .map(principal -> new DefaultOAuth2AuthenticatedPrincipal(
+                .map((principal) -> principal DefaultOAuth2AuthenticatedPrincipal(
                         principal.getName(), principal.getAttributes(), extractAuthorities(principal)));
     }
 
@@ -557,7 +561,9 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 class CustomAuthoritiesOpaqueTokenIntrospector : ReactiveOpaqueTokenIntrospector {
-    private val delegate: ReactiveOpaqueTokenIntrospector = NimbusReactiveOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret")
+    private val delegate: ReactiveOpaqueTokenIntrospector = SpringReactiveOpaqueTokenIntrospector
+            .withIntrospectionUri("https://idp.example.org/introspect")
+            .clientId("client").clientSecret("secret").build()
     override fun introspect(token: String): Mono<OAuth2AuthenticatedPrincipal> {
         return delegate.introspect(token)
                 .map { principal: OAuth2AuthenticatedPrincipal ->
@@ -616,7 +622,7 @@ spring:
   security:
     oauth2:
       resourceserver:
-        opaque-token:
+        opaquetoken:
           introspection-uri: https://idp.example.org/introspection
           client-id: client
           client-secret: secret
@@ -637,14 +643,15 @@ Java::
 [source,java,role="primary"]
 ----
 public class JwtOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntrospector {
-	private ReactiveOpaqueTokenIntrospector delegate =
-			new NimbusReactiveOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret");
+	private ReactiveOpaqueTokenIntrospector delegate = SpringReactiveOpaqueTokenIntrospector
+            .withIntrospectionUri("https://idp.example.org/introspect")
+            .clientId("client").clientSecret("secret").build();
 	private ReactiveJwtDecoder jwtDecoder = new NimbusReactiveJwtDecoder(new ParseOnlyJWTProcessor());
 
 	public Mono<OAuth2AuthenticatedPrincipal> introspect(String token) {
 		return this.delegate.introspect(token)
-				.flatMap(principal -> this.jwtDecoder.decode(token))
-				.map(jwt -> new DefaultOAuth2AuthenticatedPrincipal(jwt.getClaims(), NO_AUTHORITIES));
+				.flatMap((principal) -> principal.jwtDecoder.decode(token))
+				.map((jwt) -> jwt DefaultOAuth2AuthenticatedPrincipal(jwt.getClaims(), NO_AUTHORITIES));
 	}
 
 	private static class ParseOnlyJWTProcessor implements Converter<JWT, Mono<JWTClaimsSet>> {
@@ -664,7 +671,9 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 class JwtOpaqueTokenIntrospector : ReactiveOpaqueTokenIntrospector {
-    private val delegate: ReactiveOpaqueTokenIntrospector = NimbusReactiveOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret")
+    private val delegate: ReactiveOpaqueTokenIntrospector = SpringReactiveOpaqueTokenIntrospector
+            .withIntrospectionUri("https://idp.example.org/introspect")
+            .clientId("client").clientSecret("secret").build()
     private val jwtDecoder: ReactiveJwtDecoder = NimbusReactiveJwtDecoder(ParseOnlyJWTProcessor())
     override fun introspect(token: String): Mono<OAuth2AuthenticatedPrincipal> {
         return delegate.introspect(token)
@@ -731,8 +740,9 @@ Java::
 [source,java,role="primary"]
 ----
 public class UserInfoOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntrospector {
-	private final ReactiveOpaqueTokenIntrospector delegate =
-			new NimbusReactiveOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret");
+	private final ReactiveOpaqueTokenIntrospector delegate = SpringReactiveOpaqueTokenIntrospector
+            .withIntrospectionUri("https://idp.example.org/introspect")
+            .clientId("client").clientSecret("secret").build();
 	private final ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService =
 			new DefaultReactiveOAuth2UserService();
 
@@ -761,7 +771,9 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 class UserInfoOpaqueTokenIntrospector : ReactiveOpaqueTokenIntrospector {
-    private val delegate: ReactiveOpaqueTokenIntrospector = NimbusReactiveOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret")
+    private val delegate: ReactiveOpaqueTokenIntrospector = SpringReactiveOpaqueTokenIntrospector
+            .withIntrospectionUri("https://idp.example.org/introspect")
+            .clientId("client").clientSecret("secret").build()
     private val oauth2UserService: ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> = DefaultReactiveOAuth2UserService()
     private val repository: ReactiveClientRegistrationRepository? = null
 
@@ -792,8 +804,9 @@ Java::
 [source,java,role="primary"]
 ----
 public class UserInfoOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntrospector {
-    private final ReactiveOpaqueTokenIntrospector delegate =
-            new NimbusReactiveOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret");
+    private final ReactiveOpaqueTokenIntrospector delegate = SpringReactiveOpaqueTokenIntrospector
+            .withIntrospectionUri("https://idp.example.org/introspect")
+            .clientId("client").clientSecret("secret").build();
     private final WebClient rest = WebClient.create();
 
     @Override
@@ -809,7 +822,9 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 class UserInfoOpaqueTokenIntrospector : ReactiveOpaqueTokenIntrospector {
-    private val delegate: ReactiveOpaqueTokenIntrospector = NimbusReactiveOpaqueTokenIntrospector("https://idp.example.org/introspect", "client", "secret")
+    private val delegate: ReactiveOpaqueTokenIntrospector = SpringReactiveOpaqueTokenIntrospector
+            .withIntrospectionUri("https://idp.example.org/introspect")
+            .clientId("client").clientSecret("secret").build()
     private val rest: WebClient = WebClient.create()
 
     override fun introspect(token: String): Mono<OAuth2AuthenticatedPrincipal> {

@@ -108,13 +108,14 @@ Kotlin::
 open class MyCustomerService {
     @PreAuthorize("hasAuthority('permission:read')")
     @PostAuthorize("returnObject.owner == authentication.name")
-    fun readCustomer(val id: String): Customer { ... }
+    fun readCustomer(id: String): Customer { ... }
 }
 ----
 ======
 
 A given invocation to `MyCustomerService#readCustomer` may look something like this when Method Security <<activate-method-security,is activated>>:
 
+[.invert-dark]
 image::{figures}/methodsecurity.png[]
 
 1. Spring AOP invokes its proxy method for `readCustomer`. Among the proxy's other advisors, it invokes an javadoc:org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor[] that matches <<annotation-method-pointcuts,the `@PreAuthorize` pointcut>>
@@ -215,13 +216,15 @@ Java::
 ----
 @PreAuthorize("hasAuthority('permission:read') || hasRole('ADMIN')")
 ----
-======
 
-.Kotlin
-[source,kotlin,role="kotlin"]
+Kotlin::
++
+[source,kotlin,role="secondary"]
 ----
 @PreAuthorize("hasAuthority('permission:read') || hasRole('ADMIN')")
 ----
+======
+
 
 However, you could instead grant `permission:read` to those with `ROLE_ADMIN`.
 One way to do this is with a `RoleHierarchy` like so:
@@ -335,7 +338,7 @@ Kotlin::
 @Component
 open class BankService {
 	@PreAuthorize("hasRole('ADMIN')")
-	fun readAccount(val id: Long): Account {
+	fun readAccount(id: Long): Account {
         // ... is only invoked if the `Authentication` has the `ROLE_ADMIN` authority
 	}
 }
@@ -423,7 +426,7 @@ Kotlin::
 @Component
 open class BankService {
 	@PostAuthorize("returnObject.owner == authentication.name")
-	fun readAccount(val id: Long): Account {
+	fun readAccount(id: Long): Account {
         // ... is only returned if the `Account` belongs to the logged in user
 	}
 }
@@ -533,7 +536,7 @@ Kotlin::
 @Component
 open class BankService {
 	@RequireOwnership
-	fun readAccount(val id: Long): Account {
+	fun readAccount(id: Long): Account {
         // ... is only returned if the `Account` belongs to the logged in user
 	}
 }
@@ -694,7 +697,7 @@ Kotlin::
 ----
 @Component
 open class BankService {
-	@PreFilter("filterObject.owner == authentication.name")
+	@PostFilter("filterObject.owner == authentication.name")
 	fun readAccounts(vararg ids: String): Collection<Account> {
         // ... the return value will be filtered to only contain the accounts owned by the logged-in user
         return accounts
@@ -796,7 +799,7 @@ In-memory filtering can obviously be expensive, and so be considerate of whether
 === Authorizing Method Invocation with `@Secured`
 
 javadoc:org.springframework.security.access.annotation.Secured[format=annotation] is a legacy option for authorizing invocations.
-<<use-preauthorize,`@PreAuthorize`>> supercedes it and is recommended instead.
+<<use-preauthorize,`@PreAuthorize`>> supersedes it and is recommended instead.
 
 To use the `@Secured` annotation, you should first change your Method Security declaration to enable it like so:
 
@@ -990,7 +993,7 @@ Kotlin::
 @Component
 open class BankService {
 	@IsAdmin
-	fun readAccount(val id: Long): Account {
+	fun readAccount(id: Long): Account {
         // ... is only returned if the `Account` belongs to the logged in user
 	}
 }
@@ -1081,7 +1084,7 @@ Kotlin::
 @Component
 open class BankService {
 	@HasRole("ADMIN")
-	fun readAccount(val id: Long): Account {
+	fun readAccount(id: Long): Account {
         // ... is only returned if the `Account` belongs to the logged in user
 	}
 }
@@ -1141,7 +1144,7 @@ Kotlin::
 @Component
 open class BankService {
 	@HasAnyRole(roles = arrayOf("'USER'", "'ADMIN'"))
-	fun readAccount(val id: Long): Account {
+	fun readAccount(id: Long): Account {
         // ... is only returned if the `Account` belongs to the logged in user
 	}
 }
@@ -1268,7 +1271,7 @@ Kotlin::
 ----
 @Component("authz")
 open class AuthorizationLogic {
-    fun decide(val operations: MethodSecurityExpressionOperations): boolean {
+    fun decide(operations: MethodSecurityExpressionOperations): boolean {
         // ... authorization logic
     }
 }
@@ -1339,7 +1342,7 @@ Kotlin::
 ----
 @Component("authz")
 open class AuthorizationLogic {
-    fun decide(val operations: MethodSecurityExpressionOperations): AuthorizationDecision {
+    fun decide(operations: MethodSecurityExpressionOperations): AuthorizationDecision {
         // ... authorization logic
         return MyAuthorizationDecision(false, details)
     }
@@ -1368,12 +1371,12 @@ Java::
 @Component
 public class MyAuthorizationManager implements AuthorizationManager<MethodInvocation>, AuthorizationManager<MethodInvocationResult> {
     @Override
-    public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation invocation) {
+    public AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocation invocation) {
         // ... authorization logic
     }
 
     @Override
-    public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocationResult invocation) {
+    public AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocationResult invocation) {
         // ... authorization logic
     }
 }
@@ -1385,11 +1388,11 @@ Kotlin::
 ----
 @Component
 class MyAuthorizationManager : AuthorizationManager<MethodInvocation>, AuthorizationManager<MethodInvocationResult> {
-    override fun check(authentication: Supplier<Authentication>, invocation: MethodInvocation): AuthorizationDecision {
+    override fun authorize(authentication: Supplier<Authentication>, invocation: MethodInvocation): AuthorizationResult {
         // ... authorization logic
     }
 
-    override fun check(authentication: Supplier<Authentication>, invocation: MethodInvocationResult): AuthorizationDecision {
+    override fun authorize(authentication: Supplier<Authentication>, invocation: MethodInvocationResult): AuthorizationResult {
         // ... authorization logic
     }
 }
@@ -1432,13 +1435,13 @@ Kotlin::
 class MethodSecurityConfig {
    	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	fun preAuthorize(val manager: MyAuthorizationManager) : Advisor {
+	fun preAuthorize(manager: MyAuthorizationManager) : Advisor {
 		return AuthorizationManagerBeforeMethodInterceptor.preAuthorize(manager)
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	fun postAuthorize(val manager: MyAuthorizationManager) : Advisor {
+	fun postAuthorize(manager: MyAuthorizationManager) : Advisor {
 		return AuthorizationManagerAfterMethodInterceptor.postAuthorize(manager)
 	}
 }
@@ -1498,7 +1501,7 @@ Kotlin::
 ----
 companion object {
 	@Bean
-	fun methodSecurityExpressionHandler(val roleHierarchy: RoleHierarchy) : MethodSecurityExpressionHandler {
+	fun methodSecurityExpressionHandler(roleHierarchy: RoleHierarchy) : MethodSecurityExpressionHandler {
 		val handler = DefaultMethodSecurityExpressionHandler()
 		handler.setRoleHierarchy(roleHierarchy)
 		return handler
@@ -1528,6 +1531,7 @@ We expose `MethodSecurityExpressionHandler` using a `static` method to ensure th
 
 You can also <<subclass-defaultmethodsecurityexpressionhandler,subclass `DefaultMessageSecurityExpressionHandler`>> to add your own custom authorization expressions beyond the defaults.
 
+[[pre-post-authorize-aot]]
 === Working with AOT
 
 Spring Security will scan all beans in the application context for methods that use `@PreAuthorize` or `@PostAuthorize`.
@@ -2139,9 +2143,13 @@ Java::
 +
 [source,java,role="primary"]
 ----
+import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory.TargetVisitor;
+
+// ...
+
 @Bean
-static Customizer<AuthorizationAdvisorProxyFactory> skipValueTypes() {
-    return (factory) -> factory.setTargetVisitor(TargetVisitor.defaultsSkipValueTypes());
+static TargetVisitor skipValueTypes() {
+    return TargetVisitor.defaultsSkipValueTypes();
 }
 ----
 
@@ -2149,10 +2157,12 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
+import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory.TargetVisitor
+
+// ...
+
 @Bean
-open fun skipValueTypes() = Customizer<AuthorizationAdvisorProxyFactory> {
-    it.setTargetVisitor(TargetVisitor.defaultsSkipValueTypes())
-}
+open fun skipValueTypes() = TargetVisitor.defaultsSkipValueTypes()
 ----
 ======
 
@@ -2462,6 +2472,7 @@ And if they do have that authority, they'll see:
 You can also add the Spring Boot property `spring.jackson.default-property-inclusion=non_null` to exclude the null value from serialization, if you also don't want to reveal the JSON key to an unauthorized user.
 ====
 
+[[authorize-return-object-aot]]
 === Working with AOT
 
 Spring Security will scan all beans in the application context for methods that use `@AuthorizeReturnObject`.
@@ -3231,7 +3242,7 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 class MyAuthorizer {
-	fun isAdmin(val root: MethodSecurityExpressionOperations): boolean {
+	fun isAdmin(root: MethodSecurityExpressionOperations): boolean {
 		val decision = root.hasAuthority("ADMIN");
 		// custom work ...
         return decision;
@@ -3290,7 +3301,7 @@ Kotlin::
 ----
 @Component
 class MyExpressionHandler: DefaultMethodSecurityExpressionHandler {
-    override fun createEvaluationContext(val authentication: Supplier<Authentication>,
+    override fun createEvaluationContext(authentication: Supplier<Authentication>,
         val mi: MethodInvocation): EvaluationContext {
 		val context = super.createEvaluationContext(authentication, mi) as StandardEvaluationContext
         val delegate = context.getRootObject().getValue() as MethodSecurityExpressionOperations

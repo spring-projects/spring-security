@@ -47,7 +47,6 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -59,6 +58,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.Builder;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.post;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * Tests {@link AbstractAuthenticationProcessingFilter}.
@@ -75,13 +78,11 @@ public class AbstractAuthenticationProcessingFilterTests {
 	SimpleUrlAuthenticationFailureHandler failureHandler;
 
 	private MockHttpServletRequest createMockAuthenticationRequest() {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setServletPath("/j_mock_post");
-		request.setScheme("http");
-		request.setServerName("www.example.com");
-		request.setRequestURI("/mycontext/j_mock_post");
-		request.setContextPath("/mycontext");
-		return request;
+		return withMockAuthenticationRequest().build();
+	}
+
+	private Builder withMockAuthenticationRequest() {
+		return get("www.example.com").requestUri("/mycontext", "/j_mock_post", null);
 	}
 
 	@BeforeEach
@@ -100,12 +101,11 @@ public class AbstractAuthenticationProcessingFilterTests {
 
 	@Test
 	public void testDefaultProcessesFilterUrlMatchesWithPathParameter() {
-		MockHttpServletRequest request = createMockAuthenticationRequest();
+		MockHttpServletRequest request = post("/login;jsessionid=I8MIONOSTHOR").build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockAuthenticationFilter filter = new MockAuthenticationFilter();
 		filter.setFilterProcessesUrl("/login");
 		DefaultHttpFirewall firewall = new DefaultHttpFirewall();
-		request.setServletPath("/login;jsessionid=I8MIONOSTHOR");
 		// the firewall ensures that path parameters are ignored
 		HttpServletRequest firewallRequest = firewall.getFirewalledRequest(request);
 		assertThat(filter.requiresAuthentication(firewallRequest, response)).isTrue();
@@ -114,9 +114,9 @@ public class AbstractAuthenticationProcessingFilterTests {
 	@Test
 	public void testFilterProcessesUrlVariationsRespected() throws Exception {
 		// Setup our HTTP request
-		MockHttpServletRequest request = createMockAuthenticationRequest();
-		request.setServletPath("/j_OTHER_LOCATION");
-		request.setRequestURI("/mycontext/j_OTHER_LOCATION");
+		MockHttpServletRequest request = withMockAuthenticationRequest()
+			.requestUri("/mycontext", "/j_OTHER_LOCATION", null)
+			.build();
 		// Setup our filter configuration
 		MockFilterConfig config = new MockFilterConfig(null, null);
 		// Setup our expectation that the filter chain will not be invoked, as we redirect
@@ -150,9 +150,9 @@ public class AbstractAuthenticationProcessingFilterTests {
 	@Test
 	public void testIgnoresAnyServletPathOtherThanFilterProcessesUrl() throws Exception {
 		// Setup our HTTP request
-		MockHttpServletRequest request = createMockAuthenticationRequest();
-		request.setServletPath("/some.file.html");
-		request.setRequestURI("/mycontext/some.file.html");
+		MockHttpServletRequest request = withMockAuthenticationRequest()
+			.requestUri("/mycontext", "/some.file.html", null)
+			.build();
 		// Setup our filter configuration
 		MockFilterConfig config = new MockFilterConfig(null, null);
 		// Setup our expectation that the filter chain will be invoked, as our request is
@@ -227,9 +227,9 @@ public class AbstractAuthenticationProcessingFilterTests {
 	@Test
 	public void testNormalOperationWithRequestMatcherAndAuthenticationManager() throws Exception {
 		// Setup our HTTP request
-		MockHttpServletRequest request = createMockAuthenticationRequest();
-		request.setServletPath("/j_eradicate_corona_virus");
-		request.setRequestURI("/mycontext/j_eradicate_corona_virus");
+		MockHttpServletRequest request = withMockAuthenticationRequest()
+			.requestUri("/mycontext", "/j_eradicate_corona_virus", null)
+			.build();
 		HttpSession sessionPreAuth = request.getSession();
 		// Setup our filter configuration
 		MockFilterConfig config = new MockFilterConfig(null, null);
@@ -238,8 +238,8 @@ public class AbstractAuthenticationProcessingFilterTests {
 		MockFilterChain chain = new MockFilterChain(false);
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		// Setup our test object, to grant access
-		MockAuthenticationFilter filter = new MockAuthenticationFilter(
-				new AntPathRequestMatcher("/j_eradicate_corona_virus"), mock(AuthenticationManager.class));
+		MockAuthenticationFilter filter = new MockAuthenticationFilter(pathPattern("/j_eradicate_corona_virus"),
+				mock(AuthenticationManager.class));
 		filter.setSessionAuthenticationStrategy(mock(SessionAuthenticationStrategy.class));
 		filter.setAuthenticationSuccessHandler(this.successHandler);
 		filter.setAuthenticationFailureHandler(this.failureHandler);
@@ -273,7 +273,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		filter.setAuthenticationManager(mock(AuthenticationManager.class));
 		filter.setAuthenticationSuccessHandler(this.successHandler);
 		assertThatIllegalArgumentException().isThrownBy(() -> filter.setFilterProcessesUrl(null))
-			.withMessage("Pattern cannot be null or empty");
+			.withMessage("pattern cannot be null");
 	}
 
 	@Test

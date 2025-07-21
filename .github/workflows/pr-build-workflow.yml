@@ -2,9 +2,6 @@ name: PR Build
 
 on: pull_request
 
-env:
-  DEVELOCITY_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
-
 permissions:
   contents: read
 
@@ -21,7 +18,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Build with Gradle
-        run: ./gradlew clean build -PskipCheckExpectedBranchVersion --continue
+        run: ./gradlew clean build -PskipCheckExpectedBranchVersion --continue --scan
   generate-docs:
     name: Generate Docs
     runs-on: ubuntu-latest

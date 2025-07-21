@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
+import org.springframework.security.core.annotation.SecurityAnnotationScanner;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
@@ -34,9 +36,14 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @since 3.2
  * @see ChannelSecurityConfigurer
- * @see UrlAuthorizationConfigurer
- * @see ExpressionUrlAuthorizationConfigurer
+ * @deprecated In modern Spring Security APIs, each API manages its own configuration
+ * context. As such there is no direct replacement for this interface. In the case of
+ * method security, please see {@link SecurityAnnotationScanner} and
+ * {@link AuthorizationManager}. In the case of channel security, please see
+ * {@code HttpsRedirectFilter}. In the case of web security, please see
+ * {@link AuthorizationManager}.
  */
+@Deprecated
 public abstract class AbstractConfigAttributeRequestMatcherRegistry<C> extends AbstractRequestMatcherRegistry<C> {
 
 	private List<UrlMapping> urlMappings = new ArrayList<>();

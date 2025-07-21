@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,7 +123,7 @@ class HttpSecurityConfiguration {
 			.requestCache(withDefaults())
 			.anonymous(withDefaults())
 			.servletApi(withDefaults())
-			.apply(new DefaultLoginPageConfigurer<>());
+			.with(new DefaultLoginPageConfigurer<>());
 		http.logout(withDefaults());
 		// @formatter:on
 		applyCorsIfAvailable(http);
@@ -153,7 +153,7 @@ class HttpSecurityConfiguration {
 		List<AbstractHttpConfigurer> defaultHttpConfigurers = SpringFactoriesLoader
 			.loadFactories(AbstractHttpConfigurer.class, classLoader);
 		for (AbstractHttpConfigurer configurer : defaultHttpConfigurers) {
-			http.apply(configurer);
+			http.with(configurer);
 		}
 	}
 

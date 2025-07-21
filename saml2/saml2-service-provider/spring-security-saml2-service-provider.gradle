@@ -2,7 +2,7 @@ apply plugin: 'io.spring.convention.spring-module'
 
 configurations {
 	opensamlFiveMain { extendsFrom(optional, provided) }
-	opensamlFiveTest { extendsFrom(opensamlFiveMain, testImplementation) }
+	opensamlFiveTest { extendsFrom(opensamlFiveMain, testImplementation, testRuntimeOnly) }
 }
 
 sourceSets {
@@ -106,7 +106,9 @@ dependencies {
 	provided 'jakarta.servlet:jakarta.servlet-api'
 
 	optional 'com.fasterxml.jackson.core:jackson-databind'
+	optional 'org.springframework:spring-jdbc'
 
+	testImplementation project(path: ':spring-security-web', configuration: 'tests')
 	testImplementation 'com.squareup.okhttp3:mockwebserver'
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.skyscreamer:jsonassert"
@@ -116,6 +118,9 @@ dependencies {
 	testImplementation "org.mockito:mockito-core"
 	testImplementation "org.mockito:mockito-junit-jupiter"
 	testImplementation "org.springframework:spring-test"
+
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testRuntimeOnly 'org.hsqldb:hsqldb'
 }
 
 jar {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -109,7 +109,7 @@ public final class AuthorizeReturnObjectHintsRegistrar implements SecurityHintsR
 	}
 
 	private void registerProxy(RuntimeHints hints, Class<?> clazz) {
-		Class<?> proxied = (Class<?>) this.proxyFactory.proxy(clazz);
+		Class<?> proxied = this.proxyFactory.proxy(clazz);
 		if (proxied == null) {
 			return;
 		}
@@ -119,8 +119,10 @@ public final class AuthorizeReturnObjectHintsRegistrar implements SecurityHintsR
 		}
 		if (SpringProxy.class.isAssignableFrom(proxied)) {
 			hints.reflection()
-				.registerType(proxied, MemberCategory.INVOKE_PUBLIC_METHODS, MemberCategory.PUBLIC_FIELDS,
-						MemberCategory.DECLARED_FIELDS);
+				.registerType(clazz, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+						MemberCategory.INVOKE_DECLARED_METHODS)
+				.registerType(proxied, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+						MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.ACCESS_DECLARED_FIELDS);
 		}
 	}
 

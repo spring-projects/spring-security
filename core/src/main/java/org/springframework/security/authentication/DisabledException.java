@@ -16,6 +16,8 @@
 
 package org.springframework.security.authentication;
 
+import java.io.Serial;
+
 /**
  * Thrown if an authentication request is rejected because the account is disabled. Makes
  * no assertion as to whether or not the credentials were valid.
@@ -23,6 +25,9 @@ package org.springframework.security.authentication;
  * @author Ben Alex
  */
 public class DisabledException extends AccountStatusException {
+
+	@Serial
+	private static final long serialVersionUID = 2295984593872502361L;
 
 	/**
 	 * Constructs a <code>DisabledException</code> with the specified message.

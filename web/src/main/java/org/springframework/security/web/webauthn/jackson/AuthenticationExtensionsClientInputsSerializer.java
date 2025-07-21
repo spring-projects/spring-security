@@ -32,6 +32,7 @@ import org.springframework.security.web.webauthn.api.AuthenticationExtensionsCli
  * @author Rob Winch
  * @since 6.4
  */
+@SuppressWarnings("serial")
 class AuthenticationExtensionsClientInputsSerializer extends StdSerializer<AuthenticationExtensionsClientInputs> {
 
 	@Serial

@@ -16,8 +16,6 @@
 
 package org.springframework.security.oauth2.jwt;
 
-import java.net.URI;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +43,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
@@ -82,12 +81,11 @@ final class JwtDecoderProviderConfigurationUtils {
 	}
 
 	static Map<String, Object> getConfigurationForOidcIssuerLocation(String oidcIssuerLocation) {
-		return getConfiguration(oidcIssuerLocation, rest, oidc(URI.create(oidcIssuerLocation)));
+		return getConfiguration(oidcIssuerLocation, rest, oidc(oidcIssuerLocation));
 	}
 
 	static Map<String, Object> getConfigurationForIssuerLocation(String issuer, RestOperations rest) {
-		URI uri = URI.create(issuer);
-		return getConfiguration(issuer, rest, oidc(uri), oidcRfc8414(uri), oauth(uri));
+		return getConfiguration(issuer, rest, oidc(issuer), oidcRfc8414(issuer), oauth(issuer));
 	}
 
 	static Map<String, Object> getConfigurationForIssuerLocation(String issuer) {
@@ -159,11 +157,11 @@ final class JwtDecoderProviderConfigurationUtils {
 		return "(unavailable)";
 	}
 
-	private static Map<String, Object> getConfiguration(String issuer, RestOperations rest, URI... uris) {
+	private static Map<String, Object> getConfiguration(String issuer, RestOperations rest, UriComponents... uris) {
 		String errorMessage = "Unable to resolve the Configuration with the provided Issuer of " + "\"" + issuer + "\"";
-		for (URI uri : uris) {
+		for (UriComponents uri : uris) {
 			try {
-				RequestEntity<Void> request = RequestEntity.get(uri).build();
+				RequestEntity<Void> request = RequestEntity.get(uri.toUriString()).build();
 				ResponseEntity<Map<String, Object>> response = rest.exchange(request, STRING_OBJECT_MAP);
 				Map<String, Object> configuration = response.getBody();
 				Assert.isTrue(configuration.get("jwks_uri") != null, "The public JWK set URI must not be null");
@@ -183,27 +181,30 @@ final class JwtDecoderProviderConfigurationUtils {
 		throw new IllegalArgumentException(errorMessage);
 	}
 
-	private static URI oidc(URI issuer) {
+	static UriComponents oidc(String issuer) {
+		UriComponents uri = UriComponentsBuilder.fromUriString(issuer).build();
 		// @formatter:off
-		return UriComponentsBuilder.fromUri(issuer)
-				.replacePath(issuer.getPath() + OIDC_METADATA_PATH)
-				.build(Collections.emptyMap());
+		return UriComponentsBuilder.newInstance().uriComponents(uri)
+				.replacePath(uri.getPath() + OIDC_METADATA_PATH)
+				.build();
 		// @formatter:on
 	}
 
-	private static URI oidcRfc8414(URI issuer) {
+	static UriComponents oidcRfc8414(String issuer) {
+		UriComponents uri = UriComponentsBuilder.fromUriString(issuer).build();
 		// @formatter:off
-		return UriComponentsBuilder.fromUri(issuer)
-				.replacePath(OIDC_METADATA_PATH + issuer.getPath())
-				.build(Collections.emptyMap());
+		return UriComponentsBuilder.newInstance().uriComponents(uri)
+				.replacePath(OIDC_METADATA_PATH + uri.getPath())
+				.build();
 		// @formatter:on
 	}
 
-	private static URI oauth(URI issuer) {
+	static UriComponents oauth(String issuer) {
+		UriComponents uri = UriComponentsBuilder.fromUriString(issuer).build();
 		// @formatter:off
-		return UriComponentsBuilder.fromUri(issuer)
-				.replacePath(OAUTH_METADATA_PATH + issuer.getPath())
-				.build(Collections.emptyMap());
+		return UriComponentsBuilder.newInstance().uriComponents(uri)
+				.replacePath(OAUTH_METADATA_PATH + uri.getPath())
+				.build();
 		// @formatter:on
 	}
 

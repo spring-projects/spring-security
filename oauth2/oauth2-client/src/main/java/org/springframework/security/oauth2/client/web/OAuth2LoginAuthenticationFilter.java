@@ -40,9 +40,12 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.UrlUtils;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * An implementation of an {@link AbstractAuthenticationProcessingFilter} for OAuth 2.0
@@ -123,6 +126,8 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	public OAuth2LoginAuthenticationFilter(ClientRegistrationRepository clientRegistrationRepository,
 			OAuth2AuthorizedClientService authorizedClientService) {
 		this(clientRegistrationRepository, authorizedClientService, DEFAULT_FILTER_PROCESSES_URI);
+		RequestMatcher processUri = pathPattern(DEFAULT_FILTER_PROCESSES_URI);
+		setRequiresAuthenticationRequestMatcher(processUri);
 	}
 
 	/**
@@ -180,7 +185,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
 		// @formatter:off
-		String redirectUri = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
+		String redirectUri = UriComponentsBuilder.fromUriString(UrlUtils.buildFullRequestUrl(request))
 				.replaceQuery(null)
 				.build()
 				.toUriString();

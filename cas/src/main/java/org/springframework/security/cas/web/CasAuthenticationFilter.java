@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import org.springframework.security.authentication.AuthenticationTrustResolverIm
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.authentication.CasServiceTicketAuthenticationToken;
-import org.springframework.security.cas.web.authentication.ServiceAuthenticationDetails;
+import org.springframework.security.cas.authentication.ServiceAuthenticationDetails;
 import org.springframework.security.cas.web.authentication.ServiceAuthenticationDetailsSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -51,10 +51,11 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * Processes a CAS service ticket, obtains proxy granting tickets, and processes proxy
@@ -215,6 +216,8 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
 	public CasAuthenticationFilter() {
 		super("/login/cas");
+		RequestMatcher processUri = pathPattern("/login/cas");
+		setRequiresAuthenticationRequestMatcher(processUri);
 		setAuthenticationFailureHandler(new SimpleUrlAuthenticationFailureHandler());
 		setSecurityContextRepository(this.securityContextRepository);
 	}
@@ -319,8 +322,20 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 		super.setAuthenticationFailureHandler(new CasAuthenticationFailureHandler(failureHandler));
 	}
 
+	/**
+	 * Use this {@code RequestMatcher} to match proxy receptor requests. Without setting
+	 * this matcher, {@link CasAuthenticationFilter} will not capture any proxy receptor
+	 * requets.
+	 * @param proxyReceptorMatcher the {@link RequestMatcher} to use
+	 * @since 6.5
+	 */
+	public final void setProxyReceptorMatcher(RequestMatcher proxyReceptorMatcher) {
+		Assert.notNull(proxyReceptorMatcher, "proxyReceptorMatcher cannot be null");
+		this.proxyReceptorMatcher = proxyReceptorMatcher;
+	}
+
 	public final void setProxyReceptorUrl(final String proxyReceptorUrl) {
-		this.proxyReceptorMatcher = new AntPathRequestMatcher("/**" + proxyReceptorUrl);
+		this.proxyReceptorMatcher = pathPattern(proxyReceptorUrl);
 	}
 
 	public final void setProxyGrantingTicketStorage(final ProxyGrantingTicketStorage proxyGrantingTicketStorage) {

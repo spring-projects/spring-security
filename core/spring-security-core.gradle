@@ -1,9 +1,7 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 import java.util.concurrent.Callable
 
 apply plugin: 'io.spring.convention.spring-module'
-apply plugin: 'kotlin'
+apply plugin: 'security-kotlin'
 
 dependencies {
 	management platform(project(":spring-security-dependencies"))
@@ -16,6 +14,7 @@ dependencies {
 	api 'io.micrometer:micrometer-observation'
 
 	optional 'com.fasterxml.jackson.core:jackson-databind'
+	optional 'io.micrometer:context-propagation'
 	optional 'io.projectreactor:reactor-core'
 	optional 'jakarta.annotation:jakarta.annotation-api'
 	optional 'org.aspectj:aspectjrt'
@@ -40,6 +39,7 @@ dependencies {
 	testImplementation 'io.mockk:mockk'
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 task springVersion(type: org.gradle.api.tasks.WriteProperties) {
@@ -63,13 +63,4 @@ configure(project.tasks.withType(Test)) {
 Callable<String> springVersion() {
 	return  (Callable<String>) { project.configurations.compileClasspath.resolvedConfiguration.resolvedArtifacts
     .find { it.name == 'spring-core' }.moduleVersion.id.version }
-}
-
-tasks.withType(KotlinCompile).configureEach {
-	kotlinOptions {
-		languageVersion = "1.7"
-		apiVersion = "1.7"
-		freeCompilerArgs = ["-Xjsr305=strict", "-Xsuppress-version-warnings"]
-		jvmTarget = "17"
-	}
 }

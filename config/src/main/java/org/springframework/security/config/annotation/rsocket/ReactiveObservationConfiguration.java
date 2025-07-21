@@ -29,9 +29,7 @@ import org.springframework.security.authorization.ObservationReactiveAuthorizati
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.observation.SecurityObservationSettings;
-import org.springframework.security.web.server.ObservationWebFilterChainDecorator;
-import org.springframework.security.web.server.WebFilterChainProxy.WebFilterChainDecorator;
-import org.springframework.web.server.ServerWebExchange;
+import org.springframework.security.rsocket.api.PayloadExchange;
 
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
@@ -45,7 +43,7 @@ class ReactiveObservationConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static ObjectPostProcessor<ReactiveAuthorizationManager<ServerWebExchange>> webAuthorizationManagerPostProcessor(
+	static ObjectPostProcessor<ReactiveAuthorizationManager<PayloadExchange>> rSocketAuthorizationManagerPostProcessor(
 			ObjectProvider<ObservationRegistry> registry, ObjectProvider<SecurityObservationSettings> predicate) {
 		return new ObjectPostProcessor<>() {
 			@Override
@@ -59,7 +57,7 @@ class ReactiveObservationConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static ObjectPostProcessor<ReactiveAuthenticationManager> authenticationManagerPostProcessor(
+	static ObjectPostProcessor<ReactiveAuthenticationManager> rSocketAuthenticationManagerPostProcessor(
 			ObjectProvider<ObservationRegistry> registry, ObjectProvider<SecurityObservationSettings> predicate) {
 		return new ObjectPostProcessor<>() {
 			@Override
@@ -67,20 +65,6 @@ class ReactiveObservationConfiguration {
 				ObservationRegistry r = registry.getIfUnique(() -> ObservationRegistry.NOOP);
 				boolean active = !r.isNoop() && predicate.getIfUnique(() -> all).shouldObserveAuthentications();
 				return active ? new ObservationReactiveAuthenticationManager(r, object) : object;
-			}
-		};
-	}
-
-	@Bean
-	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static ObjectPostProcessor<WebFilterChainDecorator> filterChainDecoratorPostProcessor(
-			ObjectProvider<ObservationRegistry> registry, ObjectProvider<SecurityObservationSettings> predicate) {
-		return new ObjectPostProcessor<>() {
-			@Override
-			public WebFilterChainDecorator postProcess(WebFilterChainDecorator object) {
-				ObservationRegistry r = registry.getIfUnique(() -> ObservationRegistry.NOOP);
-				boolean active = !r.isNoop() && predicate.getIfUnique(() -> all).shouldObserveRequests();
-				return active ? new ObservationWebFilterChainDecorator(r) : object;
 			}
 		};
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.saml2.provider.service.authentication.logout;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -38,6 +39,9 @@ import org.springframework.web.util.UriUtils;
  * @since 5.6
  */
 public final class Saml2LogoutRequest implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = -3588981995674761337L;
 
 	private static final Function<Map<String, String>, String> DEFAULT_ENCODER = (params) -> {
 		if (params.isEmpty()) {

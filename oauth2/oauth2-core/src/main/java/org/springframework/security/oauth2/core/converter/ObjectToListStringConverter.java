@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,12 +43,9 @@ final class ObjectToListStringConverter implements ConditionalGenericConverter {
 
 	@Override
 	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
-		if (targetType.getElementTypeDescriptor() == null
-				|| targetType.getElementTypeDescriptor().getType().equals(String.class) || sourceType == null
-				|| ClassUtils.isAssignable(sourceType.getType(), targetType.getElementTypeDescriptor().getType())) {
-			return true;
-		}
-		return false;
+		TypeDescriptor typeDescriptor = targetType.getElementTypeDescriptor();
+		return typeDescriptor == null || typeDescriptor.getType().equals(String.class) || sourceType == null
+				|| ClassUtils.isAssignable(sourceType.getType(), typeDescriptor.getType());
 	}
 
 	@Override

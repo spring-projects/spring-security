@@ -23,6 +23,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -116,6 +117,8 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 	public final void afterPropertiesSet() throws Exception {
 		Assert.notNull(this.userCache, "A user cache must be set");
 		Assert.notNull(this.messages, "A message source must be set");
+		Assert.notNull(this.preAuthenticationChecks, "A pre authentication checks must be set");
+		Assert.notNull(this.postAuthenticationChecks, "A post authentication checks must be set");
 		doAfterPropertiesSet();
 	}
 
@@ -133,12 +136,13 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 				user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
 			}
 			catch (UsernameNotFoundException ex) {
-				this.logger.debug("Failed to find user '" + username + "'");
+				this.logger.debug(LogMessage.format("Failed to find user '%s'", username));
+				String message = this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials",
+						"Bad credentials");
 				if (!this.hideUserNotFoundExceptions) {
 					throw ex;
 				}
-				throw new BadCredentialsException(this.messages
-					.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
+				throw new BadCredentialsException(message, ex);
 			}
 			Assert.notNull(user, "retrieveUser returned null - a violation of the interface contract");
 		}

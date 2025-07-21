@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.springframework.security.config.annotation.web.configurers.ott.OneTim
 import org.springframework.security.web.authentication.AuthenticationConverter
 import org.springframework.security.web.authentication.AuthenticationFailureHandler
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
+import org.springframework.security.web.authentication.ott.GenerateOneTimeTokenRequestResolver
 import org.springframework.security.web.authentication.ott.OneTimeTokenGenerationSuccessHandler
 
 /**
@@ -34,6 +35,7 @@ import org.springframework.security.web.authentication.ott.OneTimeTokenGeneratio
  * @property authenticationConverter Use this [AuthenticationConverter] when converting incoming requests to an authentication
  * @property authenticationFailureHandler the [AuthenticationFailureHandler] to use when authentication
  * @property authenticationSuccessHandler the [AuthenticationSuccessHandler] to be used
+ * @property generateRequestResolver the [GenerateOneTimeTokenRequestResolver] to be used
  * @property defaultSubmitPageUrl sets the URL that the default submit page will be generated
  * @property showDefaultSubmitPage configures whether the default one-time token submit page should be shown
  * @property loginProcessingUrl the URL to process the login request
@@ -47,6 +49,7 @@ class OneTimeTokenLoginDsl {
     var authenticationConverter: AuthenticationConverter? = null
     var authenticationFailureHandler: AuthenticationFailureHandler? = null
     var authenticationSuccessHandler: AuthenticationSuccessHandler? = null
+    var generateRequestResolver: GenerateOneTimeTokenRequestResolver? = null
     var defaultSubmitPageUrl: String? = null
     var loginProcessingUrl: String? = null
     var tokenGeneratingUrl: String? = null
@@ -59,13 +62,18 @@ class OneTimeTokenLoginDsl {
             tokenService?.also { oneTimeTokenLoginConfigurer.tokenService(tokenService) }
             authenticationConverter?.also { oneTimeTokenLoginConfigurer.authenticationConverter(authenticationConverter) }
             authenticationFailureHandler?.also {
-                oneTimeTokenLoginConfigurer.authenticationFailureHandler(
+                oneTimeTokenLoginConfigurer.failureHandler(
                     authenticationFailureHandler
                 )
             }
             authenticationSuccessHandler?.also {
-                oneTimeTokenLoginConfigurer.authenticationSuccessHandler(
+                oneTimeTokenLoginConfigurer.successHandler(
                     authenticationSuccessHandler
+                )
+            }
+            generateRequestResolver?.also {
+                oneTimeTokenLoginConfigurer.generateRequestResolver(
+                        generateRequestResolver
                 )
             }
             defaultSubmitPageUrl?.also { oneTimeTokenLoginConfigurer.defaultSubmitPageUrl(defaultSubmitPageUrl) }

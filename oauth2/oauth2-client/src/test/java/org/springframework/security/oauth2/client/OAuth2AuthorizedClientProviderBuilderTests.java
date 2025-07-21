@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.springframework.security.oauth2.client;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +28,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.endpoint.DefaultPasswordTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.RestClientClientCredentialsTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.RestClientRefreshTokenTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -40,7 +38,6 @@ import org.springframework.security.oauth2.core.http.converter.OAuth2AccessToken
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -64,26 +61,23 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 
 	private RestClientRefreshTokenTokenResponseClient refreshTokenTokenResponseClient;
 
-	private DefaultPasswordTokenResponseClient passwordTokenResponseClient;
-
 	private Authentication principal;
 
 	private MockRestServiceServer server;
 
 	@BeforeEach
 	public void setup() {
-		// TODO: Use of RestTemplate in these tests can be removed when
-		// DefaultPasswordTokenResponseClient is removed.
-		RestTemplate accessTokenClient = new RestTemplate(
-				List.of(new FormHttpMessageConverter(), new OAuth2AccessTokenResponseHttpMessageConverter()));
-		this.server = MockRestServiceServer.bindTo(accessTokenClient).build();
-		RestClient restClient = RestClient.create(accessTokenClient);
+		RestClient.Builder restClientBuilder = RestClient.builder().messageConverters((messageConverters) -> {
+			messageConverters.clear();
+			messageConverters.add(new FormHttpMessageConverter());
+			messageConverters.add(new OAuth2AccessTokenResponseHttpMessageConverter());
+		});
+		this.server = MockRestServiceServer.bindTo(restClientBuilder).build();
+		RestClient restClient = restClientBuilder.build();
 		this.refreshTokenTokenResponseClient = new RestClientRefreshTokenTokenResponseClient();
 		this.refreshTokenTokenResponseClient.setRestClient(restClient);
 		this.clientCredentialsTokenResponseClient = new RestClientClientCredentialsTokenResponseClient();
 		this.clientCredentialsTokenResponseClient.setRestClient(restClient);
-		this.passwordTokenResponseClient = new DefaultPasswordTokenResponseClient();
-		this.passwordTokenResponseClient.setRestOperations(accessTokenClient);
 		this.principal = new TestingAuthenticationToken("principal", "password");
 	}
 
@@ -149,35 +143,14 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 	}
 
 	@Test
-	public void buildWhenPasswordProviderThenProviderAuthorizes() {
-		mockAccessTokenResponse(once());
-
-		// @formatter:off
-		OAuth2AuthorizedClientProvider authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
-				.password((configurer) -> configurer.accessTokenResponseClient(this.passwordTokenResponseClient))
-				.build();
-		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
-				.withClientRegistration(TestClientRegistrations.password().build())
-				.principal(this.principal)
-				.attribute(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, "username")
-				.attribute(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, "password")
-				.build();
-		// @formatter:on
-		OAuth2AuthorizedClient authorizedClient = authorizedClientProvider.authorize(authorizationContext);
-		assertThat(authorizedClient).isNotNull();
-		this.server.verify();
-	}
-
-	@Test
 	public void buildWhenAllProvidersThenProvidersAuthorize() {
-		mockAccessTokenResponse(times(3));
+		mockAccessTokenResponse(times(2));
 
 		OAuth2AuthorizedClientProvider authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
 			.authorizationCode()
 			.refreshToken((configurer) -> configurer.accessTokenResponseClient(this.refreshTokenTokenResponseClient))
 			.clientCredentials(
 					(configurer) -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))
-			.password((configurer) -> configurer.accessTokenResponseClient(this.passwordTokenResponseClient))
 			.build();
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
 		// authorization_code
@@ -206,17 +179,6 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 				.build();
 		// @formatter:on
 		authorizedClient = authorizedClientProvider.authorize(clientCredentialsContext);
-		assertThat(authorizedClient).isNotNull();
-		// password
-		// @formatter:off
-		OAuth2AuthorizationContext passwordContext = OAuth2AuthorizationContext
-				.withClientRegistration(TestClientRegistrations.password().build())
-				.principal(this.principal)
-				.attribute(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, "username")
-				.attribute(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, "password")
-				.build();
-		// @formatter:on
-		authorizedClient = authorizedClientProvider.authorize(passwordContext);
 		assertThat(authorizedClient).isNotNull();
 		this.server.verify();
 	}

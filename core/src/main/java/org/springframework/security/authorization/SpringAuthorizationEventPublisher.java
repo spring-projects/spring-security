@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.authorization;
 
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -40,6 +41,8 @@ public final class SpringAuthorizationEventPublisher implements AuthorizationEve
 
 	private final ApplicationEventPublisher eventPublisher;
 
+	private Predicate<AuthorizationResult> shouldPublishResult = (result) -> !result.isGranted();
+
 	/**
 	 * Construct this publisher using Spring's {@link ApplicationEventPublisher}
 	 * @param eventPublisher
@@ -54,18 +57,29 @@ public final class SpringAuthorizationEventPublisher implements AuthorizationEve
 	 */
 	@Override
 	public <T> void publishAuthorizationEvent(Supplier<Authentication> authentication, T object,
-			AuthorizationDecision decision) {
-		publishAuthorizationEvent(authentication, object, (AuthorizationResult) decision);
-	}
-
-	@Override
-	public <T> void publishAuthorizationEvent(Supplier<Authentication> authentication, T object,
 			AuthorizationResult result) {
-		if (result == null || result.isGranted()) {
+		if (result == null) {
+			return;
+		}
+		if (!this.shouldPublishResult.test(result)) {
 			return;
 		}
 		AuthorizationDeniedEvent<T> failure = new AuthorizationDeniedEvent<>(authentication, object, result);
 		this.eventPublisher.publishEvent(failure);
+	}
+
+	/**
+	 * Use this predicate to test whether to publish an event.
+	 *
+	 * <p>
+	 * Since you cannot publish a {@code null} event, checking for null is already
+	 * performed before this test is run
+	 * @param shouldPublishResult the test to perform on non-{@code null} events
+	 * @since 7.0
+	 */
+	public void setShouldPublishResult(Predicate<AuthorizationResult> shouldPublishResult) {
+		Assert.notNull(shouldPublishResult, "shouldPublishResult cannot be null");
+		this.shouldPublishResult = shouldPublishResult;
 	}
 
 }

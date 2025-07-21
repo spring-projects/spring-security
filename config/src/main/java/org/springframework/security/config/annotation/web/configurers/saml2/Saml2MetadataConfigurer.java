@@ -32,7 +32,6 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.web.Saml2MetadataFilter;
 import org.springframework.security.saml2.provider.service.web.metadata.RequestMatcherMetadataResponseResolver;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
 
 /**
@@ -111,12 +110,12 @@ public class Saml2MetadataConfigurer<H extends HttpSecurityBuilder<H>>
 			if (USE_OPENSAML_5) {
 				RequestMatcherMetadataResponseResolver metadata = new RequestMatcherMetadataResponseResolver(
 						registrations, new OpenSaml5MetadataResolver());
-				metadata.setRequestMatcher(new AntPathRequestMatcher(metadataUrl));
+				metadata.setRequestMatcher(getRequestMatcherBuilder().matcher(metadataUrl));
 				return metadata;
 			}
 			RequestMatcherMetadataResponseResolver metadata = new RequestMatcherMetadataResponseResolver(registrations,
 					new OpenSaml4MetadataResolver());
-			metadata.setRequestMatcher(new AntPathRequestMatcher(metadataUrl));
+			metadata.setRequestMatcher(getRequestMatcherBuilder().matcher(metadataUrl));
 			return metadata;
 		};
 		return this;

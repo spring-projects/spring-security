@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -179,7 +180,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 				return null;
 			}
 			if (this.convertToUpperCase) {
-				role = role.toUpperCase();
+				role = role.toUpperCase(Locale.ROOT);
 			}
 			return new SimpleGrantedAuthority(this.rolePrefix + role);
 		};

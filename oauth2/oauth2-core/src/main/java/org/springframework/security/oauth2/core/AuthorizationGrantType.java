@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,13 +23,13 @@ import org.springframework.util.Assert;
 
 /**
  * An authorization grant is a credential representing the resource owner's authorization
- * (to access it's protected resources) to the client and used by the client to obtain an
+ * (to access its protected resources) to the client and used by the client to obtain an
  * access token.
  *
  * <p>
- * The OAuth 2.0 Authorization Framework defines four standard grant types: authorization
- * code, resource owner password credentials, and client credentials. It also provides an
- * extensibility mechanism for defining additional grant types.
+ * The OAuth 2.0 Authorization Framework defines the standard grant types: authorization
+ * code, refresh token and client credentials. It also provides an extensibility mechanism
+ * for defining additional grant types.
  *
  * @author Joe Grandja
  * @author Steve Riesenberg
@@ -46,16 +46,6 @@ public final class AuthorizationGrantType implements Serializable {
 	public static final AuthorizationGrantType REFRESH_TOKEN = new AuthorizationGrantType("refresh_token");
 
 	public static final AuthorizationGrantType CLIENT_CREDENTIALS = new AuthorizationGrantType("client_credentials");
-
-	/**
-	 * @deprecated The latest OAuth 2.0 Security Best Current Practice disallows the use
-	 * of the Resource Owner Password Credentials grant. See reference
-	 * <a target="_blank" href=
-	 * "https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics-19#section-2.4">OAuth
-	 * 2.0 Security Best Current Practice.</a>
-	 */
-	@Deprecated
-	public static final AuthorizationGrantType PASSWORD = new AuthorizationGrantType("password");
 
 	/**
 	 * @since 5.5
@@ -109,6 +99,11 @@ public final class AuthorizationGrantType implements Serializable {
 	@Override
 	public int hashCode() {
 		return this.getValue().hashCode();
+	}
+
+	@Override
+	public String toString() {
+		return "AuthorizationGrantType{" + "value='" + this.value + '\'' + '}';
 	}
 
 }

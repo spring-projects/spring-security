@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,10 @@ import java.util.function.Supplier;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.util.Assert;
 
 /**
@@ -29,9 +32,12 @@ import org.springframework.util.Assert;
  * value as either a header or parameter value of the request.
  *
  * @author Steve Riesenberg
+ * @author Yoobin Yoon
  * @since 5.8
  */
 public class CsrfTokenRequestAttributeHandler implements CsrfTokenRequestHandler {
+
+	private static final Log logger = LogFactory.getLog(CsrfTokenRequestAttributeHandler.class);
 
 	private String csrfRequestAttributeName = "_csrf";
 
@@ -54,14 +60,17 @@ public class CsrfTokenRequestAttributeHandler implements CsrfTokenRequestHandler
 		Assert.notNull(response, "response cannot be null");
 		Assert.notNull(deferredCsrfToken, "deferredCsrfToken cannot be null");
 
-		request.setAttribute(HttpServletResponse.class.getName(), response);
 		CsrfToken csrfToken = new SupplierCsrfToken(deferredCsrfToken);
 		request.setAttribute(CsrfToken.class.getName(), csrfToken);
 		String csrfAttrName = (this.csrfRequestAttributeName != null) ? this.csrfRequestAttributeName
 				: csrfToken.getParameterName();
 		request.setAttribute(csrfAttrName, csrfToken);
+
+		logger.trace(LogMessage.format("Wrote a CSRF token to the following request attributes: [%s, %s]", csrfAttrName,
+				CsrfToken.class.getName()));
 	}
 
+	@SuppressWarnings("serial")
 	private static final class SupplierCsrfToken implements CsrfToken {
 
 		private final Supplier<CsrfToken> csrfTokenSupplier;

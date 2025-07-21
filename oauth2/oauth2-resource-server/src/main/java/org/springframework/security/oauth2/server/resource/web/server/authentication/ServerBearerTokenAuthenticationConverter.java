@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -32,6 +34,7 @@ import org.springframework.security.oauth2.server.resource.BearerTokenErrors;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -47,8 +50,12 @@ import org.springframework.web.server.ServerWebExchange;
  */
 public class ServerBearerTokenAuthenticationConverter implements ServerAuthenticationConverter {
 
+	private static final String ACCESS_TOKEN_PARAMETER_NAME = "access_token";
+
 	private static final Pattern authorizationPattern = Pattern.compile("^Bearer (?<token>[a-zA-Z0-9-._~+/]+=*)$",
 			Pattern.CASE_INSENSITIVE);
+
+	private boolean allowFormEncodedBodyParameter = false;
 
 	private boolean allowUriQueryParameter = false;
 
@@ -56,45 +63,76 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 
 	@Override
 	public Mono<Authentication> convert(ServerWebExchange exchange) {
-		return Mono.fromCallable(() -> token(exchange.getRequest())).map((token) -> {
-			if (token.isEmpty()) {
-				BearerTokenError error = invalidTokenError();
-				throw new OAuth2AuthenticationException(error);
-			}
-			return new BearerTokenAuthenticationToken(token);
+		return Mono.defer(() -> {
+			ServerHttpRequest request = exchange.getRequest();
+			// @formatter:off
+			return Flux.merge(resolveFromAuthorizationHeader(request.getHeaders()),
+						resolveAccessTokenFromQueryString(request),
+						resolveAccessTokenFromBody(exchange))
+				.collectList()
+				.flatMap(ServerBearerTokenAuthenticationConverter::resolveToken)
+				.map(BearerTokenAuthenticationToken::new);
+			// @formatter:on
 		});
 	}
 
-	private String token(ServerHttpRequest request) {
-		String authorizationHeaderToken = resolveFromAuthorizationHeader(request.getHeaders());
-		String parameterToken = resolveAccessTokenFromRequest(request);
+	private static Mono<String> resolveToken(List<String> accessTokens) {
+		if (CollectionUtils.isEmpty(accessTokens)) {
+			return Mono.empty();
+		}
 
-		if (authorizationHeaderToken != null) {
-			if (parameterToken != null) {
-				BearerTokenError error = BearerTokenErrors
-					.invalidRequest("Found multiple bearer tokens in the request");
-				throw new OAuth2AuthenticationException(error);
-			}
-			return authorizationHeaderToken;
+		if (accessTokens.size() > 1) {
+			BearerTokenError error = BearerTokenErrors.invalidRequest("Found multiple bearer tokens in the request");
+			return Mono.error(new OAuth2AuthenticationException(error));
 		}
-		if (parameterToken != null && isParameterTokenSupportedForRequest(request)) {
-			return parameterToken;
+
+		String accessToken = accessTokens.get(0);
+		if (!StringUtils.hasText(accessToken)) {
+			BearerTokenError error = BearerTokenErrors
+				.invalidRequest("The requested token parameter is an empty string");
+			return Mono.error(new OAuth2AuthenticationException(error));
 		}
-		return null;
+
+		return Mono.just(accessToken);
 	}
 
-	private static String resolveAccessTokenFromRequest(ServerHttpRequest request) {
-		List<String> parameterTokens = request.getQueryParams().get("access_token");
-		if (CollectionUtils.isEmpty(parameterTokens)) {
-			return null;
-		}
-		if (parameterTokens.size() == 1) {
-			return parameterTokens.get(0);
+	private Mono<String> resolveFromAuthorizationHeader(HttpHeaders headers) {
+		String authorization = headers.getFirst(this.bearerTokenHeaderName);
+		if (!StringUtils.startsWithIgnoreCase(authorization, "bearer")) {
+			return Mono.empty();
 		}
 
-		BearerTokenError error = BearerTokenErrors.invalidRequest("Found multiple bearer tokens in the request");
-		throw new OAuth2AuthenticationException(error);
+		Matcher matcher = authorizationPattern.matcher(authorization);
+		if (!matcher.matches()) {
+			BearerTokenError error = BearerTokenErrors.invalidToken("Bearer token is malformed");
+			throw new OAuth2AuthenticationException(error);
+		}
 
+		return Mono.just(matcher.group("token"));
+	}
+
+	private Flux<String> resolveAccessTokenFromQueryString(ServerHttpRequest request) {
+		if (!this.allowUriQueryParameter || !HttpMethod.GET.equals(request.getMethod())) {
+			return Flux.empty();
+		}
+
+		return resolveTokens(request.getQueryParams());
+	}
+
+	private Flux<String> resolveAccessTokenFromBody(ServerWebExchange exchange) {
+		ServerHttpRequest request = exchange.getRequest();
+		if (!this.allowFormEncodedBodyParameter
+				|| !MediaType.APPLICATION_FORM_URLENCODED.equals(request.getHeaders().getContentType())
+				|| !HttpMethod.POST.equals(request.getMethod())) {
+			return Flux.empty();
+		}
+
+		return exchange.getFormData().flatMapMany(ServerBearerTokenAuthenticationConverter::resolveTokens);
+	}
+
+	private static Flux<String> resolveTokens(MultiValueMap<String, String> parameters) {
+		List<String> accessTokens = parameters.get(ACCESS_TOKEN_PARAMETER_NAME);
+		return CollectionUtils.isEmpty(accessTokens) ? Flux.empty() : Flux.fromIterable(accessTokens);
 	}
 
 	/**
@@ -122,25 +160,15 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 		this.bearerTokenHeaderName = bearerTokenHeaderName;
 	}
 
-	private String resolveFromAuthorizationHeader(HttpHeaders headers) {
-		String authorization = headers.getFirst(this.bearerTokenHeaderName);
-		if (!StringUtils.startsWithIgnoreCase(authorization, "bearer")) {
-			return null;
-		}
-		Matcher matcher = authorizationPattern.matcher(authorization);
-		if (!matcher.matches()) {
-			BearerTokenError error = invalidTokenError();
-			throw new OAuth2AuthenticationException(error);
-		}
-		return matcher.group("token");
-	}
-
-	private static BearerTokenError invalidTokenError() {
-		return BearerTokenErrors.invalidToken("Bearer token is malformed");
-	}
-
-	private boolean isParameterTokenSupportedForRequest(ServerHttpRequest request) {
-		return this.allowUriQueryParameter && HttpMethod.GET.equals(request.getMethod());
+	/**
+	 * Set if transport of access token using form-encoded body parameter is supported.
+	 * Defaults to {@code false}.
+	 * @param allowFormEncodedBodyParameter if the form-encoded body parameter is
+	 * supported
+	 * @since 6.5
+	 */
+	public void setAllowFormEncodedBodyParameter(boolean allowFormEncodedBodyParameter) {
+		this.allowFormEncodedBodyParameter = allowFormEncodedBodyParameter;
 	}
 
 }

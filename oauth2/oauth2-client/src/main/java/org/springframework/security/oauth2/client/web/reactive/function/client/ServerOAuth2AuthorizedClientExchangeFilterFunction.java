@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.client.web.reactive.function.client;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -28,6 +29,7 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -42,6 +44,7 @@ import org.springframework.security.oauth2.client.RemoveAuthorizedClientReactive
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.ClientAttributes;
 import org.springframework.security.oauth2.client.web.DefaultReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
@@ -101,13 +104,6 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	 * The request attribute name used to locate the {@link OAuth2AuthorizedClient}.
 	 */
 	private static final String OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME = OAuth2AuthorizedClient.class.getName();
-
-	/**
-	 * The client request attribute name used to locate the
-	 * {@link ClientRegistration#getRegistrationId()}
-	 */
-	private static final String CLIENT_REGISTRATION_ID_ATTR_NAME = OAuth2AuthorizedClient.class.getName()
-		.concat(".CLIENT_REGISTRATION_ID");
 
 	/**
 	 * The request attribute name used to locate the
@@ -244,7 +240,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	 * be used to create an Authentication for saving.</li>
 	 * </ul>
 	 * @param authorizedClient the {@link OAuth2AuthorizedClient} to use.
-	 * @return the {@link Consumer} to populate the
+	 * @return the {@link Consumer} to populate the attributes
 	 */
 	public static Consumer<Map<String, Object>> oauth2AuthorizedClient(OAuth2AuthorizedClient authorizedClient) {
 		return (attributes) -> attributes.put(OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME, authorizedClient);
@@ -290,7 +286,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	 * @return the {@link Consumer} to populate the attributes
 	 */
 	public static Consumer<Map<String, Object>> clientRegistrationId(String clientRegistrationId) {
-		return (attributes) -> attributes.put(CLIENT_REGISTRATION_ID_ATTR_NAME, clientRegistrationId);
+		return ClientAttributes.clientRegistrationId(clientRegistrationId);
 	}
 
 	private static String clientRegistrationId(ClientRequest request) {
@@ -298,7 +294,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		if (authorizedClient != null) {
 			return authorizedClient.getClientRegistration().getRegistrationId();
 		}
-		return (String) request.attributes().get(CLIENT_REGISTRATION_ID_ATTR_NAME);
+		return ClientAttributes.resolveClientRegistrationId(request.attributes());
 	}
 
 	/**
@@ -468,7 +464,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		 * A map of HTTP Status Code to OAuth 2.0 Error codes for HTTP status codes that
 		 * should be interpreted as authentication or authorization failures.
 		 */
-		private final Map<Integer, String> httpStatusToOAuth2ErrorCodeMap;
+		private final Map<HttpStatusCode, String> httpStatusToOAuth2ErrorCodeMap;
 
 		/**
 		 * The {@link ReactiveOAuth2AuthorizationFailureHandler} to notify when an
@@ -479,9 +475,9 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		private AuthorizationFailureForwarder(ReactiveOAuth2AuthorizationFailureHandler authorizationFailureHandler) {
 			Assert.notNull(authorizationFailureHandler, "authorizationFailureHandler cannot be null");
 			this.authorizationFailureHandler = authorizationFailureHandler;
-			Map<Integer, String> httpStatusToOAuth2Error = new HashMap<>();
-			httpStatusToOAuth2Error.put(HttpStatus.UNAUTHORIZED.value(), OAuth2ErrorCodes.INVALID_TOKEN);
-			httpStatusToOAuth2Error.put(HttpStatus.FORBIDDEN.value(), OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
+			Map<HttpStatusCode, String> httpStatusToOAuth2Error = new HashMap<>();
+			httpStatusToOAuth2Error.put(HttpStatus.UNAUTHORIZED, OAuth2ErrorCodes.INVALID_TOKEN);
+			httpStatusToOAuth2Error.put(HttpStatus.FORBIDDEN, OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
 			this.httpStatusToOAuth2ErrorCodeMap = Collections.unmodifiableMap(httpStatusToOAuth2Error);
 		}
 
@@ -524,10 +520,10 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 							authParameters.get(OAuth2ParameterNames.ERROR_URI));
 				}
 			}
-			return resolveErrorIfPossible(response.statusCode().value());
+			return resolveErrorIfPossible(response.statusCode());
 		}
 
-		private OAuth2Error resolveErrorIfPossible(int statusCode) {
+		private OAuth2Error resolveErrorIfPossible(HttpStatusCode statusCode) {
 			if (this.httpStatusToOAuth2ErrorCodeMap.containsKey(statusCode)) {
 				return new OAuth2Error(this.httpStatusToOAuth2ErrorCodeMap.get(statusCode), null,
 						"https://tools.ietf.org/html/rfc6750#section-3.1");
@@ -539,7 +535,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 			// @formatter:off
 			return Stream.of(wwwAuthenticateHeader)
 					.filter((header) -> StringUtils.hasLength(header))
-					.filter((header) -> header.toLowerCase().startsWith("bearer"))
+					.filter((header) -> header.toLowerCase(Locale.ENGLISH).startsWith("bearer"))
 					.map((header) -> header.substring("bearer".length()))
 					.map((header) -> header.split(","))
 					.flatMap(Stream::of)
@@ -562,7 +558,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		 */
 		private Mono<Void> handleWebClientResponseException(ClientRequest request,
 				WebClientResponseException exception) {
-			return Mono.justOrEmpty(resolveErrorIfPossible(exception.getRawStatusCode())).flatMap((oauth2Error) -> {
+			return Mono.justOrEmpty(resolveErrorIfPossible(exception.getStatusCode())).flatMap((oauth2Error) -> {
 				Mono<Optional<ServerWebExchange>> serverWebExchange = effectiveServerWebExchange(request);
 				Mono<String> clientRegistrationId = effectiveClientRegistrationId(request);
 				return Mono

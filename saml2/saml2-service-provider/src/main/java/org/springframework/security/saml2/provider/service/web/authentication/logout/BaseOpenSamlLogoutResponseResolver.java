@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,8 +43,12 @@ import org.opensaml.saml.saml2.core.impl.StatusCodeBuilder;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
+import org.springframework.security.saml2.core.Saml2Error;
+import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AssertionAuthentication;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutResponse;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
@@ -130,6 +134,16 @@ final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseRes
 	 */
 	@Override
 	public Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication) {
+		return resolve(request, authentication, StatusCode.SUCCESS);
+	}
+
+	@Override
+	public Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication,
+			Saml2AuthenticationException authenticationException) {
+		return resolve(request, authentication, getSamlStatus(authenticationException));
+	}
+
+	private Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication, String statusCode) {
 		LogoutRequest logoutRequest = this.saml.deserialize(extractSamlRequest(request));
 		String registrationId = getRegistrationId(authentication);
 		RelyingPartyRegistration registration = this.relyingPartyRegistrationResolver.resolve(request, registrationId);
@@ -152,7 +166,7 @@ final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseRes
 		issuer.setValue(entityId);
 		logoutResponse.setIssuer(issuer);
 		StatusCode code = this.statusCodeBuilder.buildObject();
-		code.setValue(StatusCode.SUCCESS);
+		code.setValue(statusCode);
 		Status status = this.statusBuilder.buildObject();
 		status.setStatusCode(code);
 		logoutResponse.setStatus(status);
@@ -207,9 +221,11 @@ final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseRes
 		if (authentication == null) {
 			return null;
 		}
-		Object principal = authentication.getPrincipal();
-		if (principal instanceof Saml2AuthenticatedPrincipal) {
-			return ((Saml2AuthenticatedPrincipal) principal).getRelyingPartyRegistrationId();
+		if (authentication instanceof Saml2AssertionAuthentication saml2) {
+			return saml2.getRelyingPartyRegistrationId();
+		}
+		if (authentication.getPrincipal() instanceof Saml2AuthenticatedPrincipal saml2) {
+			return saml2.getRelyingPartyRegistrationId();
 		}
 		return null;
 	}
@@ -222,6 +238,15 @@ final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseRes
 
 	private String serialize(LogoutResponse logoutResponse) {
 		return this.saml.serialize(logoutResponse).serialize();
+	}
+
+	private String getSamlStatus(Saml2AuthenticationException exception) {
+		Saml2Error saml2Error = exception.getSaml2Error();
+		return switch (saml2Error.getErrorCode()) {
+			case Saml2ErrorCodes.INVALID_DESTINATION -> StatusCode.REQUEST_DENIED;
+			case Saml2ErrorCodes.INVALID_REQUEST -> StatusCode.REQUESTER;
+			default -> StatusCode.RESPONDER;
+		};
 	}
 
 	static final class LogoutResponseParameters {

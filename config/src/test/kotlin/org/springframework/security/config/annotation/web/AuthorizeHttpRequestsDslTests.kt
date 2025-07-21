@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl
+import org.springframework.security.authentication.RememberMeAuthenticationToken
+import org.springframework.security.authentication.TestAuthentication
 import org.springframework.security.authorization.AuthorizationDecision
 import org.springframework.security.authorization.AuthorizationManager
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -35,13 +37,14 @@ import org.springframework.security.config.core.GrantedAuthorityDefaults
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext
+import org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher
 import org.springframework.security.web.util.matcher.RegexRequestMatcher
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
@@ -55,8 +58,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import org.springframework.web.util.WebUtils
 import java.util.function.Supplier
 
@@ -148,26 +149,6 @@ class AuthorizeHttpRequestsDslTests {
             }
     }
 
-    @Test
-    fun `request when allowed by mvc then responds with OK`() {
-        this.spring.register(AuthorizeHttpRequestsByMvcConfig::class.java, LegacyMvcMatchingConfig::class.java).autowire()
-
-        this.mockMvc.get("/path")
-            .andExpect {
-                status { isOk() }
-            }
-
-        this.mockMvc.get("/path.html")
-            .andExpect {
-                status { isOk() }
-            }
-
-        this.mockMvc.get("/path/")
-            .andExpect {
-                status { isOk() }
-            }
-    }
-
     @Configuration
     @EnableWebSecurity
     @EnableWebMvc
@@ -188,14 +169,6 @@ class AuthorizeHttpRequestsDslTests {
             @RequestMapping("/path")
             fun path() {
             }
-        }
-    }
-
-    @Configuration
-    open class LegacyMvcMatchingConfig : WebMvcConfigurer {
-        override fun configurePathMatch(configurer: PathMatchConfigurer) {
-            configurer.setUseSuffixPatternMatch(true)
-            configurer.setUseTrailingSlashMatch(true)
         }
     }
 
@@ -638,34 +611,6 @@ class AuthorizeHttpRequestsDslTests {
     }
 
     @Test
-    fun `request when both authorizeRequests and authorizeHttpRequests configured then exception`() {
-        assertThatThrownBy { this.spring.register(BothAuthorizeRequestsConfig::class.java).autowire() }
-            .isInstanceOf(UnsatisfiedDependencyException::class.java)
-            .hasRootCauseInstanceOf(IllegalStateException::class.java)
-            .hasMessageContaining(
-                "authorizeHttpRequests cannot be used in conjunction with authorizeRequests. Please select just one."
-            )
-    }
-
-    @Configuration
-    @EnableWebSecurity
-    @EnableWebMvc
-    open class BothAuthorizeRequestsConfig {
-        @Bean
-        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-            http {
-                authorizeRequests {
-                    authorize(anyRequest, permitAll)
-                }
-                authorizeHttpRequests {
-                    authorize(anyRequest, denyAll)
-                }
-            }
-            return http.build()
-        }
-    }
-
-    @Test
     fun `request when shouldFilterAllDispatcherTypes and denyAll and ERROR then responds with forbidden`() {
         this.spring.register(ShouldFilterAllDispatcherTypesTrueDenyAllConfig::class.java).autowire()
 
@@ -688,7 +633,6 @@ class AuthorizeHttpRequestsDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeHttpRequests {
-                    shouldFilterAllDispatcherTypes = true
                     authorize(anyRequest, denyAll)
                 }
             }
@@ -727,7 +671,6 @@ class AuthorizeHttpRequestsDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeHttpRequests {
-                    shouldFilterAllDispatcherTypes = true
                     authorize(anyRequest, permitAll)
                 }
             }
@@ -766,7 +709,8 @@ class AuthorizeHttpRequestsDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeHttpRequests {
-                    shouldFilterAllDispatcherTypes = false
+                    authorize(DispatcherTypeRequestMatcher(DispatcherType.ERROR), permitAll)
+                    authorize(DispatcherTypeRequestMatcher(DispatcherType.ASYNC), permitAll)
                     authorize(anyRequest, denyAll)
                 }
             }
@@ -960,5 +904,62 @@ class AuthorizeHttpRequestsDslTests {
 
         }
 
+    }
+
+    @Test
+    fun `request when fully authenticated configured then responds ok`() {
+        this.spring.register(FullyAuthenticatedConfig::class.java).autowire()
+
+        this.mockMvc.get("/path") {
+            with(user("user").roles("USER"))
+        }.andExpect {
+            status {
+                isOk()
+            }
+        }
+    }
+
+    @Test
+    fun `request when fully authenticated configured and remember-me token then responds unauthorized`() {
+        this.spring.register(FullyAuthenticatedConfig::class.java).autowire()
+        val rememberMe = RememberMeAuthenticationToken("key", "user",
+                AuthorityUtils.createAuthorityList("ROLE_USER"))
+
+        this.mockMvc.get("/path") {
+            with(user("user").roles("USER"))
+            with(authentication(rememberMe))
+        }.andExpect {
+            status {
+                isUnauthorized()
+            }
+        }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class FullyAuthenticatedConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                authorizeHttpRequests {
+                    authorize("/path", fullyAuthenticated)
+                }
+                httpBasic {  }
+                rememberMe {  }
+            }
+            return http.build()
+        }
+
+        @Bean
+        open fun userDetailsService(): UserDetailsService = InMemoryUserDetailsManager(TestAuthentication.user())
+
+        @RestController
+        internal class PathController {
+            @GetMapping("/path")
+            fun path(): String {
+                return "ok"
+            }
+        }
     }
 }

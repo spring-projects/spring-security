@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,14 +34,18 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.web.util.UriComponents;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 /**
  * @author Rob Winch
  * @author Rafiullah Hamedy
+ * @author Evgeniy Cheban
  * @since 5.1
  */
 public class ClientRegistrationsTests {
@@ -179,16 +183,14 @@ public class ClientRegistrationsTests {
 	@Test
 	public void issuerWhenResponseMissingJwksUriThenThrowsIllegalArgumentException() throws Exception {
 		this.response.remove("jwks_uri");
-		assertThatIllegalArgumentException().isThrownBy(() -> registration("").build())
-			.withMessageContaining("The public JWK set URI must not be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> registration("").build());
 	}
 
 	// gh-7512
 	@Test
 	public void issuerWhenOidcFallbackResponseMissingJwksUriThenThrowsIllegalArgumentException() throws Exception {
 		this.response.remove("jwks_uri");
-		assertThatIllegalArgumentException().isThrownBy(() -> registrationOidcFallback("issuer1", null).build())
-			.withMessageContaining("The public JWK set URI must not be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> registrationOidcFallback("issuer1", null).build());
 	}
 
 	// gh-7512
@@ -473,8 +475,7 @@ public class ClientRegistrationsTests {
 	@Test
 	public void issuerWhenOidcConfigurationResponseMissingJwksUriThenThrowsIllegalArgumentException() throws Exception {
 		this.response.remove("jwks_uri");
-		assertThatIllegalArgumentException().isThrownBy(() -> registration(this.response).build())
-			.withMessageContaining("The public JWK set URI must not be null");
+		assertThatNullPointerException().isThrownBy(() -> registration(this.response).build());
 	}
 
 	@Test
@@ -567,6 +568,38 @@ public class ClientRegistrationsTests {
 		// The client_secret_basic auth method is still the default
 		assertThat(registration.getClientAuthenticationMethod())
 			.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+	}
+
+	// gh-15852
+	@Test
+	public void oidcWhenHostContainsUnderscoreThenRetains() {
+		UriComponents oidc = ClientRegistrations.oidcUri("https://elated_sutherland:8080/path");
+		assertThat(oidc.getHost()).isEqualTo("elated_sutherland");
+		UriComponents oauth = ClientRegistrations.oauthUri("https://elated_sutherland:8080/path");
+		assertThat(oauth.getHost()).isEqualTo("elated_sutherland");
+		UriComponents oidcRfc8414 = ClientRegistrations.oidcRfc8414Uri("https://elated_sutherland:8080/path");
+		assertThat(oidcRfc8414.getHost()).isEqualTo("elated_sutherland");
+	}
+
+	@Test
+	public void issuerWhenAllEndpointsFailedThenExceptionIncludesFailureInformation() {
+		this.issuer = createIssuerFromServer("issuer1");
+		this.server.setDispatcher(new Dispatcher() {
+			@Override
+			public MockResponse dispatch(RecordedRequest request) {
+				int responseCode = switch (request.getPath()) {
+					case "/issuer1/.well-known/openid-configuration" -> 405;
+					case "/.well-known/openid-configuration/issuer1" -> 400;
+					default -> 404;
+				};
+				return new MockResponse().setResponseCode(responseCode);
+			}
+		});
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> ClientRegistrations.fromIssuerLocation(this.issuer).build())
+			.withMessageContaining("405")
+			.withMessageContaining("400")
+			.withMessageContaining("404");
 	}
 
 	private ClientRegistration.Builder registration(String path) throws Exception {

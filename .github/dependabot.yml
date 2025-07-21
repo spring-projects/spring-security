@@ -5,7 +5,7 @@ registries:
     url: https://repo.spring.io/milestone
 updates:
   - package-ecosystem: gradle
-    target-branch: 5.8.x
+    target-branch: 6.5.x
     directory: /
     schedule:
       interval: daily
@@ -19,6 +19,7 @@ updates:
       - dependency-name: com.nimbusds:nimbus-jose-jwt
       - dependency-name: org.python:jython
       - dependency-name: org.apache.directory.server:*
+      - dependency-name: org.apache.directory.shared:*
       - dependency-name: org.junit:junit-bom
         update-types:
           - version-update:semver-major
@@ -30,7 +31,7 @@ updates:
           - version-update:semver-major
           - version-update:semver-minor
   - package-ecosystem: gradle
-    target-branch: 6.2.x
+    target-branch: 6.4.x
     directory: /
     schedule:
       interval: daily
@@ -44,6 +45,7 @@ updates:
       - dependency-name: com.nimbusds:nimbus-jose-jwt
       - dependency-name: org.python:jython
       - dependency-name: org.apache.directory.server:*
+      - dependency-name: org.apache.directory.shared:*
       - dependency-name: org.junit:junit-bom
         update-types:
           - version-update:semver-major
@@ -69,6 +71,7 @@ updates:
       - dependency-name: com.nimbusds:nimbus-jose-jwt
       - dependency-name: org.python:jython
       - dependency-name: org.apache.directory.server:*
+      - dependency-name: org.apache.directory.shared:*
       - dependency-name: org.junit:junit-bom
         update-types:
           - version-update:semver-major
@@ -94,6 +97,7 @@ updates:
       - dependency-name: com.nimbusds:nimbus-jose-jwt
       - dependency-name: org.python:jython
       - dependency-name: org.apache.directory.server:*
+      - dependency-name: org.apache.directory.shared:*
       - dependency-name: org.junit:junit-bom
         update-types:
           - version-update:semver-major
@@ -107,39 +111,10 @@ updates:
       - dependency-name: '*'
         update-types:
           - version-update:semver-major
+          - version-update:semver-minor
 
   - package-ecosystem: github-actions
-    target-branch: 5.8.x
-    directory: /
-    schedule:
-      interval: weekly
-    labels:
-      - 'type: task'
-      - 'in: build'
-    ignore:
-      - dependency-name: sjohnr/*
-  - package-ecosystem: github-actions
-    target-branch: 6.2.x
-    directory: /
-    schedule:
-      interval: weekly
-    labels:
-      - 'type: task'
-      - 'in: build'
-    ignore:
-      - dependency-name: sjohnr/*
-  - package-ecosystem: github-actions
     target-branch: 6.3.x
-    directory: /
-    schedule:
-      interval: weekly
-    labels:
-      - 'type: task'
-      - 'in: build'
-    ignore:
-      - dependency-name: sjohnr/*
-  - package-ecosystem: github-actions
-    target-branch: main
     directory: /
     schedule:
       interval: weekly
@@ -156,8 +131,6 @@ updates:
     labels:
       - 'type: task'
       - 'in: build'
-    ignore:
-      - dependency-name: sjohnr/*
 
   - package-ecosystem: npm
     target-branch: docs-build
@@ -178,22 +151,6 @@ updates:
       - 'in: build'
   - package-ecosystem: npm
     target-branch: 6.3.x
-    directory: /docs
-    schedule:
-      interval: weekly
-    labels:
-      - 'type: task'
-      - 'in: build'
-  - package-ecosystem: npm
-    target-branch: 6.2.x
-    directory: /docs
-    schedule:
-      interval: weekly
-    labels:
-      - 'type: task'
-      - 'in: build'
-  - package-ecosystem: npm
-    target-branch: 5.8.x
     directory: /docs
     schedule:
       interval: weekly

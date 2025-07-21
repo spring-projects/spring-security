@@ -25,7 +25,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.log.LogMessage;
+import org.springframework.lang.NonNull;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.StringUtils;
 
@@ -36,13 +43,17 @@ import org.springframework.util.StringUtils;
  * @author Jinwoo Bae
  * @since 3.1
  */
-public final class DefaultSecurityFilterChain implements SecurityFilterChain {
+public final class DefaultSecurityFilterChain implements SecurityFilterChain, BeanNameAware, BeanFactoryAware {
 
 	private static final Log logger = LogFactory.getLog(DefaultSecurityFilterChain.class);
 
 	private final RequestMatcher requestMatcher;
 
 	private final List<Filter> filters;
+
+	private String beanName;
+
+	private ConfigurableListableBeanFactory beanFactory;
 
 	public DefaultSecurityFilterChain(RequestMatcher requestMatcher, Filter... filters) {
 		this(requestMatcher, Arrays.asList(filters));
@@ -80,8 +91,38 @@ public final class DefaultSecurityFilterChain implements SecurityFilterChain {
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName() + " [RequestMatcher=" + this.requestMatcher + ", Filters=" + this.filters
-				+ "]";
+		List<String> filterNames = new ArrayList<>();
+		for (Filter filter : this.filters) {
+			String name = filter.getClass().getSimpleName();
+			if (name.endsWith("Filter")) {
+				name = name.substring(0, name.length() - "Filter".length());
+			}
+			filterNames.add(name);
+		}
+		String declaration = this.getClass().getSimpleName();
+		if (this.beanName != null) {
+			declaration += " defined as '" + this.beanName + "'";
+			if (this.beanFactory != null) {
+				BeanDefinition bd = this.beanFactory.getBeanDefinition(this.beanName);
+				String description = bd.getResourceDescription();
+				if (description != null) {
+					declaration += " in [" + description + "]";
+				}
+			}
+		}
+		return declaration + " matching [" + this.requestMatcher + "] and having filters " + filterNames;
+	}
+
+	@Override
+	public void setBeanName(@NonNull String name) {
+		this.beanName = name;
+	}
+
+	@Override
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		if (beanFactory instanceof ConfigurableListableBeanFactory listable) {
+			this.beanFactory = listable;
+		}
 	}
 
 }

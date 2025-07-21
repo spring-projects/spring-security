@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,21 @@ package org.springframework.security.core.annotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.core.MethodClassKey;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationConfigurationException;
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.annotation.MergedAnnotations;
@@ -83,15 +87,16 @@ import org.springframework.util.ClassUtils;
  *
  * @param <A> the annotation to search for and synthesize
  * @author Josh Cummings
+ * @author DingHao
  * @since 6.4
  */
 final class UniqueSecurityAnnotationScanner<A extends Annotation> extends AbstractSecurityAnnotationScanner<A> {
 
 	private final List<Class<A>> types;
 
-	private final Map<Parameter, MergedAnnotation<A>> uniqueParameterAnnotationCache = new HashMap<>();
+	private final Map<Parameter, MergedAnnotation<A>> uniqueParameterAnnotationCache = new ConcurrentHashMap<>();
 
-	private final Map<MethodClassKey, MergedAnnotation<A>> uniqueMethodAnnotationCache = new HashMap<>();
+	private final Map<MethodClassKey, MergedAnnotation<A>> uniqueMethodAnnotationCache = new ConcurrentHashMap<>();
 
 	UniqueSecurityAnnotationScanner(Class<A> type) {
 		Assert.notNull(type, "type cannot be null");
@@ -107,7 +112,7 @@ final class UniqueSecurityAnnotationScanner<A extends Annotation> extends Abstra
 	MergedAnnotation<A> merge(AnnotatedElement element, Class<?> targetClass) {
 		if (element instanceof Parameter parameter) {
 			return this.uniqueParameterAnnotationCache.computeIfAbsent(parameter, (p) -> {
-				List<MergedAnnotation<A>> annotations = findDirectAnnotations(p);
+				List<MergedAnnotation<A>> annotations = findParameterAnnotations(p);
 				return requireUnique(p, annotations);
 			});
 		}
@@ -135,6 +140,57 @@ final class UniqueSecurityAnnotationScanner<A extends Annotation> extends Abstra
 						synthesized));
 			}
 		};
+	}
+
+	private List<MergedAnnotation<A>> findParameterAnnotations(Parameter current) {
+		List<MergedAnnotation<A>> directAnnotations = findDirectAnnotations(current);
+		if (!directAnnotations.isEmpty()) {
+			return directAnnotations;
+		}
+		Executable executable = current.getDeclaringExecutable();
+		if (executable instanceof Method method) {
+			directAnnotations = findClosestParameterAnnotations(method, method.getDeclaringClass(), current,
+					new HashSet<>());
+			if (!directAnnotations.isEmpty()) {
+				return directAnnotations;
+			}
+		}
+		return Collections.emptyList();
+	}
+
+	private List<MergedAnnotation<A>> findClosestParameterAnnotations(Method method, Class<?> clazz, Parameter current,
+			Set<Class<?>> visited) {
+		if (clazz == null || clazz == Object.class || !visited.add(clazz)) {
+			return Collections.emptyList();
+		}
+		List<MergedAnnotation<A>> directAnnotations = findDirectParameterAnnotations(method, clazz, current);
+		if (!directAnnotations.isEmpty()) {
+			return directAnnotations;
+		}
+		List<MergedAnnotation<A>> annotations = new ArrayList<>(
+				findClosestParameterAnnotations(method, clazz.getSuperclass(), current, visited));
+		for (Class<?> ifc : clazz.getInterfaces()) {
+			annotations.addAll(findClosestParameterAnnotations(method, ifc, current, visited));
+		}
+		return annotations;
+	}
+
+	private List<MergedAnnotation<A>> findDirectParameterAnnotations(Method method, Class<?> clazz, Parameter current) {
+		try {
+			Method methodToUse = clazz.getDeclaredMethod(method.getName(), method.getParameterTypes());
+			for (Parameter parameter : methodToUse.getParameters()) {
+				if (parameter.getName().equals(current.getName())) {
+					List<MergedAnnotation<A>> directAnnotations = findDirectAnnotations(parameter);
+					if (!directAnnotations.isEmpty()) {
+						return directAnnotations;
+					}
+				}
+			}
+		}
+		catch (NoSuchMethodException ex) {
+			// move on
+		}
+		return Collections.emptyList();
 	}
 
 	private List<MergedAnnotation<A>> findMethodAnnotations(Method method, Class<?> targetClass) {
@@ -169,18 +225,15 @@ final class UniqueSecurityAnnotationScanner<A extends Annotation> extends Abstra
 			return Collections.emptyList();
 		}
 		classesToSkip.add(targetClass);
-		try {
-			Method methodToUse = targetClass.getDeclaredMethod(method.getName(), method.getParameterTypes());
+		Method methodToUse = findMethod(method, targetClass);
+		if (methodToUse != null) {
 			List<MergedAnnotation<A>> annotations = findDirectAnnotations(methodToUse);
 			if (!annotations.isEmpty()) {
 				return annotations;
 			}
 		}
-		catch (NoSuchMethodException ex) {
-			// move on
-		}
-		List<MergedAnnotation<A>> annotations = new ArrayList<>();
-		annotations.addAll(findClosestMethodAnnotations(method, targetClass.getSuperclass(), classesToSkip));
+		List<MergedAnnotation<A>> annotations = new ArrayList<>(
+				findClosestMethodAnnotations(method, targetClass.getSuperclass(), classesToSkip));
 		for (Class<?> inter : targetClass.getInterfaces()) {
 			annotations.addAll(findClosestMethodAnnotations(method, inter, classesToSkip));
 		}
@@ -210,6 +263,54 @@ final class UniqueSecurityAnnotationScanner<A extends Annotation> extends Abstra
 			.filter((annotation) -> this.types.contains(annotation.getType()))
 			.map((annotation) -> (MergedAnnotation<A>) annotation)
 			.toList();
+	}
+
+	private static Method findMethod(Method method, Class<?> targetClass) {
+		for (Method candidate : targetClass.getDeclaredMethods()) {
+			if (candidate.equals(method)) {
+				return candidate;
+			}
+			if (isOverride(method, candidate)) {
+				return candidate;
+			}
+		}
+		return null;
+	}
+
+	private static boolean isOverride(Method rootMethod, Method candidateMethod) {
+		return (!Modifier.isPrivate(candidateMethod.getModifiers())
+				&& candidateMethod.getName().equals(rootMethod.getName())
+				&& hasSameParameterTypes(rootMethod, candidateMethod));
+	}
+
+	private static boolean hasSameParameterTypes(Method rootMethod, Method candidateMethod) {
+		if (candidateMethod.getParameterCount() != rootMethod.getParameterCount()) {
+			return false;
+		}
+		Class<?>[] rootParameterTypes = rootMethod.getParameterTypes();
+		Class<?>[] candidateParameterTypes = candidateMethod.getParameterTypes();
+		if (Arrays.equals(candidateParameterTypes, rootParameterTypes)) {
+			return true;
+		}
+		return hasSameGenericTypeParameters(rootMethod, candidateMethod, rootParameterTypes);
+	}
+
+	private static boolean hasSameGenericTypeParameters(Method rootMethod, Method candidateMethod,
+			Class<?>[] rootParameterTypes) {
+
+		Class<?> sourceDeclaringClass = rootMethod.getDeclaringClass();
+		Class<?> candidateDeclaringClass = candidateMethod.getDeclaringClass();
+		if (!candidateDeclaringClass.isAssignableFrom(sourceDeclaringClass)) {
+			return false;
+		}
+		for (int i = 0; i < rootParameterTypes.length; i++) {
+			Class<?> resolvedParameterType = ResolvableType.forMethodParameter(candidateMethod, i, sourceDeclaringClass)
+				.resolve();
+			if (rootParameterTypes[i] != resolvedParameterType) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 }

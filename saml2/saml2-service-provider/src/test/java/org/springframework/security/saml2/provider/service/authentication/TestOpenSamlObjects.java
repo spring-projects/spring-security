@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -416,7 +416,7 @@ public final class TestOpenSamlObjects {
 		logoutRequest.setNameID(nameId);
 		IssuerBuilder issuerBuilder = new IssuerBuilder();
 		Issuer issuer = issuerBuilder.buildObject();
-		issuer.setValue(registration.getAssertingPartyDetails().getEntityId());
+		issuer.setValue(registration.getAssertingPartyMetadata().getEntityId());
 		logoutRequest.setIssuer(issuer);
 		logoutRequest.setDestination(registration.getSingleLogoutServiceLocation());
 		return logoutRequest;
@@ -430,7 +430,7 @@ public final class TestOpenSamlObjects {
 		NameID nameId = nameIdBuilder.buildObject();
 		nameId.setValue("user");
 		logoutRequest.setNameID(null);
-		Saml2X509Credential credential = registration.getAssertingPartyDetails()
+		Saml2X509Credential credential = registration.getAssertingPartyMetadata()
 			.getEncryptionX509Credentials()
 			.iterator()
 			.next();
@@ -438,7 +438,7 @@ public final class TestOpenSamlObjects {
 		logoutRequest.setEncryptedID(encrypted);
 		IssuerBuilder issuerBuilder = new IssuerBuilder();
 		Issuer issuer = issuerBuilder.buildObject();
-		issuer.setValue(registration.getAssertingPartyDetails().getEntityId());
+		issuer.setValue(registration.getAssertingPartyMetadata().getEntityId());
 		logoutRequest.setIssuer(issuer);
 		logoutRequest.setDestination(registration.getSingleLogoutServiceLocation());
 		return logoutRequest;
@@ -457,39 +457,23 @@ public final class TestOpenSamlObjects {
 		logoutResponse.setStatus(status);
 		IssuerBuilder issuerBuilder = new IssuerBuilder();
 		Issuer issuer = issuerBuilder.buildObject();
-		issuer.setValue(registration.getAssertingPartyDetails().getEntityId());
+		issuer.setValue(registration.getAssertingPartyMetadata().getEntityId());
 		logoutResponse.setIssuer(issuer);
 		logoutResponse.setDestination(registration.getSingleLogoutServiceResponseLocation());
 		return logoutResponse;
 	}
 
-	public static LogoutRequest relyingPartyLogoutRequest(RelyingPartyRegistration registration) {
-		LogoutRequestBuilder logoutRequestBuilder = new LogoutRequestBuilder();
-		LogoutRequest logoutRequest = logoutRequestBuilder.buildObject();
-		logoutRequest.setID("id");
-		NameIDBuilder nameIdBuilder = new NameIDBuilder();
-		NameID nameId = nameIdBuilder.buildObject();
-		nameId.setValue("user");
-		logoutRequest.setNameID(nameId);
-		IssuerBuilder issuerBuilder = new IssuerBuilder();
-		Issuer issuer = issuerBuilder.buildObject();
-		issuer.setValue(registration.getAssertingPartyDetails().getEntityId());
-		logoutRequest.setIssuer(issuer);
-		logoutRequest.setDestination(registration.getAssertingPartyDetails().getSingleLogoutServiceLocation());
-		return logoutRequest;
-	}
-
 	public static EntityDescriptor entityDescriptor(RelyingPartyRegistration registration) {
 		EntityDescriptorBuilder entityDescriptorBuilder = new EntityDescriptorBuilder();
 		EntityDescriptor entityDescriptor = entityDescriptorBuilder.buildObject();
-		entityDescriptor.setEntityID(registration.getAssertingPartyDetails().getEntityId());
+		entityDescriptor.setEntityID(registration.getAssertingPartyMetadata().getEntityId());
 		IDPSSODescriptorBuilder idpssoDescriptorBuilder = new IDPSSODescriptorBuilder();
 		IDPSSODescriptor idpssoDescriptor = idpssoDescriptorBuilder.buildObject();
 		idpssoDescriptor.addSupportedProtocol(SAMLConstants.SAML20P_NS);
 		SingleSignOnServiceBuilder singleSignOnServiceBuilder = new SingleSignOnServiceBuilder();
 		SingleSignOnService singleSignOnService = singleSignOnServiceBuilder.buildObject();
 		singleSignOnService.setBinding(Saml2MessageBinding.POST.getUrn());
-		singleSignOnService.setLocation(registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
+		singleSignOnService.setLocation(registration.getAssertingPartyMetadata().getSingleSignOnServiceLocation());
 		idpssoDescriptor.getSingleSignOnServices().add(singleSignOnService);
 		KeyDescriptorBuilder keyDescriptorBuilder = new KeyDescriptorBuilder();
 		KeyDescriptor keyDescriptor = keyDescriptorBuilder.buildObject();

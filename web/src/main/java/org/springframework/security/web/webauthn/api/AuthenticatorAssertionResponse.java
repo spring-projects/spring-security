@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,14 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serial;
+
 /**
  * The <a href=
  * "https://www.w3.org/TR/webauthn-3/#authenticatorassertionresponse">AuthenticatorAssertionResponse</a>
  * interface represents an
  * <a href="https://www.w3.org/TR/webauthn-3/#authenticator">authenticator</a>'s response
- * to a client’s request for generation of a new
+ * to a client's request for generation of a new
  * <a href="https://www.w3.org/TR/webauthn-3/#authentication-assertion">authentication
  * assertion</a> given the
  * <a href="https://www.w3.org/TR/webauthn-3/#webauthn-relying-party">WebAuthn Relying
@@ -37,6 +39,9 @@ package org.springframework.security.web.webauthn.api;
  * @see PublicKeyCredential#getResponse()
  */
 public final class AuthenticatorAssertionResponse extends AuthenticatorResponse {
+
+	@Serial
+	private static final long serialVersionUID = 324976481675434298L;
 
 	private final Bytes authenticatorData;
 

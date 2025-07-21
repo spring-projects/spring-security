@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,9 +34,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Steve Riesenberg
  */
 public class DefaultOAuth2TokenRequestHeadersConverterTests {
-
-	private static final MediaType APPLICATION_JSON_UTF8 = new MediaType(MediaType.APPLICATION_JSON,
-			StandardCharsets.UTF_8);
 
 	private static final MediaType APPLICATION_FORM_URLENCODED_UTF8 = new MediaType(
 			MediaType.APPLICATION_FORM_URLENCODED, StandardCharsets.UTF_8);
@@ -77,41 +74,6 @@ public class DefaultOAuth2TokenRequestHeadersConverterTests {
 		HttpHeaders defaultHeaders = this.converter.convert(grantRequest);
 		assertThat(defaultHeaders.getAccept()).containsExactly(MediaType.APPLICATION_JSON);
 		assertThat(defaultHeaders.getContentType()).isEqualTo(MediaType.APPLICATION_FORM_URLENCODED);
-		assertThat(defaultHeaders.getFirst(HttpHeaders.AUTHORIZATION))
-			.isEqualTo("Basic Y2xpZW50SWQ6Y2xpZW50U2VjcmV0PQ==");
-	}
-
-	@Test
-	public void convertWhenWithCharsetUtf8AndEncodeClientCredentialsTrueThenConvertsWithUrlEncoding() {
-		this.converter = DefaultOAuth2TokenRequestHeadersConverter.withCharsetUtf8();
-		// @formatter:off
-		ClientRegistration clientRegistration = TestClientRegistrations.clientCredentials()
-				.clientId("clientId")
-				.clientSecret("clientSecret=")
-				.build();
-		// @formatter:on
-		OAuth2ClientCredentialsGrantRequest grantRequest = new OAuth2ClientCredentialsGrantRequest(clientRegistration);
-		HttpHeaders defaultHeaders = this.converter.convert(grantRequest);
-		assertThat(defaultHeaders.getAccept()).containsExactly(APPLICATION_JSON_UTF8);
-		assertThat(defaultHeaders.getContentType()).isEqualTo(APPLICATION_FORM_URLENCODED_UTF8);
-		assertThat(defaultHeaders.getFirst(HttpHeaders.AUTHORIZATION))
-			.isEqualTo("Basic Y2xpZW50SWQ6Y2xpZW50U2VjcmV0JTNE");
-	}
-
-	@Test
-	public void convertWhenWithCharsetUtf8EncodeClientCredentialsFalseThenConvertsWithoutUrlEncoding() {
-		this.converter = DefaultOAuth2TokenRequestHeadersConverter.withCharsetUtf8();
-		this.converter.setEncodeClientCredentials(false);
-		// @formatter:off
-		ClientRegistration clientRegistration = TestClientRegistrations.clientCredentials()
-				.clientId("clientId")
-				.clientSecret("clientSecret=")
-				.build();
-		// @formatter:on
-		OAuth2ClientCredentialsGrantRequest grantRequest = new OAuth2ClientCredentialsGrantRequest(clientRegistration);
-		HttpHeaders defaultHeaders = this.converter.convert(grantRequest);
-		assertThat(defaultHeaders.getAccept()).containsExactly(APPLICATION_JSON_UTF8);
-		assertThat(defaultHeaders.getContentType()).isEqualTo(APPLICATION_FORM_URLENCODED_UTF8);
 		assertThat(defaultHeaders.getFirst(HttpHeaders.AUTHORIZATION))
 			.isEqualTo("Basic Y2xpZW50SWQ6Y2xpZW50U2VjcmV0PQ==");
 	}

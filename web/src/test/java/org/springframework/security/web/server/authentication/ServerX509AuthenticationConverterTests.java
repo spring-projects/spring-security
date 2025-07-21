@@ -69,31 +69,11 @@ public class ServerX509AuthenticationConverterTests {
 	@Test
 	public void shouldReturnAuthenticationForValidCertificate() {
 		givenExtractPrincipalWillReturn();
-		this.request.sslInfo(new MockSslInfo(this.certificate));
+		this.request.sslInfo(SslInfo.from("123", this.certificate));
 		Authentication authentication = this.converter.convert(MockServerWebExchange.from(this.request.build()))
 			.block();
 		assertThat(authentication.getName()).isEqualTo("Luke Taylor");
 		assertThat(authentication.getCredentials()).isEqualTo(this.certificate);
-	}
-
-	class MockSslInfo implements SslInfo {
-
-		private final X509Certificate[] peerCertificates;
-
-		MockSslInfo(X509Certificate... peerCertificates) {
-			this.peerCertificates = peerCertificates;
-		}
-
-		@Override
-		public String getSessionId() {
-			return "mock-session-id";
-		}
-
-		@Override
-		public X509Certificate[] getPeerCertificates() {
-			return this.peerCertificates;
-		}
-
 	}
 
 }

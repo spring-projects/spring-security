@@ -339,7 +339,7 @@ It's common to need to set other values in the `<saml2:LogoutRequest>` than the 
 
 By default, Spring Security will issue a `<saml2:LogoutRequest>` and supply:
 
-* The `Destination` attribute - from `RelyingPartyRegistration#getAssertingPartyMetadata#getSingleLogoutServiceLocation`
+* The `DestinationValidator` attribute - from `RelyingPartyRegistration#getAssertingPartyMetadata#getSingleLogoutServiceLocation`
 * The `ID` attribute - a GUID
 * The `<Issuer>` element - from `RelyingPartyRegistration#getEntityId`
 * The `<NameID>` element - from `Authentication#getName`
@@ -424,7 +424,7 @@ It's common to need to set other values in the `<saml2:LogoutResponse>` than the
 
 By default, Spring Security will issue a `<saml2:LogoutResponse>` and supply:
 
-* The `Destination` attribute - from `RelyingPartyRegistration#getAssertingPartyMetadata#getSingleLogoutServiceResponseLocation`
+* The `DestinationValidator` attribute - from `RelyingPartyRegistration#getAssertingPartyMetadata#getSingleLogoutServiceResponseLocation`
 * The `ID` attribute - a GUID
 * The `<Issuer>` element - from `RelyingPartyRegistration#getEntityId`
 * The `<Status>` element - `SUCCESS`
@@ -510,7 +510,7 @@ Java::
 ----
 @Component
 public class MyOpenSamlLogoutRequestValidator implements Saml2LogoutRequestValidator {
-	private final Saml2LogoutRequestValidator delegate = new OpenSamlLogoutRequestValidator();
+	private final Saml2LogoutRequestValidator delegate = new OpenSaml5LogoutRequestValidator();
 
 	@Override
     public Saml2LogoutRequestValidator logout(Saml2LogoutRequestValidatorParameters parameters) {
@@ -529,7 +529,7 @@ Kotlin::
 ----
 @Component
 open class MyOpenSamlLogoutRequestValidator: Saml2LogoutRequestValidator {
-	private val delegate = OpenSamlLogoutRequestValidator()
+	private val delegate = OpenSaml5LogoutRequestValidator()
 
 	@Override
     fun logout(parameters: Saml2LogoutRequestValidatorParameters): Saml2LogoutRequestValidator {
@@ -586,7 +586,7 @@ Java::
 ----
 @Component
 public class MyOpenSamlLogoutResponseValidator implements Saml2LogoutResponseValidator {
-	private final Saml2LogoutResponseValidator delegate = new OpenSamlLogoutResponseValidator();
+	private final Saml2LogoutResponseValidator delegate = new OpenSaml5LogoutResponseValidator();
 
 	@Override
     public Saml2LogoutValidatorResult logout(Saml2LogoutResponseValidatorParameters parameters) {

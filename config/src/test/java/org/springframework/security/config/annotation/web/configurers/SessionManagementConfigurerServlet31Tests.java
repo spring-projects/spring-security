@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,14 +30,10 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.context.HttpRequestResponseHolder;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
 import org.springframework.security.web.csrf.DeferredCsrfToken;
@@ -45,13 +41,13 @@ import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.post;
 
 /**
  * @author Rob Winch
  */
 public class SessionManagementConfigurerServlet31Tests {
-
-	MockHttpServletRequest request;
 
 	MockHttpServletResponse response;
 
@@ -63,7 +59,6 @@ public class SessionManagementConfigurerServlet31Tests {
 
 	@BeforeEach
 	public void setup() {
-		this.request = new MockHttpServletRequest("GET", "");
 		this.response = new MockHttpServletResponse();
 		this.chain = new MockFilterChain();
 	}
@@ -77,17 +72,13 @@ public class SessionManagementConfigurerServlet31Tests {
 
 	@Test
 	public void changeSessionIdThenPreserveParameters() throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+		MockHttpServletRequest request = post("/login").param("username", "user").param("password", "password").build();
 		String id = request.getSession().getId();
 		request.getSession();
-		request.setServletPath("/login");
-		request.setMethod("POST");
-		request.setParameter("username", "user");
-		request.setParameter("password", "password");
 		HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
 		CsrfTokenRequestHandler handler = new XorCsrfTokenRequestAttributeHandler();
 		DeferredCsrfToken deferredCsrfToken = repository.loadDeferredToken(request, this.response);
-		handler.handle(request, this.response, deferredCsrfToken::get);
+		handler.handle(request, this.response, deferredCsrfToken);
 		CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
 		request.setParameter(token.getParameterName(), token.getToken());
 		request.getSession().setAttribute("attribute1", "value1");
@@ -105,15 +96,6 @@ public class SessionManagementConfigurerServlet31Tests {
 		this.springSecurityFilterChain = this.context.getBean("springSecurityFilterChain", Filter.class);
 	}
 
-	private void login(Authentication auth) {
-		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
-		HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(this.request, this.response);
-		repo.loadContext(requestResponseHolder);
-		SecurityContextImpl securityContextImpl = new SecurityContextImpl();
-		securityContextImpl.setAuthentication(auth);
-		repo.saveContext(securityContextImpl, requestResponseHolder.getRequest(), requestResponseHolder.getResponse());
-	}
-
 	@Configuration
 	@EnableWebSecurity
 	static class SessionManagementDefaultSessionFixationServlet31Config {
@@ -122,9 +104,8 @@ public class SessionManagementConfigurerServlet31Tests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.formLogin()
-					.and()
-				.sessionManagement();
+				.formLogin(withDefaults())
+				.sessionManagement(withDefaults());
 			// @formatter:on
 			return http.build();
 		}

@@ -20,7 +20,6 @@ plugins {
 
 apply plugin: 'io.spring.nohttp'
 apply plugin: 'locks'
-apply plugin: 's101'
 apply plugin: 'io.spring.convention.root'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'org.springframework.security.versions.verify-dependencies-versions'
@@ -110,6 +109,10 @@ nohttp {
 	source.builtBy(project(':spring-security-config').tasks.withType(RncToXsd))
 }
 
+tasks.named('checkstyleNohttp') {
+	maxHeapSize = '1g'
+}
+
 tasks.register('cloneRepository', IncludeRepoTask) {
 	repository = project.getProperties().get("repositoryName")
 	ref = project.getProperties().get("ref")
@@ -117,16 +120,11 @@ tasks.register('cloneRepository', IncludeRepoTask) {
 	outputDirectory = project.hasProperty("cloneOutputDirectory") ? project.file("$cloneOutputDirectory") : defaultDirectory
 }
 
-s101 {
-	repository = 'https://structure101.com/binaries/latest'
-	configurationDirectory = project.file("etc/s101")
-}
-
 wrapperUpgrade {
 	gradle {
 		'spring-security' {
 			repo = 'spring-projects/spring-security'
-			baseBranch = '6.2.x' // runs only on 6.2.x and the update is merged forward to main
+			baseBranch = '6.3.x' // runs only on 6.3.x and the update is merged forward to main
 		}
 	}
 }

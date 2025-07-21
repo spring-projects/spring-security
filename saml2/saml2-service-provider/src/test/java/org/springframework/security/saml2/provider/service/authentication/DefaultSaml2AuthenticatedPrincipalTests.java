@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,8 @@ public class DefaultSaml2AuthenticatedPrincipalTests {
 
 	@Test
 	public void createDefaultSaml2AuthenticatedPrincipalWhenAttributesNullThenException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new DefaultSaml2AuthenticatedPrincipal("user", null))
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> new DefaultSaml2AuthenticatedPrincipal("user", (Map<String, List<Object>>) null))
 			.withMessageContaining("attributes cannot be null");
 	}
 
@@ -79,6 +80,26 @@ public class DefaultSaml2AuthenticatedPrincipalTests {
 		assertThat(registrationInfo).isNotNull();
 		assertThat((Boolean) registrationInfo.get(0)).isEqualTo(registered);
 		assertThat((Instant) registrationInfo.get(1)).isEqualTo(registeredDate);
+	}
+
+	// gh-15346
+	@Test
+	public void whenUsedAsKeyInMapThenRetrievableAcrossSerialization() {
+		Map<Saml2AuthenticatedPrincipal, Integer> valuesByPrincipal = new LinkedHashMap<>();
+		DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal("user", Map.of());
+		valuesByPrincipal.put(principal, 1);
+		principal = new DefaultSaml2AuthenticatedPrincipal("user", Map.of());
+		assertThat(valuesByPrincipal.get(principal)).isEqualTo(1);
+		principal = new DefaultSaml2AuthenticatedPrincipal("user", Map.of());
+		principal.setRelyingPartyRegistrationId("id");
+		assertThat(valuesByPrincipal.get(principal)).isNull();
+		valuesByPrincipal.put(principal, 2);
+		principal = new DefaultSaml2AuthenticatedPrincipal("user", Map.of());
+		principal.setRelyingPartyRegistrationId("id");
+		assertThat(valuesByPrincipal.get(principal)).isEqualTo(2);
+		principal = new DefaultSaml2AuthenticatedPrincipal("USER", Map.of());
+		principal.setRelyingPartyRegistrationId("id");
+		assertThat(valuesByPrincipal.get(principal)).isNull();
 	}
 
 }

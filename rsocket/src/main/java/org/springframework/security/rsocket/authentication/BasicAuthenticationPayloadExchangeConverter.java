@@ -36,7 +36,9 @@ import org.springframework.util.MimeTypeUtils;
  *
  * @author Rob Winch
  * @since 5.2
+ * @deprecated please use {@link AuthenticationPayloadExchangeConverter} instead
  */
+@Deprecated
 public class BasicAuthenticationPayloadExchangeConverter implements PayloadExchangeAuthenticationConverter {
 
 	private MimeType metadataMimetype = MimeTypeUtils

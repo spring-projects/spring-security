@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import reactor.test.publisher.PublisherProbe;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
@@ -113,8 +114,9 @@ public class AuthorizationWebFilterTests {
 	public void filterWhenGrantedAndDoeAccessAuthenticationThenChainSubscribedAndSecurityContextSubscribed() {
 		PublisherProbe<SecurityContext> context = PublisherProbe.empty();
 		given(this.chain.filter(this.exchange)).willReturn(this.chainResult.mono());
-		AuthorizationWebFilter filter = new AuthorizationWebFilter((a,
-				e) -> a.map((auth) -> new AuthorizationDecision(true)).defaultIfEmpty(new AuthorizationDecision(true)));
+		AuthorizationWebFilter filter = new AuthorizationWebFilter(
+				(a, e) -> a.map((auth) -> (AuthorizationResult) new AuthorizationDecision(true))
+					.defaultIfEmpty(new AuthorizationDecision(true)));
 		Mono<Void> result = filter.filter(this.exchange, this.chain)
 			.contextWrite(ReactiveSecurityContextHolder.withSecurityContext(context.mono()));
 		StepVerifier.create(result).verifyComplete();

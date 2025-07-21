@@ -16,6 +16,8 @@
 
 package org.springframework.security.config.annotation.web.reactive;
 
+import java.util.Map;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -40,6 +42,8 @@ import org.springframework.security.web.reactive.result.method.annotation.Authen
 import org.springframework.security.web.reactive.result.method.annotation.CurrentSecurityContextArgumentResolver;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
  * @author Rob Winch
@@ -96,8 +100,12 @@ class ServerHttpSecurityConfiguration {
 	}
 
 	@Autowired(required = false)
-	void setAuthenticationManagerPostProcessor(ObjectPostProcessor<ReactiveAuthenticationManager> postProcessor) {
-		this.postProcessor = postProcessor;
+	void setAuthenticationManagerPostProcessor(
+			Map<String, ObjectPostProcessor<ReactiveAuthenticationManager>> postProcessors) {
+		if (postProcessors.size() == 1) {
+			this.postProcessor = postProcessors.values().iterator().next();
+		}
+		this.postProcessor = postProcessors.get("reactiveAuthenticationManagerPostProcessor");
 	}
 
 	@Autowired(required = false)
@@ -150,8 +158,8 @@ class ServerHttpSecurityConfiguration {
 		ContextAwareServerHttpSecurity http = new ContextAwareServerHttpSecurity();
 		// @formatter:off
 		return http.authenticationManager(authenticationManager())
-			.headers().and()
-			.logout().and();
+			.headers(withDefaults())
+			.logout(withDefaults());
 		// @formatter:on
 	}
 

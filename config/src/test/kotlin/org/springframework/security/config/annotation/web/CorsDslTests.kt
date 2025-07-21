@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
+import org.springframework.security.config.Customizer.withDefaults
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.test.SpringTestContext
@@ -56,7 +57,8 @@ class CorsDslTests {
     fun `CORS when no MVC then exception`() {
         assertThatThrownBy { this.spring.register(DefaultCorsConfig::class.java).autowire() }
                 .isInstanceOf(BeanCreationException::class.java)
-                .hasMessageContaining("Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext")
+                .hasMessageContaining("Please ensure that you are using `@EnableWebMvc`, are publishing a `WebMvcConfigurer`, " +
+                        "or are publishing a `CorsConfigurationSource` bean.")
 
     }
 
@@ -127,7 +129,7 @@ class CorsDslTests {
     open class CorsDisabledConfig {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-            http.cors()
+            http.cors(withDefaults())
             http {
                 cors {
                     disable()

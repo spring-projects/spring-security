@@ -90,13 +90,12 @@ public class CustomLoginRequestBuilderAuthenticationTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.formLogin()
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.formLogin((login) -> login
 					.usernameParameter("user")
 					.passwordParameter("pass")
-					.loginPage("/authenticate");
+					.loginPage("/authenticate"));
 			return http.build();
 			// @formatter:on
 		}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,22 @@
 package org.springframework.security.oauth2.client.web;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 
+import io.micrometer.context.ContextExecutorService;
+import io.micrometer.context.ContextSnapshotFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import reactor.core.publisher.Hooks;
 import reactor.core.publisher.Mono;
 import reactor.test.publisher.PublisherProbe;
 import reactor.util.context.Context;
 
-import org.springframework.http.MediaType;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.support.ExecutorServiceAdapter;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -460,42 +464,6 @@ public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 		verify(this.authorizedClientRepository, never()).removeAuthorizedClient(any(), any(), any());
 	}
 
-	@Test
-	public void authorizeWhenRequestFormParameterUsernamePasswordThenMappedToContext() {
-		given(this.clientRegistrationRepository.findByRegistrationId(eq(this.clientRegistration.getRegistrationId())))
-			.willReturn(Mono.just(this.clientRegistration));
-		given(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class)))
-			.willReturn(Mono.just(this.authorizedClient));
-		// Set custom contextAttributesMapper capable of mapping the form parameters
-		this.authorizedClientManager.setContextAttributesMapper(
-				(authorizeRequest) -> currentServerWebExchange().flatMap(ServerWebExchange::getFormData)
-					.map((formData) -> {
-						Map<String, Object> contextAttributes = new HashMap<>();
-						String username = formData.getFirst(OAuth2ParameterNames.USERNAME);
-						contextAttributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, username);
-						String password = formData.getFirst(OAuth2ParameterNames.PASSWORD);
-						contextAttributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, password);
-						return contextAttributes;
-					}));
-		this.serverWebExchange = MockServerWebExchange
-			.builder(MockServerHttpRequest.post("/")
-				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-				.body("username=username&password=password"))
-			.build();
-		this.context = Context.of(ServerWebExchange.class, this.serverWebExchange);
-		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
-			.withClientRegistrationId(this.clientRegistration.getRegistrationId())
-			.principal(this.principal)
-			.build();
-		this.authorizedClientManager.authorize(authorizeRequest).contextWrite(this.context).block();
-		verify(this.authorizedClientProvider).authorize(this.authorizationContextCaptor.capture());
-		OAuth2AuthorizationContext authorizationContext = this.authorizationContextCaptor.getValue();
-		String username = authorizationContext.getAttribute(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME);
-		assertThat(username).isEqualTo("username");
-		String password = authorizationContext.getAttribute(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME);
-		assertThat(password).isEqualTo("password");
-	}
-
 	@SuppressWarnings("unchecked")
 	@Test
 	public void reauthorizeWhenUnsupportedProviderThenNotReauthorized() {
@@ -563,6 +531,41 @@ public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 		String[] requestScopeAttribute = authorizationContext
 			.getAttribute(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME);
 		assertThat(requestScopeAttribute).contains("read", "write");
+	}
+
+	@Test
+	public void authorizeWhenBlockingExecutionAndContextPropagationEnabledThenContextPropagated()
+			throws InterruptedException {
+		Hooks.enableAutomaticContextPropagation();
+		given(this.clientRegistrationRepository.findByRegistrationId(eq(this.clientRegistration.getRegistrationId())))
+			.willReturn(Mono.just(this.clientRegistration));
+		given(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class)))
+			.willReturn(Mono.just(this.authorizedClient));
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
+			.withClientRegistrationId(this.clientRegistration.getRegistrationId())
+			.principal(this.principal)
+			.build();
+
+		CountDownLatch countDownLatch = new CountDownLatch(1);
+		Runnable task = () -> {
+			try {
+				OAuth2AuthorizedClient authorizedClient = this.authorizedClientManager.authorize(authorizeRequest)
+					.block();
+				assertThat(authorizedClient).isSameAs(this.authorizedClient);
+			}
+			finally {
+				countDownLatch.countDown();
+			}
+		};
+		try (SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor()) {
+			ContextSnapshotFactory contextSnapshotFactory = ContextSnapshotFactory.builder().build();
+			ExecutorService executorService = ContextExecutorService.wrap(new ExecutorServiceAdapter(taskExecutor),
+					contextSnapshotFactory);
+			Mono.fromRunnable(() -> executorService.execute(task)).contextWrite(this.context).block();
+		}
+
+		countDownLatch.await();
+		verify(this.authorizedClientProvider).authorize(any(OAuth2AuthorizationContext.class));
 	}
 
 	private Mono<ServerWebExchange> currentServerWebExchange() {

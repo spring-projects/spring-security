@@ -43,7 +43,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.security.web.authentication.preauth.x509.SubjectX500PrincipalExtractor;
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
+import org.springframework.security.web.authentication.preauth.x509.X509TestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -155,6 +157,28 @@ public class X509ConfigurerTests {
 		// @formatter:on
 	}
 
+	@Test
+	public void x509WhenSubjectX500PrincipalExtractor() throws Exception {
+		this.spring.register(SubjectX500PrincipalExtractorConfig.class).autowire();
+		X509Certificate certificate = loadCert("rod.cer");
+		// @formatter:off
+		this.mvc.perform(get("/").with(x509(certificate)))
+				.andExpect((result) -> assertThat(result.getRequest().getSession(false)).isNull())
+				.andExpect(authenticated().withUsername("rod"));
+		// @formatter:on
+	}
+
+	@Test
+	public void x509WhenSubjectX500PrincipalExtractorBean() throws Exception {
+		this.spring.register(SubjectX500PrincipalExtractorEmailConfig.class).autowire();
+		X509Certificate certificate = X509TestUtils.buildTestCertificate();
+		// @formatter:off
+		this.mvc.perform(get("/").with(x509(certificate)))
+				.andExpect((result) -> assertThat(result.getRequest().getSession(false)).isNull())
+				.andExpect(authenticated().withUsername("luke@monkeymachine"));
+		// @formatter:on
+	}
+
 	private <T extends Certificate> T loadCert(String location) {
 		try (InputStream is = new ClassPathResource(location).getInputStream()) {
 			CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
@@ -175,7 +199,7 @@ public class X509ConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.x509();
+				.x509(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -204,10 +228,9 @@ public class X509ConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.x509()
-					.subjectPrincipalRegex("CN=(.*?)@example.com(?:,|$)")
-					.and()
-				.x509();
+				.x509((x509) -> x509
+					.subjectPrincipalRegex("CN=(.*?)@example.com(?:,|$)"))
+				.x509(withDefaults());
 			// @formatter:on
 			return http.build();
 		}
@@ -257,8 +280,7 @@ public class X509ConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.x509((x509) ->
-					x509
+				.x509((x509) -> x509
 						.subjectPrincipalRegex("CN=(.*?)@example.com(?:,|$)")
 				);
 			// @formatter:on
@@ -352,6 +374,62 @@ public class X509ConfigurerTests {
 		UserDetailsService userDetailsService() {
 			UserDetails user = User.withDefaultPasswordEncoder()
 				.username("rod")
+				.password("password")
+				.roles("USER", "ADMIN")
+				.build();
+			return new InMemoryUserDetailsManager(user);
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class SubjectX500PrincipalExtractorConfig {
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.x509((x509) -> x509
+							.x509PrincipalExtractor(new SubjectX500PrincipalExtractor())
+					);
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			UserDetails user = User.withDefaultPasswordEncoder()
+				.username("rod")
+				.password("password")
+				.roles("USER", "ADMIN")
+				.build();
+			return new InMemoryUserDetailsManager(user);
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class SubjectX500PrincipalExtractorEmailConfig {
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			SubjectX500PrincipalExtractor principalExtractor = new SubjectX500PrincipalExtractor();
+			principalExtractor.setExtractPrincipalNameFromEmail(true);
+			// @formatter:off
+			http
+				.x509((x509) -> x509
+					.x509PrincipalExtractor(principalExtractor)
+				);
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			UserDetails user = User.withDefaultPasswordEncoder()
+				.username("luke@monkeymachine")
 				.password("password")
 				.roles("USER", "ADMIN")
 				.build();

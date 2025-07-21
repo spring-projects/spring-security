@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.OrderComparator;
@@ -54,10 +53,10 @@ import org.springframework.security.config.annotation.web.configurers.ChannelSec
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
-import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HttpsRedirectConfigurer;
 import org.springframework.security.config.annotation.web.configurers.JeeConfigurer;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.config.annotation.web.configurers.PasswordManagementConfigurer;
@@ -89,23 +88,20 @@ import org.springframework.security.web.PortMapperImpl;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.filter.CorsFilter;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 /**
  * A {@link HttpSecurity} is similar to Spring Security's XML &lt;http&gt; element in the
  * namespace configuration. It allows configuring web based security for specific http
  * requests. By default it will be applied to all requests, but can be restricted using
- * {@link #requestMatcher(RequestMatcher)} or other similar methods.
+ * {@link #authorizeHttpRequests(Customizer)} or other similar methods.
  *
  * <h2>Example Usage</h2>
  *
@@ -122,7 +118,11 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
  *
  * 	&#064;Bean
  * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
- * 		http.authorizeHttpRequests().requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin();
+ * 		http
+ * 			.authorizeHttpRequests((authorize) -&gt; authorize
+ * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+ * 			)
+ * 			.formLogin(withDefaults());
  * 		return http.build();
  * 	}
  *
@@ -147,12 +147,6 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<DefaultSecurityFilterChain, HttpSecurity>
 		implements SecurityBuilder<DefaultSecurityFilterChain>, HttpSecurityBuilder<HttpSecurity> {
 
-	private static final String HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME = "mvcHandlerMappingIntrospector";
-
-	private static final String HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector";
-
-	private static final boolean mvcPresent;
-
 	private final RequestMatcherConfigurer requestMatcherConfigurer;
 
 	private List<OrderedFilter> filters = new ArrayList<>();
@@ -162,10 +156,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	private FilterOrderRegistration filterOrders = new FilterOrderRegistration();
 
 	private AuthenticationManager authenticationManager;
-
-	static {
-		mvcPresent = ClassUtils.isPresent(HANDLER_MAPPING_INTROSPECTOR, HttpSecurity.class.getClassLoader());
-	}
 
 	/**
 	 * Creates a new instance
@@ -194,120 +184,13 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	/**
 	 * Adds the Security headers to the response. This is activated by default when using
-	 * {@link EnableWebSecurity}. Accepting the default provided by
-	 * {@link EnableWebSecurity} or only invoking {@link #headers()} without invoking
-	 * additional methods on it, is the equivalent of:
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class CsrfSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http
-	 * 			.headers()
-	 * 				.contentTypeOptions()
-	 * 				.and()
-	 * 				.xssProtection()
-	 * 				.and()
-	 * 				.cacheControl()
-	 * 				.and()
-	 * 				.httpStrictTransportSecurity()
-	 * 				.and()
-	 * 				.frameOptions()
-	 * 				.and()
-	 * 			...;
-	 * 		return http.build();
-	 * 	}
-	 * }
-	 * </pre>
-	 *
-	 * You can disable the headers using the following:
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class CsrfSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http
-	 * 			.headers().disable()
-	 * 			...;
-	 * 		return http.build();
-	 * 	}
-	 * }
-	 * </pre>
-	 *
-	 * You can enable only a few of the headers by first invoking
-	 * {@link HeadersConfigurer#defaultsDisabled()} and then invoking the appropriate
-	 * methods on the {@link #headers()} result. For example, the following will enable
-	 * {@link HeadersConfigurer#cacheControl()} and
-	 * {@link HeadersConfigurer#frameOptions()} only.
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class CsrfSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http
-	 * 			.headers()
-	 * 				.defaultsDisabled()
-	 * 				.cacheControl()
-	 * 				.and()
-	 * 				.frameOptions()
-	 * 				.and()
-	 * 			...;
-	 * 		return http.build();
-	 * 	}
-	 * }
-	 * </pre>
-	 *
-	 * You can also choose to keep the defaults but explicitly disable a subset of
-	 * headers. For example, the following will enable all the default headers except
-	 * {@link HeadersConfigurer#frameOptions()}.
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class CsrfSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http
-	 * 			.headers()
-	 * 				 .frameOptions()
-	 * 				 	.disable()
-	 * 				 .and()
-	 * 			...;
-	 * 		return http.build();
-	 * 	}
-	 * }
-	 * </pre>
-	 * @return the {@link HeadersConfigurer} for further customizations
-	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #headers(Customizer)} or
-	 * {@code headers(Customizer.withDefaults())} to stick with defaults. See the <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 * @see HeadersConfigurer
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public HeadersConfigurer<HttpSecurity> headers() throws Exception {
-		return getOrApply(new HeadersConfigurer<>());
-	}
-
-	/**
-	 * Adds the Security headers to the response. This is activated by default when using
 	 * {@link EnableWebSecurity}.
 	 *
 	 * <h2>Example Configurations</h2>
 	 *
 	 * Accepting the default provided by {@link EnableWebSecurity} or only invoking
-	 * {@link #headers()} without invoking additional methods on it, is the equivalent of:
+	 * {@link #headers(Customizer)} without invoking additional methods on it, is the
+	 * equivalent of:
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -348,9 +231,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *
 	 * You can enable only a few of the headers by first invoking
 	 * {@link HeadersConfigurer#defaultsDisabled()} and then invoking the appropriate
-	 * methods on the {@link #headers()} result. For example, the following will enable
-	 * {@link HeadersConfigurer#cacheControl()} and
-	 * {@link HeadersConfigurer#frameOptions()} only.
+	 * methods on the {@link #headers(Customizer)} result. For example, the following will
+	 * enable {@link HeadersConfigurer#cacheControl(Customizer)} and
+	 * {@link HeadersConfigurer#frameOptions(Customizer)} only.
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -373,7 +256,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *
 	 * You can also choose to keep the defaults but explicitly disable a subset of
 	 * headers. For example, the following will enable all the default headers except
-	 * {@link HeadersConfigurer#frameOptions()}.
+	 * {@link HeadersConfigurer#frameOptions(Customizer)}.
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -404,26 +287,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	/**
 	 * Adds a {@link CorsFilter} to be used. If a bean by the name of corsFilter is
 	 * provided, that {@link CorsFilter} is used. Else if corsConfigurationSource is
-	 * defined, then that {@link CorsConfiguration} is used. Otherwise, if Spring MVC is
-	 * on the classpath a {@link HandlerMappingIntrospector} is used.
-	 * @return the {@link CorsConfigurer} for customizations
-	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #cors(Customizer)} or
-	 * {@code cors(Customizer.withDefaults())} to stick with defaults. See the <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public CorsConfigurer<HttpSecurity> cors() throws Exception {
-		return getOrApply(new CorsConfigurer<>());
-	}
-
-	/**
-	 * Adds a {@link CorsFilter} to be used. If a bean by the name of corsFilter is
-	 * provided, that {@link CorsFilter} is used. Else if corsConfigurationSource is
-	 * defined, then that {@link CorsConfiguration} is used. Otherwise, if Spring MVC is
-	 * on the classpath a {@link HandlerMappingIntrospector} is used. You can enable CORS
-	 * using:
+	 * defined, then that {@link CorsConfiguration} is used. You can enable CORS using:
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -465,72 +329,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http.authorizeRequests().anyRequest().hasRole(&quot;USER&quot;).and().formLogin()
-	 * 				.permitAll().and().sessionManagement().maximumSessions(1)
-	 * 				.expiredUrl(&quot;/login?expired&quot;);
-	 * 		return http.build();
-	 * 	}
-	 *
-	 * 	&#064;Bean
-	 * 	public UserDetailsService userDetailsService() {
-	 * 		UserDetails user = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;user&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;USER&quot;)
-	 * 			.build();
-	 * 		return new InMemoryUserDetailsManager(user);
-	 * 	}
-	 * }
-	 * </pre>
-	 *
-	 * When using {@link SessionManagementConfigurer#maximumSessions(int)}, do not forget
-	 * to configure {@link HttpSessionEventPublisher} for the application to ensure that
-	 * expired sessions are cleaned up.
-	 *
-	 * In a web.xml this can be configured using the following:
-	 *
-	 * <pre>
-	 * &lt;listener&gt;
-	 *      &lt;listener-class&gt;org.springframework.security.web.session.HttpSessionEventPublisher&lt;/listener-class&gt;
-	 * &lt;/listener&gt;
-	 * </pre>
-	 *
-	 * Alternatively,
-	 * {@link AbstractSecurityWebApplicationInitializer#enableHttpSessionEventPublisher()}
-	 * could return true.
-	 * @return the {@link SessionManagementConfigurer} for further customizations
-	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #sessionManagement(Customizer)} or
-	 * {@code sessionManagement(Customizer.withDefaults())} to stick with defaults. See
-	 * the <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public SessionManagementConfigurer<HttpSecurity> sessionManagement() throws Exception {
-		return getOrApply(new SessionManagementConfigurer<>());
-	}
-
-	/**
-	 * Allows configuring of Session Management.
-	 *
-	 * <h2>Example Configuration</h2>
-	 *
-	 * The following configuration demonstrates how to enforce that only a single instance
-	 * of a user is authenticated at a time. If a user authenticates with the username
-	 * "user" without logging out and an attempt to authenticate with "user" is made the
-	 * first session will be forcibly terminated and sent to the "/login?expired" URL.
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class SessionManagementSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.anyRequest().hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin((formLogin) -&gt;
@@ -591,63 +392,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * {@link HttpSecurity#getSharedObject(Class)}. Other provided
 	 * {@link SecurityConfigurer} objects use this configured {@link PortMapper} as a
 	 * default {@link PortMapper} when redirecting from HTTP to HTTPS or from HTTPS to
-	 * HTTP (for example when used in combination with {@link #requiresChannel()}. By
-	 * default Spring Security uses a {@link PortMapperImpl} which maps the HTTP port 8080
-	 * to the HTTPS port 8443 and the HTTP port of 80 to the HTTPS port of 443.
-	 *
-	 * <h2>Example Configuration</h2>
-	 *
-	 * The following configuration will ensure that redirects within Spring Security from
-	 * HTTP of a port of 9090 will redirect to HTTPS port of 9443 and the HTTP port of 80
-	 * to the HTTPS port of 443.
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class PortMapperSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http.authorizeRequests().requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin()
-	 * 				.permitAll().and()
-	 * 				// Example portMapper() configuration
-	 * 				.portMapper().http(9090).mapsTo(9443).http(80).mapsTo(443);
-	 * 		return http.build();
-	 * 	}
-	 *
-	 * 	&#064;Bean
-	 * 	public UserDetailsService userDetailsService() {
-	 * 		UserDetails user = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;user&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;USER&quot;)
-	 * 			.build();
-	 * 		return new InMemoryUserDetailsManager(user);
-	 * 	}
-	 * }
-	 * </pre>
-	 * @return the {@link PortMapperConfigurer} for further customizations
-	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #portMapper(Customizer)} or
-	 * {@code portMapper(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 * @see #requiresChannel()
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public PortMapperConfigurer<HttpSecurity> portMapper() throws Exception {
-		return getOrApply(new PortMapperConfigurer<>());
-	}
-
-	/**
-	 * Allows configuring a {@link PortMapper} that is available from
-	 * {@link HttpSecurity#getSharedObject(Class)}. Other provided
-	 * {@link SecurityConfigurer} objects use this configured {@link PortMapper} as a
-	 * default {@link PortMapper} when redirecting from HTTP to HTTPS or from HTTPS to
-	 * HTTP (for example when used in combination with {@link #requiresChannel()}. By
-	 * default Spring Security uses a {@link PortMapperImpl} which maps the HTTP port 8080
-	 * to the HTTPS port 8443 and the HTTP port of 80 to the HTTPS port of 443.
+	 * HTTP (for example when used in combination with
+	 * {@link #requiresChannel(Customizer)} )}. By default Spring Security uses a
+	 * {@link PortMapperImpl} which maps the HTTP port 8080 to the HTTPS port 8443 and the
+	 * HTTP port of 80 to the HTTPS port of 443.
 	 *
 	 * <h2>Example Configuration</h2>
 	 *
@@ -690,7 +438,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * {@link PortMapperConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
-	 * @see #requiresChannel()
+	 * @see #requiresChannel(Customizer)
 	 */
 	public HttpSecurity portMapper(Customizer<PortMapperConfigurer<HttpSecurity>> portMapperCustomizer)
 			throws Exception {
@@ -715,86 +463,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http.authorizeRequests().requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and()
-	 * 		// Example jee() configuration
-	 * 				.jee().mappableRoles(&quot;USER&quot;, &quot;ADMIN&quot;);
-	 * 		return http.build();
-	 * 	}
-	 * }
-	 * </pre>
-	 *
-	 * Developers wishing to use pre authentication with the container will need to ensure
-	 * their web.xml configures the security constraints. For example, the web.xml (there
-	 * is no equivalent Java based configuration supported by the Servlet specification)
-	 * might look like:
-	 *
-	 * <pre>
-	 * &lt;login-config&gt;
-	 *     &lt;auth-method&gt;FORM&lt;/auth-method&gt;
-	 *     &lt;form-login-config&gt;
-	 *         &lt;form-login-page&gt;/login&lt;/form-login-page&gt;
-	 *         &lt;form-error-page&gt;/login?error&lt;/form-error-page&gt;
-	 *     &lt;/form-login-config&gt;
-	 * &lt;/login-config&gt;
-	 *
-	 * &lt;security-role&gt;
-	 *     &lt;role-name&gt;ROLE_USER&lt;/role-name&gt;
-	 * &lt;/security-role&gt;
-	 * &lt;security-constraint&gt;
-	 *     &lt;web-resource-collection&gt;
-	 *     &lt;web-resource-name&gt;Public&lt;/web-resource-name&gt;
-	 *         &lt;description&gt;Matches unconstrained pages&lt;/description&gt;
-	 *         &lt;url-pattern&gt;/login&lt;/url-pattern&gt;
-	 *         &lt;url-pattern&gt;/logout&lt;/url-pattern&gt;
-	 *         &lt;url-pattern&gt;/resources/*&lt;/url-pattern&gt;
-	 *     &lt;/web-resource-collection&gt;
-	 * &lt;/security-constraint&gt;
-	 * &lt;security-constraint&gt;
-	 *     &lt;web-resource-collection&gt;
-	 *         &lt;web-resource-name&gt;Secured Areas&lt;/web-resource-name&gt;
-	 *         &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
-	 *     &lt;/web-resource-collection&gt;
-	 *     &lt;auth-constraint&gt;
-	 *         &lt;role-name&gt;ROLE_USER&lt;/role-name&gt;
-	 *     &lt;/auth-constraint&gt;
-	 * &lt;/security-constraint&gt;
-	 * </pre>
-	 *
-	 * Last you will need to configure your container to contain the user with the correct
-	 * roles. This configuration is specific to the Servlet Container, so consult your
-	 * Servlet Container's documentation.
-	 * @return the {@link JeeConfigurer} for further customizations
-	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #jee(Customizer)} or
-	 * {@code jee(Customizer.withDefaults())} to stick with defaults. See the <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public JeeConfigurer<HttpSecurity> jee() throws Exception {
-		return getOrApply(new JeeConfigurer<>());
-	}
-
-	/**
-	 * Configures container based pre authentication. In this case, authentication is
-	 * managed by the Servlet Container.
-	 *
-	 * <h2>Example Configuration</h2>
-	 *
-	 * The following configuration will use the principal found on the
-	 * {@link HttpServletRequest} and if the user is in the role "ROLE_USER" or
-	 * "ROLE_ADMIN" will add that to the resulting {@link Authentication}.
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class JeeSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.jee((jee) -&gt;
@@ -872,44 +543,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http.authorizeRequests().requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and()
-	 * 		// Example x509() configuration
-	 * 				.x509();
-	 * 		return http.build();
-	 * 	}
-	 * }
-	 * </pre>
-	 * @return the {@link X509Configurer} for further customizations
-	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #x509(Customizer)} or
-	 * {@code x509(Customizer.withDefaults())} to stick with defaults. See the <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public X509Configurer<HttpSecurity> x509() throws Exception {
-		return getOrApply(new X509Configurer<>());
-	}
-
-	/**
-	 * Configures X509 based pre authentication.
-	 *
-	 * <h2>Example Configuration</h2>
-	 *
-	 * The following configuration will attempt to extract the username from the X509
-	 * certificate. Remember that the Servlet Container will need to be configured to
-	 * request client certificates in order for this to work.
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class X509SecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.x509(withDefaults());
@@ -944,57 +580,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http.authorizeRequests().requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin()
-	 * 				.permitAll().and()
-	 * 				// Example Remember Me Configuration
-	 * 				.rememberMe();
-	 * 		return http.build();
-	 * 	}
-	 *
-	 * 	&#064;Bean
-	 * 	public UserDetailsService userDetailsService() {
-	 * 		UserDetails user = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;user&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;USER&quot;)
-	 * 			.build();
-	 * 		return new InMemoryUserDetailsManager(user);
-	 * 	}
-	 * }
-	 * </pre>
-	 * @return the {@link RememberMeConfigurer} for further customizations
-	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #rememberMe(Customizer)} or
-	 * {@code rememberMe(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public RememberMeConfigurer<HttpSecurity> rememberMe() throws Exception {
-		return getOrApply(new RememberMeConfigurer<>());
-	}
-
-	/**
-	 * Allows configuring of Remember Me authentication.
-	 *
-	 * <h2>Example Configuration</h2>
-	 *
-	 * The following configuration demonstrates how to allow token based remember me
-	 * authentication. Upon authenticating if the HTTP parameter named "remember-me"
-	 * exists, then the user will be remembered even after their
-	 * {@link jakarta.servlet.http.HttpSession} expires.
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class RememberMeSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin(withDefaults())
@@ -1041,109 +629,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http.authorizeRequests().requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin();
-	 * 		return http.build();
-	 * 	}
-	 *
-	 * 	&#064;Bean
-	 * 	public UserDetailsService userDetailsService() {
-	 * 		UserDetails user = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;user&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;USER&quot;)
-	 * 			.build();
-	 * 		UserDetails admin = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;admin&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;ADMIN&quot;, &quot;USER&quot;)
-	 * 			.build();
-	 * 		return new InMemoryUserDetailsManager(user, admin);
-	 * 	}
-	 * }
-	 * </pre>
-	 *
-	 * We can also configure multiple URLs. The configuration below requires
-	 * authentication to every URL and will grant access to URLs starting with /admin/ to
-	 * only the "admin" user. All other URLs either user can access.
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class AuthorizeUrlsSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http.authorizeRequests().requestMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
-	 * 				.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin();
-	 * 		return http.build();
-	 * 	}
-	 *
-	 * 	&#064;Bean
-	 * 	public UserDetailsService userDetailsService() {
-	 * 		UserDetails user = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;user&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;USER&quot;)
-	 * 			.build();
-	 * 		UserDetails admin = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;admin&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;ADMIN&quot;, &quot;USER&quot;)
-	 * 			.build();
-	 * 		return new InMemoryUserDetailsManager(user, admin);
-	 * 	}
-	 * }
-	 * </pre>
-	 *
-	 * Note that the matchers are considered in order. Therefore, the following is invalid
-	 * because the first matcher matches every request and will never get to the second
-	 * mapping:
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class AuthorizeUrlsSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http.authorizeRequests().requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).requestMatchers(&quot;/admin/**&quot;)
-	 * 			.hasRole(&quot;ADMIN&quot;)
-	 * 		return http.build();
-	 * 	}
-	 * }
-	 * </pre>
-	 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customizations
-	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #authorizeHttpRequests(Customizer)}
-	 * instead
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry authorizeRequests()
-			throws Exception {
-		ApplicationContext context = getContext();
-		return getOrApply(new ExpressionUrlAuthorizationConfigurer<>(context)).getRegistry();
-	}
-
-	/**
-	 * Allows restricting access based upon the {@link HttpServletRequest} using
-	 * {@link RequestMatcher} implementations (i.e. via URL patterns).
-	 *
-	 * <h2>Example Configurations</h2>
-	 *
-	 * The most basic example is to configure all URLs to require the role "ROLE_USER".
-	 * The configuration below requires authentication to every URL and will grant access
-	 * to both the user "admin" and "user".
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class AuthorizeUrlsSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorize) -&gt; authorize
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin(withDefaults());
@@ -1179,240 +666,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
-	 * 					.requestMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
-	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 			)
-	 * 			.formLogin(withDefaults());
-	 * 		return http.build();
-	 * 	}
-	 *
-	 * 	&#064;Bean
-	 * 	public UserDetailsService userDetailsService() {
-	 * 		UserDetails user = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;user&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;USER&quot;)
-	 * 			.build();
-	 * 		UserDetails admin = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;admin&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;ADMIN&quot;, &quot;USER&quot;)
-	 * 			.build();
-	 * 		return new InMemoryUserDetailsManager(user, admin);
-	 * 	}
-	 * }
-	 * </pre>
-	 *
-	 * Note that the matchers are considered in order. Therefore, the following is invalid
-	 * because the first matcher matches every request and will never get to the second
-	 * mapping:
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class AuthorizeUrlsSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		 http
-	 * 		 	.authorizeRequests((authorizeRequests) -&gt;
-	 * 		 		authorizeRequests
-	 * 			 		.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 			 		.requestMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
-	 * 		 	);
-	 * 		return http.build();
-	 * 	}
-	 * }
-	 * </pre>
-	 * @param authorizeRequestsCustomizer the {@link Customizer} to provide more options
-	 * for the {@link ExpressionUrlAuthorizationConfigurer.ExpressionInterceptUrlRegistry}
-	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #authorizeHttpRequests(Customizer)}
-	 * instead
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public HttpSecurity authorizeRequests(
-			Customizer<ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry> authorizeRequestsCustomizer)
-			throws Exception {
-		ApplicationContext context = getContext();
-		authorizeRequestsCustomizer
-			.customize(getOrApply(new ExpressionUrlAuthorizationConfigurer<>(context)).getRegistry());
-		return HttpSecurity.this;
-	}
-
-	/**
-	 * Allows restricting access based upon the {@link HttpServletRequest} using
-	 * {@link RequestMatcher} implementations (i.e. via URL patterns).
-	 *
-	 * <h2>Example Configurations</h2>
-	 *
-	 * The most basic example is to configure all URLs to require the role "ROLE_USER".
-	 * The configuration below requires authentication to every URL and will grant access
-	 * to both the user "admin" and "user".
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class AuthorizeUrlsSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http
-	 * 			.authorizeHttpRequests()
-	 * 				.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 				.and()
-	 * 			.formLogin();
-	 * 		return http.build();
-	 * 	}
-	 *
-	 * 	&#064;Bean
-	 * 	public UserDetailsService userDetailsService() {
-	 * 		UserDetails user = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;user&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;USER&quot;)
-	 * 			.build();
-	 * 		UserDetails admin = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;admin&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;ADMIN&quot;, &quot;USER&quot;)
-	 * 			.build();
-	 * 		return new InMemoryUserDetailsManager(user, admin);
-	 * 	}
-	 * }
-	 * </pre>
-	 *
-	 * We can also configure multiple URLs. The configuration below requires
-	 * authentication to every URL and will grant access to URLs starting with /admin/ to
-	 * only the "admin" user. All other URLs either user can access.
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class AuthorizeUrlsSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http
-	 * 			.authorizeHttpRequests()
-	 * 				.requestMatchers(&quot;/admin&quot;).hasRole(&quot;ADMIN&quot;)
-	 * 				.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 				.and()
-	 * 			.formLogin();
-	 * 		return http.build();
-	 * 	}
-	 *
-	 * 	&#064;Bean
-	 * 	public UserDetailsService userDetailsService() {
-	 * 		UserDetails user = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;user&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;USER&quot;)
-	 * 			.build();
-	 * 		UserDetails admin = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;admin&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;ADMIN&quot;, &quot;USER&quot;)
-	 * 			.build();
-	 * 		return new InMemoryUserDetailsManager(user, admin);
-	 * 	}
-	 * }
-	 * </pre>
-	 *
-	 * Note that the matchers are considered in order. Therefore, the following is invalid
-	 * because the first matcher matches every request and will never get to the second
-	 * mapping:
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class AuthorizeUrlsSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http
-	 * 			.authorizeHttpRequests()
-	 * 				.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 				.requestMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
-	 * 				.and()
-	 * 			.formLogin();
-	 * 		return http.build();
-	 * 	}
-	 * }
-	 * </pre>
-	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
-	 * @since 5.6
-	 * @deprecated For removal in 7.0. Use {@link #authorizeHttpRequests(Customizer)}
-	 * instead
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry authorizeHttpRequests()
-			throws Exception {
-		ApplicationContext context = getContext();
-		return getOrApply(new AuthorizeHttpRequestsConfigurer<>(context)).getRegistry();
-	}
-
-	/**
-	 * Allows restricting access based upon the {@link HttpServletRequest} using
-	 * {@link RequestMatcher} implementations (i.e. via URL patterns).
-	 *
-	 * <h2>Example Configurations</h2>
-	 *
-	 * The most basic example is to configure all URLs to require the role "ROLE_USER".
-	 * The configuration below requires authentication to every URL and will grant access
-	 * to both the user "admin" and "user".
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class AuthorizeUrlsSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http
-	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
-	 * 				authorizeHttpRequests
-	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 			)
-	 * 			.formLogin(withDefaults());
-	 * 		return http.build();
-	 * 	}
-	 *
-	 * 	&#064;Bean
-	 * 	public UserDetailsService userDetailsService() {
-	 * 		UserDetails user = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;user&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;USER&quot;)
-	 * 			.build();
-	 * 		UserDetails admin = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;admin&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;ADMIN&quot;, &quot;USER&quot;)
-	 * 			.build();
-	 * 		return new InMemoryUserDetailsManager(user, admin);
-	 * 	}
-	 * }
-	 * </pre>
-	 *
-	 * We can also configure multiple URLs. The configuration below requires
-	 * authentication to every URL and will grant access to URLs starting with /admin/ to
-	 * only the "admin" user. All other URLs either user can access.
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class AuthorizeUrlsSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http
-	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
-	 * 				authorizeHttpRequests
+	 * 			.authorizeHttpRequests((authorize) -&gt; authorize
 	 * 					.requestMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
@@ -1449,8 +703,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 		 	.authorizeHttpRequests((authorizeHttpRequests) -&gt;
-	 * 		 		authorizeHttpRequests
+	 * 		 	.authorizeHttpRequests((authorize) -&gt; authorize
 	 * 			 		.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			 		.requestMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
 	 * 		 	);
@@ -1479,25 +732,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * a login page. After authentication, Spring Security will redirect the user to the
 	 * originally requested protected page (/protected). This is automatically applied
 	 * when using {@link EnableWebSecurity}.
-	 * @return the {@link RequestCacheConfigurer} for further customizations
-	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #requestCache(Customizer)} or
-	 * {@code requestCache(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public RequestCacheConfigurer<HttpSecurity> requestCache() throws Exception {
-		return getOrApply(new RequestCacheConfigurer<>());
-	}
-
-	/**
-	 * Allows configuring the Request Cache. For example, a protected page (/protected)
-	 * may be requested prior to authentication. The application will redirect the user to
-	 * a login page. After authentication, Spring Security will redirect the user to the
-	 * originally requested protected page (/protected). This is automatically applied
-	 * when using {@link EnableWebSecurity}.
 	 *
 	 * <h2>Example Custom Configuration</h2>
 	 *
@@ -1511,8 +745,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.requestCache((requestCache) -&gt;
@@ -1536,22 +770,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	/**
 	 * Allows configuring exception handling. This is automatically applied when using
 	 * {@link EnableWebSecurity}.
-	 * @return the {@link ExceptionHandlingConfigurer} for further customizations
-	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #exceptionHandling(Customizer)} or
-	 * {@code exceptionHandling(Customizer.withDefaults())} to stick with defaults. See
-	 * the <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public ExceptionHandlingConfigurer<HttpSecurity> exceptionHandling() throws Exception {
-		return getOrApply(new ExceptionHandlingConfigurer<>());
-	}
-
-	/**
-	 * Allows configuring exception handling. This is automatically applied when using
-	 * {@link EnableWebSecurity}.
 	 *
 	 * <h2>Example Custom Configuration</h2>
 	 *
@@ -1566,8 +784,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			// sample exception handling customization
@@ -1588,23 +806,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 			Customizer<ExceptionHandlingConfigurer<HttpSecurity>> exceptionHandlingCustomizer) throws Exception {
 		exceptionHandlingCustomizer.customize(getOrApply(new ExceptionHandlingConfigurer<>()));
 		return HttpSecurity.this;
-	}
-
-	/**
-	 * Sets up management of the {@link SecurityContext} on the
-	 * {@link SecurityContextHolder} between {@link HttpServletRequest}'s. This is
-	 * automatically applied when using {@link EnableWebSecurity}.
-	 * @return the {@link SecurityContextConfigurer} for further customizations
-	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #securityContext(Customizer)} or
-	 * {@code securityContext(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public SecurityContextConfigurer<HttpSecurity> securityContext() throws Exception {
-		return getOrApply(new SecurityContextConfigurer<>());
 	}
 
 	/**
@@ -1644,23 +845,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	/**
 	 * Integrates the {@link HttpServletRequest} methods with the values found on the
 	 * {@link SecurityContext}. This is automatically applied when using
-	 * {@link EnableWebSecurity}.
-	 * @return the {@link ServletApiConfigurer} for further customizations
-	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #servletApi(Customizer)} or
-	 * {@code servletApi(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public ServletApiConfigurer<HttpSecurity> servletApi() throws Exception {
-		return getOrApply(new ServletApiConfigurer<>());
-	}
-
-	/**
-	 * Integrates the {@link HttpServletRequest} methods with the values found on the
-	 * {@link SecurityContext}. This is automatically applied when using
 	 * {@link EnableWebSecurity}. You can disable it using:
 	 *
 	 * <pre>
@@ -1687,37 +871,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 			throws Exception {
 		servletApiCustomizer.customize(getOrApply(new ServletApiConfigurer<>()));
 		return HttpSecurity.this;
-	}
-
-	/**
-	 * Enables CSRF protection. This is activated by default when using
-	 * {@link EnableWebSecurity}'s default constructor. You can disable it using:
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class CsrfSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http
-	 * 			.csrf().disable()
-	 * 			...;
-	 * 		return http.build();
-	 * 	}
-	 * }
-	 * </pre>
-	 * @return the {@link CsrfConfigurer} for further customizations
-	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #csrf(Customizer)} or
-	 * {@code csrf(Customizer.withDefaults())} to stick with defaults. See the <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public CsrfConfigurer<HttpSecurity> csrf() throws Exception {
-		ApplicationContext context = getContext();
-		return getOrApply(new CsrfConfigurer<>(context));
 	}
 
 	/**
@@ -1752,58 +905,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * Provides logout support. This is automatically applied when using
 	 * {@link EnableWebSecurity}. The default is that accessing the URL "/logout" will log
 	 * the user out by invalidating the HTTP Session, cleaning up any
-	 * {@link #rememberMe()} authentication that was configured, clearing the
-	 * {@link SecurityContextHolder}, and then redirect to "/login?success".
-	 *
-	 * <h2>Example Custom Configuration</h2>
-	 *
-	 * The following customization to log out when the URL "/custom-logout" is invoked.
-	 * Log out will remove the cookie named "remove", not invalidate the HttpSession,
-	 * clear the SecurityContextHolder, and upon completion redirect to "/logout-success".
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class LogoutSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http.authorizeRequests().requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin()
-	 * 				.and()
-	 * 				// sample logout customization
-	 * 				.logout().deleteCookies(&quot;remove&quot;).invalidateHttpSession(false)
-	 * 				.logoutUrl(&quot;/custom-logout&quot;).logoutSuccessUrl(&quot;/logout-success&quot;);
-	 * 		return http.build();
-	 * 	}
-	 *
-	 * 	&#064;Bean
-	 * 	public UserDetailsService userDetailsService() {
-	 * 		UserDetails user = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;user&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;USER&quot;)
-	 * 			.build();
-	 * 		return new InMemoryUserDetailsManager(user);
-	 * 	}
-	 * }
-	 * </pre>
-	 * @return the {@link LogoutConfigurer} for further customizations
-	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #logout(Customizer)} or
-	 * {@code logout(Customizer.withDefaults())} to stick with defaults. See the <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public LogoutConfigurer<HttpSecurity> logout() throws Exception {
-		return getOrApply(new LogoutConfigurer<>());
-	}
-
-	/**
-	 * Provides logout support. This is automatically applied when using
-	 * {@link EnableWebSecurity}. The default is that accessing the URL "/logout" will log
-	 * the user out by invalidating the HTTP Session, cleaning up any
-	 * {@link #rememberMe()} authentication that was configured, clearing the
+	 * {@link #rememberMe(Customizer)} authentication that was configured, clearing the
 	 * {@link SecurityContextHolder}, and then redirect to "/login?success".
 	 *
 	 * <h2>Example Custom Configuration</h2>
@@ -1820,8 +922,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin(withDefaults())
@@ -1876,96 +978,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests()
-	 * 				.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 				.and()
-	 * 			.formLogin()
-	 * 				.and()
-	 * 			// sample anonymous customization
-	 * 			.anonymous().authorities(&quot;ROLE_ANON&quot;);
-	 * 		return http.build();
-	 * 	}
-	 *
-	 * 	&#064;Bean
-	 * 	public UserDetailsService userDetailsService() {
-	 * 		UserDetails user = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;user&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;USER&quot;)
-	 * 			.build();
-	 * 		return new InMemoryUserDetailsManager(user);
-	 * 	}
-	 * }
-	 * </pre>
-	 *
-	 * The following demonstrates how to represent anonymous users as null. Note that this
-	 * can cause {@link NullPointerException} in code that assumes anonymous
-	 * authentication is enabled.
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class AnonymousSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http
-	 * 			.authorizeRequests()
-	 * 				.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 				.and()
-	 * 			.formLogin()
-	 * 				.and()
-	 * 			// sample anonymous customization
-	 * 			.anonymous().disable();
-	 * 		return http.build();
-	 * 	}
-	 *
-	 * 	&#064;Bean
-	 * 	public UserDetailsService userDetailsService() {
-	 * 		UserDetails user = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;user&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;USER&quot;)
-	 * 			.build();
-	 * 		return new InMemoryUserDetailsManager(user);
-	 * 	}
-	 * }
-	 * </pre>
-	 * @return the {@link AnonymousConfigurer} for further customizations
-	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #anonymous(Customizer)} or
-	 * {@code anonymous(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public AnonymousConfigurer<HttpSecurity> anonymous() throws Exception {
-		return getOrApply(new AnonymousConfigurer<>());
-	}
-
-	/**
-	 * Allows configuring how an anonymous user is represented. This is automatically
-	 * applied when used in conjunction with {@link EnableWebSecurity}. By default
-	 * anonymous users will be represented with an
-	 * {@link org.springframework.security.authentication.AnonymousAuthenticationToken}
-	 * and contain the role "ROLE_ANONYMOUS".
-	 *
-	 * <h2>Example Configuration</h2>
-	 *
-	 * The following configuration demonstrates how to specify that anonymous users should
-	 * contain the role "ROLE_ANON" instead.
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class AnonymousSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin(withDefaults())
@@ -2001,8 +1015,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin(withDefaults())
@@ -2053,89 +1067,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http.authorizeRequests().requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin();
-	 * 		return http.build();
-	 * 	}
-	 *
-	 * 	&#064;Bean
-	 * 	public UserDetailsService userDetailsService() {
-	 * 		UserDetails user = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;user&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;USER&quot;)
-	 * 			.build();
-	 * 		return new InMemoryUserDetailsManager(user);
-	 * 	}
-	 * }
-	 * </pre>
-	 *
-	 * The configuration below demonstrates customizing the defaults.
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class FormLoginSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http.authorizeRequests().requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin()
-	 * 				.usernameParameter(&quot;username&quot;) // default is username
-	 * 				.passwordParameter(&quot;password&quot;) // default is password
-	 * 				.loginPage(&quot;/authentication/login&quot;) // default is /login with an HTTP get
-	 * 				.failureUrl(&quot;/authentication/login?failed&quot;) // default is /login?error
-	 * 				.loginProcessingUrl(&quot;/authentication/login/process&quot;); // default is /login
-	 * 																		// with an HTTP
-	 * 																		// post
-	 * 		return http.build();
-	 * 	}
-	 *
-	 * 	&#064;Bean
-	 * 	public UserDetailsService userDetailsService() {
-	 * 		UserDetails user = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;user&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;USER&quot;)
-	 * 			.build();
-	 * 		return new InMemoryUserDetailsManager(user);
-	 * 	}
-	 * }
-	 * </pre>
-	 * @return the {@link FormLoginConfigurer} for further customizations
-	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #formLogin(Customizer)} or
-	 * {@code formLogin(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 * @see FormLoginConfigurer#loginPage(String)
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public FormLoginConfigurer<HttpSecurity> formLogin() throws Exception {
-		return getOrApply(new FormLoginConfigurer<>());
-	}
-
-	/**
-	 * Specifies to support form based authentication. If
-	 * {@link FormLoginConfigurer#loginPage(String)} is not specified a default login page
-	 * will be generated.
-	 *
-	 * <h2>Example Configurations</h2>
-	 *
-	 * The most basic configuration defaults to automatically generating a login page at
-	 * the URL "/login", redirecting to "/login?error" for authentication failure. The
-	 * details of the login page can be found on
-	 * {@link FormLoginConfigurer#loginPage(String)}
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class FormLoginSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin(withDefaults());
@@ -2164,8 +1098,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin((formLogin) -&gt;
@@ -2244,102 +1178,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests()
-	 * 				.anyRequest().authenticated()
-	 * 				.and()
-	 * 			.saml2Login();
-	 * 		return http.build();
-	 * 	}
-	 *
-	 *	&#064;Bean
-	 *	public RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() {
-	 *		return new InMemoryRelyingPartyRegistrationRepository(this.getSaml2RelyingPartyRegistration());
-	 *	}
-	 *
-	 * 	private RelyingPartyRegistration getSaml2RelyingPartyRegistration() {
-	 * 		//remote IDP entity ID
-	 * 		String idpEntityId = "https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/metadata.php";
-	 * 		//remote WebSSO Endpoint - Where to Send AuthNRequests to
-	 * 		String webSsoEndpoint = "https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/SSOService.php";
-	 * 		//local registration ID
-	 * 		String registrationId = "simplesamlphp";
-	 * 		//local entity ID - autogenerated based on URL
-	 * 		String localEntityIdTemplate = "{baseUrl}/saml2/service-provider-metadata/{registrationId}";
-	 * 		//local signing (and decryption key)
-	 * 		Saml2X509Credential signingCredential = getSigningCredential();
-	 * 		//IDP certificate for verification of incoming messages
-	 * 		Saml2X509Credential idpVerificationCertificate = getVerificationCertificate();
-	 * 		return RelyingPartyRegistration.withRegistrationId(registrationId)
-	 * 				.remoteIdpEntityId(idpEntityId)
-	 * 				.idpWebSsoUrl(webSsoEndpoint)
-	 * 				.credential(signingCredential)
-	 * 				.credential(idpVerificationCertificate)
-	 * 				.localEntityIdTemplate(localEntityIdTemplate)
-	 * 				.build();
-	 * 	}
-	 * }
-	 * </pre>
-	 *
-	 * <p>
-	 * @return the {@link Saml2LoginConfigurer} for further customizations
-	 * @throws Exception
-	 * @since 5.2
-	 * @deprecated For removal in 7.0. Use {@link #saml2Login(Customizer)} or
-	 * {@code saml2Login(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public Saml2LoginConfigurer<HttpSecurity> saml2Login() throws Exception {
-		return getOrApply(new Saml2LoginConfigurer<>());
-	}
-
-	/**
-	 * Configures authentication support using an SAML 2.0 Service Provider. <br>
-	 * <br>
-	 *
-	 * The &quot;authentication flow&quot; is implemented using the <b>Web Browser SSO
-	 * Profile, using POST and REDIRECT bindings</b>, as documented in the
-	 * <a target="_blank" href="https://docs.oasis-open.org/security/saml/">SAML V2.0
-	 * Core,Profiles and Bindings</a> specifications. <br>
-	 * <br>
-	 *
-	 * As a prerequisite to using this feature, is that you have a SAML v2.0 Identity
-	 * Provider to provide an assertion. The representation of the Service Provider, the
-	 * relying party, and the remote Identity Provider, the asserting party is contained
-	 * within {@link RelyingPartyRegistration}. <br>
-	 * <br>
-	 *
-	 * {@link RelyingPartyRegistration}(s) are composed within a
-	 * {@link RelyingPartyRegistrationRepository}, which is <b>required</b> and must be
-	 * registered with the {@link ApplicationContext} or configured via
-	 * <code>saml2Login().relyingPartyRegistrationRepository(..)</code>. <br>
-	 * <br>
-	 *
-	 * The default configuration provides an auto-generated login page at
-	 * <code>&quot;/login&quot;</code> and redirects to
-	 * <code>&quot;/login?error&quot;</code> when an authentication error occurs. The
-	 * login page will display each of the identity providers with a link that is capable
-	 * of initiating the &quot;authentication flow&quot;. <br>
-	 * <br>
-	 *
-	 * <p>
-	 * <h2>Example Configuration</h2>
-	 *
-	 * The following example shows the minimal configuration required, using SimpleSamlPhp
-	 * as the Authentication Provider.
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class Saml2LoginSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.anyRequest().authenticated()
 	 * 			)
 	 * 			.saml2Login(withDefaults());
@@ -2427,7 +1267,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *		&#064;Bean
 	 *		public SecurityFilterChain web(HttpSecurity http) throws Exception {
 	 *			http
-	 *				.authorizeRequests((authorize) -&gt; authorize
+	 *				.authorizeHttpRequests((authorize) -&gt; authorize
 	 *					.anyRequest().authenticated()
 	 *				)
 	 *				.saml2Login(withDefaults())
@@ -2455,80 +1295,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 			throws Exception {
 		saml2LogoutCustomizer.customize(getOrApply(new Saml2LogoutConfigurer<>(getContext())));
 		return HttpSecurity.this;
-	}
-
-	/**
-	 * Configures logout support for an SAML 2.0 Relying Party. <br>
-	 * <br>
-	 *
-	 * Implements the <b>Single Logout Profile, using POST and REDIRECT bindings</b>, as
-	 * documented in the
-	 * <a target="_blank" href="https://docs.oasis-open.org/security/saml/">SAML V2.0
-	 * Core, Profiles and Bindings</a> specifications. <br>
-	 * <br>
-	 *
-	 * As a prerequisite to using this feature, is that you have a SAML v2.0 Asserting
-	 * Party to sent a logout request to. The representation of the relying party and the
-	 * asserting party is contained within {@link RelyingPartyRegistration}. <br>
-	 * <br>
-	 *
-	 * {@link RelyingPartyRegistration}(s) are composed within a
-	 * {@link RelyingPartyRegistrationRepository}, which is <b>required</b> and must be
-	 * registered with the {@link ApplicationContext} or configured via
-	 * {@link #saml2Login()}.<br>
-	 * <br>
-	 *
-	 * The default configuration provides an auto-generated logout endpoint at
-	 * <code>&quot;/logout&quot;</code> and redirects to <code>/login?logout</code> when
-	 * logout completes. <br>
-	 * <br>
-	 *
-	 * <p>
-	 * <h2>Example Configuration</h2>
-	 *
-	 * The following example shows the minimal configuration required, using a
-	 * hypothetical asserting party.
-	 *
-	 * <pre>
-	 *	&#064;EnableWebSecurity
-	 *	&#064;Configuration
-	 *	public class Saml2LogoutSecurityConfig {
-	 *		&#064;Bean
-	 *		public SecurityFilterChain web(HttpSecurity http) throws Exception {
-	 *			http
-	 *				.authorizeRequests()
-	 *					.anyRequest().authenticated()
-	 *					.and()
-	 *				.saml2Login()
-	 *					.and()
-	 *				.saml2Logout();
-	 *			return http.build();
-	 *		}
-	 *
-	 *		&#064;Bean
-	 *		public RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() {
-	 *			RelyingPartyRegistration registration = RelyingPartyRegistrations
-	 *					.withMetadataLocation("https://ap.example.org/metadata")
-	 *					.registrationId("simple")
-	 *					.build();
-	 *			return new InMemoryRelyingPartyRegistrationRepository(registration);
-	 *		}
-	 *	}
-	 * </pre>
-	 *
-	 * <p>
-	 * @return the {@link Saml2LoginConfigurer} for further customizations
-	 * @throws Exception
-	 * @since 5.6
-	 * @deprecated For removal in 7.0. Use {@link #saml2Logout(Customizer)} or
-	 * {@code saml2Logout(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public Saml2LogoutConfigurer<HttpSecurity> saml2Logout() throws Exception {
-		return getOrApply(new Saml2LogoutConfigurer<>(getContext()));
 	}
 
 	/**
@@ -2582,58 +1348,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	}
 
 	/**
-	 * Configures a SAML 2.0 metadata endpoint that presents relying party configurations
-	 * in an {@code <md:EntityDescriptor>} payload.
-	 *
-	 * <p>
-	 * By default, the endpoints are {@code /saml2/metadata} and
-	 * {@code /saml2/metadata/{registrationId}} though note that also
-	 * {@code /saml2/service-provider-metadata/{registrationId}} is recognized for
-	 * backward compatibility purposes.
-	 *
-	 * <p>
-	 * <h2>Example Configuration</h2>
-	 *
-	 * The following example shows the minimal configuration required, using a
-	 * hypothetical asserting party.
-	 *
-	 * <pre>
-	 *	&#064;EnableWebSecurity
-	 *	&#064;Configuration
-	 *	public class Saml2LogoutSecurityConfig {
-	 *		&#064;Bean
-	 *		public SecurityFilterChain web(HttpSecurity http) throws Exception {
-	 *			http
-	 *				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
-	 *				.saml2Metadata(Customizer.withDefaults());
-	 *			return http.build();
-	 *		}
-	 *
-	 *		&#064;Bean
-	 *		public RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() {
-	 *			RelyingPartyRegistration registration = RelyingPartyRegistrations
-	 *					.withMetadataLocation("https://ap.example.org/metadata")
-	 *					.registrationId("simple")
-	 *					.build();
-	 *			return new InMemoryRelyingPartyRegistrationRepository(registration);
-	 *		}
-	 *	}
-	 * </pre>
-	 * @return the {@link Saml2MetadataConfigurer} for further customizations
-	 * @throws Exception
-	 * @since 6.1
-	 * @deprecated For removal in 7.0. Use {@link #saml2Metadata(Customizer)} or
-	 * {@code saml2Metadata(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public Saml2MetadataConfigurer<HttpSecurity> saml2Metadata() throws Exception {
-		return getOrApply(new Saml2MetadataConfigurer<>(getContext()));
-	}
-
-	/**
 	 * Configures authentication support using an OAuth 2.0 and/or OpenID Connect 1.0
 	 * Provider. <br>
 	 * <br>
@@ -2682,113 +1396,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests()
-	 * 				.anyRequest().authenticated()
-	 * 				.and()
-	 * 			.oauth2Login();
-	 * 		return http.build();
-	 * 	}
-	 *
-	 *	&#064;Bean
-	 *	public ClientRegistrationRepository clientRegistrationRepository() {
-	 *		return new InMemoryClientRegistrationRepository(this.googleClientRegistration());
-	 *	}
-	 *
-	 * 	private ClientRegistration googleClientRegistration() {
-	 * 		return ClientRegistration.withRegistrationId("google")
-	 * 			.clientId("google-client-id")
-	 * 			.clientSecret("google-client-secret")
-	 * 			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-	 * 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-	 * 			.redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
-	 * 			.scope("openid", "profile", "email", "address", "phone")
-	 * 			.authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
-	 * 			.tokenUri("https://www.googleapis.com/oauth2/v4/token")
-	 * 			.userInfoUri("https://www.googleapis.com/oauth2/v3/userinfo")
-	 * 			.userNameAttributeName(IdTokenClaimNames.SUB)
-	 * 			.jwkSetUri("https://www.googleapis.com/oauth2/v3/certs")
-	 * 			.clientName("Google")
-	 * 			.build();
-	 *	}
-	 * }
-	 * </pre>
-	 *
-	 * <p>
-	 * For more advanced configuration, see {@link OAuth2LoginConfigurer} for available
-	 * options to customize the defaults.
-	 * @return the {@link OAuth2LoginConfigurer} for further customizations
-	 * @throws Exception
-	 * @since 5.0
-	 * @deprecated For removal in 7.0. Use {@link #oauth2Login(Customizer)} or
-	 * {@code oauth2Login(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 * @see <a target="_blank" href=
-	 * "https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code
-	 * Grant</a>
-	 * @see <a target="_blank" href=
-	 * "https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">Section 3.1
-	 * Authorization Code Flow</a>
-	 * @see org.springframework.security.oauth2.client.registration.ClientRegistration
-	 * @see org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public OAuth2LoginConfigurer<HttpSecurity> oauth2Login() throws Exception {
-		return getOrApply(new OAuth2LoginConfigurer<>());
-	}
-
-	/**
-	 * Configures authentication support using an OAuth 2.0 and/or OpenID Connect 1.0
-	 * Provider. <br>
-	 * <br>
-	 *
-	 * The &quot;authentication flow&quot; is implemented using the <b>Authorization Code
-	 * Grant</b>, as specified in the
-	 * <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">OAuth 2.0
-	 * Authorization Framework</a> and <a target="_blank" href=
-	 * "https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">OpenID Connect
-	 * Core 1.0</a> specification. <br>
-	 * <br>
-	 *
-	 * As a prerequisite to using this feature, you must register a client with a
-	 * provider. The client registration information may than be used for configuring a
-	 * {@link org.springframework.security.oauth2.client.registration.ClientRegistration}
-	 * using a
-	 * {@link org.springframework.security.oauth2.client.registration.ClientRegistration.Builder}.
-	 * <br>
-	 * <br>
-	 *
-	 * {@link org.springframework.security.oauth2.client.registration.ClientRegistration}(s)
-	 * are composed within a
-	 * {@link org.springframework.security.oauth2.client.registration.ClientRegistrationRepository},
-	 * which is <b>required</b> and must be registered with the {@link ApplicationContext}
-	 * or configured via <code>oauth2Login().clientRegistrationRepository(..)</code>. <br>
-	 * <br>
-	 *
-	 * The default configuration provides an auto-generated login page at
-	 * <code>&quot;/login&quot;</code> and redirects to
-	 * <code>&quot;/login?error&quot;</code> when an authentication error occurs. The
-	 * login page will display each of the clients with a link that is capable of
-	 * initiating the &quot;authentication flow&quot;. <br>
-	 * <br>
-	 *
-	 * <p>
-	 * <h2>Example Configuration</h2>
-	 *
-	 * The following example shows the minimal configuration required, using Google as the
-	 * Authentication Provider.
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class OAuth2LoginSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.anyRequest().authenticated()
 	 * 			)
 	 * 			.oauth2Login(withDefaults());
@@ -2853,27 +1462,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	/**
 	 * Configures OAuth 2.0 Client support.
-	 * @return the {@link OAuth2ClientConfigurer} for further customizations
-	 * @throws Exception
-	 * @since 5.1
-	 * @deprecated For removal in 7.0. Use {@link #oauth2Client(Customizer)} or
-	 * {@code oauth2Client(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 * @see <a target="_blank" href=
-	 * "https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization
-	 * Framework</a>
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public OAuth2ClientConfigurer<HttpSecurity> oauth2Client() throws Exception {
-		OAuth2ClientConfigurer<HttpSecurity> configurer = getOrApply(new OAuth2ClientConfigurer<>());
-		this.postProcess(configurer);
-		return configurer;
-	}
-
-	/**
-	 * Configures OAuth 2.0 Client support.
 	 *
 	 * <h2>Example Configuration</h2>
 	 *
@@ -2888,8 +1476,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.anyRequest().authenticated()
 	 * 			)
 	 * 			.oauth2Client(withDefaults());
@@ -2913,25 +1501,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	/**
 	 * Configures OAuth 2.0 Resource Server support.
-	 * @return the {@link OAuth2ResourceServerConfigurer} for further customizations
-	 * @throws Exception
-	 * @since 5.1
-	 * @deprecated For removal in 7.0. Use {@link #oauth2ResourceServer(Customizer)}
-	 * instead
-	 * @see <a target="_blank" href=
-	 * "https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization
-	 * Framework</a>
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public OAuth2ResourceServerConfigurer<HttpSecurity> oauth2ResourceServer() throws Exception {
-		OAuth2ResourceServerConfigurer<HttpSecurity> configurer = getOrApply(
-				new OAuth2ResourceServerConfigurer<>(getContext()));
-		this.postProcess(configurer);
-		return configurer;
-	}
-
-	/**
-	 * Configures OAuth 2.0 Resource Server support.
 	 *
 	 * <h2>Example Configuration</h2>
 	 *
@@ -2946,8 +1515,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.anyRequest().authenticated()
 	 * 			)
 	 * 			.oauth2ResourceServer((oauth2ResourceServer) -&gt;
@@ -3041,58 +1610,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http.authorizeRequests().requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin()
-	 * 				.and().requiresChannel().anyRequest().requiresSecure();
-	 * 		return http.build();
-	 * 	}
-	 *
-	 * 	&#064;Bean
-	 * 	public UserDetailsService userDetailsService() {
-	 * 		UserDetails user = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;user&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;USER&quot;)
-	 * 			.build();
-	 * 		return new InMemoryUserDetailsManager(user);
-	 * 	}
-	 * }
-	 * </pre>
-	 * @return the {@link ChannelSecurityConfigurer} for further customizations
-	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #requiresChannel(Customizer)} or
-	 * {@code requiresChannel(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public ChannelSecurityConfigurer<HttpSecurity>.ChannelRequestMatcherRegistry requiresChannel() throws Exception {
-		ApplicationContext context = getContext();
-		return getOrApply(new ChannelSecurityConfigurer<>(context)).getRegistry();
-	}
-
-	/**
-	 * Configures channel security. In order for this configuration to be useful at least
-	 * one mapping to a required channel must be provided.
-	 *
-	 * <h2>Example Configuration</h2>
-	 *
-	 * The example below demonstrates how to require HTTPs for every request. Only
-	 * requiring HTTPS for some requests is supported, but not recommended since an
-	 * application that allows for HTTP introduces many security vulnerabilities. For one
-	 * such example, read about
-	 * <a href="https://en.wikipedia.org/wiki/Firesheep">Firesheep</a>.
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class ChannelSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin(withDefaults())
@@ -3118,12 +1638,61 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * the {@link ChannelSecurityConfigurer.ChannelRequestMatcherRegistry}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
+	 * @deprecated Use {@link #redirectToHttps}
 	 */
+	@Deprecated
 	public HttpSecurity requiresChannel(
 			Customizer<ChannelSecurityConfigurer<HttpSecurity>.ChannelRequestMatcherRegistry> requiresChannelCustomizer)
 			throws Exception {
 		ApplicationContext context = getContext();
 		requiresChannelCustomizer.customize(getOrApply(new ChannelSecurityConfigurer<>(context)).getRegistry());
+		return HttpSecurity.this;
+	}
+
+	/**
+	 * Configures channel security. In order for this configuration to be useful at least
+	 * one mapping to a required channel must be provided.
+	 *
+	 * <h2>Example Configuration</h2>
+	 *
+	 * The example below demonstrates how to require HTTPS for every request. Only
+	 * requiring HTTPS for some requests is supported, for example if you need to
+	 * differentiate between local and production deployments.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class RequireHttpsConfig {
+	 *
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeHttpRequests((authorize) -&gt; authorize
+	 * 				anyRequest().authenticated()
+	 * 			)
+	 * 			.formLogin(withDefaults())
+	 * 			.redirectToHttps(withDefaults());
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
+	 * 	}
+	 * }
+	 * </pre>
+	 * @param httpsRedirectConfigurerCustomizer the {@link Customizer} to provide more
+	 * options for the {@link HttpsRedirectConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 */
+	public HttpSecurity redirectToHttps(
+			Customizer<HttpsRedirectConfigurer<HttpSecurity>> httpsRedirectConfigurerCustomizer) throws Exception {
+		httpsRedirectConfigurerCustomizer.customize(getOrApply(new HttpsRedirectConfigurer<>()));
 		return HttpSecurity.this;
 	}
 
@@ -3143,53 +1712,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http.authorizeRequests().requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().httpBasic();
-	 * 		return http.build();
-	 * 	}
-	 *
-	 * 	&#064;Bean
-	 * 	public UserDetailsService userDetailsService() {
-	 * 		UserDetails user = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;user&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;USER&quot;)
-	 * 			.build();
-	 * 		return new InMemoryUserDetailsManager(user);
-	 * 	}
-	 * }
-	 * </pre>
-	 * @return the {@link HttpBasicConfigurer} for further customizations
-	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #httpBasic(Customizer)} or
-	 * {@code httpBasic(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public HttpBasicConfigurer<HttpSecurity> httpBasic() throws Exception {
-		return getOrApply(new HttpBasicConfigurer<>());
-	}
-
-	/**
-	 * Configures HTTP Basic authentication.
-	 *
-	 * <h2>Example Configuration</h2>
-	 *
-	 * The example below demonstrates how to configure HTTP Basic authentication for an
-	 * application. The default realm is "Realm", but can be customized using
-	 * {@link HttpBasicConfigurer#realmName(String)}.
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class HttpBasicSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.httpBasic(withDefaults());
@@ -3233,8 +1758,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Bean
 	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests(authorizeRequests -&gt;
-	 * 				authorizeRequests
+	 * 			.authorizeHttpRequests(authorizeHttpRequests -&gt;
+	 * 				authorizeHttpRequests
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.passwordManagement(passwordManagement -&gt;
@@ -3291,12 +1816,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	@SuppressWarnings("unchecked")
 	@Override
 	protected DefaultSecurityFilterChain performBuild() {
-		ExpressionUrlAuthorizationConfigurer<?> expressionConfigurer = getConfigurer(
-				ExpressionUrlAuthorizationConfigurer.class);
-		AuthorizeHttpRequestsConfigurer<?> httpConfigurer = getConfigurer(AuthorizeHttpRequestsConfigurer.class);
-		boolean oneConfigurerPresent = expressionConfigurer == null ^ httpConfigurer == null;
-		Assert.state((expressionConfigurer == null && httpConfigurer == null) || oneConfigurerPresent,
-				"authorizeHttpRequests cannot be used in conjunction with authorizeRequests. Please select just one.");
 		this.filters.sort(OrderComparator.INSTANCE);
 		List<Filter> sortedFilters = new ArrayList<>(this.filters.size());
 		for (Filter filter : this.filters) {
@@ -3374,133 +1893,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 */
 	public HttpSecurity addFilterAt(Filter filter, Class<? extends Filter> atFilter) {
 		return addFilterAtOffsetOf(filter, 0, atFilter);
-	}
-
-	/**
-	 * Allows specifying which {@link HttpServletRequest} instances this
-	 * {@link HttpSecurity} will be invoked on. This method allows for easily invoking the
-	 * {@link HttpSecurity} for multiple different {@link RequestMatcher} instances. If
-	 * only a single {@link RequestMatcher} is necessary consider using
-	 * {@link #securityMatcher(String...)}, or {@link #securityMatcher(RequestMatcher)}.
-	 *
-	 * <p>
-	 * Invoking {@link #securityMatchers()} will not override previous invocations of
-	 * {@link #securityMatchers()}}, {@link #securityMatchers(Customizer)}
-	 * {@link #securityMatcher(String...)} and {@link #securityMatcher(RequestMatcher)}
-	 * </p>
-	 *
-	 * <h3>Example Configurations</h3>
-	 *
-	 * The following configuration enables the {@link HttpSecurity} for URLs that begin
-	 * with "/api/" or "/oauth/".
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class RequestMatchersSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http
-	 * 			.securityMatchers((matchers) -&gt; matchers
-	 * 				.requestMatchers(&quot;/api/**&quot;, &quot;/oauth/**&quot;)
-	 * 			)
-	 * 			.authorizeHttpRequests((authorize) -&gt; authorize
-	 * 				anyRequest().hasRole(&quot;USER&quot;)
-	 * 			)
-	 * 			.httpBasic(withDefaults());
-	 * 		return http.build();
-	 * 	}
-	 *
-	 * 	&#064;Bean
-	 * 	public UserDetailsService userDetailsService() {
-	 * 		UserDetails user = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;user&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;USER&quot;)
-	 * 			.build();
-	 * 		return new InMemoryUserDetailsManager(user);
-	 * 	}
-	 * }
-	 * </pre>
-	 *
-	 * The configuration below is the same as the previous configuration.
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class RequestMatchersSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http
-	 * 			.securityMatchers((matchers) -&gt; matchers
-	 * 				.requestMatchers(&quot;/api/**&quot;)
-	 * 				.requestMatchers(&quot;/oauth/**&quot;)
-	 * 			)
-	 * 			.authorizeHttpRequests((authorize) -&gt; authorize
-	 * 				anyRequest().hasRole(&quot;USER&quot;)
-	 * 			)
-	 * 			.httpBasic(withDefaults());
-	 * 		return http.build();
-	 * 	}
-	 *
-	 * 	&#064;Bean
-	 * 	public UserDetailsService userDetailsService() {
-	 * 		UserDetails user = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;user&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;USER&quot;)
-	 * 			.build();
-	 * 		return new InMemoryUserDetailsManager(user);
-	 * 	}
-	 * }
-	 * </pre>
-	 *
-	 * The configuration below is also the same as the above configuration.
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class RequestMatchersSecurityConfig {
-	 *
-	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 * 		http
-	 * 			.securityMatchers((matchers) -&gt; matchers
-	 * 				.requestMatchers(&quot;/api/**&quot;)
-	 * 			)
-	 *			.securityMatchers((matchers) -&gt; matchers
-	 *				.requestMatchers(&quot;/oauth/**&quot;)
-	 * 			)
-	 * 			.authorizeHttpRequests((authorize) -&gt; authorize
-	 * 				anyRequest().hasRole(&quot;USER&quot;)
-	 * 			)
-	 * 			.httpBasic(withDefaults());
-	 * 		return http.build();
-	 * 	}
-	 *
-	 * 	&#064;Bean
-	 * 	public UserDetailsService userDetailsService() {
-	 * 		UserDetails user = User.withDefaultPasswordEncoder()
-	 * 			.username(&quot;user&quot;)
-	 * 			.password(&quot;password&quot;)
-	 * 			.roles(&quot;USER&quot;)
-	 * 			.build();
-	 * 		return new InMemoryUserDetailsManager(user);
-	 * 	}
-	 * }
-	 * </pre>
-	 * @return the {@link RequestMatcherConfigurer} for further customizations
-	 * @deprecated For removal in 7.0. Use {@link #securityMatchers(Customizer)} or
-	 * {@code securityMatchers(Customizer.withDefaults())} to stick with defaults. See the
-	 * <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
-	 */
-	@Deprecated(since = "6.1", forRemoval = true)
-	public RequestMatcherConfigurer securityMatchers() {
-		return this.requestMatcherConfigurer;
 	}
 
 	/**
@@ -3638,8 +2030,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * {@link #securityMatcher(String...)}, {@link #securityMatchers(Customizer)} and
 	 * {@link #securityMatchers()}
 	 * </p>
-	 * @param requestMatcher the {@link RequestMatcher} to use (i.e. new
-	 * AntPathRequestMatcher("/admin/**","GET") )
+	 * @param requestMatcher the {@link RequestMatcher} to use, for example,
+	 * {@code PathPatternRequestMatcher.pathPattern(HttpMethod.GET, "/admin/**")}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @see #securityMatcher(String...)
 	 */
@@ -3650,10 +2042,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	/**
 	 * Allows configuring the {@link HttpSecurity} to only be invoked when matching the
-	 * provided pattern. This method creates a {@link MvcRequestMatcher} if Spring MVC is
-	 * in the classpath or creates an {@link AntPathRequestMatcher} if not. If more
-	 * advanced configuration is necessary, consider using
-	 * {@link #securityMatchers(Customizer)} or {@link #securityMatcher(RequestMatcher)}.
+	 * provided set of {@code patterns}. See
+	 * {@link org.springframework.web.util.pattern.PathPattern} for matching rules
 	 *
 	 * <p>
 	 * Invoking {@link #securityMatcher(String...)} will override previous invocations of
@@ -3663,15 +2053,16 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </p>
 	 * @param patterns the pattern to match on (i.e. "/admin/**")
 	 * @return the {@link HttpSecurity} for further customizations
-	 * @see AntPathRequestMatcher
-	 * @see MvcRequestMatcher
+	 * @see org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher
+	 * @see org.springframework.web.util.pattern.PathPattern
 	 */
 	public HttpSecurity securityMatcher(String... patterns) {
-		if (mvcPresent) {
-			this.requestMatcher = new OrRequestMatcher(createMvcMatchers(patterns));
-			return this;
+		List<RequestMatcher> matchers = new ArrayList<>();
+		PathPatternRequestMatcher.Builder builder = getContext().getBean(PathPatternRequestMatcher.Builder.class);
+		for (String pattern : patterns) {
+			matchers.add(builder.matcher(pattern));
 		}
-		this.requestMatcher = new OrRequestMatcher(createAntMatchers(patterns));
+		this.requestMatcher = new OrRequestMatcher(matchers);
 		return this;
 	}
 
@@ -3696,36 +2087,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @throws Exception
 	 */
 	public HttpSecurity webAuthn(Customizer<WebAuthnConfigurer<HttpSecurity>> webAuthn) throws Exception {
-		webAuthn.customize(getOrApply(new WebAuthnConfigurer<HttpSecurity>()));
+		webAuthn.customize(getOrApply(new WebAuthnConfigurer<>()));
 		return HttpSecurity.this;
-	}
-
-	private List<RequestMatcher> createAntMatchers(String... patterns) {
-		List<RequestMatcher> matchers = new ArrayList<>(patterns.length);
-		for (String pattern : patterns) {
-			matchers.add(new AntPathRequestMatcher(pattern));
-		}
-		return matchers;
-	}
-
-	private List<RequestMatcher> createMvcMatchers(String... mvcPatterns) {
-		ResolvableType type = ResolvableType.forClassWithGenerics(ObjectPostProcessor.class, Object.class);
-		ObjectProvider<ObjectPostProcessor<Object>> postProcessors = getContext().getBeanProvider(type);
-		ObjectPostProcessor<Object> opp = postProcessors.getObject();
-		if (!getContext().containsBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
-			throw new NoSuchBeanDefinitionException("A Bean named " + HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME
-					+ " of type " + HandlerMappingIntrospector.class.getName()
-					+ " is required to use MvcRequestMatcher. Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext.");
-		}
-		HandlerMappingIntrospector introspector = getContext().getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME,
-				HandlerMappingIntrospector.class);
-		List<RequestMatcher> matchers = new ArrayList<>(mvcPatterns.length);
-		for (String mvcPattern : mvcPatterns) {
-			MvcRequestMatcher matcher = new MvcRequestMatcher(introspector, mvcPattern);
-			opp.postProcess(matcher);
-			matchers.add(matcher);
-		}
-		return matchers;
 	}
 
 	/**
@@ -3743,7 +2106,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		if (existingConfig != null) {
 			return existingConfig;
 		}
-		return apply(configurer);
+		with(configurer);
+		return configurer;
 	}
 
 	private ObjectPostProcessor<AuthenticationManager> getAuthenticationManagerPostProcessor() {
@@ -3777,35 +2141,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		private void setMatchers(List<? extends RequestMatcher> requestMatchers) {
 			this.matchers.addAll(requestMatchers);
 			securityMatcher(new OrRequestMatcher(this.matchers));
-		}
-
-		/**
-		 * Return the {@link HttpSecurity} for further customizations
-		 * @return the {@link HttpSecurity} for further customizations
-		 * @deprecated Use the lambda based configuration instead. For example: <pre>
-		 * &#064;Configuration
-		 * &#064;EnableWebSecurity
-		 * public class SecurityConfig {
-		 *
-		 *     &#064;Bean
-		 *     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		 *         http
-		 *             .securityMatchers((matchers) -&gt; matchers
-		 *                 .requestMatchers(&quot;/api/**&quot;)
-		 *             )
-		 *             .authorizeHttpRequests((authorize) -&gt; authorize
-		 *                 .anyRequest().hasRole(&quot;USER&quot;)
-		 *             )
-		 *             .httpBasic(Customizer.withDefaults());
-		 *         return http.build();
-		 *     }
-		 *
-		 * }
-		 * </pre>
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public HttpSecurity and() {
-			return HttpSecurity.this;
 		}
 
 	}

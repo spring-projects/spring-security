@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,24 +114,6 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	}
 
 	/**
-	 * Applies a {@link SecurityConfigurerAdapter} to this {@link SecurityBuilder} and
-	 * invokes {@link SecurityConfigurerAdapter#setBuilder(SecurityBuilder)}.
-	 * @param configurer
-	 * @return the {@link SecurityConfigurerAdapter} for further customizations
-	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use
-	 * {@link #with(SecurityConfigurerAdapter, Customizer)} instead.
-	 */
-	@Deprecated(since = "6.2", forRemoval = true)
-	@SuppressWarnings("unchecked")
-	public <C extends SecurityConfigurerAdapter<O, B>> C apply(C configurer) throws Exception {
-		configurer.addObjectPostProcessor(this.objectPostProcessor);
-		configurer.setBuilder((B) this);
-		add(configurer);
-		return configurer;
-	}
-
-	/**
 	 * Applies a {@link SecurityConfigurer} to this {@link SecurityBuilder} overriding any
 	 * {@link SecurityConfigurer} of the exact same class. Note that object hierarchies
 	 * are not considered.
@@ -142,6 +124,28 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	public <C extends SecurityConfigurer<O, B>> C apply(C configurer) throws Exception {
 		add(configurer);
 		return configurer;
+	}
+
+	/**
+	 * Applies a {@link SecurityConfigurerAdapter} to this {@link SecurityBuilder} and
+	 * invokes {@link SecurityConfigurerAdapter#setBuilder(SecurityBuilder)}.
+	 *
+	 * <p>
+	 * A shortcut for applying a configurer as-is, or in other words: <code>
+	 *     .with(new MyConfigurer())
+	 * </code>
+	 *
+	 * <p>
+	 * Is identical to: <code>
+	 *     .with(new MyConfigurer(), Customizer.withDefaults())
+	 * </code>
+	 * @param configurer
+	 * @return the {@link SecurityBuilder} for further customizations
+	 * @throws Exception
+	 * @since 7.0
+	 */
+	public <C extends SecurityConfigurerAdapter<O, B>> B with(C configurer) throws Exception {
+		return with(configurer, Customizer.withDefaults());
 	}
 
 	/**

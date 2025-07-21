@@ -99,7 +99,7 @@ The `AuthorizationManager` interface contains two methods:
 
 [source,java]
 ----
-AuthorizationDecision check(Supplier<Authentication> authentication, Object secureObject);
+AuthorizationResult authorize(Supplier<Authentication> authentication, Object secureObject);
 
 default void verify(Supplier<Authentication> authentication, Object secureObject)
         throws AccessDeniedException {
@@ -113,7 +113,7 @@ For example, let's assume the secure object was a `MethodInvocation`.
 It would be easy to query the `MethodInvocation` for any `Customer` argument, and then implement some sort of security logic in the `AuthorizationManager` to ensure the principal is permitted to operate on that customer.
 Implementations are expected to return a positive `AuthorizationDecision` if access is granted, negative `AuthorizationDecision` if access is denied, and a null `AuthorizationDecision` when abstaining from making a decision.
 
-`verify` calls `check` and subsequently throws an `AccessDeniedException` in the case of a negative `AuthorizationDecision`.
+`verify` calls `authorize` and subsequently throws an `AccessDeniedException` in the case of a negative `AuthorizationDecision`.
 
 [[authz-delegate-authorization-manager]]
 === Delegate-based AuthorizationManager Implementations
@@ -126,6 +126,7 @@ For method security, you can use `AuthorizationManagerBeforeMethodInterceptor` a
 
 [[authz-authorization-manager-implementations]]
 .Authorization Manager Implementations
+[.invert-dark]
 image::{figures}/authorizationhierarchy.png[]
 
 Using this approach, a composition of `AuthorizationManager` implementations can be polled on an authorization decision.
@@ -179,7 +180,7 @@ public class AccessDecisionManagerAuthorizationManagerAdapter implements Authori
     private final SecurityMetadataSource securityMetadataSource;
 
     @Override
-    public AuthorizationDecision check(Supplier<Authentication> authentication, Object object) {
+    public AuthorizationResult authorize(Supplier<Authentication> authentication, Object object) {
         try {
             Collection<ConfigAttribute> attributes = this.securityMetadataSource.getAttributes(object);
             this.accessDecisionManager.decide(authentication.get(), object, attributes);
@@ -215,7 +216,7 @@ public class AccessDecisionVoterAuthorizationManagerAdapter implements Authoriza
     private final SecurityMetadataSource securityMetadataSource;
 
     @Override
-    public AuthorizationDecision check(Supplier<Authentication> authentication, Object object) {
+    public AuthorizationResult authorize(Supplier<Authentication> authentication, Object object) {
         Collection<ConfigAttribute> attributes = this.securityMetadataSource.getAttributes(object);
         int decision = this.accessDecisionVoter.vote(authentication.get(), object, attributes);
         switch (decision) {
@@ -342,6 +343,7 @@ The following image shows the `AccessDecisionManager` interface:
 
 [[authz-access-voting]]
 .Voting Decision Manager
+[.invert-dark]
 image::{figures}/access-decision-voting.png[]
 
 By using this approach, a series of `AccessDecisionVoter` implementations are polled on an authorization decision.
@@ -402,6 +404,7 @@ For example, on the Spring web site, you can find a https://spring.io/blog/2009/
 
 [[authz-after-invocation]]
 .After Invocation Implementation
+[.invert-dark]
 image::{figures}/after-invocation.png[]
 
 Like many other parts of Spring Security, `AfterInvocationManager` has a single concrete implementation, `AfterInvocationProviderManager`, which polls a list of ``AfterInvocationProvider``s.

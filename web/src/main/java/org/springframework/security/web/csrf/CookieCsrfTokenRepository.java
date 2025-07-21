@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2023 the original author or authors.
+ * Copyright 2012-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -97,8 +98,18 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 		this.cookieCustomizer.accept(cookieBuilder);
 
-		Cookie cookie = mapToCookie(cookieBuilder.build());
-		response.addCookie(cookie);
+		ResponseCookie responseCookie = cookieBuilder.build();
+		if (!StringUtils.hasLength(responseCookie.getSameSite())) {
+			Cookie cookie = mapToCookie(responseCookie);
+			response.addCookie(cookie);
+		}
+		else if (request.getServletContext().getMajorVersion() > 5) {
+			Cookie cookie = mapToCookie(responseCookie);
+			response.addCookie(cookie);
+		}
+		else {
+			response.addHeader(HttpHeaders.SET_COOKIE, responseCookie.toString());
+		}
 
 		// Set request attribute to signal that response has blank cookie value,
 		// which allows loadToken to return null when token has been removed
@@ -158,14 +169,6 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		this.cookieName = cookieName;
 	}
 
-	/**
-	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
-	 */
-	@Deprecated(since = "6.1")
-	public void setCookieHttpOnly(boolean cookieHttpOnly) {
-		this.cookieHttpOnly = cookieHttpOnly;
-	}
-
 	private String getRequestContext(HttpServletRequest request) {
 		String contextPath = request.getContextPath();
 		return (contextPath.length() > 0) ? contextPath : "/";
@@ -217,34 +220,6 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	 */
 	public String getCookiePath() {
 		return this.cookiePath;
-	}
-
-	/**
-	 * @since 5.2
-	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
-	 */
-	@Deprecated(since = "6.1")
-	public void setCookieDomain(String cookieDomain) {
-		this.cookieDomain = cookieDomain;
-	}
-
-	/**
-	 * @since 5.4
-	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
-	 */
-	@Deprecated(since = "6.1")
-	public void setSecure(Boolean secure) {
-		this.secure = secure;
-	}
-
-	/**
-	 * @since 5.5
-	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
-	 */
-	@Deprecated(since = "6.1")
-	public void setCookieMaxAge(int cookieMaxAge) {
-		Assert.isTrue(cookieMaxAge != 0, "cookieMaxAge cannot be zero");
-		this.cookieMaxAge = cookieMaxAge;
 	}
 
 }

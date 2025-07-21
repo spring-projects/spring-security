@@ -91,7 +91,7 @@ class OAuth2ResourceServerDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 oauth2ResourceServer {
@@ -131,7 +131,7 @@ class OAuth2ResourceServerDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 oauth2ResourceServer {
@@ -187,7 +187,7 @@ class OAuth2ResourceServerDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, denyAll)
                 }
                 oauth2ResourceServer {
@@ -223,13 +223,13 @@ class OAuth2ResourceServerDslTests {
 
         companion object {
             val RESOLVER: AuthenticationManagerResolver<HttpServletRequest> =
-                JwtIssuerAuthenticationManagerResolver("issuer")
+                JwtIssuerAuthenticationManagerResolver.fromTrustedIssuers ("issuer")
         }
 
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 oauth2ResourceServer {
@@ -261,7 +261,7 @@ class OAuth2ResourceServerDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 oauth2ResourceServer {

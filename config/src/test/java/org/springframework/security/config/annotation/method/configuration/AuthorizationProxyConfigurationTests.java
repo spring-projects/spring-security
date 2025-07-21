@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ public class AuthorizationProxyConfigurationTests {
 	@Test
 	public void proxyWhenNotPreAuthorizedThenDenies() {
 		this.spring.register(DefaultsConfig.class).autowire();
-		Toaster toaster = (Toaster) this.proxyFactory.proxy(new Toaster());
+		Toaster toaster = this.proxyFactory.proxy(new Toaster());
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(toaster::makeToast)
 			.withMessage("Access Denied");
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(toaster::extractBread)
@@ -69,7 +69,7 @@ public class AuthorizationProxyConfigurationTests {
 	@Test
 	public void proxyWhenPreAuthorizedThenAllows() {
 		this.spring.register(DefaultsConfig.class).autowire();
-		Toaster toaster = (Toaster) this.proxyFactory.proxy(new Toaster());
+		Toaster toaster = this.proxyFactory.proxy(new Toaster());
 		toaster.makeToast();
 		assertThat(toaster.extractBread()).isEqualTo("yummy");
 	}
@@ -77,7 +77,7 @@ public class AuthorizationProxyConfigurationTests {
 	@Test
 	public void proxyReactiveWhenNotPreAuthorizedThenDenies() {
 		this.spring.register(ReactiveDefaultsConfig.class).autowire();
-		Toaster toaster = (Toaster) this.proxyFactory.proxy(new Toaster());
+		Toaster toaster = this.proxyFactory.proxy(new Toaster());
 		Authentication user = TestAuthentication.authenticatedUser();
 		StepVerifier
 			.create(toaster.reactiveMakeToast().contextWrite(ReactiveSecurityContextHolder.withAuthentication(user)))
@@ -90,7 +90,7 @@ public class AuthorizationProxyConfigurationTests {
 	@Test
 	public void proxyReactiveWhenPreAuthorizedThenAllows() {
 		this.spring.register(ReactiveDefaultsConfig.class).autowire();
-		Toaster toaster = (Toaster) this.proxyFactory.proxy(new Toaster());
+		Toaster toaster = this.proxyFactory.proxy(new Toaster());
 		Authentication admin = TestAuthentication.authenticatedAdmin();
 		StepVerifier
 			.create(toaster.reactiveMakeToast().contextWrite(ReactiveSecurityContextHolder.withAuthentication(admin)))

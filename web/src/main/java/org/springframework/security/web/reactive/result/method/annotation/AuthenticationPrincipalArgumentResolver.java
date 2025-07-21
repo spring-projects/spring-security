@@ -17,8 +17,6 @@
 package org.springframework.security.web.reactive.result.method.annotation;
 
 import java.lang.annotation.Annotation;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
@@ -27,6 +25,8 @@ import org.springframework.core.MethodParameter;
 import org.springframework.core.ReactiveAdapter;
 import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.core.ResolvableType;
+import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.expression.BeanResolver;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
@@ -53,12 +53,14 @@ import org.springframework.web.server.ServerWebExchange;
  */
 public class AuthenticationPrincipalArgumentResolver extends HandlerMethodArgumentResolverSupport {
 
-	private final Map<MethodParameter, Annotation> cachedAttributes = new ConcurrentHashMap<>();
-
 	private ExpressionParser parser = new SpelExpressionParser();
 
+	private final Class<AuthenticationPrincipal> annotationType = AuthenticationPrincipal.class;
+
 	private SecurityAnnotationScanner<AuthenticationPrincipal> scanner = SecurityAnnotationScanners
-		.requireUnique(AuthenticationPrincipal.class);
+		.requireUnique(this.annotationType);
+
+	private boolean useAnnotationTemplate = false;
 
 	private BeanResolver beanResolver;
 
@@ -138,6 +140,7 @@ public class AuthenticationPrincipalArgumentResolver extends HandlerMethodArgume
 	 * @since 6.4
 	 */
 	public void setTemplateDefaults(AnnotationTemplateExpressionDefaults templateDefaults) {
+		this.useAnnotationTemplate = templateDefaults != null;
 		this.scanner = SecurityAnnotationScanners.requireUnique(AuthenticationPrincipal.class, templateDefaults);
 	}
 
@@ -147,10 +150,22 @@ public class AuthenticationPrincipalArgumentResolver extends HandlerMethodArgume
 	 * @param parameter the {@link MethodParameter} to search for an {@link Annotation}
 	 * @return the {@link Annotation} that was found or null.
 	 */
-	@SuppressWarnings("unchecked")
-	private <T extends Annotation> T findMethodAnnotation(MethodParameter parameter) {
-		return (T) this.cachedAttributes.computeIfAbsent(parameter,
-				(methodParameter) -> this.scanner.scan(methodParameter.getParameter()));
+	private AuthenticationPrincipal findMethodAnnotation(MethodParameter parameter) {
+		if (this.useAnnotationTemplate) {
+			return this.scanner.scan(parameter.getParameter());
+		}
+		AuthenticationPrincipal annotation = parameter.getParameterAnnotation(this.annotationType);
+		if (annotation != null) {
+			return annotation;
+		}
+		Annotation[] annotationsToSearch = parameter.getParameterAnnotations();
+		for (Annotation toSearch : annotationsToSearch) {
+			annotation = AnnotationUtils.findAnnotation(toSearch.annotationType(), this.annotationType);
+			if (annotation != null) {
+				return MergedAnnotations.from(toSearch).get(this.annotationType).synthesize();
+			}
+		}
+		return null;
 	}
 
 }

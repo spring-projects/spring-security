@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ package org.springframework.security.oauth2.jwt;
 import java.net.UnknownHostException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
@@ -38,6 +40,8 @@ import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSecurityContextJWKSet;
@@ -626,7 +630,7 @@ public class NimbusReactiveJwtDecoderTests {
 		JWSKeySelector<JWKSecurityContext> jwsKeySelector = NimbusReactiveJwtDecoder.withJwkSetUri(this.jwkSetUri)
 			.jwsKeySelector(jwkSource)
 			.block();
-		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector);
+		assertThat(jwsKeySelector).isInstanceOf(JWSVerificationKeySelector.class);
 		JWSVerificationKeySelector<JWKSecurityContext> jwsVerificationKeySelector = (JWSVerificationKeySelector<JWKSecurityContext>) jwsKeySelector;
 		assertThat(jwsVerificationKeySelector.isAllowed(JWSAlgorithm.RS256)).isTrue();
 	}
@@ -638,7 +642,7 @@ public class NimbusReactiveJwtDecoderTests {
 			.jwsAlgorithm(SignatureAlgorithm.RS512)
 			.jwsKeySelector(jwkSource)
 			.block();
-		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector);
+		assertThat(jwsKeySelector).isInstanceOf(JWSVerificationKeySelector.class);
 		JWSVerificationKeySelector<JWKSecurityContext> jwsVerificationKeySelector = (JWSVerificationKeySelector<JWKSecurityContext>) jwsKeySelector;
 		assertThat(jwsVerificationKeySelector.isAllowed(JWSAlgorithm.RS512)).isTrue();
 	}
@@ -652,16 +656,69 @@ public class NimbusReactiveJwtDecoderTests {
 				.jwsAlgorithm(SignatureAlgorithm.RS512)
 				.jwsKeySelector(jwkSource).block();
 		// @formatter:on
-		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector);
+		assertThat(jwsKeySelector).isInstanceOf(JWSVerificationKeySelector.class);
 		JWSVerificationKeySelector<?> jwsAlgorithmMapKeySelector = (JWSVerificationKeySelector<?>) jwsKeySelector;
 		assertThat(jwsAlgorithmMapKeySelector.isAllowed(JWSAlgorithm.RS256)).isTrue();
 		assertThat(jwsAlgorithmMapKeySelector.isAllowed(JWSAlgorithm.RS512)).isTrue();
 	}
 
+	@Test
+	public void decodeWhenPublicKeyValidateTypeFalseThenSkipsNimbusTypeValidation() throws Exception {
+		NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withPublicKey(TestKeys.DEFAULT_PUBLIC_KEY)
+			.validateType(false)
+			.build();
+		jwtDecoder.setJwtValidator((jwt) -> OAuth2TokenValidatorResult.success());
+		RSAPrivateKey privateKey = TestKeys.DEFAULT_PRIVATE_KEY;
+		SignedJWT jwt = signedJwt(privateKey,
+				new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JOSE).build(),
+				new JWTClaimsSet.Builder().subject("subject").build());
+		jwtDecoder.decode(jwt.serialize()).block();
+	}
+
+	@Test
+	public void decodeWhenSecretKeyValidateTypeFalseThenSkipsNimbusTypeValidation() throws Exception {
+		NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withSecretKey(TestKeys.DEFAULT_SECRET_KEY)
+			.validateType(false)
+			.build();
+		jwtDecoder.setJwtValidator((jwt) -> OAuth2TokenValidatorResult.success());
+		SignedJWT jwt = signedJwt(TestKeys.DEFAULT_SECRET_KEY,
+				new JWSHeader.Builder(JWSAlgorithm.HS256).type(JOSEObjectType.JOSE).build(),
+				new JWTClaimsSet.Builder().subject("subject").build());
+		jwtDecoder.decode(jwt.serialize()).block();
+	}
+
+	@Test
+	public void decodeWhenJwkSourceValidateTypeFalseThenSkipsNimbusTypeValidation() throws Exception {
+		JWK jwk = new RSAKey.Builder(TestKeys.DEFAULT_PUBLIC_KEY).privateKey(TestKeys.DEFAULT_PRIVATE_KEY)
+			.algorithm(JWSAlgorithm.RS256)
+			.build();
+		NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withJwkSource((jwt) -> Flux.just(jwk))
+			.validateType(false)
+			.build();
+		jwtDecoder.setJwtValidator((jwt) -> OAuth2TokenValidatorResult.success());
+		SignedJWT jwt = signedJwt(TestKeys.DEFAULT_PRIVATE_KEY,
+				new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JOSE).build(),
+				new JWTClaimsSet.Builder().subject("subject").build());
+		jwtDecoder.decode(jwt.serialize()).block();
+	}
+
 	private SignedJWT signedJwt(SecretKey secretKey, MacAlgorithm jwsAlgorithm, JWTClaimsSet claimsSet)
 			throws Exception {
-		SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.parse(jwsAlgorithm.getName())), claimsSet);
+		return signedJwt(secretKey, new JWSHeader(JWSAlgorithm.parse(jwsAlgorithm.getName())), claimsSet);
+	}
+
+	private SignedJWT signedJwt(SecretKey secretKey, JWSHeader header, JWTClaimsSet claimsSet) throws Exception {
 		JWSSigner signer = new MACSigner(secretKey);
+		return signedJwt(signer, header, claimsSet);
+	}
+
+	private SignedJWT signedJwt(PrivateKey privateKey, JWSHeader header, JWTClaimsSet claimsSet) throws Exception {
+		JWSSigner signer = new RSASSASigner(privateKey);
+		return signedJwt(signer, header, claimsSet);
+	}
+
+	private SignedJWT signedJwt(JWSSigner signer, JWSHeader header, JWTClaimsSet claimsSet) throws Exception {
+		SignedJWT signedJWT = new SignedJWT(header, claimsSet);
 		signedJWT.sign(signer);
 		return signedJWT;
 	}

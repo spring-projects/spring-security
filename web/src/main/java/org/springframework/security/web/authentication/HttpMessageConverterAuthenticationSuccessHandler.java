@@ -18,7 +18,6 @@ package org.springframework.security.web.authentication;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,7 +31,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
-import org.springframework.security.web.webauthn.jackson.WebauthnJackson2Module;
 import org.springframework.util.Assert;
 
 /**
@@ -51,8 +49,7 @@ import org.springframework.util.Assert;
  */
 public final class HttpMessageConverterAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
-	private HttpMessageConverter<Object> converter = new MappingJackson2HttpMessageConverter(
-			JsonMapper.builder().addModule(new WebauthnJackson2Module()).build());
+	private HttpMessageConverter<Object> converter = new MappingJackson2HttpMessageConverter();
 
 	private RequestCache requestCache = new HttpSessionRequestCache();
 

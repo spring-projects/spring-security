@@ -19,7 +19,7 @@ Java::
 ServerBearerTokenAuthenticationConverter converter = new ServerBearerTokenAuthenticationConverter();
 converter.setBearerTokenHeaderName(HttpHeaders.PROXY_AUTHORIZATION);
 http
-    .oauth2ResourceServer(oauth2 -> oauth2
+    .oauth2ResourceServer((oauth2) -> oauth2
         .bearerTokenConverter(converter)
     );
 ----
@@ -96,7 +96,7 @@ this.rest.get()
 ----
 ======
 
-The prececing example invokes the `https://other-service.example.com/endpoint`, adding the bearer token `Authorization` header for you.
+The preceding example invokes the `https://other-service.example.com/endpoint`, adding the bearer token `Authorization` header for you.
 
 In places where you need to override this behavior, you can supply the header yourself:
 
@@ -108,7 +108,7 @@ Java::
 ----
 this.rest.get()
         .uri("https://other-service.example.com/endpoint")
-        .headers(headers -> headers.setBearerAuth(overridingToken))
+        .headers((headers) -> headers.setBearerAuth(overridingToken))
         .retrieve()
         .bodyToMono(String.class)
 ----
@@ -129,5 +129,5 @@ In this case, the filter falls back and forwards the request onto the rest of th
 
 [NOTE]
 ====
-Unlike the https://docs.spring.io/spring-security/site/docs/current-SNAPSHOT/api/org/springframework/security/oauth2/client/web/reactive/function/client/ServerOAuth2AuthorizedClientExchangeFilterFunction.html[OAuth 2.0 Client filter function], this filter function makes no attempt to renew the token, should it be expired.
+Unlike the javadoc:org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction[OAuth 2.0 Client filter function], this filter function makes no attempt to renew the token, should it be expired.
 ====

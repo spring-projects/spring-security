@@ -22,6 +22,7 @@ import java.util.List;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.util.matcher.RequestMatcherEntry;
@@ -35,7 +36,11 @@ import org.springframework.web.context.ServletContextAware;
  *
  * @author Marcus Da Coregio
  * @since 5.5.5
+ * @deprecated please use {@link AuthorizationManagerWebInvocationPrivilegeEvaluator} and
+ * adapt any delegate {@link WebInvocationPrivilegeEvaluator}s into
+ * {@link AuthorizationManager}s
  */
+@Deprecated
 public final class RequestMatcherDelegatingWebInvocationPrivilegeEvaluator
 		implements WebInvocationPrivilegeEvaluator, ServletContextAware {
 
@@ -116,8 +121,9 @@ public final class RequestMatcherDelegatingWebInvocationPrivilegeEvaluator
 
 	private List<WebInvocationPrivilegeEvaluator> getDelegate(String contextPath, String uri, String method) {
 		FilterInvocation filterInvocation = new FilterInvocation(contextPath, uri, method, this.servletContext);
+		HttpServletRequest request = filterInvocation.getHttpRequest();
 		for (RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> delegate : this.delegates) {
-			if (delegate.getRequestMatcher().matches(filterInvocation.getHttpRequest())) {
+			if (delegate.getRequestMatcher().matches(request)) {
 				return delegate.getEntry();
 			}
 		}

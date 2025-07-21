@@ -118,8 +118,7 @@ public class SwitchUserFilterTests {
 	public void requiresExitUserMatchesCorrectly() {
 		SwitchUserFilter filter = new SwitchUserFilter();
 		filter.setExitUserUrl("/j_spring_security_my_exit_user");
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setRequestURI("/j_spring_security_my_exit_user");
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/j_spring_security_my_exit_user");
 		assertThat(filter.requiresExitUser(request)).isTrue();
 	}
 
@@ -158,8 +157,7 @@ public class SwitchUserFilterTests {
 	public void requiresSwitchMatchesCorrectly() {
 		SwitchUserFilter filter = new SwitchUserFilter();
 		filter.setSwitchUserUrl("/j_spring_security_my_switch_user");
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setRequestURI("/j_spring_security_my_switch_user");
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/j_spring_security_my_switch_user");
 		assertThat(filter.requiresSwitchUser(request)).isTrue();
 	}
 
@@ -230,8 +228,7 @@ public class SwitchUserFilterTests {
 
 	@Test
 	public void switchToLockedAccountCausesRedirectToSwitchFailureUrl() throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setRequestURI("/login/impersonate");
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/login/impersonate");
 		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "mcgarrett");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		SwitchUserFilter filter = new SwitchUserFilter();
@@ -385,8 +382,7 @@ public class SwitchUserFilterTests {
 				"hawaii50");
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		// http request
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setRequestURI("/webapp/login/impersonate");
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/webapp/login/impersonate");
 		request.setContextPath("/webapp");
 		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
 		// http response
@@ -519,11 +515,10 @@ public class SwitchUserFilterTests {
 	@Test
 	void doFilterWhenSwitchUserThenSaveSecurityContext() throws ServletException, IOException {
 		SecurityContextRepository securityContextRepository = mock(SecurityContextRepository.class);
-		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/login/impersonate");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain filterChain = new MockFilterChain();
 		request.setParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
-		request.setRequestURI("/login/impersonate");
 		SwitchUserFilter filter = new SwitchUserFilter();
 		filter.setSecurityContextRepository(securityContextRepository);
 		filter.setUserDetailsService(new MockUserDetailsService());
@@ -546,11 +541,10 @@ public class SwitchUserFilterTests {
 				"hawaii50", adminAuths);
 		SecurityContextHolder.getContext().setAuthentication(admin);
 		SecurityContextRepository securityContextRepository = mock(SecurityContextRepository.class);
-		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout/impersonate");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockFilterChain filterChain = new MockFilterChain();
 		request.setParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
-		request.setRequestURI("/logout/impersonate");
 		SwitchUserFilter filter = new SwitchUserFilter();
 		filter.setSecurityContextRepository(securityContextRepository);
 		filter.setUserDetailsService(new MockUserDetailsService());

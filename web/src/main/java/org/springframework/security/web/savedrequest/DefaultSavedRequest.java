@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,11 +100,21 @@ public class DefaultSavedRequest implements SavedRequest {
 
 	private final String matchingRequestParameterName;
 
+	public DefaultSavedRequest(HttpServletRequest request) {
+		this(request, (String) null);
+	}
+
+	public DefaultSavedRequest(HttpServletRequest request, String matchingRequestParameterName) {
+		this(request, PortResolver.NO_OP, matchingRequestParameterName);
+	}
+
+	@Deprecated(forRemoval = true)
 	public DefaultSavedRequest(HttpServletRequest request, PortResolver portResolver) {
 		this(request, portResolver, null);
 	}
 
 	@SuppressWarnings("unchecked")
+	@Deprecated(forRemoval = true)
 	public DefaultSavedRequest(HttpServletRequest request, PortResolver portResolver,
 			String matchingRequestParameterName) {
 		Assert.notNull(request, "Request required");
@@ -221,7 +231,10 @@ public class DefaultSavedRequest implements SavedRequest {
 	 * @param request the actual request to be matched against this one
 	 * @param portResolver used to obtain the server port of the request
 	 * @return true if the request is deemed to match this one.
+	 * @deprecated This is deprecated for removal. Users can compare
+	 * {@link #getRedirectUrl()} to the {@link HttpServletRequest} URL instead.
 	 */
+	@Deprecated(forRemoval = true)
 	public boolean doesRequestMatch(HttpServletRequest request, PortResolver portResolver) {
 		if (!propertyEquals(this.pathInfo, request.getPathInfo())) {
 			return false;
@@ -354,10 +367,7 @@ public class DefaultSavedRequest implements SavedRequest {
 		if (arg1 == null || arg2 == null) {
 			return false;
 		}
-		if (arg1.equals(arg2)) {
-			return true;
-		}
-		return false;
+		return arg1.equals(arg2);
 	}
 
 	@Override

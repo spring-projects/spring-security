@@ -40,7 +40,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @see CoreJackson2Module
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
-@JsonIgnoreProperties(ignoreUnknown = true, value = { "cause", "stackTrace" })
+@JsonIgnoreProperties(ignoreUnknown = true, value = { "cause", "stackTrace", "authenticationRequest" })
 class BadCredentialsExceptionMixin {
 
 	/**

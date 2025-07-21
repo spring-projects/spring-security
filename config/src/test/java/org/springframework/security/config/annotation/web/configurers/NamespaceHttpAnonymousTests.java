@@ -99,9 +99,9 @@ public class NamespaceHttpAnonymousTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
+				.authorizeHttpRequests((requests) -> requests
 					.requestMatchers("/type").anonymous()
-					.anyRequest().denyAll();
+					.anyRequest().denyAll());
 			return http.build();
 			// @formatter:on
 		}
@@ -116,10 +116,8 @@ public class NamespaceHttpAnonymousTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().permitAll()
-					.and()
-				.anonymous().disable();
+				.authorizeHttpRequests((requests) -> requests.anyRequest().anonymous())
+				.anonymous((anonymous) -> anonymous.disable());
 			// @formatter:on
 			return http.build();
 		}
@@ -140,12 +138,11 @@ public class NamespaceHttpAnonymousTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
+				.authorizeHttpRequests((requests) -> requests
 					.requestMatchers("/type").hasRole("ANON")
-					.anyRequest().denyAll()
-					.and()
-				.anonymous()
-					.authorities("ROLE_ANON");
+					.anyRequest().denyAll())
+				.anonymous((anonymous) -> anonymous
+					.authorities("ROLE_ANON"));
 			return http.build();
 			// @formatter:on
 		}
@@ -161,11 +158,10 @@ public class NamespaceHttpAnonymousTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
+				.authorizeHttpRequests((requests) -> requests
 					.requestMatchers("/key").anonymous()
-					.anyRequest().denyAll()
-					.and()
-				.anonymous().key("AnonymousKeyConfig");
+					.anyRequest().denyAll())
+				.anonymous((anonymous) -> anonymous.key("AnonymousKeyConfig"));
 			return http.build();
 			// @formatter:on
 		}
@@ -181,11 +177,10 @@ public class NamespaceHttpAnonymousTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
+				.authorizeHttpRequests((requests) -> requests
 					.requestMatchers("/principal").anonymous()
-					.anyRequest().denyAll()
-					.and()
-				.anonymous().principal("AnonymousUsernameConfig");
+					.anyRequest().denyAll())
+				.anonymous((anonymous) -> anonymous.principal("AnonymousUsernameConfig"));
 			return http.build();
 			// @formatter:on
 		}

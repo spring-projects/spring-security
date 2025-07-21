@@ -34,7 +34,7 @@
 	</authentication-manager>
 
 	<b:bean name="authenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
-		<b:property name="userDetailsService" ref="userService"/>
+		<b:constructor-arg name="userDetailsService" ref="userService"/>
 	</b:bean>
 
 	<b:bean name="userService" class="org.mockito.Mockito" factory-method="mock">

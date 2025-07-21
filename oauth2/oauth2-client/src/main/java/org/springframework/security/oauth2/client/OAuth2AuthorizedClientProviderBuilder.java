@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
-import org.springframework.security.oauth2.client.endpoint.OAuth2PasswordGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
 import org.springframework.util.Assert;
 
@@ -35,10 +35,10 @@ import org.springframework.util.Assert;
  * A builder that builds a {@link DelegatingOAuth2AuthorizedClientProvider} composed of
  * one or more {@link OAuth2AuthorizedClientProvider}(s) that implement specific
  * authorization grants. The supported authorization grants are
- * {@link #authorizationCode() authorization_code}, {@link #refreshToken() refresh_token},
- * {@link #clientCredentials() client_credentials} and {@link #password() password}. In
- * addition to the standard authorization grants, an implementation of an extension grant
- * may be supplied via {@link #provider(OAuth2AuthorizedClientProvider)}.
+ * {@link #authorizationCode() authorization_code}, {@link #refreshToken() refresh_token}
+ * and {@link #clientCredentials() client_credentials}. In addition to the standard
+ * authorization grants, an implementation of an extension grant may be supplied via
+ * {@link #provider(OAuth2AuthorizedClientProvider)}.
  *
  * @author Joe Grandja
  * @since 5.2
@@ -46,7 +46,6 @@ import org.springframework.util.Assert;
  * @see AuthorizationCodeOAuth2AuthorizedClientProvider
  * @see RefreshTokenOAuth2AuthorizedClientProvider
  * @see ClientCredentialsOAuth2AuthorizedClientProvider
- * @see PasswordOAuth2AuthorizedClientProvider
  * @see DelegatingOAuth2AuthorizedClientProvider
  */
 public final class OAuth2AuthorizedClientProviderBuilder {
@@ -135,40 +134,6 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	}
 
 	/**
-	 * Configures support for the {@code password} grant.
-	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
-	 * @deprecated The latest OAuth 2.0 Security Best Current Practice disallows the use
-	 * of the Resource Owner Password Credentials grant. See reference
-	 * <a target="_blank" href=
-	 * "https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics-19#section-2.4">OAuth
-	 * 2.0 Security Best Current Practice.</a>
-	 */
-	@Deprecated
-	public OAuth2AuthorizedClientProviderBuilder password() {
-		this.builders.computeIfAbsent(PasswordOAuth2AuthorizedClientProvider.class, (k) -> new PasswordGrantBuilder());
-		return OAuth2AuthorizedClientProviderBuilder.this;
-	}
-
-	/**
-	 * Configures support for the {@code password} grant.
-	 * @param builderConsumer a {@code Consumer} of {@link PasswordGrantBuilder} used for
-	 * further configuration
-	 * @return the {@link OAuth2AuthorizedClientProviderBuilder}
-	 * @deprecated The latest OAuth 2.0 Security Best Current Practice disallows the use
-	 * of the Resource Owner Password Credentials grant. See reference
-	 * <a target="_blank" href=
-	 * "https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics-19#section-2.4">OAuth
-	 * 2.0 Security Best Current Practice.</a>
-	 */
-	@Deprecated
-	public OAuth2AuthorizedClientProviderBuilder password(Consumer<PasswordGrantBuilder> builderConsumer) {
-		PasswordGrantBuilder builder = (PasswordGrantBuilder) this.builders
-			.computeIfAbsent(PasswordOAuth2AuthorizedClientProvider.class, (k) -> new PasswordGrantBuilder());
-		builderConsumer.accept(builder);
-		return OAuth2AuthorizedClientProviderBuilder.this;
-	}
-
-	/**
 	 * Builds an instance of {@link DelegatingOAuth2AuthorizedClientProvider} composed of
 	 * one or more {@link OAuth2AuthorizedClientProvider}(s).
 	 * @return the {@link DelegatingOAuth2AuthorizedClientProvider}
@@ -184,79 +149,6 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 	interface Builder {
 
 		OAuth2AuthorizedClientProvider build();
-
-	}
-
-	/**
-	 * A builder for the {@code password} grant.
-	 */
-	public final class PasswordGrantBuilder implements Builder {
-
-		private OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> accessTokenResponseClient;
-
-		private Duration clockSkew;
-
-		private Clock clock;
-
-		private PasswordGrantBuilder() {
-		}
-
-		/**
-		 * Sets the client used when requesting an access token credential at the Token
-		 * Endpoint.
-		 * @param accessTokenResponseClient the client used when requesting an access
-		 * token credential at the Token Endpoint
-		 * @return the {@link PasswordGrantBuilder}
-		 */
-		public PasswordGrantBuilder accessTokenResponseClient(
-				OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> accessTokenResponseClient) {
-			this.accessTokenResponseClient = accessTokenResponseClient;
-			return this;
-		}
-
-		/**
-		 * Sets the maximum acceptable clock skew, which is used when checking the access
-		 * token expiry. An access token is considered expired if
-		 * {@code OAuth2Token#getExpiresAt() - clockSkew} is before the current time
-		 * {@code clock#instant()}.
-		 * @param clockSkew the maximum acceptable clock skew
-		 * @return the {@link PasswordGrantBuilder}
-		 * @see PasswordOAuth2AuthorizedClientProvider#setClockSkew(Duration)
-		 */
-		public PasswordGrantBuilder clockSkew(Duration clockSkew) {
-			this.clockSkew = clockSkew;
-			return this;
-		}
-
-		/**
-		 * Sets the {@link Clock} used in {@link Instant#now(Clock)} when checking the
-		 * access token expiry.
-		 * @param clock the clock
-		 * @return the {@link PasswordGrantBuilder}
-		 */
-		public PasswordGrantBuilder clock(Clock clock) {
-			this.clock = clock;
-			return this;
-		}
-
-		/**
-		 * Builds an instance of {@link PasswordOAuth2AuthorizedClientProvider}.
-		 * @return the {@link PasswordOAuth2AuthorizedClientProvider}
-		 */
-		@Override
-		public OAuth2AuthorizedClientProvider build() {
-			PasswordOAuth2AuthorizedClientProvider authorizedClientProvider = new PasswordOAuth2AuthorizedClientProvider();
-			if (this.accessTokenResponseClient != null) {
-				authorizedClientProvider.setAccessTokenResponseClient(this.accessTokenResponseClient);
-			}
-			if (this.clockSkew != null) {
-				authorizedClientProvider.setClockSkew(this.clockSkew);
-			}
-			if (this.clock != null) {
-				authorizedClientProvider.setClock(this.clock);
-			}
-			return authorizedClientProvider;
-		}
 
 	}
 
@@ -359,6 +251,8 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 
 		private OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient;
 
+		private ApplicationEventPublisher eventPublisher;
+
 		private Duration clockSkew;
 
 		private Clock clock;
@@ -376,6 +270,18 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 		public RefreshTokenGrantBuilder accessTokenResponseClient(
 				OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient) {
 			this.accessTokenResponseClient = accessTokenResponseClient;
+			return this;
+		}
+
+		/**
+		 * Sets the {@link ApplicationEventPublisher} used when an access token is
+		 * refreshed.
+		 * @param eventPublisher the {@link ApplicationEventPublisher}
+		 * @return the {@link RefreshTokenGrantBuilder}
+		 * @since 6.5
+		 */
+		public RefreshTokenGrantBuilder eventPublisher(ApplicationEventPublisher eventPublisher) {
+			this.eventPublisher = eventPublisher;
 			return this;
 		}
 
@@ -413,6 +319,9 @@ public final class OAuth2AuthorizedClientProviderBuilder {
 			RefreshTokenOAuth2AuthorizedClientProvider authorizedClientProvider = new RefreshTokenOAuth2AuthorizedClientProvider();
 			if (this.accessTokenResponseClient != null) {
 				authorizedClientProvider.setAccessTokenResponseClient(this.accessTokenResponseClient);
+			}
+			if (this.eventPublisher != null) {
+				authorizedClientProvider.setApplicationEventPublisher(this.eventPublisher);
 			}
 			if (this.clockSkew != null) {
 				authorizedClientProvider.setClockSkew(this.clockSkew);

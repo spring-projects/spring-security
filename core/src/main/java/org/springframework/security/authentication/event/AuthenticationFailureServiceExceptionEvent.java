@@ -16,6 +16,8 @@
 
 package org.springframework.security.authentication.event;
 
+import java.io.Serial;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
@@ -26,6 +28,9 @@ import org.springframework.security.core.AuthenticationException;
  * @author Ben Alex
  */
 public class AuthenticationFailureServiceExceptionEvent extends AbstractAuthenticationFailureEvent {
+
+	@Serial
+	private static final long serialVersionUID = 5580062757249390756L;
 
 	public AuthenticationFailureServiceExceptionEvent(Authentication authentication,
 			AuthenticationException exception) {

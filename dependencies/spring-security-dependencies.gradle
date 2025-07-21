@@ -35,6 +35,7 @@ dependencies {
 		api libs.com.unboundid.unboundid.ldapsdk
 		api libs.commons.collections
 		api libs.io.mockk
+		api libs.io.micrometer.context.propagation
 		api libs.io.micrometer.micrometer.observation
 		api libs.jakarta.annotation.jakarta.annotation.api
 		api libs.jakarta.inject.jakarta.inject.api
@@ -48,12 +49,6 @@ dependencies {
 		api libs.ldapsdk
 		api libs.net.sourceforge.htmlunit
 		api libs.org.htmlunit.htmlunit
-		api libs.org.apache.directory.server.apacheds.entry
-		api libs.org.apache.directory.server.apacheds.core
-		api libs.org.apache.directory.server.apacheds.protocol.ldap
-		api libs.org.apache.directory.server.apacheds.protocol.shared
-		api libs.org.apache.directory.server.apacheds.server.jndi
-		api libs.org.apache.directory.shared.shared.ldap
 		api libs.org.apache.httpcomponents.httpclient
 		api libs.org.aspectj.aspectjrt
 		api libs.org.aspectj.aspectjweaver

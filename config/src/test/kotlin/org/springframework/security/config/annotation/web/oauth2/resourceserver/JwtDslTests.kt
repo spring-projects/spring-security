@@ -26,16 +26,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.convert.converter.Converter
-import org.springframework.security.authentication.AbstractAuthenticationToken
-import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.authentication.ProviderManager
-import org.springframework.security.authentication.TestingAuthenticationProvider
-import org.springframework.security.authentication.TestingAuthenticationToken
+import org.springframework.security.authentication.*
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
-import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames
 import org.springframework.security.oauth2.jwt.Jwt
@@ -145,7 +141,7 @@ class JwtDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 oauth2ResourceServer {
@@ -196,7 +192,7 @@ class JwtDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 oauth2ResourceServer {
@@ -245,7 +241,7 @@ class JwtDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 oauth2ResourceServer {

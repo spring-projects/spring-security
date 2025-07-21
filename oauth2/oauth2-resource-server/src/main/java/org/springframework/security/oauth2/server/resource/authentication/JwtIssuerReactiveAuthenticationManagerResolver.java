@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoders;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
@@ -66,30 +67,6 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 		implements ReactiveAuthenticationManagerResolver<ServerWebExchange> {
 
 	private final ReactiveAuthenticationManager authenticationManager;
-
-	/**
-	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the
-	 * provided parameters
-	 * @param trustedIssuers an array of trusted issuers
-	 * @deprecated use {@link #fromTrustedIssuers(String...)}
-	 */
-	@Deprecated(since = "6.2", forRemoval = true)
-	public JwtIssuerReactiveAuthenticationManagerResolver(String... trustedIssuers) {
-		this(Set.of(trustedIssuers));
-	}
-
-	/**
-	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the
-	 * provided parameters
-	 * @param trustedIssuers a collection of trusted issuers
-	 * @deprecated use {@link #fromTrustedIssuers(Collection)}
-	 */
-	@Deprecated(since = "6.2", forRemoval = true)
-	public JwtIssuerReactiveAuthenticationManagerResolver(Collection<String> trustedIssuers) {
-		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
-		this.authenticationManager = new ResolvingAuthenticationManager(
-				new TrustedIssuerJwtAuthenticationManagerResolver(Set.copyOf(trustedIssuers)::contains));
-	}
 
 	/**
 	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the
@@ -181,8 +158,13 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 			BearerTokenAuthenticationToken token = (BearerTokenAuthenticationToken) authentication;
 			return this.issuerConverter.convert(token)
 				.flatMap((issuer) -> this.issuerAuthenticationManagerResolver.resolve(issuer)
-					.switchIfEmpty(Mono.error(() -> new InvalidBearerTokenException("Invalid issuer " + issuer))))
-				.flatMap((manager) -> manager.authenticate(authentication));
+					.switchIfEmpty(Mono.error(() -> {
+						AuthenticationException ex = new InvalidBearerTokenException("Invalid issuer " + issuer);
+						ex.setAuthenticationRequest(authentication);
+						return ex;
+					})))
+				.flatMap((manager) -> manager.authenticate(authentication))
+				.doOnError(AuthenticationException.class, (ex) -> ex.setAuthenticationRequest(authentication));
 		}
 
 	}
@@ -194,12 +176,18 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 			try {
 				String issuer = JWTParser.parse(token.getToken()).getJWTClaimsSet().getIssuer();
 				if (issuer == null) {
-					throw new InvalidBearerTokenException("Missing issuer");
+					AuthenticationException ex = new InvalidBearerTokenException("Missing issuer");
+					ex.setAuthenticationRequest(token);
+					throw ex;
 				}
 				return Mono.just(issuer);
 			}
-			catch (Exception ex) {
-				return Mono.error(() -> new InvalidBearerTokenException(ex.getMessage(), ex));
+			catch (Exception cause) {
+				return Mono.error(() -> {
+					AuthenticationException ex = new InvalidBearerTokenException(cause.getMessage(), cause);
+					ex.setAuthenticationRequest(token);
+					return ex;
+				});
 			}
 		}
 

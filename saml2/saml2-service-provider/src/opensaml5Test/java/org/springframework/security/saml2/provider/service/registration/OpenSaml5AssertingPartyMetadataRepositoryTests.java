@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,6 @@ import org.w3c.dom.Element;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.saml2.Saml2Exception;
-import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
 import org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects;
 
@@ -70,10 +69,6 @@ import static org.mockito.Mockito.withSettings;
  * Tests for {@link BaseOpenSamlAssertingPartyMetadataRepository}
  */
 public class OpenSaml5AssertingPartyMetadataRepositoryTests {
-
-	static {
-		OpenSamlInitializationService.initialize();
-	}
 
 	private static MetadataDispatcher dispatcher = new MetadataDispatcher()
 		.addResponse("/entity.xml", readFile("test-metadata.xml"))
@@ -229,7 +224,7 @@ public class OpenSaml5AssertingPartyMetadataRepositoryTests {
 			.withTrustedMetadataLocation(web.url(endpoint).toString())
 			.verificationCredentials((c) -> c.add(credential))
 			.build();
-		assertThat(parties.findByEntityId(registration.getAssertingPartyDetails().getEntityId())).isNotNull();
+		assertThat(parties.findByEntityId(registration.getAssertingPartyMetadata().getEntityId())).isNotNull();
 	}
 
 	@Test
@@ -261,7 +256,7 @@ public class OpenSaml5AssertingPartyMetadataRepositoryTests {
 		AssertingPartyMetadataRepository parties = OpenSaml5AssertingPartyMetadataRepository
 			.withTrustedMetadataLocation(web.url(endpoint).toString())
 			.build();
-		assertThat(parties.findByEntityId(registration.getAssertingPartyDetails().getEntityId())).isNotNull();
+		assertThat(parties.findByEntityId(registration.getAssertingPartyMetadata().getEntityId())).isNotNull();
 	}
 
 	@Test
@@ -300,7 +295,7 @@ public class OpenSaml5AssertingPartyMetadataRepositoryTests {
 		AssertingPartyMetadataRepository parties = new OpenSaml5AssertingPartyMetadataRepository(resolver);
 		parties.iterator()
 			.forEachRemaining((p) -> assertThat(p.getEntityId())
-				.isEqualTo(registration.getAssertingPartyDetails().getEntityId()));
+				.isEqualTo(registration.getAssertingPartyMetadata().getEntityId()));
 		verify(((IterableMetadataSource) resolver)).iterator();
 	}
 
@@ -341,7 +336,7 @@ public class OpenSaml5AssertingPartyMetadataRepositoryTests {
 			.withMetadataLocation(web.url(endpoint).toString())
 			.verificationCredentials((c) -> c.add(credential))
 			.build();
-		assertThat(parties.findByEntityId(registration.getAssertingPartyDetails().getEntityId())).isNotNull();
+		assertThat(parties.findByEntityId(registration.getAssertingPartyMetadata().getEntityId())).isNotNull();
 	}
 
 	private static String serialize(XMLObject object) {

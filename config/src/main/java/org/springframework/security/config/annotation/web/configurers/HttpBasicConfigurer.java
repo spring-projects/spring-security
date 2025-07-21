@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -98,7 +99,7 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>>
 
 	/**
 	 * Creates a new instance
-	 * @see HttpSecurity#httpBasic()
+	 * @see HttpSecurity#httpBasic(Customizer)
 	 */
 	public HttpBasicConfigurer() {
 		realmName(DEFAULT_REALM);
@@ -179,8 +180,7 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>>
 		allMatcher.setUseEquals(true);
 		RequestMatcher notHtmlMatcher = new NegatedRequestMatcher(
 				new MediaTypeRequestMatcher(contentNegotiationStrategy, MediaType.TEXT_HTML));
-		RequestMatcher restNotHtmlMatcher = new AndRequestMatcher(
-				Arrays.<RequestMatcher>asList(notHtmlMatcher, restMatcher));
+		RequestMatcher restNotHtmlMatcher = new AndRequestMatcher(Arrays.asList(notHtmlMatcher, restMatcher));
 		RequestMatcher preferredMatcher = new OrRequestMatcher(
 				Arrays.asList(X_REQUESTED_WITH, restNotHtmlMatcher, allMatcher));
 		registerDefaultEntryPoint(http, preferredMatcher);

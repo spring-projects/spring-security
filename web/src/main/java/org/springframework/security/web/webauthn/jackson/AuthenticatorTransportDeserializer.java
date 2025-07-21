@@ -31,6 +31,7 @@ import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
  * @author Rob Winch
  * @since 6.4
  */
+@SuppressWarnings("serial")
 class AuthenticatorTransportDeserializer extends StdDeserializer<AuthenticatorTransport> {
 
 	AuthenticatorTransportDeserializer() {

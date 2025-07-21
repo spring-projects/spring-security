@@ -308,7 +308,7 @@ Java::
 @Component
 public class MyPreAuthorizeAuthorizationManager implements ReactiveAuthorizationManager<MethodInvocation> {
     @Override
-    public Mono<AuthorizationDecision> check(Supplier<Authentication> authentication, MethodInvocation invocation) {
+    public Mono<AuthorizationResult> authorize(Supplier<Authentication> authentication, MethodInvocation invocation) {
         // ... authorization logic
     }
 
@@ -321,7 +321,7 @@ Kotlin::
 ----
 @Component
 class MyPreAuthorizeAuthorizationManager : ReactiveAuthorizationManager<MethodInvocation> {
-    override fun check(authentication: Supplier<Authentication>, invocation: MethodInvocation): Mono<AuthorizationDecision> {
+    override fun authorize(authentication: Supplier<Authentication>, invocation: MethodInvocation): Mono<AuthorizationResult> {
         // ... authorization logic
     }
 
@@ -614,7 +614,7 @@ public class SecurityConfig {
 		return http
 			// Demonstrate that method security works
 			// Best practice to use both for defense in depth
-			.authorizeExchange(exchanges -> exchanges
+			.authorizeExchange((authorize) -> authorize
 				.anyExchange().permitAll()
 			)
 			.httpBasic(withDefaults())

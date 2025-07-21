@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,6 +94,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.servlet.TestMockHttpServletRequests;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -134,7 +135,7 @@ public class Saml2LoginConfigurerTests {
 
 	private static final RelyingPartyRegistration registration = TestRelyingPartyRegistrations.noCredentials()
 		.signingX509Credentials((c) -> c.add(TestSaml2X509Credentials.assertingPartySigningCredential()))
-		.assertingPartyDetails((party) -> party
+		.assertingPartyMetadata((party) -> party
 			.verificationX509Credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
 		.build();
 
@@ -170,7 +171,7 @@ public class Saml2LoginConfigurerTests {
 	@BeforeAll
 	static void createResponse() throws Exception {
 		String destination = registration.getAssertionConsumerServiceLocation();
-		String assertingPartyEntityId = registration.getAssertingPartyDetails().getEntityId();
+		String assertingPartyEntityId = registration.getAssertingPartyMetadata().getEntityId();
 		String relyingPartyEntityId = registration.getEntityId();
 		Response response = TestOpenSamlObjects.response(destination, assertingPartyEntityId);
 		Assertion assertion = TestOpenSamlObjects.assertion("test@saml.user", assertingPartyEntityId,
@@ -190,8 +191,7 @@ public class Saml2LoginConfigurerTests {
 
 	@BeforeEach
 	public void setup() {
-		this.request = new MockHttpServletRequest("POST", "");
-		this.request.setServletPath("/login/saml2/sso/test-rp");
+		this.request = TestMockHttpServletRequests.post("/login/saml2/sso/test-rp").build();
 		this.response = new MockHttpServletResponse();
 		this.filterChain = new MockFilterChain();
 	}
@@ -253,7 +253,7 @@ public class Saml2LoginConfigurerTests {
 	public void authenticationRequestWhenAuthenticationRequestResolverBeanThenUses() throws Exception {
 		this.spring.register(CustomAuthenticationRequestResolverBean.class).autowire();
 		MvcResult result = this.mvc.perform(get("/saml2/authenticate/registration-id")).andReturn();
-		UriComponents components = UriComponentsBuilder.fromHttpUrl(result.getResponse().getRedirectedUrl()).build();
+		UriComponents components = UriComponentsBuilder.fromUriString(result.getResponse().getRedirectedUrl()).build();
 		String samlRequest = components.getQueryParams().getFirst("SAMLRequest");
 		String decoded = URLDecoder.decode(samlRequest, "UTF-8");
 		String inflated = Saml2Utils.samlInflate(Saml2Utils.samlDecode(decoded));
@@ -264,7 +264,7 @@ public class Saml2LoginConfigurerTests {
 	public void authenticationRequestWhenAuthenticationRequestResolverDslThenUses() throws Exception {
 		this.spring.register(CustomAuthenticationRequestResolverDsl.class).autowire();
 		MvcResult result = this.mvc.perform(get("/saml2/authenticate/registration-id")).andReturn();
-		UriComponents components = UriComponentsBuilder.fromHttpUrl(result.getResponse().getRedirectedUrl()).build();
+		UriComponents components = UriComponentsBuilder.fromUriString(result.getResponse().getRedirectedUrl()).build();
 		String samlRequest = components.getQueryParams().getFirst("SAMLRequest");
 		String decoded = URLDecoder.decode(samlRequest, "UTF-8");
 		String inflated = Saml2Utils.samlInflate(Saml2Utils.samlDecode(decoded));
@@ -365,7 +365,7 @@ public class Saml2LoginConfigurerTests {
 		request.queryParam("entityId", registration.getRegistrationId());
 		MvcResult result = this.mvc.perform(request).andExpect(status().isFound()).andReturn();
 		String redirectedUrl = result.getResponse().getRedirectedUrl();
-		assertThat(redirectedUrl).startsWith(registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
+		assertThat(redirectedUrl).startsWith(registration.getAssertingPartyMetadata().getSingleSignOnServiceLocation());
 	}
 
 	@Test
@@ -430,7 +430,6 @@ public class Saml2LoginConfigurerTests {
 	private void performSaml2Login(String expected) throws IOException, ServletException {
 		// setup authentication parameters
 		this.request.setRequestURI("/login/saml2/sso/registration-id");
-		this.request.setServletPath("/login/saml2/sso/registration-id");
 		this.request.setParameter("SAMLResponse",
 				Base64.getEncoder().encodeToString("saml2-xml-response-object".getBytes()));
 		// perform test
@@ -486,7 +485,7 @@ public class Saml2LoginConfigurerTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			http.saml2Login().authenticationManager(getAuthenticationManagerMock("ROLE_AUTH_MANAGER"));
+			http.saml2Login((login) -> login.authenticationManager(getAuthenticationManagerMock("ROLE_AUTH_MANAGER")));
 			return http.build();
 		}
 
@@ -521,7 +520,7 @@ public class Saml2LoginConfigurerTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			http.authorizeRequests((authz) -> authz.anyRequest().authenticated())
+			http.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
 				.saml2Login((saml2) -> saml2.failureHandler(authenticationFailureHandler));
 			return http.build();
 		}
@@ -537,7 +536,7 @@ public class Saml2LoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authz) -> authz
+				.authorizeHttpRequests((authz) -> authz
 					.anyRequest().authenticated()
 				)
 				.saml2Login(Customizer.withDefaults());
@@ -575,7 +574,7 @@ public class Saml2LoginConfigurerTests {
 				throws Exception {
 			// @formatter:off
 			http
-					.authorizeRequests((authz) -> authz
+					.authorizeHttpRequests((authz) -> authz
 						.anyRequest().authenticated()
 					)
 					.saml2Login((saml2) -> saml2
@@ -613,7 +612,7 @@ public class Saml2LoginConfigurerTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			http.authorizeRequests((authz) -> authz.anyRequest().authenticated())
+			http.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
 				.saml2Login((saml2) -> saml2.authenticationConverter(authenticationConverter));
 			return http.build();
 		}
@@ -630,7 +629,7 @@ public class Saml2LoginConfigurerTests {
 
 		@Bean
 		SecurityFilterChain app(HttpSecurity http) throws Exception {
-			http.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
+			http.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 				.saml2Login(Customizer.withDefaults());
 			return http.build();
 		}
@@ -652,7 +651,7 @@ public class Saml2LoginConfigurerTests {
 
 		@Bean
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-			http.authorizeRequests((authz) -> authz.anyRequest().authenticated());
+			http.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated());
 			http.saml2Login(withDefaults());
 			return http.build();
 		}
@@ -673,7 +672,7 @@ public class Saml2LoginConfigurerTests {
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authz) -> authz.anyRequest().authenticated())
+				.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
 				.saml2Login((saml2) -> saml2.loginProcessingUrl("/my/custom/url"));
 			// @formatter:on
 			return http.build();
@@ -698,7 +697,7 @@ public class Saml2LoginConfigurerTests {
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authz) -> authz.anyRequest().authenticated())
+				.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
 				.saml2Login((saml2) -> saml2.authenticationRequestUri("/custom/auth/{registrationId}"));
 			// @formatter:on
 			return http.build();
@@ -715,7 +714,7 @@ public class Saml2LoginConfigurerTests {
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
+					.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 					.saml2Login((saml2) -> saml2.authenticationRequestUriQuery("/custom/auth/sso?entityId={registrationId}"));
 			// @formatter:on
 			return http.build();
@@ -732,7 +731,7 @@ public class Saml2LoginConfigurerTests {
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.authorizeRequests((authz) -> authz.anyRequest().authenticated())
+					.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
 					.saml2Login((saml2) -> saml2
 						.loginProcessingUrl("/my/custom/url")
 						.authenticationConverter(AUTHENTICATION_CONVERTER)
@@ -755,7 +754,7 @@ public class Saml2LoginConfigurerTests {
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.authorizeRequests((authz) -> authz.anyRequest().authenticated())
+					.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
 					.saml2Login((saml2) -> saml2.loginProcessingUrl("/my/custom/url"));
 			// @formatter:on
 			return http.build();

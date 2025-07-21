@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@ public class ConcurrentSessionControlAuthenticationStrategy
 
 	private boolean exceptionIfMaximumExceeded = false;
 
-	private int maximumSessions = 1;
+	private SessionLimit sessionLimit = SessionLimit.of(1);
 
 	/**
 	 * @param sessionRegistry the session registry which should be updated when the
@@ -130,7 +130,7 @@ public class ConcurrentSessionControlAuthenticationStrategy
 	 * @return either -1 meaning unlimited, or a positive integer to limit (never zero)
 	 */
 	protected int getMaximumSessionsForThisUser(Authentication authentication) {
-		return this.maximumSessions;
+		return this.sessionLimit.apply(authentication);
 	}
 
 	/**
@@ -172,15 +172,24 @@ public class ConcurrentSessionControlAuthenticationStrategy
 	}
 
 	/**
-	 * Sets the <tt>maxSessions</tt> property. The default value is 1. Use -1 for
+	 * Sets the <tt>sessionLimit</tt> property. The default value is 1. Use -1 for
 	 * unlimited sessions.
-	 * @param maximumSessions the maximimum number of permitted sessions a user can have
+	 * @param maximumSessions the maximum number of permitted sessions a user can have
 	 * open simultaneously.
 	 */
 	public void setMaximumSessions(int maximumSessions) {
-		Assert.isTrue(maximumSessions != 0,
-				"MaximumLogins must be either -1 to allow unlimited logins, or a positive integer to specify a maximum");
-		this.maximumSessions = maximumSessions;
+		this.sessionLimit = SessionLimit.of(maximumSessions);
+	}
+
+	/**
+	 * Sets the <tt>sessionLimit</tt> property. The default value is 1. Use -1 for
+	 * unlimited sessions.
+	 * @param sessionLimit the session limit strategy
+	 * @since 6.5
+	 */
+	public void setMaximumSessions(SessionLimit sessionLimit) {
+		Assert.notNull(sessionLimit, "sessionLimit cannot be null");
+		this.sessionLimit = sessionLimit;
 	}
 
 	/**

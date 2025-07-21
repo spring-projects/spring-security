@@ -71,14 +71,14 @@ public class HeadersConfigurerEagerHeadersTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers()
+				.headers((headers) -> headers
 					.addObjectPostProcessor(new ObjectPostProcessor<HeaderWriterFilter>() {
 						@Override
 						public HeaderWriterFilter postProcess(HeaderWriterFilter filter) {
 							filter.setShouldWriteHeadersEagerly(true);
 							return filter;
 						}
-					});
+					}));
 			return http.build();
 			// @formatter:on
 		}

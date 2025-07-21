@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.client.web.reactive.function.client;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -31,6 +32,7 @@ import reactor.util.context.Context;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -48,6 +50,7 @@ import org.springframework.security.oauth2.client.RemoveAuthorizedClientOAuth2Au
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.ClientAttributes;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
@@ -133,9 +136,6 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	 * The request attribute name used to locate the {@link OAuth2AuthorizedClient}.
 	 */
 	private static final String OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME = OAuth2AuthorizedClient.class.getName();
-
-	private static final String CLIENT_REGISTRATION_ID_ATTR_NAME = OAuth2AuthorizedClient.class.getName()
-		.concat(".CLIENT_REGISTRATION_ID");
 
 	private static final String AUTHENTICATION_ATTR_NAME = Authentication.class.getName();
 
@@ -309,7 +309,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	 * @return the {@link Consumer} to populate the attributes
 	 */
 	public static Consumer<Map<String, Object>> clientRegistrationId(String clientRegistrationId) {
-		return (attributes) -> attributes.put(CLIENT_REGISTRATION_ID_ATTR_NAME, clientRegistrationId);
+		return ClientAttributes.clientRegistrationId(clientRegistrationId);
 	}
 
 	/**
@@ -395,9 +395,9 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	}
 
 	private Mono<ClientRequest> mergeRequestAttributesIfNecessary(ClientRequest request) {
-		if (!request.attribute(HTTP_SERVLET_REQUEST_ATTR_NAME).isPresent()
-				|| !request.attribute(HTTP_SERVLET_RESPONSE_ATTR_NAME).isPresent()
-				|| !request.attribute(AUTHENTICATION_ATTR_NAME).isPresent()) {
+		if (request.attribute(HTTP_SERVLET_REQUEST_ATTR_NAME).isEmpty()
+				|| request.attribute(HTTP_SERVLET_RESPONSE_ATTR_NAME).isEmpty()
+				|| request.attribute(AUTHENTICATION_ATTR_NAME).isEmpty()) {
 			return mergeRequestAttributesFromContext(request);
 		}
 		return Mono.just(request);
@@ -482,7 +482,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		OAuth2AuthorizeRequest authorizeRequest = builder.build();
 		// NOTE: 'authorizedClientManager.authorize()' needs to be executed on a dedicated
 		// thread via subscribeOn(Schedulers.boundedElastic()) since it performs a
-		// blocking I/O operation using RestTemplate internally
+		// blocking I/O operation using RestClient internally
 		return Mono.fromSupplier(() -> this.authorizedClientManager.authorize(authorizeRequest))
 			.subscribeOn(Schedulers.boundedElastic());
 	}
@@ -505,7 +505,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		OAuth2AuthorizeRequest reauthorizeRequest = builder.build();
 		// NOTE: 'authorizedClientManager.authorize()' needs to be executed on a dedicated
 		// thread via subscribeOn(Schedulers.boundedElastic()) since it performs a
-		// blocking I/O operation using RestTemplate internally
+		// blocking I/O operation using RestClient internally
 		return Mono.fromSupplier(() -> this.authorizedClientManager.authorize(reauthorizeRequest))
 			.subscribeOn(Schedulers.boundedElastic());
 	}
@@ -534,7 +534,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	}
 
 	static String getClientRegistrationId(Map<String, Object> attrs) {
-		return (String) attrs.get(CLIENT_REGISTRATION_ID_ATTR_NAME);
+		return ClientAttributes.resolveClientRegistrationId(attrs);
 	}
 
 	static Authentication getAuthentication(Map<String, Object> attrs) {
@@ -584,7 +584,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		 * A map of HTTP status code to OAuth 2.0 error code for HTTP status codes that
 		 * should be interpreted as authentication or authorization failures.
 		 */
-		private final Map<Integer, String> httpStatusToOAuth2ErrorCodeMap;
+		private final Map<HttpStatusCode, String> httpStatusToOAuth2ErrorCodeMap;
 
 		/**
 		 * The {@link OAuth2AuthorizationFailureHandler} to notify when an
@@ -595,9 +595,9 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		private AuthorizationFailureForwarder(OAuth2AuthorizationFailureHandler authorizationFailureHandler) {
 			Assert.notNull(authorizationFailureHandler, "authorizationFailureHandler cannot be null");
 			this.authorizationFailureHandler = authorizationFailureHandler;
-			Map<Integer, String> httpStatusToOAuth2Error = new HashMap<>();
-			httpStatusToOAuth2Error.put(HttpStatus.UNAUTHORIZED.value(), OAuth2ErrorCodes.INVALID_TOKEN);
-			httpStatusToOAuth2Error.put(HttpStatus.FORBIDDEN.value(), OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
+			Map<HttpStatusCode, String> httpStatusToOAuth2Error = new HashMap<>();
+			httpStatusToOAuth2Error.put(HttpStatus.UNAUTHORIZED, OAuth2ErrorCodes.INVALID_TOKEN);
+			httpStatusToOAuth2Error.put(HttpStatus.FORBIDDEN, OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
 			this.httpStatusToOAuth2ErrorCodeMap = Collections.unmodifiableMap(httpStatusToOAuth2Error);
 		}
 
@@ -640,10 +640,10 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 							authParameters.get(OAuth2ParameterNames.ERROR_URI));
 				}
 			}
-			return resolveErrorIfPossible(response.statusCode().value());
+			return resolveErrorIfPossible(response.statusCode());
 		}
 
-		private OAuth2Error resolveErrorIfPossible(int statusCode) {
+		private OAuth2Error resolveErrorIfPossible(HttpStatusCode statusCode) {
 			if (this.httpStatusToOAuth2ErrorCodeMap.containsKey(statusCode)) {
 				return new OAuth2Error(this.httpStatusToOAuth2ErrorCodeMap.get(statusCode), null,
 						"https://tools.ietf.org/html/rfc6750#section-3.1");
@@ -654,7 +654,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		private Map<String, String> parseAuthParameters(String wwwAuthenticateHeader) {
 			// @formatter:off
 			return Stream.of(wwwAuthenticateHeader).filter((header) -> StringUtils.hasLength(header))
-					.filter((header) -> header.toLowerCase().startsWith("bearer"))
+					.filter((header) -> header.toLowerCase(Locale.ENGLISH).startsWith("bearer"))
 					.map((header) -> header.substring("bearer".length()))
 					.map((header) -> header.split(","))
 					.flatMap(Stream::of)
@@ -677,7 +677,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		 */
 		private Mono<Void> handleWebClientResponseException(ClientRequest request,
 				WebClientResponseException exception) {
-			return Mono.justOrEmpty(resolveErrorIfPossible(exception.getRawStatusCode())).flatMap((oauth2Error) -> {
+			return Mono.justOrEmpty(resolveErrorIfPossible(exception.getStatusCode())).flatMap((oauth2Error) -> {
 				Map<String, Object> attrs = request.attributes();
 				OAuth2AuthorizedClient authorizedClient = getOAuth2AuthorizedClient(attrs);
 				if (authorizedClient == null) {

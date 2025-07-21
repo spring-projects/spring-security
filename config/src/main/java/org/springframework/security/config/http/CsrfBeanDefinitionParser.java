@@ -183,6 +183,9 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 		BeanDefinitionBuilder csrfAuthenticationStrategy = BeanDefinitionBuilder
 			.rootBeanDefinition(CsrfAuthenticationStrategy.class);
 		csrfAuthenticationStrategy.addConstructorArgReference(this.csrfRepositoryRef);
+		if (StringUtils.hasText(this.requestHandlerRef)) {
+			csrfAuthenticationStrategy.addPropertyReference("requestHandler", this.requestHandlerRef);
+		}
 		return csrfAuthenticationStrategy.getBeanDefinition();
 	}
 

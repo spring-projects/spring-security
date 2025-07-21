@@ -33,7 +33,7 @@
 	</http>
 
 	<mvc:annotation-driven>
-		<mvc:path-matching suffix-pattern="true" trailing-slash="true"/>
+		<mvc:path-matching />
 	</mvc:annotation-driven>
 
 	<b:bean name="path" class="org.springframework.security.config.http.InterceptUrlConfigTests.PathController"/>

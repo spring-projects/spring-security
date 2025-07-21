@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,9 @@ final class MethodSecuritySelector implements ImportSelector {
 	private static final boolean isDataPresent = ClassUtils
 		.isPresent("org.springframework.security.data.aot.hint.AuthorizeReturnObjectDataHintsRegistrar", null);
 
+	private static final boolean isWebPresent = ClassUtils
+		.isPresent("org.springframework.web.servlet.DispatcherServlet", null);
+
 	private static final boolean isObservabilityPresent = ClassUtils
 		.isPresent("io.micrometer.observation.ObservationRegistry", null);
 
@@ -66,6 +69,9 @@ final class MethodSecuritySelector implements ImportSelector {
 		imports.add(AuthorizationProxyConfiguration.class.getName());
 		if (isDataPresent) {
 			imports.add(AuthorizationProxyDataConfiguration.class.getName());
+		}
+		if (isWebPresent) {
+			imports.add(AuthorizationProxyWebConfiguration.class.getName());
 		}
 		if (isObservabilityPresent) {
 			imports.add(MethodObservationConfiguration.class.getName());

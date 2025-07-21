@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -124,6 +124,47 @@ public class IpAddressMatcherTests {
 	public void numericDomainNameThenIllegalArgumentException() {
 		assertThatException().isThrownBy(() -> new IpAddressMatcher("123.156.7.18.org"))
 			.withMessage("ipAddress 123.156.7.18.org doesn't look like an IP Address. Is it a host name?");
+	}
+
+	// gh-15527
+	@Test
+	public void matchesWhenIpAddressIsLoopbackAndAddressIsNullThenFalse() {
+		IpAddressMatcher ipAddressMatcher = new IpAddressMatcher("127.0.0.1");
+		assertThat(ipAddressMatcher.matches((String) null)).isFalse();
+	}
+
+	// gh-15527
+	@Test
+	public void matchesWhenAddressIsNullThenFalse() {
+		assertThat(this.v4matcher.matches((String) null)).isFalse();
+	}
+
+	// gh-15527
+	@Test
+	public void constructorWhenRequiredAddressIsNullThenThrowsIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new IpAddressMatcher(null))
+			.withMessage("ipAddress cannot be empty");
+	}
+
+	// gh-15527
+	@Test
+	public void constructorWhenRequiredAddressIsEmptyThenThrowsIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new IpAddressMatcher(""))
+			.withMessage("ipAddress cannot be empty");
+	}
+
+	// gh-16795
+	@Test
+	public void toStringWhenCidrIsProvidedThenReturnsIpAddressWithCidr() {
+		IpAddressMatcher matcher = new IpAddressMatcher("192.168.1.0/24");
+		assertThat(matcher.toString()).hasToString("IpAddress [192.168.1.0/24]");
+	}
+
+	// gh-16795
+	@Test
+	public void toStringWhenOnlyIpIsProvidedThenReturnsIpAddressOnly() {
+		IpAddressMatcher matcher = new IpAddressMatcher("127.0.0.1");
+		assertThat(matcher.toString()).hasToString("IpAddress [127.0.0.1]");
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -48,6 +49,7 @@ import org.springframework.messaging.handler.invocation.HandlerMethodArgumentRes
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.support.ChannelInterceptor;
+import org.springframework.messaging.support.ExecutorSubscribableChannel;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.expression.SecurityExpressionOperations;
@@ -97,6 +99,13 @@ public class WebSocketMessageBrokerConfigTests {
 
 	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/websocket/WebSocketMessageBrokerConfigTests";
 
+	/*
+	 * Token format: "token" length random pad bytes + "token" (each byte UTF8 ^= 1).
+	 */
+	private static final byte[] XOR_CSRF_TOKEN_BYTES = new byte[] { 1, 1, 1, 1, 1, 117, 110, 106, 100, 111 };
+
+	private static final String XOR_CSRF_TOKEN_VALUE = Base64.getEncoder().encodeToString(XOR_CSRF_TOKEN_BYTES);
+
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired(required = false)
@@ -125,7 +134,7 @@ public class WebSocketMessageBrokerConfigTests {
 	public void sendWhenAnonymousMessageWithConnectMessageTypeThenPermitted() {
 		this.spring.configLocations(xml("NoIdConfig")).autowire();
 		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
-		headers.setNativeHeader(this.token.getHeaderName(), this.token.getToken());
+		headers.setNativeHeader(this.token.getHeaderName(), XOR_CSRF_TOKEN_VALUE);
 		this.clientInboundChannel.send(message("/permitAll", headers));
 	}
 
@@ -197,7 +206,7 @@ public class WebSocketMessageBrokerConfigTests {
 	public void sendWhenAnonymousMessageWithConnectMessageTypeThenAuthorizationManagerPermits() {
 		this.spring.configLocations(xml("NoIdAuthorizationManager")).autowire();
 		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
-		headers.setNativeHeader(this.token.getHeaderName(), this.token.getToken());
+		headers.setNativeHeader(this.token.getHeaderName(), XOR_CSRF_TOKEN_VALUE);
 		this.clientInboundChannel.send(message("/permitAll", headers));
 	}
 
@@ -329,6 +338,32 @@ public class WebSocketMessageBrokerConfigTests {
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
 			.withCauseInstanceOf(AccessDeniedException.class);
 		message = message("/anyOther", SimpMessageType.SUBSCRIBE);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+			.withCauseInstanceOf(AccessDeniedException.class);
+	}
+
+	@Test
+	public void sendWhenPathPatternFactoryBeanThenConstructsPatternsWithPathPattern() {
+		this.spring.configLocations(xml("SubscribeInterceptTypePathPattern")).autowire();
+		Message<?> message = message("/permitAll", SimpMessageType.SUBSCRIBE);
+		send(message);
+		message = message("/permitAll", SimpMessageType.UNSUBSCRIBE);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+			.withCauseInstanceOf(AccessDeniedException.class);
+		message = message("/anyOther", SimpMessageType.SUBSCRIBE);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+			.withCauseInstanceOf(AccessDeniedException.class);
+	}
+
+	@Test
+	public void sendWhenCaseInsensitivePathPatternParserThenMatchesMixedCase() {
+		this.spring.configLocations(xml("SubscribeInterceptTypePathPatternParser")).autowire();
+		Message<?> message = message("/peRmItAll", SimpMessageType.SUBSCRIBE);
+		send(message);
+		message = message("/peRmKtAll", SimpMessageType.UNSUBSCRIBE);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+			.withCauseInstanceOf(AccessDeniedException.class);
+		message = message("/aNyOtHer", SimpMessageType.SUBSCRIBE);
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
 			.withCauseInstanceOf(AccessDeniedException.class);
 	}
@@ -513,12 +548,21 @@ public class WebSocketMessageBrokerConfigTests {
 		this.spring.configLocations(xml("CustomAuthorizationManagerConfig")).autowire();
 		AuthorizationManager<Message<?>> authorizationManager = this.spring.getContext()
 			.getBean(AuthorizationManager.class);
-		given(authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(false));
-		given(authorizationManager.authorize(any(), any())).willCallRealMethod();
+		given(authorizationManager.authorize(any(), any())).willReturn(new AuthorizationDecision(false));
 		Message<?> message = message("/any");
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
 			.withCauseInstanceOf(AccessDeniedException.class);
-		verify(authorizationManager).check(any(), any());
+		verify(authorizationManager).authorize(any(), any());
+	}
+
+	@Test
+	public void configureWhenCsrfChannelInterceptorBeanThenUses() {
+		this.spring.configLocations(xml("CustomCsrfInterceptor")).autowire();
+		ExecutorSubscribableChannel channel = this.spring.getContext()
+			.getBean("clientInboundChannel", ExecutorSubscribableChannel.class);
+		ChannelInterceptor interceptor = this.spring.getContext()
+			.getBean("csrfChannelInterceptor", ChannelInterceptor.class);
+		assertThat(channel.getInterceptors()).contains(interceptor);
 	}
 
 	private String xml(String configName) {

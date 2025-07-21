@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package org.springframework.security.config.http;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,11 +26,13 @@ import org.w3c.dom.Element;
 
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.context.ApplicationContext;
@@ -57,7 +58,6 @@ import org.springframework.security.web.authentication.DelegatingAuthenticationE
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
@@ -235,7 +235,7 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 				.getBeanDefinition();
 		}
 		else {
-			Map<RequestMatcher, AuthenticationEntryPoint> entryPoint = getLoginEntryPoint(element);
+			Map<BeanDefinition, AuthenticationEntryPoint> entryPoint = getLoginEntryPoint(element);
 			if (entryPoint != null) {
 				this.oauth2LoginAuthenticationEntryPoint = BeanDefinitionBuilder
 					.rootBeanDefinition(DelegatingAuthenticationEntryPoint.class)
@@ -334,9 +334,8 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		if (StringUtils.hasLength(accessTokenResponseClientRef)) {
 			return new RuntimeBeanReference(accessTokenResponseClientRef);
 		}
-		return BeanDefinitionBuilder
-			.rootBeanDefinition(
-					"org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient")
+		return BeanDefinitionBuilder.rootBeanDefinition(
+				"org.springframework.security.oauth2.client.endpoint.RestClientAuthorizationCodeTokenResponseClient")
 			.getBeanDefinition();
 	}
 
@@ -364,40 +363,33 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		return this.oauth2LoginLinks;
 	}
 
-	private Map<RequestMatcher, AuthenticationEntryPoint> getLoginEntryPoint(Element element) {
-		Map<RequestMatcher, AuthenticationEntryPoint> entryPoints = null;
+	private Map<BeanDefinition, AuthenticationEntryPoint> getLoginEntryPoint(Element element) {
+		Map<BeanDefinition, AuthenticationEntryPoint> entryPoints = null;
 		Element clientRegsElt = DomUtils.getChildElementByTagName(element.getOwnerDocument().getDocumentElement(),
 				Elements.CLIENT_REGISTRATIONS);
 		if (clientRegsElt != null) {
 			List<Element> clientRegList = DomUtils.getChildElementsByTagName(clientRegsElt, ELT_CLIENT_REGISTRATION);
 			if (clientRegList.size() == 1) {
-				RequestMatcher loginPageMatcher = new AntPathRequestMatcher(DEFAULT_LOGIN_URI);
-				RequestMatcher faviconMatcher = new AntPathRequestMatcher("/favicon.ico");
-				RequestMatcher defaultEntryPointMatcher = this.getAuthenticationEntryPointMatcher();
-				RequestMatcher defaultLoginPageMatcher = new AndRequestMatcher(
-						new OrRequestMatcher(loginPageMatcher, faviconMatcher), defaultEntryPointMatcher);
-				RequestMatcher notXRequestedWith = new NegatedRequestMatcher(
-						new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
+				BeanDefinition loginPageMatcher = BeanDefinitionBuilder
+					.rootBeanDefinition(RequestMatcherFactoryBean.class)
+					.addConstructorArgValue(DEFAULT_LOGIN_URI)
+					.getBeanDefinition();
+				BeanDefinition faviconMatcher = BeanDefinitionBuilder
+					.rootBeanDefinition(RequestMatcherFactoryBean.class)
+					.addConstructorArgValue("/favicon.ico")
+					.getBeanDefinition();
+				BeanDefinition entryPointMatcher = BeanDefinitionBuilder
+					.rootBeanDefinition(EntryPointMatcherFactoryBean.class)
+					.addConstructorArgValue(loginPageMatcher)
+					.addConstructorArgValue(faviconMatcher)
+					.getBeanDefinition();
 				Element clientRegElt = clientRegList.get(0);
-				entryPoints = new LinkedHashMap<>();
-				entryPoints.put(
-						new AndRequestMatcher(notXRequestedWith, new NegatedRequestMatcher(defaultLoginPageMatcher)),
-						new LoginUrlAuthenticationEntryPoint(DEFAULT_AUTHORIZATION_REQUEST_BASE_URI + "/"
-								+ clientRegElt.getAttribute(ATT_REGISTRATION_ID)));
+				entryPoints = new ManagedMap<>();
+				entryPoints.put(entryPointMatcher, new LoginUrlAuthenticationEntryPoint(
+						DEFAULT_AUTHORIZATION_REQUEST_BASE_URI + "/" + clientRegElt.getAttribute(ATT_REGISTRATION_ID)));
 			}
 		}
 		return entryPoints;
-	}
-
-	private RequestMatcher getAuthenticationEntryPointMatcher() {
-		ContentNegotiationStrategy contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
-		MediaTypeRequestMatcher mediaMatcher = new MediaTypeRequestMatcher(contentNegotiationStrategy,
-				MediaType.APPLICATION_XHTML_XML, new MediaType("image", "*"), MediaType.TEXT_HTML,
-				MediaType.TEXT_PLAIN);
-		mediaMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
-		RequestMatcher notXRequestedWith = new NegatedRequestMatcher(
-				new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
-		return new AndRequestMatcher(Arrays.asList(notXRequestedWith, mediaMatcher));
 	}
 
 	private static class OidcAuthenticationRequestChecker implements AuthenticationProvider {
@@ -459,6 +451,44 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 					authorizationRequestBaseUri + "/" + registration.getRegistrationId(),
 					registration.getClientName()));
 			return loginUrlToClientName;
+		}
+
+	}
+
+	@Deprecated
+	static class EntryPointMatcherFactoryBean implements FactoryBean<RequestMatcher> {
+
+		private final RequestMatcher entryPointMatcher;
+
+		EntryPointMatcherFactoryBean(RequestMatcher loginPageMatcher, RequestMatcher faviconMatcher) {
+			RequestMatcher defaultEntryPointMatcher = getAuthenticationEntryPointMatcher();
+			RequestMatcher defaultLoginPageMatcher = new AndRequestMatcher(
+					new OrRequestMatcher(loginPageMatcher, faviconMatcher), defaultEntryPointMatcher);
+			RequestMatcher notXRequestedWith = new NegatedRequestMatcher(
+					new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
+			this.entryPointMatcher = new AndRequestMatcher(notXRequestedWith,
+					new NegatedRequestMatcher(defaultLoginPageMatcher));
+		}
+
+		private RequestMatcher getAuthenticationEntryPointMatcher() {
+			ContentNegotiationStrategy contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
+			MediaTypeRequestMatcher mediaMatcher = new MediaTypeRequestMatcher(contentNegotiationStrategy,
+					MediaType.APPLICATION_XHTML_XML, new MediaType("image", "*"), MediaType.TEXT_HTML,
+					MediaType.TEXT_PLAIN);
+			mediaMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
+			RequestMatcher notXRequestedWith = new NegatedRequestMatcher(
+					new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
+			return new AndRequestMatcher(Arrays.asList(notXRequestedWith, mediaMatcher));
+		}
+
+		@Override
+		public RequestMatcher getObject() {
+			return this.entryPointMatcher;
+		}
+
+		@Override
+		public Class<?> getObjectType() {
+			return RequestMatcher.class;
 		}
 
 	}

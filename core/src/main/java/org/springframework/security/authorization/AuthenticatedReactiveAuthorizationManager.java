@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,13 +39,13 @@ public class AuthenticatedReactiveAuthorizationManager<T> implements ReactiveAut
 	}
 
 	@Override
-	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, T object) {
+	public Mono<AuthorizationResult> authorize(Mono<Authentication> authentication, T object) {
 		return authentication.filter(this::isNotAnonymous)
 			.map(this::getAuthorizationDecision)
 			.defaultIfEmpty(new AuthorizationDecision(false));
 	}
 
-	private AuthorizationDecision getAuthorizationDecision(Authentication authentication) {
+	private AuthorizationResult getAuthorizationDecision(Authentication authentication) {
 		return new AuthorizationDecision(authentication.isAuthenticated());
 	}
 

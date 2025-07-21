@@ -48,6 +48,7 @@ import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
+import org.springframework.security.web.servlet.TestMockHttpServletMappings;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,6 +64,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 
 /**
  * @author Luke Taylor
@@ -95,8 +97,7 @@ public class FilterChainProxyTests {
 		}).given(this.filter).doFilter(any(), any(), any());
 		this.fcp = new FilterChainProxy(new DefaultSecurityFilterChain(this.matcher, Arrays.asList(this.filter)));
 		this.fcp.setFilterChainValidator(mock(FilterChainProxy.FilterChainValidator.class));
-		this.request = new MockHttpServletRequest("GET", "");
-		this.request.setServletPath("/path");
+		this.request = get("/path").build();
 		this.response = new MockHttpServletResponse();
 		this.chain = mock(FilterChain.class);
 	}
@@ -166,6 +167,7 @@ public class FilterChainProxyTests {
 		FirewalledRequest fwr = mock(FirewalledRequest.class);
 		given(fwr.getRequestURI()).willReturn("/");
 		given(fwr.getContextPath()).willReturn("");
+		given(fwr.getHttpServletMapping()).willReturn(TestMockHttpServletMappings.defaultMapping());
 		this.fcp.setFirewall(fw);
 		given(fw.getFirewalledRequest(this.request)).willReturn(fwr);
 		given(this.matcher.matches(any(HttpServletRequest.class))).willReturn(false);
@@ -183,9 +185,11 @@ public class FilterChainProxyTests {
 		FirewalledRequest firstFwr = mock(FirewalledRequest.class, "firstFwr");
 		given(firstFwr.getRequestURI()).willReturn("/");
 		given(firstFwr.getContextPath()).willReturn("");
+		given(firstFwr.getHttpServletMapping()).willReturn(TestMockHttpServletMappings.defaultMapping());
 		FirewalledRequest fwr = mock(FirewalledRequest.class, "fwr");
 		given(fwr.getRequestURI()).willReturn("/");
 		given(fwr.getContextPath()).willReturn("");
+		given(fwr.getHttpServletMapping()).willReturn(TestMockHttpServletMappings.defaultMapping());
 		given(fw.getFirewalledRequest(this.request)).willReturn(firstFwr);
 		given(fw.getFirewalledRequest(firstFwr)).willReturn(fwr);
 		given(fwr.getRequest()).willReturn(firstFwr);

@@ -58,7 +58,7 @@ public class RefreshableRelyingPartyRegistrationRepository
         implements IterableRelyingPartyRegistrationRepository {
 
 	private final AssertingPartyMetadataRepository metadata =
-            OpenSamlAssertingPartyMetadataRepository
+            OpenSaml5AssertingPartyMetadataRepository
                 .fromTrustedMetadataLocation("https://idp.example.org/metadata").build();
 
 	@Override
@@ -93,7 +93,7 @@ Kotlin::
 class RefreshableRelyingPartyRegistrationRepository : IterableRelyingPartyRegistrationRepository {
 
     private val metadata: AssertingPartyMetadataRepository =
-        OpenSamlAssertingPartyMetadataRepository.fromTrustedMetadataLocation(
+        OpenSaml5AssertingPartyMetadataRepository.fromTrustedMetadataLocation(
             "https://idp.example.org/metadata").build()
 
     fun findByRegistrationId(registrationId:String?): RelyingPartyRegistration {
@@ -120,7 +120,7 @@ class RefreshableRelyingPartyRegistrationRepository : IterableRelyingPartyRegist
 ======
 
 [TIP]
-`OpenSaml4AssertingPartyMetadataRepository` also ships with a constructor so you can provide a custom `MetadataResolver`. Since the underlying `MetadataResolver` is doing the expirying and refreshing, if you use the constructor directly, you will only get these features by providing an implementation that does so.
+`OpenSaml4AssertingPartyMetadataRepository` also ships with a constructor so you can provide a custom `MetadataResolver`. Since the underlying `MetadataResolver` is doing the expiring and refreshing, if you use the constructor directly, you will only get these features by providing an implementation that does so.
 
 === Verifying Metadata Signatures
 
@@ -132,7 +132,7 @@ Java::
 +
 [source,java,role="primary"]
 ----
-OpenSamlAssertingPartyMetadataRepository.withMetadataLocation("https://idp.example.org/metadata")
+OpenSaml5AssertingPartyMetadataRepository.withMetadataLocation("https://idp.example.org/metadata")
     .verificationCredentials((c) -> c.add(myVerificationCredential))
     .build();
 ----
@@ -141,7 +141,7 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
-OpenSamlAssertingPartyMetadataRepository.withMetadataLocation("https://idp.example.org/metadata")
+OpenSaml5AssertingPartyMetadataRepository.withMetadataLocation("https://idp.example.org/metadata")
     .verificationCredentials({ c : Collection<Saml2X509Credential> ->
         c.add(myVerificationCredential) })
     .build()

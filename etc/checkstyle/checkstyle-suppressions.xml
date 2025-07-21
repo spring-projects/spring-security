@@ -17,14 +17,12 @@
 
 	<!-- Method Visibility that we can't reduce -->
 	<suppress files="AbstractAclVoterTests\.java" checks="SpringMethodVisibility"/>
-	<suppress files="AbstractSecurityWebSocketMessageBrokerConfigurerTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="AnnotationParameterNameDiscovererTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="AnnotationSecurityAspectTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="AuthenticationPrincipalArgumentResolverTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="ELRequestMatcherContext\.java" checks="SpringMethodVisibility"/>
 	<suppress files="EnableWebFluxSecurityTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="ExpressionBasedPreInvocationAdviceTests\.java" checks="SpringMethodVisibility"/>
-	<suppress files="ExpressionUrlAuthorizationConfigurerTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="Jsr250MethodSecurityMetadataSourceTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="MapBasedMethodSecurityMetadataSourceTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="OAuth2ResourceServerBeanDefinitionParserTests\.java" checks="SpringMethodVisibility"/>
@@ -35,13 +33,17 @@
 	<suppress files="WebSocketMessageBrokerConfigTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="WebSecurityConfigurationTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="WithSecurityContextTestExecutionListenerTests\.java" checks="SpringMethodVisibility"/>
-	<suppress files="AbstractOAuth2AuthorizationGrantRequestEntityConverter\.java" checks="SpringMethodVisibility"/>
 	<suppress files="JoseHeader\.java" checks="SpringMethodVisibility"/>
 	<suppress files="DefaultLoginPageGeneratingFilterTests\.java" checks="SpringLeadingWhitespace"/>
+	<suppress files="AuthenticationException\.java" checks="MutableException"/>
 
 	<!-- Lambdas that we can't replace with a method reference because a closure is required -->
 	<suppress files="BearerTokenAuthenticationFilter\.java" checks="SpringLambda"/>
 
 	<!-- CSS content -->
 	<suppress files="CssUtils\.java" checks="SpringLeadingWhitespace"/>
+
+	<!-- Ignore String.toUpperCase() and String.toLowerCase() checks in tests -->
+	<suppress files="[\\/]src[\\/]test[\\/]" checks="RegexpSinglelineJava" id="toLowerCaseWithoutLocale"/>
+	<suppress files="[\\/]src[\\/]test[\\/]" checks="RegexpSinglelineJava" id="toUpperCaseWithoutLocale"/>
 </suppressions>

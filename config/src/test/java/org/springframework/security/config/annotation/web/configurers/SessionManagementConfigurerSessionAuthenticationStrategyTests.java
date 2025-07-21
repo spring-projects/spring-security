@@ -39,6 +39,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 
 /**
@@ -72,10 +73,9 @@ public class SessionManagementConfigurerSessionAuthenticationStrategyTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.formLogin()
-					.and()
-				.sessionManagement()
-					.sessionAuthenticationStrategy(customSessionAuthenticationStrategy);
+				.formLogin(withDefaults())
+				.sessionManagement((management) -> management
+					.sessionAuthenticationStrategy(customSessionAuthenticationStrategy));
 			// @formatter:on
 			return http.build();
 		}

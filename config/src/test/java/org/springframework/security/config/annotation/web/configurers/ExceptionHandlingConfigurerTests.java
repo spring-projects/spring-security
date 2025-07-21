@@ -52,6 +52,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.config.annotation.SecurityContextChangedListenerArgumentMatchers.setAuthentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -241,7 +242,7 @@ public class ExceptionHandlingConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.exceptionHandling();
+				.exceptionHandling(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -291,12 +292,10 @@ public class ExceptionHandlingConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.httpBasic()
-					.and()
-				.formLogin();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.httpBasic(withDefaults())
+				.formLogin(withDefaults());
 			// @formatter:on
 			return http.build();
 		}
@@ -330,12 +329,10 @@ public class ExceptionHandlingConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.httpBasic()
-					.and()
-				.formLogin();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.httpBasic(withDefaults())
+				.formLogin(withDefaults());
 			return http.build();
 			// @formatter:on
 		}
@@ -352,12 +349,11 @@ public class ExceptionHandlingConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-				.exceptionHandling()
-					.authenticationEntryPoint(AEP).and()
-				.exceptionHandling();
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.exceptionHandling((handling) -> handling
+					.authenticationEntryPoint(AEP))
+				.exceptionHandling(withDefaults());
 			return http.build();
 			// @formatter:on
 		}

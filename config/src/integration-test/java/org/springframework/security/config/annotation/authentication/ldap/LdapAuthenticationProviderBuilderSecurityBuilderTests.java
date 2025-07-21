@@ -44,7 +44,7 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
-import org.springframework.security.ldap.server.ApacheDSContainer;
+import org.springframework.security.ldap.server.UnboundIdContainer;
 import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -326,11 +326,11 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 	abstract static class BaseLdapServerConfig extends BaseLdapProviderConfig {
 
 		@Bean
-		ApacheDSContainer ldapServer() throws Exception {
-			ApacheDSContainer apacheDSContainer = new ApacheDSContainer("dc=springframework,dc=org",
+		UnboundIdContainer ldapServer() throws Exception {
+			UnboundIdContainer unboundIdContainer = new UnboundIdContainer("dc=springframework,dc=org",
 					"classpath:/test-server.ldif");
-			apacheDSContainer.setPort(getPort());
-			return apacheDSContainer;
+			unboundIdContainer.setPort(getPort());
+			return unboundIdContainer;
 		}
 
 	}

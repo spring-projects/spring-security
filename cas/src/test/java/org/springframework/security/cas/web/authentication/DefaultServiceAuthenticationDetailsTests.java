@@ -26,6 +26,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.cas.ServiceProperties;
+import org.springframework.security.cas.authentication.ServiceAuthenticationDetails;
 import org.springframework.security.web.util.UrlUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

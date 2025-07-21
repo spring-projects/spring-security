@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,16 +25,16 @@ import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
 import org.springframework.security.authorization.AuthorityAuthorizationManager;
-import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationResult;
+import org.springframework.security.authorization.SingleResultAuthorizationManager;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcherEntry;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * Tests for {@link RequestMatcherDelegatingAuthorizationManager}.
@@ -55,38 +55,36 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 	public void addWhenMatcherNullThenException() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> RequestMatcherDelegatingAuthorizationManager.builder()
-				.add(null, (a, o) -> new AuthorizationDecision(true))
+				.add(null, SingleResultAuthorizationManager.permitAll())
 				.build())
 			.withMessage("matcher cannot be null");
 	}
 
 	@Test
 	public void addWhenManagerNullThenException() {
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> RequestMatcherDelegatingAuthorizationManager.builder()
-				.add(new MvcRequestMatcher(null, "/grant"), null)
-				.build())
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> RequestMatcherDelegatingAuthorizationManager.builder().add(pathPattern("/grant"), null).build())
 			.withMessage("manager cannot be null");
 	}
 
 	@Test
 	public void checkWhenMultipleMappingsConfiguredThenDelegatesMatchingManager() {
 		RequestMatcherDelegatingAuthorizationManager manager = RequestMatcherDelegatingAuthorizationManager.builder()
-			.add(new MvcRequestMatcher(null, "/grant"), (a, o) -> new AuthorizationDecision(true))
-			.add(new MvcRequestMatcher(null, "/deny"), (a, o) -> new AuthorizationDecision(false))
+			.add(pathPattern(null, "/grant"), SingleResultAuthorizationManager.permitAll())
+			.add(pathPattern(null, "/deny"), SingleResultAuthorizationManager.denyAll())
 			.build();
 
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
 
-		AuthorizationDecision grant = manager.check(authentication, new MockHttpServletRequest(null, "/grant"));
+		AuthorizationResult grant = manager.authorize(authentication, new MockHttpServletRequest(null, "/grant"));
 		assertThat(grant).isNotNull();
 		assertThat(grant.isGranted()).isTrue();
 
-		AuthorizationDecision deny = manager.check(authentication, new MockHttpServletRequest(null, "/deny"));
+		AuthorizationResult deny = manager.authorize(authentication, new MockHttpServletRequest(null, "/deny"));
 		assertThat(deny).isNotNull();
 		assertThat(deny.isGranted()).isFalse();
 
-		AuthorizationDecision defaultDeny = manager.check(authentication,
+		AuthorizationResult defaultDeny = manager.authorize(authentication,
 				new MockHttpServletRequest(null, "/unmapped"));
 		assertThat(defaultDeny).isNotNull();
 		assertThat(defaultDeny.isGranted()).isFalse();
@@ -96,27 +94,26 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 	public void checkWhenMultipleMappingsConfiguredWithConsumerThenDelegatesMatchingManager() {
 		RequestMatcherDelegatingAuthorizationManager manager = RequestMatcherDelegatingAuthorizationManager.builder()
 			.mappings((m) -> {
-				m.add(new RequestMatcherEntry<>(new MvcRequestMatcher(null, "/grant"),
-						(a, o) -> new AuthorizationDecision(true)));
+				m.add(new RequestMatcherEntry<>(pathPattern("/grant"), SingleResultAuthorizationManager.permitAll()));
 				m.add(new RequestMatcherEntry<>(AnyRequestMatcher.INSTANCE,
 						AuthorityAuthorizationManager.hasRole("ADMIN")));
-				m.add(new RequestMatcherEntry<>(new MvcRequestMatcher(null, "/afterAny"),
-						(a, o) -> new AuthorizationDecision(true)));
+				m.add(new RequestMatcherEntry<>(pathPattern("/afterAny"),
+						SingleResultAuthorizationManager.permitAll()));
 			})
 			.build();
 
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
 
-		AuthorizationDecision grant = manager.check(authentication, new MockHttpServletRequest(null, "/grant"));
+		AuthorizationResult grant = manager.authorize(authentication, new MockHttpServletRequest(null, "/grant"));
 
 		assertThat(grant).isNotNull();
 		assertThat(grant.isGranted()).isTrue();
 
-		AuthorizationDecision afterAny = manager.check(authentication, new MockHttpServletRequest(null, "/afterAny"));
+		AuthorizationResult afterAny = manager.authorize(authentication, new MockHttpServletRequest(null, "/afterAny"));
 		assertThat(afterAny).isNotNull();
 		assertThat(afterAny.isGranted()).isFalse();
 
-		AuthorizationDecision unmapped = manager.check(authentication, new MockHttpServletRequest(null, "/unmapped"));
+		AuthorizationResult unmapped = manager.authorize(authentication, new MockHttpServletRequest(null, "/unmapped"));
 		assertThat(unmapped).isNotNull();
 		assertThat(unmapped.isGranted()).isFalse();
 	}
@@ -155,7 +152,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 			.isThrownBy(() -> RequestMatcherDelegatingAuthorizationManager.builder()
 				.anyRequest()
 				.authenticated()
-				.requestMatchers(new AntPathRequestMatcher("/authenticated"))
+				.requestMatchers(pathPattern("/authenticated"))
 				.authenticated()
 				.build())
 			.withMessage("Can't configure requestMatchers after anyRequest");
@@ -179,7 +176,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 			.anyRequest()
 			.permitAll()
 			.build();
-		AuthorizationDecision decision = manager.check(TestAuthentication::anonymousUser, null);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::anonymousUser, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -190,7 +187,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 			.anyRequest()
 			.denyAll()
 			.build();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedAdmin, null);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedAdmin, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -201,7 +198,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 			.anyRequest()
 			.authenticated()
 			.build();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, null);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedUser, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -212,7 +209,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 			.anyRequest()
 			.authenticated()
 			.build();
-		AuthorizationDecision decision = manager.check(TestAuthentication::anonymousUser, null);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::anonymousUser, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -223,7 +220,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 			.anyRequest()
 			.fullyAuthenticated()
 			.build();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, null);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedUser, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -234,7 +231,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 			.anyRequest()
 			.fullyAuthenticated()
 			.build();
-		AuthorizationDecision decision = manager.check(TestAuthentication::anonymousUser, null);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::anonymousUser, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -245,7 +242,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 			.anyRequest()
 			.fullyAuthenticated()
 			.build();
-		AuthorizationDecision decision = manager.check(TestAuthentication::rememberMeUser, null);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::rememberMeUser, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -256,7 +253,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 			.anyRequest()
 			.rememberMe()
 			.build();
-		AuthorizationDecision decision = manager.check(TestAuthentication::rememberMeUser, null);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::rememberMeUser, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -267,7 +264,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 			.anyRequest()
 			.rememberMe()
 			.build();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, null);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedUser, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -278,7 +275,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 			.anyRequest()
 			.anonymous()
 			.build();
-		AuthorizationDecision decision = manager.check(TestAuthentication::anonymousUser, null);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::anonymousUser, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -289,7 +286,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 			.anyRequest()
 			.anonymous()
 			.build();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, null);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedUser, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -300,7 +297,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 			.anyRequest()
 			.hasRole("ADMIN")
 			.build();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, null);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedUser, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -311,7 +308,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 			.anyRequest()
 			.hasRole("ADMIN")
 			.build();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedAdmin, null);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedAdmin, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -322,7 +319,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 			.anyRequest()
 			.hasAnyRole("USER", "ADMIN")
 			.build();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, null);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedUser, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -333,7 +330,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 			.anyRequest()
 			.hasAnyRole("USER", "ADMIN")
 			.build();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedAdmin, null);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedAdmin, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -344,7 +341,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 			.anyRequest()
 			.hasAnyRole("USER", "ADMIN")
 			.build();
-		AuthorizationDecision decision = manager.check(TestAuthentication::anonymousUser, null);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::anonymousUser, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -355,7 +352,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 			.anyRequest()
 			.hasAuthority("ROLE_ADMIN")
 			.build();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, null);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedUser, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -366,7 +363,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 			.anyRequest()
 			.hasAuthority("ROLE_ADMIN")
 			.build();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedAdmin, null);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedAdmin, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -377,7 +374,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 			.anyRequest()
 			.hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
 			.build();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, null);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedUser, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -388,7 +385,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 			.anyRequest()
 			.hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
 			.build();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedAdmin, null);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::authenticatedAdmin, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -399,7 +396,7 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 			.anyRequest()
 			.hasAnyRole("USER", "ADMIN")
 			.build();
-		AuthorizationDecision decision = manager.check(TestAuthentication::anonymousUser, null);
+		AuthorizationResult decision = manager.authorize(TestAuthentication::anonymousUser, null);
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}

@@ -22,6 +22,7 @@ import java.util.List;
 /**
  * @author Joe Scalise
  */
+@SuppressWarnings("serial")
 public class BusinessServiceImpl<E extends Entity> implements BusinessService {
 
 	@Override

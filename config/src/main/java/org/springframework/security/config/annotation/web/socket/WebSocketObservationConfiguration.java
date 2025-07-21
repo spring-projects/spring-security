@@ -41,7 +41,7 @@ class WebSocketObservationConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static ObjectPostProcessor<AuthorizationManager<Message<?>>> webAuthorizationManagerPostProcessor(
+	static ObjectPostProcessor<AuthorizationManager<Message<?>>> webSocketAuthorizationManagerPostProcessor(
 			ObjectProvider<ObservationRegistry> registry, ObjectProvider<SecurityObservationSettings> predicate) {
 		return new ObjectPostProcessor<>() {
 			@Override

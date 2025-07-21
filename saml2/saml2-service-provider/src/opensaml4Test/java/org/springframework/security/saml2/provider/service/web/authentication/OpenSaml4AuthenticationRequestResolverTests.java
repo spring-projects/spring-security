@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,13 +28,14 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.TestMockHttpServletRequests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 public class OpenSaml4AuthenticationRequestResolverTests {
 
@@ -56,13 +57,13 @@ public class OpenSaml4AuthenticationRequestResolverTests {
 		Saml2RedirectAuthenticationRequest authnRequest = resolver.resolve(this.request);
 		assertThat(authnRequest.getBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
 		assertThat(authnRequest.getAuthenticationRequestUri())
-			.isEqualTo(this.registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
+			.isEqualTo(this.registration.getAssertingPartyMetadata().getSingleSignOnServiceLocation());
 	}
 
 	@Test
 	void resolveWhenPostThenSaml2PostAuthenticationRequest() {
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full()
-			.assertingPartyDetails((party) -> party.singleSignOnServiceBinding(Saml2MessageBinding.POST))
+			.assertingPartyMetadata((party) -> party.singleSignOnServiceBinding(Saml2MessageBinding.POST))
 			.build();
 		RelyingPartyRegistrationResolver relyingParties = mock(RelyingPartyRegistrationResolver.class);
 		given(relyingParties.resolve(any(), any())).willReturn(registration);
@@ -70,7 +71,7 @@ public class OpenSaml4AuthenticationRequestResolverTests {
 		Saml2PostAuthenticationRequest authnRequest = resolver.resolve(this.request);
 		assertThat(authnRequest.getBinding()).isEqualTo(Saml2MessageBinding.POST);
 		assertThat(authnRequest.getAuthenticationRequestUri())
-			.isEqualTo(this.registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
+			.isEqualTo(this.registration.getAssertingPartyMetadata().getSingleSignOnServiceLocation());
 	}
 
 	@Test
@@ -91,20 +92,18 @@ public class OpenSaml4AuthenticationRequestResolverTests {
 		RelyingPartyRegistrationResolver relyingParties = mock(RelyingPartyRegistrationResolver.class);
 		given(relyingParties.resolve(any(), any())).willReturn(this.registration);
 		OpenSaml4AuthenticationRequestResolver resolver = new OpenSaml4AuthenticationRequestResolver(relyingParties);
-		resolver.setRequestMatcher(new AntPathRequestMatcher("/custom/authentication/{registrationId}"));
+		resolver.setRequestMatcher(pathPattern("/custom/authentication/{registrationId}"));
 		Saml2RedirectAuthenticationRequest authnRequest = resolver
 			.resolve(givenRequest("/custom/authentication/registration-id"));
 
 		assertThat(authnRequest.getBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
 		assertThat(authnRequest.getAuthenticationRequestUri())
-			.isEqualTo(this.registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
+			.isEqualTo(this.registration.getAssertingPartyMetadata().getSingleSignOnServiceLocation());
 
 	}
 
 	private MockHttpServletRequest givenRequest(String path) {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setServletPath(path);
-		return request;
+		return TestMockHttpServletRequests.get(path).build();
 	}
 
 }

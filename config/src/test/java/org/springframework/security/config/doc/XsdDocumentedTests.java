@@ -30,12 +30,12 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.config.http.SecurityFiltersAssertions;
+import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -65,7 +65,7 @@ public class XsdDocumentedTests {
 
 	String schema31xDocumentLocation = "org/springframework/security/config/spring-security-3.1.xsd";
 
-	String schemaDocumentLocation = "org/springframework/security/config/spring-security-6.4.xsd";
+	String schemaDocumentLocation = "org/springframework/security/config/spring-security-7.0.xsd";
 
 	XmlSupport xml = new XmlSupport();
 
@@ -86,7 +86,7 @@ public class XsdDocumentedTests {
 				.flatMap(XmlNode::children)
 				.flatMap(XmlNode::children)
 				.map((node) -> node.attribute("value"))
-				.filter(StringUtils::isNotEmpty)
+				.filter(StringUtils::hasText)
 				.collect(Collectors.toList());
 		// @formatter:on
 		SecurityFiltersAssertions.assertEquals(nodes);
@@ -129,7 +129,7 @@ public class XsdDocumentedTests {
 				.flatMap(XmlNode::children)
 				.flatMap(XmlNode::children)
 				.map((node) -> node.attribute("value"))
-				.filter(StringUtils::isNotEmpty)
+				.filter(StringUtils::hasText)
 				.collect(Collectors.toList());
 		// @formatter:on
 		assertThat(nodes).isEqualTo(expected);
@@ -151,8 +151,8 @@ public class XsdDocumentedTests {
 				.list((dir, name) -> name.endsWith(".xsd"));
 		// @formatter:on
 		assertThat(schemas.length)
-			.withFailMessage("the count is equal to 26, if not then schemaDocument needs updating")
-			.isEqualTo(26);
+			.withFailMessage("the count is equal to 28, if not then schemaDocument needs updating")
+			.isEqualTo(28);
 	}
 
 	/**

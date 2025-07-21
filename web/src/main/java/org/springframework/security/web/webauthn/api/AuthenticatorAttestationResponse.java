@@ -24,7 +24,7 @@ import java.util.List;
  * "https://www.w3.org/TR/webauthn-3/#authenticatorattestationresponse">AuthenticatorAttestationResponse</a>
  * represents the
  * <a href="https://www.w3.org/TR/webauthn-3/#authenticator">authenticator</a>'s response
- * to a client’s request for the creation of a new
+ * to a client's request for the creation of a new
  * <a href="https://www.w3.org/TR/webauthn-3/#public-key-credential">public key
  * credential</a>.
  *

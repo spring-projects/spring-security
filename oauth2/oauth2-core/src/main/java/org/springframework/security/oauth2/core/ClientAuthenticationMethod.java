@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.core;
 
 import java.io.Serializable;
 
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
@@ -90,6 +91,29 @@ public final class ClientAuthenticationMethod implements Serializable {
 	 */
 	public String getValue() {
 		return this.value;
+	}
+
+	static ClientAuthenticationMethod[] methods() {
+		return new ClientAuthenticationMethod[] { CLIENT_SECRET_BASIC, CLIENT_SECRET_POST, CLIENT_SECRET_JWT,
+				PRIVATE_KEY_JWT, NONE, TLS_CLIENT_AUTH, SELF_SIGNED_TLS_CLIENT_AUTH };
+	}
+
+	/**
+	 * A factory to construct a {@link ClientAuthenticationMethod} based on a string,
+	 * returning any constant value that matches.
+	 * @param method the client authentication method
+	 * @return a {@link ClientAuthenticationMethod}; specifically the corresponding
+	 * constant, if any
+	 * @since 6.5
+	 */
+	@NonNull
+	public static ClientAuthenticationMethod valueOf(String method) {
+		for (ClientAuthenticationMethod m : methods()) {
+			if (m.getValue().equals(method)) {
+				return m;
+			}
+		}
+		return new ClientAuthenticationMethod(method);
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,17 @@
 
 package org.springframework.security.web.csrf;
 
+import java.util.function.Supplier;
+
 /**
  * An interface that allows delayed access to a {@link CsrfToken} that may be generated.
  *
  * @author Rob Winch
  * @author Steve Riesenberg
+ * @author Daeho Kwon
  * @since 5.8
  */
-public interface DeferredCsrfToken {
+public interface DeferredCsrfToken extends Supplier<CsrfToken> {
 
 	/**
 	 * Gets the {@link CsrfToken}

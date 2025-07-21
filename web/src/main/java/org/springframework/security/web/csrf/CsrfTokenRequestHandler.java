@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.util.Assert;
 
 /**
@@ -30,6 +31,7 @@ import org.springframework.util.Assert;
  * available to the application through request attributes.
  *
  * @author Steve Riesenberg
+ * @author Yoobin Yoon
  * @since 5.8
  * @see CsrfTokenRequestAttributeHandler
  */
@@ -49,10 +51,20 @@ public interface CsrfTokenRequestHandler extends CsrfTokenRequestResolver {
 		Assert.notNull(request, "request cannot be null");
 		Assert.notNull(csrfToken, "csrfToken cannot be null");
 		String actualToken = request.getHeader(csrfToken.getHeaderName());
-		if (actualToken == null) {
-			actualToken = request.getParameter(csrfToken.getParameterName());
+		if (actualToken != null) {
+			return actualToken;
 		}
-		return actualToken;
+		CsrfTokenRequestHandlerLoggerHolder.logger.trace(
+				LogMessage.format("Did not find a CSRF token in the [%s] request header", csrfToken.getHeaderName()));
+
+		actualToken = request.getParameter(csrfToken.getParameterName());
+		if (actualToken != null) {
+			return actualToken;
+		}
+		CsrfTokenRequestHandlerLoggerHolder.logger.trace(LogMessage
+			.format("Did not find a CSRF token in the [%s] request parameter", csrfToken.getParameterName()));
+
+		return null;
 	}
 
 }

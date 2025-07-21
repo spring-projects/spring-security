@@ -75,7 +75,11 @@ public final class RequestAttributeSecurityContextRepository implements Security
 		return getContext(request) != null;
 	}
 
+	/**
+	 * @deprecated please see {@link SecurityContextRepository#loadContext}
+	 */
 	@Override
+	@Deprecated
 	public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
 		return loadDeferredContext(requestResponseHolder.getRequest()).get();
 	}

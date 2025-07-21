@@ -26,6 +26,7 @@ import jakarta.annotation.security.RolesAllowed;
  * @author Luke Taylor
  */
 @PermitAll
+@SuppressWarnings("serial")
 public class Jsr250BusinessServiceImpl implements BusinessService {
 
 	@Override
