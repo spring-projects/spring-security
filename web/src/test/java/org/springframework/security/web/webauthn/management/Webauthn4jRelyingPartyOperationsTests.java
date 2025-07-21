@@ -519,8 +519,8 @@ class Webauthn4jRelyingPartyOperationsTests {
 		ImmutableRelyingPartyRegistrationRequest registrationRequest = new ImmutableRelyingPartyRegistrationRequest(
 				copiedOptions, new RelyingPartyPublicKey(publicKey, this.label));
 
-		var test = this.rpOperations.registerCredential(registrationRequest);
-
+		// Should not throw an exception
+		this.rpOperations.registerCredential(registrationRequest);
 	}
 
 	private static AuthenticatorAttestationResponse setFlag(byte... flags) throws Exception {
