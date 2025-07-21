@@ -19,7 +19,6 @@ package org.springframework.security.saml2.provider.service.authentication;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Nullable;
 import javax.xml.namespace.QName;
 
 import net.shibboleth.shared.xml.ElementSupport;
@@ -40,6 +39,7 @@ import org.opensaml.saml.saml2.core.AttributeValue;
 import org.w3c.dom.Element;
 
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 
 public final class TestCustomOpenSaml5Objects {
