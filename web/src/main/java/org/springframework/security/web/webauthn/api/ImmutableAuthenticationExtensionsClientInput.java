@@ -17,7 +17,6 @@
 package org.springframework.security.web.webauthn.api;
 
 import java.io.Serial;
-import java.io.Serializable;
 
 /**
  * An immutable {@link AuthenticationExtensionsClientInput}.
@@ -27,10 +26,10 @@ import java.io.Serializable;
  * @since 6.4
  * @see AuthenticationExtensionsClientInputs
  */
-public class ImmutableAuthenticationExtensionsClientInput<T> implements AuthenticationExtensionsClientInput<T>, Serializable {
+public class ImmutableAuthenticationExtensionsClientInput<T> implements AuthenticationExtensionsClientInput<T> {
 
 	@Serial
-	private static final long serialVersionUID = -4728475902609231330L;
+	private static final long serialVersionUID = -1738152485672656808L;
 
 	/**
 	 * https://www.w3.org/TR/webauthn-3/#sctn-authenticator-credential-properties-extension

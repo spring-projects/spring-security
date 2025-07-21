@@ -33,7 +33,7 @@ import org.springframework.util.Assert;
 public final class Bytes implements Serializable {
 
 	@Serial
-	private static final long serialVersionUID = -7420539646106189663L;
+	private static final long serialVersionUID = -3278138671365709777L;
 
 	private static final SecureRandom RANDOM = new SecureRandom();
 

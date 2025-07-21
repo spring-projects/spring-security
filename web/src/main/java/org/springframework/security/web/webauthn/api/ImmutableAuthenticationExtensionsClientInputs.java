@@ -17,7 +17,6 @@
 package org.springframework.security.web.webauthn.api;
 
 import java.io.Serial;
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,10 +26,10 @@ import java.util.List;
  * @author Rob Winch
  * @since 6.4
  */
-public class ImmutableAuthenticationExtensionsClientInputs implements AuthenticationExtensionsClientInputs, Serializable {
+public class ImmutableAuthenticationExtensionsClientInputs implements AuthenticationExtensionsClientInputs {
 
 	@Serial
-	private static final long serialVersionUID = -4836558379344450438L;
+	private static final long serialVersionUID = 4277817521578485720L;
 
 	private final List<AuthenticationExtensionsClientInput> inputs;
 

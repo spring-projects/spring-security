@@ -28,10 +28,10 @@ import java.io.Serializable;
  * @since 6.4
  */
 public class CredProtectAuthenticationExtensionsClientInput
-		implements AuthenticationExtensionsClientInput<CredProtectAuthenticationExtensionsClientInput.CredProtect>, Serializable {
+		implements AuthenticationExtensionsClientInput<CredProtectAuthenticationExtensionsClientInput.CredProtect> {
 
 	@Serial
-	private static final long serialVersionUID = 1594370832009118794L;
+	private static final long serialVersionUID = -6418175591005843455L;
 
 	private final CredProtect input;
 

@@ -17,7 +17,6 @@
 package org.springframework.security.web.webauthn.api;
 
 import java.io.Serial;
-import java.io.Serializable;
 
 /**
  * <a href=
@@ -29,10 +28,10 @@ import java.io.Serializable;
  * @author Rob Winch
  * @since 6.4
  */
-public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCredentialUserEntity, Serializable {
+public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCredentialUserEntity {
 
 	@Serial
-	private static final long serialVersionUID = -3487418268223398299L;
+	private static final long serialVersionUID = -3438693960347279759L;
 
 	/**
 	 * When inherited by PublicKeyCredentialUserEntity, it is a human-palatable identifier

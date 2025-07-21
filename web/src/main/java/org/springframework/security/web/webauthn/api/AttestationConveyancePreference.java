@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -29,6 +30,9 @@ import java.io.Serializable;
  * @since 6.4
  */
 public final class AttestationConveyancePreference implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = -746545182023303673L;
 
 	/**
 	 * The <a href=
