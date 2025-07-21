@@ -16,6 +16,9 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * <a href=
  * "https://www.w3.org/TR/webauthn-3/#dictdef-authenticatorselectioncriteria">AuthenticatorAttachment</a>
@@ -31,7 +34,10 @@ package org.springframework.security.web.webauthn.api;
  * @since 6.4
  * @see PublicKeyCredentialCreationOptions#getAuthenticatorSelection()
  */
-public final class AuthenticatorSelectionCriteria {
+public final class AuthenticatorSelectionCriteria implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = 6295924992300524641L;
 
 	private final AuthenticatorAttachment authenticatorAttachment;
 

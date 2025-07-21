@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serializable;
+
 /**
  * <a href="https://www.w3.org/TR/webauthn-3/#webauthn-relying-party">WebAuthn Relying
  * Parties</a> may use <a href=
@@ -26,7 +28,7 @@ package org.springframework.security.web.webauthn.api;
  * @author Rob Winch
  * @since 6.4
  */
-public final class AttestationConveyancePreference {
+public final class AttestationConveyancePreference implements Serializable {
 
 	/**
 	 * The <a href=

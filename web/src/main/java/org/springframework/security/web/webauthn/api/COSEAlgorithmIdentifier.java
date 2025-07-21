@@ -16,6 +16,9 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * <a href=
  * "https://www.w3.org/TR/webauthn-3/#sctn-alg-identifier">COSEAlgorithmIdentifier</a> is
@@ -25,7 +28,10 @@ package org.springframework.security.web.webauthn.api;
  * @since 6.4
  * @see PublicKeyCredentialParameters#getAlg()
  */
-public final class COSEAlgorithmIdentifier {
+public final class COSEAlgorithmIdentifier implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = -7174114312834239069L;
 
 	public static final COSEAlgorithmIdentifier EdDSA = new COSEAlgorithmIdentifier(-8);
 

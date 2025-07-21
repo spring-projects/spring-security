@@ -18,6 +18,8 @@ package org.springframework.security.web.webauthn.api;
 
 import java.io.Serializable;
 
+import java.io.Serializable;
+
 /**
  * <a href=
  * "https://www.w3.org/TR/webauthn-3/#dictdef-publickeycredentialuserentity">PublicKeyCredentialUserEntity</a>

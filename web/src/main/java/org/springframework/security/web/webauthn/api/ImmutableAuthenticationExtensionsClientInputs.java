@@ -26,7 +26,7 @@ import java.util.List;
  * @author Rob Winch
  * @since 6.4
  */
-public class ImmutableAuthenticationExtensionsClientInputs implements AuthenticationExtensionsClientInputs {
+public class ImmutableAuthenticationExtensionsClientInputs implements AuthenticationExtensionsClientInputs, Serializable {
 
 	@Serial
 	private static final long serialVersionUID = 4277817521578485720L;

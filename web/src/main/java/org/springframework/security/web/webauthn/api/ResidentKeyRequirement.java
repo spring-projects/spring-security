@@ -16,6 +16,9 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * The <a href=
  * "https://www.w3.org/TR/webauthn-3/#enumdef-residentkeyrequirement">ResidentKeyRequirement</a>
@@ -24,7 +27,10 @@ package org.springframework.security.web.webauthn.api;
  * @author Rob Winch
  * @since 6.4
  */
-public final class ResidentKeyRequirement {
+public final class ResidentKeyRequirement implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = 2047716518193458797L;
 
 	/**
 	 * The <a href=

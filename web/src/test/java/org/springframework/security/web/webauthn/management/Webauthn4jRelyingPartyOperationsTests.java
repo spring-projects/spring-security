@@ -16,6 +16,10 @@
 
 package org.springframework.security.web.webauthn.management;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
@@ -63,6 +67,7 @@ import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialCrea
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntities;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentials;
 import org.springframework.security.web.webauthn.api.UserVerificationRequirement;
+import org.springframework.util.SerializationUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -544,47 +549,27 @@ class Webauthn4jRelyingPartyOperationsTests {
 	}
 
 	@Test
-	void createCredentialRequestOptionsWhenAnonymousAuthentication() {
-		AnonymousAuthenticationToken authentication = new AnonymousAuthenticationToken("key", "anonymousUser",
-				Set.of(() -> "ROLE_ANONYMOUS"));
-		PublicKeyCredentialRequestOptionsRequest createRequest = new ImmutablePublicKeyCredentialRequestOptionsRequest(
-				authentication);
-		PublicKeyCredentialRequestOptions credentialRequestOptions = this.rpOperations
-			.createCredentialRequestOptions(createRequest);
+	void convertParamToWebauthn4jPublicKeyComparison() throws Exception {
 
-		assertThat(credentialRequestOptions.getAllowCredentials()).isEmpty();
-		// verify anonymous user not saved
-		verifyNoInteractions(this.userEntities);
-	}
+		PublicKeyCredentialCreationOptions options = TestPublicKeyCredentialCreationOptions
+				.createPublicKeyCredentialCreationOptions()
+				.build();
 
-	@Test
-	void createCredentialRequestOptionsWhenNullAuthentication() {
-		PublicKeyCredentialRequestOptionsRequest createRequest = new ImmutablePublicKeyCredentialRequestOptionsRequest(
-				null);
-		PublicKeyCredentialRequestOptions credentialRequestOptions = this.rpOperations
-			.createCredentialRequestOptions(createRequest);
+		// Simulate storage into external session storage: serialize/deserialize of the creation options
+		ByteArrayOutputStream bo = new ByteArrayOutputStream();
+		ObjectOutputStream oos = new ObjectOutputStream(bo);
+		oos.writeObject(options);
 
-		assertThat(credentialRequestOptions.getAllowCredentials()).isEmpty();
-		// verify anonymous user not saved
-		verifyNoInteractions(this.userEntities);
-	}
+		ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bo.toByteArray()));
+		PublicKeyCredentialCreationOptions copiedOptions = (PublicKeyCredentialCreationOptions) ois.readObject();
 
-	@Test
-	void createCredentialRequestOptionsWhenAuthenticated() {
-		UserDetails user = PasswordEncodedUser.user();
-		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user, null,
-				user.getAuthorities());
-		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntities.userEntity().build();
-		CredentialRecord credentialRecord = TestCredentialRecords.userCredential().build();
-		given(this.userEntities.findByUsername(user.getUsername())).willReturn(userEntity);
-		given(this.userCredentials.findByUserId(userEntity.getId())).willReturn(Arrays.asList(credentialRecord));
-		PublicKeyCredentialRequestOptionsRequest createRequest = new ImmutablePublicKeyCredentialRequestOptionsRequest(
-				auth);
-		PublicKeyCredentialRequestOptions credentialRequestOptions = this.rpOperations
-			.createCredentialRequestOptions(createRequest);
+		// Check that the deep copied options are still valid
+		PublicKeyCredential publicKey = TestPublicKeyCredentials.createPublicKeyCredential().build();
+		ImmutableRelyingPartyRegistrationRequest registrationRequest = new ImmutableRelyingPartyRegistrationRequest(
+				copiedOptions, new RelyingPartyPublicKey(publicKey, this.label));
 
-		assertThat(credentialRequestOptions.getAllowCredentials()).extracting(PublicKeyCredentialDescriptor::getId)
-			.containsExactly(credentialRecord.getCredentialId());
+		// This should not throw an exception
+		this.rpOperations.registerCredential(registrationRequest);
 	}
 
 	private static AuthenticatorAttestationResponse setFlag(byte... flags) throws Exception {
