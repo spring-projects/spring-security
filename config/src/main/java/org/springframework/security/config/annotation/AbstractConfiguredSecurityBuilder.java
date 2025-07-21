@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  * @param <O> The object that this builder returns
  * @param <B> The type of this builder (that is returned by the base class)
  * @author Rob Winch
+ * @author DingHao
  * @see WebSecurity
  */
 public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBuilder<O>>
@@ -59,7 +60,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 
 	private final LinkedHashMap<Class<? extends SecurityConfigurer<O, B>>, List<SecurityConfigurer<O, B>>> configurers = new LinkedHashMap<>();
 
-	private final List<SecurityConfigurer<O, B>> configurersAddedInInitializing = new ArrayList<>();
+	private List<SecurityConfigurer<O, B>> configurersAddedInInitializing = new ArrayList<>();
 
 	private final Map<Class<?>, Object> sharedObjects = new HashMap<>();
 
@@ -386,8 +387,12 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 		for (SecurityConfigurer<O, B> configurer : configurers) {
 			configurer.init((B) this);
 		}
-		for (SecurityConfigurer<O, B> configurer : this.configurersAddedInInitializing) {
-			configurer.init((B) this);
+		while (!this.configurersAddedInInitializing.isEmpty()) {
+			List<SecurityConfigurer<O, B>> toInit = this.configurersAddedInInitializing;
+			this.configurersAddedInInitializing = new ArrayList<>();
+			for (SecurityConfigurer<O, B> configurer : toInit) {
+				configurer.init((B) this);
+			}
 		}
 	}
 
