@@ -557,62 +557,19 @@ class Webauthn4jRelyingPartyOperationsTests {
 
 		// Simulate storage into external session storage: serialize/deserialize of the creation options
 		ByteArrayOutputStream bo = new ByteArrayOutputStream();
-		ObjectOutputStream oos =  new ObjectOutputStream(bo);
+		ObjectOutputStream oos = new ObjectOutputStream(bo);
 		oos.writeObject(options);
 
-		ObjectInputStream ois =  new ObjectInputStream(new ByteArrayInputStream(bo.toByteArray()));
-		PublicKeyCredentialCreationOptions copiedOptions = (PublicKeyCredentialCreationOptions)ois.readObject() ;
+		ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bo.toByteArray()));
+		PublicKeyCredentialCreationOptions copiedOptions = (PublicKeyCredentialCreationOptions) ois.readObject();
 
 		// Check that the deep copied options are still valid
-		PublicKeyCredential publicKey = TestPublicKeyCredential.createPublicKeyCredential().build();
+		PublicKeyCredential publicKey = TestPublicKeyCredentials.createPublicKeyCredential().build();
 		ImmutableRelyingPartyRegistrationRequest registrationRequest = new ImmutableRelyingPartyRegistrationRequest(
 				copiedOptions, new RelyingPartyPublicKey(publicKey, this.label));
 
-		var test = this.rpOperations.registerCredential(registrationRequest);
-  }
-  
-  @Test
-	void createCredentialRequestOptionsWhenAnonymousAuthentication() {
-		AnonymousAuthenticationToken authentication = new AnonymousAuthenticationToken("key", "anonymousUser",
-				Set.of(() -> "ROLE_ANONYMOUS"));
-		PublicKeyCredentialRequestOptionsRequest createRequest = new ImmutablePublicKeyCredentialRequestOptionsRequest(
-				authentication);
-		PublicKeyCredentialRequestOptions credentialRequestOptions = this.rpOperations
-			.createCredentialRequestOptions(createRequest);
-
-		assertThat(credentialRequestOptions.getAllowCredentials()).isEmpty();
-		// verify anonymous user not saved
-		verifyNoInteractions(this.userEntities);
-	}
-
-	@Test
-	void createCredentialRequestOptionsWhenNullAuthentication() {
-		PublicKeyCredentialRequestOptionsRequest createRequest = new ImmutablePublicKeyCredentialRequestOptionsRequest(
-				null);
-		PublicKeyCredentialRequestOptions credentialRequestOptions = this.rpOperations
-			.createCredentialRequestOptions(createRequest);
-
-		assertThat(credentialRequestOptions.getAllowCredentials()).isEmpty();
-		// verify anonymous user not saved
-		verifyNoInteractions(this.userEntities);
-	}
-
-	@Test
-	void createCredentialRequestOptionsWhenAuthenticated() {
-		UserDetails user = PasswordEncodedUser.user();
-		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user, null,
-				user.getAuthorities());
-		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntities.userEntity().build();
-		CredentialRecord credentialRecord = TestCredentialRecords.userCredential().build();
-		given(this.userEntities.findByUsername(user.getUsername())).willReturn(userEntity);
-		given(this.userCredentials.findByUserId(userEntity.getId())).willReturn(Arrays.asList(credentialRecord));
-		PublicKeyCredentialRequestOptionsRequest createRequest = new ImmutablePublicKeyCredentialRequestOptionsRequest(
-				auth);
-		PublicKeyCredentialRequestOptions credentialRequestOptions = this.rpOperations
-			.createCredentialRequestOptions(createRequest);
-
-		assertThat(credentialRequestOptions.getAllowCredentials()).extracting(PublicKeyCredentialDescriptor::getId)
-			.containsExactly(credentialRecord.getCredentialId());
+		// This should not throw an exception
+		this.rpOperations.registerCredential(registrationRequest);
 	}
 
 	private static AuthenticatorAttestationResponse setFlag(byte... flags) throws Exception {
