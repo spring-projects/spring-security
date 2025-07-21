@@ -16,6 +16,9 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * <a href=
  * "https://www.w3.org/TR/webauthn-3/#enumdef-userverificationrequirement">UserVerificationRequirement</a>
@@ -24,7 +27,10 @@ package org.springframework.security.web.webauthn.api;
  * @author Rob Winch
  * @since 6.4
  */
-public final class UserVerificationRequirement {
+public final class UserVerificationRequirement implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = -2801001231345540040L;
 
 	/**
 	 * The <a href=

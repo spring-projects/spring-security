@@ -16,6 +16,9 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * The <a href=
  * "https://www.w3.org/TR/webauthn-3/#dictdef-publickeycredentialparameters">PublicKeyCredentialParameters</a>
@@ -25,7 +28,10 @@ package org.springframework.security.web.webauthn.api;
  * @since 6.4
  * @see PublicKeyCredentialCreationOptions#getPubKeyCredParams()
  */
-public final class PublicKeyCredentialParameters {
+public final class PublicKeyCredentialParameters implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = 8471974877710173696L;
 
 	public static final PublicKeyCredentialParameters EdDSA = new PublicKeyCredentialParameters(
 			COSEAlgorithmIdentifier.EdDSA);

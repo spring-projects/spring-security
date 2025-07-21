@@ -17,6 +17,7 @@
 package org.springframework.security.web.webauthn.jackson;
 
 import java.io.IOException;
+import java.io.Serial;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -32,6 +33,9 @@ import org.springframework.security.web.webauthn.api.AuthenticationExtensionsCli
  * @since 6.4
  */
 class AuthenticationExtensionsClientInputsSerializer extends StdSerializer<AuthenticationExtensionsClientInputs> {
+
+	@Serial
+	private static final long serialVersionUID = -5579815774497047153L;
 
 	/**
 	 * Creates a new instance.

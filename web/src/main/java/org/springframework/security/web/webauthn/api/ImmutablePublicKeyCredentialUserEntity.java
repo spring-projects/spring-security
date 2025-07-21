@@ -16,6 +16,9 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * <a href=
  * "https://www.w3.org/TR/webauthn-3/#dictdef-publickeycredentialuserentity">PublicKeyCredentialUserEntity</a>
@@ -26,7 +29,10 @@ package org.springframework.security.web.webauthn.api;
  * @author Rob Winch
  * @since 6.4
  */
-public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCredentialUserEntity {
+public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCredentialUserEntity, Serializable {
+
+	@Serial
+	private static final long serialVersionUID = -3487418268223398299L;
 
 	/**
 	 * When inherited by PublicKeyCredentialUserEntity, it is a human-palatable identifier
