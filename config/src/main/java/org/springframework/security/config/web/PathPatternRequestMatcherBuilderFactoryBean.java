@@ -46,6 +46,8 @@ public final class PathPatternRequestMatcherBuilderFactoryBean implements
 
 	private final PathPatternParser parser;
 
+	private String basePath;
+
 	private ApplicationContext context;
 
 	private String beanName;
@@ -78,21 +80,41 @@ public final class PathPatternRequestMatcherBuilderFactoryBean implements
 	public PathPatternRequestMatcher.Builder getObject() throws Exception {
 		if (!this.context.containsBean(MVC_PATTERN_PARSER_BEAN_NAME)) {
 			PathPatternParser parser = (this.parser != null) ? this.parser : PathPatternParser.defaultInstance;
-			return PathPatternRequestMatcher.withPathPatternParser(parser);
+			return withPathPatternParser(parser);
 		}
 		PathPatternParser mvc = this.context.getBean(MVC_PATTERN_PARSER_BEAN_NAME, PathPatternParser.class);
 		PathPatternParser parser = (this.parser != null) ? this.parser : mvc;
 		if (mvc.equals(parser)) {
-			return PathPatternRequestMatcher.withPathPatternParser(parser);
+			return withPathPatternParser(parser);
 		}
 		throw new IllegalArgumentException("Spring Security and Spring MVC must use the same path pattern parser. "
 				+ "To have Spring Security use Spring MVC's [" + describe(mvc, MVC_PATTERN_PARSER_BEAN_NAME)
 				+ "] simply publish this bean [" + describe(this, this.beanName) + "] using its default constructor");
 	}
 
+	private PathPatternRequestMatcher.Builder withPathPatternParser(PathPatternParser parser) {
+		if (this.basePath == null) {
+			return PathPatternRequestMatcher.withPathPatternParser(parser);
+		}
+		else {
+			return PathPatternRequestMatcher.withPathPatternParser(parser).basePath(this.basePath);
+		}
+	}
+
 	@Override
 	public Class<?> getObjectType() {
 		return PathPatternRequestMatcher.Builder.class;
+	}
+
+	/**
+	 * Use this as the base path for patterns built by the resulting
+	 * {@link PathPatternRequestMatcher.Builder} instance
+	 * @param basePath the base path to use
+	 * @since 7.0
+	 * @see PathPatternRequestMatcher.Builder#basePath(String)
+	 */
+	public void setBasePath(String basePath) {
+		this.basePath = basePath;
 	}
 
 	@Override
