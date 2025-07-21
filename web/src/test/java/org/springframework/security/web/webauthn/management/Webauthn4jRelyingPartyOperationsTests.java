@@ -16,6 +16,10 @@
 
 package org.springframework.security.web.webauthn.management;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
@@ -60,6 +64,7 @@ import org.springframework.security.web.webauthn.api.TestPublicKeyCredential;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialCreationOptions;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntity;
 import org.springframework.security.web.webauthn.api.UserVerificationRequirement;
+import org.springframework.util.SerializationUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -492,6 +497,30 @@ class Webauthn4jRelyingPartyOperationsTests {
 			.createCredentialRequestOptions(createRequest);
 		assertThat(credentialRequestOptions.getUserVerification())
 			.isEqualTo(creationOptions.getAuthenticatorSelection().getUserVerification());
+	}
+
+	@Test
+	void convertParamToWebauthn4jPublicKeyComparison() throws Exception {
+
+		PublicKeyCredentialCreationOptions options = TestPublicKeyCredentialCreationOptions
+				.createPublicKeyCredentialCreationOptions()
+				.build();
+
+		// Simulate storage into external session storage: serialize/deserialize of the creation options
+		ByteArrayOutputStream bo = new ByteArrayOutputStream();
+		ObjectOutputStream oos =  new ObjectOutputStream(bo);
+		oos.writeObject(options);
+
+		ObjectInputStream ois =  new ObjectInputStream(new ByteArrayInputStream(bo.toByteArray()));
+		PublicKeyCredentialCreationOptions copiedOptions = (PublicKeyCredentialCreationOptions)ois.readObject() ;
+
+		// Check that the deep copied options are still valid
+		PublicKeyCredential publicKey = TestPublicKeyCredential.createPublicKeyCredential().build();
+		ImmutableRelyingPartyRegistrationRequest registrationRequest = new ImmutableRelyingPartyRegistrationRequest(
+				copiedOptions, new RelyingPartyPublicKey(publicKey, this.label));
+
+		var test = this.rpOperations.registerCredential(registrationRequest);
+
 	}
 
 	private static AuthenticatorAttestationResponse setFlag(byte... flags) throws Exception {
