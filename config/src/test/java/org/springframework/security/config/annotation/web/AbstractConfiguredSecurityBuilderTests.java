@@ -165,29 +165,31 @@ public class AbstractConfiguredSecurityBuilderTests {
 
 	@Test
 	public void withWhenConfigurerAddInitializing() throws Exception {
-		this.builder.with(new FooConfigurer(), Customizer.withDefaults());
+		this.builder.with(new AppliesNestedConfigurer(), Customizer.withDefaults());
 		assertThat(this.builder.build()).isEqualTo("success");
 	}
 
-	private static class FooConfigurer extends SecurityConfigurerAdapter<Object, TestConfiguredSecurityBuilder> {
+	private static class AppliesNestedConfigurer
+			extends SecurityConfigurerAdapter<Object, TestConfiguredSecurityBuilder> {
 
 		@Override
 		public void init(TestConfiguredSecurityBuilder builder) throws Exception {
-			builder.with(new BarConfigurer(), Customizer.withDefaults());
+			builder.with(new NestedConfigurer(), Customizer.withDefaults());
 		}
 
 	}
 
-	private static class BarConfigurer extends SecurityConfigurerAdapter<Object, TestConfiguredSecurityBuilder> {
+	private static class NestedConfigurer extends SecurityConfigurerAdapter<Object, TestConfiguredSecurityBuilder> {
 
 		@Override
 		public void init(TestConfiguredSecurityBuilder http) throws Exception {
-			http.with(new CooConfigurer(), Customizer.withDefaults());
+			http.with(new DoubleNestedConfigurer(), Customizer.withDefaults());
 		}
 
 	}
 
-	private static class CooConfigurer extends SecurityConfigurerAdapter<Object, TestConfiguredSecurityBuilder> {
+	private static class DoubleNestedConfigurer
+			extends SecurityConfigurerAdapter<Object, TestConfiguredSecurityBuilder> {
 
 	}
 
