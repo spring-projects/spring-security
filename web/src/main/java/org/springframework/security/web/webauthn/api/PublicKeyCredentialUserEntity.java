@@ -19,6 +19,8 @@ package org.springframework.security.web.webauthn.api;
 import org.springframework.security.web.webauthn.management.RelyingPartyAuthenticationRequest;
 import org.springframework.security.web.webauthn.management.WebAuthnRelyingPartyOperations;
 
+import java.io.Serializable;
+
 /**
  * <a href=
  * "https://www.w3.org/TR/webauthn-3/#dictdef-publickeycredentialuserentity">PublicKeyCredentialUserEntity</a>
@@ -30,7 +32,7 @@ import org.springframework.security.web.webauthn.management.WebAuthnRelyingParty
  * @since 6.4
  * @see WebAuthnRelyingPartyOperations#authenticate(RelyingPartyAuthenticationRequest)
  */
-public interface PublicKeyCredentialUserEntity {
+public interface PublicKeyCredentialUserEntity extends Serializable {
 
 	/**
 	 * The <a href=

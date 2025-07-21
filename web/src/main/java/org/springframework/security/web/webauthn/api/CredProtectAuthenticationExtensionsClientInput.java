@@ -16,6 +16,9 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * Implements <a href=
  * "https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html#sctn-credProtect-extension">
@@ -25,7 +28,10 @@ package org.springframework.security.web.webauthn.api;
  * @since 6.4
  */
 public class CredProtectAuthenticationExtensionsClientInput
-		implements AuthenticationExtensionsClientInput<CredProtectAuthenticationExtensionsClientInput.CredProtect> {
+		implements AuthenticationExtensionsClientInput<CredProtectAuthenticationExtensionsClientInput.CredProtect>, Serializable {
+
+	@Serial
+	private static final long serialVersionUID = 1594370832009118794L;
 
 	private final CredProtect input;
 

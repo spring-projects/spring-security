@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serializable;
+
 /**
  * A <a href="https://www.w3.org/TR/webauthn-3/#client-extension-input">client extension
  * input</a> entry in the {@link AuthenticationExtensionsClientInputs}.
@@ -25,7 +27,7 @@ package org.springframework.security.web.webauthn.api;
  * @since 6.4
  * @see ImmutableAuthenticationExtensionsClientInput
  */
-public interface AuthenticationExtensionsClientInput<T> {
+public interface AuthenticationExtensionsClientInput<T> extends Serializable {
 
 	/**
 	 * Gets the <a href="https://www.w3.org/TR/webauthn-3/#extension-identifier">extension

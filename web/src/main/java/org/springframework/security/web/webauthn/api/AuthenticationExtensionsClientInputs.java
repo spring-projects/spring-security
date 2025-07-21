@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -31,7 +32,7 @@ import java.util.List;
  * @since 6.4
  * @see PublicKeyCredentialCreationOptions#getExtensions()
  */
-public interface AuthenticationExtensionsClientInputs {
+public interface AuthenticationExtensionsClientInputs extends Serializable {
 
 	/**
 	 * Gets all of the {@link AuthenticationExtensionsClientInput}.

@@ -16,6 +16,9 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * The <a href=
  * "https://www.w3.org/TR/webauthn-3/#dictdef-publickeycredentialrpentity">PublicKeyCredentialRpEntity</a>
@@ -25,7 +28,10 @@ package org.springframework.security.web.webauthn.api;
  * @author Rob Winch
  * @since 6.4
  */
-public final class PublicKeyCredentialRpEntity {
+public final class PublicKeyCredentialRpEntity implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = -5219081524858472915L;
 
 	private final String name;
 
