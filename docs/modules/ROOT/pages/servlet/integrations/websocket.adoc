@@ -705,3 +705,9 @@ If we use XML-based configuration, we can use thexref:servlet/appendix/namespace
     </b:constructor-arg>
 </b:bean>
 ----
+
+[[legacy-websocket-configuration]]
+== Legacy WebSocket Configuration
+
+`AbstractSecurityWebSocketMessageBrokerConfigurer` and `MessageSecurityMetadataSourceRegistry` are removed as of Spring Security 7.
+Please see https://docs.spring.io/spring-security/reference/5.8/migration/servlet/authorization.html#_use_authorizationmanager_for_message_security[the 5.8 migration guide] for guidance.

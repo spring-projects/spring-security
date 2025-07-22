@@ -31,9 +31,9 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
@@ -55,6 +55,8 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.config.Elements;
+import org.springframework.security.config.http.MessageMatcherFactoryBean;
+import org.springframework.security.config.web.messaging.PathPatternMessageMatcherBuilderFactoryBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -68,7 +70,6 @@ import org.springframework.security.messaging.access.intercept.MessageMatcherDel
 import org.springframework.security.messaging.context.AuthenticationPrincipalArgumentResolver;
 import org.springframework.security.messaging.context.SecurityContextChannelInterceptor;
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
-import org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher;
 import org.springframework.security.messaging.util.matcher.SimpMessageTypeMatcher;
 import org.springframework.security.messaging.web.csrf.XorCsrfChannelInterceptor;
 import org.springframework.security.messaging.web.socket.server.CsrfTokenHandshakeInterceptor;
@@ -134,7 +135,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 
 	private static final String TYPE_ATTR = "type";
 
-	private static final String PATH_MATCHER_BEAN_NAME = "springSecurityMessagePathMatcher";
+	private static final String MESSAGE_MATCHER_BUILDER_BEAN_NAME = "HttpConfigurationBuilder-pathPatternMessageMatcherBuilder";
 
 	/**
 	 * @param element
@@ -144,13 +145,17 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		String id = element.getAttribute(ID_ATTR);
+		if (!parserContext.getRegistry().containsBeanDefinition(MESSAGE_MATCHER_BUILDER_BEAN_NAME)) {
+			BeanDefinitionBuilder pathPatternMessageMatcherBuilder = BeanDefinitionBuilder
+				.rootBeanDefinition(PathPatternMessageMatcherBuilderFactoryBean.class);
+			pathPatternMessageMatcherBuilder.setFallback(true);
+			BeanDefinition bean = pathPatternMessageMatcherBuilder.getBeanDefinition();
+			parserContext.registerBeanComponent(new BeanComponentDefinition(bean, MESSAGE_MATCHER_BUILDER_BEAN_NAME));
+		}
 		String inSecurityInterceptorName = parseAuthorization(element, parserContext);
 		BeanDefinitionRegistry registry = parserContext.getRegistry();
 		if (StringUtils.hasText(id)) {
 			registry.registerAlias(inSecurityInterceptorName, id);
-			if (!registry.containsBeanDefinition(PATH_MATCHER_BEAN_NAME)) {
-				registry.registerBeanDefinition(PATH_MATCHER_BEAN_NAME, new RootBeanDefinition(AntPathMatcher.class));
-			}
 		}
 		else {
 			boolean sameOriginDisabled = Boolean.parseBoolean(element.getAttribute(DISABLED_ATTR));
@@ -275,25 +280,17 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 			matcher.addConstructorArgValue(messageType);
 			return matcher.getBeanDefinition();
 		}
-		String factoryName = null;
-		if (hasPattern && hasMessageType) {
+		BeanDefinitionBuilder matcher = BeanDefinitionBuilder.rootBeanDefinition(MessageMatcherFactoryBean.class);
+		matcher.addConstructorArgValue(matcherPattern);
+		if (hasMessageType) {
 			SimpMessageType type = SimpMessageType.valueOf(messageType);
-			if (SimpMessageType.MESSAGE == type) {
-				factoryName = "createMessageMatcher";
-			}
-			else if (SimpMessageType.SUBSCRIBE == type) {
-				factoryName = "createSubscribeMatcher";
-			}
-			else {
+			matcher.addConstructorArgValue(type);
+			if (SimpMessageType.SUBSCRIBE != type && SimpMessageType.MESSAGE != type) {
 				parserContext.getReaderContext()
 					.error("Cannot use intercept-websocket@message-type=" + messageType
 							+ " with a pattern because the type does not have a destination.", interceptMessage);
 			}
 		}
-		BeanDefinitionBuilder matcher = BeanDefinitionBuilder.rootBeanDefinition(SimpDestinationMessageMatcher.class);
-		matcher.setFactoryMethod(factoryName);
-		matcher.addConstructorArgValue(matcherPattern);
-		matcher.addConstructorArgValue(new RuntimeBeanReference("springSecurityMessagePathMatcher"));
 		return matcher.getBeanDefinition();
 	}
 
@@ -349,13 +346,6 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 					}
 					argResolvers.add(beanDefinition);
 					bd.getPropertyValues().add(CUSTOM_ARG_RESOLVERS_PROP, argResolvers);
-					if (!registry.containsBeanDefinition(PATH_MATCHER_BEAN_NAME)) {
-						PropertyValue pathMatcherProp = bd.getPropertyValues().getPropertyValue("pathMatcher");
-						Object pathMatcher = (pathMatcherProp != null) ? pathMatcherProp.getValue() : null;
-						if (pathMatcher instanceof BeanReference) {
-							registry.registerAlias(((BeanReference) pathMatcher).getBeanName(), PATH_MATCHER_BEAN_NAME);
-						}
-					}
 				}
 				else if (CSRF_HANDSHAKE_HANDLER_CLASSES.contains(beanClassName)) {
 					addCsrfTokenHandshakeInterceptor(bd);
@@ -383,9 +373,6 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 				interceptors.addAll(currentInterceptors);
 			}
 			inboundChannel.getPropertyValues().add(INTERCEPTORS_PROP, interceptors);
-			if (!registry.containsBeanDefinition(PATH_MATCHER_BEAN_NAME)) {
-				registry.registerBeanDefinition(PATH_MATCHER_BEAN_NAME, new RootBeanDefinition(AntPathMatcher.class));
-			}
 		}
 
 		private void addCsrfTokenHandshakeInterceptor(BeanDefinition bd) {

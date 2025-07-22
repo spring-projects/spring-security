@@ -4,7 +4,54 @@
 Spring Security 7.0 provides a number of new features.
 Below are the highlights of the release, or you can view https://github.com/spring-projects/spring-security/releases[the release notes] for a detailed listing of each feature and bug fix.
 
+== Removals
+
+Being a major release, there are a number of deprecated APIs that are removed in Spring Security 7.
+Each section that follows will indicate the more notable removals as well as the new features in that module
+
+== Core
+
+* Removed `AuthorizationManager#check` in favor of `AuthorizationManager#authorize`
+
+== Config
+
+* Removed `and()` from the `HttpSecurity` DSL in favor of using the lambda methods
+* Removed `authorizeRequests` in favor of `authorizeHttpRequests`
+* Simplified expression migration for `authorizeRequests`
+* Added support for SPA-based CSRF configuration:
+
+Java::
++
+[source,java,role="primary"]
+----
+http.csrf((csrf) -> csrf.spa());
+----
+
+== Data
+
+* Added support to Authorized objects for Spring Data types
+
+== LDAP
+
+* Removed `ApacheDsContainer` and related Apache DS support in favor of UnboundID
+
+== OAuth 2.0
+
+* Removed support for password grant
+* Added OAuth2 Support for xref:features/integrations/rest/http-interface.adoc[HTTP Interface Integration]
+* Added support for custom `JwkSource` in `NimbusJwtDecoder`, allowing usage of Nimbus's `JwkSourceBuilder` API
+* Added builder for `NimbusJwtEncoder`, supports specifying an EC or RSA key pair or a secret key
+
+== SAML 2.0
+
+* Removed API methods based on `AssertingPartyDetails` class in favor of `AssertingPartyMetadata` interface
+* Removed GET request support from `Saml2AuthenticationTokenConverter`
+* Added JDBC-based `AssertingPartyMetadataRepository`
+* Made so that SLO still returns `<saml2:LogoutResponse>` even when validation fails
+
 == Web
 
+* Removed `MvcRequestMatcher` and `AntPathRequestMatcher` in favor of `PathPatternRequestMatcher`
 * Added javadoc:org.springframework.security.web.authentication.preauth.x509.SubjectX500PrincipalExtractor[]
-* Added OAuth2 Support for xref:features/integrations/rest/http-interface.adoc[HTTP Interface Integration]
+* Added support for propagating exceptions in Authorized proxies through Spring MVC controllers
+* Added support to Authorized objects for Spring MVC types

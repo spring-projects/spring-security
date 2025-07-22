@@ -131,13 +131,19 @@ class CookieServerCsrfTokenRepositoryTests {
 
 	@Test
 	void saveTokenWhenCustomPropertiesThenCustomProperties() {
-		setExpectedDomain("spring.io");
 		setExpectedCookieName("csrfCookie");
-		setExpectedPath("/some/path");
 		setExpectedHeaderName("headerName");
 		setExpectedParameterName("paramName");
-		setExpectedSameSitePolicy("Strict");
-		setExpectedCookieMaxAge(3600);
+		this.csrfTokenRepository.setCookieCustomizer((cookie) -> {
+			this.expectedPath = "/some/path";
+			cookie.path(this.expectedPath);
+			this.expectedDomain = "spring.io";
+			cookie.domain(this.expectedDomain);
+			this.expectedMaxAge = Duration.ofSeconds(3600);
+			cookie.maxAge(this.expectedMaxAge);
+			this.expectedSameSitePolicy = "Strict";
+			cookie.sameSite(this.expectedSameSitePolicy);
+		});
 		saveAndAssertExpectedValues(createToken());
 	}
 
@@ -196,16 +202,6 @@ class CookieServerCsrfTokenRepositoryTests {
 	}
 
 	@Test
-	void saveTokenWhenSecureFlagTrueThenSecure() {
-		MockServerWebExchange exchange = MockServerWebExchange.from(this.request);
-		this.csrfTokenRepository.setSecure(true);
-		this.csrfTokenRepository.saveToken(exchange, createToken()).block();
-		ResponseCookie cookie = exchange.getResponse().getCookies().getFirst(this.expectedCookieName);
-		assertThat(cookie).isNotNull();
-		assertThat(cookie.isSecure()).isTrue();
-	}
-
-	@Test
 	void saveTokenWhenSecureFlagTrueThenSecureUsingCustomizer() {
 		MockServerWebExchange exchange = MockServerWebExchange.from(this.request);
 		this.csrfTokenRepository.setCookieCustomizer((customizer) -> customizer.secure(true));
@@ -216,30 +212,9 @@ class CookieServerCsrfTokenRepositoryTests {
 	}
 
 	@Test
-	void saveTokenWhenSecureFlagFalseThenNotSecure() {
-		MockServerWebExchange exchange = MockServerWebExchange.from(this.request);
-		this.csrfTokenRepository.setSecure(false);
-		this.csrfTokenRepository.saveToken(exchange, createToken()).block();
-		ResponseCookie cookie = exchange.getResponse().getCookies().getFirst(this.expectedCookieName);
-		assertThat(cookie).isNotNull();
-		assertThat(cookie.isSecure()).isFalse();
-	}
-
-	@Test
 	void saveTokenWhenSecureFlagFalseThenNotSecureUsingCustomizer() {
 		MockServerWebExchange exchange = MockServerWebExchange.from(this.request);
 		this.csrfTokenRepository.setCookieCustomizer((customizer) -> customizer.secure(false));
-		this.csrfTokenRepository.saveToken(exchange, createToken()).block();
-		ResponseCookie cookie = exchange.getResponse().getCookies().getFirst(this.expectedCookieName);
-		assertThat(cookie).isNotNull();
-		assertThat(cookie.isSecure()).isFalse();
-	}
-
-	@Test
-	void saveTokenWhenSecureFlagFalseAndSslInfoThenNotSecure() {
-		MockServerWebExchange exchange = MockServerWebExchange.from(this.request);
-		this.request.sslInfo(SslInfo.from("sessionId"));
-		this.csrfTokenRepository.setSecure(false);
 		this.csrfTokenRepository.saveToken(exchange, createToken()).block();
 		ResponseCookie cookie = exchange.getResponse().getCookies().getFirst(this.expectedCookieName);
 		assertThat(cookie).isNotNull();
@@ -314,11 +289,6 @@ class CookieServerCsrfTokenRepositoryTests {
 		this.expectedParameterName = expectedParameterName;
 	}
 
-	private void setExpectedDomain(String expectedDomain) {
-		this.csrfTokenRepository.setCookieDomain(expectedDomain);
-		this.expectedDomain = expectedDomain;
-	}
-
 	private void setExpectedPath(String expectedPath) {
 		this.csrfTokenRepository.setCookiePath(expectedPath);
 		this.expectedPath = expectedPath;
@@ -326,7 +296,7 @@ class CookieServerCsrfTokenRepositoryTests {
 
 	private void setExpectedHttpOnly(boolean expectedHttpOnly) {
 		this.expectedHttpOnly = expectedHttpOnly;
-		this.csrfTokenRepository.setCookieHttpOnly(expectedHttpOnly);
+		this.csrfTokenRepository.setCookieCustomizer((cookie) -> cookie.httpOnly(expectedHttpOnly));
 	}
 
 	private void setExpectedCookieName(String expectedCookieName) {
@@ -335,7 +305,8 @@ class CookieServerCsrfTokenRepositoryTests {
 	}
 
 	private void setExpectedCookieMaxAge(int expectedCookieMaxAge) {
-		this.csrfTokenRepository.setCookieMaxAge(expectedCookieMaxAge);
+		Duration duration = Duration.ofSeconds(expectedCookieMaxAge);
+		this.csrfTokenRepository.setCookieCustomizer((cookie) -> cookie.maxAge(duration));
 		this.expectedMaxAge = Duration.ofSeconds(expectedCookieMaxAge);
 	}
 

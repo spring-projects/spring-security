@@ -28,7 +28,7 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
-import org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher;
+import org.springframework.security.messaging.util.matcher.PathPatternMessageMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -81,7 +81,7 @@ public class MessageExpressionConfigAttributeTests {
 
 	@Test
 	public void postProcessContext() {
-		SimpDestinationMessageMatcher matcher = new SimpDestinationMessageMatcher("/topics/{topic}/**");
+		PathPatternMessageMatcher matcher = PathPatternMessageMatcher.withDefaults().matcher("/topics/{topic}/**");
 		// @formatter:off
 		Message<?> message = MessageBuilder.withPayload("M")
 				.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/topics/someTopic/sub1")
