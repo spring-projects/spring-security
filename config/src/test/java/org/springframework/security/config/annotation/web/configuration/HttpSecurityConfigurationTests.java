@@ -141,11 +141,13 @@ public class HttpSecurityConfigurationTests {
 				.andExpect(header().string(HttpHeaders.EXPIRES, "0"))
 				.andExpect(header().string(HttpHeaders.PRAGMA, "no-cache"))
 				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "0"))
+				.andExpect(header().string(HttpHeaders.REFERRER_POLICY, "no-referrer"))
 				.andReturn();
 		// @formatter:on
 		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactlyInAnyOrder(
 				HttpHeaders.X_CONTENT_TYPE_OPTIONS, HttpHeaders.X_FRAME_OPTIONS, HttpHeaders.STRICT_TRANSPORT_SECURITY,
-				HttpHeaders.CACHE_CONTROL, HttpHeaders.EXPIRES, HttpHeaders.PRAGMA, HttpHeaders.X_XSS_PROTECTION);
+				HttpHeaders.CACHE_CONTROL, HttpHeaders.EXPIRES, HttpHeaders.PRAGMA, HttpHeaders.X_XSS_PROTECTION,
+				HttpHeaders.REFERRER_POLICY);
 	}
 
 	@Test
