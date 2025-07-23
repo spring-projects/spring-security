@@ -37,7 +37,6 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * Tests for {@link ClientRegistration}.
@@ -780,7 +779,7 @@ public class ClientRegistrationTests {
 		// should not be null
 		assertThat(clientRegistration.getClientSettings()).isNotNull();
 		// proof key should be false for passivity
-		assertThat(clientRegistration.getClientSettings().isRequireProofKey()).isFalse();
+		assertThat(clientRegistration.getClientSettings().isRequireProofKey()).isTrue();
 	}
 
 	// gh-16382
@@ -816,10 +815,8 @@ public class ClientRegistrationTests {
 			.authorizationUri(AUTHORIZATION_URI)
 			.tokenUri(TOKEN_URI);
 
-		assertThatIllegalStateException().describedAs(
-				"clientSettings.isRequireProofKey=true is only valid with authorizationGrantType=AUTHORIZATION_CODE. Got authorizationGrantType={}",
-				invalidGrantType)
-			.isThrownBy(builder::build);
+		ClientRegistration clientRegistration = builder.build();
+		assertThat(clientRegistration.getClientSettings().isRequireProofKey()).isFalse();
 	}
 
 	static List<AuthorizationGrantType> invalidPkceGrantTypes() {
