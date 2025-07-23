@@ -1,0 +1,3 @@
+org.springframework.aot.hint.RuntimeHintsRegistrar=\
+org.springframework.security.web.webauthn.aot.UserCredentialRuntimeHints,\
+org.springframework.security.web.webauthn.aot.PublicKeyCredentialUserEntityRuntimeHints
