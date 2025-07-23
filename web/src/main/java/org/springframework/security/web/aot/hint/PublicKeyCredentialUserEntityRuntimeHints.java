@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.webauthn.aot;
+package org.springframework.security.web.aot.hint;
 
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
