@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.aot.hint;
+package org.springframework.security.web.webauthn.aot;
 
 import java.util.stream.Stream;
 
@@ -31,11 +31,11 @@ import org.springframework.util.ClassUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link PublicKeyCredentialUserEntityRuntimeHints}
+ * Tests for {@link UserCredentialRuntimeHints}
  *
  * @author Max Batischev
  */
-public class PublicKeyCredentialUserEntityRuntimeHintsTests {
+public class UserCredentialRuntimeHintsTests {
 
 	private final RuntimeHints hints = new RuntimeHints();
 
@@ -47,13 +47,14 @@ public class PublicKeyCredentialUserEntityRuntimeHintsTests {
 	}
 
 	@ParameterizedTest
-	@MethodSource("getUserEntitiesSqlFiles")
-	void userEntitiesSqlFilesHasHints(String schemaFile) {
+	@MethodSource("getClientRecordsSqlFiles")
+	void credentialRecordsSqlFilesHasHints(String schemaFile) {
 		assertThat(RuntimeHintsPredicates.resource().forResource(schemaFile)).accepts(this.hints);
 	}
 
-	private static Stream<String> getUserEntitiesSqlFiles() {
-		return Stream.of("org/springframework/security/user-entities-schema.sql");
+	private static Stream<String> getClientRecordsSqlFiles() {
+		return Stream.of("org/springframework/security/user-credentials-schema.sql",
+				"org/springframework/security/user-credentials-schema-postgres.sql");
 	}
 
 }
