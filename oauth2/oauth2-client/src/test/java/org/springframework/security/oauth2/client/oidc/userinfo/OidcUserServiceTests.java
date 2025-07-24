@@ -44,6 +44,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -58,6 +60,7 @@ import org.springframework.security.oauth2.core.oidc.TestOidcIdTokens;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 
@@ -152,6 +155,15 @@ public class OidcUserServiceTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.userService.setOidcUserMapper(null))
 				.withMessage("oidcUserMapper cannot be null");
+		// @formatter:on
+	}
+
+	@Test
+	public void setOidcUserConverterWhenNullThenThrowIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.userService.setOidcUserConverter(null))
+				.withMessage("oidcUserConverter cannot be null");
 		// @formatter:on
 	}
 
@@ -297,6 +309,33 @@ public class OidcUserServiceTests {
 		OidcUserInfo userInfo = userInfoCaptor.getValue();
 		assertThat(userInfo.getSubject()).isEqualTo("subject1");
 		assertThat(userInfo.getClaimAsString("preferred_username")).isEqualTo("user1");
+	}
+
+	@Test
+	public void loadUserWhenCustomOidcUserConverterSetThenUsed() {
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri("https://example.com/user")
+			.build();
+		this.accessToken = TestOAuth2AccessTokens.noScopes();
+		Converter<OidcUserSource, OidcUser> oidcUserConverter = mock(Converter.class);
+		String nameAttributeKey = IdTokenClaimNames.SUB;
+		OidcUser actualUser = new DefaultOidcUser(AuthorityUtils.createAuthorityList("a", "b"), this.idToken,
+				nameAttributeKey);
+		OAuth2User oauth2User = new DefaultOAuth2User(actualUser.getAuthorities(), actualUser.getClaims(),
+				nameAttributeKey);
+		OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2 = mock(OAuth2UserService.class);
+		given(oauth2.loadUser(any())).willReturn(oauth2User);
+		given(oidcUserConverter.convert(any())).willReturn(actualUser);
+		this.userService.setOauth2UserService(oauth2);
+		this.userService.setOidcUserConverter(oidcUserConverter);
+		OidcUserRequest userRequest = new OidcUserRequest(clientRegistration, this.accessToken, this.idToken);
+		OidcUser user = this.userService.loadUser(userRequest);
+		assertThat(user).isEqualTo(actualUser);
+		ArgumentCaptor<OidcUserSource> metadataCptr = ArgumentCaptor.forClass(OidcUserSource.class);
+		verify(oidcUserConverter).convert(metadataCptr.capture());
+		OidcUserSource metadata = metadataCptr.getValue();
+		assertThat(metadata.getUserRequest()).isEqualTo(userRequest);
+		assertThat(metadata.getOauth2User()).isEqualTo(oauth2User);
+		assertThat(metadata.getUserInfo()).isNotNull();
 	}
 
 	@Test

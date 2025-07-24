@@ -82,7 +82,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 
 	private Predicate<OidcUserRequest> retrieveUserInfo = this::shouldRetrieveUserInfo;
 
-	private BiFunction<OidcUserRequest, OidcUserInfo, OidcUser> oidcUserMapper = OidcUserRequestUtils::getUser;
+	private Converter<OidcUserSource, OidcUser> oidcUserConverter = OidcUserRequestUtils::getUser;
 
 	/**
 	 * Returns the default {@link Converter}'s used for type conversion of claim values
@@ -111,8 +111,9 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
 		Assert.notNull(userRequest, "userRequest cannot be null");
 		OidcUserInfo userInfo = null;
+		OAuth2User oauth2User = null;
 		if (this.retrieveUserInfo.test(userRequest)) {
-			OAuth2User oauth2User = this.oauth2UserService.loadUser(userRequest);
+			oauth2User = this.oauth2UserService.loadUser(userRequest);
 			Map<String, Object> claims = getClaims(userRequest, oauth2User);
 			userInfo = new OidcUserInfo(claims);
 			// https://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse
@@ -133,7 +134,8 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
 		}
-		return this.oidcUserMapper.apply(userRequest, userInfo);
+		OidcUserSource source = new OidcUserSource(userRequest, userInfo, oauth2User);
+		return this.oidcUserConverter.convert(source);
 	}
 
 	private Map<String, Object> getClaims(OidcUserRequest userRequest, OAuth2User oauth2User) {
@@ -293,10 +295,21 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	 * @param oidcUserMapper the function used to map the {@link OidcUser} from the
 	 * {@link OidcUserRequest} and {@link OidcUserInfo}
 	 * @since 6.3
+	 * @deprecated Use {@link #setOidcUserConverter(Converter)} instead
 	 */
+	@Deprecated(since = "7.0", forRemoval = true)
 	public final void setOidcUserMapper(BiFunction<OidcUserRequest, OidcUserInfo, OidcUser> oidcUserMapper) {
 		Assert.notNull(oidcUserMapper, "oidcUserMapper cannot be null");
-		this.oidcUserMapper = oidcUserMapper;
+		this.oidcUserConverter = (source) -> oidcUserMapper.apply(source.getUserRequest(), source.getUserInfo());
+	}
+
+	/**
+	 * Allows converting from the {@link OidcUserSource} to and {@link OidcUser}.
+	 * @param oidcUserConverter the {@link Converter} to use. Cannot be null.
+	 */
+	public void setOidcUserConverter(Converter<OidcUserSource, OidcUser> oidcUserConverter) {
+		Assert.notNull(oidcUserConverter, "oidcUserConverter cannot be null");
+		this.oidcUserConverter = oidcUserConverter;
 	}
 
 }

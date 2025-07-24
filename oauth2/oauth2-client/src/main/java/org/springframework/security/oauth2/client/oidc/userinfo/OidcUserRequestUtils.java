@@ -76,7 +76,9 @@ final class OidcUserRequestUtils {
 		return false;
 	}
 
-	static OidcUser getUser(OidcUserRequest userRequest, OidcUserInfo userInfo) {
+	static OidcUser getUser(OidcUserSource userMetadata) {
+		OidcUserRequest userRequest = userMetadata.getUserRequest();
+		OidcUserInfo userInfo = userMetadata.getUserInfo();
 		Set<GrantedAuthority> authorities = new LinkedHashSet<>();
 		ClientRegistration.ProviderDetails providerDetails = userRequest.getClientRegistration().getProviderDetails();
 		String userNameAttributeName = providerDetails.getUserInfoEndpoint().getUserNameAttributeName();
