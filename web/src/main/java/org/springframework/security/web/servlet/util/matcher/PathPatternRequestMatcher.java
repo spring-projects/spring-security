@@ -55,7 +55,7 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 
 	private final PathPattern pattern;
 
-	private RequestMatcher method = AnyRequestMatcher.INSTANCE;
+	private final RequestMatcher method;
 
 	/**
 	 * Creates a {@link PathPatternRequestMatcher} that uses the provided {@code pattern}.
@@ -64,8 +64,9 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 * </p>
 	 * @param pattern the pattern used to match
 	 */
-	private PathPatternRequestMatcher(PathPattern pattern) {
+	private PathPatternRequestMatcher(PathPattern pattern, RequestMatcher method) {
 		this.pattern = pattern;
+		this.method = method;
 	}
 
 	/**
@@ -106,10 +107,6 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 		PathContainer path = getPathContainer(request);
 		PathPattern.PathMatchInfo info = this.pattern.matchAndExtract(path);
 		return (info != null) ? MatchResult.match(info.getUriVariables()) : MatchResult.notMatch();
-	}
-
-	void setMethod(RequestMatcher method) {
-		this.method = method;
 	}
 
 	private PathContainer getPathContainer(HttpServletRequest request) {
@@ -286,11 +283,8 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 			Assert.notNull(path, "pattern cannot be null");
 			Assert.isTrue(path.startsWith("/"), "pattern must start with a /");
 			PathPattern pathPattern = this.parser.parse(this.basePath + path);
-			PathPatternRequestMatcher requestMatcher = new PathPatternRequestMatcher(pathPattern);
-			if (method != null) {
-				requestMatcher.setMethod(new HttpMethodRequestMatcher(method));
-			}
-			return requestMatcher;
+			return new PathPatternRequestMatcher(pathPattern,
+					(method != null) ? new HttpMethodRequestMatcher(method) : AnyRequestMatcher.INSTANCE);
 		}
 
 	}
