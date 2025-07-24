@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,16 +22,20 @@ import org.springframework.security.saml2.provider.service.authentication.logout
 import org.springframework.security.saml2.provider.service.web.authentication.logout.HttpSessionLogoutRequestRepository
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestRepository
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestResolver
+import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestValidatorParametersResolver
 
 /**
  * A Kotlin DSL to configure SAML 2.0 Logout Request components using idiomatic Kotlin code.
  *
  * @author Josh Cummings
+ * @author Evgeniy Cheban
  * @since 6.3
  * @property logoutUrl The URL by which the asserting party can send a SAML 2.0 Logout Request.
  * The Asserting Party should use whatever HTTP method specified in {@link RelyingPartyRegistration#getSingleLogoutServiceBindings()}.
  * @property logoutRequestValidator the [Saml2LogoutRequestValidator] to use for validating incoming {@code LogoutRequest}s.
  * @property logoutRequestResolver the [Saml2LogoutRequestResolver] to use for generating outgoing {@code LogoutRequest}s.
+ * @property logoutRequestParametersResolver the [Saml2LogoutRequestValidatorParametersResolver] to use for resolving logout
+ * request and associated validation parameters.
  * @property logoutRequestRepository the [Saml2LogoutRequestRepository] to use for storing outgoing {@code LogoutRequest}s for
  * linking to the corresponding {@code LogoutResponse} from the asserting party
  */
@@ -40,6 +44,7 @@ class LogoutRequestDsl {
     var logoutUrl = "/logout/saml2/slo"
     var logoutRequestValidator: Saml2LogoutRequestValidator? = null
     var logoutRequestResolver: Saml2LogoutRequestResolver? = null
+    var logoutRequestParametersResolver: Saml2LogoutRequestValidatorParametersResolver? = null
     var logoutRequestRepository: Saml2LogoutRequestRepository = HttpSessionLogoutRequestRepository()
 
     internal fun get(): (Saml2LogoutConfigurer<HttpSecurity>.LogoutRequestConfigurer) -> Unit {
@@ -47,6 +52,7 @@ class LogoutRequestDsl {
             logoutUrl.also { logoutRequest.logoutUrl(logoutUrl) }
             logoutRequestValidator?.also { logoutRequest.logoutRequestValidator(logoutRequestValidator) }
             logoutRequestResolver?.also { logoutRequest.logoutRequestResolver(logoutRequestResolver) }
+            logoutRequestParametersResolver?.also { logoutRequest.logoutRequestParametersResolver(logoutRequestParametersResolver) }
             logoutRequestRepository.also { logoutRequest.logoutRequestRepository(logoutRequestRepository) }
         }
     }
