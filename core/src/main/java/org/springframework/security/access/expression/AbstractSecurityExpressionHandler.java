@@ -28,6 +28,8 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.authorization.AuthorizationManagerFactory;
+import org.springframework.security.authorization.DefaultAuthorizationManagerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
@@ -47,7 +49,7 @@ public abstract class AbstractSecurityExpressionHandler<T>
 
 	private @Nullable BeanResolver beanResolver;
 
-	private @Nullable RoleHierarchy roleHierarchy;
+	private AuthorizationManagerFactory<T> authorizationManagerFactory = new DefaultAuthorizationManagerFactory<>();
 
 	private PermissionEvaluator permissionEvaluator = new DenyAllPermissionEvaluator();
 
@@ -105,12 +107,58 @@ public abstract class AbstractSecurityExpressionHandler<T>
 	protected abstract SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
 			T invocation);
 
-	protected @Nullable RoleHierarchy getRoleHierarchy() {
-		return this.roleHierarchy;
+	/**
+	 * Sets the {@link AuthorizationManagerFactory} to be used. The default is
+	 * {@link DefaultAuthorizationManagerFactory}.
+	 * @param authorizationManagerFactory the {@link AuthorizationManagerFactory} to use.
+	 * Cannot be null.
+	 * @since 7.0
+	 */
+	public final void setAuthorizationManagerFactory(AuthorizationManagerFactory<T> authorizationManagerFactory) {
+		Assert.notNull(authorizationManagerFactory, "authorizationManagerFactory cannot be null");
+		this.authorizationManagerFactory = authorizationManagerFactory;
 	}
 
-	public void setRoleHierarchy(RoleHierarchy roleHierarchy) {
-		this.roleHierarchy = roleHierarchy;
+	protected final AuthorizationManagerFactory<T> getAuthorizationManagerFactory() {
+		return this.authorizationManagerFactory;
+	}
+
+	/**
+	 * Allows accessing the {@link DefaultAuthorizationManagerFactory} for getting and
+	 * setting defaults. This method will be removed in Spring Security 8.
+	 * @return the {@link DefaultAuthorizationManagerFactory}
+	 * @throws IllegalStateException if a different {@link AuthorizationManagerFactory}
+	 * was already set
+	 * @deprecated Use
+	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
+	 */
+	@Deprecated(since = "7.0")
+	protected final DefaultAuthorizationManagerFactory<T> getDefaultAuthorizationManagerFactory() {
+		if (!(this.authorizationManagerFactory instanceof DefaultAuthorizationManagerFactory<T> defaultAuthorizationManagerFactory)) {
+			throw new IllegalStateException(
+					"authorizationManagerFactory must be an instance of DefaultAuthorizationManagerFactory");
+		}
+
+		return defaultAuthorizationManagerFactory;
+	}
+
+	/**
+	 * @deprecated Use {@link #getDefaultAuthorizationManagerFactory()} instead
+	 */
+	@Deprecated(since = "7.0")
+	protected @Nullable RoleHierarchy getRoleHierarchy() {
+		return getDefaultAuthorizationManagerFactory().getRoleHierarchy();
+	}
+
+	/**
+	 * @deprecated Use
+	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
+	 */
+	@Deprecated(since = "7.0")
+	public void setRoleHierarchy(@Nullable RoleHierarchy roleHierarchy) {
+		if (roleHierarchy != null) {
+			getDefaultAuthorizationManagerFactory().setRoleHierarchy(roleHierarchy);
+		}
 	}
 
 	protected PermissionEvaluator getPermissionEvaluator() {
