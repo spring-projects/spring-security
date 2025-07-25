@@ -34,6 +34,8 @@ public class SecurityConfig {
 
 	@Bean
 	public UserDetailsService userDetailsService() {
+		// User.withDefaultPasswordEncoder() is considered unsafe for production
+		// and is only intended for sample applications.
 		UserDetails userDetails = User.withDefaultPasswordEncoder()
 			.username("user")
 			.password("password")
