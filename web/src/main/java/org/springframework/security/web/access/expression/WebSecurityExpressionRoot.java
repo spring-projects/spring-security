@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.util.matcher.IpAddressMatcher;
 
 /**
@@ -30,7 +31,7 @@ import org.springframework.security.web.util.matcher.IpAddressMatcher;
  * @author Evgeniy Cheban
  * @since 3.0
  */
-public class WebSecurityExpressionRoot extends SecurityExpressionRoot {
+public class WebSecurityExpressionRoot extends SecurityExpressionRoot<RequestAuthorizationContext> {
 
 	/**
 	 * Allows direct access to the request object
@@ -38,7 +39,7 @@ public class WebSecurityExpressionRoot extends SecurityExpressionRoot {
 	public final HttpServletRequest request;
 
 	public WebSecurityExpressionRoot(Authentication a, FilterInvocation fi) {
-		this(() -> a, fi.getRequest());
+		this(() -> a, new RequestAuthorizationContext(fi.getRequest()));
 	}
 
 	/**
@@ -48,9 +49,22 @@ public class WebSecurityExpressionRoot extends SecurityExpressionRoot {
 	 * @param request the {@link HttpServletRequest} to use
 	 * @since 5.8
 	 */
+	@Deprecated(since = "7.0")
 	public WebSecurityExpressionRoot(Supplier<Authentication> authentication, HttpServletRequest request) {
-		super(authentication);
+		super(authentication, new RequestAuthorizationContext(request));
 		this.request = request;
+	}
+
+	/**
+	 * Creates an instance for the given {@link Supplier} of the {@link Authentication}
+	 * and {@link HttpServletRequest}.
+	 * @param authentication the {@link Supplier} of the {@link Authentication} to use
+	 * @param context the {@link RequestAuthorizationContext} to use
+	 * @since 5.8
+	 */
+	public WebSecurityExpressionRoot(Supplier<Authentication> authentication, RequestAuthorizationContext context) {
+		super(authentication, context);
+		this.request = context.getRequest();
 	}
 
 	/**

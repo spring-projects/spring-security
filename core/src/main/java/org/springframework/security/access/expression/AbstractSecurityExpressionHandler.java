@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,8 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.authorization.AuthorizationManagerFactory;
+import org.springframework.security.authorization.DefaultAuthorizationManagerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
@@ -47,7 +49,9 @@ public abstract class AbstractSecurityExpressionHandler<T>
 
 	private @Nullable BeanResolver beanResolver;
 
-	private @Nullable RoleHierarchy roleHierarchy;
+	private final DefaultAuthorizationManagerFactory<T> defaultAuthorizationManagerFactory = new DefaultAuthorizationManagerFactory<>();
+
+	private AuthorizationManagerFactory<T> authorizationManagerFactory = defaultAuthorizationManagerFactory;
 
 	private PermissionEvaluator permissionEvaluator = new DenyAllPermissionEvaluator();
 
@@ -105,12 +109,43 @@ public abstract class AbstractSecurityExpressionHandler<T>
 	protected abstract SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
 			T invocation);
 
-	protected @Nullable RoleHierarchy getRoleHierarchy() {
-		return this.roleHierarchy;
+	/**
+	 * Sets the {@link AuthorizationManagerFactory} to be used. The default is
+	 * {@link DefaultAuthorizationManagerFactory}.
+	 * @param authorizationManagerFactory the {@link AuthorizationManagerFactory} to use.
+	 * Cannot be null.
+	 * @since 7.0
+	 */
+	public final void setAuthorizationManagerFactory(AuthorizationManagerFactory<T> authorizationManagerFactory) {
+		Assert.notNull(authorizationManagerFactory, "authorizationManagerFactory cannot be null");
+		this.authorizationManagerFactory = authorizationManagerFactory;
 	}
 
-	public void setRoleHierarchy(RoleHierarchy roleHierarchy) {
-		this.roleHierarchy = roleHierarchy;
+	protected final AuthorizationManagerFactory<T> getAuthorizationManagerFactory() {
+		return this.authorizationManagerFactory;
+	}
+
+	protected final DefaultAuthorizationManagerFactory<T> getDefaultAuthorizationManagerFactory() {
+		return this.defaultAuthorizationManagerFactory;
+	}
+
+	/**
+	 * @deprecated Use {@link #getDefaultAuthorizationManagerFactory()} instead
+	 */
+	@Deprecated(since = "7.0")
+	protected @Nullable RoleHierarchy getRoleHierarchy() {
+		return this.defaultAuthorizationManagerFactory.getRoleHierarchy();
+	}
+
+	/**
+	 * @deprecated Use
+	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
+	 */
+	@Deprecated(since = "7.0")
+	public void setRoleHierarchy(@Nullable RoleHierarchy roleHierarchy) {
+		if (roleHierarchy != null) {
+			this.defaultAuthorizationManagerFactory.setRoleHierarchy(roleHierarchy);
+		}
 	}
 
 	protected PermissionEvaluator getPermissionEvaluator() {

@@ -16,6 +16,7 @@
 
 package org.springframework.security.access.expression.method;
 
+import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,6 +26,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authorization.DefaultAuthorizationManagerFactory;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,11 +55,13 @@ public class MethodSecurityExpressionRootTests {
 	@BeforeEach
 	public void createContext() {
 		this.user = mock(Authentication.class);
-		this.root = new MethodSecurityExpressionRoot(this.user);
+		this.root = new MethodSecurityExpressionRoot(() -> this.user, mock(MethodInvocation.class));
 		this.ctx = new StandardEvaluationContext();
 		this.ctx.setRootObject(this.root);
 		this.trustResolver = mock(AuthenticationTrustResolver.class);
-		this.root.setTrustResolver(this.trustResolver);
+		DefaultAuthorizationManagerFactory authorizationManagerFactory = new DefaultAuthorizationManagerFactory();
+		authorizationManagerFactory.setTrustResolver(this.trustResolver);
+		this.root.setAuthorizationManagerFactory(authorizationManagerFactory);
 	}
 
 	@Test

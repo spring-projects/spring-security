@@ -37,8 +37,10 @@ import org.springframework.security.access.expression.method.MethodSecurityExpre
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.aot.hint.PrePostAuthorizeHintsRegistrar;
 import org.springframework.security.aot.hint.SecurityHintsRegistrar;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationManagerFactory;
 import org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
 import org.springframework.security.authorization.method.MethodInvocationResult;
@@ -119,6 +121,16 @@ final class PrePostMethodSecurityConfiguration implements ImportAware, Applicati
 	@Autowired(required = false)
 	void setRoleHierarchy(RoleHierarchy roleHierarchy) {
 		this.expressionHandler.setRoleHierarchy(roleHierarchy);
+	}
+
+	@Autowired(required = false)
+	void setTrustResolver(AuthenticationTrustResolver trustResolver) {
+		this.expressionHandler.setTrustResolver(trustResolver);
+	}
+
+	@Autowired(required = false)
+	void setAuthorizationManagerFactory(AuthorizationManagerFactory<MethodInvocation> authorizationManagerFactory) {
+		this.expressionHandler.setAuthorizationManagerFactory(authorizationManagerFactory);
 	}
 
 	@Autowired(required = false)

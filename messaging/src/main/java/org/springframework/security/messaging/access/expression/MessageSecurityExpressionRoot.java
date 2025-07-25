@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import org.springframework.security.core.Authentication;
  * @author Evgeniy Cheban
  * @since 4.0
  */
-public class MessageSecurityExpressionRoot extends SecurityExpressionRoot {
+public class MessageSecurityExpressionRoot extends SecurityExpressionRoot<Message<?>> {
 
 	public final Message<?> message;
 
@@ -45,7 +45,7 @@ public class MessageSecurityExpressionRoot extends SecurityExpressionRoot {
 	 * @since 5.8
 	 */
 	public MessageSecurityExpressionRoot(Supplier<Authentication> authentication, Message<?> message) {
-		super(authentication);
+		super(authentication, message);
 		this.message = message;
 	}
 
