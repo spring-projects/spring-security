@@ -164,8 +164,6 @@ final class AuthenticationConfigBuilder {
 
 	private final BeanReference portMapper;
 
-	private final BeanReference portResolver;
-
 	private final BeanMetadataElement csrfLogoutHandler;
 
 	private String loginProcessingUrl;
@@ -227,7 +225,7 @@ final class AuthenticationConfigBuilder {
 			SessionCreationPolicy sessionPolicy, BeanReference requestCache, BeanReference authenticationManager,
 			BeanMetadataElement authenticationFilterSecurityContextHolderStrategyRef,
 			BeanReference authenticationFilterSecurityContextRepositoryRef, BeanReference sessionStrategy,
-			BeanReference portMapper, BeanReference portResolver, BeanMetadataElement csrfLogoutHandler) {
+			BeanReference portMapper, BeanMetadataElement csrfLogoutHandler) {
 		this.httpElt = element;
 		this.pc = pc;
 		this.requestCache = requestCache;
@@ -235,7 +233,6 @@ final class AuthenticationConfigBuilder {
 		this.allowSessionCreation = sessionPolicy != SessionCreationPolicy.NEVER
 				&& sessionPolicy != SessionCreationPolicy.STATELESS;
 		this.portMapper = portMapper;
-		this.portResolver = portResolver;
 		this.csrfLogoutHandler = csrfLogoutHandler;
 		createAnonymousFilter(authenticationFilterSecurityContextHolderStrategyRef);
 		createRememberMeFilter(authenticationManager, authenticationFilterSecurityContextHolderStrategyRef);
@@ -291,7 +288,7 @@ final class AuthenticationConfigBuilder {
 		if (formLoginElt != null || this.autoConfig) {
 			FormLoginBeanDefinitionParser parser = new FormLoginBeanDefinitionParser("/login", "POST",
 					AUTHENTICATION_PROCESSING_FILTER_CLASS, this.requestCache, sessionStrategy,
-					this.allowSessionCreation, this.portMapper, this.portResolver);
+					this.allowSessionCreation, this.portMapper);
 			parser.parse(formLoginElt, this.pc);
 			formFilter = parser.getFilterBean();
 			this.formEntryPoint = parser.getEntryPointBean();
@@ -334,8 +331,7 @@ final class AuthenticationConfigBuilder {
 		}
 		this.oauth2LoginEnabled = true;
 		OAuth2LoginBeanDefinitionParser parser = new OAuth2LoginBeanDefinitionParser(this.requestCache, this.portMapper,
-				this.portResolver, sessionStrategy, this.allowSessionCreation,
-				authenticationFilterSecurityContextHolderStrategy);
+				sessionStrategy, this.allowSessionCreation, authenticationFilterSecurityContextHolderStrategy);
 		BeanDefinition oauth2LoginFilterBean = parser.parse(oauth2LoginElt, this.pc);
 		BeanDefinition defaultAuthorizedClientRepository = parser.getDefaultAuthorizedClientRepository();
 		registerDefaultAuthorizedClientRepositoryIfNecessary(defaultAuthorizedClientRepository);
@@ -437,7 +433,7 @@ final class AuthenticationConfigBuilder {
 			return;
 		}
 		Saml2LoginBeanDefinitionParser parser = new Saml2LoginBeanDefinitionParser(this.csrfIgnoreRequestMatchers,
-				this.portMapper, this.portResolver, this.requestCache, this.allowSessionCreation, authenticationManager,
+				this.portMapper, this.requestCache, this.allowSessionCreation, authenticationManager,
 				authenticationFilterSecurityContextRepositoryRef, this.authenticationProviders,
 				this.defaultEntryPointMappings);
 		BeanDefinition saml2WebSsoAuthenticationFilter = parser.parse(saml2LoginElt, this.pc);
