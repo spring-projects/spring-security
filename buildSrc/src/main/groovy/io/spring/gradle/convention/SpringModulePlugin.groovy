@@ -19,6 +19,7 @@ package io.spring.gradle.convention;
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.PluginManager
+import org.gradle.api.tasks.bundling.Jar
 import org.springframework.gradle.classpath.CheckClasspathForProhibitedDependenciesPlugin;
 import org.springframework.gradle.maven.SpringMavenPlugin;
 
@@ -40,6 +41,10 @@ class SpringModulePlugin extends AbstractSpringJavaPlugin {
 		deployArtifacts.description = "Deploys the artifacts to either Artifactory or Maven Central"
 		if (!Utils.isRelease(project)) {
 			deployArtifacts.dependsOn project.tasks.artifactoryPublish
+		}
+		project.tasks.withType(Jar) {
+			from(project.rootProject.files('LICENSE.txt'))
+			into('META-INF')
 		}
 	}
 
