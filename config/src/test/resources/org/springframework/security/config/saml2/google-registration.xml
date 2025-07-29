@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2002-2021 the original author or authors.
+  ~ Copyright 2004-present the original author or authors.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
                                 assertion-consumer-service-location="{baseUrl}/login/saml2/sso/{registrationId}"
                                 assertion-consumer-service-binding="REDIRECT"
                                 asserting-party-id="google"/>
-    
+
     <asserting-party asserting-party-id="google" entity-id="https://accounts.google.com/o/saml2/idp/entity-id"
                      want-authn-requests-signed="true"
                      single-sign-on-service-location="https://accounts.google.com/o/saml2/idp/sso-url"

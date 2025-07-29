@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2002-2022 the original author or authors.
+  ~ Copyright 2004-present the original author or authors.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -33,15 +33,15 @@
 
 	<b:bean name="path" class="org.springframework.security.config.http.InterceptUrlConfigTests.PathController"/>
 	<b:bean name="error" class="org.springframework.security.config.http.InterceptUrlConfigTests.ErrorController"/>
-	
+
 	<b:bean name="errorRequestMatcher" class="org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher">
 		<b:constructor-arg value="ERROR"/>
 	</b:bean>
-	
+
 	<b:bean name="errorPathRequestMatcher" class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
 		<b:constructor-arg value="/error"/>
 	</b:bean>
-	
+
 	<b:bean name="pathErrorRequestMatcher" class="org.springframework.security.web.util.matcher.AndRequestMatcher">
 		<b:constructor-arg>
 			<b:list>

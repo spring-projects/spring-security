@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2002-2021 the original author or authors.
+  ~ Copyright 2004-present the original author or authors.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@
       <signing-credential certificate-location="classpath:org/springframework/security/config/saml2/rp-certificate.crt"
                           private-key-location="classpath:org/springframework/security/config/saml2/rp-private.key"/>
     </relying-party-registration>
-  
+
     <relying-party-registration registration-id="get"
                                 entity-id="rp-entity-id"
                                 assertion-consumer-service-location="https://rp.example.org/acs"
@@ -46,7 +46,7 @@
       <signing-credential certificate-location="classpath:org/springframework/security/config/saml2/rp-certificate.crt"
                           private-key-location="classpath:org/springframework/security/config/saml2/rp-private.key"/>
     </relying-party-registration>
-  
+
     <relying-party-registration registration-id="rp"
                                 entity-id="ap-entity-id"
                                 assertion-consumer-service-location="https://rp.example.org/acs"
@@ -55,7 +55,7 @@
                                 single-logout-service-response-location="https://rp.example.org/logout/saml2/response"
                                 single-logout-service-binding="REDIRECT"
                                 asserting-party-id="rp"/>
-    
+
     <asserting-party asserting-party-id="ap" entity-id="ap-entity-id"
                      single-sign-on-service-location="https://ap.example.org/sso"
                      single-logout-service-location="https://ap.example.org/logout/saml2/request"
@@ -67,7 +67,7 @@
           certificate-location="classpath:org/springframework/security/config/saml2/idp-certificate.crt"
           private-key-location="classpath:org/springframework/security/config/saml2/rp-private.key"/>
     </asserting-party>
-  
+
     <asserting-party asserting-party-id="rp" entity-id="ap-entity-id"
                      single-sign-on-service-location="https://rp.example.org/sso"
                      single-logout-service-location="https://rp.example.org/logout/saml2/request"
