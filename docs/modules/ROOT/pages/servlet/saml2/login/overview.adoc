@@ -78,7 +78,11 @@ Maven::
     <!-- ... -->
     <repository>
         <id>shibboleth-releases</id>
-        <url>https://build.shibboleth.net/nexus/content/repositories/releases/</url>
+        <name>Shibboleth Releases Repository</name>
+        <url>https://build.shibboleth.net/maven/releases/</url>
+        <snapshots>
+            <enabled>false</enabled>
+        </snapshots>
     </repository>
 </repositories>
 <dependency>
