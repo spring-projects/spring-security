@@ -20,58 +20,46 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.function.BiFunction;
-import java.util.stream.Stream;
 
 import org.springframework.security.core.userdetails.UserDetails;
 
-public final class DelegatingChangePasswordAdvisor
-		implements ChangePasswordAdvisor {
+public final class DelegatingChangePasswordAdvisor implements ChangePasswordAdvisor {
 
-	private final List<BiFunction<UserDetails, String, ChangePasswordAdvice>> advisors;
+	private final List<ChangePasswordAdvisor> advisors;
 
-	private DelegatingChangePasswordAdvisor(List<BiFunction<UserDetails, String, ChangePasswordAdvice>> advisors) {
+	private DelegatingChangePasswordAdvisor(List<ChangePasswordAdvisor> advisors) {
 		this.advisors = Collections.unmodifiableList(advisors);
 	}
 
 	public static ChangePasswordAdvisor of(ChangePasswordAdvisor... advisors) {
-		return new DelegatingChangePasswordAdvisor(Stream.of(advisors)
-			.map((advisor) -> (BiFunction<UserDetails, String, ChangePasswordAdvice>) advisor::advise)
-			.toList());
+		return new DelegatingChangePasswordAdvisor(List.of(advisors));
 	}
 
 	@Override
 	public ChangePasswordAdvice advise(UserDetails user, String password) {
 		Collection<ChangePasswordAdvice> advice = this.advisors.stream()
-			.map((advisor) -> advisor.apply(user, password))
-			.filter(Objects::nonNull)
+			.map((advisor) -> advisor.advise(user, password))
+			.filter((a) -> a.getAction() != ChangePasswordAdvice.Action.ABSTAIN)
 			.toList();
 		return new CompositeChangePasswordAdvice(advice);
 	}
 
 	private static final class CompositeChangePasswordAdvice implements ChangePasswordAdvice {
 
-		private final Collection<ChangePasswordAdvice> advice;
-
 		private final Action action;
 
-		private final Collection<ChangePasswordReason> reasons;
+		private final Collection<String> reasons;
 
 		private CompositeChangePasswordAdvice(Collection<ChangePasswordAdvice> advice) {
-			this.advice = advice;
-			Action action = Action.KEEP;
-			Collection<ChangePasswordReason> reasons = new ArrayList<>();
+			Action mostUrgentAction = Action.ABSTAIN;
+			Collection<String> reasons = new ArrayList<>();
 			for (ChangePasswordAdvice a : advice) {
-				if (a.getAction() == Action.KEEP) {
-					continue;
-				}
-				if (action.ordinal() < a.getAction().ordinal()) {
-					action = a.getAction();
+				if (mostUrgentAction.ordinal() < a.getAction().ordinal()) {
+					mostUrgentAction = a.getAction();
 				}
 				reasons.addAll(a.getReasons());
 			}
-			this.action = action;
+			this.action = mostUrgentAction;
 			this.reasons = reasons;
 		}
 
@@ -81,7 +69,7 @@ public final class DelegatingChangePasswordAdvisor
 		}
 
 		@Override
-		public Collection<ChangePasswordReason> getReasons() {
+		public Collection<String> getReasons() {
 			return this.reasons;
 		}
 

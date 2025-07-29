@@ -21,18 +21,18 @@ import java.util.List;
 
 public class SimpleChangePasswordAdvice implements ChangePasswordAdvice {
 
-	static final SimpleChangePasswordAdvice KEEP = new SimpleChangePasswordAdvice(Action.KEEP);
+	static final SimpleChangePasswordAdvice ABSTAIN = new SimpleChangePasswordAdvice(Action.ABSTAIN);
 
 	private final Action action;
 
-	private final Collection<ChangePasswordReason> reasons;
+	private final Collection<String> reasons;
 
-	public SimpleChangePasswordAdvice(Action action, Collection<ChangePasswordReason> reasons) {
+	public SimpleChangePasswordAdvice(Action action, Collection<String> reasons) {
 		this.action = action;
 		this.reasons = reasons;
 	}
 
-	public SimpleChangePasswordAdvice(Action action, ChangePasswordReason... reasons) {
+	public SimpleChangePasswordAdvice(Action action, String... reasons) {
 		this.action = action;
 		this.reasons = List.of(reasons);
 	}
@@ -43,7 +43,7 @@ public class SimpleChangePasswordAdvice implements ChangePasswordAdvice {
 	}
 
 	@Override
-	public Collection<ChangePasswordReason> getReasons() {
+	public Collection<String> getReasons() {
 		return this.reasons;
 	}
 

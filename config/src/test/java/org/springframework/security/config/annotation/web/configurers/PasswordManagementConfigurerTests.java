@@ -19,6 +19,8 @@ package org.springframework.security.config.annotation.web.configurers;
 import java.net.URI;
 import java.util.UUID;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -28,7 +30,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.password.ChangePasswordAdvice;
-import org.springframework.security.authentication.password.ChangePasswordReason;
+import org.springframework.security.authentication.password.ChangePasswordAdvisor;
+import org.springframework.security.authentication.password.ChangePasswordReasons;
 import org.springframework.security.authentication.password.SimpleChangePasswordAdvice;
 import org.springframework.security.authentication.password.UserDetailsPasswordManager;
 import org.springframework.security.config.Customizer;
@@ -37,13 +40,16 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.password.ChangeCompromisedPasswordAdvisor;
+import org.springframework.security.web.authentication.password.ChangePasswordAdviceRepository;
+import org.springframework.security.web.authentication.password.HttpSessionChangePasswordAdviceRepository;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -125,9 +131,8 @@ public class PasswordManagementConfigurerTests {
 		this.mvc.perform(get("/").with(user(admin))).andExpect(status().isOk());
 		// change the password to a test value
 		String random = UUID.randomUUID().toString();
-		this.mvc.perform(post("/change-password").with(csrf()).with(user(admin)).param("newPassword", random))
-			.andExpect(status().isFound())
-			.andExpect(redirectedUrl("/"));
+		this.mvc.perform(post("/change-password").with(csrf()).with(user(admin)).param("password", random))
+			.andExpect(status().isOk());
 		// admin "expires" their own password
 		this.mvc.perform(post("/admin/passwords/expire/admin").with(csrf()).with(user(admin)))
 			.andExpect(status().isCreated());
@@ -144,9 +149,8 @@ public class PasswordManagementConfigurerTests {
 			.andExpect(redirectedUrl("/change-password"));
 		// reset the password to update
 		random = UUID.randomUUID().toString();
-		this.mvc.perform(post("/change-password").with(csrf()).session(session).param("newPassword", random))
-			.andExpect(status().isFound())
-			.andExpect(redirectedUrl("/"));
+		this.mvc.perform(post("/change-password").with(csrf()).session(session).param("password", random))
+			.andExpect(status().isOk());
 		// now we're good
 		this.mvc.perform(get("/").session(session)).andExpect(status().isOk());
 	}
@@ -155,14 +159,14 @@ public class PasswordManagementConfigurerTests {
 	void whenCompromisedThenUserLoginAllowed() throws Exception {
 		this.spring.register(PasswordManagementConfig.class, AdminController.class, HomeController.class).autowire();
 		MvcResult result = this.mvc
-			.perform(post("/login").with(csrf()).param("username", "compromised").param("password", "password"))
+			.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"))
 			.andExpect(status().isFound())
 			.andExpect(redirectedUrl("/"))
 			.andReturn();
 		MockHttpSession session = (MockHttpSession) result.getRequest().getSession();
 		this.mvc.perform(get("/").session(session))
 			.andExpect(status().isOk())
-			.andExpect(content().string(containsString("COMPROMISED")));
+			.andExpect(content().string(containsString("compromised")));
 	}
 
 	@Configuration
@@ -207,8 +211,8 @@ public class PasswordManagementConfigurerTests {
 			// @formatter:off
 			http
 					.authorizeHttpRequests((authz) -> authz
-							.requestMatchers("/admin/**").hasRole("ADMIN")
-							.anyRequest().authenticated()
+						.requestMatchers("/admin/**").hasRole("ADMIN")
+						.anyRequest().authenticated()
 					)
 					.formLogin(Customizer.withDefaults())
 					.passwordManagement(Customizer.withDefaults());
@@ -219,8 +223,9 @@ public class PasswordManagementConfigurerTests {
 		@Bean
 		UserDetailsService users() {
 			String adminPassword = UUID.randomUUID().toString();
-			UserDetails compromised = User.withUsername("compromised").password("{noop}password").roles("USER").build();
-			UserDetails admin = User.withUsername("admin").password("{noop}" + adminPassword).roles("ADMIN").build();
+			UserDetails compromised = PasswordEncodedUser.user();
+			UserDetails admin = PasswordEncodedUser.withUserDetails(PasswordEncodedUser.admin())
+					.password(adminPassword).build();
 			return new InMemoryUserDetailsManager(compromised, admin);
 		}
 
@@ -234,11 +239,9 @@ public class PasswordManagementConfigurerTests {
 
 		private final UserDetailsPasswordManager passwords;
 
-		private final PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-
-		AdminController(UserDetailsService users) {
+		AdminController(UserDetailsService users, UserDetailsPasswordManager passwords) {
 			this.users = users;
-			this.passwords = (UserDetailsPasswordManager) users;
+			this.passwords = passwords;
 		}
 
 		@GetMapping("/advice/{username}")
@@ -258,17 +261,10 @@ public class PasswordManagementConfigurerTests {
 				return ResponseEntity.notFound().build();
 			}
 			ChangePasswordAdvice advice = new SimpleChangePasswordAdvice(ChangePasswordAdvice.Action.MUST_CHANGE,
-					ChangePasswordReason.EXPIRED);
+					ChangePasswordReasons.EXPIRED);
 			this.passwords.savePasswordAdvice(user, advice);
 			URI uri = URI.create("/admin/passwords/advice/" + username);
 			return ResponseEntity.created(uri).body(advice);
-		}
-
-		@PostMapping("/change")
-		ResponseEntity<?> changePassword(@AuthenticationPrincipal UserDetails user,
-				@RequestParam("password") String password) {
-			this.passwords.updatePassword(user, this.encoder.encode(password));
-			return ResponseEntity.ok().build();
 		}
 
 	}
@@ -276,11 +272,37 @@ public class PasswordManagementConfigurerTests {
 	@RestController
 	static class HomeController {
 
+		private final UserDetailsPasswordManager passwords;
+
+		private final ChangePasswordAdvisor changePasswordAdvisor =
+				new ChangeCompromisedPasswordAdvisor();
+
+		private final ChangePasswordAdviceRepository changePasswordAdviceRepository =
+				new HttpSessionChangePasswordAdviceRepository();
+
+		private final PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+
+		HomeController(UserDetailsPasswordManager passwords) {
+			this.passwords = passwords;
+		}
+
 		@GetMapping
 		ChangePasswordAdvice index(ChangePasswordAdvice advice) {
 			return advice;
 		}
 
+		@PostMapping("/change-password")
+		ResponseEntity<?> changePassword(@AuthenticationPrincipal UserDetails user,
+				@RequestParam("password") String password, HttpServletRequest request, HttpServletResponse response) {
+			ChangePasswordAdvice advice = this.changePasswordAdvisor.advise(user, password);
+			if (advice.getAction() != ChangePasswordAdvice.Action.ABSTAIN) {
+				return ResponseEntity.badRequest().body(advice);
+			}
+			this.passwords.updatePassword(user, this.encoder.encode(password));
+			this.passwords.removePasswordAdvice(user);
+			this.changePasswordAdviceRepository.removePasswordAdvice(request, response);
+			return ResponseEntity.ok().build();
+		}
 	}
 
 }

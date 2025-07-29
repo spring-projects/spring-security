@@ -22,15 +22,15 @@ public interface ChangePasswordAdvice {
 
 	Action getAction();
 
-	Collection<ChangePasswordReason> getReasons();
+	Collection<String> getReasons();
 
-	static ChangePasswordAdvice keep() {
-		return SimpleChangePasswordAdvice.KEEP;
+	static ChangePasswordAdvice abstain() {
+		return SimpleChangePasswordAdvice.ABSTAIN;
 	}
 
 	enum Action {
 
-		KEEP, SHOULD_CHANGE, MUST_CHANGE
+		ABSTAIN, SHOULD_CHANGE, MUST_CHANGE
 
 	}
 

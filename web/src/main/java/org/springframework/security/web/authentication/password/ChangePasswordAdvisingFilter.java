@@ -24,20 +24,34 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.authentication.password.ChangePasswordAdvice;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 public class ChangePasswordAdvisingFilter extends OncePerRequestFilter {
 
+	private RequestMatcher shouldHandleAdvice = new NegatedRequestMatcher(pathPattern("/change-password"));
+
 	private ChangePasswordAdviceHandler changePasswordAdviceHandler = new SimpleChangePasswordAdviceHandler(
-			DefaultChangePasswordPageGeneratingFilter.DEFAULT_CHANGE_PASSWORD_URL);
+			"/.well-known/change-password");
 
 	private ChangePasswordAdviceRepository changePasswordAdviceRepository = new HttpSessionChangePasswordAdviceRepository();
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
+		if (!this.shouldHandleAdvice.matches(request)) {
+			chain.doFilter(request, response);
+			return;
+		}
 		ChangePasswordAdvice advice = this.changePasswordAdviceRepository.loadPasswordAdvice(request);
 		this.changePasswordAdviceHandler.handle(request, response, chain, advice);
+	}
+
+	public void setShouldHandleAdviceRequestMatcher(RequestMatcher shouldHandleAdvice) {
+		this.shouldHandleAdvice = shouldHandleAdvice;
 	}
 
 	public void setChangePasswordAdviceRepository(ChangePasswordAdviceRepository changePasswordAdviceRepository) {

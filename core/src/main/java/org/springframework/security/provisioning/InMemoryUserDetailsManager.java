@@ -183,14 +183,12 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 	}
 
 	@Override
-	public ChangePasswordAdvice loadPasswordAdvice(UserDetails user) {
+	public @Nullable ChangePasswordAdvice loadPasswordAdvice(UserDetails user) {
 		return this.advice.get(user.getUsername());
 	}
 
 	@Override
 	public void savePasswordAdvice(UserDetails user, ChangePasswordAdvice advice) {
-		Assert.notNull(advice,
-				"advice must not be null; if you want to remove advice, please call removePasswordAdvice");
 		this.advice.put(user.getUsername(), advice);
 	}
 

@@ -16,6 +16,8 @@
 
 package org.springframework.security.authentication.password;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 
@@ -29,9 +31,9 @@ public interface UserDetailsPasswordManager extends UserDetailsPasswordService {
 	 * @return the updated {@link UserDetails}
 	 */
 	@Override
-	UserDetails updatePassword(UserDetails user, String newPassword);
+	UserDetails updatePassword(UserDetails user, @Nullable String newPassword);
 
-	ChangePasswordAdvice loadPasswordAdvice(UserDetails user);
+	@Nullable ChangePasswordAdvice loadPasswordAdvice(UserDetails user);
 
 	void savePasswordAdvice(UserDetails user, ChangePasswordAdvice advice);
 

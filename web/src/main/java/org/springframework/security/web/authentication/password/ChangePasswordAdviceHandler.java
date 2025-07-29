@@ -34,6 +34,6 @@ public interface ChangePasswordAdviceHandler {
 
 // authentication request process
 // -------------- ------- -------
-// KEEP redirect to home continue filter redirect to home
+// KEEP redirect to home | continue filter | redirect to home
 // RESET redirect to home continue filter redirect to home
 // REQUIRE_RESET redirect to home redirect to reset redirect to home

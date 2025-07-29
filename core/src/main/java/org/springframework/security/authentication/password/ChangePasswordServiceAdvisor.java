@@ -28,7 +28,8 @@ public final class ChangePasswordServiceAdvisor implements ChangePasswordAdvisor
 
 	@Override
 	public ChangePasswordAdvice advise(UserDetails user, String password) {
-		return this.passwordManager.loadPasswordAdvice(user);
+		ChangePasswordAdvice advice = this.passwordManager.loadPasswordAdvice(user);
+		return (advice != null) ? advice : ChangePasswordAdvice.abstain();
 	}
 
 }

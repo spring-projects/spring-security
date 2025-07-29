@@ -24,7 +24,6 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.password.ChangePasswordAdvice;
-import org.springframework.security.authentication.password.ChangePasswordReason;
 import org.springframework.util.function.SingletonSupplier;
 
 public final class HttpSessionChangePasswordAdviceRepository implements ChangePasswordAdviceRepository {
@@ -41,14 +40,14 @@ public final class HttpSessionChangePasswordAdviceRepository implements ChangePa
 			if (advice != null) {
 				return advice;
 			}
-			return ChangePasswordAdvice.keep();
+			return ChangePasswordAdvice.abstain();
 		});
 	}
 
 	@Override
 	public void savePasswordAdvice(HttpServletRequest request, HttpServletResponse response,
 			ChangePasswordAdvice advice) {
-		if (advice.getAction() == ChangePasswordAdvice.Action.KEEP) {
+		if (advice.getAction() == ChangePasswordAdvice.Action.ABSTAIN) {
 			removePasswordAdvice(request, response);
 			return;
 		}
@@ -74,7 +73,7 @@ public final class HttpSessionChangePasswordAdviceRepository implements ChangePa
 		}
 
 		@Override
-		public Collection<ChangePasswordReason> getReasons() {
+		public Collection<String> getReasons() {
 			return this.advice.get().getReasons();
 		}
 

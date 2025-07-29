@@ -41,12 +41,12 @@ public class ChangeLengthPasswordAdvisor implements ChangePasswordAdvisor {
 	@Override
 	public ChangePasswordAdvice advise(UserDetails user, String password) {
 		if (password.length() < this.minLength) {
-			return new SimpleChangePasswordAdvice(this.tooShortAction, ChangePasswordReason.TOO_SHORT);
+			return new SimpleChangePasswordAdvice(this.tooShortAction, ChangePasswordReasons.TOO_SHORT);
 		}
 		if (password.length() > this.maxLength) {
-			return new SimpleChangePasswordAdvice(this.tooLongAction, ChangePasswordReason.TOO_LONG);
+			return new SimpleChangePasswordAdvice(this.tooLongAction, ChangePasswordReasons.TOO_LONG);
 		}
-		return ChangePasswordAdvice.keep();
+		return ChangePasswordAdvice.abstain();
 	}
 
 	public void setTooShortAction(Action tooShortAction) {

@@ -21,7 +21,7 @@ import java.util.Collection;
 import org.springframework.security.authentication.password.ChangePasswordAdvice;
 import org.springframework.security.authentication.password.ChangePasswordAdvice.Action;
 import org.springframework.security.authentication.password.ChangePasswordAdvisor;
-import org.springframework.security.authentication.password.ChangePasswordReason;
+import org.springframework.security.authentication.password.ChangePasswordReasons;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
 import org.springframework.security.authentication.password.CompromisedPasswordDecision;
 import org.springframework.security.authentication.password.SimpleChangePasswordAdvice;
@@ -51,10 +51,10 @@ public final class ChangeCompromisedPasswordAdvisor implements ChangePasswordAdv
 		public Advice(Action action, CompromisedPasswordDecision decision) {
 			this.decision = decision;
 			if (decision.isCompromised()) {
-				this.advice = new SimpleChangePasswordAdvice(action, ChangePasswordReason.COMPROMISED);
+				this.advice = new SimpleChangePasswordAdvice(action, ChangePasswordReasons.COMPROMISED);
 			}
 			else {
-				this.advice = ChangePasswordAdvice.keep();
+				this.advice = ChangePasswordAdvice.abstain();
 			}
 		}
 
@@ -68,7 +68,7 @@ public final class ChangeCompromisedPasswordAdvisor implements ChangePasswordAdv
 		}
 
 		@Override
-		public Collection<ChangePasswordReason> getReasons() {
+		public Collection<String> getReasons() {
 			return this.advice.getReasons();
 		}
 
