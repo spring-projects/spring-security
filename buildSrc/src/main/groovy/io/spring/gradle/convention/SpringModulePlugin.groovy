@@ -43,8 +43,9 @@ class SpringModulePlugin extends AbstractSpringJavaPlugin {
 			deployArtifacts.dependsOn project.tasks.artifactoryPublish
 		}
 		project.tasks.withType(Jar) {
-			from(project.rootProject.files('LICENSE.txt'))
-			into('META-INF')
+			from(project.rootProject.files('LICENSE.txt')) {
+				into('META-INF')
+			}
 		}
 	}
 
