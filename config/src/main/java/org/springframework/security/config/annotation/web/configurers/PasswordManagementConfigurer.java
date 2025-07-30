@@ -31,7 +31,8 @@ import org.springframework.security.web.authentication.password.ChangePasswordAd
 import org.springframework.security.web.authentication.password.ChangePasswordAdviceSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.password.ChangePasswordAdvisingFilter;
 import org.springframework.security.web.authentication.password.HttpSessionChangePasswordAdviceRepository;
-import org.springframework.security.web.authentication.password.SimpleChangePasswordAdviceHandler;
+import org.springframework.security.web.authentication.password.RedirectingChangePasswordAdviceHandler;
+import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.util.Assert;
 
@@ -147,13 +148,9 @@ public final class PasswordManagementConfigurer<B extends HttpSecurityBuilder<B>
 			return;
 		}
 
-		ChangePasswordAdviceHandler changePasswordAdviceHandler = (this.changePasswordAdviceHandler != null)
-				? this.changePasswordAdviceHandler : this.context.getBeanProvider(ChangePasswordAdviceHandler.class)
-					.getIfUnique(() -> new SimpleChangePasswordAdviceHandler(this.changePasswordPage));
-
-		ChangePasswordAdvisingFilter advising = new ChangePasswordAdvisingFilter();
+		ChangePasswordAdvisingFilter advising = new ChangePasswordAdvisingFilter(this.changePasswordPage);
 		advising.setChangePasswordAdviceRepository(http.getSharedObject(ChangePasswordAdviceRepository.class));
-		advising.setChangePasswordAdviceHandler(changePasswordAdviceHandler);
+		advising.setRequestCache(http.getSharedObject(RequestCache.class));
 		http.addFilterBefore(advising, RequestCacheAwareFilter.class);
 	}
 

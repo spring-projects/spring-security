@@ -24,6 +24,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.authentication.password.ChangePasswordAdvice;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.savedrequest.NullRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -32,34 +36,47 @@ import static org.springframework.security.web.servlet.util.matcher.PathPatternR
 
 public class ChangePasswordAdvisingFilter extends OncePerRequestFilter {
 
-	private RequestMatcher shouldHandleAdvice = new NegatedRequestMatcher(pathPattern("/change-password"));
+	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
-	private ChangePasswordAdviceHandler changePasswordAdviceHandler = new SimpleChangePasswordAdviceHandler(
-			"/.well-known/change-password");
+	private final String changePasswordUrl;
+
+	private RequestCache requestCache = new NullRequestCache();
 
 	private ChangePasswordAdviceRepository changePasswordAdviceRepository = new HttpSessionChangePasswordAdviceRepository();
+
+	private RequestMatcher requestMatcher;
+
+	public ChangePasswordAdvisingFilter(String changePasswordUrl) {
+		this.changePasswordUrl = changePasswordUrl;
+		this.requestMatcher = new NegatedRequestMatcher(pathPattern(changePasswordUrl));
+	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
-		if (!this.shouldHandleAdvice.matches(request)) {
+		if (!this.requestMatcher.matches(request)) {
 			chain.doFilter(request, response);
 			return;
 		}
 		ChangePasswordAdvice advice = this.changePasswordAdviceRepository.loadPasswordAdvice(request);
-		this.changePasswordAdviceHandler.handle(request, response, chain, advice);
-	}
-
-	public void setShouldHandleAdviceRequestMatcher(RequestMatcher shouldHandleAdvice) {
-		this.shouldHandleAdvice = shouldHandleAdvice;
+		if (advice.getAction() != ChangePasswordAdvice.Action.MUST_CHANGE) {
+			chain.doFilter(request, response);
+			return;
+		}
+		this.requestCache.saveRequest(request, response);
+		this.redirectStrategy.sendRedirect(request, response, this.changePasswordUrl);
 	}
 
 	public void setChangePasswordAdviceRepository(ChangePasswordAdviceRepository changePasswordAdviceRepository) {
 		this.changePasswordAdviceRepository = changePasswordAdviceRepository;
 	}
 
-	public void setChangePasswordAdviceHandler(ChangePasswordAdviceHandler changePasswordAdviceHandler) {
-		this.changePasswordAdviceHandler = changePasswordAdviceHandler;
+	public void setRequestCache(RequestCache requestCache) {
+		this.requestCache = requestCache;
+	}
+
+	public void setRequestMatcher(RequestMatcher requestMatcher) {
+		this.requestMatcher = requestMatcher;
 	}
 
 }
