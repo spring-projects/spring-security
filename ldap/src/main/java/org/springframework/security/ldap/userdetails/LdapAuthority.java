@@ -16,13 +16,18 @@
 
 package org.springframework.security.ldap.userdetails;
 
-import java.io.Serial;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
+import org.apache.commons.collections.IteratorUtils;
+import org.springframework.ldap.support.LdapUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
+
+import javax.naming.Name;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import java.io.Serial;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * An authority that contains at least a DN and a role name for an LDAP entry but can also
@@ -35,18 +40,18 @@ public class LdapAuthority implements GrantedAuthority {
 	@Serial
 	private static final long serialVersionUID = 343193700821611354L;
 
-	private final String dn;
+	private final Name dn;
 
 	private final String role;
 
-	private final Map<String, List<String>> attributes;
+	private final Attributes attributes;
 
 	/**
 	 * Constructs an LdapAuthority that has a role and a DN but no other attributes
 	 * @param role the principal's role
 	 * @param dn the distinguished name
 	 */
-	public LdapAuthority(String role, String dn) {
+	public LdapAuthority(String role, Name dn) {
 		this(role, dn, null);
 	}
 
@@ -56,7 +61,7 @@ public class LdapAuthority implements GrantedAuthority {
 	 * @param dn the distinguished name
 	 * @param attributes additional LDAP attributes
 	 */
-	public LdapAuthority(String role, String dn, Map<String, List<String>> attributes) {
+	public LdapAuthority(String role, Name dn, Attributes attributes) {
 		Assert.notNull(role, "role can not be null");
 		Assert.notNull(dn, "dn can not be null");
 		this.role = role;
@@ -68,7 +73,7 @@ public class LdapAuthority implements GrantedAuthority {
 	 * Returns the LDAP attributes
 	 * @return the LDAP attributes, map can be null
 	 */
-	public Map<String, List<String>> getAttributes() {
+	public Attributes getAttributes() {
 		return this.attributes;
 	}
 
@@ -76,7 +81,7 @@ public class LdapAuthority implements GrantedAuthority {
 	 * Returns the DN for this LDAP authority
 	 * @return the distinguished name
 	 */
-	public String getDn() {
+	public Name getDn() {
 		return this.dn;
 	}
 
@@ -85,10 +90,16 @@ public class LdapAuthority implements GrantedAuthority {
 	 * @param name the attribute name
 	 * @return a String array, never null but may be zero length
 	 */
+	@SuppressWarnings("unchecked")
 	public List<String> getAttributeValues(String name) {
 		List<String> result = null;
 		if (this.attributes != null) {
-			result = this.attributes.get(name);
+			try {
+				result = (List<String>) this.attributes.get(name).get();
+			}
+			catch (NamingException e) {
+				throw LdapUtils.convertLdapException(e);
+			}
 		}
 		return (result != null) ? result : Collections.emptyList();
 	}
