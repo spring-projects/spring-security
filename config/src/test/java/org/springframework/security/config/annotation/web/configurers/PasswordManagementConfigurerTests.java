@@ -31,6 +31,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.password.ChangePasswordAdvice;
 import org.springframework.security.authentication.password.ChangePasswordAdvisor;
+import org.springframework.security.authentication.password.PasswordAction;
 import org.springframework.security.authentication.password.UserDetailsPasswordManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -223,7 +224,8 @@ public class PasswordManagementConfigurerTests {
 			String adminPassword = UUID.randomUUID().toString();
 			UserDetails compromised = PasswordEncodedUser.user();
 			UserDetails admin = PasswordEncodedUser.withUserDetails(PasswordEncodedUser.admin())
-					.password(adminPassword).build();
+				.password(adminPassword)
+				.build();
 			return new InMemoryUserDetailsManager(compromised, admin);
 		}
 
@@ -243,24 +245,23 @@ public class PasswordManagementConfigurerTests {
 		}
 
 		@GetMapping("/advice/{username}")
-		ResponseEntity<ChangePasswordAdvice> requireChangePassword(@PathVariable("username") String username) {
+		ResponseEntity<PasswordAction> requireChangePassword(@PathVariable("username") String username) {
 			UserDetails user = this.users.loadUserByUsername(username);
 			if (user == null) {
 				return ResponseEntity.notFound().build();
 			}
-			return ResponseEntity.ok(user.getChangePasswordAdvice());
+			return ResponseEntity.ok(user.getPasswordAction());
 		}
 
 		@PostMapping("/expire/{username}")
-		ResponseEntity<ChangePasswordAdvice> expirePassword(@PathVariable("username") String username) {
+		ResponseEntity<PasswordAction> expirePassword(@PathVariable("username") String username) {
 			UserDetails user = this.users.loadUserByUsername(username);
 			if (user == null) {
 				return ResponseEntity.notFound().build();
 			}
-			ChangePasswordAdvice advice = () -> ChangePasswordAdvice.Action.MUST_CHANGE;
-			this.passwords.savePasswordAdvice(user, advice);
+			this.passwords.savePasswordAction(user, PasswordAction.MUST_CHANGE);
 			URI uri = URI.create("/admin/passwords/advice/" + username);
-			return ResponseEntity.created(uri).body(advice);
+			return ResponseEntity.created(uri).body(PasswordAction.MUST_CHANGE);
 		}
 
 	}
@@ -270,11 +271,9 @@ public class PasswordManagementConfigurerTests {
 
 		private final UserDetailsPasswordManager passwords;
 
-		private final ChangePasswordAdvisor changePasswordAdvisor =
-				new ChangeCompromisedPasswordAdvisor();
+		private final ChangePasswordAdvisor changePasswordAdvisor = new ChangeCompromisedPasswordAdvisor();
 
-		private final ChangePasswordAdviceRepository changePasswordAdviceRepository =
-				new HttpSessionChangePasswordAdviceRepository();
+		private final ChangePasswordAdviceRepository changePasswordAdviceRepository = new HttpSessionChangePasswordAdviceRepository();
 
 		private final PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
@@ -291,13 +290,14 @@ public class PasswordManagementConfigurerTests {
 		ResponseEntity<?> changePassword(@AuthenticationPrincipal UserDetails user,
 				@RequestParam("password") String password, HttpServletRequest request, HttpServletResponse response) {
 			ChangePasswordAdvice advice = this.changePasswordAdvisor.advise(user, password);
-			if (advice.getAction() != ChangePasswordAdvice.Action.ABSTAIN) {
+			if (advice.getAction() != PasswordAction.ABSTAIN) {
 				return ResponseEntity.badRequest().body(advice);
 			}
 			this.passwords.updatePassword(user, this.encoder.encode(password));
 			this.changePasswordAdviceRepository.removePasswordAdvice(request, response);
 			return ResponseEntity.ok().build();
 		}
+
 	}
 
 }

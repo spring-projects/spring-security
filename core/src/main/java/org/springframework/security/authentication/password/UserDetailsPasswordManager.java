@@ -21,6 +21,6 @@ import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 
 public interface UserDetailsPasswordManager extends UserDetailsPasswordService {
 
-	void savePasswordAdvice(UserDetails user, ChangePasswordAdvice advice);
+	void savePasswordAction(UserDetails user, PasswordAction action);
 
 }

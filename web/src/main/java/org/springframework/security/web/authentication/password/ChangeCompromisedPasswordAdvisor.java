@@ -17,39 +17,40 @@
 package org.springframework.security.web.authentication.password;
 
 import org.springframework.security.authentication.password.ChangePasswordAdvice;
-import org.springframework.security.authentication.password.ChangePasswordAdvice.Action;
 import org.springframework.security.authentication.password.ChangePasswordAdvisor;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
 import org.springframework.security.authentication.password.CompromisedPasswordDecision;
+import org.springframework.security.authentication.password.PasswordAction;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public final class ChangeCompromisedPasswordAdvisor implements ChangePasswordAdvisor {
 
 	private final CompromisedPasswordChecker pwned = new HaveIBeenPwnedRestApiPasswordChecker();
 
-	private Action action = Action.SHOULD_CHANGE;
+	private PasswordAction action = PasswordAction.SHOULD_CHANGE;
 
 	@Override
 	public ChangePasswordAdvice advise(UserDetails user, String password) {
 		CompromisedPasswordDecision decision = this.pwned.check(password);
 		if (decision.isCompromised()) {
 			return new Advice(this.action, decision);
-		} else {
-			return new Advice(Action.ABSTAIN, decision);
+		}
+		else {
+			return new Advice(PasswordAction.ABSTAIN, decision);
 		}
 	}
 
-	public void setAction(Action action) {
+	public void setAction(PasswordAction action) {
 		this.action = action;
 	}
 
 	public static final class Advice implements ChangePasswordAdvice {
 
-		private final Action action;
+		private final PasswordAction action;
 
 		private final CompromisedPasswordDecision decision;
 
-		public Advice(Action action, CompromisedPasswordDecision decision) {
+		public Advice(PasswordAction action, CompromisedPasswordDecision decision) {
 			this.action = action;
 			this.decision = decision;
 		}
@@ -59,17 +60,15 @@ public final class ChangeCompromisedPasswordAdvisor implements ChangePasswordAdv
 		}
 
 		@Override
-		public Action getAction() {
+		public PasswordAction getAction() {
 			return this.action;
 		}
 
 		@Override
 		public String toString() {
-			return "Compromised [" +
-					"action=" + this.action +
-					", decision=" + this.decision +
-					"]";
+			return "Compromised [" + "action=" + this.action + ", decision=" + this.decision + "]";
 		}
+
 	}
 
 }

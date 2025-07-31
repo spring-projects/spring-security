@@ -106,8 +106,8 @@ public final class PasswordManagementConfigurer<B extends HttpSecurityBuilder<B>
 
 		ChangePasswordAdvisor changePasswordAdvisor = (this.changePasswordAdvisor != null) ? this.changePasswordAdvisor
 				: this.context.getBeanProvider(ChangePasswordAdvisor.class)
-					.getIfUnique(() -> CompositeChangePasswordAdvisor
-						.of(new UserDetailsChangePasswordAdvisor(), new ChangeCompromisedPasswordAdvisor()));
+					.getIfUnique(() -> CompositeChangePasswordAdvisor.of(new UserDetailsChangePasswordAdvisor(),
+							new ChangeCompromisedPasswordAdvisor()));
 
 		http.setSharedObject(ChangePasswordAdviceRepository.class, changePasswordAdviceRepository);
 		http.setSharedObject(UserDetailsPasswordManager.class, passwordManager);

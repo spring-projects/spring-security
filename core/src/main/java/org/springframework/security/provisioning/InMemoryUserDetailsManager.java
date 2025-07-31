@@ -32,6 +32,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.password.ChangePasswordAdvice;
+import org.springframework.security.authentication.password.PasswordAction;
 import org.springframework.security.authentication.password.UserDetailsPasswordManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.CredentialsContainer;
@@ -165,7 +166,7 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 			throw new RuntimeException("user '" + username + "' does not exist");
 		}
 		mutableUser.setPassword(newPassword);
-		savePasswordAdvice(mutableUser, ChangePasswordAdvice.ABSTAIN);
+		savePasswordAction(mutableUser, PasswordAction.ABSTAIN);
 		return mutableUser;
 	}
 
@@ -182,13 +183,13 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 	}
 
 	@Override
-	public void savePasswordAdvice(UserDetails user, ChangePasswordAdvice advice) {
+	public void savePasswordAction(UserDetails user, PasswordAction action) {
 		String username = user.getUsername();
 		MutableUserDetails mutableUser = this.users.get(username.toLowerCase(Locale.ROOT));
 		if (mutableUser == null) {
 			throw new RuntimeException("user '" + username + "' does not exist");
 		}
-		mutableUser.setChangePasswordAdvice(advice);
+		mutableUser.setPasswordAction(action);
 	}
 
 	/**

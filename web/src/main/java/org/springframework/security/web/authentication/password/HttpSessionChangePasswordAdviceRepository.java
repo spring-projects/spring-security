@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.authentication.password.ChangePasswordAdvice;
+import org.springframework.security.authentication.password.PasswordAction;
 import org.springframework.util.function.SingletonSupplier;
 
 public final class HttpSessionChangePasswordAdviceRepository implements ChangePasswordAdviceRepository {
@@ -44,7 +45,7 @@ public final class HttpSessionChangePasswordAdviceRepository implements ChangePa
 	@Override
 	public void savePasswordAdvice(HttpServletRequest request, HttpServletResponse response,
 			ChangePasswordAdvice advice) {
-		if (advice.getAction() == ChangePasswordAdvice.Action.ABSTAIN) {
+		if (advice.getAction() == PasswordAction.ABSTAIN) {
 			removePasswordAdvice(request, response);
 			return;
 		}
@@ -65,7 +66,7 @@ public final class HttpSessionChangePasswordAdviceRepository implements ChangePa
 		}
 
 		@Override
-		public Action getAction() {
+		public PasswordAction getAction() {
 			return this.advice.get().getAction();
 		}
 
@@ -77,6 +78,7 @@ public final class HttpSessionChangePasswordAdviceRepository implements ChangePa
 		public String toString() {
 			return this.advice.get().toString();
 		}
+
 	}
 
 }

@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.authentication.password.ChangePasswordAdvice;
+import org.springframework.security.authentication.password.PasswordAction;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.savedrequest.NullRequestCache;
@@ -59,7 +60,7 @@ public class ChangePasswordAdvisingFilter extends OncePerRequestFilter {
 			return;
 		}
 		ChangePasswordAdvice advice = this.changePasswordAdviceRepository.loadPasswordAdvice(request);
-		if (advice.getAction() != ChangePasswordAdvice.Action.MUST_CHANGE) {
+		if (advice.getAction() != PasswordAction.MUST_CHANGE) {
 			chain.doFilter(request, response);
 			return;
 		}

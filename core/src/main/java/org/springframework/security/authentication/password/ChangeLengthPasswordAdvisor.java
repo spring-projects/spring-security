@@ -16,7 +16,6 @@
 
 package org.springframework.security.authentication.password;
 
-import org.springframework.security.authentication.password.ChangePasswordAdvice.Action;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public class ChangeLengthPasswordAdvisor implements ChangePasswordAdvisor {
@@ -25,9 +24,9 @@ public class ChangeLengthPasswordAdvisor implements ChangePasswordAdvisor {
 
 	private final int maxLength;
 
-	private Action tooShortAction = Action.MUST_CHANGE;
+	private PasswordAction tooShortAction = PasswordAction.MUST_CHANGE;
 
-	private Action tooLongAction = Action.SHOULD_CHANGE;
+	private PasswordAction tooLongAction = PasswordAction.SHOULD_CHANGE;
 
 	public ChangeLengthPasswordAdvisor(int minLength) {
 		this(minLength, Integer.MAX_VALUE);
@@ -49,29 +48,30 @@ public class ChangeLengthPasswordAdvisor implements ChangePasswordAdvisor {
 		return ChangePasswordAdvice.ABSTAIN;
 	}
 
-	public void setTooShortAction(Action tooShortAction) {
+	public void setTooShortAction(PasswordAction tooShortAction) {
 		this.tooShortAction = tooShortAction;
 	}
 
-	public void setTooLongAction(Action tooLongAction) {
+	public void setTooLongAction(PasswordAction tooLongAction) {
 		this.tooLongAction = tooLongAction;
 	}
 
 	public static final class TooShortAdvice implements ChangePasswordAdvice {
-		private final Action action;
+
+		private final PasswordAction action;
 
 		private final int minLength;
 
 		private final int actualLength;
 
-		private TooShortAdvice(Action action, int minLength, int actualLength) {
+		private TooShortAdvice(PasswordAction action, int minLength, int actualLength) {
 			this.action = action;
 			this.minLength = minLength;
 			this.actualLength = actualLength;
 		}
 
 		@Override
-		public Action getAction() {
+		public PasswordAction getAction() {
 			return this.action;
 		}
 
@@ -85,30 +85,28 @@ public class ChangeLengthPasswordAdvisor implements ChangePasswordAdvisor {
 
 		@Override
 		public String toString() {
-			return "TooShort [" +
-					"action=" + this.action +
-					", minLength=" + this.minLength +
-					", actualLength=" + this.actualLength +
-					"]";
+			return "TooShort [" + "action=" + this.action + ", minLength=" + this.minLength + ", actualLength="
+					+ this.actualLength + "]";
 		}
 
 	}
 
 	public static final class TooLongAdvice implements ChangePasswordAdvice {
-		private final Action action;
+
+		private final PasswordAction action;
 
 		private final int maxLength;
 
 		private final int actualLength;
 
-		private TooLongAdvice(Action action, int maxLength, int actualLength) {
+		private TooLongAdvice(PasswordAction action, int maxLength, int actualLength) {
 			this.action = action;
 			this.maxLength = maxLength;
 			this.actualLength = actualLength;
 		}
 
 		@Override
-		public Action getAction() {
+		public PasswordAction getAction() {
 			return this.action;
 		}
 
@@ -122,11 +120,10 @@ public class ChangeLengthPasswordAdvisor implements ChangePasswordAdvisor {
 
 		@Override
 		public String toString() {
-			return "TooLong [" +
-					"action=" + this.action +
-					", maxLength=" + this.maxLength +
-					", actualLength=" + this.actualLength +
-					"]";
+			return "TooLong [" + "action=" + this.action + ", maxLength=" + this.maxLength + ", actualLength="
+					+ this.actualLength + "]";
 		}
+
 	}
+
 }

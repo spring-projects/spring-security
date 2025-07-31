@@ -22,7 +22,7 @@ public final class UserDetailsChangePasswordAdvisor implements ChangePasswordAdv
 
 	@Override
 	public ChangePasswordAdvice advise(UserDetails user, String password) {
-		return user.getChangePasswordAdvice();
+		return user::getPasswordAction;
 	}
 
 }

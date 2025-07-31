@@ -18,7 +18,7 @@ package org.springframework.security.provisioning;
 
 import org.jspecify.annotations.Nullable;
 
-import org.springframework.security.authentication.password.ChangePasswordAdvice;
+import org.springframework.security.authentication.password.PasswordAction;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
@@ -29,5 +29,6 @@ interface MutableUserDetails extends UserDetails {
 
 	void setPassword(@Nullable String password);
 
-	void setChangePasswordAdvice(ChangePasswordAdvice advice);
+	void setPasswordAction(PasswordAction action);
+
 }

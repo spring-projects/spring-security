@@ -18,14 +18,8 @@ package org.springframework.security.authentication.password;
 
 public interface ChangePasswordAdvice {
 
-	ChangePasswordAdvice ABSTAIN = () -> Action.ABSTAIN;
+	ChangePasswordAdvice ABSTAIN = () -> PasswordAction.ABSTAIN;
 
-	Action getAction();
-
-	enum Action {
-
-		ABSTAIN, SHOULD_CHANGE, MUST_CHANGE
-
-	}
+	PasswordAction getAction();
 
 }

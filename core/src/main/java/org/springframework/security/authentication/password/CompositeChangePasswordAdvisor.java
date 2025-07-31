@@ -44,7 +44,7 @@ public final class CompositeChangePasswordAdvisor implements ChangePasswordAdvis
 
 	public static final class Advice implements ChangePasswordAdvice {
 
-		private final Action action;
+		private final PasswordAction action;
 
 		private final Collection<ChangePasswordAdvice> advice;
 
@@ -53,8 +53,8 @@ public final class CompositeChangePasswordAdvisor implements ChangePasswordAdvis
 			this.advice = advice;
 		}
 
-		private Action findMostUrgentAction(Collection<ChangePasswordAdvice> advice) {
-			Action mostUrgentAction = Action.ABSTAIN;
+		private PasswordAction findMostUrgentAction(Collection<ChangePasswordAdvice> advice) {
+			PasswordAction mostUrgentAction = PasswordAction.ABSTAIN;
 			for (ChangePasswordAdvice a : advice) {
 				if (mostUrgentAction.ordinal() < a.getAction().ordinal()) {
 					mostUrgentAction = a.getAction();
@@ -64,7 +64,7 @@ public final class CompositeChangePasswordAdvisor implements ChangePasswordAdvis
 		}
 
 		@Override
-		public Action getAction() {
+		public PasswordAction getAction() {
 			return this.action;
 		}
 
@@ -74,11 +74,9 @@ public final class CompositeChangePasswordAdvisor implements ChangePasswordAdvis
 
 		@Override
 		public String toString() {
-			return "Composite [" +
-					"action=" + this.action +
-					", advice=" + this.advice +
-					"]";
+			return "Composite [" + "action=" + this.action + ", advice=" + this.advice + "]";
 		}
+
 	}
 
 }

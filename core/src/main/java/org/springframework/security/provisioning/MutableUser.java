@@ -20,7 +20,7 @@ import java.util.Collection;
 
 import org.jspecify.annotations.Nullable;
 
-import org.springframework.security.authentication.password.ChangePasswordAdvice;
+import org.springframework.security.authentication.password.PasswordAction;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -35,7 +35,7 @@ class MutableUser implements MutableUserDetails {
 
 	private @Nullable String password;
 
-	private ChangePasswordAdvice advice = ChangePasswordAdvice.ABSTAIN;
+	private PasswordAction advice = PasswordAction.ABSTAIN;
 
 	private final UserDetails delegate;
 
@@ -55,11 +55,11 @@ class MutableUser implements MutableUserDetails {
 	}
 
 	@Override
-	public ChangePasswordAdvice getChangePasswordAdvice() {
-		return advice;
+	public PasswordAction getPasswordAction() {
+		return this.advice;
 	}
 
-	public void setChangePasswordAdvice(ChangePasswordAdvice advice) {
+	public void setPasswordAction(PasswordAction advice) {
 		this.advice = advice;
 	}
 

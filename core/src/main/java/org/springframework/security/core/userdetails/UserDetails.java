@@ -21,7 +21,7 @@ import java.util.Collection;
 
 import org.jspecify.annotations.Nullable;
 
-import org.springframework.security.authentication.password.ChangePasswordAdvice;
+import org.springframework.security.authentication.password.PasswordAction;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -103,8 +103,8 @@ public interface UserDetails extends Serializable {
 		return true;
 	}
 
-	default ChangePasswordAdvice getChangePasswordAdvice() {
-		return ChangePasswordAdvice.ABSTAIN;
+	default PasswordAction getPasswordAction() {
+		return PasswordAction.ABSTAIN;
 	}
 
 }

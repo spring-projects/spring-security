@@ -32,7 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.Nullable;
 
-import org.springframework.security.authentication.password.ChangePasswordAdvice;
+import org.springframework.security.authentication.password.PasswordAction;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
@@ -82,7 +82,7 @@ public class User implements UserDetails, CredentialsContainer {
 
 	private final boolean enabled;
 
-	private final ChangePasswordAdvice changePasswordAdvice;
+	private final PasswordAction passwordAction;
 
 	/**
 	 * Calls the more complex constructor with all boolean arguments set to {@code true}.
@@ -118,7 +118,7 @@ public class User implements UserDetails, CredentialsContainer {
 		this.accountNonExpired = accountNonExpired;
 		this.credentialsNonExpired = credentialsNonExpired;
 		this.accountNonLocked = accountNonLocked;
-		this.changePasswordAdvice = ChangePasswordAdvice.ABSTAIN;
+		this.passwordAction = PasswordAction.ABSTAIN;
 		this.authorities = Collections.unmodifiableSet(sortAuthorities(authorities));
 	}
 
@@ -129,7 +129,7 @@ public class User implements UserDetails, CredentialsContainer {
 		this.accountNonExpired = user.isAccountNonExpired();
 		this.credentialsNonExpired = user.isCredentialsNonExpired();
 		this.accountNonLocked = user.isAccountNonLocked();
-		this.changePasswordAdvice = user.getChangePasswordAdvice();
+		this.passwordAction = user.getPasswordAction();
 		this.authorities = Collections.unmodifiableSet(sortAuthorities(user.getAuthorities()));
 	}
 
@@ -169,8 +169,8 @@ public class User implements UserDetails, CredentialsContainer {
 	}
 
 	@Override
-	public ChangePasswordAdvice getChangePasswordAdvice() {
-		return this.changePasswordAdvice;
+	public PasswordAction getPasswordAction() {
+		return this.passwordAction;
 	}
 
 	@Override
