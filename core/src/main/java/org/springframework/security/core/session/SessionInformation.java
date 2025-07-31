@@ -36,6 +36,7 @@ import org.springframework.util.Assert;
  * <code>Filter</code>.
  *
  * @author Ben Alex
+ * @author Andrey Litvitski
  */
 public class SessionInformation implements Serializable {
 
@@ -49,13 +50,17 @@ public class SessionInformation implements Serializable {
 
 	private boolean expired = false;
 
-	public SessionInformation(Object principal, String sessionId, Date lastRequest) {
+	private final Date createdTime;
+
+	public SessionInformation(Object principal, String sessionId, Date lastRequest, Date createdTime) {
 		Assert.notNull(principal, "Principal required");
 		Assert.hasText(sessionId, "SessionId required");
 		Assert.notNull(lastRequest, "LastRequest required");
+		Assert.notNull(lastRequest, "CreatedTime required");
 		this.principal = principal;
 		this.sessionId = sessionId;
 		this.lastRequest = lastRequest;
+		this.createdTime = createdTime;
 	}
 
 	public void expireNow() {
@@ -72,6 +77,10 @@ public class SessionInformation implements Serializable {
 
 	public String getSessionId() {
 		return this.sessionId;
+	}
+
+	public Date getCreatedTime() {
+		return this.createdTime;
 	}
 
 	public boolean isExpired() {
