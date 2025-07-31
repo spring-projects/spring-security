@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@ package org.springframework.security.web.authentication.password;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.springframework.security.authentication.password.ChangePasswordAdvice;
+import org.springframework.security.authentication.password.PasswordAdvice;
 
-public interface ChangePasswordAdviceRepository {
+public interface PasswordAdviceRepository {
 
-	ChangePasswordAdvice loadPasswordAdvice(HttpServletRequest request);
+	PasswordAdvice loadPasswordAdvice(HttpServletRequest request);
 
-	void savePasswordAdvice(HttpServletRequest request, HttpServletResponse response, ChangePasswordAdvice advice);
+	void savePasswordAdvice(HttpServletRequest request, HttpServletResponse response, PasswordAdvice advice);
 
 	void removePasswordAdvice(HttpServletRequest request, HttpServletResponse response);
 

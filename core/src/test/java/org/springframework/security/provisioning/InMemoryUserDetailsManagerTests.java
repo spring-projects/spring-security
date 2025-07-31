@@ -208,9 +208,12 @@ public class InMemoryUserDetailsManagerTests {
 
 		private String password;
 
+		private PasswordAction action;
+
 		CustomUser(UserDetails user) {
 			this.delegate = user;
 			this.password = user.getPassword();
+			this.action = user.getPasswordAction();
 		}
 
 		@Override
@@ -229,8 +232,13 @@ public class InMemoryUserDetailsManagerTests {
 		}
 
 		@Override
-		public void setPasswordAction(PasswordAction advice) {
-			throw new UnsupportedOperationException();
+		public PasswordAction getPasswordAction() {
+			return this.action;
+		}
+
+		@Override
+		public void setPasswordAction(PasswordAction action) {
+			this.action = action;
 		}
 
 		@Override

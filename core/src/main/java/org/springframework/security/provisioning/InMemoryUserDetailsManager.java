@@ -31,15 +31,14 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.password.ChangePasswordAdvice;
 import org.springframework.security.authentication.password.PasswordAction;
-import org.springframework.security.authentication.password.UserDetailsPasswordManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.memory.UserAttribute;
 import org.springframework.security.core.userdetails.memory.UserAttributeEditor;
@@ -55,13 +54,11 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @since 3.1
  */
-public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetailsPasswordManager {
+public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetailsPasswordService {
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private final Map<String, MutableUserDetails> users = new HashMap<>();
-
-	private final Map<String, ChangePasswordAdvice> advice = new HashMap<>();
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
@@ -156,6 +153,7 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 		MutableUserDetails user = this.users.get(username);
 		Assert.state(user != null, "Current user doesn't exist in database.");
 		user.setPassword(newPassword);
+		user.setPasswordAction(PasswordAction.ABSTAIN);
 	}
 
 	@Override
@@ -166,7 +164,6 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 			throw new RuntimeException("user '" + username + "' does not exist");
 		}
 		mutableUser.setPassword(newPassword);
-		savePasswordAction(mutableUser, PasswordAction.ABSTAIN);
 		return mutableUser;
 	}
 
@@ -179,17 +176,7 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 		if (user instanceof CredentialsContainer) {
 			return user;
 		}
-		return new User(user);
-	}
-
-	@Override
-	public void savePasswordAction(UserDetails user, PasswordAction action) {
-		String username = user.getUsername();
-		MutableUserDetails mutableUser = this.users.get(username.toLowerCase(Locale.ROOT));
-		if (mutableUser == null) {
-			throw new RuntimeException("user '" + username + "' does not exist");
-		}
-		mutableUser.setPasswordAction(action);
+		return User.withUserDetails(user).build();
 	}
 
 	/**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,12 @@
 
 package org.springframework.security.authentication.password;
 
-import org.springframework.security.core.userdetails.UserDetails;
+import org.jspecify.annotations.Nullable;
 
-public class ChangeLengthPasswordAdvisor implements ChangePasswordAdvisor {
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.Assert;
+
+public final class LengthPasswordAdvisor implements PasswordAdvisor, UpdatePasswordAdvisor {
 
 	private final int minLength;
 
@@ -28,24 +31,37 @@ public class ChangeLengthPasswordAdvisor implements ChangePasswordAdvisor {
 
 	private PasswordAction tooLongAction = PasswordAction.SHOULD_CHANGE;
 
-	public ChangeLengthPasswordAdvisor(int minLength) {
+	public LengthPasswordAdvisor() {
+		this(12, 64);
+	}
+
+	public LengthPasswordAdvisor(int minLength) {
 		this(minLength, Integer.MAX_VALUE);
 	}
 
-	public ChangeLengthPasswordAdvisor(int minLength, int maxLength) {
+	public LengthPasswordAdvisor(int minLength, int maxLength) {
+		Assert.isTrue(minLength > 0, "minLength must be greater than 0");
 		this.minLength = minLength;
 		this.maxLength = maxLength;
 	}
 
 	@Override
-	public ChangePasswordAdvice advise(UserDetails user, String password) {
+	public PasswordAdvice advise(UserDetails user, @Nullable String password) {
+		if (password == null) {
+			return new TooShortAdvice(this.tooShortAction, this.minLength, 0);
+		}
 		if (password.length() < this.minLength) {
 			return new TooShortAdvice(this.tooShortAction, this.minLength, password.length());
 		}
 		if (password.length() > this.maxLength) {
 			return new TooLongAdvice(this.tooLongAction, this.maxLength, password.length());
 		}
-		return ChangePasswordAdvice.ABSTAIN;
+		return PasswordAdvice.ABSTAIN;
+	}
+
+	@Override
+	public PasswordAdvice advise(UserDetails user, @Nullable String oldPassword, @Nullable String newPassword) {
+		return advise(user, newPassword);
 	}
 
 	public void setTooShortAction(PasswordAction tooShortAction) {
@@ -56,7 +72,7 @@ public class ChangeLengthPasswordAdvisor implements ChangePasswordAdvisor {
 		this.tooLongAction = tooLongAction;
 	}
 
-	public static final class TooShortAdvice implements ChangePasswordAdvice {
+	public static final class TooShortAdvice implements PasswordAdvice {
 
 		private final PasswordAction action;
 
@@ -91,7 +107,7 @@ public class ChangeLengthPasswordAdvisor implements ChangePasswordAdvisor {
 
 	}
 
-	public static final class TooLongAdvice implements ChangePasswordAdvice {
+	public static final class TooLongAdvice implements PasswordAdvice {
 
 		private final PasswordAction action;
 

@@ -114,23 +114,26 @@ public class User implements UserDetails, CredentialsContainer {
 		Assert.isTrue(username != null && !"".equals(username), "Cannot pass null or empty values to constructor");
 		this.username = username;
 		this.password = password;
+		this.passwordAction = PasswordAction.ABSTAIN;
 		this.enabled = enabled;
 		this.accountNonExpired = accountNonExpired;
 		this.credentialsNonExpired = credentialsNonExpired;
 		this.accountNonLocked = accountNonLocked;
-		this.passwordAction = PasswordAction.ABSTAIN;
 		this.authorities = Collections.unmodifiableSet(sortAuthorities(authorities));
 	}
 
-	public User(UserDetails user) {
-		this.username = user.getUsername();
-		this.password = user.getPassword();
-		this.enabled = user.isEnabled();
-		this.accountNonExpired = user.isAccountNonExpired();
-		this.credentialsNonExpired = user.isCredentialsNonExpired();
-		this.accountNonLocked = user.isAccountNonLocked();
-		this.passwordAction = user.getPasswordAction();
-		this.authorities = Collections.unmodifiableSet(sortAuthorities(user.getAuthorities()));
+	private User(String username, @Nullable String password, PasswordAction passwordAction, boolean enabled,
+			boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked,
+			Collection<? extends GrantedAuthority> authorities) {
+		Assert.isTrue(username != null && !"".equals(username), "Cannot pass null or empty values to constructor");
+		this.username = username;
+		this.password = password;
+		this.passwordAction = passwordAction;
+		this.enabled = enabled;
+		this.accountNonExpired = accountNonExpired;
+		this.credentialsNonExpired = credentialsNonExpired;
+		this.accountNonLocked = accountNonLocked;
+		this.authorities = Collections.unmodifiableSet(sortAuthorities(authorities));
 	}
 
 	@Override
@@ -310,6 +313,7 @@ public class User implements UserDetails, CredentialsContainer {
 	public static UserBuilder withUserDetails(UserDetails userDetails) {
 		// @formatter:off
 		UserBuilder result = withUsername(userDetails.getUsername())
+				.passwordAction(userDetails.getPasswordAction())
 				.accountExpired(!userDetails.isAccountNonExpired())
 				.accountLocked(!userDetails.isAccountNonLocked())
 				.authorities(userDetails.getAuthorities())
@@ -352,6 +356,8 @@ public class User implements UserDetails, CredentialsContainer {
 
 		private @Nullable String password;
 
+		private PasswordAction passwordAction = PasswordAction.ABSTAIN;
+
 		private List<GrantedAuthority> authorities = new ArrayList<>();
 
 		private boolean accountExpired;
@@ -390,6 +396,11 @@ public class User implements UserDetails, CredentialsContainer {
 		 */
 		public UserBuilder password(@Nullable String password) {
 			this.password = password;
+			return this;
+		}
+
+		public UserBuilder passwordAction(PasswordAction passwordAction) {
+			this.passwordAction = passwordAction;
 			return this;
 		}
 
@@ -527,7 +538,7 @@ public class User implements UserDetails, CredentialsContainer {
 		public UserDetails build() {
 			Assert.notNull(this.username, "username cannot be null");
 			String encodedPassword = (this.password != null) ? this.passwordEncoder.apply(this.password) : null;
-			return new User(this.username, encodedPassword, !this.disabled, !this.accountExpired,
+			return new User(this.username, encodedPassword, this.passwordAction, !this.disabled, !this.accountExpired,
 					!this.credentialsExpired, !this.accountLocked, this.authorities);
 		}
 

@@ -29,10 +29,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.authentication.password.ChangePasswordAdvice;
-import org.springframework.security.authentication.password.ChangePasswordAdvisor;
 import org.springframework.security.authentication.password.PasswordAction;
-import org.springframework.security.authentication.password.UserDetailsPasswordManager;
+import org.springframework.security.authentication.password.PasswordAdvice;
+import org.springframework.security.authentication.password.UpdatePasswordAdvisor;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -40,15 +39,17 @@ import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.password.ChangeCompromisedPasswordAdvisor;
-import org.springframework.security.web.authentication.password.ChangePasswordAdviceRepository;
-import org.springframework.security.web.authentication.password.HttpSessionChangePasswordAdviceRepository;
+import org.springframework.security.web.authentication.password.CompromisedPasswordAdvisor;
+import org.springframework.security.web.authentication.password.HttpSessionPasswordAdviceRepository;
+import org.springframework.security.web.authentication.password.PasswordAdviceRepository;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -155,7 +156,7 @@ public class PasswordManagementConfigurerTests {
 	}
 
 	@Test
-	void whenCompromisedThenUserLoginAllowed() throws Exception {
+	void whenShouldChangeThenUserLoginAllowed() throws Exception {
 		this.spring.register(PasswordManagementConfig.class, AdminController.class, HomeController.class).autowire();
 		MvcResult result = this.mvc
 			.perform(post("/login").with(csrf()).param("username", "user").param("password", "password"))
@@ -165,7 +166,7 @@ public class PasswordManagementConfigurerTests {
 		MockHttpSession session = (MockHttpSession) result.getRequest().getSession();
 		this.mvc.perform(get("/").session(session))
 			.andExpect(status().isOk())
-			.andExpect(content().string(containsString("compromised")));
+			.andExpect(content().string(containsString("SHOULD_CHANGE")));
 	}
 
 	@Configuration
@@ -206,27 +207,26 @@ public class PasswordManagementConfigurerTests {
 	static class PasswordManagementConfig {
 
 		@Bean
-		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		SecurityFilterChain securityFilterChain(HttpSecurity http, UserDetailsService users) throws Exception {
 			// @formatter:off
 			http
-					.authorizeHttpRequests((authz) -> authz
-						.requestMatchers("/admin/**").hasRole("ADMIN")
-						.anyRequest().authenticated()
-					)
-					.formLogin(Customizer.withDefaults())
-					.passwordManagement(Customizer.withDefaults());
+				.authorizeHttpRequests((authz) -> authz
+					.requestMatchers("/admin/**").hasRole("ADMIN")
+					.anyRequest().authenticated()
+				)
+				.formLogin(Customizer.withDefaults())
+				.passwordManagement(Customizer.withDefaults());
 			// @formatter:on
 			return http.build();
 		}
 
 		@Bean
-		UserDetailsService users() {
-			String adminPassword = UUID.randomUUID().toString();
-			UserDetails compromised = PasswordEncodedUser.user();
-			UserDetails admin = PasswordEncodedUser.withUserDetails(PasswordEncodedUser.admin())
-				.password(adminPassword)
+		InMemoryUserDetailsManager users() {
+			UserDetails shouldChange = User.withUserDetails(PasswordEncodedUser.user())
+				.passwordAction(PasswordAction.SHOULD_CHANGE)
 				.build();
-			return new InMemoryUserDetailsManager(compromised, admin);
+			UserDetails admin = PasswordEncodedUser.admin();
+			return new InMemoryUserDetailsManager(shouldChange, admin);
 		}
 
 	}
@@ -235,13 +235,10 @@ public class PasswordManagementConfigurerTests {
 	@RestController
 	static class AdminController {
 
-		private final UserDetailsService users;
+		private final UserDetailsManager users;
 
-		private final UserDetailsPasswordManager passwords;
-
-		AdminController(UserDetailsService users, UserDetailsPasswordManager passwords) {
+		AdminController(InMemoryUserDetailsManager users) {
 			this.users = users;
-			this.passwords = passwords;
 		}
 
 		@GetMapping("/advice/{username}")
@@ -259,7 +256,8 @@ public class PasswordManagementConfigurerTests {
 			if (user == null) {
 				return ResponseEntity.notFound().build();
 			}
-			this.passwords.savePasswordAction(user, PasswordAction.MUST_CHANGE);
+			UserDetails mustChange = User.withUserDetails(user).passwordAction(PasswordAction.MUST_CHANGE).build();
+			this.users.updateUser(mustChange);
 			URI uri = URI.create("/admin/passwords/advice/" + username);
 			return ResponseEntity.created(uri).body(PasswordAction.MUST_CHANGE);
 		}
@@ -269,32 +267,32 @@ public class PasswordManagementConfigurerTests {
 	@RestController
 	static class HomeController {
 
-		private final UserDetailsPasswordManager passwords;
+		private final InMemoryUserDetailsManager passwords;
 
-		private final ChangePasswordAdvisor changePasswordAdvisor = new ChangeCompromisedPasswordAdvisor();
+		private final UpdatePasswordAdvisor passwordAdvisor = new CompromisedPasswordAdvisor();
 
-		private final ChangePasswordAdviceRepository changePasswordAdviceRepository = new HttpSessionChangePasswordAdviceRepository();
+		private final PasswordAdviceRepository passwordAdviceRepository = new HttpSessionPasswordAdviceRepository();
 
 		private final PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
-		HomeController(UserDetailsPasswordManager passwords) {
+		HomeController(InMemoryUserDetailsManager passwords) {
 			this.passwords = passwords;
 		}
 
 		@GetMapping
-		ChangePasswordAdvice index(ChangePasswordAdvice advice) {
+		PasswordAdvice index(PasswordAdvice advice) {
 			return advice;
 		}
 
 		@PostMapping("/change-password")
 		ResponseEntity<?> changePassword(@AuthenticationPrincipal UserDetails user,
 				@RequestParam("password") String password, HttpServletRequest request, HttpServletResponse response) {
-			ChangePasswordAdvice advice = this.changePasswordAdvisor.advise(user, password);
+			PasswordAdvice advice = this.passwordAdvisor.advise(user, null, password);
 			if (advice.getAction() != PasswordAction.ABSTAIN) {
 				return ResponseEntity.badRequest().body(advice);
 			}
-			this.passwords.updatePassword(user, this.encoder.encode(password));
-			this.changePasswordAdviceRepository.removePasswordAdvice(request, response);
+			this.passwords.changePassword(null, this.encoder.encode(password));
+			this.passwordAdviceRepository.removePasswordAdvice(request, response);
 			return ResponseEntity.ok().build();
 		}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.springframework.security.authentication.password.ChangePasswordAdvice;
 import org.springframework.security.authentication.password.PasswordAction;
+import org.springframework.security.authentication.password.PasswordAdvice;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.savedrequest.NullRequestCache;
@@ -35,7 +35,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
-public class ChangePasswordAdvisingFilter extends OncePerRequestFilter {
+public class PasswordAdvisingFilter extends OncePerRequestFilter {
 
 	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
@@ -43,11 +43,11 @@ public class ChangePasswordAdvisingFilter extends OncePerRequestFilter {
 
 	private RequestCache requestCache = new NullRequestCache();
 
-	private ChangePasswordAdviceRepository changePasswordAdviceRepository = new HttpSessionChangePasswordAdviceRepository();
+	private PasswordAdviceRepository passwordAdviceRepository = new HttpSessionPasswordAdviceRepository();
 
 	private RequestMatcher requestMatcher;
 
-	public ChangePasswordAdvisingFilter(String changePasswordUrl) {
+	public PasswordAdvisingFilter(String changePasswordUrl) {
 		this.changePasswordUrl = changePasswordUrl;
 		this.requestMatcher = new NegatedRequestMatcher(pathPattern(changePasswordUrl));
 	}
@@ -59,7 +59,7 @@ public class ChangePasswordAdvisingFilter extends OncePerRequestFilter {
 			chain.doFilter(request, response);
 			return;
 		}
-		ChangePasswordAdvice advice = this.changePasswordAdviceRepository.loadPasswordAdvice(request);
+		PasswordAdvice advice = this.passwordAdviceRepository.loadPasswordAdvice(request);
 		if (advice.getAction() != PasswordAction.MUST_CHANGE) {
 			chain.doFilter(request, response);
 			return;
@@ -68,8 +68,8 @@ public class ChangePasswordAdvisingFilter extends OncePerRequestFilter {
 		this.redirectStrategy.sendRedirect(request, response, this.changePasswordUrl);
 	}
 
-	public void setChangePasswordAdviceRepository(ChangePasswordAdviceRepository changePasswordAdviceRepository) {
-		this.changePasswordAdviceRepository = changePasswordAdviceRepository;
+	public void setPasswordAdviceRepository(PasswordAdviceRepository passwordAdviceRepository) {
+		this.passwordAdviceRepository = passwordAdviceRepository;
 	}
 
 	public void setRequestCache(RequestCache requestCache) {

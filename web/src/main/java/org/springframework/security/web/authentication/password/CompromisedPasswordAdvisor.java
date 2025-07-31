@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,27 @@
 
 package org.springframework.security.web.authentication.password;
 
-import org.springframework.security.authentication.password.ChangePasswordAdvice;
-import org.springframework.security.authentication.password.ChangePasswordAdvisor;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
 import org.springframework.security.authentication.password.CompromisedPasswordDecision;
 import org.springframework.security.authentication.password.PasswordAction;
+import org.springframework.security.authentication.password.PasswordAdvice;
+import org.springframework.security.authentication.password.PasswordAdvisor;
+import org.springframework.security.authentication.password.UpdatePasswordAdvisor;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public final class ChangeCompromisedPasswordAdvisor implements ChangePasswordAdvisor {
+public final class CompromisedPasswordAdvisor implements PasswordAdvisor, UpdatePasswordAdvisor {
 
 	private final CompromisedPasswordChecker pwned = new HaveIBeenPwnedRestApiPasswordChecker();
 
 	private PasswordAction action = PasswordAction.SHOULD_CHANGE;
 
 	@Override
-	public ChangePasswordAdvice advise(UserDetails user, String password) {
+	public PasswordAdvice advise(UserDetails user, @Nullable String password) {
+		if (password == null) {
+			return PasswordAdvice.ABSTAIN;
+		}
 		CompromisedPasswordDecision decision = this.pwned.check(password);
 		if (decision.isCompromised()) {
 			return new Advice(this.action, decision);
@@ -40,11 +46,16 @@ public final class ChangeCompromisedPasswordAdvisor implements ChangePasswordAdv
 		}
 	}
 
+	@Override
+	public PasswordAdvice advise(UserDetails user, String oldPassword, String newPassword) {
+		return advise(user, newPassword);
+	}
+
 	public void setAction(PasswordAction action) {
 		this.action = action;
 	}
 
-	public static final class Advice implements ChangePasswordAdvice {
+	public static final class Advice implements PasswordAdvice {
 
 		private final PasswordAction action;
 

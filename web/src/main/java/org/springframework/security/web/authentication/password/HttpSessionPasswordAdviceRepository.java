@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,30 +21,28 @@ import java.util.function.Supplier;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.springframework.security.authentication.password.ChangePasswordAdvice;
 import org.springframework.security.authentication.password.PasswordAction;
+import org.springframework.security.authentication.password.PasswordAdvice;
 import org.springframework.util.function.SingletonSupplier;
 
-public final class HttpSessionChangePasswordAdviceRepository implements ChangePasswordAdviceRepository {
+public final class HttpSessionPasswordAdviceRepository implements PasswordAdviceRepository {
 
-	private static final String PASSWORD_ADVICE_ATTRIBUTE_NAME = HttpSessionChangePasswordAdviceRepository.class
-		.getName() + ".PASSWORD_ADVICE";
+	private static final String PASSWORD_ADVICE_ATTRIBUTE_NAME = HttpSessionPasswordAdviceRepository.class.getName()
+			+ ".PASSWORD_ADVICE";
 
 	@Override
-	public ChangePasswordAdvice loadPasswordAdvice(HttpServletRequest request) {
-		return new DeferredChangePasswordAdvice(() -> {
-			ChangePasswordAdvice advice = (ChangePasswordAdvice) request.getSession()
-				.getAttribute(PASSWORD_ADVICE_ATTRIBUTE_NAME);
+	public PasswordAdvice loadPasswordAdvice(HttpServletRequest request) {
+		return new DeferredPasswordAdvice(() -> {
+			PasswordAdvice advice = (PasswordAdvice) request.getSession().getAttribute(PASSWORD_ADVICE_ATTRIBUTE_NAME);
 			if (advice != null) {
 				return advice;
 			}
-			return ChangePasswordAdvice.ABSTAIN;
+			return PasswordAdvice.ABSTAIN;
 		});
 	}
 
 	@Override
-	public void savePasswordAdvice(HttpServletRequest request, HttpServletResponse response,
-			ChangePasswordAdvice advice) {
+	public void savePasswordAdvice(HttpServletRequest request, HttpServletResponse response, PasswordAdvice advice) {
 		if (advice.getAction() == PasswordAction.ABSTAIN) {
 			removePasswordAdvice(request, response);
 			return;
@@ -57,11 +55,11 @@ public final class HttpSessionChangePasswordAdviceRepository implements ChangePa
 		request.getSession().removeAttribute(PASSWORD_ADVICE_ATTRIBUTE_NAME);
 	}
 
-	private static final class DeferredChangePasswordAdvice implements ChangePasswordAdvice {
+	private static final class DeferredPasswordAdvice implements PasswordAdvice {
 
-		private final Supplier<ChangePasswordAdvice> advice;
+		private final Supplier<PasswordAdvice> advice;
 
-		DeferredChangePasswordAdvice(Supplier<ChangePasswordAdvice> advice) {
+		DeferredPasswordAdvice(Supplier<PasswordAdvice> advice) {
 			this.advice = SingletonSupplier.of(advice);
 		}
 
@@ -70,7 +68,7 @@ public final class HttpSessionChangePasswordAdviceRepository implements ChangePa
 			return this.advice.get().getAction();
 		}
 
-		public ChangePasswordAdvice getChangePasswordAdvice() {
+		PasswordAdvice getChangePasswordAdvice() {
 			return this.advice.get();
 		}
 

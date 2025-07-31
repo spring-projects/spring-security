@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,30 +19,29 @@ package org.springframework.security.web.authentication.password;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.core.MethodParameter;
-import org.springframework.security.authentication.password.ChangePasswordAdvice;
+import org.springframework.security.authentication.password.PasswordAdvice;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-public final class ChangePasswordAdviceMethodArgumentResolver implements HandlerMethodArgumentResolver {
+public final class PasswordAdviceMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
-	ChangePasswordAdviceRepository changePasswordAdviceRepository = new HttpSessionChangePasswordAdviceRepository();
+	PasswordAdviceRepository passwordAdviceRepository = new HttpSessionPasswordAdviceRepository();
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
-		return ChangePasswordAdvice.class.isAssignableFrom(parameter.getParameterType());
+		return PasswordAdvice.class.isAssignableFrom(parameter.getParameterType());
 	}
 
 	@Override
 	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-		return this.changePasswordAdviceRepository
-			.loadPasswordAdvice(webRequest.getNativeRequest(HttpServletRequest.class));
+		return this.passwordAdviceRepository.loadPasswordAdvice(webRequest.getNativeRequest(HttpServletRequest.class));
 	}
 
-	public void setChangePasswordAdviceRepository(ChangePasswordAdviceRepository changePasswordAdviceRepository) {
-		this.changePasswordAdviceRepository = changePasswordAdviceRepository;
+	public void setPasswordAdviceRepository(PasswordAdviceRepository passwordAdviceRepository) {
+		this.passwordAdviceRepository = passwordAdviceRepository;
 	}
 
 }

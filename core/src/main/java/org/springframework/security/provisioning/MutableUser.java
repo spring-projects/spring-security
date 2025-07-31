@@ -35,13 +35,14 @@ class MutableUser implements MutableUserDetails {
 
 	private @Nullable String password;
 
-	private PasswordAction advice = PasswordAction.ABSTAIN;
+	private PasswordAction action;
 
 	private final UserDetails delegate;
 
 	MutableUser(UserDetails user) {
 		this.delegate = user;
 		this.password = user.getPassword();
+		this.action = user.getPasswordAction();
 	}
 
 	@Override
@@ -56,11 +57,12 @@ class MutableUser implements MutableUserDetails {
 
 	@Override
 	public PasswordAction getPasswordAction() {
-		return this.advice;
+		return this.action;
 	}
 
+	@Override
 	public void setPasswordAction(PasswordAction advice) {
-		this.advice = advice;
+		this.action = advice;
 	}
 
 	@Override

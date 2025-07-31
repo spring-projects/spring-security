@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,42 +20,44 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.userdetails.UserDetails;
 
-public final class CompositeChangePasswordAdvisor implements ChangePasswordAdvisor {
+public final class CompositePasswordAdvisor implements PasswordAdvisor {
 
-	private final List<ChangePasswordAdvisor> advisors;
+	private final List<PasswordAdvisor> advisors;
 
-	private CompositeChangePasswordAdvisor(List<ChangePasswordAdvisor> advisors) {
+	private CompositePasswordAdvisor(List<PasswordAdvisor> advisors) {
 		this.advisors = Collections.unmodifiableList(advisors);
 	}
 
-	public static ChangePasswordAdvisor of(ChangePasswordAdvisor... advisors) {
-		return new CompositeChangePasswordAdvisor(List.of(advisors));
+	public static PasswordAdvisor of(PasswordAdvisor... advisors) {
+		return new CompositePasswordAdvisor(List.of(advisors));
 	}
 
 	@Override
-	public ChangePasswordAdvice advise(UserDetails user, String password) {
-		Collection<ChangePasswordAdvice> advice = this.advisors.stream()
+	public PasswordAdvice advise(UserDetails user, @Nullable String password) {
+		Collection<PasswordAdvice> advice = this.advisors.stream()
 			.map((advisor) -> advisor.advise(user, password))
 			.toList();
 		return new Advice(advice);
 	}
 
-	public static final class Advice implements ChangePasswordAdvice {
+	public static final class Advice implements PasswordAdvice {
 
 		private final PasswordAction action;
 
-		private final Collection<ChangePasswordAdvice> advice;
+		private final Collection<PasswordAdvice> advice;
 
-		private Advice(Collection<ChangePasswordAdvice> advice) {
+		private Advice(Collection<PasswordAdvice> advice) {
 			this.action = findMostUrgentAction(advice);
 			this.advice = advice;
 		}
 
-		private PasswordAction findMostUrgentAction(Collection<ChangePasswordAdvice> advice) {
+		private PasswordAction findMostUrgentAction(Collection<PasswordAdvice> advice) {
 			PasswordAction mostUrgentAction = PasswordAction.ABSTAIN;
-			for (ChangePasswordAdvice a : advice) {
+			for (PasswordAdvice a : advice) {
 				if (mostUrgentAction.ordinal() < a.getAction().ordinal()) {
 					mostUrgentAction = a.getAction();
 				}
@@ -68,7 +70,7 @@ public final class CompositeChangePasswordAdvisor implements ChangePasswordAdvis
 			return this.action;
 		}
 
-		public Collection<ChangePasswordAdvice> getAdvice() {
+		public Collection<PasswordAdvice> getAdvice() {
 			return this.advice;
 		}
 
