@@ -97,7 +97,7 @@ org-gretty-gretty = "org.gretty:gretty:4.1.7"
 com-github-ben-manes-gradle-versions-plugin = "com.github.ben-manes:gradle-versions-plugin:0.52.0"
 com-github-spullara-mustache-java-compiler = "com.github.spullara.mustache.java:compiler:0.9.14"
 org-hidetake-gradle-ssh-plugin = "org.hidetake:gradle-ssh-plugin:2.10.1"
-org-jfrog-buildinfo-build-info-extractor-gradle = "org.jfrog.buildinfo:build-info-extractor-gradle:4.34.1"
+org-jfrog-buildinfo-build-info-extractor-gradle = "org.jfrog.buildinfo:build-info-extractor-gradle:4.34.2"
 org-sonarsource-scanner-gradle-sonarqube-gradle-plugin = "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8.0.1969"
 org-instancio-instancio-junit = "org.instancio:instancio-junit:3.7.1"
 
