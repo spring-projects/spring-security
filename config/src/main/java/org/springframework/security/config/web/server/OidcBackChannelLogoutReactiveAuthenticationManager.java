@@ -64,14 +64,14 @@ import org.springframework.util.StringUtils;
  * "https://openid.net/specs/openid-connect-backchannel-1_0.html">OIDC Back-Channel
  * Logout</a>
  */
-final class OidcBackChannelLogoutReactiveAuthenticationManager implements ReactiveAuthenticationManager {
+public final class OidcBackChannelLogoutReactiveAuthenticationManager implements ReactiveAuthenticationManager {
 
 	private ReactiveJwtDecoderFactory<ClientRegistration> logoutTokenDecoderFactory;
 
 	/**
 	 * Construct an {@link OidcBackChannelLogoutReactiveAuthenticationManager}
 	 */
-	OidcBackChannelLogoutReactiveAuthenticationManager() {
+	public OidcBackChannelLogoutReactiveAuthenticationManager() {
 		Function<ClientRegistration, OAuth2TokenValidator<Jwt>> jwtValidator = (clientRegistration) -> JwtValidators
 			.createDefaultWithValidators(new OidcBackChannelLogoutTokenValidator(clientRegistration));
 		this.logoutTokenDecoderFactory = (clientRegistration) -> {
@@ -130,7 +130,7 @@ final class OidcBackChannelLogoutReactiveAuthenticationManager implements Reacti
 	 * correspond to the {@link ClientRegistration} associated with the OIDC logout token.
 	 * @param logoutTokenDecoderFactory the {@link JwtDecoderFactory} to use
 	 */
-	void setLogoutTokenDecoderFactory(ReactiveJwtDecoderFactory<ClientRegistration> logoutTokenDecoderFactory) {
+	public void setLogoutTokenDecoderFactory(ReactiveJwtDecoderFactory<ClientRegistration> logoutTokenDecoderFactory) {
 		Assert.notNull(logoutTokenDecoderFactory, "logoutTokenDecoderFactory cannot be null");
 		this.logoutTokenDecoderFactory = logoutTokenDecoderFactory;
 	}

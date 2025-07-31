@@ -380,6 +380,35 @@ public class OidcLogoutSpecTests {
 	}
 
 	@Test
+	void logoutCustomAuthenticationManagerThenUses() {
+		this.spring
+			.register(WebServerConfig.class, OidcProviderConfig.class, WithCustomAuthenticationManagerConfig.class)
+			.autowire();
+		String registrationId = this.clientRegistration.getRegistrationId();
+		String sessionId = login();
+		String logoutToken = this.test.get()
+			.uri("/token/logout")
+			.cookie("SESSION", sessionId)
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.returnResult(String.class)
+			.getResponseBody()
+			.blockFirst();
+		this.test.post()
+			.uri(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+			.body(BodyInserters.fromFormData("logout_token", logoutToken))
+			.exchange()
+			.expectStatus()
+			.isOk();
+		this.test.get().uri("/token/logout").cookie("SESSION", sessionId).exchange().expectStatus().isUnauthorized();
+		ReactiveOidcSessionRegistry sessionRegistry = this.spring.getContext()
+			.getBean(ReactiveOidcSessionRegistry.class);
+		verify(sessionRegistry, atLeastOnce()).saveSessionInformation(any());
+		verify(sessionRegistry, atLeastOnce()).removeSessionInformation(any(OidcLogoutToken.class));
+	}
+
+	@Test
 	void logoutWhenProviderIssuerMissingThen5xxServerError() {
 		this.spring.register(WebServerConfig.class, OidcProviderConfig.class, ProviderIssuerMissingConfig.class)
 			.autowire();
@@ -616,6 +645,35 @@ public class OidcLogoutSpecTests {
 					.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
 					.oauth2Login(Customizer.withDefaults())
 					.oidcLogout((oidc) -> oidc.backChannel(Customizer.withDefaults()));
+			// @formatter:on
+
+			return http.build();
+		}
+
+		@Bean
+		ReactiveOidcSessionRegistry sessionRegistry() {
+			return this.sessionRegistry;
+		}
+
+	}
+
+	@Configuration
+	@EnableWebFluxSecurity
+	@Import(RegistrationConfig.class)
+	static class WithCustomAuthenticationManagerConfig {
+
+		ReactiveOidcSessionRegistry sessionRegistry = spy(new InMemoryReactiveOidcSessionRegistry());
+
+		@Bean
+		@Order(1)
+		SecurityWebFilterChain filters(ServerHttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
+					.oauth2Login(Customizer.withDefaults())
+					.oidcLogout((oidc) -> oidc.backChannel((backChannel) -> {
+						backChannel.setAuthenticationManager(new OidcBackChannelLogoutReactiveAuthenticationManager());
+					}));
 			// @formatter:on
 
 			return http.build();
