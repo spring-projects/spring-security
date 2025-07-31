@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.security.authentication.password.ChangePasswordAdvice;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,6 +34,8 @@ class MutableUser implements MutableUserDetails {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
 	private @Nullable String password;
+
+	private ChangePasswordAdvice advice = ChangePasswordAdvice.ABSTAIN;
 
 	private final UserDetails delegate;
 
@@ -49,6 +52,15 @@ class MutableUser implements MutableUserDetails {
 	@Override
 	public void setPassword(@Nullable String password) {
 		this.password = password;
+	}
+
+	@Override
+	public ChangePasswordAdvice getChangePasswordAdvice() {
+		return advice;
+	}
+
+	public void setChangePasswordAdvice(ChangePasswordAdvice advice) {
+		this.advice = advice;
 	}
 
 	@Override

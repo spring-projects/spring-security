@@ -16,17 +16,11 @@
 
 package org.springframework.security.authentication.password;
 
-import java.util.Collection;
-
 public interface ChangePasswordAdvice {
 
+	ChangePasswordAdvice ABSTAIN = () -> Action.ABSTAIN;
+
 	Action getAction();
-
-	Collection<String> getReasons();
-
-	static ChangePasswordAdvice abstain() {
-		return SimpleChangePasswordAdvice.ABSTAIN;
-	}
 
 	enum Action {
 

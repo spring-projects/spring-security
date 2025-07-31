@@ -16,13 +16,11 @@
 
 package org.springframework.security.web.authentication.password;
 
-import java.util.Collection;
 import java.util.function.Supplier;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.password.ChangePasswordAdvice;
 import org.springframework.util.function.SingletonSupplier;
 
@@ -32,7 +30,6 @@ public final class HttpSessionChangePasswordAdviceRepository implements ChangePa
 		.getName() + ".PASSWORD_ADVICE";
 
 	@Override
-	@NonNull
 	public ChangePasswordAdvice loadPasswordAdvice(HttpServletRequest request) {
 		return new DeferredChangePasswordAdvice(() -> {
 			ChangePasswordAdvice advice = (ChangePasswordAdvice) request.getSession()
@@ -40,7 +37,7 @@ public final class HttpSessionChangePasswordAdviceRepository implements ChangePa
 			if (advice != null) {
 				return advice;
 			}
-			return ChangePasswordAdvice.abstain();
+			return ChangePasswordAdvice.ABSTAIN;
 		});
 	}
 
@@ -72,11 +69,14 @@ public final class HttpSessionChangePasswordAdviceRepository implements ChangePa
 			return this.advice.get().getAction();
 		}
 
-		@Override
-		public Collection<String> getReasons() {
-			return this.advice.get().getReasons();
+		public ChangePasswordAdvice getChangePasswordAdvice() {
+			return this.advice.get();
 		}
 
+		@Override
+		public String toString() {
+			return this.advice.get().toString();
+		}
 	}
 
 }

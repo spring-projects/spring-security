@@ -30,6 +30,7 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authentication.password.ChangePasswordAdvice;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
@@ -225,6 +226,11 @@ public class InMemoryUserDetailsManagerTests {
 		@Override
 		public void setPassword(final String password) {
 			this.password = password;
+		}
+
+		@Override
+		public void setChangePasswordAdvice(ChangePasswordAdvice advice) {
+			throw new UnsupportedOperationException();
 		}
 
 		@Override

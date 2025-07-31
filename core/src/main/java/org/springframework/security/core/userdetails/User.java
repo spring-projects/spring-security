@@ -32,6 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.security.authentication.password.ChangePasswordAdvice;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
@@ -81,6 +82,8 @@ public class User implements UserDetails, CredentialsContainer {
 
 	private final boolean enabled;
 
+	private final ChangePasswordAdvice changePasswordAdvice;
+
 	/**
 	 * Calls the more complex constructor with all boolean arguments set to {@code true}.
 	 */
@@ -115,7 +118,19 @@ public class User implements UserDetails, CredentialsContainer {
 		this.accountNonExpired = accountNonExpired;
 		this.credentialsNonExpired = credentialsNonExpired;
 		this.accountNonLocked = accountNonLocked;
+		this.changePasswordAdvice = ChangePasswordAdvice.ABSTAIN;
 		this.authorities = Collections.unmodifiableSet(sortAuthorities(authorities));
+	}
+
+	public User(UserDetails user) {
+		this.username = user.getUsername();
+		this.password = user.getPassword();
+		this.enabled = user.isEnabled();
+		this.accountNonExpired = user.isAccountNonExpired();
+		this.credentialsNonExpired = user.isCredentialsNonExpired();
+		this.accountNonLocked = user.isAccountNonLocked();
+		this.changePasswordAdvice = user.getChangePasswordAdvice();
+		this.authorities = Collections.unmodifiableSet(sortAuthorities(user.getAuthorities()));
 	}
 
 	@Override
@@ -151,6 +166,11 @@ public class User implements UserDetails, CredentialsContainer {
 	@Override
 	public boolean isCredentialsNonExpired() {
 		return this.credentialsNonExpired;
+	}
+
+	@Override
+	public ChangePasswordAdvice getChangePasswordAdvice() {
+		return this.changePasswordAdvice;
 	}
 
 	@Override

@@ -18,18 +18,11 @@ package org.springframework.security.authentication.password;
 
 import org.springframework.security.core.userdetails.UserDetails;
 
-public final class ChangePasswordServiceAdvisor implements ChangePasswordAdvisor {
-
-	private final UserDetailsPasswordManager passwordManager;
-
-	public ChangePasswordServiceAdvisor(UserDetailsPasswordManager passwordManager) {
-		this.passwordManager = passwordManager;
-	}
+public final class UserDetailsChangePasswordAdvisor implements ChangePasswordAdvisor {
 
 	@Override
 	public ChangePasswordAdvice advise(UserDetails user, String password) {
-		ChangePasswordAdvice advice = this.passwordManager.loadPasswordAdvice(user);
-		return (advice != null) ? advice : ChangePasswordAdvice.abstain();
+		return user.getChangePasswordAdvice();
 	}
 
 }

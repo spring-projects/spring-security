@@ -31,8 +31,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.password.ChangePasswordAdvice;
 import org.springframework.security.authentication.password.ChangePasswordAdvisor;
-import org.springframework.security.authentication.password.ChangePasswordReasons;
-import org.springframework.security.authentication.password.SimpleChangePasswordAdvice;
 import org.springframework.security.authentication.password.UserDetailsPasswordManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -250,8 +248,7 @@ public class PasswordManagementConfigurerTests {
 			if (user == null) {
 				return ResponseEntity.notFound().build();
 			}
-			ChangePasswordAdvice advice = this.passwords.loadPasswordAdvice(user);
-			return ResponseEntity.ok(advice);
+			return ResponseEntity.ok(user.getChangePasswordAdvice());
 		}
 
 		@PostMapping("/expire/{username}")
@@ -260,8 +257,7 @@ public class PasswordManagementConfigurerTests {
 			if (user == null) {
 				return ResponseEntity.notFound().build();
 			}
-			ChangePasswordAdvice advice = new SimpleChangePasswordAdvice(ChangePasswordAdvice.Action.MUST_CHANGE,
-					ChangePasswordReasons.EXPIRED);
+			ChangePasswordAdvice advice = () -> ChangePasswordAdvice.Action.MUST_CHANGE;
 			this.passwords.savePasswordAdvice(user, advice);
 			URI uri = URI.create("/admin/passwords/advice/" + username);
 			return ResponseEntity.created(uri).body(advice);
@@ -299,7 +295,6 @@ public class PasswordManagementConfigurerTests {
 				return ResponseEntity.badRequest().body(advice);
 			}
 			this.passwords.updatePassword(user, this.encoder.encode(password));
-			this.passwords.removePasswordAdvice(user);
 			this.changePasswordAdviceRepository.removePasswordAdvice(request, response);
 			return ResponseEntity.ok().build();
 		}

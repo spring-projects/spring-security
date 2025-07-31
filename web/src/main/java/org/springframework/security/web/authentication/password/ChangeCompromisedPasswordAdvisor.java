@@ -16,15 +16,11 @@
 
 package org.springframework.security.web.authentication.password;
 
-import java.util.Collection;
-
 import org.springframework.security.authentication.password.ChangePasswordAdvice;
 import org.springframework.security.authentication.password.ChangePasswordAdvice.Action;
 import org.springframework.security.authentication.password.ChangePasswordAdvisor;
-import org.springframework.security.authentication.password.ChangePasswordReasons;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
 import org.springframework.security.authentication.password.CompromisedPasswordDecision;
-import org.springframework.security.authentication.password.SimpleChangePasswordAdvice;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public final class ChangeCompromisedPasswordAdvisor implements ChangePasswordAdvisor {
@@ -35,7 +31,12 @@ public final class ChangeCompromisedPasswordAdvisor implements ChangePasswordAdv
 
 	@Override
 	public ChangePasswordAdvice advise(UserDetails user, String password) {
-		return new Advice(this.action, this.pwned.check(password));
+		CompromisedPasswordDecision decision = this.pwned.check(password);
+		if (decision.isCompromised()) {
+			return new Advice(this.action, decision);
+		} else {
+			return new Advice(Action.ABSTAIN, decision);
+		}
 	}
 
 	public void setAction(Action action) {
@@ -44,34 +45,31 @@ public final class ChangeCompromisedPasswordAdvisor implements ChangePasswordAdv
 
 	public static final class Advice implements ChangePasswordAdvice {
 
+		private final Action action;
+
 		private final CompromisedPasswordDecision decision;
 
-		private final ChangePasswordAdvice advice;
-
 		public Advice(Action action, CompromisedPasswordDecision decision) {
+			this.action = action;
 			this.decision = decision;
-			if (decision.isCompromised()) {
-				this.advice = new SimpleChangePasswordAdvice(action, ChangePasswordReasons.COMPROMISED);
-			}
-			else {
-				this.advice = ChangePasswordAdvice.abstain();
-			}
 		}
 
-		public CompromisedPasswordDecision getDecision() {
+		public CompromisedPasswordDecision getCompromisedPasswordDecision() {
 			return this.decision;
 		}
 
 		@Override
 		public Action getAction() {
-			return this.advice.getAction();
+			return this.action;
 		}
 
 		@Override
-		public Collection<String> getReasons() {
-			return this.advice.getReasons();
+		public String toString() {
+			return "Compromised [" +
+					"action=" + this.action +
+					", decision=" + this.decision +
+					"]";
 		}
-
 	}
 
 }

@@ -41,12 +41,12 @@ public class ChangeLengthPasswordAdvisor implements ChangePasswordAdvisor {
 	@Override
 	public ChangePasswordAdvice advise(UserDetails user, String password) {
 		if (password.length() < this.minLength) {
-			return new SimpleChangePasswordAdvice(this.tooShortAction, ChangePasswordReasons.TOO_SHORT);
+			return new TooShortAdvice(this.tooShortAction, this.minLength, password.length());
 		}
 		if (password.length() > this.maxLength) {
-			return new SimpleChangePasswordAdvice(this.tooLongAction, ChangePasswordReasons.TOO_LONG);
+			return new TooLongAdvice(this.tooLongAction, this.maxLength, password.length());
 		}
-		return ChangePasswordAdvice.abstain();
+		return ChangePasswordAdvice.ABSTAIN;
 	}
 
 	public void setTooShortAction(Action tooShortAction) {
@@ -57,4 +57,76 @@ public class ChangeLengthPasswordAdvisor implements ChangePasswordAdvisor {
 		this.tooLongAction = tooLongAction;
 	}
 
+	public static final class TooShortAdvice implements ChangePasswordAdvice {
+		private final Action action;
+
+		private final int minLength;
+
+		private final int actualLength;
+
+		private TooShortAdvice(Action action, int minLength, int actualLength) {
+			this.action = action;
+			this.minLength = minLength;
+			this.actualLength = actualLength;
+		}
+
+		@Override
+		public Action getAction() {
+			return this.action;
+		}
+
+		public int getMinLength() {
+			return this.minLength;
+		}
+
+		public int getActualLength() {
+			return this.actualLength;
+		}
+
+		@Override
+		public String toString() {
+			return "TooShort [" +
+					"action=" + this.action +
+					", minLength=" + this.minLength +
+					", actualLength=" + this.actualLength +
+					"]";
+		}
+
+	}
+
+	public static final class TooLongAdvice implements ChangePasswordAdvice {
+		private final Action action;
+
+		private final int maxLength;
+
+		private final int actualLength;
+
+		private TooLongAdvice(Action action, int maxLength, int actualLength) {
+			this.action = action;
+			this.maxLength = maxLength;
+			this.actualLength = actualLength;
+		}
+
+		@Override
+		public Action getAction() {
+			return this.action;
+		}
+
+		public int getMaxLength() {
+			return this.maxLength;
+		}
+
+		public int getActualLength() {
+			return this.actualLength;
+		}
+
+		@Override
+		public String toString() {
+			return "TooLong [" +
+					"action=" + this.action +
+					", maxLength=" + this.maxLength +
+					", actualLength=" + this.actualLength +
+					"]";
+		}
+	}
 }

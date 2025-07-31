@@ -165,7 +165,7 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 			throw new RuntimeException("user '" + username + "' does not exist");
 		}
 		mutableUser.setPassword(newPassword);
-		removePasswordAdvice(mutableUser);
+		savePasswordAdvice(mutableUser, ChangePasswordAdvice.ABSTAIN);
 		return mutableUser;
 	}
 
@@ -178,23 +178,17 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 		if (user instanceof CredentialsContainer) {
 			return user;
 		}
-		return new User(user.getUsername(), user.getPassword(), user.isEnabled(), user.isAccountNonExpired(),
-				user.isCredentialsNonExpired(), user.isAccountNonLocked(), user.getAuthorities());
-	}
-
-	@Override
-	public @Nullable ChangePasswordAdvice loadPasswordAdvice(UserDetails user) {
-		return this.advice.get(user.getUsername());
+		return new User(user);
 	}
 
 	@Override
 	public void savePasswordAdvice(UserDetails user, ChangePasswordAdvice advice) {
-		this.advice.put(user.getUsername(), advice);
-	}
-
-	@Override
-	public void removePasswordAdvice(UserDetails user) {
-		this.advice.remove(user.getUsername());
+		String username = user.getUsername();
+		MutableUserDetails mutableUser = this.users.get(username.toLowerCase(Locale.ROOT));
+		if (mutableUser == null) {
+			throw new RuntimeException("user '" + username + "' does not exist");
+		}
+		mutableUser.setChangePasswordAdvice(advice);
 	}
 
 	/**
