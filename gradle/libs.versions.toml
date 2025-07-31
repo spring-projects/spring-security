@@ -20,7 +20,7 @@ ch-qos-logback-logback-classic = "ch.qos.logback:logback-classic:1.5.18"
 com-fasterxml-jackson-jackson-bom = "com.fasterxml.jackson:jackson-bom:2.19.2"
 com-google-inject-guice = "com.google.inject:guice:3.0"
 com-netflix-nebula-nebula-project-plugin = "com.netflix.nebula:nebula-project-plugin:8.2.0"
-com-nimbusds-nimbus-jose-jwt = "com.nimbusds:nimbus-jose-jwt:10.0.2"
+com-nimbusds-nimbus-jose-jwt = "com.nimbusds:nimbus-jose-jwt:10.4"
 com-nimbusds-oauth2-oidc-sdk = "com.nimbusds:oauth2-oidc-sdk:11.26.1"
 com-squareup-okhttp3-mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "com-squareup-okhttp3" }
 com-squareup-okhttp3-okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "com-squareup-okhttp3" }
