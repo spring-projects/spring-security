@@ -62,8 +62,8 @@ public class ExpressionTemplateSecurityAnnotationScannerTests {
 	}
 
 	enum Permission implements ExpressionTemplateValueProvider {
-		READ,
-		WRITE;
+
+		READ, WRITE;
 
 		@Override
 		public String getExpressionTemplateValue() {
@@ -72,6 +72,7 @@ public class ExpressionTemplateSecurityAnnotationScannerTests {
 				case WRITE -> "'user.WRITE'";
 			};
 		}
+
 	}
 
 	@Documented
@@ -89,6 +90,7 @@ public class ExpressionTemplateSecurityAnnotationScannerTests {
 	@Target({ ElementType.TYPE, ElementType.METHOD })
 	@HasAnyCustomPermissions(permissions = { Permission.READ, Permission.WRITE })
 	@interface HasAllCustomPermissions {
+
 	}
 
 	@Documented
