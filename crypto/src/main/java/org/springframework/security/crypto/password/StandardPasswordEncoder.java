@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ import org.springframework.security.crypto.util.EncodingUtils;
  * indicate that this is a legacy implementation and using it is considered insecure.
  */
 @Deprecated
-public final class StandardPasswordEncoder implements PasswordEncoder {
+public final class StandardPasswordEncoder extends AbstractValidatingPasswordEncoder {
 
 	private static final int DEFAULT_ITERATIONS = 1024;
 
@@ -75,12 +75,12 @@ public final class StandardPasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
-	public String encode(CharSequence rawPassword) {
-		return encode(rawPassword, this.saltGenerator.generateKey());
+	protected String encodeNonNullPassword(String rawPassword) {
+		return encodedNonNullPassword(rawPassword, this.saltGenerator.generateKey());
 	}
 
 	@Override
-	public boolean matches(CharSequence rawPassword, String encodedPassword) {
+	protected boolean matchesNonNull(String rawPassword, String encodedPassword) {
 		byte[] digested = decode(encodedPassword);
 		byte[] salt = EncodingUtils.subArray(digested, 0, this.saltGenerator.getKeyLength());
 		return MessageDigest.isEqual(digested, digest(rawPassword, salt));
@@ -92,7 +92,7 @@ public final class StandardPasswordEncoder implements PasswordEncoder {
 		this.saltGenerator = KeyGenerators.secureRandom();
 	}
 
-	private String encode(CharSequence rawPassword, byte[] salt) {
+	private String encodedNonNullPassword(CharSequence rawPassword, byte[] salt) {
 		byte[] digest = digest(rawPassword, salt);
 		return new String(Hex.encode(digest));
 	}

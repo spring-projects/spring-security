@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationConvention;
 import io.micrometer.observation.ObservationRegistry;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
@@ -62,7 +63,7 @@ public final class ObservationAuthorizationManager<T>
 	}
 
 	@Override
-	public AuthorizationResult authorize(Supplier<Authentication> authentication, T object) {
+	public @Nullable AuthorizationResult authorize(Supplier<Authentication> authentication, T object) {
 		AuthorizationObservationContext<T> context = new AuthorizationObservationContext<>(object);
 		Supplier<Authentication> wrapped = () -> {
 			context.setAuthentication(authentication.get());
@@ -109,12 +110,13 @@ public final class ObservationAuthorizationManager<T>
 	}
 
 	@Override
-	public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
+	public @Nullable Object handleDeniedInvocation(MethodInvocation methodInvocation,
+			AuthorizationResult authorizationResult) {
 		return this.handler.handleDeniedInvocation(methodInvocation, authorizationResult);
 	}
 
 	@Override
-	public Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
+	public @Nullable Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
 			AuthorizationResult authorizationResult) {
 		return this.handler.handleDeniedInvocationResult(methodInvocationResult, authorizationResult);
 	}

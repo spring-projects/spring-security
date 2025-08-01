@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -314,6 +314,36 @@ public class OidcReactiveOAuth2UserServiceTests {
 		assertThat(userAuthority.getAuthority()).isEqualTo("OIDC_USER");
 		assertThat(userAuthority.getAttributes()).isEqualTo(user.getAttributes());
 		assertThat(userAuthority.getUserNameAttributeName()).isEqualTo("id");
+	}
+
+	@Test
+	public void loadUserWhenCustomOidcUserConverterSetThenUsed() {
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
+			.userInfoUri("https://example.com/user")
+			.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
+			.userNameAttributeName(StandardClaimNames.SUB)
+			.build();
+		this.accessToken = TestOAuth2AccessTokens.scopes(clientRegistration.getScopes().toArray(new String[0]));
+		Converter<OidcUserSource, Mono<OidcUser>> oidcUserConverter = mock(Converter.class);
+		String nameAttributeKey = IdTokenClaimNames.SUB;
+		OidcUser actualUser = new DefaultOidcUser(AuthorityUtils.createAuthorityList("a", "b"), this.idToken,
+				nameAttributeKey);
+		OAuth2User oauth2User = new DefaultOAuth2User(actualUser.getAuthorities(), actualUser.getClaims(),
+				nameAttributeKey);
+		ReactiveOAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2 = mock(ReactiveOAuth2UserService.class);
+		given(oauth2.loadUser(any())).willReturn(Mono.just(oauth2User));
+		given(oidcUserConverter.convert(any())).willReturn(Mono.just(actualUser));
+		this.userService.setOauth2UserService(oauth2);
+		this.userService.setOidcUserConverter(oidcUserConverter);
+		OidcUserRequest userRequest = new OidcUserRequest(clientRegistration, this.accessToken, this.idToken);
+		OidcUser user = this.userService.loadUser(userRequest).block();
+		assertThat(user).isEqualTo(actualUser);
+		ArgumentCaptor<OidcUserSource> metadataCptr = ArgumentCaptor.forClass(OidcUserSource.class);
+		verify(oidcUserConverter).convert(metadataCptr.capture());
+		OidcUserSource metadata = metadataCptr.getValue();
+		assertThat(metadata.getUserRequest()).isEqualTo(userRequest);
+		assertThat(metadata.getOauth2User()).isEqualTo(oauth2User);
+		assertThat(metadata.getUserInfo()).isNotNull();
 	}
 
 	@Test

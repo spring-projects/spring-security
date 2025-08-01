@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.authorization.method;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.context.ApplicationContext;
@@ -81,7 +82,7 @@ public final class PostAuthorizeReactiveAuthorizationManager
 	public Mono<AuthorizationResult> authorize(Mono<Authentication> authentication, MethodInvocationResult result) {
 		MethodInvocation mi = result.getMethodInvocation();
 		ExpressionAttribute attribute = this.registry.getAttribute(mi);
-		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
+		if (attribute == null) {
 			return Mono.empty();
 		}
 
@@ -96,14 +97,15 @@ public final class PostAuthorizeReactiveAuthorizationManager
 	}
 
 	@Override
-	public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
+	public @Nullable Object handleDeniedInvocation(MethodInvocation methodInvocation,
+			AuthorizationResult authorizationResult) {
 		ExpressionAttribute attribute = this.registry.getAttribute(methodInvocation);
 		PostAuthorizeExpressionAttribute postAuthorizeAttribute = (PostAuthorizeExpressionAttribute) attribute;
 		return postAuthorizeAttribute.getHandler().handleDeniedInvocation(methodInvocation, authorizationResult);
 	}
 
 	@Override
-	public Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
+	public @Nullable Object handleDeniedInvocationResult(MethodInvocationResult methodInvocationResult,
 			AuthorizationResult authorizationResult) {
 		ExpressionAttribute attribute = this.registry.getAttribute(methodInvocationResult.getMethodInvocation());
 		PostAuthorizeExpressionAttribute postAuthorizeAttribute = (PostAuthorizeExpressionAttribute) attribute;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -106,6 +106,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.NullSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.servlet.TestMockHttpServletRequests;
 import org.springframework.security.web.session.HttpSessionDestroyedEvent;
@@ -116,6 +117,7 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -717,6 +719,12 @@ public class OAuth2LoginConfigurerTests {
 		verify(this.context.getBean(SpyObjectPostProcessor.class).spy).authenticate(any());
 	}
 
+	// gh-16623
+	@Test
+	public void oauth2LoginWithCustomSecurityContextRepository() {
+		assertThatNoException().isThrownBy(() -> loadConfig(OAuth2LoginConfigSecurityContextRepository.class));
+	}
+
 	private void loadConfig(Class<?>... configs) {
 		AnnotationConfigWebApplicationContext applicationContext = new AnnotationConfigWebApplicationContext();
 		applicationContext.register(configs);
@@ -955,6 +963,24 @@ public class OAuth2LoginConfigurerTests {
 					.clientRegistrationRepository(
 						new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION))
 					.loginProcessingUrl("/login/oauth2/*"));
+			// @formatter:on
+			return super.configureFilterChain(http);
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class OAuth2LoginConfigSecurityContextRepository extends CommonSecurityFilterChainConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.oauth2Login((login) -> login
+					.clientRegistrationRepository(
+							new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION))
+					.securityContextRepository(new NullSecurityContextRepository()));
 			// @formatter:on
 			return super.configureFilterChain(http);
 		}

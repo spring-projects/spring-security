@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import java.util.Collection;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
@@ -42,6 +44,7 @@ import org.springframework.security.core.Authentication;
  * {@link org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor}
  * instead
  */
+@NullUnmarked
 @Deprecated
 public class PreInvocationAuthorizationAdviceVoter implements AccessDecisionVoter<MethodInvocation> {
 
@@ -75,7 +78,7 @@ public class PreInvocationAuthorizationAdviceVoter implements AccessDecisionVote
 		return this.preAdvice.before(authentication, method, preAttr) ? ACCESS_GRANTED : ACCESS_DENIED;
 	}
 
-	private PreInvocationAttribute findPreInvocationAttribute(Collection<ConfigAttribute> config) {
+	private @Nullable PreInvocationAttribute findPreInvocationAttribute(Collection<ConfigAttribute> config) {
 		for (ConfigAttribute attribute : config) {
 			if (attribute instanceof PreInvocationAttribute) {
 				return (PreInvocationAttribute) attribute;

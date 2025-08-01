@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.authorization.method;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 import reactor.core.Exceptions;
 
 /**
@@ -27,7 +28,7 @@ import reactor.core.Exceptions;
  */
 final class ReactiveMethodInvocationUtils {
 
-	static <T> T proceed(MethodInvocation mi) {
+	static <T> @Nullable T proceed(MethodInvocation mi) {
 		try {
 			return (T) mi.proceed();
 		}

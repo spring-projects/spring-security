@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -36,7 +38,7 @@ import org.springframework.util.Assert;
  */
 public final class SimpleAuthorityMapper implements GrantedAuthoritiesMapper, InitializingBean {
 
-	private GrantedAuthority defaultAuthority;
+	private @Nullable GrantedAuthority defaultAuthority;
 
 	private String prefix = "ROLE_";
 

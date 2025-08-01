@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,8 @@ public class SecurityNamespaceHandlerTests {
 			.isThrownBy(() -> new InMemoryXmlApplicationContext(
 					"<user-service id='us'><user name='bob' password='bobspassword' authorities='ROLE_A' /></user-service>",
 					"3.0.3", null))
-			.withMessageContaining("You cannot use a spring-security-2.0.xsd");
+			.withMessageContaining(
+					"You cannot use any XSD older than spring-security-7.0.xsd. Either change to spring-security.xsd or spring-security-7.0.xsd");
 	}
 
 	// SEC-1868

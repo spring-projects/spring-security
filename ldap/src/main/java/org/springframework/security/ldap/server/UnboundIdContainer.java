@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.Lifecycle;
 import org.springframework.core.io.Resource;
 import org.springframework.lang.NonNull;
@@ -48,7 +49,9 @@ public class UnboundIdContainer
 
 	private int port = 53389;
 
-	private ApplicationContext context;
+	private boolean isEphemeral;
+
+	private ConfigurableApplicationContext context;
 
 	private boolean running;
 
@@ -67,6 +70,7 @@ public class UnboundIdContainer
 	@Override
 	public void setPort(int port) {
 		this.port = port;
+		this.isEphemeral = port == 0;
 	}
 
 	@Override
@@ -81,7 +85,7 @@ public class UnboundIdContainer
 
 	@Override
 	public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
-		this.context = applicationContext;
+		this.context = (ConfigurableApplicationContext) applicationContext;
 	}
 
 	@Override
@@ -133,6 +137,9 @@ public class UnboundIdContainer
 
 	@Override
 	public void stop() {
+		if (this.isEphemeral && this.context != null && !this.context.isClosed()) {
+			return;
+		}
 		this.directoryServer.shutDown(true);
 		this.running = false;
 	}

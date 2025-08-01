@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.authorization.method;
 
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
 
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.ComposablePointcut;
@@ -47,6 +48,10 @@ final class AuthorizationMethodPointcuts {
 			else {
 				pointcut.union(classOrMethod(annotation));
 			}
+		}
+		if (pointcut == null) {
+			throw new IllegalStateException(
+					"Unable to find a pointcut for annotations " + Arrays.toString(annotations));
 		}
 		return pointcut;
 	}

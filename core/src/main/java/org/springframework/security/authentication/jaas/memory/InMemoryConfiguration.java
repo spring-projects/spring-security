@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@ import java.util.Map;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -37,7 +39,7 @@ import org.springframework.util.Assert;
  */
 public class InMemoryConfiguration extends Configuration {
 
-	private final AppConfigurationEntry[] defaultConfiguration;
+	private final AppConfigurationEntry @Nullable [] defaultConfiguration;
 
 	private final Map<String, AppConfigurationEntry[]> mappedConfigurations;
 
@@ -71,14 +73,14 @@ public class InMemoryConfiguration extends Configuration {
 	 * {@link #getAppConfigurationEntry(String)}. Can be <code>null</code>.
 	 */
 	public InMemoryConfiguration(Map<String, AppConfigurationEntry[]> mappedConfigurations,
-			AppConfigurationEntry[] defaultConfiguration) {
+			AppConfigurationEntry @Nullable [] defaultConfiguration) {
 		Assert.notNull(mappedConfigurations, "mappedConfigurations cannot be null.");
 		this.mappedConfigurations = mappedConfigurations;
 		this.defaultConfiguration = defaultConfiguration;
 	}
 
 	@Override
-	public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
+	public AppConfigurationEntry @Nullable [] getAppConfigurationEntry(String name) {
 		AppConfigurationEntry[] mappedResult = this.mappedConfigurations.get(name);
 		return (mappedResult != null) ? mappedResult : this.defaultConfiguration;
 	}

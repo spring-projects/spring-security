@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ public final class RoleHierarchyImpl implements RoleHierarchy {
 	 * {@code rolesReachableInOneOrMoreStepsMap} is a Map that under the key of a specific
 	 * role name contains a set of all roles reachable from this role in 1 or more steps
 	 */
-	private Map<String, Set<GrantedAuthority>> rolesReachableInOneOrMoreStepsMap = null;
+	private final Map<String, Set<GrantedAuthority>> rolesReachableInOneOrMoreStepsMap;
 
 	private RoleHierarchyImpl(Map<String, Set<GrantedAuthority>> hierarchy) {
 		this.rolesReachableInOneOrMoreStepsMap = buildRolesReachableInOneOrMoreStepsMap(hierarchy);

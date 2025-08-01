@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.util.Assert;
@@ -72,7 +73,7 @@ public class MapReactiveUserDetailsService implements ReactiveUserDetailsService
 	}
 
 	@Override
-	public Mono<UserDetails> updatePassword(UserDetails user, String newPassword) {
+	public Mono<UserDetails> updatePassword(UserDetails user, @Nullable String newPassword) {
 		// @formatter:off
 		return Mono.just(user)
 				.map((userDetails) -> withNewPassword(userDetails, newPassword))
@@ -83,7 +84,7 @@ public class MapReactiveUserDetailsService implements ReactiveUserDetailsService
 		// @formatter:on
 	}
 
-	private UserDetails withNewPassword(UserDetails userDetails, String newPassword) {
+	private UserDetails withNewPassword(UserDetails userDetails, @Nullable String newPassword) {
 		// @formatter:off
 		return User.withUserDetails(userDetails)
 				.password(newPassword)

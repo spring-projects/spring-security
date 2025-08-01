@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.access.expression.method;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -41,7 +42,7 @@ public interface MethodSecurityExpressionHandler extends SecurityExpressionHandl
 	 * {@link #createEvaluationContext(org.springframework.security.core.Authentication, Object)}
 	 * @return the filtered collection or array
 	 */
-	Object filter(Object filterTarget, Expression filterExpression, EvaluationContext ctx);
+	Object filter(@Nullable Object filterTarget, Expression filterExpression, EvaluationContext ctx);
 
 	/**
 	 * Used to inform the expression system of the return object for the given evaluation
@@ -51,6 +52,6 @@ public interface MethodSecurityExpressionHandler extends SecurityExpressionHandl
 	 * call to
 	 * {@link #createEvaluationContext(org.springframework.security.core.Authentication, Object)}
 	 */
-	void setReturnObject(Object returnObject, EvaluationContext ctx);
+	void setReturnObject(@Nullable Object returnObject, EvaluationContext ctx);
 
 }

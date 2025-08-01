@@ -16,6 +16,8 @@
 
 package org.springframework.security.core.userdetails.cache;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -27,7 +29,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class NullUserCache implements UserCache {
 
 	@Override
-	public UserDetails getUserFromCache(String username) {
+	public @Nullable UserDetails getUserFromCache(String username) {
 		return null;
 	}
 

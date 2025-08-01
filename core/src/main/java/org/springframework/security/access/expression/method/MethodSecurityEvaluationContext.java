@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.security.access.expression.method;
 import java.lang.reflect.Method;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.NullUnmarked;
 
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.aop.support.AopUtils;
@@ -48,6 +49,8 @@ class MethodSecurityEvaluationContext extends MethodBasedEvaluationContext {
 		this(user, mi, new DefaultSecurityParameterNameDiscoverer());
 	}
 
+	@NullUnmarked // FIXME: rootObject in MethodBasedEvaluationContext is non-null
+					// (probably needs changed) but StandardEvaluationContext is Nullable
 	MethodSecurityEvaluationContext(Authentication user, MethodInvocation mi,
 			ParameterNameDiscoverer parameterNameDiscoverer) {
 		super(mi.getThis(), getSpecificMethod(mi), mi.getArguments(), parameterNameDiscoverer);
@@ -59,7 +62,8 @@ class MethodSecurityEvaluationContext extends MethodBasedEvaluationContext {
 	}
 
 	private static Method getSpecificMethod(MethodInvocation mi) {
-		return AopUtils.getMostSpecificMethod(mi.getMethod(), AopProxyUtils.ultimateTargetClass(mi.getThis()));
+		Class<?> targetClass = (mi.getThis() != null) ? AopProxyUtils.ultimateTargetClass(mi.getThis()) : null;
+		return AopUtils.getMostSpecificMethod(mi.getMethod(), targetClass);
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
@@ -97,7 +98,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
-	private AuthenticationManager parent;
+	private @Nullable AuthenticationManager parent;
 
 	private boolean eraseCredentialsAfterAuthentication = true;
 
@@ -122,7 +123,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 	 * @param providers the {@link AuthenticationProvider}s to use
 	 * @param parent a parent {@link AuthenticationManager} to fall back to
 	 */
-	public ProviderManager(List<AuthenticationProvider> providers, AuthenticationManager parent) {
+	public ProviderManager(List<AuthenticationProvider> providers, @Nullable AuthenticationManager parent) {
 		Assert.notNull(providers, "providers list cannot be null");
 		this.providers = providers;
 		this.parent = parent;

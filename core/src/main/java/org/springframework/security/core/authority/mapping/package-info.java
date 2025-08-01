@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,4 +21,7 @@
  * Provides a layer of indirection between a security data repository and the logical
  * authorities required within an application.
  */
+@NullMarked
 package org.springframework.security.core.authority.mapping;
+
+import org.jspecify.annotations.NullMarked;

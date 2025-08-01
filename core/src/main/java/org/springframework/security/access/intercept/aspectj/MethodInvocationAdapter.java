@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.CodeSignature;
+import org.jspecify.annotations.NullUnmarked;
 
 import org.springframework.util.Assert;
 
@@ -35,6 +36,7 @@ import org.springframework.util.Assert;
  * @deprecated This class will be removed from the public API. See
  * `JoinPointMethodInvocation` in `spring-security-aspects` for its replacement
  */
+@NullUnmarked
 @Deprecated
 public final class MethodInvocationAdapter implements MethodInvocation {
 

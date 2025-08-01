@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ import org.springframework.security.crypto.util.EncodingUtils;
  * @author Loïc Guibert
  * @since 4.1
  */
-public class Pbkdf2PasswordEncoder implements PasswordEncoder {
+public class Pbkdf2PasswordEncoder extends AbstractValidatingPasswordEncoder {
 
 	private static final int DEFAULT_SALT_LENGTH = 16;
 
@@ -194,13 +194,13 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
-	public String encode(CharSequence rawPassword) {
+	protected String encodeNonNullPassword(String rawPassword) {
 		byte[] salt = this.saltGenerator.generateKey();
-		byte[] encoded = encode(rawPassword, salt);
-		return encode(encoded);
+		byte[] encoded = encodedNonNullPassword(rawPassword, salt);
+		return encodedNonNullPassword(encoded);
 	}
 
-	private String encode(byte[] bytes) {
+	private String encodedNonNullPassword(byte[] bytes) {
 		if (this.encodeHashAsBase64) {
 			return Base64.getEncoder().encodeToString(bytes);
 		}
@@ -208,10 +208,10 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
-	public boolean matches(CharSequence rawPassword, String encodedPassword) {
+	protected boolean matchesNonNull(String rawPassword, String encodedPassword) {
 		byte[] digested = decode(encodedPassword);
 		byte[] salt = EncodingUtils.subArray(digested, 0, this.saltGenerator.getKeyLength());
-		return MessageDigest.isEqual(digested, encode(rawPassword, salt));
+		return MessageDigest.isEqual(digested, encodedNonNullPassword(rawPassword, salt));
 	}
 
 	private byte[] decode(String encodedBytes) {
@@ -221,7 +221,7 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 		return Hex.decode(encodedBytes);
 	}
 
-	private byte[] encode(CharSequence rawPassword, byte[] salt) {
+	private byte[] encodedNonNullPassword(CharSequence rawPassword, byte[] salt) {
 		try {
 			PBEKeySpec spec = new PBEKeySpec(rawPassword.toString().toCharArray(),
 					EncodingUtils.concatenate(salt, this.secret), this.iterations, this.hashWidth);

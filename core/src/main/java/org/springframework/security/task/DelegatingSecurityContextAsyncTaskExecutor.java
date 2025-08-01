@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package org.springframework.security.task;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.security.concurrent.DelegatingSecurityContextCallable;
@@ -45,7 +47,7 @@ public class DelegatingSecurityContextAsyncTaskExecutor extends DelegatingSecuri
 	 * {@link DelegatingSecurityContextCallable}
 	 */
 	public DelegatingSecurityContextAsyncTaskExecutor(AsyncTaskExecutor delegateAsyncTaskExecutor,
-			SecurityContext securityContext) {
+			@Nullable SecurityContext securityContext) {
 		super(delegateAsyncTaskExecutor, securityContext);
 	}
 

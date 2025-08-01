@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,9 @@ package org.springframework.security.authorization.method;
 
 import java.lang.reflect.Method;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.expression.Expression;
-import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.SecurityAnnotationScanner;
@@ -37,12 +38,11 @@ final class PreFilterExpressionAttributeRegistry
 
 	private SecurityAnnotationScanner<PreFilter> scanner = SecurityAnnotationScanners.requireUnique(PreFilter.class);
 
-	@NonNull
 	@Override
-	PreFilterExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
+	@Nullable PreFilterExpressionAttribute resolveAttribute(Method method, @Nullable Class<?> targetClass) {
 		PreFilter preFilter = findPreFilterAnnotation(method, targetClass);
 		if (preFilter == null) {
-			return PreFilterExpressionAttribute.NULL_ATTRIBUTE;
+			return null;
 		}
 		Expression preFilterExpression = getExpressionHandler().getExpressionParser()
 			.parseExpression(preFilter.value());
@@ -53,14 +53,12 @@ final class PreFilterExpressionAttributeRegistry
 		this.scanner = SecurityAnnotationScanners.requireUnique(PreFilter.class, defaults);
 	}
 
-	private PreFilter findPreFilterAnnotation(Method method, Class<?> targetClass) {
+	private @Nullable PreFilter findPreFilterAnnotation(Method method, @Nullable Class<?> targetClass) {
 		Class<?> targetClassToUse = targetClass(method, targetClass);
 		return this.scanner.scan(method, targetClassToUse);
 	}
 
 	static final class PreFilterExpressionAttribute extends ExpressionAttribute {
-
-		static final PreFilterExpressionAttribute NULL_ATTRIBUTE = new PreFilterExpressionAttribute(null, null);
 
 		private final String filterTarget;
 

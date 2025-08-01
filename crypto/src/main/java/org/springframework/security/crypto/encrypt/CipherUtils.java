@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * Static helper for working with the Cipher API.
@@ -109,7 +111,8 @@ final class CipherUtils {
 	/**
 	 * Initializes the Cipher for use.
 	 */
-	static void initCipher(Cipher cipher, int mode, SecretKey secretKey, AlgorithmParameterSpec parameterSpec) {
+	static void initCipher(Cipher cipher, int mode, SecretKey secretKey,
+			@Nullable AlgorithmParameterSpec parameterSpec) {
 		try {
 			if (parameterSpec != null) {
 				cipher.init(mode, secretKey, parameterSpec);

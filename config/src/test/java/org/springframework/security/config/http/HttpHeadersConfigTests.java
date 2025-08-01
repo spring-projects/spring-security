@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -152,7 +152,7 @@ public class HttpHeadersConfigTests {
 
 	@Test
 	public void requestWhenFrameOptionsConfiguredThenIncludesHeader() throws Exception {
-		Map<String, String> headers = new HashMap(defaultHeaders);
+		Map<String, String> headers = new HashMap<>(defaultHeaders);
 		headers.put("X-Frame-Options", "SAMEORIGIN");
 		this.spring.configLocations(this.xml("WithFrameOptions")).autowire();
 		// @formatter:off

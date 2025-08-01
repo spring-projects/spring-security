@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import org.bouncycastle.crypto.generators.SCrypt;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.AbstractValidatingPasswordEncoder;
 
 /**
  * <p>
@@ -56,7 +56,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * @author Rob Winch
  *
  */
-public class SCryptPasswordEncoder implements PasswordEncoder {
+public class SCryptPasswordEncoder extends AbstractValidatingPasswordEncoder {
 
 	private static final int DEFAULT_CPU_COST = 65536;
 
@@ -146,24 +146,17 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
-	public String encode(CharSequence rawPassword) {
+	protected String encodeNonNullPassword(String rawPassword) {
 		return digest(rawPassword, this.saltGenerator.generateKey());
 	}
 
 	@Override
-	public boolean matches(CharSequence rawPassword, String encodedPassword) {
-		if (encodedPassword == null || encodedPassword.length() < this.keyLength) {
-			this.logger.warn("Empty encoded password");
-			return false;
-		}
+	protected boolean matchesNonNull(String rawPassword, String encodedPassword) {
 		return decodeAndCheckMatches(rawPassword, encodedPassword);
 	}
 
 	@Override
-	public boolean upgradeEncoding(String encodedPassword) {
-		if (encodedPassword == null || encodedPassword.isEmpty()) {
-			return false;
-		}
+	protected boolean upgradeEncodingNonNull(String encodedPassword) {
 		String[] parts = encodedPassword.split("\\$");
 		if (parts.length != 4) {
 			throw new IllegalArgumentException("Encoded password does not look like SCrypt: " + encodedPassword);

@@ -16,6 +16,8 @@
 
 package org.springframework.security.core.userdetails;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Provides a cache of {@link UserDetails} objects.
  *
@@ -43,7 +45,7 @@ public interface UserCache {
 	 * @return the populated <code>UserDetails</code> or <code>null</code> if the user
 	 * could not be found or if the cache entry has expired
 	 */
-	UserDetails getUserFromCache(String username);
+	@Nullable UserDetails getUserFromCache(String username);
 
 	/**
 	 * Places a {@link UserDetails} in the cache. The <code>username</code> is the key

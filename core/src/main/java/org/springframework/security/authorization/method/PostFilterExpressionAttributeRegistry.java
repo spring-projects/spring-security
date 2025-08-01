@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,9 @@ package org.springframework.security.authorization.method;
 
 import java.lang.reflect.Method;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.expression.Expression;
-import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.SecurityAnnotationScanner;
@@ -36,12 +37,11 @@ final class PostFilterExpressionAttributeRegistry extends AbstractExpressionAttr
 
 	private SecurityAnnotationScanner<PostFilter> scanner = SecurityAnnotationScanners.requireUnique(PostFilter.class);
 
-	@NonNull
 	@Override
-	ExpressionAttribute resolveAttribute(Method method, Class<?> targetClass) {
+	@Nullable ExpressionAttribute resolveAttribute(Method method, @Nullable Class<?> targetClass) {
 		PostFilter postFilter = findPostFilterAnnotation(method, targetClass);
 		if (postFilter == null) {
-			return ExpressionAttribute.NULL_ATTRIBUTE;
+			return null;
 		}
 		Expression postFilterExpression = getExpressionHandler().getExpressionParser()
 			.parseExpression(postFilter.value());
@@ -52,7 +52,7 @@ final class PostFilterExpressionAttributeRegistry extends AbstractExpressionAttr
 		this.scanner = SecurityAnnotationScanners.requireUnique(PostFilter.class, defaults);
 	}
 
-	private PostFilter findPostFilterAnnotation(Method method, Class<?> targetClass) {
+	private @Nullable PostFilter findPostFilterAnnotation(Method method, @Nullable Class<?> targetClass) {
 		Class<?> targetClassToUse = targetClass(method, targetClass);
 		return this.scanner.scan(method, targetClassToUse);
 	}

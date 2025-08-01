@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,7 @@
 
 package org.springframework.security.authentication.ott;
 
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Interface for generating and consuming one-time tokens.
@@ -33,7 +32,6 @@ public interface OneTimeTokenService {
 	 * generate the token
 	 * @return the generated {@link OneTimeToken}, never {@code null}.
 	 */
-	@NonNull
 	OneTimeToken generate(GenerateOneTimeTokenRequest request);
 
 	/**
@@ -42,7 +40,6 @@ public interface OneTimeTokenService {
 	 * value to be consumed
 	 * @return the consumed {@link OneTimeToken} or {@code null} if the token is invalid
 	 */
-	@Nullable
-	OneTimeToken consume(OneTimeTokenAuthenticationToken authenticationToken);
+	@Nullable OneTimeToken consume(OneTimeTokenAuthenticationToken authenticationToken);
 
 }

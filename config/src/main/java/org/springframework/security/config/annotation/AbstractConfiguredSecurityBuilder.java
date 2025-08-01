@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  * @param <O> The object that this builder returns
  * @param <B> The type of this builder (that is returned by the base class)
  * @author Rob Winch
+ * @author DingHao
  * @see WebSecurity
  */
 public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBuilder<O>>
@@ -59,7 +60,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 
 	private final LinkedHashMap<Class<? extends SecurityConfigurer<O, B>>, List<SecurityConfigurer<O, B>>> configurers = new LinkedHashMap<>();
 
-	private final List<SecurityConfigurer<O, B>> configurersAddedInInitializing = new ArrayList<>();
+	private List<SecurityConfigurer<O, B>> configurersAddedInInitializing = new ArrayList<>();
 
 	private final Map<Class<?>, Object> sharedObjects = new HashMap<>();
 
@@ -114,24 +115,6 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	}
 
 	/**
-	 * Applies a {@link SecurityConfigurerAdapter} to this {@link SecurityBuilder} and
-	 * invokes {@link SecurityConfigurerAdapter#setBuilder(SecurityBuilder)}.
-	 * @param configurer
-	 * @return the {@link SecurityConfigurerAdapter} for further customizations
-	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use
-	 * {@link #with(SecurityConfigurerAdapter, Customizer)} instead.
-	 */
-	@Deprecated(since = "6.2", forRemoval = true)
-	@SuppressWarnings("unchecked")
-	public <C extends SecurityConfigurerAdapter<O, B>> C apply(C configurer) throws Exception {
-		configurer.addObjectPostProcessor(this.objectPostProcessor);
-		configurer.setBuilder((B) this);
-		add(configurer);
-		return configurer;
-	}
-
-	/**
 	 * Applies a {@link SecurityConfigurer} to this {@link SecurityBuilder} overriding any
 	 * {@link SecurityConfigurer} of the exact same class. Note that object hierarchies
 	 * are not considered.
@@ -162,7 +145,6 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * @throws Exception
 	 * @since 7.0
 	 */
-	@SuppressWarnings("unchecked")
 	public <C extends SecurityConfigurerAdapter<O, B>> B with(C configurer) throws Exception {
 		return with(configurer, Customizer.withDefaults());
 	}
@@ -388,8 +370,12 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 		for (SecurityConfigurer<O, B> configurer : configurers) {
 			configurer.init((B) this);
 		}
-		for (SecurityConfigurer<O, B> configurer : this.configurersAddedInInitializing) {
-			configurer.init((B) this);
+		while (!this.configurersAddedInInitializing.isEmpty()) {
+			List<SecurityConfigurer<O, B>> toInit = this.configurersAddedInInitializing;
+			this.configurersAddedInInitializing = new ArrayList<>();
+			for (SecurityConfigurer<O, B> configurer : toInit) {
+				configurer.init((B) this);
+			}
 		}
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import java.io.Serial;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -34,11 +36,11 @@ public class OneTimeTokenAuthenticationToken extends AbstractAuthenticationToken
 	@Serial
 	private static final long serialVersionUID = -8691636031126328365L;
 
-	private final Object principal;
+	private @Nullable final Object principal;
 
-	private String tokenValue;
+	private @Nullable String tokenValue;
 
-	public OneTimeTokenAuthenticationToken(Object principal, String tokenValue) {
+	public OneTimeTokenAuthenticationToken(@Nullable Object principal, String tokenValue) {
 		super(Collections.emptyList());
 		this.tokenValue = tokenValue;
 		this.principal = principal;
@@ -88,17 +90,17 @@ public class OneTimeTokenAuthenticationToken extends AbstractAuthenticationToken
 	 * Returns the one-time token value
 	 * @return
 	 */
-	public String getTokenValue() {
+	public @Nullable String getTokenValue() {
 		return this.tokenValue;
 	}
 
 	@Override
-	public Object getCredentials() {
+	public @Nullable Object getCredentials() {
 		return this.tokenValue;
 	}
 
 	@Override
-	public Object getPrincipal() {
+	public @Nullable Object getPrincipal() {
 		return this.principal;
 	}
 

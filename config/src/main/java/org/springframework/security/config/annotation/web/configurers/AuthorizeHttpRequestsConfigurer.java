@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,7 +110,6 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		AuthorizationManager<HttpServletRequest> authorizationManager = this.registry.createAuthorizationManager();
 		AuthorizationFilter authorizationFilter = new AuthorizationFilter(authorizationManager);
 		authorizationFilter.setAuthorizationEventPublisher(this.publisher);
-		authorizationFilter.setShouldFilterAllDispatcherTypes(this.registry.shouldFilterAllDispatcherTypes);
 		authorizationFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		http.addFilter(postProcess(authorizationFilter));
 	}
@@ -143,8 +142,6 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		private List<RequestMatcher> unmappedMatchers;
 
 		private int mappingCount;
-
-		private boolean shouldFilterAllDispatcherTypes = true;
 
 		private AuthorizationManagerRequestMatcherRegistry(ApplicationContext context) {
 			setApplicationContext(context);
@@ -188,36 +185,6 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		public AuthorizationManagerRequestMatcherRegistry withObjectPostProcessor(
 				ObjectPostProcessor<?> objectPostProcessor) {
 			addObjectPostProcessor(objectPostProcessor);
-			return this;
-		}
-
-		/**
-		 * Sets whether all dispatcher types should be filtered.
-		 * @param shouldFilter should filter all dispatcher types. Default is {@code true}
-		 * @return the {@link AuthorizationManagerRequestMatcherRegistry} for further
-		 * customizations
-		 * @since 5.7
-		 * @deprecated Permit access to the {@link jakarta.servlet.DispatcherType}
-		 * instead. <pre>
-		 * &#064;Configuration
-		 * &#064;EnableWebSecurity
-		 * public class SecurityConfig {
-		 *
-		 * 	&#064;Bean
-		 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		 * 		http
-		 * 		 	.authorizeHttpRequests((authorize) -&gt; authorize
-		 * 				.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
-		 * 			 	// ...
-		 * 		 	);
-		 * 		return http.build();
-		 * 	}
-		 * }
-		 * </pre>
-		 */
-		@Deprecated(since = "6.1", forRemoval = true)
-		public AuthorizationManagerRequestMatcherRegistry shouldFilterAllDispatcherTypes(boolean shouldFilter) {
-			this.shouldFilterAllDispatcherTypes = shouldFilter;
 			return this;
 		}
 

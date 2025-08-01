@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -354,7 +354,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 			if (!registry.containsBeanDefinition(CLIENT_INBOUND_CHANNEL_BEAN_ID)) {
 				return;
 			}
-			ManagedList<Object> interceptors = new ManagedList();
+			ManagedList<Object> interceptors = new ManagedList<>();
 			interceptors.add(new RootBeanDefinition(SecurityContextChannelInterceptor.class));
 			if (!this.sameOriginDisabled) {
 				if (!registry.containsBeanDefinition(CSRF_CHANNEL_INTERCEPTOR_BEAN_ID)) {

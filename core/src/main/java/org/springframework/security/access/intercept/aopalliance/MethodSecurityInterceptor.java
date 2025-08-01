@@ -18,6 +18,8 @@ package org.springframework.security.access.intercept.aopalliance;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
@@ -42,10 +44,11 @@ import org.springframework.security.access.method.MethodSecurityMetadataSource;
  * {@link org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor}
  * instead
  */
+@NullUnmarked
 @Deprecated
 public class MethodSecurityInterceptor extends AbstractSecurityInterceptor implements MethodInterceptor {
 
-	private MethodSecurityMetadataSource securityMetadataSource;
+	private @Nullable MethodSecurityMetadataSource securityMetadataSource;
 
 	@Override
 	public Class<?> getSecureObjectClass() {

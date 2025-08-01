@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,9 +94,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 	public BeanDefinition parse(Element element, ParserContext pc) {
 		if (!namespaceMatchesVersion(element)) {
 			pc.getReaderContext()
-				.fatal("You cannot use a spring-security-2.0.xsd or spring-security-3.0.xsd or "
-						+ "spring-security-3.1.xsd schema or spring-security-3.2.xsd schema or spring-security-4.0.xsd schema "
-						+ "with Spring Security 7.0. Please update your schema declarations to the 7.0 schema.",
+				.fatal("You cannot use any XSD older than spring-security-7.0.xsd. Either change to spring-security.xsd or spring-security-7.0.xsd",
 						element);
 		}
 		String name = pc.getDelegate().getLocalName(element);

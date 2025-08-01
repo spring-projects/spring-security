@@ -13,30 +13,30 @@ org-jetbrains-kotlinx = "1.10.2"
 org-mockito = "5.17.0"
 org-opensaml = "4.3.2"
 org-opensaml5 = "5.1.2"
-org-springframework = "7.0.0-SNAPSHOT"
+org-springframework = "7.0.0-M7"
 
 [libraries]
 ch-qos-logback-logback-classic = "ch.qos.logback:logback-classic:1.5.18"
-com-fasterxml-jackson-jackson-bom = "com.fasterxml.jackson:jackson-bom:2.19.1"
+com-fasterxml-jackson-jackson-bom = "com.fasterxml.jackson:jackson-bom:2.19.2"
 com-google-inject-guice = "com.google.inject:guice:3.0"
 com-netflix-nebula-nebula-project-plugin = "com.netflix.nebula:nebula-project-plugin:8.2.0"
-com-nimbusds-nimbus-jose-jwt = "com.nimbusds:nimbus-jose-jwt:9.37.3"
-com-nimbusds-oauth2-oidc-sdk = "com.nimbusds:oauth2-oidc-sdk:9.43.6"
+com-nimbusds-nimbus-jose-jwt = "com.nimbusds:nimbus-jose-jwt:10.4"
+com-nimbusds-oauth2-oidc-sdk = "com.nimbusds:oauth2-oidc-sdk:11.26.1"
 com-squareup-okhttp3-mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "com-squareup-okhttp3" }
 com-squareup-okhttp3-okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "com-squareup-okhttp3" }
 com-unboundid-unboundid-ldapsdk = "com.unboundid:unboundid-ldapsdk:6.0.11"
 com-unboundid-unboundid-ldapsdk7 = "com.unboundid:unboundid-ldapsdk:7.0.1"
 commons-collections = "commons-collections:commons-collections:3.2.2"
 io-micrometer-context-propagation = "io.micrometer:context-propagation:1.1.3"
-io-micrometer-micrometer-observation = "io.micrometer:micrometer-observation:1.14.8"
-io-mockk = "io.mockk:mockk:1.14.4"
-io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2025.0.0-M4"
+io-micrometer-micrometer-observation = "io.micrometer:micrometer-observation:1.14.9"
+io-mockk = "io.mockk:mockk:1.14.5"
+io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2025.0.0-M5"
 io-rsocket-rsocket-bom = { module = "io.rsocket:rsocket-bom", version.ref = "io-rsocket" }
 io-spring-javaformat-spring-javaformat-checkstyle = { module = "io.spring.javaformat:spring-javaformat-checkstyle", version.ref = "io-spring-javaformat" }
 io-spring-javaformat-spring-javaformat-gradle-plugin = { module = "io.spring.javaformat:spring-javaformat-gradle-plugin", version.ref = "io-spring-javaformat" }
 io-spring-nohttp-nohttp-checkstyle = { module = "io.spring.nohttp:nohttp-checkstyle", version.ref = "io-spring-nohttp" }
 io-spring-nohttp-nohttp-gradle = { module = "io.spring.nohttp:nohttp-gradle", version.ref = "io-spring-nohttp" }
-io-spring-security-release-plugin = "io.spring.gradle:spring-security-release-plugin:1.0.6"
+io-spring-security-release-plugin = "io.spring.gradle:spring-security-release-plugin:1.0.10"
 jakarta-annotation-jakarta-annotation-api = "jakarta.annotation:jakarta.annotation-api:3.0.0"
 jakarta-inject-jakarta-inject-api = "jakarta.inject:jakarta.inject-api:2.0.1"
 jakarta-persistence-jakarta-persistence-api = "jakarta.persistence:jakarta.persistence-api:3.2.0"
@@ -50,7 +50,7 @@ ldapsdk = "ldapsdk:ldapsdk:4.1"
 net-sourceforge-htmlunit = "net.sourceforge.htmlunit:htmlunit:2.70.0"
 org-htmlunit-htmlunit = "org.htmlunit:htmlunit:4.11.1"
 org-apache-httpcomponents-httpclient = "org.apache.httpcomponents:httpclient:4.5.14"
-org-apache-maven-maven-resolver-provider = "org.apache.maven:maven-resolver-provider:3.9.10"
+org-apache-maven-maven-resolver-provider = "org.apache.maven:maven-resolver-provider:3.9.11"
 org-apache-maven-resolver-maven-resolver-connector-basic = { module = "org.apache.maven.resolver:maven-resolver-connector-basic", version.ref = "org-apache-maven-resolver" }
 org-apache-maven-resolver-maven-resolver-impl = { module = "org.apache.maven.resolver:maven-resolver-impl", version.ref = "org-apache-maven-resolver" }
 org-apache-maven-resolver-maven-resolver-transport-http = { module = "org.apache.maven.resolver:maven-resolver-transport-http", version.ref = "org-apache-maven-resolver" }
@@ -64,7 +64,7 @@ org-bouncycastle-bcprov-jdk15on = { module = "org.bouncycastle:bcprov-jdk18on", 
 org-eclipse-jetty-jetty-server = { module = "org.eclipse.jetty:jetty-server", version.ref = "org-eclipse-jetty" }
 org-eclipse-jetty-jetty-servlet = { module = "org.eclipse.jetty:jetty-servlet", version.ref = "org-eclipse-jetty" }
 org-hamcrest = "org.hamcrest:hamcrest:2.2"
-org-hibernate-orm-hibernate-core = "org.hibernate.orm:hibernate-core:7.0.5.Final"
+org-hibernate-orm-hibernate-core = "org.hibernate.orm:hibernate-core:7.0.8.Final"
 org-hsqldb = "org.hsqldb:hsqldb:2.7.4"
 org-jetbrains-kotlin-kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "org-jetbrains-kotlin" }
 org-jetbrains-kotlin-kotlin-gradle-plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.0"
@@ -82,7 +82,7 @@ org-seleniumhq-selenium-selenium-support = "org.seleniumhq.selenium:selenium-sup
 org-skyscreamer-jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 org-slf4j-log4j-over-slf4j = "org.slf4j:log4j-over-slf4j:1.7.36"
 org-slf4j-slf4j-api = "org.slf4j:slf4j-api:2.0.17"
-org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2025.1.0-SNAPSHOT"
+org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2025.1.0-M4"
 org-springframework-ldap-spring-ldap-core = "org.springframework.ldap:spring-ldap-core:3.2.13"
 org-springframework-spring-framework-bom = { module = "org.springframework:spring-framework-bom", version.ref = "org-springframework" }
 org-synchronoss-cloud-nio-multipart-parser = "org.synchronoss.cloud:nio-multipart-parser:1.1.0"
@@ -93,14 +93,15 @@ net-sourceforge-saxon-saxon = "net.sourceforge.saxon:saxon:9.1.0.8"
 org-yaml-snakeyaml = "org.yaml:snakeyaml:1.33"
 org-apache-commons-commons-io = "org.apache.commons:commons-io:1.3.2"
 io-github-gradle-nexus-publish-plugin = "io.github.gradle-nexus:publish-plugin:1.3.0"
-org-gretty-gretty = "org.gretty:gretty:4.1.6"
+org-gretty-gretty = "org.gretty:gretty:4.1.7"
 com-github-ben-manes-gradle-versions-plugin = "com.github.ben-manes:gradle-versions-plugin:0.52.0"
 com-github-spullara-mustache-java-compiler = "com.github.spullara.mustache.java:compiler:0.9.14"
 org-hidetake-gradle-ssh-plugin = "org.hidetake:gradle-ssh-plugin:2.10.1"
-org-jfrog-buildinfo-build-info-extractor-gradle = "org.jfrog.buildinfo:build-info-extractor-gradle:4.34.1"
+org-jfrog-buildinfo-build-info-extractor-gradle = "org.jfrog.buildinfo:build-info-extractor-gradle:4.34.2"
 org-sonarsource-scanner-gradle-sonarqube-gradle-plugin = "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8.0.1969"
 org-instancio-instancio-junit = "org.instancio:instancio-junit:3.7.1"
 
+spring-nullability = 'io.spring.nullability:io.spring.nullability.gradle.plugin:0.0.2'
 webauthn4j-core = 'com.webauthn4j:webauthn4j-core:0.29.4.RELEASE'
 
 [plugins]

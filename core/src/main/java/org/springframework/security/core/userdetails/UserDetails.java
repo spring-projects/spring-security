@@ -19,6 +19,8 @@ package org.springframework.security.core.userdetails;
 import java.io.Serializable;
 import java.util.Collection;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -49,10 +51,11 @@ public interface UserDetails extends Serializable {
 	Collection<? extends GrantedAuthority> getAuthorities();
 
 	/**
-	 * Returns the password used to authenticate the user.
+	 * Returns the password used to authenticate the user. Can be null if the user has not
+	 * specified a password (e.g. the user Passkeys instead).
 	 * @return the password
 	 */
-	String getPassword();
+	@Nullable String getPassword();
 
 	/**
 	 * Returns the username used to authenticate the user. Cannot return

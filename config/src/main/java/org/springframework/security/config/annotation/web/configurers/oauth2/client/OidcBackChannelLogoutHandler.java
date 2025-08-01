@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,7 +117,7 @@ public final class OidcBackChannelLogoutHandler implements LogoutHandler {
 		}
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		String logout = computeLogoutEndpoint(request, token);
-		MultiValueMap<String, String> body = new LinkedMultiValueMap();
+		MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
 		body.add("logout_token", token.getPrincipal().getTokenValue());
 		body.add("_spring_security_internal_logout", "true");
 		HttpEntity<?> entity = new HttpEntity<>(body, headers);

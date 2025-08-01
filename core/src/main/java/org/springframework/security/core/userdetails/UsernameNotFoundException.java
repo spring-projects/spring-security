@@ -18,6 +18,8 @@ package org.springframework.security.core.userdetails;
 
 import java.io.Serial;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.AuthenticationException;
 
 /**
@@ -31,7 +33,9 @@ public class UsernameNotFoundException extends AuthenticationException {
 	@Serial
 	private static final long serialVersionUID = 1410688585992297006L;
 
-	private final String name;
+	private static final String DEFAULT_USER_NOT_FOUND_MESSAGE = "user not found";
+
+	private final @Nullable String name;
 
 	/**
 	 * Constructs a <code>UsernameNotFoundException</code> with the specified message.
@@ -53,6 +57,11 @@ public class UsernameNotFoundException extends AuthenticationException {
 		this.name = null;
 	}
 
+	private UsernameNotFoundException(String msg, String name) {
+		super(msg);
+		this.name = name;
+	}
+
 	private UsernameNotFoundException(String msg, String name, Throwable cause) {
 		super(msg, cause);
 		this.name = name;
@@ -65,7 +74,7 @@ public class UsernameNotFoundException extends AuthenticationException {
 	 * @since 7.0
 	 */
 	public static UsernameNotFoundException fromUsername(String username) {
-		return fromUsername(username, null);
+		return new UsernameNotFoundException(DEFAULT_USER_NOT_FOUND_MESSAGE, username);
 	}
 
 	/**
@@ -76,7 +85,7 @@ public class UsernameNotFoundException extends AuthenticationException {
 	 * @since 7.0
 	 */
 	public static UsernameNotFoundException fromUsername(String username, Throwable cause) {
-		return new UsernameNotFoundException("user not found", username, cause);
+		return new UsernameNotFoundException(DEFAULT_USER_NOT_FOUND_MESSAGE, username, cause);
 	}
 
 	/**
@@ -84,7 +93,7 @@ public class UsernameNotFoundException extends AuthenticationException {
 	 * @return the username
 	 * @since 7.0
 	 */
-	public String getName() {
+	public @Nullable String getName() {
 		return this.name;
 	}
 

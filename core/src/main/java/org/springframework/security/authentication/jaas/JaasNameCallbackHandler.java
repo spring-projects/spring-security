@@ -21,6 +21,7 @@ import javax.security.auth.callback.NameCallback;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.Assert;
 
 /**
  * The most basic Callbacks to be handled when using a LoginContext from JAAS, are the
@@ -55,6 +56,7 @@ public class JaasNameCallbackHandler implements JaasAuthenticationCallbackHandle
 		if (principal instanceof UserDetails) {
 			return ((UserDetails) principal).getUsername();
 		}
+		Assert.notNull(principal, "principal cannot be null");
 		return principal.toString();
 	}
 

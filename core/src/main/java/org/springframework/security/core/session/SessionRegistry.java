@@ -18,6 +18,8 @@ package org.springframework.security.core.session;
 
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Maintains a registry of <code>SessionInformation</code> instances.
  *
@@ -49,7 +51,7 @@ public interface SessionRegistry {
 	 * @param sessionId to lookup (should never be <code>null</code>)
 	 * @return the session information, or <code>null</code> if not found
 	 */
-	SessionInformation getSessionInformation(String sessionId);
+	@Nullable SessionInformation getSessionInformation(String sessionId);
 
 	/**
 	 * Updates the given <code>sessionId</code> so its last request time is equal to the

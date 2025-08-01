@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.springframework.security.config.annotation.web.reactive;
 
 import java.util.Collections;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.core.publisher.Mono;
@@ -26,6 +25,7 @@ import reactor.core.publisher.Mono;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.NonNull;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.config.test.SpringTestContext;
@@ -109,7 +109,7 @@ public class WebFluxSecurityConfigurationTests {
 		assertThat(webFilterChainProxy).isNotNull();
 	}
 
-	private static @NotNull DefaultWebFilterChain emptyChain() {
+	private static @NonNull DefaultWebFilterChain emptyChain() {
 		return new DefaultWebFilterChain((webExchange) -> Mono.empty(), Collections.emptyList());
 	}
 

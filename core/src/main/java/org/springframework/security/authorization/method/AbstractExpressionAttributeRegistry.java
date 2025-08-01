@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.MethodClassKey;
-import org.springframework.lang.NonNull;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
@@ -59,7 +59,7 @@ abstract class AbstractExpressionAttributeRegistry<T extends ExpressionAttribute
 	 * @param targetClass the target class
 	 * @return the {@link ExpressionAttribute} to use
 	 */
-	final T getAttribute(Method method, Class<?> targetClass) {
+	final T getAttribute(Method method, @Nullable Class<?> targetClass) {
 		MethodClassKey cacheKey = new MethodClassKey(method, targetClass);
 		return this.cachedAttributes.computeIfAbsent(cacheKey, (k) -> resolveAttribute(method, targetClass));
 	}
@@ -84,12 +84,11 @@ abstract class AbstractExpressionAttributeRegistry<T extends ExpressionAttribute
 	 * {@link ExpressionAttribute} for the method and the target class.
 	 * @param method the method
 	 * @param targetClass the target class
-	 * @return the non-null {@link ExpressionAttribute}
+	 * @return {@link ExpressionAttribute} or null if not found.
 	 */
-	@NonNull
-	abstract T resolveAttribute(Method method, Class<?> targetClass);
+	abstract @Nullable T resolveAttribute(Method method, @Nullable Class<?> targetClass);
 
-	Class<?> targetClass(Method method, Class<?> targetClass) {
+	Class<?> targetClass(Method method, @Nullable Class<?> targetClass) {
 		return (targetClass != null) ? targetClass : method.getDeclaringClass();
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package org.springframework.security.concurrent;
 
 import java.util.concurrent.Executor;
+
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,7 +44,7 @@ public class DelegatingSecurityContextExecutor extends AbstractDelegatingSecurit
 	 * {@link DelegatingSecurityContextRunnable} or null to default to the current
 	 * {@link SecurityContext}
 	 */
-	public DelegatingSecurityContextExecutor(Executor delegateExecutor, SecurityContext securityContext) {
+	public DelegatingSecurityContextExecutor(Executor delegateExecutor, @Nullable SecurityContext securityContext) {
 		super(securityContext);
 		Assert.notNull(delegateExecutor, "delegateExecutor cannot be null");
 		this.delegate = delegateExecutor;

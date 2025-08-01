@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,6 +98,13 @@ class HaveIBeenPwnedRestApiReactivePasswordCheckerTests {
 			.verifyComplete();
 		this.server.enqueue(new MockResponse().setResponseCode(404));
 		StepVerifier.create(this.passwordChecker.check("123456"))
+			.assertNext((check) -> assertThat(check.isCompromised()).isFalse())
+			.verifyComplete();
+	}
+
+	@Test
+	void checkWhenNullThenNotCompromised() {
+		StepVerifier.create(this.passwordChecker.check(null))
 			.assertNext((check) -> assertThat(check.isCompromised()).isFalse())
 			.verifyComplete();
 	}

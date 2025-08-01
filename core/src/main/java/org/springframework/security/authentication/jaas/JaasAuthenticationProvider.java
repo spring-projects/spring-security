@@ -143,6 +143,7 @@ public class JaasAuthenticationProvider extends AbstractJaasAuthenticationProvid
 	// exists for passivity
 	protected static final Log log = LogFactory.getLog(JaasAuthenticationProvider.class);
 
+	@SuppressWarnings("NullAway.Init")
 	private Resource loginConfig;
 
 	private boolean refreshConfigurationOnStartup = true;

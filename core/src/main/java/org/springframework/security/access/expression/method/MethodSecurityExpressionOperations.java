@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.security.access.expression.method;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.access.expression.SecurityExpressionOperations;
 
 /**
@@ -29,12 +31,12 @@ public interface MethodSecurityExpressionOperations extends SecurityExpressionOp
 
 	void setFilterObject(Object filterObject);
 
-	Object getFilterObject();
+	@Nullable Object getFilterObject();
 
-	void setReturnObject(Object returnObject);
+	void setReturnObject(@Nullable Object returnObject);
 
-	Object getReturnObject();
+	@Nullable Object getReturnObject();
 
-	Object getThis();
+	@Nullable Object getThis();
 
 }

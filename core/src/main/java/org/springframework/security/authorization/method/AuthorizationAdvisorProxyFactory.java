@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import java.util.stream.Stream;
 
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -49,7 +50,6 @@ import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
-import org.springframework.lang.NonNull;
 import org.springframework.security.authorization.AuthorizationProxyFactory;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -172,7 +172,7 @@ public final class AuthorizationAdvisorProxyFactory implements AuthorizationProx
 	 * @return the proxied instance
 	 */
 	@Override
-	public <T> T proxy(T target) {
+	public <T> @Nullable T proxy(@Nullable T target) {
 		if (target == null) {
 			return null;
 		}
@@ -278,7 +278,6 @@ public final class AuthorizationAdvisorProxyFactory implements AuthorizationProx
 	}
 
 	@Override
-	@NonNull
 	public Iterator<AuthorizationAdvisor> iterator() {
 		return this.advisors.iterator();
 	}
@@ -312,7 +311,7 @@ public final class AuthorizationAdvisorProxyFactory implements AuthorizationProx
 		 * @param target the object to proxy
 		 * @return the visited (and possibly proxied) object
 		 */
-		Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object target);
+		@Nullable Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object target);
 
 		/**
 		 * The default {@link TargetVisitor}, which will proxy {@link Class} instances as
@@ -361,7 +360,7 @@ public final class AuthorizationAdvisorProxyFactory implements AuthorizationProx
 	private static final class IgnoreValueTypeVisitor implements TargetVisitor {
 
 		@Override
-		public Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object object) {
+		public @Nullable Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object object) {
 			if (ClassUtils.isSimpleValueType(object.getClass())) {
 				return object;
 			}
@@ -375,7 +374,7 @@ public final class AuthorizationAdvisorProxyFactory implements AuthorizationProx
 		private final AuthorizationProxyMethodInterceptor authorizationProxy = new AuthorizationProxyMethodInterceptor();
 
 		@Override
-		public Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object object) {
+		public @Nullable Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object object) {
 			if (object instanceof Class<?> targetClass) {
 				if (AuthorizationProxy.class.isAssignableFrom(targetClass)) {
 					return targetClass;
@@ -400,7 +399,7 @@ public final class AuthorizationAdvisorProxyFactory implements AuthorizationProx
 	private static final class ContainerTypeVisitor implements TargetVisitor {
 
 		@Override
-		public Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object target) {
+		public @Nullable Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object target) {
 			if (target instanceof Iterator<?> iterator) {
 				return proxyIterator(proxyFactory, iterator);
 			}
@@ -441,7 +440,7 @@ public final class AuthorizationAdvisorProxyFactory implements AuthorizationProx
 		}
 
 		@SuppressWarnings("unchecked")
-		private <T> T proxyCast(AuthorizationProxyFactory proxyFactory, T target) {
+		private <T> @Nullable T proxyCast(AuthorizationProxyFactory proxyFactory, T target) {
 			return proxyFactory.proxy(target);
 		}
 
@@ -457,7 +456,7 @@ public final class AuthorizationAdvisorProxyFactory implements AuthorizationProx
 				}
 
 				@Override
-				public T next() {
+				public @Nullable T next() {
 					return proxyCast(proxyFactory, iterator.next());
 				}
 			};
@@ -579,7 +578,7 @@ public final class AuthorizationAdvisorProxyFactory implements AuthorizationProx
 
 		@Override
 		@SuppressWarnings("ReactiveStreamsUnusedPublisher")
-		public Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object target) {
+		public @Nullable Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object target) {
 			if (target instanceof Mono<?> mono) {
 				return proxyMono(proxyFactory, mono);
 			}
@@ -605,7 +604,7 @@ public final class AuthorizationAdvisorProxyFactory implements AuthorizationProx
 				"toAuthorizedTarget");
 
 		@Override
-		public Object invoke(MethodInvocation invocation) throws Throwable {
+		public @Nullable Object invoke(MethodInvocation invocation) throws Throwable {
 			if (invocation.getMethod().equals(GET_TARGET_METHOD)) {
 				return invocation.getThis();
 			}

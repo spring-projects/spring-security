@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.BridgeMethodResolver;
 import org.springframework.core.ParameterNameDiscoverer;
@@ -105,7 +107,7 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 	}
 
 	@Override
-	public String[] getParameterNames(Method method) {
+	public String @Nullable [] getParameterNames(Method method) {
 		Method originalMethod = BridgeMethodResolver.findBridgedMethod(method);
 		String[] paramNames = lookupParameterNames(METHOD_METHODPARAM_FACTORY, originalMethod);
 		if (paramNames != null) {
@@ -123,7 +125,7 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 	}
 
 	@Override
-	public String[] getParameterNames(Constructor<?> constructor) {
+	public String @Nullable [] getParameterNames(Constructor<?> constructor) {
 		return lookupParameterNames(CONSTRUCTOR_METHODPARAM_FACTORY, constructor);
 	}
 
@@ -134,8 +136,8 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 	 * or Constructor)
 	 * @return the parameter names or null
 	 */
-	private <T extends AccessibleObject> String[] lookupParameterNames(ParameterNameFactory<T> parameterNameFactory,
-			T t) {
+	private <T extends AccessibleObject> String @Nullable [] lookupParameterNames(
+			ParameterNameFactory<T> parameterNameFactory, T t) {
 		Annotation[][] parameterAnnotations = parameterNameFactory.findParameterAnnotations(t);
 		int parameterCount = parameterAnnotations.length;
 		String[] paramNames = new String[parameterCount];
@@ -158,7 +160,7 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 	 * @param parameterAnnotations the {@link Annotation}'s to search.
 	 * @return
 	 */
-	private String findParameterName(Annotation[] parameterAnnotations) {
+	private @Nullable String findParameterName(Annotation[] parameterAnnotations) {
 		for (Annotation paramAnnotation : parameterAnnotations) {
 			if (this.annotationClassesToUse.contains(paramAnnotation.annotationType().getName())) {
 				return (String) AnnotationUtils.getValue(paramAnnotation, "value");
