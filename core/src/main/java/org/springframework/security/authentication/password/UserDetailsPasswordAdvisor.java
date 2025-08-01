@@ -24,7 +24,7 @@ public final class UserDetailsPasswordAdvisor implements PasswordAdvisor {
 
 	@Override
 	public PasswordAdvice advise(UserDetails user, @Nullable String password) {
-		return user::getPasswordAction;
+		return new SimplePasswordAdvice(user.getPasswordAction());
 	}
 
 }

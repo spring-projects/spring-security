@@ -18,7 +18,9 @@ package org.springframework.security.authentication.password;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 
@@ -26,14 +28,24 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 public final class CompositePasswordAdvisor implements PasswordAdvisor {
 
-	private final List<PasswordAdvisor> advisors;
+	private final Collection<PasswordAdvisor> advisors;
 
-	private CompositePasswordAdvisor(List<PasswordAdvisor> advisors) {
-		this.advisors = Collections.unmodifiableList(advisors);
+	private CompositePasswordAdvisor(Collection<PasswordAdvisor> advisors) {
+		this.advisors = Collections.unmodifiableCollection(advisors);
 	}
 
 	public static PasswordAdvisor of(PasswordAdvisor... advisors) {
 		return new CompositePasswordAdvisor(List.of(advisors));
+	}
+
+	public static PasswordAdvisor withDefaults(PasswordAdvisor... advisors) {
+		Map<Class<? extends PasswordAdvisor>, PasswordAdvisor> defaults = new HashMap<>();
+		defaults.put(UserDetailsPasswordAdvisor.class, new UserDetailsPasswordAdvisor());
+		defaults.put(PasswordLengthAdvisor.class, new PasswordLengthAdvisor());
+		for (PasswordAdvisor advisor : advisors) {
+			defaults.put(advisor.getClass(), advisor);
+		}
+		return new CompositePasswordAdvisor(defaults.values());
 	}
 
 	@Override
@@ -41,22 +53,20 @@ public final class CompositePasswordAdvisor implements PasswordAdvisor {
 		Collection<PasswordAdvice> advice = this.advisors.stream()
 			.map((advisor) -> advisor.advise(user, password))
 			.toList();
-		return new Advice(advice);
+		return new CompositePasswordAdvice(advice);
 	}
 
-	public static final class Advice implements PasswordAdvice {
-
-		private final PasswordAction action;
+	public static final class CompositePasswordAdvice extends SimplePasswordAdvice {
 
 		private final Collection<PasswordAdvice> advice;
 
-		private Advice(Collection<PasswordAdvice> advice) {
-			this.action = findMostUrgentAction(advice);
+		private CompositePasswordAdvice(Collection<PasswordAdvice> advice) {
+			super(findMostUrgentAction(advice));
 			this.advice = advice;
 		}
 
-		private PasswordAction findMostUrgentAction(Collection<PasswordAdvice> advice) {
-			PasswordAction mostUrgentAction = PasswordAction.ABSTAIN;
+		private static PasswordAction findMostUrgentAction(Collection<PasswordAdvice> advice) {
+			PasswordAction mostUrgentAction = PasswordAction.NONE;
 			for (PasswordAdvice a : advice) {
 				if (mostUrgentAction.ordinal() < a.getAction().ordinal()) {
 					mostUrgentAction = a.getAction();
@@ -65,18 +75,13 @@ public final class CompositePasswordAdvisor implements PasswordAdvisor {
 			return mostUrgentAction;
 		}
 
-		@Override
-		public PasswordAction getAction() {
-			return this.action;
-		}
-
 		public Collection<PasswordAdvice> getAdvice() {
 			return this.advice;
 		}
 
 		@Override
 		public String toString() {
-			return "Composite [" + "action=" + this.action + ", advice=" + this.advice + "]";
+			return "Composite [" + "action=" + super.toString() + ", advice=" + this.advice + "]";
 		}
 
 	}

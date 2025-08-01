@@ -114,7 +114,7 @@ public class User implements UserDetails, CredentialsContainer {
 		Assert.isTrue(username != null && !"".equals(username), "Cannot pass null or empty values to constructor");
 		this.username = username;
 		this.password = password;
-		this.passwordAction = PasswordAction.ABSTAIN;
+		this.passwordAction = PasswordAction.NONE;
 		this.enabled = enabled;
 		this.accountNonExpired = accountNonExpired;
 		this.credentialsNonExpired = credentialsNonExpired;
@@ -356,7 +356,7 @@ public class User implements UserDetails, CredentialsContainer {
 
 		private @Nullable String password;
 
-		private PasswordAction passwordAction = PasswordAction.ABSTAIN;
+		private PasswordAction passwordAction = PasswordAction.NONE;
 
 		private List<GrantedAuthority> authorities = new ArrayList<>();
 

@@ -19,8 +19,24 @@ package org.springframework.security.authentication.password;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
-public interface PasswordAdvice {
+public class SimplePasswordAdvice implements PasswordAdvice {
 
-	PasswordAction getAction();
+	public static final PasswordAdvice NONE = new SimplePasswordAdvice(PasswordAction.NONE);
+
+	private final PasswordAction action;
+
+	public SimplePasswordAdvice(PasswordAction action) {
+		this.action = action;
+	}
+
+	@Override
+	public PasswordAction getAction() {
+		return this.action;
+	}
+
+	@Override
+	public String toString() {
+		return "Simple [action=" + this.action + "]";
+	}
 
 }

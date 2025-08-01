@@ -18,9 +18,9 @@ package org.springframework.security.authentication.password;
 
 public enum PasswordAction {
 
-	ABSTAIN, SHOULD_CHANGE, MUST_CHANGE;
+	NONE, SHOULD_CHANGE, MUST_CHANGE;
 
-	boolean advisedBy(PasswordAdvice advice) {
+	public boolean advisedBy(PasswordAdvice advice) {
 		return advice.getAction().equals(this);
 	}
 

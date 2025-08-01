@@ -60,7 +60,7 @@ public class PasswordAdvisingFilter extends OncePerRequestFilter {
 			return;
 		}
 		PasswordAdvice advice = this.passwordAdviceRepository.loadPasswordAdvice(request);
-		if (advice.getAction() != PasswordAction.MUST_CHANGE) {
+		if (!PasswordAction.MUST_CHANGE.advisedBy(advice)) {
 			chain.doFilter(request, response);
 			return;
 		}

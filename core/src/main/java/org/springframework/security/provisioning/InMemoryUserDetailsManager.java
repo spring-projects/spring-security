@@ -153,7 +153,7 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 		MutableUserDetails user = this.users.get(username);
 		Assert.state(user != null, "Current user doesn't exist in database.");
 		user.setPassword(newPassword);
-		user.setPasswordAction(PasswordAction.ABSTAIN);
+		user.setPasswordAction(PasswordAction.NONE);
 	}
 
 	@Override

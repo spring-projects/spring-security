@@ -288,10 +288,15 @@ public class PasswordManagementConfigurerTests {
 		ResponseEntity<?> changePassword(@AuthenticationPrincipal UserDetails user,
 				@RequestParam("password") String password, HttpServletRequest request, HttpServletResponse response) {
 			PasswordAdvice advice = this.passwordAdvisor.advise(user, null, password);
-			if (advice.getAction() != PasswordAction.ABSTAIN) {
+			if (advice.getAction() != PasswordAction.NONE) {
 				return ResponseEntity.badRequest().body(advice);
 			}
-			this.passwords.changePassword(null, this.encoder.encode(password));
+			UserDetails updated = User.withUserDetails(user)
+				.passwordEncoder(this.encoder::encode)
+				.password(password)
+				.passwordAction(PasswordAction.NONE)
+				.build();
+			this.passwords.updateUser(updated);
 			this.passwordAdviceRepository.removePasswordAdvice(request, response);
 			return ResponseEntity.ok().build();
 		}

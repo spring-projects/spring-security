@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.authentication.password.PasswordAction;
 import org.springframework.security.authentication.password.PasswordAdvice;
+import org.springframework.security.authentication.password.SimplePasswordAdvice;
 import org.springframework.util.function.SingletonSupplier;
 
 public final class HttpSessionPasswordAdviceRepository implements PasswordAdviceRepository {
@@ -37,13 +38,13 @@ public final class HttpSessionPasswordAdviceRepository implements PasswordAdvice
 			if (advice != null) {
 				return advice;
 			}
-			return PasswordAdvice.ABSTAIN;
+			return SimplePasswordAdvice.NONE;
 		});
 	}
 
 	@Override
 	public void savePasswordAdvice(HttpServletRequest request, HttpServletResponse response, PasswordAdvice advice) {
-		if (advice.getAction() == PasswordAction.ABSTAIN) {
+		if (PasswordAction.NONE.advisedBy(advice)) {
 			removePasswordAdvice(request, response);
 			return;
 		}

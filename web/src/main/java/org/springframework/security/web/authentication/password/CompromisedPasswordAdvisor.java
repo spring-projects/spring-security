@@ -23,6 +23,7 @@ import org.springframework.security.authentication.password.CompromisedPasswordD
 import org.springframework.security.authentication.password.PasswordAction;
 import org.springframework.security.authentication.password.PasswordAdvice;
 import org.springframework.security.authentication.password.PasswordAdvisor;
+import org.springframework.security.authentication.password.SimplePasswordAdvice;
 import org.springframework.security.authentication.password.UpdatePasswordAdvisor;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -35,14 +36,14 @@ public final class CompromisedPasswordAdvisor implements PasswordAdvisor, Update
 	@Override
 	public PasswordAdvice advise(UserDetails user, @Nullable String password) {
 		if (password == null) {
-			return PasswordAdvice.ABSTAIN;
+			return SimplePasswordAdvice.NONE;
 		}
 		CompromisedPasswordDecision decision = this.pwned.check(password);
 		if (decision.isCompromised()) {
-			return new Advice(this.action, decision);
+			return new CompromisedPasswordAdvice(this.action, decision);
 		}
 		else {
-			return new Advice(PasswordAction.ABSTAIN, decision);
+			return new CompromisedPasswordAdvice(PasswordAction.NONE, decision);
 		}
 	}
 
@@ -55,14 +56,12 @@ public final class CompromisedPasswordAdvisor implements PasswordAdvisor, Update
 		this.action = action;
 	}
 
-	public static final class Advice implements PasswordAdvice {
-
-		private final PasswordAction action;
+	public static final class CompromisedPasswordAdvice extends SimplePasswordAdvice {
 
 		private final CompromisedPasswordDecision decision;
 
-		public Advice(PasswordAction action, CompromisedPasswordDecision decision) {
-			this.action = action;
+		public CompromisedPasswordAdvice(PasswordAction action, CompromisedPasswordDecision decision) {
+			super(action);
 			this.decision = decision;
 		}
 
@@ -71,13 +70,8 @@ public final class CompromisedPasswordAdvisor implements PasswordAdvisor, Update
 		}
 
 		@Override
-		public PasswordAction getAction() {
-			return this.action;
-		}
-
-		@Override
 		public String toString() {
-			return "Compromised [" + "action=" + this.action + ", decision=" + this.decision + "]";
+			return "Compromised [" + "action=" + super.toString() + ", decision=" + this.decision + "]";
 		}
 
 	}

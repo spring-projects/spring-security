@@ -104,7 +104,7 @@ public interface UserDetails extends Serializable {
 	}
 
 	default PasswordAction getPasswordAction() {
-		return PasswordAction.ABSTAIN;
+		return PasswordAction.NONE;
 	}
 
 }

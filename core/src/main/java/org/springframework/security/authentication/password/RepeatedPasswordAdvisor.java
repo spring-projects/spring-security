@@ -26,17 +26,14 @@ public final class RepeatedPasswordAdvisor implements UpdatePasswordAdvisor {
 
 	@Override
 	public PasswordAdvice advise(UserDetails user, @Nullable String oldPassword, @Nullable String newPassword) {
-		if (Objects.equals(oldPassword, newPassword)) {
-			return new Advice();
-		}
-		return PasswordAdvice.ABSTAIN;
+		boolean repeated = Objects.equals(oldPassword, newPassword);
+		return new RepeatedPasswordAdvice(repeated ? PasswordAction.MUST_CHANGE : PasswordAction.NONE);
 	}
 
-	public static final class Advice implements PasswordAdvice {
+	public static final class RepeatedPasswordAdvice extends SimplePasswordAdvice {
 
-		@Override
-		public PasswordAction getAction() {
-			return PasswordAction.MUST_CHANGE;
+		RepeatedPasswordAdvice(PasswordAction action) {
+			super(action);
 		}
 
 	}
