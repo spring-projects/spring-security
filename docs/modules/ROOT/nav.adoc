@@ -48,6 +48,7 @@
 ***** xref:servlet/authentication/passwords/password-encoder.adoc[PasswordEncoder]
 ***** xref:servlet/authentication/passwords/dao-authentication-provider.adoc[DaoAuthenticationProvider]
 ***** xref:servlet/authentication/passwords/ldap.adoc[LDAP]
+***** xref:servlet/authentication/passwords/management.adoc[Password Management]
 *** xref:servlet/authentication/persistence.adoc[Persistence]
 *** xref:servlet/authentication/passkeys.adoc[Passkeys]
 *** xref:servlet/authentication/onetimetoken.adoc[One-Time Token]

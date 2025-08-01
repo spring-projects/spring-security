@@ -1,0 +1,213 @@
+= Password Management
+
+Spring Security can offer advice about passwords through its `PasswordAdvisor` API.
+It aims to help applications apply https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/docs_en/OWASP_Application_Security_Verification_Standard_5.0.0_en.csv#L108[the ASVS 5.0 standard for Password Security].
+
+Consider the following configuration:
+
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+    .formLogin(Customizer.withDefaults())
+    .passwordManagement(Customizer.withDefaults())
+----
+
+By adding the `passwordManagement` DSL, your application now has the ability to suggest or require a user to change their password if certain criteria are met.
+
+By default, `UserDetailsPasswordAdvisor` is consulted in a `SessionAuthenticationStrategy` after login is complete.
+It calls `UserDetails#getPasswordAdvice` to look up any password advice stored on the user object.
+If the advice on the user object is `PasswordAdvice.MUST_CHANGE`, then Spring Security will redirect the application to `/change-password` for every request in the application.
+
+== Configuring a Password Advisor
+
+There are wo kinds of advisors, `PasswordAdvisor` and `UpdatePasswordAdvisor`.
+The first advisor type is for analyzing the password at authentication time.
+This is useful should your website's password standards change or should the password become compromised and leaked.
+It is also useful when your administrator has marked a certain user as needing to update their password, regardless of any other analysis.
+
+To take advantage of these advisors, you can publish a `PasswordAdvisor` as a bean:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+PasswordAdvisor passwordAdvisor() {
+	return CompositePasswordAdvisor.withDefaults( // <1>
+		new CompromisedPasswordAdvisor() // <2>
+    );
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun passwordAdvisor(): PasswordAdvisor {
+	return CompositePasswordAdvisor.withDefaults( // <1>
+		CompromisedPasswordAdvisor() // <2>
+    )
+}
+----
+======
+<1> - `withDefaults` adds an advisor that checks the `UserDetails` object for any admin-set password action and an advisor that checks password length
+<2> - An advisor that checks the HaveIBeenPwned breached password database
+
+== Requiring Password Changes
+
+By default password advisors mark a password as `SHOULD_CHANGE`.
+This allows you to add this to your application passively.
+
+In the event you want to start requiring that users change their password, you can configure each password advisor with a policy.
+For example, you can state that whenever a password is compromised, force the user to update their password at that time by configuring the `CompromisedPasswordAdvisor` policy as `MUST_CHANGE`:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+PasswordAdvisor passwordAdvisor() {
+	CompromisedPasswordAdvisor compromised = new CompromisedPasswordAdvisor();
+	compromised.setAction(PasswordAction.MUST_CHANGE);
+	return CompositePasswordAdvisor.withDefaults(compromised);
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun passwordAdvisor(): PasswordAdvisor {
+	val compromised = CompromisedPasswordAdvisor()
+	compromised.setAction(PasswordAction.MUST_CHANGE)
+	return CompositePasswordAdvisor.withDefaults(compromise)
+}
+----
+======
+
+[TIP]
+====
+While optional, it's helpful to include `UserDetailsPasswordAdvisor` in the set of password advisors as this allows admins to update the `passwordAction` value in `UserDetails` out-of-band and thus require password changes en masse.
+This is included by default when calling `withDefaults`.
+====
+
+== Updating Passwords
+
+When a user updates their password, the following are recommended:
+
+1. You require the user provide their old password
+2. You require the user provide and confirm their new password
+3. You test the password against a set of `UpdatePasswordAdvisor` instances
+4. You update both the password and any remaining password action
+5. You log out the individual so they can re-login with their new password
+
+Here is a sample controller that does this:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Controller
+class ChangePasswordController {
+	private final InMemoryUserDetailsManager users;
+
+	private final PasswordEncoder passwordEncoder =
+        PasswordEncoderFactories.createDelegatingPasswordEncoder();
+
+	private final UpdatePasswordAdvisor passwordAdvisor = CompositeUpdatePasswordAdvisor.withDefaults(
+        new CompromisedPasswordAdvisor(),
+        new LengthPasswordAdvisor(12) // <1>
+    );
+
+	// constructor
+
+    @PostMapping("/change-password")
+    String changePassword(Passwords passwords, @AuthenticationPrincipal UserDetails user,
+        HttpServletRequest request, HttpServletResponse response) {
+
+		UserDetails latest = this.users.findUserByUsername(user.getUsername());
+		if (!this.passwordEncoder.matches(latest.getPassword(), passwords.current())) { // <2>
+			request.setAttribute("error", "The provided current password doesn't match your password on file.");
+			return "change-password";
+		}
+		if (!passwords.change().equals(passwords.confirm())) { // <3>
+			request.setAttribute("error", "The new password doesn't match its confirmation.");
+			return "change-password";
+		}
+		PasswordAdvice advice = this.passwordAdvisor.advise(latest, latest.getPassword(), passwords.change()); // <4>
+		if (PasswordAction.NONE.advisedBy(advice)) {
+			UserDetails updated = User.withUserDetails(latest)
+                .passwordEncoder(this.passwordEncoder::encode)
+                .password(passwords.change())
+                .passwordAction(PasswordAction.NONE).build(); // <5>
+			this.users.updateUser(updated);
+			return "forward:/logout"; // <6>
+		}
+		request.setAttribute(error, "Your password was rejected since " + advice);
+		return "change-password";
+    }
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Controller
+open class ChangePasswordController {
+	private val users: InMemoryUserDetailsManager
+
+	private val passwordEncoder =
+        PasswordEncoderFactories.createDelegatingPasswordEncoder()
+
+	private val passwordAdvisor = CompositeUpdatePasswordAdvisor.of(
+        CompromisedPasswordAdvisor(),
+        LengthPasswordAdvisor(12) // <1>
+    )
+
+	// constructor
+
+    @PostMapping("/change-password")
+    fun changePassword(val passwords: Passwords, @AuthenticationPrincipal val user: UserDetails,
+        val request: HttpServletRequest): String {
+
+		val latest = this.users.findUserByUsername(user.getUsername())
+		if (!this.passwordEncoder.matches(latest.getPassword(), passwords.current())) { // <2>
+			request.setAttribute("error", "The provided current password doesn't match your password on file.")
+			return "change-password"
+		}
+		if (!passwords.change().equals(passwords.confirm())) { // <3>
+			request.setAttribute("error", "The new password doesn't match its confirmation.")
+			return "change-password"
+		}
+		val advice = this.passwordAdvisor.advise(latest, latest.getPassword(), passwords.change()) // <4>
+		if (PasswordAction.NONE.advisedBy(advice)) {
+			val updated = User.withUserDetails(latest)
+                .passwordEncoder(this.passwordEncoder::encode)
+                .password(passwords.change())
+                .passwordAction(PasswordAction.NONE).build() // <5>
+			this.users.updateUser(updated)
+			return "forward:/logout" // <6>
+		}
+		request.setAttribute(error, "Your password was rejected since " + advice)
+		return "change-password"
+    }
+}
+----
+======
+<1> - Override the default `PasswordLengthAdvisor` to require a minimum length of 12
+<2> - Test that the user's current password matches the provided password; note that since credentials are often erased during login, you'll need to look up the user in order to check their password
+<3> - Test that the new password and the confirmation fields match
+<4> - Test the password against various criteria
+<5> - If all the is met, then update the `UserDetails` object to have the new password and no more password advice
+<6> - Forward to /logout to get the person logged out
