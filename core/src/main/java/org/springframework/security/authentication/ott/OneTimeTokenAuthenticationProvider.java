@@ -19,13 +19,24 @@ package org.springframework.security.authentication.ott;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.Assert;
@@ -36,15 +47,22 @@ import org.springframework.util.Assert;
  * {@link UserDetailsService} to fetch user authorities.
  *
  * @author Marcus da Coregio
+ * @author Andrey Litvitski
  * @since 6.4
  */
-public final class OneTimeTokenAuthenticationProvider implements AuthenticationProvider {
+public final class OneTimeTokenAuthenticationProvider implements AuthenticationProvider, MessageSourceAware {
 
 	private static final String AUTHORITY = FactorGrantedAuthority.OTT_AUTHORITY;
 
 	private final OneTimeTokenService oneTimeTokenService;
 
 	private final UserDetailsService userDetailsService;
+
+	private final Log logger = LogFactory.getLog(getClass());
+
+	private UserDetailsChecker authenticationChecks = new DefaultAuthenticationChecks();
+
+	private MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
 	public OneTimeTokenAuthenticationProvider(OneTimeTokenService oneTimeTokenService,
 			UserDetailsService userDetailsService) {
@@ -63,6 +81,7 @@ public final class OneTimeTokenAuthenticationProvider implements AuthenticationP
 		}
 		try {
 			UserDetails user = this.userDetailsService.loadUserByUsername(consumed.getUsername());
+			this.authenticationChecks.check(user);
 			Collection<GrantedAuthority> authorities = new HashSet<>(user.getAuthorities());
 			authorities.add(FactorGrantedAuthority.fromAuthority(AUTHORITY));
 			OneTimeTokenAuthentication authenticated = new OneTimeTokenAuthentication(user, authorities);
@@ -77,6 +96,41 @@ public final class OneTimeTokenAuthenticationProvider implements AuthenticationP
 	@Override
 	public boolean supports(Class<?> authentication) {
 		return OneTimeTokenAuthenticationToken.class.isAssignableFrom(authentication);
+	}
+
+	@Override
+	public void setMessageSource(MessageSource messageSource) {
+		this.messages = new MessageSourceAccessor(messageSource);
+	}
+
+	public void setAuthenticationChecks(UserDetailsChecker authenticationChecks) {
+		this.authenticationChecks = authenticationChecks;
+	}
+
+	private class DefaultAuthenticationChecks implements UserDetailsChecker {
+
+		@Override
+		public void check(UserDetails user) {
+			if (!user.isAccountNonLocked()) {
+				OneTimeTokenAuthenticationProvider.this.logger
+					.debug("Failed to authenticate since user account is locked");
+				throw new LockedException(OneTimeTokenAuthenticationProvider.this.messages
+					.getMessage("AbstractUserDetailsAuthenticationProvider.locked", "User account is locked"));
+			}
+			if (!user.isEnabled()) {
+				OneTimeTokenAuthenticationProvider.this.logger
+					.debug("Failed to authenticate since user account is disabled");
+				throw new DisabledException(OneTimeTokenAuthenticationProvider.this.messages
+					.getMessage("AbstractUserDetailsAuthenticationProvider.disabled", "User is disabled"));
+			}
+			if (!user.isAccountNonExpired()) {
+				OneTimeTokenAuthenticationProvider.this.logger
+					.debug("Failed to authenticate since user account has expired");
+				throw new AccountExpiredException(OneTimeTokenAuthenticationProvider.this.messages
+					.getMessage("AbstractUserDetailsAuthenticationProvider.expired", "User account has expired"));
+			}
+		}
+
 	}
 
 }
