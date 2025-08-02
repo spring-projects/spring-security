@@ -7,7 +7,7 @@ Spring Security's OAuth Support can integrate with `RestClient` and `WebClient` 
 == Configuration
 After xref:features/integrations/rest/http-interface.adoc#configuration-restclient[RestClient] or xref:features/integrations/rest/http-interface.adoc#configuration-webclient[WebClient] specific configuration, usage of xref:features/integrations/rest/http-interface.adoc[] only requires adding a xref:features/integrations/rest/http-interface.adoc#client-registration-id[`@ClientRegistrationId`] to methods that require OAuth.
 
-Since the presense of xref:features/integrations/rest/http-interface.adoc#client-registration-id[`@ClientRegistrationId`] determines if and how the OAuth token will be resolved, it is safe to add Spring Security's OAuth support any configuration.
+Since the presence of xref:features/integrations/rest/http-interface.adoc#client-registration-id[`@ClientRegistrationId`] determines if and how the OAuth token will be resolved, it is safe to add Spring Security's OAuth support any configuration.
 
 [[configuration-restclient]]
 === RestClient Configuration
