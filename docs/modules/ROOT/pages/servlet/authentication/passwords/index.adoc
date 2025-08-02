@@ -34,8 +34,6 @@ public class SecurityConfig {
 
 	@Bean
 	public UserDetailsService userDetailsService() {
-		// User.withDefaultPasswordEncoder() is considered unsafe for production
-		// and is only intended for sample applications.
 		UserDetails userDetails = User.withDefaultPasswordEncoder()
 			.username("user")
 			.password("password")
@@ -102,6 +100,9 @@ class SecurityConfig {
 }
 ----
 =====
+
+[WARNING]
+`User#withDefaultPasswordEncoder` is considered unsafe for production and is only intended for sample applications. See javadoc:org.springframework.security.core.userdetails.User#withDefaultPasswordEncoder()[User#withDefaultPasswordEncoder] for more details.
 
 The preceding configuration automatically registers an xref:servlet/authentication/passwords/in-memory.adoc[in-memory `UserDetailsService`] with the `SecurityFilterChain`, registers the xref:servlet/authentication/passwords/dao-authentication-provider.adoc[`DaoAuthenticationProvider`] with the default xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationmanager[`AuthenticationManager`], and enables xref:servlet/authentication/passwords/form.adoc[Form Login] and xref:servlet/authentication/passwords/basic.adoc[HTTP Basic] authentication.
 
