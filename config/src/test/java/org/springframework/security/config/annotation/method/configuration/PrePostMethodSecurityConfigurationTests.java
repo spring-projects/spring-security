@@ -28,6 +28,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationHandler;
 import io.micrometer.observation.ObservationRegistry;
@@ -40,6 +44,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.aop.Advisor;
 import org.springframework.aop.Pointcut;
@@ -125,6 +130,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -156,6 +162,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author Evgeniy Cheban
  * @author Josh Cummings
+ * @author Yoobin Yoon
  */
 @ExtendWith({ SpringExtension.class, SpringTestContextExtension.class })
 @ContextConfiguration(classes = SecurityContextChangedListenerConfig.class)
@@ -1348,6 +1355,85 @@ public class PrePostMethodSecurityConfigurationTests {
 		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
 	}
 
+	@Test
+	public void configureWhenTransactionManagementThenWarningCondition() {
+		this.spring.register(TransactionManagementConfig.class).autowire();
+		assertThat(this.spring.getContext().getBean(MethodSecurityService.class)).isNotNull();
+		EnableTransactionManagement txMgmt = TransactionManagementConfig.class
+			.getAnnotation(EnableTransactionManagement.class);
+		assertThat(txMgmt.order()).isGreaterThan(100);
+	}
+
+	@Test
+	public void configureWhenTransactionManagementLowerPrecedenceThenWarningCondition() {
+		this.spring.register(TransactionManagementLowerPrecedenceConfig.class).autowire();
+		EnableTransactionManagement txMgmt = TransactionManagementLowerPrecedenceConfig.class
+			.getAnnotation(EnableTransactionManagement.class);
+		assertThat(txMgmt.order()).isGreaterThan(100);
+	}
+
+	@Test
+	public void configureWhenTransactionManagementHigherPrecedenceThenNoWarningCondition() {
+		this.spring.register(TransactionManagementHigherPrecedenceConfig.class).autowire();
+		assertThat(this.spring.getContext().getBean(MethodSecurityService.class)).isNotNull();
+		EnableTransactionManagement txMgmt = TransactionManagementHigherPrecedenceConfig.class
+			.getAnnotation(EnableTransactionManagement.class);
+		assertThat(txMgmt.order()).isLessThanOrEqualTo(100);
+	}
+
+	@Test
+	public void configureWhenTransactionManagementSameOrderThenWarningCondition() {
+		this.spring.register(TransactionManagementSameOrderConfig.class).autowire();
+		EnableTransactionManagement txMgmt = TransactionManagementSameOrderConfig.class
+			.getAnnotation(EnableTransactionManagement.class);
+		assertThat(txMgmt.order()).isEqualTo(100);
+	}
+
+	@Test
+	public void configureWhenMethodSecurityOffsetThenWarningCondition() {
+		this.spring.register(MethodSecurityOffsetWithTransactionConfig.class).autowire();
+		EnableMethodSecurity methodSecurity = MethodSecurityOffsetWithTransactionConfig.class
+			.getAnnotation(EnableMethodSecurity.class);
+		EnableTransactionManagement txMgmt = MethodSecurityOffsetWithTransactionConfig.class
+			.getAnnotation(EnableTransactionManagement.class);
+		int effectiveMethodSecurityOrder = 100 + methodSecurity.offset();
+		assertThat(txMgmt.order()).isGreaterThan(effectiveMethodSecurityOrder);
+	}
+
+	@Test
+	public void configureWhenTransactionManagementSameOrderThenNoWarningCondition() {
+		this.spring.register(TransactionManagementSameOrderConfig.class).autowire();
+		EnableTransactionManagement txMgmt = TransactionManagementSameOrderConfig.class
+			.getAnnotation(EnableTransactionManagement.class);
+		assertThat(txMgmt.order()).isEqualTo(100);
+	}
+
+	@Test
+	public void configureWhenTransactionManagementLowerPrecedenceThenValidationRuns() {
+		assertThatNoException()
+			.isThrownBy(() -> this.spring.register(TransactionManagementLowerPrecedenceConfig.class).autowire());
+		assertThat(this.spring.getContext().getBean(MethodSecurityService.class)).isNotNull();
+	}
+
+	@Test
+	public void validateTransactionManagementPrecedenceWhenLowerPrecedenceThenLogsWarning() {
+		Logger logger = (Logger) LoggerFactory.getLogger(PrePostMethodSecurityConfiguration.class);
+		ListAppender<ILoggingEvent> appender = new ListAppender<>();
+		appender.start();
+		logger.addAppender(appender);
+		try {
+			this.spring.register(TransactionManagementLowerPrecedenceConfig.class).autowire();
+			assertThat(appender.list).hasSize(1);
+			assertThat(appender.list.get(0).getLevel()).isEqualTo(Level.WARN);
+			assertThat(appender.list.get(0).getMessage())
+				.contains("@EnableTransactionManagement has same or lower precedence");
+
+		}
+		finally {
+			logger.detachAppender(appender);
+		}
+	}
+
 	private static Consumer<ConfigurableWebApplicationContext> disallowBeanOverriding() {
 		return (context) -> ((AnnotationConfigWebApplicationContext) context).setAllowBeanDefinitionOverriding(false);
 	}
@@ -2197,6 +2283,77 @@ public class PrePostMethodSecurityConfigurationTests {
 		@PostAuthorize("returnObject == authentication.name")
 		public String getName() {
 			return this.name;
+		}
+
+	}
+
+	@Configuration
+	@EnableMethodSecurity(prePostEnabled = true)
+	@EnableTransactionManagement
+	static class TransactionManagementConfig {
+
+		@Bean
+		MethodSecurityService methodSecurityService() {
+			return new MethodSecurityServiceImpl();
+		}
+
+	}
+
+	@Configuration
+	@EnableMethodSecurity(prePostEnabled = true)
+	@EnableTransactionManagement(order = 300)
+	static class TransactionManagementLowerPrecedenceConfig {
+
+		@Bean
+		MethodSecurityService methodSecurityService() {
+			return new MethodSecurityServiceImpl();
+		}
+
+	}
+
+	@Configuration
+	@EnableMethodSecurity(prePostEnabled = true)
+	@EnableTransactionManagement(order = 0)
+	static class TransactionManagementHigherPrecedenceConfig {
+
+		@Bean
+		MethodSecurityService methodSecurityService() {
+			return new MethodSecurityServiceImpl();
+		}
+
+	}
+
+	@Configuration
+	@EnableMethodSecurity(prePostEnabled = true)
+	@EnableTransactionManagement(order = 100)
+	static class TransactionManagementSameOrderConfig {
+
+		@Bean
+		MethodSecurityService methodSecurityService() {
+			return new MethodSecurityServiceImpl();
+		}
+
+	}
+
+	@Configuration
+	@EnableMethodSecurity(prePostEnabled = true)
+	static class NoTransactionManagementConfig {
+
+		@Bean
+		MethodSecurityService methodSecurityService() {
+			return new MethodSecurityServiceImpl();
+		}
+
+	}
+
+	@Configuration
+	@EnableMethodSecurity(prePostEnabled = true, offset = 50)
+	@EnableTransactionManagement(order = 200)
+	static class MethodSecurityOffsetWithTransactionConfig {
+
+		@Bean
+		MethodSecurityService methodSecurityService() {
+			return new MethodSecurityServiceImpl();
 		}
 
 	}
