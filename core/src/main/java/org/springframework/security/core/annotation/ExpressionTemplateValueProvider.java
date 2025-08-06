@@ -30,7 +30,7 @@ package org.springframework.security.core.annotation;
  *     return switch (this) {
  *       case READ -> "user.permission-read";
  *       case WRITE -> "user.permission-write";
- *     }
+ *     };
  *   }
  *
  * }
