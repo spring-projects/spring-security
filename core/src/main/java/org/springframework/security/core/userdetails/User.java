@@ -63,7 +63,7 @@ import org.springframework.util.Assert;
  */
 public class User implements UserDetails, CredentialsContainer {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private static final Log logger = LogFactory.getLog(User.class);
 
@@ -304,7 +304,7 @@ public class User implements UserDetails, CredentialsContainer {
 
 	private static class AuthorityComparator implements Comparator<GrantedAuthority>, Serializable {
 
-		private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+		private static final long serialVersionUID = 620L;
 
 		@Override
 		public int compare(GrantedAuthority g1, GrantedAuthority g2) {

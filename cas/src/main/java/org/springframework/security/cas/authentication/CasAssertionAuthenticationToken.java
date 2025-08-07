@@ -31,7 +31,7 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
  */
 public final class CasAssertionAuthenticationToken extends AbstractAuthenticationToken {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private final Assertion assertion;
 

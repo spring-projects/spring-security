@@ -54,7 +54,7 @@ import org.springframework.web.util.UriUtils;
  */
 public final class OAuth2AuthorizationRequest implements Serializable {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private String authorizationUri;
 

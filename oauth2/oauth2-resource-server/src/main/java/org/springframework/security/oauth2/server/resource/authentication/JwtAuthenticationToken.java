@@ -36,7 +36,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 @Transient
 public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationToken<Jwt> {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private final String name;
 

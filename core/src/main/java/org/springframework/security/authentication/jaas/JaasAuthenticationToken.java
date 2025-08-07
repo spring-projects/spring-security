@@ -34,7 +34,7 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
  */
 public class JaasAuthenticationToken extends UsernamePasswordAuthenticationToken {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private final transient LoginContext loginContext;
 

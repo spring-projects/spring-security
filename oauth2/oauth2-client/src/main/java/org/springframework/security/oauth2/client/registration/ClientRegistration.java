@@ -53,7 +53,7 @@ import org.springframework.util.StringUtils;
  */
 public final class ClientRegistration implements Serializable {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private String registrationId;
 
@@ -219,7 +219,7 @@ public final class ClientRegistration implements Serializable {
 	 */
 	public class ProviderDetails implements Serializable {
 
-		private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+		private static final long serialVersionUID = 620L;
 
 		private String authorizationUri;
 
@@ -293,7 +293,7 @@ public final class ClientRegistration implements Serializable {
 		 */
 		public class UserInfoEndpoint implements Serializable {
 
-			private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+			private static final long serialVersionUID = 620L;
 
 			private String uri;
 
@@ -340,7 +340,7 @@ public final class ClientRegistration implements Serializable {
 	 */
 	public static final class Builder implements Serializable {
 
-		private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+		private static final long serialVersionUID = 620L;
 
 		private static final Log logger = LogFactory.getLog(Builder.class);
 

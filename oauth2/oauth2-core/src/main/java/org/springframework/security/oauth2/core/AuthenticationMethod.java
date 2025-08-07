@@ -32,7 +32,7 @@ import org.springframework.util.Assert;
  */
 public final class AuthenticationMethod implements Serializable {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	public static final AuthenticationMethod HEADER = new AuthenticationMethod("header");
 

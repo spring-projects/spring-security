@@ -38,7 +38,7 @@ public class CasServiceTicketAuthenticationToken extends AbstractAuthenticationT
 	static final String CAS_STATEFUL_IDENTIFIER = "_cas_stateful_";
 
 	@Serial
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private final String identifier;
 

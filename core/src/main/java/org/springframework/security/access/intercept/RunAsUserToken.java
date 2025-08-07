@@ -35,7 +35,7 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 @Deprecated
 public class RunAsUserToken extends AbstractAuthenticationToken {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private final Class<? extends Authentication> originalAuthentication;
 

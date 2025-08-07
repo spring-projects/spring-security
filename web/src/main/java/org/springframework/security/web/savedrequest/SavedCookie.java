@@ -29,7 +29,7 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
  */
 public class SavedCookie implements Serializable {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private final String name;
 

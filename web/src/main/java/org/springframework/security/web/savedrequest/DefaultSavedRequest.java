@@ -62,7 +62,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public class DefaultSavedRequest implements SavedRequest {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	protected static final Log logger = LogFactory.getLog(DefaultSavedRequest.class);
 

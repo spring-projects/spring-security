@@ -34,7 +34,7 @@ import org.springframework.util.Assert;
 public final class OAuth2AuthorizationExchange implements Serializable {
 
 	@Serial
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private final OAuth2AuthorizationRequest authorizationRequest;
 

@@ -41,7 +41,10 @@ public final class SpringSecurityCoreVersion {
 
 	/**
 	 * Global Serialization value for Spring Security classes.
+	 * @deprecated Please have each class use its own serialization version
+	 * @see SpringSecurityCoreVersionSerializableTests
 	 */
+	@Deprecated(forRemoval = true)
 	public static final long SERIAL_VERSION_UID = 620L;
 
 	static final @Nullable String MIN_SPRING_VERSION = getSpringVersion();

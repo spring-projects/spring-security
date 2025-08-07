@@ -103,7 +103,7 @@ public class OAuth2AccessToken extends AbstractOAuth2Token {
 	 */
 	public static final class TokenType implements Serializable {
 
-		private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+		private static final long serialVersionUID = 620L;
 
 		public static final TokenType BEARER = new TokenType("Bearer");
 

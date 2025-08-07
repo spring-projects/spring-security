@@ -31,7 +31,7 @@ import org.springframework.util.ObjectUtils;
  */
 public class SecurityContextImpl implements SecurityContext {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private @Nullable Authentication authentication;
 

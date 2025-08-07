@@ -38,7 +38,7 @@ import org.springframework.util.Assert;
 @Transient
 public class BearerTokenAuthentication extends AbstractOAuth2TokenAuthenticationToken<OAuth2AccessToken> {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private final Map<String, Object> attributes;
 

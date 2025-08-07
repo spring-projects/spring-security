@@ -38,7 +38,7 @@ import org.springframework.util.StringUtils;
 public final class OAuth2AuthorizationResponse implements Serializable {
 
 	@Serial
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private String redirectUri;
 

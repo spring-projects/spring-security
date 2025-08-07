@@ -70,7 +70,7 @@ import static org.assertj.core.api.Assertions.fail;
  */
 class SpringSecurityCoreVersionSerializableTests {
 
-	static final long securitySerialVersionUid = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	static final long securitySerialVersionUid = 620L;
 
 	static Path currentVersionFolder = Paths.get("src/test/resources/serialized/" + getCurrentVersion());
 

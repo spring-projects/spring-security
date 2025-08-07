@@ -36,7 +36,7 @@ import org.springframework.util.ObjectUtils;
  */
 public class CasAuthenticationToken extends AbstractAuthenticationToken implements Serializable {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private final Object credentials;
 

@@ -30,7 +30,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 class MutableUser implements MutableUserDetails {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private @Nullable String password;
 

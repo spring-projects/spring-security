@@ -39,7 +39,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetails;
 public class PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails extends WebAuthenticationDetails
 		implements GrantedAuthoritiesContainer {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private final List<GrantedAuthority> authorities;
 

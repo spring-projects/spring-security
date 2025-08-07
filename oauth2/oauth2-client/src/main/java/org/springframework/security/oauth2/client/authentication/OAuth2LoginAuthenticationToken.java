@@ -46,7 +46,7 @@ import org.springframework.util.Assert;
  */
 public class OAuth2LoginAuthenticationToken extends AbstractAuthenticationToken {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private OAuth2User principal;
 
