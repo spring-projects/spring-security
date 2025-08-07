@@ -20,8 +20,6 @@ import java.io.Serializable;
 
 import jakarta.servlet.http.Cookie;
 
-import org.springframework.security.core.SpringSecurityCoreVersion;
-
 /**
  * Stores off the values of a cookie in a serializable holder
  *

@@ -24,7 +24,6 @@ import java.util.Objects;
 
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
 /**

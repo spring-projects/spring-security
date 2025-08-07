@@ -20,7 +20,6 @@ import java.io.Serializable;
 import java.time.Instant;
 
 import org.springframework.lang.Nullable;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
 /**

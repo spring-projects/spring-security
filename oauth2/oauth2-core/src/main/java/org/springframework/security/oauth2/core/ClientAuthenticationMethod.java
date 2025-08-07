@@ -19,7 +19,6 @@ package org.springframework.security.oauth2.core;
 import java.io.Serializable;
 
 import org.springframework.lang.NonNull;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
 /**

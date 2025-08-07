@@ -22,7 +22,6 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.Set;
 
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
 /**

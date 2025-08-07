@@ -19,7 +19,6 @@ package org.springframework.security.oauth2.client;
 import java.io.Serializable;
 import java.util.Objects;
 
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.util.Assert;
 

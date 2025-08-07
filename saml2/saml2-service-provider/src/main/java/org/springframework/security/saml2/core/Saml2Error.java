@@ -18,7 +18,6 @@ package org.springframework.security.saml2.core;
 
 import java.io.Serializable;
 
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
 /**

@@ -24,7 +24,6 @@ import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 
 /**
  * UsernamePasswordAuthenticationToken extension to carry the Jaas LoginContext that the

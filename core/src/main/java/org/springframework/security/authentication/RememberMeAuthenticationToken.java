@@ -19,7 +19,6 @@ package org.springframework.security.authentication;
 import java.util.Collection;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 
 /**
  * Represents a remembered <code>Authentication</code>.

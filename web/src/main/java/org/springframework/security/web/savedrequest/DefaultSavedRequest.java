@@ -32,7 +32,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;

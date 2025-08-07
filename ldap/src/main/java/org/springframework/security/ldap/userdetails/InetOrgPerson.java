@@ -18,7 +18,6 @@ package org.springframework.security.ldap.userdetails;
 
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 
 /**
  * UserDetails implementation whose properties are based on a subset of the LDAP schema

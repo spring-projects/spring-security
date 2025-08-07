@@ -22,8 +22,6 @@ import java.util.Objects;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
-import org.springframework.security.core.SpringSecurityCoreVersion;
-
 /**
  * A holder of selected HTTP details related to a web authentication request.
  *

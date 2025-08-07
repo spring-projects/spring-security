@@ -28,7 +28,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.Assert;
 

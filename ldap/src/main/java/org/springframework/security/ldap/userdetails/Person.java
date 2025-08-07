@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.ldap.LdapUtils;
 import org.springframework.util.Assert;
 

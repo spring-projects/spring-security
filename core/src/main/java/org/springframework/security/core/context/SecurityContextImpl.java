@@ -19,7 +19,6 @@ package org.springframework.security.core.context;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.ObjectUtils;
 
 /**

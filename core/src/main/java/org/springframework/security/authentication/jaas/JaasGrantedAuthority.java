@@ -19,7 +19,6 @@ package org.springframework.security.authentication.jaas;
 import java.security.Principal;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
 /**

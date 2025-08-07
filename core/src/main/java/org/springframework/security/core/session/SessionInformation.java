@@ -19,7 +19,6 @@ package org.springframework.security.core.session;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
 /**

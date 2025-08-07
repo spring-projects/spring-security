@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import org.apereo.cas.client.validation.Assertion;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 
 /**
  * Temporary authentication object needed to load the user details service.

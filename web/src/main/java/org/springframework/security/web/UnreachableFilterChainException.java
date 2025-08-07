@@ -16,8 +16,6 @@
 
 package org.springframework.security.web;
 
-import org.springframework.security.core.SpringSecurityCoreVersion;
-
 /**
  * Thrown if {@link SecurityFilterChain securityFilterChain} is not valid.
  *

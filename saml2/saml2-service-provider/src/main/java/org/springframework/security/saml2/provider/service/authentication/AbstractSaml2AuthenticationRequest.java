@@ -19,7 +19,6 @@ package org.springframework.security.saml2.provider.service.authentication;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.util.Assert;
