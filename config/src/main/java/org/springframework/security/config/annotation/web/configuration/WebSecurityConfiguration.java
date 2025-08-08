@@ -33,7 +33,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -79,6 +78,7 @@ import org.springframework.web.filter.ServletRequestPathFilter;
  *
  * @author Rob Winch
  * @author Keesun Baik
+ * @author Yanming Zhou
  * @since 3.2
  * @see EnableWebSecurity
  * @see WebSecurity
@@ -190,7 +190,7 @@ public class WebSecurityConfiguration implements ImportAware {
 	}
 
 	@Bean
-	public static BeanFactoryPostProcessor conversionServicePostProcessor() {
+	public static RsaKeyConversionServicePostProcessor conversionServicePostProcessor() {
 		return new RsaKeyConversionServicePostProcessor();
 	}
 
