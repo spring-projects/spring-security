@@ -48,7 +48,7 @@ import org.springframework.util.PropertyPlaceholderHelper;
  *
  * <pre>
  *	&#64;PreAuthorize("hasRole({role})")
- *	public @annotation HasRole {
+ *	public @interface HasRole {
  *		String role();
  *	}
  * </pre>
