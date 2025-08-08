@@ -81,7 +81,7 @@ public abstract class SecurityExpressionRoot<T> implements SecurityExpressionOpe
 	 */
 	@Deprecated(since = "7.0")
 	public SecurityExpressionRoot(Authentication authentication) {
-		this(() -> authentication);
+		this(() -> authentication, null);
 	}
 
 	/**
@@ -94,12 +94,7 @@ public abstract class SecurityExpressionRoot<T> implements SecurityExpressionOpe
 	 */
 	@Deprecated(since = "7.0")
 	public SecurityExpressionRoot(Supplier<Authentication> authentication) {
-		this.authentication = SingletonSupplier.of(() -> {
-			Authentication value = authentication.get();
-			Assert.notNull(value, "Authentication object cannot be null");
-			return value;
-		});
-		this.object = null;
+		this(authentication, null);
 	}
 
 	/**
@@ -110,7 +105,7 @@ public abstract class SecurityExpressionRoot<T> implements SecurityExpressionOpe
 	 * @param object the object being authorized
 	 * @since 7.0
 	 */
-	public SecurityExpressionRoot(Supplier<Authentication> authentication, T object) {
+	public SecurityExpressionRoot(Supplier<Authentication> authentication, @Nullable T object) {
 		this.authentication = SingletonSupplier.of(() -> {
 			Authentication value = authentication.get();
 			Assert.notNull(value, "Authentication object cannot be null");
@@ -174,7 +169,7 @@ public abstract class SecurityExpressionRoot<T> implements SecurityExpressionOpe
 		return isGranted(this.authorizationManagerFactory.fullyAuthenticated());
 	}
 
-	@SuppressWarnings("DataFlowIssue")
+	@SuppressWarnings({ "DataFlowIssue", "NullAway" })
 	private boolean isGranted(AuthorizationManager<T> authorizationManager) {
 		AuthorizationResult authorizationResult = authorizationManager.authorize(this.authentication, this.object);
 		return (authorizationResult != null && authorizationResult.isGranted());
