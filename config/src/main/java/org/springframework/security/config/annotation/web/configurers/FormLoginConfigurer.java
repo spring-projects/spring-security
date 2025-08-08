@@ -250,7 +250,7 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 	 * Gets the HTTP parameter that is used to submit the password.
 	 * @return the HTTP parameter that is used to submit the password
 	 */
-	private String getPasswordParameter() {
+	String getPasswordParameter() {
 		return getAuthenticationFilter().getPasswordParameter();
 	}
 

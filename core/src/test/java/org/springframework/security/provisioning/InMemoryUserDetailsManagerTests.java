@@ -30,6 +30,7 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authentication.password.PasswordAction;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
@@ -207,9 +208,12 @@ public class InMemoryUserDetailsManagerTests {
 
 		private String password;
 
+		private PasswordAction action;
+
 		CustomUser(UserDetails user) {
 			this.delegate = user;
 			this.password = user.getPassword();
+			this.action = user.getPasswordAction();
 		}
 
 		@Override
@@ -225,6 +229,16 @@ public class InMemoryUserDetailsManagerTests {
 		@Override
 		public void setPassword(final String password) {
 			this.password = password;
+		}
+
+		@Override
+		public PasswordAction getPasswordAction() {
+			return this.action;
+		}
+
+		@Override
+		public void setPasswordAction(PasswordAction action) {
+			this.action = action;
 		}
 
 		@Override

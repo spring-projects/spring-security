@@ -37,6 +37,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.password.HttpSessionPasswordAdviceRepository;
+import org.springframework.security.web.authentication.password.PasswordAdviceMethodArgumentResolver;
+import org.springframework.security.web.authentication.password.PasswordAdviceRepository;
 import org.springframework.security.web.debug.DebugFilter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
@@ -72,6 +75,8 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 
 	private AnnotationTemplateExpressionDefaults templateDefaults;
 
+	private PasswordAdviceRepository passwordAdviceRepository = new HttpSessionPasswordAdviceRepository();
+
 	@Override
 	@SuppressWarnings("deprecation")
 	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
@@ -88,6 +93,9 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 		currentSecurityContextArgumentResolver.setTemplateDefaults(this.templateDefaults);
 		argumentResolvers.add(currentSecurityContextArgumentResolver);
 		argumentResolvers.add(new CsrfTokenArgumentResolver());
+		PasswordAdviceMethodArgumentResolver resolver = new PasswordAdviceMethodArgumentResolver();
+		resolver.setPasswordAdviceRepository(this.passwordAdviceRepository);
+		argumentResolvers.add(resolver);
 	}
 
 	@Bean
@@ -103,6 +111,9 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 		}
 		if (applicationContext.getBeanNamesForType(AnnotationTemplateExpressionDefaults.class).length == 1) {
 			this.templateDefaults = applicationContext.getBean(AnnotationTemplateExpressionDefaults.class);
+		}
+		if (applicationContext.getBeanNamesForType(PasswordAdviceRepository.class).length == 1) {
+			this.passwordAdviceRepository = applicationContext.getBean(PasswordAdviceRepository.class);
 		}
 	}
 
@@ -209,7 +220,7 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 
 		/**
 		 * Find the FilterChainProxy in a List of Filter
-		 * @param filters
+		 * @param filterssetChangePass
 		 * @return non-null FilterChainProxy
 		 * @throws IllegalStateException if the FilterChainProxy cannot be found
 		 */

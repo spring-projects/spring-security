@@ -31,6 +31,7 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.password.PasswordAction;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -152,6 +153,7 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 		MutableUserDetails user = this.users.get(username);
 		Assert.state(user != null, "Current user doesn't exist in database.");
 		user.setPassword(newPassword);
+		user.setPasswordAction(PasswordAction.NONE);
 	}
 
 	@Override
@@ -174,8 +176,7 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 		if (user instanceof CredentialsContainer) {
 			return user;
 		}
-		return new User(user.getUsername(), user.getPassword(), user.isEnabled(), user.isAccountNonExpired(),
-				user.isCredentialsNonExpired(), user.isAccountNonLocked(), user.getAuthorities());
+		return User.withUserDetails(user).build();
 	}
 
 	/**
