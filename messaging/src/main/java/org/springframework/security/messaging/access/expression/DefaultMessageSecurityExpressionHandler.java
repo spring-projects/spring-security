@@ -25,9 +25,7 @@ import org.springframework.security.access.expression.AbstractSecurityExpression
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.expression.SecurityExpressionOperations;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
-import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
-import org.springframework.util.Assert;
 
 /**
  * The default implementation of {@link SecurityExpressionHandler} which uses a
@@ -39,8 +37,6 @@ import org.springframework.util.Assert;
  * @since 4.0
  */
 public class DefaultMessageSecurityExpressionHandler<T> extends AbstractSecurityExpressionHandler<Message<T>> {
-
-	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
 	@Override
 	public EvaluationContext createEvaluationContext(Supplier<Authentication> authentication, Message<T> message) {
@@ -60,14 +56,15 @@ public class DefaultMessageSecurityExpressionHandler<T> extends AbstractSecurity
 			Message<T> invocation) {
 		MessageSecurityExpressionRoot root = new MessageSecurityExpressionRoot(authentication, invocation);
 		root.setPermissionEvaluator(getPermissionEvaluator());
-		root.setTrustResolver(this.trustResolver);
-		root.setRoleHierarchy(getRoleHierarchy());
+		// Since MessageSecurityExpressionRoot is of a different type, use the default
+		// factory instead of the one configured with this class.
+		root.setTrustResolver(getDefaultAuthorizationManagerFactory().getTrustResolver());
+		root.setRoleHierarchy(getDefaultAuthorizationManagerFactory().getRoleHierarchy());
 		return root;
 	}
 
 	public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
-		Assert.notNull(trustResolver, "trustResolver cannot be null");
-		this.trustResolver = trustResolver;
+		getDefaultAuthorizationManagerFactory().setTrustResolver(trustResolver);
 	}
 
 }

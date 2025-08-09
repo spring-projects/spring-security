@@ -35,7 +35,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.TypedValue;
-import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -182,7 +181,7 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 		verifyNoInteractions(mockAuthenticationSupplier);
 		assertThat(context.getRootObject()).extracting(TypedValue::getValue)
 			.asInstanceOf(InstanceOfAssertFactories.type(MethodSecurityExpressionRoot.class))
-			.extracting(SecurityExpressionRoot::getAuthentication)
+			.extracting(MethodSecurityExpressionRoot::getAuthentication)
 			.isEqualTo(this.authentication);
 		verify(mockAuthenticationSupplier).get();
 	}
