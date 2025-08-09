@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,12 +43,13 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
  * @author Rob Winch
+ * @author Yanming Zhou
  * @since 5.0
  */
 @Configuration(proxyBeanMethods = false)
 class WebFluxSecurityConfiguration {
 
-	public static final int WEB_FILTER_CHAIN_FILTER_ORDER = 0 - 100;
+	public static final int WEB_FILTER_CHAIN_FILTER_ORDER = -100;
 
 	private static final String BEAN_NAME_PREFIX = "org.springframework.security.config.annotation.web.reactive.WebFluxSecurityConfiguration.";
 
@@ -100,7 +100,7 @@ class WebFluxSecurityConfiguration {
 	}
 
 	@Bean
-	static BeanFactoryPostProcessor conversionServicePostProcessor() {
+	static RsaKeyConversionServicePostProcessor conversionServicePostProcessor() {
 		return new RsaKeyConversionServicePostProcessor();
 	}
 
