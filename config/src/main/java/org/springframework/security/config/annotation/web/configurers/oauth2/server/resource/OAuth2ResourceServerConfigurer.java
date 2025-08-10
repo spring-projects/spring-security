@@ -193,6 +193,10 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver) {
 		Assert.notNull(authenticationManagerResolver, "authenticationManagerResolver cannot be null");
 		this.authenticationManagerResolver = authenticationManagerResolver;
+		// Clear jwt and opaqueToken configurers to follow "last-configured wins"
+		// principle
+		this.jwtConfigurer = null;
+		this.opaqueTokenConfigurer = null;
 		return this;
 	}
 
@@ -281,11 +285,6 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 							+ "http.oauth2ResourceServer().opaqueToken().");
 			Assert.state(this.jwtConfigurer == null || this.opaqueTokenConfigurer == null,
 					"Spring Security only supports JWTs or Opaque Tokens, not both at the " + "same time.");
-		}
-		else {
-			Assert.state(this.jwtConfigurer == null && this.opaqueTokenConfigurer == null,
-					"If an authenticationManagerResolver() is configured, then it takes "
-							+ "precedence over any jwt() or opaqueToken() configuration.");
 		}
 	}
 
