@@ -31,7 +31,7 @@ import org.springframework.security.core.Authentication;
  * @author Evgeniy Cheban
  */
 @FunctionalInterface
-public interface AuthorizationManager<@Nullable T> {
+public interface AuthorizationManager<T extends @Nullable Object> {
 
 	/**
 	 * Determines if access should be granted for a specific authentication and object.
