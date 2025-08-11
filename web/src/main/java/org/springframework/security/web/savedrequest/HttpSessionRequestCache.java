@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.savedrequest;
 
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -38,6 +39,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  *
  * @author Luke Taylor
  * @author Eddú Meléndez
+ * @author Andrey Litvitski
  * @since 3.0
  */
 public class HttpSessionRequestCache implements RequestCache {
@@ -61,6 +63,17 @@ public class HttpSessionRequestCache implements RequestCache {
 	 */
 	@Override
 	public void saveRequest(HttpServletRequest request, HttpServletResponse response) {
+		boolean documentRequest = "document".equals(request.getHeader("Sec-Fetch-Dest"));
+		boolean dispatchError = DispatcherType.ERROR.equals(request.getDispatcherType());
+
+		if (!documentRequest && dispatchError) {
+			if (this.logger.isTraceEnabled()) {
+				this.logger
+					.trace("Did not save request because it is an ERROR dispatcher and not a primary document request");
+			}
+			return;
+		}
+
 		if (!this.requestMatcher.matches(request)) {
 			if (this.logger.isTraceEnabled()) {
 				this.logger
