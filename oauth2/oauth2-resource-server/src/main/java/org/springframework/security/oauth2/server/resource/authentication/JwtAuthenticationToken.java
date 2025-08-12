@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.server.resource.authentication;
 import java.util.Collection;
 import java.util.Map;
 
+import org.springframework.security.core.AuthenticationResult;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.Transient;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -33,7 +34,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
  * @see Jwt
  */
 @Transient
-public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationToken<Jwt> {
+public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationToken<Jwt>
+		implements AuthenticationResult {
 
 	private static final long serialVersionUID = 620L;
 
@@ -69,6 +71,11 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 		super(jwt, authorities);
 		this.setAuthenticated(true);
 		this.name = name;
+	}
+
+	@Override
+	public JwtAuthenticationToken withGrantedAuthorities(Collection<GrantedAuthority> authorities) {
+		return new JwtAuthenticationToken(getToken(), authorities, this.name);
 	}
 
 	@Override

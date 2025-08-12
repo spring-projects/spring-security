@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationResult;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -40,7 +41,7 @@ import org.springframework.util.Assert;
  * @see OAuth2User
  * @see OAuth2AuthorizedClient
  */
-public class OAuth2AuthenticationToken extends AbstractAuthenticationToken {
+public class OAuth2AuthenticationToken extends AbstractAuthenticationToken implements AuthenticationResult {
 
 	private static final long serialVersionUID = 620L;
 
@@ -63,6 +64,11 @@ public class OAuth2AuthenticationToken extends AbstractAuthenticationToken {
 		this.principal = principal;
 		this.authorizedClientRegistrationId = authorizedClientRegistrationId;
 		this.setAuthenticated(true);
+	}
+
+	@Override
+	public OAuth2AuthenticationToken withGrantedAuthorities(Collection<GrantedAuthority> authorities) {
+		return new OAuth2AuthenticationToken(getPrincipal(), authorities, this.authorizedClientRegistrationId);
 	}
 
 	@Override

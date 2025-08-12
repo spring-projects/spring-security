@@ -17,9 +17,12 @@
 package org.springframework.security.web.authentication.preauth;
 
 import java.util.Collection;
+import java.util.Objects;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.AuthenticationResult;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.Assert;
 
 /**
  * {@link org.springframework.security.core.Authentication} implementation for
@@ -28,7 +31,7 @@ import org.springframework.security.core.GrantedAuthority;
  * @author Ruud Senden
  * @since 2.0
  */
-public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationToken {
+public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationToken implements AuthenticationResult {
 
 	private static final long serialVersionUID = 620L;
 
@@ -62,6 +65,13 @@ public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationT
 		this.principal = aPrincipal;
 		this.credentials = aCredentials;
 		setAuthenticated(true);
+	}
+
+	@Override
+	public PreAuthenticatedAuthenticationToken withGrantedAuthorities(Collection<GrantedAuthority> authorities) {
+		Assert.isTrue(isAuthenticated(), "cannot grant authorities to unauthenticated tokens");
+		Object principal = Objects.requireNonNull(getPrincipal());
+		return new PreAuthenticatedAuthenticationToken(principal, getCredentials(), authorities);
 	}
 
 	/**

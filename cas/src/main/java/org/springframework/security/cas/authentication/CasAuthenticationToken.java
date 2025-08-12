@@ -22,6 +22,7 @@ import java.util.Collection;
 import org.apereo.cas.client.validation.Assertion;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.AuthenticationResult;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.Assert;
@@ -33,7 +34,7 @@ import org.springframework.util.ObjectUtils;
  * @author Ben Alex
  * @author Scott Battaglia
  */
-public class CasAuthenticationToken extends AbstractAuthenticationToken implements Serializable {
+public class CasAuthenticationToken extends AbstractAuthenticationToken implements Serializable, AuthenticationResult {
 
 	private static final long serialVersionUID = 620L;
 
@@ -102,6 +103,12 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 		this.userDetails = userDetails;
 		this.assertion = assertion;
 		setAuthenticated(true);
+	}
+
+	@Override
+	public CasAuthenticationToken withGrantedAuthorities(Collection<GrantedAuthority> authorities) {
+		return new CasAuthenticationToken(this.keyHash, getPrincipal(), getCredentials(), authorities, this.userDetails,
+				this.assertion);
 	}
 
 	private static Integer extractKeyHash(String key) {

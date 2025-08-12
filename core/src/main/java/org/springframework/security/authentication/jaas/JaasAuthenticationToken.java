@@ -16,6 +16,8 @@
 
 package org.springframework.security.authentication.jaas;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.security.auth.login.LoginContext;
@@ -24,6 +26,7 @@ import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.Assert;
 
 /**
  * UsernamePasswordAuthenticationToken extension to carry the Jaas LoginContext that the
@@ -50,6 +53,13 @@ public class JaasAuthenticationToken extends UsernamePasswordAuthenticationToken
 
 	public LoginContext getLoginContext() {
 		return this.loginContext;
+	}
+
+	@Override
+	public JaasAuthenticationToken withGrantedAuthorities(Collection<GrantedAuthority> authorities) {
+		Assert.isTrue(isAuthenticated(), "cannot grant authorities to unauthenticated tokens");
+		return new JaasAuthenticationToken(getPrincipal(), getCredentials(), new ArrayList<>(authorities),
+				this.loginContext);
 	}
 
 }
