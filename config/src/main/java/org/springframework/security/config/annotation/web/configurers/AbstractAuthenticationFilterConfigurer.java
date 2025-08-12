@@ -282,7 +282,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 		if (requestCache != null) {
 			this.defaultSuccessHandler.setRequestCache(requestCache);
 		}
-		this.authFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
+		this.authFilter.setAuthenticationManager(postProcess(http.getSharedObject(AuthenticationManager.class)));
 		this.authFilter.setAuthenticationSuccessHandler(this.successHandler);
 		this.authFilter.setAuthenticationFailureHandler(this.failureHandler);
 		if (this.authenticationDetailsSource != null) {

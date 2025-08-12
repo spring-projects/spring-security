@@ -265,7 +265,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 	public void configure(H http) {
 		AuthenticationManagerResolver resolver = this.authenticationManagerResolver;
 		if (resolver == null) {
-			AuthenticationManager authenticationManager = getAuthenticationManager(http);
+			AuthenticationManager authenticationManager = postProcess(getAuthenticationManager(http));
 			resolver = (request) -> authenticationManager;
 		}
 

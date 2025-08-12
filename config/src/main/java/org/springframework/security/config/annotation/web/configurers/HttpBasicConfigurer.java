@@ -207,7 +207,7 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>>
 
 	@Override
 	public void configure(B http) {
-		AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
+		AuthenticationManager authenticationManager = postProcess(http.getSharedObject(AuthenticationManager.class));
 		BasicAuthenticationFilter basicAuthenticationFilter = new BasicAuthenticationFilter(authenticationManager,
 				this.authenticationEntryPoint);
 		if (this.authenticationDetailsSource != null) {

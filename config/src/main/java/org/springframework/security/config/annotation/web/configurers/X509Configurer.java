@@ -183,7 +183,8 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 
 	@Override
 	public void configure(H http) {
-		X509AuthenticationFilter filter = getFilter(http.getSharedObject(AuthenticationManager.class), http);
+		AuthenticationManager authenticationManager = postProcess(http.getSharedObject(AuthenticationManager.class));
+		X509AuthenticationFilter filter = getFilter(authenticationManager, http);
 		http.addFilter(filter);
 	}
 

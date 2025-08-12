@@ -24,6 +24,7 @@ import java.util.Set;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -162,8 +163,9 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 		WebAuthnRelyingPartyOperations rpOperations = webAuthnRelyingPartyOperations(userEntities, userCredentials);
 		PublicKeyCredentialCreationOptionsRepository creationOptionsRepository = creationOptionsRepository();
 		WebAuthnAuthenticationFilter webAuthnAuthnFilter = new WebAuthnAuthenticationFilter();
-		webAuthnAuthnFilter.setAuthenticationManager(
+		AuthenticationManager authenticationManager = postProcess(
 				new ProviderManager(new WebAuthnAuthenticationProvider(rpOperations, userDetailsService)));
+		webAuthnAuthnFilter.setAuthenticationManager(authenticationManager);
 		WebAuthnRegistrationFilter webAuthnRegistrationFilter = new WebAuthnRegistrationFilter(userCredentials,
 				rpOperations);
 		PublicKeyCredentialCreationOptionsFilter creationOptionsFilter = new PublicKeyCredentialCreationOptionsFilter(
