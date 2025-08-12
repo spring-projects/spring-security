@@ -16,12 +16,17 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.function.Consumer;
 
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.AuthorizationEntryPoint;
+import org.springframework.security.web.AuthorizationRequestingAccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
@@ -75,11 +80,19 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private LinkedHashMap<RequestMatcher, AccessDeniedHandler> defaultDeniedHandlerMappings = new LinkedHashMap<>();
 
+	private final List<AuthorizationEntryPoint> authorizationRequestEntries = new ArrayList<>();
+
 	/**
 	 * Creates a new instance
 	 * @see HttpSecurity#exceptionHandling(Customizer)
 	 */
 	public ExceptionHandlingConfigurer() {
+	}
+
+	public ExceptionHandlingConfigurer<H> authorizationEntryPoint(
+			Consumer<List<AuthorizationEntryPoint>> entriesConsumer) {
+		entriesConsumer.accept(this.authorizationRequestEntries);
+		return this;
 	}
 
 	/**
@@ -203,7 +216,8 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 	AccessDeniedHandler getAccessDeniedHandler(H http) {
 		AccessDeniedHandler deniedHandler = this.accessDeniedHandler;
 		if (deniedHandler == null) {
-			deniedHandler = createDefaultDeniedHandler(http);
+			deniedHandler = createAccessDeniedHandler(http);
+
 		}
 		return deniedHandler;
 	}
@@ -223,15 +237,26 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 		return entryPoint;
 	}
 
-	private AccessDeniedHandler createDefaultDeniedHandler(H http) {
+	private AccessDeniedHandler createAccessDeniedHandler(H http) {
+		AccessDeniedHandler defaultAccessDeniedHandler = createDefaultAccessDeniedHandler();
+		if (this.defaultDeniedHandlerMappings.isEmpty()) {
+			return defaultAccessDeniedHandler;
+		}
+		if (this.defaultDeniedHandlerMappings.size() == 1) {
+			return defaultAccessDeniedHandler;
+		}
+		return new RequestMatcherDelegatingAccessDeniedHandler(this.defaultDeniedHandlerMappings,
+				defaultAccessDeniedHandler);
+	}
+
+	private AccessDeniedHandler createDefaultAccessDeniedHandler() {
+		if (!this.authorizationRequestEntries.isEmpty()) {
+			return new AuthorizationRequestingAccessDeniedHandler(this.authorizationRequestEntries);
+		}
 		if (this.defaultDeniedHandlerMappings.isEmpty()) {
 			return new AccessDeniedHandlerImpl();
 		}
-		if (this.defaultDeniedHandlerMappings.size() == 1) {
-			return this.defaultDeniedHandlerMappings.values().iterator().next();
-		}
-		return new RequestMatcherDelegatingAccessDeniedHandler(this.defaultDeniedHandlerMappings,
-				new AccessDeniedHandlerImpl());
+		return this.defaultDeniedHandlerMappings.values().iterator().next();
 	}
 
 	private AuthenticationEntryPoint createDefaultEntryPoint(H http) {
