@@ -17,6 +17,9 @@
 package org.springframework.security.authorization;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
@@ -37,6 +40,22 @@ public final class AuthoritiesAuthorizationManager implements AuthorizationManag
 
 	private RoleHierarchy roleHierarchy = new NullRoleHierarchy();
 
+	private boolean hasAnyAuthority = true;
+
+	public AuthoritiesAuthorizationManager() {
+
+	}
+
+	public static AuthoritiesAuthorizationManager hasAnyAuthority() {
+		return new AuthoritiesAuthorizationManager();
+	}
+
+	public static AuthoritiesAuthorizationManager hasAllAuthorities() {
+		AuthoritiesAuthorizationManager manager = new AuthoritiesAuthorizationManager();
+		manager.hasAnyAuthority = false;
+		return manager;
+	}
+
 	/**
 	 * Sets the {@link RoleHierarchy} to be used. Default is {@link NullRoleHierarchy}.
 	 * Cannot be null.
@@ -56,25 +75,25 @@ public final class AuthoritiesAuthorizationManager implements AuthorizationManag
 	 */
 	@Override
 	public AuthorizationResult authorize(Supplier<Authentication> authentication, Collection<String> authorities) {
-		boolean granted = isGranted(authentication.get(), authorities);
-		return new AuthorityAuthorizationDecision(granted, AuthorityUtils.createAuthorityList(authorities));
-	}
-
-	private boolean isGranted(Authentication authentication, Collection<String> authorities) {
-		return authentication != null && isAuthorized(authentication, authorities);
-	}
-
-	private boolean isAuthorized(Authentication authentication, Collection<String> authorities) {
-		for (GrantedAuthority grantedAuthority : getGrantedAuthorities(authentication)) {
-			if (authorities.contains(grantedAuthority.getAuthority())) {
-				return true;
-			}
+		Set<String> needed = new HashSet<>(authorities);
+		for (GrantedAuthority authority : getGrantedAuthorities(authentication.get())) {
+			needed.remove(authority.getAuthority());
 		}
-		return false;
+		if (this.hasAnyAuthority) {
+			boolean granted = needed.size() < authorities.size();
+			return new AuthorityAuthorizationDecision(granted, AuthorityUtils.createAuthorityList(authorities));
+		}
+		else {
+			boolean granted = needed.isEmpty();
+			return new AuthorityAuthorizationDecision(granted, AuthorityUtils.createAuthorityList(needed));
+		}
 	}
 
-	private Collection<? extends GrantedAuthority> getGrantedAuthorities(Authentication authentication) {
-		return this.roleHierarchy.getReachableGrantedAuthorities(authentication.getAuthorities());
+	private Collection<GrantedAuthority> getGrantedAuthorities(Authentication authentication) {
+		if (authentication == null) {
+			return List.of();
+		}
+		return new HashSet<>(this.roleHierarchy.getReachableGrantedAuthorities(authentication.getAuthorities()));
 	}
 
 }
