@@ -180,16 +180,8 @@ public class ReactiveOidcIdTokenDecoderFactoryTests {
 	}
 
 	@Test
-	public void createDecoderTwiceWithCaching() {
-		ClientRegistration clientRegistration = this.registration.build();
-		ReactiveJwtDecoder decoder1 = this.idTokenDecoderFactory.createDecoder(clientRegistration);
-		ReactiveJwtDecoder decoder2 = this.idTokenDecoderFactory.createDecoder(clientRegistration);
-		assertThat(decoder1).isSameAs(decoder2);
-	}
-
-	@Test
-	public void createDecoderTwiceWithoutCaching() {
-		this.idTokenDecoderFactory = new ReactiveOidcIdTokenDecoderFactory(false);
+	public void createDecoderTwice() {
+		this.idTokenDecoderFactory = new ReactiveOidcIdTokenDecoderFactory();
 		ClientRegistration clientRegistration = this.registration.build();
 		ReactiveJwtDecoder decoder1 = this.idTokenDecoderFactory.createDecoder(clientRegistration);
 		ReactiveJwtDecoder decoder2 = this.idTokenDecoderFactory.createDecoder(clientRegistration);
