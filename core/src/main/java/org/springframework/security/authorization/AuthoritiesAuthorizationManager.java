@@ -18,7 +18,6 @@ package org.springframework.security.authorization;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -90,10 +89,16 @@ public final class AuthoritiesAuthorizationManager implements AuthorizationManag
 	}
 
 	private Collection<GrantedAuthority> getGrantedAuthorities(Authentication authentication) {
+		Collection<GrantedAuthority> authorities = new HashSet<>();
 		if (authentication == null) {
-			return List.of();
+			return authorities;
 		}
-		return new HashSet<>(this.roleHierarchy.getReachableGrantedAuthorities(authentication.getAuthorities()));
+		for (GrantedAuthority authority : authentication.getAuthorities()) {
+			if (authority.isGranted()) {
+				authorities.add(authority);
+			}
+		}
+		return new HashSet<>(this.roleHierarchy.getReachableGrantedAuthorities(authorities));
 	}
 
 }

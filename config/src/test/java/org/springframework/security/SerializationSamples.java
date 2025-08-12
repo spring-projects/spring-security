@@ -92,6 +92,7 @@ import org.springframework.security.config.annotation.AlreadyBuiltException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.ExpirableGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.context.TransientSecurityContext;
@@ -375,6 +376,8 @@ final class SerializationSamples {
 		generatorByClassName.put(AlreadyBuiltException.class, (r) -> new AlreadyBuiltException("message"));
 
 		// core
+		generatorByClassName.put(ExpirableGrantedAuthority.class,
+				(r) -> new ExpirableGrantedAuthority("a", Instant.now()));
 		generatorByClassName.put(RunAsUserToken.class, (r) -> {
 			RunAsUserToken token = new RunAsUserToken("key", user, "creds", user.getAuthorities(),
 					AnonymousAuthenticationToken.class);

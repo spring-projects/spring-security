@@ -48,4 +48,8 @@ public interface GrantedAuthority extends Serializable {
 	 */
 	String getAuthority();
 
+	default boolean isGranted() {
+		return true;
+	}
+
 }
