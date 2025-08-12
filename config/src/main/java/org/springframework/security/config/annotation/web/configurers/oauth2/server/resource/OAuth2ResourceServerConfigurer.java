@@ -66,6 +66,7 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
@@ -149,12 +150,18 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<OAuth2ResourceServerConfigurer<H>, H> {
 
+	private static final boolean dPoPAuthenticationAvailable;
+
+	static {
+		ClassLoader classLoader = OAuth2ResourceServerConfigurer.class.getClassLoader();
+		dPoPAuthenticationAvailable = ClassUtils
+			.isPresent("org.springframework.security.oauth2.jwt.DPoPProofJwtDecoderFactory", classLoader);
+	}
+
 	private static final RequestHeaderRequestMatcher X_REQUESTED_WITH = new RequestHeaderRequestMatcher(
 			"X-Requested-With", "XMLHttpRequest");
 
 	private final ApplicationContext context;
-
-	private final DPoPAuthenticationConfigurer<H> dPoPAuthenticationConfigurer = new DPoPAuthenticationConfigurer<>();
 
 	private AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver;
 
@@ -269,7 +276,10 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		filter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		filter = postProcess(filter);
 		http.addFilter(filter);
-		this.dPoPAuthenticationConfigurer.configure(http);
+		if (dPoPAuthenticationAvailable) {
+			DPoPAuthenticationConfigurer<H> dPoPAuthenticationConfigurer = new DPoPAuthenticationConfigurer<>();
+			dPoPAuthenticationConfigurer.configure(http);
+		}
 	}
 
 	private void validateConfiguration() {
