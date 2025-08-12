@@ -102,7 +102,7 @@ org-sonarsource-scanner-gradle-sonarqube-gradle-plugin = "org.sonarsource.scanne
 org-instancio-instancio-junit = "org.instancio:instancio-junit:3.7.1"
 
 spring-nullability = 'io.spring.nullability:io.spring.nullability.gradle.plugin:0.0.2'
-webauthn4j-core = 'com.webauthn4j:webauthn4j-core:0.29.4.RELEASE'
+webauthn4j-core = 'com.webauthn4j:webauthn4j-core:0.29.5.RELEASE'
 
 [plugins]
 
