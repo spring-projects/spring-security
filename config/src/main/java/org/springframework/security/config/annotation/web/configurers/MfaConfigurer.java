@@ -17,6 +17,9 @@
 package org.springframework.security.config.annotation.web.configurers;
 
 import java.io.IOException;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -27,6 +30,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -40,6 +44,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.AuthenticationResult;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.ExpirableGrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -90,6 +95,10 @@ public final class MfaConfigurer<B extends HttpSecurityBuilder<B>>
 
 	public MfaConfigurer<B> grants(String... authority) {
 		return grants(new SimpleAuthoritiesGranter(authority));
+	}
+
+	public MfaConfigurer<B> grants(Duration duration, String... authority) {
+		return grants(new SimpleAuthoritiesGranter(duration, authority));
 	}
 
 	@Override
@@ -170,9 +179,20 @@ public final class MfaConfigurer<B extends HttpSecurityBuilder<B>>
 
 	static final class SimpleAuthoritiesGranter implements AuthoritiesGranter {
 
+		private final @Nullable Duration grantingTime;
+
 		private final Collection<String> authorities;
 
+		private Clock clock = Clock.systemUTC();
+
 		SimpleAuthoritiesGranter(String... authorities) {
+			this.grantingTime = null;
+			this.authorities = List.of(authorities);
+		}
+
+		SimpleAuthoritiesGranter(Duration grantingTime, String... authorities) {
+			Assert.notEmpty(authorities, "authorities cannot be empty");
+			this.grantingTime = grantingTime;
 			this.authorities = List.of(authorities);
 		}
 
@@ -185,11 +205,21 @@ public final class MfaConfigurer<B extends HttpSecurityBuilder<B>>
 		public AuthenticationResult grantAuthorities(AuthenticationResult authentication) {
 			Collection<GrantedAuthority> toGrant = new HashSet<>();
 			for (String authority : this.authorities) {
-				toGrant.add(new SimpleGrantedAuthority(authority));
+				if (this.grantingTime == null) {
+					toGrant.add(new SimpleGrantedAuthority(authority));
+				}
+				else {
+					Instant expiresAt = this.clock.instant().plus(this.grantingTime);
+					toGrant.add(new ExpirableGrantedAuthority(authority, expiresAt));
+				}
 			}
 			Collection<GrantedAuthority> current = new HashSet<>(authentication.getAuthorities());
 			toGrant.addAll(current);
 			return authentication.withGrantedAuthorities(toGrant);
+		}
+
+		void setClock(Clock clock) {
+			this.clock = clock;
 		}
 
 	}
