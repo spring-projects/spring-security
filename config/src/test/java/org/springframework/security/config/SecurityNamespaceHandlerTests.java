@@ -30,6 +30,7 @@ import org.springframework.security.config.util.SpringSecurityVersions;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ClassUtils;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -63,12 +64,19 @@ public class SecurityNamespaceHandlerTests {
 
 	@Test
 	public void constructionSucceeds() {
-		new SecurityNamespaceHandler();
-		// Shameless class coverage stats boosting
-		new BeanIds() {
-		};
-		new Elements() {
-		};
+		assertThat(new SecurityNamespaceHandler()).isNotNull();
+	}
+
+	@Test
+	public void beanIdsConstantsAreNotEmpty() {
+		assertThat(BeanIds.AUTHENTICATION_MANAGER).isNotEmpty();
+		assertThat(BeanIds.SPRING_SECURITY_FILTER_CHAIN).isNotEmpty();
+	}
+
+	@Test
+	public void elementsConstantsAreNotEmpty() {
+		assertThat(Elements.HTTP).isNotEmpty();
+		assertThat(Elements.AUTHENTICATION_MANAGER).isNotEmpty();
 	}
 
 	@Test
