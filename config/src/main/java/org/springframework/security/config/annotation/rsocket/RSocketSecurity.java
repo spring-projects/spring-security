@@ -109,6 +109,7 @@ import org.springframework.security.rsocket.util.matcher.RoutePayloadExchangeMat
  * @author Manuel Tejeda
  * @author Ebert Toribio
  * @author Ngoc Nhan
+ * @author Andrey Litvitski
  * @since 5.2
  */
 public class RSocketSecurity {
@@ -118,6 +119,8 @@ public class RSocketSecurity {
 	private BasicAuthenticationSpec basicAuthSpec;
 
 	private SimpleAuthenticationSpec simpleAuthSpec;
+
+	private AnonymousAuthenticationSpec anonymousAuthSpec;
 
 	private JwtSpec jwtSpec;
 
@@ -161,6 +164,19 @@ public class RSocketSecurity {
 			this.simpleAuthSpec = new SimpleAuthenticationSpec();
 		}
 		simple.customize(this.simpleAuthSpec);
+		return this;
+	}
+
+	/**
+	 * Adds anonymous authentication
+	 * @param anonymous a customizer
+	 * @return this instance
+	 */
+	public RSocketSecurity anonymousAuthentication(Customizer<AnonymousAuthenticationSpec> anonymous) {
+		if (this.anonymousAuthSpec == null) {
+			this.anonymousAuthSpec = new AnonymousAuthenticationSpec();
+		}
+		anonymous.customize(this.anonymousAuthSpec);
 		return this;
 	}
 
@@ -214,17 +230,13 @@ public class RSocketSecurity {
 		if (this.jwtSpec != null) {
 			result.addAll(this.jwtSpec.build());
 		}
-		result.add(anonymous());
+		if (this.anonymousAuthSpec != null) {
+			result.add(this.anonymousAuthSpec.build());
+		}
 		if (this.authorizePayload != null) {
 			result.add(this.authorizePayload.build());
 		}
 		AnnotationAwareOrderComparator.sort(result);
-		return result;
-	}
-
-	private AnonymousPayloadInterceptor anonymous() {
-		AnonymousPayloadInterceptor result = new AnonymousPayloadInterceptor("anonymousUser");
-		result.setOrder(PayloadInterceptorOrder.ANONYMOUS.getOrder());
 		return result;
 	}
 
@@ -278,6 +290,19 @@ public class RSocketSecurity {
 			AuthenticationPayloadInterceptor result = new AuthenticationPayloadInterceptor(manager);
 			result.setAuthenticationConverter(new AuthenticationPayloadExchangeConverter());
 			result.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
+			return result;
+		}
+
+	}
+
+	public final class AnonymousAuthenticationSpec {
+
+		private AnonymousAuthenticationSpec() {
+		}
+
+		protected AnonymousPayloadInterceptor build() {
+			AnonymousPayloadInterceptor result = new AnonymousPayloadInterceptor("anonymousUser");
+			result.setOrder(PayloadInterceptorOrder.ANONYMOUS.getOrder());
 			return result;
 		}
 
