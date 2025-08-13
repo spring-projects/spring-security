@@ -36,6 +36,7 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
+import org.springframework.security.config.annotation.web.configurers.MfaConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -161,6 +162,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 	private static final RequestHeaderRequestMatcher X_REQUESTED_WITH = new RequestHeaderRequestMatcher(
 			"X-Requested-With", "XMLHttpRequest");
 
+	private MfaConfigurer<H> mfa;
+
 	private final ApplicationContext context;
 
 	private AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver;
@@ -249,8 +252,20 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		return this;
 	}
 
+	public OAuth2ResourceServerConfigurer<H> factor(Customizer<MfaConfigurer<H>> customizer) {
+		if (this.mfa == null) {
+			this.mfa = new MfaConfigurer<>("AUTHN_BEARER", this);
+			this.mfa.authenticationEntryPoint(() -> this.authenticationEntryPoint);
+		}
+		customizer.customize(this.mfa);
+		return this;
+	}
+
 	@Override
 	public void init(H http) {
+		if (this.mfa != null) {
+			this.mfa.init(http);
+		}
 		validateConfiguration();
 		registerDefaultAccessDeniedHandler(http);
 		registerDefaultEntryPoint(http);

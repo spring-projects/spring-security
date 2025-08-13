@@ -33,6 +33,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
+import org.springframework.security.config.annotation.web.configurers.MfaConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
@@ -120,6 +121,8 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		extends AbstractAuthenticationFilterConfigurer<B, Saml2LoginConfigurer<B>, Saml2WebSsoAuthenticationFilter> {
 
 	private static final boolean USE_OPENSAML_5 = Version.getVersion().startsWith("5");
+
+	private MfaConfigurer<B> mfa;
 
 	private String loginPage;
 
@@ -256,6 +259,15 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		return this;
 	}
 
+	public Saml2LoginConfigurer<B> factor(Customizer<MfaConfigurer<B>> customizer) {
+		if (this.mfa == null) {
+			this.mfa = new MfaConfigurer<>("AUTHN_SAML2", this);
+			this.mfa.authenticationEntryPoint(this::getAuthenticationEntryPoint);
+		}
+		customizer.customize(this.mfa);
+		return this;
+	}
+
 	@Override
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
 		return getRequestMatcherBuilder().matcher(loginProcessingUrl);
@@ -276,6 +288,9 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	 */
 	@Override
 	public void init(B http) throws Exception {
+		if (this.mfa != null) {
+			this.mfa.init(http);
+		}
 		registerDefaultCsrfOverride(http);
 		relyingPartyRegistrationRepository(http);
 		this.saml2WebSsoAuthenticationFilter = new Saml2WebSsoAuthenticationFilter(getAuthenticationConverter(http));

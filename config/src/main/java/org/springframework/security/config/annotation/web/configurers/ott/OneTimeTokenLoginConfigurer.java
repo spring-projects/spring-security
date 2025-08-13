@@ -35,11 +35,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.MfaConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.PostAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.ott.DefaultGenerateOneTimeTokenRequestResolver;
@@ -104,6 +107,8 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private final ApplicationContext context;
 
+	private MfaConfigurer<H> mfa;
+
 	private OneTimeTokenService oneTimeTokenService;
 
 	private String defaultSubmitPageUrl = DefaultOneTimeTokenSubmitPageGeneratingFilter.DEFAULT_SUBMIT_PAGE_URL;
@@ -127,6 +132,9 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 
 	@Override
 	public void init(H http) throws Exception {
+		if (this.mfa != null) {
+			this.mfa.init(http);
+		}
 		if (getLoginProcessingUrl() == null) {
 			loginProcessingUrl(OneTimeTokenAuthenticationFilter.DEFAULT_LOGIN_PROCESSING_URL);
 		}
@@ -357,6 +365,20 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 		Assert.notNull(requestResolver, "requestResolver cannot be null");
 		this.requestResolver = requestResolver;
 		return this;
+	}
+
+	public OneTimeTokenLoginConfigurer<H> factor(Customizer<MfaConfigurer<H>> customizer) {
+		if (this.mfa == null) {
+			this.mfa = new MfaConfigurer<>("AUTHN_OTT", this);
+			this.mfa.authenticationEntryPoint(this::getPostAuthenticationEntryPoint);
+		}
+		customizer.customize(this.mfa);
+		return this;
+	}
+
+	private AuthenticationEntryPoint getPostAuthenticationEntryPoint() {
+		String postUrl = this.tokenGeneratingUrl + "?username={u}";
+		return new PostAuthenticationEntryPoint(postUrl, Map.of("u", Authentication::getName));
 	}
 
 	private GenerateOneTimeTokenRequestResolver getGenerateRequestResolver() {

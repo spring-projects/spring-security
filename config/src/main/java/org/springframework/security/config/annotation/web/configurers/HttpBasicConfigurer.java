@@ -89,6 +89,8 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>>
 
 	private static final String DEFAULT_REALM = "Realm";
 
+	private MfaConfigurer<B> mfa;
+
 	private AuthenticationEntryPoint authenticationEntryPoint;
 
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
@@ -161,8 +163,20 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>>
 		return this;
 	}
 
+	public HttpBasicConfigurer<B> factor(Customizer<MfaConfigurer<B>> customizer) {
+		if (this.mfa == null) {
+			this.mfa = new MfaConfigurer<>("AUTHN_BASIC", this);
+			this.mfa.authenticationEntryPoint(() -> this.authenticationEntryPoint);
+		}
+		customizer.customize(this.mfa);
+		return this;
+	}
+
 	@Override
 	public void init(B http) {
+		if (this.mfa != null) {
+			this.mfa.init(http);
+		}
 		registerDefaults(http);
 	}
 

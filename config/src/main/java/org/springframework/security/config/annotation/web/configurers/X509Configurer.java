@@ -37,6 +37,7 @@ import org.springframework.security.web.authentication.preauth.x509.SubjectDnX50
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 /**
  * Adds X509 based pre authentication to an application. Since validating the certificate
@@ -79,6 +80,8 @@ import org.springframework.security.web.context.RequestAttributeSecurityContextR
  */
 public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<X509Configurer<H>, H> {
+
+	private MfaConfigurer<H> mfa;
 
 	private X509AuthenticationFilter x509AuthenticationFilter;
 
@@ -173,12 +176,27 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 		return this;
 	}
 
+	public X509Configurer<H> factor(Customizer<MfaConfigurer<H>> customizer) {
+		if (this.mfa == null) {
+			this.mfa = new MfaConfigurer<>("AUTHN_X509", this);
+		}
+		customizer.customize(this.mfa);
+		return this;
+	}
+
 	@Override
 	public void init(H http) {
 		PreAuthenticatedAuthenticationProvider authenticationProvider = new PreAuthenticatedAuthenticationProvider();
 		authenticationProvider.setPreAuthenticatedUserDetailsService(getAuthenticationUserDetailsService(http));
 		http.authenticationProvider(authenticationProvider)
 			.setSharedObject(AuthenticationEntryPoint.class, new Http403ForbiddenEntryPoint());
+		ExceptionHandlingConfigurer<H> exceptions = http.getConfigurer(ExceptionHandlingConfigurer.class);
+		if (exceptions != null) {
+			exceptions.defaultAuthenticationEntryPointFor(new Http403ForbiddenEntryPoint(), AnyRequestMatcher.INSTANCE);
+		}
+		if (this.mfa != null) {
+			this.mfa.init(http);
+		}
 	}
 
 	@Override
