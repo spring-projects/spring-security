@@ -26,6 +26,11 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 
+import javax.naming.InvalidNameException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.ldap.LdapName;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -33,14 +38,23 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class LdapAuthorityTests {
 
-	public static final String DN = "cn=filip,ou=Users,dc=test,dc=com";
+	public static final LdapName DN;
+
+	static {
+		try {
+			DN = new LdapName("cn=filip,ou=Users,dc=test,dc=com");
+		}
+		catch (InvalidNameException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	LdapAuthority authority;
 
 	@BeforeEach
-	public void setUp() {
-		Map<String, List<String>> attributes = new HashMap<>();
-		attributes.put(SpringSecurityLdapTemplate.DN_KEY, Arrays.asList(DN));
+	public void setUp() throws InvalidNameException {
+		Attributes attributes = new BasicAttributes();
+		attributes.put(SpringSecurityLdapTemplate.DN_KEY, List.of(DN));
 		attributes.put("mail", Arrays.asList("filip@ldap.test.org", "filip@ldap.test2.org"));
 		this.authority = new LdapAuthority("testRole", DN, attributes);
 	}
