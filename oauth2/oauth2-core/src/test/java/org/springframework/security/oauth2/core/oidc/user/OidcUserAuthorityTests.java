@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * Tests for {@link OidcUserAuthority}.
  *
  * @author Joe Grandja
+ * @author Yoobin Yoon
  */
 public class OidcUserAuthorityTests {
 
@@ -82,6 +83,45 @@ public class OidcUserAuthorityTests {
 		assertThat(userAuthority.getAuthority()).isEqualTo(AUTHORITY);
 		assertThat(userAuthority.getAttributes()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB,
 				StandardClaimNames.NAME, StandardClaimNames.EMAIL);
+	}
+
+	@Test
+	public void withUsernameWhenUsernameIsNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> OidcUserAuthority.withUsername(null));
+	}
+
+	@Test
+	public void withUsernameWhenUsernameIsEmptyThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> OidcUserAuthority.withUsername(""));
+	}
+
+	@Test
+	public void builderWhenIdTokenIsNotSetThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> OidcUserAuthority.withUsername(SUBJECT).build());
+	}
+
+	@Test
+	public void builderWhenAllParametersProvidedAndValidThenCreated() {
+		String username = SUBJECT;
+		OidcUserAuthority authority = OidcUserAuthority.withUsername(username)
+			.idToken(ID_TOKEN)
+			.userInfo(USER_INFO)
+			.build();
+
+		assertThat(authority.getUsername()).isEqualTo(username);
+		assertThat(authority.getAuthority()).isEqualTo("OIDC_USER");
+		assertThat(authority.getIdToken()).isEqualTo(ID_TOKEN);
+		assertThat(authority.getUserInfo()).isEqualTo(USER_INFO);
+		assertThat(authority.getAttributes()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB,
+				StandardClaimNames.NAME, StandardClaimNames.EMAIL);
+	}
+
+	@Test
+	public void getUsernameWhenBuiltWithUsernameThenReturnsUsername() {
+		String username = SUBJECT;
+		OidcUserAuthority authority = OidcUserAuthority.withUsername(username).idToken(ID_TOKEN).build();
+
+		assertThat(authority.getUsername()).isEqualTo(username);
 	}
 
 }
