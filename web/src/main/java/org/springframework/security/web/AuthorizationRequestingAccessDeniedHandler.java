@@ -51,7 +51,7 @@ public final class AuthorizationRequestingAccessDeniedHandler implements AccessD
 			return;
 		}
 		for (AuthorizationEntryPoint entry : this.entries) {
-			if (entry.authorizes(authorizationRequest)) {
+			if (!entry.grantableAuthorities(authorizationRequest).isEmpty()) {
 				AuthenticationException iae = new InsufficientAuthenticationException("access denied", access);
 				entry.commence(request, response, iae);
 				return;

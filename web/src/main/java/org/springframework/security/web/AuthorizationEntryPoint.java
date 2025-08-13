@@ -16,10 +16,13 @@
 
 package org.springframework.security.web;
 
+import java.util.Collection;
+
 import org.springframework.security.authorization.AuthorizationRequest;
+import org.springframework.security.core.GrantedAuthority;
 
 public interface AuthorizationEntryPoint extends AuthenticationEntryPoint {
 
-	boolean authorizes(AuthorizationRequest authorizationRequest);
+	Collection<GrantedAuthority> grantableAuthorities(AuthorizationRequest authorizationRequest);
 
 }

@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -44,6 +43,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.AuthenticationResult;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.ExpirableGrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -118,11 +118,9 @@ public final class MfaConfigurer<B extends HttpSecurityBuilder<B>>
 
 	interface AuthoritiesGranter {
 
-		AuthenticationResult grantAuthorities(AuthenticationResult authentication);
+		Collection<GrantedAuthority> grantableAuthorities(AuthorizationRequest request);
 
-		default Collection<String> grantableAuthorities() {
-			return List.of();
-		}
+		Collection<GrantedAuthority> grantableAuthorities(Authentication result);
 
 	}
 
@@ -135,12 +133,17 @@ public final class MfaConfigurer<B extends HttpSecurityBuilder<B>>
 		}
 
 		@Override
-		public AuthenticationResult grantAuthorities(AuthenticationResult authentication) {
+		public Collection<GrantedAuthority> grantableAuthorities(AuthorizationRequest request) {
+			return List.of();
+		}
+
+		@Override
+		public Collection<GrantedAuthority> grantableAuthorities(Authentication result) {
 			Authentication current = this.strategy.getContext().getAuthentication();
 			if (current == null || !current.isAuthenticated()) {
-				return authentication;
+				return List.of();
 			}
-			return authentication.withGrantedAuthorities((a) -> a.addAll(current.getAuthorities()));
+			return new HashSet<>(current.getAuthorities());
 		}
 
 	}
@@ -153,26 +156,22 @@ public final class MfaConfigurer<B extends HttpSecurityBuilder<B>>
 			this.authoritiesGranters = List.of(authorities);
 		}
 
-		CompositeAuthoritiesGranter(Collection<AuthoritiesGranter> authorities) {
-			this.authoritiesGranters = new ArrayList<>(authorities);
+		@Override
+		public Collection<GrantedAuthority> grantableAuthorities(AuthorizationRequest request) {
+			Collection<GrantedAuthority> authorities = new HashSet<>();
+			for (AuthoritiesGranter granter : this.authoritiesGranters) {
+				authorities.addAll(granter.grantableAuthorities(request));
+			}
+			return authorities;
 		}
 
 		@Override
-		public Collection<String> grantableAuthorities() {
-			Collection<String> grantable = new ArrayList<>();
+		public Collection<GrantedAuthority> grantableAuthorities(Authentication result) {
+			Collection<GrantedAuthority> authorities = new HashSet<>();
 			for (AuthoritiesGranter granter : this.authoritiesGranters) {
-				grantable.addAll(granter.grantableAuthorities());
+				authorities.addAll(granter.grantableAuthorities(result));
 			}
-			return grantable;
-		}
-
-		@Override
-		public AuthenticationResult grantAuthorities(AuthenticationResult authentication) {
-			AuthenticationResult granted = authentication;
-			for (AuthoritiesGranter granter : this.authoritiesGranters) {
-				granted = granter.grantAuthorities(granted);
-			}
-			return granted;
+			return authorities;
 		}
 
 	}
@@ -197,12 +196,15 @@ public final class MfaConfigurer<B extends HttpSecurityBuilder<B>>
 		}
 
 		@Override
-		public Collection<String> grantableAuthorities() {
-			return this.authorities;
+		public Collection<GrantedAuthority> grantableAuthorities(AuthorizationRequest request) {
+			Collection<GrantedAuthority> grantable = AuthorityUtils.createAuthorityList(this.authorities);
+			Collection<GrantedAuthority> requested = request.getAuthorities();
+			grantable.retainAll(requested);
+			return grantable;
 		}
 
 		@Override
-		public AuthenticationResult grantAuthorities(AuthenticationResult authentication) {
+		public Collection<GrantedAuthority> grantableAuthorities(Authentication result) {
 			Collection<GrantedAuthority> toGrant = new HashSet<>();
 			for (String authority : this.authorities) {
 				if (this.grantingTime == null) {
@@ -213,9 +215,8 @@ public final class MfaConfigurer<B extends HttpSecurityBuilder<B>>
 					toGrant.add(new ExpirableGrantedAuthority(authority, expiresAt));
 				}
 			}
-			Collection<GrantedAuthority> current = new HashSet<>(authentication.getAuthorities());
-			toGrant.addAll(current);
-			return authentication.withGrantedAuthorities(toGrant);
+			toGrant.removeAll(result.getAuthorities());
+			return toGrant;
 		}
 
 		void setClock(Clock clock) {
@@ -240,7 +241,8 @@ public final class MfaConfigurer<B extends HttpSecurityBuilder<B>>
 		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 			Authentication result = this.authenticationManager.authenticate(authentication);
 			Assert.isInstanceOf(AuthenticationResult.class, result, "must be of type AuthenticationResult");
-			return this.authoritiesGranter.grantAuthorities((AuthenticationResult) result);
+			Collection<GrantedAuthority> authorities = this.authoritiesGranter.grantableAuthorities(result);
+			return ((AuthenticationResult) result).withGrantedAuthorities((a) -> a.addAll(authorities));
 		}
 
 	}
@@ -258,14 +260,8 @@ public final class MfaConfigurer<B extends HttpSecurityBuilder<B>>
 		}
 
 		@Override
-		public boolean authorizes(AuthorizationRequest authorizationRequest) {
-			Collection<String> grantable = this.authoritiesGranter.grantableAuthorities();
-			for (GrantedAuthority needed : authorizationRequest.getAuthorities()) {
-				if (grantable.contains(needed.getAuthority())) {
-					return true;
-				}
-			}
-			return false;
+		public Collection<GrantedAuthority> grantableAuthorities(AuthorizationRequest request) {
+			return this.authoritiesGranter.grantableAuthorities(request);
 		}
 
 		@Override
