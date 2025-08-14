@@ -49,7 +49,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration(proxyBeanMethods = false)
 class WebFluxSecurityConfiguration {
 
-	public static final int WEB_FILTER_CHAIN_FILTER_ORDER = 0 - 100;
+	public static final int WEB_FILTER_CHAIN_FILTER_ORDER = -100;
 
 	private static final String BEAN_NAME_PREFIX = "org.springframework.security.config.annotation.web.reactive.WebFluxSecurityConfiguration.";
 
