@@ -3,7 +3,7 @@
 == Use OpenSAML 5 By Default
 
 OpenSAML 4.x is no longer supported by the OpenSAML team.
-As such, Spring Security will default to using its `OpenSaml5` components in all cases.
+As such, Spring Security will default to using its `OpenSaml5` components in all cases and will remove the `OpenSaml4` classes.
 
 If you want to see how well your application will respond to this, do the following:
 
