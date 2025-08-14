@@ -49,7 +49,7 @@ public final class ExpirableGrantedAuthority implements GrantedAuthority {
 
 	@Override
 	public boolean isGranted() {
-		return this.clock.instant().isAfter(this.expiresAt);
+		return this.clock.instant().isBefore(this.expiresAt);
 	}
 
 	public void setClock(Clock clock) {
