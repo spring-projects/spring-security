@@ -17,7 +17,7 @@ jobs:
     if: github.repository_owner == 'spring-projects'
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         ref: docs-build
         fetch-depth: 1
