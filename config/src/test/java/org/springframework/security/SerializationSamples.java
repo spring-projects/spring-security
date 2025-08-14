@@ -178,12 +178,14 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2P
 import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2ResponseAssertion;
 import org.springframework.security.saml2.provider.service.authentication.Saml2ResponseAssertionAccessor;
+import org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2AuthenticationTokens;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2Authentications;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2LogoutRequests;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2PostAuthenticationRequests;
 import org.springframework.security.saml2.provider.service.authentication.TestSaml2RedirectAuthenticationRequests;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
+import org.springframework.security.saml2.provider.service.registration.OpenSamlAssertingPartyDetails;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 import org.springframework.security.web.PortResolverImpl;
@@ -541,6 +543,11 @@ final class SerializationSamples {
 			return token;
 		});
 		generatorByClassName.put(Saml2LogoutRequest.class, (r) -> TestSaml2LogoutRequests.create());
+		generatorByClassName.put(OpenSamlAssertingPartyDetails.class,
+				(r) -> OpenSamlAssertingPartyDetails
+					.withEntityDescriptor(
+							TestOpenSamlObjects.entityDescriptor(TestRelyingPartyRegistrations.full().build()))
+					.build());
 
 		// web
 		generatorByClassName.put(AnonymousAuthenticationToken.class, (r) -> {

@@ -16,6 +16,7 @@
 
 package org.springframework.security.saml2.provider.service.registration;
 
+import java.io.Serial;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -46,7 +47,10 @@ import org.springframework.security.saml2.core.Saml2X509Credential;
  */
 public final class OpenSamlAssertingPartyDetails extends RelyingPartyRegistration.AssertingPartyDetails {
 
-	private final EntityDescriptor descriptor;
+	@Serial
+	private static final long serialVersionUID = -2412785556799182734L;
+
+	private final transient EntityDescriptor descriptor;
 
 	OpenSamlAssertingPartyDetails(RelyingPartyRegistration.AssertingPartyDetails details, EntityDescriptor descriptor) {
 		super(details.getEntityId(), details.getWantAuthnRequestsSigned(), details.getSigningAlgorithms(),
