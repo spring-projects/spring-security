@@ -205,6 +205,7 @@ public class ExceptionTranslationFilter extends GenericFilterBean implements Mes
 						LogMessage.format("Sending %s to access denied handler since access is denied", authentication),
 						exception);
 			}
+			this.requestCache.saveRequest(request, response);
 			this.accessDeniedHandler.handle(request, response, exception);
 		}
 	}
