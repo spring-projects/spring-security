@@ -16,13 +16,17 @@
 
 package org.springframework.security.web;
 
-import java.util.Collection;
+import java.io.IOException;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.authorization.AuthorizationRequest;
-import org.springframework.security.core.GrantedAuthority;
 
-public interface AuthorizationEntryPoint extends AuthenticationEntryPoint {
+public interface AuthorizationEntryPoint {
 
-	Collection<GrantedAuthority> grantableAuthorities(AuthorizationRequest authorizationRequest);
+	boolean commence(HttpServletRequest request, HttpServletResponse response,
+			AuthorizationRequest authorizationRequest) throws IOException, ServletException;
 
 }

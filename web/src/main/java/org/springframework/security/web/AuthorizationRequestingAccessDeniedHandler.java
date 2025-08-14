@@ -25,10 +25,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.AuthorizationRequest;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 
@@ -51,9 +49,7 @@ public final class AuthorizationRequestingAccessDeniedHandler implements AccessD
 			return;
 		}
 		for (AuthorizationEntryPoint entry : this.entries) {
-			if (!entry.grantableAuthorities(authorizationRequest).isEmpty()) {
-				AuthenticationException iae = new InsufficientAuthenticationException("access denied", access);
-				entry.commence(request, response, iae);
+			if (entry.commence(request, response, authorizationRequest)) {
 				return;
 			}
 		}

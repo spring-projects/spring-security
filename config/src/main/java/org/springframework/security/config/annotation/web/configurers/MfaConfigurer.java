@@ -33,10 +33,10 @@ import org.jspecify.annotations.Nullable;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authorization.AuthorizationRequest;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.ObjectPostProcessor;
-import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.core.Authentication;
@@ -55,21 +55,22 @@ import org.springframework.security.web.authentication.Http403ForbiddenEntryPoin
 import org.springframework.util.Assert;
 
 public final class MfaConfigurer<B extends HttpSecurityBuilder<B>>
-		implements SecurityConfigurer<DefaultSecurityFilterChain, B> {
+		extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, B> {
 
 	private final Customizer<AuthorizeHttpRequestsConfigurer<B>> authorize;
 
 	private final Customizer<ExceptionHandlingConfigurer<B>> exceptions;
 
-	private Supplier<AuthenticationEntryPoint> entryPoint = Http403ForbiddenEntryPoint::new;
+	private Supplier<AuthorizationEntryPoint> entryPoint = () -> new AuthenticationEntryPointAdapter(
+			new Http403ForbiddenEntryPoint());
 
 	private AuthoritiesGranter authoritiesGranter;
 
 	public MfaConfigurer(String authority, SecurityConfigurerAdapter<?, B> configurer) {
 		this.authoritiesGranter = new SimpleAuthoritiesGranter(authority);
 		this.authorize = (a) -> a.getRegistry().hasAuthority(authority);
-		this.exceptions = (e) -> e.authorizationEntryPoint(
-				(p) -> p.add(new SimpleAuthorizationEntryPoint(this.entryPoint.get(), this.authoritiesGranter)));
+		this.exceptions = (e) -> e.authorizationEntryPoint((p) -> p
+			.add(new AuthoritiesGranterAuthorizationEntryPoint(this.entryPoint.get(), this.authoritiesGranter)));
 		configurer.addObjectPostProcessor(new ObjectPostProcessor<AuthenticationManager>() {
 			@Override
 			public AuthenticationManager postProcess(AuthenticationManager object) {
@@ -79,12 +80,12 @@ public final class MfaConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	public MfaConfigurer<B> authenticationEntryPoint(Supplier<AuthenticationEntryPoint> entryPoint) {
-		this.entryPoint = entryPoint;
+		this.entryPoint = () -> new AuthenticationEntryPointAdapter(entryPoint.get());
 		return this;
 	}
 
 	public MfaConfigurer<B> authenticationEntryPoint(AuthenticationEntryPoint entryPoint) {
-		this.entryPoint = () -> entryPoint;
+		this.entryPoint = () -> new AuthenticationEntryPointAdapter(entryPoint);
 		return this;
 	}
 
@@ -247,27 +248,43 @@ public final class MfaConfigurer<B extends HttpSecurityBuilder<B>>
 
 	}
 
-	static final class SimpleAuthorizationEntryPoint implements AuthorizationEntryPoint {
-
-		private final AuthoritiesGranter authoritiesGranter;
+	static final class AuthenticationEntryPointAdapter implements AuthorizationEntryPoint {
 
 		private final AuthenticationEntryPoint authenticationEntryPoint;
 
-		SimpleAuthorizationEntryPoint(AuthenticationEntryPoint authenticationEntryPoint,
-				AuthoritiesGranter authoritiesGranter) {
-			this.authoritiesGranter = authoritiesGranter;
+		AuthenticationEntryPointAdapter(AuthenticationEntryPoint authenticationEntryPoint) {
 			this.authenticationEntryPoint = authenticationEntryPoint;
 		}
 
 		@Override
-		public Collection<GrantedAuthority> grantableAuthorities(AuthorizationRequest request) {
-			return this.authoritiesGranter.grantableAuthorities(request);
+		public boolean commence(HttpServletRequest request, HttpServletResponse response,
+				AuthorizationRequest authorizationRequest) throws IOException, ServletException {
+			this.authenticationEntryPoint.commence(request, response,
+					new InsufficientAuthenticationException("access denied"));
+			return true;
+		}
+
+	}
+
+	static final class AuthoritiesGranterAuthorizationEntryPoint implements AuthorizationEntryPoint {
+
+		private final AuthoritiesGranter authoritiesGranter;
+
+		private final AuthorizationEntryPoint authorizationEntryPoint;
+
+		AuthoritiesGranterAuthorizationEntryPoint(AuthorizationEntryPoint authorizationEntryPoint,
+				AuthoritiesGranter authoritiesGranter) {
+			this.authoritiesGranter = authoritiesGranter;
+			this.authorizationEntryPoint = authorizationEntryPoint;
 		}
 
 		@Override
-		public void commence(HttpServletRequest request, HttpServletResponse response,
-				AuthenticationException authException) throws IOException, ServletException {
-			this.authenticationEntryPoint.commence(request, response, authException);
+		public boolean commence(HttpServletRequest request, HttpServletResponse response,
+				AuthorizationRequest authorizationRequest) throws IOException, ServletException {
+			if (this.authoritiesGranter.grantableAuthorities(authorizationRequest).isEmpty()) {
+				return false;
+			}
+			return this.authorizationEntryPoint.commence(request, response, authorizationRequest);
 		}
 
 	}
