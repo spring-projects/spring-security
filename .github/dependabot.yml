@@ -3,6 +3,9 @@ registries:
   spring-milestones:
     type: maven-repository
     url: https://repo.spring.io/milestone
+  shibboleth:
+    type: maven-repository
+    url: https://build.shibboleth.net/maven/releases
 updates:
   - package-ecosystem: gradle
     target-branch: 6.5.x
@@ -15,6 +18,7 @@ updates:
       - 'type: dependency-upgrade'
     registries:
       - spring-milestones
+      - shibboleth
     ignore:
       - dependency-name: com.nimbusds:nimbus-jose-jwt
       - dependency-name: org.python:jython
@@ -41,6 +45,7 @@ updates:
       - 'type: dependency-upgrade'
     registries:
       - spring-milestones
+      - shibboleth
     ignore:
       - dependency-name: com.nimbusds:nimbus-jose-jwt
       - dependency-name: org.python:jython
@@ -67,6 +72,7 @@ updates:
       - 'type: dependency-upgrade'
     registries:
       - spring-milestones
+      - shibboleth
     ignore:
       - dependency-name: com.nimbusds:nimbus-jose-jwt
       - dependency-name: org.python:jython
@@ -93,6 +99,7 @@ updates:
       - 'type: dependency-upgrade'
     registries:
       - spring-milestones
+      - shibboleth
     ignore:
       - dependency-name: com.nimbusds:nimbus-jose-jwt
       - dependency-name: org.python:jython
