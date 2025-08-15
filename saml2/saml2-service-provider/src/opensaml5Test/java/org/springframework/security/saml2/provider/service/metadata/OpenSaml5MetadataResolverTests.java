@@ -37,8 +37,8 @@ public class OpenSaml5MetadataResolverTests {
 		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.full()
 			.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT)
 			.build();
-		OpenSaml5MetadataResolver OpenSaml4MetadataResolver = new OpenSaml5MetadataResolver();
-		String metadata = OpenSaml4MetadataResolver.resolve(relyingPartyRegistration);
+		OpenSaml5MetadataResolver metadataResolver = new OpenSaml5MetadataResolver();
+		String metadata = metadataResolver.resolve(relyingPartyRegistration);
 		assertThat(metadata).contains("<md:EntityDescriptor")
 			.contains("entityID=\"rp-entity-id\"")
 			.contains("<md:KeyDescriptor use=\"signing\">")
@@ -54,9 +54,9 @@ public class OpenSaml5MetadataResolverTests {
 		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.full()
 			.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT)
 			.build();
-		OpenSaml5MetadataResolver OpenSaml4MetadataResolver = new OpenSaml5MetadataResolver();
-		OpenSaml4MetadataResolver.setSignMetadata(true);
-		String metadata = OpenSaml4MetadataResolver.resolve(relyingPartyRegistration);
+		OpenSaml5MetadataResolver metadataResolver = new OpenSaml5MetadataResolver();
+		metadataResolver.setSignMetadata(true);
+		String metadata = metadataResolver.resolve(relyingPartyRegistration);
 		assertThat(metadata).contains("<md:EntityDescriptor")
 			.contains("entityID=\"rp-entity-id\"")
 			.contains("<md:KeyDescriptor use=\"signing\">")
@@ -82,8 +82,8 @@ public class OpenSaml5MetadataResolverTests {
 			.assertingPartyMetadata((party) -> party
 				.verificationX509Credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
 			.build();
-		OpenSaml5MetadataResolver OpenSaml4MetadataResolver = new OpenSaml5MetadataResolver();
-		String metadata = OpenSaml4MetadataResolver.resolve(relyingPartyRegistration);
+		OpenSaml5MetadataResolver metadataResolver = new OpenSaml5MetadataResolver();
+		String metadata = metadataResolver.resolve(relyingPartyRegistration);
 		assertThat(metadata).contains("<md:EntityDescriptor")
 			.contains("entityID=\"rp-entity-id\"")
 			.doesNotContain("<md:KeyDescriptor use=\"signing\">")
@@ -98,8 +98,8 @@ public class OpenSaml5MetadataResolverTests {
 		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.full()
 			.nameIdFormat("format")
 			.build();
-		OpenSaml5MetadataResolver OpenSaml4MetadataResolver = new OpenSaml5MetadataResolver();
-		String metadata = OpenSaml4MetadataResolver.resolve(relyingPartyRegistration);
+		OpenSaml5MetadataResolver metadataResolver = new OpenSaml5MetadataResolver();
+		String metadata = metadataResolver.resolve(relyingPartyRegistration);
 		assertThat(metadata).contains("<md:NameIDFormat>format</md:NameIDFormat>");
 	}
 
@@ -109,8 +109,8 @@ public class OpenSaml5MetadataResolverTests {
 			.singleLogoutServiceLocation(null)
 			.nameIdFormat("format")
 			.build();
-		OpenSaml5MetadataResolver OpenSaml4MetadataResolver = new OpenSaml5MetadataResolver();
-		String metadata = OpenSaml4MetadataResolver.resolve(relyingPartyRegistration);
+		OpenSaml5MetadataResolver metadataResolver = new OpenSaml5MetadataResolver();
+		String metadata = metadataResolver.resolve(relyingPartyRegistration);
 		assertThat(metadata).doesNotContain("ResponseLocation");
 	}
 
@@ -119,10 +119,10 @@ public class OpenSaml5MetadataResolverTests {
 		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.full()
 			.entityId("originalEntityId")
 			.build();
-		OpenSaml5MetadataResolver OpenSaml4MetadataResolver = new OpenSaml5MetadataResolver();
-		OpenSaml4MetadataResolver.setEntityDescriptorCustomizer(
+		OpenSaml5MetadataResolver metadataResolver = new OpenSaml5MetadataResolver();
+		metadataResolver.setEntityDescriptorCustomizer(
 				(parameters) -> parameters.getEntityDescriptor().setEntityID("overriddenEntityId"));
-		String metadata = OpenSaml4MetadataResolver.resolve(relyingPartyRegistration);
+		String metadata = metadataResolver.resolve(relyingPartyRegistration);
 		assertThat(metadata).contains("<md:EntityDescriptor").contains("entityID=\"overriddenEntityId\"");
 	}
 
@@ -135,8 +135,8 @@ public class OpenSaml5MetadataResolverTests {
 			.entityId("two")
 			.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT)
 			.build();
-		OpenSaml5MetadataResolver OpenSaml4MetadataResolver = new OpenSaml5MetadataResolver();
-		String metadata = OpenSaml4MetadataResolver.resolve(List.of(one, two));
+		OpenSaml5MetadataResolver metadataResolver = new OpenSaml5MetadataResolver();
+		String metadata = metadataResolver.resolve(List.of(one, two));
 		assertThat(metadata).contains("<md:EntitiesDescriptor")
 			.contains("<md:EntityDescriptor")
 			.contains("entityID=\"rp-entity-id\"")
@@ -158,9 +158,9 @@ public class OpenSaml5MetadataResolverTests {
 			.entityId("two")
 			.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT)
 			.build();
-		OpenSaml5MetadataResolver OpenSaml5MetadataResolver = new OpenSaml5MetadataResolver();
-		OpenSaml5MetadataResolver.setSignMetadata(true);
-		String metadata = OpenSaml5MetadataResolver.resolve(List.of(one, two));
+		OpenSaml5MetadataResolver metadataResolver = new OpenSaml5MetadataResolver();
+		metadataResolver.setSignMetadata(true);
+		String metadata = metadataResolver.resolve(List.of(one, two));
 		assertThat(metadata).contains("<md:EntitiesDescriptor")
 			.contains("<md:EntityDescriptor")
 			.contains("entityID=\"rp-entity-id\"")

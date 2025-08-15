@@ -6,23 +6,10 @@ configurations {
 }
 
 sourceSets {
-	opensaml4Main {
-		java {
-			compileClasspath += main.output
-			srcDir 'src/opensaml4Main/java'
-		}
-	}
 	opensaml5Main {
 		java {
 			compileClasspath = main.output + configurations.opensamlFiveMain
 			srcDir 'src/opensaml5Main/java'
-		}
-	}
-	opensaml4Test {
-		java {
-			compileClasspath += main.output + test.output + opensaml4Main.output + test.compileClasspath
-			runtimeClasspath += main.output + test.output + opensaml4Main.output + test.runtimeClasspath
-			srcDir 'src/opensaml4Test/java'
 		}
 	}
 	opensaml5Test {
@@ -99,7 +86,7 @@ dependencies {
 	opensamlFiveMain (libs.org.opensaml.opensaml5.saml.api)  {
 		exclude group: 'commons-logging', module: 'commons-logging'
 	}
-	opensamlFiveMain (libs.org.opensaml.opensaml5.saml.impl)  {
+	opensamlFiveMain (libs.org.opensaml.opensaml5.saml.api)  {
 		exclude group: 'commons-logging', module: 'commons-logging'
 	}
 
@@ -125,31 +112,22 @@ dependencies {
 
 jar {
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-	from sourceSets.opensaml4Main.output
 	from sourceSets.opensaml5Main.output
 }
 
 sourcesJar {
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-	from sourceSets.opensaml4Main.allJava
 	from sourceSets.opensaml5Main.allJava
 }
 
 testJar {
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-	from sourceSets.opensaml4Test.output
 	from sourceSets.opensaml5Test.output
 }
 
 javadoc {
 	classpath += configurations.opensamlFiveMain
-	source = sourceSets.main.allJava + sourceSets.opensaml4Main.allJava + sourceSets.opensaml5Main.allJava
-}
-
-tasks.register("opensaml4Test", Test) {
-	useJUnitPlatform()
-	testClassesDirs = sourceSets.opensaml4Test.output.classesDirs
-	classpath = sourceSets.opensaml4Test.runtimeClasspath
+	source = sourceSets.main.allJava + sourceSets.opensaml5Main.allJava
 }
 
 tasks.register("opensaml5Test", Test) {
@@ -159,6 +137,5 @@ tasks.register("opensaml5Test", Test) {
 }
 
 tasks.named("test") {
-	dependsOn opensaml4Test
 	dependsOn opensaml5Test
 }

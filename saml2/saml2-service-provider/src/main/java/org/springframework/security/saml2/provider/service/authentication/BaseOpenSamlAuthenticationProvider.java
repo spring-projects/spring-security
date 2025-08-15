@@ -253,13 +253,6 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 				(params) -> params.put(SAML2AssertionValidationParameters.CLOCK_SKEW, Duration.ofMinutes(5)));
 	}
 
-	static Converter<AssertionToken, Saml2ResponseValidatorResult> createDefaultAssertionValidator(
-			Converter<AssertionToken, ValidationContext> contextConverter) {
-
-		return createAssertionValidator(Saml2ErrorCodes.INVALID_ASSERTION,
-				(assertionToken) -> SAML20AssertionValidators.attributeValidator, contextConverter);
-	}
-
 	static Converter<AssertionToken, Saml2ResponseValidatorResult> createDefaultAssertionValidatorWithParameters(
 			Consumer<Map<String, Object>> validationContextParameters) {
 		return createAssertionValidator(Saml2ErrorCodes.INVALID_ASSERTION,
@@ -523,7 +516,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 				return Saml2ResponseValidatorResult.failure(new Saml2Error(errorCode, message));
 			}
 			String message = String.format("Invalid assertion [%s] for SAML response [%s]: %s", assertion.getID(),
-					((Response) assertion.getParent()).getID(), context.getValidationFailureMessage());
+					((Response) assertion.getParent()).getID(), context.getValidationFailureMessages());
 			return Saml2ResponseValidatorResult.failure(new Saml2Error(errorCode, message));
 		};
 	}

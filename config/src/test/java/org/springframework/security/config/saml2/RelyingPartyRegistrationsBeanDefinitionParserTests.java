@@ -37,7 +37,7 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
-import org.springframework.security.saml2.provider.service.web.authentication.OpenSaml4AuthenticationRequestResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.OpenSaml5AuthenticationRequestResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -279,8 +279,8 @@ public class RelyingPartyRegistrationsBeanDefinitionParserTests {
 	public void parseWhenRelayStateResolverThenUses() {
 		this.spring.configLocations(xml("RelayStateResolver")).autowire();
 		Converter<HttpServletRequest, String> relayStateResolver = this.spring.getContext().getBean(Converter.class);
-		OpenSaml4AuthenticationRequestResolver authenticationRequestResolver = this.spring.getContext()
-			.getBean(OpenSaml4AuthenticationRequestResolver.class);
+		OpenSaml5AuthenticationRequestResolver authenticationRequestResolver = this.spring.getContext()
+			.getBean(OpenSaml5AuthenticationRequestResolver.class);
 		MockHttpServletRequest request = get("/saml2/authenticate/one").build();
 		authenticationRequestResolver.resolve(request);
 		verify(relayStateResolver).convert(request);

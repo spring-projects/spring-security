@@ -47,7 +47,7 @@
     </asserting-party>
   </relying-party-registrations>
 
-  <b:bean class="org.springframework.security.saml2.provider.service.web.authentication.OpenSaml4AuthenticationRequestResolver">
+  <b:bean class="org.springframework.security.saml2.provider.service.web.authentication.OpenSaml5AuthenticationRequestResolver">
     <b:constructor-arg ref="registrations"/>
     <b:property name="relayStateResolver" ref="relayStateResolver"/>
   </b:bean>

@@ -22,14 +22,10 @@ import org.w3c.dom.Element;
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.security.saml2.provider.service.authentication.logout.OpenSaml4LogoutRequestValidator;
-import org.springframework.security.saml2.provider.service.authentication.logout.OpenSaml4LogoutResponseValidator;
 import org.springframework.security.saml2.provider.service.authentication.logout.OpenSaml5LogoutRequestValidator;
 import org.springframework.security.saml2.provider.service.authentication.logout.OpenSaml5LogoutResponseValidator;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.HttpSessionLogoutRequestRepository;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestResolver;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutResponseResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml5LogoutRequestResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml5LogoutResponseResolver;
 import org.springframework.util.StringUtils;
@@ -76,9 +72,8 @@ final class Saml2LogoutBeanDefinitionParserUtils {
 				.addConstructorArgValue(registrations)
 				.getBeanDefinition();
 		}
-		return BeanDefinitionBuilder.rootBeanDefinition(OpenSaml4LogoutResponseResolver.class)
-			.addConstructorArgValue(registrations)
-			.getBeanDefinition();
+		throw new IllegalArgumentException(
+				"Spring Security does not support OpenSAML " + Version.getVersion() + ". Please use OpenSAML 5");
 	}
 
 	static BeanMetadataElement getLogoutRequestValidator(Element element) {
@@ -89,7 +84,8 @@ final class Saml2LogoutBeanDefinitionParserUtils {
 		if (USE_OPENSAML_5) {
 			return BeanDefinitionBuilder.rootBeanDefinition(OpenSaml5LogoutRequestValidator.class).getBeanDefinition();
 		}
-		return BeanDefinitionBuilder.rootBeanDefinition(OpenSaml4LogoutRequestValidator.class).getBeanDefinition();
+		throw new IllegalArgumentException(
+				"Spring Security does not support OpenSAML " + Version.getVersion() + ". Please use OpenSAML 5");
 	}
 
 	static BeanMetadataElement getLogoutResponseValidator(Element element) {
@@ -100,7 +96,8 @@ final class Saml2LogoutBeanDefinitionParserUtils {
 		if (USE_OPENSAML_5) {
 			return BeanDefinitionBuilder.rootBeanDefinition(OpenSaml5LogoutResponseValidator.class).getBeanDefinition();
 		}
-		return BeanDefinitionBuilder.rootBeanDefinition(OpenSaml4LogoutResponseValidator.class).getBeanDefinition();
+		throw new IllegalArgumentException(
+				"Spring Security does not support OpenSAML " + Version.getVersion() + ". Please use OpenSAML 5");
 	}
 
 	static BeanMetadataElement getLogoutRequestRepository(Element element) {
@@ -121,9 +118,8 @@ final class Saml2LogoutBeanDefinitionParserUtils {
 				.addConstructorArgValue(registrations)
 				.getBeanDefinition();
 		}
-		return BeanDefinitionBuilder.rootBeanDefinition(OpenSaml4LogoutRequestResolver.class)
-			.addConstructorArgValue(registrations)
-			.getBeanDefinition();
+		throw new IllegalArgumentException(
+				"Spring Security does not support OpenSAML " + Version.getVersion() + ". Please use OpenSAML 5");
 	}
 
 }

@@ -24,13 +24,11 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.HttpSessionSaml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
-import org.springframework.security.saml2.provider.service.web.authentication.OpenSaml4AuthenticationRequestResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.OpenSaml5AuthenticationRequestResolver;
 import org.springframework.util.StringUtils;
 
@@ -90,16 +88,16 @@ final class Saml2LoginBeanDefinitionParserUtils {
 				.addConstructorArgValue(defaultRelyingPartyRegistrationResolver)
 				.getBeanDefinition();
 		}
-		return BeanDefinitionBuilder.rootBeanDefinition(OpenSaml4AuthenticationRequestResolver.class)
-			.addConstructorArgValue(defaultRelyingPartyRegistrationResolver)
-			.getBeanDefinition();
+		throw new IllegalArgumentException(
+				"Spring Security does not support OpenSAML " + Version.getVersion() + ". Please use OpenSAML 5");
 	}
 
 	static BeanDefinition createAuthenticationProvider() {
 		if (USE_OPENSAML_5) {
 			return BeanDefinitionBuilder.rootBeanDefinition(OpenSaml5AuthenticationProvider.class).getBeanDefinition();
 		}
-		return BeanDefinitionBuilder.rootBeanDefinition(OpenSaml4AuthenticationProvider.class).getBeanDefinition();
+		throw new IllegalArgumentException(
+				"Spring Security does not support OpenSAML " + Version.getVersion() + ". Please use OpenSAML 5");
 	}
 
 	static BeanMetadataElement getAuthenticationConverter(Element element) {
