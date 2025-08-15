@@ -354,8 +354,8 @@ Java::
 ----
 @Bean
 Saml2LogoutRequestResolver logoutRequestResolver(RelyingPartyRegistrationRepository registrations) {
-	OpenSaml4LogoutRequestResolver logoutRequestResolver =
-			new OpenSaml4LogoutRequestResolver(registrations);
+	OpenSaml5LogoutRequestResolver logoutRequestResolver =
+			new OpenSaml5LogoutRequestResolver(registrations);
 	logoutRequestResolver.setParametersConsumer((parameters) -> {
 		String name = ((Saml2AuthenticatedPrincipal) parameters.getAuthentication().getPrincipal()).getFirstAttribute("CustomAttribute");
 		String format = "urn:oasis:names:tc:SAML:2.0:nameid-format:transient";
@@ -374,7 +374,7 @@ Kotlin::
 ----
 @Bean
 open fun logoutRequestResolver(registrations:RelyingPartyRegistrationRepository?): Saml2LogoutRequestResolver {
-    val logoutRequestResolver = OpenSaml4LogoutRequestResolver(registrations)
+    val logoutRequestResolver = OpenSaml5LogoutRequestResolver(registrations)
     logoutRequestResolver.setParametersConsumer { parameters: LogoutRequestParameters ->
         val name: String = (parameters.getAuthentication().getPrincipal() as Saml2AuthenticatedPrincipal).getFirstAttribute("CustomAttribute")
         val format = "urn:oasis:names:tc:SAML:2.0:nameid-format:transient"
@@ -439,8 +439,8 @@ Java::
 ----
 @Bean
 public Saml2LogoutResponseResolver logoutResponseResolver(RelyingPartyRegistrationRepository registrations) {
-	OpenSaml4LogoutResponseResolver logoutRequestResolver =
-			new OpenSaml4LogoutResponseResolver(registrations);
+	OpenSaml5LogoutResponseResolver logoutRequestResolver =
+			new OpenSaml5LogoutResponseResolver(registrations);
 	logoutRequestResolver.setParametersConsumer((parameters) -> {
 		if (checkOtherPrevailingConditions(parameters.getRequest())) {
 			parameters.getLogoutRequest().getStatus().getStatusCode().setCode(StatusCode.PARTIAL_LOGOUT);
@@ -456,7 +456,7 @@ Kotlin::
 ----
 @Bean
 open fun logoutResponseResolver(registrations: RelyingPartyRegistrationRepository?): Saml2LogoutResponseResolver {
-    val logoutRequestResolver = OpenSaml4LogoutResponseResolver(registrations)
+    val logoutRequestResolver = OpenSaml5LogoutResponseResolver(registrations)
     logoutRequestResolver.setParametersConsumer { LogoutResponseParameters parameters ->
         if (checkOtherPrevailingConditions(parameters.getRequest())) {
             parameters.getLogoutRequest().getStatus().getStatusCode().setCode(StatusCode.PARTIAL_LOGOUT)
@@ -605,7 +605,7 @@ Kotlin::
 ----
 @Component
 open class MyOpenSamlLogoutResponseValidator: Saml2LogoutResponseValidator {
-	private val delegate = OpenSaml4LogoutResponseValidator()
+	private val delegate = OpenSaml5LogoutResponseValidator()
 
 	@Override
     fun logout(parameters: Saml2LogoutResponseValidatorParameters): Saml2LogoutResponseValidator {

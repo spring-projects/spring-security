@@ -43,7 +43,7 @@ This allows three valuable features:
 * Implementations of `RelyingPartyRegistrationRepository` can more easily articulate a relationship between a relying party and its one or many corresponding asserting parties
 * Implementations can verify metadata signatures
 
-For example, `OpenSaml4AssertingPartyMetadataRepository` uses OpenSAML's `MetadataResolver`, and API whose implementations regularly refresh the underlying metadata in an expiry-aware fashion.
+For example, `OpenSaml5AssertingPartyMetadataRepository` uses OpenSAML's `MetadataResolver`, and API whose implementations regularly refresh the underlying metadata in an expiry-aware fashion.
 
 This means that you can now create a refreshable `RelyingPartyRegistrationRepository` in just a few lines of code:
 
@@ -120,11 +120,11 @@ class RefreshableRelyingPartyRegistrationRepository : IterableRelyingPartyRegist
 ======
 
 [TIP]
-`OpenSaml4AssertingPartyMetadataRepository` also ships with a constructor so you can provide a custom `MetadataResolver`. Since the underlying `MetadataResolver` is doing the expiring and refreshing, if you use the constructor directly, you will only get these features by providing an implementation that does so.
+`OpenSaml5AssertingPartyMetadataRepository` also ships with a constructor so you can provide a custom `MetadataResolver`. Since the underlying `MetadataResolver` is doing the expiring and refreshing, if you use the constructor directly, you will only get these features by providing an implementation that does so.
 
 === Verifying Metadata Signatures
 
-You can also verify metadata signatures using `OpenSaml4AssertingPartyMetadataRepository` by providing the appropriate set of ``Saml2X509Credential``s as follows:
+You can also verify metadata signatures using `OpenSaml5AssertingPartyMetadataRepository` by providing the appropriate set of ``Saml2X509Credential``s as follows:
 
 [tabs]
 ======

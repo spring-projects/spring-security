@@ -267,7 +267,7 @@ var relyingPartyRegistration: RelyingPartyRegistration? =
 There are a number of reasons that you may want to adjust an `AuthnRequest`.
 For example, you may want `ForceAuthN` to be set to `true`, which Spring Security sets to `false` by default.
 
-You can customize elements of OpenSAML's `AuthnRequest` by publishing an `OpenSaml4AuthenticationRequestResolver` as a `@Bean`, like so:
+You can customize elements of OpenSAML's `AuthnRequest` by publishing an `OpenSaml5AuthenticationRequestResolver` as a `@Bean`, like so:
 
 [tabs]
 ======
@@ -279,8 +279,8 @@ Java::
 Saml2AuthenticationRequestResolver authenticationRequestResolver(RelyingPartyRegistrationRepository registrations) {
     RelyingPartyRegistrationResolver registrationResolver =
             new DefaultRelyingPartyRegistrationResolver(registrations);
-    OpenSaml4AuthenticationRequestResolver authenticationRequestResolver =
-            new OpenSaml4AuthenticationRequestResolver(registrationResolver);
+    OpenSaml5AuthenticationRequestResolver authenticationRequestResolver =
+            new OpenSaml5AuthenticationRequestResolver(registrationResolver);
     authenticationRequestResolver.setAuthnRequestCustomizer((context) -> context
             .getAuthnRequest().setForceAuthn(true));
     return authenticationRequestResolver;
@@ -295,8 +295,8 @@ Kotlin::
 fun authenticationRequestResolver(registrations : RelyingPartyRegistrationRepository) : Saml2AuthenticationRequestResolver {
     val registrationResolver : RelyingPartyRegistrationResolver =
             new DefaultRelyingPartyRegistrationResolver(registrations)
-    val authenticationRequestResolver : OpenSaml4AuthenticationRequestResolver =
-            new OpenSaml4AuthenticationRequestResolver(registrationResolver)
+    val authenticationRequestResolver : OpenSaml5AuthenticationRequestResolver =
+            new OpenSaml5AuthenticationRequestResolver(registrationResolver)
     authenticationRequestResolver.setAuthnRequestCustomizer((context) -> context
             .getAuthnRequest().setForceAuthn(true))
     return authenticationRequestResolver

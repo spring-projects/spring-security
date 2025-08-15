@@ -49,7 +49,7 @@ This filter calls its configured `AuthenticationConverter` to create a `Saml2Aut
 This converter additionally resolves the <<servlet-saml2login-relyingpartyregistration, `RelyingPartyRegistration`>> and supplies it to `Saml2AuthenticationToken`.
 
 image:{icondir}/number_2.png[] Next, the filter passes the token to its configured xref:servlet/authentication/architecture.adoc#servlet-authentication-providermanager[`AuthenticationManager`].
-By default, it uses the <<servlet-saml2login-architecture,`OpenSaml4AuthenticationProvider`>>.
+By default, it uses the <<servlet-saml2login-architecture,`OpenSaml5AuthenticationProvider`>>.
 
 image:{icondir}/number_3.png[] If authentication fails, then _Failure_.
 

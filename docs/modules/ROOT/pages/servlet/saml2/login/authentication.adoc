@@ -1,7 +1,7 @@
 [[servlet-saml2login-authenticate-responses]]
 = Authenticating ``<saml2:Response>``s
 
-To verify SAML 2.0 Responses, Spring Security uses xref:servlet/saml2/login/overview.adoc#servlet-saml2login-authentication-saml2authenticationtokenconverter[`Saml2AuthenticationTokenConverter`] to populate the `Authentication` request and xref:servlet/saml2/login/overview.adoc#servlet-saml2login-architecture[`OpenSaml4AuthenticationProvider`] to authenticate it.
+To verify SAML 2.0 Responses, Spring Security uses xref:servlet/saml2/login/overview.adoc#servlet-saml2login-authentication-saml2authenticationtokenconverter[`Saml2AuthenticationTokenConverter`] to populate the `Authentication` request and xref:servlet/saml2/login/overview.adoc#servlet-saml2login-architecture[`OpenSaml5AuthenticationProvider`] to authenticate it.
 
 You can configure this in a number of ways including:
 
@@ -123,76 +123,7 @@ fun securityFilters(val http: HttpSecurity, val converter: AuthenticationConvert
 == Setting a Clock Skew
 
 It's not uncommon for the asserting and relying parties to have system clocks that aren't perfectly synchronized.
-For that reason, you can configure ``OpenSaml4AuthenticationProvider``'s default assertion validator with some tolerance:
-
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Configuration
-@EnableWebSecurity
-public class SecurityConfig {
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        OpenSaml4AuthenticationProvider authenticationProvider = new OpenSaml4AuthenticationProvider();
-        authenticationProvider.setAssertionValidator(OpenSaml4AuthenticationProvider
-                .createDefaultAssertionValidatorWithParameters(assertionToken -> {
-                    Map<String, Object> params = new HashMap<>();
-                    params.put(CLOCK_SKEW, Duration.ofMinutes(10).toMillis());
-                    // ... other validation parameters
-                    return new ValidationContext(params);
-                })
-        );
-
-        http
-            .authorizeHttpRequests((authorize) -> authorize
-                .anyRequest().authenticated()
-            )
-            .saml2Login((saml2) -> saml2
-                .authenticationManager(new ProviderManager(authenticationProvider))
-            );
-        return http.build();
-    }
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Configuration
-@EnableWebSecurity
-open class SecurityConfig {
-    @Bean
-    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
-        val authenticationProvider = OpenSaml4AuthenticationProvider()
-        authenticationProvider.setAssertionValidator(
-            OpenSaml4AuthenticationProvider
-                .createDefaultAssertionValidatorWithParameters(Converter<OpenSaml4AuthenticationProvider.AssertionToken, ValidationContext> {
-                    val params: MutableMap<String, Any> = HashMap()
-                    params[CLOCK_SKEW] =
-                        Duration.ofMinutes(10).toMillis()
-                    ValidationContext(params)
-                })
-        )
-        http {
-            authorizeHttpRequests {
-                authorize(anyRequest, authenticated)
-            }
-            saml2Login {
-                authenticationManager = ProviderManager(authenticationProvider)
-            }
-        }
-        return http.build()
-    }
-}
-----
-======
-
-If you are using xref:servlet/saml2/opensaml.adoc[OpenSAML 5], then we have a simpler way, using `OpenSaml5AuthenticationProvider.AssertionValidator`:
+For that reason, you can configure `OpenSaml5AuthenticationProvider.AssertionValidator` as follows:
 
 [tabs]
 ======
@@ -381,86 +312,8 @@ open class MyUserDetailsResponseAuthenticationConverter(val delegate: ResponseAu
 If your `UserDetailsService` returns a value that also implements `AuthenticatedPrincipal`, then you don't need a custom authentication implementation.
 ====
 
-Or, if you are using OpenSaml 4, then you can achieve something similar as follows:
-
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Configuration
-@EnableWebSecurity
-public class SecurityConfig {
-    @Autowired
-    UserDetailsService userDetailsService;
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        OpenSaml4AuthenticationProvider authenticationProvider = new OpenSaml4AuthenticationProvider();
-        authenticationProvider.setResponseAuthenticationConverter(responseToken -> {
-            Saml2Authentication authentication = OpenSaml4AuthenticationProvider
-                    .createDefaultResponseAuthenticationConverter() <1>
-                    .convert(responseToken);
-            Assertion assertion = responseToken.getResponse().getAssertions().get(0);
-            String username = assertion.getSubject().getNameID().getValue();
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username); <2>
-            return MySaml2Authentication(userDetails, authentication); <3>
-        });
-
-        http
-            .authorizeHttpRequests((authorize) -> authorize
-                .anyRequest().authenticated()
-            )
-            .saml2Login((saml2) -> saml2
-                .authenticationManager(new ProviderManager(authenticationProvider))
-            );
-        return http.build();
-    }
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Configuration
-@EnableWebSecurity
-open class SecurityConfig {
-    @Autowired
-    var userDetailsService: UserDetailsService? = null
-
-    @Bean
-    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
-        val authenticationProvider = OpenSaml4AuthenticationProvider()
-        authenticationProvider.setResponseAuthenticationConverter { responseToken: OpenSaml4AuthenticationProvider.ResponseToken ->
-            val authentication = OpenSaml4AuthenticationProvider
-                .createDefaultResponseAuthenticationConverter() <1>
-                .convert(responseToken)
-            val assertion: Assertion = responseToken.response.assertions[0]
-            val username: String = assertion.subject.nameID.value
-            val userDetails = userDetailsService!!.loadUserByUsername(username) <2>
-            MySaml2Authentication(userDetails, authentication) <3>
-        }
-        http {
-            authorizeHttpRequests {
-                authorize(anyRequest, authenticated)
-            }
-            saml2Login {
-                authenticationManager = ProviderManager(authenticationProvider)
-            }
-        }
-        return http.build()
-    }
-}
-----
-======
-<1> First, call the default converter, which extracts attributes and authorities from the response
-<2> Second, call the xref:servlet/authentication/passwords/user-details-service.adoc#servlet-authentication-userdetailsservice[`UserDetailsService`] using the relevant information
-<3> Third, return a custom authentication that includes the user details
-
 [NOTE]
-It's not required to call ``OpenSaml4AuthenticationProvider``'s default authentication converter.
+It's not required to call ``OpenSaml5AuthenticationProvider``'s default authentication converter.
 It returns a `Saml2AuthenticatedPrincipal` containing the attributes it extracted from ``AttributeStatement``s as well as the single `ROLE_USER` authority.
 
 === Configuring the Principal Name
@@ -538,28 +391,10 @@ fun authenticationConverter(): ResponseAuthenticationConverter {
 [[servlet-saml2login-opensamlauthenticationprovider-additionalvalidation]]
 == Performing Additional Response Validation
 
-`OpenSaml4AuthenticationProvider` validates the `Issuer` and `Destination` values right after decrypting the `Response`.
+`OpenSaml5AuthenticationProvider` validates the `Issuer` and `Destination` values right after decrypting the `Response`.
 You can customize the validation by extending the default validator concatenating with your own response validator, or you can replace it entirely with yours.
 
 For example, you can throw a custom exception with any additional information available in the `Response` object, like so:
-[source,java]
-----
-OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
-provider.setResponseValidator((responseToken) -> {
-	Saml2ResponseValidatorResult result = OpenSaml4AuthenticationProvider
-		.createDefaultResponseValidator()
-		.convert(responseToken)
-		.concat(myCustomValidator.convert(responseToken));
-	if (!result.getErrors().isEmpty()) {
-		String inResponseTo = responseToken.getInResponseTo();
-		throw new CustomSaml2AuthenticationException(result, inResponseTo);
-	}
-	return result;
-});
-----
-
-When using `OpenSaml5AuthenticationProvider`, you can do the same with less boilerplate:
-
 [source,java]
 ----
 OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
@@ -583,73 +418,16 @@ OpenSAML performs `Asssertion#InResponseTo` validation in its `BearerSubjectConf
 ====
 
 == Performing Additional Assertion Validation
-`OpenSaml4AuthenticationProvider` performs minimal validation on SAML 2.0 Assertions.
+`OpenSaml5AuthenticationProvider` performs minimal validation on SAML 2.0 Assertions.
 After verifying the signature, it will:
 
 1. Validate `<AudienceRestriction>` and `<DelegationRestriction>` conditions
 2. Validate ``<SubjectConfirmation>``s, expect for any IP address information
 
-To perform additional validation, you can configure your own assertion validator that delegates to ``OpenSaml4AuthenticationProvider``'s default and then performs its own.
+To perform additional validation, you can configure your own assertion validator that delegates to ``OpenSaml5AuthenticationProvider``'s default and then performs its own.
 
 [[servlet-saml2login-opensamlauthenticationprovider-onetimeuse]]
 For example, you can use OpenSAML's `OneTimeUseConditionValidator` to also validate a `<OneTimeUse>` condition, like so:
-
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
-OneTimeUseConditionValidator validator = ...;
-provider.setAssertionValidator(assertionToken -> {
-    Saml2ResponseValidatorResult result = OpenSaml4AuthenticationProvider
-            .createDefaultAssertionValidator()
-            .convert(assertionToken);
-    Assertion assertion = assertionToken.getAssertion();
-    OneTimeUse oneTimeUse = assertion.getConditions().getOneTimeUse();
-    ValidationContext context = new ValidationContext();
-    try {
-        if (validator.validate(oneTimeUse, assertion, context) = ValidationResult.VALID) {
-            return result;
-        }
-    } catch (Exception e) {
-        return result.concat(new Saml2Error(INVALID_ASSERTION, e.getMessage()));
-    }
-    return result.concat(new Saml2Error(INVALID_ASSERTION, context.getValidationFailureMessage()));
-});
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-var provider = OpenSaml4AuthenticationProvider()
-var validator: OneTimeUseConditionValidator = ...
-provider.setAssertionValidator { assertionToken ->
-    val result = OpenSaml4AuthenticationProvider
-        .createDefaultAssertionValidator()
-        .convert(assertionToken)
-    val assertion: Assertion = assertionToken.assertion
-    val oneTimeUse: OneTimeUse = assertion.conditions.oneTimeUse
-    val context = ValidationContext()
-    try {
-        if (validator.validate(oneTimeUse, assertion, context) = ValidationResult.VALID) {
-            return@setAssertionValidator result
-        }
-    } catch (e: Exception) {
-        return@setAssertionValidator result.concat(Saml2Error(INVALID_ASSERTION, e.message))
-    }
-    result.concat(Saml2Error(INVALID_ASSERTION, context.validationFailureMessage))
-}
-----
-======
-
-[NOTE]
-While recommended, it's not necessary to call ``OpenSaml4AuthenticationProvider``'s default assertion validator.
-A circumstance where you would skip it would be if you don't need it to check the `<AudienceRestriction>` or the `<SubjectConfirmation>` since you are doing those yourself.
-
-If you are using xref:servlet/saml2/opensaml.adoc[OpenSAML 5], then we have a simpler way using `OpenSaml5AuthenticationProvider.AssertionValidator`:
 
 [tabs]
 ======
@@ -708,11 +486,11 @@ provider.setAssertionValidator(assertionValidator)
 
 Spring Security decrypts `<saml2:EncryptedAssertion>`, `<saml2:EncryptedAttribute>`, and `<saml2:EncryptedID>` elements automatically by using the decryption xref:servlet/saml2/login/overview.adoc#servlet-saml2login-rpr-credentials[`Saml2X509Credential` instances] registered in the xref:servlet/saml2/login/overview.adoc#servlet-saml2login-relyingpartyregistration[`RelyingPartyRegistration`].
 
-`OpenSaml4AuthenticationProvider` exposes xref:servlet/saml2/login/overview.adoc#servlet-saml2login-architecture[two decryption strategies].
+`OpenSaml5AuthenticationProvider` exposes xref:servlet/saml2/login/overview.adoc#servlet-saml2login-architecture[two decryption strategies].
 The response decrypter is for decrypting encrypted elements of the `<saml2:Response>`, like `<saml2:EncryptedAssertion>`.
 The assertion decrypter is for decrypting encrypted elements of the `<saml2:Assertion>`, like `<saml2:EncryptedAttribute>` and `<saml2:EncryptedID>`.
 
-You can replace ``OpenSaml4AuthenticationProvider``'s default decryption strategy with your own.
+You can replace ``OpenSaml5AuthenticationProvider``'s default decryption strategy with your own.
 For example, if you have a separate service that decrypts the assertions in a `<saml2:Response>`, you can use it instead like so:
 
 [tabs]
@@ -722,7 +500,7 @@ Java::
 [source,java,role="primary"]
 ----
 MyDecryptionService decryptionService = ...;
-OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
 provider.setResponseElementsDecrypter((responseToken) -> decryptionService.decrypt(responseToken.getResponse()));
 ----
 
@@ -731,7 +509,7 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 val decryptionService: MyDecryptionService = ...
-val provider = OpenSaml4AuthenticationProvider()
+val provider = OpenSaml5AuthenticationProvider()
 provider.setResponseElementsDecrypter { responseToken -> decryptionService.decrypt(responseToken.response) }
 ----
 ======
