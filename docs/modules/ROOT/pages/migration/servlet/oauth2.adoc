@@ -79,43 +79,6 @@ fun jwtDecoder(): JwtDecoder {
 <1> - `validateTypes` now defaults to `false`
 <2> - `JwtTypeValidator#jwt` is added by all `createDefaultXXX` methods
 
-== Do Not Process `<saml2:Response>` GET Requests with `Saml2AuthenticationTokenConverter`
-
-Spring Security does not support processing `<saml2:Response>` payloads over GET as this is not supported by the SAML 2.0 spec.
-
-To better comply with this, `Saml2AuthenticationTokenConverter` and `OpenSaml5AuthenticationTokenConverter` will not process GET requests by default as of Spring Security 8.
-To prepare for this, the property `shouldConvertGetRequests` is available.
-To use it, publish your own converter like so:
-
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Bean
-OpenSaml5AuthenticationTokenConverter authenticationConverter(RelyingPartyRegistrationRepository registrations) {
-	OpenSaml5AuthenticationTokenConverter authenticationConverter = new OpenSaml5AuthenticationTokenConverter(registrations);
-	authenticationConverter.setShouldConvertGetRequests(false);
-	return authenticationConverter;
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Bean
-fun authenticationConverter(val registrations: RelyingPartyRegistrationRepository): Saml2AuthenticationTokenConverter {
-	val authenticationConverter = Saml2AuthenticationTokenConverter(registrations)
-	authenticationConverter.setShouldConvertGetRequests(false)
-	return authenticationConverter
-}
-----
-======
-
-If you must continue using `Saml2AuthenticationTokenConverter` or `OpenSaml5AuthenticationTokenConverter` to process GET requests, you can call `setShouldConvertGetRequests` to `true.`
-
 == Provide an AuthenticationConverter to BearerTokenAuthenticationFilter
 
 In Spring Security 7, `BearerTokenAuthenticationFilter#setBearerTokenResolver` and `#setAuthenticaionDetailsSource` are deprecated in favor of configuring those on `BearerTokenAuthenticationConverter`.
