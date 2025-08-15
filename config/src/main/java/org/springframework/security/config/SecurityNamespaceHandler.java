@@ -18,6 +18,7 @@ package org.springframework.security.config;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -77,17 +78,16 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 
 	public SecurityNamespaceHandler() {
 		String coreVersion = SpringSecurityCoreVersion.getVersion();
+		String configVersion = configVersion();
+		if (!Objects.equals(coreVersion, configVersion)) {
+			String message = "You are attempting to run spring-security-core:%s with spring-security-config:%s";
+			this.logger.error(String.format(message, coreVersion, configVersion));
+		}
+	}
+
+	private static String configVersion() {
 		Package pkg = SpringSecurityCoreVersion.class.getPackage();
-		if (pkg == null || coreVersion == null) {
-			this.logger.info("Couldn't determine package version information.");
-			return;
-		}
-		String version = pkg.getImplementationVersion();
-		this.logger.info("Spring Security 'config' module version is " + version);
-		if (version.compareTo(coreVersion) != 0) {
-			this.logger
-				.error("You are running with different versions of the Spring Security 'core' and 'config' modules");
-		}
+		return (pkg != null) ? pkg.getImplementationVersion() : null;
 	}
 
 	@Override

@@ -16,17 +16,25 @@
 
 package org.springframework.security.config;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
 import org.apache.commons.logging.Log;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
 import org.springframework.security.config.util.SpringSecurityVersions;
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ClassUtils;
 
@@ -35,6 +43,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
@@ -63,8 +73,26 @@ public class SecurityNamespaceHandlerTests {
 	private MockedStatic<ClassUtils> classUtils;
 
 	@Test
-	public void constructionSucceeds() {
+	public void constructionWhenVersionsMatchThenLogsNothing() {
+		Appender<ILoggingEvent> appender = mock(Appender.class);
+		Logger logger = (Logger) LoggerFactory.getLogger(SecurityNamespaceHandler.class);
+		logger.addAppender(appender);
 		assertThat(new SecurityNamespaceHandler()).isNotNull();
+		verify(appender, never()).doAppend(any(ILoggingEvent.class));
+	}
+
+	@Test
+	public void constructorWhenDetectsMismatchingVersionsThenLogsError() {
+		Appender<ILoggingEvent> appender = mock(Appender.class);
+		Logger logger = (Logger) LoggerFactory.getLogger(SecurityNamespaceHandler.class);
+		logger.addAppender(appender);
+		try (MockedStatic<SpringSecurityCoreVersion> core = Mockito.mockStatic(SpringSecurityCoreVersion.class)) {
+			core.when(SpringSecurityCoreVersion::getVersion).thenReturn("mismatching");
+			assertThat(new SecurityNamespaceHandler()).isNotNull();
+			ArgumentCaptor<ILoggingEvent> captor = ArgumentCaptor.forClass(ILoggingEvent.class);
+			verify(appender).doAppend(captor.capture());
+			assertThat(captor.getValue().getLevel()).isEqualTo(Level.ERROR);
+		}
 	}
 
 	@Test
