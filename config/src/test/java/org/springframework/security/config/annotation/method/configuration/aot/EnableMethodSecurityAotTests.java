@@ -18,6 +18,8 @@ package org.springframework.security.config.annotation.method.configuration.aot;
 
 import javax.sql.DataSource;
 
+import jakarta.persistence.EntityManager;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -29,7 +31,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.aot.ApplicationContextAotGenerator;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -72,7 +74,6 @@ public class EnableMethodSecurityAotTests {
 
 	@Configuration
 	@EnableMethodSecurity
-	@EnableJpaRepositories
 	static class AppConfig {
 
 		@Bean
@@ -90,6 +91,14 @@ public class EnableMethodSecurityAotTests {
 			factory.setPackagesToScan("org.springframework.security.config.annotation.method.configuration.aot");
 			factory.setDataSource(dataSource());
 			return factory;
+		}
+
+		@Bean
+		JpaRepositoryFactoryBean<@NonNull MessageRepository, Message, Long> repo(EntityManager entityManager) {
+			JpaRepositoryFactoryBean<@NonNull MessageRepository, Message, Long> bean = new JpaRepositoryFactoryBean<>(
+					MessageRepository.class);
+			bean.setEntityManager(entityManager);
+			return bean;
 		}
 
 	}

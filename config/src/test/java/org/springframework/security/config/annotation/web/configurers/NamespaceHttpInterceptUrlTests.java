@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -85,6 +86,7 @@ public class NamespaceHttpInterceptUrlTests {
 	}
 
 	@Test
+	@Disabled // see https://github.com/spring-projects/spring-security/issues/17747
 	public void requestWhenMappedByPostInterceptUrlThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HttpInterceptUrlConfig.class, BaseController.class).autowire();
 		MockHttpServletRequestBuilder getWithUser = get("/admin/post").with(authentication(user("ROLE_USER")));
