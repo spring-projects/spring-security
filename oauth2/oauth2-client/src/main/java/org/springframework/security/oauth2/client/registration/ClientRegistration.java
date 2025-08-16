@@ -713,12 +713,6 @@ public final class ClientRegistration implements Serializable {
 							"AuthorizationGrantType: %s does not match the pre-defined constant %s and won't match a valid OAuth2AuthorizedClientProvider",
 							this.authorizationGrantType, authorizationGrantType));
 				}
-				if (!AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType)
-						&& this.clientSettings.isRequireProofKey()) {
-					throw new IllegalStateException(
-							"clientSettings.isRequireProofKey=true is only valid with authorizationGrantType=AUTHORIZATION_CODE. Got authorizationGrantType="
-									+ this.authorizationGrantType);
-				}
 			}
 		}
 
@@ -754,7 +748,7 @@ public final class ClientRegistration implements Serializable {
 		@Serial
 		private static final long serialVersionUID = 7495627155437124692L;
 
-		private boolean requireProofKey;
+		private boolean requireProofKey = true;
 
 		private ClientSettings() {
 
@@ -791,7 +785,7 @@ public final class ClientRegistration implements Serializable {
 
 		public static final class Builder {
 
-			private boolean requireProofKey;
+			private boolean requireProofKey = true;
 
 			private Builder() {
 			}

@@ -276,7 +276,7 @@ public class OAuth2AuthorizedClientMixinTests {
 		assertThat(json).doesNotContain("clientSettings");
 		ClientRegistration registration = this.mapper.readValue(json, ClientRegistration.class);
 		// the default value of requireProofKey is false
-		assertThat(registration.getClientSettings().isRequireProofKey()).isFalse();
+		assertThat(registration.getClientSettings().isRequireProofKey()).isTrue();
 	}
 
 	private static String asJson(OAuth2AuthorizedClient authorizedClient) {
