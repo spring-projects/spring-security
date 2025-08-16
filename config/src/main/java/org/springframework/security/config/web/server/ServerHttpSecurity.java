@@ -3022,14 +3022,15 @@ public class ServerHttpSecurity {
 
 		private final SecurityContextServerLogoutHandler DEFAULT_LOGOUT_HANDLER = new SecurityContextServerLogoutHandler();
 
-		private List<ServerLogoutHandler> logoutHandlers = new ArrayList<>(Arrays.asList(this.DEFAULT_LOGOUT_HANDLER));
+		private List<ServerLogoutHandler> logoutHandlers = new ArrayList<>();
 
 		private LogoutSpec() {
 		}
 
 		/**
 		 * Configures the logout handler. Default is
-		 * {@code SecurityContextServerLogoutHandler}
+		 * {@code SecurityContextServerLogoutHandler}. This clears any previous handlers
+		 * configured.
 		 * @param logoutHandler
 		 * @return the {@link LogoutSpec} to configure
 		 */
@@ -3039,7 +3040,12 @@ public class ServerHttpSecurity {
 			return addLogoutHandler(logoutHandler);
 		}
 
-		private LogoutSpec addLogoutHandler(ServerLogoutHandler logoutHandler) {
+		/**
+		 * Adds a logout handler in the last position.
+		 * @param logoutHandler
+		 * @return the {@link LogoutSpec} to configure
+		 */
+		public LogoutSpec addLogoutHandler(ServerLogoutHandler logoutHandler) {
 			Assert.notNull(logoutHandler, "logoutHandler cannot be null");
 			this.logoutHandlers.add(logoutHandler);
 			return this;
@@ -3088,7 +3094,7 @@ public class ServerHttpSecurity {
 				this.DEFAULT_LOGOUT_HANDLER.setSecurityContextRepository(securityContextRepository);
 			}
 			if (this.logoutHandlers.isEmpty()) {
-				return null;
+				return DEFAULT_LOGOUT_HANDLER;
 			}
 			if (this.logoutHandlers.size() == 1) {
 				return this.logoutHandlers.get(0);
