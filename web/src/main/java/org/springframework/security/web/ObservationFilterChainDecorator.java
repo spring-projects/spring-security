@@ -46,13 +46,14 @@ import org.springframework.util.StringUtils;
  * wraps the chain in before and after observations
  *
  * @author Josh Cummings
+ * @author Nikita Konev
  * @since 6.0
  */
 public final class ObservationFilterChainDecorator implements FilterChainProxy.FilterChainDecorator {
 
 	private static final Log logger = LogFactory.getLog(FilterChainProxy.class);
 
-	private static final String ATTRIBUTE = ObservationFilterChainDecorator.class + ".observation";
+	static final String ATTRIBUTE = ObservationFilterChainDecorator.class + ".observation";
 
 	static final String UNSECURED_OBSERVATION_NAME = "spring.security.http.unsecured.requests";
 
@@ -250,6 +251,16 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 		private AroundFilterObservation parent(HttpServletRequest request) {
 			FilterChainObservationContext beforeContext = FilterChainObservationContext.before();
 			FilterChainObservationContext afterContext = FilterChainObservationContext.after();
+
+			AroundFilterObservation existingParentObservation = (AroundFilterObservation) request
+				.getAttribute(ATTRIBUTE);
+			if (existingParentObservation != null) {
+				beforeContext
+					.setParentObservation(existingParentObservation.before().getContext().getParentObservation());
+				afterContext
+					.setParentObservation(existingParentObservation.after().getContext().getParentObservation());
+			}
+
 			Observation before = Observation.createNotStarted(this.convention, () -> beforeContext, this.registry);
 			Observation after = Observation.createNotStarted(this.convention, () -> afterContext, this.registry);
 			AroundFilterObservation parent = AroundFilterObservation.create(before, after);
