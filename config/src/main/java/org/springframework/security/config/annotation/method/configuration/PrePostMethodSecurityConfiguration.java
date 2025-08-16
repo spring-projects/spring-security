@@ -16,13 +16,18 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
+import java.util.Map;
+
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
@@ -31,6 +36,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.context.annotation.Role;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
@@ -50,18 +56,24 @@ import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.util.ClassUtils;
 
 /**
  * Base {@link Configuration} for enabling Spring Security Method Security.
  *
  * @author Evgeniy Cheban
  * @author Josh Cummings
+ * @author Yoobin Yoon
  * @since 5.6
  * @see EnableMethodSecurity
  */
 @Configuration(value = "_prePostMethodSecurityConfiguration", proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-final class PrePostMethodSecurityConfiguration implements ImportAware, ApplicationContextAware, AopInfrastructureBean {
+final class PrePostMethodSecurityConfiguration
+		implements ImportAware, ApplicationContextAware, AopInfrastructureBean, SmartInitializingSingleton {
+
+	private static final Log logger = LogFactory.getLog(PrePostMethodSecurityConfiguration.class);
 
 	private static final Pointcut preFilterPointcut = new PreFilterAuthorizationMethodInterceptor().getPointcut();
 
@@ -87,6 +99,10 @@ final class PrePostMethodSecurityConfiguration implements ImportAware, Applicati
 
 	private final DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
 
+	private ApplicationContext applicationContext;
+
+	private boolean prePostEnabled = true;
+
 	PrePostMethodSecurityConfiguration(
 			ObjectProvider<ObjectPostProcessor<AuthorizationManager<MethodInvocation>>> preAuthorizeProcessor,
 			ObjectProvider<ObjectPostProcessor<AuthorizationManager<MethodInvocationResult>>> postAuthorizeProcessor) {
@@ -106,9 +122,18 @@ final class PrePostMethodSecurityConfiguration implements ImportAware, Applicati
 
 	@Override
 	public void setApplicationContext(ApplicationContext context) throws BeansException {
+		this.applicationContext = context;
 		this.expressionHandler.setApplicationContext(context);
 		this.preAuthorizeAuthorizationManager.setApplicationContext(context);
 		this.postAuthorizeAuthorizationManager.setApplicationContext(context);
+	}
+
+	@Override
+	public void afterSingletonsInstantiated() {
+		if (!this.prePostEnabled) {
+			return;
+		}
+		validateTransactionManagementPrecedence();
 	}
 
 	@Autowired(required = false)
@@ -192,12 +217,51 @@ final class PrePostMethodSecurityConfiguration implements ImportAware, Applicati
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		EnableMethodSecurity annotation = importMetadata.getAnnotations().get(EnableMethodSecurity.class).synthesize();
+		this.prePostEnabled = annotation.prePostEnabled();
 		this.preFilterMethodInterceptor.setOrder(this.preFilterMethodInterceptor.getOrder() + annotation.offset());
 		this.preAuthorizeMethodInterceptor
 			.setOrder(this.preAuthorizeMethodInterceptor.getOrder() + annotation.offset());
 		this.postAuthorizeMethodInterceptor
 			.setOrder(this.postAuthorizeMethodInterceptor.getOrder() + annotation.offset());
 		this.postFilterMethodInterceptor.setOrder(this.postFilterMethodInterceptor.getOrder() + annotation.offset());
+	}
+
+	/**
+	 * Validates that @EnableTransactionManagement has higher precedence
+	 * than @EnableMethodSecurity. This is important to ensure that @PostAuthorize checks
+	 * happen before transaction commit, allowing rollback on authorization failures.
+	 */
+	private void validateTransactionManagementPrecedence() {
+		try {
+			int currentMethodSecurityOrder = this.preAuthorizeMethodInterceptor.getOrder();
+
+			Map<String, Object> txMgmtBeans = this.applicationContext
+				.getBeansWithAnnotation(EnableTransactionManagement.class);
+
+			for (Map.Entry<String, Object> entry : txMgmtBeans.entrySet()) {
+				Class<?> configClass = ClassUtils.getUserClass(entry.getValue().getClass());
+				EnableTransactionManagement txMgmt = AnnotationUtils.findAnnotation(configClass,
+						EnableTransactionManagement.class);
+
+				if (txMgmt != null) {
+					int txOrder = txMgmt.order();
+					if (txOrder >= currentMethodSecurityOrder) {
+						logger.warn("@EnableTransactionManagement has same or lower precedence (order=" + txOrder
+								+ ") than @EnableMethodSecurity (effective order=" + currentMethodSecurityOrder
+								+ "). This may cause issues with @PostAuthorize on methods with side effects. "
+								+ "Consider setting @EnableTransactionManagement(order = 0) or adjusting the order values. "
+								+ "See Spring Security migration guide for more details.");
+						break;
+					}
+				}
+			}
+		}
+		catch (BeansException ex) {
+			logger.warn("Could not validate transaction management precedence due to bean access issues", ex);
+		}
+		catch (Exception ex) {
+			logger.debug("Could not validate transaction management precedence", ex);
+		}
 	}
 
 }
