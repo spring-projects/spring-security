@@ -31,7 +31,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.docs.features.integrations.rest.clientregistrationid.UserService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;

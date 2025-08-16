@@ -17,8 +17,6 @@ package io.spring.gradle;
 
 import org.apache.commons.io.FileUtils;
 import org.gradle.testkit.runner.GradleRunner;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
 
 import java.io.File;
 import java.io.IOException;
