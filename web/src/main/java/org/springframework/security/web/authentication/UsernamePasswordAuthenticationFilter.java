@@ -53,7 +53,7 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
 
 	public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "password";
 
-	private static final RequestMatcher DEFAULT_ANT_PATH_REQUEST_MATCHER = PathPatternRequestMatcher.withDefaults()
+	private static final RequestMatcher DEFAULT_PATH_REQUEST_MATCHER = PathPatternRequestMatcher.withDefaults()
 		.matcher(HttpMethod.POST, "/login");
 
 	private String usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
@@ -63,11 +63,11 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
 	private boolean postOnly = true;
 
 	public UsernamePasswordAuthenticationFilter() {
-		super(DEFAULT_ANT_PATH_REQUEST_MATCHER);
+		super(DEFAULT_PATH_REQUEST_MATCHER);
 	}
 
 	public UsernamePasswordAuthenticationFilter(AuthenticationManager authenticationManager) {
-		super(DEFAULT_ANT_PATH_REQUEST_MATCHER, authenticationManager);
+		super(DEFAULT_PATH_REQUEST_MATCHER, authenticationManager);
 	}
 
 	@Override
