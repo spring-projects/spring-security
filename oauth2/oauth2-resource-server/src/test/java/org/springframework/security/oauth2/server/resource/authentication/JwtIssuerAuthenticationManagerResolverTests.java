@@ -16,7 +16,7 @@
 
 package org.springframework.security.oauth2.server.resource.authentication;
 
-import java.util.Collection;
+import 	java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,17 +29,22 @@ import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.PlainJWT;
+import jakarta.servlet.http.HttpServletRequest;
 import net.minidev.json.JSONObject;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jose.TestKeys;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.oauth2.server.resource.authentication.JwtIssuerAuthenticationManagerResolver.TrustedIssuerJwtAuthenticationManagerResolver;
@@ -51,6 +56,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.mock;
 import static org.mockito.BDDMockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link JwtIssuerAuthenticationManagerResolver}
@@ -265,6 +271,47 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 				)
 				.withMessage("Invalid issuer");
 		// @formatter:on
+	}
+
+	@Test
+	public void testFactoryMethodWithConverter() throws Exception {
+		Converter<Jwt, ? extends AbstractAuthenticationToken> converter = new Converter<Jwt, AbstractAuthenticationToken>() {
+			@Override
+			public @Nullable AbstractAuthenticationToken convert(Jwt source) {
+				JwtAuthenticationToken authenticationToken = new JwtAuthenticationToken(source, Collections.emptyList(), "test_translated_name");
+				authenticationToken.setDetails("test_translated_details");
+				return authenticationToken;
+			}
+		};
+		try (MockWebServer server = new MockWebServer()) {
+			server.start();
+			String issuer = server.url("").toString();
+			// @formatter:off
+			server.enqueue(new MockResponse().setResponseCode(200)
+					.setHeader("Content-Type", "application/json")
+					.setBody(String.format(DEFAULT_RESPONSE_TEMPLATE, issuer, issuer)
+					));
+			server.enqueue(new MockResponse().setResponseCode(200)
+					.setHeader("Content-Type", "application/json")
+					.setBody(JWK_SET)
+			);
+			server.enqueue(new MockResponse().setResponseCode(200)
+					.setHeader("Content-Type", "application/json")
+					.setBody(JWK_SET)
+			);
+			// @formatter:on
+			JWSObject jws = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
+					new Payload(new JSONObject(Collections.singletonMap(JwtClaimNames.ISS, issuer))));
+			jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
+			JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = JwtIssuerAuthenticationManagerResolver
+					.fromTrustedIssuers(converter, issuer);
+			Authentication token = withBearerToken(jws.serialize());
+			AuthenticationManager authenticationManager = authenticationManagerResolver.resolve(null);
+			assertThat(authenticationManager).isNotNull();
+			Authentication authentication = authenticationManager.authenticate(token);
+			assertThat(authentication.isAuthenticated()).isTrue();
+			assertThat(authentication.getDetails()).isEqualTo("test_translated_details");
+		}
 	}
 
 	@Test
