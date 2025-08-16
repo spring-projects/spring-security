@@ -23,7 +23,6 @@ import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.util.Assert;
 
 /**
  * @author Luke Taylor
@@ -33,18 +32,16 @@ import org.springframework.util.Assert;
 public class DefaultWebSecurityExpressionHandler extends AbstractSecurityExpressionHandler<FilterInvocation>
 		implements SecurityExpressionHandler<FilterInvocation> {
 
-	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
-
-	private String defaultRolePrefix = "ROLE_";
-
 	@Override
 	protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
 			FilterInvocation fi) {
 		WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(authentication, fi);
 		root.setPermissionEvaluator(getPermissionEvaluator());
-		root.setTrustResolver(this.trustResolver);
-		root.setRoleHierarchy(getRoleHierarchy());
-		root.setDefaultRolePrefix(this.defaultRolePrefix);
+		// Since WebSecurityExpressionRoot is of a different type, use the default factory
+		// instead of the one configured with this class.
+		root.setTrustResolver(getDefaultAuthorizationManagerFactory().getTrustResolver());
+		root.setRoleHierarchy(getDefaultAuthorizationManagerFactory().getRoleHierarchy());
+		root.setDefaultRolePrefix(getDefaultAuthorizationManagerFactory().getRolePrefix());
 		return root;
 	}
 
@@ -55,8 +52,7 @@ public class DefaultWebSecurityExpressionHandler extends AbstractSecurityExpress
 	 * null.
 	 */
 	public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
-		Assert.notNull(trustResolver, "trustResolver cannot be null");
-		this.trustResolver = trustResolver;
+		getDefaultAuthorizationManagerFactory().setTrustResolver(trustResolver);
 	}
 
 	/**
@@ -75,7 +71,7 @@ public class DefaultWebSecurityExpressionHandler extends AbstractSecurityExpress
 	 * @param defaultRolePrefix the default prefix to add to roles. Default "ROLE_".
 	 */
 	public void setDefaultRolePrefix(String defaultRolePrefix) {
-		this.defaultRolePrefix = defaultRolePrefix;
+		getDefaultAuthorizationManagerFactory().setRolePrefix(defaultRolePrefix);
 	}
 
 }
