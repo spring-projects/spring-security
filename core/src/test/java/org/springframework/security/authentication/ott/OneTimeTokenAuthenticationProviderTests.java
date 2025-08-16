@@ -26,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -42,6 +43,7 @@ import static org.mockito.BDDMockito.given;
  * Tests for {@link OneTimeTokenAuthenticationProvider}.
  *
  * @author Max Batischev
+ * @author Andrey Litvitski
  */
 @ExtendWith(MockitoExtension.class)
 public class OneTimeTokenAuthenticationProviderTests {
@@ -77,6 +79,17 @@ public class OneTimeTokenAuthenticationProviderTests {
 		assertThat(user.getUsername()).isEqualTo(USERNAME);
 		assertThat(user.getPassword()).isEqualTo(PASSWORD);
 		assertThat(CollectionUtils.isEmpty(user.getAuthorities())).isTrue();
+	}
+
+	@Test
+	void authenticateWhenAuthenticationTokenIsPresentThenFails() {
+		given(this.oneTimeTokenService.consume(any()))
+			.willReturn(new DefaultOneTimeToken(TOKEN, USERNAME, Instant.now().plusSeconds(120)));
+		given(this.userDetailsService.loadUserByUsername(anyString()))
+			.willReturn(new User(USERNAME, PASSWORD, false, false, false, false, List.of()));
+		OneTimeTokenAuthenticationToken token = new OneTimeTokenAuthenticationToken(TOKEN);
+
+		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(() -> this.provider.authenticate(token));
 	}
 
 	@Test
