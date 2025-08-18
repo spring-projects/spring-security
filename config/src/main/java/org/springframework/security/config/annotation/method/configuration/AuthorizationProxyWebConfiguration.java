@@ -102,9 +102,7 @@ class AuthorizationProxyWebConfiguration implements WebMvcConfigurer {
 			Throwable accessDeniedException = this.throwableAnalyzer
 				.getFirstThrowableOfType(AccessDeniedException.class, causeChain);
 			if (accessDeniedException != null) {
-				return new ModelAndView((model, req, res) -> {
-					throw ex;
-				});
+				throw (AccessDeniedException) accessDeniedException;
 			}
 			return null;
 		}

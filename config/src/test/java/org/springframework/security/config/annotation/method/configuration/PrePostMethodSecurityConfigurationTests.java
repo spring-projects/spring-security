@@ -33,6 +33,7 @@ import io.micrometer.observation.ObservationHandler;
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.observation.ObservationTextPublisher;
 import jakarta.annotation.security.DenyAll;
+import jakarta.servlet.RequestDispatcher;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -138,6 +139,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.clearInvocations;
@@ -149,6 +151,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -1277,6 +1280,19 @@ public class PrePostMethodSecurityConfigurationTests {
 				.with(user("rob"));
 		// @formatter:on
 		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
+	}
+
+	// gh-17761
+	@Test
+	void getWhenPostAuthorizeAuthenticationNameNotMatchThenNoExceptionExposedInRequest() throws Exception {
+		this.spring.register(WebMvcMethodSecurityConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/authorized-person")
+				.param("name", "john")
+				.with(user("rob"));
+		// @formatter:on
+		this.mvc.perform(requestWithUser)
+			.andExpect(request().attribute(RequestDispatcher.ERROR_EXCEPTION, nullValue()));
 	}
 
 	@Test
