@@ -17,6 +17,7 @@
 package org.springframework.security.config.annotation.web;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import jakarta.servlet.DispatcherType;
 import org.junit.jupiter.api.BeforeEach;
@@ -68,8 +69,8 @@ public class AbstractRequestMatcherRegistryTests {
 		ObjectProvider<ObjectPostProcessor<Object>> given = this.context.getBeanProvider(type);
 		given(given).willReturn(postProcessors);
 		given(postProcessors.getObject()).willReturn(NO_OP_OBJECT_POST_PROCESSOR);
-		given(this.context.getBean(PathPatternRequestMatcher.Builder.class))
-			.willReturn(PathPatternRequestMatcher.withDefaults());
+		given(this.context.getBeanProvider(PathPatternRequestMatcher.Builder.class))
+			.willReturn(new SingleObjectProvider<>(PathPatternRequestMatcher.withDefaults()));
 		this.matcherRegistry.setApplicationContext(this.context);
 	}
 
@@ -162,6 +163,21 @@ public class AbstractRequestMatcherRegistryTests {
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class MockMvcConfiguration {
+
+	}
+
+	private static final class SingleObjectProvider<T> implements ObjectProvider<T> {
+
+		private final T object;
+
+		private SingleObjectProvider(T object) {
+			this.object = object;
+		}
+
+		@Override
+		public Stream<T> stream() {
+			return Stream.of(this.object);
+		}
 
 	}
 

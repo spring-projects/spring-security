@@ -38,12 +38,15 @@ import org.springframework.security.config.annotation.authentication.configurers
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.DefaultLoginPageConfigurer;
+import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.util.function.ThrowingSupplier;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -161,7 +164,16 @@ class HttpSecurityConfiguration {
 		Map<Class<?>, Object> sharedObjects = new HashMap<>();
 		sharedObjects.put(ApplicationContext.class, this.context);
 		sharedObjects.put(ContentNegotiationStrategy.class, this.contentNegotiationStrategy);
+		sharedObjects.put(PathPatternRequestMatcher.Builder.class, constructRequestMatcherBuilder(this.context));
 		return sharedObjects;
+	}
+
+	private PathPatternRequestMatcher.Builder constructRequestMatcherBuilder(ApplicationContext context) {
+		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder = new PathPatternRequestMatcherBuilderFactoryBean();
+		requestMatcherBuilder.setApplicationContext(context);
+		requestMatcherBuilder.setBeanFactory(context.getAutowireCapableBeanFactory());
+		requestMatcherBuilder.setBeanName(requestMatcherBuilder.toString());
+		return ThrowingSupplier.of(requestMatcherBuilder::getObject).get();
 	}
 
 	static class DefaultPasswordEncoderAuthenticationManagerBuilder extends AuthenticationManagerBuilder {

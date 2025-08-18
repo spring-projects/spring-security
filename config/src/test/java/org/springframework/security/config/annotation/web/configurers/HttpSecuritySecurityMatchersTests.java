@@ -32,6 +32,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -355,13 +356,19 @@ public class HttpSecuritySecurityMatchersTests {
 	static class SecurityMatchersMvcMatcherServletPathConfig {
 
 		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder() {
+			PathPatternRequestMatcherBuilderFactoryBean bean = new PathPatternRequestMatcherBuilderFactoryBean();
+			bean.setBasePath("/spring");
+			return bean;
+		}
+
+		@Bean
 		SecurityFilterChain appSecurity(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
-			PathPatternRequestMatcher.Builder spring = builder.basePath("/spring");
 			// @formatter:off
 			http
 				.securityMatchers((security) -> security
-					.requestMatchers(spring.matcher("/path"))
-					.requestMatchers(spring.matcher("/never-match"))
+					.requestMatchers(builder.matcher("/path"))
+					.requestMatchers(builder.matcher("/never-match"))
 				)
 				.httpBasic(withDefaults())
 				.authorizeHttpRequests((authorize) -> authorize
@@ -389,13 +396,19 @@ public class HttpSecuritySecurityMatchersTests {
 	static class SecurityMatchersMvcMatcherServletPathInLambdaConfig {
 
 		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder() {
+			PathPatternRequestMatcherBuilderFactoryBean bean = new PathPatternRequestMatcherBuilderFactoryBean();
+			bean.setBasePath("/spring");
+			return bean;
+		}
+
+		@Bean
 		SecurityFilterChain appSecurity(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
-			PathPatternRequestMatcher.Builder spring = builder.basePath("/spring");
 			// @formatter:off
 			http
 				.securityMatchers((matchers) -> matchers
-					.requestMatchers(spring.matcher("/path"))
-					.requestMatchers(spring.matcher("/never-match"))
+					.requestMatchers(builder.matcher("/path"))
+					.requestMatchers(builder.matcher("/never-match"))
 				)
 				.httpBasic(withDefaults())
 				.authorizeHttpRequests((authorize) -> authorize

@@ -39,8 +39,6 @@ public abstract class AbstractHttpConfigurer<T extends AbstractHttpConfigurer<T,
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy;
 
-	private PathPatternRequestMatcher.Builder requestMatcherBuilder;
-
 	/**
 	 * Disables the {@link AbstractHttpConfigurer} by removing it. After doing so a fresh
 	 * version of the configuration can be applied.
@@ -69,12 +67,7 @@ public abstract class AbstractHttpConfigurer<T extends AbstractHttpConfigurer<T,
 	}
 
 	protected PathPatternRequestMatcher.Builder getRequestMatcherBuilder() {
-		if (this.requestMatcherBuilder != null) {
-			return this.requestMatcherBuilder;
-		}
-		ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
-		this.requestMatcherBuilder = context.getBean(PathPatternRequestMatcher.Builder.class);
-		return this.requestMatcherBuilder;
+		return getBuilder().getSharedObject(PathPatternRequestMatcher.Builder.class);
 	}
 
 }

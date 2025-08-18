@@ -83,7 +83,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Target(ElementType.TYPE)
 @Documented
 @Import({ WebSecurityConfiguration.class, SpringWebMvcImportSelector.class, OAuth2ImportSelector.class,
-		HttpSecurityConfiguration.class, ObservationImportSelector.class, AuthorizationConfiguration.class })
+		HttpSecurityConfiguration.class, ObservationImportSelector.class })
 @EnableGlobalAuthentication
 public @interface EnableWebSecurity {
 

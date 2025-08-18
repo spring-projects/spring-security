@@ -27,11 +27,13 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.lang.Nullable;
+import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
+import org.springframework.util.function.ThrowingSupplier;
 
 /**
  * A base class for registering {@link RequestMatcher}'s. For example, it might allow for
@@ -51,6 +53,8 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	private boolean anyRequestConfigured = false;
 
 	private final Log logger = LogFactory.getLog(getClass());
+
+	private PathPatternRequestMatcher.Builder requestMatcherBuilder;
 
 	protected final void setApplicationContext(ApplicationContext context) {
 		this.context = context;
@@ -140,12 +144,29 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 					+ "Spring Security, leaving out the leading slash will result in an exception.");
 		}
 		Assert.state(!this.anyRequestConfigured, "Can't configure requestMatchers after anyRequest");
-		PathPatternRequestMatcher.Builder builder = this.context.getBean(PathPatternRequestMatcher.Builder.class);
+		PathPatternRequestMatcher.Builder builder = getRequestMatcherBuilder();
 		List<RequestMatcher> matchers = new ArrayList<>();
 		for (String pattern : patterns) {
 			matchers.add(builder.matcher(method, pattern));
 		}
 		return requestMatchers(matchers.toArray(new RequestMatcher[0]));
+	}
+
+	private PathPatternRequestMatcher.Builder getRequestMatcherBuilder() {
+		if (this.requestMatcherBuilder != null) {
+			return this.requestMatcherBuilder;
+		}
+		this.requestMatcherBuilder = this.context.getBeanProvider(PathPatternRequestMatcher.Builder.class)
+			.getIfUnique(() -> constructRequestMatcherBuilder(this.context));
+		return this.requestMatcherBuilder;
+	}
+
+	private PathPatternRequestMatcher.Builder constructRequestMatcherBuilder(ApplicationContext context) {
+		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder = new PathPatternRequestMatcherBuilderFactoryBean();
+		requestMatcherBuilder.setApplicationContext(context);
+		requestMatcherBuilder.setBeanFactory(context.getAutowireCapableBeanFactory());
+		requestMatcherBuilder.setBeanName(requestMatcherBuilder.toString());
+		return ThrowingSupplier.of(requestMatcherBuilder::getObject).get();
 	}
 
 	private boolean anyPathsDontStartWithLeadingSlash(String... patterns) {

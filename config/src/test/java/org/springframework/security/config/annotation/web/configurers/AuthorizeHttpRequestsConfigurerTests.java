@@ -54,6 +54,7 @@ import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.observation.SecurityObservationSettings;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -1052,11 +1053,18 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	static class ServletPathConfig {
 
 		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean requesMatcherBuilder() {
+			PathPatternRequestMatcherBuilderFactoryBean bean = new PathPatternRequestMatcherBuilderFactoryBean();
+			bean.setBasePath("/spring");
+			return bean;
+		}
+
+		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
 			// @formatter:off
 			return http
 					.authorizeHttpRequests((authorize) -> authorize
-						.requestMatchers(builder.basePath("/spring").matcher("/")).hasRole("ADMIN")
+						.requestMatchers(builder.matcher("/")).hasRole("ADMIN")
 					)
 					.build();
 			// @formatter:on

@@ -32,6 +32,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.FilterChainProxy;
@@ -158,6 +159,11 @@ public class HttpSecurityRequestMatchersTests {
 	static class MultiMvcMatcherInLambdaConfig {
 
 		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder() {
+			return new PathPatternRequestMatcherBuilderFactoryBean();
+		}
+
+		@Bean
 		@Order(Ordered.HIGHEST_PRECEDENCE)
 		SecurityFilterChain first(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
 			// @formatter:off
@@ -205,6 +211,11 @@ public class HttpSecurityRequestMatchersTests {
 	static class MultiMvcMatcherConfig {
 
 		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder() {
+			return new PathPatternRequestMatcherBuilderFactoryBean();
+		}
+
+		@Bean
 		@Order(Ordered.HIGHEST_PRECEDENCE)
 		SecurityFilterChain first(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
 			// @formatter:off
@@ -250,6 +261,11 @@ public class HttpSecurityRequestMatchersTests {
 	static class MvcMatcherConfig {
 
 		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder() {
+			return new PathPatternRequestMatcherBuilderFactoryBean();
+		}
+
+		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
 			// @formatter:off
 			http
@@ -282,6 +298,11 @@ public class HttpSecurityRequestMatchersTests {
 	@Configuration
 	@EnableWebMvc
 	static class RequestMatchersMvcMatcherConfig {
+
+		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder() {
+			return new PathPatternRequestMatcherBuilderFactoryBean();
+		}
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
@@ -319,6 +340,11 @@ public class HttpSecurityRequestMatchersTests {
 	static class RequestMatchersMvcMatcherInLambdaConfig {
 
 		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder() {
+			return new PathPatternRequestMatcherBuilderFactoryBean();
+		}
+
+		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
 			// @formatter:off
 			http
@@ -349,6 +375,11 @@ public class HttpSecurityRequestMatchersTests {
 	@Configuration
 	@EnableWebMvc
 	static class RequestMatchersMvcMatcherServeltPathConfig {
+
+		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder() {
+			return new PathPatternRequestMatcherBuilderFactoryBean();
+		}
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
@@ -385,6 +416,11 @@ public class HttpSecurityRequestMatchersTests {
 	@Configuration
 	@EnableWebMvc
 	static class RequestMatchersMvcMatcherServletPathInLambdaConfig {
+
+		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder() {
+			return new PathPatternRequestMatcherBuilderFactoryBean();
+		}
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {

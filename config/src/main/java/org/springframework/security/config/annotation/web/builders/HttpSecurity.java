@@ -2058,7 +2058,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 */
 	public HttpSecurity securityMatcher(String... patterns) {
 		List<RequestMatcher> matchers = new ArrayList<>();
-		PathPatternRequestMatcher.Builder builder = getContext().getBean(PathPatternRequestMatcher.Builder.class);
+		PathPatternRequestMatcher.Builder builder = getSharedObject(PathPatternRequestMatcher.Builder.class);
 		for (String pattern : patterns) {
 			matchers.add(builder.matcher(pattern));
 		}
