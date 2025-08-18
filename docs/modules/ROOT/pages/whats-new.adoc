@@ -48,6 +48,7 @@ http.csrf((csrf) -> csrf.spa());
 * Removed GET request support from `Saml2AuthenticationTokenConverter`
 * Added JDBC-based `AssertingPartyMetadataRepository`
 * Made so that SLO still returns `<saml2:LogoutResponse>` even when validation fails
+* Removed Open SAML 4 support; applications should migrate to Open SAML 5
 
 == Web
 
