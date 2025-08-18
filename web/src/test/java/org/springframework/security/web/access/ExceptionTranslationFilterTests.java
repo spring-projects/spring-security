@@ -39,6 +39,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
@@ -286,6 +287,20 @@ public class ExceptionTranslationFilterTests {
 		String code = "code";
 		filter.messages.getMessage(code);
 		verify(source).getMessage(eq(code), any(), any());
+	}
+
+	@Test
+	public void servletExceptionWrappingAuthorizationDeniedExceptionIsRethrown() throws Exception {
+		MockHttpServletRequest request = get("/secure/page.html").build();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain fc = mockFilterChainWithException(new ServletException(new AuthorizationDeniedException("Denied")));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new AnonymousAuthenticationToken("ignored", "ignored",
+						AuthorityUtils.createAuthorityList("IGNORED")));
+		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(this.mockEntryPoint);
+		assertThatExceptionOfType(ServletException.class)
+				.isThrownBy(() -> filter.doFilter(request, response, fc))
+				.withCauseInstanceOf(AuthorizationDeniedException.class);
 	}
 
 	private FilterChain mockFilterChainWithException(Exception exception) throws ServletException, IOException {
