@@ -31,8 +31,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class SecurityAnnotationScanners {
 
-	private static final Map<Class<? extends Annotation>, SecurityAnnotationScanner<? extends Annotation>> uniqueScanners = new ConcurrentHashMap<>();
-
 	private static final Map<Class<? extends Annotation>, SecurityAnnotationScanner<? extends Annotation>> uniqueTemplateScanners = new ConcurrentHashMap<>();
 
 	private static final Map<List<Class<? extends Annotation>>, SecurityAnnotationScanner<? extends Annotation>> uniqueTypesScanners = new ConcurrentHashMap<>();
@@ -48,8 +46,7 @@ public final class SecurityAnnotationScanners {
 	 * @return the default {@link SecurityAnnotationScanner}
 	 */
 	public static <A extends Annotation> SecurityAnnotationScanner<A> requireUnique(Class<A> type) {
-		return (SecurityAnnotationScanner<A>) uniqueScanners.computeIfAbsent(type,
-				(t) -> new UniqueSecurityAnnotationScanner<>(type));
+		return requireUnique(type, new AnnotationTemplateExpressionDefaults());
 	}
 
 	/**
@@ -68,9 +65,6 @@ public final class SecurityAnnotationScanners {
 	 */
 	public static <A extends Annotation> SecurityAnnotationScanner<A> requireUnique(Class<A> type,
 			AnnotationTemplateExpressionDefaults templateDefaults) {
-		if (templateDefaults == null) {
-			return requireUnique(type);
-		}
 		return (SecurityAnnotationScanner<A>) uniqueTemplateScanners.computeIfAbsent(type,
 				(t) -> new ExpressionTemplateSecurityAnnotationScanner<>(t, templateDefaults));
 	}
