@@ -3022,7 +3022,7 @@ public class ServerHttpSecurity {
 
 		private final SecurityContextServerLogoutHandler DEFAULT_LOGOUT_HANDLER = new SecurityContextServerLogoutHandler();
 
-		private List<ServerLogoutHandler> logoutHandlers = new ArrayList<>();
+		private List<ServerLogoutHandler> logoutHandlers = new ArrayList<>(Arrays.asList(this.DEFAULT_LOGOUT_HANDLER));
 
 		private LogoutSpec() {
 		}
@@ -3040,14 +3040,21 @@ public class ServerHttpSecurity {
 			return addLogoutHandler(logoutHandler);
 		}
 
-		/**
-		 * Adds a logout handler in the last position.
-		 * @param logoutHandler
-		 * @return the {@link LogoutSpec} to configure
-		 */
-		public LogoutSpec addLogoutHandler(ServerLogoutHandler logoutHandler) {
+		private LogoutSpec addLogoutHandler(ServerLogoutHandler logoutHandler) {
 			Assert.notNull(logoutHandler, "logoutHandler cannot be null");
 			this.logoutHandlers.add(logoutHandler);
+			return this;
+		}
+
+		/**
+		 * Allows managing the list of {@link ServerLogoutHandler} instances.
+		 * @param handlersConsumer {@link Consumer} for managing the list of handlers.
+		 * @return the {@link LogoutSpec} to configure
+		 * @since 7.0
+		 */
+		public LogoutSpec logoutHandler(Consumer<List<ServerLogoutHandler>> handlersConsumer) {
+			Assert.notNull(handlersConsumer, "consumer cannot be null");
+			handlersConsumer.accept(this.logoutHandlers);
 			return this;
 		}
 
@@ -3094,7 +3101,7 @@ public class ServerHttpSecurity {
 				this.DEFAULT_LOGOUT_HANDLER.setSecurityContextRepository(securityContextRepository);
 			}
 			if (this.logoutHandlers.isEmpty()) {
-				return DEFAULT_LOGOUT_HANDLER;
+				return this.DEFAULT_LOGOUT_HANDLER;
 			}
 			if (this.logoutHandlers.size() == 1) {
 				return this.logoutHandlers.get(0);
