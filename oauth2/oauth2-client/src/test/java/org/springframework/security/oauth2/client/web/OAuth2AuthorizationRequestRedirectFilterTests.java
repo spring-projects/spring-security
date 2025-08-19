@@ -231,7 +231,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		verify(filterChain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?"
 				+ "response_type=code&client_id=client-id&" + "scope=read:user&state=.{15,}&"
-				+ "redirect_uri=http://localhost/authorize/oauth2/code/registration-id");
+				+ "redirect_uri=http://localhost/login/oauth2/code/registration-id");
 		verify(this.requestCache).saveRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
