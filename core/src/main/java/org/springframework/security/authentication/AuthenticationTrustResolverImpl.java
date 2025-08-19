@@ -16,6 +16,8 @@
 
 package org.springframework.security.authentication;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.Authentication;
 
 /**
@@ -44,7 +46,7 @@ public class AuthenticationTrustResolverImpl implements AuthenticationTrustResol
 	}
 
 	@Override
-	public boolean isAnonymous(Authentication authentication) {
+	public boolean isAnonymous(@Nullable Authentication authentication) {
 		if ((this.anonymousClass == null) || (authentication == null)) {
 			return false;
 		}
@@ -52,7 +54,7 @@ public class AuthenticationTrustResolverImpl implements AuthenticationTrustResol
 	}
 
 	@Override
-	public boolean isRememberMe(Authentication authentication) {
+	public boolean isRememberMe(@Nullable Authentication authentication) {
 		if ((this.rememberMeClass == null) || (authentication == null)) {
 			return false;
 		}
