@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.xml.namespace.QName;
 
 import org.opensaml.saml.common.assertion.AssertionValidationException;
@@ -54,6 +52,7 @@ import org.opensaml.xmlsec.signature.support.SignatureTrustEngine;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
@@ -832,16 +831,16 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 				this.name = name;
 			}
 
-			@Nonnull
+			@NonNull
 			@Override
 			public QName getServicedCondition() {
 				return this.name;
 			}
 
-			@Nonnull
+			@NonNull
 			@Override
-			public ValidationResult validate(@Nonnull Condition condition, @Nonnull Assertion assertion,
-					@Nonnull ValidationContext context) {
+			public ValidationResult validate(@NonNull Condition condition, @NonNull Assertion assertion,
+					@NonNull ValidationContext context) {
 				return ValidationResult.VALID;
 			}
 
@@ -859,9 +858,9 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 						newTrustEngine, newSignaturePrevalidator);
 			}
 
-			@Nonnull
+			@NonNull
 			@Override
-			protected ValidationResult validateSignature(@Nonnull Assertion token, @Nonnull ValidationContext context)
+			protected ValidationResult validateSignature(@NonNull Assertion token, @NonNull ValidationContext context)
 					throws AssertionValidationException {
 				return ValidationResult.VALID;
 			}

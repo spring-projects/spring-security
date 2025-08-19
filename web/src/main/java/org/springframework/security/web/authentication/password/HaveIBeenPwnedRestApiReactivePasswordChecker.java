@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -61,9 +62,10 @@ public class HaveIBeenPwnedRestApiReactivePasswordChecker implements ReactiveCom
 	}
 
 	@Override
-	public Mono<CompromisedPasswordDecision> check(String password) {
+	public Mono<CompromisedPasswordDecision> check(@Nullable String password) {
 		return getHash(password).map((hash) -> new String(Hex.encode(hash)))
 			.flatMap(this::findLeakedPassword)
+			.defaultIfEmpty(Boolean.FALSE)
 			.map(CompromisedPasswordDecision::new);
 	}
 
@@ -94,8 +96,9 @@ public class HaveIBeenPwnedRestApiReactivePasswordChecker implements ReactiveCom
 		this.webClient = webClient;
 	}
 
-	private Mono<byte[]> getHash(String password) {
-		return Mono.fromSupplier(() -> this.sha1Digest.digest(password.getBytes(StandardCharsets.UTF_8)))
+	private Mono<byte[]> getHash(@Nullable String rawPassword) {
+		return Mono.justOrEmpty(rawPassword)
+			.map((password) -> this.sha1Digest.digest(password.getBytes(StandardCharsets.UTF_8)))
 			.subscribeOn(Schedulers.boundedElastic())
 			.publishOn(Schedulers.parallel());
 	}

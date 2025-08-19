@@ -25,6 +25,7 @@ import javax.security.auth.spi.LoginModule;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -60,9 +61,9 @@ public class SecurityContextLoginModule implements LoginModule {
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
-	private Authentication authen;
+	private @Nullable Authentication authen;
 
-	private Subject subject;
+	private @Nullable Subject subject;
 
 	private boolean ignoreMissingAuthentication = false;
 
@@ -92,6 +93,7 @@ public class SecurityContextLoginModule implements LoginModule {
 		if (this.authen == null) {
 			return false;
 		}
+		Assert.notNull(this.subject, "subject cannot be null");
 		this.subject.getPrincipals().add(this.authen);
 		return true;
 	}
@@ -107,11 +109,11 @@ public class SecurityContextLoginModule implements LoginModule {
 		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
-	Authentication getAuthentication() {
+	@Nullable Authentication getAuthentication() {
 		return this.authen;
 	}
 
-	Subject getSubject() {
+	@Nullable Subject getSubject() {
 		return this.subject;
 	}
 
@@ -165,6 +167,7 @@ public class SecurityContextLoginModule implements LoginModule {
 		if (this.authen == null) {
 			return false;
 		}
+		Assert.notNull(this.subject, "subject cannot be null");
 		this.subject.getPrincipals().remove(this.authen);
 		this.authen = null;
 		return true;

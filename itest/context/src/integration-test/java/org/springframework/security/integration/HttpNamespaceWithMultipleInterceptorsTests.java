@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.servlet.TestMockHttpServletRequests;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -43,9 +44,7 @@ public class HttpNamespaceWithMultipleInterceptorsTests {
 
 	@Test
 	public void requestThatIsMatchedByDefaultInterceptorIsAllowed() throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setMethod("GET");
-		request.setServletPath("/somefile.html");
+		MockHttpServletRequest request = TestMockHttpServletRequests.get("/somefile.html").build();
 		request.setSession(createAuthenticatedSession("ROLE_0", "ROLE_1", "ROLE_2"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		this.fcp.doFilter(request, response, new MockFilterChain());
@@ -54,10 +53,7 @@ public class HttpNamespaceWithMultipleInterceptorsTests {
 
 	@Test
 	public void securedUrlAccessIsRejectedWithoutRequiredRole() throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setMethod("GET");
-
-		request.setServletPath("/secure/somefile.html");
+		MockHttpServletRequest request = TestMockHttpServletRequests.get("/secure/somefile.html").build();
 		request.setSession(createAuthenticatedSession("ROLE_0"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		this.fcp.doFilter(request, response, new MockFilterChain());

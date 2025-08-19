@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -76,21 +77,6 @@ public final class PreFilterAuthorizationReactiveMethodInterceptor implements Au
 	 * By default, this value is <code>null</code>, which indicates that templates should
 	 * not be resolved.
 	 * @param defaults - whether to resolve pre/post-authorization templates parameters
-	 * @since 6.3
-	 * @deprecated please use
-	 * {@link #setTemplateDefaults(AnnotationTemplateExpressionDefaults)}
-	 */
-	@Deprecated
-	public void setTemplateDefaults(PrePostTemplateDefaults defaults) {
-		this.registry.setTemplateDefaults(defaults);
-	}
-
-	/**
-	 * Configure pre/post-authorization template resolution
-	 * <p>
-	 * By default, this value is <code>null</code>, which indicates that templates should
-	 * not be resolved.
-	 * @param defaults - whether to resolve pre/post-authorization templates parameters
 	 * @since 6.4
 	 */
 	public void setTemplateDefaults(AnnotationTemplateExpressionDefaults defaults) {
@@ -113,9 +99,9 @@ public final class PreFilterAuthorizationReactiveMethodInterceptor implements Au
 	 * @return the {@link Publisher} to use
 	 */
 	@Override
-	public Object invoke(MethodInvocation mi) throws Throwable {
+	public @Nullable Object invoke(MethodInvocation mi) throws Throwable {
 		PreFilterExpressionAttributeRegistry.PreFilterExpressionAttribute attribute = this.registry.getAttribute(mi);
-		if (attribute == PreFilterExpressionAttributeRegistry.PreFilterExpressionAttribute.NULL_ATTRIBUTE) {
+		if (attribute == null) {
 			return ReactiveMethodInvocationUtils.proceed(mi);
 		}
 		FilterTarget filterTarget = findFilterTarget(attribute.getFilterTarget(), mi);
@@ -175,7 +161,7 @@ public final class PreFilterAuthorizationReactiveMethodInterceptor implements Au
 		return new FilterTarget((Publisher<?>) value, index);
 	}
 
-	private boolean isMultiValue(Class<?> returnType, ReactiveAdapter adapter) {
+	private boolean isMultiValue(Class<?> returnType, @Nullable ReactiveAdapter adapter) {
 		if (Flux.class.isAssignableFrom(returnType)) {
 			return true;
 		}
@@ -186,7 +172,9 @@ public final class PreFilterAuthorizationReactiveMethodInterceptor implements Au
 		MethodSecurityExpressionOperations rootObject = (MethodSecurityExpressionOperations) ctx.getRootObject()
 			.getValue();
 		return Mono.from(filterTarget).filterWhen((filterObject) -> {
-			rootObject.setFilterObject(filterObject);
+			if (rootObject != null) {
+				rootObject.setFilterObject(filterObject);
+			}
 			return ReactiveExpressionUtils.evaluateAsBoolean(filterExpression, ctx);
 		});
 	}
@@ -195,7 +183,9 @@ public final class PreFilterAuthorizationReactiveMethodInterceptor implements Au
 		MethodSecurityExpressionOperations rootObject = (MethodSecurityExpressionOperations) ctx.getRootObject()
 			.getValue();
 		return Flux.from(filterTarget).filterWhen((filterObject) -> {
-			rootObject.setFilterObject(filterObject);
+			if (rootObject != null) {
+				rootObject.setFilterObject(filterObject);
+			}
 			return ReactiveExpressionUtils.evaluateAsBoolean(filterExpression, ctx);
 		});
 	}

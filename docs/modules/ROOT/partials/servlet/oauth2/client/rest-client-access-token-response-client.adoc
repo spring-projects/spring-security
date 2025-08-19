@@ -1,35 +1,3 @@
-To opt-in to using `{class-name}`, simply provide a bean as in the following example and it will be picked up by the default `OAuth2AuthorizedClientManager` automatically:
-
-[#oauth2-client-{section-id}-access-token-response-client-bean]
-.Access Token Response Configuration
-[tabs]
-======
-Java::
-+
-[source,java,role="primary",subs="+attributes"]
-----
-@Bean
-public OAuth2AccessTokenResponseClient<{grant-request}> accessTokenResponseClient() {
-	return new {class-name}();
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary",subs="+attributes"]
-----
-@Bean
-fun accessTokenResponseClient(): OAuth2AccessTokenResponseClient<{grant-type}> {
-	return {class-name}()
-}
-----
-======
-
-[NOTE]
-====
-The new implementation will be the default in Spring Security 7.
-====
-
 `{class-name}` is very flexible and provides several options for customizing the OAuth 2.0 Access Token request and response for the {grant-type} grant.
 Choose from the following use cases to learn more:
 

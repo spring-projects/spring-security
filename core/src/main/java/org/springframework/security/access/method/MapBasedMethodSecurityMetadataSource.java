@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.ConfigAttribute;
@@ -47,11 +50,13 @@ import org.springframework.util.ClassUtils;
  * {@code <method-security>} and {@code <intercept-methods>} instead or use
  * annotation-based or {@link AuthorizationManager}-based authorization
  */
+@NullUnmarked
 @Deprecated
 public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethodSecurityMetadataSource
 		implements BeanClassLoaderAware {
 
-	private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
+	@SuppressWarnings("NullAway")
+	private @Nullable ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
 	/**
 	 * Map from RegisteredMethod to ConfigAttribute list
@@ -80,7 +85,7 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 	 * Implementation does not support class-level attributes.
 	 */
 	@Override
-	protected Collection<ConfigAttribute> findAttributes(Class<?> clazz) {
+	protected @Nullable Collection<ConfigAttribute> findAttributes(Class<?> clazz) {
 		return null;
 	}
 
@@ -89,14 +94,14 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 	 * applicable.
 	 */
 	@Override
-	protected Collection<ConfigAttribute> findAttributes(Method method, Class<?> targetClass) {
+	protected @Nullable Collection<ConfigAttribute> findAttributes(Method method, Class<?> targetClass) {
 		if (targetClass == null) {
 			return null;
 		}
 		return findAttributesSpecifiedAgainst(method, targetClass);
 	}
 
-	private List<ConfigAttribute> findAttributesSpecifiedAgainst(Method method, Class<?> clazz) {
+	private @Nullable List<ConfigAttribute> findAttributesSpecifiedAgainst(Method method, Class<?> clazz) {
 		RegisteredMethod registeredMethod = new RegisteredMethod(method, clazz);
 		if (this.methodMap.containsKey(registeredMethod)) {
 			return this.methodMap.get(registeredMethod);

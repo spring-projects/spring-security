@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.security.web.servlet.TestMockHttpServletRequests;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.util.pattern.PathPatternParser;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -73,6 +75,17 @@ class PathPatternRequestMatcherBuilderFactoryBeanTests {
 		PathPatternRequestMatcher.Builder builder = factoryBean(mvc).getObject();
 		builder.matcher("/path/**");
 		verify(mvc).parse("/path/**");
+	}
+
+	@Test
+	void getObjectWhenBasePathThenUses() throws Exception {
+		PathPatternRequestMatcherBuilderFactoryBean factoryBean = new PathPatternRequestMatcherBuilderFactoryBean();
+		factoryBean.setApplicationContext(this.context);
+		factoryBean.setBasePath("/mvc");
+		PathPatternRequestMatcher.Builder builder = factoryBean.getObject();
+		PathPatternRequestMatcher matcher = builder.matcher("/path/**");
+		assertThat(matcher.matches(TestMockHttpServletRequests.get("/mvc/path/123").build())).isTrue();
+		assertThat(matcher.matches(TestMockHttpServletRequests.get("/path/123").build())).isFalse();
 	}
 
 	PathPatternRequestMatcherBuilderFactoryBean factoryBean() {

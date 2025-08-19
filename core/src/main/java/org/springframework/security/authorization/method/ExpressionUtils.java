@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.security.authorization.method;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.EvaluationException;
 import org.springframework.expression.Expression;
@@ -28,7 +30,7 @@ final class ExpressionUtils {
 	private ExpressionUtils() {
 	}
 
-	static AuthorizationResult evaluate(Expression expr, EvaluationContext ctx) {
+	static @Nullable AuthorizationResult evaluate(Expression expr, EvaluationContext ctx) {
 		try {
 			Object result = expr.getValue(ctx);
 			if (result instanceof AuthorizationResult decision) {
@@ -53,7 +55,7 @@ final class ExpressionUtils {
 		}
 	}
 
-	static AuthorizationDeniedException findAuthorizationException(EvaluationException ex) {
+	static @Nullable AuthorizationDeniedException findAuthorizationException(EvaluationException ex) {
 		Throwable cause = ex.getCause();
 		while (cause != null) {
 			if (cause instanceof AuthorizationDeniedException denied) {

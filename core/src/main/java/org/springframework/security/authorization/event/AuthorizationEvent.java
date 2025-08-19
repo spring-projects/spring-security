@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,23 +82,6 @@ public class AuthorizationEvent extends ApplicationEvent {
 	 */
 	public Object getObject() {
 		return getSource();
-	}
-
-	/**
-	 * Get the response to the principal's request
-	 * @return the response to the principal's request
-	 * @deprecated please use {@link #getAuthorizationResult()}
-	 */
-	@Deprecated
-	public AuthorizationDecision getAuthorizationDecision() {
-		if (this.result == null) {
-			return null;
-		}
-		if (this.result instanceof AuthorizationDecision decision) {
-			return decision;
-		}
-		throw new IllegalArgumentException(
-				"Please either call getAuthorizationResult or ensure that the result is of type AuthorizationDecision");
 	}
 
 	/**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import kotlinx.coroutines.reactive.ReactiveFlowKt;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -155,14 +156,15 @@ public final class AuthorizationManagerAfterReactiveMethodInterceptor implements
 		return (adapter != null) ? adapter.fromPublisher(mono) : mono;
 	}
 
-	private boolean isMultiValue(Class<?> returnType, ReactiveAdapter adapter) {
+	private boolean isMultiValue(Class<?> returnType, @Nullable ReactiveAdapter adapter) {
 		if (Flux.class.isAssignableFrom(returnType)) {
 			return true;
 		}
 		return adapter != null && adapter.isMultiValue();
 	}
 
-	private Mono<Object> postAuthorize(Mono<Authentication> authentication, MethodInvocation mi, Object result) {
+	private Mono<Object> postAuthorize(Mono<Authentication> authentication, MethodInvocation mi,
+			@Nullable Object result) {
 		MethodInvocationResult invocationResult = new MethodInvocationResult(mi, result);
 		return this.authorizationManager.authorize(authentication, invocationResult)
 			.switchIfEmpty(Mono.just(new AuthorizationDecision(false)))

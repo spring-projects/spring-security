@@ -3,6 +3,9 @@ registries:
   spring-milestones:
     type: maven-repository
     url: https://repo.spring.io/milestone
+  shibboleth:
+    type: maven-repository
+    url: https://build.shibboleth.net/maven/releases
 updates:
   - package-ecosystem: gradle
     target-branch: 6.5.x
@@ -15,6 +18,7 @@ updates:
       - 'type: dependency-upgrade'
     registries:
       - spring-milestones
+      - shibboleth
     ignore:
       - dependency-name: com.nimbusds:nimbus-jose-jwt
       - dependency-name: org.python:jython
@@ -41,6 +45,7 @@ updates:
       - 'type: dependency-upgrade'
     registries:
       - spring-milestones
+      - shibboleth
     ignore:
       - dependency-name: com.nimbusds:nimbus-jose-jwt
       - dependency-name: org.python:jython
@@ -56,32 +61,7 @@ updates:
         update-types:
           - version-update:semver-major
           - version-update:semver-minor
-  - package-ecosystem: gradle
-    target-branch: 6.3.x
-    directory: /
-    schedule:
-      interval: daily
-      time: '03:00'
-      timezone: Etc/UTC
-    labels:
-      - 'type: dependency-upgrade'
-    registries:
-      - spring-milestones
-    ignore:
-      - dependency-name: com.nimbusds:nimbus-jose-jwt
-      - dependency-name: org.python:jython
-      - dependency-name: org.apache.directory.server:*
-      - dependency-name: org.apache.directory.shared:*
-      - dependency-name: org.junit:junit-bom
-        update-types:
-          - version-update:semver-major
-      - dependency-name: org.mockito:mockito-bom
-        update-types:
-          - version-update:semver-major
-      - dependency-name: '*'
-        update-types:
-          - version-update:semver-major
-          - version-update:semver-minor
+
   - package-ecosystem: gradle
     target-branch: main
     directory: /
@@ -93,6 +73,7 @@ updates:
       - 'type: dependency-upgrade'
     registries:
       - spring-milestones
+      - shibboleth
     ignore:
       - dependency-name: com.nimbusds:nimbus-jose-jwt
       - dependency-name: org.python:jython
@@ -112,25 +93,6 @@ updates:
         update-types:
           - version-update:semver-major
           - version-update:semver-minor
-
-  - package-ecosystem: github-actions
-    target-branch: 6.3.x
-    directory: /
-    schedule:
-      interval: weekly
-    labels:
-      - 'type: task'
-      - 'in: build'
-    ignore:
-      - dependency-name: sjohnr/*
-  - package-ecosystem: github-actions
-    target-branch: docs-build
-    directory: /
-    schedule:
-      interval: weekly
-    labels:
-      - 'type: task'
-      - 'in: build'
 
   - package-ecosystem: npm
     target-branch: docs-build

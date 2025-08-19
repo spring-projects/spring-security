@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
@@ -56,10 +59,12 @@ import org.springframework.util.Assert;
  * class is only used by now-deprecated components. There is not yet an equivalent
  * replacement in Spring Security.
  */
+@NullUnmarked
 @Deprecated
 public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 
-	private String key;
+	@SuppressWarnings("NullAway.Init")
+	private @Nullable String key;
 
 	private String rolePrefix = "ROLE_";
 
@@ -70,7 +75,7 @@ public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 	}
 
 	@Override
-	public Authentication buildRunAs(Authentication authentication, Object object,
+	public @Nullable Authentication buildRunAs(Authentication authentication, Object object,
 			Collection<ConfigAttribute> attributes) {
 		List<GrantedAuthority> newAuthorities = new ArrayList<>();
 		for (ConfigAttribute attribute : attributes) {

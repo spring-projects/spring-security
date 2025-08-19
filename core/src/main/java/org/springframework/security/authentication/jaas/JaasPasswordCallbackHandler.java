@@ -47,7 +47,10 @@ public class JaasPasswordCallbackHandler implements JaasAuthenticationCallbackHa
 	@Override
 	public void handle(Callback callback, Authentication auth) {
 		if (callback instanceof PasswordCallback) {
-			((PasswordCallback) callback).setPassword(auth.getCredentials().toString().toCharArray());
+			Object credentials = auth.getCredentials();
+			if (credentials != null) {
+				((PasswordCallback) callback).setPassword(credentials.toString().toCharArray());
+			}
 		}
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -45,7 +47,7 @@ public final class DelegatingSecurityContextScheduledExecutorService extends Del
 	 * {@link DelegatingSecurityContextCallable}.
 	 */
 	public DelegatingSecurityContextScheduledExecutorService(ScheduledExecutorService delegateScheduledExecutorService,
-			SecurityContext securityContext) {
+			@Nullable SecurityContext securityContext) {
 		super(delegateScheduledExecutorService, securityContext);
 	}
 

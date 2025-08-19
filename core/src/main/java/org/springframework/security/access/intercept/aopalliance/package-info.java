@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,4 +18,7 @@
  * Enforces security for AOP Alliance <code>MethodInvocation</code>s, such as via Spring
  * AOP.
  */
+@NullMarked
 package org.springframework.security.access.intercept.aopalliance;
+
+import org.jspecify.annotations.NullMarked;

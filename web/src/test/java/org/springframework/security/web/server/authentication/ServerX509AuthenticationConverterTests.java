@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,31 +69,11 @@ public class ServerX509AuthenticationConverterTests {
 	@Test
 	public void shouldReturnAuthenticationForValidCertificate() {
 		givenExtractPrincipalWillReturn();
-		this.request.sslInfo(new MockSslInfo(this.certificate));
+		this.request.sslInfo(SslInfo.from("123", this.certificate));
 		Authentication authentication = this.converter.convert(MockServerWebExchange.from(this.request.build()))
 			.block();
 		assertThat(authentication.getName()).isEqualTo("Luke Taylor");
 		assertThat(authentication.getCredentials()).isEqualTo(this.certificate);
-	}
-
-	class MockSslInfo implements SslInfo {
-
-		private final X509Certificate[] peerCertificates;
-
-		MockSslInfo(X509Certificate... peerCertificates) {
-			this.peerCertificates = peerCertificates;
-		}
-
-		@Override
-		public String getSessionId() {
-			return "mock-session-id";
-		}
-
-		@Override
-		public X509Certificate[] getPeerCertificates() {
-			return this.peerCertificates;
-		}
-
 	}
 
 }

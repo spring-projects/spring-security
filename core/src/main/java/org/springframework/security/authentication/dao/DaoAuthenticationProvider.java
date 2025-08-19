@@ -18,6 +18,8 @@ package org.springframework.security.authentication.dao;
 
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -60,39 +62,20 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	 * {@link PasswordEncoder} implementations will short circuit if the password is not
 	 * in a valid format.
 	 */
-	private volatile String userNotFoundEncodedPassword;
+	private volatile @Nullable String userNotFoundEncodedPassword;
 
-	private UserDetailsService userDetailsService;
+	private final UserDetailsService userDetailsService;
 
-	private UserDetailsPasswordService userDetailsPasswordService;
+	private UserDetailsPasswordService userDetailsPasswordService = UserDetailsPasswordService.NOOP;
 
-	private CompromisedPasswordChecker compromisedPasswordChecker;
-
-	/**
-	 * @deprecated Please provide the {@link UserDetailsService} in the constructor
-	 */
-	@Deprecated
-	public DaoAuthenticationProvider() {
-	}
+	private @Nullable CompromisedPasswordChecker compromisedPasswordChecker;
 
 	public DaoAuthenticationProvider(UserDetailsService userDetailsService) {
-		setUserDetailsService(userDetailsService);
-	}
-
-	/**
-	 * Creates a new instance using the provided {@link PasswordEncoder}
-	 * @param passwordEncoder the {@link PasswordEncoder} to use. Cannot be null.
-	 * @since 6.0.3
-	 * @deprecated Please provide the {@link UserDetailsService} in the constructor
-	 * followed by {@link #setPasswordEncoder(PasswordEncoder)} instead
-	 */
-	@Deprecated
-	public DaoAuthenticationProvider(PasswordEncoder passwordEncoder) {
-		setPasswordEncoder(passwordEncoder);
+		Assert.notNull(userDetailsService, "userDetailsService cannot be null");
+		this.userDetailsService = userDetailsService;
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
 	protected void additionalAuthenticationChecks(UserDetails userDetails,
 			UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
 		if (authentication.getCredentials() == null) {
@@ -140,14 +123,16 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	@Override
 	protected Authentication createSuccessAuthentication(Object principal, Authentication authentication,
 			UserDetails user) {
+		Assert.notNull(authentication.getCredentials(), "Authentication.getCredentials() cannot be null");
 		String presentedPassword = authentication.getCredentials().toString();
 		boolean isPasswordCompromised = this.compromisedPasswordChecker != null
 				&& this.compromisedPasswordChecker.check(presentedPassword).isCompromised();
 		if (isPasswordCompromised) {
 			throw new CompromisedPasswordException("The provided password is compromised, please change your password");
 		}
-		boolean upgradeEncoding = this.userDetailsPasswordService != null
-				&& this.passwordEncoder.get().upgradeEncoding(user.getPassword());
+		String existingEncodedPassword = user.getPassword();
+		boolean upgradeEncoding = existingEncodedPassword != null && this.userDetailsPasswordService != null
+				&& this.passwordEncoder.get().upgradeEncoding(existingEncodedPassword);
 		if (upgradeEncoding) {
 			String newPassword = this.passwordEncoder.get().encode(presentedPassword);
 			user = this.userDetailsPasswordService.updatePassword(user, newPassword);
@@ -163,6 +148,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 
 	private void mitigateAgainstTimingAttack(UsernamePasswordAuthenticationToken authentication) {
 		if (authentication.getCredentials() != null) {
+			Assert.notNull(this.userNotFoundEncodedPassword, "userNotFoundEncodedPassword cannot be null");
 			String presentedPassword = authentication.getCredentials().toString();
 			this.passwordEncoder.get().matches(presentedPassword, this.userNotFoundEncodedPassword);
 		}
@@ -185,20 +171,12 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 		return this.passwordEncoder.get();
 	}
 
-	/**
-	 * @param userDetailsService
-	 * @deprecated Please provide the {@link UserDetailsService} in the constructor
-	 */
-	@Deprecated
-	public void setUserDetailsService(UserDetailsService userDetailsService) {
-		this.userDetailsService = userDetailsService;
-	}
-
 	protected UserDetailsService getUserDetailsService() {
 		return this.userDetailsService;
 	}
 
 	public void setUserDetailsPasswordService(UserDetailsPasswordService userDetailsPasswordService) {
+		Assert.notNull(userDetailsPasswordService, "userDetailsPasswordService cannot be null");
 		this.userDetailsPasswordService = userDetailsPasswordService;
 	}
 
@@ -209,6 +187,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	 * @since 6.3
 	 */
 	public void setCompromisedPasswordChecker(CompromisedPasswordChecker compromisedPasswordChecker) {
+		Assert.notNull(compromisedPasswordChecker, "compromisedPasswordChecker cannot be null");
 		this.compromisedPasswordChecker = compromisedPasswordChecker;
 	}
 

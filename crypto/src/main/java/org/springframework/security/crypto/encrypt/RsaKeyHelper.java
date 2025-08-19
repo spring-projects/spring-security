@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bouncycastle.asn1.ASN1Sequence;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Reads RSA key pairs using BC provider classes but without the need to specify a crypto
@@ -164,7 +165,7 @@ final class RsaKeyHelper {
 
 	private static final Pattern SSH_PUB_KEY = Pattern.compile("ssh-(rsa|dsa) ([A-Za-z0-9/+]+=*) (.*)");
 
-	private static RSAPublicKey extractPublicKey(String key) {
+	private static @Nullable RSAPublicKey extractPublicKey(String key) {
 
 		Matcher m = SSH_PUB_KEY.matcher(key);
 

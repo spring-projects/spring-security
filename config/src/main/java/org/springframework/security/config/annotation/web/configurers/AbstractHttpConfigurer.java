@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.DefaultSecurityFilterChain;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 /**
  * Adds a convenient base class for {@link SecurityConfigurer} instances that operate on
@@ -55,17 +56,6 @@ public abstract class AbstractHttpConfigurer<T extends AbstractHttpConfigurer<T,
 		return (T) this;
 	}
 
-	/**
-	 * @deprecated
-	 */
-	@Deprecated(since = "6.4", forRemoval = true)
-	@SuppressWarnings("unchecked")
-	public T withObjectPostProcessor(
-			org.springframework.security.config.annotation.ObjectPostProcessor<?> objectPostProcessor) {
-		addObjectPostProcessor(objectPostProcessor);
-		return (T) this;
-	}
-
 	protected SecurityContextHolderStrategy getSecurityContextHolderStrategy() {
 		if (this.securityContextHolderStrategy != null) {
 			return this.securityContextHolderStrategy;
@@ -74,6 +64,10 @@ public abstract class AbstractHttpConfigurer<T extends AbstractHttpConfigurer<T,
 		this.securityContextHolderStrategy = context.getBeanProvider(SecurityContextHolderStrategy.class)
 			.getIfUnique(SecurityContextHolder::getContextHolderStrategy);
 		return this.securityContextHolderStrategy;
+	}
+
+	protected PathPatternRequestMatcher.Builder getRequestMatcherBuilder() {
+		return getBuilder().getSharedObject(PathPatternRequestMatcher.Builder.class);
 	}
 
 }

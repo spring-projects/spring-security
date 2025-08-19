@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2002-2021 the original author or authors.
+  ~ Copyright 2004-present the original author or authors.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -29,13 +29,13 @@
                                 assertion-consumer-service-location="{baseUrl}/login/saml2/sso/{registrationId}"
                                 assertion-consumer-service-binding="REDIRECT"
                                 asserting-party-id="google"/>
-    
+
     <relying-party-registration registration-id="two"
                                 entity-id="{baseUrl}/saml2/service-provider-metadata/{registrationId}"
                                 assertion-consumer-service-location="{baseUrl}/login/saml2/sso/{registrationId}"
                                 assertion-consumer-service-binding="POST"
                                 asserting-party-id="simple-saml"/>
-    
+
     <asserting-party asserting-party-id="google" entity-id="https://accounts.google.com/o/saml2/idp/entity-id"
                      want-authn-requests-signed="true"
                      single-sign-on-service-location="https://accounts.google.com/o/saml2/idp/sso-url"
@@ -47,7 +47,7 @@
           certificate-location="classpath:org/springframework/security/config/saml2/idp-certificate.crt"
           private-key-location="classpath:org/springframework/security/config/saml2/rp-private.key"/>
     </asserting-party>
-    
+
     <asserting-party asserting-party-id="simple-saml"
                      entity-id="https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/metadata.php"
                      single-sign-on-service-location="https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/SSOService.php"

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -156,7 +156,7 @@ public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.requestMatchers("/admin/**").hasAuthority("SCOPE_admin")
 					.anyRequest().hasAuthority("SCOPE_read"))
 				.oauth2Login(withDefaults());

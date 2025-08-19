@@ -31,6 +31,7 @@ dependencies {
 	optional project(':spring-security-oauth2-resource-server')
 	optional project(':spring-security-rsocket')
 	optional project(':spring-security-web')
+	optional project(':spring-security-webauthn')
 	optional 'io.projectreactor:reactor-core'
 	optional 'org.aspectj:aspectjweaver'
 	optional 'org.springframework:spring-jdbc'
@@ -43,7 +44,6 @@ dependencies {
 	optional 'org.jetbrains.kotlin:kotlin-reflect'
 	optional 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 	optional 'jakarta.annotation:jakarta.annotation-api'
-	optional libs.webauthn4j.core
 
 	provided 'jakarta.servlet:jakarta.servlet-api'
 
@@ -57,6 +57,7 @@ dependencies {
 	testImplementation project(':spring-security-saml2-service-provider')
 	testImplementation project(path : ':spring-security-saml2-service-provider', configuration : 'tests')
 	testImplementation project(path : ':spring-security-web', configuration : 'tests')
+	testImplementation project(path : ':spring-security-webauthn', configuration : 'tests')
 	testImplementation "jakarta.inject:jakarta.inject-api"
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"

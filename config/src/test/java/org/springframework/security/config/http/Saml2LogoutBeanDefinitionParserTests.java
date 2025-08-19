@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -134,8 +134,7 @@ public class Saml2LogoutBeanDefinitionParserTests {
 		principal.setRelyingPartyRegistrationId("registration-id");
 		this.saml2User = new Saml2Authentication(principal, "response",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
-		this.request = new MockHttpServletRequest("POST", "");
-		this.request.setServletPath("/login/saml2/sso/test-rp");
+		this.request = new MockHttpServletRequest("POST", "/login/saml2/sso/test-rp");
 		this.response = new MockHttpServletResponse();
 	}
 

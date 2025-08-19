@@ -18,6 +18,8 @@ package org.springframework.security.core.context;
 
 import java.io.Serializable;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.Authentication;
 
 /**
@@ -37,7 +39,7 @@ public interface SecurityContext extends Serializable {
 	 * @return the <code>Authentication</code> or <code>null</code> if no authentication
 	 * information is available
 	 */
-	Authentication getAuthentication();
+	@Nullable Authentication getAuthentication();
 
 	/**
 	 * Changes the currently authenticated principal, or removes the authentication
@@ -45,6 +47,6 @@ public interface SecurityContext extends Serializable {
 	 * @param authentication the new <code>Authentication</code> token, or
 	 * <code>null</code> if no further authentication information should be stored
 	 */
-	void setAuthentication(Authentication authentication);
+	void setAuthentication(@Nullable Authentication authentication);
 
 }

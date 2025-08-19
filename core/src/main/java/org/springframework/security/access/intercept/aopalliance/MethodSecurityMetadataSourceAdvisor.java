@@ -23,6 +23,8 @@ import java.lang.reflect.Method;
 
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.support.AbstractPointcutAdvisor;
@@ -53,17 +55,18 @@ import org.springframework.util.CollectionUtils;
  * @author Luke Taylor
  * @deprecated Use {@link EnableMethodSecurity} or publish interceptors directly
  */
+@NullUnmarked
 @Deprecated
 @SuppressWarnings("serial")
 public class MethodSecurityMetadataSourceAdvisor extends AbstractPointcutAdvisor implements BeanFactoryAware {
 
 	private transient MethodSecurityMetadataSource attributeSource;
 
-	private transient MethodInterceptor interceptor;
+	private transient @Nullable MethodInterceptor interceptor;
 
 	private final Pointcut pointcut = new MethodSecurityMetadataSourcePointcut();
 
-	private BeanFactory beanFactory;
+	private @Nullable BeanFactory beanFactory;
 
 	private final String adviceBeanName;
 

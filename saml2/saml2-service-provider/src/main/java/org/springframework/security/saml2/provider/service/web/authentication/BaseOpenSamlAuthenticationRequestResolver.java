@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,8 @@ import org.springframework.security.web.util.matcher.ParameterRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatchers;
 import org.springframework.util.Assert;
+
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * For internal use only. Intended for consolidating common behavior related to minting a
@@ -222,7 +224,7 @@ class BaseOpenSamlAuthenticationRequestResolver implements Saml2AuthenticationRe
 
 		PathPatternQueryRequestMatcher(String path, String... params) {
 			List<RequestMatcher> matchers = new ArrayList<>();
-			matchers.add(PathPatternRequestMatcher.withDefaults().matcher(path));
+			matchers.add(pathPattern(path));
 			for (String param : params) {
 				String[] parts = param.split("=");
 				if (parts.length == 1) {

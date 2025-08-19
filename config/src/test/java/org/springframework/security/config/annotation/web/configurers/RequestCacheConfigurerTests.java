@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
-import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.test.web.servlet.RequestCacheResultMatcher;
@@ -165,6 +164,23 @@ public class RequestCacheConfigurerTests {
 		// @formatter:on
 		// ignores text/event-stream
 		// This is desirable since event-stream requests are typically not invoked
+		// directly from the browser and we don't want the browser to replay them
+		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
+	}
+
+	@Test
+	public void getWhenBookmarkedRequestIsWebSocketThenPostAuthenticationRedirectsToRoot() throws Exception {
+		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
+		MockHttpServletRequestBuilder request = get("/messages").header("Upgrade", "websocket");
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(request)
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
+		// ignores websocket
+		// This is desirable since websocket requests are typically not invoked
 		// directly from the browser and we don't want the browser to replay them
 		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
 	}
@@ -376,7 +392,7 @@ public class RequestCacheConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated())
 				.formLogin(withDefaults());
 			return http.build();
@@ -412,7 +428,7 @@ public class RequestCacheConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().authenticated()
 				)
 				.formLogin(withDefaults())
@@ -431,7 +447,7 @@ public class RequestCacheConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().authenticated()
 				)
 				.formLogin(withDefaults())
@@ -450,7 +466,7 @@ public class RequestCacheConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().authenticated()
 				)
 				.formLogin(withDefaults())
@@ -484,11 +500,6 @@ public class RequestCacheConfigurerTests {
 	@Configuration
 	@EnableWebSecurity
 	static class PathPatternFactoryBeanConfig {
-
-		@Bean
-		PathPatternRequestMatcherBuilderFactoryBean factoryBean() {
-			return new PathPatternRequestMatcherBuilderFactoryBean();
-		}
 
 	}
 

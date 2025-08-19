@@ -108,3 +108,40 @@ fun authenticationProvider(): OpenSaml5AuthenticationProvider {
 ======
 
 If you are constructing a `Saml2Authentication` instance yourself, consider changing to `Saml2AssertionAuthentication` to get the same benefit as the current default.
+
+== Do Not Process `<saml2:Response>` GET Requests with `Saml2AuthenticationTokenConverter`
+
+Spring Security does not support processing `<saml2:Response>` payloads over GET as this is not supported by the SAML 2.0 spec.
+
+To better comply with this, `Saml2AuthenticationTokenConverter` and `OpenSaml5AuthenticationTokenConverter` will not process GET requests by default as of Spring Security 8.
+To prepare for this, the property `shouldConvertGetRequests` is available.
+To use it, publish your own converter like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+OpenSaml5AuthenticationTokenConverter authenticationConverter(RelyingPartyRegistrationRepository registrations) {
+	OpenSaml5AuthenticationTokenConverter authenticationConverter = new OpenSaml5AuthenticationTokenConverter(registrations);
+	authenticationConverter.setShouldConvertGetRequests(false);
+	return authenticationConverter;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authenticationConverter(val registrations: RelyingPartyRegistrationRepository): Saml2AuthenticationTokenConverter {
+	val authenticationConverter = Saml2AuthenticationTokenConverter(registrations)
+	authenticationConverter.setShouldConvertGetRequests(false)
+	return authenticationConverter
+}
+----
+======
+
+If you must continue using `Saml2AuthenticationTokenConverter` or `OpenSaml5AuthenticationTokenConverter` to process GET requests, you can call `setShouldConvertGetRequests` to `true.`

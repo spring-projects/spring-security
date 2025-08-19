@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,9 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.annotation.MergedAnnotation;
-import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
@@ -37,9 +38,8 @@ abstract class AbstractSecurityAnnotationScanner<A extends Annotation> implement
 	/**
 	 * {@inheritDoc}
 	 **/
-	@Nullable
 	@Override
-	public A scan(Method method, Class<?> targetClass) {
+	public @Nullable A scan(Method method, Class<?> targetClass) {
 		Assert.notNull(targetClass, "targetClass cannot be null");
 		MergedAnnotation<A> annotation = merge(method, targetClass);
 		if (annotation == null) {
@@ -51,9 +51,8 @@ abstract class AbstractSecurityAnnotationScanner<A extends Annotation> implement
 	/**
 	 * {@inheritDoc}
 	 **/
-	@Nullable
 	@Override
-	public A scan(Parameter parameter) {
+	public @Nullable A scan(Parameter parameter) {
 		MergedAnnotation<A> annotation = merge(parameter, null);
 		if (annotation == null) {
 			return null;
@@ -61,6 +60,6 @@ abstract class AbstractSecurityAnnotationScanner<A extends Annotation> implement
 		return annotation.synthesize();
 	}
 
-	abstract MergedAnnotation<A> merge(AnnotatedElement element, Class<?> targetClass);
+	abstract @Nullable MergedAnnotation<A> merge(AnnotatedElement element, @Nullable Class<?> targetClass);
 
 }

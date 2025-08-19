@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.security.config.web.messaging;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager;
 import org.springframework.security.messaging.util.matcher.PathPatternMessageMatcher;
+import org.springframework.web.util.pattern.PathPatternParser;
 
 /**
  * Use this factory bean to configure the {@link PathPatternMessageMatcher.Builder} bean
@@ -31,9 +32,30 @@ import org.springframework.security.messaging.util.matcher.PathPatternMessageMat
 public final class PathPatternMessageMatcherBuilderFactoryBean
 		implements FactoryBean<PathPatternMessageMatcher.Builder> {
 
+	private PathPatternParser parser;
+
+	/**
+	 * Create {@link PathPatternMessageMatcher}s using
+	 * {@link PathPatternParser#defaultInstance}
+	 */
+	public PathPatternMessageMatcherBuilderFactoryBean() {
+
+	}
+
+	/**
+	 * Create {@link PathPatternMessageMatcher}s using the given {@link PathPatternParser}
+	 * @param parser the {@link PathPatternParser} to use
+	 */
+	public PathPatternMessageMatcherBuilderFactoryBean(PathPatternParser parser) {
+		this.parser = parser;
+	}
+
 	@Override
 	public PathPatternMessageMatcher.Builder getObject() throws Exception {
-		return PathPatternMessageMatcher.withDefaults();
+		if (this.parser == null) {
+			return PathPatternMessageMatcher.withDefaults();
+		}
+		return PathPatternMessageMatcher.withPathPatternParser(this.parser);
 	}
 
 	@Override

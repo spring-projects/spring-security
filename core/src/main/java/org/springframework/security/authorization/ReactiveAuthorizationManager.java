@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.authorization;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.access.AccessDeniedException;
@@ -29,17 +30,7 @@ import org.springframework.security.core.Authentication;
  * @author Rob Winch
  * @since 5.0
  */
-public interface ReactiveAuthorizationManager<T> {
-
-	/**
-	 * Determines if access is granted for a specific authentication and object.
-	 * @param authentication the Authentication to check
-	 * @param object the object to check
-	 * @return an decision or empty Mono if no decision could be made.
-	 * @deprecated please use {@link #authorize(Mono, Object)} instead
-	 */
-	@Deprecated
-	Mono<AuthorizationDecision> check(Mono<Authentication> authentication, T object);
+public interface ReactiveAuthorizationManager<@Nullable T> {
 
 	/**
 	 * Determines if access should be granted for a specific authentication and object
@@ -64,8 +55,6 @@ public interface ReactiveAuthorizationManager<T> {
 	 * @return an decision or empty Mono if no decision could be made.
 	 * @since 6.4
 	 */
-	default Mono<AuthorizationResult> authorize(Mono<Authentication> authentication, T object) {
-		return check(authentication, object).cast(AuthorizationResult.class);
-	}
+	Mono<AuthorizationResult> authorize(Mono<Authentication> authentication, T object);
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.authorization.method;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.expression.EvaluationContext;
@@ -49,7 +50,7 @@ final class ReactiveExpressionUtils {
 		});
 	}
 
-	private static Mono<AuthorizationResult> adapt(Expression expr, Object value) {
+	private static Mono<AuthorizationResult> adapt(Expression expr, @Nullable Object value) {
 		if (value instanceof Boolean granted) {
 			return Mono.just(new ExpressionAuthorizationDecision(granted, expr));
 		}

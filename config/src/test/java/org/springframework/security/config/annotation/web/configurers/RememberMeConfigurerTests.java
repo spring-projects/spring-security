@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -365,7 +365,7 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.formLogin(withDefaults())
 				.rememberMe(withDefaults());
@@ -376,8 +376,8 @@ public class RememberMeConfigurerTests {
 		@Autowired
 		void configure(AuthenticationManagerBuilder auth) {
 			User user = (User) PasswordEncodedUser.user();
-			DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-			provider.setUserDetailsService(new InMemoryUserDetailsManager(Collections.singletonList(user)));
+			DaoAuthenticationProvider provider = new DaoAuthenticationProvider(
+					new InMemoryUserDetailsManager(Collections.singletonList(user)));
 			// @formatter:off
 			auth
 				.authenticationProvider(provider);
@@ -485,7 +485,7 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.formLogin(withDefaults())
 				.rememberMe(withDefaults());
@@ -508,7 +508,7 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().hasRole("USER")
 				)
 				.formLogin(withDefaults())
@@ -532,7 +532,7 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.formLogin(withDefaults())
 				.rememberMe((me) -> me
@@ -556,7 +556,7 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().hasRole("USER")
 				)
 				.formLogin(withDefaults())
@@ -584,7 +584,7 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.formLogin(withDefaults())
 				.rememberMe((me) -> me
@@ -614,7 +614,7 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.formLogin(withDefaults())
 				.rememberMe((me) -> me
@@ -633,7 +633,7 @@ public class RememberMeConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.authorizeRequests((authorize) -> authorize
+					.authorizeHttpRequests((authorize) -> authorize
 									.anyRequest().hasRole("USER")
 					)
 					.sessionManagement((sessionManagement) -> sessionManagement

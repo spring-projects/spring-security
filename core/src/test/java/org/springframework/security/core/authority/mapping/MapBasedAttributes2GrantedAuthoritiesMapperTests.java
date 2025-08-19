@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,12 +35,6 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 @SuppressWarnings("unchecked")
 public class MapBasedAttributes2GrantedAuthoritiesMapperTests {
-
-	@Test
-	public void testAfterPropertiesSetNoMap() throws Exception {
-		MapBasedAttributes2GrantedAuthoritiesMapper mapper = new MapBasedAttributes2GrantedAuthoritiesMapper();
-		assertThatIllegalArgumentException().isThrownBy(mapper::afterPropertiesSet);
-	}
 
 	@Test
 	public void testAfterPropertiesSetEmptyMap() throws Exception {

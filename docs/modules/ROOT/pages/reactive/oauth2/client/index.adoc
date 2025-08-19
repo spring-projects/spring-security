@@ -10,7 +10,6 @@ At a high-level, the core features available are:
 * xref:reactive/oauth2/client/authorization-grants.adoc#oauth2-client-authorization-code[Authorization Code]
 * xref:reactive/oauth2/client/authorization-grants.adoc#oauth2-client-refresh-token[Refresh Token]
 * xref:reactive/oauth2/client/authorization-grants.adoc#oauth2-client-client-credentials[Client Credentials]
-* xref:reactive/oauth2/client/authorization-grants.adoc#oauth2-client-password[Resource Owner Password Credentials]
 * xref:reactive/oauth2/client/authorization-grants.adoc#oauth2-client-jwt-bearer[JWT Bearer]
 * xref:reactive/oauth2/client/authorization-grants.adoc#oauth2-client-token-exchange[Token Exchange]
 
@@ -81,7 +80,7 @@ class OAuth2ClientSecurityConfig {
 
 The `ReactiveOAuth2AuthorizedClientManager` is responsible for managing the authorization (or re-authorization) of an OAuth 2.0 Client, in collaboration with one or more `ReactiveOAuth2AuthorizedClientProvider`(s).
 
-The following code shows an example of how to register a `ReactiveOAuth2AuthorizedClientManager` `@Bean` and associate it with a `ReactiveOAuth2AuthorizedClientProvider` composite that provides support for the `authorization_code`, `refresh_token`, `client_credentials` and `password` authorization grant types:
+The following code shows an example of how to register a `ReactiveOAuth2AuthorizedClientManager` `@Bean` and associate it with a `ReactiveOAuth2AuthorizedClientProvider` composite that provides support for the `authorization_code`, `refresh_token` and `client_credentials` authorization grant types:
 
 [tabs]
 ======
@@ -99,7 +98,6 @@ public ReactiveOAuth2AuthorizedClientManager authorizedClientManager(
 					.authorizationCode()
 					.refreshToken()
 					.clientCredentials()
-					.password()
 					.build();
 
 	DefaultReactiveOAuth2AuthorizedClientManager authorizedClientManager =
@@ -123,7 +121,6 @@ fun authorizedClientManager(
             .authorizationCode()
             .refreshToken()
             .clientCredentials()
-            .password()
             .build()
     val authorizedClientManager = DefaultReactiveOAuth2AuthorizedClientManager(
             clientRegistrationRepository, authorizedClientRepository)

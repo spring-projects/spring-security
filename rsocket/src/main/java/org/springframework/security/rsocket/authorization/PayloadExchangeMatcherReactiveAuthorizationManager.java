@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,21 +49,6 @@ public final class PayloadExchangeMatcherReactiveAuthorizationManager
 			List<PayloadExchangeMatcherEntry<ReactiveAuthorizationManager<PayloadExchangeAuthorizationContext>>> mappings) {
 		Assert.notEmpty(mappings, "mappings cannot be null");
 		this.mappings = mappings;
-	}
-
-	/**
-	 * @deprecated please use {@link #authorize(Mono, PayloadExchange)} instead
-	 */
-	@Deprecated
-	@Override
-	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, PayloadExchange exchange) {
-		return authorize(authentication, exchange).flatMap((result) -> {
-			if (result instanceof AuthorizationDecision decision) {
-				return Mono.just(decision);
-			}
-			return Mono.error(new IllegalArgumentException(
-					"Please call #authorize or ensure that the returned result is of type Mono<AuthorizationDecision>"));
-		});
 	}
 
 	@Override

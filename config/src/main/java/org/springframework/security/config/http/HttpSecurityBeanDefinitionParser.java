@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -370,7 +370,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		// Not already registered, so register the list of filter chains and the
 		// FilterChainProxy
 		BeanDefinition listFactoryBean = new RootBeanDefinition(ListFactoryBean.class);
-		listFactoryBean.getPropertyValues().add("sourceList", new ManagedList());
+		listFactoryBean.getPropertyValues().add("sourceList", new ManagedList<>());
 		pc.registerBeanComponent(new BeanComponentDefinition(listFactoryBean, BeanIds.FILTER_CHAINS));
 		BeanDefinitionBuilder fcpBldr = BeanDefinitionBuilder.rootBeanDefinition(FilterChainProxy.class);
 		fcpBldr.getRawBeanDefinition().setSource(source);

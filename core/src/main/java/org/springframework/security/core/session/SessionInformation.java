@@ -19,7 +19,6 @@ package org.springframework.security.core.session;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
 /**
@@ -39,7 +38,7 @@ import org.springframework.util.Assert;
  */
 public class SessionInformation implements Serializable {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private Date lastRequest;
 

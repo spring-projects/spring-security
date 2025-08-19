@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import org.apereo.cas.client.validation.Assertion;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 
 /**
  * Temporary authentication object needed to load the user details service.
@@ -31,7 +30,7 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
  */
 public final class CasAssertionAuthenticationToken extends AbstractAuthenticationToken {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private final Assertion assertion;
 

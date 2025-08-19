@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 
 package org.springframework.security.access.expression.method;
+
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.expression.Expression;
 import org.springframework.expression.ParseException;
@@ -40,8 +42,8 @@ class PreInvocationExpressionAttribute extends AbstractExpressionBasedMethodConf
 		this.filterTarget = filterTarget;
 	}
 
-	PreInvocationExpressionAttribute(Expression filterExpression, String filterTarget, Expression authorizeExpression)
-			throws ParseException {
+	PreInvocationExpressionAttribute(@Nullable Expression filterExpression, String filterTarget,
+			Expression authorizeExpression) throws ParseException {
 		super(filterExpression, authorizeExpression);
 		this.filterTarget = filterTarget;
 	}

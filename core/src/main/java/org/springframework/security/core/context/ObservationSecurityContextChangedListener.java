@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.core.context;
 
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationRegistry;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.Authentication;
 
@@ -54,6 +55,7 @@ public final class ObservationSecurityContextChangedListener implements Security
 	 * {@inheritDoc}
 	 */
 	@Override
+	@SuppressWarnings("NullAway") // Dataflow analysis limitation
 	public void securityContextChanged(SecurityContextChangedEvent event) {
 		Observation observation = this.registry.getCurrentObservation();
 		if (observation == null) {
@@ -69,11 +71,15 @@ public final class ObservationSecurityContextChangedListener implements Security
 			return;
 		}
 		if (oldAuthentication == null) {
+			// NOTE: NullAway thinks that newAuthentication can be null, but it cannot due
+			// to previous check
 			observation.event(Observation.Event.of(SECURITY_CONTEXT_CREATED, "%s [%s]")
 				.format(SECURITY_CONTEXT_CREATED, newAuthentication.getClass().getSimpleName()));
 			return;
 		}
 		if (newAuthentication == null) {
+			// NOTE: NullAway thinks that oldAuthentication can be null, but it cannot due
+			// to previous check
 			observation.event(Observation.Event.of(SECURITY_CONTEXT_CLEARED, "%s [%s]")
 				.format(SECURITY_CONTEXT_CLEARED, oldAuthentication.getClass().getSimpleName()));
 			return;
@@ -86,7 +92,7 @@ public final class ObservationSecurityContextChangedListener implements Security
 					newAuthentication.getClass().getSimpleName()));
 	}
 
-	private static Authentication getAuthentication(SecurityContext context) {
+	private static @Nullable Authentication getAuthentication(SecurityContext context) {
 		if (context == null) {
 			return null;
 		}

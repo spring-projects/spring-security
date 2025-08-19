@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ final class AuthorizationProxyDataConfiguration implements AopInfrastructureBean
 		return new DataTargetVisitor();
 	}
 
-	private static final class DataTargetVisitor implements AuthorizationAdvisorProxyFactory.TargetVisitor, Ordered {
+	static final class DataTargetVisitor implements AuthorizationAdvisorProxyFactory.TargetVisitor, Ordered {
 
 		private static final int DEFAULT_ORDER = 200;
 

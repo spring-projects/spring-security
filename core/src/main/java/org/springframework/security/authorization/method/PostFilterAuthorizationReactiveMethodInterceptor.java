@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -29,6 +30,7 @@ import org.springframework.aop.Pointcut;
 import org.springframework.core.ReactiveAdapter;
 import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.TypedValue;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionOperations;
@@ -73,21 +75,6 @@ public final class PostFilterAuthorizationReactiveMethodInterceptor implements A
 	 * By default, this value is <code>null</code>, which indicates that templates should
 	 * not be resolved.
 	 * @param defaults - whether to resolve pre/post-authorization templates parameters
-	 * @since 6.3
-	 * @deprecated please use
-	 * {@link #setTemplateDefaults(AnnotationTemplateExpressionDefaults)}
-	 */
-	@Deprecated
-	public void setTemplateDefaults(PrePostTemplateDefaults defaults) {
-		this.registry.setTemplateDefaults(defaults);
-	}
-
-	/**
-	 * Configure pre/post-authorization template resolution
-	 * <p>
-	 * By default, this value is <code>null</code>, which indicates that templates should
-	 * not be resolved.
-	 * @param defaults - whether to resolve pre/post-authorization templates parameters
 	 * @since 6.4
 	 */
 	public void setTemplateDefaults(AnnotationTemplateExpressionDefaults defaults) {
@@ -101,9 +88,9 @@ public final class PostFilterAuthorizationReactiveMethodInterceptor implements A
 	 * @return the {@link Publisher} to use
 	 */
 	@Override
-	public Object invoke(MethodInvocation mi) throws Throwable {
+	public @Nullable Object invoke(MethodInvocation mi) throws Throwable {
 		ExpressionAttribute attribute = this.registry.getAttribute(mi);
-		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
+		if (attribute == null) {
 			return ReactiveMethodInvocationUtils.proceed(mi);
 		}
 		Mono<EvaluationContext> toInvoke = ReactiveAuthenticationUtils.getAuthentication()
@@ -127,7 +114,7 @@ public final class PostFilterAuthorizationReactiveMethodInterceptor implements A
 		return (adapter != null) ? adapter.fromPublisher(mono) : mono;
 	}
 
-	private boolean isMultiValue(Class<?> returnType, ReactiveAdapter adapter) {
+	private boolean isMultiValue(Class<?> returnType, @Nullable ReactiveAdapter adapter) {
 		if (Flux.class.isAssignableFrom(returnType)) {
 			return true;
 		}
@@ -147,7 +134,12 @@ public final class PostFilterAuthorizationReactiveMethodInterceptor implements A
 	}
 
 	private void setFilterObject(EvaluationContext ctx, Object result) {
-		((MethodSecurityExpressionOperations) ctx.getRootObject().getValue()).setFilterObject(result);
+		TypedValue rootObject = ctx.getRootObject();
+		Assert.notNull(rootObject, "rootObject cannot be null");
+		MethodSecurityExpressionOperations methodOperations = (MethodSecurityExpressionOperations) rootObject
+			.getValue();
+		Assert.notNull(methodOperations, "methodOperations cannot be null");
+		methodOperations.setFilterObject(result);
 	}
 
 	private Mono<?> postFilter(EvaluationContext ctx, Object result, ExpressionAttribute attribute) {

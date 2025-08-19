@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.aop.Pointcut;
 import org.springframework.expression.EvaluationContext;
@@ -65,20 +66,6 @@ public final class PostFilterAuthorizationMethodInterceptor implements Authoriza
 	 */
 	public void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
 		this.registry.setExpressionHandler(expressionHandler);
-	}
-
-	/**
-	 * Configure pre/post-authorization template resolution
-	 * <p>
-	 * By default, this value is <code>null</code>, which indicates that templates should
-	 * not be resolved.
-	 * @param defaults - whether to resolve pre/post-authorization templates parameters
-	 * @since 6.3
-	 * @deprecated Please use {@link AnnotationTemplateExpressionDefaults} instead
-	 */
-	@Deprecated
-	public void setTemplateDefaults(PrePostTemplateDefaults defaults) {
-		this.registry.setTemplateDefaults(defaults);
 	}
 
 	/**
@@ -140,10 +127,10 @@ public final class PostFilterAuthorizationMethodInterceptor implements Authoriza
 	 * @return filtered {@code returnedObject}
 	 */
 	@Override
-	public Object invoke(MethodInvocation mi) throws Throwable {
+	public @Nullable Object invoke(MethodInvocation mi) throws Throwable {
 		Object returnedObject = mi.proceed();
 		ExpressionAttribute attribute = this.registry.getAttribute(mi);
-		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
+		if (attribute == null) {
 			return returnedObject;
 		}
 		MethodSecurityExpressionHandler expressionHandler = this.registry.getExpressionHandler();

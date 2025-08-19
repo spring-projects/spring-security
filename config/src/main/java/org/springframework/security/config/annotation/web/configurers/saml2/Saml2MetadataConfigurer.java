@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,8 @@ import org.opensaml.core.Version;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
-import org.springframework.security.config.annotation.web.RequestMatcherFactory;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.saml2.provider.service.metadata.OpenSaml4MetadataResolver;
 import org.springframework.security.saml2.provider.service.metadata.OpenSaml5MetadataResolver;
 import org.springframework.security.saml2.provider.service.metadata.Saml2MetadataResponseResolver;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
@@ -111,13 +109,11 @@ public class Saml2MetadataConfigurer<H extends HttpSecurityBuilder<H>>
 			if (USE_OPENSAML_5) {
 				RequestMatcherMetadataResponseResolver metadata = new RequestMatcherMetadataResponseResolver(
 						registrations, new OpenSaml5MetadataResolver());
-				metadata.setRequestMatcher(RequestMatcherFactory.matcher(metadataUrl));
+				metadata.setRequestMatcher(getRequestMatcherBuilder().matcher(metadataUrl));
 				return metadata;
 			}
-			RequestMatcherMetadataResponseResolver metadata = new RequestMatcherMetadataResponseResolver(registrations,
-					new OpenSaml4MetadataResolver());
-			metadata.setRequestMatcher(RequestMatcherFactory.matcher(metadataUrl));
-			return metadata;
+			throw new IllegalArgumentException(
+					"Spring Security does not support OpenSAML " + Version.getVersion() + ". Please use OpenSAML 5");
 		};
 		return this;
 	}
@@ -157,7 +153,8 @@ public class Saml2MetadataConfigurer<H extends HttpSecurityBuilder<H>>
 		if (USE_OPENSAML_5) {
 			return new RequestMatcherMetadataResponseResolver(registrations, new OpenSaml5MetadataResolver());
 		}
-		return new RequestMatcherMetadataResponseResolver(registrations, new OpenSaml4MetadataResolver());
+		throw new IllegalArgumentException(
+				"Spring Security does not support OpenSAML " + Version.getVersion() + ". Please use OpenSAML 5");
 	}
 
 	private RelyingPartyRegistrationRepository getRelyingPartyRegistrationRepository(H http) {

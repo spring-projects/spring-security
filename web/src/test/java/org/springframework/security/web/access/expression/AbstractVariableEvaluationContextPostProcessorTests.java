@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.FilterInvocation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 
 /**
  * @author Rob Winch
@@ -54,8 +55,7 @@ public class AbstractVariableEvaluationContextPostProcessorTests {
 	@BeforeEach
 	public void setup() {
 		this.processor = new VariableEvaluationContextPostProcessor();
-		this.request = new MockHttpServletRequest();
-		this.request.setServletPath("/");
+		this.request = get("/").build();
 		this.response = new MockHttpServletResponse();
 		this.invocation = new FilterInvocation(this.request, this.response, new MockFilterChain());
 		this.context = new StandardEvaluationContext();

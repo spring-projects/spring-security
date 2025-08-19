@@ -210,9 +210,9 @@ public class BCrypt {
 	static final int MAX_LOG_ROUNDS = 31;
 
 	// Expanded Blowfish key
-	private int P[];
+	private int P[] = new int[0];
 
-	private int S[];
+	private int S[] = new int[0];
 
 	/**
 	 * Encode a byte array using bcrypt's slightly-modified base64 encoding scheme. Note

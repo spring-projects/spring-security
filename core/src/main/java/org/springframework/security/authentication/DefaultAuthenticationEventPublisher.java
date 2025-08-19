@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
@@ -71,13 +72,15 @@ public class DefaultAuthenticationEventPublisher
 
 	private final HashMap<String, Constructor<? extends AbstractAuthenticationEvent>> exceptionMappings = new HashMap<>();
 
-	private Constructor<? extends AbstractAuthenticationFailureEvent> defaultAuthenticationFailureEventConstructor;
+	private @Nullable Constructor<? extends AbstractAuthenticationFailureEvent> defaultAuthenticationFailureEventConstructor;
 
 	public DefaultAuthenticationEventPublisher() {
-		this(null);
+		this((event) -> {
+		});
 	}
 
 	public DefaultAuthenticationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+		Assert.notNull(applicationEventPublisher, "applicationEventPublisher cannot be null");
 		this.applicationEventPublisher = applicationEventPublisher;
 		addMapping(BadCredentialsException.class.getName(), AuthenticationFailureBadCredentialsEvent.class);
 		addMapping(UsernameNotFoundException.class.getName(), AuthenticationFailureBadCredentialsEvent.class);
@@ -123,7 +126,8 @@ public class DefaultAuthenticationEventPublisher
 		}
 	}
 
-	private Constructor<? extends AbstractAuthenticationEvent> getEventConstructor(AuthenticationException exception) {
+	private @Nullable Constructor<? extends AbstractAuthenticationEvent> getEventConstructor(
+			AuthenticationException exception) {
 		Constructor<? extends AbstractAuthenticationEvent> eventConstructor = this.exceptionMappings
 			.get(exception.getClass().getName());
 		return (eventConstructor != null) ? eventConstructor : this.defaultAuthenticationFailureEventConstructor;

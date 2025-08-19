@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext
+import org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher
 import org.springframework.security.web.util.matcher.RegexRequestMatcher
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
@@ -57,8 +58,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import org.springframework.web.util.WebUtils
 import java.util.function.Supplier
 
@@ -612,34 +611,6 @@ class AuthorizeHttpRequestsDslTests {
     }
 
     @Test
-    fun `request when both authorizeRequests and authorizeHttpRequests configured then exception`() {
-        assertThatThrownBy { this.spring.register(BothAuthorizeRequestsConfig::class.java).autowire() }
-            .isInstanceOf(UnsatisfiedDependencyException::class.java)
-            .hasRootCauseInstanceOf(IllegalStateException::class.java)
-            .hasMessageContaining(
-                "authorizeHttpRequests cannot be used in conjunction with authorizeRequests. Please select just one."
-            )
-    }
-
-    @Configuration
-    @EnableWebSecurity
-    @EnableWebMvc
-    open class BothAuthorizeRequestsConfig {
-        @Bean
-        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-            http {
-                authorizeRequests {
-                    authorize(anyRequest, permitAll)
-                }
-                authorizeHttpRequests {
-                    authorize(anyRequest, denyAll)
-                }
-            }
-            return http.build()
-        }
-    }
-
-    @Test
     fun `request when shouldFilterAllDispatcherTypes and denyAll and ERROR then responds with forbidden`() {
         this.spring.register(ShouldFilterAllDispatcherTypesTrueDenyAllConfig::class.java).autowire()
 
@@ -662,7 +633,6 @@ class AuthorizeHttpRequestsDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeHttpRequests {
-                    shouldFilterAllDispatcherTypes = true
                     authorize(anyRequest, denyAll)
                 }
             }
@@ -701,7 +671,6 @@ class AuthorizeHttpRequestsDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeHttpRequests {
-                    shouldFilterAllDispatcherTypes = true
                     authorize(anyRequest, permitAll)
                 }
             }
@@ -740,7 +709,8 @@ class AuthorizeHttpRequestsDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeHttpRequests {
-                    shouldFilterAllDispatcherTypes = false
+                    authorize(DispatcherTypeRequestMatcher(DispatcherType.ERROR), permitAll)
+                    authorize(DispatcherTypeRequestMatcher(DispatcherType.ASYNC), permitAll)
                     authorize(anyRequest, denyAll)
                 }
             }

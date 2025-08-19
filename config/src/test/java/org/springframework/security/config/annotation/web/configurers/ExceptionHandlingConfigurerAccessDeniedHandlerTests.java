@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,11 +32,11 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -87,12 +87,12 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().denyAll())
 				.exceptionHandling((handling) -> handling
 					.defaultAccessDeniedHandlerFor(
 						this.teapotDeniedHandler,
-						new AntPathRequestMatcher("/hello/**"))
+							pathPattern("/hello/**"))
 					.defaultAccessDeniedHandlerFor(
 						new AccessDeniedHandlerImpl(),
 						AnyRequestMatcher.INSTANCE));
@@ -113,13 +113,13 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().denyAll()
 				)
 				.exceptionHandling((exceptionHandling) -> exceptionHandling
 						.defaultAccessDeniedHandlerFor(
 								this.teapotDeniedHandler,
-								new AntPathRequestMatcher("/hello/**")
+								pathPattern("/hello/**")
 						)
 						.defaultAccessDeniedHandlerFor(
 								new AccessDeniedHandlerImpl(),
@@ -143,12 +143,12 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().denyAll())
 				.exceptionHandling((handling) -> handling
 					.defaultAccessDeniedHandlerFor(
 						this.teapotDeniedHandler,
-						new AntPathRequestMatcher("/hello/**")));
+							pathPattern("/hello/**")));
 			return http.build();
 			// @formatter:on
 		}

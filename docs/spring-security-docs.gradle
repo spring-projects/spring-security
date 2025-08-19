@@ -57,9 +57,6 @@ dependencies {
 
 def generateAttributes() {
 	def springFrameworkVersion = libs.org.springframework.spring.framework.bom.get().versionConstraint.displayName
-	springFrameworkVersion = springFrameworkVersion.contains("-")
-			? springFrameworkVersion.substring(0, springFrameworkVersion.indexOf("-"))
-			: springFrameworkVersion
 	def springBootVersion = project.property("springBootVersion")
 	def samplesBranch = project.property("samplesBranch")
 

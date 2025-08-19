@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * Tests for {@link RequestMatcherDelegatingAuthenticationManagerResolverTests}
@@ -44,12 +45,11 @@ public class RequestMatcherDelegatingAuthenticationManagerResolverTests {
 	public void resolveWhenMatchesThenReturnsAuthenticationManager() {
 		RequestMatcherDelegatingAuthenticationManagerResolver resolver = RequestMatcherDelegatingAuthenticationManagerResolver
 			.builder()
-			.add(new AntPathRequestMatcher("/one/**"), this.one)
-			.add(new AntPathRequestMatcher("/two/**"), this.two)
+			.add(pathPattern("/one/**"), this.one)
+			.add(pathPattern("/two/**"), this.two)
 			.build();
 
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/one/location");
-		request.setServletPath("/one/location");
+		MockHttpServletRequest request = get("/one/location").build();
 		assertThat(resolver.resolve(request)).isEqualTo(this.one);
 	}
 
@@ -57,8 +57,8 @@ public class RequestMatcherDelegatingAuthenticationManagerResolverTests {
 	public void resolveWhenDoesNotMatchThenReturnsDefaultAuthenticationManager() {
 		RequestMatcherDelegatingAuthenticationManagerResolver resolver = RequestMatcherDelegatingAuthenticationManagerResolver
 			.builder()
-			.add(new AntPathRequestMatcher("/one/**"), this.one)
-			.add(new AntPathRequestMatcher("/two/**"), this.two)
+			.add(pathPattern("/one/**"), this.one)
+			.add(pathPattern("/two/**"), this.two)
 			.build();
 
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/wrong/location");

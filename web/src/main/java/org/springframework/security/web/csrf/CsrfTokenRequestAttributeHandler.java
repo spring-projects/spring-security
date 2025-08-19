@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,6 @@ public class CsrfTokenRequestAttributeHandler implements CsrfTokenRequestHandler
 		Assert.notNull(response, "response cannot be null");
 		Assert.notNull(deferredCsrfToken, "deferredCsrfToken cannot be null");
 
-		request.setAttribute(HttpServletResponse.class.getName(), response);
 		CsrfToken csrfToken = new SupplierCsrfToken(deferredCsrfToken);
 		request.setAttribute(CsrfToken.class.getName(), csrfToken);
 		String csrfAttrName = (this.csrfRequestAttributeName != null) ? this.csrfRequestAttributeName

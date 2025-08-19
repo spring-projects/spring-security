@@ -18,7 +18,6 @@ package org.springframework.security.ldap.userdetails;
 
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 
 /**
  * UserDetails implementation whose properties are based on a subset of the LDAP schema
@@ -31,7 +30,7 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
  */
 public class InetOrgPerson extends Person {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private String carLicense;
 

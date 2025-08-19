@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.opensaml.core.Version;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Unmarshaller;
@@ -43,19 +42,7 @@ final class OpenSamlMetadataUtils {
 	}
 
 	static OpenSamlDeserializer resolveDeserializer() {
-		if (Version.getVersion().startsWith("4")) {
-			return new OpenSaml4Deserializer();
-		}
-		String opensaml5 = "org.springframework.security.saml2.provider.service.registration.OpenSaml5Template";
-		try {
-			Class<?> template = Class.forName(opensaml5);
-			OpenSamlOperations operations = (OpenSamlOperations) template.getDeclaredConstructor().newInstance();
-			return operations::deserialize;
-		}
-		catch (Exception ex) {
-			throw new IllegalStateException(
-					"Application appears to be using OpenSAML 5, but Spring's OpenSAML 5 support is not on the classpath");
-		}
+		return new OpenSaml5Deserializer();
 	}
 
 	private OpenSamlMetadataUtils() {
@@ -79,7 +66,7 @@ final class OpenSamlMetadataUtils {
 
 	}
 
-	private static class OpenSaml4Deserializer implements OpenSamlDeserializer {
+	private static class OpenSaml5Deserializer implements OpenSamlDeserializer {
 
 		@Override
 		public XMLObject deserialize(InputStream serialized) {

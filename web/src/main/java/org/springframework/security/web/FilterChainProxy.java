@@ -34,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.web.access.PathPatternRequestTransformer;
 import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.HttpStatusRequestRejectedHandler;
@@ -258,7 +259,9 @@ public class FilterChainProxy extends GenericFilterBean {
 	 * @return matching filter list
 	 */
 	public List<Filter> getFilters(String url) {
-		return getFilters(this.firewall.getFirewalledRequest(new FilterInvocation(url, "GET").getRequest()));
+		PathPatternRequestTransformer requestTransformer = new PathPatternRequestTransformer();
+		HttpServletRequest transformed = requestTransformer.transform(new FilterInvocation(url, "GET").getRequest());
+		return getFilters(this.firewall.getFirewalledRequest(transformed));
 	}
 
 	/**

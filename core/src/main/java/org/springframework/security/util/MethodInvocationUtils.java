@@ -19,6 +19,7 @@ package org.springframework.security.util;
 import java.lang.reflect.Method;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
@@ -48,7 +49,7 @@ public final class MethodInvocationUtils {
 	 * @return a <code>MethodInvocation</code>, or <code>null</code> if there was a
 	 * problem
 	 */
-	public static MethodInvocation create(Object object, String methodName, Object... args) {
+	public static @Nullable MethodInvocation create(Object object, String methodName, Object... args) {
 		Assert.notNull(object, "Object required");
 		Class<?>[] classArgs = null;
 		if (args != null) {
@@ -93,7 +94,7 @@ public final class MethodInvocationUtils {
 	 * @return a <code>MethodInvocation</code>, or <code>null</code> if there was a
 	 * problem
 	 */
-	public static MethodInvocation createFromClass(Class<?> clazz, String methodName) {
+	public static @Nullable MethodInvocation createFromClass(Class<?> clazz, String methodName) {
 		MethodInvocation invocation = createFromClass(null, clazz, methodName, null, null);
 		if (invocation == null) {
 			for (Method method : clazz.getDeclaredMethods()) {
@@ -120,8 +121,8 @@ public final class MethodInvocationUtils {
 	 * @return a <code>MethodInvocation</code>, or <code>null</code> if there was a
 	 * problem
 	 */
-	public static MethodInvocation createFromClass(Object targetObject, Class<?> clazz, String methodName,
-			Class<?>[] classArgs, Object[] args) {
+	public static @Nullable MethodInvocation createFromClass(@Nullable Object targetObject, Class<?> clazz,
+			String methodName, Class<?> @Nullable [] classArgs, Object @Nullable [] args) {
 		Assert.notNull(clazz, "Class required");
 		Assert.hasText(methodName, "MethodName required");
 		try {

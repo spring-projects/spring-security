@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1082,11 +1082,11 @@ public class OpenSaml5AuthenticationProviderTests {
 		return TestRelyingPartyRegistrations.noCredentials()
 			.entityId(RELYING_PARTY_ENTITY_ID)
 			.assertionConsumerServiceLocation(DESTINATION)
-			.assertingPartyDetails((party) -> party.entityId(ASSERTING_PARTY_ENTITY_ID));
+			.assertingPartyMetadata((party) -> party.entityId(ASSERTING_PARTY_ENTITY_ID));
 	}
 
 	private RelyingPartyRegistration.Builder verifying(RelyingPartyRegistration.Builder builder) {
-		return builder.assertingPartyDetails((party) -> party
+		return builder.assertingPartyMetadata((party) -> party
 			.verificationX509Credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())));
 	}
 

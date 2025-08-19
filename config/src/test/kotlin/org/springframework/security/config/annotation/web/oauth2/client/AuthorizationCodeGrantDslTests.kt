@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,7 +99,7 @@ class AuthorizationCodeGrantDslTests {
                         authorizationRequestRepository = REQUEST_REPOSITORY
                     }
                 }
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
             }
@@ -133,7 +133,7 @@ class AuthorizationCodeGrantDslTests {
                         authorizationRedirectStrategy = REDIRECT_STRATEGY
                     }
                 }
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
             }
@@ -187,7 +187,7 @@ class AuthorizationCodeGrantDslTests {
                         accessTokenResponseClient = CLIENT
                     }
                 }
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
             }
@@ -226,7 +226,7 @@ class AuthorizationCodeGrantDslTests {
                         authorizationRequestResolver = requestResolver
                     }
                 }
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
             }

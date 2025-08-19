@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ import org.springframework.security.crypto.keygen.StringKeyGenerator;
  * indicate that this is a legacy implementation and using it is considered insecure.
  */
 @Deprecated
-public class MessageDigestPasswordEncoder implements PasswordEncoder {
+public class MessageDigestPasswordEncoder extends AbstractValidatingPasswordEncoder {
 
 	private static final String PREFIX = "{";
 
@@ -116,7 +116,7 @@ public class MessageDigestPasswordEncoder implements PasswordEncoder {
 	 * encodeHashAsBase64 is enabled.
 	 */
 	@Override
-	public String encode(CharSequence rawPassword) {
+	protected String encodeNonNullPassword(String rawPassword) {
 		String salt = PREFIX + this.saltGenerator.generateKey() + SUFFIX;
 		return digest(salt, rawPassword);
 	}
@@ -124,11 +124,11 @@ public class MessageDigestPasswordEncoder implements PasswordEncoder {
 	private String digest(String salt, CharSequence rawPassword) {
 		String saltedPassword = rawPassword + salt;
 		byte[] digest = this.digester.digest(Utf8.encode(saltedPassword));
-		String encoded = encode(digest);
+		String encoded = encodedNonNullPassword(digest);
 		return salt + encoded;
 	}
 
-	private String encode(byte[] digest) {
+	private String encodedNonNullPassword(byte[] digest) {
 		if (this.encodeHashAsBase64) {
 			return Utf8.decode(Base64.getEncoder().encode(digest));
 		}
@@ -143,7 +143,7 @@ public class MessageDigestPasswordEncoder implements PasswordEncoder {
 	 * @return true or false
 	 */
 	@Override
-	public boolean matches(CharSequence rawPassword, String encodedPassword) {
+	protected boolean matchesNonNull(String rawPassword, String encodedPassword) {
 		String salt = extractSalt(encodedPassword);
 		String rawPasswordEncoded = digest(salt, rawPassword);
 		return PasswordEncoderUtils.equals(encodedPassword.toString(), rawPasswordEncoded);

@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.CredentialsContainer;
@@ -41,7 +43,7 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 
 	private final Collection<GrantedAuthority> authorities;
 
-	private Object details;
+	private @Nullable Object details;
 
 	private boolean authenticated = false;
 
@@ -50,7 +52,7 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 	 * @param authorities the collection of <tt>GrantedAuthority</tt>s for the principal
 	 * represented by this authentication object.
 	 */
-	public AbstractAuthenticationToken(Collection<? extends GrantedAuthority> authorities) {
+	public AbstractAuthenticationToken(@Nullable Collection<? extends GrantedAuthority> authorities) {
 		if (authorities == null) {
 			this.authorities = AuthorityUtils.NO_AUTHORITIES;
 			return;
@@ -91,11 +93,11 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 	}
 
 	@Override
-	public Object getDetails() {
+	public @Nullable Object getDetails() {
 		return this.details;
 	}
 
-	public void setDetails(Object details) {
+	public void setDetails(@Nullable Object details) {
 		this.details = details;
 	}
 
@@ -111,7 +113,7 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 		eraseSecret(this.details);
 	}
 
-	private void eraseSecret(Object secret) {
+	private void eraseSecret(@Nullable Object secret) {
 		if (secret instanceof CredentialsContainer container) {
 			container.eraseCredentials();
 		}

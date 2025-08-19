@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ import org.springframework.core.ResolvableType;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
-import org.springframework.security.config.annotation.web.RequestMatcherFactory;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -53,9 +52,9 @@ import org.springframework.security.core.session.SessionIdChangedEvent;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
-import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.RestClientAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizedClientRefreshedEventListener;
 import org.springframework.security.oauth2.client.oidc.session.InMemoryOidcSessionRegistry;
@@ -181,6 +180,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	private OAuth2AuthorizedClientRepository authorizedClientRepository;
 
+	private SecurityContextRepository securityContextRepository;
+
 	/**
 	 * Sets the repository of client registrations.
 	 * @param clientRegistrationRepository the repository of client registrations
@@ -231,6 +232,17 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	public OAuth2LoginConfigurer<B> loginProcessingUrl(String loginProcessingUrl) {
 		Assert.hasText(loginProcessingUrl, "loginProcessingUrl cannot be empty");
 		this.loginProcessingUrl = loginProcessingUrl;
+		return this;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextRepository} to use.
+	 * @param securityContextRepository the {@link SecurityContextRepository} to use
+	 * @return the {@link OAuth2LoginConfigurer} for further configuration
+	 */
+	@Override
+	public OAuth2LoginConfigurer<B> securityContextRepository(SecurityContextRepository securityContextRepository) {
+		this.securityContextRepository = securityContextRepository;
 		return this;
 	}
 
@@ -297,9 +309,12 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	public void init(B http) throws Exception {
 		OAuth2LoginAuthenticationFilter authenticationFilter = new OAuth2LoginAuthenticationFilter(
 				this.getClientRegistrationRepository(), this.getAuthorizedClientRepository(), this.loginProcessingUrl);
-		RequestMatcher processUri = RequestMatcherFactory.matcher(this.loginProcessingUrl);
+		RequestMatcher processUri = getRequestMatcherBuilder().matcher(this.loginProcessingUrl);
 		authenticationFilter.setRequiresAuthenticationRequestMatcher(processUri);
 		authenticationFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
+		if (this.securityContextRepository != null) {
+			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
+		}
 		this.setAuthenticationFilter(authenticationFilter);
 		super.loginProcessingUrl(this.loginProcessingUrl);
 		if (this.loginPage != null) {
@@ -381,7 +396,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		OAuth2LoginAuthenticationFilter authenticationFilter = this.getAuthenticationFilter();
 		if (this.redirectionEndpointConfig.authorizationResponseBaseUri != null) {
 			authenticationFilter.setRequiresAuthenticationRequestMatcher(
-					RequestMatcherFactory.matcher(this.redirectionEndpointConfig.authorizationResponseBaseUri));
+					getRequestMatcherBuilder().matcher(this.redirectionEndpointConfig.authorizationResponseBaseUri));
 		}
 		if (this.authorizationEndpointConfig.authorizationRequestRepository != null) {
 			authenticationFilter
@@ -393,7 +408,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	@Override
 	protected RequestMatcher createLoginProcessingUrlMatcher(String loginProcessingUrl) {
-		return RequestMatcherFactory.matcher(loginProcessingUrl);
+		return getRequestMatcherBuilder().matcher(loginProcessingUrl);
 	}
 
 	private OAuth2AuthorizationRequestResolver getAuthorizationRequestResolver() {
@@ -462,7 +477,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		ResolvableType resolvableType = ResolvableType.forClassWithGenerics(OAuth2AccessTokenResponseClient.class,
 				OAuth2AuthorizationCodeGrantRequest.class);
 		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> bean = getBeanOrNull(resolvableType);
-		return (bean != null) ? bean : new DefaultAuthorizationCodeTokenResponseClient();
+		return (bean != null) ? bean : new RestClientAuthorizationCodeTokenResponseClient();
 	}
 
 	private OAuth2UserService<OidcUserRequest, OidcUser> getOidcUserService() {
@@ -531,8 +546,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	private AuthenticationEntryPoint getLoginEntryPoint(B http, String providerLoginPage) {
-		RequestMatcher loginPageMatcher = RequestMatcherFactory.matcher(this.getLoginPage());
-		RequestMatcher faviconMatcher = RequestMatcherFactory.matcher("/favicon.ico");
+		RequestMatcher loginPageMatcher = getRequestMatcherBuilder().matcher(this.getLoginPage());
+		RequestMatcher faviconMatcher = getRequestMatcherBuilder().matcher("/favicon.ico");
 		RequestMatcher defaultEntryPointMatcher = this.getAuthenticationEntryPointMatcher(http);
 		RequestMatcher defaultLoginPageMatcher = new AndRequestMatcher(
 				new OrRequestMatcher(loginPageMatcher, faviconMatcher), defaultEntryPointMatcher);

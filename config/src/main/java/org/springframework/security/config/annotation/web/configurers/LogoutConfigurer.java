@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
-import org.springframework.security.config.annotation.web.RequestMatcherFactory;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
@@ -146,7 +145,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	 * (i.e. log out) to protect against
 	 * <a href="https://en.wikipedia.org/wiki/Cross-site_request_forgery">CSRF
 	 * attacks</a>. If you really want to use an HTTP GET, you can use
-	 * <code>logoutRequestMatcher(PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GEt, logoutUrl));</code>
+	 * <code>logoutRequestMatcher(PathPatternRequestMatcher.pathPattern(HttpMethod.GEt, logoutUrl));</code>
 	 * </p>
 	 * @param logoutUrl the URL that will invoke logout.
 	 * @return the {@link LogoutConfigurer} for further customization
@@ -370,7 +369,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	private RequestMatcher createLogoutRequestMatcher(String httpMethod) {
-		return RequestMatcherFactory.matcher(HttpMethod.valueOf(httpMethod), this.logoutUrl);
+		return getRequestMatcherBuilder().matcher(HttpMethod.valueOf(httpMethod), this.logoutUrl);
 	}
 
 }

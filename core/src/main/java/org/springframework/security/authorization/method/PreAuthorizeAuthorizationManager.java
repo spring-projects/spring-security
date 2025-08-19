@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.security.authorization.method;
 import java.util.function.Supplier;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.expression.EvaluationContext;
@@ -57,21 +58,6 @@ public final class PreAuthorizeAuthorizationManager
 	 * By default, this value is <code>null</code>, which indicates that templates should
 	 * not be resolved.
 	 * @param defaults - whether to resolve pre/post-authorization templates parameters
-	 * @since 6.3
-	 * @deprecated Please use
-	 * {@link #setTemplateDefaults(AnnotationTemplateExpressionDefaults)} instead
-	 */
-	@Deprecated
-	public void setTemplateDefaults(PrePostTemplateDefaults defaults) {
-		this.registry.setTemplateDefaults(defaults);
-	}
-
-	/**
-	 * Configure pre/post-authorization template resolution
-	 * <p>
-	 * By default, this value is <code>null</code>, which indicates that templates should
-	 * not be resolved.
-	 * @param defaults - whether to resolve pre/post-authorization templates parameters
 	 * @since 6.4
 	 */
 	public void setTemplateDefaults(AnnotationTemplateExpressionDefaults defaults) {
@@ -92,17 +78,18 @@ public final class PreAuthorizeAuthorizationManager
 	 * {@link PreAuthorize} annotation is not present
 	 */
 	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation mi) {
+	public @Nullable AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocation mi) {
 		ExpressionAttribute attribute = this.registry.getAttribute(mi);
-		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
+		if (attribute == null) {
 			return null;
 		}
 		EvaluationContext ctx = this.registry.getExpressionHandler().createEvaluationContext(authentication, mi);
-		return (AuthorizationDecision) ExpressionUtils.evaluate(attribute.getExpression(), ctx);
+		return ExpressionUtils.evaluate(attribute.getExpression(), ctx);
 	}
 
 	@Override
-	public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
+	public @Nullable Object handleDeniedInvocation(MethodInvocation methodInvocation,
+			AuthorizationResult authorizationResult) {
 		ExpressionAttribute attribute = this.registry.getAttribute(methodInvocation);
 		PreAuthorizeExpressionAttribute preAuthorizeAttribute = (PreAuthorizeExpressionAttribute) attribute;
 		return preAuthorizeAttribute.getHandler().handleDeniedInvocation(methodInvocation, authorizationResult);

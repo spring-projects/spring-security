@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@
 package org.springframework.security.authorization.method;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
@@ -58,21 +58,6 @@ public final class PreAuthorizeReactiveAuthorizationManager
 	 * By default, this value is <code>null</code>, which indicates that templates should
 	 * not be resolved.
 	 * @param defaults - whether to resolve pre/post-authorization templates parameters
-	 * @since 6.3
-	 * @deprecated please use
-	 * {@link #setTemplateDefaults(AnnotationTemplateExpressionDefaults)}
-	 */
-	@Deprecated
-	public void setTemplateDefaults(PrePostTemplateDefaults defaults) {
-		this.registry.setTemplateDefaults(defaults);
-	}
-
-	/**
-	 * Configure pre/post-authorization template resolution
-	 * <p>
-	 * By default, this value is <code>null</code>, which indicates that templates should
-	 * not be resolved.
-	 * @param defaults - whether to resolve pre/post-authorization templates parameters
 	 * @since 6.4
 	 */
 	public void setTemplateDefaults(AnnotationTemplateExpressionDefaults defaults) {
@@ -88,25 +73,26 @@ public final class PreAuthorizeReactiveAuthorizationManager
 	 * by evaluating an expression from the {@link PreAuthorize} annotation.
 	 * @param authentication the {@link Mono} of the {@link Authentication} to check
 	 * @param mi the {@link MethodInvocation} to check
-	 * @return a {@link Mono} of the {@link AuthorizationDecision} or an empty
-	 * {@link Mono} if the {@link PreAuthorize} annotation is not present
+	 * @return a {@link Mono} of the {@link AuthorizationResult} or an empty {@link Mono}
+	 * if the {@link PreAuthorize} annotation is not present
 	 */
 	@Override
-	public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, MethodInvocation mi) {
+	public Mono<AuthorizationResult> authorize(Mono<Authentication> authentication, MethodInvocation mi) {
 		ExpressionAttribute attribute = this.registry.getAttribute(mi);
-		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
+		if (attribute == null) {
 			return Mono.empty();
 		}
 		// @formatter:off
 		return authentication
 				.map((auth) -> this.registry.getExpressionHandler().createEvaluationContext(auth, mi))
 				.flatMap((ctx) -> ReactiveExpressionUtils.evaluate(attribute.getExpression(), ctx))
-				.cast(AuthorizationDecision.class);
+				.cast(AuthorizationResult.class);
 		// @formatter:on
 	}
 
 	@Override
-	public Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult) {
+	public @Nullable Object handleDeniedInvocation(MethodInvocation methodInvocation,
+			AuthorizationResult authorizationResult) {
 		ExpressionAttribute attribute = this.registry.getAttribute(methodInvocation);
 		PreAuthorizeExpressionAttribute preAuthorizeAttribute = (PreAuthorizeExpressionAttribute) attribute;
 		return preAuthorizeAttribute.getHandler().handleDeniedInvocation(methodInvocation, authorizationResult);

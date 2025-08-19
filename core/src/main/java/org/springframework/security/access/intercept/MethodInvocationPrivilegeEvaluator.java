@@ -21,6 +21,8 @@ import java.util.Collection;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.log.LogMessage;
@@ -46,12 +48,14 @@ import org.springframework.util.Assert;
  * @deprecated Use {@link org.springframework.security.authorization.AuthorizationManager}
  * instead
  */
+@NullUnmarked
 @Deprecated
 public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
 
 	protected static final Log logger = LogFactory.getLog(MethodInvocationPrivilegeEvaluator.class);
 
-	private AbstractSecurityInterceptor securityInterceptor;
+	@SuppressWarnings("NullAway.Init")
+	private @Nullable AbstractSecurityInterceptor securityInterceptor;
 
 	@Override
 	public void afterPropertiesSet() {

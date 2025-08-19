@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,12 @@ public final class ExpressionUtils {
 
 	public static boolean evaluateAsBoolean(Expression expr, EvaluationContext ctx) {
 		try {
-			return expr.getValue(ctx, Boolean.class);
+			Boolean result = expr.getValue(ctx, Boolean.class);
+			if (result == null) {
+				throw new IllegalArgumentException(
+						"Expression was null but expected boolean result '" + expr.getExpressionString() + "'");
+			}
+			return result;
 		}
 		catch (EvaluationException ex) {
 			throw new IllegalArgumentException("Failed to evaluate expression '" + expr.getExpressionString() + "'",

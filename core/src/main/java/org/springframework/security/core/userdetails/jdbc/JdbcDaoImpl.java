@@ -25,6 +25,7 @@ import org.springframework.context.ApplicationContextException;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.security.core.GrantedAuthority;
@@ -218,7 +219,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 			return new User(username1, password, enabled, true, true, true, AuthorityUtils.NO_AUTHORITIES);
 		};
 		// @formatter:on
-		return getJdbcTemplate().query(this.usersByUsernameQuery, mapper, username);
+		return getJdbc().query(this.usersByUsernameQuery, mapper, username);
 	}
 
 	/**
@@ -226,7 +227,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 	 * @return a list of GrantedAuthority objects for the user
 	 */
 	protected List<GrantedAuthority> loadUserAuthorities(String username) {
-		return getJdbcTemplate().query(this.authoritiesByUsernameQuery, (rs, rowNum) -> {
+		return getJdbc().query(this.authoritiesByUsernameQuery, (rs, rowNum) -> {
 			String roleName = JdbcDaoImpl.this.rolePrefix + rs.getString(2);
 			return new SimpleGrantedAuthority(roleName);
 		}, username);
@@ -238,7 +239,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 	 * @return a list of GrantedAuthority objects for the user
 	 */
 	protected List<GrantedAuthority> loadGroupAuthorities(String username) {
-		return getJdbcTemplate().query(this.groupAuthoritiesByUsernameQuery, (rs, rowNum) -> {
+		return getJdbc().query(this.groupAuthoritiesByUsernameQuery, (rs, rowNum) -> {
 			String roleName = getRolePrefix() + rs.getString(3);
 			return new SimpleGrantedAuthority(roleName);
 		}, username);
@@ -372,6 +373,12 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 	public void setMessageSource(MessageSource messageSource) {
 		Assert.notNull(messageSource, "messageSource cannot be null");
 		this.messages = new MessageSourceAccessor(messageSource);
+	}
+
+	private JdbcTemplate getJdbc() {
+		JdbcTemplate template = getJdbcTemplate();
+		Assert.notNull(template, "JdbcTemplate cannot be null");
+		return template;
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,11 +43,11 @@ import org.springframework.util.StringUtils;
 public class MapBasedAttributes2GrantedAuthoritiesMapper
 		implements Attributes2GrantedAuthoritiesMapper, MappableAttributesRetriever, InitializingBean {
 
-	private Map<String, Collection<GrantedAuthority>> attributes2grantedAuthoritiesMap = null;
+	private Map<String, Collection<GrantedAuthority>> attributes2grantedAuthoritiesMap = new HashMap<>();
 
 	private String stringSeparator = ",";
 
-	private Set<String> mappableAttributes = null;
+	private Set<String> mappableAttributes = new HashSet<>();
 
 	@Override
 	public void afterPropertiesSet() {
@@ -181,6 +182,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	 * @param stringSeparator The stringSeparator to set.
 	 */
 	public void setStringSeparator(String stringSeparator) {
+		Assert.notNull(stringSeparator, "stringSeparator cannot be null");
 		this.stringSeparator = stringSeparator;
 	}
 

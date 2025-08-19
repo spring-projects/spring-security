@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -159,7 +159,7 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 			if (!StringUtils.hasText(servletPath)) {
 				servletPath = null;
 			}
-			else if (!MatcherType.mvc.equals(matcherType)) {
+			else if (!MatcherType.path.equals(matcherType)) {
 				parserContext.getReaderContext()
 					.error(ATT_SERVLET_PATH + " is not applicable for request-matcher: '" + matcherType.name() + "'",
 							urlElt);

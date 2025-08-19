@@ -25,7 +25,6 @@ import javax.naming.Name;
 
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.ldap.ppolicy.PasswordPolicyData;
 import org.springframework.util.Assert;
@@ -49,7 +48,7 @@ import org.springframework.util.Assert;
  */
 public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private String dn;
 

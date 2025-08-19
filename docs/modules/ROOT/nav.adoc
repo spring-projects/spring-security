@@ -176,6 +176,7 @@
 **** xref:reactive/test/web/authentication.adoc[Testing Authentication]
 **** xref:reactive/test/web/csrf.adoc[Testing CSRF]
 **** xref:reactive/test/web/oauth2.adoc[Testing OAuth 2.0]
+**** xref:reactive/test/web/x509.adoc[Testing X509]
 ** xref:reactive/configuration/webflux.adoc[WebFlux Security]
 * xref:native-image/index.adoc[GraalVM Native Image Support]
 ** xref:native-image/method-security.adoc[Method Security]

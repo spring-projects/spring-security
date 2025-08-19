@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ package org.springframework.security.crypto.password;
  * legacy implementation and using it is considered insecure.
  */
 @Deprecated
-public final class NoOpPasswordEncoder implements PasswordEncoder {
+public final class NoOpPasswordEncoder extends AbstractValidatingPasswordEncoder {
 
 	private static final PasswordEncoder INSTANCE = new NoOpPasswordEncoder();
 
@@ -39,12 +39,12 @@ public final class NoOpPasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
-	public String encode(CharSequence rawPassword) {
+	protected String encodeNonNullPassword(String rawPassword) {
 		return rawPassword.toString();
 	}
 
 	@Override
-	public boolean matches(CharSequence rawPassword, String encodedPassword) {
+	protected boolean matchesNonNull(String rawPassword, String encodedPassword) {
 		return rawPassword.toString().equals(encodedPassword);
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,16 +107,6 @@ public final class OAuth2ParameterNames {
 	 * {@code refresh_token} - used in Access Token Request and Access Token Response.
 	 */
 	public static final String REFRESH_TOKEN = "refresh_token";
-
-	/**
-	 * {@code username} - used in Access Token Request.
-	 */
-	public static final String USERNAME = "username";
-
-	/**
-	 * {@code password} - used in Access Token Request.
-	 */
-	public static final String PASSWORD = "password";
 
 	/**
 	 * {@code error} - used in Authorization Response and Access Token Response.

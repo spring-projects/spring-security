@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.authorization;
 
 import io.micrometer.observation.Observation;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
@@ -29,11 +30,13 @@ import org.springframework.util.Assert;
  */
 public class AuthorizationObservationContext<T> extends Observation.Context {
 
-	private Authentication authentication;
+	// FIXME: Should we make this non-null?
+	private @Nullable Authentication authentication;
 
 	private final T object;
 
-	private AuthorizationResult authorizationResult;
+	// FIXME: Should we make this non-null?
+	private @Nullable AuthorizationResult authorizationResult;
 
 	public AuthorizationObservationContext(T object) {
 		Assert.notNull(object, "object cannot be null");
@@ -48,7 +51,7 @@ public class AuthorizationObservationContext<T> extends Observation.Context {
 	 * {@link Authentication}, this will return {@code null}.
 	 * @return any observed {@link Authentication}, {@code null} otherwise
 	 */
-	public Authentication getAuthentication() {
+	public @Nullable Authentication getAuthentication() {
 		return this.authentication;
 	}
 
@@ -69,38 +72,11 @@ public class AuthorizationObservationContext<T> extends Observation.Context {
 	}
 
 	/**
-	 * Get the observed {@link AuthorizationDecision}
-	 * @return the observed {@link AuthorizationDecision}
-	 * @deprecated please use {@link #getAuthorizationResult()} instead
-	 */
-	@Deprecated
-	public AuthorizationDecision getDecision() {
-		if (this.authorizationResult == null) {
-			return null;
-		}
-		if (this.authorizationResult instanceof AuthorizationDecision decision) {
-			return decision;
-		}
-		throw new IllegalArgumentException(
-				"Please call getAuthorizationResult instead. If you must call getDecision, please ensure that the result you provide is of type AuthorizationDecision");
-	}
-
-	/**
-	 * Set the observed {@link AuthorizationDecision}
-	 * @param decision the observed {@link AuthorizationDecision}
-	 * @deprecated please use {@link #setAuthorizationResult(AuthorizationResult)} instead
-	 */
-	@Deprecated
-	public void setDecision(AuthorizationDecision decision) {
-		this.authorizationResult = decision;
-	}
-
-	/**
 	 * Get the observed {@link AuthorizationResult}
 	 * @return the observed {@link AuthorizationResult}
 	 * @since 6.4
 	 */
-	public AuthorizationResult getAuthorizationResult() {
+	public @Nullable AuthorizationResult getAuthorizationResult() {
 		return this.authorizationResult;
 	}
 
@@ -109,7 +85,7 @@ public class AuthorizationObservationContext<T> extends Observation.Context {
 	 * @param authorizationResult the observed {@link AuthorizationResult}
 	 * @since 6.4
 	 */
-	public void setAuthorizationResult(AuthorizationResult authorizationResult) {
+	public void setAuthorizationResult(@Nullable AuthorizationResult authorizationResult) {
 		this.authorizationResult = authorizationResult;
 	}
 

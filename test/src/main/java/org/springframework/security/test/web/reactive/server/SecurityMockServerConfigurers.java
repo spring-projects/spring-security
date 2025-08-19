@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -827,8 +827,10 @@ public final class SecurityMockServerConfigurers {
 
 		private ClientRegistration.Builder clientRegistrationBuilder() {
 			return ClientRegistration.withRegistrationId("test")
-				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri("https://client.example.com")
 				.clientId("test-client")
+				.authorizationUri("https://authorize-uri.example.org")
 				.tokenUri("https://token-uri.example.org");
 		}
 
@@ -988,8 +990,10 @@ public final class SecurityMockServerConfigurers {
 
 		private ClientRegistration.Builder clientRegistrationBuilder() {
 			return ClientRegistration.withRegistrationId("test")
-				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri("https://client.example.com")
 				.clientId("test-client")
+				.authorizationUri("https://authorize-uri.example.org")
 				.tokenUri("https://token-uri.example.org");
 		}
 
@@ -1140,9 +1144,11 @@ public final class SecurityMockServerConfigurers {
 
 		private ClientRegistration.Builder clientRegistrationBuilder() {
 			return ClientRegistration.withRegistrationId(this.registrationId)
-				.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri("https://client.example.com")
 				.clientId("test-client")
 				.clientSecret("test-secret")
+				.authorizationUri("https://idp.example.org/oauth/authorize")
 				.tokenUri("https://idp.example.org/oauth/token");
 		}
 

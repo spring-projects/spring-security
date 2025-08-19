@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
-import org.springframework.security.config.annotation.web.RequestMatcherFactory;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
@@ -36,8 +35,6 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.springframework.security.saml2.provider.service.authentication.Saml2ResponseAssertionAccessor;
-import org.springframework.security.saml2.provider.service.authentication.logout.OpenSaml4LogoutRequestValidator;
-import org.springframework.security.saml2.provider.service.authentication.logout.OpenSaml4LogoutResponseValidator;
 import org.springframework.security.saml2.provider.service.authentication.logout.OpenSaml5LogoutRequestValidator;
 import org.springframework.security.saml2.provider.service.authentication.logout.OpenSaml5LogoutResponseValidator;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequestValidator;
@@ -45,9 +42,6 @@ import org.springframework.security.saml2.provider.service.authentication.logout
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.HttpSessionLogoutRequestRepository;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestResolver;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestValidatorParametersResolver;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutResponseResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml5LogoutRequestResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml5LogoutRequestValidatorParametersResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml5LogoutResponseResolver;
@@ -251,10 +245,8 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 			parameters.setRequestMatcher(requestMatcher);
 			return parameters;
 		}
-		OpenSaml4LogoutRequestValidatorParametersResolver parameters = new OpenSaml4LogoutRequestValidatorParametersResolver(
-				registrations);
-		parameters.setRequestMatcher(requestMatcher);
-		return parameters;
+		throw new IllegalArgumentException(
+				"Spring Security does not support OpenSAML " + Version.getVersion() + ". Please use OpenSAML 5");
 	}
 
 	private Saml2LogoutResponseFilter createLogoutResponseProcessingFilter(
@@ -279,19 +271,19 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	private RequestMatcher createLogoutMatcher() {
-		RequestMatcher logout = RequestMatcherFactory.matcher(HttpMethod.POST, this.logoutUrl);
+		RequestMatcher logout = getRequestMatcherBuilder().matcher(HttpMethod.POST, this.logoutUrl);
 		RequestMatcher saml2 = new Saml2RequestMatcher(getSecurityContextHolderStrategy());
 		return new AndRequestMatcher(logout, saml2);
 	}
 
 	private RequestMatcher createLogoutRequestMatcher() {
-		RequestMatcher logout = RequestMatcherFactory.matcher(this.logoutRequestConfigurer.logoutUrl);
+		RequestMatcher logout = getRequestMatcherBuilder().matcher(this.logoutRequestConfigurer.logoutUrl);
 		RequestMatcher samlRequest = new ParameterRequestMatcher("SAMLRequest");
 		return new AndRequestMatcher(logout, samlRequest);
 	}
 
 	private RequestMatcher createLogoutResponseMatcher() {
-		RequestMatcher logout = RequestMatcherFactory.matcher(this.logoutResponseConfigurer.logoutUrl);
+		RequestMatcher logout = getRequestMatcherBuilder().matcher(this.logoutResponseConfigurer.logoutUrl);
 		RequestMatcher samlResponse = new ParameterRequestMatcher("SAMLResponse");
 		return new AndRequestMatcher(logout, samlResponse);
 	}
@@ -385,7 +377,8 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 			if (USE_OPENSAML_5) {
 				return new OpenSaml5LogoutRequestValidator();
 			}
-			return new OpenSaml4LogoutRequestValidator();
+			throw new IllegalArgumentException(
+					"Spring Security does not support OpenSAML " + Version.getVersion() + ". Please use OpenSAML 5");
 		}
 
 		private Saml2LogoutRequestResolver logoutRequestResolver(RelyingPartyRegistrationRepository registrations) {
@@ -395,7 +388,8 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 			if (USE_OPENSAML_5) {
 				return new OpenSaml5LogoutRequestResolver(registrations);
 			}
-			return new OpenSaml4LogoutRequestResolver(registrations);
+			throw new IllegalArgumentException(
+					"Spring Security does not support OpenSAML " + Version.getVersion() + ". Please use OpenSAML 5");
 		}
 
 	}
@@ -455,7 +449,8 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 			if (USE_OPENSAML_5) {
 				return new OpenSaml5LogoutResponseValidator();
 			}
-			return new OpenSaml4LogoutResponseValidator();
+			throw new IllegalArgumentException(
+					"Spring Security does not support OpenSAML " + Version.getVersion() + ". Please use OpenSAML 5");
 		}
 
 		private Saml2LogoutResponseResolver logoutResponseResolver(RelyingPartyRegistrationRepository registrations) {
@@ -465,7 +460,8 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 			if (USE_OPENSAML_5) {
 				return new OpenSaml5LogoutResponseResolver(registrations);
 			}
-			return new OpenSaml4LogoutResponseResolver(registrations);
+			throw new IllegalArgumentException(
+					"Spring Security does not support OpenSAML " + Version.getVersion() + ". Please use OpenSAML 5");
 		}
 
 	}

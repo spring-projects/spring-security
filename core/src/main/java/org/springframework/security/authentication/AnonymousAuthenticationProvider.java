@@ -16,6 +16,8 @@
 
 package org.springframework.security.authentication;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -45,7 +47,7 @@ public class AnonymousAuthenticationProvider implements AuthenticationProvider, 
 	}
 
 	@Override
-	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+	public @Nullable Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		if (!supports(authentication.getClass())) {
 			return null;
 		}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
-import org.springframework.security.saml2.provider.service.metadata.OpenSaml4MetadataResolver;
+import org.springframework.security.saml2.provider.service.metadata.OpenSaml5MetadataResolver;
 import org.springframework.security.saml2.provider.service.metadata.RequestMatcherMetadataResponseResolver;
 import org.springframework.security.saml2.provider.service.metadata.Saml2MetadataResponse;
 import org.springframework.security.saml2.provider.service.metadata.Saml2MetadataResponseResolver;
@@ -159,7 +159,7 @@ public class Saml2MetadataConfigurerTests {
 		// should ignore
 		@Bean
 		Saml2MetadataResponseResolver metadataResponseResolver(RelyingPartyRegistrationRepository registrations) {
-			return new RequestMatcherMetadataResponseResolver(registrations, new OpenSaml4MetadataResolver());
+			return new RequestMatcherMetadataResponseResolver(registrations, new OpenSaml5MetadataResolver());
 		}
 
 	}

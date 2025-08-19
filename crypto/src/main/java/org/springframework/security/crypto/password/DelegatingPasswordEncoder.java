@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package org.springframework.security.crypto.password;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * A password encoder that delegates to another PasswordEncoder based upon a prefixed
@@ -123,7 +125,7 @@ import java.util.Map;
  * @since 5.0
  * @see org.springframework.security.crypto.factory.PasswordEncoderFactories
  */
-public class DelegatingPasswordEncoder implements PasswordEncoder {
+public class DelegatingPasswordEncoder extends AbstractValidatingPasswordEncoder {
 
 	private static final String DEFAULT_ID_PREFIX = "{";
 
@@ -146,7 +148,7 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 
 	private final PasswordEncoder passwordEncoderForEncode;
 
-	private final Map<String, PasswordEncoder> idToPasswordEncoder;
+	private final Map<@Nullable String, PasswordEncoder> idToPasswordEncoder;
 
 	private PasswordEncoder defaultPasswordEncoderForMatches = new UnmappedIdPasswordEncoder();
 
@@ -231,15 +233,12 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
-	public String encode(CharSequence rawPassword) {
+	protected String encodeNonNullPassword(String rawPassword) {
 		return this.idPrefix + this.idForEncode + this.idSuffix + this.passwordEncoderForEncode.encode(rawPassword);
 	}
 
 	@Override
-	public boolean matches(CharSequence rawPassword, String prefixEncodedPassword) {
-		if (rawPassword == null && prefixEncodedPassword == null) {
-			return true;
-		}
+	protected boolean matchesNonNull(String rawPassword, String prefixEncodedPassword) {
 		String id = extractId(prefixEncodedPassword);
 		PasswordEncoder delegate = this.idToPasswordEncoder.get(id);
 		if (delegate == null) {
@@ -249,7 +248,7 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 		return delegate.matches(rawPassword, encodedPassword);
 	}
 
-	private String extractId(String prefixEncodedPassword) {
+	private @Nullable String extractId(@Nullable String prefixEncodedPassword) {
 		if (prefixEncodedPassword == null) {
 			return null;
 		}
@@ -265,14 +264,14 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
-	public boolean upgradeEncoding(String prefixEncodedPassword) {
+	protected boolean upgradeEncodingNonNull(String prefixEncodedPassword) {
 		String id = extractId(prefixEncodedPassword);
 		if (!this.idForEncode.equalsIgnoreCase(id)) {
 			return true;
 		}
 		else {
 			String encodedPassword = extractEncodedPassword(prefixEncodedPassword);
-			return this.idToPasswordEncoder.get(id).upgradeEncoding(encodedPassword);
+			return this.passwordEncoderForEncode.upgradeEncoding(encodedPassword);
 		}
 	}
 
@@ -285,15 +284,15 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 	 * Default {@link PasswordEncoder} that throws an exception telling that a suitable
 	 * {@link PasswordEncoder} for the id could not be found.
 	 */
-	private class UnmappedIdPasswordEncoder implements PasswordEncoder {
+	private class UnmappedIdPasswordEncoder extends AbstractValidatingPasswordEncoder {
 
 		@Override
-		public String encode(CharSequence rawPassword) {
+		protected String encodeNonNullPassword(String rawPassword) {
 			throw new UnsupportedOperationException("encode is not supported");
 		}
 
 		@Override
-		public boolean matches(CharSequence rawPassword, String prefixEncodedPassword) {
+		protected boolean matchesNonNull(String rawPassword, String prefixEncodedPassword) {
 			String id = extractId(prefixEncodedPassword);
 			if (id != null && !id.isBlank()) {
 				throw new IllegalArgumentException(String.format(NO_PASSWORD_ENCODER_MAPPED, id));

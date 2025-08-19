@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2016 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
+
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
@@ -81,7 +83,7 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 	 * @param salt the hex-encoded salt value
 	 * @param ivGenerator the generator used to generate the initialization vector
 	 */
-	public AesBytesEncryptor(String password, CharSequence salt, BytesKeyGenerator ivGenerator) {
+	public AesBytesEncryptor(String password, CharSequence salt, @Nullable BytesKeyGenerator ivGenerator) {
 		this(password, salt, ivGenerator, CipherAlgorithm.CBC);
 	}
 
@@ -95,7 +97,8 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 	 * @param ivGenerator the generator used to generate the initialization vector
 	 * @param alg the {@link CipherAlgorithm} to be used
 	 */
-	public AesBytesEncryptor(String password, CharSequence salt, BytesKeyGenerator ivGenerator, CipherAlgorithm alg) {
+	public AesBytesEncryptor(String password, CharSequence salt, @Nullable BytesKeyGenerator ivGenerator,
+			CipherAlgorithm alg) {
 		this(CipherUtils.newSecretKey("PBKDF2WithHmacSHA1",
 				new PBEKeySpec(password.toCharArray(), Hex.decode(salt), 1024, 256)), ivGenerator, alg);
 	}
@@ -108,7 +111,7 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 	 * {@link CipherAlgorithm}
 	 * @param alg the {@link CipherAlgorithm} to be used
 	 */
-	public AesBytesEncryptor(SecretKey secretKey, BytesKeyGenerator ivGenerator, CipherAlgorithm alg) {
+	public AesBytesEncryptor(SecretKey secretKey, @Nullable BytesKeyGenerator ivGenerator, CipherAlgorithm alg) {
 		this.secretKey = new SecretKeySpec(secretKey.getEncoded(), "AES");
 		this.alg = alg;
 		this.encryptor = alg.createCipher();

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2002-2018 the original author or authors.
+  ~ Copyright 2004-present the original author or authors.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@
 	<b:bean name="ep" class="org.springframework.security.web.authentication.HttpStatusEntryPoint">
 		<b:constructor-arg value="I_AM_A_TEAPOT"/>
 	</b:bean>
-	
+
 	<b:bean name="ccs" class="org.springframework.security.config.http.HttpCorsConfigTests.MyCorsConfigurationSource"/>
 
 	<b:import resource="userservice.xml"/>

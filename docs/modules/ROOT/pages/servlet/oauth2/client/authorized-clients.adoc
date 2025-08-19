@@ -60,7 +60,6 @@ The interceptor directly uses an `OAuth2AuthorizedClientManager` and therefore i
 * Performs an OAuth 2.0 Access Token request to obtain `OAuth2AccessToken` if the client has not yet been authorized
 ** `authorization_code`: Triggers the Authorization Request redirect to initiate the flow
 ** `client_credentials`: The access token is obtained directly from the Token Endpoint
-** `password`: The access token is obtained directly from the Token Endpoint
 ** Additional grant types are supported by xref:servlet/oauth2/index.adoc#oauth2-client-enable-extension-grant-type[enabling extension grant types]
 * If an existing `OAuth2AccessToken` is expired, it is refreshed (or renewed)
 
@@ -511,7 +510,6 @@ It directly uses an xref:servlet/oauth2/client/core.adoc#oauth2Client-authorized
 * An `OAuth2AccessToken` is requested if the client has not yet been authorized.
 ** `authorization_code`: Triggers the Authorization Request redirect to initiate the flow.
 ** `client_credentials`: The access token is obtained directly from the Token Endpoint.
-** `password`: The access token is obtained directly from the Token Endpoint.
 * If the `OAuth2AccessToken` is expired, it is refreshed (or renewed) if an `OAuth2AuthorizedClientProvider` is available to perform the authorization
 
 The following code shows an example of how to configure `WebClient` with OAuth 2.0 Client support:

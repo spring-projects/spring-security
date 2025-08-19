@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,6 @@ package org.springframework.security.config.annotation.method.configuration;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import org.springframework.aop.Advisor;
 import org.springframework.aop.Pointcut;
@@ -33,6 +31,8 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.Ordered;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.security.authorization.method.AuthorizationAdvisor;
 
 class MethodSecurityAdvisorRegistrar implements ImportBeanDefinitionRegistrar {
@@ -100,7 +100,7 @@ class MethodSecurityAdvisorRegistrar implements ImportBeanDefinitionRegistrar {
 
 		@Nullable
 		@Override
-		public Object invoke(@NotNull MethodInvocation invocation) throws Throwable {
+		public Object invoke(@NonNull MethodInvocation invocation) throws Throwable {
 			return this.advisor.invoke(invocation);
 		}
 

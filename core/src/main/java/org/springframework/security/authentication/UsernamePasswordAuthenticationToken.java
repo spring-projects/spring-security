@@ -18,8 +18,9 @@ package org.springframework.security.authentication;
 
 import java.util.Collection;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
 /**
@@ -36,11 +37,11 @@ import org.springframework.util.Assert;
  */
 public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationToken {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private final Object principal;
 
-	private Object credentials;
+	private @Nullable Object credentials;
 
 	/**
 	 * This constructor can be safely used by any code that wishes to create a
@@ -48,7 +49,7 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 	 * will return <code>false</code>.
 	 *
 	 */
-	public UsernamePasswordAuthenticationToken(Object principal, Object credentials) {
+	public UsernamePasswordAuthenticationToken(Object principal, @Nullable Object credentials) {
 		super(null);
 		this.principal = principal;
 		this.credentials = credentials;
@@ -64,7 +65,7 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 	 * @param credentials
 	 * @param authorities
 	 */
-	public UsernamePasswordAuthenticationToken(Object principal, Object credentials,
+	public UsernamePasswordAuthenticationToken(Object principal, @Nullable Object credentials,
 			Collection<? extends GrantedAuthority> authorities) {
 		super(authorities);
 		this.principal = principal;
@@ -81,7 +82,7 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 	 *
 	 * @since 5.7
 	 */
-	public static UsernamePasswordAuthenticationToken unauthenticated(Object principal, Object credentials) {
+	public static UsernamePasswordAuthenticationToken unauthenticated(Object principal, @Nullable Object credentials) {
 		return new UsernamePasswordAuthenticationToken(principal, credentials);
 	}
 
@@ -94,13 +95,13 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 	 *
 	 * @since 5.7
 	 */
-	public static UsernamePasswordAuthenticationToken authenticated(Object principal, Object credentials,
+	public static UsernamePasswordAuthenticationToken authenticated(Object principal, @Nullable Object credentials,
 			Collection<? extends GrantedAuthority> authorities) {
 		return new UsernamePasswordAuthenticationToken(principal, credentials, authorities);
 	}
 
 	@Override
-	public Object getCredentials() {
+	public @Nullable Object getCredentials() {
 		return this.credentials;
 	}
 

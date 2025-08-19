@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package org.springframework.security.authentication;
 
 import java.io.Serial;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * <p>
@@ -42,7 +44,7 @@ public class InternalAuthenticationServiceException extends AuthenticationServic
 	@Serial
 	private static final long serialVersionUID = -6029644854192497840L;
 
-	public InternalAuthenticationServiceException(String message, Throwable cause) {
+	public InternalAuthenticationServiceException(@Nullable String message, Throwable cause) {
 		super(message, cause);
 	}
 

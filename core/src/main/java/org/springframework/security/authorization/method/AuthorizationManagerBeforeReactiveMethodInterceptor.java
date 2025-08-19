@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import kotlinx.coroutines.reactive.ReactiveFlowKt;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -178,7 +179,7 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor implement
 		});
 	}
 
-	private boolean isMultiValue(Class<?> returnType, ReactiveAdapter adapter) {
+	private boolean isMultiValue(Class<?> returnType, @Nullable ReactiveAdapter adapter) {
 		if (Flux.class.isAssignableFrom(returnType)) {
 			return true;
 		}

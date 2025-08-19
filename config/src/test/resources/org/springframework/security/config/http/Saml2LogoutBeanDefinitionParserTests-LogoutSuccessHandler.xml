@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2002-2022 the original author or authors.
+  ~ Copyright 2004-present the original author or authors.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -30,11 +30,11 @@
 		<saml2-login/>
 		<saml2-logout/>
 	</http>
-	
+
 	<b:bean name="logoutSuccessEndpoint" class="org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler">
 		<b:property name="defaultTargetUrl" value="/logoutSuccessEndpoint"/>
 	</b:bean>
-	
+
 	<b:import resource="userservice.xml"/>
 	<b:import resource="../saml2/logout-registrations.xml"/>
 </b:beans>

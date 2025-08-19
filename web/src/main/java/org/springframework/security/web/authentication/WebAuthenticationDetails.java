@@ -22,8 +22,6 @@ import java.util.Objects;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
-import org.springframework.security.core.SpringSecurityCoreVersion;
-
 /**
  * A holder of selected HTTP details related to a web authentication request.
  *
@@ -32,7 +30,7 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
  */
 public class WebAuthenticationDetails implements Serializable {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private final String remoteAddress;
 

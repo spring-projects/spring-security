@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -387,7 +387,7 @@ public class DefaultLoginPageConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.formLogin(withDefaults());
 			// @formatter:on
@@ -409,7 +409,7 @@ public class DefaultLoginPageConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.logout((logout) -> logout
 					.logoutSuccessHandler(new SimpleUrlLogoutSuccessHandler()))
@@ -428,7 +428,7 @@ public class DefaultLoginPageConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.logout((logout) -> logout
 					.logoutSuccessUrl("/login?logout"))
@@ -447,7 +447,7 @@ public class DefaultLoginPageConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.formLogin(withDefaults())
 				.rememberMe(withDefaults());
@@ -472,7 +472,7 @@ public class DefaultLoginPageConfigurerTests {
 			http
 				.exceptionHandling((handling) -> handling
 					.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")))
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.formLogin(withDefaults());
 			return http.build();
@@ -512,7 +512,7 @@ public class DefaultLoginPageConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 					.anyRequest().authenticated()
 				)
 				.formLogin(withDefaults());
@@ -530,7 +530,7 @@ public class DefaultLoginPageConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.authorizeRequests((authorize) -> authorize
+					.authorizeHttpRequests((authorize) -> authorize
 							.anyRequest().authenticated()
 					)
 					.formLogin(withDefaults())

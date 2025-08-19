@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -154,7 +154,7 @@ public class NamespaceHttpX509Tests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.x509(withDefaults());
 			// @formatter:on
@@ -182,7 +182,7 @@ public class NamespaceHttpX509Tests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.x509((x509) -> x509
 					.authenticationDetailsSource(authenticationDetailsSource()));
@@ -216,7 +216,7 @@ public class NamespaceHttpX509Tests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.x509((x509) -> x509
 					.subjectPrincipalRegex("CN=(.*?)@example.com(?:,|$)"));
@@ -245,7 +245,7 @@ public class NamespaceHttpX509Tests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.x509((x509) -> x509
 					.x509PrincipalExtractor(this::extractCommonName));
@@ -279,7 +279,7 @@ public class NamespaceHttpX509Tests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.x509((x509) -> x509
 					.userDetailsService((username) -> USER));
@@ -308,7 +308,7 @@ public class NamespaceHttpX509Tests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.x509((x509) -> x509
 					.authenticationUserDetailsService((authentication) -> USER));

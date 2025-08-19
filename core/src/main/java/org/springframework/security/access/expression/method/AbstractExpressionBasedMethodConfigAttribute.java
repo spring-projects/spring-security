@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 
 package org.springframework.security.access.expression.method;
+
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.expression.Expression;
 import org.springframework.expression.ParseException;
@@ -35,12 +38,13 @@ import org.springframework.util.Assert;
  * @deprecated Use {@link org.springframework.security.authorization.AuthorizationManager}
  * interceptors instead
  */
+@NullUnmarked
 @Deprecated
 abstract class AbstractExpressionBasedMethodConfigAttribute implements ConfigAttribute {
 
-	private final Expression filterExpression;
+	private final @Nullable Expression filterExpression;
 
-	private final Expression authorizeExpression;
+	private final @Nullable Expression authorizeExpression;
 
 	/**
 	 * Parses the supplied expressions as Spring-EL.
@@ -71,7 +75,7 @@ abstract class AbstractExpressionBasedMethodConfigAttribute implements ConfigAtt
 	}
 
 	@Override
-	public String getAttribute() {
+	public @Nullable String getAttribute() {
 		return null;
 	}
 

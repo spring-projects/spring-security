@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.ldap.LdapUtils;
 import org.springframework.util.Assert;
 
@@ -35,7 +34,7 @@ import org.springframework.util.Assert;
  */
 public class Person extends LdapUserDetailsImpl {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private String givenName;
 

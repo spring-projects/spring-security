@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,8 +60,8 @@ public class AbstractConfiguredSecurityBuilderTests {
 
 	@Test
 	public void applyWhenDuplicateConfigurerAddedThenDuplicateConfigurerRemoved() throws Exception {
-		this.builder.apply(new TestSecurityConfigurer());
-		this.builder.apply(new TestSecurityConfigurer());
+		this.builder.with(new TestSecurityConfigurer());
+		this.builder.with(new TestSecurityConfigurer());
 		assertThat(this.builder.getConfigurers(TestSecurityConfigurer.class)).hasSize(1);
 	}
 
@@ -79,7 +79,7 @@ public class AbstractConfiguredSecurityBuilderTests {
 	@Test
 	public void buildWhenConfigurerAppliesAnotherConfigurerThenObjectStillBuilds() throws Exception {
 		DelegateSecurityConfigurer.CONFIGURER = mock(SecurityConfigurer.class);
-		this.builder.apply(new DelegateSecurityConfigurer());
+		this.builder.with(new DelegateSecurityConfigurer());
 		this.builder.build();
 		verify(DelegateSecurityConfigurer.CONFIGURER).init(this.builder);
 		verify(DelegateSecurityConfigurer.CONFIGURER).configure(this.builder);
@@ -88,7 +88,7 @@ public class AbstractConfiguredSecurityBuilderTests {
 	@Test
 	public void buildWhenConfigurerAppliesAndRemoveAnotherConfigurerThenNotConfigured() throws Exception {
 		ApplyAndRemoveSecurityConfigurer.CONFIGURER = mock(SecurityConfigurer.class);
-		this.builder.apply(new ApplyAndRemoveSecurityConfigurer());
+		this.builder.with(new ApplyAndRemoveSecurityConfigurer());
 		this.builder.build();
 		verify(ApplyAndRemoveSecurityConfigurer.CONFIGURER, never()).init(this.builder);
 		verify(ApplyAndRemoveSecurityConfigurer.CONFIGURER, never()).configure(this.builder);
@@ -97,7 +97,7 @@ public class AbstractConfiguredSecurityBuilderTests {
 	@Test
 	public void buildWhenConfigurerAppliesAndRemoveAnotherConfigurersThenNotConfigured() throws Exception {
 		ApplyAndRemoveAllSecurityConfigurer.CONFIGURER = mock(SecurityConfigurer.class);
-		this.builder.apply(new ApplyAndRemoveAllSecurityConfigurer());
+		this.builder.with(new ApplyAndRemoveAllSecurityConfigurer());
 		this.builder.build();
 		verify(ApplyAndRemoveAllSecurityConfigurer.CONFIGURER, never()).init(this.builder);
 		verify(ApplyAndRemoveAllSecurityConfigurer.CONFIGURER, never()).configure(this.builder);
@@ -107,8 +107,8 @@ public class AbstractConfiguredSecurityBuilderTests {
 	public void getConfigurerWhenMultipleConfigurersThenThrowIllegalStateException() throws Exception {
 		TestConfiguredSecurityBuilder builder = new TestConfiguredSecurityBuilder(mock(ObjectPostProcessor.class),
 				true);
-		builder.apply(new DelegateSecurityConfigurer());
-		builder.apply(new DelegateSecurityConfigurer());
+		builder.with(new DelegateSecurityConfigurer());
+		builder.with(new DelegateSecurityConfigurer());
 		assertThatIllegalStateException().isThrownBy(() -> builder.getConfigurer(DelegateSecurityConfigurer.class));
 	}
 
@@ -116,8 +116,8 @@ public class AbstractConfiguredSecurityBuilderTests {
 	public void removeConfigurerWhenMultipleConfigurersThenThrowIllegalStateException() throws Exception {
 		TestConfiguredSecurityBuilder builder = new TestConfiguredSecurityBuilder(mock(ObjectPostProcessor.class),
 				true);
-		builder.apply(new DelegateSecurityConfigurer());
-		builder.apply(new DelegateSecurityConfigurer());
+		builder.with(new DelegateSecurityConfigurer());
+		builder.with(new DelegateSecurityConfigurer());
 		assertThatIllegalStateException().isThrownBy(() -> builder.removeConfigurer(DelegateSecurityConfigurer.class));
 	}
 
@@ -127,8 +127,8 @@ public class AbstractConfiguredSecurityBuilderTests {
 		DelegateSecurityConfigurer configurer2 = new DelegateSecurityConfigurer();
 		TestConfiguredSecurityBuilder builder = new TestConfiguredSecurityBuilder(mock(ObjectPostProcessor.class),
 				true);
-		builder.apply(configurer1);
-		builder.apply(configurer2);
+		builder.with(configurer1);
+		builder.with(configurer2);
 		List<DelegateSecurityConfigurer> removedConfigurers = builder
 			.removeConfigurers(DelegateSecurityConfigurer.class);
 		assertThat(removedConfigurers).hasSize(2);
@@ -142,8 +142,8 @@ public class AbstractConfiguredSecurityBuilderTests {
 		DelegateSecurityConfigurer configurer2 = new DelegateSecurityConfigurer();
 		TestConfiguredSecurityBuilder builder = new TestConfiguredSecurityBuilder(mock(ObjectPostProcessor.class),
 				true);
-		builder.apply(configurer1);
-		builder.apply(configurer2);
+		builder.with(configurer1);
+		builder.with(configurer2);
 		List<DelegateSecurityConfigurer> configurers = builder.getConfigurers(DelegateSecurityConfigurer.class);
 		assertThat(configurers).hasSize(2);
 		assertThat(configurers).containsExactly(configurer1, configurer2);
@@ -161,6 +161,36 @@ public class AbstractConfiguredSecurityBuilderTests {
 		this.builder.with(new TestSecurityConfigurer(), Customizer.withDefaults());
 		this.builder.with(new TestSecurityConfigurer(), Customizer.withDefaults());
 		assertThat(this.builder.getConfigurers(TestSecurityConfigurer.class)).hasSize(1);
+	}
+
+	@Test
+	public void withWhenConfigurerAddInitializing() throws Exception {
+		this.builder.with(new AppliesNestedConfigurer(), Customizer.withDefaults());
+		assertThat(this.builder.build()).isEqualTo("success");
+	}
+
+	private static class AppliesNestedConfigurer
+			extends SecurityConfigurerAdapter<Object, TestConfiguredSecurityBuilder> {
+
+		@Override
+		public void init(TestConfiguredSecurityBuilder builder) throws Exception {
+			builder.with(new NestedConfigurer(), Customizer.withDefaults());
+		}
+
+	}
+
+	private static class NestedConfigurer extends SecurityConfigurerAdapter<Object, TestConfiguredSecurityBuilder> {
+
+		@Override
+		public void init(TestConfiguredSecurityBuilder http) throws Exception {
+			http.with(new DoubleNestedConfigurer(), Customizer.withDefaults());
+		}
+
+	}
+
+	private static class DoubleNestedConfigurer
+			extends SecurityConfigurerAdapter<Object, TestConfiguredSecurityBuilder> {
+
 	}
 
 	private static class ApplyAndRemoveSecurityConfigurer

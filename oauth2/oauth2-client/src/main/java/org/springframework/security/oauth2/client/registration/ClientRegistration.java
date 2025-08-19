@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.log.LogMessage;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -53,7 +52,7 @@ import org.springframework.util.StringUtils;
  */
 public final class ClientRegistration implements Serializable {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private String registrationId;
 
@@ -219,7 +218,7 @@ public final class ClientRegistration implements Serializable {
 	 */
 	public class ProviderDetails implements Serializable {
 
-		private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+		private static final long serialVersionUID = 620L;
 
 		private String authorizationUri;
 
@@ -293,7 +292,7 @@ public final class ClientRegistration implements Serializable {
 		 */
 		public class UserInfoEndpoint implements Serializable {
 
-			private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+			private static final long serialVersionUID = 620L;
 
 			private String uri;
 
@@ -340,13 +339,13 @@ public final class ClientRegistration implements Serializable {
 	 */
 	public static final class Builder implements Serializable {
 
-		private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+		private static final long serialVersionUID = 620L;
 
 		private static final Log logger = LogFactory.getLog(Builder.class);
 
 		private static final List<AuthorizationGrantType> AUTHORIZATION_GRANT_TYPES = Arrays.asList(
 				AuthorizationGrantType.AUTHORIZATION_CODE, AuthorizationGrantType.CLIENT_CREDENTIALS,
-				AuthorizationGrantType.REFRESH_TOKEN, AuthorizationGrantType.PASSWORD);
+				AuthorizationGrantType.REFRESH_TOKEN);
 
 		private String registrationId;
 
@@ -630,9 +629,6 @@ public final class ClientRegistration implements Serializable {
 			if (AuthorizationGrantType.CLIENT_CREDENTIALS.equals(this.authorizationGrantType)) {
 				this.validateClientCredentialsGrantType();
 			}
-			else if (AuthorizationGrantType.PASSWORD.equals(this.authorizationGrantType)) {
-				this.validatePasswordGrantType();
-			}
 			else if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType)) {
 				this.validateAuthorizationCodeGrantType();
 			}
@@ -692,14 +688,6 @@ public final class ClientRegistration implements Serializable {
 		private void validateClientCredentialsGrantType() {
 			Assert.isTrue(AuthorizationGrantType.CLIENT_CREDENTIALS.equals(this.authorizationGrantType),
 					() -> "authorizationGrantType must be " + AuthorizationGrantType.CLIENT_CREDENTIALS.getValue());
-			Assert.hasText(this.registrationId, "registrationId cannot be empty");
-			Assert.hasText(this.clientId, "clientId cannot be empty");
-			Assert.hasText(this.tokenUri, "tokenUri cannot be empty");
-		}
-
-		private void validatePasswordGrantType() {
-			Assert.isTrue(AuthorizationGrantType.PASSWORD.equals(this.authorizationGrantType),
-					() -> "authorizationGrantType must be " + AuthorizationGrantType.PASSWORD.getValue());
 			Assert.hasText(this.registrationId, "registrationId cannot be empty");
 			Assert.hasText(this.clientId, "clientId cannot be empty");
 			Assert.hasText(this.tokenUri, "tokenUri cannot be empty");

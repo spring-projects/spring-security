@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -85,6 +86,7 @@ public class NamespaceHttpInterceptUrlTests {
 	}
 
 	@Test
+	@Disabled // see https://github.com/spring-projects/spring-security/issues/17747
 	public void requestWhenMappedByPostInterceptUrlThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(HttpInterceptUrlConfig.class, BaseController.class).autowire();
 		MockHttpServletRequestBuilder getWithUser = get("/admin/post").with(authentication(user("ROLE_USER")));
@@ -118,7 +120,7 @@ public class NamespaceHttpInterceptUrlTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests.requestMatchers(
+				.authorizeHttpRequests((requests) -> requests.requestMatchers(
 					// the line below is similar to intercept-url@pattern:
 					//    <intercept-url pattern="/users**" access="hasRole('ROLE_ADMIN')"/>
 					//" access="hasRole('ROLE_ADMIN')"/>

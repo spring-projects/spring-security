@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.MissingNode;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -91,7 +92,7 @@ class UsernamePasswordAuthenticationTokenDeserializer extends JsonDeserializer<U
 		return token;
 	}
 
-	private Object getCredentials(JsonNode credentialsNode) {
+	private @Nullable Object getCredentials(JsonNode credentialsNode) {
 		if (credentialsNode.isNull() || credentialsNode.isMissingNode()) {
 			return null;
 		}

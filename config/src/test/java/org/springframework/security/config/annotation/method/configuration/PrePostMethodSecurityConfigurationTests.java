@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import io.micrometer.observation.ObservationHandler;
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.observation.ObservationTextPublisher;
 import jakarta.annotation.security.DenyAll;
+import jakarta.servlet.RequestDispatcher;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -93,7 +94,6 @@ import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
 import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
 import org.springframework.security.authorization.method.AuthorizationAdvisor;
@@ -104,7 +104,6 @@ import org.springframework.security.authorization.method.AuthorizationManagerBef
 import org.springframework.security.authorization.method.AuthorizeReturnObject;
 import org.springframework.security.authorization.method.MethodAuthorizationDeniedHandler;
 import org.springframework.security.authorization.method.MethodInvocationResult;
-import org.springframework.security.authorization.method.PrePostTemplateDefaults;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
@@ -140,10 +139,10 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.clearInvocations;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -152,6 +151,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -667,7 +667,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodeWhenParameterizedPreAuthorizeMetaAnnotationThenPasses(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -676,7 +676,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodRoleWhenPreAuthorizeMetaAnnotationHardcodedParameterThenPasses(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -685,7 +685,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	public void methodWhenParameterizedAnnotationThenFails(Class<?> config) {
 		this.spring.register(config).autowire();
 		MetaAnnotationService service = this.spring.getContext().getBean(MetaAnnotationService.class);
@@ -694,7 +694,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser(authorities = "SCOPE_message:read")
 	public void methodWhenMultiplePlaceholdersHasAuthorityThenPasses(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -703,7 +703,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser(roles = "ADMIN")
 	public void methodWhenMultiplePlaceholdersHasRoleThenPasses(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -712,7 +712,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodWhenPostAuthorizeMetaAnnotationThenAuthorizes(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -723,7 +723,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodWhenPreFilterMetaAnnotationThenFilters(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -733,7 +733,7 @@ public class PrePostMethodSecurityConfigurationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(classes = { LegacyMetaAnnotationPlaceholderConfig.class, MetaAnnotationPlaceholderConfig.class })
+	@ValueSource(classes = { MetaAnnotationPlaceholderConfig.class })
 	@WithMockUser
 	public void methodWhenPostFilterMetaAnnotationThenFilters(Class<?> config) {
 		this.spring.register(config).autowire();
@@ -993,18 +993,6 @@ public class PrePostMethodSecurityConfigurationTests {
 		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
 		String result = service.preAuthorizeDeniedMethodWithNoMaskAnnotation();
 		assertThat(result).isEqualTo("classmask");
-	}
-
-	@Test
-	@WithMockUser
-	void postAuthorizeWhenNullDeniedMetaAnnotationThanWorks() {
-		this.spring
-			.register(MethodSecurityServiceEnabledConfig.class, LegacyMetaAnnotationPlaceholderConfig.class,
-					MethodSecurityService.NullPostProcessor.class)
-			.autowire();
-		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
-		String result = service.postAuthorizeDeniedWithNullDenied();
-		assertThat(result).isNull();
 	}
 
 	@Test
@@ -1294,6 +1282,19 @@ public class PrePostMethodSecurityConfigurationTests {
 		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
 	}
 
+	// gh-17761
+	@Test
+	void getWhenPostAuthorizeAuthenticationNameNotMatchThenNoExceptionExposedInRequest() throws Exception {
+		this.spring.register(WebMvcMethodSecurityConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/authorized-person")
+				.param("name", "john")
+				.with(user("rob"));
+		// @formatter:on
+		this.mvc.perform(requestWithUser)
+			.andExpect(request().attribute(RequestDispatcher.ERROR_EXCEPTION, nullValue()));
+	}
+
 	@Test
 	void getWhenPostAuthorizeWithinServiceAuthenticationNameMatchesThenRespondsWithOk() throws Exception {
 		this.spring.register(WebMvcMethodSecurityConfig.class, BasicController.class, BasicService.class).autowire();
@@ -1555,8 +1556,6 @@ public class PrePostMethodSecurityConfigurationTests {
 
 		@Bean
 		AuthorizationEventPublisher authorizationEventPublisher() {
-			doCallRealMethod().when(this.publisher)
-				.publishAuthorizationEvent(any(), any(), any(AuthorizationResult.class));
 			return this.publisher;
 		}
 
@@ -1583,9 +1582,7 @@ public class PrePostMethodSecurityConfigurationTests {
 
 		@Bean
 		static RoleHierarchy roleHierarchy() {
-			RoleHierarchyImpl roleHierarchyImpl = new RoleHierarchyImpl();
-			roleHierarchyImpl.setHierarchy("ROLE_ADMIN > ROLE_USER");
-			return roleHierarchyImpl;
+			return RoleHierarchyImpl.fromHierarchy("ROLE_ADMIN > ROLE_USER");
 		}
 
 	}
@@ -1687,22 +1684,6 @@ public class PrePostMethodSecurityConfigurationTests {
 		@Bean
 		Authz authz() {
 			return new Authz();
-		}
-
-	}
-
-	@Configuration
-	@EnableMethodSecurity
-	static class LegacyMetaAnnotationPlaceholderConfig {
-
-		@Bean
-		PrePostTemplateDefaults methodSecurityDefaults() {
-			return new PrePostTemplateDefaults();
-		}
-
-		@Bean
-		MetaAnnotationService metaAnnotationService() {
-			return new MetaAnnotationService();
 		}
 
 	}

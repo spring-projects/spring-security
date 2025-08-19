@@ -21,6 +21,7 @@ import java.util.Collection;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.NullUnmarked;
 
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.security.access.ConfigAttribute;
@@ -36,6 +37,7 @@ import org.springframework.security.authorization.AuthorizationManager;
  * {@code <method-security>} and {@code <intercept-methods>} instead or use
  * annotation-based or {@link AuthorizationManager}-based authorization
  */
+@NullUnmarked
 @Deprecated
 public abstract class AbstractMethodSecurityMetadataSource implements MethodSecurityMetadataSource {
 

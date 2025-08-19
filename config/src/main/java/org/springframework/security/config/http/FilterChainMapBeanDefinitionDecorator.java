@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ public class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDeco
 			}
 			BeanDefinition matcher = matcherType.createMatcher(parserContext, path, null);
 			if (filters.equals(HttpSecurityBeanDefinitionParser.OPT_FILTERS_NONE)) {
-				securityFilterChains.add(createSecurityFilterChain(matcher, new ManagedList(0)));
+				securityFilterChains.add(createSecurityFilterChain(matcher, new ManagedList<>(0)));
 			}
 			else {
 				String[] filterBeanNames = StringUtils.tokenizeToStringArray(filters, ",");

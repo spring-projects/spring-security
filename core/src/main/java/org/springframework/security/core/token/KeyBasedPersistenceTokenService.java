@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package org.springframework.security.core.token;
 
 import java.security.SecureRandom;
 import java.util.Base64;
+
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.crypto.codec.Hex;
@@ -75,10 +77,13 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 
 	private int pseudoRandomNumberBytes = 32;
 
+	@SuppressWarnings("NullAway.Init")
 	private String serverSecret;
 
+	@SuppressWarnings("NullAway.Init")
 	private Integer serverInteger;
 
+	@SuppressWarnings("NullAway.Init")
 	private SecureRandom secureRandom;
 
 	@Override
@@ -99,7 +104,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 	}
 
 	@Override
-	public Token verifyToken(String key) {
+	public @Nullable Token verifyToken(String key) {
 		if (key == null || "".equals(key)) {
 			return null;
 		}

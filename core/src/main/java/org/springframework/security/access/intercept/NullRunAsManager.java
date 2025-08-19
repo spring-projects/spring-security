@@ -18,6 +18,9 @@ package org.springframework.security.access.intercept;
 
 import java.util.Collection;
 
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 
@@ -30,11 +33,13 @@ import org.springframework.security.core.Authentication;
  * @author Ben Alex
  * @deprecated please see {@link RunAsManager} deprecation notice
  */
+@NullUnmarked
 @Deprecated
 final class NullRunAsManager implements RunAsManager {
 
 	@Override
-	public Authentication buildRunAs(Authentication authentication, Object object, Collection<ConfigAttribute> config) {
+	public @Nullable Authentication buildRunAs(Authentication authentication, Object object,
+			Collection<ConfigAttribute> config) {
 		return null;
 	}
 

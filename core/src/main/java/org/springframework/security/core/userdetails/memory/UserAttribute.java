@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -33,7 +35,7 @@ public class UserAttribute {
 
 	private List<GrantedAuthority> authorities = new Vector<>();
 
-	private String password;
+	private @Nullable String password;
 
 	private boolean enabled = true;
 
@@ -67,7 +69,7 @@ public class UserAttribute {
 		}
 	}
 
-	public String getPassword() {
+	public @Nullable String getPassword() {
 		return this.password;
 	}
 

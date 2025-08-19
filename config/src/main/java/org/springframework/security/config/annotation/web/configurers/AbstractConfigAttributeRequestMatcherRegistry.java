@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +36,6 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @since 3.2
  * @see ChannelSecurityConfigurer
- * @see UrlAuthorizationConfigurer
- * @see ExpressionUrlAuthorizationConfigurer
  * @deprecated In modern Spring Security APIs, each API manages its own configuration
  * context. As such there is no direct replacement for this interface. In the case of
  * method security, please see {@link SecurityAnnotationScanner} and

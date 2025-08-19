@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import java.util.function.Function;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -68,7 +69,7 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 
 	private Clock clock = Clock.systemUTC();
 
-	private ThreadPoolTaskScheduler taskScheduler;
+	private @Nullable ThreadPoolTaskScheduler taskScheduler;
 
 	private static final String DEFAULT_CLEANUP_CRON = "@hourly";
 
@@ -144,7 +145,7 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 	}
 
 	@Override
-	public OneTimeToken consume(OneTimeTokenAuthenticationToken authenticationToken) {
+	public @Nullable OneTimeToken consume(OneTimeTokenAuthenticationToken authenticationToken) {
 		Assert.notNull(authenticationToken, "authenticationToken cannot be null");
 
 		List<OneTimeToken> tokens = selectOneTimeToken(authenticationToken);
@@ -177,7 +178,7 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 		this.jdbcOperations.update(DELETE_ONE_TIME_TOKEN_SQL, pss);
 	}
 
-	private ThreadPoolTaskScheduler createTaskScheduler(String cleanupCron) {
+	private @Nullable ThreadPoolTaskScheduler createTaskScheduler(String cleanupCron) {
 		if (cleanupCron == null) {
 			return null;
 		}
@@ -200,7 +201,9 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		this.taskScheduler.afterPropertiesSet();
+		if (this.taskScheduler != null) {
+			this.taskScheduler.afterPropertiesSet();
+		}
 	}
 
 	@Override

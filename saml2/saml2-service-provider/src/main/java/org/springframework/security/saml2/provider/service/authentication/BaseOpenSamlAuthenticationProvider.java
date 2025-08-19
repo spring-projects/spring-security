@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -251,13 +251,6 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 	static Converter<AssertionToken, Saml2ResponseValidatorResult> createDefaultAssertionValidator() {
 		return createDefaultAssertionValidatorWithParameters(
 				(params) -> params.put(SAML2AssertionValidationParameters.CLOCK_SKEW, Duration.ofMinutes(5)));
-	}
-
-	static Converter<AssertionToken, Saml2ResponseValidatorResult> createDefaultAssertionValidator(
-			Converter<AssertionToken, ValidationContext> contextConverter) {
-
-		return createAssertionValidator(Saml2ErrorCodes.INVALID_ASSERTION,
-				(assertionToken) -> SAML20AssertionValidators.attributeValidator, contextConverter);
 	}
 
 	static Converter<AssertionToken, Saml2ResponseValidatorResult> createDefaultAssertionValidatorWithParameters(
@@ -523,7 +516,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 				return Saml2ResponseValidatorResult.failure(new Saml2Error(errorCode, message));
 			}
 			String message = String.format("Invalid assertion [%s] for SAML response [%s]: %s", assertion.getID(),
-					((Response) assertion.getParent()).getID(), context.getValidationFailureMessage());
+					((Response) assertion.getParent()).getID(), context.getValidationFailureMessages());
 			return Saml2ResponseValidatorResult.failure(new Saml2Error(errorCode, message));
 		};
 	}

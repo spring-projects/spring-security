@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,11 +99,11 @@ final class WebSecurityFilterChainValidator implements FilterChainProxy.FilterCh
 			}
 			if (authorizationFilter != null && filterSecurityInterceptor != null) {
 				this.logger.warn(
-						"It is not recommended to use authorizeRequests in the configuration. Please only use authorizeHttpRequests");
+						"It is not recommended to use authorizeRequests or FilterSecurityInterceptor in the configuration. Please only use authorizeHttpRequests");
 			}
 			if (filterSecurityInterceptor != null) {
 				this.logger.warn(
-						"Usage of authorizeRequests is deprecated. Please use authorizeHttpRequests in the configuration");
+						"Usage of authorizeRequests and FilterSecurityInterceptor are deprecated. Please use authorizeHttpRequests in the configuration");
 			}
 			authorizationFilter = null;
 			filterSecurityInterceptor = null;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@ import java.util.function.Supplier;
 
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInvocation;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import org.springframework.aop.Pointcut;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.security.authorization.method.AuthorizationAdvisor;
 import org.springframework.util.function.SingletonSupplier;
 
@@ -40,7 +40,7 @@ final class DeferringMethodInterceptor<M extends AuthorizationAdvisor> implement
 
 	@Nullable
 	@Override
-	public Object invoke(@NotNull MethodInvocation invocation) throws Throwable {
+	public Object invoke(@NonNull MethodInvocation invocation) throws Throwable {
 		return this.delegate.get().invoke(invocation);
 	}
 

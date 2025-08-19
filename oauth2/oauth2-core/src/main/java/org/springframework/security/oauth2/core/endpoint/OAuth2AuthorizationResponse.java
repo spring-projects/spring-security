@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package org.springframework.security.oauth2.core.endpoint;
 import java.io.Serial;
 import java.io.Serializable;
 
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -38,7 +37,7 @@ import org.springframework.util.StringUtils;
 public final class OAuth2AuthorizationResponse implements Serializable {
 
 	@Serial
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	private String redirectUri;
 

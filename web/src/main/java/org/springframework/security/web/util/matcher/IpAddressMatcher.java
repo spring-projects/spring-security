@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,11 +35,12 @@ import org.springframework.util.StringUtils;
  *
  * @author Luke Taylor
  * @author Steve Riesenberg
+ * @author Andrey Litvitski
  * @since 3.0.2
  */
 public final class IpAddressMatcher implements RequestMatcher {
 
-	private static Pattern IPV4 = Pattern.compile("\\d{0,3}.\\d{0,3}.\\d{0,3}.\\d{0,3}(/\\d{0,3})?");
+	private static Pattern IPV4 = Pattern.compile("^\\d{1,3}(?:\\.\\d{1,3}){0,3}(?:/\\d{1,2})?$");
 
 	private final InetAddress requiredAddress;
 

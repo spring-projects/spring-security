@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  schedule:
+    - cron: '0 10 * * *' # Once per day at 10am UTC
+  workflow_dispatch: # Manual trigger
+
+env:
+  DEVELOCITY_ACCESS_KEY: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot-test:
+    name: Test Against Snapshots
+    uses: spring-io/spring-security-release-tools/.github/workflows/test.yml@v1
+    strategy:
+      matrix:
+        include:
+          - java-version: 21-ea
+            toolchain: 21
+          - java-version: 17
+            toolchain: 17
+    with:
+      java-version: ${{ matrix.java-version }}
+      test-args: --refresh-dependencies -PforceMavenRepositories=snapshot,https://oss.sonatype.org/content/repositories/snapshots -PisOverrideVersionCatalog -PtestToolchain=${{ matrix.toolchain }} -PspringFrameworkVersion=7.+ -PreactorVersion=2025.+ -PspringDataVersion=2025.+ --stacktrace
+    secrets: inherit
+  send-notification:
+    name: Send Notification
+    needs: [ snapshot-test ]
+    if: ${{ !success() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Notification
+        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@v1
+        with:
+          webhook-url: ${{ secrets.SPRING_SECURITY_CI_GCHAT_WEBHOOK_URL }}

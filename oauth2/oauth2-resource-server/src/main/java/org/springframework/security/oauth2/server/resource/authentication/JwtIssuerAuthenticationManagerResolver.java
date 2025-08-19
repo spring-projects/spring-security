@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -109,8 +109,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	 *     Map&lt;String, AuthenticationManager&gt; authenticationManagers = new HashMap&lt;&gt;();
 	 *     authenticationManagers.put("https://issuerOne.example.org", managerOne);
 	 *     authenticationManagers.put("https://issuerTwo.example.org", managerTwo);
-	 *     JwtAuthenticationManagerResolver resolver = new JwtAuthenticationManagerResolver
-	 *     	(authenticationManagers::get);
+	 *     JwtIssuerAuthenticationManagerResolver resolver = new JwtIssuerAuthenticationManagerResolver(authenticationManagers::get);
 	 * </pre>
 	 *
 	 * The keys in the {@link Map} are the allowed issuers.

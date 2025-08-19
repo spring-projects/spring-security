@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2011 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,9 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.AbstractValidatingPasswordEncoder;
 
 /**
  * Implementation of PasswordEncoder that uses the BCrypt strong hashing function. Clients
@@ -33,7 +34,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  *
  * @author Dave Syer
  */
-public class BCryptPasswordEncoder implements PasswordEncoder {
+public class BCryptPasswordEncoder extends AbstractValidatingPasswordEncoder {
 
 	private Pattern BCRYPT_PATTERN = Pattern.compile("\\A\\$2(a|y|b)?\\$(\\d\\d)\\$[./0-9A-Za-z]{53}");
 
@@ -43,7 +44,7 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 
 	private final BCryptVersion version;
 
-	private final SecureRandom random;
+	private final @Nullable SecureRandom random;
 
 	public BCryptPasswordEncoder() {
 		this(-1);
@@ -67,7 +68,7 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	 * @param version the version of bcrypt, can be 2a,2b,2y
 	 * @param random the secure random instance to use
 	 */
-	public BCryptPasswordEncoder(BCryptVersion version, SecureRandom random) {
+	public BCryptPasswordEncoder(BCryptVersion version, @Nullable SecureRandom random) {
 		this(version, -1, random);
 	}
 
@@ -75,7 +76,7 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	 * @param strength the log rounds to use, between 4 and 31
 	 * @param random the secure random instance to use
 	 */
-	public BCryptPasswordEncoder(int strength, SecureRandom random) {
+	public BCryptPasswordEncoder(int strength, @Nullable SecureRandom random) {
 		this(BCryptVersion.$2A, strength, random);
 	}
 
@@ -92,7 +93,7 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	 * @param strength the log rounds to use, between 4 and 31
 	 * @param random the secure random instance to use
 	 */
-	public BCryptPasswordEncoder(BCryptVersion version, int strength, SecureRandom random) {
+	public BCryptPasswordEncoder(BCryptVersion version, int strength, @Nullable SecureRandom random) {
 		if (strength != -1 && (strength < BCrypt.MIN_LOG_ROUNDS || strength > BCrypt.MAX_LOG_ROUNDS)) {
 			throw new IllegalArgumentException("Bad strength");
 		}
@@ -102,10 +103,7 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
-	public String encode(CharSequence rawPassword) {
-		if (rawPassword == null) {
-			throw new IllegalArgumentException("rawPassword cannot be null");
-		}
+	protected String encodeNonNullPassword(String rawPassword) {
 		String salt = getSalt();
 		return BCrypt.hashpw(rawPassword.toString(), salt);
 	}
@@ -118,14 +116,7 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
-	public boolean matches(CharSequence rawPassword, String encodedPassword) {
-		if (rawPassword == null) {
-			throw new IllegalArgumentException("rawPassword cannot be null");
-		}
-		if (encodedPassword == null || encodedPassword.length() == 0) {
-			this.logger.warn("Empty encoded password");
-			return false;
-		}
+	protected boolean matchesNonNull(String rawPassword, String encodedPassword) {
 		if (!this.BCRYPT_PATTERN.matcher(encodedPassword).matches()) {
 			this.logger.warn("Encoded password does not look like BCrypt");
 			return false;
@@ -134,11 +125,7 @@ public class BCryptPasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
-	public boolean upgradeEncoding(String encodedPassword) {
-		if (encodedPassword == null || encodedPassword.length() == 0) {
-			this.logger.warn("Empty encoded password");
-			return false;
-		}
+	protected boolean upgradeEncodingNonNull(String encodedPassword) {
 		Matcher matcher = this.BCRYPT_PATTERN.matcher(encodedPassword);
 		if (!matcher.matches()) {
 			throw new IllegalArgumentException("Encoded password does not look like BCrypt: " + encodedPassword);

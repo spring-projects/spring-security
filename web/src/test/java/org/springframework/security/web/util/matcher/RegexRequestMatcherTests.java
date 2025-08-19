@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 import static org.springframework.security.web.util.matcher.RegexRequestMatcher.regexMatcher;
 
 /**
@@ -50,8 +51,7 @@ public class RegexRequestMatcherTests {
 	@Test
 	public void matchesIfHttpMethodAndPathMatch() {
 		RegexRequestMatcher matcher = new RegexRequestMatcher(".*", "GET");
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/anything");
-		request.setServletPath("/anything");
+		MockHttpServletRequest request = get("/anything").build();
 		assertThat(matcher.matches(request)).isTrue();
 	}
 

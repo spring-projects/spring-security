@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,6 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationObservationContext;
-import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
 import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
 import org.springframework.security.config.ObjectPostProcessor;
@@ -68,7 +67,6 @@ import org.springframework.security.web.access.expression.WebExpressionAuthoriza
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.test.web.servlet.MockMvc;
@@ -81,14 +79,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -148,26 +143,23 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	public void configureWhenMvcMatcherAfterAnyRequestThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
 			.isThrownBy(() -> this.spring.register(AfterAnyRequestConfig.class).autowire())
-			.withMessageContaining("Can't configure mvcMatchers after anyRequest");
+			.withMessageContaining("Can't configure requestMatchers after anyRequest");
 	}
 
 	@Test
 	public void configureMvcMatcherAccessAuthorizationManagerWhenNotNullThenVerifyUse() throws Exception {
 		CustomAuthorizationManagerConfig.authorizationManager = mock(AuthorizationManager.class);
-		given(CustomAuthorizationManagerConfig.authorizationManager.authorize(any(), any())).willCallRealMethod();
 		this.spring.register(CustomAuthorizationManagerConfig.class, BasicController.class).autowire();
 		this.mvc.perform(get("/")).andExpect(status().isOk());
-		verify(CustomAuthorizationManagerConfig.authorizationManager).check(any(), any());
+		verify(CustomAuthorizationManagerConfig.authorizationManager).authorize(any(), any());
 	}
 
 	@Test
 	public void configureNoParameterMvcMatcherAccessAuthorizationManagerWhenNotNullThenVerifyUse() throws Exception {
 		CustomAuthorizationManagerNoParameterConfig.authorizationManager = mock(AuthorizationManager.class);
-		given(CustomAuthorizationManagerNoParameterConfig.authorizationManager.authorize(any(), any()))
-			.willCallRealMethod();
 		this.spring.register(CustomAuthorizationManagerNoParameterConfig.class, BasicController.class).autowire();
 		this.mvc.perform(get("/")).andExpect(status().isOk());
-		verify(CustomAuthorizationManagerNoParameterConfig.authorizationManager).check(any(), any());
+		verify(CustomAuthorizationManagerNoParameterConfig.authorizationManager).authorize(any(), any());
 	}
 
 	@Test
@@ -689,7 +681,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	@Test
 	public void requestMatchersWhenMultipleDispatcherServletsAndPathBeanThenAllows() throws Exception {
-		this.spring.register(MvcRequestMatcherBuilderConfig.class, BasicController.class)
+		this.spring.register(PathPatternRequestMatcherBuilderConfig.class, BasicController.class)
 			.postProcessor((context) -> context.getServletContext()
 				.addServlet("otherDispatcherServlet", DispatcherServlet.class)
 				.addMapping("/mvc"))
@@ -979,9 +971,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 		@Bean
 		RoleHierarchy roleHierarchy() {
-			RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-			roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_USER");
-			return roleHierarchy;
+			return RoleHierarchyImpl.fromHierarchy("ROLE_ADMIN > ROLE_USER");
 		}
 
 	}
@@ -1063,13 +1053,18 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	static class ServletPathConfig {
 
 		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
-			MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector)
-				.servletPath("/spring");
+		PathPatternRequestMatcherBuilderFactoryBean requesMatcherBuilder() {
+			PathPatternRequestMatcherBuilderFactoryBean bean = new PathPatternRequestMatcherBuilderFactoryBean();
+			bean.setBasePath("/spring");
+			return bean;
+		}
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http, PathPatternRequestMatcher.Builder builder) throws Exception {
 			// @formatter:off
 			return http
 					.authorizeHttpRequests((authorize) -> authorize
-						.requestMatchers(mvcMatcherBuilder.pattern("/")).hasRole("ADMIN")
+						.requestMatchers(builder.matcher("/")).hasRole("ADMIN")
 					)
 					.build();
 			// @formatter:on
@@ -1278,8 +1273,6 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 		@Bean
 		AuthorizationEventPublisher authorizationEventPublisher() {
-			doCallRealMethod().when(this.publisher)
-				.publishAuthorizationEvent(any(), any(), any(AuthorizationResult.class));
 			return this.publisher;
 		}
 
@@ -1358,7 +1351,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
-	static class MvcRequestMatcherBuilderConfig {
+	static class PathPatternRequestMatcherBuilderConfig {
 
 		@Bean
 		SecurityFilterChain security(HttpSecurity http) throws Exception {
@@ -1392,11 +1385,6 @@ public class AuthorizeHttpRequestsConfigurerTests {
 			// @formatter:on
 
 			return http.build();
-		}
-
-		@Bean
-		PathPatternRequestMatcherBuilderFactoryBean pathPatternFactoryBean() {
-			return new PathPatternRequestMatcherBuilderFactoryBean();
 		}
 
 	}

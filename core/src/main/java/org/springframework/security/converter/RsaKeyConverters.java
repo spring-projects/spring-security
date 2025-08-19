@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,8 +34,9 @@ import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.NonNull;
+
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
 /**
@@ -162,8 +163,7 @@ public final class RsaKeyConverters {
 		}
 
 		@Override
-		@NonNull
-		public RSAPublicKey convert(List<String> lines) {
+		public @NonNull RSAPublicKey convert(List<String> lines) {
 			StringBuilder base64Encoded = new StringBuilder();
 			for (String line : lines) {
 				if (isNotX509PemWrapper(line)) {
@@ -194,8 +194,7 @@ public final class RsaKeyConverters {
 		}
 
 		@Override
-		@NonNull
-		public RSAPublicKey convert(List<String> lines) {
+		public @NonNull RSAPublicKey convert(List<String> lines) {
 			StringBuilder base64Encoded = new StringBuilder();
 			for (String line : lines) {
 				if (isNotX509CertificateWrapper(line)) {

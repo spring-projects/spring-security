@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatException;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
@@ -72,6 +73,17 @@ public class InMemoryUserDetailsManagerTests {
 		this.manager.updatePassword(userNotLowerCase, newPassword);
 		assertThat(this.manager.loadUserByUsername(userNotLowerCase.getUsername()).getPassword())
 			.isEqualTo(newPassword);
+	}
+
+	@Test
+	public void changePasswordWhenUserNotFoundThenAppropriateException() {
+		String newPassword = "newPassword";
+		this.manager = new InMemoryUserDetailsManager();
+		assertThatException().isThrownBy(() -> this.manager.updatePassword(this.user, newPassword))
+			.isNotInstanceOf(NullPointerException.class)
+			// this is not failure to authenticate and UsernamePasswordNotFoundException
+			// extends AuthenticationException
+			.isNotInstanceOf(UsernameNotFoundException.class);
 	}
 
 	@Test
@@ -167,8 +179,7 @@ public class InMemoryUserDetailsManagerTests {
 		UserDetails user = User.builder().username(username).password(password).roles("USER").build();
 		InMemoryUserDetailsManager userManager = new InMemoryUserDetailsManager(user);
 
-		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-		authenticationProvider.setUserDetailsService(userManager);
+		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(userManager);
 		authenticationProvider.setPasswordEncoder(PasswordEncoderFactories.createDelegatingPasswordEncoder());
 
 		AuthenticationManager authManager = new ProviderManager(authenticationProvider);

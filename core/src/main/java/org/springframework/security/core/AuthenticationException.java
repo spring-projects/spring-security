@@ -18,6 +18,8 @@ package org.springframework.security.core;
 
 import java.io.Serial;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -31,7 +33,7 @@ public abstract class AuthenticationException extends RuntimeException {
 	@Serial
 	private static final long serialVersionUID = 2018827803361503060L;
 
-	private Authentication authenticationRequest;
+	private @Nullable Authentication authenticationRequest;
 
 	/**
 	 * Constructs an {@code AuthenticationException} with the specified message and root
@@ -39,7 +41,7 @@ public abstract class AuthenticationException extends RuntimeException {
 	 * @param msg the detail message
 	 * @param cause the root cause
 	 */
-	public AuthenticationException(String msg, Throwable cause) {
+	public AuthenticationException(@Nullable String msg, Throwable cause) {
 		super(msg, cause);
 	}
 
@@ -61,7 +63,7 @@ public abstract class AuthenticationException extends RuntimeException {
 	 * debugging
 	 * @since 6.5
 	 */
-	public Authentication getAuthenticationRequest() {
+	public @Nullable Authentication getAuthenticationRequest() {
 		return this.authenticationRequest;
 	}
 

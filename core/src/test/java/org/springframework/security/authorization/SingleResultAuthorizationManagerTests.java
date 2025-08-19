@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class SingleResultAuthorizationManagerTests {
 	void checkWhenManagerWithGrantedDecisionIsCreatedThenAuthorizes() {
 		this.manager = new SingleResultAuthorizationManager<>(new AuthorizationDecision(true));
 
-		AuthorizationResult result = this.manager.check(null, null);
+		AuthorizationResult result = this.manager.authorize(null, null);
 
 		assertThat(result.isGranted()).isTrue();
 	}
@@ -52,7 +52,7 @@ public class SingleResultAuthorizationManagerTests {
 	void checkWhenManagerWithGrantedCustomAuthorizationResultIsCreatedThenFails() {
 		this.manager = new SingleResultAuthorizationManager<>((AuthorizationResult) () -> true);
 
-		assertThatIllegalArgumentException().isThrownBy(() -> this.manager.check(null, null));
+		assertThatIllegalArgumentException().isThrownBy(() -> this.manager.authorize(null, null));
 	}
 
 	@Test

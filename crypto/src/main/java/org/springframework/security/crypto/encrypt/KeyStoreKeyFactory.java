@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ import java.security.cert.Certificate;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.spec.RSAPublicKeySpec;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 
@@ -39,7 +41,7 @@ public class KeyStoreKeyFactory {
 
 	private final char[] password;
 
-	private KeyStore store;
+	private @Nullable KeyStore store;
 
 	private final Object lock = new Object();
 

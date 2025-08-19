@@ -19,6 +19,8 @@ package org.springframework.security.access.method;
 import java.lang.reflect.Method;
 import java.util.Collection;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -37,6 +39,6 @@ import org.springframework.security.authorization.AuthorizationManager;
 @Deprecated
 public interface MethodSecurityMetadataSource extends SecurityMetadataSource {
 
-	Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass);
+	Collection<ConfigAttribute> getAttributes(Method method, @Nullable Class<?> targetClass);
 
 }

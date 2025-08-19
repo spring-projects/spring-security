@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  * @since 5.0
  */
 @ExtendWith(MockitoExtension.class)
-public class DelegatingPasswordEncoderTests {
+public class DelegatingPasswordEncoderTests extends AbstractPasswordEncoderValidationTests {
 
 	@Mock
 	private PasswordEncoder bcrypt;
@@ -64,8 +64,6 @@ public class DelegatingPasswordEncoderTests {
 
 	private Map<String, PasswordEncoder> delegates;
 
-	private DelegatingPasswordEncoder passwordEncoder;
-
 	private DelegatingPasswordEncoder onlySuffixPasswordEncoder;
 
 	private static final String NO_PASSWORD_ENCODER_MAPPED = "There is no password encoder mapped for the id 'unmapped'. "
@@ -81,8 +79,7 @@ public class DelegatingPasswordEncoderTests {
 		this.delegates = new HashMap<>();
 		this.delegates.put(this.bcryptId, this.bcrypt);
 		this.delegates.put("noop", this.noop);
-		this.passwordEncoder = new DelegatingPasswordEncoder(this.bcryptId, this.delegates);
-
+		setEncoder(new DelegatingPasswordEncoder(this.bcryptId, this.delegates));
 		this.onlySuffixPasswordEncoder = new DelegatingPasswordEncoder(this.bcryptId, this.delegates, "", "$");
 	}
 
@@ -149,14 +146,14 @@ public class DelegatingPasswordEncoderTests {
 	@Test
 	public void setDefaultPasswordEncoderForMatchesWhenNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-			.isThrownBy(() -> this.passwordEncoder.setDefaultPasswordEncoderForMatches(null));
+			.isThrownBy(() -> getEncoder(DelegatingPasswordEncoder.class).setDefaultPasswordEncoderForMatches(null));
 	}
 
 	@Test
 	public void matchesWhenCustomDefaultPasswordEncoderForMatchesThenDelegates() {
 		String encodedPassword = "{unmapped}" + this.rawPassword;
-		this.passwordEncoder.setDefaultPasswordEncoderForMatches(this.invalidId);
-		assertThat(this.passwordEncoder.matches(this.rawPassword, encodedPassword)).isFalse();
+		getEncoder(DelegatingPasswordEncoder.class).setDefaultPasswordEncoderForMatches(this.invalidId);
+		assertThat(getEncoder().matches(this.rawPassword, encodedPassword)).isFalse();
 		verify(this.invalidId).matches(this.rawPassword, encodedPassword);
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
@@ -164,7 +161,7 @@ public class DelegatingPasswordEncoderTests {
 	@Test
 	public void encodeWhenValidThenUsesIdForEncode() {
 		given(this.bcrypt.encode(this.rawPassword)).willReturn(this.encodedPassword);
-		assertThat(this.passwordEncoder.encode(this.rawPassword)).isEqualTo(this.bcryptEncodedPassword);
+		assertThat(getEncoder().encode(this.rawPassword)).isEqualTo(this.bcryptEncodedPassword);
 	}
 
 	@Test
@@ -176,7 +173,7 @@ public class DelegatingPasswordEncoderTests {
 	@Test
 	public void matchesWhenBCryptThenDelegatesToBCrypt() {
 		given(this.bcrypt.matches(this.rawPassword, this.encodedPassword)).willReturn(true);
-		assertThat(this.passwordEncoder.matches(this.rawPassword, this.bcryptEncodedPassword)).isTrue();
+		assertThat(getEncoder().matches(this.rawPassword, this.bcryptEncodedPassword)).isTrue();
 		verify(this.bcrypt).matches(this.rawPassword, this.encodedPassword);
 		verifyNoMoreInteractions(this.noop);
 	}
@@ -192,7 +189,7 @@ public class DelegatingPasswordEncoderTests {
 	@Test
 	public void matchesWhenNoopThenDelegatesToNoop() {
 		given(this.noop.matches(this.rawPassword, this.encodedPassword)).willReturn(true);
-		assertThat(this.passwordEncoder.matches(this.rawPassword, this.noopEncodedPassword)).isTrue();
+		assertThat(getEncoder().matches(this.rawPassword, this.noopEncodedPassword)).isTrue();
 		verify(this.noop).matches(this.rawPassword, this.encodedPassword);
 		verifyNoMoreInteractions(this.bcrypt);
 	}
@@ -200,7 +197,7 @@ public class DelegatingPasswordEncoderTests {
 	@Test
 	public void matchesWhenUnMappedThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-			.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{unmapped}" + this.rawPassword))
+			.isThrownBy(() -> getEncoder().matches(this.rawPassword, "{unmapped}" + this.rawPassword))
 			.withMessage(NO_PASSWORD_ENCODER_MAPPED);
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
@@ -208,7 +205,7 @@ public class DelegatingPasswordEncoderTests {
 	@Test
 	public void matchesWhenNoClosingPrefixStringThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-			.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{bcrypt" + this.rawPassword))
+			.isThrownBy(() -> getEncoder().matches(this.rawPassword, "{bcrypt" + this.rawPassword))
 			.withMessage(MALFORMED_PASSWORD_ENCODER_PREFIX);
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
@@ -216,7 +213,7 @@ public class DelegatingPasswordEncoderTests {
 	@Test
 	public void matchesWhenNoStartingPrefixStringThenFalse() {
 		assertThatIllegalArgumentException()
-			.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "bcrypt}" + this.rawPassword))
+			.isThrownBy(() -> getEncoder().matches(this.rawPassword, "bcrypt}" + this.rawPassword))
 			.withMessage(MALFORMED_PASSWORD_ENCODER_PREFIX);
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
@@ -224,7 +221,7 @@ public class DelegatingPasswordEncoderTests {
 	@Test
 	public void matchesWhenNoIdStringThenFalse() {
 		assertThatIllegalArgumentException()
-			.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{}" + this.rawPassword))
+			.isThrownBy(() -> getEncoder().matches(this.rawPassword, "{}" + this.rawPassword))
 			.withMessage(MALFORMED_PASSWORD_ENCODER_PREFIX);
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
@@ -232,7 +229,7 @@ public class DelegatingPasswordEncoderTests {
 	@Test
 	public void matchesWhenPrefixInMiddleThenFalse() {
 		assertThatIllegalArgumentException()
-			.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "invalid" + this.bcryptEncodedPassword))
+			.isThrownBy(() -> getEncoder().matches(this.rawPassword, "invalid" + this.bcryptEncodedPassword))
 			.isInstanceOf(IllegalArgumentException.class)
 			.withMessage(MALFORMED_PASSWORD_ENCODER_PREFIX);
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
@@ -251,56 +248,51 @@ public class DelegatingPasswordEncoderTests {
 	@Test
 	public void matchesWhenNullIdThenDelegatesToInvalidId() {
 		this.delegates.put(null, this.invalidId);
-		this.passwordEncoder = new DelegatingPasswordEncoder(this.bcryptId, this.delegates);
+		setEncoder(new DelegatingPasswordEncoder(this.bcryptId, this.delegates));
 		given(this.invalidId.matches(this.rawPassword, this.encodedPassword)).willReturn(true);
-		assertThat(this.passwordEncoder.matches(this.rawPassword, this.encodedPassword)).isTrue();
+		assertThat(getEncoder().matches(this.rawPassword, this.encodedPassword)).isTrue();
 		verify(this.invalidId).matches(this.rawPassword, this.encodedPassword);
 		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
 	@Test
-	public void matchesWhenRawPasswordNotNullAndEncodedPasswordNullThenThrowsIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, null));
-	}
-
-	@Test
-	public void upgradeEncodingWhenEncodedPasswordNullThenTrue() {
-		assertThat(this.passwordEncoder.upgradeEncoding(null)).isTrue();
+	public void upgradeEncodingWhenEncodedPasswordNullThenFalse() {
+		assertThat(getEncoder().upgradeEncoding(null)).isFalse();
 	}
 
 	@Test
 	public void upgradeEncodingWhenNullIdThenTrue() {
-		assertThat(this.passwordEncoder.upgradeEncoding(this.encodedPassword)).isTrue();
+		assertThat(getEncoder().upgradeEncoding(this.encodedPassword)).isTrue();
 	}
 
 	@Test
 	public void upgradeEncodingWhenIdInvalidFormatThenTrue() {
-		assertThat(this.passwordEncoder.upgradeEncoding("{bcrypt" + this.encodedPassword)).isTrue();
+		assertThat(getEncoder().upgradeEncoding("{bcrypt" + this.encodedPassword)).isTrue();
 	}
 
 	@Test
 	public void upgradeEncodingWhenSameIdAndEncoderFalseThenEncoderDecidesFalse() {
-		assertThat(this.passwordEncoder.upgradeEncoding(this.bcryptEncodedPassword)).isFalse();
+		assertThat(getEncoder().upgradeEncoding(this.bcryptEncodedPassword)).isFalse();
 		verify(this.bcrypt).upgradeEncoding(this.encodedPassword);
 	}
 
 	@Test
 	public void upgradeEncodingWhenSameIdAndEncoderTrueThenEncoderDecidesTrue() {
 		given(this.bcrypt.upgradeEncoding(any())).willReturn(true);
-		assertThat(this.passwordEncoder.upgradeEncoding(this.bcryptEncodedPassword)).isTrue();
+		assertThat(getEncoder().upgradeEncoding(this.bcryptEncodedPassword)).isTrue();
 		verify(this.bcrypt).upgradeEncoding(this.encodedPassword);
 	}
 
 	@Test
 	public void upgradeEncodingWhenDifferentIdThenTrue() {
-		assertThat(this.passwordEncoder.upgradeEncoding(this.noopEncodedPassword)).isTrue();
+		assertThat(getEncoder().upgradeEncoding(this.noopEncodedPassword)).isTrue();
 		verifyNoMoreInteractions(this.bcrypt);
 	}
 
 	@Test
 	void matchesShouldThrowIllegalArgumentExceptionWhenNoPasswordEncoderIsMappedForTheId() {
 		assertThatIllegalArgumentException()
-			.isThrownBy(() -> this.passwordEncoder.matches("rawPassword", "prefixEncodedPassword"))
+			.isThrownBy(() -> getEncoder().matches("rawPassword", "prefixEncodedPassword"))
 			.isInstanceOf(IllegalArgumentException.class)
 			.withMessage(NO_PASSWORD_ENCODER_PREFIX);
 		verifyNoMoreInteractions(this.bcrypt, this.noop);

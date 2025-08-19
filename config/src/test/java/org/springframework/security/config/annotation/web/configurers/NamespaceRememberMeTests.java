@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,6 @@ import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -288,7 +287,7 @@ public class NamespaceRememberMeTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"))
 				.formLogin(withDefaults())
 				.rememberMe(withDefaults());
@@ -349,7 +348,7 @@ public class NamespaceRememberMeTests {
 		SecurityFilterChain withoutKeyFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.securityMatcher(new AntPathRequestMatcher("/without-key/**"))
+				.securityMatcher("/without-key/**")
 				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 				.formLogin((login) -> login
 					.loginProcessingUrl("/without-key/login"))
@@ -363,7 +362,7 @@ public class NamespaceRememberMeTests {
 		SecurityFilterChain keyFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated())
 				.formLogin(withDefaults())
 				.rememberMe((me) -> me
@@ -403,7 +402,7 @@ public class NamespaceRememberMeTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated())
 				.formLogin(withDefaults())
 				.rememberMe((me) -> me

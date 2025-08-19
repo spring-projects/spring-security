@@ -64,7 +64,7 @@ public class SecurityContextHolder {
 
 	private static String strategyName = System.getProperty(SYSTEM_PROPERTY);
 
-	private static SecurityContextHolderStrategy strategy;
+	private static SecurityContextHolderStrategy strategy = new ThreadLocalSecurityContextHolderStrategy();
 
 	private static int initializeCount = 0;
 

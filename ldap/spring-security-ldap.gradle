@@ -1,9 +1,5 @@
 apply plugin: 'io.spring.convention.spring-module'
 
-configurations {
-	unboundid7 { extendsFrom(optional, tests) }
-}
-
 dependencies {
 	management platform(project(":spring-security-dependencies"))
 	api project(':spring-security-core')
@@ -34,21 +30,10 @@ dependencies {
 	testImplementation "org.springframework:spring-test"
 	testImplementation 'org.skyscreamer:jsonassert'
 
-	unboundid7 libs.com.unboundid.unboundid.ldapsdk7
-
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 integrationTest {
 //	  exclude('**/OpenLDAPIntegrationTestSuite.class')
 	maxParallelForks = 1
-}
-
-tasks.register("unboundid7Test", Test) {
-	useJUnitPlatform()
-	classpath = sourceSets.test.output + sourceSets.main.output + configurations.unboundid7
-}
-
-tasks.named("check") {
-	dependsOn unboundid7Test
 }

@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.access.ConfigAttribute;
@@ -41,13 +44,14 @@ import org.springframework.util.Assert;
  * @deprecated Use
  * {@link org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor#secured}
  */
+@NullUnmarked
 @Deprecated
 @SuppressWarnings({ "unchecked" })
 public class SecuredAnnotationSecurityMetadataSource extends AbstractFallbackMethodSecurityMetadataSource {
 
 	private AnnotationMetadataExtractor annotationExtractor;
 
-	private Class<? extends Annotation> annotationType;
+	private @Nullable Class<? extends Annotation> annotationType;
 
 	public SecuredAnnotationSecurityMetadataSource() {
 		this(new SecuredAnnotationMetadataExtractor());
@@ -73,11 +77,11 @@ public class SecuredAnnotationSecurityMetadataSource extends AbstractFallbackMet
 	}
 
 	@Override
-	public Collection<ConfigAttribute> getAllConfigAttributes() {
+	public @Nullable Collection<ConfigAttribute> getAllConfigAttributes() {
 		return null;
 	}
 
-	private Collection<ConfigAttribute> processAnnotation(Annotation annotation) {
+	private @Nullable Collection<ConfigAttribute> processAnnotation(@Nullable Annotation annotation) {
 		return (annotation != null) ? this.annotationExtractor.extractAttributes(annotation) : null;
 	}
 

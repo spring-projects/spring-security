@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ class OAuth2ResourceServerDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 oauth2ResourceServer {
@@ -131,7 +131,7 @@ class OAuth2ResourceServerDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 oauth2ResourceServer {
@@ -187,7 +187,7 @@ class OAuth2ResourceServerDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, denyAll)
                 }
                 oauth2ResourceServer {
@@ -229,7 +229,7 @@ class OAuth2ResourceServerDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 oauth2ResourceServer {
@@ -242,7 +242,7 @@ class OAuth2ResourceServerDslTests {
 
     class MockAuthenticationManager(var authentication: Authentication) : AuthenticationManager {
 
-        override fun authenticate(authentication: Authentication?): Authentication {
+        override fun authenticate(authentication: Authentication): Authentication {
             return this.authentication
         }
 
@@ -261,7 +261,7 @@ class OAuth2ResourceServerDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                authorizeRequests {
+                authorizeHttpRequests {
                     authorize(anyRequest, authenticated)
                 }
                 oauth2ResourceServer {

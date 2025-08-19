@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.springframework.security.oauth2.core;
 
 import java.io.Serializable;
 
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
 /**
@@ -27,9 +26,9 @@ import org.springframework.util.Assert;
  * access token.
  *
  * <p>
- * The OAuth 2.0 Authorization Framework defines four standard grant types: authorization
- * code, implicit, resource owner password credentials, and client credentials. It also
- * provides an extensibility mechanism for defining additional grant types.
+ * The OAuth 2.0 Authorization Framework defines the standard grant types: authorization
+ * code, refresh token and client credentials. It also provides an extensibility mechanism
+ * for defining additional grant types.
  *
  * @author Joe Grandja
  * @author Steve Riesenberg
@@ -39,22 +38,13 @@ import org.springframework.util.Assert;
  */
 public final class AuthorizationGrantType implements Serializable {
 
-	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+	private static final long serialVersionUID = 620L;
 
 	public static final AuthorizationGrantType AUTHORIZATION_CODE = new AuthorizationGrantType("authorization_code");
 
 	public static final AuthorizationGrantType REFRESH_TOKEN = new AuthorizationGrantType("refresh_token");
 
 	public static final AuthorizationGrantType CLIENT_CREDENTIALS = new AuthorizationGrantType("client_credentials");
-
-	/**
-	 * @deprecated The OAuth 2.0 Security Best Current Practice disallows the use of the
-	 * Resource Owner Password Credentials grant. See reference <a target="_blank" href=
-	 * "https://datatracker.ietf.org/doc/html/rfc9700#section-2.4">OAuth 2.0 Security Best
-	 * Current Practice.</a>
-	 */
-	@Deprecated(since = "5.8", forRemoval = true)
-	public static final AuthorizationGrantType PASSWORD = new AuthorizationGrantType("password");
 
 	/**
 	 * @since 5.5

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 
 package org.springframework.security.core.token;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides a mechanism to allocate and rebuild secure, randomised tokens.
@@ -61,6 +63,6 @@ public interface TokenService {
 	 * @return the token, or <code>null</code> if the token was not issued by this
 	 * <code>TokenService</code>
 	 */
-	Token verifyToken(String key);
+	@Nullable Token verifyToken(String key);
 
 }

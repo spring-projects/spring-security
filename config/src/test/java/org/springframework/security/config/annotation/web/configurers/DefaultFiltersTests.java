@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
@@ -121,15 +121,14 @@ public class DefaultFiltersTests {
 		assertThat(classes).contains(SecurityContextHolderAwareRequestFilter.class);
 		assertThat(classes).contains(AnonymousAuthenticationFilter.class);
 		assertThat(classes).contains(ExceptionTranslationFilter.class);
-		assertThat(classes).contains(FilterSecurityInterceptor.class);
+		assertThat(classes).contains(AuthorizationFilter.class);
 	}
 
 	@Test
 	public void defaultFiltersPermitAll() throws IOException, ServletException {
 		this.spring.register(DefaultFiltersConfigPermitAll.class, UserDetailsServiceConfig.class);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		MockHttpServletRequest request = new MockHttpServletRequest("POST", "");
-		request.setServletPath("/logout");
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout");
 		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "BaseSpringSpec_CSRFTOKEN");
 		CsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
 		repository.saveToken(csrfToken, request, response);
@@ -191,7 +190,7 @@ public class DefaultFiltersTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().hasRole("USER"));
 			return http.build();
 			// @formatter:on

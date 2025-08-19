@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ package org.springframework.security.crypto.password;
 import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.Locale;
+
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
@@ -44,7 +46,7 @@ import org.springframework.security.crypto.keygen.KeyGenerators;
  * indicate that this is a legacy implementation and using it is considered insecure.
  */
 @Deprecated
-public class LdapShaPasswordEncoder implements PasswordEncoder {
+public class LdapShaPasswordEncoder extends AbstractValidatingPasswordEncoder {
 
 	/** The number of bytes in a SHA hash */
 	private static final int SHA_LENGTH = 20;
@@ -72,7 +74,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 		this.saltGenerator = saltGenerator;
 	}
 
-	private byte[] combineHashAndSalt(byte[] hash, byte[] salt) {
+	private byte[] combineHashAndSalt(byte[] hash, byte @Nullable [] salt) {
 		if (salt == null) {
 			return hash;
 		}
@@ -86,17 +88,17 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 	 * Calculates the hash of password (and salt bytes, if supplied) and returns a base64
 	 * encoded concatenation of the hash and salt, prefixed with {SHA} (or {SSHA} if salt
 	 * was used).
-	 * @param rawPass the password to be encoded.
+	 * @param rawPassword the password to be encoded.
 	 * @return the encoded password in the specified format
 	 *
 	 */
 	@Override
-	public String encode(CharSequence rawPass) {
+	protected String encodeNonNullPassword(String rawPassword) {
 		byte[] salt = this.saltGenerator.generateKey();
-		return encode(rawPass, salt);
+		return encode(rawPassword, salt);
 	}
 
-	private String encode(CharSequence rawPassword, byte[] salt) {
+	private String encode(CharSequence rawPassword, byte @Nullable [] salt) {
 		MessageDigest sha = getSha(rawPassword);
 		if (salt != null) {
 			sha.update(salt);
@@ -117,7 +119,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 		}
 	}
 
-	private String getPrefix(byte[] salt) {
+	private String getPrefix(byte @Nullable [] salt) {
 		if (salt == null || salt.length == 0) {
 			return this.forceLowerCasePrefix ? SHA_PREFIX_LC : SHA_PREFIX;
 		}
@@ -141,11 +143,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 	 * @return true if they match (independent of the case of the prefix).
 	 */
 	@Override
-	public boolean matches(CharSequence rawPassword, String encodedPassword) {
-		return matches((rawPassword != null) ? rawPassword.toString() : null, encodedPassword);
-	}
-
-	private boolean matches(String rawPassword, String encodedPassword) {
+	protected boolean matchesNonNull(String rawPassword, String encodedPassword) {
 		String prefix = extractPrefix(encodedPassword);
 		if (prefix == null) {
 			return PasswordEncoderUtils.equals(encodedPassword, rawPassword);
@@ -156,7 +154,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 		return PasswordEncoderUtils.equals(encodedRawPass, encodedPassword.substring(startOfHash));
 	}
 
-	private byte[] getSalt(String encodedPassword, String prefix) {
+	private byte @Nullable [] getSalt(String encodedPassword, String prefix) {
 		if (prefix.equals(SSHA_PREFIX) || prefix.equals(SSHA_PREFIX_LC)) {
 			return extractSalt(encodedPassword);
 		}
@@ -170,7 +168,7 @@ public class LdapShaPasswordEncoder implements PasswordEncoder {
 	/**
 	 * Returns the hash prefix or null if there isn't one.
 	 */
-	private String extractPrefix(String encPass) {
+	private @Nullable String extractPrefix(String encPass) {
 		if (!encPass.startsWith("{")) {
 			return null;
 		}

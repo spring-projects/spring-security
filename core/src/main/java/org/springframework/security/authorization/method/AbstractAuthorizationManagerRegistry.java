@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.MethodClassKey;
-import org.springframework.lang.NonNull;
 import org.springframework.security.authorization.AuthorizationManager;
 
 /**
@@ -57,7 +57,6 @@ abstract class AbstractAuthorizationManagerRegistry {
 	 * @param targetClass the target class
 	 * @return the non-null {@link AuthorizationManager}
 	 */
-	@NonNull
-	abstract AuthorizationManager<MethodInvocation> resolveManager(Method method, Class<?> targetClass);
+	abstract AuthorizationManager<MethodInvocation> resolveManager(Method method, @Nullable Class<?> targetClass);
 
 }

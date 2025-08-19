@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,9 @@ public final class Utf8 {
 	 * Get the bytes of the String in UTF-8 encoded form.
 	 */
 	public static byte[] encode(CharSequence string) {
+		if (string == null) {
+			throw new IllegalArgumentException("String cannot be null");
+		}
 		try {
 			ByteBuffer bytes = CHARSET.newEncoder().encode(CharBuffer.wrap(string));
 			byte[] bytesCopy = new byte[bytes.limit()];

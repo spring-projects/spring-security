@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
+import static org.springframework.security.web.servlet.TestMockHttpServletRequests.post;
 
 /**
  * @author Luke Taylor
@@ -39,22 +41,20 @@ public class LogoutHandlerTests {
 
 	@Test
 	public void testRequiresLogoutUrlWorksWithPathParams() {
-		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/context/logout;someparam=blah");
+		MockHttpServletRequest request = post().requestUri("/context", "/logout;someparam=blah", null)
+			.queryString("otherparam=blah")
+			.build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		request.setContextPath("/context");
-		request.setServletPath("/logout;someparam=blah");
-		request.setQueryString("otherparam=blah");
 		DefaultHttpFirewall fw = new DefaultHttpFirewall();
 		assertThat(this.filter.requiresLogout(fw.getFirewalledRequest(request), response)).isTrue();
 	}
 
 	@Test
 	public void testRequiresLogoutUrlWorksWithQueryParams() {
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/context/logout");
-		request.setContextPath("/context");
+		MockHttpServletRequest request = get().requestUri("/context", "/logout", null)
+			.queryString("otherparam=blah")
+			.build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		request.setServletPath("/logout");
-		request.setQueryString("param=blah");
 		assertThat(this.filter.requiresLogout(request, response)).isTrue();
 	}
 

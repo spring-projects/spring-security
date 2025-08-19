@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,12 +25,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.MethodClassKey;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authorization.AuthoritiesAuthorizationManager;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.SecurityAnnotationScanner;
 import org.springframework.security.core.annotation.SecurityAnnotationScanners;
@@ -66,20 +67,11 @@ public final class SecuredAuthorizationManager implements AuthorizationManager<M
 		this.authoritiesAuthorizationManager = authoritiesAuthorizationManager;
 	}
 
-	/**
-	 * Determine if an {@link Authentication} has access to a method by evaluating the
-	 * {@link Secured} annotation that {@link MethodInvocation} specifies.
-	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param mi the {@link MethodInvocation} to check
-	 * @return an {@link AuthorizationDecision} or null if the {@link Secured} annotation
-	 * is not present
-	 * @deprecated please use {@link #authorize(Supplier, Object)} instead
-	 */
-	@Deprecated
 	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation mi) {
+	public @Nullable AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocation mi) {
 		Set<String> authorities = getAuthorities(mi);
-		return authorities.isEmpty() ? null : this.authoritiesAuthorizationManager.check(authentication, authorities);
+		return authorities.isEmpty() ? null
+				: this.authoritiesAuthorizationManager.authorize(authentication, authorities);
 	}
 
 	private Set<String> getAuthorities(MethodInvocation methodInvocation) {
@@ -90,12 +82,12 @@ public final class SecuredAuthorizationManager implements AuthorizationManager<M
 		return this.cachedAuthorities.computeIfAbsent(cacheKey, (k) -> resolveAuthorities(method, targetClass));
 	}
 
-	private Set<String> resolveAuthorities(Method method, Class<?> targetClass) {
+	private Set<String> resolveAuthorities(Method method, @Nullable Class<?> targetClass) {
 		Secured secured = findSecuredAnnotation(method, targetClass);
 		return (secured != null) ? Set.of(secured.value()) : Collections.emptySet();
 	}
 
-	private Secured findSecuredAnnotation(Method method, Class<?> targetClass) {
+	private @Nullable Secured findSecuredAnnotation(Method method, @Nullable Class<?> targetClass) {
 		Class<?> targetClassToUse = (targetClass != null) ? targetClass : method.getDeclaringClass();
 		return this.scanner.scan(method, targetClassToUse);
 	}

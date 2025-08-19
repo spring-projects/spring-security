@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 package org.springframework.security.config.web;
 
-import reactor.util.annotation.NonNull;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -27,6 +25,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.lang.NonNull;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.util.pattern.PathPatternParser;
@@ -45,6 +44,8 @@ public final class PathPatternRequestMatcherBuilderFactoryBean implements
 	static final String MVC_PATTERN_PARSER_BEAN_NAME = "mvcPatternParser";
 
 	private final PathPatternParser parser;
+
+	private String basePath;
 
 	private ApplicationContext context;
 
@@ -78,21 +79,41 @@ public final class PathPatternRequestMatcherBuilderFactoryBean implements
 	public PathPatternRequestMatcher.Builder getObject() throws Exception {
 		if (!this.context.containsBean(MVC_PATTERN_PARSER_BEAN_NAME)) {
 			PathPatternParser parser = (this.parser != null) ? this.parser : PathPatternParser.defaultInstance;
-			return PathPatternRequestMatcher.withPathPatternParser(parser);
+			return withPathPatternParser(parser);
 		}
 		PathPatternParser mvc = this.context.getBean(MVC_PATTERN_PARSER_BEAN_NAME, PathPatternParser.class);
 		PathPatternParser parser = (this.parser != null) ? this.parser : mvc;
 		if (mvc.equals(parser)) {
-			return PathPatternRequestMatcher.withPathPatternParser(parser);
+			return withPathPatternParser(parser);
 		}
 		throw new IllegalArgumentException("Spring Security and Spring MVC must use the same path pattern parser. "
 				+ "To have Spring Security use Spring MVC's [" + describe(mvc, MVC_PATTERN_PARSER_BEAN_NAME)
 				+ "] simply publish this bean [" + describe(this, this.beanName) + "] using its default constructor");
 	}
 
+	private PathPatternRequestMatcher.Builder withPathPatternParser(PathPatternParser parser) {
+		if (this.basePath == null) {
+			return PathPatternRequestMatcher.withPathPatternParser(parser);
+		}
+		else {
+			return PathPatternRequestMatcher.withPathPatternParser(parser).basePath(this.basePath);
+		}
+	}
+
 	@Override
 	public Class<?> getObjectType() {
 		return PathPatternRequestMatcher.Builder.class;
+	}
+
+	/**
+	 * Use this as the base path for patterns built by the resulting
+	 * {@link PathPatternRequestMatcher.Builder} instance
+	 * @param basePath the base path to use
+	 * @since 7.0
+	 * @see PathPatternRequestMatcher.Builder#basePath(String)
+	 */
+	public void setBasePath(String basePath) {
+		this.basePath = basePath;
 	}
 
 	@Override

@@ -20,6 +20,8 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.io.AbstractResource;
 import org.springframework.util.Assert;
 
@@ -46,10 +48,10 @@ public class InMemoryResource extends AbstractResource {
 		this(source, null);
 	}
 
-	public InMemoryResource(byte[] source, String description) {
+	public InMemoryResource(byte[] source, @Nullable String description) {
 		Assert.notNull(source, "source cannot be null");
 		this.source = source;
-		this.description = description;
+		this.description = (description != null) ? description : "";
 	}
 
 	@Override
@@ -63,7 +65,7 @@ public class InMemoryResource extends AbstractResource {
 	}
 
 	@Override
-	public boolean equals(Object res) {
+	public boolean equals(@Nullable Object res) {
 		if (!(res instanceof InMemoryResource)) {
 			return false;
 		}

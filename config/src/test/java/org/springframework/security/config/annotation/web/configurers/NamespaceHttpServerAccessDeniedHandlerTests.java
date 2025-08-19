@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -112,7 +112,7 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().denyAll())
 				.exceptionHandling((handling) -> handling
 					.accessDeniedPage("/AccessDeniedPageConfig"));
@@ -130,7 +130,7 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().denyAll()
 				)
 				.exceptionHandling((exceptionHandling) -> exceptionHandling.accessDeniedPage("/AccessDeniedPageConfig")
@@ -149,7 +149,7 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((requests) -> requests
+				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().denyAll())
 				.exceptionHandling((handling) -> handling
 					.accessDeniedHandler(accessDeniedHandler()));
@@ -174,7 +174,7 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests((authorize) -> authorize
+				.authorizeHttpRequests((authorize) -> authorize
 						.anyRequest().denyAll()
 				)
 				.exceptionHandling((exceptionHandling) -> exceptionHandling.accessDeniedHandler(accessDeniedHandler())

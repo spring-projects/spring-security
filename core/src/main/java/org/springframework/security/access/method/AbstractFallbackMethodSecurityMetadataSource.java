@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ package org.springframework.security.access.method;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
+
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.aop.support.AopUtils;
 import org.springframework.security.access.ConfigAttribute;
@@ -52,7 +54,7 @@ import org.springframework.security.authorization.AuthorizationManager;
 public abstract class AbstractFallbackMethodSecurityMetadataSource extends AbstractMethodSecurityMetadataSource {
 
 	@Override
-	public Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
+	public Collection<ConfigAttribute> getAttributes(Method method, @Nullable Class<?> targetClass) {
 		// The method may be on an interface, but we need attributes from the target
 		// class.
 		// If the target class is null, the method will be unchanged.
@@ -92,7 +94,7 @@ public abstract class AbstractFallbackMethodSecurityMetadataSource extends Abstr
 	 * @param targetClass the target class for the invocation (may be <code>null</code>)
 	 * @return the security metadata (or null if no metadata applies)
 	 */
-	protected abstract Collection<ConfigAttribute> findAttributes(Method method, Class<?> targetClass);
+	protected abstract Collection<ConfigAttribute> findAttributes(Method method, @Nullable Class<?> targetClass);
 
 	/**
 	 * Obtains the security metadata registered against the specified class.

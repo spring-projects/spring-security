@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,8 @@ package org.springframework.security.authorization;
 
 import java.util.function.Supplier;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 
@@ -30,7 +31,7 @@ import org.springframework.security.core.Authentication;
  * @author Evgeniy Cheban
  */
 @FunctionalInterface
-public interface AuthorizationManager<T> {
+public interface AuthorizationManager<T extends @Nullable Object> {
 
 	/**
 	 * Determines if access should be granted for a specific authentication and object.
@@ -47,26 +48,12 @@ public interface AuthorizationManager<T> {
 
 	/**
 	 * Determines if access is granted for a specific authentication and object.
-	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param object the {@link T} object to check
-	 * @return an {@link AuthorizationDecision} or null if no decision could be made
-	 * @deprecated please use {@link #authorize(Supplier, Object)} instead
-	 */
-	@Nullable
-	@Deprecated
-	AuthorizationDecision check(Supplier<Authentication> authentication, T object);
-
-	/**
-	 * Determines if access is granted for a specific authentication and object.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to
 	 * authorize
 	 * @param object the {@link T} object to authorize
 	 * @return an {@link AuthorizationResult}
 	 * @since 6.4
 	 */
-	@Nullable
-	default AuthorizationResult authorize(Supplier<Authentication> authentication, T object) {
-		return check(authentication, object);
-	}
+	@Nullable AuthorizationResult authorize(Supplier<Authentication> authentication, T object);
 
 }

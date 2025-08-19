@@ -18,6 +18,8 @@ package org.springframework.security.authentication;
 
 import java.io.Serial;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.AuthenticationException;
 
 /**
@@ -49,7 +51,7 @@ public class AuthenticationServiceException extends AuthenticationException {
 	 * @param msg the detail message
 	 * @param cause root cause
 	 */
-	public AuthenticationServiceException(String msg, Throwable cause) {
+	public AuthenticationServiceException(@Nullable String msg, Throwable cause) {
 		super(msg, cause);
 	}
 

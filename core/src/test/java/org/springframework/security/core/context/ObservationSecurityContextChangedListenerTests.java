@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,6 +99,25 @@ public class ObservationSecurityContextChangedListenerTests {
 		verify(observation).event(event.capture());
 		assertThat(event.getValue().getName())
 			.isEqualTo(ObservationSecurityContextChangedListener.SECURITY_CONTEXT_CREATED);
+	}
+
+	@Test
+	void securityContextChangedWhenClearedEventThenAddsClearedEventToObservation() {
+		Observation observation = mock(Observation.class);
+		given(this.observationRegistry.getCurrentObservation()).willReturn(observation);
+		this.tested.securityContextChanged(new SecurityContextChangedEvent(this.one, new SecurityContextImpl()));
+		ArgumentCaptor<Observation.Event> event = ArgumentCaptor.forClass(Observation.Event.class);
+		verify(observation).event(event.capture());
+		assertThat(event.getValue().getName())
+			.isEqualTo(ObservationSecurityContextChangedListener.SECURITY_CONTEXT_CLEARED);
+	}
+
+	@Test
+	void securityContextChangedWhenBothNullThenNoNullPointerException() {
+		Observation observation = mock(Observation.class);
+		given(this.observationRegistry.getCurrentObservation()).willReturn(observation);
+		this.tested.securityContextChanged(
+				new SecurityContextChangedEvent(new SecurityContextImpl(), new SecurityContextImpl()));
 	}
 
 }

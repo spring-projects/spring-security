@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2025 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,30 +60,6 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 			List<RequestMatcherEntry<AuthorizationManager<RequestAuthorizationContext>>> mappings) {
 		Assert.notEmpty(mappings, "mappings cannot be empty");
 		this.mappings = mappings;
-	}
-
-	/**
-	 * Delegates to a specific {@link AuthorizationManager} based on a
-	 * {@link RequestMatcher} evaluation.
-	 * @param authentication the {@link Supplier} of the {@link Authentication} to check
-	 * @param request the {@link HttpServletRequest} to check
-	 * @return an {@link AuthorizationDecision}. If there is no {@link RequestMatcher}
-	 * matching the request, or the {@link AuthorizationManager} could not decide, then
-	 * null is returned
-	 * @deprecated please use {@link #authorize(Supplier, HttpServletRequest)} instead
-	 */
-	@Deprecated
-	@Override
-	public AuthorizationDecision check(Supplier<Authentication> authentication, HttpServletRequest request) {
-		AuthorizationResult result = authorize(authentication, request);
-		if (result == null) {
-			return null;
-		}
-		if (result instanceof AuthorizationDecision decision) {
-			return decision;
-		}
-		throw new IllegalArgumentException(
-				"Please call #authorize or ensure that the returned result is of type AuthorizationDecision");
 	}
 
 	@Override

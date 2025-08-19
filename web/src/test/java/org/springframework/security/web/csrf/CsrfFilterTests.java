@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,9 +108,10 @@ public class CsrfFilterTests {
 	// SEC-2276
 	@Test
 	public void doFilterDoesNotSaveCsrfTokenUntilAccessed() throws ServletException, IOException {
-		this.filter = createCsrfFilter(new LazyCsrfTokenRepository(this.tokenRepository));
+		this.filter = createCsrfFilter(this.tokenRepository);
 		given(this.requestMatcher.matches(this.request)).willReturn(false);
 		given(this.tokenRepository.generateToken(this.request)).willReturn(this.token);
+		given(this.tokenRepository.loadDeferredToken(any(), any())).willCallRealMethod();
 		this.filter.doFilter(this.request, this.response, this.filterChain);
 		CsrfToken attrToken = (CsrfToken) this.request.getAttribute(this.csrfAttrName);
 		// no CsrfToken should have been saved yet
@@ -278,8 +279,6 @@ public class CsrfFilterTests {
 		assertThatCsrfToken(this.request.getAttribute(this.csrfAttrName)).isNotNull();
 		assertThatCsrfToken(this.request.getAttribute(CsrfToken.class.getName())).isNotNull();
 		assertThat(this.request.getAttribute(DeferredCsrfToken.class.getName())).isSameAs(deferredCsrfToken);
-		// LazyCsrfTokenRepository requires the response as an attribute
-		assertThat(this.request.getAttribute(HttpServletResponse.class.getName())).isEqualTo(this.response);
 		verify(this.filterChain).doFilter(this.request, this.response);
 		verifyNoMoreInteractions(this.deniedHandler);
 	}
