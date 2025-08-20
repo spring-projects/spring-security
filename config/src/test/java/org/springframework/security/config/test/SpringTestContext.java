@@ -30,8 +30,11 @@ import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostP
 import org.springframework.mock.web.MockServletConfig;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.util.InMemoryXmlWebApplicationContext;
+import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers;
+import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.servlet.MockServletContext;
 import org.springframework.test.context.web.GenericXmlWebContextLoader;
+import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.ConfigurableMockMvcBuilder;
@@ -42,6 +45,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.server.WebFilter;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
@@ -155,6 +159,18 @@ public class SpringTestContext implements Closeable {
 					.build();
 			// @formatter:on
 			this.context.getBeanFactory().registerResolvableDependency(MockMvc.class, mockMvc);
+		}
+		String webFluxSecurityBean = "org.springframework.security.config.annotation.web.reactive.WebFluxSecurityConfiguration.WebFilterChainFilter";
+		if (this.context.containsBean(webFluxSecurityBean)) {
+			WebFilter springSecurityFilter = this.context.getBean(webFluxSecurityBean, WebFilter.class);
+			// @formatter:off
+			WebTestClient webTest = WebTestClient
+					.bindToController(new WebTestClientBuilder.Http200RestController())
+					.webFilter(springSecurityFilter)
+					.apply(SecurityMockServerConfigurers.springSecurity())
+					.build();
+			// @formatter:on
+			this.context.getBeanFactory().registerResolvableDependency(WebTestClient.class, webTest);
 		}
 		AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
 		bpp.setBeanFactory(this.context.getBeanFactory());
