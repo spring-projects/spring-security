@@ -623,5 +623,38 @@ class HttpSecurityDslTests {
 
     }
 
+    @Test
+    fun `HTTP security when Dsl Bean`() {
+        this.spring.register(DslBeanConfig::class.java).autowire()
+
+        this.mockMvc.get("/")
+            .andExpect {
+                header {
+                    string("Content-Security-Policy", "object-src 'none'")
+                }
+            }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class DslBeanConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                httpBasic { }
+            }
+            return http.build()
+        }
+
+        @Bean
+        open fun headersDsl(): HeadersDsl.() -> Unit {
+            return {
+                contentSecurityPolicy {
+                    policyDirectives = "object-src 'none'"
+                }
+            }
+        }
+    }
 
 }

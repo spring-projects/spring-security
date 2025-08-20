@@ -1316,6 +1316,10 @@ public class ServerHttpSecurity {
 		return this.context.getBeanNamesForType(beanClass);
 	}
 
+	ApplicationContext getApplicationContext() {
+		return this.context;
+	}
+
 	protected void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.context = applicationContext;
 	}

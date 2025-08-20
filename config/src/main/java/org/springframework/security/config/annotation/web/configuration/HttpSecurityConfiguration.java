@@ -16,19 +16,24 @@
 
 package org.springframework.security.config.annotation.web.configuration;
 
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.MethodParameter;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -46,6 +51,7 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.function.ThrowingSupplier;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
@@ -131,6 +137,8 @@ class HttpSecurityConfiguration {
 		// @formatter:on
 		applyCorsIfAvailable(http);
 		applyDefaultConfigurers(http);
+		applyHttpSecurityCustomizers(this.context, http);
+		applyTopLevelCustomizers(this.context, http);
 		return http;
 	}
 
@@ -158,6 +166,73 @@ class HttpSecurityConfiguration {
 		for (AbstractHttpConfigurer configurer : defaultHttpConfigurers) {
 			http.with(configurer);
 		}
+	}
+
+	/**
+	 * Applies all {@code Customizer<HttpSecurity>} Bean instances to the
+	 * {@link HttpSecurity} instance.
+	 * @param applicationContext the {@link ApplicationContext} to lookup Bean instances
+	 * @param http the {@link HttpSecurity} to apply the Beans to.
+	 */
+	private void applyHttpSecurityCustomizers(ApplicationContext applicationContext, HttpSecurity http) {
+		ResolvableType httpSecurityCustomizerType = ResolvableType.forClassWithGenerics(Customizer.class,
+				HttpSecurity.class);
+		ObjectProvider<Customizer<HttpSecurity>> customizerProvider = this.context
+			.getBeanProvider(httpSecurityCustomizerType);
+
+		// @formatter:off
+		customizerProvider.orderedStream().forEach((customizer) ->
+				customizer.customize(http)
+		);
+		// @formatter:on
+	}
+
+	/**
+	 * Applies all {@link Customizer} Beans to {@link HttpSecurity}. For each public,
+	 * non-static method in HttpSecurity that accepts a Customizer
+	 * <ul>
+	 * <li>Use the {@link MethodParameter} (this preserves generics) to resolve all Beans
+	 * for that type</li>
+	 * <li>For each {@link Customizer} Bean invoke the {@link java.lang.reflect.Method}
+	 * with the {@link Customizer} Bean as the argument</li>
+	 * </ul>
+	 * @param context the {@link ApplicationContext}
+	 * @param http the {@link HttpSecurity}
+	 * @throws Exception
+	 */
+	private void applyTopLevelCustomizers(ApplicationContext context, HttpSecurity http) {
+		ReflectionUtils.MethodFilter isCustomizerMethod = (method) -> {
+			if (Modifier.isStatic(method.getModifiers())) {
+				return false;
+			}
+			if (!Modifier.isPublic(method.getModifiers())) {
+				return false;
+			}
+			if (!method.canAccess(http)) {
+				return false;
+			}
+			if (method.getParameterCount() != 1) {
+				return false;
+			}
+			if (method.getParameterTypes()[0] == Customizer.class) {
+				return true;
+			}
+			return false;
+		};
+		ReflectionUtils.MethodCallback invokeWithEachCustomizerBean = (customizerMethod) -> {
+
+			MethodParameter customizerParameter = new MethodParameter(customizerMethod, 0);
+			ResolvableType customizerType = ResolvableType.forMethodParameter(customizerParameter);
+			ObjectProvider<?> customizerProvider = context.getBeanProvider(customizerType);
+
+			// @formatter:off
+			customizerProvider.orderedStream().forEach((customizer) ->
+				ReflectionUtils.invokeMethod(customizerMethod, http, customizer)
+			);
+			// @formatter:on
+
+		};
+		ReflectionUtils.doWithMethods(HttpSecurity.class, invokeWithEachCustomizerBean, isCustomizerMethod);
 	}
 
 	private Map<Class<?>, Object> createSharedObjects() {

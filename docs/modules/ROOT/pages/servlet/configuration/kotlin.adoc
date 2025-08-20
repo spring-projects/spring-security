@@ -346,3 +346,76 @@ class BankingSecurityConfig {
 	This configuration will handle requests not covered by the other filter chains and will be processed last (no `@Order` defaults to last).
 	Requests that match `/`, `/user-login`, `/user-logout`, `/notices`, `/contact` and `/register` allow access without authentication.
 	Any other requests require the user to be authenticated to access any URL not explicitly allowed or protected by other filter chains.
+
+
+[[modular-httpsecuritydsl-configuration]]
+== Modular HttpSecurityDsl Configuration
+
+Many users prefer that their Spring Security configuration lives in a centralized place and will choose to configure it in a single `SecurityFilterChain` instance.
+However, there are times that users may want to modularize the configuration.
+This can be done using:
+
+* xref:#httpsecuritydsl-bean[HttpSecurityDsl.() -> Unit Beans]
+* xref:#top-level-dsl-bean[Top Level Security Dsl Beans]
+
+NOTE: Since the Spring Security Kotlin Dsl (`HttpSecurityDsl`) uses `HttpSecurity`, all of the Java xref:./kotlin.adoc#modular-bean-configuration[Modular Bean Customization] is applied before xref:#modular-httpsecuritydsl-configuration[Modular HttpSecurity Configuration].
+
+[[httpsecuritydsl-bean]]
+=== HttpSecurityDsl.() -> Unit Beans
+
+If you would like to modularize your security configuration you can place logic in a `HttpSecurityDsl.() -> Unit` Bean.
+For example, the following configuration will ensure all `HttpSecurityDsl` instances are configured to:
+
+include-code::./HttpSecurityDslBeanConfiguration[tag=httpSecurityDslBean,indent=0]
+
+<1> Set the xref:servlet/exploits/headers.adoc#servlet-headers-csp[Content Security Policy] to `object-src 'none'`
+<2> xref:servlet/exploits/http.adoc#servlet-http-redirect[Redirect any request to https]
+
+
+[[top-level-dsl-bean]]
+=== Top Level Security Dsl Beans
+
+If you prefer to have further modularization of your security configuration, Spring Security will automatically apply any top level Security Dsl Beans.
+
+A top level Security Dsl can be summarized as any class Dsl class that matches `public HttpSecurityDsl.*(<Dsl>)`.
+This translates to any Security Dsl that is a single argument to a public method on `HttpSecurityDsl`.
+
+A few examples can help to clarify.
+If `ContentTypeOptionsDsl.() -> Unit` is published as a Bean, it will not be be automatically applied because it is an argument to `HeadersDsl#contentTypeOptions(ContentTypeOptionsDsl.() -> Unit)` and is not an argument to a method defined on `HttpSecurityDsl`.
+However, if `HeadersDsl.() -> Unit` is published as a Bean, it will be automatically applied because it is an argument to `HttpSecurityDsl.headers(HeadersDsl.() -> Unit)`.
+
+For example, the following configuration ensure all `HttpSecurityDsl` instances are configured to:
+
+include-code::./TopLevelDslBeanConfiguration[tag=headersSecurity,indent=0]
+
+<1> Set the xref:servlet/exploits/headers.adoc#servlet-headers-csp[Content Security Policy] to `object-src 'none'`
+
+[[dsl-bean-ordering]]
+=== Dsl Bean Ordering
+
+First, all xref:servlet/configuration/java.adoc#modular-httpsecurity-configuration[Modular HttpSecurity Configuration] is applied since the Kotlin Dsl uses an `HttpSecurity` Bean.
+
+Second, each xref:#httpsecuritydsl-bean[HttpSecurityDsl.() -> Unit Beans] is applied using https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/beans/factory/ObjectProvider.html#orderedStream()[ObjectProvider#orderedStream()].
+This means that if there are multiple `HttpSecurity.() -> Unit` Beans, the https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/core/annotation/Order.html[@Order] annotation can be added to the Bean definitions to control the ordering.
+
+Next, every xref:#top-level-dsl-bean[Top Level Security Dsl Beans] type is looked up and each is is applied using `ObjectProvider#orderedStream()`.
+If there is are differt types of top level security Beans (.e.g. `HeadersDsl.() -> Unit` and `HttpsRedirectDsl.() -> Unit`), then the order that each Dsl type is invoked is undefined.
+However, the order that each instance of of the same top level security Bean type is defined by `ObjectProvider#orderedStream()` and can be controlled using `@Order` on the Bean the definitions.
+
+Finally, the `HttpSecurityDsl` Bean is injected as a Bean.
+All `*Dsl.() -> Unit` Beans are applied before the `HttpSecurityDsl` Bean is created.
+This allows overriding the customizations provided by the `*Dsl.() -> Unit` Beans.
+
+You can find an example below that illustrates the ordering:
+
+include-code::./DslBeanOrderingConfiguration[tag=sample,indent=0]
+
+<1> All xref:servlet/configuration/java.adoc#modular-httpsecurity-configuration[Modular HttpSecurity Configuration] is applied since the Kotlin Dsl uses an `HttpSecurity` Bean.
+<2> All `HttpSecurity.() -> Unit` instances are applied.
+The `adminAuthorization` Bean has the highest `@Order` so it is applied first.
+If there are no `@Order` annotations on the `HttpSecurity.() -> Unit` Beans or the `@Order` annotations had the same value, then the order that the `HttpSecurity.() -> Unit` instances are applied is undefined.
+<3> The `userAuthorization` is applied next due to being an instance of `HttpSecurity.() -> Unit`
+<4> The order that the `*Dsl.() -> Unit` types are undefined.
+In this example, the order of `contentSecurityPolicy`, `contentTypeOptions`, and `httpsRedirect` are undefined.
+If `@Order(Ordered.HIGHEST_PRECEDENCE)` was added to `contentTypeOptions`, then we would know that `contentTypeOptions` is before `contentSecurityPolicy` (they are the same type), but we do not know if `httpsRedirect` is before or after the `HeadersDsl.() -> Unit` Beans.
+<5> After all of the `*Dsl.() -> Unit` Beans are applied, the `HttpSecurityDsl` is passed in as a Bean.

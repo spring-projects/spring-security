@@ -28,14 +28,20 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.access.AccessDeniedException;
@@ -54,6 +60,7 @@ import org.springframework.security.config.annotation.SecurityContextChangedList
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AnonymousConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
@@ -82,12 +89,15 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.withSettings;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
@@ -423,6 +433,77 @@ public class HttpSecurityConfigurationTests {
 		userDetailsManager.createUser(notCompromisedPwUser);
 		this.mockMvc.perform(formLogin().user("user2").password("password2"))
 			.andExpectAll(status().isFound(), redirectedUrl("/"), authenticated());
+	}
+
+	@Test
+	void authorizeHttpRequestsCustomizerBean() throws Exception {
+		this.spring.register(AuthorizeRequestsBeanConfiguration.class, UserDetailsConfig.class).autowire();
+
+		Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> authorizeRequests = this.spring
+			.getContext()
+			.getBean("authorizeRequests", Customizer.class);
+
+		verify(authorizeRequests).customize(any());
+
+	}
+
+	@Test
+	void multiAuthorizeHttpRequestsCustomizerBean() throws Exception {
+		this.spring.register(MultiAuthorizeRequestsBeanConfiguration.class, UserDetailsConfig.class).autowire();
+
+		Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> authorizeRequests0 = this.spring
+			.getContext()
+			.getBean("authorizeRequests0", Customizer.class);
+		Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> authorizeRequests = this.spring
+			.getContext()
+			.getBean("authorizeRequests", Customizer.class);
+		InOrder inOrder = Mockito.inOrder(authorizeRequests0, authorizeRequests);
+
+		ArgumentCaptor<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> arg0 = ArgumentCaptor
+			.forClass(AuthorizeHttpRequestsConfigurer.AuthorizationManagerRequestMatcherRegistry.class);
+		ArgumentCaptor<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> arg1 = ArgumentCaptor
+			.forClass(AuthorizeHttpRequestsConfigurer.AuthorizationManagerRequestMatcherRegistry.class);
+		inOrder.verify(authorizeRequests0).customize(arg0.capture());
+		inOrder.verify(authorizeRequests).customize(arg1.capture());
+	}
+
+	@Test
+	void disableAuthorizeHttpRequestsCustomizerBean() throws Exception {
+		this.spring.register(AuthorizeRequestsBeanConfiguration.class, UserDetailsConfig.class).autowire();
+
+		Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> authorizeRequests = this.spring
+			.getContext()
+			.getBean("authorizeRequests", Customizer.class);
+
+		verify(authorizeRequests).customize(any());
+
+	}
+
+	@Test
+	void httpSecurityCustomizerBean() throws Exception {
+		this.spring.register(HttpSecurityCustomizerBeanConfiguration.class, UserDetailsConfig.class).autowire();
+
+		Customizer<HttpSecurity> httpSecurityCustomizer = this.spring.getContext()
+			.getBean("httpSecurityCustomizer", Customizer.class);
+
+		ArgumentCaptor<HttpSecurity> arg0 = ArgumentCaptor.forClass(HttpSecurity.class);
+		verify(httpSecurityCustomizer).customize(arg0.capture());
+	}
+
+	@Test
+	void multiHttpSecurityCustomizerBean() throws Exception {
+		this.spring.register(MultiHttpSecurityCustomizerBeanConfiguration.class, UserDetailsConfig.class).autowire();
+
+		Customizer<HttpSecurity> httpSecurityCustomizer = this.spring.getContext()
+			.getBean("httpSecurityCustomizer", Customizer.class);
+		Customizer<HttpSecurity> httpSecurityCustomizer0 = this.spring.getContext()
+			.getBean("httpSecurityCustomizer0", Customizer.class);
+		InOrder inOrder = Mockito.inOrder(httpSecurityCustomizer0, httpSecurityCustomizer);
+
+		ArgumentCaptor<HttpSecurity> arg0 = ArgumentCaptor.forClass(HttpSecurity.class);
+		ArgumentCaptor<HttpSecurity> arg1 = ArgumentCaptor.forClass(HttpSecurity.class);
+		inOrder.verify(httpSecurityCustomizer0).customize(arg0.capture());
+		inOrder.verify(httpSecurityCustomizer).customize(arg1.capture());
 	}
 
 	@RestController
@@ -781,6 +862,134 @@ public class HttpSecurityConfigurationTests {
 					)
 					.build();
 			// @formatter:on
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class AuthorizeRequestsBeanConfiguration {
+
+		@Bean
+		SecurityFilterChain noAuthorizeSecurity(HttpSecurity http) throws Exception {
+			http.httpBasic(withDefaults());
+			return http.build();
+		}
+
+		@Bean
+		static Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> authorizeRequests()
+				throws Exception {
+			Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> authz = mock(
+					Customizer.class, withSettings().name("authz"));
+			// prevent validation errors of no authorization rules being defined
+			willAnswer(((invocation) -> {
+				AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry requests = invocation
+					.getArgument(0);
+				requests.anyRequest().authenticated();
+				return null;
+			})).given(authz).customize(any());
+			return authz;
+		}
+
+		@RestController
+		static class PublicController {
+
+			@GetMapping("/public")
+			String permitAll() {
+				return "public";
+			}
+
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class DisableAuthorizeRequestsBeanConfiguration {
+
+		@Bean
+		SecurityFilterChain springSecurity(HttpSecurity http) throws Exception {
+			http.httpBasic(withDefaults());
+			// @formatter:off
+			http.authorizeHttpRequests((requests) -> requests
+				.anyRequest().permitAll()
+			);
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		static Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> authorizeRequests()
+				throws Exception {
+			// @formatter:off
+			return (requests) -> requests
+				.anyRequest().denyAll();
+			// @formatter:on
+		}
+
+		@RestController
+		static class PublicController {
+
+			@GetMapping("/public")
+			String permitAll() {
+				return "public";
+			}
+
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@Import(AuthorizeRequestsBeanConfiguration.class)
+	static class MultiAuthorizeRequestsBeanConfiguration {
+
+		@Bean
+		@Order(Ordered.HIGHEST_PRECEDENCE)
+		static Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> authorizeRequests0()
+				throws Exception {
+			return mock(Customizer.class, withSettings().name("authz0"));
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class HttpSecurityCustomizerBeanConfiguration {
+
+		@Bean
+		SecurityFilterChain springSecurity(HttpSecurity http) throws Exception {
+			http.httpBasic(withDefaults());
+			return http.build();
+		}
+
+		@Bean
+		static Customizer<HttpSecurity> httpSecurityCustomizer() {
+			return mock(Customizer.class, withSettings().name("httpSecurityCustomizer"));
+		}
+
+		@RestController
+		static class PublicController {
+
+			@GetMapping("/public")
+			String permitAll() {
+				return "public";
+			}
+
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@Import(HttpSecurityCustomizerBeanConfiguration.class)
+	static class MultiHttpSecurityCustomizerBeanConfiguration {
+
+		@Bean
+		@Order(Ordered.HIGHEST_PRECEDENCE)
+		static Customizer<HttpSecurity> httpSecurityCustomizer0() throws Exception {
+			return mock(Customizer.class, withSettings().name("httpSecurityCustomizer0"));
 		}
 
 	}

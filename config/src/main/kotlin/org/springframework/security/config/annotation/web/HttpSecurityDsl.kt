@@ -18,14 +18,22 @@ package org.springframework.security.config.annotation.web
 
 import jakarta.servlet.Filter
 import jakarta.servlet.http.HttpServletRequest
+import org.springframework.beans.factory.ObjectProvider
 import org.springframework.context.ApplicationContext
+import org.springframework.core.MethodParameter
+import org.springframework.core.ResolvableType
+import org.springframework.core.annotation.AnnotationUtils
 import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository
 import org.springframework.security.web.DefaultSecurityFilterChain
 import org.springframework.security.web.util.matcher.RequestMatcher
+import org.springframework.util.ReflectionUtils
+import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 
 /**
  * Configures [HttpSecurity] using a [HttpSecurity Kotlin DSL][HttpSecurityDsl].
@@ -76,6 +84,117 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
 
     var authenticationManager: AuthenticationManager? = null
     val context: ApplicationContext = http.getSharedObject(ApplicationContext::class.java)
+
+    init {
+        applyFunction1HttpSecurityDslBeans(this.context, this)
+        applyTopLevelFunction1SecurityDslBeans(this.context, this)
+    }
+
+
+    /**
+     * Applies all `Function1<HttpSecurity,Unit>` Beans which
+     * allows exposing the DSL as Beans to be applied.
+     *
+     * ```
+     * @Bean
+     * fun httpSecurityDslBean(): HttpSecurityDsl.() -> Unit {
+     *     return {
+     *         headers {
+     *             contentSecurityPolicy {
+     *                 policyDirectives = "object-src 'none'"
+     *             }
+     *         }
+     *         redirectToHttps { }
+     *    }
+     * }
+     * ```
+     */
+    private fun applyFunction1HttpSecurityDslBeans(context: ApplicationContext, http: HttpSecurityDsl) : Unit {
+        val httpSecurityDslFnType = ResolvableType.forClassWithGenerics(Function1::class.java,
+            HttpSecurityDsl::class.java, Unit::class.java)
+        val httpSecurityDslFnProvider = context
+            .getBeanProvider<Function1<HttpSecurityDsl,Unit>>(httpSecurityDslFnType)
+
+        // @formatter:off
+        httpSecurityDslFnProvider.orderedStream().forEach { fn -> fn.invoke(http) }
+        // @formatter:on
+    }
+
+    /**
+     * Applies all `Function1<T,Unit>` Beans such that `T` is a top level
+     * DSL on `HttpSecurityDsl`. This allows exposing the top level
+     * DSLs as Beans to be applied.
+     *
+     *
+     * ```
+     * @Bean
+     * fun httpSecurityCustomizer(): ThrowingCustomizer<HttpSecurity> {
+     *     return ThrowingCustomizer { http -> http
+     *         .headers { headers -> headers
+     *             .contentSecurityPolicy { csp -> csp
+     *                 .policyDirectives("object-src 'none'")
+     *             }
+     *         }
+     *         .redirectToHttps(Customizer.withDefaults())
+     *     }
+     * }
+     * ```
+     *
+     * @param context the [ApplicationContext]
+     * @param http the [HttpSecurity]
+     * @throws Exception
+     */
+    private fun applyTopLevelFunction1SecurityDslBeans(context: ApplicationContext, http: HttpSecurityDsl) {
+        val isCustomizerMethod = ReflectionUtils.MethodFilter { method: Method ->
+            if (Modifier.isStatic(method.modifiers)) {
+                return@MethodFilter false
+            }
+            if (!Modifier.isPublic(method.modifiers)) {
+                return@MethodFilter false
+            }
+            if (!method.canAccess(http)) {
+                return@MethodFilter false
+            }
+            if (method.parameterCount != 1) {
+                return@MethodFilter false
+            }
+            return@MethodFilter extractDslType(method) != null
+        }
+        val invokeWithEachDslBean = ReflectionUtils.MethodCallback { dslMethod: Method ->
+            val dslFunctionType = firstMethodResolvableType(dslMethod)!!
+            val dslFunctionProvider: ObjectProvider<*> = context.getBeanProvider<Any>(dslFunctionType)
+
+            // @formatter:off
+            dslFunctionProvider.orderedStream().forEach {customizer: Any -> ReflectionUtils.invokeMethod(dslMethod, http, customizer)}
+        }
+        ReflectionUtils.doWithMethods(HttpSecurityDsl::class.java, invokeWithEachDslBean, isCustomizerMethod)
+    }
+
+    /**
+     * From a `Method` with the first argument `Function<T,Unit>` return `T` or `null`
+     * if the first argument is not a `Function`.
+     * @return From a `Method` with the first argument `Function<T,Unit>` return `T`.
+     */
+    private fun extractDslType(method: Method): ResolvableType? {
+        val functionType = firstMethodResolvableType(method)
+        if (!Function::class.java.isAssignableFrom(functionType.toClass())) {
+            return null
+        }
+        val functionInputType = functionType.getGeneric(0)
+        val securityMarker = AnnotationUtils.findAnnotation(functionInputType.toClass(), SecurityMarker::class.java)
+        val isSecurityDsl = securityMarker != null
+        if (!isSecurityDsl) {
+            return null
+        }
+        return functionInputType
+    }
+
+    private fun firstMethodResolvableType(method: Method): ResolvableType {
+        val parameter = MethodParameter(
+            method, 0
+        )
+        return ResolvableType.forMethodParameter(parameter)
+    }
 
     /**
      * Applies a [SecurityConfigurerAdapter] to this [HttpSecurity]

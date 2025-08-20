@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.annotation.web.reactive;
 
+import java.lang.reflect.Modifier;
 import java.util.Map;
 
 import org.springframework.beans.BeansException;
@@ -28,10 +29,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.expression.BeanFactoryResolver;
+import org.springframework.core.MethodParameter;
 import org.springframework.core.ReactiveAdapterRegistry;
+import org.springframework.core.ResolvableType;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.authentication.password.ReactiveCompromisedPasswordChecker;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
@@ -40,6 +44,7 @@ import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.reactive.result.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.security.web.reactive.result.method.annotation.CurrentSecurityContextArgumentResolver;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.result.method.annotation.ArgumentResolverConfigurer;
 
@@ -154,6 +159,83 @@ class ServerHttpSecurityConfiguration {
 
 	@Bean(HTTPSECURITY_BEAN_NAME)
 	@Scope("prototype")
+	ServerHttpSecurity httpSecurity(ApplicationContext context) {
+		ServerHttpSecurity http = httpSecurity();
+		applyServerHttpSecurityCustomizers(context, http);
+		applyTopLevelBeanCustomizers(context, http);
+		return http;
+	}
+
+	/**
+	 * Applies all {@code Custmizer<ServerHttpSecurity>} Beans to
+	 * {@link ServerHttpSecurity}.
+	 * @param context the {@link ApplicationContext}
+	 * @param http the {@link ServerHttpSecurity}
+	 * @throws Exception
+	 */
+	private void applyServerHttpSecurityCustomizers(ApplicationContext context, ServerHttpSecurity http) {
+		ResolvableType httpSecurityCustomizerType = ResolvableType.forClassWithGenerics(Customizer.class,
+				ServerHttpSecurity.class);
+		ObjectProvider<Customizer<ServerHttpSecurity>> customizerProvider = context
+			.getBeanProvider(httpSecurityCustomizerType);
+
+		// @formatter:off
+		customizerProvider.orderedStream().forEach((customizer) ->
+			customizer.customize(http)
+		);
+		// @formatter:on
+	}
+
+	/**
+	 * Applies all {@link Customizer} Beans to top level {@link ServerHttpSecurity}
+	 * method.
+	 *
+	 * For each public, non-static method in ServerHttpSecurity that accepts a Customizer
+	 * <ul>
+	 * <li>Use the {@link MethodParameter} (this preserves generics) to resolve all Beans
+	 * for that type</li>
+	 * <li>For each {@link Customizer} Bean invoke the {@link java.lang.reflect.Method}
+	 * with the {@link Customizer} Bean as the argument</li>
+	 * </ul>
+	 * @param context the {@link ApplicationContext}
+	 * @param http the {@link ServerHttpSecurity}
+	 * @throws Exception
+	 */
+	private void applyTopLevelBeanCustomizers(ApplicationContext context, ServerHttpSecurity http) {
+		ReflectionUtils.MethodFilter isCustomizerMethod = (method) -> {
+			if (Modifier.isStatic(method.getModifiers())) {
+				return false;
+			}
+			if (!Modifier.isPublic(method.getModifiers())) {
+				return false;
+			}
+			if (!method.canAccess(http)) {
+				return false;
+			}
+			if (method.getParameterCount() != 1) {
+				return false;
+			}
+			if (method.getParameterTypes()[0] == Customizer.class) {
+				return true;
+			}
+			return false;
+		};
+		ReflectionUtils.MethodCallback invokeWithEachCustomizerBean = (customizerMethod) -> {
+
+			MethodParameter customizerParameter = new MethodParameter(customizerMethod, 0);
+			ResolvableType customizerType = ResolvableType.forMethodParameter(customizerParameter);
+			ObjectProvider<?> customizerProvider = context.getBeanProvider(customizerType);
+
+			// @formatter:off
+			customizerProvider.orderedStream().forEach((customizer) ->
+					ReflectionUtils.invokeMethod(customizerMethod, http, customizer)
+			);
+			// @formatter:on
+
+		};
+		ReflectionUtils.doWithMethods(ServerHttpSecurity.class, invokeWithEachCustomizerBean, isCustomizerMethod);
+	}
+
 	ServerHttpSecurity httpSecurity() {
 		ContextAwareServerHttpSecurity http = new ContextAwareServerHttpSecurity();
 		// @formatter:off

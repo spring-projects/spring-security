@@ -242,3 +242,72 @@ It matches the requests in order by the `securityMatcher` definition.
 In this case, that means that, if the URL path starts with `/api`, Spring Security uses `apiHttpSecurity`.
 If the URL does not start with `/api`, Spring Security defaults to `webHttpSecurity`, which has an implied `securityMatcher` that matches any request.
 
+
+[[modular-serverhttpsecurity-configuration]]
+== Modular ServerHttpSecurity Configuration
+
+Many users prefer that their Spring Security configuration lives in a centralized place and will choose to configure it within the `SecurityWebFilterChain` Bean declaration.
+However, there are times that users may want to modularize the configuration.
+This can be done using:
+
+* xref:#serverhttpsecurity-customizer-bean[Customizer<ServerHttpSecurity> Beans]
+* xref:#top-level-customizer-bean[Top Level ServerHttpSecurity Customizer Beans]
+
+// FIXME: this needs to link to appropriate spot
+// NOTE: If you are using Spring Security's xref:servlet/configuration/kotlin.adoc[], then you can also expose `*Dsl -> Unit` Beans as outlined in xref:./kotlin.adoc#modular-httpsecuritydsl-configuration[Modular HttpSecurityDsl Configuration].
+
+
+[[serverhttpsecurity-customizer-bean]]
+=== Customizer<ServerHttpSecurity> Beans
+
+If you would like to modularize your security configuration you can place logic in a `Customizer<ServerHttpSecurity>` Bean.
+For example, the following configuration will ensure all `ServerHttpSecurity` instances are configured to:
+
+include-code::./ServerHttpSecurityCustomizerBeanConfiguration[tag=httpSecurityCustomizer,indent=0]
+
+<1> Set the xref:servlet/exploits/headers.adoc#servlet-headers-csp[Content Security Policy] to `object-src 'none'`
+<2> xref:servlet/exploits/http.adoc#servlet-http-redirect[Redirect any request to https]
+
+
+[[top-level-customizer-bean]]
+=== Top Level ServerHttpSecurity Customizer Beans
+
+If you prefer to have further modularization of your security configuration, Spring Security will automatically apply any top level `HttpSecurity` `Customizer` Beans.
+
+A top level `HttpSecurity` `Customizer` type can be summarized as any `Customizer<T>` that matches `public HttpSecurity.*(Customizer<T>)`.
+This translates to any `Customizer<T>` that is a single argument to a public method on javadoc:org.springframework.security.config.annotation.web.builders.HttpSecurity[].
+
+A few examples can help to clarify.
+If `Customizer<ContentTypeOptionsConfig>` is published as a Bean, it will not be be automatically applied because it is an argument to javadoc:org.springframework.security.config.annotation.web.configurers.HeadersConfigurer#contentTypeOptions(org.springframework.security.config.Customizer)[] which is not a method defined on `HttpSecurity`.
+However, if `Customizer<HeadersConfigurer<HttpSecurity>>` is published as a Bean, it will be automatically applied because it is an argument to javadoc:org.springframework.security.config.annotation.web.builders.HttpSecurity#headers(org.springframework.security.config.Customizer)[].
+
+For example, the following configuration will ensure that the xref:servlet/exploits/headers.adoc#servlet-headers-csp[Content Security Policy] is set to `object-src 'none'`:
+
+include-code::./TopLevelCustomizerBeanConfiguration[tag=headersCustomizer,indent=0]
+
+[[customizer-bean-ordering]]
+=== Customizer Bean Ordering
+
+First each xref:#httpsecurity-customizer-bean[Customizer<HttpSecurity> Bean] is applied using https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/beans/factory/ObjectProvider.html#orderedStream()[ObjectProvider#orderedStream()].
+This means that if there are multiple `Customizer<HttpSecurity>` Beans, the https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/core/annotation/Order.html[@Order] annotation can be added to the Bean definitions to control the ordering.
+
+Next every xref:#top-level-customizer-bean[Top Level HttpSecurity Customizer Beans] type is looked up and each is is applied using `ObjectProvider#orderedStream()`.
+If there is are two `Customizer<HeadersConfigurer<HttpSecurity>>` beans and two `Customizer<HttpsRedirectConfigurer<HttpSecurity>>` instances, the order that each `Customizer` type is invoked is undefined.
+However, the order that each instance of `Customizer<HttpsRedirectConfigurer<HttpSecurity>>` is defined by `ObjectProvider#orderedStream()` and can be controlled using `@Order` on the Bean the definitions.
+
+Finally, the `HttpSecurity` Bean is injected as a Bean.
+All `Customizer` instances are applied before the `HttpSecurity` Bean is created.
+This allows overriding the customizations provided by the `Customizer` Beans.
+
+You can find an example below that illustrates the ordering:
+
+include-code::./CustomizerBeanOrderingConfiguration[tag=sample,indent=0]
+
+<1> First all `Customizer<HttpSecurity>` instances are applied.
+The `adminAuthorization` Bean has the highest `@Order` so it is applied first.
+If there are no `@Order` annotations on the `Customizer<HttpSecurity>` Beans or the `@Order` annotations had the same value, then the order that the `Customizer<HttpSecurity>` instances are applied is undefined.
+<2> The `userAuthorization` is applied next due to being an instance of `Customizer<HttpSecurity>`
+<3> The order that the `Customizer` types are undefined.
+In this example, the order of `contentSecurityPolicy`, `contentTypeOptions`, and `httpsRedirect` are undefined.
+If `@Order(Ordered.HIGHEST_PRECEDENCE)` was added to `contentTypeOptions`, then we would know that `contentTypeOptions` is before `contentSecurityPolicy` (they are the same type), but we do not know if `httpsRedirect` is before or after the `Customizer<HeadersConfigurer<HttpSecurity>>` Beans.
+<4> After all of the `Customizer` Beans are applied, the `HttpSecurity` is passed in as a Bean.

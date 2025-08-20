@@ -15,6 +15,7 @@ Each section that follows will indicate the more notable removals as well as the
 
 == Config
 
+* Support modular modular configuration in xref::servlet/configuration/java.adoc#modular-httpsecurity-configuration[Servlets] and xref::reactive/configuration/webflux.adoc#modular-serverhttpsecurity-configuration[WebFlux]
 * Removed `and()` from the `HttpSecurity` DSL in favor of using the lambda methods
 * Removed `authorizeRequests` in favor of `authorizeHttpRequests`
 * Simplified expression migration for `authorizeRequests`
