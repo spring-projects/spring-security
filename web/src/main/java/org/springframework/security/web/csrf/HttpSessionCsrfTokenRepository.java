@@ -21,6 +21,7 @@ import java.util.UUID;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.util.Assert;
 
@@ -47,7 +48,7 @@ public final class HttpSessionCsrfTokenRepository implements CsrfTokenRepository
 	private String sessionAttributeName = DEFAULT_CSRF_TOKEN_ATTR_NAME;
 
 	@Override
-	public void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
+	public void saveToken(@Nullable CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
 		if (token == null) {
 			HttpSession session = request.getSession(false);
 			if (session != null) {
@@ -61,7 +62,7 @@ public final class HttpSessionCsrfTokenRepository implements CsrfTokenRepository
 	}
 
 	@Override
-	public CsrfToken loadToken(HttpServletRequest request) {
+	public @Nullable CsrfToken loadToken(HttpServletRequest request) {
 		HttpSession session = request.getSession(false);
 		if (session == null) {
 			return null;

@@ -16,8 +16,11 @@
 
 package org.springframework.security.web.csrf;
 
+import java.util.Objects;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 /**
  * @author Rob Winch
@@ -32,7 +35,7 @@ final class RepositoryDeferredCsrfToken implements DeferredCsrfToken {
 
 	private final HttpServletResponse response;
 
-	private CsrfToken csrfToken;
+	private @Nullable CsrfToken csrfToken;
 
 	private boolean missingToken;
 
@@ -46,7 +49,7 @@ final class RepositoryDeferredCsrfToken implements DeferredCsrfToken {
 	@Override
 	public CsrfToken get() {
 		init();
-		return this.csrfToken;
+		return Objects.requireNonNull(this.csrfToken);
 	}
 
 	@Override

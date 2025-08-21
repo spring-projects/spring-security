@@ -99,7 +99,9 @@ public class ConcurrentSessionControlAuthenticationStrategy
 			// We permit unlimited logins
 			return;
 		}
-		List<SessionInformation> sessions = this.sessionRegistry.getAllSessions(authentication.getPrincipal(), false);
+		Object principal = authentication.getPrincipal();
+		Assert.notNull(principal, "Authentication.getPrincipal() cannot be null");
+		List<SessionInformation> sessions = this.sessionRegistry.getAllSessions(principal, false);
 		int sessionCount = sessions.size();
 		if (sessionCount < allowedSessions) {
 			// They haven't got too many login sessions running at present

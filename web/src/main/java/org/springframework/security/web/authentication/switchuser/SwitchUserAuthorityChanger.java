@@ -18,6 +18,8 @@ package org.springframework.security.web.authentication.switchuser;
 
 import java.util.Collection;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -47,6 +49,7 @@ public interface SwitchUserAuthorityChanger {
 	 * @return the modified list of granted authorities.
 	 */
 	Collection<? extends GrantedAuthority> modifyGrantedAuthorities(UserDetails targetUser,
-			Authentication currentAuthentication, Collection<? extends GrantedAuthority> authoritiesToBeGranted);
+			@Nullable Authentication currentAuthentication,
+			Collection<? extends GrantedAuthority> authoritiesToBeGranted);
 
 }

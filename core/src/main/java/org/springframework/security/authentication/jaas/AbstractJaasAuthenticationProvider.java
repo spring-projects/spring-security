@@ -178,8 +178,10 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 			// applied.
 			authorities = getAuthorities(principals);
 			// Convert the authorities set back to an array and apply it to the token.
-			JaasAuthenticationToken result = new JaasAuthenticationToken(request.getPrincipal(),
-					request.getCredentials(), new ArrayList<>(authorities), loginContext);
+			Object principal = request.getPrincipal();
+			Assert.notNull(principal, "The principal cannot be null");
+			JaasAuthenticationToken result = new JaasAuthenticationToken(principal, request.getCredentials(),
+					new ArrayList<>(authorities), loginContext);
 			// Publish the success event
 			publishSuccessEvent(result);
 			// we're done, return the token.

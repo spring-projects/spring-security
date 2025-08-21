@@ -21,4 +21,7 @@
  * into the security methods exposed by {@code HttpServletRequest} to build
  * {@code Authentication} object for the user.
  */
+@NullMarked
 package org.springframework.security.web.authentication.preauth.j2ee;
+
+import org.jspecify.annotations.NullMarked;

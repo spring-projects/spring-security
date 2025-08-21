@@ -18,6 +18,7 @@ package org.springframework.security.web.authentication.logout;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.Authentication;
 
@@ -37,6 +38,6 @@ public interface LogoutHandler {
 	 * @param response the HTTP response
 	 * @param authentication the current principal details
 	 */
-	void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication);
+	void logout(HttpServletRequest request, HttpServletResponse response, @Nullable Authentication authentication);
 
 }

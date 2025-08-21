@@ -76,7 +76,7 @@ public abstract class AuthenticationException extends RuntimeException {
 	 * authentication attempt
 	 * @since 6.5
 	 */
-	public void setAuthenticationRequest(Authentication authenticationRequest) {
+	public void setAuthenticationRequest(@Nullable Authentication authenticationRequest) {
 		Assert.notNull(authenticationRequest, "authenticationRequest cannot be null");
 		this.authenticationRequest = authenticationRequest;
 	}

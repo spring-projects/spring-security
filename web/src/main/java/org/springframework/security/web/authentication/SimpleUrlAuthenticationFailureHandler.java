@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
@@ -50,7 +51,7 @@ public class SimpleUrlAuthenticationFailureHandler implements AuthenticationFail
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	private String defaultFailureUrl;
+	private @Nullable String defaultFailureUrl;
 
 	private boolean forwardToDestination = false;
 

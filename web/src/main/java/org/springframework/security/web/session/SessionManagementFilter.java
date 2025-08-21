@@ -24,6 +24,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
@@ -63,7 +64,7 @@ public class SessionManagementFilter extends GenericFilterBean {
 
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
-	private InvalidSessionStrategy invalidSessionStrategy = null;
+	private @Nullable InvalidSessionStrategy invalidSessionStrategy = null;
 
 	private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
 

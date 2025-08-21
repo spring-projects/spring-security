@@ -18,6 +18,7 @@ package org.springframework.security.web.savedrequest;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Null implementation of <tt>RequestCache</tt>. Typically used when creation of a session
@@ -29,7 +30,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class NullRequestCache implements RequestCache {
 
 	@Override
-	public SavedRequest getRequest(HttpServletRequest request, HttpServletResponse response) {
+	public @Nullable SavedRequest getRequest(HttpServletRequest request, HttpServletResponse response) {
 		return null;
 	}
 
@@ -43,7 +44,7 @@ public class NullRequestCache implements RequestCache {
 	}
 
 	@Override
-	public HttpServletRequest getMatchingRequest(HttpServletRequest request, HttpServletResponse response) {
+	public @Nullable HttpServletRequest getMatchingRequest(HttpServletRequest request, HttpServletResponse response) {
 		return null;
 	}
 

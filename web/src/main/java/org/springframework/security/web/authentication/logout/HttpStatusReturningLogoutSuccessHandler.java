@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -61,8 +62,8 @@ public class HttpStatusReturningLogoutSuccessHandler implements LogoutSuccessHan
 	 * . Sets the status on the {@link HttpServletResponse}.
 	 */
 	@Override
-	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
-			throws IOException {
+	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
+			@Nullable Authentication authentication) throws IOException {
 		response.setStatus(this.httpStatusToReturn.value());
 		response.getWriter().flush();
 	}

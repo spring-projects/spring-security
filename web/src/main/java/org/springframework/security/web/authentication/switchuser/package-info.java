@@ -17,4 +17,7 @@
 /**
  * Provides HTTP-based "switch user" (su) capabilities.
  */
+@NullMarked
 package org.springframework.security.web.authentication.switchuser;
+
+import org.jspecify.annotations.NullMarked;

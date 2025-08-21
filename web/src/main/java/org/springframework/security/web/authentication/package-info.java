@@ -18,4 +18,7 @@
  * Authentication processing mechanisms, which respond to the submission of authentication
  * credentials using various protocols (eg BASIC, CAS, form login etc).
  */
+@NullMarked
 package org.springframework.security.web.authentication;
+
+import org.jspecify.annotations.NullMarked;

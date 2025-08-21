@@ -177,7 +177,7 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 		this.trustResolver = trustResolver;
 	}
 
-	public void setRoleHierarchy(RoleHierarchy roleHierarchy) {
+	public void setRoleHierarchy(@Nullable RoleHierarchy roleHierarchy) {
 		this.roleHierarchy = roleHierarchy;
 	}
 

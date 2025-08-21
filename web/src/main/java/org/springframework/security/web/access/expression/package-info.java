@@ -17,4 +17,7 @@
 /**
  * Implementation of web security expressions.
  */
+@NullMarked
 package org.springframework.security.web.access.expression;
+
+import org.jspecify.annotations.NullMarked;

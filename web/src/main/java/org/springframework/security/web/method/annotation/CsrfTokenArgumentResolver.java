@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.method.annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.MethodParameter;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,8 +53,8 @@ public final class CsrfTokenArgumentResolver implements HandlerMethodArgumentRes
 	}
 
 	@Override
-	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+	public @Nullable Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
+			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) {
 		CsrfToken token = (CsrfToken) webRequest.getAttribute(CsrfToken.class.getName(),
 				RequestAttributes.SCOPE_REQUEST);
 		return token;

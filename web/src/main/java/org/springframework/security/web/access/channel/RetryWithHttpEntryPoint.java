@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.access.channel;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.web.PortMapper;
 
 /**
@@ -38,7 +40,7 @@ public class RetryWithHttpEntryPoint extends AbstractRetryEntryPoint {
 	}
 
 	@Override
-	protected Integer getMappedPort(Integer mapFromPort) {
+	protected @Nullable Integer getMappedPort(Integer mapFromPort) {
 		return getPortMapper().lookupHttpPort(mapFromPort);
 	}
 

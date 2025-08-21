@@ -22,6 +22,8 @@ import java.util.Collection;
 import java.util.List;
 
 import jakarta.servlet.ServletException;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.access.ConfigAttribute;
@@ -49,6 +51,7 @@ import org.springframework.util.Assert;
  * {@link RequestMatcher} for any sophisticated decision-making
  */
 @Deprecated
+@NullUnmarked
 public class ChannelDecisionManagerImpl implements ChannelDecisionManager, InitializingBean {
 
 	public static final String ANY_CHANNEL = "ANY_CHANNEL";
@@ -76,7 +79,7 @@ public class ChannelDecisionManagerImpl implements ChannelDecisionManager, Initi
 		}
 	}
 
-	protected List<ChannelProcessor> getChannelProcessors() {
+	protected @Nullable List<ChannelProcessor> getChannelProcessors() {
 		return this.channelProcessors;
 	}
 

@@ -78,7 +78,11 @@ public interface SecurityContextRepository {
 	 * @since 5.8
 	 */
 	default DeferredSecurityContext loadDeferredContext(HttpServletRequest request) {
-		Supplier<SecurityContext> supplier = () -> loadContext(new HttpRequestResponseHolder(request, null));
+		Supplier<SecurityContext> supplier = () -> {
+			@SuppressWarnings("NullAway") // fixed when remove deprecated method
+			HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, null);
+			return loadContext(holder);
+		};
 		return new SupplierDeferredSecurityContext(SingletonSupplier.of(supplier),
 				SecurityContextHolder.getContextHolderStrategy());
 	}

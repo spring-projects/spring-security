@@ -18,6 +18,7 @@ package org.springframework.security.web.authentication.preauth;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.Ordered;
@@ -51,6 +52,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 
 	private static final Log logger = LogFactory.getLog(PreAuthenticatedAuthenticationProvider.class);
 
+	@SuppressWarnings("NullAway.Init")
 	private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> preAuthenticatedUserDetailsService;
 
 	private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
@@ -74,7 +76,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 	 * be ignored to allow other providers to authenticate it.
 	 */
 	@Override
-	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+	public @Nullable Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		if (!supports(authentication.getClass())) {
 			return null;
 		}

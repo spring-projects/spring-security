@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.Ordered;
@@ -50,9 +51,9 @@ public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint,
 
 	private static final Log logger = LogFactory.getLog(DigestAuthenticationEntryPoint.class);
 
-	private String key;
+	private @Nullable String key;
 
-	private String realmName;
+	private @Nullable String realmName;
 
 	private int nonceValiditySeconds = 300;
 
@@ -95,7 +96,7 @@ public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint,
 		response.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
 	}
 
-	public String getKey() {
+	public @Nullable String getKey() {
 		return this.key;
 	}
 
@@ -103,7 +104,7 @@ public class DigestAuthenticationEntryPoint implements AuthenticationEntryPoint,
 		return this.nonceValiditySeconds;
 	}
 
-	public String getRealmName() {
+	public @Nullable String getRealmName() {
 		return this.realmName;
 	}
 

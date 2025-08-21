@@ -19,6 +19,7 @@ package org.springframework.security.web.access.expression;
 import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.security.web.FilterInvocation;
@@ -53,7 +54,7 @@ abstract class AbstractVariableEvaluationContextPostProcessor
 
 		private final HttpServletRequest request;
 
-		private Map<String, String> variables;
+		private @Nullable Map<String, String> variables;
 
 		VariableEvaluationContext(EvaluationContext delegate, HttpServletRequest request) {
 			super(delegate);
@@ -61,7 +62,7 @@ abstract class AbstractVariableEvaluationContextPostProcessor
 		}
 
 		@Override
-		public Object lookupVariable(String name) {
+		public @Nullable Object lookupVariable(String name) {
 			Object result = super.lookupVariable(name);
 			if (result != null) {
 				return result;

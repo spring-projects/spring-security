@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.server.header;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.util.Assert;
@@ -34,7 +35,7 @@ public final class CrossOriginResourcePolicyServerHttpHeadersWriter implements S
 
 	public static final String RESOURCE_POLICY = "Cross-Origin-Resource-Policy";
 
-	private ServerHttpHeadersWriter delegate;
+	private @Nullable ServerHttpHeadersWriter delegate;
 
 	/**
 	 * Sets the {@link CrossOriginResourcePolicy} value to be used in the

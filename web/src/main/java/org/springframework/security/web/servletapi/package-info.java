@@ -21,4 +21,7 @@
  * To use, simply add the {@code SecurityContextHolderAwareRequestFilter} to the Spring
  * Security filter chain.
  */
+@NullMarked
 package org.springframework.security.web.servletapi;
+
+import org.jspecify.annotations.NullMarked;

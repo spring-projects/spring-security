@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.security.access.AccessDecisionVoter;
@@ -66,7 +67,7 @@ public class WebExpressionVoter implements AccessDecisionVoter<FilterInvocation>
 		return ACCESS_DENIED;
 	}
 
-	private WebExpressionConfigAttribute findConfigAttribute(Collection<ConfigAttribute> attributes) {
+	private @Nullable WebExpressionConfigAttribute findConfigAttribute(Collection<ConfigAttribute> attributes) {
 		for (ConfigAttribute attribute : attributes) {
 			if (attribute instanceof WebExpressionConfigAttribute) {
 				return (WebExpressionConfigAttribute) attribute;

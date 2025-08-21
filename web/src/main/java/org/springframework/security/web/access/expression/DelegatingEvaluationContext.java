@@ -18,6 +18,8 @@ package org.springframework.security.web.access.expression;
 
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.expression.BeanResolver;
 import org.springframework.expression.ConstructorResolver;
 import org.springframework.expression.EvaluationContext;
@@ -84,17 +86,17 @@ class DelegatingEvaluationContext implements EvaluationContext {
 	}
 
 	@Override
-	public BeanResolver getBeanResolver() {
+	public @Nullable BeanResolver getBeanResolver() {
 		return this.delegate.getBeanResolver();
 	}
 
 	@Override
-	public void setVariable(String name, Object value) {
+	public void setVariable(String name, @Nullable Object value) {
 		this.delegate.setVariable(name, value);
 	}
 
 	@Override
-	public Object lookupVariable(String name) {
+	public @Nullable Object lookupVariable(String name) {
 		return this.delegate.lookupVariable(name);
 	}
 

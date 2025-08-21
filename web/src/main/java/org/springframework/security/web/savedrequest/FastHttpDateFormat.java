@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Utility class to generate HTTP dates.
  * <p>
@@ -67,7 +69,7 @@ public final class FastHttpDateFormat {
 	/**
 	 * Current formatted date.
 	 */
-	protected static String currentDate = null;
+	protected static @Nullable String currentDate = null;
 
 	/**
 	 * Formatter cache.
@@ -122,7 +124,7 @@ public final class FastHttpDateFormat {
 	 * Gets the current date in HTTP format.
 	 * @return Current date in HTTP format
 	 */
-	public static String getCurrentDate() {
+	public static @Nullable String getCurrentDate() {
 		long now = System.currentTimeMillis();
 		if ((now - currentDateGenerated) > 1000) {
 			synchronized (format) {
@@ -141,7 +143,7 @@ public final class FastHttpDateFormat {
 	 * @param formats Array of formats to use
 	 * @return Parsed date (or <code>null</code> if no formatter mached)
 	 */
-	private static Long internalParseDate(String value, DateFormat[] formats) {
+	private static @Nullable Long internalParseDate(String value, DateFormat[] formats) {
 		Date date = null;
 		for (int i = 0; (date == null) && (i < formats.length); i++) {
 			try {
@@ -197,7 +199,7 @@ public final class FastHttpDateFormat {
 	 * @param value New value
 	 */
 	@SuppressWarnings("unchecked")
-	private static void updateCache(HashMap cache, Object key, Object value) {
+	private static void updateCache(HashMap cache, Object key, @Nullable Object value) {
 		if (value == null) {
 			return;
 		}

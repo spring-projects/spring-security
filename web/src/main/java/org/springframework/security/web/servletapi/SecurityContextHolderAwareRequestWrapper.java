@@ -21,6 +21,7 @@ import java.util.Collection;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
@@ -91,7 +92,7 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 	 * Obtain the current active <code>Authentication</code>
 	 * @return the authentication object or <code>null</code>
 	 */
-	private Authentication getAuthentication() {
+	private @Nullable Authentication getAuthentication() {
 		Authentication auth = this.securityContextHolderStrategy.getContext().getAuthentication();
 		return (this.trustResolver.isAuthenticated(auth)) ? auth : null;
 	}
@@ -103,7 +104,7 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 	 * @return the username or <code>null</code> if unavailable
 	 */
 	@Override
-	public String getRemoteUser() {
+	public @Nullable String getRemoteUser() {
 		Authentication auth = getAuthentication();
 		if ((auth == null) || (auth.getPrincipal() == null)) {
 			return null;
@@ -123,7 +124,7 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 	 * @return the <code>Authentication</code>, or <code>null</code>
 	 */
 	@Override
-	public Principal getUserPrincipal() {
+	public @Nullable Principal getUserPrincipal() {
 		Authentication auth = getAuthentication();
 		if ((auth == null) || (auth.getPrincipal() == null)) {
 			return null;

@@ -24,6 +24,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Request wrapper which ensures values of {@code servletPath} and {@code pathInfo} are
@@ -46,9 +47,9 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 final class RequestWrapper extends FirewalledRequest {
 
-	private final String strippedServletPath;
+	private final @Nullable String strippedServletPath;
 
-	private final String strippedPathInfo;
+	private final @Nullable String strippedPathInfo;
 
 	private boolean stripPaths = true;
 
@@ -70,7 +71,7 @@ final class RequestWrapper extends FirewalledRequest {
 	 * @return the supplied value, with path parameters removed and sequences of multiple
 	 * '/' characters truncated, or null if the supplied path was null.
 	 */
-	private String strip(String path) {
+	private @Nullable String strip(String path) {
 		if (path == null) {
 			return null;
 		}
@@ -104,12 +105,12 @@ final class RequestWrapper extends FirewalledRequest {
 	}
 
 	@Override
-	public String getPathInfo() {
+	public @Nullable String getPathInfo() {
 		return this.stripPaths ? this.strippedPathInfo : super.getPathInfo();
 	}
 
 	@Override
-	public String getServletPath() {
+	public @Nullable String getServletPath() {
 		return this.stripPaths ? this.strippedServletPath : super.getServletPath();
 	}
 

@@ -32,6 +32,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.HttpHeaders;
 
@@ -94,7 +95,7 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 	}
 
 	@Override
-	public String getHeader(String name) {
+	public @Nullable String getHeader(String name) {
 		List<String> values = this.savedRequest.getHeaderValues(name);
 		return values.isEmpty() ? null : values.get(0);
 	}
@@ -133,12 +134,12 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 	}
 
 	@Override
-	public String getMethod() {
+	public @Nullable String getMethod() {
 		return this.savedRequest.getMethod();
 	}
 
 	@Override
-	public String getContentType() {
+	public @Nullable String getContentType() {
 		return getHeader(HttpHeaders.CONTENT_TYPE);
 	}
 
@@ -153,7 +154,7 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 	 * the parameter from the saved request.
 	 */
 	@Override
-	public String getParameter(String name) {
+	public @Nullable String getParameter(String name) {
 		String value = super.getParameter(name);
 		if (value != null) {
 			return value;

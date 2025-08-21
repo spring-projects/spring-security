@@ -19,6 +19,8 @@ package org.springframework.security.authorization;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
 import org.springframework.security.authorization.event.AuthorizationGrantedEvent;
@@ -57,7 +59,7 @@ public final class SpringAuthorizationEventPublisher implements AuthorizationEve
 	 */
 	@Override
 	public <T> void publishAuthorizationEvent(Supplier<Authentication> authentication, T object,
-			AuthorizationResult result) {
+			@Nullable AuthorizationResult result) {
 		if (result == null) {
 			return;
 		}

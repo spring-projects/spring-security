@@ -18,6 +18,7 @@ package org.springframework.security.web.header.writers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.util.Assert;
@@ -101,7 +102,7 @@ public final class XXssProtectionHeaderWriter implements HeaderWriter {
 			this.value = value;
 		}
 
-		public static HeaderValue from(String headerValue) {
+		public static @Nullable HeaderValue from(String headerValue) {
 			for (HeaderValue value : values()) {
 				if (value.toString().equals(headerValue)) {
 					return value;

@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.access.intercept;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -26,13 +28,13 @@ public class RequestKey {
 
 	private final String url;
 
-	private final String method;
+	private final @Nullable String method;
 
 	public RequestKey(String url) {
 		this(url, null);
 	}
 
-	public RequestKey(String url, String method) {
+	public RequestKey(String url, @Nullable String method) {
 		Assert.notNull(url, "url cannot be null");
 		this.url = url;
 		this.method = method;
@@ -42,7 +44,7 @@ public class RequestKey {
 		return this.url;
 	}
 
-	String getMethod() {
+	@Nullable String getMethod() {
 		return this.method;
 	}
 

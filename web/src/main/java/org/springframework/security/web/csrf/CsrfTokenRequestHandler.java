@@ -20,6 +20,7 @@ import java.util.function.Supplier;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.util.Assert;
@@ -47,7 +48,7 @@ public interface CsrfTokenRequestHandler extends CsrfTokenRequestResolver {
 	void handle(HttpServletRequest request, HttpServletResponse response, Supplier<CsrfToken> csrfToken);
 
 	@Override
-	default String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
+	default @Nullable String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
 		Assert.notNull(request, "request cannot be null");
 		Assert.notNull(csrfToken, "csrfToken cannot be null");
 		String actualToken = request.getHeader(csrfToken.getHeaderName());

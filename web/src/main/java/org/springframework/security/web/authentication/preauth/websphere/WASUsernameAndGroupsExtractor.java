@@ -18,6 +18,8 @@ package org.springframework.security.web.authentication.preauth.websphere;
 
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Provides indirection between classes using websphere and the actual container
  * interaction, allowing for easier unit testing.
@@ -31,6 +33,6 @@ interface WASUsernameAndGroupsExtractor {
 
 	List<String> getGroupsForCurrentUser();
 
-	String getCurrentUserName();
+	@Nullable String getCurrentUserName();
 
 }

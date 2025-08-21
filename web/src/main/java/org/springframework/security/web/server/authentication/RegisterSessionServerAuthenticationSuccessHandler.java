@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.server.authentication;
 
+import java.util.Objects;
+
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.Authentication;
@@ -44,8 +46,8 @@ public final class RegisterSessionServerAuthenticationSuccessHandler implements 
 	public Mono<Void> onAuthenticationSuccess(WebFilterExchange exchange, Authentication authentication) {
 		return exchange.getExchange()
 			.getSession()
-			.map((session) -> new ReactiveSessionInformation(authentication.getPrincipal(), session.getId(),
-					session.getLastAccessTime()))
+			.map((session) -> new ReactiveSessionInformation(Objects.requireNonNull(authentication.getPrincipal()),
+					session.getId(), session.getLastAccessTime()))
 			.flatMap(this.sessionRegistry::saveSessionInformation);
 	}
 

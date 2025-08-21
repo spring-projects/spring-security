@@ -19,4 +19,7 @@
  * appropriate login page when using namespace configuration without defining a login page
  * URL.
  */
+@NullMarked
 package org.springframework.security.web.authentication.ui;
+
+import org.jspecify.annotations.NullMarked;

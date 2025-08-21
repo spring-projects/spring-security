@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.access.expression;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.access.expression.AbstractSecurityExpressionHandler;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.expression.SecurityExpressionOperations;
@@ -38,7 +40,7 @@ public class DefaultWebSecurityExpressionHandler extends AbstractSecurityExpress
 	private String defaultRolePrefix = "ROLE_";
 
 	@Override
-	protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
+	protected SecurityExpressionOperations createSecurityExpressionRoot(@Nullable Authentication authentication,
 			FilterInvocation fi) {
 		WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(authentication, fi);
 		root.setPermissionEvaluator(getPermissionEvaluator());

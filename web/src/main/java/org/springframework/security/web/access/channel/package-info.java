@@ -19,4 +19,7 @@
  * <p>
  * Most commonly used to enforce that requests are submitted over HTTP or HTTPS.
  */
+@NullMarked
 package org.springframework.security.web.access.channel;
+
+import org.jspecify.annotations.NullMarked;

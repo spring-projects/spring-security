@@ -18,6 +18,7 @@ package org.springframework.security.web.header.writers.frameoptions;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.util.Assert;
@@ -35,7 +36,7 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 
 	public static final String XFRAME_OPTIONS_HEADER = "X-Frame-Options";
 
-	private final AllowFromStrategy allowFromStrategy;
+	private final @Nullable AllowFromStrategy allowFromStrategy;
 
 	private final XFrameOptionsMode frameOptionsMode;
 
@@ -87,6 +88,8 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
 		if (XFrameOptionsMode.ALLOW_FROM.equals(this.frameOptionsMode)) {
+			Assert.notNull(this.allowFromStrategy,
+					"AllowFromStrategy cannot be null when frameOptionsMode is ALLOW_FROM");
 			String allowFromValue = this.allowFromStrategy.getAllowFromValue(request);
 			if (XFrameOptionsMode.DENY.getMode().equals(allowFromValue)) {
 				if (!response.containsHeader(XFRAME_OPTIONS_HEADER)) {

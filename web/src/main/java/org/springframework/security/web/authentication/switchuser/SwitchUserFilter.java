@@ -27,6 +27,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationEventPublisher;
@@ -122,7 +123,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
-	private ApplicationEventPublisher eventPublisher;
+	private @Nullable ApplicationEventPublisher eventPublisher;
 
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
@@ -132,22 +133,25 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 
 	private RequestMatcher switchUserMatcher = createMatcher("/login/impersonate");
 
-	private String targetUrl;
+	private @Nullable String targetUrl;
 
-	private String switchFailureUrl;
+	private @Nullable String switchFailureUrl;
 
 	private String usernameParameter = SPRING_SECURITY_SWITCH_USERNAME_KEY;
 
 	private String switchAuthorityRole = ROLE_PREVIOUS_ADMINISTRATOR;
 
-	private SwitchUserAuthorityChanger switchUserAuthorityChanger;
+	private @Nullable SwitchUserAuthorityChanger switchUserAuthorityChanger;
 
+	@SuppressWarnings("NullAway.Init")
 	private UserDetailsService userDetailsService;
 
 	private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
 
+	@SuppressWarnings("NullAway.Init")
 	private AuthenticationSuccessHandler successHandler;
 
+	@SuppressWarnings("NullAway.Init")
 	private AuthenticationFailureHandler failureHandler;
 
 	private SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
@@ -239,8 +243,10 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 		targetUserRequest = createSwitchUserToken(request, targetUser);
 		// publish event
 		if (this.eventPublisher != null) {
-			this.eventPublisher.publishEvent(new AuthenticationSwitchUserEvent(
-					this.securityContextHolderStrategy.getContext().getAuthentication(), targetUser));
+			Authentication authentication = this.securityContextHolderStrategy.getContext().getAuthentication();
+			if (authentication != null) {
+				this.eventPublisher.publishEvent(new AuthenticationSwitchUserEvent(authentication, targetUser));
+			}
 		}
 		return targetUserRequest;
 	}
@@ -316,7 +322,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 		return targetUserRequest;
 	}
 
-	private Authentication getCurrentAuthentication(HttpServletRequest request) {
+	private @Nullable Authentication getCurrentAuthentication(HttpServletRequest request) {
 		try {
 			// SEC-1763. Check first if we are already switched.
 			return attemptExitUser(request);
@@ -335,7 +341,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 	 * @return The source user <code>Authentication</code> object or <code>null</code>
 	 * otherwise.
 	 */
-	private Authentication getSourceAuthentication(Authentication current) {
+	private @Nullable Authentication getSourceAuthentication(Authentication current) {
 		Authentication original = null;
 		// iterate over granted authorities and find the 'switch user' authority
 		Collection<? extends GrantedAuthority> authorities = current.getAuthorities();

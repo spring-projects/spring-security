@@ -64,7 +64,7 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 	}
 
 	@Override
-	public AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication,
+	public @Nullable AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication,
 			HttpServletRequest request) {
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace(LogMessage.format("Authorizing %s", requestLine(request)));

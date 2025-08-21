@@ -23,6 +23,7 @@ import java.util.Date;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -194,7 +195,7 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 	 * Calculates the digital signature to be put in the cookie.
 	 * @since 5.8
 	 */
-	protected String makeTokenSignature(long tokenExpiryTime, String username, String password,
+	protected String makeTokenSignature(long tokenExpiryTime, String username, @Nullable String password,
 			RememberMeTokenAlgorithm algorithm) {
 		String data = username + ":" + tokenExpiryTime + ":" + password + ":" + getKey();
 		try {
@@ -273,24 +274,23 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 	}
 
 	protected String retrieveUserName(Authentication authentication) {
-		if (isInstanceOfUserDetails(authentication)) {
-			return ((UserDetails) authentication.getPrincipal()).getUsername();
+		Object principal = authentication.getPrincipal();
+		Assert.notNull(principal, "Authentication.getPrincipal() cannot be null");
+		if (principal instanceof UserDetails userDetails) {
+			return userDetails.getUsername();
 		}
-		return authentication.getPrincipal().toString();
+		return principal.toString();
 	}
 
-	protected String retrievePassword(Authentication authentication) {
-		if (isInstanceOfUserDetails(authentication)) {
-			return ((UserDetails) authentication.getPrincipal()).getPassword();
+	protected @Nullable String retrievePassword(Authentication authentication) {
+		Object principal = authentication.getPrincipal();
+		if (principal instanceof UserDetails userDetails) {
+			return userDetails.getPassword();
 		}
 		if (authentication.getCredentials() != null) {
 			return authentication.getCredentials().toString();
 		}
 		return null;
-	}
-
-	private boolean isInstanceOfUserDetails(Authentication authentication) {
-		return authentication.getPrincipal() instanceof UserDetails;
 	}
 
 	/**
@@ -302,7 +302,7 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		return MessageDigest.isEqual(expectedBytes, actualBytes);
 	}
 
-	private static byte[] bytesUtf8(String s) {
+	private static byte @Nullable [] bytesUtf8(String s) {
 		return (s != null) ? Utf8.encode(s) : null;
 	}
 

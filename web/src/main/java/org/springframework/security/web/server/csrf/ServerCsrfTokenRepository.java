@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.server.csrf;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.web.server.ServerWebExchange;
@@ -45,7 +46,7 @@ public interface ServerCsrfTokenRepository {
 	 * @param exchange the {@link ServerWebExchange} to use
 	 * @param token the {@link CsrfToken} to save or null to delete
 	 */
-	Mono<Void> saveToken(ServerWebExchange exchange, CsrfToken token);
+	Mono<Void> saveToken(ServerWebExchange exchange, @Nullable CsrfToken token);
 
 	/**
 	 * Loads the expected {@link CsrfToken} from the {@link ServerWebExchange}

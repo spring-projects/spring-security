@@ -18,4 +18,7 @@
  * WWW-Authenticate based authentication mechanism implementations: Basic and Digest
  * authentication.
  */
+@NullMarked
 package org.springframework.security.web.authentication.www;
+
+import org.jspecify.annotations.NullMarked;

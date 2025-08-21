@@ -19,6 +19,7 @@ package org.springframework.security.web.server.csrf;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -50,15 +51,15 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 
 	private String headerName = DEFAULT_CSRF_HEADER_NAME;
 
-	private String cookiePath;
+	private @Nullable String cookiePath;
 
-	private String cookieDomain;
+	private @Nullable String cookieDomain;
 
 	private String cookieName = DEFAULT_CSRF_COOKIE_NAME;
 
 	private boolean cookieHttpOnly = true;
 
-	private Boolean secure;
+	private @Nullable Boolean secure;
 
 	private int cookieMaxAge = -1;
 
@@ -94,7 +95,7 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	}
 
 	@Override
-	public Mono<Void> saveToken(ServerWebExchange exchange, CsrfToken token) {
+	public Mono<Void> saveToken(ServerWebExchange exchange, @Nullable CsrfToken token) {
 		return Mono.fromRunnable(() -> {
 			String tokenValue = (token != null) ? token.getToken() : "";
 			// @formatter:off

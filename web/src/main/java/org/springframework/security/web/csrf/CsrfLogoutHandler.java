@@ -18,6 +18,7 @@ package org.springframework.security.web.csrf;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -51,7 +52,8 @@ public final class CsrfLogoutHandler implements LogoutHandler {
 	 * org.springframework.security.core.Authentication)
 	 */
 	@Override
-	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+	public void logout(HttpServletRequest request, HttpServletResponse response,
+			@Nullable Authentication authentication) {
 		this.csrfTokenRepository.saveToken(null, request, response);
 	}
 

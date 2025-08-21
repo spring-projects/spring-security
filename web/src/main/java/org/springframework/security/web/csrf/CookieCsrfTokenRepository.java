@@ -22,6 +22,7 @@ import java.util.function.Consumer;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -58,11 +59,11 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	private boolean cookieHttpOnly = true;
 
-	private String cookiePath;
+	private @Nullable String cookiePath;
 
-	private String cookieDomain;
+	private @Nullable String cookieDomain;
 
-	private Boolean secure;
+	private @Nullable Boolean secure;
 
 	private int cookieMaxAge = -1;
 
@@ -86,7 +87,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	}
 
 	@Override
-	public void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
+	public void saveToken(@Nullable CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
 		String tokenValue = (token != null) ? token.getToken() : "";
 
 		ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from(this.cookieName, tokenValue)
@@ -122,7 +123,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	}
 
 	@Override
-	public CsrfToken loadToken(HttpServletRequest request) {
+	public @Nullable CsrfToken loadToken(HttpServletRequest request) {
 		// Return null when token has been removed during the current request
 		// which allows loadDeferredToken to re-generate the token
 		if (Boolean.TRUE.equals(request.getAttribute(CSRF_TOKEN_REMOVED_ATTRIBUTE_NAME))) {
@@ -218,7 +219,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	 * Get the path that the CSRF cookie will be set to.
 	 * @return the path to be used.
 	 */
-	public String getCookiePath() {
+	public @Nullable String getCookiePath() {
 		return this.cookiePath;
 	}
 

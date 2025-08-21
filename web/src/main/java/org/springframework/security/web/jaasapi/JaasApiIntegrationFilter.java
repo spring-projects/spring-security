@@ -27,6 +27,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.jaas.JaasAuthenticationToken;
@@ -118,7 +119,7 @@ public class JaasApiIntegrationFilter extends GenericFilterBean {
 	 * @return the Subject to run as or <code>null</code> if no <code>Subject</code> is
 	 * available.
 	 */
-	protected Subject obtainSubject(ServletRequest request) {
+	protected @Nullable Subject obtainSubject(ServletRequest request) {
 		Authentication authentication = this.securityContextHolderStrategy.getContext().getAuthentication();
 		this.logger.debug(LogMessage.format("Attempting to obtainSubject using authentication : %s", authentication));
 		if (authentication == null) {

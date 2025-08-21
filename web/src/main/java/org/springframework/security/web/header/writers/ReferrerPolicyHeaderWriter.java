@@ -22,6 +22,7 @@ import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.util.Assert;
@@ -74,7 +75,8 @@ public class ReferrerPolicyHeaderWriter implements HeaderWriter {
 	 * @throws IllegalArgumentException if policy is null
 	 */
 	public ReferrerPolicyHeaderWriter(ReferrerPolicy policy) {
-		setPolicy(policy);
+		Assert.notNull(policy, "policy can not be null");
+		this.policy = policy;
 	}
 
 	/**
@@ -136,7 +138,7 @@ public class ReferrerPolicyHeaderWriter implements HeaderWriter {
 			return this.policy;
 		}
 
-		public static ReferrerPolicy get(String referrerPolicy) {
+		public static @Nullable ReferrerPolicy get(String referrerPolicy) {
 			return REFERRER_POLICIES.get(referrerPolicy);
 		}
 

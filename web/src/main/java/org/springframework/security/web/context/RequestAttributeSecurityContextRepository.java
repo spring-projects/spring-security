@@ -20,6 +20,7 @@ import java.util.function.Supplier;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.context.DeferredSecurityContext;
 import org.springframework.security.core.context.SecurityContext;
@@ -95,7 +96,8 @@ public final class RequestAttributeSecurityContextRepository implements Security
 	}
 
 	@Override
-	public void saveContext(SecurityContext context, HttpServletRequest request, HttpServletResponse response) {
+	public void saveContext(SecurityContext context, HttpServletRequest request,
+			@Nullable HttpServletResponse response) {
 		request.setAttribute(this.requestAttributeName, context);
 	}
 

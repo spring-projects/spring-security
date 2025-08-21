@@ -85,6 +85,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	}
 
 	@Override
+	@SuppressWarnings("NullAway") // FIXME: Dataflow analysis limitation
 	public EvaluationContext createEvaluationContext(Supplier<? extends @Nullable Authentication> authentication,
 			MethodInvocation mi) {
 		MethodSecurityExpressionOperations root = createSecurityExpressionRoot(authentication, mi);

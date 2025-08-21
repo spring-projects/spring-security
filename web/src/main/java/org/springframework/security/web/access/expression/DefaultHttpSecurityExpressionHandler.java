@@ -46,6 +46,7 @@ public class DefaultHttpSecurityExpressionHandler extends AbstractSecurityExpres
 	private String defaultRolePrefix = "ROLE_";
 
 	@Override
+	@SuppressWarnings("NullAway") // https://github.com/spring-projects/spring-framework/issues/35371
 	public EvaluationContext createEvaluationContext(Supplier<? extends @Nullable Authentication> authentication,
 			RequestAuthorizationContext context) {
 		WebSecurityExpressionRoot root = createSecurityExpressionRoot(authentication, context);
@@ -56,13 +57,13 @@ public class DefaultHttpSecurityExpressionHandler extends AbstractSecurityExpres
 	}
 
 	@Override
-	protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
+	protected SecurityExpressionOperations createSecurityExpressionRoot(@Nullable Authentication authentication,
 			RequestAuthorizationContext context) {
 		return createSecurityExpressionRoot(() -> authentication, context);
 	}
 
-	private WebSecurityExpressionRoot createSecurityExpressionRoot(Supplier<? extends Authentication> authentication,
-			RequestAuthorizationContext context) {
+	private WebSecurityExpressionRoot createSecurityExpressionRoot(
+			Supplier<? extends @Nullable Authentication> authentication, RequestAuthorizationContext context) {
 		WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(authentication, context.getRequest());
 		root.setRoleHierarchy(getRoleHierarchy());
 		root.setPermissionEvaluator(getPermissionEvaluator());

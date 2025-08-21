@@ -19,6 +19,7 @@ package org.springframework.security.web.access.expression;
 import java.util.function.Supplier;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.core.Authentication;
@@ -37,7 +38,7 @@ public class WebSecurityExpressionRoot extends SecurityExpressionRoot {
 	 */
 	public final HttpServletRequest request;
 
-	public WebSecurityExpressionRoot(Authentication a, FilterInvocation fi) {
+	public WebSecurityExpressionRoot(@Nullable Authentication a, FilterInvocation fi) {
 		this(() -> a, fi.getRequest());
 	}
 
@@ -48,7 +49,9 @@ public class WebSecurityExpressionRoot extends SecurityExpressionRoot {
 	 * @param request the {@link HttpServletRequest} to use
 	 * @since 5.8
 	 */
-	public WebSecurityExpressionRoot(Supplier<? extends Authentication> authentication, HttpServletRequest request) {
+	@SuppressWarnings("NullAway") // https://github.com/uber/NullAway/issues/1246
+	public WebSecurityExpressionRoot(Supplier<? extends @Nullable Authentication> authentication,
+			HttpServletRequest request) {
 		super(authentication);
 		this.request = request;
 	}

@@ -18,6 +18,7 @@ package org.springframework.security.web.header.writers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.util.Assert;
@@ -35,7 +36,7 @@ public final class CrossOriginEmbedderPolicyHeaderWriter implements HeaderWriter
 
 	private static final String EMBEDDER_POLICY = "Cross-Origin-Embedder-Policy";
 
-	private CrossOriginEmbedderPolicy policy;
+	private @Nullable CrossOriginEmbedderPolicy policy;
 
 	/**
 	 * Sets the {@link CrossOriginEmbedderPolicy} value to be used in the
@@ -72,7 +73,7 @@ public final class CrossOriginEmbedderPolicyHeaderWriter implements HeaderWriter
 			return this.policy;
 		}
 
-		public static CrossOriginEmbedderPolicy from(String embedderPolicy) {
+		public static @Nullable CrossOriginEmbedderPolicy from(String embedderPolicy) {
 			for (CrossOriginEmbedderPolicy policy : values()) {
 				if (policy.getPolicy().equals(embedderPolicy)) {
 					return policy;

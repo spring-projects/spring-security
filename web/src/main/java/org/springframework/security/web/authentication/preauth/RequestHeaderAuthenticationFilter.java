@@ -17,6 +17,7 @@
 package org.springframework.security.web.authentication.preauth;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.util.Assert;
 
@@ -47,7 +48,7 @@ public class RequestHeaderAuthenticationFilter extends AbstractPreAuthenticatedP
 
 	private String principalRequestHeader = "SM_USER";
 
-	private String credentialsRequestHeader;
+	private @Nullable String credentialsRequestHeader;
 
 	private boolean exceptionIfHeaderMissing = true;
 

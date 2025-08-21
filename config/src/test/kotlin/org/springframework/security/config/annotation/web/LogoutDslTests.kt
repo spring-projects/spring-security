@@ -350,8 +350,8 @@ class LogoutDslTests {
 
     class NoopLogoutHandler: LogoutHandler {
         override fun logout(
-            request: HttpServletRequest?,
-            response: HttpServletResponse?,
+            request: HttpServletRequest,
+            response: HttpServletResponse,
             authentication: Authentication?
         ) { }
 

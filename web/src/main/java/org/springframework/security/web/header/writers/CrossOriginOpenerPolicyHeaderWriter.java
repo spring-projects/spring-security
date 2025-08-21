@@ -18,6 +18,7 @@ package org.springframework.security.web.header.writers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.util.Assert;
@@ -35,7 +36,7 @@ public final class CrossOriginOpenerPolicyHeaderWriter implements HeaderWriter {
 
 	private static final String OPENER_POLICY = "Cross-Origin-Opener-Policy";
 
-	private CrossOriginOpenerPolicy policy;
+	private @Nullable CrossOriginOpenerPolicy policy;
 
 	/**
 	 * Sets the {@link CrossOriginOpenerPolicy} value to be used in the
@@ -72,7 +73,7 @@ public final class CrossOriginOpenerPolicyHeaderWriter implements HeaderWriter {
 			return this.policy;
 		}
 
-		public static CrossOriginOpenerPolicy from(String openerPolicy) {
+		public static @Nullable CrossOriginOpenerPolicy from(String openerPolicy) {
 			for (CrossOriginOpenerPolicy policy : values()) {
 				if (policy.getPolicy().equals(openerPolicy)) {
 					return policy;

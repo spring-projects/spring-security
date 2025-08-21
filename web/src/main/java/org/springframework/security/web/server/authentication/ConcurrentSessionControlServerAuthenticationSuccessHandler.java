@@ -17,6 +17,7 @@
 package org.springframework.security.web.server.authentication;
 
 import java.util.List;
+import java.util.Objects;
 
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
@@ -65,7 +66,7 @@ public final class ConcurrentSessionControlServerAuthenticationSuccessHandler
 
 	private Mono<Void> handleConcurrency(WebFilterExchange exchange, Authentication authentication,
 			Integer maximumSessions) {
-		return this.sessionRegistry.getAllSessions(authentication.getPrincipal())
+		return this.sessionRegistry.getAllSessions(Objects.requireNonNull(authentication.getPrincipal()))
 			.collectList()
 			.flatMap((registeredSessions) -> exchange.getExchange()
 				.getSession()

@@ -16,6 +16,8 @@
 
 package org.springframework.security.web;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * <code>PortMapper</code> implementations provide callers with information about which
  * HTTP ports are associated with which HTTPS ports on the system, and vice versa.
@@ -32,7 +34,7 @@ public interface PortMapper {
 	 * @param httpsPort
 	 * @return the HTTP port or <code>null</code> if unknown
 	 */
-	Integer lookupHttpPort(Integer httpsPort);
+	@Nullable Integer lookupHttpPort(Integer httpsPort);
 
 	/**
 	 * Locates the HTTPS port associated with the specified HTTP port.
@@ -42,6 +44,6 @@ public interface PortMapper {
 	 * @param httpPort
 	 * @return the HTTPS port or <code>null</code> if unknown
 	 */
-	Integer lookupHttpsPort(Integer httpPort);
+	@Nullable Integer lookupHttpsPort(Integer httpPort);
 
 }

@@ -20,4 +20,7 @@
  * @author Jitendra Singh
  * @since 4.2
  */
+@NullMarked
 package org.springframework.security.web.jackson2;
+
+import org.jspecify.annotations.NullMarked;

@@ -21,6 +21,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.PortResolver;
@@ -86,7 +87,7 @@ public class HttpSessionRequestCache implements RequestCache {
 	}
 
 	@Override
-	public SavedRequest getRequest(HttpServletRequest currentRequest, HttpServletResponse response) {
+	public @Nullable SavedRequest getRequest(HttpServletRequest currentRequest, HttpServletResponse response) {
 		HttpSession session = currentRequest.getSession(false);
 		return (session != null) ? (SavedRequest) session.getAttribute(this.sessionAttrName) : null;
 	}
@@ -101,7 +102,7 @@ public class HttpSessionRequestCache implements RequestCache {
 	}
 
 	@Override
-	public HttpServletRequest getMatchingRequest(HttpServletRequest request, HttpServletResponse response) {
+	public @Nullable HttpServletRequest getMatchingRequest(HttpServletRequest request, HttpServletResponse response) {
 		if (this.matchingRequestParameterName != null) {
 			if (!StringUtils.hasText(request.getQueryString())
 					|| !UriComponentsBuilder.fromUriString(UrlUtils.buildRequestUrl(request))

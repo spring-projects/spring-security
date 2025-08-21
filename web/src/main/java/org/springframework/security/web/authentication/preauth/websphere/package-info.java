@@ -17,4 +17,7 @@
 /**
  * Websphere-specific pre-authentication classes.
  */
+@NullMarked
 package org.springframework.security.web.authentication.preauth.websphere;
+
+import org.jspecify.annotations.NullMarked;

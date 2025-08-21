@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.util.Collection;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.access.ConfigAttribute;
@@ -63,7 +65,9 @@ public class InsecureChannelProcessor implements InitializingBean, ChannelProces
 		for (ConfigAttribute attribute : config) {
 			if (supports(attribute)) {
 				if (invocation.getHttpRequest().isSecure()) {
-					this.entryPoint.commence(invocation.getRequest(), invocation.getResponse());
+					@Nullable HttpServletResponse response = invocation.getResponse();
+					Assert.notNull(response, "HttpServletResponse required");
+					this.entryPoint.commence(invocation.getRequest(), response);
 				}
 			}
 		}

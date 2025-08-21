@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.http.HttpStatus;
@@ -42,7 +43,7 @@ import org.springframework.util.Assert;
  */
 public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
 
-	private String realmName;
+	private @Nullable String realmName;
 
 	@Override
 	public void afterPropertiesSet() {
@@ -56,7 +57,7 @@ public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint, 
 		response.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
 	}
 
-	public String getRealmName() {
+	public @Nullable String getRealmName() {
 		return this.realmName;
 	}
 

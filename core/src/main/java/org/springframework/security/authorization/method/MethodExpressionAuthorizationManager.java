@@ -74,6 +74,7 @@ public final class MethodExpressionAuthorizationManager implements Authorization
 	 * expression
 	 */
 	@Override
+	@SuppressWarnings("NullAway") // FIXME: Dataflow analysis limitation
 	public AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication,
 			MethodInvocation context) {
 		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication, context);

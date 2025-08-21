@@ -19,6 +19,8 @@ package org.springframework.security.web;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -50,7 +52,7 @@ public class PortMapperImpl implements PortMapper {
 	}
 
 	@Override
-	public Integer lookupHttpPort(Integer httpsPort) {
+	public @Nullable Integer lookupHttpPort(Integer httpsPort) {
 		for (Integer httpPort : this.httpsPortMappings.keySet()) {
 			if (this.httpsPortMappings.get(httpPort).equals(httpsPort)) {
 				return httpPort;
@@ -60,7 +62,7 @@ public class PortMapperImpl implements PortMapper {
 	}
 
 	@Override
-	public Integer lookupHttpsPort(Integer httpPort) {
+	public @Nullable Integer lookupHttpsPort(Integer httpPort) {
 		return this.httpsPortMappings.get(httpPort);
 	}
 

@@ -18,6 +18,7 @@ package org.springframework.security.web.authentication;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.Authentication;
 
@@ -69,7 +70,7 @@ public interface RememberMeServices {
 	 * @return a valid authentication object, or <code>null</code> if the request should
 	 * not be authenticated
 	 */
-	Authentication autoLogin(HttpServletRequest request, HttpServletResponse response);
+	@Nullable Authentication autoLogin(HttpServletRequest request, HttpServletResponse response);
 
 	/**
 	 * Called whenever an interactive authentication attempt was made, but the credentials

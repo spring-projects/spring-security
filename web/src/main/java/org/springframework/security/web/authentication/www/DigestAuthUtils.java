@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -34,13 +36,14 @@ final class DigestAuthUtils {
 	private DigestAuthUtils() {
 	}
 
-	static String encodePasswordInA1Format(String username, String realm, String password) {
+	static String encodePasswordInA1Format(@Nullable String username, @Nullable String realm,
+			@Nullable String password) {
 		String a1 = username + ":" + realm + ":" + password;
 
 		return md5Hex(a1);
 	}
 
-	static String[] splitIgnoringQuotes(String str, char separatorChar) {
+	static String @Nullable [] splitIgnoringQuotes(String str, char separatorChar) {
 		if (str == null) {
 			return null;
 		}
@@ -100,9 +103,9 @@ final class DigestAuthUtils {
 	 * @return the MD5 of the digest authentication response, encoded in hex
 	 * @throws IllegalArgumentException if the supplied qop value is unsupported.
 	 */
-	static String generateDigest(boolean passwordAlreadyEncoded, String username, String realm, String password,
-			String httpMethod, String uri, String qop, String nonce, String nc, String cnonce)
-			throws IllegalArgumentException {
+	static String generateDigest(boolean passwordAlreadyEncoded, @Nullable String username, @Nullable String realm,
+			@Nullable String password, String httpMethod, @Nullable String uri, @Nullable String qop,
+			@Nullable String nonce, @Nullable String nc, @Nullable String cnonce) throws IllegalArgumentException {
 		String a2 = httpMethod + ":" + uri;
 		String a1Md5 = (!passwordAlreadyEncoded) ? DigestAuthUtils.encodePasswordInA1Format(username, realm, password)
 				: password;
@@ -134,7 +137,7 @@ final class DigestAuthUtils {
 	 * @return a <code>Map</code> representing the array contents, or <code>null</code> if
 	 * the array to process was null or empty
 	 */
-	static Map<String, String> splitEachArrayElementAndCreateMap(String[] array, String delimiter,
+	static @Nullable Map<String, String> splitEachArrayElementAndCreateMap(String @Nullable [] array, String delimiter,
 			String removeCharacters) {
 		if ((array == null) || (array.length == 0)) {
 			return null;
@@ -162,7 +165,7 @@ final class DigestAuthUtils {
 	 * being after the delimiter (neither element includes the delimiter)
 	 * @throws IllegalArgumentException if an argument was invalid
 	 */
-	static String[] split(String toSplit, String delimiter) {
+	static String @Nullable [] split(String toSplit, String delimiter) {
 		Assert.hasLength(toSplit, "Cannot split a null or empty string");
 		Assert.hasLength(delimiter, "Cannot use a null or empty delimiter to split a string");
 		Assert.isTrue(delimiter.length() == 1, "Delimiter can only be one character in length");

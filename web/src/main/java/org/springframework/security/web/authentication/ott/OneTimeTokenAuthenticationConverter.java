@@ -19,6 +19,7 @@ package org.springframework.security.web.authentication.ott;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.ott.OneTimeTokenAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -39,7 +40,7 @@ public class OneTimeTokenAuthenticationConverter implements AuthenticationConver
 	private final Log logger = LogFactory.getLog(getClass());
 
 	@Override
-	public Authentication convert(HttpServletRequest request) {
+	public @Nullable Authentication convert(HttpServletRequest request) {
 		String token = request.getParameter("token");
 		if (!StringUtils.hasText(token)) {
 			this.logger.debug("No token found in request");

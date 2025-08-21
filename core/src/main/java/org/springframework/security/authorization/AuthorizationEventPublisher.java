@@ -18,6 +18,8 @@ package org.springframework.security.authorization;
 
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
 import org.springframework.security.authorization.event.AuthorizationGrantedEvent;
 import org.springframework.security.core.Authentication;
@@ -46,6 +48,7 @@ public interface AuthorizationEventPublisher {
 	 * @param <T> the secured object's type
 	 * @since 6.4
 	 */
-	<T> void publishAuthorizationEvent(Supplier<Authentication> authentication, T object, AuthorizationResult result);
+	<T> void publishAuthorizationEvent(Supplier<Authentication> authentication, T object,
+			@Nullable AuthorizationResult result);
 
 }

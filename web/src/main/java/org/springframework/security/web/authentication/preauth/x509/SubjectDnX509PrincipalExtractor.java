@@ -54,6 +54,7 @@ public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor, 
 
 	private Pattern subjectDnPattern;
 
+	@SuppressWarnings("NullAway") // Dataflow analysis limitation
 	public SubjectDnX509PrincipalExtractor() {
 		setSubjectDnRegex("CN=(.*?)(?:,|$)");
 	}

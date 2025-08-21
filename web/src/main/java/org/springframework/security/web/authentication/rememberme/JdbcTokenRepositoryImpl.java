@@ -20,10 +20,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.log.LogMessage;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 /**
@@ -63,19 +66,19 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
 	@Override
 	protected void initDao() {
 		if (this.createTableOnStartup) {
-			getJdbcTemplate().execute(CREATE_TABLE_SQL);
+			getTemplate().execute(CREATE_TABLE_SQL);
 		}
 	}
 
 	@Override
 	public void createNewToken(PersistentRememberMeToken token) {
-		getJdbcTemplate().update(this.insertTokenSql, token.getUsername(), token.getSeries(), token.getTokenValue(),
+		getTemplate().update(this.insertTokenSql, token.getUsername(), token.getSeries(), token.getTokenValue(),
 				token.getDate());
 	}
 
 	@Override
 	public void updateToken(String series, String tokenValue, Date lastUsed) {
-		getJdbcTemplate().update(this.updateTokenSql, tokenValue, lastUsed, series);
+		getTemplate().update(this.updateTokenSql, tokenValue, lastUsed, series);
 	}
 
 	/**
@@ -88,9 +91,9 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
 	 * occurred.
 	 */
 	@Override
-	public PersistentRememberMeToken getTokenForSeries(String seriesId) {
+	public @Nullable PersistentRememberMeToken getTokenForSeries(String seriesId) {
 		try {
-			return getJdbcTemplate().queryForObject(this.tokensBySeriesSql, this::createRememberMeToken, seriesId);
+			return getTemplate().queryForObject(this.tokensBySeriesSql, this::createRememberMeToken, seriesId);
 		}
 		catch (EmptyResultDataAccessException ex) {
 			this.logger.debug(LogMessage.format("Querying token for series '%s' returned no results.", seriesId), ex);
@@ -112,7 +115,7 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
 
 	@Override
 	public void removeUserTokens(String username) {
-		getJdbcTemplate().update(this.removeUserTokensSql, username);
+		getTemplate().update(this.removeUserTokensSql, username);
 	}
 
 	/**
@@ -122,6 +125,14 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
 	 */
 	public void setCreateTableOnStartup(boolean createTableOnStartup) {
 		this.createTableOnStartup = createTableOnStartup;
+	}
+
+	private JdbcTemplate getTemplate() {
+		@Nullable JdbcTemplate result = super.getJdbcTemplate();
+		if (result == null) {
+			throw new IllegalStateException("JdbcTemplate was removed");
+		}
+		return result;
 	}
 
 }

@@ -28,6 +28,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
@@ -190,7 +191,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	 * @param actual
 	 * @return
 	 */
-	private static boolean equalsConstantTime(String expected, String actual) {
+	private static boolean equalsConstantTime(String expected, @Nullable String actual) {
 		if (expected == actual) {
 			return true;
 		}

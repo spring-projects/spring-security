@@ -17,4 +17,7 @@
 /**
  * Logout functionality based around a filter which handles a specific logout URL.
  */
+@NullMarked
 package org.springframework.security.web.authentication.logout;
+
+import org.jspecify.annotations.NullMarked;

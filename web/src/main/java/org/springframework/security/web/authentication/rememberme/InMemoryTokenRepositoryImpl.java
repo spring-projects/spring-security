@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.dao.DataIntegrityViolationException;
 
 /**
@@ -45,6 +47,9 @@ public class InMemoryTokenRepositoryImpl implements PersistentTokenRepository {
 	@Override
 	public synchronized void updateToken(String series, String tokenValue, Date lastUsed) {
 		PersistentRememberMeToken token = getTokenForSeries(series);
+		if (token == null) {
+			throw new IllegalArgumentException("Token for series '" + series + "' does not exist");
+		}
 		PersistentRememberMeToken newToken = new PersistentRememberMeToken(token.getUsername(), series, tokenValue,
 				new Date());
 		// Store it, overwriting the existing one.
@@ -52,7 +57,7 @@ public class InMemoryTokenRepositoryImpl implements PersistentTokenRepository {
 	}
 
 	@Override
-	public synchronized PersistentRememberMeToken getTokenForSeries(String seriesId) {
+	public synchronized @Nullable PersistentRememberMeToken getTokenForSeries(String seriesId) {
 		return this.seriesTokens.get(seriesId);
 	}
 
@@ -62,7 +67,7 @@ public class InMemoryTokenRepositoryImpl implements PersistentTokenRepository {
 		while (series.hasNext()) {
 			String seriesId = series.next();
 			PersistentRememberMeToken token = this.seriesTokens.get(seriesId);
-			if (username.equals(token.getUsername())) {
+			if (token != null && username.equals(token.getUsername())) {
 				series.remove();
 			}
 		}

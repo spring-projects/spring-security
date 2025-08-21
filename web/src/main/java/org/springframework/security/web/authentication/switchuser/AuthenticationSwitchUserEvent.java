@@ -18,6 +18,8 @@ package org.springframework.security.web.authentication.switchuser;
 
 import java.io.Serial;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,19 +34,19 @@ public class AuthenticationSwitchUserEvent extends AbstractAuthenticationEvent {
 	@Serial
 	private static final long serialVersionUID = 6265996480231793939L;
 
-	private final UserDetails targetUser;
+	private final @Nullable UserDetails targetUser;
 
 	/**
 	 * Switch user context event constructor
 	 * @param authentication The current <code>Authentication</code> object
 	 * @param targetUser The target user
 	 */
-	public AuthenticationSwitchUserEvent(Authentication authentication, UserDetails targetUser) {
+	public AuthenticationSwitchUserEvent(Authentication authentication, @Nullable UserDetails targetUser) {
 		super(authentication);
 		this.targetUser = targetUser;
 	}
 
-	public UserDetails getTargetUser() {
+	public @Nullable UserDetails getTargetUser() {
 		return this.targetUser;
 	}
 

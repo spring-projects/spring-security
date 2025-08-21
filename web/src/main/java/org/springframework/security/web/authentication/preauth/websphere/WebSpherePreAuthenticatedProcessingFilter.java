@@ -17,6 +17,7 @@
 package org.springframework.security.web.authentication.preauth.websphere;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
@@ -50,7 +51,7 @@ public class WebSpherePreAuthenticatedProcessingFilter extends AbstractPreAuthen
 	 * Return the WebSphere user name.
 	 */
 	@Override
-	protected Object getPreAuthenticatedPrincipal(HttpServletRequest httpRequest) {
+	protected @Nullable Object getPreAuthenticatedPrincipal(HttpServletRequest httpRequest) {
 		Object principal = this.wasHelper.getCurrentUserName();
 		this.logger.debug(LogMessage.format("PreAuthenticated WebSphere principal: %s", principal));
 		return principal;

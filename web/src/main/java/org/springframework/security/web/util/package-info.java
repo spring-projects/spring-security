@@ -19,4 +19,7 @@
  * <p>
  * Should not depend on any other framework classes.
  */
+@NullMarked
 package org.springframework.security.web.util;
+
+import org.jspecify.annotations.NullMarked;

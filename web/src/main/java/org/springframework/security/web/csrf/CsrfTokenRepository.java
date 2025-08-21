@@ -19,6 +19,7 @@ package org.springframework.security.web.csrf;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An API to allow changing the method in which the expected {@link CsrfToken} is
@@ -47,14 +48,14 @@ public interface CsrfTokenRepository {
 	 * @param request the {@link HttpServletRequest} to use
 	 * @param response the {@link HttpServletResponse} to use
 	 */
-	void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response);
+	void saveToken(@Nullable CsrfToken token, HttpServletRequest request, HttpServletResponse response);
 
 	/**
 	 * Loads the expected {@link CsrfToken} from the {@link HttpServletRequest}
 	 * @param request the {@link HttpServletRequest} to use
 	 * @return the {@link CsrfToken} or null if none exists
 	 */
-	CsrfToken loadToken(HttpServletRequest request);
+	@Nullable CsrfToken loadToken(HttpServletRequest request);
 
 	/**
 	 * Defers loading the {@link CsrfToken} using the {@link HttpServletRequest} and

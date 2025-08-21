@@ -18,6 +18,7 @@ package org.springframework.security.web.server.authentication.ott;
 
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
@@ -58,7 +59,7 @@ public final class ServerOneTimeTokenAuthenticationConverter implements ServerAu
 		return Mono.just(OneTimeTokenAuthenticationToken.unauthenticated(token));
 	}
 
-	private String resolveTokenFromRequest(ServerHttpRequest request) {
+	private @Nullable String resolveTokenFromRequest(ServerHttpRequest request) {
 		List<String> parameterTokens = request.getQueryParams().get(TOKEN);
 		if (CollectionUtils.isEmpty(parameterTokens)) {
 			return null;

@@ -32,6 +32,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -60,9 +61,9 @@ public class WebXmlMappableAttributesRetriever
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	private ResourceLoader resourceLoader;
+	private @Nullable ResourceLoader resourceLoader;
 
-	private Set<String> mappableAttributes;
+	private Set<String> mappableAttributes = new HashSet<>();
 
 	@Override
 	public void setResourceLoader(ResourceLoader resourceLoader) {
@@ -81,6 +82,7 @@ public class WebXmlMappableAttributesRetriever
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
+		Assert.notNull(this.resourceLoader, "resourceLoader cannot be null");
 		Resource webXml = this.resourceLoader.getResource("/WEB-INF/web.xml");
 		Document doc = getDocument(webXml.getInputStream());
 		NodeList webApp = doc.getElementsByTagName("web-app");

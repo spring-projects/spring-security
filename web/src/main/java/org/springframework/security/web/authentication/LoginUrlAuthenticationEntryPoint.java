@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.log.LogMessage;
@@ -187,7 +188,8 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	 * Builds a URL to redirect the supplied request to HTTPS. Used to redirect the
 	 * current request to HTTPS, before doing a forward to the login page.
 	 */
-	protected String buildHttpsRedirectUrlForRequest(HttpServletRequest request) throws IOException, ServletException {
+	protected @Nullable String buildHttpsRedirectUrlForRequest(HttpServletRequest request)
+			throws IOException, ServletException {
 		int serverPort = this.portResolver.getServerPort(request);
 		Integer httpsPort = this.portMapper.lookupHttpsPort(serverPort);
 		if (httpsPort != null) {

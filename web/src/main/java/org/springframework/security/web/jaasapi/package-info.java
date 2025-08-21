@@ -20,4 +20,7 @@
  * To use, simply add the {@code JaasApiIntegrationFilter} to the Spring Security filter
  * chain.
  */
+@NullMarked
 package org.springframework.security.web.jaasapi;
+
+import org.jspecify.annotations.NullMarked;

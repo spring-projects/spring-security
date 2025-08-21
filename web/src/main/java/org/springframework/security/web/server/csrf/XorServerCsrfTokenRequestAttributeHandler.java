@@ -21,6 +21,7 @@ import java.util.Base64;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.log.LogMessage;
@@ -72,7 +73,7 @@ public final class XorServerCsrfTokenRequestAttributeHandler extends ServerCsrfT
 			.flatMap((actualToken) -> Mono.justOrEmpty(getTokenValue(actualToken, csrfToken.getToken())));
 	}
 
-	private static String getTokenValue(String actualToken, String token) {
+	private static @Nullable String getTokenValue(String actualToken, String token) {
 		byte[] actualBytes;
 		try {
 			actualBytes = Base64.getUrlDecoder().decode(actualToken);

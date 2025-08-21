@@ -18,6 +18,8 @@ package org.springframework.security.web.method.annotation;
 
 import java.lang.annotation.Annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.annotation.MergedAnnotations;
@@ -107,28 +109,27 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 
 	private boolean useAnnotationTemplate = false;
 
-	private BeanResolver beanResolver;
+	private @Nullable BeanResolver beanResolver;
 
 	@Override
-	public boolean supportsParameter(MethodParameter parameter) {
-		return findMethodAnnotation(parameter) != null;
-	}
-
-	@Override
-	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+	public @Nullable Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
+			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) {
 		Authentication authentication = this.securityContextHolderStrategy.getContext().getAuthentication();
 		if (authentication == null) {
 			return null;
 		}
 		Object principal = authentication.getPrincipal();
 		AuthenticationPrincipal annotation = findMethodAnnotation(parameter);
+		Assert.notNull(annotation, "@AuthenticationPrincipal is required. Call supportsParameter first.");
 		String expressionToParse = annotation.expression();
 		if (StringUtils.hasLength(expressionToParse)) {
 			StandardEvaluationContext context = new StandardEvaluationContext();
 			context.setRootObject(principal);
 			context.setVariable("this", principal);
-			context.setBeanResolver(this.beanResolver);
+			// https://github.com/spring-projects/spring-framework/issues/35371
+			if (this.beanResolver != null) {
+				context.setBeanResolver(this.beanResolver);
+			}
 			Expression expression = this.parser.parseExpression(expressionToParse);
 			principal = expression.getValue(context);
 		}
@@ -139,6 +140,11 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 			return null;
 		}
 		return principal;
+	}
+
+	@Override
+	public boolean supportsParameter(MethodParameter parameter) {
+		return findMethodAnnotation(parameter) != null;
 	}
 
 	/**
@@ -181,7 +187,7 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 	 * @return the {@link Annotation} that was found or null.
 	 */
 	@SuppressWarnings("unchecked")
-	private AuthenticationPrincipal findMethodAnnotation(MethodParameter parameter) {
+	private @Nullable AuthenticationPrincipal findMethodAnnotation(MethodParameter parameter) {
 		if (this.useAnnotationTemplate) {
 			return this.scanner.scan(parameter.getParameter());
 		}

@@ -18,6 +18,7 @@ package org.springframework.security.web.server.context;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.log.LogMessage;
@@ -69,7 +70,7 @@ public class WebSessionServerSecurityContextRepository implements ServerSecurity
 	}
 
 	@Override
-	public Mono<Void> save(ServerWebExchange exchange, SecurityContext context) {
+	public Mono<Void> save(ServerWebExchange exchange, @Nullable SecurityContext context) {
 		return exchange.getSession().doOnNext((session) -> {
 			if (context == null) {
 				session.getAttributes().remove(this.springSecurityContextAttrName);

@@ -17,6 +17,7 @@
 package org.springframework.security.web.authentication.preauth;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.util.Assert;
 
@@ -46,7 +47,7 @@ public class RequestAttributeAuthenticationFilter extends AbstractPreAuthenticat
 
 	private String principalEnvironmentVariable = "REMOTE_USER";
 
-	private String credentialsEnvironmentVariable;
+	private @Nullable String credentialsEnvironmentVariable;
 
 	private boolean exceptionIfVariableMissing = true;
 

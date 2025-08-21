@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.server.context;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.context.SecurityContext;
@@ -36,7 +37,7 @@ public final class NoOpServerSecurityContextRepository implements ServerSecurity
 	}
 
 	@Override
-	public Mono<Void> save(ServerWebExchange exchange, SecurityContext context) {
+	public Mono<Void> save(ServerWebExchange exchange, @Nullable SecurityContext context) {
 		return Mono.empty();
 	}
 

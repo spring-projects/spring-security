@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.server.header;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.util.Assert;
@@ -34,7 +35,7 @@ public final class CrossOriginEmbedderPolicyServerHttpHeadersWriter implements S
 
 	public static final String EMBEDDER_POLICY = "Cross-Origin-Embedder-Policy";
 
-	private ServerHttpHeadersWriter delegate;
+	private @Nullable ServerHttpHeadersWriter delegate;
 
 	/**
 	 * Sets the {@link CrossOriginEmbedderPolicy} value to be used in the

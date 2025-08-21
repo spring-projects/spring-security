@@ -19,6 +19,7 @@ package org.springframework.security.web.authentication;
 import java.util.List;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
@@ -46,7 +47,7 @@ public final class DelegatingAuthenticationConverter implements AuthenticationCo
 	}
 
 	@Override
-	public Authentication convert(HttpServletRequest request) {
+	public @Nullable Authentication convert(HttpServletRequest request) {
 		for (AuthenticationConverter delegate : this.delegates) {
 			Authentication authentication = delegate.convert(request);
 			if (authentication != null) {

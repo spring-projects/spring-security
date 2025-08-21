@@ -21,4 +21,7 @@
  * "https://docs.spring.io/spring-security/site/docs/3.0.x/reference/remember-me.html">Remember-Me
  * Authentication</a> chapter of the reference manual.
  */
+@NullMarked
 package org.springframework.security.web.authentication.rememberme;
+
+import org.jspecify.annotations.NullMarked;

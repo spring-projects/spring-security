@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.io.buffer.DataBuffer;
@@ -55,7 +56,7 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 
 	private boolean oneTimeTokenEnabled = false;
 
-	private String generateOneTimeTokenUrl;
+	private @Nullable String generateOneTimeTokenUrl;
 
 	/**
 	 * Specifies the URL that a One-Time Token generate request will be processed.

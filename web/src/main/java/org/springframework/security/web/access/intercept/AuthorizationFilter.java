@@ -26,6 +26,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -202,7 +203,7 @@ public class AuthorizationFilter extends GenericFilterBean {
 
 		@Override
 		public <T> void publishAuthorizationEvent(Supplier<Authentication> authentication, T object,
-				AuthorizationResult result) {
+				@Nullable AuthorizationResult result) {
 		}
 
 	}

@@ -19,4 +19,7 @@
  * the servlet container through the {@code jakarta.servlet.request.X509Certificate}
  * property.
  */
+@NullMarked
 package org.springframework.security.web.authentication.preauth.x509;
+
+import org.jspecify.annotations.NullMarked;

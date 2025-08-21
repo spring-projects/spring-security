@@ -23,6 +23,7 @@ import java.util.Date;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.Authentication;
@@ -156,7 +157,8 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
 	}
 
 	@Override
-	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+	public void logout(HttpServletRequest request, HttpServletResponse response,
+			@Nullable Authentication authentication) {
 		super.logout(request, response, authentication);
 		if (authentication != null) {
 			this.tokenRepository.removeUserTokens(authentication.getName());

@@ -109,7 +109,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 		createFids("/somepage**", HttpMethod.GET);
 		FilterInvocation fi = createFilterInvocation("/somepage", null, null, "POST");
 		Collection<ConfigAttribute> attrs = this.fids.getAttributes(fi);
-		assertThat(attrs).isNull();
+		assertThat(attrs).isEmpty();
 	}
 
 	// SEC-1236

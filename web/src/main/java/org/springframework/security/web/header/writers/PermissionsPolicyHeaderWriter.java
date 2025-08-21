@@ -18,6 +18,7 @@ package org.springframework.security.web.header.writers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.util.Assert;
@@ -39,7 +40,7 @@ public final class PermissionsPolicyHeaderWriter implements HeaderWriter {
 
 	private static final String PERMISSIONS_POLICY_HEADER = "Permissions-Policy";
 
-	private String policy;
+	private @Nullable String policy;
 
 	/**
 	 * Create a new instance of {@link PermissionsPolicyHeaderWriter}.

@@ -17,4 +17,7 @@
 /**
  * Session management filters, {@code HttpSession} events and publisher classes.
  */
+@NullMarked
 package org.springframework.security.web.session;
+
+import org.jspecify.annotations.NullMarked;

@@ -18,6 +18,7 @@ package org.springframework.security.authentication;
 
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.lang.Contract;
 import org.springframework.security.core.Authentication;
 
 /**
@@ -80,6 +81,7 @@ public interface AuthenticationTrustResolver {
 	 * {@link Authentication#isAuthenticated()} is true.
 	 * @since 6.1.7
 	 */
+	@Contract("null -> false")
 	default boolean isAuthenticated(@Nullable Authentication authentication) {
 		return authentication != null && authentication.isAuthenticated() && !isAnonymous(authentication);
 	}

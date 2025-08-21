@@ -18,6 +18,7 @@ package org.springframework.security.web.authentication;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.Authentication;
 
@@ -32,7 +33,7 @@ import org.springframework.security.core.Authentication;
 public class NullRememberMeServices implements RememberMeServices {
 
 	@Override
-	public Authentication autoLogin(HttpServletRequest request, HttpServletResponse response) {
+	public @Nullable Authentication autoLogin(HttpServletRequest request, HttpServletResponse response) {
 		return null;
 	}
 

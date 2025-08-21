@@ -52,6 +52,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource implements
 	/**
 	 * The role attributes returned by the configured {@code MappableAttributesRetriever}
 	 */
+	@SuppressWarnings("NullAway.Init")
 	protected Set<String> j2eeMappableRoles;
 
 	protected Attributes2GrantedAuthoritiesMapper j2eeUserRoles2GrantedAuthoritiesMapper = new SimpleAttributes2GrantedAuthoritiesMapper();

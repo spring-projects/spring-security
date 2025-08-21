@@ -26,6 +26,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
@@ -76,13 +77,14 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 
 	private String rolePrefix = "ROLE_";
 
+	@SuppressWarnings("NullAway.Init")
 	private HttpServletRequestFactory requestFactory;
 
-	private AuthenticationEntryPoint authenticationEntryPoint;
+	private @Nullable AuthenticationEntryPoint authenticationEntryPoint;
 
-	private AuthenticationManager authenticationManager;
+	private @Nullable AuthenticationManager authenticationManager;
 
-	private List<LogoutHandler> logoutHandlers;
+	private @Nullable List<LogoutHandler> logoutHandlers;
 
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 

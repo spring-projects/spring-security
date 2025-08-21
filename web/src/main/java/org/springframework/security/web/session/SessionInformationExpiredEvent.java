@@ -19,6 +19,7 @@ package org.springframework.security.web.session;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.context.ApplicationEvent;
 import org.springframework.security.core.session.SessionInformation;
@@ -37,7 +38,7 @@ public final class SessionInformationExpiredEvent extends ApplicationEvent {
 
 	private final HttpServletResponse response;
 
-	private final FilterChain filterChain;
+	private final @Nullable FilterChain filterChain;
 
 	/**
 	 * Creates a new instance
@@ -59,7 +60,7 @@ public final class SessionInformationExpiredEvent extends ApplicationEvent {
 	 * @since 6.4
 	 */
 	public SessionInformationExpiredEvent(SessionInformation sessionInformation, HttpServletRequest request,
-			HttpServletResponse response, FilterChain filterChain) {
+			HttpServletResponse response, @Nullable FilterChain filterChain) {
 		super(sessionInformation);
 		Assert.notNull(request, "request cannot be null");
 		Assert.notNull(response, "response cannot be null");
@@ -90,7 +91,7 @@ public final class SessionInformationExpiredEvent extends ApplicationEvent {
 	 * @return the filter chain. Can be {@code null}.
 	 * @since 6.4
 	 */
-	public FilterChain getFilterChain() {
+	public @Nullable FilterChain getFilterChain() {
 		return this.filterChain;
 	}
 

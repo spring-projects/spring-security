@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.Authentication;
@@ -62,7 +63,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
-	private String targetUrlParameter = null;
+	private @Nullable String targetUrlParameter = null;
 
 	private String defaultTargetUrl = "/";
 
@@ -81,8 +82,8 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 	 * <p>
 	 * The redirect will not be performed if the response has already been committed.
 	 */
-	protected void handle(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
-			throws IOException, ServletException {
+	protected void handle(HttpServletRequest request, HttpServletResponse response,
+			@Nullable Authentication authentication) throws IOException, ServletException {
 		String targetUrl = determineTargetUrl(request, response, authentication);
 		if (response.isCommitted()) {
 			this.logger.debug(LogMessage.format("Did not redirect to %s since response already committed.", targetUrl));
@@ -96,7 +97,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 	 * @since 5.2
 	 */
 	protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication) {
+			@Nullable Authentication authentication) {
 		return determineTargetUrl(request, response);
 	}
 
@@ -119,7 +120,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 		return this.defaultTargetUrl;
 	}
 
-	private String getTargetUrlParameterValue(HttpServletRequest request) {
+	private @Nullable String getTargetUrlParameterValue(HttpServletRequest request) {
 		if (this.targetUrlParameter == null) {
 			return null;
 		}
@@ -133,7 +134,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 		return this.defaultTargetUrl;
 	}
 
-	private void trace(String msg, String... msgParts) {
+	private void trace(String msg, @Nullable String... msgParts) {
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace(LogMessage.format(msg, msgParts));
 		}
@@ -189,7 +190,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 		this.targetUrlParameter = targetUrlParameter;
 	}
 
-	protected String getTargetUrlParameter() {
+	protected @Nullable String getTargetUrlParameter() {
 		return this.targetUrlParameter;
 	}
 

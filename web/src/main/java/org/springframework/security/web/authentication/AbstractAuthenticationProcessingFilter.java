@@ -24,6 +24,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
@@ -120,7 +121,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
-	protected ApplicationEventPublisher eventPublisher;
+	@Nullable protected ApplicationEventPublisher eventPublisher;
 
 	protected AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
@@ -129,6 +130,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 				"Please either configure an AuthenticationConverter or override attemptAuthentication when extending AbstractAuthenticationProcessingFilter");
 	};
 
+	@SuppressWarnings("NullAway.Init")
 	private AuthenticationManager authenticationManager;
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
@@ -155,7 +157,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 * @param defaultFilterProcessesUrl the default value for <tt>filterProcessesUrl</tt>.
 	 */
 	protected AbstractAuthenticationProcessingFilter(String defaultFilterProcessesUrl) {
-		setFilterProcessesUrl(defaultFilterProcessesUrl);
+		this(pathPattern(defaultFilterProcessesUrl));
 	}
 
 	/**
@@ -177,7 +179,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 */
 	protected AbstractAuthenticationProcessingFilter(String defaultFilterProcessesUrl,
 			AuthenticationManager authenticationManager) {
-		setFilterProcessesUrl(defaultFilterProcessesUrl);
+		this(pathPattern(defaultFilterProcessesUrl));
 		setAuthenticationManager(authenticationManager);
 	}
 
@@ -305,7 +307,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 * @return the authenticated user token, or null if authentication is incomplete.
 	 * @throws AuthenticationException if authentication fails.
 	 */
-	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+	public @Nullable Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException, IOException, ServletException {
 		Authentication authentication = this.authenticationConverter.convert(request);
 		if (authentication == null) {

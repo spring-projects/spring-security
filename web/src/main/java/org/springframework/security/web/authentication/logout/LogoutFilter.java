@@ -69,6 +69,7 @@ public class LogoutFilter extends GenericFilterBean {
 	 * intended to perform the actual logout functionality (such as clearing the security
 	 * context, invalidating the session, etc.).
 	 */
+	@SuppressWarnings("NullAway") // Dataflow analysis limitation
 	public LogoutFilter(LogoutSuccessHandler logoutSuccessHandler, LogoutHandler... handlers) {
 		this.handler = new CompositeLogoutHandler(handlers);
 		Assert.notNull(logoutSuccessHandler, "logoutSuccessHandler cannot be null");
@@ -76,6 +77,7 @@ public class LogoutFilter extends GenericFilterBean {
 		setFilterProcessesUrl("/logout");
 	}
 
+	@SuppressWarnings("NullAway") // Dataflow analysis limitation
 	public LogoutFilter(String logoutSuccessUrl, LogoutHandler... handlers) {
 		this.handler = new CompositeLogoutHandler(handlers);
 		Assert.isTrue(!StringUtils.hasLength(logoutSuccessUrl) || UrlUtils.isValidRedirectUrl(logoutSuccessUrl),

@@ -24,4 +24,7 @@
  * <li>Controlling the number of sessions an authenticated user can have open</li>
  * </ul>
  */
+@NullMarked
 package org.springframework.security.web.authentication.session;
+
+import org.jspecify.annotations.NullMarked;

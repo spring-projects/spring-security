@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.server.context;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.context.SecurityContext;
@@ -36,7 +37,7 @@ public interface ServerSecurityContextRepository {
 	 * @param context the SecurityContext to save
 	 * @return a completion notification (success or error)
 	 */
-	Mono<Void> save(ServerWebExchange exchange, SecurityContext context);
+	Mono<Void> save(ServerWebExchange exchange, @Nullable SecurityContext context);
 
 	/**
 	 * Loads the SecurityContext associated with the {@link ServerWebExchange}

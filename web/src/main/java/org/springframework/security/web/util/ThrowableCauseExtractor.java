@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.util;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Interface for handlers extracting the cause out of a specific {@link Throwable} type.
  *
@@ -32,6 +34,6 @@ public interface ThrowableCauseExtractor {
 	 * @throws IllegalArgumentException if <code>throwable</code> is <code>null</code> or
 	 * otherwise considered invalid for the implementation
 	 */
-	Throwable extractCause(Throwable throwable);
+	@Nullable Throwable extractCause(Throwable throwable);
 
 }

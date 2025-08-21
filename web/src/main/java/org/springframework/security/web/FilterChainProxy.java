@@ -30,6 +30,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -164,6 +165,7 @@ public class FilterChainProxy extends GenericFilterBean {
 	private FilterChainDecorator filterChainDecorator = new VirtualFilterChainDecorator();
 
 	public FilterChainProxy() {
+		this(Collections.emptyList());
 	}
 
 	public FilterChainProxy(SecurityFilterChain chain) {
@@ -171,6 +173,7 @@ public class FilterChainProxy extends GenericFilterBean {
 	}
 
 	public FilterChainProxy(List<SecurityFilterChain> filterChains) {
+		Assert.notNull(filterChains, "filterChains cannot be null");
 		this.filterChains = filterChains;
 	}
 
@@ -239,7 +242,7 @@ public class FilterChainProxy extends GenericFilterBean {
 	 * @param request the request to match
 	 * @return an ordered array of Filters defining the filter chain
 	 */
-	private List<Filter> getFilters(HttpServletRequest request) {
+	private @Nullable List<Filter> getFilters(HttpServletRequest request) {
 		int count = 0;
 		for (SecurityFilterChain chain : this.filterChains) {
 			if (logger.isTraceEnabled()) {
@@ -258,7 +261,7 @@ public class FilterChainProxy extends GenericFilterBean {
 	 * @param url the URL
 	 * @return matching filter list
 	 */
-	public List<Filter> getFilters(String url) {
+	public @Nullable List<Filter> getFilters(String url) {
 		PathPatternRequestTransformer requestTransformer = new PathPatternRequestTransformer();
 		HttpServletRequest transformed = requestTransformer.transform(new FilterInvocation(url, "GET").getRequest());
 		return getFilters(this.firewall.getFirewalledRequest(transformed));

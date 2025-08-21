@@ -25,6 +25,7 @@ import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
 import org.springframework.security.authentication.password.CompromisedPasswordDecision;
@@ -60,7 +61,7 @@ public final class HaveIBeenPwnedRestApiPasswordChecker implements CompromisedPa
 	}
 
 	@Override
-	public CompromisedPasswordDecision check(String password) {
+	public CompromisedPasswordDecision check(@Nullable String password) {
 		if (password == null) {
 			return new CompromisedPasswordDecision(false);
 		}

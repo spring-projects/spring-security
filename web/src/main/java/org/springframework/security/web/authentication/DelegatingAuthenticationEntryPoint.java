@@ -66,6 +66,7 @@ public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPo
 
 	private final LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints;
 
+	@SuppressWarnings("NullAway.Init")
 	private AuthenticationEntryPoint defaultEntryPoint;
 
 	public DelegatingAuthenticationEntryPoint(LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints) {

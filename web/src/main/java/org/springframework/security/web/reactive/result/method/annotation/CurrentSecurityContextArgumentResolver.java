@@ -18,6 +18,7 @@ package org.springframework.security.web.reactive.result.method.annotation;
 
 import java.lang.annotation.Annotation;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
@@ -62,7 +63,7 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 
 	private boolean useAnnotationTemplate = false;
 
-	private BeanResolver beanResolver;
+	private @Nullable BeanResolver beanResolver;
 
 	public CurrentSecurityContextArgumentResolver(ReactiveAdapterRegistry adapterRegistry) {
 		super(adapterRegistry);
@@ -115,7 +116,7 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 		ReactiveAdapter adapter = getAdapterRegistry().getAdapter(parameter.getParameterType());
 		Mono<SecurityContext> reactiveSecurityContext = ReactiveSecurityContextHolder.getContext();
 		if (reactiveSecurityContext == null) {
-			return null;
+			return Mono.empty();
 		}
 		return reactiveSecurityContext.flatMap((securityContext) -> {
 			Mono<Object> resolvedSecurityContext = Mono.justOrEmpty(resolveSecurityContext(parameter, securityContext));
@@ -132,7 +133,7 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 	 * @param securityContext the security context.
 	 * @return the resolved object from expression.
 	 */
-	private Object resolveSecurityContext(MethodParameter parameter, SecurityContext securityContext) {
+	private @Nullable Object resolveSecurityContext(MethodParameter parameter, SecurityContext securityContext) {
 		CurrentSecurityContext annotation = findMethodAnnotation(parameter);
 		if (annotation != null) {
 			return resolveSecurityContextFromAnnotation(annotation, parameter, securityContext);
@@ -140,8 +141,9 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 		return securityContext;
 	}
 
-	private Object resolveSecurityContextFromAnnotation(CurrentSecurityContext annotation, MethodParameter parameter,
-			Object securityContext) {
+	@SuppressWarnings("NullAway") // https://github.com/spring-projects/spring-framework/issues/35371
+	private @Nullable Object resolveSecurityContextFromAnnotation(CurrentSecurityContext annotation,
+			MethodParameter parameter, Object securityContext) {
 		Object securityContextResult = securityContext;
 		String expressionToParse = annotation.expression();
 		if (StringUtils.hasLength(expressionToParse)) {
@@ -168,7 +170,7 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 	 * @param reactiveSecurityContext the security context.
 	 * @return true = is not invalid type.
 	 */
-	private boolean isInvalidType(MethodParameter parameter, Object reactiveSecurityContext) {
+	private boolean isInvalidType(MethodParameter parameter, @Nullable Object reactiveSecurityContext) {
 		if (reactiveSecurityContext == null) {
 			return false;
 		}
@@ -190,7 +192,7 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 	 * @param parameter the {@link MethodParameter} to search for an {@link Annotation}
 	 * @return the {@link Annotation} that was found or null.
 	 */
-	private CurrentSecurityContext findMethodAnnotation(MethodParameter parameter) {
+	private @Nullable CurrentSecurityContext findMethodAnnotation(MethodParameter parameter) {
 		if (this.useAnnotationTemplate) {
 			return this.scanner.scan(parameter.getParameter());
 		}

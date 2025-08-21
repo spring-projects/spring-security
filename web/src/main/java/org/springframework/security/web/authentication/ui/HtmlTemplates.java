@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.HtmlUtils;
 
@@ -57,8 +59,10 @@ final class HtmlTemplates {
 		 * @param value the value to inject
 		 * @return this instance for further templating
 		 */
-		Builder withValue(String key, String value) {
-			this.values.put(key, HtmlUtils.htmlEscape(value));
+		Builder withValue(String key, @Nullable String value) {
+			if (value != null) {
+				this.values.put(key, HtmlUtils.htmlEscape(value));
+			}
 			return this;
 		}
 

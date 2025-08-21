@@ -21,6 +21,7 @@ import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.Authentication;
 
@@ -37,7 +38,7 @@ import org.springframework.security.core.Authentication;
  */
 public interface LogoutSuccessHandler {
 
-	void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
-			throws IOException, ServletException;
+	void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
+			@Nullable Authentication authentication) throws IOException, ServletException;
 
 }

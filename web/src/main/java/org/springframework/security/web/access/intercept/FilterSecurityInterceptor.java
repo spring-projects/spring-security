@@ -24,6 +24,7 @@ import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
@@ -48,7 +49,7 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 
 	private static final String FILTER_APPLIED = "__spring_security_filterSecurityInterceptor_filterApplied";
 
-	private FilterInvocationSecurityMetadataSource securityMetadataSource;
+	private @Nullable FilterInvocationSecurityMetadataSource securityMetadataSource;
 
 	private boolean observeOncePerRequest = false;
 
@@ -83,12 +84,12 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 		invoke(new FilterInvocation(request, response, chain));
 	}
 
-	public FilterInvocationSecurityMetadataSource getSecurityMetadataSource() {
+	public @Nullable FilterInvocationSecurityMetadataSource getSecurityMetadataSource() {
 		return this.securityMetadataSource;
 	}
 
 	@Override
-	public SecurityMetadataSource obtainSecurityMetadataSource() {
+	public @Nullable SecurityMetadataSource obtainSecurityMetadataSource() {
 		return this.securityMetadataSource;
 	}
 

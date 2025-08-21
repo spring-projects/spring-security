@@ -39,7 +39,7 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 
 	private static final long serialVersionUID = 620L;
 
-	private final Object principal;
+	private final @Nullable Object principal;
 
 	private @Nullable Object credentials;
 
@@ -49,7 +49,7 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 	 * will return <code>false</code>.
 	 *
 	 */
-	public UsernamePasswordAuthenticationToken(Object principal, @Nullable Object credentials) {
+	public UsernamePasswordAuthenticationToken(@Nullable Object principal, @Nullable Object credentials) {
 		super(null);
 		this.principal = principal;
 		this.credentials = credentials;
@@ -82,7 +82,8 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 	 *
 	 * @since 5.7
 	 */
-	public static UsernamePasswordAuthenticationToken unauthenticated(Object principal, @Nullable Object credentials) {
+	public static UsernamePasswordAuthenticationToken unauthenticated(@Nullable Object principal,
+			@Nullable Object credentials) {
 		return new UsernamePasswordAuthenticationToken(principal, credentials);
 	}
 
@@ -106,7 +107,7 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 	}
 
 	@Override
-	public Object getPrincipal() {
+	public @Nullable Object getPrincipal() {
 		return this.principal;
 	}
 

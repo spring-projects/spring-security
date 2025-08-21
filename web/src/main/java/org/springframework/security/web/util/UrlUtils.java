@@ -20,6 +20,7 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provides static methods for composing URLs.
@@ -49,7 +50,7 @@ public final class UrlUtils {
 	 * @return the full URL, suitable for redirects (not decoded).
 	 */
 	public static String buildFullRequestUrl(String scheme, String serverName, int serverPort, String requestURI,
-			String queryString) {
+			@Nullable String queryString) {
 		scheme = scheme.toLowerCase(Locale.ENGLISH);
 		StringBuilder url = new StringBuilder();
 		url.append(scheme).append("://").append(serverName);

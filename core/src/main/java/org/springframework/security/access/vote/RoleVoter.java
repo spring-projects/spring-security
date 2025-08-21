@@ -18,6 +18,8 @@ package org.springframework.security.access.vote;
 
 import java.util.Collection;
 
+import org.jspecify.annotations.NullUnmarked;
+
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
@@ -53,6 +55,7 @@ import org.springframework.security.core.GrantedAuthority;
  * instead
  */
 @Deprecated
+@NullUnmarked
 public class RoleVoter implements AccessDecisionVoter<Object> {
 
 	private String rolePrefix = "ROLE_";

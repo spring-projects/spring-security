@@ -27,6 +27,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.ConfigAttribute;
@@ -88,8 +89,10 @@ import org.springframework.web.filter.GenericFilterBean;
 @Deprecated
 public class ChannelProcessingFilter extends GenericFilterBean {
 
+	@SuppressWarnings("NullAway.Init")
 	private ChannelDecisionManager channelDecisionManager;
 
+	@SuppressWarnings("NullAway.Init")
 	private FilterInvocationSecurityMetadataSource securityMetadataSource;
 
 	@Override
@@ -128,14 +131,16 @@ public class ChannelProcessingFilter extends GenericFilterBean {
 		if (attributes != null) {
 			this.logger.debug(LogMessage.format("Request: %s; ConfigAttributes: %s", filterInvocation, attributes));
 			this.channelDecisionManager.decide(filterInvocation, attributes);
-			if (filterInvocation.getResponse().isCommitted()) {
+			@Nullable HttpServletResponse channelResponse = filterInvocation.getResponse();
+			Assert.notNull(channelResponse, "HttpServletResponse is required");
+			if (channelResponse.isCommitted()) {
 				return;
 			}
 		}
 		chain.doFilter(request, response);
 	}
 
-	protected ChannelDecisionManager getChannelDecisionManager() {
+	protected @Nullable ChannelDecisionManager getChannelDecisionManager() {
 		return this.channelDecisionManager;
 	}
 

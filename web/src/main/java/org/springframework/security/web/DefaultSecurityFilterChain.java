@@ -24,6 +24,7 @@ import jakarta.servlet.Filter;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
@@ -51,9 +52,9 @@ public final class DefaultSecurityFilterChain implements SecurityFilterChain, Be
 
 	private final List<Filter> filters;
 
-	private String beanName;
+	private @Nullable String beanName;
 
-	private ConfigurableListableBeanFactory beanFactory;
+	private @Nullable ConfigurableListableBeanFactory beanFactory;
 
 	public DefaultSecurityFilterChain(RequestMatcher requestMatcher, Filter... filters) {
 		this(requestMatcher, Arrays.asList(filters));

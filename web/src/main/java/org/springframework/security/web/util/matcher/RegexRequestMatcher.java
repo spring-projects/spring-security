@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpMethod;
@@ -51,7 +52,7 @@ public final class RegexRequestMatcher implements RequestMatcher {
 
 	private final Pattern pattern;
 
-	private final HttpMethod httpMethod;
+	private final @Nullable HttpMethod httpMethod;
 
 	/**
 	 * Creates a case-sensitive {@code Pattern} instance to match against the request.
@@ -90,7 +91,7 @@ public final class RegexRequestMatcher implements RequestMatcher {
 	 * @param pattern the regular expression to compile into a pattern.
 	 * @param httpMethod the HTTP method to match. May be null to match all methods.
 	 */
-	public RegexRequestMatcher(String pattern, String httpMethod) {
+	public RegexRequestMatcher(String pattern, @Nullable String httpMethod) {
 		this(pattern, httpMethod, false);
 	}
 
@@ -101,7 +102,7 @@ public final class RegexRequestMatcher implements RequestMatcher {
 	 * @param caseInsensitive if true, the pattern will be compiled with the
 	 * {@link Pattern#CASE_INSENSITIVE} flag set.
 	 */
-	public RegexRequestMatcher(String pattern, String httpMethod, boolean caseInsensitive) {
+	public RegexRequestMatcher(String pattern, @Nullable String httpMethod, boolean caseInsensitive) {
 		this.pattern = Pattern.compile(pattern, caseInsensitive ? CASE_INSENSITIVE : DEFAULT);
 		this.httpMethod = StringUtils.hasText(httpMethod) ? HttpMethod.valueOf(httpMethod) : null;
 	}

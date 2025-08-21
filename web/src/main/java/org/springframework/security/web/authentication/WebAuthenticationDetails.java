@@ -21,6 +21,7 @@ import java.util.Objects;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A holder of selected HTTP details related to a web authentication request.
@@ -34,7 +35,7 @@ public class WebAuthenticationDetails implements Serializable {
 
 	private final String remoteAddress;
 
-	private final String sessionId;
+	private final @Nullable String sessionId;
 
 	/**
 	 * Records the remote address and will also set the session Id if a session already
@@ -51,12 +52,12 @@ public class WebAuthenticationDetails implements Serializable {
 	 * @param sessionId session id
 	 * @since 5.7
 	 */
-	public WebAuthenticationDetails(String remoteAddress, String sessionId) {
+	public WebAuthenticationDetails(String remoteAddress, @Nullable String sessionId) {
 		this.remoteAddress = remoteAddress;
 		this.sessionId = sessionId;
 	}
 
-	private static String extractSessionId(HttpServletRequest request) {
+	private static @Nullable String extractSessionId(HttpServletRequest request) {
 		HttpSession session = request.getSession(false);
 		return (session != null) ? session.getId() : null;
 	}
@@ -74,7 +75,7 @@ public class WebAuthenticationDetails implements Serializable {
 	 * from.
 	 * @return the session ID
 	 */
-	public String getSessionId() {
+	public @Nullable String getSessionId() {
 		return this.sessionId;
 	}
 

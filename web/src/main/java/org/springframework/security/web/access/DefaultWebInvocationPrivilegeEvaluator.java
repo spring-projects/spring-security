@@ -21,6 +21,7 @@ import java.util.Collection;
 import jakarta.servlet.ServletContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
@@ -46,7 +47,7 @@ public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPriv
 
 	private final AbstractSecurityInterceptor securityInterceptor;
 
-	private ServletContext servletContext;
+	private @Nullable ServletContext servletContext;
 
 	public DefaultWebInvocationPrivilegeEvaluator(AbstractSecurityInterceptor securityInterceptor) {
 		Assert.notNull(securityInterceptor, "SecurityInterceptor cannot be null");
@@ -86,7 +87,8 @@ public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPriv
 	 * @return true if access is allowed, false if denied
 	 */
 	@Override
-	public boolean isAllowed(String contextPath, String uri, String method, Authentication authentication) {
+	public boolean isAllowed(@Nullable String contextPath, String uri, @Nullable String method,
+			Authentication authentication) {
 		Assert.notNull(uri, "uri parameter is required");
 		FilterInvocation filterInvocation = new FilterInvocation(contextPath, uri, method, this.servletContext);
 		Collection<ConfigAttribute> attributes = this.securityInterceptor.obtainSecurityMetadataSource()

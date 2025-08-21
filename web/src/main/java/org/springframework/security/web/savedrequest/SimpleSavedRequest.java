@@ -52,6 +52,8 @@ public class SimpleSavedRequest implements SavedRequest {
 	private Map<String, String[]> parameters = new HashMap<>();
 
 	public SimpleSavedRequest() {
+		this.redirectUrl = "/";
+		this.method = "GET";
 	}
 
 	public SimpleSavedRequest(String redirectUrl) {

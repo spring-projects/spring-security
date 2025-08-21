@@ -19,6 +19,7 @@ package org.springframework.security.web.server.csrf;
 import java.util.Map;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -54,13 +55,13 @@ public class WebSessionServerCsrfTokenRepository implements ServerCsrfTokenRepos
 	}
 
 	@Override
-	public Mono<Void> saveToken(ServerWebExchange exchange, CsrfToken token) {
+	public Mono<Void> saveToken(ServerWebExchange exchange, @Nullable CsrfToken token) {
 		return exchange.getSession()
 			.doOnNext((session) -> putToken(session.getAttributes(), token))
 			.flatMap((session) -> session.changeSessionId());
 	}
 
-	private void putToken(Map<String, Object> attributes, CsrfToken token) {
+	private void putToken(Map<String, Object> attributes, @Nullable CsrfToken token) {
 		if (token == null) {
 			attributes.remove(this.sessionAttributeName);
 		}

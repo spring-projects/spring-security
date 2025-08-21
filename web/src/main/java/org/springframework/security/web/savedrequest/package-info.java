@@ -21,4 +21,7 @@
  * authenticated, the original request is restored following a redirect to a matching URL,
  * and the {@code RequestCache} is queried to obtain the original (matching) request.
  */
+@NullMarked
 package org.springframework.security.web.savedrequest;
+
+import org.jspecify.annotations.NullMarked;

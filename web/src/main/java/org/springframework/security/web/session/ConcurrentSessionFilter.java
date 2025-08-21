@@ -26,6 +26,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.Authentication;
@@ -33,6 +34,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.logout.CompositeLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -73,9 +75,9 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 
 	private final SessionRegistry sessionRegistry;
 
-	private String expiredUrl;
+	private @Nullable String expiredUrl;
 
-	private RedirectStrategy redirectStrategy;
+	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	private LogoutHandler handlers = new CompositeLogoutHandler(new SecurityContextLogoutHandler());
 
@@ -162,6 +164,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 	 */
 	@Deprecated
 	protected String determineExpiredUrl(HttpServletRequest request, SessionInformation info) {
+		Assert.notNull(this.expiredUrl, "expiredUrl cannot be null");
 		return this.expiredUrl;
 	}
 
@@ -205,6 +208,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 	 */
 	@Deprecated
 	public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
+		Assert.notNull(redirectStrategy, "redirectStrategy cannot be null");
 		this.redirectStrategy = redirectStrategy;
 	}
 

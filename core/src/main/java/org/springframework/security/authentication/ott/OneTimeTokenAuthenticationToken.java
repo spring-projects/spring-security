@@ -71,8 +71,8 @@ public class OneTimeTokenAuthenticationToken extends AbstractAuthenticationToken
 	 * @deprecated Please use constructor that takes a {@link String} instead
 	 */
 	@Deprecated(forRemoval = true, since = "7.0")
-	public static OneTimeTokenAuthenticationToken unauthenticated(String tokenValue) {
-		return new OneTimeTokenAuthenticationToken(null, tokenValue);
+	public static OneTimeTokenAuthenticationToken unauthenticated(@Nullable String tokenValue) {
+		return new OneTimeTokenAuthenticationToken(null, (tokenValue != null) ? tokenValue : "");
 	}
 
 	/**

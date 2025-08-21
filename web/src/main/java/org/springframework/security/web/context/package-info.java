@@ -18,4 +18,7 @@
  * Classes which are responsible for maintaining the security context between HTTP
  * requests.
  */
+@NullMarked
 package org.springframework.security.web.context;
+
+import org.jspecify.annotations.NullMarked;

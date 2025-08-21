@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -166,7 +168,7 @@ public class ThrowableAnalyzer {
 	 * @param throwable the <code>Throwable</code> (not <code>null</code>
 	 * @return the cause, may be <code>null</code> if none could be resolved
 	 */
-	private Throwable extractCause(Throwable throwable) {
+	private @Nullable Throwable extractCause(Throwable throwable) {
 		for (Map.Entry<Class<? extends Throwable>, ThrowableCauseExtractor> entry : this.extractorMap.entrySet()) {
 			Class<? extends Throwable> throwableType = entry.getKey();
 			if (throwableType.isInstance(throwable)) {
@@ -188,7 +190,8 @@ public class ThrowableAnalyzer {
 	 * @throws IllegalArgumentException if the provided type is <code>null</code> or no
 	 * subclass of <code>Throwable</code>
 	 */
-	public final Throwable getFirstThrowableOfType(Class<? extends Throwable> throwableType, Throwable[] chain) {
+	public final @Nullable Throwable getFirstThrowableOfType(Class<? extends Throwable> throwableType,
+			Throwable[] chain) {
 		if (chain != null) {
 			for (Throwable t : chain) {
 				if ((t != null) && throwableType.isInstance(t)) {

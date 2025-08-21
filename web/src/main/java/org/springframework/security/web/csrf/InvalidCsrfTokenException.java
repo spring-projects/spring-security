@@ -19,6 +19,7 @@ package org.springframework.security.web.csrf;
 import java.io.Serial;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Thrown when an expected {@link CsrfToken} exists, but it does not match the value
@@ -36,7 +37,7 @@ public class InvalidCsrfTokenException extends CsrfException {
 	 * @param expectedAccessToken
 	 * @param actualAccessToken
 	 */
-	public InvalidCsrfTokenException(CsrfToken expectedAccessToken, String actualAccessToken) {
+	public InvalidCsrfTokenException(CsrfToken expectedAccessToken, @Nullable String actualAccessToken) {
 		super("Invalid CSRF Token '" + actualAccessToken + "' was found on the request parameter '"
 				+ expectedAccessToken.getParameterName() + "' or header '" + expectedAccessToken.getHeaderName()
 				+ "'.");

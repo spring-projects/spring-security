@@ -132,8 +132,8 @@ class RequiresChannelDslTests {
 
         companion object {
             val CHANNEL_PROCESSOR: ChannelProcessor = object : ChannelProcessor {
-                override fun decide(invocation: FilterInvocation?, config: MutableCollection<ConfigAttribute>?) {}
-                override fun supports(attribute: ConfigAttribute?): Boolean = true
+                override fun decide(invocation: FilterInvocation, config: MutableCollection<ConfigAttribute>) {}
+                override fun supports(attribute: ConfigAttribute): Boolean = true
             }
         }
 

@@ -80,7 +80,6 @@ public class PathMatcherServerWebExchangeMatcherTests {
 
 	@Test
 	public void matchesWhenPathMatcherTrueThenReturnTrue() {
-		given(this.pattern.matches(any())).willReturn(true);
 		given(this.pattern.matchAndExtract(any())).willReturn(this.pathMatchInfo);
 		given(this.pathMatchInfo.getUriVariables()).willReturn(new HashMap<>());
 		assertThat(this.matcher.matches(this.exchange).block().isMatch()).isTrue();
@@ -88,7 +87,7 @@ public class PathMatcherServerWebExchangeMatcherTests {
 
 	@Test
 	public void matchesWhenPathMatcherFalseThenReturnFalse() {
-		given(this.pattern.matches(any())).willReturn(false);
+		given(this.pattern.matchAndExtract(any())).willReturn(null);
 		assertThat(this.matcher.matches(this.exchange).block().isMatch()).isFalse();
 	}
 
@@ -96,7 +95,6 @@ public class PathMatcherServerWebExchangeMatcherTests {
 	public void matchesWhenPathMatcherTrueAndMethodTrueThenReturnTrue() {
 		this.matcher = new PathPatternParserServerWebExchangeMatcher(this.pattern,
 				this.exchange.getRequest().getMethod());
-		given(this.pattern.matches(any())).willReturn(true);
 		given(this.pattern.matchAndExtract(any())).willReturn(this.pathMatchInfo);
 		given(this.pathMatchInfo.getUriVariables()).willReturn(new HashMap<>());
 		assertThat(this.matcher.matches(this.exchange).block().isMatch()).isTrue();

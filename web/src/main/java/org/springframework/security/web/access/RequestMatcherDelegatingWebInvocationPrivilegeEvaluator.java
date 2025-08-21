@@ -21,6 +21,7 @@ import java.util.List;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
@@ -46,7 +47,7 @@ public final class RequestMatcherDelegatingWebInvocationPrivilegeEvaluator
 
 	private final List<RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>>> delegates;
 
-	private ServletContext servletContext;
+	private @Nullable ServletContext servletContext;
 
 	public RequestMatcherDelegatingWebInvocationPrivilegeEvaluator(
 			List<RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>>> requestMatcherPrivilegeEvaluatorsEntries) {
@@ -119,7 +120,8 @@ public final class RequestMatcherDelegatingWebInvocationPrivilegeEvaluator
 		return true;
 	}
 
-	private List<WebInvocationPrivilegeEvaluator> getDelegate(String contextPath, String uri, String method) {
+	private List<WebInvocationPrivilegeEvaluator> getDelegate(@Nullable String contextPath, String uri,
+			@Nullable String method) {
 		FilterInvocation filterInvocation = new FilterInvocation(contextPath, uri, method, this.servletContext);
 		HttpServletRequest request = filterInvocation.getHttpRequest();
 		for (RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> delegate : this.delegates) {

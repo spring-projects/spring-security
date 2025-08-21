@@ -23,6 +23,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -96,7 +97,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
-	private AuthenticationEntryPoint authenticationEntryPoint;
+	private @Nullable AuthenticationEntryPoint authenticationEntryPoint;
 
 	private AuthenticationManager authenticationManager;
 
@@ -201,7 +202,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 			this.logger.debug("Failed to process authentication request", ex);
 			this.rememberMeServices.loginFail(request, response);
 			onUnsuccessfulAuthentication(request, response, ex);
-			if (this.ignoreFailure) {
+			if (this.ignoreFailure || this.authenticationEntryPoint == null) {
 				chain.doFilter(request, response);
 			}
 			else {
@@ -241,7 +242,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 			AuthenticationException failed) throws IOException {
 	}
 
-	protected AuthenticationEntryPoint getAuthenticationEntryPoint() {
+	protected @Nullable AuthenticationEntryPoint getAuthenticationEntryPoint() {
 		return this.authenticationEntryPoint;
 	}
 

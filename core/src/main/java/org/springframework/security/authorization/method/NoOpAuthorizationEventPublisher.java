@@ -18,6 +18,8 @@ package org.springframework.security.authorization.method;
 
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.core.Authentication;
@@ -32,7 +34,7 @@ final class NoOpAuthorizationEventPublisher implements AuthorizationEventPublish
 
 	@Override
 	public <T> void publishAuthorizationEvent(Supplier<Authentication> authentication, T object,
-			AuthorizationResult result) {
+			@Nullable AuthorizationResult result) {
 
 	}
 

@@ -18,6 +18,8 @@ package org.springframework.security.access;
 
 import java.io.Serializable;
 
+import org.jspecify.annotations.NullUnmarked;
+
 import org.springframework.security.access.intercept.RunAsManager;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.annotation.SecurityAnnotationScanner;
@@ -45,6 +47,7 @@ import org.springframework.security.core.annotation.SecurityAnnotationScanner;
  * {@link AuthorizationManager}.
  */
 @Deprecated
+@NullUnmarked
 public interface ConfigAttribute extends Serializable {
 
 	/**

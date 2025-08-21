@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.crypto.codec.Utf8;
@@ -74,7 +75,7 @@ public final class XorCsrfTokenRequestAttributeHandler extends CsrfTokenRequestA
 	}
 
 	@Override
-	public String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
+	public @Nullable String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
 		String actualToken = super.resolveCsrfTokenValue(request, csrfToken);
 		if (actualToken == null) {
 			return null;
@@ -82,7 +83,7 @@ public final class XorCsrfTokenRequestAttributeHandler extends CsrfTokenRequestA
 		return getTokenValue(actualToken, csrfToken.getToken());
 	}
 
-	private static String getTokenValue(String actualToken, String token) {
+	private static @Nullable String getTokenValue(String actualToken, String token) {
 		byte[] actualBytes;
 		try {
 			actualBytes = Base64.getUrlDecoder().decode(actualToken);
@@ -140,7 +141,7 @@ public final class XorCsrfTokenRequestAttributeHandler extends CsrfTokenRequestA
 
 		private final Supplier<CsrfToken> delegate;
 
-		private CsrfToken csrfToken;
+		private @Nullable CsrfToken csrfToken;
 
 		private CachedCsrfTokenSupplier(Supplier<CsrfToken> delegate) {
 			this.delegate = delegate;

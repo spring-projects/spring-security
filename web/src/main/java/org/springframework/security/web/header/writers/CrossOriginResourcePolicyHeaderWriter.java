@@ -18,6 +18,7 @@ package org.springframework.security.web.header.writers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.util.Assert;
@@ -35,7 +36,7 @@ public final class CrossOriginResourcePolicyHeaderWriter implements HeaderWriter
 
 	private static final String RESOURCE_POLICY = "Cross-Origin-Resource-Policy";
 
-	private CrossOriginResourcePolicy policy;
+	private @Nullable CrossOriginResourcePolicy policy;
 
 	/**
 	 * Sets the {@link CrossOriginResourcePolicy} value to be used in the
@@ -72,7 +73,7 @@ public final class CrossOriginResourcePolicyHeaderWriter implements HeaderWriter
 			return this.policy;
 		}
 
-		public static CrossOriginResourcePolicy from(String resourcePolicy) {
+		public static @Nullable CrossOriginResourcePolicy from(String resourcePolicy) {
 			for (CrossOriginResourcePolicy policy : values()) {
 				if (policy.getPolicy().equals(resourcePolicy)) {
 					return policy;

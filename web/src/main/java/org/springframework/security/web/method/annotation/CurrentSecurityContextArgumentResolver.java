@@ -18,6 +18,8 @@ package org.springframework.security.web.method.annotation;
 
 import java.lang.annotation.Annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.annotation.MergedAnnotations;
@@ -93,7 +95,7 @@ public final class CurrentSecurityContextArgumentResolver implements HandlerMeth
 
 	private boolean useAnnotationTemplate = false;
 
-	private BeanResolver beanResolver;
+	private @Nullable BeanResolver beanResolver;
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
@@ -102,8 +104,8 @@ public final class CurrentSecurityContextArgumentResolver implements HandlerMeth
 	}
 
 	@Override
-	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+	public @Nullable Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
+			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) {
 		SecurityContext securityContext = this.securityContextHolderStrategy.getContext();
 		if (securityContext == null) {
 			return null;
@@ -150,15 +152,18 @@ public final class CurrentSecurityContextArgumentResolver implements HandlerMeth
 		this.scanner = SecurityAnnotationScanners.requireUnique(CurrentSecurityContext.class, templateDefaults);
 	}
 
-	private Object resolveSecurityContextFromAnnotation(MethodParameter parameter, CurrentSecurityContext annotation,
-			SecurityContext securityContext) {
+	private @Nullable Object resolveSecurityContextFromAnnotation(MethodParameter parameter,
+			CurrentSecurityContext annotation, SecurityContext securityContext) {
 		Object securityContextResult = securityContext;
 		String expressionToParse = annotation.expression();
 		if (StringUtils.hasLength(expressionToParse)) {
 			StandardEvaluationContext context = new StandardEvaluationContext();
 			context.setRootObject(securityContext);
 			context.setVariable("this", securityContext);
-			context.setBeanResolver(this.beanResolver);
+			// https://github.com/spring-projects/spring-framework/issues/35371
+			if (this.beanResolver != null) {
+				context.setBeanResolver(this.beanResolver);
+			}
 			Expression expression = this.parser.parseExpression(expressionToParse);
 			securityContextResult = expression.getValue(context);
 		}
@@ -178,7 +183,7 @@ public final class CurrentSecurityContextArgumentResolver implements HandlerMeth
 	 * @param parameter the {@link MethodParameter} to search for an {@link Annotation}
 	 * @return the {@link Annotation} that was found or null.
 	 */
-	private CurrentSecurityContext findMethodAnnotation(MethodParameter parameter) {
+	private @Nullable CurrentSecurityContext findMethodAnnotation(MethodParameter parameter) {
 		if (this.useAnnotationTemplate) {
 			return this.scanner.scan(parameter.getParameter());
 		}

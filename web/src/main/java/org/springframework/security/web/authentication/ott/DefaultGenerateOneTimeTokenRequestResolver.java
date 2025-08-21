@@ -19,6 +19,7 @@ package org.springframework.security.web.authentication.ott;
 import java.time.Duration;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.ott.GenerateOneTimeTokenRequest;
 import org.springframework.util.Assert;
@@ -38,7 +39,7 @@ public final class DefaultGenerateOneTimeTokenRequestResolver implements Generat
 	private Duration expiresIn = DEFAULT_EXPIRES_IN;
 
 	@Override
-	public GenerateOneTimeTokenRequest resolve(HttpServletRequest request) {
+	public @Nullable GenerateOneTimeTokenRequest resolve(HttpServletRequest request) {
 		String username = request.getParameter("username");
 		if (!StringUtils.hasText(username)) {
 			return null;

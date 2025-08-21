@@ -17,4 +17,7 @@
 /**
  * Access-control related classes and packages.
  */
+@NullMarked
 package org.springframework.security.web.access;
+
+import org.jspecify.annotations.NullMarked;

@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.access.expression;
 
+import org.jspecify.annotations.NullUnmarked;
+
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.security.access.ConfigAttribute;
@@ -32,6 +34,7 @@ import org.springframework.security.web.FilterInvocation;
  * {@link AuthorizationManager}.
  */
 @Deprecated
+@NullUnmarked
 class WebExpressionConfigAttribute implements ConfigAttribute, EvaluationContextPostProcessor<FilterInvocation> {
 
 	private final Expression authorizeExpression;

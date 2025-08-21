@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 
@@ -45,6 +46,6 @@ import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 abstract class DefaultSavedRequestMixin {
 
 	@JsonInclude(JsonInclude.Include.NON_NULL)
-	String matchingRequestParameterName;
+	@Nullable String matchingRequestParameterName;
 
 }

@@ -45,6 +45,7 @@ public class Enumerator<T> implements Enumeration<T> {
 	 * The <code>Iterator</code> over which the <code>Enumeration</code> represented by
 	 * this class actually operates.
 	 */
+	@SuppressWarnings("NullAway")
 	private Iterator<T> iterator = null;
 
 	/**

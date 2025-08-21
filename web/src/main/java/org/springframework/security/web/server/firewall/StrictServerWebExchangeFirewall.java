@@ -29,6 +29,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
@@ -636,7 +637,7 @@ public class StrictServerWebExchangeFirewall implements ServerWebExchangeFirewal
 		}
 	}
 
-	private void validateAllowedHeaderValue(Object key, String value) {
+	private void validateAllowedHeaderValue(Object key, @Nullable String value) {
 		if (!StrictServerWebExchangeFirewall.this.allowedHeaderValues.test(value)) {
 			throw new ServerExchangeRejectedException("The request was rejected because the header: \"" + key
 					+ " \" has a value \"" + value + "\" that is not allowed.");
@@ -757,7 +758,7 @@ public class StrictServerWebExchangeFirewall implements ServerWebExchangeFirewal
 				}
 
 				@Override
-				public String getFirst(String headerName) {
+				public @Nullable String getFirst(String headerName) {
 					validateAllowedHeaderName(headerName);
 					String headerValue = super.getFirst(headerName);
 					validateAllowedHeaderValue(headerName, headerValue);
@@ -765,7 +766,7 @@ public class StrictServerWebExchangeFirewall implements ServerWebExchangeFirewal
 				}
 
 				@Override
-				public List<String> get(String headerName) {
+				public @Nullable List<String> get(String headerName) {
 					validateAllowedHeaderName(headerName);
 					List<String> headerValues = super.get(headerName);
 					if (headerValues == null) {

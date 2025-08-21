@@ -18,6 +18,8 @@ package org.springframework.security.web.authentication.rememberme;
 
 import java.util.Date;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * The abstraction used by {@link PersistentTokenBasedRememberMeServices} to store the
  * persistent login tokens for a user.
@@ -33,7 +35,7 @@ public interface PersistentTokenRepository {
 
 	void updateToken(String series, String tokenValue, Date lastUsed);
 
-	PersistentRememberMeToken getTokenForSeries(String seriesId);
+	@Nullable PersistentRememberMeToken getTokenForSeries(String seriesId);
 
 	void removeUserTokens(String username);
 

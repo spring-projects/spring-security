@@ -21,6 +21,7 @@ import java.util.Collections;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.log.LogMessage;
@@ -59,7 +60,7 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 
 	private ServerWebExchangeMatcher saveRequestMatcher = createDefaultRequestMatcher();
 
-	private String matchingRequestParameterName;
+	private @Nullable String matchingRequestParameterName;
 
 	/**
 	 * Sets the matcher to determine if the request should be saved. The default is to

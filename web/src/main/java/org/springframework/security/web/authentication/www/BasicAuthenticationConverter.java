@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
@@ -75,7 +76,7 @@ public class BasicAuthenticationConverter implements AuthenticationConverter {
 	}
 
 	@Override
-	public UsernamePasswordAuthenticationToken convert(HttpServletRequest request) {
+	public @Nullable UsernamePasswordAuthenticationToken convert(HttpServletRequest request) {
 		String header = request.getHeader(HttpHeaders.AUTHORIZATION);
 		if (header == null) {
 			return null;

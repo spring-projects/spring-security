@@ -19,6 +19,7 @@ package org.springframework.security.web;
 import java.util.Locale;
 
 import jakarta.servlet.ServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.util.Assert;
 
@@ -54,7 +55,7 @@ public class PortResolverImpl implements PortResolver {
 		return (mappedPort != null) ? mappedPort : serverPort;
 	}
 
-	private Integer getMappedPort(int serverPort, String scheme) {
+	private @Nullable Integer getMappedPort(int serverPort, String scheme) {
 		if ("http".equals(scheme)) {
 			return this.portMapper.lookupHttpPort(serverPort);
 		}

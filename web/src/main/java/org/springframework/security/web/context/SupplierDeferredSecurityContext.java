@@ -20,6 +20,7 @@ import java.util.function.Supplier;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.context.DeferredSecurityContext;
@@ -38,7 +39,7 @@ final class SupplierDeferredSecurityContext implements DeferredSecurityContext {
 
 	private final SecurityContextHolderStrategy strategy;
 
-	private SecurityContext securityContext;
+	private @Nullable SecurityContext securityContext;
 
 	private boolean missingContext;
 
@@ -48,7 +49,7 @@ final class SupplierDeferredSecurityContext implements DeferredSecurityContext {
 	}
 
 	@Override
-	public SecurityContext get() {
+	public @Nullable SecurityContext get() {
 		init();
 		return this.securityContext;
 	}

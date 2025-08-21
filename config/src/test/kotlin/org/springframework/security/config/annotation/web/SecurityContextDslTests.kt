@@ -93,7 +93,7 @@ class SecurityContextDslTests {
         testContext.autowire()
         val filterChainProxy = testContext.context.getBean(FilterChainProxy::class.java)
         // @formatter:off
-        val filterTypes = filterChainProxy.getFilters("/").toList()
+        val filterTypes = filterChainProxy.getFilters("/")!!.toList()
 
         assertThat(filterTypes)
                 .anyMatch { it is SecurityContextHolderFilter }

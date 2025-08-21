@@ -25,6 +25,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
@@ -96,11 +97,12 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
-	private ApplicationEventPublisher eventPublisher = null;
+	private @Nullable ApplicationEventPublisher eventPublisher = null;
 
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
-	private AuthenticationManager authenticationManager = null;
+	@SuppressWarnings("NullAway.Init")
+	private AuthenticationManager authenticationManager;
 
 	private boolean continueFilterChainOnUnsuccessfulAuthentication = true;
 
@@ -108,9 +110,9 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 
 	private boolean invalidateSessionOnPrincipalChange = true;
 
-	private AuthenticationSuccessHandler authenticationSuccessHandler = null;
+	private @Nullable AuthenticationSuccessHandler authenticationSuccessHandler = null;
 
-	private AuthenticationFailureHandler authenticationFailureHandler = null;
+	private @Nullable AuthenticationFailureHandler authenticationFailureHandler = null;
 
 	private RequestMatcher requiresAuthenticationRequestMatcher = new PreAuthenticatedProcessingRequestMatcher();
 
@@ -357,14 +359,14 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	/**
 	 * Override to extract the principal information from the current request
 	 */
-	protected abstract Object getPreAuthenticatedPrincipal(HttpServletRequest request);
+	protected abstract @Nullable Object getPreAuthenticatedPrincipal(HttpServletRequest request);
 
 	/**
 	 * Override to extract the credentials (if applicable) from the current request.
 	 * Should not return null for a valid principal, though some implementations may
 	 * return a dummy value.
 	 */
-	protected abstract Object getPreAuthenticatedCredentials(HttpServletRequest request);
+	protected abstract @Nullable Object getPreAuthenticatedCredentials(HttpServletRequest request);
 
 	/**
 	 * Request matcher for default auth check logic
