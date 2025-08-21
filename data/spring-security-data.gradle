@@ -1,7 +1,3 @@
-plugins {
-	id 'security-nullability'
-}
-
 apply plugin: 'io.spring.convention.spring-module'
 
 dependencies {
