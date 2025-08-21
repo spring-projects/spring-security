@@ -47,7 +47,7 @@ class WithCustomUserDetailsTests {
     fun getMessageWithUserDetailsServiceBeanName() {
         val message: String = messageService.getMessage()
         assertThat(message).contains("customUsername");
-        val principal = SecurityContextHolder.getContext().authentication.principal
+        val principal = SecurityContextHolder.getContext().authentication!!.principal
         assertThat(principal).isInstanceOf(CustomUserDetails::class.java)
     }
     // end::custom-user-details-service[]

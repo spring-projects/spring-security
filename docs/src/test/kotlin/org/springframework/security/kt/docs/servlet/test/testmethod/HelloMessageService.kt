@@ -29,7 +29,7 @@ class HelloMessageService : MessageService {
 
 	@PreAuthorize("isAuthenticated()")
 	override fun getMessage(): String {
-		val authentication: Authentication = SecurityContextHolder.getContext().authentication
+		val authentication: Authentication? = SecurityContextHolder.getContext().authentication
 		return "Hello $authentication"
 	}
 
