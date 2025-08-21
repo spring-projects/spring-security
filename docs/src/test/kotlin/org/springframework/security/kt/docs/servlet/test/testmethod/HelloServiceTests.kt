@@ -16,7 +16,7 @@
 
 package org.springframework.security.kt.docs.servlet.test.testmethod
 
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -50,7 +50,7 @@ class HelloServiceTests {
 
     @Test
     fun helloServiceTest() {
-        Assertions.assertThat(messageService.message)
+        assertThat(messageService.message)
             .contains("user")
             .contains("ROLE_USER")
     }

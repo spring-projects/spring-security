@@ -16,7 +16,7 @@
 
 package org.springframework.security.kt.docs.servlet.test.testmethodmetaannotations
 
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -42,7 +42,7 @@ class WithMockUserTests {
     // end::snippet[]
     fun getMessageWithMockUserAdminRoles() {
         val message = messageService.message
-        Assertions.assertThat(message)
+        assertThat(message)
             .contains("admin")
             .contains("ROLE_ADMIN")
             .contains("ROLE_USER")
