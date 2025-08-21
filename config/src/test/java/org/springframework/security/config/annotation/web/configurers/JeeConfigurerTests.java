@@ -24,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -34,6 +35,7 @@ import org.springframework.security.core.userdetails.AuthenticationUserDetailsSe
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.web.authentication.preauth.j2ee.J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.preauth.j2ee.J2eePreAuthenticatedProcessingFilter;
 import org.springframework.test.web.servlet.MockMvc;
@@ -64,18 +66,16 @@ public class JeeConfigurerTests {
 
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnJ2eePreAuthenticatedProcessingFilter() {
-		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-		verify(ObjectPostProcessorConfig.objectPostProcessor)
-			.postProcess(any(J2eePreAuthenticatedProcessingFilter.class));
+		ObjectPostProcessor<Object> objectPostProcessor = this.spring.getContext().getBean(ObjectPostProcessor.class);
+		verify(objectPostProcessor).postProcess(any(J2eePreAuthenticatedProcessingFilter.class));
 	}
 
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnJ2eeBasedPreAuthenticatedWebAuthenticationDetailsSource() {
-		ObjectPostProcessorConfig.objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-		verify(ObjectPostProcessorConfig.objectPostProcessor)
-			.postProcess(any(J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource.class));
+		ObjectPostProcessor<Object> objectPostProcessor = this.spring.getContext().getBean(ObjectPostProcessor.class);
+		verify(objectPostProcessor).postProcess(any(J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource.class));
 	}
 
 	@Test
@@ -135,12 +135,14 @@ public class JeeConfigurerTests {
 	public void requestWhenCustomAuthenticatedUserDetailsServiceInLambdaThenCustomAuthenticatedUserDetailsServiceUsed()
 			throws Exception {
 		this.spring.register(JeeCustomAuthenticatedUserDetailsServiceConfig.class).autowire();
+		AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> userDetailsService = this.spring
+			.getContext()
+			.getBean(AuthenticationUserDetailsService.class);
 		Principal user = mock(Principal.class);
 		User userDetails = new User("user", "N/A", true, true, true, true,
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		given(user.getName()).willReturn("user");
-		given(JeeCustomAuthenticatedUserDetailsServiceConfig.authenticationUserDetailsService.loadUserDetails(any()))
-			.willReturn(userDetails);
+		given(userDetailsService.loadUserDetails(any())).willReturn(userDetails);
 		// @formatter:off
 		MockHttpServletRequestBuilder authRequest = get("/")
 				.principal(user)
@@ -157,7 +159,7 @@ public class JeeConfigurerTests {
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig {
 
-		static ObjectPostProcessor<Object> objectPostProcessor;
+		ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -169,8 +171,9 @@ public class JeeConfigurerTests {
 		}
 
 		@Bean
-		static ObjectPostProcessor<Object> objectPostProcessor() {
-			return objectPostProcessor;
+		@Primary
+		ObjectPostProcessor<Object> objectPostProcessor() {
+			return this.objectPostProcessor;
 		}
 
 	}
@@ -245,7 +248,7 @@ public class JeeConfigurerTests {
 	@EnableWebSecurity
 	public static class JeeCustomAuthenticatedUserDetailsServiceConfig {
 
-		static AuthenticationUserDetailsService authenticationUserDetailsService = mock(
+		private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> authenticationUserDetailsService = mock(
 				AuthenticationUserDetailsService.class);
 
 		@Bean
@@ -256,10 +259,15 @@ public class JeeConfigurerTests {
 						.anyRequest().hasRole("USER")
 				)
 				.jee((jee) -> jee
-						.authenticatedUserDetailsService(authenticationUserDetailsService)
+						.authenticatedUserDetailsService(this.authenticationUserDetailsService)
 				);
 			return http.build();
 			// @formatter:on
+		}
+
+		@Bean
+		AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> authenticationUserDetailsService() {
+			return this.authenticationUserDetailsService;
 		}
 
 	}
