@@ -38,7 +38,6 @@ class WithUserClassLevelAuthenticationTests {
 
 	@Test
 	@WithAnonymousUser
-	@Throws(Exception::class)
 	fun anonymous() {
 		// override default to run as anonymous user
 	}

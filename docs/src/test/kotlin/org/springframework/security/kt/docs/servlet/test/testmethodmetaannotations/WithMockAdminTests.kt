@@ -45,7 +45,7 @@ class WithMockAdminTests {
             .contains("ROLE_USER")
     }
 
-    @EnableMethodSecurity(prePostEnabled = true, jsr250Enabled = true)
+    @EnableMethodSecurity
     @Configuration
     open class Config {
         @Bean
