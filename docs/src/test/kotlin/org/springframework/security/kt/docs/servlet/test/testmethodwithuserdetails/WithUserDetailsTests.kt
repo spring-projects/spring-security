@@ -16,7 +16,7 @@
 
 package org.springframework.security.kt.docs.servlet.test.testmethodwithuserdetails
 
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -44,7 +44,7 @@ class WithUserDetailsTests {
     @WithUserDetails
     fun getMessageWithUserDetails() {
         val message: String = messageService.message
-        Assertions.assertThat(message).contains("user")
+        assertThat(message).contains("user")
     }
     // end::user-details[]
 
@@ -53,7 +53,7 @@ class WithUserDetailsTests {
     @WithUserDetails("customUsername")
     fun getMessageWithUserDetailsCustomUsername() {
         val message: String = messageService.message
-        Assertions.assertThat(message).contains("customUsername")
+        assertThat(message).contains("customUsername")
     }
     // end::user-details-custom-username[]
 

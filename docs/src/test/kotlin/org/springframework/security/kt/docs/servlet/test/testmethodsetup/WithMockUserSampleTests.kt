@@ -16,7 +16,7 @@
 
 package org.springframework.security.kt.docs.servlet.test.testmethodsetup
 
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -39,7 +39,7 @@ class WithMockUserSampleTests {
 	// tag::snippet[]
 	@Test
 	fun getMessageUnauthenticated() {
-		Assertions.assertThatExceptionOfType(AuthenticationCredentialsNotFoundException::class.java)
+		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException::class.java)
 			.isThrownBy { messageService.getMessage() }
 	}
 	// end::snippet[]

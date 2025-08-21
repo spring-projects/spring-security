@@ -16,7 +16,7 @@
 
 package org.springframework.security.kt.docs.servlet.test.testmethodwithmockuser
 
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -41,7 +41,7 @@ class WithMockUserTests {
     @WithMockUser
     fun getMessageWithMockUser() {
         val message = messageService.message
-        Assertions.assertThat(message).contains("user")
+        assertThat(message).contains("user")
     }
     // end::mock-user[]
 
@@ -50,7 +50,7 @@ class WithMockUserTests {
     @WithMockUser("customUser")
     fun getMessageWithMockUserCustomUsername() {
         val message = messageService.message
-        Assertions.assertThat(message).contains("customUser")
+        assertThat(message).contains("customUser")
     }
     // end::custom-user[]
 
@@ -59,7 +59,7 @@ class WithMockUserTests {
     @WithMockUser(username = "admin", roles = ["USER", "ADMIN"])
     fun getMessageWithMockUserCustomRoles() {
         val message = messageService.message
-        Assertions.assertThat(message)
+        assertThat(message)
             .contains("admin")
             .contains("ROLE_ADMIN")
             .contains("ROLE_USER")
@@ -71,7 +71,7 @@ class WithMockUserTests {
     @WithMockUser(username = "admin", authorities = ["ADMIN", "USER"])
     fun getMessageWithMockUserCustomAuthorities() {
         val message = messageService.message
-        Assertions.assertThat(message)
+        assertThat(message)
             .contains("admin")
             .contains("ADMIN")
             .contains("USER")

@@ -16,7 +16,7 @@
 
 package org.springframework.security.kt.docs.servlet.test.testmethodwithuserdetails
 
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -46,9 +46,9 @@ class WithCustomUserDetailsTests {
     @WithUserDetails(value = "customUsername", userDetailsServiceBeanName = "myUserDetailsService")
     fun getMessageWithUserDetailsServiceBeanName() {
         val message: String = messageService.getMessage()
-        Assertions.assertThat(message).contains("customUsername");
+        assertThat(message).contains("customUsername");
         val principal = SecurityContextHolder.getContext().authentication.principal
-        Assertions.assertThat(principal).isInstanceOf(CustomUserDetails::class.java)
+        assertThat(principal).isInstanceOf(CustomUserDetails::class.java)
     }
     // end::custom-user-details-service[]
 
