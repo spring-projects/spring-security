@@ -18,6 +18,8 @@ package org.springframework.security.messaging.handler.invocation.reactive;
 
 import java.lang.annotation.Annotation;
 
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
@@ -108,7 +110,7 @@ public class AuthenticationPrincipalArgumentResolver implements HandlerMethodArg
 
 	private boolean useAnnotationTemplate = false;
 
-	private BeanResolver beanResolver;
+	private @Nullable BeanResolver beanResolver;
 
 	private ReactiveAdapterRegistry adapterRegistry = ReactiveAdapterRegistry.getSharedInstance();
 
@@ -149,7 +151,8 @@ public class AuthenticationPrincipalArgumentResolver implements HandlerMethodArg
 		// @formatter:on
 	}
 
-	private Object resolvePrincipal(MethodParameter parameter, Object principal) {
+	@NullUnmarked
+	private @Nullable Object resolvePrincipal(MethodParameter parameter, @Nullable Object principal) {
 		AuthenticationPrincipal authPrincipal = findMethodAnnotation(parameter);
 		String expressionToParse = authPrincipal.expression();
 		if (StringUtils.hasLength(expressionToParse)) {
@@ -169,7 +172,7 @@ public class AuthenticationPrincipalArgumentResolver implements HandlerMethodArg
 		return principal;
 	}
 
-	private boolean isInvalidType(MethodParameter parameter, Object principal) {
+	private boolean isInvalidType(MethodParameter parameter, @Nullable Object principal) {
 		if (principal == null) {
 			return false;
 		}
@@ -206,7 +209,7 @@ public class AuthenticationPrincipalArgumentResolver implements HandlerMethodArg
 	 * @param parameter the {@link MethodParameter} to search for an {@link Annotation}
 	 * @return the {@link Annotation} that was found or null.
 	 */
-	private AuthenticationPrincipal findMethodAnnotation(MethodParameter parameter) {
+	private @Nullable AuthenticationPrincipal findMethodAnnotation(MethodParameter parameter) {
 		if (this.useAnnotationTemplate) {
 			return this.scanner.scan(parameter.getParameter());
 		}

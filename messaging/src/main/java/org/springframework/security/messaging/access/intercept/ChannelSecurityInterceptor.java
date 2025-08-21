@@ -16,6 +16,8 @@
 
 package org.springframework.security.messaging.access.intercept;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.ChannelInterceptor;
@@ -83,7 +85,7 @@ public final class ChannelSecurityInterceptor extends AbstractSecurityIntercepto
 	}
 
 	@Override
-	public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent, Exception ex) {
+	public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent, @Nullable Exception ex) {
 		InterceptorStatusToken token = clearToken();
 		finallyInvocation(token);
 	}
@@ -99,7 +101,7 @@ public final class ChannelSecurityInterceptor extends AbstractSecurityIntercepto
 	}
 
 	@Override
-	public void afterReceiveCompletion(Message<?> message, MessageChannel channel, Exception ex) {
+	public void afterReceiveCompletion(@Nullable Message<?> message, MessageChannel channel, @Nullable Exception ex) {
 	}
 
 	private InterceptorStatusToken clearToken() {

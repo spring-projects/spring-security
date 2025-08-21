@@ -74,7 +74,7 @@ public class ExpressionBasedMessageSecurityMetadataSourceFactoryTests {
 	@Test
 	public void createExpressionMessageMetadataSourceNoMatch() {
 		Collection<ConfigAttribute> attrs = this.source.getAttributes(this.message);
-		assertThat(attrs).isNull();
+		assertThat(attrs).isEmpty();
 	}
 
 	@Test

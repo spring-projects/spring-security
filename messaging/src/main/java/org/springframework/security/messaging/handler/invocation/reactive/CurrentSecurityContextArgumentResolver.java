@@ -18,6 +18,7 @@ package org.springframework.security.messaging.handler.invocation.reactive;
 
 import java.lang.annotation.Annotation;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
@@ -106,7 +107,7 @@ public class CurrentSecurityContextArgumentResolver implements HandlerMethodArgu
 
 	private boolean useAnnotationTemplate = false;
 
-	private BeanResolver beanResolver;
+	private @Nullable BeanResolver beanResolver;
 
 	private ReactiveAdapterRegistry adapterRegistry = ReactiveAdapterRegistry.getSharedInstance();
 
@@ -159,7 +160,7 @@ public class CurrentSecurityContextArgumentResolver implements HandlerMethodArgu
 		// @formatter:on
 	}
 
-	private Object resolveSecurityContext(MethodParameter parameter, Object securityContext) {
+	private @Nullable Object resolveSecurityContext(MethodParameter parameter, Object securityContext) {
 		CurrentSecurityContext contextAnno = findMethodAnnotation(parameter);
 		if (contextAnno != null) {
 			return resolveSecurityContextFromAnnotation(contextAnno, parameter, securityContext);
@@ -167,14 +168,17 @@ public class CurrentSecurityContextArgumentResolver implements HandlerMethodArgu
 		return securityContext;
 	}
 
-	private Object resolveSecurityContextFromAnnotation(CurrentSecurityContext contextAnno, MethodParameter parameter,
-			Object securityContext) {
+	private @Nullable Object resolveSecurityContextFromAnnotation(CurrentSecurityContext contextAnno,
+			MethodParameter parameter, Object securityContext) {
 		String expressionToParse = contextAnno.expression();
 		if (StringUtils.hasLength(expressionToParse)) {
 			StandardEvaluationContext context = new StandardEvaluationContext();
 			context.setRootObject(securityContext);
 			context.setVariable("this", securityContext);
-			context.setBeanResolver(this.beanResolver);
+			if (this.beanResolver != null) {
+				// https://github.com/spring-projects/spring-framework/issues/35371
+				context.setBeanResolver(this.beanResolver);
+			}
 			Expression expression = this.parser.parseExpression(expressionToParse);
 			securityContext = expression.getValue(context);
 		}
@@ -187,7 +191,7 @@ public class CurrentSecurityContextArgumentResolver implements HandlerMethodArgu
 		return securityContext;
 	}
 
-	private boolean isInvalidType(MethodParameter parameter, Object value) {
+	private boolean isInvalidType(MethodParameter parameter, @Nullable Object value) {
 		if (value == null) {
 			return false;
 		}
@@ -223,7 +227,7 @@ public class CurrentSecurityContextArgumentResolver implements HandlerMethodArgu
 	 * @param parameter the {@link MethodParameter} to search for an {@link Annotation}
 	 * @return the {@link Annotation} that was found or null.
 	 */
-	private CurrentSecurityContext findMethodAnnotation(MethodParameter parameter) {
+	private @Nullable CurrentSecurityContext findMethodAnnotation(MethodParameter parameter) {
 		if (this.useAnnotationTemplate) {
 			return this.scanner.scan(parameter.getParameter());
 		}

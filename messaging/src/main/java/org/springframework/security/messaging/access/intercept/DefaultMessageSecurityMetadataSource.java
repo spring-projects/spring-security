@@ -17,6 +17,7 @@
 package org.springframework.security.messaging.access.intercept;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -61,7 +62,7 @@ public final class DefaultMessageSecurityMetadataSource implements MessageSecuri
 				return entry.getValue();
 			}
 		}
-		return null;
+		return Collections.emptyList();
 	}
 
 	@Override

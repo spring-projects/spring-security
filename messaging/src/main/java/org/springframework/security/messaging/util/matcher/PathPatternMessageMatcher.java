@@ -107,7 +107,7 @@ public final class PathPatternMessageMatcher implements MessageMatcher<Object> {
 		return (pathMatchInfo != null) ? MatchResult.match(pathMatchInfo.getUriVariables()) : MatchResult.notMatch();
 	}
 
-	private static String getDestination(Message<?> message) {
+	private static @Nullable String getDestination(Message<?> message) {
 		return SimpMessageHeaderAccessor.getDestination(message.getHeaders());
 	}
 

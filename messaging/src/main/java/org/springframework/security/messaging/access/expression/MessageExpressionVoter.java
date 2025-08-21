@@ -18,6 +18,8 @@ package org.springframework.security.messaging.access.expression;
 
 import java.util.Collection;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.expression.EvaluationContext;
 import org.springframework.messaging.Message;
 import org.springframework.security.access.AccessDecisionVoter;
@@ -60,7 +62,7 @@ public class MessageExpressionVoter<T> implements AccessDecisionVoter<Message<T>
 		return ExpressionUtils.evaluateAsBoolean(attr.getAuthorizeExpression(), ctx) ? ACCESS_GRANTED : ACCESS_DENIED;
 	}
 
-	private MessageExpressionConfigAttribute findConfigAttribute(Collection<ConfigAttribute> attributes) {
+	private @Nullable MessageExpressionConfigAttribute findConfigAttribute(Collection<ConfigAttribute> attributes) {
 		for (ConfigAttribute attribute : attributes) {
 			if (attribute instanceof MessageExpressionConfigAttribute) {
 				return (MessageExpressionConfigAttribute) attribute;

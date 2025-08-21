@@ -18,6 +18,8 @@ package org.springframework.security.messaging.web.csrf;
 
 import java.util.Base64;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.util.Assert;
 
@@ -33,7 +35,7 @@ final class XorCsrfTokenUtils {
 	private XorCsrfTokenUtils() {
 	}
 
-	static String getTokenValue(String actualToken, String token) {
+	static @Nullable String getTokenValue(@Nullable String actualToken, String token) {
 		byte[] actualBytes;
 		try {
 			actualBytes = Base64.getUrlDecoder().decode(actualToken);

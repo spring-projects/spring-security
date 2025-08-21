@@ -18,6 +18,8 @@ package org.springframework.security.messaging.context;
 
 import java.util.Stack;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
@@ -121,7 +123,8 @@ public final class SecurityContextPropagationChannelInterceptor implements Execu
 	}
 
 	@Override
-	public void afterMessageHandled(Message<?> message, MessageChannel channel, MessageHandler handler, Exception ex) {
+	public void afterMessageHandled(Message<?> message, MessageChannel channel, MessageHandler handler,
+			@Nullable Exception ex) {
 		cleanup();
 	}
 

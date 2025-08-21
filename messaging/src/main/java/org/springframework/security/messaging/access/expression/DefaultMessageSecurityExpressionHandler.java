@@ -20,6 +20,7 @@ import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.expression.BeanResolver;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.messaging.Message;
@@ -49,12 +50,16 @@ public class DefaultMessageSecurityExpressionHandler<T> extends AbstractSecurity
 			Message<T> message) {
 		MessageSecurityExpressionRoot root = createSecurityExpressionRoot(authentication, message);
 		StandardEvaluationContext ctx = new StandardEvaluationContext(root);
-		ctx.setBeanResolver(getBeanResolver());
+		BeanResolver beanResolver = getBeanResolver();
+		if (beanResolver != null) {
+			// https://github.com/spring-projects/spring-framework/issues/35371
+			ctx.setBeanResolver(beanResolver);
+		}
 		return ctx;
 	}
 
 	@Override
-	protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
+	protected SecurityExpressionOperations createSecurityExpressionRoot(@Nullable Authentication authentication,
 			Message<T> invocation) {
 		return createSecurityExpressionRoot(() -> authentication, invocation);
 	}

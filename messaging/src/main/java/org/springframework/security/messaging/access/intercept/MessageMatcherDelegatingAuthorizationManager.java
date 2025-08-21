@@ -55,7 +55,7 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 	}
 
 	@Override
-	public AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication,
+	public @Nullable AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication,
 			Message<?> message) {
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace(LogMessage.format("Authorizing message"));
@@ -75,7 +75,8 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		return null;
 	}
 
-	private MessageAuthorizationContext<?> authorizationContext(MessageMatcher<?> matcher, Message<?> message) {
+	private @Nullable MessageAuthorizationContext<?> authorizationContext(MessageMatcher<?> matcher,
+			Message<?> message) {
 		MessageMatcher.MatchResult matchResult = matcher.matcher((Message) message);
 		if (!matchResult.isMatch()) {
 			return null;
@@ -179,7 +180,7 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		 * @return the {@link Builder.Constraint} that is associated to the
 		 * {@link MessageMatcher}
 		 */
-		private Builder.Constraint simpDestMatchers(SimpMessageType type, String... patterns) {
+		private Builder.Constraint simpDestMatchers(@Nullable SimpMessageType type, String... patterns) {
 			List<MessageMatcher<?>> matchers = new ArrayList<>(patterns.length);
 			for (String pattern : patterns) {
 				MessageMatcher<Object> matcher = this.messageMatcherBuilder.matcher(type, pattern);

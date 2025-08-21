@@ -18,6 +18,8 @@ package org.springframework.security.messaging.access.expression;
 
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.messaging.Message;
@@ -60,7 +62,7 @@ class MessageExpressionConfigAttribute implements ConfigAttribute, EvaluationCon
 	}
 
 	@Override
-	public String getAttribute() {
+	public @Nullable String getAttribute() {
 		return null;
 	}
 

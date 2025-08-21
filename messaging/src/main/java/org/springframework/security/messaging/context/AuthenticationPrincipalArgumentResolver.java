@@ -18,6 +18,8 @@ package org.springframework.security.messaging.context;
 
 import java.lang.annotation.Annotation;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.annotation.MergedAnnotations;
@@ -110,13 +112,14 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 	}
 
 	@Override
-	public Object resolveArgument(MethodParameter parameter, Message<?> message) {
+	public @Nullable Object resolveArgument(MethodParameter parameter, Message<?> message) {
 		Authentication authentication = this.securityContextHolderStrategy.getContext().getAuthentication();
 		if (authentication == null) {
 			return null;
 		}
 		Object principal = authentication.getPrincipal();
 		AuthenticationPrincipal authPrincipal = findMethodAnnotation(parameter);
+		Assert.notNull(authPrincipal, "AuthenticationPrincipal must not be null. Run supports first");
 		String expressionToParse = authPrincipal.expression();
 		if (StringUtils.hasLength(expressionToParse)) {
 			StandardEvaluationContext context = new StandardEvaluationContext();
@@ -165,7 +168,7 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 	 * @param parameter the {@link MethodParameter} to search for an {@link Annotation}
 	 * @return the {@link Annotation} that was found or null.
 	 */
-	private AuthenticationPrincipal findMethodAnnotation(MethodParameter parameter) {
+	private @Nullable AuthenticationPrincipal findMethodAnnotation(MethodParameter parameter) {
 		if (this.useAnnotationTemplate) {
 			return this.scanner.scan(parameter.getParameter());
 		}

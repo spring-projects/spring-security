@@ -55,7 +55,7 @@ public final class MessageAuthorizationContextSecurityExpressionHandler
 	}
 
 	@Override
-	public EvaluationContext createEvaluationContext(Authentication authentication,
+	public EvaluationContext createEvaluationContext(@Nullable Authentication authentication,
 			MessageAuthorizationContext<?> message) {
 		return createEvaluationContext(() -> authentication, message);
 	}

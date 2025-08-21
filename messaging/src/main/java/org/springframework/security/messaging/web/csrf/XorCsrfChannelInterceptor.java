@@ -19,6 +19,8 @@ package org.springframework.security.messaging.web.csrf;
 import java.security.MessageDigest;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -70,7 +72,7 @@ public final class XorCsrfChannelInterceptor implements ChannelInterceptor {
 	 * @param actual
 	 * @return
 	 */
-	private static boolean equalsConstantTime(String expected, String actual) {
+	private static boolean equalsConstantTime(String expected, @Nullable String actual) {
 		if (expected == actual) {
 			return true;
 		}

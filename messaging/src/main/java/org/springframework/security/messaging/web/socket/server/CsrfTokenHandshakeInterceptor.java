@@ -19,6 +19,7 @@ package org.springframework.security.messaging.web.socket.server;
 import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -62,7 +63,7 @@ public final class CsrfTokenHandshakeInterceptor implements HandshakeInterceptor
 
 	@Override
 	public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
-			Exception exception) {
+			@Nullable Exception exception) {
 	}
 
 }
