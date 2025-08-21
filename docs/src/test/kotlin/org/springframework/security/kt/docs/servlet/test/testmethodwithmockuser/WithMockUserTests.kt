@@ -79,7 +79,7 @@ class WithMockUserTests {
     }
     // end::custom-authorities[]
 
-    @EnableMethodSecurity(prePostEnabled = true, jsr250Enabled = true)
+    @EnableMethodSecurity
     @Configuration
     open class Config {
         @Bean

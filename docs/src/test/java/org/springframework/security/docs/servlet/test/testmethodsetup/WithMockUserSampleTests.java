@@ -46,7 +46,7 @@ class WithMockUserSampleTests {
 	}
 	// end::snippet[]
 
-	@EnableMethodSecurity(prePostEnabled = true, jsr250Enabled = true)
+	@EnableMethodSecurity
 	@Configuration
 	static class Config {
 
