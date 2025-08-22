@@ -67,6 +67,7 @@ public class SecurityMockWithAuthoritiesMvcResultMatchersTests {
 		List<SimpleGrantedAuthority> grantedAuthorities = new ArrayList<>();
 		grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 		grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_SELLER"));
+		grantedAuthorities.add(new SimpleGrantedAuthority("FACTOR_PASSWORD"));
 		this.mockMvc.perform(formLogin()).andExpect(authenticated().withAuthorities(grantedAuthorities));
 	}
 
