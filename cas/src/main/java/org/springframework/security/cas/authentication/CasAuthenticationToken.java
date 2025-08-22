@@ -20,8 +20,10 @@ import java.io.Serializable;
 import java.util.Collection;
 
 import org.apereo.cas.client.validation.Assertion;
+import org.jspecify.annotations.NonNull;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.Assert;
@@ -154,12 +156,79 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 	}
 
 	@Override
+	public Builder toBuilder() {
+		return new Builder().apply(this);
+	}
+
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(super.toString());
 		sb.append(" Assertion: ").append(this.assertion);
 		sb.append(" Credentials (Service/Proxy Ticket): ").append(this.credentials);
 		return (sb.toString());
+	}
+
+	/**
+	 * A builder preserving the concrete {@link Authentication} type
+	 *
+	 * @since 7.0
+	 */
+	public static final class Builder extends AbstractAuthenticationBuilder<@NonNull CasAuthenticationToken, Builder> {
+
+		private Integer keyHash;
+
+		private Object principal;
+
+		private Object credentials;
+
+		private UserDetails userDetails;
+
+		private Assertion assertion;
+
+		private Builder() {
+
+		}
+
+		public Builder apply(CasAuthenticationToken authentication) {
+			return super.apply(authentication).keyHash(authentication.keyHash)
+				.principal(authentication.principal)
+				.credentials(authentication.credentials)
+				.userDetails(authentication.userDetails)
+				.assertion(authentication.assertion);
+		}
+
+		public Builder keyHash(Integer keyHash) {
+			this.keyHash = keyHash;
+			return this;
+		}
+
+		public Builder principal(Object principal) {
+			this.principal = principal;
+			return this;
+		}
+
+		public Builder credentials(Object credentials) {
+			this.credentials = credentials;
+			return this;
+		}
+
+		public Builder userDetails(UserDetails userDetails) {
+			this.userDetails = userDetails;
+			return this;
+		}
+
+		public Builder assertion(Assertion assertion) {
+			this.assertion = assertion;
+			return this;
+		}
+
+		@Override
+		protected @NonNull CasAuthenticationToken build(Collection<GrantedAuthority> authorities) {
+			return new CasAuthenticationToken(this.keyHash, this.principal, this.credentials, authorities,
+					this.userDetails, this.assertion);
+		}
+
 	}
 
 }

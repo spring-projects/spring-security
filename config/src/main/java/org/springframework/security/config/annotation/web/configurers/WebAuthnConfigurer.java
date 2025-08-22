@@ -162,8 +162,10 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 		WebAuthnRelyingPartyOperations rpOperations = webAuthnRelyingPartyOperations(userEntities, userCredentials);
 		PublicKeyCredentialCreationOptionsRepository creationOptionsRepository = creationOptionsRepository();
 		WebAuthnAuthenticationFilter webAuthnAuthnFilter = new WebAuthnAuthenticationFilter();
-		webAuthnAuthnFilter.setAuthenticationManager(
-				new ProviderManager(new WebAuthnAuthenticationProvider(rpOperations, userDetailsService)));
+		ProviderManager manager = new ProviderManager(
+				new WebAuthnAuthenticationProvider(rpOperations, userDetailsService));
+		manager.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
+		webAuthnAuthnFilter.setAuthenticationManager(manager);
 		WebAuthnRegistrationFilter webAuthnRegistrationFilter = new WebAuthnRegistrationFilter(userCredentials,
 				rpOperations);
 		PublicKeyCredentialCreationOptionsFilter creationOptionsFilter = new PublicKeyCredentialCreationOptionsFilter(
