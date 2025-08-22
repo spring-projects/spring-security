@@ -18,6 +18,8 @@ package org.springframework.security.messaging.access.expression;
 
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.NullMarked;
+
 import org.springframework.messaging.Message;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.core.Authentication;
@@ -29,11 +31,12 @@ import org.springframework.security.core.Authentication;
  * @author Evgeniy Cheban
  * @since 4.0
  */
-public class MessageSecurityExpressionRoot extends SecurityExpressionRoot {
+@NullMarked
+public class MessageSecurityExpressionRoot<T> extends SecurityExpressionRoot<Message<T>> {
 
-	public final Message<?> message;
+	public final Message<T> message;
 
-	public MessageSecurityExpressionRoot(Authentication authentication, Message<?> message) {
+	public MessageSecurityExpressionRoot(Authentication authentication, Message<T> message) {
 		this(() -> authentication, message);
 	}
 
@@ -44,8 +47,8 @@ public class MessageSecurityExpressionRoot extends SecurityExpressionRoot {
 	 * @param message the {@link Message} to use
 	 * @since 5.8
 	 */
-	public MessageSecurityExpressionRoot(Supplier<Authentication> authentication, Message<?> message) {
-		super(authentication);
+	public MessageSecurityExpressionRoot(Supplier<Authentication> authentication, Message<T> message) {
+		super(authentication, message);
 		this.message = message;
 	}
 
