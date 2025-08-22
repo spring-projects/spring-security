@@ -116,7 +116,7 @@ public class SecurityEvaluationContextExtension implements EvaluationContextExte
 	 * Creates a new instance that always uses the same {@link Authentication} object.
 	 * @param authentication the {@link Authentication} to use
 	 */
-	public SecurityEvaluationContextExtension(Authentication authentication) {
+	public SecurityEvaluationContextExtension(@Nullable Authentication authentication) {
 		this.authentication = authentication;
 	}
 
