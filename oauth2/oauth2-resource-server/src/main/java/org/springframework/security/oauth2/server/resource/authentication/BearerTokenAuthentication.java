@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.Transient;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -59,6 +60,48 @@ public class BearerTokenAuthentication extends AbstractOAuth2TokenAuthentication
 	@Override
 	public Map<String, Object> getTokenAttributes() {
 		return this.attributes;
+	}
+
+	@Override
+	public Builder toBuilder() {
+		return new Builder().apply(this);
+	}
+
+	/**
+	 * A builder preserving the concrete {@link Authentication} type
+	 *
+	 * @since 7.0
+	 */
+	public static final class Builder extends AbstractAuthenticationBuilder<BearerTokenAuthentication, Builder> {
+
+		private OAuth2AuthenticatedPrincipal principal;
+
+		private OAuth2AccessToken token;
+
+		private Builder() {
+
+		}
+
+		public Builder apply(BearerTokenAuthentication authentication) {
+			return super.apply(authentication).principal((OAuth2AuthenticatedPrincipal) authentication.getPrincipal())
+				.credentials(authentication.getToken());
+		}
+
+		public Builder principal(OAuth2AuthenticatedPrincipal principal) {
+			this.principal = principal;
+			return this;
+		}
+
+		public Builder credentials(OAuth2AccessToken credentials) {
+			this.token = credentials;
+			return this;
+		}
+
+		@Override
+		protected BearerTokenAuthentication build(Collection<GrantedAuthority> authorities) {
+			return new BearerTokenAuthentication(this.principal, this.token, authorities);
+		}
+
 	}
 
 }

@@ -85,4 +85,46 @@ public class OAuth2AuthenticationToken extends AbstractAuthenticationToken {
 		return this.authorizedClientRegistrationId;
 	}
 
+	@Override
+	public Builder toBuilder() {
+		return new Builder().apply(this);
+	}
+
+	/**
+	 * A builder preserving the concrete {@link Authentication} type
+	 *
+	 * @since 7.0
+	 */
+	public static final class Builder extends AbstractAuthenticationBuilder<OAuth2AuthenticationToken, Builder> {
+
+		private OAuth2User principal;
+
+		private String authorizedClientRegistrationId;
+
+		private Builder() {
+
+		}
+
+		public Builder apply(OAuth2AuthenticationToken authentication) {
+			return super.apply(authentication).principal(authentication.getPrincipal())
+				.authorizedClientRegistrationId(authentication.authorizedClientRegistrationId);
+		}
+
+		public Builder principal(OAuth2User principal) {
+			this.principal = principal;
+			return this;
+		}
+
+		public Builder authorizedClientRegistrationId(String authorizedClientRegistrationId) {
+			this.authorizedClientRegistrationId = authorizedClientRegistrationId;
+			return this;
+		}
+
+		@Override
+		protected OAuth2AuthenticationToken build(Collection<GrantedAuthority> authorities) {
+			return new OAuth2AuthenticationToken(this.principal, authorities, this.authorizedClientRegistrationId);
+		}
+
+	}
+
 }

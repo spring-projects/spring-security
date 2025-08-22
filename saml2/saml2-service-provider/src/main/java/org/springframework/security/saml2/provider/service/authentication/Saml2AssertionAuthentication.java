@@ -19,6 +19,9 @@ package org.springframework.security.saml2.provider.service.authentication;
 import java.io.Serial;
 import java.util.Collection;
 
+import org.jspecify.annotations.NonNull;
+
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
 /**
@@ -60,6 +63,58 @@ public class Saml2AssertionAuthentication extends Saml2Authentication {
 
 	public String getRelyingPartyRegistrationId() {
 		return this.relyingPartyRegistrationId;
+	}
+
+	@Override
+	public Builder toBuilder() {
+		return new Builder().apply(this);
+	}
+
+	/**
+	 * A builder preserving the concrete {@link Authentication} type
+	 *
+	 * @since 7.0
+	 */
+	public static final class Builder
+			extends AbstractAuthenticationBuilder<@NonNull Saml2AssertionAuthentication, @NonNull Builder> {
+
+		private Object principal;
+
+		private Saml2ResponseAssertionAccessor assertion;
+
+		private String relyingPartyRegistrationId;
+
+		private Builder() {
+
+		}
+
+		public Builder apply(Saml2AssertionAuthentication authentication) {
+			return super.apply(authentication).principal(authentication.getPrincipal())
+				.assertion(authentication.assertion)
+				.relyingPartyRegistrationId(authentication.relyingPartyRegistrationId);
+		}
+
+		public Builder principal(Object principal) {
+			this.principal = principal;
+			return this;
+		}
+
+		public Builder assertion(Saml2ResponseAssertionAccessor assertion) {
+			this.assertion = assertion;
+			return this;
+		}
+
+		public Builder relyingPartyRegistrationId(String relyingPartyRegistrationId) {
+			this.relyingPartyRegistrationId = relyingPartyRegistrationId;
+			return this;
+		}
+
+		@Override
+		protected Saml2AssertionAuthentication build(Collection<GrantedAuthority> authorities) {
+			return new Saml2AssertionAuthentication(this.principal, this.assertion, authorities,
+					this.relyingPartyRegistrationId);
+		}
+
 	}
 
 }
