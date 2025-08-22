@@ -16,10 +16,15 @@
 
 package org.springframework.security.web.webauthn.authentication;
 
+import java.util.Collection;
+import java.util.HashSet;
+
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
@@ -38,6 +43,8 @@ import org.springframework.util.Assert;
  * @since 6.4
  */
 public class WebAuthnAuthenticationProvider implements AuthenticationProvider {
+
+	private static final String AUTHORITY = "FACTOR_WEBAUTHN";
 
 	private final WebAuthnRelyingPartyOperations relyingPartyOperations;
 
@@ -65,7 +72,9 @@ public class WebAuthnAuthenticationProvider implements AuthenticationProvider {
 				.authenticate(webAuthnRequest.getWebAuthnRequest());
 			String username = userEntity.getName();
 			UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-			return new WebAuthnAuthentication(userEntity, userDetails.getAuthorities());
+			Collection<GrantedAuthority> authorities = new HashSet<>(userDetails.getAuthorities());
+			authorities.add(new SimpleGrantedAuthority(AUTHORITY));
+			return new WebAuthnAuthentication(userEntity, authorities);
 		}
 		catch (RuntimeException ex) {
 			throw new BadCredentialsException(ex.getMessage(), ex);
