@@ -88,13 +88,12 @@ public class OneTimeTokenReactiveAuthenticationManagerTests {
 		this.authenticationManager = new OneTimeTokenReactiveAuthenticationManager(oneTimeTokenService,
 				userDetailsService);
 
-		Authentication auth = this.authenticationManager
+		Authentication token = this.authenticationManager
 			.authenticate(OneTimeTokenAuthenticationToken.unauthenticated(TOKEN))
 			.block();
 
-		OneTimeTokenAuthenticationToken token = (OneTimeTokenAuthenticationToken) auth;
 		UserDetails user = (UserDetails) token.getPrincipal();
-		Collection<GrantedAuthority> authorities = token.getAuthorities();
+		Collection<? extends GrantedAuthority> authorities = token.getAuthorities();
 
 		assertThat(user).isNotNull();
 		assertThat(user.getUsername()).isEqualTo(USERNAME);
