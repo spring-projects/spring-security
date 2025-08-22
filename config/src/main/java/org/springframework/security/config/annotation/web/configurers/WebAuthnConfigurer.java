@@ -24,10 +24,13 @@ import java.util.Set;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.ui.DefaultResourcesFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -57,6 +60,8 @@ import org.springframework.util.Assert;
  */
 public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<WebAuthnConfigurer<H>, H> {
+
+	private MfaConfigurer<H> mfa;
 
 	private String rpId;
 
@@ -150,6 +155,22 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 		return this;
 	}
 
+	public WebAuthnConfigurer<H> factor(Customizer<MfaConfigurer<H>> customizer) {
+		if (this.mfa == null) {
+			this.mfa = new MfaConfigurer<>("AUTHN_WEBAUTHN", this)
+				.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"));
+		}
+		customizer.customize(this.mfa);
+		return this;
+	}
+
+	@Override
+	public void init(H http) throws Exception {
+		if (this.mfa != null) {
+			this.mfa.init(http);
+		}
+	}
+
 	@Override
 	public void configure(H http) throws Exception {
 		UserDetailsService userDetailsService = getSharedOrBean(http, UserDetailsService.class)
@@ -162,8 +183,9 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 		WebAuthnRelyingPartyOperations rpOperations = webAuthnRelyingPartyOperations(userEntities, userCredentials);
 		PublicKeyCredentialCreationOptionsRepository creationOptionsRepository = creationOptionsRepository();
 		WebAuthnAuthenticationFilter webAuthnAuthnFilter = new WebAuthnAuthenticationFilter();
-		webAuthnAuthnFilter.setAuthenticationManager(
+		AuthenticationManager authenticationManager = postProcess(
 				new ProviderManager(new WebAuthnAuthenticationProvider(rpOperations, userDetailsService)));
+		webAuthnAuthnFilter.setAuthenticationManager(authenticationManager);
 		WebAuthnRegistrationFilter webAuthnRegistrationFilter = new WebAuthnRegistrationFilter(userCredentials,
 				rpOperations);
 		PublicKeyCredentialCreationOptionsFilter creationOptionsFilter = new PublicKeyCredentialCreationOptionsFilter(

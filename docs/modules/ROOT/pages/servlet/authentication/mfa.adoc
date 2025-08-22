@@ -1,0 +1,186 @@
+= Multi-Factor Authentication
+
+Spring Security 7+ supports Multi-factor Authentication.
+This means that you can supply multiple authentication mechanisms and require that they be provided in a certain order for the principal to be deemed fully authenticated.
+
+This is provided by way of authorities that represent each completed authentication.
+For example, when form login is completed, the resulting authentication will include an `AUTHN_FORM` granted authority.
+
+This means that you can require that a certain endpoint require form login by specifying the authority in the `authorizeHttpRequests` DSL like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+SecurityFilterChain filterchain(HttpSecurity http) throws Exception {
+	http
+        .authorizeHttpRequests((authorize) -> authorize
+            .anyRequest().hasAuthority("AUTHN_FORM")
+        )
+        .formLogin((form) -> form.factor(Customizer.withDefaults()));
+	return http.build();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun filterChain(val http: HttpSecurity): SecurityFilterChain {
+    http {
+        authorizeHttpRequests {
+            authorize(anyRequest, hasAuthority("AUTHN_FORM"))
+            formLogin {
+                factor {}
+            }
+        }
+    }
+    return http.build()
+}
+----
+======
+
+== Architecture
+
+Each authentication factor in Spring Security is represented by a filter in the filter chain.
+Any authentication factor participating in multi-factor authentication is augmented in three ways:
+
+1. Its authentication manager grants at least an authority that represents the completed authorization, for example, `AUTHN_FORM` for form login `AUTHN_BEARER` for bearer tokens.
+2. It adds its `AUTHN_XXX` authority as a default-required authority to the `authorizeHttpRequests` DSL.
+3. It registers an `AuthorizationEntryPoint` to the `exceptionHandling` DSL to indicate what authorization requests it can grant and how to request them.
+
+== Requiring More Than One Factor
+
+You can register any Spring Security authentication mechanism as an authentication factor using the exposed `.factor` DSL like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	http
+        .authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+        .x509((x509) -> x509.factor(Customizer.withDefaults()))
+        .formLogin((form) -> form.factor(Customizer.withDefaults()));
+	return http.build();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun filterChain(val http: HttpSecurity): SecurityFilterChain {
+    http {
+        authorizeHttpRequests {
+            authorize(anyRequest, authenticated)
+            x509 {
+                factor {}
+            }
+            formLogin {
+                factor {}
+            }
+        }
+    }
+}
+----
+======
+
+[TIP]
+=====
+You can identity additional authentication mechanisms that are not a factor in your multi-factor authentication setup.
+In this case, you should use `.access()` to override any default authentication manager that is added to other authorization rules.
+Or, you can publish a custom `AuthorizationManagerFactory` bean.
+=====
+
+[TIP]
+=====
+Generally speaking, the order in which you declare the factors is the order in which Spring Security will attempt them when collecting the needed authorities.
+Note however, if you have overridden the `AuthenticationEntryPoint` or are using factors that register a `defaultAuthenticationEntryPointFor`, these will take precedence.
+=====
+
+== Granting additional authorities
+
+You may want to grant additional authorities.
+This can be done in the DSL by stating the name of the authority tied to the mechanism.
+
+For example, you may have an authority that you want to grant for only a few minutes, so that it can be asked for again later on in the case of a more highly-sensitive page:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	http
+        .authorizeHttpRequests((authorize) -> authorize
+            .requestMatchers("/profile/**").hasAuthority("profile:read")
+            .anyRequest().authenticated()
+        )
+        .x509((x509) -> x509.factor(Customizer.withDefaults()))
+        .formLogin((form) -> form.factor((f) -> f
+            .grants(Duration.ofMinutes(5), "profile:read")
+        ));
+	return http.build();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun filterChain(val http: HttpSecurity): SecurityFilterChain {
+    http {
+        authorizeHttpRequests {
+            authorize("/profile/**", hasAuthority("profile:read"))
+            authorize(anyRequest, authenticated)
+            x509 {
+                factor {}
+            }
+            formLogin {
+                factor {
+                    grants(Duration.ofMinutes(5), "profile:read")
+                }
+            }
+        }
+    }
+}
+----
+======
+
+The above indicates that the `/profile/**` endpoints are more sensitive and require re-authorization in order to go to them, if that authorization hasn't been obtained in the last five minutes.
+It further states that the "profile:read" authority can be re-obtained using form login.
+
+== Registering a custom entry point
+
+Sometimes the way an authentication factor works when already logged in is different then when you are not yet logged in.
+
+For example, a form login page may not need you to provide the username again, only the  credentials.
+Or an OTT login page may simply auto-POST since it already has all the information it needs to generate the token.
+
+You can register a custom `AuthenticationEntryPoint` to indicate post-authentication behavior by calling the `authenticationEntryPoint` method in the `factor` DSL.
+
+[TIP]
+====
+A handy implementation is `PostAuthenticationEntryPoint`, which uses `FormPostRedirectStrategy` to create an auto-POST page.
+====
+
+[NOTE]
+====
+Like other nested DSLs in Spring Security, if you have a custom `AuthenticationEntryPoint` in your factor's main configuration, you will either need to provide that or the appropriate post-authentication version to the `factor` DSL.
+====
+
+== Custom authentication factors
+
+You can provide a custom authentication factor by using the `MfaConfigurer` configurer, which comes with the needed configuration methods to register extra authorities and a custom `AuthenticationEntryPoint`.

@@ -17,6 +17,8 @@
 package org.springframework.security.authorization;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
@@ -37,6 +39,22 @@ public final class AuthoritiesAuthorizationManager implements AuthorizationManag
 
 	private RoleHierarchy roleHierarchy = new NullRoleHierarchy();
 
+	private boolean hasAnyAuthority = true;
+
+	public AuthoritiesAuthorizationManager() {
+
+	}
+
+	public static AuthoritiesAuthorizationManager hasAnyAuthority() {
+		return new AuthoritiesAuthorizationManager();
+	}
+
+	public static AuthoritiesAuthorizationManager hasAllAuthorities() {
+		AuthoritiesAuthorizationManager manager = new AuthoritiesAuthorizationManager();
+		manager.hasAnyAuthority = false;
+		return manager;
+	}
+
 	/**
 	 * Sets the {@link RoleHierarchy} to be used. Default is {@link NullRoleHierarchy}.
 	 * Cannot be null.
@@ -56,25 +74,31 @@ public final class AuthoritiesAuthorizationManager implements AuthorizationManag
 	 */
 	@Override
 	public AuthorizationResult authorize(Supplier<Authentication> authentication, Collection<String> authorities) {
-		boolean granted = isGranted(authentication.get(), authorities);
-		return new AuthorityAuthorizationDecision(granted, AuthorityUtils.createAuthorityList(authorities));
+		Set<String> needed = new HashSet<>(authorities);
+		for (GrantedAuthority authority : getGrantedAuthorities(authentication.get())) {
+			needed.remove(authority.getAuthority());
+		}
+		if (this.hasAnyAuthority) {
+			boolean granted = needed.size() < authorities.size();
+			return new AuthorityAuthorizationDecision(granted, AuthorityUtils.createAuthorityList(authorities));
+		}
+		else {
+			boolean granted = needed.isEmpty();
+			return new AuthorityAuthorizationDecision(granted, AuthorityUtils.createAuthorityList(needed));
+		}
 	}
 
-	private boolean isGranted(Authentication authentication, Collection<String> authorities) {
-		return authentication != null && isAuthorized(authentication, authorities);
-	}
-
-	private boolean isAuthorized(Authentication authentication, Collection<String> authorities) {
-		for (GrantedAuthority grantedAuthority : getGrantedAuthorities(authentication)) {
-			if (authorities.contains(grantedAuthority.getAuthority())) {
-				return true;
+	private Collection<GrantedAuthority> getGrantedAuthorities(Authentication authentication) {
+		Collection<GrantedAuthority> authorities = new HashSet<>();
+		if (authentication == null) {
+			return authorities;
+		}
+		for (GrantedAuthority authority : authentication.getAuthorities()) {
+			if (authority.isGranted()) {
+				authorities.add(authority);
 			}
 		}
-		return false;
-	}
-
-	private Collection<? extends GrantedAuthority> getGrantedAuthorities(Authentication authentication) {
-		return this.roleHierarchy.getReachableGrantedAuthorities(authentication.getAuthorities());
+		return new HashSet<>(this.roleHierarchy.getReachableGrantedAuthorities(authorities));
 	}
 
 }

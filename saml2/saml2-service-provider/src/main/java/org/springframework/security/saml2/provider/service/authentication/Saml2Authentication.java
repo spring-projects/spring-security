@@ -22,6 +22,7 @@ import java.util.Collection;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationResult;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
@@ -36,7 +37,7 @@ import org.springframework.util.Assert;
  * @since 5.2
  * @see AbstractAuthenticationToken
  */
-public class Saml2Authentication extends AbstractAuthenticationToken {
+public class Saml2Authentication extends AbstractAuthenticationToken implements AuthenticationResult {
 
 	@Serial
 	private static final long serialVersionUID = 405897702378720477L;
@@ -67,6 +68,11 @@ public class Saml2Authentication extends AbstractAuthenticationToken {
 		this.principal = principal;
 		this.saml2Response = saml2Response;
 		setAuthenticated(true);
+	}
+
+	@Override
+	public Saml2Authentication withGrantedAuthorities(Collection<GrantedAuthority> authorities) {
+		return new Saml2Authentication(getPrincipal(), getSaml2Response(), authorities);
 	}
 
 	@Override

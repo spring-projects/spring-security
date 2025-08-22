@@ -54,6 +54,12 @@ public class Saml2AssertionAuthentication extends Saml2Authentication {
 	}
 
 	@Override
+	public Saml2AssertionAuthentication withGrantedAuthorities(Collection<GrantedAuthority> authorities) {
+		return new Saml2AssertionAuthentication(getPrincipal(), getCredentials(), authorities,
+				this.relyingPartyRegistrationId);
+	}
+
+	@Override
 	public Saml2ResponseAssertionAccessor getCredentials() {
 		return this.assertion;
 	}

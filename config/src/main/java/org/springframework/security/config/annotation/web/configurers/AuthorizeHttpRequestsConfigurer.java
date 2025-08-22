@@ -16,6 +16,8 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -28,11 +30,13 @@ import org.springframework.core.ResolvableType;
 import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
+import org.springframework.security.authorization.AuthoritiesAuthorizationManager;
 import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationManagers;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.SingleResultAuthorizationManager;
 import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
 import org.springframework.security.config.ObjectPostProcessor;
@@ -139,6 +143,8 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		private final RequestMatcherDelegatingAuthorizationManager.Builder managerBuilder = RequestMatcherDelegatingAuthorizationManager
 			.builder();
 
+		private final HasAllAuthoritiesAuthorizationManager<RequestAuthorizationContext> hasAuthority = new HasAllAuthoritiesAuthorizationManager<>();
+
 		private List<RequestMatcher> unmappedMatchers;
 
 		private int mappingCount;
@@ -165,6 +171,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 							+ ". Try completing it with something like requestUrls().<something>.hasRole('USER')");
 			Assert.state(this.mappingCount > 0,
 					"At least one mapping is required (for example, authorizeHttpRequests().anyRequest().authenticated())");
+			this.hasAuthority.setRoleHierarchy(AuthorizeHttpRequestsConfigurer.this.roleHierarchy.get());
 			AuthorizationManager<HttpServletRequest> manager = postProcess(
 					(AuthorizationManager<HttpServletRequest>) this.managerBuilder.build());
 			return AuthorizeHttpRequestsConfigurer.this.postProcessor.postProcess(manager);
@@ -173,7 +180,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		@Override
 		protected AuthorizedUrl chainRequestMatchers(List<RequestMatcher> requestMatchers) {
 			this.unmappedMatchers = requestMatchers;
-			return new AuthorizedUrl(requestMatchers);
+			return new AuthorizedUrl(this, requestMatchers);
 		}
 
 		/**
@@ -188,6 +195,10 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 			return this;
 		}
 
+		void hasAuthority(String authority) {
+			this.hasAuthority.add(authority);
+		}
+
 	}
 
 	/**
@@ -199,6 +210,8 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 	 */
 	public class AuthorizedUrl {
 
+		private final AuthorizationManagerRequestMatcherRegistry registry;
+
 		private final List<? extends RequestMatcher> matchers;
 
 		private boolean not;
@@ -207,7 +220,8 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * Creates an instance.
 		 * @param matchers the {@link RequestMatcher} instances to map
 		 */
-		AuthorizedUrl(List<? extends RequestMatcher> matchers) {
+		AuthorizedUrl(AuthorizationManagerRequestMatcherRegistry registry, List<? extends RequestMatcher> matchers) {
+			this.registry = registry;
 			this.matchers = matchers;
 		}
 
@@ -289,10 +303,10 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 			return access(withRoleHierarchy(AuthorityAuthorizationManager.hasAnyAuthority(authorities)));
 		}
 
-		private AuthorityAuthorizationManager<RequestAuthorizationContext> withRoleHierarchy(
+		private AuthorizationManager<RequestAuthorizationContext> withRoleHierarchy(
 				AuthorityAuthorizationManager<RequestAuthorizationContext> manager) {
 			manager.setRoleHierarchy(AuthorizeHttpRequestsConfigurer.this.roleHierarchy.get());
-			return manager;
+			return withAuthentication(manager);
 		}
 
 		/**
@@ -301,7 +315,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * customizations
 		 */
 		public AuthorizationManagerRequestMatcherRegistry authenticated() {
-			return access(AuthenticatedAuthorizationManager.authenticated());
+			return access(withAuthentication(AuthenticatedAuthorizationManager.authenticated()));
 		}
 
 		/**
@@ -313,7 +327,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * @see RememberMeConfigurer
 		 */
 		public AuthorizationManagerRequestMatcherRegistry fullyAuthenticated() {
-			return access(AuthenticatedAuthorizationManager.fullyAuthenticated());
+			return access(withAuthentication(AuthenticatedAuthorizationManager.fullyAuthenticated()));
 		}
 
 		/**
@@ -324,7 +338,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * @see RememberMeConfigurer
 		 */
 		public AuthorizationManagerRequestMatcherRegistry rememberMe() {
-			return access(AuthenticatedAuthorizationManager.rememberMe());
+			return access(withAuthentication(AuthenticatedAuthorizationManager.rememberMe()));
 		}
 
 		/**
@@ -366,6 +380,11 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 					: AuthorizeHttpRequestsConfigurer.this.addMapping(this.matchers, manager);
 		}
 
+		private AuthorizationManager<RequestAuthorizationContext> withAuthentication(
+				AuthorizationManager<RequestAuthorizationContext> manager) {
+			return AuthorizationManagers.allOf(this.registry.hasAuthority, manager);
+		}
+
 		/**
 		 * An object that allows configuring {@link RequestMatcher}s with URI path
 		 * variables
@@ -399,6 +418,27 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 				});
 			}
 
+		}
+
+	}
+
+	private static final class HasAllAuthoritiesAuthorizationManager<T> implements AuthorizationManager<T> {
+
+		private final AuthoritiesAuthorizationManager delegate = AuthoritiesAuthorizationManager.hasAllAuthorities();
+
+		private final Collection<String> authorities = new ArrayList<>();
+
+		@Override
+		public AuthorizationResult authorize(Supplier<Authentication> authentication, T object) {
+			return this.delegate.authorize(authentication, this.authorities);
+		}
+
+		private void setRoleHierarchy(RoleHierarchy hierarchy) {
+			this.delegate.setRoleHierarchy(hierarchy);
+		}
+
+		private void add(String authority) {
+			this.authorities.add(authority);
 		}
 
 	}

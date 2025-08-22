@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.springframework.security.core.AuthenticationResult;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.Transient;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -35,7 +36,8 @@ import org.springframework.util.Assert;
  * @since 5.2
  */
 @Transient
-public class BearerTokenAuthentication extends AbstractOAuth2TokenAuthenticationToken<OAuth2AccessToken> {
+public class BearerTokenAuthentication extends AbstractOAuth2TokenAuthenticationToken<OAuth2AccessToken>
+		implements AuthenticationResult {
 
 	private static final long serialVersionUID = 620L;
 
@@ -54,6 +56,11 @@ public class BearerTokenAuthentication extends AbstractOAuth2TokenAuthentication
 				"credentials must be a bearer token");
 		this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(principal.getAttributes()));
 		setAuthenticated(true);
+	}
+
+	@Override
+	public BearerTokenAuthentication withGrantedAuthorities(Collection<GrantedAuthority> authorities) {
+		return new BearerTokenAuthentication((OAuth2AuthenticatedPrincipal) getPrincipal(), getToken(), authorities);
 	}
 
 	@Override

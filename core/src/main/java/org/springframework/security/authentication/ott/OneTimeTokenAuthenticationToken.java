@@ -19,11 +19,14 @@ package org.springframework.security.authentication.ott;
 import java.io.Serial;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.AuthenticationResult;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.Assert;
 
 /**
  * Represents a One-Time Token authentication that can be authenticated or not.
@@ -31,7 +34,7 @@ import org.springframework.security.core.GrantedAuthority;
  * @author Marcus da Coregio
  * @since 6.4
  */
-public class OneTimeTokenAuthenticationToken extends AbstractAuthenticationToken {
+public class OneTimeTokenAuthenticationToken extends AbstractAuthenticationToken implements AuthenticationResult {
 
 	@Serial
 	private static final long serialVersionUID = -8691636031126328365L;
@@ -54,6 +57,13 @@ public class OneTimeTokenAuthenticationToken extends AbstractAuthenticationToken
 		super(authorities);
 		this.principal = principal;
 		setAuthenticated(true);
+	}
+
+	@Override
+	public OneTimeTokenAuthenticationToken withGrantedAuthorities(Collection<GrantedAuthority> authorities) {
+		Assert.isTrue(isAuthenticated(), "cannot grant authorities to unauthenticated tokens");
+		Object principal = Objects.requireNonNull(this.principal);
+		return OneTimeTokenAuthenticationToken.authenticated(principal, authorities);
 	}
 
 	/**
