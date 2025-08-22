@@ -19,6 +19,7 @@ package org.springframework.security.authorization.method;
 import java.util.function.Supplier;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -73,7 +74,7 @@ public final class MethodExpressionAuthorizationManager implements Authorization
 	 * expression
 	 */
 	@Override
-	public AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocation context) {
+	public AuthorizationResult authorize(Supplier<@Nullable Authentication> authentication, MethodInvocation context) {
 		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication, context);
 		boolean granted = ExpressionUtils.evaluateAsBoolean(this.expression, ctx);
 		return new ExpressionAuthorizationDecision(granted, this.expression);

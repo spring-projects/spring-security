@@ -79,12 +79,14 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	 * implementation.
 	 */
 	@Override
-	public StandardEvaluationContext createEvaluationContextInternal(Authentication auth, MethodInvocation mi) {
+	public StandardEvaluationContext createEvaluationContextInternal(@Nullable Authentication auth,
+			MethodInvocation mi) {
 		return new MethodSecurityEvaluationContext(auth, mi, getParameterNameDiscoverer());
 	}
 
 	@Override
-	public EvaluationContext createEvaluationContext(Supplier<Authentication> authentication, MethodInvocation mi) {
+	public EvaluationContext createEvaluationContext(Supplier<@Nullable Authentication> authentication,
+			MethodInvocation mi) {
 		MethodSecurityExpressionOperations root = createSecurityExpressionRoot(authentication, mi);
 		MethodSecurityEvaluationContext ctx = new MethodSecurityEvaluationContext(root, mi,
 				getParameterNameDiscoverer());
@@ -96,13 +98,13 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	 * Creates the root object for expression evaluation.
 	 */
 	@Override
-	protected MethodSecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
+	protected MethodSecurityExpressionOperations createSecurityExpressionRoot(@Nullable Authentication authentication,
 			MethodInvocation invocation) {
 		return createSecurityExpressionRoot(() -> authentication, invocation);
 	}
 
-	private MethodSecurityExpressionOperations createSecurityExpressionRoot(Supplier<Authentication> authentication,
-			MethodInvocation invocation) {
+	private MethodSecurityExpressionOperations createSecurityExpressionRoot(
+			Supplier<@Nullable Authentication> authentication, MethodInvocation invocation) {
 		MethodSecurityExpressionRoot root = new MethodSecurityExpressionRoot(authentication);
 		root.setThis(invocation.getThis());
 		root.setPermissionEvaluator(getPermissionEvaluator());

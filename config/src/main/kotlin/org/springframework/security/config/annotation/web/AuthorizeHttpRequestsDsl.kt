@@ -235,13 +235,13 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
      * Specify that URLs are allowed by anyone.
      */
     val permitAll: AuthorizationManager<RequestAuthorizationContext> =
-        AuthorizationManager { _: Supplier<Authentication>, _: RequestAuthorizationContext -> AuthorizationDecision(true) }
+        AuthorizationManager { _: Supplier<Authentication?>, _: RequestAuthorizationContext -> AuthorizationDecision(true) }
 
     /**
      * Specify that URLs are not allowed by anyone.
      */
     val denyAll: AuthorizationManager<RequestAuthorizationContext> =
-        AuthorizationManager { _: Supplier<Authentication>, _: RequestAuthorizationContext -> AuthorizationDecision(false) }
+        AuthorizationManager { _: Supplier<Authentication?>, _: RequestAuthorizationContext -> AuthorizationDecision(false) }
 
     /**
      * Specify that URLs are allowed by any authenticated user.

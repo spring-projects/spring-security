@@ -63,9 +63,9 @@ public final class ObservationAuthorizationManager<T>
 	}
 
 	@Override
-	public @Nullable AuthorizationResult authorize(Supplier<Authentication> authentication, T object) {
+	public @Nullable AuthorizationResult authorize(Supplier<@Nullable Authentication> authentication, T object) {
 		AuthorizationObservationContext<T> context = new AuthorizationObservationContext<>(object);
-		Supplier<Authentication> wrapped = () -> {
+		Supplier<@Nullable Authentication> wrapped = () -> {
 			context.setAuthentication(authentication.get());
 			return context.getAuthentication();
 		};

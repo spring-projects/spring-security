@@ -83,7 +83,7 @@ public final class Jsr250AuthorizationManager implements AuthorizationManager<Me
 	 * {@inheritDoc}
 	 */
 	@Override
-	public @Nullable AuthorizationResult authorize(Supplier<Authentication> authentication,
+	public @Nullable AuthorizationResult authorize(Supplier<@Nullable Authentication> authentication,
 			MethodInvocation methodInvocation) {
 		AuthorizationManager<MethodInvocation> delegate = this.registry.getManager(methodInvocation);
 		return delegate.authorize(authentication, methodInvocation);
@@ -104,8 +104,9 @@ public final class Jsr250AuthorizationManager implements AuthorizationManager<Me
 				return SingleResultAuthorizationManager.permitAll();
 			}
 			if (annotation instanceof RolesAllowed rolesAllowed) {
-				return (a, o) -> Jsr250AuthorizationManager.this.authoritiesAuthorizationManager.authorize(a,
-						getAllowedRolesWithPrefix(rolesAllowed));
+				return (Supplier<@Nullable Authentication> a,
+						MethodInvocation o) -> Jsr250AuthorizationManager.this.authoritiesAuthorizationManager
+							.authorize(a, getAllowedRolesWithPrefix(rolesAllowed));
 			}
 			return NULL_MANAGER;
 		}

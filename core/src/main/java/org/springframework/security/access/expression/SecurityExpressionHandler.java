@@ -18,6 +18,8 @@ package org.springframework.security.access.expression;
 
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.ExpressionParser;
@@ -42,7 +44,7 @@ public interface SecurityExpressionHandler<T> extends AopInfrastructureBean {
 	 * Provides an evaluation context in which to evaluate security expressions for the
 	 * invocation type.
 	 */
-	EvaluationContext createEvaluationContext(Authentication authentication, T invocation);
+	EvaluationContext createEvaluationContext(@Nullable Authentication authentication, T invocation);
 
 	/**
 	 * Provides an evaluation context in which to evaluate security expressions for the
@@ -55,7 +57,7 @@ public interface SecurityExpressionHandler<T> extends AopInfrastructureBean {
 	 * @return the {@link EvaluationContext} to use
 	 * @since 5.8
 	 */
-	default EvaluationContext createEvaluationContext(Supplier<Authentication> authentication, T invocation) {
+	default EvaluationContext createEvaluationContext(Supplier<@Nullable Authentication> authentication, T invocation) {
 		return createEvaluationContext(authentication.get(), invocation);
 	}
 

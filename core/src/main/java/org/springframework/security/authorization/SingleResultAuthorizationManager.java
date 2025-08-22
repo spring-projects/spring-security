@@ -18,6 +18,8 @@ package org.springframework.security.authorization;
 
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
@@ -44,7 +46,7 @@ public final class SingleResultAuthorizationManager<C> implements AuthorizationM
 	}
 
 	@Override
-	public AuthorizationResult authorize(Supplier<Authentication> authentication, C object) {
+	public AuthorizationResult authorize(Supplier<@Nullable Authentication> authentication, C object) {
 		if (!(this.result instanceof AuthorizationDecision)) {
 			throw new IllegalArgumentException("result should be AuthorizationDecision");
 		}

@@ -193,7 +193,7 @@ class AuthorizeHttpRequestsDslTests {
     open class MvcMatcherPathVariablesConfig {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-            val access = AuthorizationManager { _: Supplier<Authentication>, context: RequestAuthorizationContext ->
+            val access = AuthorizationManager { _: Supplier<Authentication?>, context: RequestAuthorizationContext ->
                 AuthorizationDecision(context.variables["userName"] == "user")
             }
             http {

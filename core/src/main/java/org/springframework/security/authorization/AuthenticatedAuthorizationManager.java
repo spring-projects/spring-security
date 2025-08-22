@@ -18,6 +18,8 @@ package org.springframework.security.authorization;
 
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
@@ -111,7 +113,7 @@ public final class AuthenticatedAuthorizationManager<T> implements Authorization
 	 * @return an {@link AuthorizationDecision}
 	 */
 	@Override
-	public AuthorizationResult authorize(Supplier<Authentication> authentication, T object) {
+	public AuthorizationResult authorize(Supplier<@Nullable Authentication> authentication, T object) {
 		boolean granted = this.authorizationStrategy.isGranted(authentication.get());
 		return new AuthorizationDecision(granted);
 	}

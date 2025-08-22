@@ -70,7 +70,7 @@ public abstract class AbstractSecurityExpressionHandler<T>
 	 * suitable root object.
 	 */
 	@Override
-	public final EvaluationContext createEvaluationContext(Authentication authentication, T invocation) {
+	public final EvaluationContext createEvaluationContext(@Nullable Authentication authentication, T invocation) {
 		SecurityExpressionOperations root = createSecurityExpressionRoot(authentication, invocation);
 		StandardEvaluationContext ctx = createEvaluationContextInternal(authentication, invocation);
 		if (this.beanResolver != null) {
@@ -91,7 +91,8 @@ public abstract class AbstractSecurityExpressionHandler<T>
 	 * @return A {@code StandardEvaluationContext} or potentially a custom subclass if
 	 * overridden.
 	 */
-	protected StandardEvaluationContext createEvaluationContextInternal(Authentication authentication, T invocation) {
+	protected StandardEvaluationContext createEvaluationContextInternal(@Nullable Authentication authentication,
+			T invocation) {
 		return new StandardEvaluationContext();
 	}
 
@@ -102,8 +103,8 @@ public abstract class AbstractSecurityExpressionHandler<T>
 	 * @param invocation the invocation (filter, method, channel)
 	 * @return the object
 	 */
-	protected abstract SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
-			T invocation);
+	protected abstract SecurityExpressionOperations createSecurityExpressionRoot(
+			@Nullable Authentication authentication, T invocation);
 
 	protected @Nullable RoleHierarchy getRoleHierarchy() {
 		return this.roleHierarchy;

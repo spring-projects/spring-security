@@ -19,6 +19,8 @@ package org.springframework.security.authorization;
 import java.util.Collection;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.core.Authentication;
@@ -55,7 +57,8 @@ public final class AuthoritiesAuthorizationManager implements AuthorizationManag
 	 * @return an {@link AuthorityAuthorizationDecision}
 	 */
 	@Override
-	public AuthorizationResult authorize(Supplier<Authentication> authentication, Collection<String> authorities) {
+	public AuthorizationResult authorize(Supplier<@Nullable Authentication> authentication,
+			Collection<String> authorities) {
 		boolean granted = isGranted(authentication.get(), authorities);
 		return new AuthorityAuthorizationDecision(granted, AuthorityUtils.createAuthorityList(authorities));
 	}

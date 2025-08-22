@@ -68,7 +68,8 @@ public final class SecuredAuthorizationManager implements AuthorizationManager<M
 	}
 
 	@Override
-	public @Nullable AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocation mi) {
+	public @Nullable AuthorizationResult authorize(Supplier<@Nullable Authentication> authentication,
+			MethodInvocation mi) {
 		Set<String> authorities = getAuthorities(mi);
 		return authorities.isEmpty() ? null
 				: this.authoritiesAuthorizationManager.authorize(authentication, authorities);

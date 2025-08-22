@@ -86,7 +86,8 @@ public final class PostAuthorizeAuthorizationManager
 	 * {@link PostAuthorize} annotation is not present
 	 */
 	@Override
-	public @Nullable AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocationResult mi) {
+	public @Nullable AuthorizationResult authorize(Supplier<@Nullable Authentication> authentication,
+			MethodInvocationResult mi) {
 		ExpressionAttribute attribute = this.registry.getAttribute(mi.getMethodInvocation());
 		if (attribute == null) {
 			return null;

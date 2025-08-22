@@ -38,11 +38,11 @@ class MethodSecurityExpressionRoot extends SecurityExpressionRoot implements Met
 
 	private @Nullable Object target;
 
-	MethodSecurityExpressionRoot(Authentication a) {
+	MethodSecurityExpressionRoot(@Nullable Authentication a) {
 		super(a);
 	}
 
-	MethodSecurityExpressionRoot(Supplier<Authentication> authentication) {
+	MethodSecurityExpressionRoot(Supplier<@Nullable Authentication> authentication) {
 		super(authentication);
 	}
 
