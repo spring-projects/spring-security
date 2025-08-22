@@ -19,12 +19,16 @@ package org.springframework.security.authentication;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
 import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -308,6 +312,22 @@ public class ProviderManagerTests {
 		verify(publisher).publishAuthenticationFailure(badCredentialsExParent, authReq); // Parent
 																							// publishes
 		verifyNoMoreInteractions(publisher); // Child should not publish (duplicate event)
+	}
+
+	@Test
+	void authenticateWhenPreviousAuthenticationThenApplies() {
+		Authentication factorOne = new TestingAuthenticationToken("user", "pass", "FACTOR_ONE");
+		Authentication factorTwo = new TestingAuthenticationToken("user", "pass", "FACTOR_TWO");
+		SecurityContextHolderStrategy securityContextHolderStrategy = mock(SecurityContextHolderStrategy.class);
+		given(securityContextHolderStrategy.getContext()).willReturn(new SecurityContextImpl(factorOne));
+		AuthenticationProvider provider = mock(AuthenticationProvider.class);
+		given(provider.authenticate(any())).willReturn(factorTwo);
+		given(provider.supports(any())).willReturn(true);
+		ProviderManager manager = new ProviderManager(provider);
+		manager.setSecurityContextHolderStrategy(securityContextHolderStrategy);
+		Authentication request = new TestingAuthenticationToken("user", "password");
+		Set<String> authorities = AuthorityUtils.authorityListToSet(manager.authenticate(request).getAuthorities());
+		assertThat(authorities).containsExactlyInAnyOrder("FACTOR_ONE", "FACTOR_TWO");
 	}
 
 	private AuthenticationProvider createProviderWhichThrows(final AuthenticationException ex) {
