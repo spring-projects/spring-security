@@ -25,7 +25,6 @@ dependencies {
 	optional project(':spring-security-ldap')
 	optional project(':spring-security-messaging')
 	optional project(path: ':spring-security-saml2-service-provider')
-	opensaml5 project(path: ':spring-security-saml2-service-provider', configuration: 'opensamlFiveMain')
 	optional project(':spring-security-oauth2-client')
 	optional project(':spring-security-oauth2-jose')
 	optional project(':spring-security-oauth2-resource-server')
@@ -169,16 +168,4 @@ test {
 			logger.lifecycle(event.message)
 		}
 	}
-}
-
-tasks.register("opensaml5Test", Test) {
-	filter {
-		includeTestsMatching "org.springframework.security.config.annotation.web.configurers.saml2.*"
-	}
-	useJUnitPlatform()
-	classpath = sourceSets.main.output + sourceSets.test.output + configurations.opensaml5
-}
-
-tasks.named("check") {
-	dependsOn opensaml5Test
 }
