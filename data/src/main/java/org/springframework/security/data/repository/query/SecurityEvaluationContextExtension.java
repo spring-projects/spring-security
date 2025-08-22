@@ -16,6 +16,8 @@
 
 package org.springframework.security.data.repository.query;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.data.spel.spi.EvaluationContextExtension;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.DenyAllPermissionEvaluator;
@@ -29,8 +31,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
-import org.jspecify.annotations.Nullable;
-import org.jspecify.annotations.NullUnmarked;
 
 /**
  * <p>
