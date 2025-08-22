@@ -318,6 +318,7 @@ public class GlobalMethodSecurityConfiguration implements ImportAware, SmartInit
 				.postProcess(new DefaultAuthenticationEventPublisher());
 			this.auth = new AuthenticationManagerBuilder(this.objectPostProcessor);
 			this.auth.authenticationEventPublisher(eventPublisher);
+			this.auth.setSharedObject(BeanFactory.class, this.context);
 			configure(this.auth);
 			this.authenticationManager = (this.disableAuthenticationRegistry)
 					? getAuthenticationConfiguration().getAuthenticationManager() : this.auth.build();
