@@ -22,6 +22,7 @@ import java.util.Collection;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
 import org.springframework.util.Assert;
@@ -67,6 +68,40 @@ public class WebAuthnAuthentication extends AbstractAuthenticationToken {
 	@Override
 	public String getName() {
 		return this.principal.getName();
+	}
+
+	@Override
+	public Builder toBuilder() {
+		return new Builder().apply(this);
+	}
+
+	/**
+	 * A builder preserving the concrete {@link Authentication} type
+	 *
+	 * @since 7.0
+	 */
+	public static final class Builder extends AbstractAuthenticationBuilder<WebAuthnAuthentication, Builder> {
+
+		private PublicKeyCredentialUserEntity principal;
+
+		private Builder() {
+
+		}
+
+		public Builder apply(WebAuthnAuthentication authentication) {
+			return super.apply(authentication).principal(authentication.getPrincipal());
+		}
+
+		public Builder principal(PublicKeyCredentialUserEntity principal) {
+			this.principal = principal;
+			return this;
+		}
+
+		@Override
+		protected WebAuthnAuthentication build(Collection<GrantedAuthority> authorities) {
+			return new WebAuthnAuthentication(this.principal, authorities);
+		}
+
 	}
 
 }

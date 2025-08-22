@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
@@ -122,6 +123,49 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 	public void eraseCredentials() {
 		super.eraseCredentials();
 		this.credentials = null;
+	}
+
+	@Override
+	public Builder<?, ?> toBuilder() {
+		return new Builder<>().apply(this);
+	}
+
+	/**
+	 * A builder preserving the concrete {@link Authentication} type
+	 *
+	 * @since 7.0
+	 */
+	public static class Builder<A extends UsernamePasswordAuthenticationToken, B extends Builder<A, B>>
+			extends AbstractAuthenticationBuilder<A, B> {
+
+		private @Nullable Object principal;
+
+		private @Nullable Object credentials;
+
+		protected Builder() {
+		}
+
+		public B apply(UsernamePasswordAuthenticationToken authentication) {
+			return super.apply(authentication).principal(authentication.getPrincipal())
+				.credentials(authentication.getCredentials());
+		}
+
+		public B principal(Object principal) {
+			this.principal = principal;
+			return (B) this;
+		}
+
+		public B credentials(@Nullable Object credentials) {
+			this.credentials = credentials;
+			return (B) this;
+		}
+
+		@Override
+		protected A build(Collection<GrantedAuthority> authorities) {
+			Assert.notNull(this.principal, "principal cannot be null");
+			return (A) new UsernamePasswordAuthenticationToken(this.principal, this.credentials, authorities);
+		}
+
 	}
 
 }

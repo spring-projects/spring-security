@@ -16,14 +16,17 @@
 
 package org.springframework.security.core;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.Collection;
+import java.util.function.Consumer;
 
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.Assert;
 
 /**
  * Represents the token for an authentication request or for an authenticated principal
@@ -54,6 +57,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 public interface Authentication extends Principal, Serializable {
 
+	@Serial
+	long serialVersionUID = -3884394378624019849L;
+
 	/**
 	 * Set by an <code>AuthenticationManager</code> to indicate the authorities that the
 	 * principal has been granted. Note that classes should not rely on this value as
@@ -64,7 +70,7 @@ public interface Authentication extends Principal, Serializable {
 	 * instance.
 	 * </p>
 	 * @return the authorities granted to the principal, or an empty collection if the
-	 * token has not been authenticated. Never null.
+	 * token has not been authenticated. Never null.Saml2AssertAu
 	 */
 	Collection<? extends GrantedAuthority> getAuthorities();
 
@@ -135,5 +141,51 @@ public interface Authentication extends Principal, Serializable {
 	 * {@link #isAuthenticated()}
 	 */
 	void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException;
+
+	/**
+	 * Return an {@link Builder} based on this instance
+	 * @return an {@link Builder} for building a new {@link Authentication} based on this
+	 * instance
+	 * @since 7.0
+	 */
+	default Builder<?, ?> toBuilder() {
+		return new NoopAuthenticationBuilder<>(this);
+	}
+
+	/**
+	 * A builder based on a given {@link Authentication} instance
+	 *
+	 * @param <A> the type of {@link Authentication}
+	 * @author Josh Cummings
+	 * @since 7.0
+	 */
+	interface Builder<A extends Authentication, B extends Builder<A, B>> {
+
+		/**
+		 * Apply this {@link Authentication} to the builder.
+		 * <p>
+		 * By default, this method adds the authorities from {@code authentication} to
+		 * this builder
+		 * @return the {@link Builder} for further configuration
+		 */
+		default B apply(Authentication authentication) {
+			Assert.isTrue(authentication.isAuthenticated(), "cannot apply an unauthenticated token");
+			return authorities((a) -> a.addAll(authentication.getAuthorities()));
+		}
+
+		/**
+		 * Apply these authorities to the builder.
+		 * @param authorities the authorities to apply
+		 * @return the {@link Builder} for further configuration
+		 */
+		B authorities(Consumer<Collection<GrantedAuthority>> authorities);
+
+		/**
+		 * Build an {@link Authentication} instance
+		 * @return the {@link Authentication} instance
+		 */
+		A build();
+
+	}
 
 }

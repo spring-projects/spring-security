@@ -21,6 +21,7 @@ import java.util.Collection;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
 /**
@@ -80,6 +81,48 @@ public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationT
 	@Override
 	public Object getPrincipal() {
 		return this.principal;
+	}
+
+	@Override
+	public Builder toBuilder() {
+		return new Builder().apply(this);
+	}
+
+	/**
+	 * A builder preserving the concrete {@link Authentication} type
+	 *
+	 * @since 7.0
+	 */
+	public static final class Builder
+			extends AbstractAuthenticationBuilder<PreAuthenticatedAuthenticationToken, Builder> {
+
+		private Object principal;
+
+		private Object credentials;
+
+		private Builder() {
+
+		}
+
+		public Builder apply(PreAuthenticatedAuthenticationToken token) {
+			return super.apply(token).principal(token.getPrincipal()).credentials(token.getCredentials());
+		}
+
+		public Builder principal(Object principal) {
+			this.principal = principal;
+			return this;
+		}
+
+		public Builder credentials(Object credentials) {
+			this.credentials = credentials;
+			return this;
+		}
+
+		@Override
+		protected PreAuthenticatedAuthenticationToken build(Collection<GrantedAuthority> authorities) {
+			return new PreAuthenticatedAuthenticationToken(this.principal, this.credentials, authorities);
+		}
+
 	}
 
 }
