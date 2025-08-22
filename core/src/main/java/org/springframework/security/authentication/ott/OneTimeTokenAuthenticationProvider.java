@@ -56,8 +56,7 @@ public final class OneTimeTokenAuthenticationProvider implements AuthenticationP
 		}
 		try {
 			UserDetails user = this.userDetailsService.loadUserByUsername(consumed.getUsername());
-			OneTimeTokenAuthenticationToken authenticated = OneTimeTokenAuthenticationToken.authenticated(user,
-					user.getAuthorities());
+			OneTimeTokenAuthentication authenticated = new OneTimeTokenAuthentication(user, user.getAuthorities());
 			authenticated.setDetails(otpAuthenticationToken.getDetails());
 			return authenticated;
 		}

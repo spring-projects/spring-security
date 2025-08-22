@@ -78,6 +78,7 @@ import org.springframework.security.authentication.jaas.event.JaasAuthentication
 import org.springframework.security.authentication.jaas.event.JaasAuthenticationSuccessEvent;
 import org.springframework.security.authentication.ott.DefaultOneTimeToken;
 import org.springframework.security.authentication.ott.InvalidOneTimeTokenException;
+import org.springframework.security.authentication.ott.OneTimeTokenAuthentication;
 import org.springframework.security.authentication.ott.OneTimeTokenAuthenticationToken;
 import org.springframework.security.authentication.password.CompromisedPasswordException;
 import org.springframework.security.authorization.AuthorityAuthorizationDecision;
@@ -400,6 +401,8 @@ final class SerializationSamples {
 		});
 		generatorByClassName.put(OneTimeTokenAuthenticationToken.class,
 				(r) -> applyDetails(new OneTimeTokenAuthenticationToken("username", "token")));
+		generatorByClassName.put(OneTimeTokenAuthentication.class,
+				(r) -> applyDetails(new OneTimeTokenAuthentication("username", authentication.getAuthorities())));
 		generatorByClassName.put(AccessDeniedException.class,
 				(r) -> new AccessDeniedException("access denied", new RuntimeException()));
 		generatorByClassName.put(AuthorizationServiceException.class,
