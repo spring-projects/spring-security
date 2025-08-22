@@ -544,6 +544,14 @@ open class BankService {
 The result is that the above method will only return the `Account` if its `owner` attribute matches the logged-in user's `name`.
 If not, Spring Security will throw an `AccessDeniedException` and return a 403 status code.
 
+[NOTE]
+=====
+Note that `@PostAuthorize` is not recommended for classes that perform database writes since that typically means that a database change was made before the security invariants were checked.
+A common example of doing this is if you have `@Transactional` and `@PostAuthorize` on the same method.
+Instead, read the value first, using `@PostAuthorize` on the read, and then perform the database write, should that read is authorized.
+If you must do something like this, you can <<changing-the-order, ensure that `@EnableTransactionManagement` comes before `@EnableMethodSecurity`>>.
+=====
+
 [[use-prefilter]]
 === Filtering Method Parameters with `@PreFilter`
 
@@ -1795,39 +1803,7 @@ As already noted, there is a Spring AOP method interceptor for each annotation, 
 
 Namely, the `@PreFilter` method interceptor's order is 100, ``@PreAuthorize``'s is 200, and so on.
 
-The reason this is important to note is that there are other AOP-based annotations like `@EnableTransactionManagement` that have an order of `Integer.MAX_VALUE`.
-In other words, they are located at the end of the advisor chain by default.
-
-At times, it can be valuable to have other advice execute before Spring Security.
-For example, if you have a method annotated with `@Transactional` and `@PostAuthorize`, you might want the transaction to still be open when `@PostAuthorize` runs so that an `AccessDeniedException` will cause a rollback.
-
-To get `@EnableTransactionManagement` to open a transaction before method authorization advice runs, you can set ``@EnableTransactionManagement``'s order like so:
-
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@EnableTransactionManagement(order = 0)
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@EnableTransactionManagement(order = 0)
-----
-
-Xml::
-+
-[source,xml,role="secondary"]
-----
-<tx:annotation-driven ref="txManager" order="0"/>
-----
-======
-
-Since the earliest method interceptor (`@PreFilter`) is set to an order of 100, a setting of zero means that the transaction advice will run before all Spring Security advice.
+You can use the `offset` parameter on `@EnableMethodSecurity` to move all interceptors en masse to provide their advice earlier or later in a method invocation.
 
 [[authorization-expressions]]
 == Expressing Authorization with SpEL
