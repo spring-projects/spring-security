@@ -20,6 +20,8 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.function.Consumer;
 
 import org.jspecify.annotations.Nullable;
 
@@ -183,6 +185,38 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 		sb.append("Granted Authorities=").append(this.authorities);
 		sb.append("]");
 		return sb.toString();
+	}
+
+	protected abstract static class AbstractAuthenticationBuilder<A extends Authentication, B extends AbstractAuthenticationBuilder<A, B>>
+			implements Builder<A, B> {
+
+		private final Collection<GrantedAuthority> authorities = new HashSet<>();
+
+		protected AbstractAuthenticationBuilder() {
+
+		}
+
+		@Override
+		public B authorities(Consumer<Collection<GrantedAuthority>> authorities) {
+			authorities.accept(this.authorities);
+			return (B) this;
+		}
+
+		@Override
+		public A build() {
+			return build(this.authorities);
+		}
+
+		@Override
+		public B apply(Authentication token) {
+			Assert.isTrue(token.isAuthenticated(), "cannot mutate an unauthenticated token");
+			Assert.notNull(token.getPrincipal(), "principal cannot be null");
+			this.authorities.addAll(token.getAuthorities());
+			return (B) this;
+		}
+
+		protected abstract A build(Collection<GrantedAuthority> authorities);
+
 	}
 
 }

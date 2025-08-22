@@ -18,6 +18,7 @@ package org.springframework.security.web.authentication.preauth;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -71,6 +72,19 @@ public class PreAuthenticatedAuthenticationTokenTests {
 		assertThat(gas.containsAll(resultColl) && resultColl.containsAll(gas))
 			.withFailMessage("GrantedAuthority collections do not match; result: " + resultColl + ", expected: " + gas)
 			.isTrue();
+	}
+
+	@Test
+	public void toBuilderWhenApplyThenCopies() {
+		PreAuthenticatedAuthenticationToken factorOne = new PreAuthenticatedAuthenticationToken("alice", "pass",
+				AuthorityUtils.createAuthorityList("FACTOR_ONE"));
+		PreAuthenticatedAuthenticationToken factorTwo = new PreAuthenticatedAuthenticationToken("bob", "ssap",
+				AuthorityUtils.createAuthorityList("FACTOR_TWO"));
+		PreAuthenticatedAuthenticationToken result = factorOne.toBuilder().apply(factorTwo).build();
+		Set<String> authorities = AuthorityUtils.authorityListToSet(result.getAuthorities());
+		assertThat(result.getPrincipal()).isSameAs(factorTwo.getPrincipal());
+		assertThat(result.getCredentials()).isSameAs(factorTwo.getCredentials());
+		assertThat(authorities).containsExactlyInAnyOrder("FACTOR_ONE", "FACTOR_TWO");
 	}
 
 }

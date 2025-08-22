@@ -16,6 +16,7 @@
 
 package org.springframework.security.authentication.jaas;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.security.auth.login.LoginContext;
@@ -23,7 +24,9 @@ import javax.security.auth.login.LoginContext;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.Assert;
 
 /**
  * UsernamePasswordAuthenticationToken extension to carry the Jaas LoginContext that the
@@ -50,6 +53,49 @@ public class JaasAuthenticationToken extends UsernamePasswordAuthenticationToken
 
 	public LoginContext getLoginContext() {
 		return this.loginContext;
+	}
+
+	@Override
+	public Builder toBuilder() {
+		return new Builder().apply(this);
+	}
+
+	/**
+	 * A builder preserving the concrete {@link Authentication} type
+	 *
+	 * @since 7.0
+	 */
+	public static final class Builder
+			extends UsernamePasswordAuthenticationToken.Builder<JaasAuthenticationToken, Builder> {
+
+		private @Nullable LoginContext loginContext;
+
+		private Builder() {
+
+		}
+
+		public Builder apply(JaasAuthenticationToken authentication) {
+			return super.apply(authentication).loginContext(authentication.getLoginContext());
+		}
+
+		/**
+		 * Use this {@link LoginContext}
+		 * @param loginContext the {@link LoginContext} to use
+		 * @return the {@link Builder} for further configuration
+		 */
+		public Builder loginContext(LoginContext loginContext) {
+			this.loginContext = loginContext;
+			return this;
+		}
+
+		@Override
+		protected JaasAuthenticationToken build(Collection<GrantedAuthority> authorities) {
+			UsernamePasswordAuthenticationToken token = super.build(authorities);
+			Assert.notNull(this.loginContext, "loginContext cannot be null");
+			return new JaasAuthenticationToken(token.getPrincipal(), token.getCredentials(),
+					(List<GrantedAuthority>) token.getAuthorities(), this.loginContext);
+		}
+
 	}
 
 }

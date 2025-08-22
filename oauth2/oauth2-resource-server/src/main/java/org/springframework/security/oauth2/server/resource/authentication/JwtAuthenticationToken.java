@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.server.resource.authentication;
 import java.util.Collection;
 import java.util.Map;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.Transient;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -82,6 +83,47 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 	@Override
 	public String getName() {
 		return this.name;
+	}
+
+	@Override
+	public Builder toBuilder() {
+		return new Builder().apply(this);
+	}
+
+	/**
+	 * A builder preserving the concrete {@link Authentication} type
+	 *
+	 * @since 7.0
+	 */
+	public static final class Builder extends AbstractAuthenticationBuilder<JwtAuthenticationToken, Builder> {
+
+		private Jwt jwt;
+
+		private String name;
+
+		private Builder() {
+
+		}
+
+		public Builder apply(JwtAuthenticationToken token) {
+			return super.apply(token).jwt(token.getToken()).name(token.getName());
+		}
+
+		public Builder jwt(Jwt jwt) {
+			this.jwt = jwt;
+			return this;
+		}
+
+		public Builder name(String name) {
+			this.name = name;
+			return this;
+		}
+
+		@Override
+		protected JwtAuthenticationToken build(Collection<GrantedAuthority> authorities) {
+			return new JwtAuthenticationToken(this.jwt, authorities, this.name);
+		}
+
 	}
 
 }

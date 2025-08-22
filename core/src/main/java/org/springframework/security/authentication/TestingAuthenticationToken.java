@@ -19,8 +19,12 @@ package org.springframework.security.authentication;
 import java.util.Collection;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.util.Assert;
 
 /**
  * An {@link org.springframework.security.core.Authentication} implementation that is
@@ -69,6 +73,50 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 	@Override
 	public Object getPrincipal() {
 		return this.principal;
+	}
+
+	@Override
+	public Builder toBuilder() {
+		return new Builder().apply(this);
+	}
+
+	/**
+	 * A builder preserving the concrete {@link Authentication} type
+	 *
+	 * @since 7.0
+	 */
+	public static final class Builder extends AbstractAuthenticationBuilder<TestingAuthenticationToken, Builder> {
+
+		private @Nullable Object principal;
+
+		private @Nullable Object credentials;
+
+		private Builder() {
+
+		}
+
+		public Builder apply(TestingAuthenticationToken authentication) {
+			return super.apply(authentication).principal(authentication.getPrincipal())
+				.credentials(authentication.getCredentials());
+		}
+
+		public Builder principal(Object principal) {
+			this.principal = principal;
+			return this;
+		}
+
+		public Builder credentials(Object credentials) {
+			this.credentials = credentials;
+			return this;
+		}
+
+		@Override
+		protected TestingAuthenticationToken build(Collection<GrantedAuthority> authorities) {
+			Assert.notNull(this.principal, "principal cannot be null");
+			Assert.notNull(this.credentials, "credentials cannot be null");
+			return new TestingAuthenticationToken(this.principal, this.credentials, authorities);
+		}
+
 	}
 
 }
