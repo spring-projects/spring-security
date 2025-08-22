@@ -18,10 +18,14 @@ package org.springframework.security.config.annotation.authentication.builders;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -37,6 +41,8 @@ import org.springframework.security.config.annotation.authentication.configurers
 import org.springframework.security.config.annotation.authentication.configurers.userdetails.DaoAuthenticationConfigurer;
 import org.springframework.security.config.annotation.authentication.configurers.userdetails.UserDetailsAwareConfigurer;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.Assert;
 
@@ -235,6 +241,10 @@ public class AuthenticationManagerBuilder
 		if (this.eventPublisher != null) {
 			providerManager.setAuthenticationEventPublisher(this.eventPublisher);
 		}
+		SecurityContextHolderStrategy securityContextHolderStrategy = getBeanProvider(
+				SecurityContextHolderStrategy.class)
+			.getIfUnique(SecurityContextHolder::getContextHolderStrategy);
+		providerManager.setSecurityContextHolderStrategy(securityContextHolderStrategy);
 		providerManager = postProcess(providerManager);
 		return providerManager;
 	}
@@ -281,6 +291,26 @@ public class AuthenticationManagerBuilder
 		this.defaultUserDetailsService = configurer.getUserDetailsService();
 		with(configurer);
 		return configurer;
+	}
+
+	private <C> ObjectProvider<C> getBeanProvider(Class<C> clazz) {
+		BeanFactory beanFactory = getSharedObject(BeanFactory.class);
+		return (beanFactory != null) ? beanFactory.getBeanProvider(clazz) : new SingleObjectProvider<>(null);
+	}
+
+	private static final class SingleObjectProvider<O> implements ObjectProvider<O> {
+
+		private final @Nullable O object;
+
+		private SingleObjectProvider(@Nullable O object) {
+			this.object = object;
+		}
+
+		@Override
+		public Stream<O> stream() {
+			return Stream.ofNullable(this.object);
+		}
+
 	}
 
 }
