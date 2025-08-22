@@ -27,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.aop.target.LazyInitTargetSource;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -83,6 +84,7 @@ public class AuthenticationConfiguration {
 		AuthenticationEventPublisher authenticationEventPublisher = getAuthenticationEventPublisher(context);
 		DefaultPasswordEncoderAuthenticationManagerBuilder result = new DefaultPasswordEncoderAuthenticationManagerBuilder(
 				objectPostProcessor, defaultPasswordEncoder);
+		result.setSharedObject(BeanFactory.class, this.applicationContext);
 		if (authenticationEventPublisher != null) {
 			result.authenticationEventPublisher(authenticationEventPublisher);
 		}
