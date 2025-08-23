@@ -132,7 +132,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 		if (registrationId == null) {
 			return null;
 		}
-		String redirectUriAction = getAction(request, "authorize");
+		String redirectUriAction = getAction(request, "login");
 		return resolve(request, registrationId, redirectUriAction);
 	}
 

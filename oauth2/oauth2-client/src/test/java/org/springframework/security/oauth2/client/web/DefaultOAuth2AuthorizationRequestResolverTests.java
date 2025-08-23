@@ -307,7 +307,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		assertThat(authorizationRequest.getAuthorizationRequestUri())
 			.matches("https://example.com/login/oauth/authorize\\?" + "response_type=code&client_id=client-id&"
 					+ "scope=read:user&state=.{15,}&"
-					+ "redirect_uri=http://localhost/authorize/oauth2/code/registration-id");
+					+ "redirect_uri=http://localhost/login/oauth2/code/registration-id");
 	}
 
 	@Test
