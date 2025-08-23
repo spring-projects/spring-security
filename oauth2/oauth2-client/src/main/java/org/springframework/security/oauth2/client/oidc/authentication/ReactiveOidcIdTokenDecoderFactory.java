@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -80,8 +79,6 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 	private static final ClaimTypeConverter DEFAULT_CLAIM_TYPE_CONVERTER = new ClaimTypeConverter(
 			createDefaultClaimTypeConverters());
 
-	private final Map<String, ReactiveJwtDecoder> jwtDecoders = new ConcurrentHashMap<>();
-
 	private Function<ClientRegistration, OAuth2TokenValidator<Jwt>> jwtValidatorFactory = new DefaultOidcIdTokenValidatorFactory();
 
 	private Function<ClientRegistration, JwsAlgorithm> jwsAlgorithmResolver = (
@@ -126,16 +123,14 @@ public final class ReactiveOidcIdTokenDecoderFactory implements ReactiveJwtDecod
 	@Override
 	public ReactiveJwtDecoder createDecoder(ClientRegistration clientRegistration) {
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
-		return this.jwtDecoders.computeIfAbsent(clientRegistration.getRegistrationId(), (key) -> {
-			NimbusReactiveJwtDecoder jwtDecoder = buildDecoder(clientRegistration);
-			jwtDecoder.setJwtValidator(this.jwtValidatorFactory.apply(clientRegistration));
-			Converter<Map<String, Object>, Map<String, Object>> claimTypeConverter = this.claimTypeConverterFactory
-				.apply(clientRegistration);
-			if (claimTypeConverter != null) {
-				jwtDecoder.setClaimSetConverter(claimTypeConverter);
-			}
-			return jwtDecoder;
-		});
+		NimbusReactiveJwtDecoder jwtDecoder = buildDecoder(clientRegistration);
+		jwtDecoder.setJwtValidator(this.jwtValidatorFactory.apply(clientRegistration));
+		Converter<Map<String, Object>, Map<String, Object>> claimTypeConverter = this.claimTypeConverterFactory
+			.apply(clientRegistration);
+		if (claimTypeConverter != null) {
+			jwtDecoder.setClaimSetConverter(claimTypeConverter);
+		}
+		return jwtDecoder;
 	}
 
 	private NimbusReactiveJwtDecoder buildDecoder(ClientRegistration clientRegistration) {
