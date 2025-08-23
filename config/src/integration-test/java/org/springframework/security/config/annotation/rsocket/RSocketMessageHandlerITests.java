@@ -268,8 +268,7 @@ public class RSocketMessageHandlerITests {
 					.route("secure.*").authenticated()
 					.anyExchange().permitAll()
 				)
-				.basicAuthentication(Customizer.withDefaults())
-					.anonymousAuthentication(Customizer.withDefaults());
+				.basicAuthentication(Customizer.withDefaults());
 			// @formatter:on
 			return rsocket.build();
 		}

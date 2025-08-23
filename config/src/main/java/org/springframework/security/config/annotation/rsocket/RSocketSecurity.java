@@ -120,7 +120,7 @@ public class RSocketSecurity {
 
 	private SimpleAuthenticationSpec simpleAuthSpec;
 
-	private AnonymousAuthenticationSpec anonymousAuthSpec;
+	private AnonymousAuthenticationSpec anonymousAuthSpec = new AnonymousAuthenticationSpec(this);
 
 	private JwtSpec jwtSpec;
 
@@ -174,7 +174,7 @@ public class RSocketSecurity {
 	 */
 	public RSocketSecurity anonymousAuthentication(Customizer<AnonymousAuthenticationSpec> anonymous) {
 		if (this.anonymousAuthSpec == null) {
-			this.anonymousAuthSpec = new AnonymousAuthenticationSpec();
+			this.anonymousAuthSpec = new AnonymousAuthenticationSpec(this);
 		}
 		anonymous.customize(this.anonymousAuthSpec);
 		return this;
@@ -297,13 +297,20 @@ public class RSocketSecurity {
 
 	public final class AnonymousAuthenticationSpec {
 
-		private AnonymousAuthenticationSpec() {
+		private RSocketSecurity parent;
+
+		private AnonymousAuthenticationSpec(RSocketSecurity parent) {
+			this.parent = parent;
 		}
 
 		protected AnonymousPayloadInterceptor build() {
 			AnonymousPayloadInterceptor result = new AnonymousPayloadInterceptor("anonymousUser");
 			result.setOrder(PayloadInterceptorOrder.ANONYMOUS.getOrder());
 			return result;
+		}
+
+		public void disable() {
+			this.parent.anonymousAuthSpec = null;
 		}
 
 	}
