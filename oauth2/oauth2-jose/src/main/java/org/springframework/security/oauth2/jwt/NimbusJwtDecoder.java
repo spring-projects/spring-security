@@ -66,6 +66,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
@@ -294,7 +295,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		private final Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
 
-		private RestOperations restOperations = new RestTemplate();
+		private RestOperations restOperations = new RestTemplateWithNimbusDefaultTimeouts();
 
 		private Cache cache = new NoOpCache("default");
 
@@ -552,6 +553,21 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 			}
 
+		}
+
+	}
+
+	/**
+	 * A RestTemplate with timeouts configured to avoid blocking indefinitely when
+	 * fetching JWK Sets while holding the reentrantLock.
+	 */
+	private static final class RestTemplateWithNimbusDefaultTimeouts extends RestTemplate {
+
+		private RestTemplateWithNimbusDefaultTimeouts() {
+			SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+			requestFactory.setConnectTimeout(JWKSourceBuilder.DEFAULT_HTTP_CONNECT_TIMEOUT);
+			requestFactory.setReadTimeout(JWKSourceBuilder.DEFAULT_HTTP_READ_TIMEOUT);
+			setRequestFactory(requestFactory);
 		}
 
 	}
