@@ -34,6 +34,7 @@ import org.springframework.util.Assert;
  * and using the current URL minus the artifact and the corresponding value.
  *
  * @author Rob Winch
+ * @author Ngoc Nhan
  */
 final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 		implements ServiceAuthenticationDetails {
