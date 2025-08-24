@@ -101,7 +101,11 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 	/**
 	 * If present, removes the artifactParameterName and the corresponding value from the
 	 * query String.
-	 * @param request
+	 * @param request the current {@link HttpServletRequest} to obtain the
+	 * {@link #getServiceUrl()} from.
+	 * @param artifactPattern the {@link Pattern} that will be used to clean up the query
+	 * string from containing the artifact name and value. This can be created using
+	 * {@link #createArtifactPattern(String)}.
 	 * @return the query String minus the artifactParameterName and the corresponding
 	 * value.
 	 */
@@ -122,8 +126,10 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 	 * Creates a {@link Pattern} that can be passed into the constructor. This allows the
 	 * {@link Pattern} to be reused for every instance of
 	 * {@link DefaultServiceAuthenticationDetails}.
-	 * @param artifactParameterName
-	 * @return
+	 * @param artifactParameterName the artifactParameterName that is removed from the
+	 * current URL. The result becomes the service url. Cannot be null and cannot be an
+	 * empty String.
+	 * @return a {@link Pattern}
 	 */
 	static Pattern createArtifactPattern(String artifactParameterName) {
 		Assert.hasLength(artifactParameterName, "artifactParameterName is expected to have a length");
