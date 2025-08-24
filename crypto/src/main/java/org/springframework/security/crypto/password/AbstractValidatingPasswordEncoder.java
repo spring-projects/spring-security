@@ -32,8 +32,7 @@ public abstract class AbstractValidatingPasswordEncoder implements PasswordEncod
 
 	@Override
 	public final boolean matches(@Nullable CharSequence rawPassword, @Nullable String encodedPassword) {
-		if (rawPassword == null || rawPassword.length() == 0 || encodedPassword == null
-				|| encodedPassword.length() == 0) {
+		if (rawPassword == null || rawPassword.isEmpty() || encodedPassword == null || encodedPassword.isEmpty()) {
 			return false;
 		}
 		return matchesNonNull(rawPassword.toString(), encodedPassword);
@@ -43,7 +42,7 @@ public abstract class AbstractValidatingPasswordEncoder implements PasswordEncod
 
 	@Override
 	public final boolean upgradeEncoding(@Nullable String encodedPassword) {
-		if (encodedPassword == null || encodedPassword.length() == 0) {
+		if (encodedPassword == null || encodedPassword.isEmpty()) {
 			return false;
 		}
 		return upgradeEncodingNonNull(encodedPassword);
