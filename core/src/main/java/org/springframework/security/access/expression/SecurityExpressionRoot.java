@@ -38,6 +38,7 @@ import org.springframework.util.function.SingletonSupplier;
  * @author Luke Taylor
  * @author Evgeniy Cheban
  * @author Steve Riesenberg
+ * @author Ngoc Nhan
  * @since 3.0
  */
 public abstract class SecurityExpressionRoot<T extends @Nullable Object> implements SecurityExpressionOperations {

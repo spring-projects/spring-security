@@ -59,6 +59,7 @@ import org.springframework.util.StringUtils;
  * @author Rob Winch
  * @author Eddú Meléndez
  * @author Onur Kagan Ozcan
+ * @author Ngoc Nhan
  * @since 2.0
  */
 public abstract class AbstractRememberMeServices

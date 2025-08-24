@@ -58,6 +58,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @author Andrey Grebnev
  * @author Ben Alex
  * @author Luke Taylor
+ * @author Ngoc Nhan
  */
 public class DefaultSavedRequest implements SavedRequest {
 

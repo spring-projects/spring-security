@@ -18,6 +18,12 @@ package org.springframework.security.crypto.password;
 
 import org.jspecify.annotations.Nullable;
 
+/**
+ * Implementation of PasswordEncoder.
+ *
+ * @author Rob Winch
+ * @since 7.0
+ */
 public abstract class AbstractValidatingPasswordEncoder implements PasswordEncoder {
 
 	@Override
