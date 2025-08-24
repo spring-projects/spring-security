@@ -16,7 +16,6 @@
 
 package org.springframework.security.web.authentication.rememberme;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -171,7 +170,7 @@ public abstract class AbstractRememberMeServices
 	 */
 	protected @Nullable String extractRememberMeCookie(HttpServletRequest request) {
 		Cookie[] cookies = request.getCookies();
-		if ((cookies == null) || (cookies.length == 0)) {
+		if (cookies == null) {
 			return null;
 		}
 		for (Cookie cookie : cookies) {
@@ -221,12 +220,7 @@ public abstract class AbstractRememberMeServices
 		}
 		String[] tokens = StringUtils.delimitedListToStringArray(cookieAsPlainText, DELIMITER);
 		for (int i = 0; i < tokens.length; i++) {
-			try {
-				tokens[i] = URLDecoder.decode(tokens[i], StandardCharsets.UTF_8.toString());
-			}
-			catch (UnsupportedEncodingException ex) {
-				this.logger.error(ex.getMessage(), ex);
-			}
+			tokens[i] = URLDecoder.decode(tokens[i], StandardCharsets.UTF_8);
 		}
 		return tokens;
 	}
@@ -239,12 +233,7 @@ public abstract class AbstractRememberMeServices
 	protected String encodeCookie(String[] cookieTokens) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < cookieTokens.length; i++) {
-			try {
-				sb.append(URLEncoder.encode(cookieTokens[i], StandardCharsets.UTF_8.toString()));
-			}
-			catch (UnsupportedEncodingException ex) {
-				this.logger.error(ex.getMessage(), ex);
-			}
+			sb.append(URLEncoder.encode(cookieTokens[i], StandardCharsets.UTF_8));
 			if (i < cookieTokens.length - 1) {
 				sb.append(DELIMITER);
 			}
