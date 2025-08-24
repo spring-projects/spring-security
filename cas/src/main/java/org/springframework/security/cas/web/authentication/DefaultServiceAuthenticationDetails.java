@@ -71,14 +71,13 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (super.equals(obj)) {
 			return true;
 		}
-		if (!super.equals(obj) || !(obj instanceof DefaultServiceAuthenticationDetails)) {
-			return false;
+		if (obj instanceof DefaultServiceAuthenticationDetails that) {
+			return this.serviceUrl.equals(that.getServiceUrl());
 		}
-		ServiceAuthenticationDetails that = (ServiceAuthenticationDetails) obj;
-		return this.serviceUrl.equals(that.getServiceUrl());
+		return false;
 	}
 
 	@Override
