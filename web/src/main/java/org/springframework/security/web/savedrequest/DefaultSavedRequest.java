@@ -193,15 +193,15 @@ public class DefaultSavedRequest implements SavedRequest {
 	 * @since 4.2
 	 */
 	private void addParameters(Map<String, String[]> parameters) {
-		if (!ObjectUtils.isEmpty(parameters)) {
-			for (String paramName : parameters.keySet()) {
-				Object paramValues = parameters.get(paramName);
-				if (paramValues instanceof String[]) {
-					this.addParameter(paramName, (String[]) paramValues);
-				}
-				else {
-					logger.warn("ServletRequest.getParameterMap() returned non-String array");
-				}
+		if (ObjectUtils.isEmpty(parameters)) {
+			return;
+		}
+
+		for (Map.Entry<String, String[]> entry : parameters.entrySet()) {
+			String name = entry.getKey();
+			String[] values = entry.getValue();
+			if (values != null) {
+				this.parameters.put(name, values);
 			}
 		}
 	}
