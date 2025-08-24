@@ -58,6 +58,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @author Andrey Grebnev
  * @author Ben Alex
  * @author Luke Taylor
+ * @author Ngoc Nhan
  */
 public class DefaultSavedRequest implements SavedRequest {
 
@@ -206,21 +207,17 @@ public class DefaultSavedRequest implements SavedRequest {
 	 * @since 4.2
 	 */
 	private void addParameters(Map<String, String[]> parameters) {
-		if (!ObjectUtils.isEmpty(parameters)) {
-			for (String paramName : parameters.keySet()) {
-				Object paramValues = parameters.get(paramName);
-				if (paramValues instanceof String[]) {
-					this.addParameter(paramName, (String[]) paramValues);
-				}
-				else {
-					logger.warn("ServletRequest.getParameterMap() returned non-String array");
-				}
+		if (ObjectUtils.isEmpty(parameters)) {
+			return;
+		}
+
+		for (Map.Entry<String, String[]> entry : parameters.entrySet()) {
+			String name = entry.getKey();
+			String[] values = entry.getValue();
+			if (values != null) {
+				this.parameters.put(name, values);
 			}
 		}
-	}
-
-	private void addParameter(String name, String[] values) {
-		this.parameters.put(name, values);
 	}
 
 	/**
@@ -378,7 +375,7 @@ public class DefaultSavedRequest implements SavedRequest {
 		if (matchingRequestParameterName == null) {
 			return queryString;
 		}
-		if (queryString == null || queryString.length() == 0) {
+		if (queryString == null || queryString.isEmpty()) {
 			return matchingRequestParameterName;
 		}
 		return UriComponentsBuilder.newInstance()

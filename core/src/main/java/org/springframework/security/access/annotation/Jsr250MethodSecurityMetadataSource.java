@@ -108,7 +108,7 @@ public class Jsr250MethodSecurityMetadataSource extends AbstractFallbackMethodSe
 		if (role == null) {
 			return role;
 		}
-		if (this.defaultRolePrefix == null || this.defaultRolePrefix.length() == 0) {
+		if (this.defaultRolePrefix == null || this.defaultRolePrefix.isEmpty()) {
 			return role;
 		}
 		if (role.startsWith(this.defaultRolePrefix)) {
