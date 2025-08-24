@@ -84,6 +84,7 @@ import org.springframework.web.client.RestTemplate;
  * @author Joe Grandja
  * @author Mykyta Bezverkhyi
  * @author Daeho Kwon
+ * @author Andrey Litvitski
  * @since 5.2
  */
 public final class NimbusJwtDecoder implements JwtDecoder {
@@ -415,6 +416,16 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		public JwkSetUriJwtDecoderBuilder cache(Cache cache) {
 			Assert.notNull(cache, "cache cannot be null");
 			this.cache = cache;
+			return this;
+		}
+
+		/**
+		 * Enables discovery of supported JWS algorithms from the remote JWK Set.
+		 * @return a {@link JwkSetUriJwtDecoderBuilder} for further configuration
+		 * @since 7.0.0
+		 */
+		public JwkSetUriJwtDecoderBuilder discoverJwsAlgorithms() {
+			this.defaultAlgorithms = JwtDecoderProviderConfigurationUtils::getJWSAlgorithms;
 			return this;
 		}
 
