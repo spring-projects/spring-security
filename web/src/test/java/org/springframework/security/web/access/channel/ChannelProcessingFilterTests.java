@@ -32,12 +32,14 @@ import org.springframework.security.web.access.intercept.FilterInvocationSecurit
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 
 /**
  * Tests {@link ChannelProcessingFilter}.
  *
  * @author Ben Alex
+ * @author Andrey Litvitski
  */
 public class ChannelProcessingFilterTests {
 
@@ -121,6 +123,21 @@ public class ChannelProcessingFilterTests {
 		filter.setSecurityMetadataSource(fids);
 		assertThat(filter.getSecurityMetadataSource()).isSameAs(fids);
 		filter.afterPropertiesSet();
+	}
+
+	@Test
+	public void testDoFilterWhenResponseAlreadyCommittedBeforeFilter() throws Exception {
+		ChannelProcessingFilter filter = new ChannelProcessingFilter();
+		filter.setChannelDecisionManager(new MockChannelDecisionManager(false, "MOCK"));
+		MockFilterInvocationDefinitionMap fids = new MockFilterInvocationDefinitionMap("/path", true, "MOCK");
+		filter.setSecurityMetadataSource(fids);
+		MockHttpServletRequest request = get("/path").build();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		// this will set response.isCommitted() == true
+		response.flushBuffer();
+		FilterChain chain = mock(FilterChain.class);
+		filter.doFilter(request, response, chain);
+		verify(chain).doFilter(request, response);
 	}
 
 	private class MockChannelDecisionManager implements ChannelDecisionManager {
