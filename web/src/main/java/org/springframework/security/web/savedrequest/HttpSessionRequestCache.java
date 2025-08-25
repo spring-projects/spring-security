@@ -23,8 +23,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.log.LogMessage;
-import org.springframework.security.web.PortResolver;
-import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -45,8 +43,6 @@ public class HttpSessionRequestCache implements RequestCache {
 	static final String SAVED_REQUEST = "SPRING_SECURITY_SAVED_REQUEST";
 
 	protected final Log logger = LogFactory.getLog(this.getClass());
-
-	private PortResolver portResolver = new PortResolverImpl();
 
 	private boolean createSessionAllowed = true;
 
@@ -73,8 +69,7 @@ public class HttpSessionRequestCache implements RequestCache {
 			// Store the HTTP request itself. Used by
 			// AbstractAuthenticationProcessingFilter
 			// for redirection after successful authentication (SEC-29)
-			DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, this.portResolver,
-					this.matchingRequestParameterName);
+			DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, this.matchingRequestParameterName);
 			request.getSession().setAttribute(this.sessionAttrName, savedRequest);
 			if (this.logger.isDebugEnabled()) {
 				this.logger.debug(LogMessage.format("Saved request %s to session", savedRequest.getRedirectUrl()));
@@ -133,10 +128,6 @@ public class HttpSessionRequestCache implements RequestCache {
 	}
 
 	private boolean matchesSavedRequest(HttpServletRequest request, SavedRequest savedRequest) {
-		if (savedRequest instanceof DefaultSavedRequest) {
-			DefaultSavedRequest defaultSavedRequest = (DefaultSavedRequest) savedRequest;
-			return defaultSavedRequest.doesRequestMatch(request, this.portResolver);
-		}
 		String currentUrl = UrlUtils.buildFullRequestUrl(request);
 		return savedRequest.getRedirectUrl().equals(currentUrl);
 	}
@@ -162,11 +153,6 @@ public class HttpSessionRequestCache implements RequestCache {
 	 */
 	public void setCreateSessionAllowed(boolean createSessionAllowed) {
 		this.createSessionAllowed = createSessionAllowed;
-	}
-
-	@Deprecated(forRemoval = true)
-	public void setPortResolver(PortResolver portResolver) {
-		this.portResolver = portResolver;
 	}
 
 	/**
