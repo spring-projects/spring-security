@@ -14,21 +14,29 @@
  * limitations under the License.
  */
 
-package org.springframework.security.provisioning;
+package org.springframework.security.authentication.password;
 
-import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
 
-import org.springframework.security.authentication.password.PasswordAction;
-import org.springframework.security.core.userdetails.UserDetails;
+@NullMarked
+public class SimplePasswordAdvice implements PasswordAdvice {
 
-/**
- * @author Luke Taylor
- * @since 3.1
- */
-interface MutableUserDetails extends UserDetails {
+	public static final PasswordAdvice NONE = new SimplePasswordAdvice(PasswordAction.NONE);
 
-	void setPassword(@Nullable String password);
+	private final PasswordAction action;
 
-	void setPasswordAction(PasswordAction action);
+	public SimplePasswordAdvice(PasswordAction action) {
+		this.action = action;
+	}
+
+	@Override
+	public PasswordAction getAction() {
+		return this.action;
+	}
+
+	@Override
+	public String toString() {
+		return "Simple [action=" + this.action + "]";
+	}
 
 }

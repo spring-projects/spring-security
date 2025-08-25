@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package org.springframework.security.provisioning;
+package org.springframework.security.authentication.password;
 
-import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
 
-import org.springframework.security.authentication.password.PasswordAction;
-import org.springframework.security.core.userdetails.UserDetails;
+@NullMarked
+public interface PasswordAdvice {
 
-/**
- * @author Luke Taylor
- * @since 3.1
- */
-interface MutableUserDetails extends UserDetails {
-
-	void setPassword(@Nullable String password);
-
-	void setPasswordAction(PasswordAction action);
+	PasswordAction getAction();
 
 }
