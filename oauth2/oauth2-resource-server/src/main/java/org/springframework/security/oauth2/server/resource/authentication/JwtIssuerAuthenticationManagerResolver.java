@@ -30,11 +30,13 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.log.LogMessage;
 import org.springframework.lang.NonNull;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
@@ -93,7 +95,40 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	public static JwtIssuerAuthenticationManagerResolver fromTrustedIssuers(Predicate<String> trustedIssuers) {
 		Assert.notNull(trustedIssuers, "trustedIssuers cannot be null");
 		return new JwtIssuerAuthenticationManagerResolver(
-				new TrustedIssuerJwtAuthenticationManagerResolver(trustedIssuers));
+				new TrustedIssuerJwtAuthenticationManagerResolver(null, trustedIssuers));
+	}
+
+	/**
+	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
+	 * parameters
+	 * @param trustedIssuers an array of trusted issuers
+	 * @since 6.2
+	 */
+	public static JwtIssuerAuthenticationManagerResolver fromTrustedIssuers(Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter, String... trustedIssuers) {
+		return fromTrustedIssuers(jwtAuthenticationConverter, Set.of(trustedIssuers));
+	}
+
+	/**
+	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
+	 * parameters
+	 * @param trustedIssuers a collection of trusted issuers
+	 * @since 6.2
+	 */
+	public static JwtIssuerAuthenticationManagerResolver fromTrustedIssuers(Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter, Collection<String> trustedIssuers) {
+		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
+		return fromTrustedIssuers(jwtAuthenticationConverter, Set.copyOf(trustedIssuers)::contains);
+	}
+
+	/**
+	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
+	 * parameters
+	 * @param trustedIssuers a predicate to validate issuers
+	 * @since 6.2
+	 */
+	public static JwtIssuerAuthenticationManagerResolver fromTrustedIssuers(Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter, Predicate<String> trustedIssuers) {
+		Assert.notNull(trustedIssuers, "trustedIssuers cannot be null");
+		return new JwtIssuerAuthenticationManagerResolver(
+				new TrustedIssuerJwtAuthenticationManagerResolver(jwtAuthenticationConverter, trustedIssuers));
 	}
 
 	/**
@@ -117,6 +152,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	 * {@link AuthenticationManager} by the issuer
 	 */
 	public JwtIssuerAuthenticationManagerResolver(
+
 			AuthenticationManagerResolver<String> issuerAuthenticationManagerResolver) {
 		Assert.notNull(issuerAuthenticationManagerResolver, "issuerAuthenticationManagerResolver cannot be null");
 		this.authenticationManager = new ResolvingAuthenticationManager(issuerAuthenticationManagerResolver);
@@ -197,7 +233,14 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 
 		private final Predicate<String> trustedIssuer;
 
+		private final Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter;
+
 		TrustedIssuerJwtAuthenticationManagerResolver(Predicate<String> trustedIssuer) {
+			this(null, trustedIssuer);
+		}
+
+		TrustedIssuerJwtAuthenticationManagerResolver(Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter, Predicate<String> trustedIssuer) {
+			this.jwtAuthenticationConverter = jwtAuthenticationConverter;
 			this.trustedIssuer = trustedIssuer;
 		}
 
@@ -208,7 +251,11 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 						(k) -> {
 							this.logger.debug("Constructing AuthenticationManager");
 							JwtDecoder jwtDecoder = JwtDecoders.fromIssuerLocation(issuer);
-							return new JwtAuthenticationProvider(jwtDecoder)::authenticate;
+							JwtAuthenticationProvider provider = new JwtAuthenticationProvider(jwtDecoder);
+							if (jwtAuthenticationConverter != null) {
+								provider.setJwtAuthenticationConverter(jwtAuthenticationConverter);
+							}
+							return provider::authenticate;
 						});
 				this.logger.debug(LogMessage.format("Resolved AuthenticationManager for issuer '%s'", issuer));
 				return authenticationManager;
