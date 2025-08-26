@@ -111,10 +111,7 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 	 */
 	private @Nullable String getQueryString(final HttpServletRequest request, final Pattern artifactPattern) {
 		final String query = request.getQueryString();
-		if (query == null) {
-			return null;
-		}
-		String result = artifactPattern.matcher(query).replaceFirst("");
+		String result = query == null ? "" : artifactPattern.matcher(query).replaceFirst("");
 		if (result.isEmpty()) {
 			return null;
 		}
@@ -127,8 +124,7 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 	 * {@link Pattern} to be reused for every instance of
 	 * {@link DefaultServiceAuthenticationDetails}.
 	 * @param artifactParameterName the artifactParameterName that is removed from the
-	 * current URL. The result becomes the service url. Cannot be null and cannot be an
-	 * empty String.
+	 * current URL. The result becomes the service url. Cannot be null or an empty String.
 	 * @return a {@link Pattern}
 	 */
 	static Pattern createArtifactPattern(String artifactParameterName) {

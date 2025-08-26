@@ -36,6 +36,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
@@ -322,7 +323,7 @@ public class DefaultSavedRequest implements SavedRequest {
 		if (matchingRequestParameterName == null) {
 			return queryString;
 		}
-		if (queryString == null || queryString.isEmpty()) {
+		if (!StringUtils.hasLength(queryString)) {
 			return matchingRequestParameterName;
 		}
 		return UriComponentsBuilder.newInstance()

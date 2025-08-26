@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.util;
 
+import org.springframework.util.StringUtils;
+
 /**
  * Internal utility for escaping characters in HTML strings.
  *
@@ -25,7 +27,7 @@ package org.springframework.security.web.util;
 public abstract class TextEscapeUtils {
 
 	public static String escapeEntities(String s) {
-		if (s == null || s.isEmpty()) {
+		if (!StringUtils.hasLength(s)) {
 			return s;
 		}
 		StringBuilder sb = new StringBuilder();
