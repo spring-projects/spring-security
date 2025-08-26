@@ -121,7 +121,7 @@ public class AnonymousAuthenticationITests {
 			ReactiveAuthorizationManager<PayloadExchangeAuthorizationContext> anonymous = (authentication,
 					exchange) -> authentication.map(trustResolver::isAnonymous).map(AuthorizationDecision::new);
 			rsocket.authorizePayload((authorize) -> authorize.anyExchange().access(anonymous));
-			rsocket.anonymousAuthentication((anonymousAuthentication) -> anonymousAuthentication.disable());
+			rsocket.anonymous((anonymousAuthentication) -> anonymousAuthentication.disable());
 			return rsocket.build();
 		}
 
