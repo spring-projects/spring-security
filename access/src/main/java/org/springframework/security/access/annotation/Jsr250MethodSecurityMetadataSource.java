@@ -31,6 +31,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.method.AbstractFallbackMethodSecurityMetadataSource;
+import org.springframework.util.StringUtils;
 
 /**
  * Sources method security metadata from major JSR 250 security annotations.
@@ -108,7 +109,7 @@ public class Jsr250MethodSecurityMetadataSource extends AbstractFallbackMethodSe
 		if (role == null) {
 			return role;
 		}
-		if (this.defaultRolePrefix == null || this.defaultRolePrefix.isEmpty()) {
+		if (!StringUtils.hasLength(this.defaultRolePrefix)) {
 			return role;
 		}
 		if (role.startsWith(this.defaultRolePrefix)) {
