@@ -111,7 +111,7 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 	 */
 	private @Nullable String getQueryString(final HttpServletRequest request, final Pattern artifactPattern) {
 		final String query = request.getQueryString();
-		String result = query == null ? "" : artifactPattern.matcher(query).replaceFirst("");
+		String result = (query != null) ? artifactPattern.matcher(query).replaceFirst("") : "";
 		if (result.isEmpty()) {
 			return null;
 		}
