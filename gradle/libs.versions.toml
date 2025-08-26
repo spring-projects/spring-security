@@ -16,7 +16,7 @@ org-springframework = "7.0.0-M8"
 
 [libraries]
 ch-qos-logback-logback-classic = "ch.qos.logback:logback-classic:1.5.18"
-com-fasterxml-jackson-jackson-bom = "com.fasterxml.jackson:jackson-bom:2.19.2"
+com-fasterxml-jackson-jackson-bom = "com.fasterxml.jackson:jackson-bom:2.20.0-rc1"
 com-google-inject-guice = "com.google.inject:guice:3.0"
 com-netflix-nebula-nebula-project-plugin = "com.netflix.nebula:nebula-project-plugin:8.2.0"
 com-nimbusds-nimbus-jose-jwt = "com.nimbusds:nimbus-jose-jwt:10.4"
@@ -82,6 +82,7 @@ org-springframework-data-spring-data-bom = "org.springframework.data:spring-data
 org-springframework-ldap-spring-ldap-core = "org.springframework.ldap:spring-ldap-core:3.2.13"
 org-springframework-spring-framework-bom = { module = "org.springframework:spring-framework-bom", version.ref = "org-springframework" }
 org-synchronoss-cloud-nio-multipart-parser = "org.synchronoss.cloud:nio-multipart-parser:1.1.0"
+tools-jackson-jackson-bom = "tools.jackson:jackson-bom:3.0.0-rc8"
 
 com-google-code-gson-gson = "com.google.code.gson:gson:2.13.1"
 com-thaiopensource-trag = "com.thaiopensource:trang:20091111"
