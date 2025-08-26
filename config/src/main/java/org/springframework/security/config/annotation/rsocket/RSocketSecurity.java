@@ -171,8 +171,9 @@ public class RSocketSecurity {
 	 * Adds anonymous authentication
 	 * @param anonymous a customizer
 	 * @return this instance
+	 * @since 7.0
 	 */
-	public RSocketSecurity anonymousAuthentication(Customizer<AnonymousAuthenticationSpec> anonymous) {
+	public RSocketSecurity anonymous(Customizer<AnonymousAuthenticationSpec> anonymous) {
 		if (this.anonymousAuthSpec == null) {
 			this.anonymousAuthSpec = new AnonymousAuthenticationSpec(this);
 		}
