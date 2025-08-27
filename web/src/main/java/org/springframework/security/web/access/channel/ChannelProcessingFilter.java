@@ -83,6 +83,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * over HTTPS.
  *
  * @author Ben Alex
+ * @author Andrey Litvitski
  * @deprecated see {@link org.springframework.security.web.transport.HttpsRedirectFilter}
  */
 @Deprecated
@@ -125,10 +126,12 @@ public class ChannelProcessingFilter extends GenericFilterBean {
 		HttpServletResponse response = (HttpServletResponse) res;
 		FilterInvocation filterInvocation = new FilterInvocation(request, response, chain);
 		Collection<ConfigAttribute> attributes = this.securityMetadataSource.getAttributes(filterInvocation);
-		if (attributes != null) {
+		boolean committedBefore = filterInvocation.getResponse().isCommitted();
+		if (attributes != null && !committedBefore) {
 			this.logger.debug(LogMessage.format("Request: %s; ConfigAttributes: %s", filterInvocation, attributes));
 			this.channelDecisionManager.decide(filterInvocation, attributes);
-			if (filterInvocation.getResponse().isCommitted()) {
+			boolean committedAfter = filterInvocation.getResponse().isCommitted();
+			if (committedAfter) {
 				return;
 			}
 		}
