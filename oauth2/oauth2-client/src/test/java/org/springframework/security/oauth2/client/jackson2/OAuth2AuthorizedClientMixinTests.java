@@ -145,6 +145,8 @@ public class OAuth2AuthorizedClientMixinTests {
 			.isEqualTo(expectedClientRegistration.getProviderDetails().getUserInfoEndpoint().getAuthenticationMethod());
 		assertThat(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName()).isEqualTo(
 				expectedClientRegistration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName());
+		assertThat(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUsernameExpression())
+			.isEqualTo(expectedClientRegistration.getProviderDetails().getUserInfoEndpoint().getUsernameExpression());
 		assertThat(clientRegistration.getProviderDetails().getJwkSetUri())
 			.isEqualTo(expectedClientRegistration.getProviderDetails().getJwkSetUri());
 		assertThat(clientRegistration.getProviderDetails().getIssuerUri())
@@ -306,6 +308,8 @@ public class OAuth2AuthorizedClientMixinTests {
 				.map((key) -> "\"" + key + "\": \"" + providerDetails.getConfigurationMetadata().get(key) + "\"")
 				.collect(Collectors.joining(","));
 		}
+		String usernameExpression = (userInfoEndpoint.getUsernameExpression() != null)
+				? "\"" + userInfoEndpoint.getUsernameExpression() + "\"" : null;
 		// @formatter:off
 		return "{\n" +
 				"    \"@class\": \"org.springframework.security.oauth2.client.registration.ClientRegistration\",\n" +
@@ -333,7 +337,8 @@ public class OAuth2AuthorizedClientMixinTests {
 				"        \"authenticationMethod\": {\n" +
 				"          \"value\": \"" + userInfoEndpoint.getAuthenticationMethod().getValue() + "\"\n" +
 				"        },\n" +
-				"        \"userNameAttributeName\": " + ((userInfoEndpoint.getUserNameAttributeName() != null) ? "\"" + userInfoEndpoint.getUserNameAttributeName() + "\"" : null) + "\n" +
+				"        \"userNameAttributeName\": " + ((userInfoEndpoint.getUserNameAttributeName() != null) ? "\"" + userInfoEndpoint.getUserNameAttributeName() + "\"" : null) + ",\n" +
+				"        \"usernameExpression\": " + usernameExpression + "\n" +
 				"      },\n" +
 				"      \"jwkSetUri\": " + ((providerDetails.getJwkSetUri() != null) ? "\"" + providerDetails.getJwkSetUri() + "\"" : null) + ",\n" +
 				"      \"issuerUri\": " + ((providerDetails.getIssuerUri() != null) ? "\"" + providerDetails.getIssuerUri() + "\"" : null) + ",\n" +
