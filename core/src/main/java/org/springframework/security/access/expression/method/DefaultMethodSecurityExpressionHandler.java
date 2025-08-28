@@ -85,7 +85,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	}
 
 	@Override
-	public EvaluationContext createEvaluationContext(Supplier<@Nullable Authentication> authentication,
+	public EvaluationContext createEvaluationContext(Supplier<? extends @Nullable Authentication> authentication,
 			MethodInvocation mi) {
 		MethodSecurityExpressionOperations root = createSecurityExpressionRoot(authentication, mi);
 		MethodSecurityEvaluationContext ctx = new MethodSecurityEvaluationContext(root, mi,
@@ -104,7 +104,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	}
 
 	private MethodSecurityExpressionOperations createSecurityExpressionRoot(
-			Supplier<@Nullable Authentication> authentication, MethodInvocation invocation) {
+			Supplier<? extends @Nullable Authentication> authentication, MethodInvocation invocation) {
 		MethodSecurityExpressionRoot root = new MethodSecurityExpressionRoot(authentication);
 		root.setThis(invocation.getThis());
 		root.setPermissionEvaluator(getPermissionEvaluator());

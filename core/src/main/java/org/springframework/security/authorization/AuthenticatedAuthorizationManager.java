@@ -113,7 +113,7 @@ public final class AuthenticatedAuthorizationManager<T> implements Authorization
 	 * @return an {@link AuthorizationDecision}
 	 */
 	@Override
-	public AuthorizationResult authorize(Supplier<@Nullable Authentication> authentication, T object) {
+	public AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication, T object) {
 		boolean granted = this.authorizationStrategy.isGranted(authentication.get());
 		return new AuthorizationDecision(granted);
 	}

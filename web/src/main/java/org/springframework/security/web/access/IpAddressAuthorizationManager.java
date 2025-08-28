@@ -18,6 +18,8 @@ package org.springframework.security.web.access;
 
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationResult;
@@ -53,7 +55,7 @@ public final class IpAddressAuthorizationManager implements AuthorizationManager
 	}
 
 	@Override
-	public AuthorizationResult authorize(Supplier<Authentication> authentication,
+	public AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication,
 			RequestAuthorizationContext requestAuthorizationContext) {
 		return new AuthorizationDecision(
 				this.ipAddressMatcher.matcher(requestAuthorizationContext.getRequest()).isMatch());

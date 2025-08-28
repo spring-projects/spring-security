@@ -18,6 +18,8 @@ package org.springframework.security.messaging.access.expression;
 
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.messaging.Message;
@@ -43,7 +45,8 @@ public class DefaultMessageSecurityExpressionHandler<T> extends AbstractSecurity
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
 	@Override
-	public EvaluationContext createEvaluationContext(Supplier<Authentication> authentication, Message<T> message) {
+	public EvaluationContext createEvaluationContext(Supplier<? extends @Nullable Authentication> authentication,
+			Message<T> message) {
 		MessageSecurityExpressionRoot root = createSecurityExpressionRoot(authentication, message);
 		StandardEvaluationContext ctx = new StandardEvaluationContext(root);
 		ctx.setBeanResolver(getBeanResolver());
@@ -56,8 +59,8 @@ public class DefaultMessageSecurityExpressionHandler<T> extends AbstractSecurity
 		return createSecurityExpressionRoot(() -> authentication, invocation);
 	}
 
-	private MessageSecurityExpressionRoot createSecurityExpressionRoot(Supplier<Authentication> authentication,
-			Message<T> invocation) {
+	private MessageSecurityExpressionRoot createSecurityExpressionRoot(
+			Supplier<? extends Authentication> authentication, Message<T> invocation) {
 		MessageSecurityExpressionRoot root = new MessageSecurityExpressionRoot(authentication, invocation);
 		root.setPermissionEvaluator(getPermissionEvaluator());
 		root.setTrustResolver(this.trustResolver);

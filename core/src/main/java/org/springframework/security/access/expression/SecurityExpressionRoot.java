@@ -89,7 +89,7 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	 * Cannot be null.
 	 * @since 5.8
 	 */
-	public SecurityExpressionRoot(Supplier<@Nullable Authentication> authentication) {
+	public SecurityExpressionRoot(Supplier<? extends @Nullable Authentication> authentication) {
 		this.authentication = SingletonSupplier.of(() -> {
 			Authentication value = authentication.get();
 			Assert.notNull(value, "Authentication object cannot be null");

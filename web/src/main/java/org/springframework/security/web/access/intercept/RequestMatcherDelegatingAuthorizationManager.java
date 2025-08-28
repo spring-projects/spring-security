@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
@@ -63,7 +64,8 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 	}
 
 	@Override
-	public AuthorizationResult authorize(Supplier<Authentication> authentication, HttpServletRequest request) {
+	public AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication,
+			HttpServletRequest request) {
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace(LogMessage.format("Authorizing %s", requestLine(request)));
 		}

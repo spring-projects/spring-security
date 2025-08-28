@@ -57,7 +57,8 @@ public interface SecurityExpressionHandler<T> extends AopInfrastructureBean {
 	 * @return the {@link EvaluationContext} to use
 	 * @since 5.8
 	 */
-	default EvaluationContext createEvaluationContext(Supplier<@Nullable Authentication> authentication, T invocation) {
+	default EvaluationContext createEvaluationContext(Supplier<? extends @Nullable Authentication> authentication,
+			T invocation) {
 		return createEvaluationContext(authentication.get(), invocation);
 	}
 

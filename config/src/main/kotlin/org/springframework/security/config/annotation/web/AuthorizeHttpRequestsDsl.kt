@@ -29,7 +29,6 @@ import org.springframework.security.config.annotation.web.configurers.AuthorizeH
 import org.springframework.security.config.core.GrantedAuthorityDefaults
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.access.IpAddressAuthorizationManager
-import org.springframework.security.web.access.intercept.AuthorizationFilter
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher
 import org.springframework.security.web.util.matcher.AnyRequestMatcher
@@ -235,13 +234,13 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
      * Specify that URLs are allowed by anyone.
      */
     val permitAll: AuthorizationManager<RequestAuthorizationContext> =
-        AuthorizationManager { _: Supplier<Authentication?>, _: RequestAuthorizationContext -> AuthorizationDecision(true) }
+        AuthorizationManager { _: Supplier<out Authentication>, _: RequestAuthorizationContext -> AuthorizationDecision(true) }
 
     /**
      * Specify that URLs are not allowed by anyone.
      */
     val denyAll: AuthorizationManager<RequestAuthorizationContext> =
-        AuthorizationManager { _: Supplier<Authentication?>, _: RequestAuthorizationContext -> AuthorizationDecision(false) }
+        AuthorizationManager { _: Supplier<out Authentication>, _: RequestAuthorizationContext -> AuthorizationDecision(false) }
 
     /**
      * Specify that URLs are allowed by any authenticated user.

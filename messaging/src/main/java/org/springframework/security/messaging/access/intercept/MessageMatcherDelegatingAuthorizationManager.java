@@ -22,6 +22,7 @@ import java.util.function.Supplier;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -54,7 +55,8 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 	}
 
 	@Override
-	public AuthorizationResult authorize(Supplier<Authentication> authentication, Message<?> message) {
+	public AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication,
+			Message<?> message) {
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace(LogMessage.format("Authorizing message"));
 		}

@@ -74,7 +74,8 @@ public final class MethodExpressionAuthorizationManager implements Authorization
 	 * expression
 	 */
 	@Override
-	public AuthorizationResult authorize(Supplier<@Nullable Authentication> authentication, MethodInvocation context) {
+	public AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication,
+			MethodInvocation context) {
 		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication, context);
 		boolean granted = ExpressionUtils.evaluateAsBoolean(this.expression, ctx);
 		return new ExpressionAuthorizationDecision(granted, this.expression);

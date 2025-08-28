@@ -139,7 +139,7 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 	 * {@inheritDoc}
 	 */
 	@Override
-	public AuthorizationResult authorize(Supplier<@Nullable Authentication> authentication, T object) {
+	public AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication, T object) {
 		return this.delegate.authorize(authentication, this.authorities);
 	}
 

@@ -464,7 +464,9 @@ public class MethodSecurityBeanDefinitionParserTests {
 	static class MyAuthorizationManager implements AuthorizationManager<MethodInvocation> {
 
 		@Override
-		public AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocation object) {
+		public AuthorizationResult authorize(
+				Supplier<? extends @org.jspecify.annotations.Nullable Authentication> authentication,
+				MethodInvocation object) {
 			return new AuthorizationDecision("bob".equals(authentication.get().getName()));
 		}
 

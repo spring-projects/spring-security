@@ -18,6 +18,8 @@ package org.springframework.security.web.access.expression;
 
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.access.expression.AbstractSecurityExpressionHandler;
@@ -44,7 +46,7 @@ public class DefaultHttpSecurityExpressionHandler extends AbstractSecurityExpres
 	private String defaultRolePrefix = "ROLE_";
 
 	@Override
-	public EvaluationContext createEvaluationContext(Supplier<Authentication> authentication,
+	public EvaluationContext createEvaluationContext(Supplier<? extends @Nullable Authentication> authentication,
 			RequestAuthorizationContext context) {
 		WebSecurityExpressionRoot root = createSecurityExpressionRoot(authentication, context);
 		StandardEvaluationContext ctx = new StandardEvaluationContext(root);
@@ -59,7 +61,7 @@ public class DefaultHttpSecurityExpressionHandler extends AbstractSecurityExpres
 		return createSecurityExpressionRoot(() -> authentication, context);
 	}
 
-	private WebSecurityExpressionRoot createSecurityExpressionRoot(Supplier<Authentication> authentication,
+	private WebSecurityExpressionRoot createSecurityExpressionRoot(Supplier<? extends Authentication> authentication,
 			RequestAuthorizationContext context) {
 		WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(authentication, context.getRequest());
 		root.setRoleHierarchy(getRoleHierarchy());

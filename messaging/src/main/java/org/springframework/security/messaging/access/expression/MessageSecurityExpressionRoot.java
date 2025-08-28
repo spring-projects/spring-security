@@ -44,7 +44,7 @@ public class MessageSecurityExpressionRoot extends SecurityExpressionRoot {
 	 * @param message the {@link Message} to use
 	 * @since 5.8
 	 */
-	public MessageSecurityExpressionRoot(Supplier<Authentication> authentication, Message<?> message) {
+	public MessageSecurityExpressionRoot(Supplier<? extends Authentication> authentication, Message<?> message) {
 		super(authentication);
 		this.message = message;
 	}

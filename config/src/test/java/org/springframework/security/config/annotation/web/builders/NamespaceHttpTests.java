@@ -25,6 +25,7 @@ import javax.security.auth.login.LoginContext;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -310,7 +311,7 @@ public class NamespaceHttpTests {
 			}
 
 			@Override
-			public AuthorizationResult authorize(Supplier<Authentication> authentication,
+			public AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication,
 					RequestAuthorizationContext object) {
 				HttpServletRequest request = object.getRequest();
 				FilterInvocation invocation = new FilterInvocation(request.getContextPath(), request.getServletPath(),

@@ -18,6 +18,8 @@ package org.springframework.security.web.access.expression;
 
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -83,7 +85,8 @@ public final class WebExpressionAuthorizationManager implements AuthorizationMan
 	 * expression
 	 */
 	@Override
-	public AuthorizationResult authorize(Supplier<Authentication> authentication, RequestAuthorizationContext context) {
+	public AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication,
+			RequestAuthorizationContext context) {
 		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication, context);
 		boolean granted = ExpressionUtils.evaluateAsBoolean(this.expression, ctx);
 		return new ExpressionAuthorizationDecision(granted, this.expression);

@@ -60,7 +60,8 @@ public final class AuthorizationManagers {
 	@SafeVarargs
 	public static <T> AuthorizationManager<T> anyOf(AuthorizationDecision allAbstainDefaultDecision,
 			AuthorizationManager<T>... managers) {
-		return (AuthorizationManagerCheckAdapter<T>) (Supplier<@Nullable Authentication> authentication, T object) -> {
+		return (AuthorizationManagerCheckAdapter<T>) (Supplier<? extends @Nullable Authentication> authentication,
+				T object) -> {
 			List<AuthorizationResult> results = new ArrayList<>();
 			for (AuthorizationManager<T> manager : managers) {
 				AuthorizationResult result = manager.authorize(authentication, object);
@@ -106,7 +107,8 @@ public final class AuthorizationManagers {
 	@SafeVarargs
 	public static <T> AuthorizationManager<T> allOf(AuthorizationDecision allAbstainDefaultDecision,
 			AuthorizationManager<T>... managers) {
-		return (AuthorizationManagerCheckAdapter<T>) (Supplier<@Nullable Authentication> authentication, T object) -> {
+		return (AuthorizationManagerCheckAdapter<T>) (Supplier<? extends @Nullable Authentication> authentication,
+				T object) -> {
 			List<AuthorizationResult> results = new ArrayList<>();
 			for (AuthorizationManager<T> manager : managers) {
 				AuthorizationResult result = manager.authorize(authentication, object);
@@ -135,7 +137,7 @@ public final class AuthorizationManagers {
 	 * @since 6.3
 	 */
 	public static <T> AuthorizationManager<T> not(AuthorizationManager<T> manager) {
-		return (Supplier<@Nullable Authentication> authentication, T object) -> {
+		return (Supplier<? extends @Nullable Authentication> authentication, T object) -> {
 			AuthorizationResult result = manager.authorize(authentication, object);
 			if (result == null) {
 				return null;
@@ -184,7 +186,7 @@ public final class AuthorizationManagers {
 	private interface AuthorizationManagerCheckAdapter<T> extends AuthorizationManager<T> {
 
 		@Override
-		AuthorizationResult authorize(Supplier<@Nullable Authentication> authentication, T object);
+		AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication, T object);
 
 	}
 

@@ -19,6 +19,8 @@ package org.springframework.security.messaging.access.expression;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.messaging.Message;
@@ -59,7 +61,7 @@ public final class MessageAuthorizationContextSecurityExpressionHandler
 	}
 
 	@Override
-	public EvaluationContext createEvaluationContext(Supplier<Authentication> authentication,
+	public EvaluationContext createEvaluationContext(Supplier<? extends @Nullable Authentication> authentication,
 			MessageAuthorizationContext<?> message) {
 		EvaluationContext context = this.delegate.createEvaluationContext(authentication, message.getMessage());
 		Map<String, String> variables = message.getVariables();

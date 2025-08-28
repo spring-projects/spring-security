@@ -42,7 +42,7 @@ class MethodSecurityExpressionRoot extends SecurityExpressionRoot implements Met
 		super(a);
 	}
 
-	MethodSecurityExpressionRoot(Supplier<@Nullable Authentication> authentication) {
+	MethodSecurityExpressionRoot(Supplier<? extends @Nullable Authentication> authentication) {
 		super(authentication);
 	}
 

@@ -46,7 +46,7 @@ public final class SingleResultAuthorizationManager<C> implements AuthorizationM
 	}
 
 	@Override
-	public AuthorizationResult authorize(Supplier<@Nullable Authentication> authentication, C object) {
+	public AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication, C object) {
 		if (!(this.result instanceof AuthorizationDecision)) {
 			throw new IllegalArgumentException("result should be AuthorizationDecision");
 		}

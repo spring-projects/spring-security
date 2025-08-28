@@ -48,7 +48,7 @@ public class WebSecurityExpressionRoot extends SecurityExpressionRoot {
 	 * @param request the {@link HttpServletRequest} to use
 	 * @since 5.8
 	 */
-	public WebSecurityExpressionRoot(Supplier<Authentication> authentication, HttpServletRequest request) {
+	public WebSecurityExpressionRoot(Supplier<? extends Authentication> authentication, HttpServletRequest request) {
 		super(authentication);
 		this.request = request;
 	}

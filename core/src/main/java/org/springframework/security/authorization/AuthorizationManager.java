@@ -39,7 +39,7 @@ public interface AuthorizationManager<T extends @Nullable Object> {
 	 * @param object the {@link T} object to check
 	 * @throws AccessDeniedException if access is not granted
 	 */
-	default void verify(Supplier<@Nullable Authentication> authentication, T object) {
+	default void verify(Supplier<? extends @Nullable Authentication> authentication, T object) {
 		AuthorizationResult result = authorize(authentication, object);
 		if (result != null && !result.isGranted()) {
 			throw new AuthorizationDeniedException("Access Denied", result);
@@ -54,6 +54,6 @@ public interface AuthorizationManager<T extends @Nullable Object> {
 	 * @return an {@link AuthorizationResult}
 	 * @since 6.4
 	 */
-	@Nullable AuthorizationResult authorize(Supplier<@Nullable Authentication> authentication, T object);
+	@Nullable AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication, T object);
 
 }

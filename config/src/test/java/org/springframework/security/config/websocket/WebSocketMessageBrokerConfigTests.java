@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import org.assertj.core.api.ThrowableAssert;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -735,7 +736,7 @@ public class WebSocketMessageBrokerConfigTests {
 		}
 
 		@Override
-		public EvaluationContext createEvaluationContext(Supplier<Authentication> authentication,
+		public EvaluationContext createEvaluationContext(Supplier<? extends @Nullable Authentication> authentication,
 				Message<Object> message) {
 			return new StandardEvaluationContext(new MessageSecurityExpressionRoot(authentication, message) {
 				public boolean denyNile() {

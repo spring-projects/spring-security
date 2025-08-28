@@ -57,7 +57,7 @@ public final class AuthoritiesAuthorizationManager implements AuthorizationManag
 	 * @return an {@link AuthorityAuthorizationDecision}
 	 */
 	@Override
-	public AuthorizationResult authorize(Supplier<@Nullable Authentication> authentication,
+	public AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication,
 			Collection<String> authorities) {
 		boolean granted = isGranted(authentication.get(), authorities);
 		return new AuthorityAuthorizationDecision(granted, AuthorityUtils.createAuthorityList(authorities));

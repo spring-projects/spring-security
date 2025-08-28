@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
 import org.w3c.dom.Element;
 
 import org.springframework.beans.BeansException;
@@ -458,7 +459,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 		}
 
 		@Override
-		public AuthorizationResult authorize(Supplier<Authentication> authentication,
+		public AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication,
 				MessageAuthorizationContext<?> object) {
 			EvaluationContext context = this.expressionHandler.createEvaluationContext(authentication, object);
 			boolean granted = ExpressionUtils.evaluateAsBoolean(this.expression, context);
