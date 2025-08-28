@@ -43,6 +43,7 @@ import org.springframework.security.access.expression.AbstractSecurityExpression
 import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
+import org.springframework.security.authorization.AuthorizationManagerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.parameters.DefaultSecurityParameterNameDiscoverer;
 import org.springframework.util.Assert;
@@ -56,10 +57,13 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @author Evgeniy Cheban
  * @author Blagoja Stamatovski
+ * @author Steve Riesenberg
  * @since 3.0
  */
 public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpressionHandler<MethodInvocation>
 		implements MethodSecurityExpressionHandler {
+
+	private static final String DEFAULT_ROLE_PREFIX = "ROLE_";
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
@@ -69,7 +73,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 
 	private @Nullable PermissionCacheOptimizer permissionCacheOptimizer = null;
 
-	private String defaultRolePrefix = "ROLE_";
+	private String defaultRolePrefix = DEFAULT_ROLE_PREFIX;
 
 	public DefaultMethodSecurityExpressionHandler() {
 	}
@@ -106,12 +110,14 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 
 	private MethodSecurityExpressionOperations createSecurityExpressionRoot(
 			Supplier<? extends @Nullable Authentication> authentication, MethodInvocation invocation) {
-		MethodSecurityExpressionRoot root = new MethodSecurityExpressionRoot(authentication);
+		MethodSecurityExpressionRoot root = new MethodSecurityExpressionRoot(authentication, invocation);
 		root.setThis(invocation.getThis());
+		root.setAuthorizationManagerFactory(getAuthorizationManagerFactory());
 		root.setPermissionEvaluator(getPermissionEvaluator());
-		root.setTrustResolver(getTrustResolver());
-		Optional.ofNullable(getRoleHierarchy()).ifPresent(root::setRoleHierarchy);
-		root.setDefaultRolePrefix(getDefaultRolePrefix());
+		if (!DEFAULT_ROLE_PREFIX.equals(this.defaultRolePrefix)) {
+			// Ensure SecurityExpressionRoot can strip the custom role prefix
+			root.setDefaultRolePrefix(getDefaultRolePrefix());
+		}
 		return root;
 	}
 
@@ -232,15 +238,22 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	 * {@link AuthenticationTrustResolverImpl}.
 	 * @param trustResolver the {@link AuthenticationTrustResolver} to use. Cannot be
 	 * null.
+	 * @deprecated Use
+	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
 	 */
+	@Deprecated(since = "7.0")
 	public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
 		Assert.notNull(trustResolver, "trustResolver cannot be null");
+		getDefaultAuthorizationManagerFactory().setTrustResolver(trustResolver);
 		this.trustResolver = trustResolver;
 	}
 
 	/**
 	 * @return The current {@link AuthenticationTrustResolver}
+	 * @deprecated Use
+	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
 	 */
+	@Deprecated(since = "7.0")
 	protected AuthenticationTrustResolver getTrustResolver() {
 		return this.trustResolver;
 	}
@@ -289,14 +302,24 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	 * If null or empty, then no default role prefix is used.
 	 * </p>
 	 * @param defaultRolePrefix the default prefix to add to roles. Default "ROLE_".
+	 * @deprecated Use
+	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
 	 */
-	public void setDefaultRolePrefix(String defaultRolePrefix) {
+	@Deprecated(since = "7.0")
+	public void setDefaultRolePrefix(@Nullable String defaultRolePrefix) {
+		if (defaultRolePrefix == null) {
+			defaultRolePrefix = "";
+		}
+		getDefaultAuthorizationManagerFactory().setRolePrefix(defaultRolePrefix);
 		this.defaultRolePrefix = defaultRolePrefix;
 	}
 
 	/**
 	 * @return The default role prefix
+	 * @deprecated Use
+	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
 	 */
+	@Deprecated(since = "7.0")
 	protected String getDefaultRolePrefix() {
 		return this.defaultRolePrefix;
 	}
