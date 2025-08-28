@@ -3,6 +3,7 @@ apply plugin: 'io.spring.convention.spring-test'
 dependencies {
 	implementation platform(project(":spring-security-dependencies"))
 	implementation project(':spring-security-core')
+	implementation project(':spring-security-access')
 	implementation 'org.python:jython'
 	implementation 'org.springframework:spring-aop'
 	implementation 'org.springframework:spring-beans'

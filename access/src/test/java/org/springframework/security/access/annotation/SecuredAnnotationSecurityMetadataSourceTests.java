@@ -39,8 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 /**
- * Tests for
- * {@link org.springframework.security.access.annotation.SecuredAnnotationSecurityMetadataSource}
+ * Tests for {@link SecuredAnnotationSecurityMetadataSource}
  *
  * @author Mark St.Godard
  * @author Joe Scalise

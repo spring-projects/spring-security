@@ -18,6 +18,8 @@ dependencies {
 	api 'org.springframework:spring-context'
 	api 'org.springframework:spring-core'
 
+	optional project(':spring-security-access')
+
 	testImplementation 'org.springframework:spring-aop'
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"

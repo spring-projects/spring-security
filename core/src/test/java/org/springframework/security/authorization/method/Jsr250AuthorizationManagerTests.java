@@ -28,7 +28,6 @@ import jakarta.annotation.security.RolesAllowed;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.core.annotation.AnnotationConfigurationException;
-import org.springframework.security.access.intercept.method.MockMethodInvocation;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationManager;

@@ -20,8 +20,8 @@ import java.lang.reflect.Method;
 
 import org.junit.jupiter.api.Test;
 
-import org.springframework.security.TargetObject;
 import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.access.TargetObject;
 import org.springframework.security.access.method.MethodSecurityMetadataSource;
 
 import static org.assertj.core.api.Assertions.assertThat;

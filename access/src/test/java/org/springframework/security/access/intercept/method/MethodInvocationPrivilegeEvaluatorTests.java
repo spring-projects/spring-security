@@ -22,13 +22,13 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.security.ITargetObject;
-import org.springframework.security.OtherTargetObject;
-import org.springframework.security.TargetObject;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.ITargetObject;
+import org.springframework.security.access.OtherTargetObject;
 import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.access.TargetObject;
 import org.springframework.security.access.intercept.MethodInvocationPrivilegeEvaluator;
 import org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor;
 import org.springframework.security.access.method.MethodSecurityMetadataSource;

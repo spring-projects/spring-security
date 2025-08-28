@@ -2,6 +2,7 @@ apply plugin: 'io.spring.convention.spring-test'
 
 dependencies {
 	implementation platform(project(":spring-security-dependencies"))
+	implementation project(':spring-security-access')
 	implementation 'org.springframework:spring-context'
 	implementation 'org.springframework:spring-web'
 

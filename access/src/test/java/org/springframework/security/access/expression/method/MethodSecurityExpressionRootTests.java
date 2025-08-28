@@ -17,6 +17,7 @@
 package org.springframework.security.access.expression.method;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +29,6 @@ import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.core.Authentication;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -65,19 +65,19 @@ public class MethodSecurityExpressionRootTests {
 	public void canCallMethodsOnVariables() {
 		this.ctx.setVariable("var", "somestring");
 		Expression e = this.parser.parseExpression("#var.length() == 10");
-		assertThat(ExpressionUtils.evaluateAsBoolean(e, this.ctx)).isTrue();
+		Assertions.assertThat(ExpressionUtils.evaluateAsBoolean(e, this.ctx)).isTrue();
 	}
 
 	@Test
 	public void isAnonymousReturnsTrueIfTrustResolverReportsAnonymous() {
 		given(this.trustResolver.isAnonymous(this.user)).willReturn(true);
-		assertThat(this.root.isAnonymous()).isTrue();
+		Assertions.assertThat(this.root.isAnonymous()).isTrue();
 	}
 
 	@Test
 	public void isAnonymousReturnsFalseIfTrustResolverReportsNonAnonymous() {
 		given(this.trustResolver.isAnonymous(this.user)).willReturn(false);
-		assertThat(this.root.isAnonymous()).isFalse();
+		Assertions.assertThat(this.root.isAnonymous()).isFalse();
 	}
 
 	@Test
@@ -87,7 +87,7 @@ public class MethodSecurityExpressionRootTests {
 		this.ctx.setVariable("domainObject", dummyDomainObject);
 		this.root.setPermissionEvaluator(pe);
 		given(pe.hasPermission(this.user, dummyDomainObject, "ignored")).willReturn(false);
-		assertThat(this.root.hasPermission(dummyDomainObject, "ignored")).isFalse();
+		Assertions.assertThat(this.root.hasPermission(dummyDomainObject, "ignored")).isFalse();
 	}
 
 	@Test
@@ -97,7 +97,7 @@ public class MethodSecurityExpressionRootTests {
 		this.ctx.setVariable("domainObject", dummyDomainObject);
 		this.root.setPermissionEvaluator(pe);
 		given(pe.hasPermission(this.user, dummyDomainObject, "ignored")).willReturn(true);
-		assertThat(this.root.hasPermission(dummyDomainObject, "ignored")).isTrue();
+		Assertions.assertThat(this.root.hasPermission(dummyDomainObject, "ignored")).isTrue();
 	}
 
 	@Test
@@ -109,13 +109,13 @@ public class MethodSecurityExpressionRootTests {
 		given(pe.hasPermission(eq(this.user), eq(dummyDomainObject), any(Integer.class))).willReturn(true, true, false);
 		Expression e = this.parser.parseExpression("hasPermission(#domainObject, 0xA)");
 		// evaluator returns true
-		assertThat(ExpressionUtils.evaluateAsBoolean(e, this.ctx)).isTrue();
+		Assertions.assertThat(ExpressionUtils.evaluateAsBoolean(e, this.ctx)).isTrue();
 		e = this.parser.parseExpression("hasPermission(#domainObject, 10)");
 		// evaluator returns true
-		assertThat(ExpressionUtils.evaluateAsBoolean(e, this.ctx)).isTrue();
+		Assertions.assertThat(ExpressionUtils.evaluateAsBoolean(e, this.ctx)).isTrue();
 		e = this.parser.parseExpression("hasPermission(#domainObject, 0xFF)");
 		// evaluator returns false, make sure return value matches
-		assertThat(ExpressionUtils.evaluateAsBoolean(e, this.ctx)).isFalse();
+		Assertions.assertThat(ExpressionUtils.evaluateAsBoolean(e, this.ctx)).isFalse();
 	}
 
 	@Test
@@ -132,11 +132,11 @@ public class MethodSecurityExpressionRootTests {
 		given(pe.hasPermission(this.user, targetObject, i)).willReturn(true, false);
 		given(pe.hasPermission(this.user, "x", i)).willReturn(true);
 		Expression e = this.parser.parseExpression("hasPermission(this, 2)");
-		assertThat(ExpressionUtils.evaluateAsBoolean(e, this.ctx)).isTrue();
+		Assertions.assertThat(ExpressionUtils.evaluateAsBoolean(e, this.ctx)).isTrue();
 		e = this.parser.parseExpression("hasPermission(this, 2)");
-		assertThat(ExpressionUtils.evaluateAsBoolean(e, this.ctx)).isFalse();
+		Assertions.assertThat(ExpressionUtils.evaluateAsBoolean(e, this.ctx)).isFalse();
 		e = this.parser.parseExpression("hasPermission(this.x, 2)");
-		assertThat(ExpressionUtils.evaluateAsBoolean(e, this.ctx)).isTrue();
+		Assertions.assertThat(ExpressionUtils.evaluateAsBoolean(e, this.ctx)).isTrue();
 	}
 
 }
