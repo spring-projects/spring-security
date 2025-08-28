@@ -18,6 +18,7 @@ package org.springframework.security.access.expression.method;
 
 import java.util.function.Supplier;
 
+import org.aopalliance.intercept.MethodInvocation;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.access.expression.SecurityExpressionRoot;
@@ -28,9 +29,11 @@ import org.springframework.security.core.Authentication;
  *
  * @author Luke Taylor
  * @author Evgeniy Cheban
+ * @author Steve Riesenberg
  * @since 3.0
  */
-class MethodSecurityExpressionRoot extends SecurityExpressionRoot implements MethodSecurityExpressionOperations {
+class MethodSecurityExpressionRoot extends SecurityExpressionRoot<MethodInvocation>
+		implements MethodSecurityExpressionOperations {
 
 	private @Nullable Object filterObject;
 
@@ -38,12 +41,9 @@ class MethodSecurityExpressionRoot extends SecurityExpressionRoot implements Met
 
 	private @Nullable Object target;
 
-	MethodSecurityExpressionRoot(@Nullable Authentication a) {
-		super(a);
-	}
-
-	MethodSecurityExpressionRoot(Supplier<? extends @Nullable Authentication> authentication) {
-		super(authentication);
+	MethodSecurityExpressionRoot(Supplier<? extends @Nullable Authentication> authentication,
+			MethodInvocation methodInvocation) {
+		super(authentication, methodInvocation);
 	}
 
 	@Override
