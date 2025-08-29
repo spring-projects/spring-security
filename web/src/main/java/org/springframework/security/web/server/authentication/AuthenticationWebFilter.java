@@ -122,10 +122,24 @@ public class AuthenticationWebFilter implements WebFilter {
 			.flatMap((authenticationManager) -> authenticationManager.authenticate(token))
 			.switchIfEmpty(Mono
 				.defer(() -> Mono.error(new IllegalStateException("No provider found for " + token.getClass()))))
+			.flatMap(this::applyCurrentAuthenication)
 			.flatMap(
 					(authentication) -> onAuthenticationSuccess(authentication, new WebFilterExchange(exchange, chain)))
 			.doOnError(AuthenticationException.class,
 					(ex) -> logger.debug(LogMessage.format("Authentication failed: %s", ex.getMessage()), ex));
+	}
+
+	private Mono<Authentication> applyCurrentAuthenication(Authentication result) {
+		return ReactiveSecurityContextHolder.getContext().map((context) -> {
+			Authentication current = context.getAuthentication();
+			if (current == null) {
+				return result;
+			}
+			if (!current.isAuthenticated()) {
+				return result;
+			}
+			return result.toBuilder().authorities((a) -> a.addAll(current.getAuthorities())).build();
+		}).switchIfEmpty(Mono.just(result));
 	}
 
 	protected Mono<Void> onAuthenticationSuccess(Authentication authentication, WebFilterExchange webFilterExchange) {

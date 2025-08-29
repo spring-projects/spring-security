@@ -248,6 +248,12 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 				// return immediately as subclass has indicated that it hasn't completed
 				return;
 			}
+			Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
+			if (current != null && current.isAuthenticated()) {
+				authenticationResult = authenticationResult.toBuilder()
+					.authorities((a) -> a.addAll(current.getAuthorities()))
+					.build();
+			}
 			this.sessionStrategy.onAuthentication(authenticationResult, request, response);
 			// Authentication success
 			if (this.continueChainBeforeSuccessfulAuthentication) {

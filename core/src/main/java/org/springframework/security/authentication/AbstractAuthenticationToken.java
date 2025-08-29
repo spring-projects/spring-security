@@ -16,6 +16,7 @@
 
 package org.springframework.security.authentication;
 
+import java.io.Serial;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,6 +44,7 @@ import org.springframework.util.Assert;
  */
 public abstract class AbstractAuthenticationToken implements Authentication, CredentialsContainer {
 
+	@Serial
 	private static final long serialVersionUID = -3194696462184782834L;
 
 	private final Collection<GrantedAuthority> authorities;
