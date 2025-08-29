@@ -20,7 +20,7 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.function.Consumer;
 
 import org.jspecify.annotations.Nullable;
@@ -43,6 +43,8 @@ import org.springframework.util.Assert;
  */
 public abstract class AbstractAuthenticationToken implements Authentication, CredentialsContainer {
 
+	private static final long serialVersionUID = -3194696462184782834L;
+
 	private final Collection<GrantedAuthority> authorities;
 
 	private @Nullable Object details;
@@ -63,6 +65,12 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 			Assert.notNull(a, "Authorities collection cannot contain any null elements");
 		}
 		this.authorities = Collections.unmodifiableList(new ArrayList<>(authorities));
+	}
+
+	protected AbstractAuthenticationToken(AbstractAuthenticationBuilder<?, ?, ?> builder) {
+		this(builder.authorities);
+		this.authenticated = builder.authenticated;
+		this.details = builder.details;
 	}
 
 	@Override
@@ -187,35 +195,39 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 		return sb.toString();
 	}
 
-	protected abstract static class AbstractAuthenticationBuilder<A extends Authentication, B extends AbstractAuthenticationBuilder<A, B>>
-			implements Builder<A, B> {
+	protected abstract static class AbstractAuthenticationBuilder<P, C, B extends AbstractAuthenticationBuilder<P, C, B>>
+			implements Authentication.Builder<P, C, B> {
 
-		private final Collection<GrantedAuthority> authorities = new HashSet<>();
+		protected boolean authenticated;
 
-		protected AbstractAuthenticationBuilder() {
+		protected @Nullable Object details;
 
+		protected final Collection<GrantedAuthority> authorities;
+
+		protected AbstractAuthenticationBuilder(AbstractAuthenticationToken token) {
+			this.authorities = new LinkedHashSet<>(token.getAuthorities());
+			this.authenticated = token.isAuthenticated();
+			this.details = token.getDetails();
+		}
+
+		@Override
+		public B authenticated(boolean authenticated) {
+			this.authenticated = authenticated;
+			return (B) this;
+		}
+
+		@Override
+		public B details(@Nullable Object details) {
+			this.details = details;
+			return (B) this;
 		}
 
 		@Override
 		public B authorities(Consumer<Collection<GrantedAuthority>> authorities) {
 			authorities.accept(this.authorities);
+			this.authenticated = true;
 			return (B) this;
 		}
-
-		@Override
-		public A build() {
-			return build(this.authorities);
-		}
-
-		@Override
-		public B apply(Authentication token) {
-			Assert.isTrue(token.isAuthenticated(), "cannot mutate an unauthenticated token");
-			Assert.notNull(token.getPrincipal(), "principal cannot be null");
-			this.authorities.addAll(token.getAuthorities());
-			return (B) this;
-		}
-
-		protected abstract A build(Collection<GrantedAuthority> authorities);
 
 	}
 

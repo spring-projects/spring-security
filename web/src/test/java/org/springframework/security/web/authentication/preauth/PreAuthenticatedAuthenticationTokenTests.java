@@ -80,7 +80,11 @@ public class PreAuthenticatedAuthenticationTokenTests {
 				AuthorityUtils.createAuthorityList("FACTOR_ONE"));
 		PreAuthenticatedAuthenticationToken factorTwo = new PreAuthenticatedAuthenticationToken("bob", "ssap",
 				AuthorityUtils.createAuthorityList("FACTOR_TWO"));
-		PreAuthenticatedAuthenticationToken result = factorOne.toBuilder().apply(factorTwo).build();
+		PreAuthenticatedAuthenticationToken result = factorOne.toBuilder()
+			.authorities((a) -> a.addAll(factorTwo.getAuthorities()))
+			.principal(factorTwo.getPrincipal())
+			.credentials(factorTwo.getCredentials())
+			.build();
 		Set<String> authorities = AuthorityUtils.authorityListToSet(result.getAuthorities());
 		assertThat(result.getPrincipal()).isSameAs(factorTwo.getPrincipal());
 		assertThat(result.getCredentials()).isSameAs(factorTwo.getCredentials());

@@ -72,6 +72,11 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 		this.name = name;
 	}
 
+	protected JwtAuthenticationToken(Builder<?> builder) {
+		super(builder);
+		this.name = builder.name;
+	}
+
 	@Override
 	public Map<String, Object> getTokenAttributes() {
 		return this.getToken().getClaims();
@@ -86,8 +91,8 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 	}
 
 	@Override
-	public Builder toBuilder() {
-		return new Builder().apply(this);
+	public Builder<?> toBuilder() {
+		return new Builder<>(this);
 	}
 
 	/**
@@ -95,33 +100,23 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 	 *
 	 * @since 7.0
 	 */
-	public static final class Builder extends AbstractAuthenticationBuilder<JwtAuthenticationToken, Builder> {
-
-		private Jwt jwt;
+	public static class Builder<B extends Builder<B>> extends AbstractOAuth2TokenAuthenticationBuilder<Jwt, B> {
 
 		private String name;
 
-		private Builder() {
-
+		protected Builder(JwtAuthenticationToken token) {
+			super(token);
+			this.name = token.getName();
 		}
 
-		public Builder apply(JwtAuthenticationToken token) {
-			return super.apply(token).jwt(token.getToken()).name(token.getName());
-		}
-
-		public Builder jwt(Jwt jwt) {
-			this.jwt = jwt;
-			return this;
-		}
-
-		public Builder name(String name) {
+		public B name(String name) {
 			this.name = name;
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		protected JwtAuthenticationToken build(Collection<GrantedAuthority> authorities) {
-			return new JwtAuthenticationToken(this.jwt, authorities, this.name);
+		public JwtAuthenticationToken build() {
+			return new JwtAuthenticationToken(this);
 		}
 
 	}

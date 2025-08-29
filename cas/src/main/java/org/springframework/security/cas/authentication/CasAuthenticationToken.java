@@ -20,7 +20,7 @@ import java.io.Serializable;
 import java.util.Collection;
 
 import org.apereo.cas.client.validation.Assertion;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -106,6 +106,19 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 		setAuthenticated(true);
 	}
 
+	protected CasAuthenticationToken(Builder<?> builder) {
+		super(builder);
+		Assert.isTrue(!"".equals(builder.principal), "principal cannot be null or empty");
+		Assert.notNull(!"".equals(builder.credentials), "credentials cannot be null or empty");
+		Assert.notNull(builder.userDetails, "userDetails cannot be null");
+		Assert.notNull(builder.assertion, "assertion cannot be null");
+		this.keyHash = builder.keyHash;
+		this.principal = builder.principal;
+		this.credentials = builder.credentials;
+		this.userDetails = builder.userDetails;
+		this.assertion = builder.assertion;
+	}
+
 	private static Integer extractKeyHash(String key) {
 		Assert.hasLength(key, "key cannot be null or empty");
 		return key.hashCode();
@@ -156,8 +169,8 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 	}
 
 	@Override
-	public Builder toBuilder() {
-		return new Builder().apply(this);
+	public Builder<?> toBuilder() {
+		return new Builder<>(this);
 	}
 
 	@Override
@@ -174,7 +187,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 	 *
 	 * @since 7.0
 	 */
-	public static final class Builder extends AbstractAuthenticationBuilder<@NonNull CasAuthenticationToken, Builder> {
+	public static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<Object, Object, B> {
 
 		private Integer keyHash;
 
@@ -186,47 +199,47 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 
 		private Assertion assertion;
 
-		private Builder() {
-
+		protected Builder(CasAuthenticationToken token) {
+			super(token);
+			this.keyHash = token.keyHash;
+			this.principal = token.principal;
+			this.credentials = token.credentials;
+			this.userDetails = token.userDetails;
+			this.assertion = token.assertion;
 		}
 
-		public Builder apply(CasAuthenticationToken authentication) {
-			return super.apply(authentication).keyHash(authentication.keyHash)
-				.principal(authentication.principal)
-				.credentials(authentication.credentials)
-				.userDetails(authentication.userDetails)
-				.assertion(authentication.assertion);
-		}
-
-		public Builder keyHash(Integer keyHash) {
+		public B keyHash(Integer keyHash) {
 			this.keyHash = keyHash;
-			return this;
-		}
-
-		public Builder principal(Object principal) {
-			this.principal = principal;
-			return this;
-		}
-
-		public Builder credentials(Object credentials) {
-			this.credentials = credentials;
-			return this;
-		}
-
-		public Builder userDetails(UserDetails userDetails) {
-			this.userDetails = userDetails;
-			return this;
-		}
-
-		public Builder assertion(Assertion assertion) {
-			this.assertion = assertion;
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		protected @NonNull CasAuthenticationToken build(Collection<GrantedAuthority> authorities) {
-			return new CasAuthenticationToken(this.keyHash, this.principal, this.credentials, authorities,
-					this.userDetails, this.assertion);
+		public B principal(@Nullable Object principal) {
+			Assert.notNull(principal, "principal cannot be null");
+			this.principal = principal;
+			return (B) this;
+		}
+
+		@Override
+		public B credentials(@Nullable Object credentials) {
+			Assert.notNull(credentials, "credentials cannot be null");
+			this.credentials = credentials;
+			return (B) this;
+		}
+
+		public B userDetails(UserDetails userDetails) {
+			this.userDetails = userDetails;
+			return (B) this;
+		}
+
+		public B assertion(Assertion assertion) {
+			this.assertion = assertion;
+			return (B) this;
+		}
+
+		@Override
+		public CasAuthenticationToken build() {
+			return new CasAuthenticationToken(this);
 		}
 
 	}

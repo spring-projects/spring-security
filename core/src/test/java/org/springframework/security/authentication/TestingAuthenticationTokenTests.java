@@ -57,7 +57,11 @@ public class TestingAuthenticationTokenTests {
 				AuthorityUtils.createAuthorityList("FACTOR_ONE"));
 		TestingAuthenticationToken factorTwo = new TestingAuthenticationToken("bob", "ssap",
 				AuthorityUtils.createAuthorityList("FACTOR_TWO"));
-		TestingAuthenticationToken result = factorOne.toBuilder().apply(factorTwo).build();
+		TestingAuthenticationToken result = factorOne.toBuilder()
+			.authorities((a) -> a.addAll(factorTwo.getAuthorities()))
+			.principal(factorTwo.getPrincipal())
+			.credentials(factorTwo.getCredentials())
+			.build();
 		Set<String> authorities = AuthorityUtils.authorityListToSet(result.getAuthorities());
 		assertThat(result.getPrincipal()).isSameAs(factorTwo.getPrincipal());
 		assertThat(result.getCredentials()).isSameAs(factorTwo.getCredentials());
