@@ -18,7 +18,11 @@ package org.springframework.security.authentication;
 
 import java.util.Collection;
 
+import org.jspecify.annotations.Nullable;
+
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.Assert;
 
 /**
  * Represents a remembered <code>Authentication</code>.
@@ -89,6 +93,11 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	@Override
+	public Builder toBuilder() {
+		return new Builder().apply(this);
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (!super.equals(obj)) {
 			return false;
@@ -104,6 +113,44 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 		int result = super.hashCode();
 		result = 31 * result + this.keyHash;
 		return result;
+	}
+
+	/**
+	 * A builder preserving the concrete {@link Authentication} type
+	 *
+	 * @since 7.0
+	 */
+	public static final class Builder extends AbstractAuthenticationBuilder<RememberMeAuthenticationToken, Builder> {
+
+		private @Nullable Integer keyHash;
+
+		private @Nullable Object principal;
+
+		private Builder() {
+
+		}
+
+		public Builder apply(RememberMeAuthenticationToken token) {
+			return super.apply(token).keyHash(token.getKeyHash()).principal(token.getPrincipal());
+		}
+
+		public Builder principal(Object principal) {
+			this.principal = principal;
+			return this;
+		}
+
+		public Builder keyHash(int keyHash) {
+			this.keyHash = keyHash;
+			return this;
+		}
+
+		@Override
+		protected RememberMeAuthenticationToken build(Collection<GrantedAuthority> authorities) {
+			Assert.notNull(this.keyHash, "keyHash cannot be null");
+			Assert.notNull(this.principal, "principal cannot be null");
+			return new RememberMeAuthenticationToken(this.keyHash, this.principal, authorities);
+		}
+
 	}
 
 }

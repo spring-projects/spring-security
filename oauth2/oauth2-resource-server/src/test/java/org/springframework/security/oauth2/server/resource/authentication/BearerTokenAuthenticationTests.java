@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +35,7 @@ import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrinci
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
+import org.springframework.security.oauth2.core.TestOAuth2AuthenticatedPrincipals;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -149,6 +151,22 @@ public class BearerTokenAuthenticationTests {
 		OAuth2AuthenticatedPrincipal principal = new DefaultOAuth2AuthenticatedPrincipal(attributes, null);
 		BearerTokenAuthentication token = new BearerTokenAuthentication(principal, this.token, null);
 		token.toString();
+	}
+
+	@Test
+	public void toBuilderWhenApplyThenCopies() {
+		BearerTokenAuthentication factorOne = new BearerTokenAuthentication(TestOAuth2AuthenticatedPrincipals.active(),
+				this.token, AuthorityUtils.createAuthorityList("FACTOR_ONE"));
+		BearerTokenAuthentication factorTwo = new BearerTokenAuthentication(
+				TestOAuth2AuthenticatedPrincipals.active((m) -> m.put("k", "v")),
+				new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "nekot", Instant.now(),
+						Instant.now().plusSeconds(3600)),
+				AuthorityUtils.createAuthorityList("FACTOR_TWO"));
+		BearerTokenAuthentication authentication = factorOne.toBuilder().apply(factorTwo).build();
+		Set<String> authorities = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
+		assertThat(authentication.getPrincipal()).isSameAs(factorTwo.getPrincipal());
+		assertThat(authentication.getToken()).isSameAs(factorTwo.getToken());
+		assertThat(authorities).containsExactlyInAnyOrder("FACTOR_ONE", "FACTOR_TWO");
 	}
 
 }
