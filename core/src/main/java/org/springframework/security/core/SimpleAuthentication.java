@@ -16,6 +16,7 @@
 
 package org.springframework.security.core;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.function.Consumer;
@@ -23,6 +24,9 @@ import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
 
 final class SimpleAuthentication implements Authentication {
+
+	@Serial
+	private static final long serialVersionUID = 3194696462184782814L;
 
 	private final @Nullable Object principal;
 
