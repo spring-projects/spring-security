@@ -74,6 +74,12 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 		setAuthenticated(true);
 	}
 
+	protected RememberMeAuthenticationToken(Builder<?> builder) {
+		super(builder);
+		this.keyHash = builder.keyHash;
+		this.principal = builder.principal;
+	}
+
 	/**
 	 * Always returns an empty <code>String</code>
 	 * @return an empty String
@@ -94,7 +100,7 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 
 	@Override
 	public Builder toBuilder() {
-		return new Builder().apply(this);
+		return new Builder(this);
 	}
 
 	@Override
@@ -120,35 +126,33 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 	 *
 	 * @since 7.0
 	 */
-	public static final class Builder extends AbstractAuthenticationBuilder<RememberMeAuthenticationToken, Builder> {
+	public static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<Object, Object, B> {
 
-		private @Nullable Integer keyHash;
+		private Integer keyHash;
 
-		private @Nullable Object principal;
+		private Object principal;
 
-		private Builder() {
-
-		}
-
-		public Builder apply(RememberMeAuthenticationToken token) {
-			return super.apply(token).keyHash(token.getKeyHash()).principal(token.getPrincipal());
-		}
-
-		public Builder principal(Object principal) {
-			this.principal = principal;
-			return this;
-		}
-
-		public Builder keyHash(int keyHash) {
-			this.keyHash = keyHash;
-			return this;
+		protected Builder(RememberMeAuthenticationToken token) {
+			super(token);
+			this.keyHash = token.getKeyHash();
+			this.principal = token.getPrincipal();
 		}
 
 		@Override
-		protected RememberMeAuthenticationToken build(Collection<GrantedAuthority> authorities) {
-			Assert.notNull(this.keyHash, "keyHash cannot be null");
-			Assert.notNull(this.principal, "principal cannot be null");
-			return new RememberMeAuthenticationToken(this.keyHash, this.principal, authorities);
+		public B principal(@Nullable Object principal) {
+			Assert.notNull(principal, "principal cannot be null");
+			this.principal = principal;
+			return (B) this;
+		}
+
+		public B keyHash(int keyHash) {
+			this.keyHash = keyHash;
+			return (B) this;
+		}
+
+		@Override
+		public RememberMeAuthenticationToken build() {
+			return new RememberMeAuthenticationToken(this);
 		}
 
 	}

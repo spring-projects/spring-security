@@ -45,7 +45,7 @@ public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationT
 	 * @param aCredentials The pre-authenticated credentials
 	 */
 	public PreAuthenticatedAuthenticationToken(Object aPrincipal, Object aCredentials) {
-		super(null);
+		super((Collection<? extends GrantedAuthority>) null);
 		this.principal = aPrincipal;
 		this.credentials = aCredentials;
 	}
@@ -65,6 +65,12 @@ public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationT
 		setAuthenticated(true);
 	}
 
+	protected PreAuthenticatedAuthenticationToken(Builder<?> builder) {
+		super(builder);
+		this.principal = builder.principal;
+		this.credentials = builder.credentials;
+	}
+
 	/**
 	 * Get the credentials
 	 */
@@ -82,8 +88,8 @@ public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationT
 	}
 
 	@Override
-	public Builder toBuilder() {
-		return new Builder().apply(this);
+	public Builder<?> toBuilder() {
+		return new Builder<>(this);
 	}
 
 	/**
@@ -91,34 +97,33 @@ public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationT
 	 *
 	 * @since 7.0
 	 */
-	public static final class Builder
-			extends AbstractAuthenticationBuilder<PreAuthenticatedAuthenticationToken, Builder> {
+	public static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<Object, Object, B> {
 
 		private Object principal;
 
 		private Object credentials;
 
-		private Builder() {
-
-		}
-
-		public Builder apply(PreAuthenticatedAuthenticationToken token) {
-			return super.apply(token).principal(token.getPrincipal()).credentials(token.getCredentials());
-		}
-
-		public Builder principal(Object principal) {
-			this.principal = principal;
-			return this;
-		}
-
-		public Builder credentials(Object credentials) {
-			this.credentials = credentials;
-			return this;
+		protected Builder(PreAuthenticatedAuthenticationToken token) {
+			super(token);
+			this.principal = token.principal;
+			this.credentials = token.credentials;
 		}
 
 		@Override
-		protected PreAuthenticatedAuthenticationToken build(Collection<GrantedAuthority> authorities) {
-			return new PreAuthenticatedAuthenticationToken(this.principal, this.credentials, authorities);
+		public B principal(Object principal) {
+			this.principal = principal;
+			return (B) this;
+		}
+
+		@Override
+		public B credentials(Object credentials) {
+			this.credentials = credentials;
+			return (B) this;
+		}
+
+		@Override
+		public PreAuthenticatedAuthenticationToken build() {
+			return new PreAuthenticatedAuthenticationToken(this);
 		}
 
 	}

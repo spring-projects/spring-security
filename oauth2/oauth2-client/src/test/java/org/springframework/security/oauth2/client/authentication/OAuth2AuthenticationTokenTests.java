@@ -91,7 +91,11 @@ public class OAuth2AuthenticationTokenTests {
 				AuthorityUtils.createAuthorityList("FACTOR_ONE"), "alice");
 		OAuth2AuthenticationToken factorTwo = new OAuth2AuthenticationToken(TestOAuth2Users.create(),
 				AuthorityUtils.createAuthorityList("FACTOR_TWO"), "bob");
-		OAuth2AuthenticationToken result = factorOne.toBuilder().apply(factorTwo).build();
+		OAuth2AuthenticationToken result = factorOne.toBuilder()
+			.authorities((a) -> a.addAll(factorTwo.getAuthorities()))
+			.principal(factorTwo.getPrincipal())
+			.authorizedClientRegistrationId(factorTwo.getAuthorizedClientRegistrationId())
+			.build();
 		Set<String> authorities = AuthorityUtils.authorityListToSet(result.getAuthorities());
 		assertThat(result.getPrincipal()).isSameAs(factorTwo.getPrincipal());
 		assertThat(result.getAuthorizedClientRegistrationId()).isSameAs(factorTwo.getAuthorizedClientRegistrationId());

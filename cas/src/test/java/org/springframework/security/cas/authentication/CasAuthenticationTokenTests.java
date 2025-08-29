@@ -165,7 +165,14 @@ public class CasAuthenticationTokenTests {
 		Assertion assertionTwo = new AssertionImpl("test");
 		CasAuthenticationToken factorTwo = new CasAuthenticationToken("yek", "bob", "ssap",
 				AuthorityUtils.createAuthorityList("FACTOR_TWO"), PasswordEncodedUser.admin(), assertionTwo);
-		CasAuthenticationToken authentication = factorOne.toBuilder().apply(factorTwo).build();
+		CasAuthenticationToken authentication = factorOne.toBuilder()
+			.authorities((a) -> a.addAll(factorTwo.getAuthorities()))
+			.keyHash(factorTwo.getKeyHash())
+			.principal(factorTwo.getPrincipal())
+			.credentials(factorTwo.getCredentials())
+			.userDetails(factorTwo.getUserDetails())
+			.assertion(factorTwo.getAssertion())
+			.build();
 		Set<String> authorities = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
 		assertThat(authentication.getKeyHash()).isEqualTo(factorTwo.getKeyHash());
 		assertThat(authentication.getPrincipal()).isEqualTo(factorTwo.getPrincipal());
