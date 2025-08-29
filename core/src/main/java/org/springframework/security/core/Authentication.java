@@ -69,7 +69,7 @@ public interface Authentication extends Principal, Serializable {
 	 * instance.
 	 * </p>
 	 * @return the authorities granted to the principal, or an empty collection if the
-	 * token has not been authenticated. Never null.Saml2AssertAu
+	 * token has not been authenticated. Never null.
 	 */
 	Collection<? extends GrantedAuthority> getAuthorities();
 
@@ -148,7 +148,7 @@ public interface Authentication extends Principal, Serializable {
 	 * @since 7.0
 	 */
 	default Builder<?, ?, ?> toBuilder() {
-		return new NoopAuthenticationBuilder(this);
+		return new SimpleAuthentication.Builder(this);
 	}
 
 	/**
