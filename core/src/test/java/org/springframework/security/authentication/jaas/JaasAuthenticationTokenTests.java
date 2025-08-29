@@ -35,7 +35,12 @@ class JaasAuthenticationTokenTests {
 				AuthorityUtils.createAuthorityList("FACTOR_ONE"), mock(LoginContext.class));
 		JaasAuthenticationToken factorTwo = new JaasAuthenticationToken("bob", "ssap",
 				AuthorityUtils.createAuthorityList("FACTOR_TWO"), mock(LoginContext.class));
-		JaasAuthenticationToken result = factorOne.toBuilder().apply(factorTwo).build();
+		JaasAuthenticationToken result = factorOne.toBuilder()
+			.authorities((a) -> a.addAll(factorTwo.getAuthorities()))
+			.principal(factorTwo.getPrincipal())
+			.credentials(factorTwo.getCredentials())
+			.loginContext(factorTwo.getLoginContext())
+			.build();
 		Set<String> authorities = AuthorityUtils.authorityListToSet(result.getAuthorities());
 		assertThat(result.getPrincipal()).isSameAs(factorTwo.getPrincipal());
 		assertThat(result.getCredentials()).isSameAs(factorTwo.getCredentials());

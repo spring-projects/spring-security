@@ -44,6 +44,11 @@ public class OneTimeTokenAuthentication extends AbstractAuthenticationToken {
 		setAuthenticated(true);
 	}
 
+	protected OneTimeTokenAuthentication(Builder<?> builder) {
+		super(builder);
+		this.principal = builder.principal;
+	}
+
 	@Override
 	public Object getPrincipal() {
 		return this.principal;
@@ -55,42 +60,36 @@ public class OneTimeTokenAuthentication extends AbstractAuthenticationToken {
 	}
 
 	@Override
-	public Builder toBuilder() {
-		return new Builder().apply(this);
+	public Builder<?> toBuilder() {
+		return new Builder<>(this);
 	}
 
 	/**
 	 * A builder for constructing a {@link OneTimeTokenAuthentication} instance
 	 */
-	public static final class Builder extends AbstractAuthenticationBuilder<OneTimeTokenAuthentication, Builder> {
+	public static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<Object, Object, B> {
 
-		private @Nullable Object principal;
+		private Object principal;
 
-		private Builder() {
-
-		}
-
-		/**
-		 * Apply this {@link OneTimeTokenAuthentication}
-		 * @return the {@link Builder} for further configuration
-		 */
-		public Builder apply(OneTimeTokenAuthentication authentication) {
-			return super.apply(authentication).principal(authentication.principal);
+		protected Builder(OneTimeTokenAuthentication token) {
+			super(token);
+			this.principal = token.principal;
 		}
 
 		/**
 		 * Use this principal
 		 * @return the {@link Builder} for further configuration
 		 */
-		public Builder principal(Object principal) {
+		@Override
+		public B principal(@Nullable Object principal) {
+			Assert.notNull(principal, "principal cannot be null");
 			this.principal = principal;
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		protected OneTimeTokenAuthentication build(Collection<GrantedAuthority> authorities) {
-			Assert.notNull(this.principal, "principal cannot be null");
-			return new OneTimeTokenAuthentication(this.principal, authorities);
+		public OneTimeTokenAuthentication build() {
+			return new OneTimeTokenAuthentication(this);
 		}
 
 	}

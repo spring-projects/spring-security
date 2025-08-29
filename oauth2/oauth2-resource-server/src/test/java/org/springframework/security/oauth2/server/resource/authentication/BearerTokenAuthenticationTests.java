@@ -162,7 +162,11 @@ public class BearerTokenAuthenticationTests {
 				new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "nekot", Instant.now(),
 						Instant.now().plusSeconds(3600)),
 				AuthorityUtils.createAuthorityList("FACTOR_TWO"));
-		BearerTokenAuthentication authentication = factorOne.toBuilder().apply(factorTwo).build();
+		BearerTokenAuthentication authentication = factorOne.toBuilder()
+			.authorities((a) -> a.addAll(factorTwo.getAuthorities()))
+			.principal(factorTwo.getPrincipal())
+			.token(factorTwo.getToken())
+			.build();
 		Set<String> authorities = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
 		assertThat(authentication.getPrincipal()).isSameAs(factorTwo.getPrincipal());
 		assertThat(authentication.getToken()).isSameAs(factorTwo.getToken());

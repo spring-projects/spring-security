@@ -51,7 +51,7 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 	 *
 	 */
 	public UsernamePasswordAuthenticationToken(@Nullable Object principal, @Nullable Object credentials) {
-		super(null);
+		super((Collection<? extends GrantedAuthority>) null);
 		this.principal = principal;
 		this.credentials = credentials;
 		setAuthenticated(false);
@@ -72,6 +72,12 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 		this.principal = principal;
 		this.credentials = credentials;
 		super.setAuthenticated(true); // must use super, as we override
+	}
+
+	protected UsernamePasswordAuthenticationToken(Builder<?> builder) {
+		super(builder);
+		this.principal = builder.principal;
+		this.credentials = builder.credentials;
 	}
 
 	/**
@@ -126,8 +132,8 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 	}
 
 	@Override
-	public Builder<?, ?> toBuilder() {
-		return new Builder<>().apply(this);
+	public Builder<?> toBuilder() {
+		return new Builder<>(this);
 	}
 
 	/**
@@ -135,35 +141,34 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 	 *
 	 * @since 7.0
 	 */
-	public static class Builder<A extends UsernamePasswordAuthenticationToken, B extends Builder<A, B>>
-			extends AbstractAuthenticationBuilder<A, B> {
+	public static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<Object, Object, B> {
 
-		private @Nullable Object principal;
+		protected @Nullable Object principal;
 
-		private @Nullable Object credentials;
+		protected @Nullable Object credentials;
 
-		protected Builder() {
+		protected Builder(UsernamePasswordAuthenticationToken token) {
+			super(token);
+			this.principal = token.principal;
+			this.credentials = token.credentials;
 		}
 
-		public B apply(UsernamePasswordAuthenticationToken authentication) {
-			return super.apply(authentication).principal(authentication.getPrincipal())
-				.credentials(authentication.getCredentials());
-		}
-
-		public B principal(Object principal) {
+		@Override
+		public B principal(@Nullable Object principal) {
+			Assert.notNull(principal, "principal cannot be null");
 			this.principal = principal;
 			return (B) this;
 		}
 
+		@Override
 		public B credentials(@Nullable Object credentials) {
 			this.credentials = credentials;
 			return (B) this;
 		}
 
 		@Override
-		protected A build(Collection<GrantedAuthority> authorities) {
-			Assert.notNull(this.principal, "principal cannot be null");
-			return (A) new UsernamePasswordAuthenticationToken(this.principal, this.credentials, authorities);
+		public UsernamePasswordAuthenticationToken build() {
+			return new UsernamePasswordAuthenticationToken(this);
 		}
 
 	}

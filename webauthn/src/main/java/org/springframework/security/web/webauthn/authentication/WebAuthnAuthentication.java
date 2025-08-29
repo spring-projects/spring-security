@@ -49,6 +49,11 @@ public class WebAuthnAuthentication extends AbstractAuthenticationToken {
 		super.setAuthenticated(true);
 	}
 
+	private WebAuthnAuthentication(Builder<?> builder) {
+		super(builder);
+		this.principal = builder.principal;
+	}
+
 	@Override
 	public void setAuthenticated(boolean authenticated) {
 		Assert.isTrue(!authenticated, "Cannot set this token to trusted");
@@ -71,8 +76,8 @@ public class WebAuthnAuthentication extends AbstractAuthenticationToken {
 	}
 
 	@Override
-	public Builder toBuilder() {
-		return new Builder().apply(this);
+	public Builder<?> toBuilder() {
+		return new Builder<>(this);
 	}
 
 	/**
@@ -80,26 +85,25 @@ public class WebAuthnAuthentication extends AbstractAuthenticationToken {
 	 *
 	 * @since 7.0
 	 */
-	public static final class Builder extends AbstractAuthenticationBuilder<WebAuthnAuthentication, Builder> {
+	public static final class Builder<B extends Builder<B>>
+			extends AbstractAuthenticationBuilder<PublicKeyCredentialUserEntity, Object, B> {
 
 		private PublicKeyCredentialUserEntity principal;
 
-		private Builder() {
-
-		}
-
-		public Builder apply(WebAuthnAuthentication authentication) {
-			return super.apply(authentication).principal(authentication.getPrincipal());
-		}
-
-		public Builder principal(PublicKeyCredentialUserEntity principal) {
-			this.principal = principal;
-			return this;
+		private Builder(WebAuthnAuthentication token) {
+			super(token);
 		}
 
 		@Override
-		protected WebAuthnAuthentication build(Collection<GrantedAuthority> authorities) {
-			return new WebAuthnAuthentication(this.principal, authorities);
+		public B principal(@Nullable PublicKeyCredentialUserEntity principal) {
+			Assert.notNull(principal, "principal cannot be null");
+			this.principal = principal;
+			return (B) this;
+		}
+
+		@Override
+		public WebAuthnAuthentication build() {
+			return new WebAuthnAuthentication(this);
 		}
 
 	}

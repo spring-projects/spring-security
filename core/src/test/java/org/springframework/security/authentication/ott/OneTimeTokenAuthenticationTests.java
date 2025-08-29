@@ -32,7 +32,10 @@ class OneTimeTokenAuthenticationTests {
 				AuthorityUtils.createAuthorityList("FACTOR_ONE"));
 		OneTimeTokenAuthentication factorTwo = new OneTimeTokenAuthentication("bob",
 				AuthorityUtils.createAuthorityList("FACTOR_TWO"));
-		OneTimeTokenAuthentication result = factorOne.toBuilder().apply(factorTwo).build();
+		OneTimeTokenAuthentication result = factorOne.toBuilder()
+			.authorities((a) -> a.addAll(factorTwo.getAuthorities()))
+			.principal(factorTwo.getPrincipal())
+			.build();
 		Set<String> authorities = AuthorityUtils.authorityListToSet(result.getAuthorities());
 		assertThat(result.getPrincipal()).isSameAs(factorTwo.getPrincipal());
 		assertThat(authorities).containsExactlyInAnyOrder("FACTOR_ONE", "FACTOR_TWO");

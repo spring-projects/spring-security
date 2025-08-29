@@ -20,7 +20,6 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -94,10 +93,14 @@ public class UsernamePasswordAuthenticationTokenTests {
 				AuthorityUtils.createAuthorityList("FACTOR_ONE"));
 		UsernamePasswordAuthenticationToken factorTwo = new UsernamePasswordAuthenticationToken("bob", "ssap",
 				AuthorityUtils.createAuthorityList("FACTOR_TWO"));
-		Authentication authentication = factorOne.toBuilder().apply(factorTwo).build();
-		Set<String> authorities = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
-		assertThat(authentication.getPrincipal()).isEqualTo("bob");
-		assertThat(authentication.getCredentials()).isEqualTo("ssap");
+		UsernamePasswordAuthenticationToken result = factorOne.toBuilder()
+			.authorities((a) -> a.addAll(factorTwo.getAuthorities()))
+			.principal(factorTwo.getPrincipal())
+			.credentials(factorTwo.getCredentials())
+			.build();
+		Set<String> authorities = AuthorityUtils.authorityListToSet(result.getAuthorities());
+		assertThat(result.getPrincipal()).isEqualTo("bob");
+		assertThat(result.getCredentials()).isEqualTo("ssap");
 		assertThat(authorities).containsExactlyInAnyOrder("FACTOR_ONE", "FACTOR_TWO");
 	}
 

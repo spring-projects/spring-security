@@ -16,44 +16,44 @@
 
 package org.springframework.security.authentication;
 
-import java.util.Collection;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken.AbstractAuthenticationBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 class AbstractAuthenticationBuilderTests {
 
 	@Test
-	void applyWhenUnauthenticatedThenErrors() {
-		TestAbstractAuthenticationBuilder builder = new TestAbstractAuthenticationBuilder();
-		TestingAuthenticationToken unauthenticated = new TestingAuthenticationToken("user", "password");
-		assertThatIllegalArgumentException().isThrownBy(() -> builder.apply(unauthenticated));
-	}
-
-	@Test
 	void applyWhenAuthoritiesThenAdds() {
-		TestAbstractAuthenticationBuilder builder = new TestAbstractAuthenticationBuilder();
 		TestingAuthenticationToken factorOne = new TestingAuthenticationToken("user", "pass", "FACTOR_ONE");
 		TestingAuthenticationToken factorTwo = new TestingAuthenticationToken("user", "pass", "FACTOR_TWO");
-		Authentication result = builder.apply(factorOne).apply(factorTwo).build();
+		TestAbstractAuthenticationBuilder builder = new TestAbstractAuthenticationBuilder(factorOne);
+		Authentication result = builder.authorities((a) -> a.addAll(factorTwo.getAuthorities())).build();
 		Set<String> authorities = AuthorityUtils.authorityListToSet(result.getAuthorities());
 		assertThat(authorities).containsExactlyInAnyOrder("FACTOR_ONE", "FACTOR_TWO");
 	}
 
 	private static final class TestAbstractAuthenticationBuilder
-			extends AbstractAuthenticationBuilder<Authentication, TestAbstractAuthenticationBuilder> {
+			extends AbstractAuthenticationBuilder<Object, Object, TestAbstractAuthenticationBuilder> {
+
+		private TestAbstractAuthenticationBuilder(TestingAuthenticationToken token) {
+			super(token);
+		}
 
 		@Override
-		protected Authentication build(Collection<GrantedAuthority> authorities) {
-			return new TestingAuthenticationToken("user", "password", authorities);
+		public TestAbstractAuthenticationBuilder principal(@Nullable Object principal) {
+			return this;
+		}
+
+		@Override
+		public TestingAuthenticationToken build() {
+			return new TestingAuthenticationToken("user", "password", this.authorities);
 		}
 
 	}

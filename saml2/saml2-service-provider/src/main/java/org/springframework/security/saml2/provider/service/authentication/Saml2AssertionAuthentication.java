@@ -19,10 +19,11 @@ package org.springframework.security.saml2.provider.service.authentication;
 import java.io.Serial;
 import java.util.Collection;
 
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.Assert;
 
 /**
  * An authentication based off of a SAML 2.0 Assertion
@@ -56,6 +57,12 @@ public class Saml2AssertionAuthentication extends Saml2Authentication {
 		setAuthenticated(true);
 	}
 
+	protected Saml2AssertionAuthentication(Builder<?> builder) {
+		super(builder);
+		this.assertion = builder.assertion;
+		this.relyingPartyRegistrationId = builder.relyingPartyRegistrationId;
+	}
+
 	@Override
 	public Saml2ResponseAssertionAccessor getCredentials() {
 		return this.assertion;
@@ -66,8 +73,8 @@ public class Saml2AssertionAuthentication extends Saml2Authentication {
 	}
 
 	@Override
-	public Builder toBuilder() {
-		return new Builder().apply(this);
+	public Builder<?> toBuilder() {
+		return new Builder<>(this);
 	}
 
 	/**
@@ -75,44 +82,35 @@ public class Saml2AssertionAuthentication extends Saml2Authentication {
 	 *
 	 * @since 7.0
 	 */
-	public static final class Builder
-			extends AbstractAuthenticationBuilder<@NonNull Saml2AssertionAuthentication, @NonNull Builder> {
-
-		private Object principal;
+	public static class Builder<B extends Builder<B>>
+			extends Saml2Authentication.Builder<Saml2ResponseAssertionAccessor, B> {
 
 		private Saml2ResponseAssertionAccessor assertion;
 
 		private String relyingPartyRegistrationId;
 
-		private Builder() {
-
-		}
-
-		public Builder apply(Saml2AssertionAuthentication authentication) {
-			return super.apply(authentication).principal(authentication.getPrincipal())
-				.assertion(authentication.assertion)
-				.relyingPartyRegistrationId(authentication.relyingPartyRegistrationId);
-		}
-
-		public Builder principal(Object principal) {
-			this.principal = principal;
-			return this;
-		}
-
-		public Builder assertion(Saml2ResponseAssertionAccessor assertion) {
-			this.assertion = assertion;
-			return this;
-		}
-
-		public Builder relyingPartyRegistrationId(String relyingPartyRegistrationId) {
-			this.relyingPartyRegistrationId = relyingPartyRegistrationId;
-			return this;
+		protected Builder(Saml2AssertionAuthentication token) {
+			super(token);
+			this.assertion = token.assertion;
+			this.relyingPartyRegistrationId = token.relyingPartyRegistrationId;
 		}
 
 		@Override
-		protected Saml2AssertionAuthentication build(Collection<GrantedAuthority> authorities) {
-			return new Saml2AssertionAuthentication(this.principal, this.assertion, authorities,
-					this.relyingPartyRegistrationId);
+		public B credentials(@Nullable Saml2ResponseAssertionAccessor credentials) {
+			saml2Response(credentials.getResponseValue());
+			Assert.notNull(credentials, "assertion cannot be null");
+			this.assertion = credentials;
+			return (B) this;
+		}
+
+		public B relyingPartyRegistrationId(String relyingPartyRegistrationId) {
+			this.relyingPartyRegistrationId = relyingPartyRegistrationId;
+			return (B) this;
+		}
+
+		@Override
+		public Saml2AssertionAuthentication build() {
+			return new Saml2AssertionAuthentication(this);
 		}
 
 	}
