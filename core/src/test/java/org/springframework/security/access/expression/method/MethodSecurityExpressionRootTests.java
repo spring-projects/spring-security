@@ -16,6 +16,7 @@
 
 package org.springframework.security.access.expression.method;
 
+import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -53,7 +54,7 @@ public class MethodSecurityExpressionRootTests {
 	@BeforeEach
 	public void createContext() {
 		this.user = mock(Authentication.class);
-		this.root = new MethodSecurityExpressionRoot(this.user);
+		this.root = new MethodSecurityExpressionRoot(() -> this.user, mock(MethodInvocation.class));
 		this.ctx = new StandardEvaluationContext();
 		this.ctx.setRootObject(this.root);
 		this.trustResolver = mock(AuthenticationTrustResolver.class);
