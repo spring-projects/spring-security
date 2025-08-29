@@ -43,7 +43,7 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 	private final Object principal;
 
 	public TestingAuthenticationToken(Object principal, Object credentials) {
-		super(null);
+		super((Collection<? extends GrantedAuthority>) null);
 		this.principal = principal;
 		this.credentials = credentials;
 	}
@@ -65,6 +65,12 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 		setAuthenticated(true);
 	}
 
+	protected TestingAuthenticationToken(Builder<?> builder) {
+		super(builder);
+		this.principal = builder.principal;
+		this.credentials = builder.credentials;
+	}
+
 	@Override
 	public Object getCredentials() {
 		return this.credentials;
@@ -76,8 +82,8 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	@Override
-	public Builder toBuilder() {
-		return new Builder().apply(this);
+	public Builder<?> toBuilder() {
+		return new Builder<>(this);
 	}
 
 	/**
@@ -85,36 +91,35 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 	 *
 	 * @since 7.0
 	 */
-	public static final class Builder extends AbstractAuthenticationBuilder<TestingAuthenticationToken, Builder> {
+	public static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<Object, Object, B> {
 
-		private @Nullable Object principal;
+		private Object principal;
 
-		private @Nullable Object credentials;
+		private Object credentials;
 
-		private Builder() {
-
-		}
-
-		public Builder apply(TestingAuthenticationToken authentication) {
-			return super.apply(authentication).principal(authentication.getPrincipal())
-				.credentials(authentication.getCredentials());
-		}
-
-		public Builder principal(Object principal) {
-			this.principal = principal;
-			return this;
-		}
-
-		public Builder credentials(Object credentials) {
-			this.credentials = credentials;
-			return this;
+		protected Builder(TestingAuthenticationToken token) {
+			super(token);
+			this.principal = token.principal;
+			this.credentials = token.credentials;
 		}
 
 		@Override
-		protected TestingAuthenticationToken build(Collection<GrantedAuthority> authorities) {
-			Assert.notNull(this.principal, "principal cannot be null");
-			Assert.notNull(this.credentials, "credentials cannot be null");
-			return new TestingAuthenticationToken(this.principal, this.credentials, authorities);
+		public B principal(@Nullable Object principal) {
+			Assert.notNull(principal, "principal cannot be null");
+			this.principal = principal;
+			return (B) this;
+		}
+
+		@Override
+		public B credentials(@Nullable Object credentials) {
+			Assert.notNull(credentials, "credentials cannot be null");
+			this.credentials = credentials;
+			return (B) this;
+		}
+
+		@Override
+		public TestingAuthenticationToken build() {
+			return new TestingAuthenticationToken(this);
 		}
 
 	}

@@ -16,7 +16,6 @@
 
 package org.springframework.security.authentication.jaas;
 
-import java.util.Collection;
 import java.util.List;
 
 import javax.security.auth.login.LoginContext;
@@ -51,13 +50,18 @@ public class JaasAuthenticationToken extends UsernamePasswordAuthenticationToken
 		this.loginContext = loginContext;
 	}
 
+	protected JaasAuthenticationToken(Builder<?> builder) {
+		super(builder);
+		this.loginContext = builder.loginContext;
+	}
+
 	public LoginContext getLoginContext() {
 		return this.loginContext;
 	}
 
 	@Override
-	public Builder toBuilder() {
-		return new Builder().apply(this);
+	public Builder<?> toBuilder() {
+		return new Builder<>(this);
 	}
 
 	/**
@@ -65,17 +69,13 @@ public class JaasAuthenticationToken extends UsernamePasswordAuthenticationToken
 	 *
 	 * @since 7.0
 	 */
-	public static final class Builder
-			extends UsernamePasswordAuthenticationToken.Builder<JaasAuthenticationToken, Builder> {
+	public static class Builder<B extends Builder<B>> extends UsernamePasswordAuthenticationToken.Builder<B> {
 
-		private @Nullable LoginContext loginContext;
+		private LoginContext loginContext;
 
-		private Builder() {
-
-		}
-
-		public Builder apply(JaasAuthenticationToken authentication) {
-			return super.apply(authentication).loginContext(authentication.getLoginContext());
+		protected Builder(JaasAuthenticationToken token) {
+			super(token);
+			this.loginContext = token.getLoginContext();
 		}
 
 		/**
@@ -83,17 +83,15 @@ public class JaasAuthenticationToken extends UsernamePasswordAuthenticationToken
 		 * @param loginContext the {@link LoginContext} to use
 		 * @return the {@link Builder} for further configuration
 		 */
-		public Builder loginContext(LoginContext loginContext) {
+		public B loginContext(LoginContext loginContext) {
 			this.loginContext = loginContext;
-			return this;
+			return (B) this;
 		}
 
 		@Override
-		protected JaasAuthenticationToken build(Collection<GrantedAuthority> authorities) {
-			UsernamePasswordAuthenticationToken token = super.build(authorities);
-			Assert.notNull(this.loginContext, "loginContext cannot be null");
-			return new JaasAuthenticationToken(token.getPrincipal(), token.getCredentials(),
-					(List<GrantedAuthority>) token.getAuthorities(), this.loginContext);
+		public JaasAuthenticationToken build() {
+			Assert.notNull(this.principal, "principal cannot be null");
+			return new JaasAuthenticationToken(this);
 		}
 
 	}

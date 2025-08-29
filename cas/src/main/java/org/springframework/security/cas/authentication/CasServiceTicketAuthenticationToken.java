@@ -22,6 +22,7 @@ import java.util.Collection;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
@@ -52,7 +53,7 @@ public class CasServiceTicketAuthenticationToken extends AbstractAuthenticationT
 	 *
 	 */
 	public CasServiceTicketAuthenticationToken(String identifier, Object credentials) {
-		super(null);
+		super((Collection<? extends GrantedAuthority>) null);
 		this.identifier = identifier;
 		this.credentials = credentials;
 		setAuthenticated(false);
@@ -73,6 +74,12 @@ public class CasServiceTicketAuthenticationToken extends AbstractAuthenticationT
 		this.identifier = identifier;
 		this.credentials = credentials;
 		super.setAuthenticated(true);
+	}
+
+	protected CasServiceTicketAuthenticationToken(Builder<?> builder) {
+		super(builder);
+		this.identifier = builder.principal;
+		this.credentials = builder.credentials;
 	}
 
 	public static CasServiceTicketAuthenticationToken stateful(Object credentials) {
@@ -108,6 +115,48 @@ public class CasServiceTicketAuthenticationToken extends AbstractAuthenticationT
 	public void eraseCredentials() {
 		super.eraseCredentials();
 		this.credentials = null;
+	}
+
+	public Builder<?> toBuilder() {
+		return new Builder<>(this);
+	}
+
+	/**
+	 * A builder preserving the concrete {@link Authentication} type
+	 *
+	 * @since 7.0
+	 */
+	public static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<String, Object, B> {
+
+		private String principal;
+
+		private @Nullable Object credentials;
+
+		protected Builder(CasServiceTicketAuthenticationToken token) {
+			super(token);
+			this.principal = token.identifier;
+			this.credentials = token.credentials;
+		}
+
+		@Override
+		public B principal(@Nullable String principal) {
+			Assert.notNull(principal, "principal cannot be null");
+			this.principal = principal;
+			return (B) this;
+		}
+
+		@Override
+		public B credentials(@Nullable Object credentials) {
+			Assert.notNull(credentials, "credentials cannot be null");
+			this.credentials = credentials;
+			return (B) this;
+		}
+
+		@Override
+		public CasServiceTicketAuthenticationToken build() {
+			return new CasServiceTicketAuthenticationToken(this);
+		}
+
 	}
 
 }

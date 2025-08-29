@@ -19,34 +19,50 @@ package org.springframework.security.core;
 import java.util.Collection;
 import java.util.function.Consumer;
 
-import org.springframework.util.Assert;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An adapter implementation of {@link Authentication.Builder} that provides a no-op
  * implementation for the principal, credentials, and authorities
  *
- * @param <A> the type of {@link Authentication}
  * @author Josh Cummings
  * @since 7.0
  */
-class NoopAuthenticationBuilder<A extends Authentication>
-		implements Authentication.Builder<A, NoopAuthenticationBuilder<A>> {
+class NoopAuthenticationBuilder implements Authentication.Builder<Object, Object, NoopAuthenticationBuilder> {
 
-	private A original;
+	private Authentication original;
 
-	NoopAuthenticationBuilder(A authentication) {
-		Assert.isTrue(authentication.isAuthenticated(), "cannot mutate an unauthenticated token");
-		Assert.notNull(authentication.getPrincipal(), "principal cannot be null");
+	NoopAuthenticationBuilder(Authentication authentication) {
 		this.original = authentication;
 	}
 
 	@Override
-	public NoopAuthenticationBuilder<A> authorities(Consumer<Collection<GrantedAuthority>> authorities) {
+	public NoopAuthenticationBuilder authenticated(boolean authenticated) {
 		return this;
 	}
 
 	@Override
-	public A build() {
+	public NoopAuthenticationBuilder principal(@Nullable Object principal) {
+		return this;
+	}
+
+	@Override
+	public NoopAuthenticationBuilder details(@Nullable Object details) {
+		return this;
+	}
+
+	@Override
+	public NoopAuthenticationBuilder credentials(@Nullable Object credentials) {
+		return this;
+	}
+
+	@Override
+	public NoopAuthenticationBuilder authorities(Consumer<Collection<GrantedAuthority>> authorities) {
+		return this;
+	}
+
+	@Override
+	public Authentication build() {
 		return this.original;
 	}
 

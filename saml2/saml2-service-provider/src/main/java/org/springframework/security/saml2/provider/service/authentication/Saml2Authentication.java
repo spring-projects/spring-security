@@ -19,6 +19,8 @@ package org.springframework.security.saml2.provider.service.authentication;
 import java.io.Serial;
 import java.util.Collection;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.Authentication;
@@ -69,6 +71,12 @@ public class Saml2Authentication extends AbstractAuthenticationToken {
 		setAuthenticated(true);
 	}
 
+	Saml2Authentication(Builder<?, ?> builder) {
+		super(builder);
+		this.principal = builder.principal;
+		this.saml2Response = builder.saml2Response;
+	}
+
 	@Override
 	public Object getPrincipal() {
 		return this.principal;
@@ -85,6 +93,31 @@ public class Saml2Authentication extends AbstractAuthenticationToken {
 	@Override
 	public Object getCredentials() {
 		return getSaml2Response();
+	}
+
+	abstract static class Builder<C, B extends Builder<C, B>> extends AbstractAuthenticationBuilder<Object, C, B> {
+
+		private Object principal;
+
+		String saml2Response;
+
+		Builder(Saml2Authentication token) {
+			super(token);
+			this.principal = token.principal;
+			this.saml2Response = token.saml2Response;
+		}
+
+		@Override
+		public B principal(@Nullable Object principal) {
+			Assert.notNull(principal, "principal cannot be null");
+			this.principal = principal;
+			return (B) this;
+		}
+
+		void saml2Response(String saml2Response) {
+			this.saml2Response = saml2Response;
+		}
+
 	}
 
 }

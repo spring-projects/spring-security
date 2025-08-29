@@ -19,6 +19,8 @@ package org.springframework.security.oauth2.server.resource.authentication;
 import java.util.Collection;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -83,6 +85,15 @@ public abstract class AbstractOAuth2TokenAuthenticationToken<T extends OAuth2Tok
 		this.token = token;
 	}
 
+	protected AbstractOAuth2TokenAuthenticationToken(AbstractOAuth2TokenAuthenticationBuilder<T, ?> builder) {
+		super(builder);
+		Assert.notNull(builder.credentials, "token cannot be null");
+		Assert.notNull(builder.principal, "principal cannot be null");
+		this.principal = builder.principal;
+		this.credentials = builder.credentials;
+		this.token = builder.token;
+	}
+
 	@Override
 	public Object getPrincipal() {
 		return this.principal;
@@ -105,5 +116,48 @@ public abstract class AbstractOAuth2TokenAuthenticationToken<T extends OAuth2Tok
 	 * @return a {@code Map} of the attributes in the access token.
 	 */
 	public abstract Map<String, Object> getTokenAttributes();
+
+	/**
+	 * A builder preserving the concrete {@link Authentication} type
+	 *
+	 * @since 7.0
+	 */
+	public abstract static class AbstractOAuth2TokenAuthenticationBuilder<T extends OAuth2Token, B extends AbstractOAuth2TokenAuthenticationBuilder<T, B>>
+			extends AbstractAuthenticationBuilder<Object, Object, B> {
+
+		private Object principal;
+
+		private Object credentials;
+
+		private T token;
+
+		protected AbstractOAuth2TokenAuthenticationBuilder(AbstractOAuth2TokenAuthenticationToken<T> token) {
+			super(token);
+			this.principal = token.getPrincipal();
+			this.credentials = token.getCredentials();
+			this.token = token.getToken();
+		}
+
+		@Override
+		public B principal(@Nullable Object principal) {
+			Assert.notNull(principal, "principal cannot be null");
+			this.principal = principal;
+			return (B) this;
+		}
+
+		@Override
+		public B credentials(@Nullable Object credentials) {
+			Assert.notNull(credentials, "credentials cannot be null");
+			this.credentials = credentials;
+			return (B) this;
+		}
+
+		public B token(T token) {
+			Assert.notNull(token, "credentials cannot be null");
+			this.token = token;
+			return (B) this;
+		}
+
+	}
 
 }

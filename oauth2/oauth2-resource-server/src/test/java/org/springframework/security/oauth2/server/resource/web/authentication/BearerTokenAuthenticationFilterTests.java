@@ -18,7 +18,9 @@ package org.springframework.security.oauth2.server.resource.web.authentication;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Set;
 
+import jakarta.servlet.Filter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,8 +39,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -240,6 +245,7 @@ public class BearerTokenAuthenticationFilterTests {
 				new BearerTokenAuthenticationFilter(this.authenticationManager));
 		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
 		given(strategy.createEmptyContext()).willReturn(new SecurityContextImpl());
+		given(strategy.getContext()).willReturn(new SecurityContextImpl());
 		filter.setSecurityContextHolderStrategy(strategy);
 		filter.doFilter(this.request, this.response, this.filterChain);
 		verify(strategy).setContext(any());
@@ -337,6 +343,23 @@ public class BearerTokenAuthenticationFilterTests {
 				.isThrownBy(() -> new BearerTokenAuthenticationFilter((AuthenticationManagerResolver<HttpServletRequest>) null))
 				.withMessageContaining("authenticationManagerResolver cannot be null");
 		// @formatter:on
+	}
+
+	@Test
+	void authenticateWhenPreviousAuthenticationThenApplies() throws Exception {
+		Authentication first = new TestingAuthenticationToken("user", "pass", "FACTOR_ONE");
+		Authentication second = new TestingAuthenticationToken("user", "pass", "FACTOR_TWO");
+		Filter filter = addMocks(new BearerTokenAuthenticationFilter(this.authenticationManager));
+		given(this.bearerTokenResolver.resolve(this.request)).willReturn("token");
+		given(this.authenticationManager.authenticate(any())).willReturn(second);
+
+		SecurityContextHolder.getContext().setAuthentication(first);
+		filter.doFilter(this.request, this.response, this.filterChain);
+		Authentication result = SecurityContextHolder.getContext().getAuthentication();
+		SecurityContextHolder.clearContext();
+
+		Set<String> authorities = AuthorityUtils.authorityListToSet(result.getAuthorities());
+		assertThat(authorities).containsExactlyInAnyOrder("FACTOR_ONE", "FACTOR_TWO");
 	}
 
 	private BearerTokenAuthenticationFilter addMocks(BearerTokenAuthenticationFilter filter) {

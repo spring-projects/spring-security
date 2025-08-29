@@ -64,7 +64,10 @@ class WebAuthnAuthenticationTests {
 		PublicKeyCredentialUserEntity bob = TestPublicKeyCredentialUserEntities.userEntity().build();
 		WebAuthnAuthentication factorTwo = new WebAuthnAuthentication(bob,
 				AuthorityUtils.createAuthorityList("FACTOR_TWO"));
-		WebAuthnAuthentication result = factorOne.toBuilder().apply(factorTwo).build();
+		WebAuthnAuthentication result = factorOne.toBuilder()
+			.authorities((a) -> a.addAll(factorTwo.getAuthorities()))
+			.principal(factorTwo.getPrincipal())
+			.build();
 		Set<String> authorities = AuthorityUtils.authorityListToSet(result.getAuthorities());
 		assertThat(result.getPrincipal()).isSameAs(factorTwo.getPrincipal());
 		assertThat(authorities).containsExactlyInAnyOrder("FACTOR_ONE", "FACTOR_TWO");

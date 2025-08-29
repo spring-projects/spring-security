@@ -16,7 +16,6 @@
 
 package org.springframework.security.core;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.Collection;
@@ -26,7 +25,6 @@ import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.Assert;
 
 /**
  * Represents the token for an authentication request or for an authenticated principal
@@ -56,9 +54,6 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public interface Authentication extends Principal, Serializable {
-
-	@Serial
-	long serialVersionUID = -3884394378624019849L;
 
 	/**
 	 * Set by an <code>AuthenticationManager</code> to indicate the authorities that the
@@ -148,43 +143,36 @@ public interface Authentication extends Principal, Serializable {
 	 * instance
 	 * @since 7.0
 	 */
-	default Builder<?, ?> toBuilder() {
-		return new NoopAuthenticationBuilder<>(this);
+	default Builder<?, ?, ?> toBuilder() {
+		return new NoopAuthenticationBuilder(this);
 	}
 
 	/**
 	 * A builder based on a given {@link Authentication} instance
 	 *
-	 * @param <A> the type of {@link Authentication}
 	 * @author Josh Cummings
 	 * @since 7.0
 	 */
-	interface Builder<A extends Authentication, B extends Builder<A, B>> {
+	interface Builder<P, C, B extends Builder<P, C, B>> {
 
-		/**
-		 * Apply this {@link Authentication} to the builder.
-		 * <p>
-		 * By default, this method adds the authorities from {@code authentication} to
-		 * this builder
-		 * @return the {@link Builder} for further configuration
-		 */
-		default B apply(Authentication authentication) {
-			Assert.isTrue(authentication.isAuthenticated(), "cannot apply an unauthenticated token");
-			return authorities((a) -> a.addAll(authentication.getAuthorities()));
+		B authorities(Consumer<Collection<GrantedAuthority>> authorities);
+
+		default B credentials(@Nullable C credentials) {
+			throw new UnsupportedOperationException(
+					String.format("%s does not store credentials", this.getClass().getSimpleName()));
 		}
 
-		/**
-		 * Apply these authorities to the builder.
-		 * @param authorities the authorities to apply
-		 * @return the {@link Builder} for further configuration
-		 */
-		B authorities(Consumer<Collection<GrantedAuthority>> authorities);
+		B details(@Nullable Object details);
+
+		B principal(@Nullable P principal);
+
+		B authenticated(boolean authenticated);
 
 		/**
 		 * Build an {@link Authentication} instance
 		 * @return the {@link Authentication} instance
 		 */
-		A build();
+		Authentication build();
 
 	}
 
