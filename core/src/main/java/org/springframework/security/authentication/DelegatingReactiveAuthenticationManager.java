@@ -27,7 +27,6 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.Assert;
 
 /**
@@ -58,20 +57,6 @@ public class DelegatingReactiveAuthenticationManager implements ReactiveAuthenti
 
 	@Override
 	public Mono<Authentication> authenticate(Authentication authentication) {
-		return ReactiveSecurityContextHolder.getContext().flatMap((context) -> {
-			Mono<Authentication> result = doAuthenticate(authentication);
-			Authentication current = context.getAuthentication();
-			if (current == null) {
-				return result;
-			}
-			if (!current.isAuthenticated()) {
-				return result;
-			}
-			return doAuthenticate(current).map((r) -> r.toBuilder().apply(current).build());
-		}).switchIfEmpty(doAuthenticate(authentication));
-	}
-
-	private Mono<Authentication> doAuthenticate(Authentication authentication) {
 		Flux<ReactiveAuthenticationManager> result = Flux.fromIterable(this.delegates);
 		Function<ReactiveAuthenticationManager, Mono<Authentication>> logging = (m) -> m.authenticate(authentication)
 			.doOnError(AuthenticationException.class, (ex) -> ex.setAuthenticationRequest(authentication))
