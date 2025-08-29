@@ -27,13 +27,10 @@ import reactor.test.StepVerifier;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 /**
  * @author Rob Winch
@@ -119,24 +116,6 @@ public class DelegatingReactiveAuthenticationManagerTests {
 		ReactiveAuthenticationManager manager = new DelegatingReactiveAuthenticationManager(this.delegate1);
 		StepVerifier.create(manager.authenticate(this.authentication)).expectError(LockedException.class).verify();
 		assertThat(expected.getAuthenticationRequest()).isEqualTo(this.authentication);
-	}
-
-	@Test
-	void authenticateWhenPreviousAuthenticationThenApplies() {
-		Authentication factorOne = new TestingAuthenticationToken("user", "pass", "FACTOR_ONE");
-		Authentication factorTwo = new TestingAuthenticationToken("user", "pass", "FACTOR_TWO");
-		ReactiveAuthenticationManager provider = mock(ReactiveAuthenticationManager.class);
-		given(provider.authenticate(any())).willReturn(Mono.just(factorTwo));
-		ReactiveAuthenticationManager manager = new DelegatingReactiveAuthenticationManager(provider);
-		Authentication request = new TestingAuthenticationToken("user", "password");
-		StepVerifier
-			.create(manager.authenticate(request)
-				.flatMapIterable(Authentication::getAuthorities)
-				.map(GrantedAuthority::getAuthority)
-				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(factorOne)))
-			.expectNext("FACTOR_TWO")
-			.expectNext("FACTOR_ONE")
-			.verifyComplete();
 	}
 
 	private DelegatingReactiveAuthenticationManager managerWithContinueOnError() {

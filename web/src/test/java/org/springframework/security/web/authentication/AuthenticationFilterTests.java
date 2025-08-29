@@ -144,6 +144,7 @@ public class AuthenticationFilterTests {
 				this.authenticationConverter);
 		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
 		given(strategy.createEmptyContext()).willReturn(new SecurityContextImpl());
+		given(strategy.getContext()).willReturn(new SecurityContextImpl());
 		filter.setSecurityContextHolderStrategy(strategy);
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
 		MockHttpServletResponse response = new MockHttpServletResponse();

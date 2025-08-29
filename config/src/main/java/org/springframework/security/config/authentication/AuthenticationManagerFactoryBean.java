@@ -30,8 +30,6 @@ import org.springframework.security.authentication.ObservationAuthenticationMana
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.BeanIds;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -74,10 +72,6 @@ public class AuthenticationManagerFactoryBean implements FactoryBean<Authenticat
 			}
 			provider.afterPropertiesSet();
 			ProviderManager manager = new ProviderManager(Arrays.asList(provider));
-			SecurityContextHolderStrategy securityContextHolderStrategy = this.bf
-				.getBeanProvider(SecurityContextHolderStrategy.class)
-				.getIfUnique(SecurityContextHolder::getContextHolderStrategy);
-			manager.setSecurityContextHolderStrategy(securityContextHolderStrategy);
 			if (this.observationRegistry.isNoop()) {
 				return manager;
 			}

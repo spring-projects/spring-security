@@ -186,6 +186,10 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 			this.logger.trace(LogMessage.format("Found username '%s' in Basic Authorization header", username));
 			if (authenticationIsRequired(username)) {
 				Authentication authResult = this.authenticationManager.authenticate(authRequest);
+				Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
+				if (current != null && current.isAuthenticated()) {
+					authResult = authResult.toBuilder().authorities((a) -> a.addAll(current.getAuthorities())).build();
+				}
 				SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
 				context.setAuthentication(authResult);
 				this.securityContextHolderStrategy.setContext(context);

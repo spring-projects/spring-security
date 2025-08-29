@@ -184,6 +184,12 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 				filterChain.doFilter(request, response);
 				return;
 			}
+			Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
+			if (current != null && current.isAuthenticated()) {
+				authenticationResult = authenticationResult.toBuilder()
+					.authorities((a) -> a.addAll(current.getAuthorities()))
+					.build();
+			}
 			HttpSession session = request.getSession(false);
 			if (session != null) {
 				request.changeSessionId();

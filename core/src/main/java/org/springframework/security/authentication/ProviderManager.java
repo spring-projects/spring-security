@@ -33,8 +33,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.SpringSecurityMessageSource;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -93,9 +91,6 @@ import org.springframework.util.CollectionUtils;
 public class ProviderManager implements AuthenticationManager, MessageSourceAware, InitializingBean {
 
 	private static final Log logger = LogFactory.getLog(ProviderManager.class);
-
-	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-		.getContextHolderStrategy();
 
 	private AuthenticationEventPublisher eventPublisher = new NullEventPublisher();
 
@@ -187,7 +182,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 			try {
 				result = provider.authenticate(authentication);
 				if (result != null) {
-					copyDetails(authentication, result);
+					result = copyDetails(authentication, result);
 					break;
 				}
 			}
@@ -214,7 +209,6 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 				lastException = ex;
 			}
 		}
-		result = applyPreviousAuthentication(result);
 		if (result == null && this.parent != null) {
 			// Allow the parent to try.
 			try {
@@ -271,20 +265,6 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 		throw lastException;
 	}
 
-	private @Nullable Authentication applyPreviousAuthentication(@Nullable Authentication result) {
-		if (result == null) {
-			return null;
-		}
-		Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
-		if (current == null) {
-			return result;
-		}
-		if (!current.isAuthenticated()) {
-			return result;
-		}
-		return result.toBuilder().apply(current).build();
-	}
-
 	@SuppressWarnings("deprecation")
 	private void prepareException(AuthenticationException ex, Authentication auth) {
 		ex.setAuthenticationRequest(auth);
@@ -297,19 +277,18 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 	 * @param source source authentication
 	 * @param dest the destination authentication object
 	 */
-	private void copyDetails(Authentication source, Authentication dest) {
-		if ((dest instanceof AbstractAuthenticationToken token) && (dest.getDetails() == null)) {
-			token.setDetails(source.getDetails());
+	private Authentication copyDetails(Authentication source, Authentication dest) {
+		if (source.getDetails() == null) {
+			return dest;
 		}
+		if (dest.getDetails() != null) {
+			return dest;
+		}
+		return dest.toBuilder().details(source.getDetails()).build();
 	}
 
 	public List<AuthenticationProvider> getProviders() {
 		return this.providers;
-	}
-
-	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
-		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
-		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 	@Override
