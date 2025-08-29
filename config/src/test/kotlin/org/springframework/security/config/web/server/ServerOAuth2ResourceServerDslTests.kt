@@ -175,8 +175,8 @@ class ServerOAuth2ResourceServerDslTests {
 
     open class MockServerAuthenticationFailureHandler: ServerAuthenticationFailureHandler {
         override fun onAuthenticationFailure(
-            webFilterExchange: WebFilterExchange?,
-            exception: AuthenticationException?
+            webFilterExchange: WebFilterExchange,
+            exception: AuthenticationException
         ): Mono<Void> {
             return Mono.empty()
         }

@@ -22,7 +22,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -44,7 +43,6 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
-import org.springframework.security.web.authentication.ott.DefaultGenerateOneTimeTokenRequestResolver
 import org.springframework.security.web.authentication.ott.GenerateOneTimeTokenRequestResolver
 import org.springframework.security.web.authentication.ott.OneTimeTokenGenerationSuccessHandler
 import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenGenerationSuccessHandler
@@ -53,7 +51,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import java.time.Duration
 import java.time.Instant
-import java.time.ZoneOffset
 
 /**
  * Tests for [OneTimeTokenLoginDsl]
@@ -267,7 +264,7 @@ class OneTimeTokenLoginDslTests {
                 )
         }
 
-        constructor(redirectUrl: String?) {
+        constructor(redirectUrl: String) {
             this.delegate =
                 RedirectOneTimeTokenGenerationSuccessHandler(
                     redirectUrl

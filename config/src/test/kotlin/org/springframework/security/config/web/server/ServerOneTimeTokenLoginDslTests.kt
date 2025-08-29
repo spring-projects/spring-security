@@ -280,11 +280,11 @@ class ServerOneTimeTokenLoginDslTests {
             this.delegate = ServerRedirectOneTimeTokenGenerationSuccessHandler("/login/ott")
         }
 
-        constructor(redirectUrl: String?) {
+        constructor(redirectUrl: String) {
             this.delegate = ServerRedirectOneTimeTokenGenerationSuccessHandler(redirectUrl)
         }
 
-        override fun handle(exchange: ServerWebExchange?, oneTimeToken: OneTimeToken?): Mono<Void> {
+        override fun handle(exchange: ServerWebExchange, oneTimeToken: OneTimeToken): Mono<Void> {
             lastToken = oneTimeToken
             return delegate!!.handle(exchange, oneTimeToken)
         }
