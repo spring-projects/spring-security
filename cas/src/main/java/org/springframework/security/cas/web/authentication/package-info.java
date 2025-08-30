@@ -18,4 +18,7 @@
  * Authentication processing mechanisms which respond to the submission of authentication
  * credentials using CAS.
  */
+@NullMarked
 package org.springframework.security.cas.web.authentication;
+
+import org.jspecify.annotations.NullMarked;

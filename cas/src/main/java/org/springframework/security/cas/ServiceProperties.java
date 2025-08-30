@@ -16,6 +16,8 @@
 
 package org.springframework.security.cas;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
@@ -34,7 +36,7 @@ public class ServiceProperties implements InitializingBean {
 
 	public static final String DEFAULT_CAS_SERVICE_PARAMETER = "service";
 
-	private String service;
+	private @Nullable String service;
 
 	private boolean authenticateAllArtifacts;
 
@@ -62,7 +64,7 @@ public class ServiceProperties implements InitializingBean {
 	 * </pre>
 	 * @return the URL of the service the user is authenticating to
 	 */
-	public final String getService() {
+	public final @Nullable String getService() {
 		return this.service;
 	}
 

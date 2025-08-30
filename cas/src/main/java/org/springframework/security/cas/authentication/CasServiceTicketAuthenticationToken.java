@@ -19,6 +19,8 @@ package org.springframework.security.cas.authentication;
 import java.io.Serial;
 import java.util.Collection;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
@@ -41,7 +43,7 @@ public class CasServiceTicketAuthenticationToken extends AbstractAuthenticationT
 
 	private final String identifier;
 
-	private Object credentials;
+	private @Nullable Object credentials;
 
 	/**
 	 * This constructor can be safely used by any code that wishes to create a
@@ -86,7 +88,7 @@ public class CasServiceTicketAuthenticationToken extends AbstractAuthenticationT
 	}
 
 	@Override
-	public Object getCredentials() {
+	public @Nullable Object getCredentials() {
 		return this.credentials;
 	}
 

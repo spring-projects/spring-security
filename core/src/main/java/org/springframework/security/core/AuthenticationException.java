@@ -50,7 +50,7 @@ public abstract class AuthenticationException extends RuntimeException {
 	 * root cause.
 	 * @param msg the detail message
 	 */
-	public AuthenticationException(String msg) {
+	public AuthenticationException(@Nullable String msg) {
 		super(msg);
 	}
 

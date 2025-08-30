@@ -17,4 +17,7 @@
 /**
  * Authenticates standard web browser users via CAS.
  */
+@NullMarked
 package org.springframework.security.cas.web;
+
+import org.jspecify.annotations.NullMarked;

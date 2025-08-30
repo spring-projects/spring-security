@@ -16,6 +16,8 @@
 
 package org.springframework.security.cas.authentication;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Caches CAS service tickets and CAS proxy tickets for stateless connections.
  *
@@ -69,7 +71,7 @@ public interface StatelessTicketCache {
 	 * </p>
 	 * @return the fully populated authentication token
 	 */
-	CasAuthenticationToken getByTicketId(String serviceTicket);
+	@Nullable CasAuthenticationToken getByTicketId(String serviceTicket);
 
 	/**
 	 * Adds the specified <code>CasAuthenticationToken</code> to the cache.

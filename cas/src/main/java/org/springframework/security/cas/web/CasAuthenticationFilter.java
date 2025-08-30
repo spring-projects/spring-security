@@ -26,6 +26,7 @@ import jakarta.servlet.http.HttpSession;
 import org.apereo.cas.client.proxy.ProxyGrantingTicketStorage;
 import org.apereo.cas.client.util.WebUtils;
 import org.apereo.cas.client.validation.TicketValidator;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
@@ -190,12 +191,12 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	/**
 	 * The last portion of the receptor url, i.e. /proxy/receptor
 	 */
-	private RequestMatcher proxyReceptorMatcher;
+	private @Nullable RequestMatcher proxyReceptorMatcher;
 
 	/**
 	 * The backing storage to store ProxyGrantingTicket requests.
 	 */
-	private ProxyGrantingTicketStorage proxyGrantingTicketStorage;
+	private @Nullable ProxyGrantingTicketStorage proxyGrantingTicketStorage;
 
 	private String artifactParameter = ServiceProperties.DEFAULT_CAS_ARTIFACT_PARAMETER;
 
@@ -244,7 +245,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	}
 
 	@Override
-	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+	public @Nullable Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException, IOException {
 		// if the request is a proxy request process it and return null to indicate the
 		// request has been processed
@@ -422,6 +423,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	 * @param request
 	 * @return
 	 */
+	@SuppressWarnings("NullAway") // Dataflow analysis limitation
 	private boolean proxyReceptorRequest(HttpServletRequest request) {
 		final boolean result = proxyReceptorConfigured() && this.proxyReceptorMatcher.matches(request);
 		this.logger.debug(LogMessage.format("proxyReceptorRequest = %s", result));

@@ -18,4 +18,7 @@
  * Spring Security support for Apereo's Central Authentication Service
  * (<a href="https://github.com/apereo/cas">CAS</a>).
  */
+@NullMarked
 package org.springframework.security.cas;
+
+import org.jspecify.annotations.NullMarked;

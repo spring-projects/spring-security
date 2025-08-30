@@ -16,6 +16,8 @@
 
 package org.springframework.security.cas.authentication;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Implementation of @link {@link StatelessTicketCache} that has no backing cache. Useful
  * in instances where storing of tickets for stateless session management is not required.
@@ -33,7 +35,7 @@ public final class NullStatelessTicketCache implements StatelessTicketCache {
 	 * @return null since we are not storing any tickets.
 	 */
 	@Override
-	public CasAuthenticationToken getByTicketId(final String serviceTicket) {
+	public @Nullable CasAuthenticationToken getByTicketId(final String serviceTicket) {
 		return null;
 	}
 

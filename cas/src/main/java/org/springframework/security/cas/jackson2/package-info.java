@@ -15,10 +15,9 @@
  */
 
 /**
- * An {@code AuthenticationProvider} that can process CAS service tickets and proxy
- * tickets.
+ * Jackson support for CAS.
  */
 @NullMarked
-package org.springframework.security.cas.authentication;
+package org.springframework.security.cas.jackson2;
 
 import org.jspecify.annotations.NullMarked;

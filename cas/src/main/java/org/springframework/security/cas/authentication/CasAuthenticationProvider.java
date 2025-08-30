@@ -21,6 +21,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apereo.cas.client.validation.Assertion;
 import org.apereo.cas.client.validation.TicketValidationException;
 import org.apereo.cas.client.validation.TicketValidator;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
@@ -62,6 +64,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
 	private static final Log logger = LogFactory.getLog(CasAuthenticationProvider.class);
 
+	@SuppressWarnings("NullAway.Init")
 	private AuthenticationUserDetailsService<CasAssertionAuthenticationToken> authenticationUserDetailsService;
 
 	private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
@@ -70,11 +73,13 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
 	private StatelessTicketCache statelessTicketCache = new NullStatelessTicketCache();
 
+	@SuppressWarnings("NullAway.Init")
 	private String key;
 
+	@SuppressWarnings("NullAway.Init")
 	private TicketValidator ticketValidator;
 
-	private ServiceProperties serviceProperties;
+	private @Nullable ServiceProperties serviceProperties;
 
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
@@ -89,7 +94,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 	}
 
 	@Override
-	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+	public @Nullable Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		if (!supports(authentication.getClass())) {
 			return null;
 		}
@@ -129,11 +134,14 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
 	private CasAuthenticationToken authenticateNow(final Authentication authentication) throws AuthenticationException {
 		try {
-			Assertion assertion = this.ticketValidator.validate(authentication.getCredentials().toString(),
-					getServiceUrl(authentication));
+			Object credentials = authentication.getCredentials();
+			if (credentials == null) {
+				throw new BadCredentialsException("Authentication.getCredentials() cannot be null");
+			}
+			Assertion assertion = this.ticketValidator.validate(credentials.toString(), getServiceUrl(authentication));
 			UserDetails userDetails = loadUserByAssertion(assertion);
 			this.userDetailsChecker.check(userDetails);
-			return new CasAuthenticationToken(this.key, userDetails, authentication.getCredentials(),
+			return new CasAuthenticationToken(this.key, userDetails, credentials,
 					this.authoritiesMapper.mapAuthorities(userDetails.getAuthorities()), userDetails, assertion);
 		}
 		catch (TicketValidationException ex) {
@@ -149,7 +157,8 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 	 * @param authentication
 	 * @return
 	 */
-	private String getServiceUrl(Authentication authentication) {
+	@NullUnmarked
+	private @Nullable String getServiceUrl(Authentication authentication) {
 		String serviceUrl;
 		if (authentication.getDetails() instanceof ServiceAuthenticationDetails) {
 			return ((ServiceAuthenticationDetails) authentication.getDetails()).getServiceUrl();
@@ -215,7 +224,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 		return this.statelessTicketCache;
 	}
 
-	protected TicketValidator getTicketValidator() {
+	protected @Nullable TicketValidator getTicketValidator() {
 		return this.ticketValidator;
 	}
 

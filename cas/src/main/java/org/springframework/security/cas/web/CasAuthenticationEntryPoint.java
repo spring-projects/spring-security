@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apereo.cas.client.util.CommonUtils;
 import org.apereo.cas.client.util.WebUtils;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.cas.ServiceProperties;
@@ -47,9 +48,10 @@ import org.springframework.util.Assert;
  */
 public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
 
+	@SuppressWarnings("NullAway.Init")
 	private ServiceProperties serviceProperties;
 
-	private String loginUrl;
+	private @Nullable String loginUrl;
 
 	/**
 	 * Determines whether the Service URL should include the session id for the specific
@@ -117,7 +119,7 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
 	 * <code>https://www.mycompany.com/cas/login</code>.
 	 * @return the enterprise-wide CAS login URL
 	 */
-	public final String getLoginUrl() {
+	public final @Nullable String getLoginUrl() {
 		return this.loginUrl;
 	}
 
