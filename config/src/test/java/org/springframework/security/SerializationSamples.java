@@ -182,6 +182,7 @@ import org.springframework.security.saml2.provider.service.registration.OpenSaml
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 import org.springframework.security.web.PortResolverImpl;
+import org.springframework.security.web.authentication.AuthenticationFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
@@ -442,7 +443,7 @@ final class SerializationSamples {
 		generatorByClassName.put(AuthenticationSuccessEvent.class,
 				(r) -> new AuthenticationSuccessEvent(authentication));
 		generatorByClassName.put(InteractiveAuthenticationSuccessEvent.class,
-				(r) -> new InteractiveAuthenticationSuccessEvent(authentication, Authentication.class));
+				(r) -> new InteractiveAuthenticationSuccessEvent(authentication, AuthenticationFilter.class));
 		generatorByClassName.put(LogoutSuccessEvent.class, (r) -> new LogoutSuccessEvent(authentication));
 		generatorByClassName.put(JaasAuthenticationFailedEvent.class,
 				(r) -> new JaasAuthenticationFailedEvent(authentication, new RuntimeException("message")));
