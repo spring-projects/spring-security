@@ -1,5 +1,5 @@
 plugins {
-	id 'apply-nullability'
+	id 'security-nullability'
 }
 
 apply plugin: 'io.spring.convention.spring-module'
