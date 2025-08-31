@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.access;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.Authentication;
 
 /**
@@ -35,7 +37,7 @@ public interface WebInvocationPrivilegeEvaluator {
 	 * @param uri the URI excluding the context path (a default context path setting will
 	 * be used)
 	 */
-	boolean isAllowed(String uri, Authentication authentication);
+	boolean isAllowed(String uri, @Nullable Authentication authentication);
 
 	/**
 	 * Determines whether the user represented by the supplied <tt>Authentication</tt>
@@ -58,6 +60,6 @@ public interface WebInvocationPrivilegeEvaluator {
 	 * be used in evaluation whether access should be granted.
 	 * @return true if access is allowed, false if denied
 	 */
-	boolean isAllowed(String contextPath, String uri, String method, Authentication authentication);
+	boolean isAllowed(String contextPath, String uri, @Nullable String method, @Nullable Authentication authentication);
 
 }

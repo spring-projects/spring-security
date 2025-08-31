@@ -65,7 +65,7 @@ public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPriv
 	 * be used)
 	 */
 	@Override
-	public boolean isAllowed(String uri, Authentication authentication) {
+	public boolean isAllowed(String uri, @Nullable Authentication authentication) {
 		return isAllowed(null, uri, null, authentication);
 	}
 
@@ -88,7 +88,7 @@ public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPriv
 	 */
 	@Override
 	public boolean isAllowed(@Nullable String contextPath, String uri, @Nullable String method,
-			Authentication authentication) {
+			@Nullable Authentication authentication) {
 		Assert.notNull(uri, "uri parameter is required");
 		FilterInvocation filterInvocation = new FilterInvocation(contextPath, uri, method, this.servletContext);
 		Collection<ConfigAttribute> attributes = this.securityInterceptor.obtainSecurityMetadataSource()

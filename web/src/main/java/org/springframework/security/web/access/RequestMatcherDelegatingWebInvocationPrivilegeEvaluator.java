@@ -73,7 +73,7 @@ public final class RequestMatcherDelegatingWebInvocationPrivilegeEvaluator
 	 * @return true if access is allowed, false if denied
 	 */
 	@Override
-	public boolean isAllowed(String uri, Authentication authentication) {
+	public boolean isAllowed(String uri, @Nullable Authentication authentication) {
 		List<WebInvocationPrivilegeEvaluator> privilegeEvaluators = getDelegate(null, uri, null);
 		if (privilegeEvaluators.isEmpty()) {
 			return true;
@@ -106,7 +106,8 @@ public final class RequestMatcherDelegatingWebInvocationPrivilegeEvaluator
 	 * @return true if access is allowed, false if denied
 	 */
 	@Override
-	public boolean isAllowed(String contextPath, String uri, String method, Authentication authentication) {
+	public boolean isAllowed(String contextPath, String uri, @Nullable String method,
+			@Nullable Authentication authentication) {
 		List<WebInvocationPrivilegeEvaluator> privilegeEvaluators = getDelegate(contextPath, uri, method);
 		if (privilegeEvaluators.isEmpty()) {
 			return true;

@@ -50,13 +50,13 @@ public final class AuthorizationManagerWebInvocationPrivilegeEvaluator
 	}
 
 	@Override
-	public boolean isAllowed(String uri, Authentication authentication) {
+	public boolean isAllowed(String uri, @Nullable Authentication authentication) {
 		return isAllowed(null, uri, null, authentication);
 	}
 
 	@Override
 	public boolean isAllowed(@Nullable String contextPath, String uri, @Nullable String method,
-			Authentication authentication) {
+			@Nullable Authentication authentication) {
 		FilterInvocation filterInvocation = new FilterInvocation(contextPath, uri, method, this.servletContext);
 		HttpServletRequest httpRequest = this.requestTransformer.transform(filterInvocation.getHttpRequest());
 		AuthorizationResult result = this.authorizationManager.authorize(() -> authentication, httpRequest);
