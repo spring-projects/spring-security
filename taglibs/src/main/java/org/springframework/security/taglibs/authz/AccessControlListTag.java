@@ -19,6 +19,7 @@ package org.springframework.security.taglibs.authz;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.jsp.JspException;
@@ -27,6 +28,7 @@ import jakarta.servlet.jsp.tagext.Tag;
 import jakarta.servlet.jsp.tagext.TagSupport;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.PermissionEvaluator;
@@ -60,14 +62,18 @@ public class AccessControlListTag extends TagSupport {
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
+	@SuppressWarnings("NullAway.Init")
 	private ApplicationContext applicationContext;
 
+	@SuppressWarnings("NullAway.Init")
 	private Object domainObject;
 
+	@SuppressWarnings("NullAway.Init")
 	private PermissionEvaluator permissionEvaluator;
 
 	private String hasPermission = "";
 
+	@SuppressWarnings("NullAway.Init")
 	private String var;
 
 	@Override
@@ -148,7 +154,8 @@ public class AccessControlListTag extends TagSupport {
 			return;
 		}
 		this.applicationContext = getContext(this.pageContext);
-		this.permissionEvaluator = getBeanOfType(PermissionEvaluator.class);
+		this.permissionEvaluator = Objects.requireNonNull(getBeanOfType(PermissionEvaluator.class),
+				"PermissionEvaluator Bean is required");
 		String[] names = this.applicationContext.getBeanNamesForType(SecurityContextHolderStrategy.class);
 		if (names.length == 1) {
 			SecurityContextHolderStrategy strategy = this.applicationContext
@@ -157,7 +164,7 @@ public class AccessControlListTag extends TagSupport {
 		}
 	}
 
-	private <T> T getBeanOfType(Class<T> type) throws JspException {
+	private <T> @Nullable T getBeanOfType(Class<T> type) throws JspException {
 		Map<String, T> map = this.applicationContext.getBeansOfType(type);
 		for (ApplicationContext context = this.applicationContext.getParent(); context != null; context = context
 			.getParent()) {

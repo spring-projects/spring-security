@@ -25,6 +25,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.tagext.Tag;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.expression.BeanResolver;
 import org.springframework.expression.ConstructorResolver;
@@ -49,13 +50,16 @@ import org.springframework.security.web.FilterInvocation;
  */
 public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 
-	private Tag parent;
+	@SuppressWarnings("NullAway.Init")
+	private @Nullable Tag parent;
 
+	@SuppressWarnings("NullAway.Init")
 	protected PageContext pageContext;
 
-	protected String id;
+	protected @Nullable String id;
 
-	private String var;
+	@SuppressWarnings("NullAway.Init")
+	private @Nullable String var;
 
 	private boolean authorized;
 
@@ -104,7 +108,7 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 		return EVAL_PAGE;
 	}
 
-	public String getId() {
+	public @Nullable String getId() {
 		return this.id;
 	}
 
@@ -113,7 +117,7 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 	}
 
 	@Override
-	public Tag getParent() {
+	public @Nullable Tag getParent() {
 		return this.parent;
 	}
 
@@ -122,7 +126,7 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 		this.parent = parent;
 	}
 
-	public String getVar() {
+	public @Nullable String getVar() {
 		return this.var;
 	}
 
@@ -205,12 +209,12 @@ public class JspAuthorizeTag extends AbstractAuthorizeTag implements Tag {
 		}
 
 		@Override
-		public BeanResolver getBeanResolver() {
+		public @Nullable BeanResolver getBeanResolver() {
 			return this.delegate.getBeanResolver();
 		}
 
 		@Override
-		public void setVariable(String name, Object value) {
+		public void setVariable(String name, @Nullable Object value) {
 			this.delegate.setVariable(name, value);
 		}
 

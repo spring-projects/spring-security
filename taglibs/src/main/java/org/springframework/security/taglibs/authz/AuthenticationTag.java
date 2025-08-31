@@ -23,6 +23,7 @@ import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.tagext.Tag;
 import jakarta.servlet.jsp.tagext.TagSupport;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.BeansException;
@@ -49,9 +50,9 @@ public class AuthenticationTag extends TagSupport {
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
-	private String var;
+	private @Nullable String var;
 
-	private String property;
+	private @Nullable String property;
 
 	private int scope;
 

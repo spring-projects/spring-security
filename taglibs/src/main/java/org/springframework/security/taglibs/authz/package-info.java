@@ -17,4 +17,7 @@
 /**
  * JSP Security tag library implementation.
  */
+@NullMarked
 package org.springframework.security.taglibs.authz;
+
+import org.jspecify.annotations.NullMarked;

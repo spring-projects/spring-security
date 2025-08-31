@@ -24,6 +24,8 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.GenericTypeResolver;
@@ -40,6 +42,7 @@ import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.context.support.SecurityWebApplicationContextUtils;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
@@ -60,11 +63,13 @@ import org.springframework.util.StringUtils;
  */
 public abstract class AbstractAuthorizeTag {
 
-	private String access;
+	@SuppressWarnings("NullAway.Init")
+	private @Nullable String access;
 
-	private String url;
+	@SuppressWarnings("NullAway.Init")
+	private @Nullable String url;
 
-	private String method = "GET";
+	private @Nullable String method = "GET";
 
 	/**
 	 * This method allows subclasses to provide a way to access the ServletRequest
@@ -112,14 +117,17 @@ public abstract class AbstractAuthorizeTag {
 	 * @return the result of the authorization decision
 	 * @throws IOException
 	 */
+	@SuppressWarnings("NullAway") // Dataflow analysis limitation
 	public boolean authorizeUsingAccessExpression() throws IOException {
 		if (getContext().getAuthentication() == null) {
 			return false;
 		}
+		String access = getAccess();
+		Assert.notNull(access, "access cannot be null");
 		SecurityExpressionHandler<FilterInvocation> handler = getExpressionHandler();
 		Expression accessExpression;
 		try {
-			accessExpression = handler.getExpressionParser().parseExpression(getAccess());
+			accessExpression = handler.getExpressionParser().parseExpression(access);
 		}
 		catch (ParseException ex) {
 			throw new IOException(ex);
@@ -143,13 +151,16 @@ public abstract class AbstractAuthorizeTag {
 	 * @return the result of the authorization decision
 	 * @throws IOException
 	 */
+	@SuppressWarnings("NullAway") // Dataflow analysis limitation
 	public boolean authorizeUsingUrlCheck() throws IOException {
+		String url = getUrl();
+		Assert.notNull(url, "url cannot be null");
 		String contextPath = ((HttpServletRequest) getRequest()).getContextPath();
 		Authentication currentUser = getContext().getAuthentication();
-		return getPrivilegeEvaluator().isAllowed(contextPath, getUrl(), getMethod(), currentUser);
+		return getPrivilegeEvaluator().isAllowed(contextPath, url, getMethod(), currentUser);
 	}
 
-	public String getAccess() {
+	public @Nullable String getAccess() {
 		return this.access;
 	}
 
@@ -157,7 +168,7 @@ public abstract class AbstractAuthorizeTag {
 		this.access = access;
 	}
 
-	public String getUrl() {
+	public @Nullable String getUrl() {
 		return this.url;
 	}
 
@@ -165,10 +176,11 @@ public abstract class AbstractAuthorizeTag {
 		this.url = url;
 	}
 
-	public String getMethod() {
+	public @Nullable String getMethod() {
 		return this.method;
 	}
 
+	@NullUnmarked
 	public void setMethod(String method) {
 		this.method = (method != null) ? method.toUpperCase(Locale.ENGLISH) : null;
 	}

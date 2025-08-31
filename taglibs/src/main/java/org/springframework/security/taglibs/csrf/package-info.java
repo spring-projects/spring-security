@@ -15,9 +15,9 @@
  */
 
 /**
- * Security related tag libraries that can be used in JSPs and templates.
+ * JSP Security tag library integration with CSRF protection.
  */
 @NullMarked
-package org.springframework.security.taglibs;
+package org.springframework.security.taglibs.csrf;
 
 import org.jspecify.annotations.NullMarked;
