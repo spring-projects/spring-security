@@ -19,6 +19,7 @@ package org.springframework.security.rsocket.core;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -41,11 +42,11 @@ import org.springframework.security.rsocket.api.PayloadInterceptorChain;
  */
 class ContextPayloadInterceptorChain implements PayloadInterceptorChain {
 
-	private final PayloadInterceptor currentInterceptor;
+	private final @Nullable PayloadInterceptor currentInterceptor;
 
-	private final ContextPayloadInterceptorChain next;
+	private final @Nullable ContextPayloadInterceptorChain next;
 
-	private Context context;
+	private @Nullable Context context;
 
 	ContextPayloadInterceptorChain(List<PayloadInterceptor> interceptors) {
 		if (interceptors == null) {
@@ -68,18 +69,20 @@ class ContextPayloadInterceptorChain implements PayloadInterceptorChain {
 		return interceptor;
 	}
 
-	private ContextPayloadInterceptorChain(PayloadInterceptor currentInterceptor, ContextPayloadInterceptorChain next) {
+	private ContextPayloadInterceptorChain(@Nullable PayloadInterceptor currentInterceptor,
+			@Nullable ContextPayloadInterceptorChain next) {
 		this.currentInterceptor = currentInterceptor;
 		this.next = next;
 	}
 
 	@Override
+	@SuppressWarnings("NullAway") // Dataflow analysis limitation
 	public Mono<Void> next(PayloadExchange exchange) {
 		return Mono.defer(() -> shouldIntercept() ? this.currentInterceptor.intercept(exchange, this.next)
 				: Mono.deferContextual(Mono::just).cast(Context.class).doOnNext((c) -> this.context = c).then());
 	}
 
-	Context getContext() {
+	@Nullable Context getContext() {
 		if (this.next == null) {
 			return this.context;
 		}

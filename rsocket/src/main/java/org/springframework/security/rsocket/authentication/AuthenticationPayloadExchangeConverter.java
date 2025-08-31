@@ -24,6 +24,7 @@ import io.netty.buffer.ByteBufAllocator;
 import io.rsocket.metadata.AuthMetadataCodec;
 import io.rsocket.metadata.WellKnownAuthType;
 import io.rsocket.metadata.WellKnownMimeType;
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.codec.ByteArrayDecoder;
@@ -66,7 +67,7 @@ public class AuthenticationPayloadExchangeConverter implements PayloadExchangeAu
 			.flatMap((metadata) -> Mono.justOrEmpty(authentication(metadata)));
 	}
 
-	private Authentication authentication(Map<String, Object> metadata) {
+	private @Nullable Authentication authentication(Map<String, Object> metadata) {
 		byte[] authenticationMetadata = (byte[]) metadata.get("authentication");
 		if (authenticationMetadata == null) {
 			return null;

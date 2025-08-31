@@ -21,6 +21,7 @@ import java.util.Map;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.rsocket.metadata.AuthMetadataCodec;
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 
@@ -53,14 +54,15 @@ public class SimpleAuthenticationEncoder extends AbstractEncoder<UsernamePasswor
 
 	@Override
 	public Flux<DataBuffer> encode(Publisher<? extends UsernamePasswordMetadata> inputStream,
-			DataBufferFactory bufferFactory, ResolvableType elementType, MimeType mimeType, Map<String, Object> hints) {
+			DataBufferFactory bufferFactory, ResolvableType elementType, @Nullable MimeType mimeType,
+			@Nullable Map<String, Object> hints) {
 		return Flux.from(inputStream)
 			.map((credentials) -> encodeValue(credentials, bufferFactory, elementType, mimeType, hints));
 	}
 
 	@Override
 	public DataBuffer encodeValue(UsernamePasswordMetadata credentials, DataBufferFactory bufferFactory,
-			ResolvableType valueType, MimeType mimeType, Map<String, Object> hints) {
+			ResolvableType valueType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 		String username = credentials.getUsername();
 		String password = credentials.getPassword();
 		NettyDataBufferFactory factory = nettyFactory(bufferFactory);
