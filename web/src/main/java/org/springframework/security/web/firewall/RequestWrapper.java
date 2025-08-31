@@ -44,6 +44,7 @@ import org.jspecify.annotations.Nullable;
  * bypassed by the malicious addition of parameters to the path component.
  *
  * @author Luke Taylor
+ * @author Ngoc Nhan
  */
 final class RequestWrapper extends FirewalledRequest {
 
@@ -57,7 +58,7 @@ final class RequestWrapper extends FirewalledRequest {
 		super(request);
 		this.strippedServletPath = strip(request.getServletPath());
 		String pathInfo = strip(request.getPathInfo());
-		if (pathInfo != null && pathInfo.length() == 0) {
+		if (pathInfo != null && pathInfo.isEmpty()) {
 			pathInfo = null;
 		}
 		this.strippedPathInfo = pathInfo;
