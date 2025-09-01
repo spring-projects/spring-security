@@ -4,16 +4,16 @@
 Spring Security provides Jackson support for persisting Spring Security-related classes.
 This can improve the performance of serializing Spring Security-related classes when working with distributed sessions (session replication, Spring Session, and so on).
 
-To use it, register the `SecurityJackson2Modules.getModules(ClassLoader)` with `ObjectMapper` (https://github.com/FasterXML/jackson-databind[jackson-databind]):
+To use it, register the `SecurityJacksonModules.getModules(ClassLoader)` with `JsonMapper.Builder` (https://github.com/FasterXML/jackson-databind[jackson-databind]):
 
 [source,java]
 ----
-ObjectMapper mapper = new ObjectMapper();
 ClassLoader loader = getClass().getClassLoader();
-List<Module> modules = SecurityJackson2Modules.getModules(loader);
-mapper.registerModules(modules);
+JsonMapper mapper = JsonMapper.builder()
+        .addModules(SecurityJacksonModules.getModules(loader))
+        .build();
 
-// ... use ObjectMapper as normally ...
+// ... use JsonMapper    as normally ...
 SecurityContext context = new SecurityContextImpl();
 // ...
 String json = mapper.writeValueAsString(context);
@@ -23,8 +23,8 @@ String json = mapper.writeValueAsString(context);
 ====
 The following Spring Security modules provide Jackson support:
 
-- spring-security-core (javadoc:org.springframework.security.jackson2.CoreJackson2Module[])
-- spring-security-web (javadoc:org.springframework.security.web.jackson2.WebJackson2Module[], javadoc:org.springframework.security.web.jackson2.WebServletJackson2Module[], javadoc:org.springframework.security.web.server.jackson2.WebServerJackson2Module[])
-- <<oauth2client, spring-security-oauth2-client>> (javadoc:org.springframework.security.oauth2.client.jackson2.OAuth2ClientJackson2Module[])
-- spring-security-cas (javadoc:org.springframework.security.cas.jackson2.CasJackson2Module[])
+- spring-security-core (javadoc:org.springframework.security.jackson.CoreJacksonModule[])
+- spring-security-web (javadoc:org.springframework.security.web.jackson.WebJacksonModule[], javadoc:org.springframework.security.web.jackson.WebServletJacksonModule[], javadoc:org.springframework.security.web.server.jackson.WebServerJacksonModule[])
+- <<oauth2client, spring-security-oauth2-client>> (javadoc:org.springframework.security.oauth2.client.jackson.OAuth2ClientJacksonModule[])
+- spring-security-cas (javadoc:org.springframework.security.cas.jackson.CasJacksonModule[])
 ====

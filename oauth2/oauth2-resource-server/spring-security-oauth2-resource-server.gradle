@@ -17,7 +17,7 @@ dependencies {
 	testImplementation project(path : ':spring-security-core', configuration : 'tests')
 	testImplementation project(path: ':spring-security-oauth2-jose', configuration: 'tests')
 	testImplementation 'com.squareup.okhttp3:mockwebserver'
-	testImplementation 'com.fasterxml.jackson.core:jackson-databind'
+	testImplementation 'tools.jackson.core:jackson-databind'
 	testImplementation 'io.projectreactor.netty:reactor-netty'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation "org.assertj:assertj-core"

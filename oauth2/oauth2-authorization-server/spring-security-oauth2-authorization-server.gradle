@@ -11,10 +11,11 @@ dependencies {
 		exclude group: "commons-logging", module: "commons-logging"
 	}
 	api "com.nimbusds:nimbus-jose-jwt"
-	api "com.fasterxml.jackson.core:jackson-databind"
+	api 'tools.jackson.core:jackson-databind'
 
 	optional "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
 	optional "org.springframework:spring-jdbc"
+	optional "com.fasterxml.jackson.core:jackson-databind"
 
 	testImplementation project(":spring-security-test")
 	testImplementation project(path : ':spring-security-oauth2-jose', configuration : 'tests')

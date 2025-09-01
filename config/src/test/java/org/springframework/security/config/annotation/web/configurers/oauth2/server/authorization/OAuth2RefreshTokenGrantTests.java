@@ -39,6 +39,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -516,7 +517,8 @@ public class OAuth2RefreshTokenGrantTests {
 
 			RowMapper(RegisteredClientRepository registeredClientRepository) {
 				super(registeredClientRepository);
-				getObjectMapper().addMixIn(TestingAuthenticationToken.class, TestingAuthenticationTokenMixin.class);
+				setMapper(new JdbcOAuth2AuthorizationService.JacksonDelegate(JsonMapper.builder()
+					.addMixIn(TestingAuthenticationToken.class, TestingAuthenticationTokenMixin.class)));
 			}
 
 		}
@@ -525,7 +527,8 @@ public class OAuth2RefreshTokenGrantTests {
 
 			ParametersMapper() {
 				super();
-				getObjectMapper().addMixIn(TestingAuthenticationToken.class, TestingAuthenticationTokenMixin.class);
+				setMapper(new JdbcOAuth2AuthorizationService.JacksonDelegate(JsonMapper.builder()
+					.addMixIn(TestingAuthenticationToken.class, TestingAuthenticationTokenMixin.class)));
 			}
 
 		}

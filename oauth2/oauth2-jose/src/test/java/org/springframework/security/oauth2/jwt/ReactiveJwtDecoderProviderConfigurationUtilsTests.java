@@ -21,10 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
@@ -33,6 +29,8 @@ import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -153,8 +151,7 @@ public class ReactiveJwtDecoderProviderConfigurationUtilsTests {
 
 	// gh-7512
 	@Test
-	public void issuerWhenOidcFallbackResponseDoesNotContainJwksUriThenThrowsIllegalArgumentException()
-			throws JsonMappingException, JsonProcessingException {
+	public void issuerWhenOidcFallbackResponseDoesNotContainJwksUriThenThrowsIllegalArgumentException() {
 		prepareConfigurationResponseOidc(this.buildResponseWithMissingJwksUri());
 		// @formatter:off
 		assertThatIllegalArgumentException()
@@ -165,8 +162,7 @@ public class ReactiveJwtDecoderProviderConfigurationUtilsTests {
 
 	// gh-7512
 	@Test
-	public void issuerWhenOAuth2ResponseDoesNotContainJwksUriThenThrowsIllegalArgumentException()
-			throws JsonMappingException, JsonProcessingException {
+	public void issuerWhenOAuth2ResponseDoesNotContainJwksUriThenThrowsIllegalArgumentException() {
 		prepareConfigurationResponseOAuth2(this.buildResponseWithMissingJwksUri());
 		// @formatter:off
 		assertThatIllegalArgumentException()
@@ -323,8 +319,8 @@ public class ReactiveJwtDecoderProviderConfigurationUtilsTests {
 		// @formatter:on
 	}
 
-	public String buildResponseWithMissingJwksUri() throws JsonMappingException, JsonProcessingException {
-		ObjectMapper mapper = new ObjectMapper();
+	public String buildResponseWithMissingJwksUri() {
+		JsonMapper mapper = new JsonMapper();
 		Map<String, Object> response = mapper.readValue(DEFAULT_RESPONSE_TEMPLATE,
 				new TypeReference<Map<String, Object>>() {
 				});

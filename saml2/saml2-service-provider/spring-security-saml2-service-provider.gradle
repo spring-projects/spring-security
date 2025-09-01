@@ -94,6 +94,7 @@ dependencies {
 
 	optional 'com.fasterxml.jackson.core:jackson-databind'
 	optional 'org.springframework:spring-jdbc'
+	optional 'tools.jackson.core:jackson-databind'
 
 	testImplementation project(path: ':spring-security-web', configuration: 'tests')
 	testImplementation 'com.squareup.okhttp3:mockwebserver'
