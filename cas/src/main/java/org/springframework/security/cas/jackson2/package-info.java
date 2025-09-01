@@ -15,7 +15,7 @@
  */
 
 /**
- * Jackson support for CAS.
+ * Jackson 2 support for CAS.
  */
 @NullMarked
 package org.springframework.security.cas.jackson2;

@@ -15,6 +15,7 @@ dependencies {
 	optional 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 	optional 'org.springframework:spring-jdbc'
 	optional 'org.springframework:spring-r2dbc'
+	optional 'tools.jackson.core:jackson-databind'
 
 	testImplementation project(path: ':spring-security-oauth2-core', configuration: 'tests')
 	testImplementation project(path: ':spring-security-oauth2-jose', configuration: 'tests')

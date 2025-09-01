@@ -15,7 +15,7 @@
  */
 
 /**
- * Reactive web jackson2 integration.
+ * Jackson 2 serialization support for reactive web server.
  */
 @NullMarked
 package org.springframework.security.web.server.jackson2;

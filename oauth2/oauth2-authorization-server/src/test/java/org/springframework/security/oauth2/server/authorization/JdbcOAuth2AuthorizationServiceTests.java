@@ -29,11 +29,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
@@ -747,7 +747,7 @@ public class JdbcOAuth2AuthorizationServiceTests {
 
 			private Map<String, Object> parseMap(String data) {
 				try {
-					return getObjectMapper().readValue(data, new TypeReference<>() {
+					return getMapper().readValue(data, new ParameterizedTypeReference<>() {
 					});
 				}
 				catch (Exception ex) {
@@ -852,7 +852,7 @@ public class JdbcOAuth2AuthorizationServiceTests {
 
 			private String writeMap(Map<String, Object> data) {
 				try {
-					return getObjectMapper().writeValueAsString(data);
+					return getMapper().writeValueAsString(data);
 				}
 				catch (Exception ex) {
 					throw new IllegalArgumentException(ex.getMessage(), ex);
