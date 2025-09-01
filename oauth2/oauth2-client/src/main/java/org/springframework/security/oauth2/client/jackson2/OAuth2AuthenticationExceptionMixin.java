@@ -34,7 +34,11 @@ import org.springframework.security.oauth2.core.OAuth2Error;
  * @since 5.3.4
  * @see OAuth2AuthenticationException
  * @see OAuth2ClientJackson2Module
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.oauth2.client.jackson.OAuth2AuthenticationExceptionMixin}
+ * based on Jackson 3
  */
+@Deprecated(forRemoval = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.NONE, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)

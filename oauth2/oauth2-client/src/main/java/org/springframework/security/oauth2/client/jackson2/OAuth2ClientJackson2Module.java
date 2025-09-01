@@ -85,8 +85,12 @@ import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
  * @see OAuth2AuthenticationTokenMixin
  * @see OAuth2AuthenticationExceptionMixin
  * @see OAuth2ErrorMixin
+ * @deprecated as of 7.0 in favor of
+ * {@link org.springframework.security.oauth2.client.jackson.OAuth2ClientJacksonModule}
+ * based on Jackson 3
  */
-@SuppressWarnings("serial")
+@Deprecated(forRemoval = true)
+@SuppressWarnings({ "serial", "removal" })
 public class OAuth2ClientJackson2Module extends SimpleModule {
 
 	public OAuth2ClientJackson2Module() {

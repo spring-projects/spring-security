@@ -44,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Jitendra Singh
  * @since 4.2
  */
+@SuppressWarnings("removal")
 public class CasAuthenticationTokenMixinTests {
 
 	private static final String KEY = "casKey";

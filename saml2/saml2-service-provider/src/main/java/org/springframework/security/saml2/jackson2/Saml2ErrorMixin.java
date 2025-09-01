@@ -31,7 +31,11 @@ import org.springframework.security.saml2.core.Saml2Error;
  * @since 5.7
  * @see Saml2Error
  * @see Saml2Jackson2Module
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.saml2.jackson.Saml2ErrorMixin} based on Jackson 3
  */
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)

@@ -40,7 +40,12 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2R
  * @since 7.0
  * @see Saml2Jackson2Module
  * @see SecurityJackson2Modules
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.saml2.jackson.SimpleSaml2ResponseAssertionAccessorMixin}
+ * based on Jackson 3
  */
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)

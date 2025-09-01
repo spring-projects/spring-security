@@ -28,7 +28,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  * @author Joe Grandja
  * @since 7.0
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.oauth2.server.authorization.jackson.JsonNodeUtils}
+ * based on Jackson 3
  */
+@Deprecated(forRemoval = true)
 abstract class JsonNodeUtils {
 
 	static final TypeReference<Set<String>> STRING_SET = new TypeReference<>() {

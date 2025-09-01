@@ -38,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Rob Winch
  * @since 5.0
  */
+@SuppressWarnings("removal")
 public class SecurityJackson2ModulesTests {
 
 	private ObjectMapper mapper;

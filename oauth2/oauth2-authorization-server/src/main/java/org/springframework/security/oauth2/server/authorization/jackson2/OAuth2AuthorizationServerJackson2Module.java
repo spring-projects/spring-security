@@ -69,8 +69,12 @@ import org.springframework.security.oauth2.server.authorization.settings.OAuth2T
  * @see JwsAlgorithmMixin
  * @see OAuth2TokenFormatMixin
  * @see StringArrayMixin
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.oauth2.server.authorization.jackson.OAuth2AuthorizationServerJacksonModule}
+ * based on Jackson 3
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "removal" })
+@Deprecated(forRemoval = true)
 public class OAuth2AuthorizationServerJackson2Module extends SimpleModule {
 
 	public OAuth2AuthorizationServerJackson2Module() {

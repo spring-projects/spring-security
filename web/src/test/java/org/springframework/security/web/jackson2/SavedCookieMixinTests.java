@@ -33,7 +33,7 @@ import org.springframework.security.web.savedrequest.SavedCookie;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * @author Jitendra Singh.
+ * @author Jitendra Singh
  */
 public class SavedCookieMixinTests extends AbstractMixinTests {
 
