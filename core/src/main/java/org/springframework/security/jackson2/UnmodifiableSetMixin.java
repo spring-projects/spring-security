@@ -36,9 +36,13 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * @see UnmodifiableSetDeserializer
  * @see CoreJackson2Module
  * @see SecurityJackson2Modules
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.jackson.UnmodifiableSetMixin} based on Jackson 3
  */
+@SuppressWarnings("removal")
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonDeserialize(using = UnmodifiableSetDeserializer.class)
+@Deprecated(forRemoval = true)
 class UnmodifiableSetMixin {
 
 	/**
