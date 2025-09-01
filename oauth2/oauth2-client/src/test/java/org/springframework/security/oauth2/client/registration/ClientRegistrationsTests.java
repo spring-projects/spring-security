@@ -20,8 +20,6 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -29,6 +27,8 @@ import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -111,7 +111,7 @@ public class ClientRegistrationsTests {
 
 	private MockWebServer server;
 
-	private ObjectMapper mapper = new ObjectMapper();
+	private JsonMapper mapper = new JsonMapper();
 
 	private Map<String, Object> response;
 
