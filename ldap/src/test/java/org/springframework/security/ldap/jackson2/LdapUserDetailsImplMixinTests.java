@@ -36,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 /**
  * Tests for {@link LdapUserDetailsImplMixin}.
  */
+@SuppressWarnings("removal")
 public class LdapUserDetailsImplMixinTests {
 
 	private static final String USER_PASSWORD = "Password1234";

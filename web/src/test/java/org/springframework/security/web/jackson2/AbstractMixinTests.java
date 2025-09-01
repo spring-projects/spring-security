@@ -25,6 +25,7 @@ import org.springframework.security.jackson2.SecurityJackson2Modules;
  * @author Jitenra Singh
  * @since 4.2
  */
+@SuppressWarnings("removal")
 public abstract class AbstractMixinTests {
 
 	protected ObjectMapper mapper;
