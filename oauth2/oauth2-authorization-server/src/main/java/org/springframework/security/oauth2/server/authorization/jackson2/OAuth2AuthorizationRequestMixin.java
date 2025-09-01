@@ -31,7 +31,12 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
  * @since 7.0
  * @see OAuth2AuthorizationRequest
  * @see OAuth2AuthorizationRequestDeserializer
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.oauth2.server.authorization.jackson.OAuth2AuthorizationRequestMixin}
+ * based on Jackson 3
  */
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonDeserialize(using = OAuth2AuthorizationRequestDeserializer.class)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,

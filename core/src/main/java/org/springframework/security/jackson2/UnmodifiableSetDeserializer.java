@@ -28,7 +28,10 @@ import java.util.Set;
  * @author Hyunmin Choi
  * @since 4.2
  * @see UnmodifiableSetMixin
+ * @deprecated as of 7.0
  */
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true)
 class UnmodifiableSetDeserializer extends AbstractUnmodifiableCollectionDeserializer<Set> {
 
 	@Override

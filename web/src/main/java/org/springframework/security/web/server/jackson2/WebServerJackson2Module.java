@@ -37,8 +37,12 @@ import org.springframework.security.web.server.csrf.DefaultCsrfToken;
  * @author Boris Finkelshteyn
  * @since 5.1
  * @see SecurityJackson2Modules
+ * @deprecated as of 7.0 in favor of
+ * {@link org.springframework.security.web.server.jackson.WebServerJacksonModule} based on
+ * Jackson 3
  */
-@SuppressWarnings("serial")
+@Deprecated(forRemoval = true)
+@SuppressWarnings({ "serial", "removal" })
 public class WebServerJackson2Module extends SimpleModule {
 
 	private static final String NAME = WebServerJackson2Module.class.getName();

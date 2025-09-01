@@ -29,7 +29,11 @@ import org.springframework.security.oauth2.server.authorization.settings.OAuth2T
  * @author Joe Grandja
  * @since 7.0
  * @see OAuth2TokenFormat
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.oauth2.server.authorization.jackson.OAuth2TokenFormatMixin}
+ * based on Jackson 3
  */
+@Deprecated(forRemoval = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)

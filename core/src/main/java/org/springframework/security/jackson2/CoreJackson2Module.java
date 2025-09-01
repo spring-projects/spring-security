@@ -44,11 +44,14 @@ import org.springframework.security.core.userdetails.User;
  * </pre> <b>Note: use {@link SecurityJackson2Modules#getModules(ClassLoader)} to get list
  * of all security modules.</b>
  *
- * @author Jitendra Singh.
+ * @author Jitendra Singh
  * @since 4.2
  * @see SecurityJackson2Modules
+ * @deprecated as of 7.0 in favor of
+ * {@link org.springframework.security.jackson.CoreJacksonModule} based on Jackson 3
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial", "removal" })
+@Deprecated(forRemoval = true)
 public class CoreJackson2Module extends SimpleModule {
 
 	public CoreJackson2Module() {

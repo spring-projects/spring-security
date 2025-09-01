@@ -39,7 +39,11 @@ import org.springframework.security.core.userdetails.User;
  * @author Jitendra Singh
  * @since 4.2
  * @see UserMixin
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.jackson.UserDeserializer} based on Jackson 3
  */
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true)
 class UserDeserializer extends JsonDeserializer<User> {
 
 	private static final TypeReference<Set<SimpleGrantedAuthority>> SIMPLE_GRANTED_AUTHORITY_SET = new TypeReference<>() {

@@ -28,7 +28,10 @@ import java.util.List;
  * @author Hyunmin Choi
  * @since 5.0.2
  * @see UnmodifiableListMixin
+ * @deprecated as of 7.0
  */
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true)
 class UnmodifiableListDeserializer extends AbstractUnmodifiableCollectionDeserializer<List> {
 
 	@Override

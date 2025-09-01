@@ -67,9 +67,12 @@ import org.springframework.util.ClassUtils;
  *     mapper.registerModule(new Saml2Jackson2Module());
  * </pre>
  *
- * @author Jitendra Singh.
+ * @author Jitendra Singh
  * @since 4.2
+ * @deprecated as of 7.0 in favor of
+ * {@link org.springframework.security.jackson.SecurityJacksonModules} based on Jackson 3
  */
+@Deprecated(forRemoval = true)
 public final class SecurityJackson2Modules {
 
 	private static final Log logger = LogFactory.getLog(SecurityJackson2Modules.class);

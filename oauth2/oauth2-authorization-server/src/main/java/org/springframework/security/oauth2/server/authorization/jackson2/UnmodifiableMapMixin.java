@@ -32,7 +32,10 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * @since 7.0
  * @see Collections#unmodifiableMap(Map)
  * @see UnmodifiableMapDeserializer
+ * @deprecated as of 7.0
  */
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonDeserialize(using = UnmodifiableMapDeserializer.class)
 abstract class UnmodifiableMapMixin {
