@@ -43,7 +43,11 @@ import org.springframework.security.web.savedrequest.SavedCookie;
  * @author Boris Finkelshteyn
  * @since 5.1
  * @see SecurityJackson2Modules
+ * @deprecated as of 7.0 in favor of
+ * {@link org.springframework.security.web.jackson.WebServletJacksonModule} based on
+ * Jackson 3
  */
+@Deprecated(forRemoval = true)
 @SuppressWarnings("serial")
 public class WebServletJackson2Module extends SimpleModule {
 

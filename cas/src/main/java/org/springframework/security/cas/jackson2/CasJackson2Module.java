@@ -37,11 +37,14 @@ import org.springframework.security.jackson2.SecurityJackson2Modules;
  * </pre> <b>Note: use {@link SecurityJackson2Modules#getModules(ClassLoader)} to get list
  * of all security modules on the classpath.</b>
  *
- * @author Jitendra Singh.
+ * @author Jitendra Singh
  * @since 4.2
  * @see org.springframework.security.jackson2.SecurityJackson2Modules
+ * @deprecated as of 7.0 in favor of
+ * {@link org.springframework.security.cas.jackson.CasJacksonModule} based on Jackson 3
  */
-@SuppressWarnings("serial")
+@Deprecated(forRemoval = true)
+@SuppressWarnings({ "serial", "removal" })
 public class CasJackson2Module extends SimpleModule {
 
 	public CasJackson2Module() {
