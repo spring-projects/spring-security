@@ -71,7 +71,7 @@ class UsernamePasswordAuthenticationTokenDeserializer extends JsonDeserializer<U
 			throws IOException, JsonProcessingException {
 		ObjectMapper mapper = (ObjectMapper) jp.getCodec();
 		JsonNode jsonNode = mapper.readTree(jp);
-		Boolean authenticated = readJsonNode(jsonNode, "authenticated").asBoolean();
+		boolean authenticated = readJsonNode(jsonNode, "authenticated").asBoolean();
 		JsonNode principalNode = readJsonNode(jsonNode, "principal");
 		Object principal = getPrincipal(mapper, principalNode);
 		JsonNode credentialsNode = readJsonNode(jsonNode, "credentials");
