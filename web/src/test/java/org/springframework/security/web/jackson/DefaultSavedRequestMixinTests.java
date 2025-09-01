@@ -1,0 +1,172 @@
+/*
+ * Copyright 2004-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.springframework.security.web.jackson;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Locale;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import org.json.JSONException;
+import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.web.savedrequest.DefaultSavedRequest;
+import org.springframework.security.web.savedrequest.SavedCookie;
+import org.springframework.security.web.util.UrlUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * @author Jitendra Singh
+ * @since 4.2
+ */
+public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
+
+	// @formatter:off
+	private static final String COOKIES_JSON = "[\"java.util.ArrayList\", [{"
+		+ "\"@class\": \"org.springframework.security.web.savedrequest.SavedCookie\", "
+		+ "\"name\": \"SESSION\", "
+		+ "\"value\": \"123456789\", "
+		+ "\"maxAge\": -1, "
+		+ "\"path\": null, "
+		+ "\"secure\":false, "
+		+ "\"domain\": null"
+	+ "}]]";
+	// @formatter:on
+	// @formatter:off
+	private static final String REQUEST_JSON = "{" +
+			"\"@class\": \"org.springframework.security.web.savedrequest.DefaultSavedRequest\", "
+			+ "\"cookies\": " + COOKIES_JSON + ","
+			+ "\"locales\": [\"java.util.ArrayList\", [\"en\"]], "
+			+ "\"headers\": {\"@class\": \"java.util.TreeMap\", \"x-auth-token\": [\"java.util.ArrayList\", [\"12\"]]}, "
+			+ "\"parameters\": {\"@class\": \"java.util.TreeMap\"},"
+			+ "\"contextPath\": \"\", "
+			+ "\"method\": \"\", "
+			+ "\"pathInfo\": null, "
+			+ "\"queryString\": null, "
+			+ "\"requestURI\": \"\", "
+			+ "\"requestURL\": \"http://localhost\", "
+			+ "\"scheme\": \"http\", "
+			+ "\"serverName\": \"localhost\", "
+			+ "\"servletPath\": \"\", "
+			+ "\"serverPort\": 80"
+			+ "}";
+	// @formatter:on
+	// @formatter:off
+	private static final String REQUEST_WITH_MATCHING_REQUEST_PARAM_NAME_JSON = "{" +
+			"\"@class\": \"org.springframework.security.web.savedrequest.DefaultSavedRequest\", "
+			+ "\"cookies\": " + COOKIES_JSON + ","
+			+ "\"locales\": [\"java.util.ArrayList\", [\"en\"]], "
+			+ "\"headers\": {\"@class\": \"java.util.TreeMap\", \"x-auth-token\": [\"java.util.ArrayList\", [\"12\"]]}, "
+			+ "\"parameters\": {\"@class\": \"java.util.TreeMap\"},"
+			+ "\"contextPath\": \"\", "
+			+ "\"method\": \"\", "
+			+ "\"pathInfo\": null, "
+			+ "\"queryString\": null, "
+			+ "\"requestURI\": \"\", "
+			+ "\"requestURL\": \"http://localhost\", "
+			+ "\"scheme\": \"http\", "
+			+ "\"serverName\": \"localhost\", "
+			+ "\"servletPath\": \"\", "
+			+ "\"serverPort\": 80, "
+			+ "\"matchingRequestParameterName\": \"success\""
+			+ "}";
+	// @formatter:on
+	@Test
+	public void matchRequestBuildWithConstructorAndBuilder() {
+		DefaultSavedRequest request = new DefaultSavedRequest.Builder()
+			.setCookies(Collections.singletonList(new SavedCookie(new Cookie("SESSION", "123456789"))))
+			.setHeaders(Collections.singletonMap("x-auth-token", Collections.singletonList("12")))
+			.setScheme("http")
+			.setRequestURL("http://localhost")
+			.setServerName("localhost")
+			.setRequestURI("")
+			.setLocales(Collections.singletonList(new Locale("en")))
+			.setContextPath("")
+			.setMethod("")
+			.setServletPath("")
+			.build();
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest();
+		mockRequest.setCookies(new Cookie("SESSION", "123456789"));
+		mockRequest.addHeader("x-auth-token", "12");
+		String currentUrl = UrlUtils.buildFullRequestUrl(mockRequest);
+		assertThat(request.getRedirectUrl().equals(currentUrl)).isTrue();
+	}
+
+	@Test
+	public void serializeDefaultRequestBuildWithConstructorTest() throws IOException, JSONException {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("x-auth-token", "12");
+		// Spring 5 MockHttpServletRequest automatically adds a header when the cookies
+		// are set. To get consistency we override the request.
+		HttpServletRequest requestToWrite = new HttpServletRequestWrapper(request) {
+			@Override
+			public Cookie[] getCookies() {
+				return new Cookie[] { new Cookie("SESSION", "123456789") };
+			}
+		};
+		String actualString = this.mapper.writerWithDefaultPrettyPrinter()
+			.writeValueAsString(new DefaultSavedRequest(requestToWrite));
+		JSONAssert.assertEquals(REQUEST_JSON, actualString, true);
+	}
+
+	@Test
+	public void serializeDefaultRequestBuildWithBuilderTest() throws IOException, JSONException {
+		DefaultSavedRequest request = new DefaultSavedRequest.Builder()
+			.setCookies(Collections.singletonList(new SavedCookie(new Cookie("SESSION", "123456789"))))
+			.setHeaders(Collections.singletonMap("x-auth-token", Collections.singletonList("12")))
+			.setScheme("http")
+			.setRequestURL("http://localhost")
+			.setServerName("localhost")
+			.setRequestURI("")
+			.setLocales(Collections.singletonList(new Locale("en")))
+			.setContextPath("")
+			.setMethod("")
+			.setServletPath("")
+			.build();
+		String actualString = this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(request);
+		JSONAssert.assertEquals(REQUEST_JSON, actualString, true);
+	}
+
+	@Test
+	public void deserializeDefaultSavedRequest() {
+		DefaultSavedRequest request = (DefaultSavedRequest) this.mapper.readValue(REQUEST_JSON, Object.class);
+		assertThat(request).isNotNull();
+		assertThat(request.getCookies()).hasSize(1);
+		assertThat(request.getLocales()).hasSize(1).contains(new Locale("en"));
+		assertThat(request.getHeaderNames()).hasSize(1).contains("x-auth-token");
+		assertThat(request.getHeaderValues("x-auth-token")).hasSize(1).contains("12");
+	}
+
+	@Test
+	public void deserializeWhenMatchingRequestParameterNameThenRedirectUrlContainsParam() {
+		DefaultSavedRequest request = (DefaultSavedRequest) this.mapper
+			.readValue(REQUEST_WITH_MATCHING_REQUEST_PARAM_NAME_JSON, Object.class);
+		assertThat(request.getRedirectUrl()).isEqualTo("http://localhost?success");
+	}
+
+	@Test
+	public void deserializeWhenNullMatchingRequestParameterNameThenRedirectUrlDoesNotContainParam() {
+		DefaultSavedRequest request = (DefaultSavedRequest) this.mapper.readValue(REQUEST_JSON, Object.class);
+		assertThat(request.getRedirectUrl()).isEqualTo("http://localhost");
+	}
+
+}
