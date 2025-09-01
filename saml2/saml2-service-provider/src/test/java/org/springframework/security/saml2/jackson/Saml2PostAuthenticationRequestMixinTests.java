@@ -1,0 +1,97 @@
+/*
+ * Copyright 2004-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.springframework.security.saml2.jackson;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
+import tools.jackson.databind.json.JsonMapper;
+
+import org.springframework.security.jackson.SecurityJacksonModules;
+import org.springframework.security.saml2.provider.service.authentication.Saml2PostAuthenticationRequest;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@SuppressWarnings("removal")
+class Saml2PostAuthenticationRequestMixinTests {
+
+	private JsonMapper mapper;
+
+	@BeforeEach
+	void setUp() {
+		ClassLoader loader = getClass().getClassLoader();
+		this.mapper = JsonMapper.builder().addModules(SecurityJacksonModules.getModules(loader)).build();
+	}
+
+	@Test
+	void shouldSerialize() throws Exception {
+		Saml2PostAuthenticationRequest request = TestSaml2JsonPayloads.createDefaultSaml2PostAuthenticationRequest();
+
+		String requestJson = this.mapper.writeValueAsString(request);
+
+		JSONAssert.assertEquals(TestSaml2JsonPayloads.DEFAULT_POST_AUTH_REQUEST_JSON, requestJson, true);
+	}
+
+	@Test
+	void shouldDeserialize() {
+		Saml2PostAuthenticationRequest authRequest = this.mapper
+			.readValue(TestSaml2JsonPayloads.DEFAULT_POST_AUTH_REQUEST_JSON, Saml2PostAuthenticationRequest.class);
+
+		assertThat(authRequest).isNotNull();
+		assertThat(authRequest.getSamlRequest()).isEqualTo(TestSaml2JsonPayloads.SAML_REQUEST);
+		assertThat(authRequest.getRelayState()).isEqualTo(TestSaml2JsonPayloads.RELAY_STATE);
+		assertThat(authRequest.getAuthenticationRequestUri())
+			.isEqualTo(TestSaml2JsonPayloads.AUTHENTICATION_REQUEST_URI);
+		assertThat(authRequest.getRelyingPartyRegistrationId())
+			.isEqualTo(TestSaml2JsonPayloads.RELYINGPARTY_REGISTRATION_ID);
+		assertThat(authRequest.getId()).isEqualTo(TestSaml2JsonPayloads.ID);
+	}
+
+	@Test
+	void shouldDeserializeWithNoRegistrationId() {
+		String json = TestSaml2JsonPayloads.DEFAULT_POST_AUTH_REQUEST_JSON.replace(
+				"\"relyingPartyRegistrationId\": \"" + TestSaml2JsonPayloads.RELYINGPARTY_REGISTRATION_ID + "\",", "");
+
+		Saml2PostAuthenticationRequest authRequest = this.mapper.readValue(json, Saml2PostAuthenticationRequest.class);
+
+		assertThat(authRequest).isNotNull();
+		assertThat(authRequest.getSamlRequest()).isEqualTo(TestSaml2JsonPayloads.SAML_REQUEST);
+		assertThat(authRequest.getRelayState()).isEqualTo(TestSaml2JsonPayloads.RELAY_STATE);
+		assertThat(authRequest.getAuthenticationRequestUri())
+			.isEqualTo(TestSaml2JsonPayloads.AUTHENTICATION_REQUEST_URI);
+		assertThat(authRequest.getRelyingPartyRegistrationId()).isNull();
+		assertThat(authRequest.getId()).isEqualTo(TestSaml2JsonPayloads.ID);
+	}
+
+	@Test
+	void shouldDeserializeWithNoId() {
+		String json = TestSaml2JsonPayloads.DEFAULT_POST_AUTH_REQUEST_JSON
+			.replace(", \"id\": \"" + TestSaml2JsonPayloads.ID + "\"", "");
+
+		Saml2PostAuthenticationRequest authRequest = this.mapper.readValue(json, Saml2PostAuthenticationRequest.class);
+
+		assertThat(authRequest).isNotNull();
+		assertThat(authRequest.getSamlRequest()).isEqualTo(TestSaml2JsonPayloads.SAML_REQUEST);
+		assertThat(authRequest.getRelayState()).isEqualTo(TestSaml2JsonPayloads.RELAY_STATE);
+		assertThat(authRequest.getAuthenticationRequestUri())
+			.isEqualTo(TestSaml2JsonPayloads.AUTHENTICATION_REQUEST_URI);
+		assertThat(authRequest.getRelyingPartyRegistrationId())
+			.isEqualTo(TestSaml2JsonPayloads.RELYINGPARTY_REGISTRATION_ID);
+		assertThat(authRequest.getId()).isNull();
+	}
+
+}

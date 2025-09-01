@@ -156,6 +156,7 @@ public final class OAuth2ProtectedResourceMetadataFilter extends OncePerRequestF
 		private HttpMessageConverters() {
 		}
 
+		@SuppressWarnings("removal")
 		private static GenericHttpMessageConverter<Object> getJsonMessageConverter() {
 			if (jackson2Present) {
 				return new MappingJackson2HttpMessageConverter();

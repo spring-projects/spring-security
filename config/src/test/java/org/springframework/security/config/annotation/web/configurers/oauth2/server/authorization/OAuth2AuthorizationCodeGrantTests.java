@@ -46,6 +46,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -1212,7 +1213,8 @@ public class OAuth2AuthorizationCodeGrantTests {
 
 			RowMapper(RegisteredClientRepository registeredClientRepository) {
 				super(registeredClientRepository);
-				getObjectMapper().addMixIn(TestingAuthenticationToken.class, TestingAuthenticationTokenMixin.class);
+				setMapper(new JdbcOAuth2AuthorizationService.JacksonDelegate(JsonMapper.builder()
+					.addMixIn(TestingAuthenticationToken.class, TestingAuthenticationTokenMixin.class)));
 			}
 
 		}
@@ -1221,7 +1223,8 @@ public class OAuth2AuthorizationCodeGrantTests {
 
 			ParametersMapper() {
 				super();
-				getObjectMapper().addMixIn(TestingAuthenticationToken.class, TestingAuthenticationTokenMixin.class);
+				setMapper(new JdbcOAuth2AuthorizationService.JacksonDelegate(JsonMapper.builder()
+					.addMixIn(TestingAuthenticationToken.class, TestingAuthenticationTokenMixin.class)));
 			}
 
 		}

@@ -16,13 +16,11 @@
 
 package org.springframework.security.web.webauthn.jackson;
 
-import java.io.IOException;
-
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.jspecify.annotations.Nullable;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 import org.springframework.security.web.webauthn.api.AuthenticatorAttachment;
 
@@ -41,7 +39,7 @@ class AuthenticatorAttachmentDeserializer extends StdDeserializer<AuthenticatorA
 
 	@Override
 	public @Nullable AuthenticatorAttachment deserialize(JsonParser parser, DeserializationContext ctxt)
-			throws IOException, JacksonException {
+			throws JacksonException {
 		String type = parser.readValueAs(String.class);
 		for (AuthenticatorAttachment publicKeyCredentialType : AuthenticatorAttachment.values()) {
 			if (publicKeyCredentialType.getValue().equals(type)) {
