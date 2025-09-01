@@ -29,7 +29,11 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
  *
  * @author Joe Grandja
  * @since 5.3
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.oauth2.client.jackson.StdConverters} based on
+ * Jackson 3
  */
+@Deprecated(forRemoval = true)
 abstract class StdConverters {
 
 	static final class AccessTokenTypeConverter extends StdConverter<JsonNode, OAuth2AccessToken.TokenType> {
