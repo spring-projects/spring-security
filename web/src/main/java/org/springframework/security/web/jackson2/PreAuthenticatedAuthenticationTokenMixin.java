@@ -31,9 +31,7 @@ import org.springframework.security.jackson2.SimpleGrantedAuthorityMixin;
  *
  * In order to use this mixin you'll need to add 3 more mixin classes.
  * <ol>
- * <li>{@link UnmodifiableSetMixin}</li>
  * <li>{@link SimpleGrantedAuthorityMixin}</li>
- * <li>{@link UserMixin}</li>
  * </ol>
  *
  * <pre>
@@ -43,9 +41,13 @@ import org.springframework.security.jackson2.SimpleGrantedAuthorityMixin;
  *
  * @author Jitendra Singh
  * @since 4.2
- * @see Webackson2Module
  * @see SecurityJackson2Modules
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.web.jackson.PreAuthenticatedAuthenticationTokenMixin}
+ * based on Jackson 3
  */
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)

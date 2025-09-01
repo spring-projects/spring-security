@@ -34,7 +34,12 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @author Boris Finkelshteyn
  * @since 5.1
  * @see WebServerJackson2Module
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.web.server.jackson.DefaultCsrfServerTokenMixin}
+ * based on Jackson 3
  */
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonIgnoreProperties(ignoreUnknown = true)
 class DefaultCsrfServerTokenMixin {

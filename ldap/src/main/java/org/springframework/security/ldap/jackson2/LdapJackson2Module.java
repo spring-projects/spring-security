@@ -45,8 +45,11 @@ import org.springframework.security.ldap.userdetails.Person;
  *
  * @since 5.7
  * @see SecurityJackson2Modules
+ * @deprecated as of 7.0 in favor of
+ * {@link org.springframework.security.ldap.jackson.LdapJacksonModule} based on Jackson 3
  */
-@SuppressWarnings("serial")
+@Deprecated(forRemoval = true)
+@SuppressWarnings({ "serial", "removal" })
 public class LdapJackson2Module extends SimpleModule {
 
 	public LdapJackson2Module() {

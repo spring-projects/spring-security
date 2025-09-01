@@ -37,7 +37,11 @@ import jakarta.servlet.http.Cookie;
  * @author Jitendra Singh
  * @since 4.2
  * @see CookieMixin
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.web.jackson.CookieDeserializer} based on Jackson 3
  */
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true)
 class CookieDeserializer extends JsonDeserializer<Cookie> {
 
 	@Override

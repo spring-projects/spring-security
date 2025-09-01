@@ -41,12 +41,16 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * @see UserDeserializer
  * @see CoreJackson2Module
  * @see SecurityJackson2Modules
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.jackson.UserMixin} based on Jackson 3
  */
+@SuppressWarnings("removal")
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonDeserialize(using = UserDeserializer.class)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Deprecated(forRemoval = true)
 abstract class UserMixin {
 
 }

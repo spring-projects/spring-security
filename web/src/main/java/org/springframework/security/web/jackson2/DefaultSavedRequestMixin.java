@@ -39,7 +39,12 @@ import org.springframework.security.web.savedrequest.DefaultSavedRequest;
  * @since 4.2
  * @see WebServletJackson2Module
  * @see org.springframework.security.jackson2.SecurityJackson2Modules
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.web.jackson.DefaultCsrfTokenMixin} based on Jackson
+ * 3
  */
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonDeserialize(builder = DefaultSavedRequest.Builder.class)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)

@@ -25,7 +25,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @author Nikola Jovanovic
  * @since 7.0
  * @see String
+ * @deprecated as of 7.0
  */
+@Deprecated(forRemoval = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 abstract class StringArrayMixin {
 

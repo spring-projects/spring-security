@@ -39,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Markus Heiden
  * @since 6.3
  */
+@SuppressWarnings("removal")
 public class SwitchUserGrantedAuthorityMixInTests {
 
 	// language=JSON
