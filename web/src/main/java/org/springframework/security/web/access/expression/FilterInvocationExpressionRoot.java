@@ -19,21 +19,17 @@ package org.springframework.security.web.access.expression;
 import java.util.function.Supplier;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.util.matcher.IpAddressMatcher;
 
 /**
- * @author Luke Taylor
- * @author Evgeniy Cheban
  * @author Steve Riesenberg
- * @since 3.0
+ * @since 7.0
  */
-public class WebSecurityExpressionRoot extends SecurityExpressionRoot<RequestAuthorizationContext> {
+final class FilterInvocationExpressionRoot extends SecurityExpressionRoot<FilterInvocation> {
 
 	/**
 	 * Allows direct access to the request object
@@ -41,42 +37,14 @@ public class WebSecurityExpressionRoot extends SecurityExpressionRoot<RequestAut
 	public final HttpServletRequest request;
 
 	/**
-	 * @deprecated Use
-	 * {@link #WebSecurityExpressionRoot(Supplier, RequestAuthorizationContext)} instead
-	 */
-	@Deprecated(since = "7.0")
-	public WebSecurityExpressionRoot(@Nullable Authentication a, FilterInvocation fi) {
-		this(() -> a, new RequestAuthorizationContext(fi.getRequest()));
-	}
-
-	/**
 	 * Creates an instance for the given {@link Supplier} of the {@link Authentication}
 	 * and {@link HttpServletRequest}.
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to use
-	 * @param request the {@link HttpServletRequest} to use
-	 * @since 5.8
-	 * @deprecated Use
-	 * {@link #WebSecurityExpressionRoot(Supplier, RequestAuthorizationContext)} instead
+	 * @param fi the {@link FilterInvocation} to use
 	 */
-	@Deprecated(since = "7.0")
-	@SuppressWarnings("NullAway") // https://github.com/uber/NullAway/issues/1246
-	public WebSecurityExpressionRoot(Supplier<? extends @Nullable Authentication> authentication,
-			HttpServletRequest request) {
-		super(authentication, new RequestAuthorizationContext(request));
-		this.request = request;
-	}
-
-	/**
-	 * Creates an instance for the given {@link Supplier} of the {@link Authentication}
-	 * and {@link HttpServletRequest}.
-	 * @param authentication the {@link Supplier} of the {@link Authentication} to use
-	 * @param context the {@link RequestAuthorizationContext} to use
-	 * @since 7.0
-	 */
-	public WebSecurityExpressionRoot(Supplier<? extends @Nullable Authentication> authentication,
-			RequestAuthorizationContext context) {
-		super(authentication, context);
-		this.request = context.getRequest();
+	FilterInvocationExpressionRoot(Supplier<Authentication> authentication, FilterInvocation fi) {
+		super(authentication, fi);
+		this.request = fi.getRequest();
 	}
 
 	/**

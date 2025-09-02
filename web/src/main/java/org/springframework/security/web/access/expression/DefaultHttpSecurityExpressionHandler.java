@@ -27,6 +27,7 @@ import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.expression.SecurityExpressionOperations;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
+import org.springframework.security.authorization.AuthorizationManagerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.util.Assert;
@@ -36,14 +37,15 @@ import org.springframework.util.Assert;
  * create a {@link WebSecurityExpressionRoot}.
  *
  * @author Evgeniy Cheban
+ * @author Steve Riesenberg
  * @since 5.8
  */
 public class DefaultHttpSecurityExpressionHandler extends AbstractSecurityExpressionHandler<RequestAuthorizationContext>
 		implements SecurityExpressionHandler<RequestAuthorizationContext> {
 
-	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+	private static final String DEFAULT_ROLE_PREFIX = "ROLE_";
 
-	private String defaultRolePrefix = "ROLE_";
+	private String defaultRolePrefix = DEFAULT_ROLE_PREFIX;
 
 	@Override
 	@SuppressWarnings("NullAway") // https://github.com/spring-projects/spring-framework/issues/35371
@@ -64,11 +66,13 @@ public class DefaultHttpSecurityExpressionHandler extends AbstractSecurityExpres
 
 	private WebSecurityExpressionRoot createSecurityExpressionRoot(
 			Supplier<? extends @Nullable Authentication> authentication, RequestAuthorizationContext context) {
-		WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(authentication, context.getRequest());
-		root.setRoleHierarchy(getRoleHierarchy());
+		WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(authentication, context);
+		root.setAuthorizationManagerFactory(getAuthorizationManagerFactory());
 		root.setPermissionEvaluator(getPermissionEvaluator());
-		root.setTrustResolver(this.trustResolver);
-		root.setDefaultRolePrefix(this.defaultRolePrefix);
+		if (!DEFAULT_ROLE_PREFIX.equals(this.defaultRolePrefix)) {
+			// Ensure SecurityExpressionRoot can strip the custom role prefix
+			root.setDefaultRolePrefix(this.defaultRolePrefix);
+		}
 		return root;
 	}
 
@@ -76,10 +80,12 @@ public class DefaultHttpSecurityExpressionHandler extends AbstractSecurityExpres
 	 * Sets the {@link AuthenticationTrustResolver} to be used. The default is
 	 * {@link AuthenticationTrustResolverImpl}.
 	 * @param trustResolver the {@link AuthenticationTrustResolver} to use
+	 * @deprecated Use
+	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
 	 */
+	@Deprecated(since = "7.0")
 	public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
-		Assert.notNull(trustResolver, "trustResolver cannot be null");
-		this.trustResolver = trustResolver;
+		getDefaultAuthorizationManagerFactory().setTrustResolver(trustResolver);
 	}
 
 	/**
@@ -91,9 +97,13 @@ public class DefaultHttpSecurityExpressionHandler extends AbstractSecurityExpres
 	 * role ROLE_ADMIN will be used when the defaultRolePrefix is "ROLE_" (default).
 	 * @param defaultRolePrefix the default prefix to add to roles. The default is
 	 * "ROLE_".
+	 * @deprecated Use
+	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
 	 */
+	@Deprecated(since = "7.0")
 	public void setDefaultRolePrefix(String defaultRolePrefix) {
 		Assert.notNull(defaultRolePrefix, "defaultRolePrefix cannot be null");
+		getDefaultAuthorizationManagerFactory().setRolePrefix(defaultRolePrefix);
 		this.defaultRolePrefix = defaultRolePrefix;
 	}
 

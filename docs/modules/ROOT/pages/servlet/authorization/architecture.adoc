@@ -144,6 +144,43 @@ Another manager is the `AuthenticatedAuthorizationManager`.
 It can be used to differentiate between anonymous, fully-authenticated and remember-me authenticated users.
 Many sites allow certain limited access under remember-me authentication, but require a user to confirm their identity by logging in for full access.
 
+[[authz-authorization-manager-factory]]
+=== Creating AuthorizationManager instances
+
+The javadoc:org.springframework.security.authorization.AuthorizationManagerFactory[] interface (introduced in Spring Security 7.0) is used to create generic ``AuthorizationManager``s in xref:servlet/authorization/authorize-http-requests.adoc[request-based] and xref:servlet/authorization/method-security.adoc[method-based] authorization components.
+The following is a sketch of the `AuthorizationManagerFactory` interface:
+
+[source,java]
+----
+public interface AuthorizationManagerFactory<T> {
+	AuthorizationManager<T> permitAll();
+	AuthorizationManager<T> denyAll();
+	AuthorizationManager<T> hasRole(String role);
+	AuthorizationManager<T> hasAnyRole(String... roles);
+	AuthorizationManager<T> hasAuthority(String authority);
+	AuthorizationManager<T> hasAnyAuthority(String... authorities);
+	AuthorizationManager<T> authenticated();
+	AuthorizationManager<T> fullyAuthenticated();
+	AuthorizationManager<T> rememberMe();
+	AuthorizationManager<T> anonymous();
+}
+----
+
+The default implementation is javadoc:org.springframework.security.authorization.DefaultAuthorizationManagerFactory[], which allows for customizing the `rolePrefix` (defaults to `"ROLE_"`), `RoleHierarchy` and `AuthenticationTrustManager` that are provided to the ``AuthorizationManager``s created by the factory.
+
+In order to customize the default instance used by Spring Security, simply publish a bean as in the following example:
+
+include-code::./AuthorizationManagerFactoryConfiguration[tag=config,indent=0]
+
+[TIP]
+It is also possible to target a specific usage of this factory within Spring Security by providing a concrete parameterized type instead of a generic type.
+See examples of each in the xref:servlet/authorization/authorize-http-requests.adoc#customizing-authorization-managers[request-based] and xref:servlet/authorization/method-security.adoc#customizing-authorization-managers[method-based] sections of the documentation.
+
+In addition to simply customizing the default instance of `AuthorizationManagerFactory`, you can provide your own implementation to fully customize the instances created by the factory and provide your own implementations.
+
+[NOTE]
+The {gh-url}/core/src/main/java/org/springframework/security/authorization/AuthorizationManagerFactory.java[actual interface] provides default implementations for all factory methods, which allows custom implementations to only implement the methods that need to be customized.
+
 [[authz-authorization-managers]]
 ==== AuthorizationManagers
 There are also helpful static factories in javadoc:org.springframework.security.authorization.AuthorizationManagers[] for composing individual ``AuthorizationManager``s into more sophisticated expressions.

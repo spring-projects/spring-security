@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2004-present the original author or authors.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~       https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<b:beans xmlns:b="http://www.springframework.org/schema/beans"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="
+			http://www.springframework.org/schema/beans
+			https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- tag::config[] -->
+	<b:bean id="authorizationManagerFactory" class="org.springframework.security.authorization.DefaultAuthorizationManagerFactory">
+		<b:property name="trustResolver" ref="authenticationTrustResolver"/>
+		<b:property name="roleHierarchy" ref="roleHierarchy"/>
+		<b:property name="rolePrefix" value="role_"/>
+	</b:bean>
+	<!-- end::config[] -->
+
+	<b:bean id="authenticationTrustResolver" class="org.springframework.security.authentication.AuthenticationTrustResolverImpl">
+		<b:property name="anonymousClass" value="org.springframework.security.authentication.TestingAuthenticationToken"/>
+	</b:bean>
+
+	<b:bean id="roleHierarchy" class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl" factory-method="fromHierarchy">
+		<b:constructor-arg name="hierarchy" value="role_admin > role_user"/>
+	</b:bean>
+
+</b:beans>

@@ -17,8 +17,6 @@
 package org.springframework.security.access.expression;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
@@ -26,10 +24,11 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
-import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationManagerFactory;
+import org.springframework.security.authorization.AuthorizationResult;
+import org.springframework.security.authorization.DefaultAuthorizationManagerFactory;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.function.SingletonSupplier;
 
@@ -38,19 +37,18 @@ import org.springframework.util.function.SingletonSupplier;
  *
  * @author Luke Taylor
  * @author Evgeniy Cheban
+ * @author Steve Riesenberg
  * @since 3.0
  */
-public abstract class SecurityExpressionRoot implements SecurityExpressionOperations {
+public abstract class SecurityExpressionRoot<T extends @Nullable Object> implements SecurityExpressionOperations {
 
 	private final Supplier<Authentication> authentication;
 
-	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
-
-	private @Nullable RoleHierarchy roleHierarchy;
-
-	private @Nullable Set<String> roles;
-
 	private String defaultRolePrefix = "ROLE_";
+
+	private final T object;
+
+	private AuthorizationManagerFactory<T> authorizationManagerFactory = new DefaultAuthorizationManagerFactory<>();
 
 	/**
 	 * Allows "permitAll" expression
@@ -77,9 +75,12 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	/**
 	 * Creates a new instance
 	 * @param authentication the {@link Authentication} to use. Cannot be null.
+	 * @deprecated Use {@link #SecurityExpressionRoot(Supplier, Object)} instead
 	 */
+	@Deprecated(since = "7.0")
+	@SuppressWarnings("NullAway")
 	public SecurityExpressionRoot(@Nullable Authentication authentication) {
-		this(() -> authentication);
+		this(() -> authentication, null);
 	}
 
 	/**
@@ -88,44 +89,70 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	 * @param authentication the {@link Supplier} of the {@link Authentication} to use.
 	 * Cannot be null.
 	 * @since 5.8
+	 * @deprecated Use {@link #SecurityExpressionRoot(Supplier, Object)} instead
 	 */
-	public SecurityExpressionRoot(Supplier<? extends @Nullable Authentication> authentication) {
+	@Deprecated(since = "7.0")
+	@SuppressWarnings("NullAway")
+	public SecurityExpressionRoot(Supplier<@Nullable Authentication> authentication) {
+		this(authentication, null);
+	}
+
+	/**
+	 * Creates a new instance that uses lazy initialization of the {@link Authentication}
+	 * object.
+	 * @param authentication the {@link Supplier} of the {@link Authentication} to use.
+	 * Cannot be null.
+	 * @param object the object being authorized
+	 * @since 7.0
+	 */
+	public SecurityExpressionRoot(Supplier<? extends @Nullable Authentication> authentication, T object) {
 		this.authentication = SingletonSupplier.of(() -> {
 			Authentication value = authentication.get();
 			Assert.notNull(value, "Authentication object cannot be null");
 			return value;
 		});
+		this.object = object;
 	}
 
 	@Override
 	public final boolean hasAuthority(String authority) {
-		return hasAnyAuthority(authority);
+		return isGranted(this.authorizationManagerFactory.hasAnyAuthority(authority));
 	}
 
 	@Override
 	public final boolean hasAnyAuthority(String... authorities) {
-		return hasAnyAuthorityName(null, authorities);
+		return isGranted(this.authorizationManagerFactory.hasAnyAuthority(authorities));
 	}
 
 	@Override
 	public final boolean hasRole(String role) {
-		return hasAnyRole(role);
+		if (this.authorizationManagerFactory instanceof DefaultAuthorizationManagerFactory<T>) {
+			// To provide passivity for old behavior where hasRole('ROLE_A') is allowed,
+			// we strip the role prefix when found.
+			// TODO: Remove in favor of fixing inconsistent behavior?
+			String rolePrefix = this.defaultRolePrefix;
+			if (role.startsWith(rolePrefix)) {
+				role = role.substring(rolePrefix.length());
+			}
+		}
+		return isGranted(this.authorizationManagerFactory.hasRole(role));
 	}
 
 	@Override
 	public final boolean hasAnyRole(String... roles) {
-		return hasAnyAuthorityName(this.defaultRolePrefix, roles);
-	}
-
-	private boolean hasAnyAuthorityName(@Nullable String prefix, String... roles) {
-		Set<String> roleSet = getAuthoritySet();
-		for (String role : roles) {
-			String defaultedRole = getRoleWithDefaultPrefix(prefix, role);
-			if (roleSet.contains(defaultedRole)) {
-				return true;
+		if (this.authorizationManagerFactory instanceof DefaultAuthorizationManagerFactory<T>) {
+			// To provide passivity for old behavior where hasRole('ROLE_A') is allowed,
+			// we strip the role prefix when found.
+			// TODO: Remove in favor of fixing inconsistent behavior?
+			String rolePrefix = this.defaultRolePrefix;
+			for (int index = 0; index < roles.length; index++) {
+				String role = roles[index];
+				if (role.startsWith(rolePrefix)) {
+					roles[index] = role.substring(rolePrefix.length());
+				}
 			}
 		}
-		return false;
+		return isGranted(this.authorizationManagerFactory.hasAnyRole(roles));
 	}
 
 	@Override
@@ -135,33 +162,37 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 
 	@Override
 	public final boolean permitAll() {
-		return true;
+		return isGranted(this.authorizationManagerFactory.permitAll());
 	}
 
 	@Override
 	public final boolean denyAll() {
-		return false;
+		return isGranted(this.authorizationManagerFactory.denyAll());
 	}
 
 	@Override
 	public final boolean isAnonymous() {
-		return this.trustResolver.isAnonymous(getAuthentication());
+		return isGranted(this.authorizationManagerFactory.anonymous());
 	}
 
 	@Override
 	public final boolean isAuthenticated() {
-		return this.trustResolver.isAuthenticated(getAuthentication());
+		return isGranted(this.authorizationManagerFactory.authenticated());
 	}
 
 	@Override
 	public final boolean isRememberMe() {
-		return this.trustResolver.isRememberMe(getAuthentication());
+		return isGranted(this.authorizationManagerFactory.rememberMe());
 	}
 
 	@Override
 	public final boolean isFullyAuthenticated() {
-		Authentication authentication = getAuthentication();
-		return this.trustResolver.isFullyAuthenticated(authentication);
+		return isGranted(this.authorizationManagerFactory.fullyAuthenticated());
+	}
+
+	private boolean isGranted(AuthorizationManager<T> authorizationManager) {
+		AuthorizationResult authorizationResult = authorizationManager.authorize(this.authentication, this.object);
+		return (authorizationResult != null && authorizationResult.isGranted());
 	}
 
 	/**
@@ -173,12 +204,24 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 		return getAuthentication().getPrincipal();
 	}
 
+	/**
+	 * @deprecated Use
+	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
+	 */
+	@Deprecated(since = "7.0")
 	public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
-		this.trustResolver = trustResolver;
+		getDefaultAuthorizationManagerFactory().setTrustResolver(trustResolver);
 	}
 
+	/**
+	 * @deprecated Use
+	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
+	 */
+	@Deprecated(since = "7.0")
 	public void setRoleHierarchy(@Nullable RoleHierarchy roleHierarchy) {
-		this.roleHierarchy = roleHierarchy;
+		if (roleHierarchy != null) {
+			getDefaultAuthorizationManagerFactory().setRoleHierarchy(roleHierarchy);
+		}
 	}
 
 	/**
@@ -193,20 +236,46 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	 * If null or empty, then no default role prefix is used.
 	 * </p>
 	 * @param defaultRolePrefix the default prefix to add to roles. Default "ROLE_".
+	 * @deprecated Use
+	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
 	 */
-	public void setDefaultRolePrefix(String defaultRolePrefix) {
+	@Deprecated(since = "7.0")
+	public void setDefaultRolePrefix(@Nullable String defaultRolePrefix) {
+		if (defaultRolePrefix == null) {
+			defaultRolePrefix = "";
+		}
+		getDefaultAuthorizationManagerFactory().setRolePrefix(defaultRolePrefix);
 		this.defaultRolePrefix = defaultRolePrefix;
 	}
 
-	private Set<String> getAuthoritySet() {
-		if (this.roles == null) {
-			Collection<? extends GrantedAuthority> userAuthorities = getAuthentication().getAuthorities();
-			if (this.roleHierarchy != null) {
-				userAuthorities = this.roleHierarchy.getReachableGrantedAuthorities(userAuthorities);
-			}
-			this.roles = AuthorityUtils.authorityListToSet(userAuthorities);
+	/**
+	 * Sets the {@link AuthorizationManagerFactory} to use for creating instances of
+	 * {@link AuthorizationManager}.
+	 * @param authorizationManagerFactory the {@link AuthorizationManagerFactory} to use
+	 * @since 7.0
+	 */
+	public void setAuthorizationManagerFactory(AuthorizationManagerFactory<T> authorizationManagerFactory) {
+		Assert.notNull(authorizationManagerFactory, "authorizationManagerFactory cannot be null");
+		this.authorizationManagerFactory = authorizationManagerFactory;
+	}
+
+	/**
+	 * Allows accessing the {@link DefaultAuthorizationManagerFactory} for getting and
+	 * setting defaults. This method will be removed in Spring Security 8.
+	 * @return the {@link DefaultAuthorizationManagerFactory}
+	 * @throws IllegalStateException if a different {@link AuthorizationManagerFactory}
+	 * was already set
+	 * @deprecated Use
+	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
+	 */
+	@Deprecated(since = "7.0", forRemoval = true)
+	private DefaultAuthorizationManagerFactory<T> getDefaultAuthorizationManagerFactory() {
+		if (!(this.authorizationManagerFactory instanceof DefaultAuthorizationManagerFactory<T> defaultAuthorizationManagerFactory)) {
+			throw new IllegalStateException(
+					"authorizationManagerFactory must be an instance of DefaultAuthorizationManagerFactory");
 		}
-		return this.roles;
+
+		return defaultAuthorizationManagerFactory;
 	}
 
 	@Override
@@ -223,26 +292,6 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	public void setPermissionEvaluator(PermissionEvaluator permissionEvaluator) {
 		Assert.notNull(permissionEvaluator, "permissionEvaluator cannot be null");
 		this.permissionEvaluator = permissionEvaluator;
-	}
-
-	/**
-	 * Prefixes role with defaultRolePrefix if defaultRolePrefix is non-null and if role
-	 * does not already start with defaultRolePrefix.
-	 * @param defaultRolePrefix
-	 * @param role
-	 * @return
-	 */
-	private static String getRoleWithDefaultPrefix(@Nullable String defaultRolePrefix, String role) {
-		if (role == null) {
-			return role;
-		}
-		if (defaultRolePrefix == null || defaultRolePrefix.length() == 0) {
-			return role;
-		}
-		if (role.startsWith(defaultRolePrefix)) {
-			return role;
-		}
-		return defaultRolePrefix + role;
 	}
 
 }
