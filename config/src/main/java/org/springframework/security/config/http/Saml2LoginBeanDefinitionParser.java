@@ -76,8 +76,6 @@ final class Saml2LoginBeanDefinitionParser implements BeanDefinitionParser {
 
 	private final BeanReference portMapper;
 
-	private final BeanReference portResolver;
-
 	private final BeanReference requestCache;
 
 	private final boolean allowSessionCreation;
@@ -97,12 +95,11 @@ final class Saml2LoginBeanDefinitionParser implements BeanDefinitionParser {
 	private BeanDefinition saml2AuthenticationUrlToProviderName;
 
 	Saml2LoginBeanDefinitionParser(List<BeanDefinition> csrfIgnoreRequestMatchers, BeanReference portMapper,
-			BeanReference portResolver, BeanReference requestCache, boolean allowSessionCreation,
-			BeanReference authenticationManager, BeanReference authenticationFilterSecurityContextRepositoryRef,
-			List<BeanReference> authenticationProviders, Map<BeanDefinition, BeanMetadataElement> entryPoints) {
+			BeanReference requestCache, boolean allowSessionCreation, BeanReference authenticationManager,
+			BeanReference authenticationFilterSecurityContextRepositoryRef, List<BeanReference> authenticationProviders,
+			Map<BeanDefinition, BeanMetadataElement> entryPoints) {
 		this.csrfIgnoreRequestMatchers = csrfIgnoreRequestMatchers;
 		this.portMapper = portMapper;
-		this.portResolver = portResolver;
 		this.requestCache = requestCache;
 		this.allowSessionCreation = allowSessionCreation;
 		this.authenticationManager = authenticationManager;
@@ -198,7 +195,6 @@ final class Saml2LoginBeanDefinitionParser implements BeanDefinitionParser {
 				.rootBeanDefinition(LoginUrlAuthenticationEntryPoint.class)
 				.addConstructorArgValue(loginPage)
 				.addPropertyValue("portMapper", this.portMapper)
-				.addPropertyValue("portResolver", this.portResolver)
 				.getBeanDefinition();
 		}
 		else {
@@ -209,7 +205,6 @@ final class Saml2LoginBeanDefinitionParser implements BeanDefinitionParser {
 					.rootBeanDefinition(LoginUrlAuthenticationEntryPoint.class)
 					.addConstructorArgValue(loginUrl)
 					.addPropertyValue("portMapper", this.portMapper)
-					.addPropertyValue("portResolver", this.portResolver)
 					.getBeanDefinition();
 			}
 		}
