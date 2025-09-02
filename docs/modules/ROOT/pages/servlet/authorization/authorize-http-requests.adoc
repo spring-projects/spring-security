@@ -57,6 +57,7 @@ In many cases, your authorization rules will be more sophisticated than that, so
 * I want to <<match-by-custom, match a request programmatically>>
 * I want to <<authorize-requests, authorize a request programmatically>>
 * I want to <<remote-authorization-manager, delegate request authorization>> to a policy agent
+* I want to <<customizing-authorization-managers,customize how authorization managers are created>>
 
 [[request-authorization-architecture]]
 == Understanding How Request Authorization Components Work
@@ -764,6 +765,24 @@ You will notice that since we are invoking the `hasRole` method we do not need t
 You will notice that since we are using the `hasRole` expression we do not need to specify the "ROLE_" prefix.
 <6> Any URL that has not already been matched on is denied access.
 This is a good strategy if you do not want to accidentally forget to update your authorization rules.
+
+[[customizing-authorization-managers]]
+== Customizing Authorization Managers
+
+When you use the `authorizeHttpRequests` DSL, Spring Security takes care of creating the appropriate `AuthorizationManager` instances for you.
+In certain cases, you may want to customize what is created in order to have complete control over how authorization decisions are made xref:servlet/authorization/architecture.adoc#authz-delegate-authorization-manager[at the framework level].
+
+In order to take control of creating instances of `AuthorizationManager` for authorizing HTTP requests, you can create a custom xref:servlet/authorization/architecture.adoc#authz-authorization-manager-factory[`AuthorizationManagerFactory`].
+For example, let's say you want to create a convention that authenticated users must be authenticated _AND_ have the `USER` role.
+To do this, you can create a custom implementation for HTTP requests as in the following example:
+
+include-code::./CustomHttpRequestsAuthorizationManagerFactory[tag=class,indent=0]
+
+Now, whenever you <<activate-request-security,require authentication>>, Spring Security will automatically invoke your custom factory to create an instance of `AuthorizationManager` that requires authentication _AND_ the `USER` role.
+
+[TIP]
+We use this as a simple example of creating a custom `AuthorizationManagerFactory`, though it is also possible (and often simpler) to replace a specific `AuthorizationManager` only for a particular request.
+See <<remote-authorization-manager>> for an example.
 
 [[authorization-expressions]]
 == Expressing Authorization with SpEL

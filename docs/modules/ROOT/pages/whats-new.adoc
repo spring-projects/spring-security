@@ -12,6 +12,7 @@ Each section that follows will indicate the more notable removals as well as the
 == Core
 
 * Removed `AuthorizationManager#check` in favor of `AuthorizationManager#authorize`
+* Added xref:servlet/authorization/architecture.adoc#authz-authorization-manager-factory[`AuthorizationManagerFactory`] for creating `AuthorizationManager` instances in xref:servlet/authorization/authorize-http-requests.adoc#customizing-authorization-managers[request-based] and xref:servlet/authorization/method-security.adoc#customizing-authorization-managers[method-based] authorization components
 
 == Config
 

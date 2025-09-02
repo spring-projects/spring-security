@@ -23,30 +23,33 @@ import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.expression.SecurityExpressionOperations;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
+import org.springframework.security.authorization.AuthorizationManagerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.util.Assert;
 
 /**
  * @author Luke Taylor
  * @author Eddú Meléndez
+ * @author Steve Riesenberg
  * @since 3.0
  */
 public class DefaultWebSecurityExpressionHandler extends AbstractSecurityExpressionHandler<FilterInvocation>
 		implements SecurityExpressionHandler<FilterInvocation> {
 
-	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+	private static final String DEFAULT_ROLE_PREFIX = "ROLE_";
 
-	private String defaultRolePrefix = "ROLE_";
+	private String defaultRolePrefix = DEFAULT_ROLE_PREFIX;
 
 	@Override
 	protected SecurityExpressionOperations createSecurityExpressionRoot(@Nullable Authentication authentication,
 			FilterInvocation fi) {
-		WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(authentication, fi);
+		FilterInvocationExpressionRoot root = new FilterInvocationExpressionRoot(() -> authentication, fi);
+		root.setAuthorizationManagerFactory(getAuthorizationManagerFactory());
 		root.setPermissionEvaluator(getPermissionEvaluator());
-		root.setTrustResolver(this.trustResolver);
-		root.setRoleHierarchy(getRoleHierarchy());
-		root.setDefaultRolePrefix(this.defaultRolePrefix);
+		if (!DEFAULT_ROLE_PREFIX.equals(this.defaultRolePrefix)) {
+			// Ensure SecurityExpressionRoot can strip the custom role prefix
+			root.setDefaultRolePrefix(this.defaultRolePrefix);
+		}
 		return root;
 	}
 
@@ -55,10 +58,12 @@ public class DefaultWebSecurityExpressionHandler extends AbstractSecurityExpress
 	 * {@link AuthenticationTrustResolverImpl}.
 	 * @param trustResolver the {@link AuthenticationTrustResolver} to use. Cannot be
 	 * null.
+	 * @deprecated Use
+	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
 	 */
+	@Deprecated(since = "7.0")
 	public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
-		Assert.notNull(trustResolver, "trustResolver cannot be null");
-		this.trustResolver = trustResolver;
+		getDefaultAuthorizationManagerFactory().setTrustResolver(trustResolver);
 	}
 
 	/**
@@ -75,8 +80,15 @@ public class DefaultWebSecurityExpressionHandler extends AbstractSecurityExpress
 	 * If null or empty, then no default role prefix is used.
 	 * </p>
 	 * @param defaultRolePrefix the default prefix to add to roles. Default "ROLE_".
+	 * @deprecated Use
+	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
 	 */
-	public void setDefaultRolePrefix(String defaultRolePrefix) {
+	@Deprecated(since = "7.0")
+	public void setDefaultRolePrefix(@Nullable String defaultRolePrefix) {
+		if (defaultRolePrefix == null) {
+			defaultRolePrefix = "";
+		}
+		getDefaultAuthorizationManagerFactory().setRolePrefix(defaultRolePrefix);
 		this.defaultRolePrefix = defaultRolePrefix;
 	}
 

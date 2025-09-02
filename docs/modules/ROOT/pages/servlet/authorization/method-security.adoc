@@ -1995,6 +1995,24 @@ This works on both classes and interfaces.
 This does not work for interfaces, since they do not have debug information about the parameter names.
 For interfaces, either annotations or the `-parameters` approach must be used.
 
+[[customizing-authorization-managers]]
+== Customizing Authorization Managers
+
+When you use SpEL expressions with <<use-preauthorize,`@PreAuthorize`>>, <<use-postauthorize,`@PostAuthorize`>>, <<use-prefilter,`@PreFilter`>> and <<use-postfilter,`@PostFilter`>>, Spring Security takes care of creating the appropriate `AuthorizationManager` instances for you.
+In certain cases, you may want to customize what is created in order to have complete control over how authorization decisions are made xref:servlet/authorization/architecture.adoc#authz-delegate-authorization-manager[at the framework level].
+
+In order to take control of creating instances of `AuthorizationManager` for pre- and post-annotations, you can create a custom xref:servlet/authorization/architecture.adoc#authz-authorization-manager-factory[`AuthorizationManagerFactory`].
+For example, let's say you want to allow users with the `ADMIN` role whenever any other role is required.
+To do this, you can create a custom implementation for method security as in the following example:
+
+include-code::./CustomMethodInvocationAuthorizationManagerFactory[tag=class,indent=0]
+
+Now, whenever you <<use-preauthorize,use the `@PreAuthorize` annotation>> with `hasRole` or `hasAnyRole`, Spring Security will automatically invoke your custom factory to create an instance of `AuthorizationManager` that allows access for the given role(s) _OR_ the `ADMIN` role.
+
+[TIP]
+We use this as a simple example of creating a custom `AuthorizationManagerFactory`, though the same outcome could be accomplished with <<favor-granting-authorities,a role hierarchy>>.
+Use whichever approach fits best in your situation.
+
 [[authorize-object]]
 == Authorizing Arbitrary Objects
 

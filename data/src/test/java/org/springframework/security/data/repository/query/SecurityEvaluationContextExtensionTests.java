@@ -23,10 +23,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.DenyAllPermissionEvaluator;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
-import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
-import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -102,9 +101,11 @@ public class SecurityEvaluationContextExtensionTests {
 	public void setTrustResolverWhenNotNullThenVerifyRootObject() {
 		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
 		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
-		AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+		AuthenticationTrustResolver trustResolver = mock(AuthenticationTrustResolver.class);
+		given(trustResolver.isAuthenticated(explicit)).willReturn(true);
 		this.securityExtension.setTrustResolver(trustResolver);
-		assertThat(getRoot()).extracting("trustResolver").isEqualTo(trustResolver);
+		assertThat(getRoot().isAuthenticated()).isTrue();
+		verify(trustResolver).isAuthenticated(explicit);
 	}
 
 	@Test
@@ -117,11 +118,11 @@ public class SecurityEvaluationContextExtensionTests {
 
 	@Test
 	public void setRoleHierarchyWhenNotNullThenVerifyRootObject() {
-		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
+		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_PARENT");
 		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
-		RoleHierarchy roleHierarchy = new NullRoleHierarchy();
+		RoleHierarchy roleHierarchy = RoleHierarchyImpl.fromHierarchy("ROLE_PARENT > ROLE_EXPLICIT");
 		this.securityExtension.setRoleHierarchy(roleHierarchy);
-		assertThat(getRoot()).extracting("roleHierarchy").isEqualTo(roleHierarchy);
+		assertThat(getRoot().hasRole("EXPLICIT")).isTrue();
 	}
 
 	@Test
@@ -143,25 +144,25 @@ public class SecurityEvaluationContextExtensionTests {
 
 	@Test
 	public void setDefaultRolePrefixWhenCustomThenVerifyRootObject() {
-		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
+		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "CUSTOM_EXPLICIT");
 		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
 		String defaultRolePrefix = "CUSTOM_";
 		this.securityExtension.setDefaultRolePrefix(defaultRolePrefix);
-		assertThat(getRoot()).extracting("defaultRolePrefix").isEqualTo(defaultRolePrefix);
+		assertThat(getRoot().hasRole("EXPLICIT")).isTrue();
 	}
 
 	@Test
 	public void getRootObjectWhenAdditionalFieldsNotSetThenVerifyDefaults() {
 		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
 		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
-		SecurityExpressionRoot root = getRoot();
-		assertThat(root).extracting("trustResolver").isInstanceOf(AuthenticationTrustResolverImpl.class);
-		assertThat(root).extracting("roleHierarchy").isInstanceOf(NullRoleHierarchy.class);
-		assertThat(root).extracting("permissionEvaluator").isInstanceOf(DenyAllPermissionEvaluator.class);
-		assertThat(root).extracting("defaultRolePrefix").isEqualTo("ROLE_");
+		SecurityExpressionRoot<?> securityExpressionRoot = getRoot();
+		assertThat(securityExpressionRoot.isAuthenticated()).isTrue();
+		assertThat(securityExpressionRoot.hasRole("PARENT")).isFalse();
+		assertThat(securityExpressionRoot.hasRole("EXPLICIT")).isTrue();
+		assertThat(securityExpressionRoot.hasPermission(new Object(), "read")).isFalse();
 	}
 
-	private SecurityExpressionRoot getRoot() {
+	private SecurityExpressionRoot<?> getRoot() {
 		return this.securityExtension.getRootObject();
 	}
 
