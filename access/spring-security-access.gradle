@@ -11,6 +11,7 @@ dependencies {
 	api 'org.springframework:spring-expression'
 	api 'io.micrometer:micrometer-observation'
 
+	optional project(':spring-security-acl')
 	optional project(':spring-security-messaging')
 	optional project(':spring-security-web')
 	optional 'org.springframework:spring-websocket'
