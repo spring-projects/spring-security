@@ -17,17 +17,18 @@
 package org.springframework.security.web.access.channel;
 
 import jakarta.servlet.FilterChain;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.servlet.TestMockHttpServletRequests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
-import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 
 /**
  * Tests {@link InsecureChannelProcessor}.
@@ -38,19 +39,21 @@ public class InsecureChannelProcessorTests {
 
 	@Test
 	public void testDecideDetectsAcceptableChannel() throws Exception {
-		MockHttpServletRequest request = get("http://localhost:8080").requestUri("/bigapp", "/servlet", null)
+		MockHttpServletRequest request = TestMockHttpServletRequests.get("http://localhost:8080")
+			.requestUri("/bigapp", "/servlet", null)
 			.queryString("info=true")
 			.build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 		InsecureChannelProcessor processor = new InsecureChannelProcessor();
 		processor.decide(fi, SecurityConfig.createList("SOME_IGNORED_ATTRIBUTE", "REQUIRES_INSECURE_CHANNEL"));
-		assertThat(fi.getResponse().isCommitted()).isFalse();
+		Assertions.assertThat(fi.getResponse().isCommitted()).isFalse();
 	}
 
 	@Test
 	public void testDecideDetectsUnacceptableChannel() throws Exception {
-		MockHttpServletRequest request = get("https://localhost:8443").requestUri("/bigapp", "/servlet", null)
+		MockHttpServletRequest request = TestMockHttpServletRequests.get("https://localhost:8443")
+			.requestUri("/bigapp", "/servlet", null)
 			.queryString("info=true")
 			.build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -58,7 +61,7 @@ public class InsecureChannelProcessorTests {
 		InsecureChannelProcessor processor = new InsecureChannelProcessor();
 		processor.decide(fi,
 				SecurityConfig.createList(new String[] { "SOME_IGNORED_ATTRIBUTE", "REQUIRES_INSECURE_CHANNEL" }));
-		assertThat(fi.getResponse().isCommitted()).isTrue();
+		Assertions.assertThat(fi.getResponse().isCommitted()).isTrue();
 	}
 
 	@Test

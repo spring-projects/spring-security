@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Vector;
 
 import jakarta.servlet.FilterChain;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -85,7 +86,7 @@ public class ChannelDecisionManagerImplTests {
 		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 		List<ConfigAttribute> cad = SecurityConfig.createList("xyz");
 		cdm.decide(fi, cad);
-		assertThat(fi.getResponse().isCommitted()).isTrue();
+		Assertions.assertThat(fi.getResponse().isCommitted()).isTrue();
 	}
 
 	@Test
@@ -100,7 +101,7 @@ public class ChannelDecisionManagerImplTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 		cdm.decide(fi, SecurityConfig.createList(new String[] { "abc", "ANY_CHANNEL" }));
-		assertThat(fi.getResponse().isCommitted()).isFalse();
+		Assertions.assertThat(fi.getResponse().isCommitted()).isFalse();
 	}
 
 	@Test
@@ -117,7 +118,7 @@ public class ChannelDecisionManagerImplTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 		cdm.decide(fi, SecurityConfig.createList("SOME_ATTRIBUTE_NO_PROCESSORS_SUPPORT"));
-		assertThat(fi.getResponse().isCommitted()).isFalse();
+		Assertions.assertThat(fi.getResponse().isCommitted()).isFalse();
 	}
 
 	@Test

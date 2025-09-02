@@ -12,6 +12,7 @@ dependencies {
 	api 'io.micrometer:micrometer-observation'
 
 	optional project(':spring-security-messaging')
+	optional project(':spring-security-web')
 	optional 'org.springframework:spring-websocket'
 	optional 'com.fasterxml.jackson.core:jackson-databind'
 	optional 'io.micrometer:context-propagation'
@@ -22,6 +23,9 @@ dependencies {
 	optional 'org.springframework:spring-tx'
 	optional 'org.jetbrains.kotlinx:kotlinx-coroutines-reactor'
 
+	provided 'jakarta.servlet:jakarta.servlet-api'
+
+	testImplementation project(path : ':spring-security-web', configuration : 'tests')
 	testImplementation 'commons-collections:commons-collections'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation "org.assertj:assertj-core"

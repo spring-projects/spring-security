@@ -32,10 +32,10 @@ import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.TypedValue;
-import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 
@@ -73,15 +73,15 @@ public class DefaultHttpSecurityExpressionHandlerTests {
 	@Test
 	public void expressionPropertiesAreResolvedAgainstAppContextBeans() {
 		StaticApplicationContext appContext = new StaticApplicationContext();
-		RootBeanDefinition bean = new RootBeanDefinition(SecurityConfig.class);
+		RootBeanDefinition bean = new RootBeanDefinition(SimpleGrantedAuthority.class);
 		bean.getConstructorArgumentValues().addGenericArgumentValue("ROLE_A");
 		appContext.registerBeanDefinition("role", bean);
 		this.handler.setApplicationContext(appContext);
 		EvaluationContext ctx = this.handler.createEvaluationContext(mock(Authentication.class),
 				mock(RequestAuthorizationContext.class));
 		ExpressionParser parser = this.handler.getExpressionParser();
-		assertThat(parser.parseExpression("@role.getAttribute() == 'ROLE_A'").getValue(ctx, Boolean.class)).isTrue();
-		assertThat(parser.parseExpression("@role.attribute == 'ROLE_A'").getValue(ctx, Boolean.class)).isTrue();
+		assertThat(parser.parseExpression("@role.getAuthority() == 'ROLE_A'").getValue(ctx, Boolean.class)).isTrue();
+		assertThat(parser.parseExpression("@role.authority == 'ROLE_A'").getValue(ctx, Boolean.class)).isTrue();
 	}
 
 	@Test

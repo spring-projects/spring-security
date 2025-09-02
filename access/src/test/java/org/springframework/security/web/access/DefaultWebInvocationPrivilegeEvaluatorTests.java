@@ -16,9 +16,13 @@
 
 package org.springframework.security.web.access;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
+import org.mockito.BDDMockito;
+import org.mockito.Mockito;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mock.web.MockServletContext;
@@ -32,15 +36,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 /**
  * Tests
@@ -61,43 +56,45 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
 	@BeforeEach
 	public final void setUp() {
 		this.interceptor = new FilterSecurityInterceptor();
-		this.ods = mock(FilterInvocationSecurityMetadataSource.class);
-		this.adm = mock(AccessDecisionManager.class);
-		this.ram = mock(RunAsManager.class);
-		this.interceptor.setAuthenticationManager(mock(AuthenticationManager.class));
+		this.ods = Mockito.mock(FilterInvocationSecurityMetadataSource.class);
+		this.adm = Mockito.mock(AccessDecisionManager.class);
+		this.ram = Mockito.mock(RunAsManager.class);
+		this.interceptor.setAuthenticationManager(Mockito.mock(AuthenticationManager.class));
 		this.interceptor.setSecurityMetadataSource(this.ods);
 		this.interceptor.setAccessDecisionManager(this.adm);
 		this.interceptor.setRunAsManager(this.ram);
-		this.interceptor.setApplicationEventPublisher(mock(ApplicationEventPublisher.class));
+		this.interceptor.setApplicationEventPublisher(Mockito.mock(ApplicationEventPublisher.class));
 		SecurityContextHolder.clearContext();
 	}
 
 	@Test
 	public void permitsAccessIfNoMatchingAttributesAndPublicInvocationsAllowed() {
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(this.interceptor);
-		given(this.ods.getAttributes(any())).willReturn(null);
-		assertThat(wipe.isAllowed("/context", "/foo/index.jsp", "GET", mock(Authentication.class))).isTrue();
+		BDDMockito.given(this.ods.getAttributes(ArgumentMatchers.any())).willReturn(null);
+		Assertions.assertThat(wipe.isAllowed("/context", "/foo/index.jsp", "GET", Mockito.mock(Authentication.class)))
+			.isTrue();
 	}
 
 	@Test
 	public void deniesAccessIfNoMatchingAttributesAndPublicInvocationsNotAllowed() {
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(this.interceptor);
-		given(this.ods.getAttributes(any())).willReturn(null);
+		BDDMockito.given(this.ods.getAttributes(ArgumentMatchers.any())).willReturn(null);
 		this.interceptor.setRejectPublicInvocations(true);
-		assertThat(wipe.isAllowed("/context", "/foo/index.jsp", "GET", mock(Authentication.class))).isFalse();
+		Assertions.assertThat(wipe.isAllowed("/context", "/foo/index.jsp", "GET", Mockito.mock(Authentication.class)))
+			.isFalse();
 	}
 
 	@Test
 	public void deniesAccessIfAuthenticationIsNull() {
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(this.interceptor);
-		assertThat(wipe.isAllowed("/foo/index.jsp", null)).isFalse();
+		Assertions.assertThat(wipe.isAllowed("/foo/index.jsp", null)).isFalse();
 	}
 
 	@Test
 	public void allowsAccessIfAccessDecisionManagerDoes() {
 		Authentication token = new TestingAuthenticationToken("test", "Password", "MOCK_INDEX");
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(this.interceptor);
-		assertThat(wipe.isAllowed("/foo/index.jsp", token)).isTrue();
+		Assertions.assertThat(wipe.isAllowed("/foo/index.jsp", token)).isTrue();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -105,8 +102,10 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
 	public void deniesAccessIfAccessDecisionManagerDoes() {
 		Authentication token = new TestingAuthenticationToken("test", "Password", "MOCK_INDEX");
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(this.interceptor);
-		willThrow(new AccessDeniedException("")).given(this.adm).decide(any(Authentication.class), any(), anyList());
-		assertThat(wipe.isAllowed("/foo/index.jsp", token)).isFalse();
+		BDDMockito.willThrow(new AccessDeniedException(""))
+			.given(this.adm)
+			.decide(ArgumentMatchers.any(Authentication.class), ArgumentMatchers.any(), ArgumentMatchers.anyList());
+		Assertions.assertThat(wipe.isAllowed("/foo/index.jsp", token)).isFalse();
 	}
 
 	@Test
@@ -118,8 +117,9 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(this.interceptor);
 		wipe.setServletContext(servletContext);
 		wipe.isAllowed("/foo/index.jsp", token);
-		verify(this.adm).decide(eq(token), filterInvocationArgumentCaptor.capture(), any());
-		assertThat(filterInvocationArgumentCaptor.getValue().getRequest().getServletContext()).isNotNull();
+		Mockito.verify(this.adm)
+			.decide(ArgumentMatchers.eq(token), filterInvocationArgumentCaptor.capture(), ArgumentMatchers.any());
+		Assertions.assertThat(filterInvocationArgumentCaptor.getValue().getRequest().getServletContext()).isNotNull();
 	}
 
 }

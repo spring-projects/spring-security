@@ -39,7 +39,6 @@ dependencies {
 	api 'org.springframework:spring-expression'
 	api 'org.springframework:spring-web'
 
-	optional project(':spring-security-access')
 	optional 'com.fasterxml.jackson.core:jackson-databind'
 	optional 'io.micrometer:context-propagation'
 	optional 'io.projectreactor:reactor-core'

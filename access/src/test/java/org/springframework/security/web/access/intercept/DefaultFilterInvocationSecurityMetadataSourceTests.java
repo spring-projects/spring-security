@@ -28,12 +28,12 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.servlet.TestMockHttpServletRequests;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.springframework.security.web.servlet.TestMockHttpServletRequests.request;
-import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
  * Tests {@link DefaultFilterInvocationSecurityMetadataSource}.
@@ -48,7 +48,7 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 
 	private void createFids(String pattern, HttpMethod method) {
 		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<>();
-		requestMap.put(pathPattern(method, pattern), this.def);
+		requestMap.put(PathPatternRequestMatcher.pathPattern(method, pattern), this.def);
 		this.fids = new DefaultFilterInvocationSecurityMetadataSource(requestMap);
 	}
 
@@ -117,8 +117,9 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 	public void mixingPatternsWithAndWithoutHttpMethodsIsSupported() {
 		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<>();
 		Collection<ConfigAttribute> userAttrs = SecurityConfig.createList("A");
-		requestMap.put(pathPattern("/user/**"), userAttrs);
-		requestMap.put(pathPattern(HttpMethod.GET, "/teller/**"), SecurityConfig.createList("B"));
+		requestMap.put(PathPatternRequestMatcher.pathPattern("/user/**"), userAttrs);
+		requestMap.put(PathPatternRequestMatcher.pathPattern(HttpMethod.GET, "/teller/**"),
+				SecurityConfig.createList("B"));
 		this.fids = new DefaultFilterInvocationSecurityMetadataSource(requestMap);
 		FilterInvocation fi = createFilterInvocation("/user", null, null, "GET");
 		Collection<ConfigAttribute> attrs = this.fids.getAttributes(fi);
@@ -141,7 +142,8 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 
 	private FilterInvocation createFilterInvocation(String servletPath, String pathInfo, String queryString,
 			String method) {
-		MockHttpServletRequest request = request(method).requestUri(null, servletPath, pathInfo)
+		MockHttpServletRequest request = TestMockHttpServletRequests.request(method)
+			.requestUri(null, servletPath, pathInfo)
 			.queryString(queryString)
 			.build();
 		return new FilterInvocation(request, new MockHttpServletResponse(), mock(FilterChain.class));

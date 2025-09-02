@@ -39,6 +39,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.servlet.TestMockHttpServletRequests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -53,7 +54,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.springframework.security.web.servlet.TestMockHttpServletRequests.get;
 
 /**
  * Tests {@link FilterSecurityInterceptor}.
@@ -189,7 +189,7 @@ public class FilterSecurityInterceptorTests {
 
 	private FilterInvocation createinvocation() {
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		MockHttpServletRequest request = get("/secure/page.html").build();
+		MockHttpServletRequest request = TestMockHttpServletRequests.get("/secure/page.html").build();
 		FilterChain chain = mock(FilterChain.class);
 		FilterInvocation fi = new FilterInvocation(request, response, chain);
 		return fi;
