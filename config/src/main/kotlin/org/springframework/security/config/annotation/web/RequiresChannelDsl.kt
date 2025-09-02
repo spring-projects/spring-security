@@ -33,6 +33,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher
  * @property channelProcessors the [ChannelProcessor] instances to use in
  * [ChannelDecisionManagerImpl]
  */
+@Deprecated(message="since 6.5 use redirectToHttps instead")
 class RequiresChannelDsl : AbstractRequestMatcherDsl() {
     private val channelSecurityRules = mutableListOf<AuthorizationRule>()
 
