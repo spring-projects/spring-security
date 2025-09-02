@@ -35,6 +35,7 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector
  * @property channelProcessors the [ChannelProcessor] instances to use in
  * [ChannelDecisionManagerImpl]
  */
+@Deprecated(message="since 6.5 use redirectToHttps instead")
 class RequiresChannelDsl : AbstractRequestMatcherDsl() {
     private val channelSecurityRules = mutableListOf<AuthorizationRule>()
 
