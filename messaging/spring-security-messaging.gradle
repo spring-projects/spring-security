@@ -13,7 +13,6 @@ dependencies {
 	api 'org.springframework:spring-expression'
 	api 'org.springframework:spring-messaging'
 
-	optional project(':spring-security-access')
 	optional project(':spring-security-web')
 	optional 'org.springframework:spring-websocket'
 	optional 'io.projectreactor:reactor-core'

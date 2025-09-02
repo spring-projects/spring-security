@@ -11,6 +11,8 @@ dependencies {
 	api 'org.springframework:spring-expression'
 	api 'io.micrometer:micrometer-observation'
 
+	optional project(':spring-security-messaging')
+	optional 'org.springframework:spring-websocket'
 	optional 'com.fasterxml.jackson.core:jackson-databind'
 	optional 'io.micrometer:context-propagation'
 	optional 'io.projectreactor:reactor-core'

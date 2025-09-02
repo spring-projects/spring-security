@@ -38,7 +38,7 @@ import org.springframework.util.Assert;
  *
  * @author Rob Winch
  * @since 4.0
- * @deprecated Use {@link AuthorizationChannelInterceptor} instead
+ * @deprecated Use {@code AuthorizationChannelInterceptor} instead
  */
 @Deprecated
 public final class ChannelSecurityInterceptor extends AbstractSecurityInterceptor implements ChannelInterceptor {
