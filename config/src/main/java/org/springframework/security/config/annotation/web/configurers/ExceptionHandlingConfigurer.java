@@ -19,9 +19,8 @@ package org.springframework.security.config.annotation.web.configurers;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,29 +34,22 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextHolderStrategy;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.FormPostRedirectStrategy;
-import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.RequestMatcherDelegatingAccessDeniedHandler;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.authentication.ott.GenerateOneTimeTokenFilter;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.util.ThrowableAnalyzer;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
-import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * Adds exception handling for Spring Security related exceptions to an application. All
@@ -101,6 +93,8 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 	private DelegatingAuthenticationEntryPoint.@Nullable Builder defaultEntryPoint;
 
 	private LinkedHashMap<RequestMatcher, AccessDeniedHandler> defaultDeniedHandlerMappings = new LinkedHashMap<>();
+
+	private Map<String, LinkedHashMap<RequestMatcher, AuthenticationEntryPoint>> entryPoints = new LinkedHashMap<>();
 
 	/**
 	 * Creates a new instance
@@ -195,6 +189,26 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 		return this;
 	}
 
+	public ExceptionHandlingConfigurer<H> defaultAuthenticationEntryPointFor(AuthenticationEntryPoint entryPoint,
+			RequestMatcher preferredMatcher, String authority) {
+		this.defaultEntryPointMappings.put(preferredMatcher, entryPoint);
+		LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> byMatcher = this.entryPoints.get(authority);
+		if (byMatcher == null) {
+			byMatcher = new LinkedHashMap<>();
+		}
+		byMatcher.put(preferredMatcher, entryPoint);
+		this.entryPoints.put(authority, byMatcher);
+		return this;
+	}
+
+	public ExceptionHandlingConfigurer<H> defaultAuthenticationEntryPointFor(AuthenticationEntryPoint entryPoint,
+			String authority) {
+		LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> byMatcher = new LinkedHashMap<>();
+		byMatcher.put(AnyRequestMatcher.INSTANCE, entryPoint);
+		this.entryPoints.put(authority, byMatcher);
+		return this;
+	}
+
 	/**
 	 * Gets any explicitly configured {@link AuthenticationEntryPoint}
 	 * @return
@@ -254,21 +268,60 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	private AccessDeniedHandler createDefaultDeniedHandler(H http) {
+		AccessDeniedHandler defaults = createDefaultAccessDeniedHandler(http);
+		if (this.entryPoints.isEmpty()) {
+			return defaults;
+		}
+		Map<String, AccessDeniedHandler> deniedHandlers = new LinkedHashMap<>();
+		for (Map.Entry<String, LinkedHashMap<RequestMatcher, AuthenticationEntryPoint>> entry : this.entryPoints
+			.entrySet()) {
+			AuthenticationEntryPoint entryPoint = entryPointFrom(entry.getValue());
+			AuthenticationEntryPointAccessDeniedHandlerAdapter deniedHandler = new AuthenticationEntryPointAccessDeniedHandlerAdapter(
+					entryPoint);
+			RequestCache requestCache = http.getSharedObject(RequestCache.class);
+			if (requestCache != null) {
+				deniedHandler.setRequestCache(requestCache);
+			}
+			deniedHandlers.put(entry.getKey(), deniedHandler);
+		}
+		return new AuthenticationFactorDelegatingAccessDeniedHandler(deniedHandlers, defaults);
+	}
+
+	private AccessDeniedHandler createDefaultAccessDeniedHandler(H http) {
 		if (this.defaultDeniedHandlerMappings.isEmpty()) {
-			return new AuthenticationFactorDelegatingAccessDeniedHandler();
+			return new AccessDeniedHandlerImpl();
 		}
 		if (this.defaultDeniedHandlerMappings.size() == 1) {
 			return this.defaultDeniedHandlerMappings.values().iterator().next();
 		}
 		return new RequestMatcherDelegatingAccessDeniedHandler(this.defaultDeniedHandlerMappings,
-				new AuthenticationFactorDelegatingAccessDeniedHandler());
+				new AccessDeniedHandlerImpl());
 	}
 
 	private AuthenticationEntryPoint createDefaultEntryPoint(H http) {
-		if (this.defaultEntryPoint == null) {
+		AuthenticationEntryPoint defaults = entryPointFrom(this.defaultEntryPointMappings);
+		if (this.entryPoints.isEmpty()) {
+			return defaults;
+		}
+		Map<String, AuthenticationEntryPoint> entryPoints = new LinkedHashMap<>();
+		for (Map.Entry<String, LinkedHashMap<RequestMatcher, AuthenticationEntryPoint>> entry : this.entryPoints
+			.entrySet()) {
+			entryPoints.put(entry.getKey(), entryPointFrom(entry.getValue()));
+		}
+		return new AuthenticationFactorDelegatingAuthenticationEntryPoint(entryPoints, defaults);
+	}
+
+	private AuthenticationEntryPoint entryPointFrom(
+			LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints) {
+		if (entryPoints.isEmpty()) {
 			return new Http403ForbiddenEntryPoint();
 		}
-		return this.defaultEntryPoint.build();
+		if (entryPoints.size() == 1) {
+			return entryPoints.values().iterator().next();
+		}
+		DelegatingAuthenticationEntryPoint entryPoint = new DelegatingAuthenticationEntryPoint(entryPoints);
+		entryPoint.setDefaultEntryPoint(entryPoints.values().iterator().next());
+		return entryPoint;
 	}
 
 	/**
@@ -287,94 +340,126 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 		return new HttpSessionRequestCache();
 	}
 
-	private static final class AuthenticationFactorDelegatingAccessDeniedHandler implements AccessDeniedHandler {
+	private static final class AuthenticationFactorDelegatingAuthenticationEntryPoint
+			implements AuthenticationEntryPoint {
 
-		private final Map<String, AuthenticationEntryPoint> entryPoints = Map.of("FACTOR_PASSWORD",
-				new LoginUrlAuthenticationEntryPoint("/login"), "FACTOR_AUTHORIZATION_CODE",
-				new LoginUrlAuthenticationEntryPoint("/login"), "FACTOR_SAML_RESPONSE",
-				new LoginUrlAuthenticationEntryPoint("/login"), "FACTOR_WEBAUTHN",
-				new LoginUrlAuthenticationEntryPoint("/login"), "FACTOR_BEARER",
-				new BearerTokenAuthenticationEntryPoint(), "FACTOR_OTT",
-				new PostAuthenticationEntryPoint(GenerateOneTimeTokenFilter.DEFAULT_GENERATE_URL + "?username={u}",
-						Map.of("u", Authentication::getName)));
+		private final ThrowableAnalyzer throwableAnalyzer = new ThrowableAnalyzer();
 
-		private final AccessDeniedHandler defaults = new AccessDeniedHandlerImpl();
+		private final Map<String, AuthenticationEntryPoint> entryPoints;
 
-		@Override
-		public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException ex)
-				throws IOException, ServletException {
-			Collection<String> needed = authorizationRequest(ex);
-			if (needed == null) {
-				this.defaults.handle(request, response, ex);
-				return;
-			}
-			for (String authority : needed) {
-				AuthenticationEntryPoint entryPoint = this.entryPoints.get(authority);
-				if (entryPoint != null) {
-					AuthenticationException insufficient = new InsufficientAuthenticationException(ex.getMessage(), ex);
-					entryPoint.commence(request, response, insufficient);
-					return;
-				}
-			}
-			this.defaults.handle(request, response, ex);
+		private final AuthenticationEntryPoint defaults;
+
+		private AuthenticationFactorDelegatingAuthenticationEntryPoint(
+				Map<String, AuthenticationEntryPoint> entryPoints, AuthenticationEntryPoint defaults) {
+			this.entryPoints = new LinkedHashMap<>(entryPoints);
+			this.defaults = defaults;
 		}
 
-		private Collection<String> authorizationRequest(AccessDeniedException access) {
-			if (!(access instanceof AuthorizationDeniedException denied)) {
-				return null;
+		@Override
+		public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException ex)
+				throws IOException, ServletException {
+			Collection<GrantedAuthority> authorization = authorizationRequest(ex);
+			entryPoint(authorization).commence(request, response, ex);
+		}
+
+		private AuthenticationEntryPoint entryPoint(Collection<GrantedAuthority> authorities) {
+			if (authorities == null) {
+				return this.defaults;
 			}
-			if (!(denied.getAuthorizationResult() instanceof AuthorityAuthorizationDecision decision)) {
-				return null;
+			for (GrantedAuthority needed : authorities) {
+				AuthenticationEntryPoint entryPoint = this.entryPoints.get(needed.getAuthority());
+				if (entryPoint != null) {
+					return entryPoint;
+				}
 			}
-			return decision.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
+			return this.defaults;
+		}
+
+		private Collection<GrantedAuthority> authorizationRequest(Exception ex) {
+			Throwable[] chain = this.throwableAnalyzer.determineCauseChain(ex);
+			AuthorizationDeniedException denied = (AuthorizationDeniedException) this.throwableAnalyzer
+				.getFirstThrowableOfType(AuthorizationDeniedException.class, chain);
+			if (denied == null) {
+				return List.of();
+			}
+			if (!(denied.getAuthorizationResult() instanceof AuthorityAuthorizationDecision authorization)) {
+				return List.of();
+			}
+			return authorization.getAuthorities();
 		}
 
 	}
 
-	private static final class PostAuthenticationEntryPoint implements AuthenticationEntryPoint {
+	private static final class AuthenticationEntryPointAccessDeniedHandlerAdapter implements AccessDeniedHandler {
 
-		private final String entryPointUri;
+		private final AuthenticationEntryPoint entryPoint;
 
-		private final Map<String, Function<Authentication, String>> params;
+		private RequestCache requestCache = new NullRequestCache();
 
-		private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
+		private AuthenticationEntryPointAccessDeniedHandlerAdapter(AuthenticationEntryPoint entryPoint) {
+			this.entryPoint = entryPoint;
+		}
 
-		private RedirectStrategy redirectStrategy = new FormPostRedirectStrategy();
-
-		private PostAuthenticationEntryPoint(String entryPointUri,
-				Map<String, Function<Authentication, String>> params) {
-			this.entryPointUri = entryPointUri;
-			this.params = params;
+		void setRequestCache(RequestCache requestCache) {
+			Assert.notNull(requestCache, "requestCache cannot be null");
+			this.requestCache = requestCache;
 		}
 
 		@Override
-		public void commence(HttpServletRequest request, HttpServletResponse response,
-				AuthenticationException authException) throws IOException, ServletException {
-			Authentication authentication = getAuthentication(authException);
-			Assert.notNull(authentication, "could not find authentication in order to perform post");
-			Map<String, String> params = this.params.entrySet()
-				.stream()
-				.collect(Collectors.toMap(Map.Entry::getKey, (entry) -> entry.getValue().apply(authentication)));
-			UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(this.entryPointUri);
-			CsrfToken csrf = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-			if (csrf != null) {
-				builder.queryParam(csrf.getParameterName(), csrf.getToken());
-			}
-			String entryPointUrl = builder.build(false).expand(params).toUriString();
-			this.redirectStrategy.sendRedirect(request, response, entryPointUrl);
+		public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException denied)
+				throws IOException, ServletException {
+			AuthenticationException ex = new InsufficientAuthenticationException("access denied", denied);
+			this.requestCache.saveRequest(request, response);
+			this.entryPoint.commence(request, response, ex);
 		}
 
-		private Authentication getAuthentication(AuthenticationException authException) {
-			Authentication authentication = authException.getAuthenticationRequest();
-			if (authentication != null && authentication.isAuthenticated()) {
-				return authentication;
+	}
+
+	private static final class AuthenticationFactorDelegatingAccessDeniedHandler implements AccessDeniedHandler {
+
+		private final ThrowableAnalyzer throwableAnalyzer = new ThrowableAnalyzer();
+
+		private final Map<String, AccessDeniedHandler> deniedHandlers;
+
+		private final AccessDeniedHandler defaults;
+
+		private AuthenticationFactorDelegatingAccessDeniedHandler(Map<String, AccessDeniedHandler> deniedHandlers,
+				AccessDeniedHandler defaults) {
+			this.deniedHandlers = new LinkedHashMap<>(deniedHandlers);
+			this.defaults = defaults;
+		}
+
+		@Override
+		public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException ex)
+				throws IOException, ServletException {
+			Collection<GrantedAuthority> authorization = authorizationRequest(ex);
+			deniedHandler(authorization).handle(request, response, ex);
+		}
+
+		private AccessDeniedHandler deniedHandler(Collection<GrantedAuthority> authorities) {
+			if (authorities == null) {
+				return this.defaults;
 			}
-			authentication = this.securityContextHolderStrategy.getContext().getAuthentication();
-			if (authentication != null && authentication.isAuthenticated()) {
-				return authentication;
+			for (GrantedAuthority needed : authorities) {
+				AccessDeniedHandler deniedHandler = this.deniedHandlers.get(needed.getAuthority());
+				if (deniedHandler != null) {
+					return deniedHandler;
+				}
 			}
-			return null;
+			return this.defaults;
+		}
+
+		private Collection<GrantedAuthority> authorizationRequest(Exception ex) {
+			Throwable[] chain = this.throwableAnalyzer.determineCauseChain(ex);
+			AuthorizationDeniedException denied = (AuthorizationDeniedException) this.throwableAnalyzer
+				.getFirstThrowableOfType(AuthorizationDeniedException.class, chain);
+			if (denied == null) {
+				return List.of();
+			}
+			if (!(denied.getAuthorizationResult() instanceof AuthorityAuthorizationDecision authorization)) {
+				return List.of();
+			}
+			return authorization.getAuthorities();
 		}
 
 	}
