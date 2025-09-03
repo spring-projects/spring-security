@@ -33,6 +33,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
+import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider;
@@ -303,6 +304,10 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		this.initDefaultLoginFilter(http);
 		if (this.authenticationManager == null) {
 			registerDefaultAuthenticationProvider(http);
+		}
+		ExceptionHandlingConfigurer<B> exceptions = http.getConfigurer(ExceptionHandlingConfigurer.class);
+		if (exceptions != null) {
+			exceptions.defaultAuthenticationEntryPointFor(getAuthenticationEntryPoint(), "FACTOR_SAML_RESPONSE");
 		}
 	}
 

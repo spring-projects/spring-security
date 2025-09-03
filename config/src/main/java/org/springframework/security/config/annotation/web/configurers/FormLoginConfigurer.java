@@ -231,6 +231,10 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 	public void init(H http) throws Exception {
 		super.init(http);
 		initDefaultLoginFilter(http);
+		ExceptionHandlingConfigurer<H> exceptions = http.getConfigurer(ExceptionHandlingConfigurer.class);
+		if (exceptions != null) {
+			exceptions.defaultAuthenticationEntryPointFor(getAuthenticationEntryPoint(), "FACTOR_PASSWORD");
+		}
 	}
 
 	@Override
