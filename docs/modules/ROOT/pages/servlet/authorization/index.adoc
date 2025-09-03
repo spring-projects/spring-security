@@ -11,4 +11,11 @@ You should consider attaching authorization rules to xref:servlet/authorization/
 In either case, you can listen and react to xref:servlet/authorization/events.adoc[authorization events] that each authorization check publishes.
 Below there is also wealth of detail about xref:servlet/authorization/architecture.adoc[how Spring Security authorization works] and how, having established a basic model, it can be fine-tuned.
 
+[NOTE]
+====
+As of Spring Security 7, the Access API (`AccessDecisionManager`, `AccessDecisionVoter`, etc.) are moved to a legacy module, `spring-security-access`.
+For new applications, there is no need to include the dependency.
+For older applications that have not yet migrated to the Authorization API, this module is available to assist your continued migration efforts.
+====
+
 

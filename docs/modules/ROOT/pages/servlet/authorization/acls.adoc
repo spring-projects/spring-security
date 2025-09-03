@@ -17,9 +17,9 @@ When you use Spring Security as the foundation, you have several possible approa
 * Write your business methods to enforce the security.
 You could consult a collection within the `Customer` domain object instance to determine which users have access.
 By using `SecurityContextHolder.getContext().getAuthentication()`, you can access the `Authentication` object.
-* Write an `AccessDecisionVoter` to enforce the security from the `GrantedAuthority[]` instances stored in the `Authentication` object.
+* Write an `AuthorizationManager` to enforce the security from the `GrantedAuthority[]` instances stored in the `Authentication` object.
 This means that your `AuthenticationManager` needs to populate the `Authentication` with custom `GrantedAuthority[]` objects to represent each of the `Customer` domain object instances to which the principal has access.
-* Write an `AccessDecisionVoter` to enforce the security and open the target `Customer` domain object directly.
+* Write an `AuthorizationManager` to enforce the security and open the target `Customer` domain object directly.
 This would mean your voter needs access to a DAO that lets it retrieve the `Customer` object.
 It can then access the `Customer` object's collection of approved users and make the appropriate decision.
 
@@ -29,7 +29,7 @@ The main problems with this include the enhanced difficulty of unit testing and 
 Obtaining the `GrantedAuthority[]` instances from the `Authentication` object is also fine but will not scale to large numbers of `Customer` objects.
 If a user can access 5,000 `Customer` objects (unlikely in this case, but imagine if it were a popular vet for a large Pony Club!) the amount of memory consumed and the time required to construct the `Authentication` object would be undesirable.
 The final method, opening the `Customer` directly from external code, is probably the best of the three.
-It achieves separation of concerns and does not misuse memory or CPU cycles, but it is still inefficient in that both the `AccessDecisionVoter` and the eventual business method itself perform a call to the DAO responsible for retrieving the `Customer` object.
+It achieves separation of concerns and does not misuse memory or CPU cycles, but it is still inefficient in that both the `AuthorizationManager` and the eventual business method itself perform a call to the DAO responsible for retrieving the `Customer` object.
 Two accesses per method invocation is clearly undesirable.
 In addition, with every approach listed, you need to write your own access control list (ACL) persistence and business logic from scratch.
 
@@ -39,6 +39,11 @@ Fortunately, there is another alternative, which we discuss later.
 == Key Concepts
 Spring Security's ACL services are shipped in the `spring-security-acl-xxx.jar`.
 You need to add this JAR to your classpath to use Spring Security's domain object instance security capabilities.
+
+[NOTE]
+====
+If you need access to the legacy Access API that includes `AclEntryVoter`, please also include `spring-security-access-xxx.jar`.
+====
 
 Spring Security's domain object instance security capabilities center on the concept of an access control list (ACL).
 Every domain object instance in your system has its own ACL, and the ACL records details of who can and cannot work with that domain object.

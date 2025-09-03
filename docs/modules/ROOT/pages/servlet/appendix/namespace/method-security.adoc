@@ -56,6 +56,11 @@ Methods can be secured by the use of annotations (defined at the interface or cl
 [[nsa-global-method-security-attributes]]
 === <global-method-security> Attributes
 
+[NOTE]
+=====
+`<global-method-security>` is deprecated in favor of `<method-security>`.
+If you need to use `<global-method-security>`, please include the `spring-security-access` dependency in your build configuration.
+=====
 
 [[nsa-global-method-security-access-decision-manager-ref]]
 * **access-decision-manager-ref**
@@ -145,6 +150,11 @@ You can define zero or more of these within the `global-method-security` element
 [[nsa-after-invocation-provider-attributes]]
 === <after-invocation-provider> Attributes
 
+[NOTE]
+=====
+`<after-invocation-provider>` is deprecated in favor of `<method-security>` and xref:servlet/authorization/method-security.adoc[`@PostFilter` and `@PostAuthorize`].
+If you need to use `<after-invocation-provider>`, please include the `spring-security-access` dependency in your build configuration while planning to migrate to a modern option.
+=====
 
 [[nsa-after-invocation-provider-ref]]
 * **ref**
@@ -179,6 +189,11 @@ Only applies if these annotations are enabled.
 == <invocation-attribute-factory>
 Defines the PrePostInvocationAttributeFactory instance which is used to generate pre and post invocation metadata from the annotated methods.
 
+[NOTE]
+=====
+`<invocation-attribute-factory>` is deprecated in favor of `<method-security>` and xref:servlet/authorization/method-security.adoc[`@PostFilter` and `@PostAuthorize`].
+If you need to use `<invocation-attribute-factory>`, please include the `spring-security-access` dependency in your build configuration while planning to migrate to a modern option.
+=====
 
 [[nsa-invocation-attribute-factory-parents]]
 === Parent Elements of <invocation-attribute-factory>
@@ -201,6 +216,11 @@ Defines a reference to a Spring bean Id.
 == <post-invocation-advice>
 Customizes the `PostInvocationAdviceProvider` with the ref as the `PostInvocationAuthorizationAdvice` for the <pre-post-annotation-handling> element.
 
+[NOTE]
+=====
+`<post-invocation-advice>` is deprecated in favor of `<method-security>` and xref:servlet/authorization/method-security.adoc[`@PostFilter` and `@PostAuthorize`].
+If you need to use `<post-invocation-advice>`, please include the `spring-security-access` dependency in your build configuration while planning to migrate to a modern option.
+=====
 
 [[nsa-post-invocation-advice-parents]]
 === Parent Elements of <post-invocation-advice>
@@ -223,6 +243,11 @@ Defines a reference to a Spring bean Id.
 == <pre-invocation-advice>
 Customizes the `PreInvocationAuthorizationAdviceVoter` with the ref as the `PreInvocationAuthorizationAdviceVoter` for the <pre-post-annotation-handling> element.
 
+[NOTE]
+=====
+`<pre-invocation-advice>` is deprecated in favor of `<method-security>` and xref:servlet/authorization/method-security.adoc[`@PreFilter` and `@PreAuthorize`].
+If you need to use `<pre-invocation-advice>`, please include the `spring-security-access` dependency in your build configuration while planning to migrate to a modern option.
+=====
 
 [[nsa-pre-invocation-advice-parents]]
 === Parent Elements of <pre-invocation-advice>
@@ -246,7 +271,6 @@ Defines a reference to a Spring bean Id.
 `<protect-pointcut>`
 Rather than defining security attributes on an individual method or class basis using the `@Secured` annotation, you can define cross-cutting security constraints across whole sets of methods and interfaces in your service layer using the `<protect-pointcut>` element.
 You can find an example in the xref:servlet/authorization/method-security.adoc#ns-protect-pointcut[namespace introduction].
-
 
 [[nsa-protect-pointcut-parents]]
 === Parent Elements of <protect-pointcut>
@@ -293,7 +317,6 @@ Optional AuthorizationManager bean ID to be used instead of the default (superse
 * **access-decision-manager-ref**
 Optional AccessDecisionManager bean ID to be used by the created method security interceptor.
 
-
 [[nsa-intercept-methods-children]]
 === Child Elements of <intercept-methods>
 
@@ -306,6 +329,11 @@ Optional AccessDecisionManager bean ID to be used by the created method security
 == <method-security-metadata-source>
 Creates a MethodSecurityMetadataSource instance
 
+[NOTE]
+=====
+`<method-security-metadata-source>` is deprecated in favor of xref:servlet/authorization/method-security.adoc[`<method-security>`].
+If you need to use `<method-security-metadata-source>`, please include the `spring-security-access` dependency in your build configuration while planning to migrate to a modern option.
+=====
 
 [[nsa-method-security-metadata-source-attributes]]
 === <method-security-metadata-source> Attributes
