@@ -16,6 +16,8 @@
 
 package org.springframework.security.test.aot.hint;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
@@ -36,7 +38,7 @@ import org.springframework.util.ClassUtils;
 class WebTestUtilsRuntimeHints implements RuntimeHintsRegistrar {
 
 	@Override
-	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+	public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
 		if (!ClassUtils.isPresent("jakarta.servlet.Filter", classLoader)) {
 			return;
 		}

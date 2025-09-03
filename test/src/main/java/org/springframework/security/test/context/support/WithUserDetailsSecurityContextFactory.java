@@ -16,6 +16,8 @@
 
 package org.springframework.security.test.context.support;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanNotOfRequiredTypeException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -89,7 +91,7 @@ final class WithUserDetailsSecurityContextFactory implements WithSecurityContext
 				: this.beans.getBean(UserDetailsService.class);
 	}
 
-	UserDetailsService findAndAdaptReactiveUserDetailsService(String beanName) {
+	@Nullable UserDetailsService findAndAdaptReactiveUserDetailsService(String beanName) {
 		try {
 			ReactiveUserDetailsService reactiveUserDetailsService = StringUtils.hasLength(beanName)
 					? this.beans.getBean(beanName, ReactiveUserDetailsService.class)
@@ -110,6 +112,7 @@ final class WithUserDetailsSecurityContextFactory implements WithSecurityContext
 		}
 
 		@Override
+		@SuppressWarnings("NullAway") // Dataflow analysis limitation
 		public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 			return this.userDetailsService.findByUsername(username).block();
 		}

@@ -17,6 +17,7 @@
 package org.springframework.security.test.web.servlet.request;
 
 import jakarta.servlet.ServletContext;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.Mergeable;
 import org.springframework.http.MediaType;
@@ -91,7 +92,7 @@ public final class SecurityMockMvcRequestBuilders {
 
 		private RequestPostProcessor postProcessor = csrf();
 
-		private Mergeable parent;
+		private @Nullable Mergeable parent;
 
 		private LogoutRequestBuilder() {
 		}
@@ -135,7 +136,7 @@ public final class SecurityMockMvcRequestBuilders {
 		}
 
 		@Override
-		public Object merge(Object parent) {
+		public Object merge(@Nullable Object parent) {
 			if (parent == null) {
 				return this;
 			}
@@ -168,7 +169,7 @@ public final class SecurityMockMvcRequestBuilders {
 
 		private MediaType acceptMediaType = MediaType.APPLICATION_FORM_URLENCODED;
 
-		private Mergeable parent;
+		private @Nullable Mergeable parent;
 
 		private RequestPostProcessor postProcessor = csrf();
 
@@ -297,7 +298,7 @@ public final class SecurityMockMvcRequestBuilders {
 		}
 
 		@Override
-		public Object merge(Object parent) {
+		public Object merge(@Nullable Object parent) {
 			if (parent == null) {
 				return this;
 			}

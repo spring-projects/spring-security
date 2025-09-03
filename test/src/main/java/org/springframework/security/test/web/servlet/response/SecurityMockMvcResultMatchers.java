@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Consumer;
 
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
@@ -81,21 +84,22 @@ public final class SecurityMockMvcResultMatchers {
 	 */
 	public static final class AuthenticatedMatcher extends AuthenticationMatcher<AuthenticatedMatcher> {
 
-		private SecurityContext expectedContext;
+		private @Nullable SecurityContext expectedContext;
 
-		private Authentication expectedAuthentication;
+		private @Nullable Authentication expectedAuthentication;
 
-		private Object expectedAuthenticationPrincipal;
+		private @Nullable Object expectedAuthenticationPrincipal;
 
-		private String expectedAuthenticationName;
+		private @Nullable String expectedAuthenticationName;
 
-		private Collection<? extends GrantedAuthority> expectedGrantedAuthorities;
+		private @Nullable Collection<? extends GrantedAuthority> expectedGrantedAuthorities;
 
-		private Consumer<Authentication> assertAuthentication;
+		private @Nullable Consumer<Authentication> assertAuthentication;
 
 		AuthenticatedMatcher() {
 		}
 
+		@NullUnmarked
 		@Override
 		public void match(MvcResult result) {
 			SecurityContext context = load(result);

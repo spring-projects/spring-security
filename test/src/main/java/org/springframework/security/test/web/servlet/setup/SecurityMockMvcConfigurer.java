@@ -24,6 +24,7 @@ import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import org.jspecify.annotations.NullUnmarked;
 
 import org.springframework.security.config.BeanIds;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -66,6 +67,7 @@ final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
 		builder.addFilters(this.delegateFilter);
 	}
 
+	@NullUnmarked
 	@Override
 	public RequestPostProcessor beforeMockMvcCreated(ConfigurableMockMvcBuilder<?> builder,
 			WebApplicationContext context) {
@@ -100,6 +102,7 @@ final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
 	 */
 	static class DelegateFilter implements Filter {
 
+		@SuppressWarnings("NullAway.Init")
 		private Filter delegate;
 
 		DelegateFilter() {

@@ -21,6 +21,8 @@ import java.util.List;
 import jakarta.servlet.Filter;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.security.config.BeanIds;
@@ -64,6 +66,7 @@ public abstract class WebTestUtils {
 	 * @return the {@link SecurityContextRepository} for the specified
 	 * {@link HttpServletRequest}
 	 */
+	@NullUnmarked
 	public static SecurityContextRepository getSecurityContextRepository(HttpServletRequest request) {
 		SecurityContextPersistenceFilter filter = findFilter(request, SecurityContextPersistenceFilter.class);
 		if (filter != null) {
@@ -103,7 +106,7 @@ public abstract class WebTestUtils {
 	 * @return the {@link CsrfTokenRepository} for the specified
 	 * {@link HttpServletRequest}
 	 */
-	public static CsrfTokenRepository getCsrfTokenRepository(HttpServletRequest request) {
+	public static @Nullable CsrfTokenRepository getCsrfTokenRepository(HttpServletRequest request) {
 		CsrfFilter filter = findFilter(request, CsrfFilter.class);
 		if (filter == null) {
 			return DEFAULT_TOKEN_REPO;
@@ -120,7 +123,7 @@ public abstract class WebTestUtils {
 	 * @return the {@link CsrfTokenRequestHandler} for the specified
 	 * {@link HttpServletRequest}
 	 */
-	public static CsrfTokenRequestHandler getCsrfTokenRequestHandler(HttpServletRequest request) {
+	public static @Nullable CsrfTokenRequestHandler getCsrfTokenRequestHandler(HttpServletRequest request) {
 		CsrfFilter filter = findFilter(request, CsrfFilter.class);
 		if (filter == null) {
 			return DEFAULT_CSRF_HANDLER;
@@ -142,7 +145,7 @@ public abstract class WebTestUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	static <T extends Filter> T findFilter(HttpServletRequest request, Class<T> filterClass) {
+	static <T extends Filter> @Nullable T findFilter(HttpServletRequest request, Class<T> filterClass) {
 		ServletContext servletContext = request.getServletContext();
 		Filter springSecurityFilterChain = getSpringSecurityFilterChain(servletContext);
 		if (springSecurityFilterChain == null) {
@@ -160,7 +163,7 @@ public abstract class WebTestUtils {
 		return null;
 	}
 
-	private static Filter getSpringSecurityFilterChain(ServletContext servletContext) {
+	private static @Nullable Filter getSpringSecurityFilterChain(ServletContext servletContext) {
 		Filter result = (Filter) servletContext.getAttribute(BeanIds.SPRING_SECURITY_FILTER_CHAIN);
 		if (result != null) {
 			return result;

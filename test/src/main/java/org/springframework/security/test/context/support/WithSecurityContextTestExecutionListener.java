@@ -20,6 +20,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.GenericTypeResolver;
@@ -76,6 +79,7 @@ public class WithSecurityContextTestExecutionListener extends AbstractTestExecut
 	 * {@link WithSecurityContext} on it. If that is not found, the class is inspected. If
 	 * still not found, then no {@link SecurityContext} is populated.
 	 */
+	@NullUnmarked
 	@Override
 	public void beforeTestMethod(TestContext testContext) {
 		TestSecurityContext testSecurityContext = createTestSecurityContext(testContext.getTestMethod(), testContext);
@@ -98,6 +102,7 @@ public class WithSecurityContextTestExecutionListener extends AbstractTestExecut
 	 * If configured before test execution sets the SecurityContext
 	 * @since 5.1
 	 */
+	@NullUnmarked
 	@Override
 	public void beforeTestExecution(TestContext testContext) {
 		Supplier<SecurityContext> supplier = (Supplier<SecurityContext>) testContext
@@ -107,13 +112,13 @@ public class WithSecurityContextTestExecutionListener extends AbstractTestExecut
 		}
 	}
 
-	private TestSecurityContext createTestSecurityContext(AnnotatedElement annotated, TestContext context) {
+	private @Nullable TestSecurityContext createTestSecurityContext(AnnotatedElement annotated, TestContext context) {
 		WithSecurityContext withSecurityContext = AnnotatedElementUtils.findMergedAnnotation(annotated,
 				WithSecurityContext.class);
 		return createTestSecurityContext(annotated, withSecurityContext, context);
 	}
 
-	private TestSecurityContext createTestSecurityContext(Class<?> annotated, TestContext context) {
+	private @Nullable TestSecurityContext createTestSecurityContext(Class<?> annotated, TestContext context) {
 		TestContextAnnotationUtils.AnnotationDescriptor<WithSecurityContext> withSecurityContextDescriptor = TestContextAnnotationUtils
 			.findAnnotationDescriptor(annotated, WithSecurityContext.class);
 		if (withSecurityContextDescriptor == null) {
@@ -124,9 +129,10 @@ public class WithSecurityContextTestExecutionListener extends AbstractTestExecut
 		return createTestSecurityContext(rootDeclaringClass, withSecurityContext, context);
 	}
 
+	@NullUnmarked
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private TestSecurityContext createTestSecurityContext(AnnotatedElement annotated,
-			WithSecurityContext withSecurityContext, TestContext context) {
+	private @Nullable TestSecurityContext createTestSecurityContext(AnnotatedElement annotated,
+			@Nullable WithSecurityContext withSecurityContext, TestContext context) {
 		if (withSecurityContext == null) {
 			return null;
 		}
@@ -147,7 +153,9 @@ public class WithSecurityContextTestExecutionListener extends AbstractTestExecut
 		return new TestSecurityContext(supplier, initialize);
 	}
 
-	private Annotation findAnnotation(AnnotatedElement annotated, Class<? extends Annotation> type) {
+	@NullUnmarked
+	private @Nullable Annotation findAnnotation(AnnotatedElement annotated,
+			@Nullable Class<? extends Annotation> type) {
 		Annotation findAnnotation = AnnotatedElementUtils.findMergedAnnotation(annotated, type);
 		if (findAnnotation != null) {
 			return findAnnotation;
@@ -181,6 +189,7 @@ public class WithSecurityContextTestExecutionListener extends AbstractTestExecut
 	 * Clears out the {@link TestSecurityContextHolder} and the
 	 * {@link SecurityContextHolder} after each test method.
 	 */
+	@NullUnmarked
 	@Override
 	public void afterTestMethod(TestContext testContext) {
 		this.securityContextHolderStrategyConverter.convert(testContext).clearContext();
