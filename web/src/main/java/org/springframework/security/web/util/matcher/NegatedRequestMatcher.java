@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.util.matcher;
 
+import java.util.Objects;
+
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.util.Assert;
@@ -45,6 +47,22 @@ public class NegatedRequestMatcher implements RequestMatcher {
 	@Override
 	public boolean matches(HttpServletRequest request) {
 		return !this.requestMatcher.matches(request);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof NegatedRequestMatcher that)) {
+			return false;
+		}
+		return Objects.equals(this.requestMatcher, that.requestMatcher);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.requestMatcher);
 	}
 
 	@Override

@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -249,6 +250,26 @@ public final class MediaTypeRequestMatcher implements RequestMatcher {
 	 */
 	public void setIgnoredMediaTypes(Set<MediaType> ignoredMediaTypes) {
 		this.ignoredMediaTypes = ignoredMediaTypes;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof MediaTypeRequestMatcher that)) {
+			return false;
+		}
+		return Objects.equals(this.contentNegotiationStrategy.getClass(), that.contentNegotiationStrategy.getClass())
+				&& Objects.equals(this.useEquals, that.useEquals)
+				&& Objects.equals(this.matchingMediaTypes, that.matchingMediaTypes)
+				&& Objects.equals(this.ignoredMediaTypes, that.ignoredMediaTypes);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.contentNegotiationStrategy.getClass(), this.useEquals, this.matchingMediaTypes,
+				this.ignoredMediaTypes);
 	}
 
 	@Override

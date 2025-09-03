@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.util.matcher;
 
+import java.util.Objects;
+
 import jakarta.servlet.http.HttpServletRequest;
 import org.jspecify.annotations.Nullable;
 
@@ -89,6 +91,23 @@ public final class RequestHeaderRequestMatcher implements RequestMatcher {
 			return actualHeaderValue != null;
 		}
 		return this.expectedHeaderValue.equals(actualHeaderValue);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof RequestHeaderRequestMatcher that)) {
+			return false;
+		}
+		return Objects.equals(this.expectedHeaderName, that.expectedHeaderName)
+				&& Objects.equals(this.expectedHeaderValue, that.expectedHeaderValue);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.expectedHeaderName, this.expectedHeaderValue);
 	}
 
 	@Override
