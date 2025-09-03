@@ -16,8 +16,6 @@
 
 package org.springframework.security.config.annotation.authentication.ldap;
 
-import java.util.Collections;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -28,8 +26,6 @@ import org.springframework.security.config.annotation.authentication.ldap.LdapAu
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders;
 import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers;
 import org.springframework.test.web.servlet.MockMvc;
@@ -64,7 +60,7 @@ public class LdapAuthenticationProviderConfigurerTests {
 				.password("bobspassword");
 		SecurityMockMvcResultMatchers.AuthenticatedMatcher expectedUser = authenticated()
 				.withUsername("bob")
-				.withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_DEVELOPERS")));
+				.withRoles("DEVELOPERS");
 		// @formatter:on
 		this.mockMvc.perform(request).andExpect(expectedUser);
 	}
@@ -79,7 +75,7 @@ public class LdapAuthenticationProviderConfigurerTests {
 				.password("bobspassword");
 		SecurityMockMvcResultMatchers.AuthenticatedMatcher expectedUser = authenticated()
 				.withUsername("bob")
-				.withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROL_DEVELOPERS")));
+				.withRoles("ROL_", new String[] { "DEVELOPERS" });
 		// @formatter:on
 		this.mockMvc.perform(request).andExpect(expectedUser);
 	}
@@ -108,8 +104,7 @@ public class LdapAuthenticationProviderConfigurerTests {
 				.password("otherbenspassword");
 		SecurityMockMvcResultMatchers.AuthenticatedMatcher expectedUser = authenticated()
 				.withUsername("otherben")
-				.withAuthorities(
-						AuthorityUtils.createAuthorityList("ROLE_SUBMANAGERS", "ROLE_MANAGERS", "ROLE_DEVELOPERS"));
+				.withRoles("SUBMANAGERS", "MANAGERS", "DEVELOPERS");
 		// @formatter:on
 		this.mockMvc.perform(request).andExpect(expectedUser);
 	}

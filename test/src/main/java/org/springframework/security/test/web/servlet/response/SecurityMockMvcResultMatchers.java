@@ -18,7 +18,9 @@ package org.springframework.security.test.web.servlet.response;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import org.jspecify.annotations.NullUnmarked;
 import org.jspecify.annotations.Nullable;
@@ -94,6 +96,8 @@ public final class SecurityMockMvcResultMatchers {
 
 		private @Nullable Collection<? extends GrantedAuthority> expectedGrantedAuthorities;
 
+		private Predicate<GrantedAuthority> ignoreAuthorities = (authority) -> false;
+
 		private @Nullable Consumer<Authentication> assertAuthentication;
 
 		AuthenticatedMatcher() {
@@ -132,7 +136,8 @@ public final class SecurityMockMvcResultMatchers {
 			}
 			if (this.expectedGrantedAuthorities != null) {
 				AssertionErrors.assertTrue("Authentication cannot be null", auth != null);
-				Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
+				Collection<? extends GrantedAuthority> authorities = new ArrayList<>(auth.getAuthorities());
+				authorities.removeIf(this.ignoreAuthorities);
 				AssertionErrors.assertTrue(
 						authorities + " does not contain the same authorities as " + this.expectedGrantedAuthorities,
 						authorities.containsAll(this.expectedGrantedAuthorities));
@@ -212,16 +217,43 @@ public final class SecurityMockMvcResultMatchers {
 		}
 
 		/**
-		 * Specifies the {@link Authentication#getAuthorities()}
+		 * Specifies the expected roles.
+		 * <p>
+		 * Since a set of authorities can contain more than just roles, this method
+		 * differs from {@link #withAuthorities} in that it only verifies the authorities
+		 * prefixed by {@code ROLE_}. Other authorities are ignored.
+		 * <p>
+		 * If you want to validate more than just roles, please use
+		 * {@link #withAuthorities}.
 		 * @param roles the roles. Each value is automatically prefixed with "ROLE_"
 		 * @return the {@link AuthenticatedMatcher} for further customization
 		 */
 		public AuthenticatedMatcher withRoles(String... roles) {
-			Collection<GrantedAuthority> authorities = new ArrayList<>();
+			return withRoles("ROLE_", roles);
+		}
+
+		/**
+		 * Specifies the expected roles.
+		 * <p>
+		 * Since a set of authorities can contain more than just roles, this method
+		 * differs from {@link #withAuthorities} in that it only verifies the authorities
+		 * prefixed by {@code ROLE_}. Other authorities are ignored.
+		 * <p>
+		 * If you want to validate more than just roles, please use
+		 * {@link #withAuthorities}.
+		 * @param rolePrefix the role prefix
+		 * @param roles the roles. Each value is automatically prefixed with the
+		 * {@code rolePrefix}
+		 * @return the {@link AuthenticatedMatcher} for further customization
+		 * @since 7.0
+		 */
+		public AuthenticatedMatcher withRoles(String rolePrefix, String[] roles) {
+			List<GrantedAuthority> withPrefix = new ArrayList<>();
 			for (String role : roles) {
-				authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+				withPrefix.add(new SimpleGrantedAuthority(rolePrefix + role));
 			}
-			return withAuthorities(authorities);
+			this.ignoreAuthorities = (authority) -> !authority.getAuthority().startsWith(rolePrefix);
+			return withAuthorities(withPrefix);
 		}
 
 	}

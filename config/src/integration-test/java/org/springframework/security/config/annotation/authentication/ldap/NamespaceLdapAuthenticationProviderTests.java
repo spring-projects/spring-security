@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.annotation.authentication.ldap;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,7 +33,6 @@ import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders;
@@ -79,7 +77,7 @@ public class NamespaceLdapAuthenticationProviderTests {
 				.user("bob")
 				.password("bobspassword");
 		SecurityMockMvcResultMatchers.AuthenticatedMatcher user = authenticated()
-				.withAuthorities(Collections.singleton(new SimpleGrantedAuthority("PREFIX_DEVELOPERS")));
+				.withRoles("PREFIX_", new String[] { "DEVELOPERS" });
 		// @formatter:on
 		this.mockMvc.perform(request).andExpect(user);
 	}
@@ -103,7 +101,7 @@ public class NamespaceLdapAuthenticationProviderTests {
 				.user("bob")
 				.password("bobspassword");
 		SecurityMockMvcResultMatchers.AuthenticatedMatcher user = authenticated()
-				.withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_EXTRA")));
+				.withRoles("EXTRA");
 		// @formatter:on
 		this.mockMvc.perform(request).andExpect(user);
 	}
