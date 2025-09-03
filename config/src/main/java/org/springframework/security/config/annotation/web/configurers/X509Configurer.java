@@ -186,7 +186,8 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 			.setSharedObject(AuthenticationEntryPoint.class, new Http403ForbiddenEntryPoint());
 		ExceptionHandlingConfigurer<H> exceptions = http.getConfigurer(ExceptionHandlingConfigurer.class);
 		if (exceptions != null) {
-			exceptions.defaultAuthenticationEntryPointFor(new Http403ForbiddenEntryPoint(), AnyRequestMatcher.INSTANCE);
+			exceptions.defaultAuthenticationEntryPointFor(new Http403ForbiddenEntryPoint(), AnyRequestMatcher.INSTANCE,
+					"FACTOR_X509");
 		}
 	}
 
@@ -248,10 +249,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 			if (result == null) {
 				return result;
 			}
-			return result
-				.toBuilder()
-				.authorities((a) -> a.add(new SimpleGrantedAuthority("FACTOR_X509")))
-				.build();
+			return result.toBuilder().authorities((a) -> a.add(new SimpleGrantedAuthority("FACTOR_X509"))).build();
 		}
 
 		@Override

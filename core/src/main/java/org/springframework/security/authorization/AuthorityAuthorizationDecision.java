@@ -27,7 +27,7 @@ import org.springframework.security.core.GrantedAuthority;
  * @author Marcus Da Coregio
  * @since 5.6
  */
-public class AuthorityAuthorizationDecision extends AuthorizationDecision {
+public class AuthorityAuthorizationDecision extends AuthorizationDecision implements AuthorizationRequest {
 
 	@Serial
 	private static final long serialVersionUID = -8338309042331376592L;
