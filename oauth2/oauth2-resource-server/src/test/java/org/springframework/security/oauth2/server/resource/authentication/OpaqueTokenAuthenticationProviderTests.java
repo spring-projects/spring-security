@@ -21,12 +21,15 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
 import org.springframework.security.oauth2.core.TestOAuth2AuthenticatedPrincipals;
@@ -75,10 +78,7 @@ public class OpaqueTokenAuthenticationProviderTests {
 				.containsEntry(OAuth2TokenIntrospectionClaimNames.SUB, "Z5O3upPC88QrAjx00dis")
 				.containsEntry(OAuth2TokenIntrospectionClaimNames.USERNAME, "jdoe")
 				.containsEntry("extension_field", "twenty-seven");
-		assertThat(result.getAuthorities())
-				.extracting("authority")
-				.containsExactly("SCOPE_read", "SCOPE_write",
-				"SCOPE_dolphin");
+		SecurityAssertions.assertThat(result).hasAuthorities("SCOPE_read", "SCOPE_write", "SCOPE_dolphin");
 		// @formatter:on
 	}
 
@@ -97,7 +97,7 @@ public class OpaqueTokenAuthenticationProviderTests {
 				.isNotNull()
 				.doesNotContainKey(OAuth2TokenIntrospectionClaimNames.SCOPE);
 		// @formatter:on
-		assertThat(result.getAuthorities()).isEmpty();
+		SecurityAssertions.assertThat(result).authorities().noneMatch(isScope());
 	}
 
 	@Test
@@ -144,6 +144,10 @@ public class OpaqueTokenAuthenticationProviderTests {
 		verify(introspector).introspect("token");
 		verify(authenticationConverter).convert("token", principal);
 		verifyNoMoreInteractions(introspector, authenticationConverter);
+	}
+
+	static Predicate<GrantedAuthority> isScope() {
+		return (a) -> a.getAuthority().startsWith("SCOPE_");
 	}
 
 }

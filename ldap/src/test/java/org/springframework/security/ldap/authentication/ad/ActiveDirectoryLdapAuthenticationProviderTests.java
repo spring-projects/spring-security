@@ -42,6 +42,7 @@ import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.LockedException;
+import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider.ContextFactory;
@@ -357,10 +358,10 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 			.willReturn(new MockNamingEnumeration(sr));
 		provider.contextFactory = createContextFactoryReturning(this.ctx);
 		Authentication result = provider.authenticate(this.joe);
-		assertThat(result.getAuthorities()).isEmpty();
+		SecurityAssertions.assertThat(result).authorities().doesNotHaveToString("Admin");
 		dca.addAttributeValue("memberOf", "CN=Admin,CN=Users,DC=mydomain,DC=eu");
 		result = provider.authenticate(this.joe);
-		assertThat(result.getAuthorities()).hasSize(1);
+		SecurityAssertions.assertThat(result).hasAuthority("Admin");
 	}
 
 	static class MockNamingEnumeration implements NamingEnumeration<SearchResult> {

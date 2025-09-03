@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -46,9 +47,7 @@ public class JwtAuthenticationConverterTests {
 	public void convertWhenDefaultGrantedAuthoritiesConverterSet() {
 		Jwt jwt = TestJwts.jwt().claim("scope", "message:read message:write").build();
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt);
-		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
-		assertThat(authorities).containsExactly(new SimpleGrantedAuthority("SCOPE_message:read"),
-				new SimpleGrantedAuthority("SCOPE_message:write"));
+		SecurityAssertions.assertThat(authentication).hasAuthorities("SCOPE_message:read", "SCOPE_message:write");
 	}
 
 	@Test
@@ -65,8 +64,7 @@ public class JwtAuthenticationConverterTests {
 			.asList(new SimpleGrantedAuthority("blah"));
 		this.jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt);
-		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
-		assertThat(authorities).containsExactly(new SimpleGrantedAuthority("blah"));
+		SecurityAssertions.assertThat(authentication).hasAuthority("blah");
 	}
 
 	@Test

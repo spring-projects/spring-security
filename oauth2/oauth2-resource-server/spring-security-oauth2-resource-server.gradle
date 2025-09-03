@@ -14,6 +14,7 @@ dependencies {
 
 	provided 'jakarta.servlet:jakarta.servlet-api'
 
+	testImplementation project(path : ':spring-security-core', configuration : 'tests')
 	testImplementation project(path: ':spring-security-oauth2-jose', configuration: 'tests')
 	testImplementation 'com.squareup.okhttp3:mockwebserver'
 	testImplementation 'com.fasterxml.jackson.core:jackson-databind'
@@ -26,6 +27,7 @@ dependencies {
 	testImplementation "org.mockito:mockito-core"
 	testImplementation "org.mockito:mockito-junit-jupiter"
 	testImplementation "org.springframework:spring-test"
+
 
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

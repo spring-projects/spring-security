@@ -2674,6 +2674,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		String requiresReadScope(JwtAuthenticationToken token) {
 			return token.getAuthorities()
 				.stream()
+				.filter((ga) -> ga.getAuthority().startsWith("SCOPE_"))
 				.map(GrantedAuthority::getAuthority)
 				.collect(Collectors.toList())
 				.toString();

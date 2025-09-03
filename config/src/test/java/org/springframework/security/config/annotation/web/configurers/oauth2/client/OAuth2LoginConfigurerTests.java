@@ -45,6 +45,7 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.ObjectPostProcessor;
@@ -217,10 +218,9 @@ public class OAuth2LoginConfigurerTests {
 		Authentication authentication = this.securityContextRepository
 			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
 			.getAuthentication();
-		assertThat(authentication.getAuthorities()).hasSize(1);
-		assertThat(authentication.getAuthorities()).first()
-			.isInstanceOf(OAuth2UserAuthority.class)
-			.hasToString("OAUTH2_USER");
+		SecurityAssertions.assertThat(authentication)
+			.hasAuthority("OAUTH2_USER")
+			.isInstanceOf(OAuth2UserAuthority.class);
 	}
 
 	@Test
@@ -234,10 +234,9 @@ public class OAuth2LoginConfigurerTests {
 		Authentication authentication = this.securityContextRepository
 			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
 			.getAuthentication();
-		assertThat(authentication.getAuthorities()).hasSize(1);
-		assertThat(authentication.getAuthorities()).first()
-			.isInstanceOf(OAuth2UserAuthority.class)
-			.hasToString("OAUTH2_USER");
+		SecurityAssertions.assertThat(authentication)
+			.hasAuthority("OAUTH2_USER")
+			.isInstanceOf(OAuth2UserAuthority.class);
 		SecurityContextHolderStrategy strategy = this.context.getBean(SecurityContextHolderStrategy.class);
 		verify(strategy, atLeastOnce()).getDeferredContext();
 		SecurityContextChangedListener listener = this.context.getBean(SecurityContextChangedListener.class);
@@ -255,10 +254,9 @@ public class OAuth2LoginConfigurerTests {
 		Authentication authentication = this.securityContextRepository
 			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
 			.getAuthentication();
-		assertThat(authentication.getAuthorities()).hasSize(1);
-		assertThat(authentication.getAuthorities()).first()
-			.isInstanceOf(OAuth2UserAuthority.class)
-			.hasToString("OAUTH2_USER");
+		SecurityAssertions.assertThat(authentication)
+			.hasAuthority("OAUTH2_USER")
+			.isInstanceOf(OAuth2UserAuthority.class);
 	}
 
 	// gh-6009
@@ -296,9 +294,7 @@ public class OAuth2LoginConfigurerTests {
 		Authentication authentication = this.securityContextRepository
 			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
 			.getAuthentication();
-		assertThat(authentication.getAuthorities()).hasSize(2);
-		assertThat(authentication.getAuthorities()).first().hasToString("OAUTH2_USER");
-		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OAUTH2_USER");
+		SecurityAssertions.assertThat(authentication).hasAuthorities("OAUTH2_USER", "ROLE_OAUTH2_USER");
 	}
 
 	@Test
@@ -317,9 +313,7 @@ public class OAuth2LoginConfigurerTests {
 		Authentication authentication = this.securityContextRepository
 			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
 			.getAuthentication();
-		assertThat(authentication.getAuthorities()).hasSize(2);
-		assertThat(authentication.getAuthorities()).first().hasToString("OAUTH2_USER");
-		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OAUTH2_USER");
+		SecurityAssertions.assertThat(authentication).hasAuthorities("OAUTH2_USER", "ROLE_OAUTH2_USER");
 	}
 
 	@Test
@@ -338,9 +332,7 @@ public class OAuth2LoginConfigurerTests {
 		Authentication authentication = this.securityContextRepository
 			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
 			.getAuthentication();
-		assertThat(authentication.getAuthorities()).hasSize(2);
-		assertThat(authentication.getAuthorities()).first().hasToString("OAUTH2_USER");
-		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OAUTH2_USER");
+		SecurityAssertions.assertThat(authentication).hasAuthorities("OAUTH2_USER", "ROLE_OAUTH2_USER");
 	}
 
 	// gh-5488
@@ -361,10 +353,9 @@ public class OAuth2LoginConfigurerTests {
 		Authentication authentication = this.securityContextRepository
 			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
 			.getAuthentication();
-		assertThat(authentication.getAuthorities()).hasSize(1);
-		assertThat(authentication.getAuthorities()).first()
-			.isInstanceOf(OAuth2UserAuthority.class)
-			.hasToString("OAUTH2_USER");
+		SecurityAssertions.assertThat(authentication)
+			.hasAuthority("OAUTH2_USER")
+			.isInstanceOf(OAuth2UserAuthority.class);
 	}
 
 	// gh-5521
@@ -570,10 +561,7 @@ public class OAuth2LoginConfigurerTests {
 		Authentication authentication = this.securityContextRepository
 			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
 			.getAuthentication();
-		assertThat(authentication.getAuthorities()).hasSize(1);
-		assertThat(authentication.getAuthorities()).first()
-			.isInstanceOf(OidcUserAuthority.class)
-			.hasToString("OIDC_USER");
+		SecurityAssertions.assertThat(authentication).hasAuthority("OIDC_USER").isInstanceOf(OidcUserAuthority.class);
 	}
 
 	@Test
@@ -593,9 +581,7 @@ public class OAuth2LoginConfigurerTests {
 			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
 			.getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(1);
-		assertThat(authentication.getAuthorities()).first()
-			.isInstanceOf(OidcUserAuthority.class)
-			.hasToString("OIDC_USER");
+		SecurityAssertions.assertThat(authentication).hasAuthority("OIDC_USER").isInstanceOf(OidcUserAuthority.class);
 	}
 
 	@Test
@@ -614,9 +600,7 @@ public class OAuth2LoginConfigurerTests {
 		Authentication authentication = this.securityContextRepository
 			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
 			.getAuthentication();
-		assertThat(authentication.getAuthorities()).hasSize(2);
-		assertThat(authentication.getAuthorities()).first().hasToString("OIDC_USER");
-		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OIDC_USER");
+		SecurityAssertions.assertThat(authentication).hasAuthorities("OIDC_USER", "ROLE_OIDC_USER");
 	}
 
 	@Test
@@ -635,9 +619,7 @@ public class OAuth2LoginConfigurerTests {
 		Authentication authentication = this.securityContextRepository
 			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
 			.getAuthentication();
-		assertThat(authentication.getAuthorities()).hasSize(2);
-		assertThat(authentication.getAuthorities()).first().hasToString("OIDC_USER");
-		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OIDC_USER");
+		SecurityAssertions.assertThat(authentication).hasAuthorities("OIDC_USER", "ROLE_OIDC_USER");
 	}
 
 	@Test
@@ -690,11 +672,7 @@ public class OAuth2LoginConfigurerTests {
 		Authentication authentication = this.securityContextRepository
 			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
 			.getAuthentication();
-		assertThat(authentication.getAuthorities()).hasSize(1);
-		assertThat(authentication.getAuthorities()).first()
-			.isInstanceOf(OidcUserAuthority.class)
-			.hasToString("OIDC_USER");
-
+		SecurityAssertions.assertThat(authentication).hasAuthority("OIDC_USER").isInstanceOf(OidcUserAuthority.class);
 		// Ensure shared objects set for OAuth2 Client are not used
 		ClientRegistrationRepository clientRegistrationRepository = this.spring.getContext()
 			.getBean(ClientRegistrationRepository.class);

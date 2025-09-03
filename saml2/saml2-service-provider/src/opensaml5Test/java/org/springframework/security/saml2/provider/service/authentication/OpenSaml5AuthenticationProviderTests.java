@@ -71,6 +71,7 @@ import org.opensaml.xmlsec.encryption.impl.EncryptedDataBuilder;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
 
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -734,7 +735,7 @@ public class OpenSaml5AuthenticationProviderTests {
 		Response response = TestOpenSamlObjects.signedResponseWithOneAssertion();
 		Saml2AuthenticationToken token = token(response, verifying(registration()));
 		Authentication authentication = provider.authenticate(token);
-		assertThat(AuthorityUtils.authorityListToSet(authentication.getAuthorities())).containsExactly("CUSTOM");
+		SecurityAssertions.assertThat(authentication).hasAuthority("CUSTOM");
 		verify(grantedAuthoritiesConverter).convert(any());
 	}
 

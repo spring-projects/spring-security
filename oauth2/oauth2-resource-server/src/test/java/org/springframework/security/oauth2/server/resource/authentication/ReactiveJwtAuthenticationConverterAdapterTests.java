@@ -17,18 +17,16 @@
 package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Test;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.TestJwts;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for {@link ReactiveJwtAuthenticationConverterAdapter}
@@ -46,40 +44,28 @@ public class ReactiveJwtAuthenticationConverterAdapterTests {
 	public void convertWhenTokenHasScopeAttributeThenTranslatedToAuthorities() {
 		Jwt jwt = TestJwts.jwt().claim("scope", "message:read message:write").build();
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
-		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
-		// @formatter:off
-		assertThat(authorities)
-				.containsExactly(new SimpleGrantedAuthority("SCOPE_message:read"),
-						new SimpleGrantedAuthority("SCOPE_message:write"));
-		// @formatter:on
+		SecurityAssertions.assertThat(authentication).hasAuthorities("SCOPE_message:read", "SCOPE_message:write");
 	}
 
 	@Test
 	public void convertWhenTokenHasEmptyScopeAttributeThenTranslatedToNoAuthorities() {
 		Jwt jwt = TestJwts.jwt().claim("scope", "").build();
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
-		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
-		assertThat(authorities).containsExactly();
+		SecurityAssertions.assertThat(authentication).authorities().noneMatch(isScope());
 	}
 
 	@Test
 	public void convertWhenTokenHasScpAttributeThenTranslatedToAuthorities() {
 		Jwt jwt = TestJwts.jwt().claim("scp", Arrays.asList("message:read", "message:write")).build();
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
-		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
-		// @formatter:off
-		assertThat(authorities)
-				.containsExactly(new SimpleGrantedAuthority("SCOPE_message:read"),
-						new SimpleGrantedAuthority("SCOPE_message:write"));
-		// @formatter:on
+		SecurityAssertions.assertThat(authentication).hasAuthorities("SCOPE_message:read", "SCOPE_message:write");
 	}
 
 	@Test
 	public void convertWhenTokenHasEmptyScpAttributeThenTranslatedToNoAuthorities() {
 		Jwt jwt = TestJwts.jwt().claim("scp", Arrays.asList()).build();
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
-		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
-		assertThat(authorities).containsExactly();
+		SecurityAssertions.assertThat(authentication).authorities().noneMatch(isScope());
 	}
 
 	@Test
@@ -89,12 +75,7 @@ public class ReactiveJwtAuthenticationConverterAdapterTests {
 			.claim("scope", "missive:read missive:write")
 			.build();
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
-		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
-		// @formatter:off
-		assertThat(authorities)
-				.containsExactly(new SimpleGrantedAuthority("SCOPE_missive:read"),
-						new SimpleGrantedAuthority("SCOPE_missive:write"));
-		// @formatter:on
+		SecurityAssertions.assertThat(authentication).hasAuthorities("SCOPE_missive:read", "SCOPE_missive:write");
 	}
 
 	@Test
@@ -106,8 +87,11 @@ public class ReactiveJwtAuthenticationConverterAdapterTests {
 				.build();
 		// @formatter:on
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
-		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
-		assertThat(authorities).containsExactly();
+		SecurityAssertions.assertThat(authentication).authorities().noneMatch(isScope());
+	}
+
+	static Predicate<GrantedAuthority> isScope() {
+		return (a) -> a.getAuthority().startsWith("SCOPE_");
 	}
 
 }

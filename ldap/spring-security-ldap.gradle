@@ -19,7 +19,8 @@ dependencies {
 		exclude(group: 'org.springframework.data', module: 'spring-data-commons')
 	}
 
-	testImplementation project(':spring-security-test')
+	testImplementation project(path : ':spring-security-core', configuration : 'tests')
+	testImplementation project(":spring-security-test")
 	testImplementation 'org.slf4j:slf4j-api'
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"

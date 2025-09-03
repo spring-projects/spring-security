@@ -165,7 +165,7 @@ public class OAuth2LoginAuthenticationProviderTests {
 		assertThat(authentication.isAuthenticated()).isTrue();
 		assertThat(authentication.getPrincipal()).isEqualTo(principal);
 		assertThat(authentication.getCredentials()).isEqualTo("");
-		assertThat(authentication.getAuthorities()).isEqualTo(authorities);
+		assertThat(authentication.getAuthorities()).containsAll(authorities);
 		assertThat(authentication.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authentication.getAuthorizationExchange()).isEqualTo(this.authorizationExchange);
 		assertThat(authentication.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());

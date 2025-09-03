@@ -17,11 +17,13 @@
 package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.util.Arrays;
+import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.authentication.SecurityAssertions;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,7 +50,7 @@ public class JwtBearerTokenAuthenticationConverterTests {
 		BearerTokenAuthentication bearerToken = (BearerTokenAuthentication) token;
 		assertThat(bearerToken.getToken().getTokenValue()).isEqualTo("token-value");
 		assertThat(bearerToken.getTokenAttributes()).containsOnlyKeys("claim");
-		assertThat(bearerToken.getAuthorities()).isEmpty();
+		assertThat(bearerToken.getAuthorities()).noneMatch(isScope());
 	}
 
 	@Test
@@ -62,8 +64,7 @@ public class JwtBearerTokenAuthenticationConverterTests {
 		AbstractAuthenticationToken token = this.converter.convert(jwt);
 		assertThat(token).isInstanceOf(BearerTokenAuthentication.class);
 		BearerTokenAuthentication bearerToken = (BearerTokenAuthentication) token;
-		assertThat(bearerToken.getAuthorities()).containsExactly(new SimpleGrantedAuthority("SCOPE_message:read"),
-				new SimpleGrantedAuthority("SCOPE_message:write"));
+		SecurityAssertions.assertThat(bearerToken).hasAuthorities("SCOPE_message:read", "SCOPE_message:write");
 	}
 
 	@Test
@@ -77,8 +78,11 @@ public class JwtBearerTokenAuthenticationConverterTests {
 		AbstractAuthenticationToken token = this.converter.convert(jwt);
 		assertThat(token).isInstanceOf(BearerTokenAuthentication.class);
 		BearerTokenAuthentication bearerToken = (BearerTokenAuthentication) token;
-		assertThat(bearerToken.getAuthorities()).containsExactly(new SimpleGrantedAuthority("SCOPE_message:read"),
-				new SimpleGrantedAuthority("SCOPE_message:write"));
+		SecurityAssertions.assertThat(bearerToken).hasAuthorities("SCOPE_message:read", "SCOPE_message:write");
+	}
+
+	static Predicate<GrantedAuthority> isScope() {
+		return (a) -> a.getAuthority().startsWith("SCOPE_");
 	}
 
 }
