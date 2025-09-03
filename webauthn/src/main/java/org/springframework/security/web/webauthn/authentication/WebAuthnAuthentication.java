@@ -19,6 +19,8 @@ package org.springframework.security.web.webauthn.authentication;
 import java.io.Serial;
 import java.util.Collection;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
@@ -53,7 +55,7 @@ public class WebAuthnAuthentication extends AbstractAuthenticationToken {
 	}
 
 	@Override
-	public Object getCredentials() {
+	public @Nullable Object getCredentials() {
 		return null;
 	}
 

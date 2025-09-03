@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -105,7 +107,7 @@ public final class JdbcPublicKeyCredentialUserEntityRepository implements Public
 	}
 
 	@Override
-	public PublicKeyCredentialUserEntity findById(Bytes id) {
+	public @Nullable PublicKeyCredentialUserEntity findById(Bytes id) {
 		Assert.notNull(id, "id cannot be null");
 		List<PublicKeyCredentialUserEntity> result = this.jdbcOperations.query(FIND_USER_BY_ID_SQL,
 				this.userEntityRowMapper, id.toBase64UrlString());
@@ -113,7 +115,7 @@ public final class JdbcPublicKeyCredentialUserEntityRepository implements Public
 	}
 
 	@Override
-	public PublicKeyCredentialUserEntity findByUsername(String username) {
+	public @Nullable PublicKeyCredentialUserEntity findByUsername(String username) {
 		Assert.hasText(username, "name cannot be null or empty");
 		List<PublicKeyCredentialUserEntity> result = this.jdbcOperations.query(FIND_USER_BY_NAME_SQL,
 				this.userEntityRowMapper, username);

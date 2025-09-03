@@ -16,6 +16,10 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import org.jspecify.annotations.Nullable;
+
+import org.springframework.util.Assert;
+
 /**
  * The <a href=
  * "https://www.w3.org/TR/webauthn-3/#dictdef-publickeycredentialrpentity">PublicKeyCredentialRpEntity</a>
@@ -75,9 +79,9 @@ public final class PublicKeyCredentialRpEntity {
 	 */
 	public static final class PublicKeyCredentialRpEntityBuilder {
 
-		private String name;
+		private @Nullable String name;
 
-		private String id;
+		private @Nullable String id;
 
 		private PublicKeyCredentialRpEntityBuilder() {
 		}
@@ -107,6 +111,8 @@ public final class PublicKeyCredentialRpEntity {
 		 * @return a new {@link PublicKeyCredentialRpEntity}.
 		 */
 		public PublicKeyCredentialRpEntity build() {
+			Assert.notNull(this.name, "name cannot be null");
+			Assert.notNull(this.id, "id cannot be null");
 			return new PublicKeyCredentialRpEntity(this.name, this.id);
 		}
 

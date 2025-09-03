@@ -19,6 +19,10 @@ package org.springframework.security.web.webauthn.api;
 import java.util.Arrays;
 import java.util.Base64;
 
+import org.jspecify.annotations.Nullable;
+
+import org.springframework.util.Assert;
+
 /**
  * An immutable {@link PublicKeyCose}
  *
@@ -33,7 +37,8 @@ public class ImmutablePublicKeyCose implements PublicKeyCose {
 	 * Creates a new instance.
 	 * @param bytes the raw bytes of the public key.
 	 */
-	public ImmutablePublicKeyCose(byte[] bytes) {
+	public ImmutablePublicKeyCose(byte @Nullable [] bytes) {
+		Assert.notNull(bytes, "bytes cannot be null");
 		this.bytes = Arrays.copyOf(bytes, bytes.length);
 	}
 

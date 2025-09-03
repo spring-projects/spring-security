@@ -20,6 +20,8 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * <a href=
  * "https://www.w3.org/TR/webauthn-3/#dictdef-publickeycredentialdescriptor">PublicKeyCredentialDescriptor</a>
@@ -38,12 +40,12 @@ public final class PublicKeyCredentialDescriptor implements Serializable {
 
 	private final PublicKeyCredentialType type;
 
-	private final Bytes id;
+	private final @Nullable Bytes id;
 
-	private final Set<AuthenticatorTransport> transports;
+	private final @Nullable Set<AuthenticatorTransport> transports;
 
-	private PublicKeyCredentialDescriptor(PublicKeyCredentialType type, Bytes id,
-			Set<AuthenticatorTransport> transports) {
+	private PublicKeyCredentialDescriptor(PublicKeyCredentialType type, @Nullable Bytes id,
+			@Nullable Set<AuthenticatorTransport> transports) {
 		this.type = type;
 		this.id = id;
 		this.transports = transports;
@@ -66,7 +68,7 @@ public final class PublicKeyCredentialDescriptor implements Serializable {
 	 * referring to.
 	 * @return the id
 	 */
-	public Bytes getId() {
+	public @Nullable Bytes getId() {
 		return this.id;
 	}
 
@@ -78,7 +80,7 @@ public final class PublicKeyCredentialDescriptor implements Serializable {
 	 * is referring to.
 	 * @return the transports
 	 */
-	public Set<AuthenticatorTransport> getTransports() {
+	public @Nullable Set<AuthenticatorTransport> getTransports() {
 		return this.transports;
 	}
 
@@ -100,9 +102,9 @@ public final class PublicKeyCredentialDescriptor implements Serializable {
 
 		private PublicKeyCredentialType type = PublicKeyCredentialType.PUBLIC_KEY;
 
-		private Bytes id;
+		private @Nullable Bytes id;
 
-		private Set<AuthenticatorTransport> transports;
+		private @Nullable Set<AuthenticatorTransport> transports;
 
 		private PublicKeyCredentialDescriptorBuilder() {
 		}

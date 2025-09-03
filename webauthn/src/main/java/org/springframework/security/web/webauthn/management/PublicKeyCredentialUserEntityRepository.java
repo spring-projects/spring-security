@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.webauthn.management;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.web.webauthn.api.Bytes;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
 
@@ -33,14 +35,14 @@ public interface PublicKeyCredentialUserEntityRepository {
 	 * @param id the id to lookup the username by
 	 * @return the username or null if not found.
 	 */
-	PublicKeyCredentialUserEntity findById(Bytes id);
+	@Nullable PublicKeyCredentialUserEntity findById(Bytes id);
 
 	/**
 	 * Finds the {@link PublicKeyCredentialUserEntity} by the username.
 	 * @param username the username to lookup the {@link PublicKeyCredentialUserEntity}
 	 * @return the {@link PublicKeyCredentialUserEntity} or null if not found.
 	 */
-	PublicKeyCredentialUserEntity findByUsername(String username);
+	@Nullable PublicKeyCredentialUserEntity findByUsername(String username);
 
 	/**
 	 * Saves the {@link PublicKeyCredentialUserEntity} to the associated username.

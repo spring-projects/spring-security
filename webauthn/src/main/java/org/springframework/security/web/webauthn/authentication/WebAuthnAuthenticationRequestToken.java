@@ -18,6 +18,8 @@ package org.springframework.security.web.webauthn.authentication;
 
 import java.io.Serial;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.webauthn.management.RelyingPartyAuthenticationRequest;
@@ -68,7 +70,7 @@ public class WebAuthnAuthenticationRequestToken extends AbstractAuthenticationTo
 	}
 
 	@Override
-	public Object getPrincipal() {
+	public @Nullable Object getPrincipal() {
 		return this.webAuthnRequest.getPublicKey().getResponse().getUserHandle();
 	}
 

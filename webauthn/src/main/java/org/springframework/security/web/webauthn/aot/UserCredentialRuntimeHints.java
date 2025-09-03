@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.webauthn.aot;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.jdbc.core.JdbcOperations;
@@ -33,7 +35,7 @@ import org.springframework.security.web.webauthn.management.UserCredentialReposi
 class UserCredentialRuntimeHints implements RuntimeHintsRegistrar {
 
 	@Override
-	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+	public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
 		hints.resources()
 			.registerPattern("org/springframework/security/user-credentials-schema.sql")
 			.registerPattern("org/springframework/security/user-credentials-schema-postgres.sql");

@@ -18,6 +18,7 @@ package org.springframework.security.web.webauthn.registration;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
 
@@ -38,7 +39,7 @@ public interface PublicKeyCredentialCreationOptionsRepository {
 	 * @param options the {@link PublicKeyCredentialCreationOptions} to save or null if an
 	 * existing {@link PublicKeyCredentialCreationOptions} should be removed.
 	 */
-	void save(HttpServletRequest request, HttpServletResponse response, PublicKeyCredentialCreationOptions options);
+	void save(HttpServletRequest request, HttpServletResponse response, @Nullable PublicKeyCredentialCreationOptions options);
 
 	/**
 	 * Gets a saved {@link PublicKeyCredentialCreationOptions} if it exists, otherwise
@@ -47,6 +48,6 @@ public interface PublicKeyCredentialCreationOptionsRepository {
 	 * @return the {@link PublicKeyCredentialCreationOptions} that was saved, otherwise
 	 * null.
 	 */
-	PublicKeyCredentialCreationOptions load(HttpServletRequest request);
+	@Nullable PublicKeyCredentialCreationOptions load(HttpServletRequest request);
 
 }

@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
 
@@ -39,7 +40,7 @@ class AuthenticatorTransportDeserializer extends StdDeserializer<AuthenticatorTr
 	}
 
 	@Override
-	public AuthenticatorTransport deserialize(JsonParser parser, DeserializationContext ctxt)
+	public @Nullable AuthenticatorTransport deserialize(JsonParser parser, DeserializationContext ctxt)
 			throws IOException, JacksonException {
 		String transportValue = parser.readValueAs(String.class);
 		for (AuthenticatorTransport transport : AuthenticatorTransport.values()) {

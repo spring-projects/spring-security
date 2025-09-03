@@ -19,6 +19,8 @@ package org.springframework.security.web.webauthn.api;
 import java.time.Instant;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Represents a <a href="https://www.w3.org/TR/webauthn-3/#credential-record">Credential
  * Record</a> that is stored by the Relying Party
@@ -35,7 +37,7 @@ public interface CredentialRecord {
 	 * "https://www.w3.org/TR/webauthn-3/#abstract-opdef-credential-record-type">credential.type</a>
 	 * @return
 	 */
-	PublicKeyCredentialType getCredentialType();
+	@Nullable PublicKeyCredentialType getCredentialType();
 
 	/**
 	 * The <a href=
@@ -104,7 +106,7 @@ public interface CredentialRecord {
 	 * source was registered.
 	 * @return the attestationObject
 	 */
-	Bytes getAttestationObject();
+	@Nullable Bytes getAttestationObject();
 
 	/**
 	 * The <a href=
@@ -113,7 +115,7 @@ public interface CredentialRecord {
 	 * source was registered.
 	 * @return
 	 */
-	Bytes getAttestationClientDataJSON();
+	@Nullable Bytes getAttestationClientDataJSON();
 
 	/**
 	 * A human-readable label for this {@link CredentialRecord} assigned by the user.

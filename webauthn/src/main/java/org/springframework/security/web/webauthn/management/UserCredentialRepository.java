@@ -18,6 +18,8 @@ package org.springframework.security.web.webauthn.management;
 
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.web.webauthn.api.Bytes;
 import org.springframework.security.web.webauthn.api.CredentialRecord;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
@@ -47,7 +49,7 @@ public interface UserCredentialRepository {
 	 * @param credentialId {@link CredentialRecord#getCredentialId()}
 	 * @return the {@link CredentialRecord} or null if not found.
 	 */
-	CredentialRecord findByCredentialId(Bytes credentialId);
+	@Nullable CredentialRecord findByCredentialId(Bytes credentialId);
 
 	/**
 	 * Finds all {@link CredentialRecord} instances for a specific user.

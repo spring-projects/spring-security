@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.webauthn.management;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
 import org.springframework.util.Assert;
 
@@ -40,7 +42,7 @@ public class ImmutableRelyingPartyRegistrationRequest implements RelyingPartyReg
 	 * @param publicKey this is submitted by the client and if validated stored.
 	 */
 	public ImmutableRelyingPartyRegistrationRequest(PublicKeyCredentialCreationOptions options,
-			RelyingPartyPublicKey publicKey) {
+			@Nullable RelyingPartyPublicKey publicKey) {
 		Assert.notNull(options, "options cannot be null");
 		Assert.notNull(publicKey, "publicKey cannot be null");
 		this.options = options;

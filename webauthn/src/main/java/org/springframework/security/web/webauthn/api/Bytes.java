@@ -22,6 +22,8 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -100,7 +102,7 @@ public final class Bytes implements Serializable {
 	 * @param base64UrlString the base64 url string
 	 * @return the {@link Bytes}
 	 */
-	public static Bytes fromBase64(String base64UrlString) {
+	public static Bytes fromBase64(@Nullable String base64UrlString) {
 		byte[] bytes = DECODER.decode(base64UrlString);
 		return new Bytes(bytes);
 	}

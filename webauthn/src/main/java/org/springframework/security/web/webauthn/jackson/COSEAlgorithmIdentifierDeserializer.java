@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.web.webauthn.api.COSEAlgorithmIdentifier;
 
@@ -39,7 +40,7 @@ class COSEAlgorithmIdentifierDeserializer extends StdDeserializer<COSEAlgorithmI
 	}
 
 	@Override
-	public COSEAlgorithmIdentifier deserialize(JsonParser parser, DeserializationContext ctxt)
+	public @Nullable COSEAlgorithmIdentifier deserialize(JsonParser parser, DeserializationContext ctxt)
 			throws IOException, JacksonException {
 		Long transportValue = parser.readValueAs(Long.class);
 		for (COSEAlgorithmIdentifier identifier : COSEAlgorithmIdentifier.values()) {

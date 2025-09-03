@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Represents the <a href=
  * "https://www.w3.org/TR/webauthn-3/#dictdef-publickeycredentialcreationoptions">PublicKeyCredentialCreationOptions</a>
@@ -42,21 +44,22 @@ public final class PublicKeyCredentialCreationOptions {
 
 	private final List<PublicKeyCredentialParameters> pubKeyCredParams;
 
-	private final Duration timeout;
+	private final @Nullable Duration timeout;
 
 	private final List<PublicKeyCredentialDescriptor> excludeCredentials;
 
 	private final AuthenticatorSelectionCriteria authenticatorSelection;
 
-	private final AttestationConveyancePreference attestation;
+	private final @Nullable AttestationConveyancePreference attestation;
 
-	private final AuthenticationExtensionsClientInputs extensions;
+	private final @Nullable AuthenticationExtensionsClientInputs extensions;
 
 	private PublicKeyCredentialCreationOptions(PublicKeyCredentialRpEntity rp, PublicKeyCredentialUserEntity user,
-			Bytes challenge, List<PublicKeyCredentialParameters> pubKeyCredParams, Duration timeout,
+			Bytes challenge, List<PublicKeyCredentialParameters> pubKeyCredParams, @Nullable Duration timeout,
 			List<PublicKeyCredentialDescriptor> excludeCredentials,
-			AuthenticatorSelectionCriteria authenticatorSelection, AttestationConveyancePreference attestation,
-			AuthenticationExtensionsClientInputs extensions) {
+			AuthenticatorSelectionCriteria authenticatorSelection,
+			@Nullable AttestationConveyancePreference attestation,
+			@Nullable AuthenticationExtensionsClientInputs extensions) {
 		this.rp = rp;
 		this.user = user;
 		this.challenge = challenge;
@@ -117,7 +120,7 @@ public final class PublicKeyCredentialCreationOptions {
 	 * wait for the call to complete.
 	 * @return the timeout
 	 */
-	public Duration getTimeout() {
+	public @Nullable Duration getTimeout() {
 		return this.timeout;
 	}
 
@@ -150,7 +153,7 @@ public final class PublicKeyCredentialCreationOptions {
 	 * regarding attestation conveyance.
 	 * @return the attestation preference
 	 */
-	public AttestationConveyancePreference getAttestation() {
+	public @Nullable AttestationConveyancePreference getAttestation() {
 		return this.attestation;
 	}
 
@@ -161,7 +164,7 @@ public final class PublicKeyCredentialCreationOptions {
 	 * extension inputs requesting additional processing by the client and authenticator.
 	 * @return the extensions
 	 */
-	public AuthenticationExtensionsClientInputs getExtensions() {
+	public @Nullable AuthenticationExtensionsClientInputs getExtensions() {
 		return this.extensions;
 	}
 
@@ -181,23 +184,27 @@ public final class PublicKeyCredentialCreationOptions {
 	 */
 	public static final class PublicKeyCredentialCreationOptionsBuilder {
 
+		@SuppressWarnings("NullAway.Init")
 		private PublicKeyCredentialRpEntity rp;
 
+		@SuppressWarnings("NullAway.Init")
 		private PublicKeyCredentialUserEntity user;
 
+		@SuppressWarnings("NullAway.Init")
 		private Bytes challenge;
 
 		private List<PublicKeyCredentialParameters> pubKeyCredParams = new ArrayList<>();
 
-		private Duration timeout;
+		private @Nullable Duration timeout;
 
 		private List<PublicKeyCredentialDescriptor> excludeCredentials = new ArrayList<>();
 
+		@SuppressWarnings("NullAway.Init")
 		private AuthenticatorSelectionCriteria authenticatorSelection;
 
-		private AttestationConveyancePreference attestation;
+		private @Nullable AttestationConveyancePreference attestation;
 
-		private AuthenticationExtensionsClientInputs extensions;
+		private @Nullable AuthenticationExtensionsClientInputs extensions;
 
 		private PublicKeyCredentialCreationOptionsBuilder() {
 		}

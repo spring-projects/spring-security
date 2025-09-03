@@ -25,6 +25,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpMethod;
@@ -190,7 +191,7 @@ public class WebAuthnRegistrationFilter extends OncePerRequestFilter {
 		this.converter.write(registrationResponse, MediaType.APPLICATION_JSON, outputMessage);
 	}
 
-	private WebAuthnRegistrationRequest readRegistrationRequest(HttpServletRequest request) {
+	private @Nullable WebAuthnRegistrationRequest readRegistrationRequest(HttpServletRequest request) {
 		HttpInputMessage inputMessage = new ServletServerHttpRequest(request);
 		try {
 			return (WebAuthnRegistrationRequest) this.converter.read(WebAuthnRegistrationRequest.class, inputMessage);
@@ -201,7 +202,7 @@ public class WebAuthnRegistrationFilter extends OncePerRequestFilter {
 		}
 	}
 
-	private void removeCredential(HttpServletRequest request, HttpServletResponse response, String id)
+	private void removeCredential(HttpServletRequest request, HttpServletResponse response, @Nullable String id)
 			throws IOException {
 		this.userCredentials.delete(Bytes.fromBase64(id));
 		response.setStatus(HttpStatus.NO_CONTENT.value());
@@ -209,9 +210,9 @@ public class WebAuthnRegistrationFilter extends OncePerRequestFilter {
 
 	static class WebAuthnRegistrationRequest {
 
-		private RelyingPartyPublicKey publicKey;
+		private @Nullable RelyingPartyPublicKey publicKey;
 
-		RelyingPartyPublicKey getPublicKey() {
+		@Nullable RelyingPartyPublicKey getPublicKey() {
 			return this.publicKey;
 		}
 

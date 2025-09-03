@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -171,7 +173,7 @@ public final class JdbcUserCredentialRepository implements UserCredentialReposit
 	}
 
 	@Override
-	public CredentialRecord findByCredentialId(Bytes credentialId) {
+	public @Nullable CredentialRecord findByCredentialId(Bytes credentialId) {
 		Assert.notNull(credentialId, "credentialId cannot be null");
 		List<CredentialRecord> result = this.jdbcOperations.query(FIND_CREDENTIAL_RECORD_BY_ID_SQL,
 				this.credentialRecordRowMapper, credentialId.toBase64UrlString());
@@ -238,7 +240,7 @@ public final class JdbcUserCredentialRepository implements UserCredentialReposit
 			return parameters;
 		}
 
-		private Timestamp fromInstant(Instant instant) {
+		private @Nullable Timestamp fromInstant(Instant instant) {
 			if (instant == null) {
 				return null;
 			}
@@ -249,13 +251,13 @@ public final class JdbcUserCredentialRepository implements UserCredentialReposit
 
 	private interface SetBytes {
 
-		void setBytes(PreparedStatement ps, int index, byte[] bytes) throws SQLException;
+		void setBytes(PreparedStatement ps, int index, byte @Nullable [] bytes) throws SQLException;
 
 	}
 
 	private interface GetBytes {
 
-		byte[] getBytes(ResultSet rs, String columnName) throws SQLException;
+		byte @Nullable [] getBytes(ResultSet rs, String columnName) throws SQLException;
 
 	}
 
@@ -269,7 +271,8 @@ public final class JdbcUserCredentialRepository implements UserCredentialReposit
 		}
 
 		@Override
-		protected void doSetValue(PreparedStatement ps, int parameterPosition, Object argValue) throws SQLException {
+		protected void doSetValue(PreparedStatement ps, int parameterPosition, @Nullable Object argValue)
+				throws SQLException {
 			if (argValue instanceof SqlParameterValue paramValue) {
 				if (paramValue.getSqlType() == Types.BLOB) {
 					if (paramValue.getValue() != null) {
@@ -327,6 +330,8 @@ public final class JdbcUserCredentialRepository implements UserCredentialReposit
 			for (String transport : transports) {
 				authenticatorTransports.add(AuthenticatorTransport.valueOf(transport));
 			}
+			Assert.notNull(lastUsed, "last_used cannot be null");
+			Assert.notNull(created, "created cannot be null");
 			return ImmutableCredentialRecord.builder()
 				.credentialId(credentialId)
 				.userEntityUserId(userEntityUserId)
@@ -345,7 +350,7 @@ public final class JdbcUserCredentialRepository implements UserCredentialReposit
 				.build();
 		}
 
-		private Instant fromTimestamp(Timestamp timestamp) {
+		private @Nullable Instant fromTimestamp(Timestamp timestamp) {
 			if (timestamp == null) {
 				return null;
 			}

@@ -43,8 +43,11 @@ import com.webauthn4j.data.attestation.authenticator.COSEKey;
 import com.webauthn4j.data.client.Origin;
 import com.webauthn4j.data.client.challenge.Challenge;
 import com.webauthn4j.data.client.challenge.DefaultChallenge;
+import com.webauthn4j.data.extension.authenticator.AuthenticationExtensionAuthenticatorOutput;
 import com.webauthn4j.data.extension.authenticator.RegistrationExtensionAuthenticatorOutput;
 import com.webauthn4j.server.ServerProperty;
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
@@ -260,24 +263,28 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 				transports);
 		RegistrationParameters registrationParameters = new RegistrationParameters(serverProperty, pubKeyCredParams,
 				userVerificationRequired, userPresenceRequired);
-		RegistrationData registrationData = this.webAuthnManager.validate(webauthn4jRegistrationRequest,
+		RegistrationData wa4jRegistrationData = this.webAuthnManager.validate(webauthn4jRegistrationRequest,
 				registrationParameters);
-		AuthenticatorData<RegistrationExtensionAuthenticatorOutput> authData = registrationData.getAttestationObject()
+		AttestationObject wa4jAttestationObject = wa4jRegistrationData.getAttestationObject();
+		Assert.notNull(wa4jAttestationObject, "attestationObject cannot be null");
+		AuthenticatorData<RegistrationExtensionAuthenticatorOutput> wa4jAuthData = wa4jAttestationObject
 			.getAuthenticatorData();
 
 		CborConverter cborConverter = this.objectConverter.getCborConverter();
-		COSEKey coseKey = authData.getAttestedCredentialData().getCOSEKey();
+		AttestedCredentialData wa4jCredData = wa4jAuthData.getAttestedCredentialData();
+		Assert.notNull(wa4jCredData, "attestedCredentialData cannot be null");
+		COSEKey coseKey = wa4jCredData.getCOSEKey();
 		byte[] rawCoseKey = cborConverter.writeValueAsBytes(coseKey);
 		ImmutableCredentialRecord userCredential = ImmutableCredentialRecord.builder()
 			.userEntityUserId(creationOptions.getUser().getId())
 			.credentialType(credential.getType())
 			.credentialId(credential.getRawId())
 			.publicKey(new ImmutablePublicKeyCose(rawCoseKey))
-			.signatureCount(authData.getSignCount())
-			.uvInitialized(authData.isFlagUV())
-			.transports(convertTransports(registrationData.getTransports()))
-			.backupEligible(authData.isFlagBE())
-			.backupState(authData.isFlagBS())
+			.signatureCount(wa4jAuthData.getSignCount())
+			.uvInitialized(wa4jAuthData.isFlagUV())
+			.transports(convertTransports(wa4jRegistrationData.getTransports()))
+			.backupEligible(wa4jAuthData.isFlagBE())
+			.backupState(wa4jAuthData.isFlagBS())
 			.label(publicKey.getLabel())
 			.attestationClientDataJSON(credential.getResponse().getClientDataJSON())
 			.attestationObject(credential.getResponse().getAttestationObject())
@@ -286,7 +293,7 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 		return userCredential;
 	}
 
-	private static Set<String> convertTransportsToString(AuthenticatorAttestationResponse response) {
+	private static @Nullable Set<String> convertTransportsToString(AuthenticatorAttestationResponse response) {
 		if (response.getTransports() == null) {
 			return null;
 		}
@@ -320,7 +327,7 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 	}
 
 	private static Set<AuthenticatorTransport> convertTransports(
-			Set<com.webauthn4j.data.AuthenticatorTransport> transports) {
+			@Nullable Set<com.webauthn4j.data.AuthenticatorTransport> transports) {
 		if (transports == null) {
 			return Collections.emptySet();
 		}
@@ -344,7 +351,8 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 			.build();
 	}
 
-	private List<CredentialRecord> findCredentialRecords(Authentication authentication) {
+	@NullUnmarked
+	private List<CredentialRecord> findCredentialRecords(@Nullable Authentication authentication) {
 		if (!this.trustResolver.isAuthenticated(authentication)) {
 			return Collections.emptyList();
 		}
@@ -361,22 +369,30 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 		AuthenticatorAssertionResponse assertionResponse = request.getPublicKey().getResponse();
 		Bytes keyId = request.getPublicKey().getRawId();
 		CredentialRecord credentialRecord = this.userCredentials.findByCredentialId(keyId);
-
+		if (credentialRecord == null) {
+			throw new IllegalArgumentException("Unable to find CredentialRecord with id " + keyId);
+		}
 		CborConverter cborConverter = this.objectConverter.getCborConverter();
-		AttestationObject attestationObject = cborConverter
-			.readValue(credentialRecord.getAttestationObject().getBytes(), AttestationObject.class);
+		Bytes attestationObject = credentialRecord.getAttestationObject();
+		Assert.notNull(attestationObject, "attestationObject cannot be null");
+		AttestationObject wa4jAttestationObject = cborConverter
+			.readValue(attestationObject.getBytes(), AttestationObject.class);
+		Assert.notNull(wa4jAttestationObject, "attestationObject cannot be null");
+		AuthenticatorData<RegistrationExtensionAuthenticatorOutput> wa4jAuthData = wa4jAttestationObject.getAuthenticatorData();
+		AttestedCredentialData wa4jCredData = wa4jAuthData.getAttestedCredentialData();
+		Assert.notNull(wa4jCredData, "attestedCredentialData cannot be null");
+		AttestedCredentialData data = new AttestedCredentialData(wa4jCredData.getAaguid(),
+				keyId.getBytes(), wa4jCredData.getCOSEKey());
 
-		AuthenticatorData<RegistrationExtensionAuthenticatorOutput> authData = attestationObject.getAuthenticatorData();
-		AttestedCredentialData data = new AttestedCredentialData(authData.getAttestedCredentialData().getAaguid(),
-				keyId.getBytes(), authData.getAttestedCredentialData().getCOSEKey());
-
-		Authenticator authenticator = new AuthenticatorImpl(data, attestationObject.getAttestationStatement(),
+		Authenticator authenticator = new AuthenticatorImpl(data, wa4jAttestationObject.getAttestationStatement(),
 				credentialRecord.getSignatureCount());
 		Set<Origin> origins = toOrigins();
 		Challenge challenge = new DefaultChallenge(requestOptions.getChallenge().getBytes());
 		// FIXME: should populate this
 		byte[] tokenBindingId = null /* set tokenBindingId */;
-		ServerProperty serverProperty = new ServerProperty(origins, requestOptions.getRpId(), challenge,
+		String rpId = requestOptions.getRpId();
+		Assert.notNull(rpId, "rpId cannot be null");
+		ServerProperty serverProperty = new ServerProperty(origins, rpId, challenge,
 				tokenBindingId);
 		boolean userVerificationRequired = request.getRequestOptions()
 			.getUserVerification() == UserVerificationRequirement.REQUIRED;
@@ -387,17 +403,24 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 		AuthenticationParameters authenticationParameters = new AuthenticationParameters(serverProperty, authenticator,
 				userVerificationRequired);
 
-		AuthenticationData authenticationData = this.webAuthnManager.validate(authenticationRequest,
+		AuthenticationData wa4jAuthenticationData = this.webAuthnManager.validate(authenticationRequest,
 				authenticationParameters);
 
-		long updatedSignCount = authenticationData.getAuthenticatorData().getSignCount();
+		AuthenticatorData<AuthenticationExtensionAuthenticatorOutput> wa4jValidatedAuthData = wa4jAuthenticationData.getAuthenticatorData();
+		Assert.notNull(wa4jValidatedAuthData, "authenticatorData cannot be null");
+		long updatedSignCount = wa4jValidatedAuthData.getSignCount();
 		ImmutableCredentialRecord updatedRecord = ImmutableCredentialRecord.fromCredentialRecord(credentialRecord)
 			.lastUsed(Instant.now())
 			.signatureCount(updatedSignCount)
 			.build();
 		this.userCredentials.save(updatedRecord);
 
-		return this.userEntities.findById(credentialRecord.getUserEntityUserId());
+		PublicKeyCredentialUserEntity userEntity = this.userEntities.findById(
+				credentialRecord.getUserEntityUserId());
+		if (userEntity == null) {
+			throw new IllegalArgumentException("Unable to find UserEntity with id " + credentialRecord.getUserEntityUserId() + " for " + request);
+		}
+		return userEntity;
 	}
 
 }

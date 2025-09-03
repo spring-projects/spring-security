@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.web.webauthn.api.Bytes;
 import org.springframework.security.web.webauthn.api.CredentialRecord;
 import org.springframework.util.Assert;
@@ -62,7 +64,7 @@ public class MapUserCredentialRepository implements UserCredentialRepository {
 	}
 
 	@Override
-	public CredentialRecord findByCredentialId(Bytes credentialId) {
+	public @Nullable CredentialRecord findByCredentialId(Bytes credentialId) {
 		Assert.notNull(credentialId, "credentialId cannot be null");
 		return this.credentialIdToUserCredential.get(credentialId);
 	}

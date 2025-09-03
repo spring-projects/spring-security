@@ -19,6 +19,8 @@ package org.springframework.security.web.webauthn.api;
 import java.util.Arrays;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * <a href=
  * "https://www.w3.org/TR/webauthn-3/#authenticatorattestationresponse">AuthenticatorAttestationResponse</a>
@@ -36,10 +38,10 @@ public final class AuthenticatorAttestationResponse extends AuthenticatorRespons
 
 	private final Bytes attestationObject;
 
-	private final List<AuthenticatorTransport> transports;
+	private final @Nullable List<AuthenticatorTransport> transports;
 
 	private AuthenticatorAttestationResponse(Bytes clientDataJSON, Bytes attestationObject,
-			List<AuthenticatorTransport> transports) {
+			@Nullable List<AuthenticatorTransport> transports) {
 		super(clientDataJSON);
 		this.attestationObject = attestationObject;
 		this.transports = transports;
@@ -63,7 +65,7 @@ public final class AuthenticatorAttestationResponse extends AuthenticatorRespons
 	 * "https://www.w3.org/TR/webauthn-3/#dom-authenticatorattestationresponse-transports-slot">transports</a>
 	 * @return the transports
 	 */
-	public List<AuthenticatorTransport> getTransports() {
+	public @Nullable List<AuthenticatorTransport> getTransports() {
 		return this.transports;
 	}
 
@@ -83,10 +85,12 @@ public final class AuthenticatorAttestationResponse extends AuthenticatorRespons
 	 */
 	public static final class AuthenticatorAttestationResponseBuilder {
 
+		@SuppressWarnings("NullAway.Init")
 		private Bytes attestationObject;
 
-		private List<AuthenticatorTransport> transports;
+		private @Nullable List<AuthenticatorTransport> transports;
 
+		@SuppressWarnings("NullAway.Init")
 		private Bytes clientDataJSON;
 
 		private AuthenticatorAttestationResponseBuilder() {

@@ -18,6 +18,8 @@ package org.springframework.security.web.webauthn.api;
 
 import java.io.Serializable;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.web.webauthn.management.RelyingPartyAuthenticationRequest;
 import org.springframework.security.web.webauthn.management.WebAuthnRelyingPartyOperations;
 
@@ -57,6 +59,6 @@ public interface PublicKeyCredentialUserEntity extends Serializable {
 	 * is a human-palatable name for the user account, intended only for display.
 	 * @return the display name
 	 */
-	String getDisplayName();
+	@Nullable String getDisplayName();
 
 }

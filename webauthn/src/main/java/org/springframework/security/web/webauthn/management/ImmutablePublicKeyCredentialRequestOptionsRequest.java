@@ -16,18 +16,20 @@
 
 package org.springframework.security.web.webauthn.management;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.Authentication;
 
 public class ImmutablePublicKeyCredentialRequestOptionsRequest implements PublicKeyCredentialRequestOptionsRequest {
 
-	private final Authentication authentication;
+	private final @Nullable Authentication authentication;
 
-	public ImmutablePublicKeyCredentialRequestOptionsRequest(Authentication authentication) {
+	public ImmutablePublicKeyCredentialRequestOptionsRequest(@Nullable Authentication authentication) {
 		this.authentication = authentication;
 	}
 
 	@Override
-	public Authentication getAuthentication() {
+	public @Nullable Authentication getAuthentication() {
 		return this.authentication;
 	}
 

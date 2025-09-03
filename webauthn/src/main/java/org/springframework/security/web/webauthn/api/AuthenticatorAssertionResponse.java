@@ -18,6 +18,10 @@ package org.springframework.security.web.webauthn.api;
 
 import java.io.Serial;
 
+import org.jspecify.annotations.Nullable;
+
+import org.springframework.util.Assert;
+
 /**
  * The <a href=
  * "https://www.w3.org/TR/webauthn-3/#authenticatorassertionresponse">AuthenticatorAssertionResponse</a>
@@ -47,12 +51,12 @@ public final class AuthenticatorAssertionResponse extends AuthenticatorResponse 
 
 	private final Bytes signature;
 
-	private final Bytes userHandle;
+	private final @Nullable Bytes userHandle;
 
-	private final Bytes attestationObject;
+	private final @Nullable Bytes attestationObject;
 
 	private AuthenticatorAssertionResponse(Bytes clientDataJSON, Bytes authenticatorData, Bytes signature,
-			Bytes userHandle, Bytes attestationObject) {
+			@Nullable Bytes userHandle, @Nullable Bytes attestationObject) {
 		super(clientDataJSON);
 		this.authenticatorData = authenticatorData;
 		this.signature = signature;
@@ -101,7 +105,7 @@ public final class AuthenticatorAssertionResponse extends AuthenticatorResponse 
 	 * ceremony</a> is empty, and MAY return one otherwise.
 	 * @return the <a href="https://www.w3.org/TR/webauthn-3/#user-handle">user handle</a>
 	 */
-	public Bytes getUserHandle() {
+	public @Nullable Bytes getUserHandle() {
 		return this.userHandle;
 	}
 
@@ -113,7 +117,7 @@ public final class AuthenticatorAssertionResponse extends AuthenticatorResponse 
 	 * object</a>, if the authenticator supports attestation in assertions.
 	 * @return the {@code attestationObject}
 	 */
-	public Bytes getAttestationObject() {
+	public @Nullable Bytes getAttestationObject() {
 		return this.attestationObject;
 	}
 
@@ -133,15 +137,15 @@ public final class AuthenticatorAssertionResponse extends AuthenticatorResponse 
 	 */
 	public static final class AuthenticatorAssertionResponseBuilder {
 
-		private Bytes authenticatorData;
+		private @Nullable Bytes authenticatorData;
 
-		private Bytes signature;
+		private @Nullable Bytes signature;
 
-		private Bytes userHandle;
+		private @Nullable Bytes userHandle;
 
-		private Bytes attestationObject;
+		private @Nullable Bytes attestationObject;
 
-		private Bytes clientDataJSON;
+		private @Nullable Bytes clientDataJSON;
 
 		private AuthenticatorAssertionResponseBuilder() {
 		}
@@ -201,6 +205,9 @@ public final class AuthenticatorAssertionResponse extends AuthenticatorResponse 
 		 * @return the {@link AuthenticatorAssertionResponse}
 		 */
 		public AuthenticatorAssertionResponse build() {
+			Assert.notNull(this.clientDataJSON, "clientDataJSON cannot be null");
+			Assert.notNull(this.authenticatorData, "authenticatorData cannot be null");
+			Assert.notNull(this.signature, "signature cannot be null");
 			return new AuthenticatorAssertionResponse(this.clientDataJSON, this.authenticatorData, this.signature,
 					this.userHandle, this.attestationObject);
 		}

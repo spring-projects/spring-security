@@ -19,6 +19,10 @@ package org.springframework.security.web.webauthn.api;
 import java.io.Serial;
 import java.io.Serializable;
 
+import org.jspecify.annotations.Nullable;
+
+import org.springframework.util.Assert;
+
 /**
  * <a href="https://www.w3.org/TR/webauthn-3/#iface-pkcredential">PublicKeyCredential</a>
  * contains the attributes that are returned to the caller when a new credential is
@@ -40,13 +44,13 @@ public final class PublicKeyCredential<R extends AuthenticatorResponse> implemen
 
 	private final R response;
 
-	private final AuthenticatorAttachment authenticatorAttachment;
+	private final @Nullable AuthenticatorAttachment authenticatorAttachment;
 
-	private final AuthenticationExtensionsClientOutputs clientExtensionResults;
+	private final @Nullable AuthenticationExtensionsClientOutputs clientExtensionResults;
 
 	private PublicKeyCredential(String id, PublicKeyCredentialType type, Bytes rawId, R response,
-			AuthenticatorAttachment authenticatorAttachment,
-			AuthenticationExtensionsClientOutputs clientExtensionResults) {
+			@Nullable AuthenticatorAttachment authenticatorAttachment,
+			@Nullable AuthenticationExtensionsClientOutputs clientExtensionResults) {
 		this.id = id;
 		this.type = type;
 		this.rawId = rawId;
@@ -107,7 +111,7 @@ public final class PublicKeyCredential<R extends AuthenticatorResponse> implemen
 	 * navigator.credentials.get() methods successfully complete.
 	 * @return the authenticator attachment
 	 */
-	public AuthenticatorAttachment getAuthenticatorAttachment() {
+	public @Nullable AuthenticatorAttachment getAuthenticatorAttachment() {
 		return this.authenticatorAttachment;
 	}
 
@@ -117,7 +121,7 @@ public final class PublicKeyCredential<R extends AuthenticatorResponse> implemen
 	 * is a mapping of extension identifier to client extension output.
 	 * @return the extension results
 	 */
-	public AuthenticationExtensionsClientOutputs getClientExtensionResults() {
+	public @Nullable AuthenticationExtensionsClientOutputs getClientExtensionResults() {
 		return this.clientExtensionResults;
 	}
 
@@ -139,17 +143,20 @@ public final class PublicKeyCredential<R extends AuthenticatorResponse> implemen
 	 */
 	public static final class PublicKeyCredentialBuilder<R extends AuthenticatorResponse> {
 
+		@SuppressWarnings("NullAway.Init")
 		private String id;
 
-		private PublicKeyCredentialType type;
+		private @Nullable PublicKeyCredentialType type;
 
+		@SuppressWarnings("NullAway.Init")
 		private Bytes rawId;
 
+		@SuppressWarnings("NullAway.Init")
 		private R response;
 
-		private AuthenticatorAttachment authenticatorAttachment;
+		private @Nullable AuthenticatorAttachment authenticatorAttachment;
 
-		private AuthenticationExtensionsClientOutputs clientExtensionResults;
+		private @Nullable AuthenticationExtensionsClientOutputs clientExtensionResults;
 
 		private PublicKeyCredentialBuilder() {
 		}
@@ -220,6 +227,10 @@ public final class PublicKeyCredential<R extends AuthenticatorResponse> implemen
 		 * @return a new {@link PublicKeyCredential}
 		 */
 		public PublicKeyCredential<R> build() {
+			Assert.notNull(this.id, "id cannot be null");
+			Assert.notNull(this.type, "type cannot be null");
+			Assert.notNull(this.rawId, "rawId cannot be null");
+			Assert.notNull(this.response, "response cannot be null");
 			return new PublicKeyCredential(this.id, this.type, this.rawId, this.response, this.authenticatorAttachment,
 					this.clientExtensionResults);
 		}

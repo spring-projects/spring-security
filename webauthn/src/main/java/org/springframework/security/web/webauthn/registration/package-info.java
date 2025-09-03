@@ -14,21 +14,10 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.webauthn.management;
-
-import org.jspecify.annotations.Nullable;
-
-import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
-
 /**
- * @author Rob Winch
- * @since 6.4
- * @see WebAuthnRelyingPartyOperations#registerCredential(RelyingPartyRegistrationRequest)
+ * WebAuthn Registration support.
  */
-public interface RelyingPartyRegistrationRequest {
+@NullMarked
+package org.springframework.security.web.webauthn.registration;
 
-	PublicKeyCredentialCreationOptions getCreationOptions();
-
-	RelyingPartyPublicKey getPublicKey();
-
-}
+import org.jspecify.annotations.NullMarked;

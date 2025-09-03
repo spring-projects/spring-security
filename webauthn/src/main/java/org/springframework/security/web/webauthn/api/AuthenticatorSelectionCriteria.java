@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * <a href=
  * "https://www.w3.org/TR/webauthn-3/#dictdef-authenticatorselectioncriteria">AuthenticatorAttachment</a>
@@ -33,11 +35,11 @@ package org.springframework.security.web.webauthn.api;
  */
 public final class AuthenticatorSelectionCriteria {
 
-	private final AuthenticatorAttachment authenticatorAttachment;
+	private final @Nullable AuthenticatorAttachment authenticatorAttachment;
 
-	private final ResidentKeyRequirement residentKey;
+	private final @Nullable ResidentKeyRequirement residentKey;
 
-	private final UserVerificationRequirement userVerification;
+	private final @Nullable UserVerificationRequirement userVerification;
 
 	// NOTE: There is no requireResidentKey property because it is only for backward
 	// compatibility with WebAuthn Level 1
@@ -48,8 +50,8 @@ public final class AuthenticatorSelectionCriteria {
 	 * @param residentKey the resident key requirement
 	 * @param userVerification the user verification
 	 */
-	private AuthenticatorSelectionCriteria(AuthenticatorAttachment authenticatorAttachment,
-			ResidentKeyRequirement residentKey, UserVerificationRequirement userVerification) {
+	private AuthenticatorSelectionCriteria(@Nullable AuthenticatorAttachment authenticatorAttachment,
+			@Nullable ResidentKeyRequirement residentKey, @Nullable UserVerificationRequirement userVerification) {
 		this.authenticatorAttachment = authenticatorAttachment;
 		this.residentKey = residentKey;
 		this.userVerification = userVerification;
@@ -67,7 +69,7 @@ public final class AuthenticatorSelectionCriteria {
 	 * Authenticator Attachment Modality</a>).
 	 * @return the authenticator attachment
 	 */
-	public AuthenticatorAttachment getAuthenticatorAttachment() {
+	public @Nullable AuthenticatorAttachment getAuthenticatorAttachment() {
 		return this.authenticatorAttachment;
 	}
 
@@ -81,7 +83,7 @@ public final class AuthenticatorSelectionCriteria {
 	 * discoverable credential</a>.
 	 * @return the resident key requirement
 	 */
-	public ResidentKeyRequirement getResidentKey() {
+	public @Nullable ResidentKeyRequirement getResidentKey() {
 		return this.residentKey;
 	}
 
@@ -96,7 +98,7 @@ public final class AuthenticatorSelectionCriteria {
 	 * operation.
 	 * @return the user verification requirement
 	 */
-	public UserVerificationRequirement getUserVerification() {
+	public @Nullable UserVerificationRequirement getUserVerification() {
 		return this.userVerification;
 	}
 
@@ -116,11 +118,11 @@ public final class AuthenticatorSelectionCriteria {
 	 */
 	public static final class AuthenticatorSelectionCriteriaBuilder {
 
-		private AuthenticatorAttachment authenticatorAttachment;
+		private @Nullable AuthenticatorAttachment authenticatorAttachment;
 
-		private ResidentKeyRequirement residentKey;
+		private @Nullable ResidentKeyRequirement residentKey;
 
-		private UserVerificationRequirement userVerification;
+		private @Nullable UserVerificationRequirement userVerification;
 
 		private AuthenticatorSelectionCriteriaBuilder() {
 		}

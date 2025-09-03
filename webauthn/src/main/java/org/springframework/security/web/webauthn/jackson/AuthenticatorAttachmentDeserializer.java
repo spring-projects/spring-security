@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.web.webauthn.api.AuthenticatorAttachment;
 
@@ -39,7 +40,7 @@ class AuthenticatorAttachmentDeserializer extends StdDeserializer<AuthenticatorA
 	}
 
 	@Override
-	public AuthenticatorAttachment deserialize(JsonParser parser, DeserializationContext ctxt)
+	public @Nullable AuthenticatorAttachment deserialize(JsonParser parser, DeserializationContext ctxt)
 			throws IOException, JacksonException {
 		String type = parser.readValueAs(String.class);
 		for (AuthenticatorAttachment publicKeyCredentialType : AuthenticatorAttachment.values()) {

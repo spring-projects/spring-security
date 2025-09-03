@@ -19,6 +19,7 @@ package org.springframework.security.web.webauthn.authentication;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestOptions;
 import org.springframework.util.Assert;
@@ -41,13 +42,13 @@ public class HttpSessionPublicKeyCredentialRequestOptionsRepository
 
 	@Override
 	public void save(HttpServletRequest request, HttpServletResponse response,
-			PublicKeyCredentialRequestOptions options) {
+			@Nullable PublicKeyCredentialRequestOptions options) {
 		HttpSession session = request.getSession();
 		session.setAttribute(this.attrName, options);
 	}
 
 	@Override
-	public PublicKeyCredentialRequestOptions load(HttpServletRequest request) {
+	public @Nullable PublicKeyCredentialRequestOptions load(HttpServletRequest request) {
 		HttpSession session = request.getSession(false);
 		if (session == null) {
 			return null;

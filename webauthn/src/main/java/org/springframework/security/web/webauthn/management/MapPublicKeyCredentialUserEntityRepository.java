@@ -19,6 +19,8 @@ package org.springframework.security.web.webauthn.management;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.web.webauthn.api.Bytes;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
 import org.springframework.util.Assert;
@@ -36,13 +38,13 @@ public class MapPublicKeyCredentialUserEntityRepository implements PublicKeyCred
 	private final Map<Bytes, PublicKeyCredentialUserEntity> idToUserEntity = new HashMap<>();
 
 	@Override
-	public PublicKeyCredentialUserEntity findById(Bytes id) {
+	public @Nullable PublicKeyCredentialUserEntity findById(Bytes id) {
 		Assert.notNull(id, "id cannot be null");
 		return this.idToUserEntity.get(id);
 	}
 
 	@Override
-	public PublicKeyCredentialUserEntity findByUsername(String username) {
+	public @Nullable PublicKeyCredentialUserEntity findByUsername(String username) {
 		Assert.notNull(username, "username cannot be null");
 		return this.usernameToUserEntity.get(username);
 	}

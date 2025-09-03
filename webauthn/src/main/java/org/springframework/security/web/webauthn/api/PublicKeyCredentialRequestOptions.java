@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -43,17 +45,17 @@ public final class PublicKeyCredentialRequestOptions implements Serializable {
 
 	private final Duration timeout;
 
-	private final String rpId;
+	private final @Nullable String rpId;
 
 	private final List<PublicKeyCredentialDescriptor> allowCredentials;
 
-	private final UserVerificationRequirement userVerification;
+	private final @Nullable UserVerificationRequirement userVerification;
 
 	private final AuthenticationExtensionsClientInputs extensions;
 
-	private PublicKeyCredentialRequestOptions(Bytes challenge, Duration timeout, String rpId,
-			List<PublicKeyCredentialDescriptor> allowCredentials, UserVerificationRequirement userVerification,
-			AuthenticationExtensionsClientInputs extensions) {
+	private PublicKeyCredentialRequestOptions(Bytes challenge, Duration timeout, @Nullable String rpId,
+			List<PublicKeyCredentialDescriptor> allowCredentials,
+			@Nullable UserVerificationRequirement userVerification, AuthenticationExtensionsClientInputs extensions) {
 		Assert.notNull(challenge, "challenge cannot be null");
 		Assert.hasText(rpId, "rpId cannot be empty");
 		this.challenge = challenge;
@@ -93,7 +95,7 @@ public final class PublicKeyCredentialRequestOptions implements Serializable {
 	 * MUST verify that the Relying Party's origin matches the scope of this RP ID.
 	 * @return the relying party id
 	 */
-	public String getRpId() {
+	public @Nullable String getRpId() {
 		return this.rpId;
 	}
 
@@ -115,7 +117,7 @@ public final class PublicKeyCredentialRequestOptions implements Serializable {
 	 * user verification for the get() operation.
 	 * @return the user verification
 	 */
-	public UserVerificationRequirement getUserVerification() {
+	public @Nullable UserVerificationRequirement getUserVerification() {
 		return this.userVerification;
 	}
 
@@ -146,15 +148,15 @@ public final class PublicKeyCredentialRequestOptions implements Serializable {
 	 */
 	public static final class PublicKeyCredentialRequestOptionsBuilder {
 
-		private Bytes challenge;
+		private @Nullable Bytes challenge;
 
 		private Duration timeout = Duration.ofMinutes(5);
 
-		private String rpId;
+		private @Nullable String rpId;
 
 		private List<PublicKeyCredentialDescriptor> allowCredentials = Collections.emptyList();
 
-		private UserVerificationRequirement userVerification;
+		private @Nullable UserVerificationRequirement userVerification;
 
 		private AuthenticationExtensionsClientInputs extensions = new ImmutableAuthenticationExtensionsClientInputs(
 				new ArrayList<>());

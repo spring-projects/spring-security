@@ -18,6 +18,8 @@ package org.springframework.security.web.webauthn.api;
 
 import java.io.Serial;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * <a href=
  * "https://www.w3.org/TR/webauthn-3/#dictdef-publickeycredentialuserentity">PublicKeyCredentialUserEntity</a>
@@ -102,9 +104,9 @@ public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCr
 	 * fits within 64 bytes. See 6.4.1 String Truncation about truncation and other
 	 * considerations.
 	 */
-	private final String displayName;
+	private final @Nullable String displayName;
 
-	private ImmutablePublicKeyCredentialUserEntity(String name, Bytes id, String displayName) {
+	private ImmutablePublicKeyCredentialUserEntity(String name, Bytes id, @Nullable String displayName) {
 		this.name = name;
 		this.id = id;
 		this.displayName = displayName;
@@ -121,7 +123,7 @@ public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCr
 	}
 
 	@Override
-	public String getDisplayName() {
+	public @Nullable String getDisplayName() {
 		return this.displayName;
 	}
 
@@ -141,11 +143,13 @@ public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCr
 	 */
 	public static final class PublicKeyCredentialUserEntityBuilder {
 
+		@SuppressWarnings("NullAway.Init")
 		private String name;
 
+		@SuppressWarnings("NullAway.Init")
 		private Bytes id;
 
-		private String displayName;
+		private @Nullable String displayName;
 
 		private PublicKeyCredentialUserEntityBuilder() {
 		}

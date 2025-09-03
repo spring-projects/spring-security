@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.webauthn.management;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.Authentication;
 
 public interface PublicKeyCredentialRequestOptionsRequest {
@@ -24,6 +26,6 @@ public interface PublicKeyCredentialRequestOptionsRequest {
 	 * The current {@link Authentication}. Possibly null or an anonymous.
 	 * @return the current {@link Authentication}
 	 */
-	Authentication getAuthentication();
+	@Nullable Authentication getAuthentication();
 
 }
