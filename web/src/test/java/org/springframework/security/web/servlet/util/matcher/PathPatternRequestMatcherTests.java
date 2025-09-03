@@ -137,6 +137,14 @@ public class PathPatternRequestMatcherTests {
 			.isThrownBy(() -> PathPatternRequestMatcher.withDefaults().basePath("/path/"));
 	}
 
+	@Test
+	void matcherWhenBasePathIsRootThenNoDoubleSlash() {
+		PathPatternRequestMatcher.Builder builder = PathPatternRequestMatcher.withDefaults().basePath("/");
+		RequestMatcher matcher = builder.matcher(HttpMethod.GET, "/path");
+		MockHttpServletRequest mock = get("/path").servletPath("/path").buildRequest(null);
+		assertThat(matcher.matches(mock)).isTrue();
+	}
+
 	MockHttpServletRequest request(String uri) {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
 		ServletRequestPathUtils.parseAndCache(request);
