@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.web.builders;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.servlet.Filter;
@@ -25,6 +26,8 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -32,8 +35,11 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.ResolvableType;
+import org.springframework.expression.EvaluationContext;
 import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.access.expression.AbstractSecurityExpressionHandler;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
+import org.springframework.security.access.expression.SecurityExpressionOperations;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -46,6 +52,7 @@ import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
@@ -58,7 +65,7 @@ import org.springframework.security.web.access.DefaultWebInvocationPrivilegeEval
 import org.springframework.security.web.access.PathPatternRequestTransformer;
 import org.springframework.security.web.access.RequestMatcherDelegatingWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
-import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
+import org.springframework.security.web.access.expression.DefaultHttpSecurityExpressionHandler;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
@@ -74,6 +81,7 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcherEntry;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
@@ -99,6 +107,9 @@ import org.springframework.web.filter.DelegatingFilterProxy;
 public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter, WebSecurity>
 		implements SecurityBuilder<Filter>, ApplicationContextAware, ServletContextAware {
 
+	private static final boolean USING_ACCESS = ClassUtils
+		.isPresent("org.springframework.security.access.SecurityConfig", null);
+
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final List<RequestMatcher> ignoredRequests = new ArrayList<>();
@@ -122,9 +133,10 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 
 	private HttpServletRequestTransformer privilegeEvaluatorRequestTransformer;
 
-	private DefaultWebSecurityExpressionHandler defaultWebSecurityExpressionHandler = new DefaultWebSecurityExpressionHandler();
+	private DefaultHttpSecurityExpressionHandler defaultExpressionHandler = new DefaultHttpSecurityExpressionHandler();
 
-	private SecurityExpressionHandler<FilterInvocation> expressionHandler = this.defaultWebSecurityExpressionHandler;
+	private SecurityExpressionHandler<FilterInvocation> expressionHandler = new SecurityExpressionHandlerAdapter(
+			this.defaultExpressionHandler);
 
 	private Runnable postBuildAction = () -> {
 	};
@@ -240,7 +252,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 
 	/**
 	 * Set the {@link SecurityExpressionHandler} to be used. If this is not specified,
-	 * then a {@link DefaultWebSecurityExpressionHandler} will be used.
+	 * then a {@link DefaultHttpSecurityExpressionHandler} will be used.
 	 * @param expressionHandler the {@link SecurityExpressionHandler} to use
 	 * @return the {@link WebSecurity} for further customizations
 	 */
@@ -361,19 +373,9 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 			RequestMatcherDelegatingAuthorizationManager.Builder builder) {
 		boolean mappings = false;
 		for (Filter filter : securityFilterChain.getFilters()) {
-			if (filter instanceof FilterSecurityInterceptor securityInterceptor) {
-				DefaultWebInvocationPrivilegeEvaluator privilegeEvaluator = new DefaultWebInvocationPrivilegeEvaluator(
-						securityInterceptor);
-				privilegeEvaluator.setServletContext(this.servletContext);
-				AuthorizationManager<RequestAuthorizationContext> authorizationManager = (authentication, context) -> {
-					HttpServletRequest request = context.getRequest();
-					boolean result = privilegeEvaluator.isAllowed(request.getContextPath(), request.getRequestURI(),
-							request.getMethod(), authentication.get());
-					return new AuthorizationDecision(result);
-				};
-				builder.add(securityFilterChain::matches, authorizationManager);
-				mappings = true;
-				continue;
+			if (USING_ACCESS) {
+				mappings = AccessComponents.addAuthorizationManager(filter, this.servletContext, builder,
+						securityFilterChain);
 			}
 			if (filter instanceof AuthorizationFilter authorization) {
 				AuthorizationManager<HttpServletRequest> authorizationManager = authorization.getAuthorizationManager();
@@ -388,15 +390,14 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.defaultWebSecurityExpressionHandler.setApplicationContext(applicationContext);
+		this.defaultExpressionHandler.setApplicationContext(applicationContext);
 		try {
-			this.defaultWebSecurityExpressionHandler.setRoleHierarchy(applicationContext.getBean(RoleHierarchy.class));
+			this.defaultExpressionHandler.setRoleHierarchy(applicationContext.getBean(RoleHierarchy.class));
 		}
 		catch (NoSuchBeanDefinitionException ex) {
 		}
 		try {
-			this.defaultWebSecurityExpressionHandler
-				.setPermissionEvaluator(applicationContext.getBean(PermissionEvaluator.class));
+			this.defaultExpressionHandler.setPermissionEvaluator(applicationContext.getBean(PermissionEvaluator.class));
 		}
 		catch (NoSuchBeanDefinitionException ex) {
 		}
@@ -459,6 +460,78 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		 */
 		public WebSecurity and() {
 			return WebSecurity.this;
+		}
+
+	}
+
+	@NullMarked
+	private static final class SecurityExpressionHandlerAdapter
+			extends AbstractSecurityExpressionHandler<FilterInvocation> {
+
+		private final AbstractSecurityExpressionHandler<RequestAuthorizationContext> delegate;
+
+		private SecurityExpressionHandlerAdapter(
+				AbstractSecurityExpressionHandler<RequestAuthorizationContext> delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public EvaluationContext createEvaluationContext(Supplier<? extends @Nullable Authentication> authentication,
+				FilterInvocation invocation) {
+			RequestAuthorizationContext context = new RequestAuthorizationContext(invocation.getRequest());
+			return this.delegate.createEvaluationContext(authentication, context);
+		}
+
+		@Override
+		protected SecurityExpressionOperations createSecurityExpressionRoot(@Nullable Authentication authentication,
+				FilterInvocation invocation) {
+			RequestAuthorizationContext context = new RequestAuthorizationContext(invocation.getRequest());
+			Object operations = this.delegate.createEvaluationContext(authentication, context)
+				.getRootObject()
+				.getValue();
+			Assert.isInstanceOf(SecurityExpressionOperations.class, operations,
+					"createEvaluationContext must have a SecurityExpressionOperations instance as its root");
+			return (SecurityExpressionOperations) operations;
+		}
+
+		@Override
+		public void setApplicationContext(ApplicationContext context) {
+			this.delegate.setApplicationContext(context);
+			super.setApplicationContext(context);
+		}
+
+		@Override
+		public void setPermissionEvaluator(PermissionEvaluator permissionEvaluator) {
+			this.delegate.setPermissionEvaluator(permissionEvaluator);
+			super.setPermissionEvaluator(permissionEvaluator);
+		}
+
+		@Override
+		public void setRoleHierarchy(@Nullable RoleHierarchy roleHierarchy) {
+			this.delegate.setRoleHierarchy(roleHierarchy);
+			super.setRoleHierarchy(roleHierarchy);
+		}
+
+	}
+
+	private static final class AccessComponents {
+
+		private static boolean addAuthorizationManager(Filter filter, ServletContext servletContext,
+				RequestMatcherDelegatingAuthorizationManager.Builder builder, SecurityFilterChain securityFilterChain) {
+			if (filter instanceof FilterSecurityInterceptor securityInterceptor) {
+				DefaultWebInvocationPrivilegeEvaluator privilegeEvaluator = new DefaultWebInvocationPrivilegeEvaluator(
+						securityInterceptor);
+				privilegeEvaluator.setServletContext(servletContext);
+				AuthorizationManager<RequestAuthorizationContext> authorizationManager = (authentication, context) -> {
+					HttpServletRequest request = context.getRequest();
+					boolean result = privilegeEvaluator.isAllowed(request.getContextPath(), request.getRequestURI(),
+							request.getMethod(), authentication.get());
+					return new AuthorizationDecision(result);
+				};
+				builder.add(securityFilterChain::matches, authorizationManager);
+				return true;
+			}
+			return false;
 		}
 
 	}

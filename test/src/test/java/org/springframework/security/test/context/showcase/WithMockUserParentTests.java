@@ -23,7 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.test.context.showcase.service.HelloMessageService;
 import org.springframework.security.test.context.showcase.service.MessageService;
 import org.springframework.test.context.ContextConfiguration;
@@ -48,7 +49,8 @@ public class WithMockUserParentTests extends WithMockUserParent {
 	}
 
 	@Configuration
-	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	@EnableMethodSecurity
+	@EnableWebSecurity
 	@ComponentScan(basePackageClasses = HelloMessageService.class)
 	static class Config {
 

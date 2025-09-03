@@ -29,6 +29,7 @@ import org.springframework.security.web.UnreachableFilterChainException;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.util.ClassUtils;
 
 /**
  * A filter chain validator for filter chains built by {@link WebSecurity}
@@ -38,6 +39,9 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher;
  * @since 6.5
  */
 final class WebSecurityFilterChainValidator implements FilterChainProxy.FilterChainValidator {
+
+	private static final boolean USING_ACCESS = ClassUtils
+		.isPresent("org.springframework.security.access.SecurityConfig", null);
 
 	private final Log logger = LogFactory.getLog(getClass());
 
@@ -93,7 +97,7 @@ final class WebSecurityFilterChainValidator implements FilterChainProxy.FilterCh
 				if (filter instanceof AuthorizationFilter) {
 					authorizationFilter = filter;
 				}
-				if (filter instanceof FilterSecurityInterceptor) {
+				if (USING_ACCESS && AccessComponents.isFilterSecurityInterceptor(filter)) {
 					filterSecurityInterceptor = filter;
 				}
 			}
@@ -108,6 +112,14 @@ final class WebSecurityFilterChainValidator implements FilterChainProxy.FilterCh
 			authorizationFilter = null;
 			filterSecurityInterceptor = null;
 		}
+	}
+
+	private static final class AccessComponents {
+
+		private static boolean isFilterSecurityInterceptor(Filter filter) {
+			return filter instanceof FilterSecurityInterceptor;
+		}
+
 	}
 
 }

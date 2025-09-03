@@ -60,7 +60,6 @@ import org.springframework.security.web.access.AuthorizationManagerWebInvocation
 import org.springframework.security.web.access.PathPatternRequestTransformer;
 import org.springframework.security.web.access.RequestMatcherDelegatingWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
-import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.ClassUtils;
@@ -153,7 +152,7 @@ public class WebSecurityConfigurationTests {
 	public void loadConfigWhenDefaultSecurityExpressionHandlerThenDefaultIsRegistered() {
 		this.spring.register(WebSecurityExpressionHandlerDefaultsConfig.class).autowire();
 		assertThat(this.spring.getContext().getBean(SecurityExpressionHandler.class))
-			.isInstanceOf(DefaultWebSecurityExpressionHandler.class);
+			.isInstanceOf(AbstractSecurityExpressionHandler.class);
 	}
 
 	@Test
