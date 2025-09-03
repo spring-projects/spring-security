@@ -28,6 +28,7 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.ui.DefaultResourcesFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -148,6 +149,15 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 		Assert.notNull(creationOptionsRepository, "creationOptionsRepository can't be null");
 		this.creationOptionsRepository = creationOptionsRepository;
 		return this;
+	}
+
+	@Override
+	public void init(H http) throws Exception {
+		ExceptionHandlingConfigurer<H> exceptions = http.getConfigurer(ExceptionHandlingConfigurer.class);
+		if (exceptions != null) {
+			exceptions.defaultAuthenticationEntryPointFor(new LoginUrlAuthenticationEntryPoint("/login"),
+					"FACTOR_WEBAUTHN");
+		}
 	}
 
 	@Override

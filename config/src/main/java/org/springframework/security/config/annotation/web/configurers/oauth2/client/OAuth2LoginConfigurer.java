@@ -40,6 +40,7 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
 import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
 import org.springframework.security.context.DelegatingApplicationListener;
 import org.springframework.security.core.Authentication;
@@ -372,6 +373,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			http.authenticationProvider(new OidcAuthenticationRequestChecker());
 		}
 		this.initDefaultLoginFilter(http);
+		ExceptionHandlingConfigurer<B> exceptions = http.getConfigurer(ExceptionHandlingConfigurer.class);
+		if (exceptions != null) {
+			exceptions.defaultAuthenticationEntryPointFor(getAuthenticationEntryPoint(), "FACTOR_AUTHORIZATION_CODE");
+		}
 	}
 
 	@Override
