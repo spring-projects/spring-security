@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.client.web.client;
 
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 import org.jspecify.annotations.Nullable;
 
@@ -37,17 +38,20 @@ public final class ClientRegistrationIdProcessor implements HttpRequestValues.Pr
 
 	public static ClientRegistrationIdProcessor DEFAULT_INSTANCE = new ClientRegistrationIdProcessor();
 
+	private ClientRegistrationIdProcessor() {
+	}
+
 	@Override
 	public void process(Method method, MethodParameter[] parameters, @Nullable Object[] arguments,
 			HttpRequestValues.Builder builder) {
-		ClientRegistrationId registeredId = AnnotationUtils.findAnnotation(method, ClientRegistrationId.class);
+		ClientRegistrationId registeredId = Optional
+			.ofNullable(AnnotationUtils.findAnnotation(method, ClientRegistrationId.class))
+			.orElseGet(() -> AnnotationUtils.findAnnotation(method.getDeclaringClass(), ClientRegistrationId.class));
+
 		if (registeredId != null) {
 			String registrationId = registeredId.registrationId();
 			builder.configureAttributes(ClientAttributes.clientRegistrationId(registrationId));
 		}
-	}
-
-	private ClientRegistrationIdProcessor() {
 	}
 
 }

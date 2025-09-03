@@ -39,6 +39,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ClientRegistrationIdProcessorTests {
 
+	private static final String REGISTRATION_ID = "registrationId";
+
 	ClientRegistrationIdProcessor processor = ClientRegistrationIdProcessor.DEFAULT_INSTANCE;
 
 	@Test
@@ -48,32 +50,42 @@ class ClientRegistrationIdProcessorTests {
 		this.processor.process(hasClientRegistrationId, null, null, builder);
 
 		String registrationId = ClientAttributes.resolveClientRegistrationId(builder.build().getAttributes());
-		assertThat(registrationId).isEqualTo(RestService.REGISTRATION_ID);
+		assertThat(registrationId).isEqualTo(REGISTRATION_ID);
 	}
 
 	@Test
 	void processWhenMetaClientRegistrationIdPresentThenSet() {
 		HttpRequestValues.Builder builder = HttpRequestValues.builder();
-		Method hasClientRegistrationId = ReflectionUtils.findMethod(RestService.class, "hasMetaClientRegistrationId");
-		this.processor.process(hasClientRegistrationId, null, null, builder);
+		Method hasMetaClientRegistrationId = ReflectionUtils.findMethod(RestService.class,
+				"hasMetaClientRegistrationId");
+		this.processor.process(hasMetaClientRegistrationId, null, null, builder);
 
 		String registrationId = ClientAttributes.resolveClientRegistrationId(builder.build().getAttributes());
-		assertThat(registrationId).isEqualTo(RestService.REGISTRATION_ID);
+		assertThat(registrationId).isEqualTo(REGISTRATION_ID);
 	}
 
 	@Test
 	void processWhenNoClientRegistrationIdPresentThenNull() {
 		HttpRequestValues.Builder builder = HttpRequestValues.builder();
-		Method hasClientRegistrationId = ReflectionUtils.findMethod(RestService.class, "noClientRegistrationId");
-		this.processor.process(hasClientRegistrationId, null, null, builder);
+		Method noClientRegistrationId = ReflectionUtils.findMethod(RestService.class, "noClientRegistrationId");
+		this.processor.process(noClientRegistrationId, null, null, builder);
 
 		String registrationId = ClientAttributes.resolveClientRegistrationId(builder.build().getAttributes());
 		assertThat(registrationId).isNull();
 	}
 
-	interface RestService {
+	@Test
+	void processWhenClientRegistrationIdPresentOnDeclaringClassThenSet() {
+		HttpRequestValues.Builder builder = HttpRequestValues.builder();
+		Method declaringClassHasClientRegistrationId = ReflectionUtils.findMethod(AnnotatedRestService.class,
+				"declaringClassHasClientRegistrationId");
+		this.processor.process(declaringClassHasClientRegistrationId, null, null, builder);
 
-		String REGISTRATION_ID = "registrationId";
+		String registrationId = ClientAttributes.resolveClientRegistrationId(builder.build().getAttributes());
+		assertThat(registrationId).isEqualTo(REGISTRATION_ID);
+	}
+
+	interface RestService {
 
 		@ClientRegistrationId(REGISTRATION_ID)
 		void hasClientRegistrationId();
@@ -86,8 +98,15 @@ class ClientRegistrationIdProcessorTests {
 	}
 
 	@Retention(RetentionPolicy.RUNTIME)
-	@ClientRegistrationId(RestService.REGISTRATION_ID)
+	@ClientRegistrationId(REGISTRATION_ID)
 	@interface MetaClientRegistrationId {
+
+	}
+
+	@ClientRegistrationId(REGISTRATION_ID)
+	interface AnnotatedRestService {
+
+		void declaringClassHasClientRegistrationId();
 
 	}
 
