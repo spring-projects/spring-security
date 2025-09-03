@@ -375,14 +375,15 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 		CborConverter cborConverter = this.objectConverter.getCborConverter();
 		Bytes attestationObject = credentialRecord.getAttestationObject();
 		Assert.notNull(attestationObject, "attestationObject cannot be null");
-		AttestationObject wa4jAttestationObject = cborConverter
-			.readValue(attestationObject.getBytes(), AttestationObject.class);
+		AttestationObject wa4jAttestationObject = cborConverter.readValue(attestationObject.getBytes(),
+				AttestationObject.class);
 		Assert.notNull(wa4jAttestationObject, "attestationObject cannot be null");
-		AuthenticatorData<RegistrationExtensionAuthenticatorOutput> wa4jAuthData = wa4jAttestationObject.getAuthenticatorData();
+		AuthenticatorData<RegistrationExtensionAuthenticatorOutput> wa4jAuthData = wa4jAttestationObject
+			.getAuthenticatorData();
 		AttestedCredentialData wa4jCredData = wa4jAuthData.getAttestedCredentialData();
 		Assert.notNull(wa4jCredData, "attestedCredentialData cannot be null");
-		AttestedCredentialData data = new AttestedCredentialData(wa4jCredData.getAaguid(),
-				keyId.getBytes(), wa4jCredData.getCOSEKey());
+		AttestedCredentialData data = new AttestedCredentialData(wa4jCredData.getAaguid(), keyId.getBytes(),
+				wa4jCredData.getCOSEKey());
 
 		Authenticator authenticator = new AuthenticatorImpl(data, wa4jAttestationObject.getAttestationStatement(),
 				credentialRecord.getSignatureCount());
@@ -392,8 +393,7 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 		byte[] tokenBindingId = null /* set tokenBindingId */;
 		String rpId = requestOptions.getRpId();
 		Assert.notNull(rpId, "rpId cannot be null");
-		ServerProperty serverProperty = new ServerProperty(origins, rpId, challenge,
-				tokenBindingId);
+		ServerProperty serverProperty = new ServerProperty(origins, rpId, challenge, tokenBindingId);
 		boolean userVerificationRequired = request.getRequestOptions()
 			.getUserVerification() == UserVerificationRequirement.REQUIRED;
 
@@ -406,7 +406,8 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 		AuthenticationData wa4jAuthenticationData = this.webAuthnManager.validate(authenticationRequest,
 				authenticationParameters);
 
-		AuthenticatorData<AuthenticationExtensionAuthenticatorOutput> wa4jValidatedAuthData = wa4jAuthenticationData.getAuthenticatorData();
+		AuthenticatorData<AuthenticationExtensionAuthenticatorOutput> wa4jValidatedAuthData = wa4jAuthenticationData
+			.getAuthenticatorData();
 		Assert.notNull(wa4jValidatedAuthData, "authenticatorData cannot be null");
 		long updatedSignCount = wa4jValidatedAuthData.getSignCount();
 		ImmutableCredentialRecord updatedRecord = ImmutableCredentialRecord.fromCredentialRecord(credentialRecord)
@@ -415,10 +416,10 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 			.build();
 		this.userCredentials.save(updatedRecord);
 
-		PublicKeyCredentialUserEntity userEntity = this.userEntities.findById(
-				credentialRecord.getUserEntityUserId());
+		PublicKeyCredentialUserEntity userEntity = this.userEntities.findById(credentialRecord.getUserEntityUserId());
 		if (userEntity == null) {
-			throw new IllegalArgumentException("Unable to find UserEntity with id " + credentialRecord.getUserEntityUserId() + " for " + request);
+			throw new IllegalArgumentException(
+					"Unable to find UserEntity with id " + credentialRecord.getUserEntityUserId() + " for " + request);
 		}
 		return userEntity;
 	}

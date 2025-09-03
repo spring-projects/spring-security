@@ -22,7 +22,6 @@ import jakarta.servlet.http.HttpSession;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
-import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestOptions;
 import org.springframework.util.Assert;
 
 public class HttpSessionPublicKeyCredentialCreationOptionsRepository
@@ -37,7 +36,6 @@ public class HttpSessionPublicKeyCredentialCreationOptionsRepository
 			@Nullable PublicKeyCredentialCreationOptions options) {
 		request.getSession().setAttribute(this.attrName, options);
 	}
-
 
 	public @Nullable PublicKeyCredentialCreationOptions load(HttpServletRequest request) {
 		HttpSession session = request.getSession(false);

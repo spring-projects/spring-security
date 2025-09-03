@@ -16,8 +16,6 @@
 
 package org.springframework.security.web.webauthn.management;
 
-import org.jspecify.annotations.Nullable;
-
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
 
 /**

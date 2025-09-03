@@ -60,7 +60,8 @@ public final class ImmutableCredentialRecord implements CredentialRecord {
 	private ImmutableCredentialRecord(@Nullable PublicKeyCredentialType credentialType, Bytes credentialId,
 			Bytes userEntityUserId, PublicKeyCose publicKey, long signatureCount, boolean uvInitialized,
 			Set<AuthenticatorTransport> transports, boolean backupEligible, boolean backupState,
-			@Nullable Bytes attestationObject, @Nullable Bytes attestationClientDataJSON, Instant created, Instant lastUsed, String label) {
+			@Nullable Bytes attestationObject, @Nullable Bytes attestationClientDataJSON, Instant created,
+			Instant lastUsed, String label) {
 		this.credentialType = credentialType;
 		this.credentialId = credentialId;
 		this.userEntityUserId = userEntityUserId;

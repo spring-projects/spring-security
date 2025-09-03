@@ -39,7 +39,8 @@ public interface PublicKeyCredentialRequestOptionsRepository {
 	 * @param options the {@link PublicKeyCredentialRequestOptions} to save or null if an
 	 * existing {@link PublicKeyCredentialRequestOptions} should be removed.
 	 */
-	void save(HttpServletRequest request, HttpServletResponse response, @Nullable PublicKeyCredentialRequestOptions options);
+	void save(HttpServletRequest request, HttpServletResponse response,
+			@Nullable PublicKeyCredentialRequestOptions options);
 
 	/**
 	 * Gets a saved {@link PublicKeyCredentialRequestOptions} if it exists, otherwise
