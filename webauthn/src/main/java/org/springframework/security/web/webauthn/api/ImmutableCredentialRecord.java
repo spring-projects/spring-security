@@ -211,7 +211,7 @@ public final class ImmutableCredentialRecord implements CredentialRecord {
 			this.label = other.getLabel();
 		}
 
-		public ImmutableCredentialRecordBuilder credentialType(PublicKeyCredentialType credentialType) {
+		public ImmutableCredentialRecordBuilder credentialType(@Nullable PublicKeyCredentialType credentialType) {
 			this.credentialType = credentialType;
 			return this;
 		}

@@ -300,7 +300,15 @@ public class WebAuthnConfigurerTests {
 
 		@Bean
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-			return http.formLogin(Customizer.withDefaults()).webAuthn(Customizer.withDefaults()).build();
+			// @formatter:off
+			http
+				.formLogin(Customizer.withDefaults())
+				.webAuthn((authn) -> authn
+					.rpId("spring.io")
+					.rpName("spring")
+				);
+			// @formatter:on
+			return http.build();
 		}
 
 	}
@@ -316,7 +324,14 @@ public class WebAuthnConfigurerTests {
 
 		@Bean
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-			return http.webAuthn(Customizer.withDefaults()).build();
+			// @formatter:off
+			http
+				.webAuthn((authn) -> authn
+						.rpId("spring.io")
+						.rpName("spring")
+				);
+			// @formatter:on
+			return http.build();
 		}
 
 	}
@@ -332,9 +347,16 @@ public class WebAuthnConfigurerTests {
 
 		@Bean
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-			return http.formLogin(Customizer.withDefaults())
-				.webAuthn((webauthn) -> webauthn.disableDefaultRegistrationPage(true))
-				.build();
+			// @formatter:off
+			http
+				.formLogin(Customizer.withDefaults())
+				.webAuthn((authn) -> authn
+					.rpId("spring.io")
+					.rpName("spring")
+					.disableDefaultRegistrationPage(true)
+				);
+			// @formatter:on
+			return http.build();
 		}
 
 	}
@@ -350,9 +372,18 @@ public class WebAuthnConfigurerTests {
 
 		@Bean
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-			return http.formLogin((login) -> login.loginPage("/custom-login-page"))
-				.webAuthn((webauthn) -> webauthn.disableDefaultRegistrationPage(true))
-				.build();
+			// @formatter:off
+			http
+					.formLogin((login) -> login
+						.loginPage("/custom-login-page")
+					)
+					.webAuthn((authn) -> authn
+						.rpId("spring.io")
+						.rpName("spring")
+						.disableDefaultRegistrationPage(true)
+					);
+			// @formatter:on
+			return http.build();
 		}
 
 	}

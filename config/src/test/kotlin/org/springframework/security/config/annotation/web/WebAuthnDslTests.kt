@@ -1,4 +1,5 @@
 /*
+
  * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -125,6 +126,8 @@ class WebAuthnDslTests {
             http{
                 formLogin { }
                 webAuthn {
+                    rpId = "spring.io"
+                    rpName = "spring"
                     disableDefaultRegistrationPage = true
                 }
             }
@@ -144,7 +147,10 @@ class WebAuthnDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http{
                 formLogin { }
-                webAuthn { }
+                webAuthn {
+                    rpId = "spring.io"
+                    rpName = "spring"
+                }
             }
             return http.build()
         }

@@ -38,7 +38,7 @@ public final class PublicKeyCredential<R extends AuthenticatorResponse> implemen
 
 	private final String id;
 
-	private final PublicKeyCredentialType type;
+	private final @Nullable PublicKeyCredentialType type;
 
 	private final Bytes rawId;
 
@@ -48,7 +48,7 @@ public final class PublicKeyCredential<R extends AuthenticatorResponse> implemen
 
 	private final @Nullable AuthenticationExtensionsClientOutputs clientExtensionResults;
 
-	private PublicKeyCredential(String id, PublicKeyCredentialType type, Bytes rawId, R response,
+	private PublicKeyCredential(String id, @Nullable PublicKeyCredentialType type, Bytes rawId, R response,
 			@Nullable AuthenticatorAttachment authenticatorAttachment,
 			@Nullable AuthenticationExtensionsClientOutputs clientExtensionResults) {
 		this.id = id;
@@ -77,7 +77,7 @@ public final class PublicKeyCredential<R extends AuthenticatorResponse> implemen
 	 * specifies the credential type represented by this object.
 	 * @return the credential type
 	 */
-	public PublicKeyCredentialType getType() {
+	public @Nullable PublicKeyCredentialType getType() {
 		return this.type;
 	}
 
@@ -228,7 +228,6 @@ public final class PublicKeyCredential<R extends AuthenticatorResponse> implemen
 		 */
 		public PublicKeyCredential<R> build() {
 			Assert.notNull(this.id, "id cannot be null");
-			Assert.notNull(this.type, "type cannot be null");
 			Assert.notNull(this.rawId, "rawId cannot be null");
 			Assert.notNull(this.response, "response cannot be null");
 			return new PublicKeyCredential(this.id, this.type, this.rawId, this.response, this.authenticatorAttachment,
