@@ -369,8 +369,7 @@ public class SecuredSecurityConfig {
 				.logoutUrl("/secured/logout")
 				.logoutSuccessUrl("/secured/login?logout")
 				.permitAll()
-			)
-			.formLogin(Customizer.withDefaults());
+			);
 		return http.build();
 	}
 
