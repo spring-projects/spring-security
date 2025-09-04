@@ -24,6 +24,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
+import org.springframework.security.crypto.password4j.Password4jPasswordEncoder;
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 
 /**
@@ -65,6 +66,10 @@ public final class PasswordEncoderFactories {
 	 * <li>argon2 - {@link Argon2PasswordEncoder#defaultsForSpringSecurity_v5_2()}</li>
 	 * <li>argon2@SpringSecurity_v5_8 -
 	 * {@link Argon2PasswordEncoder#defaultsForSpringSecurity_v5_8()}</li>
+	 * <li>password4j-bcrypt - {@link Password4jPasswordEncoder} with BCrypt</li>
+	 * <li>password4j-scrypt - {@link Password4jPasswordEncoder} with SCrypt</li>
+	 * <li>password4j-argon2 - {@link Password4jPasswordEncoder} with Argon2</li>
+	 * <li>password4j-pbkdf2 - {@link Password4jPasswordEncoder} with PBKDF2</li>
 	 * </ul>
 	 * @return the {@link PasswordEncoder} to use
 	 */
@@ -87,6 +92,14 @@ public final class PasswordEncoderFactories {
 		encoders.put("sha256", new org.springframework.security.crypto.password.StandardPasswordEncoder());
 		encoders.put("argon2", Argon2PasswordEncoder.defaultsForSpringSecurity_v5_2());
 		encoders.put("argon2@SpringSecurity_v5_8", Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8());
+
+		// Password4j implementations
+		encoders.put("password4j-bcrypt", Password4jPasswordEncoder.bcrypt(10));
+		encoders.put("password4j-scrypt", Password4jPasswordEncoder.scrypt(16384, 8, 1, 32));
+		encoders.put("password4j-argon2", Password4jPasswordEncoder.argon2(65536, 3, 4, 32,
+			com.password4j.types.Argon2.ID));
+		encoders.put("password4j-pbkdf2", Password4jPasswordEncoder.pbkdf2(310000, 32));
+
 		return new DelegatingPasswordEncoder(encodingId, encoders);
 	}
 
