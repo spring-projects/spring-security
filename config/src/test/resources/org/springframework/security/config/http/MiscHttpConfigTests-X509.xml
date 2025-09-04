@@ -29,7 +29,7 @@
 		<intercept-url pattern="/**" access="authenticated"/>
 	</http>
 
-	<b:bean name="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"/>
+	<b:bean name="propertyPlaceholderConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer"/>
 
 	<b:import resource="MiscHttpConfigTests-controllers.xml"/>
 	<b:import resource="userservice.xml"/>

@@ -37,7 +37,7 @@
 		<csrf disabled="true"/>
 	</http>
 
-	<b:bean name="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"/>
+	<b:bean name="propertyPlaceholderConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer"/>
 
 	<b:bean name="sc" class="org.springframework.security.config.http.PlaceHolderAndELConfigTests.SimpleController"/>
 

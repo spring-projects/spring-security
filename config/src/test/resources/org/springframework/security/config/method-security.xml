@@ -28,7 +28,7 @@
 
 	<b:bean name="transactionManager" class="org.springframework.security.config.MockTransactionManager" />
 
-	<b:bean class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>
+	<b:bean class='org.springframework.context.support.PropertySourcesPlaceholderConfigurer'/>
 
 	<b:bean id="transactionalTarget" class="org.springframework.security.config.TransactionalTestBusinessBean">
 		<intercept-methods use-authorization-manager="false">

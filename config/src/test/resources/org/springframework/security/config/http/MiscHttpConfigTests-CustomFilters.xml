@@ -31,7 +31,7 @@
 		<custom-filter ref="userFilter" after="LOGOUT_FILTER"/>
 	</http>
 
-	<b:bean name="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"/>
+	<b:bean name="propertyPlaceholderConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer"/>
 
 	<b:bean name="userFilter" class="org.mockito.Mockito" factory-method="mock">
 		<b:constructor-arg value="jakarta.servlet.Filter" type="java.lang.Class"/>

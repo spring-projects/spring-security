@@ -24,11 +24,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -125,11 +125,11 @@ public class CustomHttpSecurityConfigurerTests {
 		}
 
 		@Bean
-		static PropertyPlaceholderConfigurer propertyPlaceholderConfigurer() {
+		static PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {
 			// Typically externalize this as a properties file
 			Properties properties = new Properties();
 			properties.setProperty("permitAllPattern", "/public/**");
-			PropertyPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertyPlaceholderConfigurer();
+			PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertySourcesPlaceholderConfigurer();
 			propertyPlaceholderConfigurer.setProperties(properties);
 			return propertyPlaceholderConfigurer;
 		}
@@ -153,11 +153,11 @@ public class CustomHttpSecurityConfigurerTests {
 		}
 
 		@Bean
-		static PropertyPlaceholderConfigurer propertyPlaceholderConfigurer() {
+		static PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {
 			// Typically externalize this as a properties file
 			Properties properties = new Properties();
 			properties.setProperty("permitAllPattern", "/public/**");
-			PropertyPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertyPlaceholderConfigurer();
+			PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertySourcesPlaceholderConfigurer();
 			propertyPlaceholderConfigurer.setProperties(properties);
 			return propertyPlaceholderConfigurer;
 		}

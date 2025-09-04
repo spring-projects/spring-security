@@ -68,7 +68,7 @@ public class UserServiceBeanDefinitionParserTests {
 		System.setProperty("principal.pass", "joespassword");
 		System.setProperty("principal.authorities", "ROLE_A,ROLE_B");
 		// @formatter:off
-		setContext("<b:bean class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer'/>"
+		setContext("<b:bean class='org.springframework.context.support.PropertySourcesPlaceholderConfigurer'/>"
 				+ "<user-service id='service'>"
 				+ "    <user name='${principal.name}' password='${principal.pass}' authorities='${principal.authorities}'/>"
 				+ "</user-service>");

@@ -31,7 +31,7 @@
 				token-validity-seconds="${security.rememberme.ttl}"/>
 	</http>
 
-	<b:bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	<b:bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
 		<b:property name="properties" value="security.rememberme.ttl=30"/>
 	</b:bean>
 

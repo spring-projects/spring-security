@@ -110,7 +110,7 @@
 		</sec:filter-chain-map>
 	</bean>
 
-	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
+	<bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer" />
 
 	<bean id="sec1235FilterChainProxy" class="org.springframework.security.web.FilterChainProxy">
 		<constructor-arg>

@@ -169,7 +169,7 @@ public class LdapProviderBeanDefinitionParserTests {
 		this.appCtx = new InMemoryXmlApplicationContext("<ldap-server />" + "<authentication-manager>"
 				+ "  <ldap-authentication-provider user-dn-pattern='uid={0},ou=${udp}' group-search-filter='${gsf}={0}' />"
 				+ "</authentication-manager>"
-				+ "<b:bean id='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer' class='org.springframework.beans.factory.config.PropertyPlaceholderConfigurer' />");
+				+ "<b:bean id='org.springframework.context.support.PropertySourcesPlaceholderConfigurer' class='org.springframework.context.support.PropertySourcesPlaceholderConfigurer' />");
 
 		ProviderManager providerManager = this.appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER, ProviderManager.class);
 		assertThat(providerManager.getProviders()).hasSize(1);
