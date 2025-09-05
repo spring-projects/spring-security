@@ -17,5 +17,18 @@ dependencies {
 	optional "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
 	optional "org.springframework:spring-jdbc"
 
+	testImplementation project(":spring-security-test")
+	testImplementation "org.springframework:spring-webmvc"
+	testImplementation "org.bouncycastle:bcpkix-jdk18on"
+	testImplementation "org.bouncycastle:bcprov-jdk18on"
+	testImplementation "org.junit.jupiter:junit-jupiter"
+	testImplementation "org.assertj:assertj-core"
+	testImplementation "org.mockito:mockito-core"
+	testImplementation "com.jayway.jsonpath:json-path"
+	testImplementation "com.squareup.okhttp3:mockwebserver"
+
+	testRuntimeOnly "org.hsqldb:hsqldb"
+	testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+
 	provided "jakarta.servlet:jakarta.servlet-api"
 }

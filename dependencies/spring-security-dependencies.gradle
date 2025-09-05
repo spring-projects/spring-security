@@ -60,6 +60,7 @@ dependencies {
 		api libs.org.hamcrest
 		api libs.org.hibernate.orm.hibernate.core
 		api libs.org.hsqldb
+		api libs.com.jayway.jsonpath.json.path
 		api libs.org.apereo.cas.client.cas.client.core
 		api libs.org.opensaml.opensaml5.saml.api
 		api libs.org.opensaml.opensaml5.saml.impl
