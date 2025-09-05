@@ -1,0 +1,21 @@
+apply plugin: 'io.spring.convention.spring-module'
+
+dependencies {
+	management platform(project(":spring-security-dependencies"))
+
+	api project(":spring-security-config")
+	api project(":spring-security-web")
+	api project(":spring-security-oauth2-core")
+	api project(":spring-security-oauth2-jose")
+	api project(":spring-security-oauth2-resource-server")
+	api ("org.springframework:spring-core") {
+		exclude group: "commons-logging", module: "commons-logging"
+	}
+	api "com.nimbusds:nimbus-jose-jwt"
+	api "com.fasterxml.jackson.core:jackson-databind"
+
+	optional "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+	optional "org.springframework:spring-jdbc"
+
+	provided "jakarta.servlet:jakarta.servlet-api"
+}
