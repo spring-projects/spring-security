@@ -61,7 +61,6 @@ public class DelegatingReactiveAuthenticationManager implements ReactiveAuthenti
 		Function<ReactiveAuthenticationManager, Mono<Authentication>> logging = (m) -> m.authenticate(authentication)
 			.doOnError(AuthenticationException.class, (ex) -> ex.setAuthenticationRequest(authentication))
 			.doOnError(this.logger::debug);
-
 		return ((this.continueOnError) ? result.concatMapDelayError(logging) : result.concatMap(logging)).next();
 	}
 

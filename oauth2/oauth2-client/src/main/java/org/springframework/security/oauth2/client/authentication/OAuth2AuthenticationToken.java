@@ -18,6 +18,8 @@ package org.springframework.security.oauth2.client.authentication;
 
 import java.util.Collection;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -65,6 +67,14 @@ public class OAuth2AuthenticationToken extends AbstractAuthenticationToken {
 		this.setAuthenticated(true);
 	}
 
+	protected OAuth2AuthenticationToken(Builder<?> builder) {
+		super(builder);
+		Assert.notNull(builder.principal, "principal cannot be null");
+		Assert.hasText(builder.authorizedClientRegistrationId, "authorizedClientRegistrationId cannot be empty");
+		this.principal = builder.principal;
+		this.authorizedClientRegistrationId = builder.authorizedClientRegistrationId;
+	}
+
 	@Override
 	public OAuth2User getPrincipal() {
 		return this.principal;
@@ -83,6 +93,47 @@ public class OAuth2AuthenticationToken extends AbstractAuthenticationToken {
 	 */
 	public String getAuthorizedClientRegistrationId() {
 		return this.authorizedClientRegistrationId;
+	}
+
+	@Override
+	public Builder<?> toBuilder() {
+		return new Builder<>(this);
+	}
+
+	/**
+	 * A builder preserving the concrete {@link Authentication} type
+	 *
+	 * @since 7.0
+	 */
+	public static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<OAuth2User, Object, B> {
+
+		private OAuth2User principal;
+
+		private String authorizedClientRegistrationId;
+
+		protected Builder(OAuth2AuthenticationToken token) {
+			super(token);
+			this.principal = token.principal;
+			this.authorizedClientRegistrationId = token.authorizedClientRegistrationId;
+		}
+
+		@Override
+		public B principal(@Nullable OAuth2User principal) {
+			Assert.notNull(principal, "principal cannot be null");
+			this.principal = principal;
+			return (B) this;
+		}
+
+		public B authorizedClientRegistrationId(String authorizedClientRegistrationId) {
+			this.authorizedClientRegistrationId = authorizedClientRegistrationId;
+			return (B) this;
+		}
+
+		@Override
+		public OAuth2AuthenticationToken build() {
+			return new OAuth2AuthenticationToken(this);
+		}
+
 	}
 
 }

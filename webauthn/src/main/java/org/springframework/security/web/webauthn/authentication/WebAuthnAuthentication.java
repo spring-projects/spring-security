@@ -22,6 +22,7 @@ import java.util.Collection;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
 import org.springframework.util.Assert;
@@ -48,6 +49,11 @@ public class WebAuthnAuthentication extends AbstractAuthenticationToken {
 		super.setAuthenticated(true);
 	}
 
+	private WebAuthnAuthentication(Builder<?> builder) {
+		super(builder);
+		this.principal = builder.principal;
+	}
+
 	@Override
 	public void setAuthenticated(boolean authenticated) {
 		Assert.isTrue(!authenticated, "Cannot set this token to trusted");
@@ -67,6 +73,39 @@ public class WebAuthnAuthentication extends AbstractAuthenticationToken {
 	@Override
 	public String getName() {
 		return this.principal.getName();
+	}
+
+	@Override
+	public Builder<?> toBuilder() {
+		return new Builder<>(this);
+	}
+
+	/**
+	 * A builder preserving the concrete {@link Authentication} type
+	 *
+	 * @since 7.0
+	 */
+	public static final class Builder<B extends Builder<B>>
+			extends AbstractAuthenticationBuilder<PublicKeyCredentialUserEntity, Object, B> {
+
+		private PublicKeyCredentialUserEntity principal;
+
+		private Builder(WebAuthnAuthentication token) {
+			super(token);
+		}
+
+		@Override
+		public B principal(@Nullable PublicKeyCredentialUserEntity principal) {
+			Assert.notNull(principal, "principal cannot be null");
+			this.principal = principal;
+			return (B) this;
+		}
+
+		@Override
+		public WebAuthnAuthentication build() {
+			return new WebAuthnAuthentication(this);
+		}
+
 	}
 
 }

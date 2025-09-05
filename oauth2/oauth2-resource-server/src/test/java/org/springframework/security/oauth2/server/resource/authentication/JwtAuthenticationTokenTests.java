@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.util.Collection;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,7 +55,7 @@ public class JwtAuthenticationTokenTests {
 
 	@Test
 	public void constructorWhenJwtIsNullThenThrowsException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new JwtAuthenticationToken(null))
+		assertThatIllegalArgumentException().isThrownBy(() -> new JwtAuthenticationToken((Jwt) null))
 			.withMessageContaining("token cannot be null");
 	}
 
@@ -113,6 +114,23 @@ public class JwtAuthenticationTokenTests {
 		assertThat(new JwtAuthenticationToken(jwt, authorities, null).getName()).isNull();
 		assertThat(new JwtAuthenticationToken(jwt, authorities).getName()).isNull();
 		assertThat(new JwtAuthenticationToken(jwt).getName()).isNull();
+	}
+
+	@Test
+	public void toBuilderWhenApplyThenCopies() {
+		JwtAuthenticationToken factorOne = new JwtAuthenticationToken(builder().claim("c", "v").build(),
+				AuthorityUtils.createAuthorityList("FACTOR_ONE"), "alice");
+		JwtAuthenticationToken factorTwo = new JwtAuthenticationToken(builder().claim("d", "w").build(),
+				AuthorityUtils.createAuthorityList("FACTOR_TWO"), "bob");
+		JwtAuthenticationToken result = factorOne.toBuilder()
+			.authorities((a) -> a.addAll(factorTwo.getAuthorities()))
+			.principal(factorTwo.getPrincipal())
+			.name(factorTwo.getName())
+			.build();
+		Set<String> authorities = AuthorityUtils.authorityListToSet(result.getAuthorities());
+		assertThat(result.getPrincipal()).isSameAs(factorTwo.getPrincipal());
+		assertThat(result.getName()).isSameAs(factorTwo.getName());
+		assertThat(authorities).containsExactlyInAnyOrder("FACTOR_ONE", "FACTOR_TWO");
 	}
 
 	private Jwt.Builder builder() {

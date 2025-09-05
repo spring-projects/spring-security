@@ -21,7 +21,9 @@ import java.util.Collection;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.Assert;
 
 /**
  * {@link org.springframework.security.core.Authentication} implementation for
@@ -46,7 +48,7 @@ public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationT
 	 * @param aCredentials The pre-authenticated credentials
 	 */
 	public PreAuthenticatedAuthenticationToken(Object aPrincipal, @Nullable Object aCredentials) {
-		super(null);
+		super((Collection<? extends GrantedAuthority>) null);
 		this.principal = aPrincipal;
 		this.credentials = aCredentials;
 	}
@@ -66,6 +68,12 @@ public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationT
 		setAuthenticated(true);
 	}
 
+	protected PreAuthenticatedAuthenticationToken(Builder<?> builder) {
+		super(builder);
+		this.principal = builder.principal;
+		this.credentials = builder.credentials;
+	}
+
 	/**
 	 * Get the credentials
 	 */
@@ -80,6 +88,48 @@ public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationT
 	@Override
 	public Object getPrincipal() {
 		return this.principal;
+	}
+
+	@Override
+	public Builder<?> toBuilder() {
+		return new Builder<>(this);
+	}
+
+	/**
+	 * A builder preserving the concrete {@link Authentication} type
+	 *
+	 * @since 7.0
+	 */
+	public static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<Object, Object, B> {
+
+		private Object principal;
+
+		private @Nullable Object credentials;
+
+		protected Builder(PreAuthenticatedAuthenticationToken token) {
+			super(token);
+			this.principal = token.principal;
+			this.credentials = token.credentials;
+		}
+
+		@Override
+		public B principal(@Nullable Object principal) {
+			Assert.notNull(principal, "principal cannot be null");
+			this.principal = principal;
+			return (B) this;
+		}
+
+		@Override
+		public B credentials(@Nullable Object credentials) {
+			this.credentials = credentials;
+			return (B) this;
+		}
+
+		@Override
+		public PreAuthenticatedAuthenticationToken build() {
+			return new PreAuthenticatedAuthenticationToken(this);
+		}
+
 	}
 
 }

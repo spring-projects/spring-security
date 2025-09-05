@@ -19,7 +19,11 @@ package org.springframework.security.saml2.provider.service.authentication;
 import java.io.Serial;
 import java.util.Collection;
 
+import org.jspecify.annotations.Nullable;
+
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.Assert;
 
 /**
  * An authentication based off of a SAML 2.0 Assertion
@@ -53,6 +57,12 @@ public class Saml2AssertionAuthentication extends Saml2Authentication {
 		setAuthenticated(true);
 	}
 
+	protected Saml2AssertionAuthentication(Builder<?> builder) {
+		super(builder);
+		this.assertion = builder.assertion;
+		this.relyingPartyRegistrationId = builder.relyingPartyRegistrationId;
+	}
+
 	@Override
 	public Saml2ResponseAssertionAccessor getCredentials() {
 		return this.assertion;
@@ -60,6 +70,49 @@ public class Saml2AssertionAuthentication extends Saml2Authentication {
 
 	public String getRelyingPartyRegistrationId() {
 		return this.relyingPartyRegistrationId;
+	}
+
+	@Override
+	public Builder<?> toBuilder() {
+		return new Builder<>(this);
+	}
+
+	/**
+	 * A builder preserving the concrete {@link Authentication} type
+	 *
+	 * @since 7.0
+	 */
+	public static class Builder<B extends Builder<B>>
+			extends Saml2Authentication.Builder<Saml2ResponseAssertionAccessor, B> {
+
+		private Saml2ResponseAssertionAccessor assertion;
+
+		private String relyingPartyRegistrationId;
+
+		protected Builder(Saml2AssertionAuthentication token) {
+			super(token);
+			this.assertion = token.assertion;
+			this.relyingPartyRegistrationId = token.relyingPartyRegistrationId;
+		}
+
+		@Override
+		public B credentials(@Nullable Saml2ResponseAssertionAccessor credentials) {
+			saml2Response(credentials.getResponseValue());
+			Assert.notNull(credentials, "assertion cannot be null");
+			this.assertion = credentials;
+			return (B) this;
+		}
+
+		public B relyingPartyRegistrationId(String relyingPartyRegistrationId) {
+			this.relyingPartyRegistrationId = relyingPartyRegistrationId;
+			return (B) this;
+		}
+
+		@Override
+		public Saml2AssertionAuthentication build() {
+			return new Saml2AssertionAuthentication(this);
+		}
+
 	}
 
 }

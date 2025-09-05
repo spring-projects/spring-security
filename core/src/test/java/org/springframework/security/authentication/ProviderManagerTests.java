@@ -18,6 +18,7 @@ package org.springframework.security.authentication;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -47,7 +49,7 @@ public class ProviderManagerTests {
 
 	@Test
 	void authenticationFailsWithUnsupportedToken() {
-		Authentication token = new AbstractAuthenticationToken(null) {
+		Authentication token = new AbstractAuthenticationToken((Collection<? extends GrantedAuthority>) null) {
 			@Override
 			public Object getCredentials() {
 				return "";
@@ -78,24 +80,24 @@ public class ProviderManagerTests {
 
 	@Test
 	void authenticationSucceedsWithSupportedTokenAndReturnsExpectedObject() {
-		Authentication a = mock(Authentication.class);
+		Authentication a = new TestingAuthenticationToken("user", "pass", "FACTOR");
 		ProviderManager mgr = new ProviderManager(createProviderWhichReturns(a));
 		AuthenticationEventPublisher publisher = mock(AuthenticationEventPublisher.class);
 		mgr.setAuthenticationEventPublisher(publisher);
 		Authentication result = mgr.authenticate(a);
-		assertThat(result).isEqualTo(a);
+		assertThat(result.getPrincipal()).isEqualTo(a.getPrincipal());
 		verify(publisher).publishAuthenticationSuccess(result);
 	}
 
 	@Test
 	void authenticationSucceedsWhenFirstProviderReturnsNullButSecondAuthenticates() {
-		Authentication a = mock(Authentication.class);
+		Authentication a = new TestingAuthenticationToken("user", "pass", "FACTOR");
 		ProviderManager mgr = new ProviderManager(
 				Arrays.asList(createProviderWhichReturns(null), createProviderWhichReturns(a)));
 		AuthenticationEventPublisher publisher = mock(AuthenticationEventPublisher.class);
 		mgr.setAuthenticationEventPublisher(publisher);
 		Authentication result = mgr.authenticate(a);
-		assertThat(result).isSameAs(a);
+		assertThat(result.getPrincipal()).isEqualTo(a.getPrincipal());
 		verify(publisher).publishAuthenticationSuccess(result);
 	}
 
@@ -162,11 +164,12 @@ public class ProviderManagerTests {
 
 	@Test
 	void authenticationExceptionIsIgnoredIfLaterProviderAuthenticates() {
-		Authentication authReq = mock(Authentication.class);
+		Authentication result = new TestingAuthenticationToken("user", "pass", "FACTOR");
 		ProviderManager mgr = new ProviderManager(
 				createProviderWhichThrows(new BadCredentialsException("", new Throwable())),
-				createProviderWhichReturns(authReq));
-		assertThat(mgr.authenticate(mock(Authentication.class))).isSameAs(authReq);
+				createProviderWhichReturns(result));
+		Authentication request = new TestingAuthenticationToken("user", "pass");
+		assertThat(mgr.authenticate(request).getPrincipal()).isEqualTo(result.getPrincipal());
 	}
 
 	@Test
