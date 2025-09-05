@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.Set;
 import java.util.function.Supplier;
 
 import io.micrometer.observation.Observation;
@@ -36,14 +37,19 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.TestAuthentication;
+import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
+import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationManagerFactory;
 import org.springframework.security.authorization.AuthorizationObservationContext;
+import org.springframework.security.authorization.SingleResultAuthorizationManager;
 import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
 import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
 import org.springframework.security.config.ObjectPostProcessor;
@@ -82,13 +88,17 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -168,6 +178,26 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		assertThatExceptionOfType(BeanCreationException.class)
 			.isThrownBy(() -> this.spring.register(CustomAuthorizationManagerConfig.class).autowire())
 			.withMessageContaining("manager cannot be null");
+	}
+
+	@Test
+	public void configureWhenCustomAuthorizationManagerFactoryRegisteredThenUsed() {
+		AuthorizationManager<RequestAuthorizationContext> authorizationManager = mock();
+		AuthorizationManagerFactory<RequestAuthorizationContext> authorizationManagerFactory = mockAuthorizationManagerFactory(
+				authorizationManager);
+		AuthorizationManagerFactoryConfig.authorizationManagerFactory = authorizationManagerFactory;
+		this.spring.register(AuthorizationManagerFactoryConfig.class).autowire();
+		verify(authorizationManagerFactory).permitAll();
+		verify(authorizationManagerFactory).denyAll();
+		verify(authorizationManagerFactory).hasRole("ADMIN");
+		verify(authorizationManagerFactory).hasAnyRole("USER", "ADMIN");
+		verify(authorizationManagerFactory).hasAuthority("write");
+		verify(authorizationManagerFactory).hasAnyAuthority("resource.read", "read");
+		verify(authorizationManagerFactory).authenticated();
+		verify(authorizationManagerFactory).fullyAuthenticated();
+		verify(authorizationManagerFactory).rememberMe();
+		verify(authorizationManagerFactory).anonymous();
+		verifyNoMoreInteractions(authorizationManagerFactory);
 	}
 
 	@Test
@@ -539,6 +569,205 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	}
 
 	@Test
+	public void getWhenCustomAuthorizationManagerFactoryRegisteredAndPermitAllThenRespondsWithOk() throws Exception {
+		AuthorizationManager<RequestAuthorizationContext> authorizationManager = mock();
+		AuthorizationManagerFactory<RequestAuthorizationContext> authorizationManagerFactory = mockAuthorizationManagerFactory(
+				authorizationManager);
+		AuthorizationManager<RequestAuthorizationContext> permitAll = spy(SingleResultAuthorizationManager.permitAll());
+		given(authorizationManagerFactory.permitAll()).willReturn(permitAll);
+		AuthorizationManagerFactoryConfig.authorizationManagerFactory = authorizationManagerFactory;
+
+		this.spring.register(AuthorizationManagerFactoryConfig.class, AccessTestController.class).autowire();
+		MockHttpServletRequestBuilder request = get("/public").with(anonymous());
+		this.mvc.perform(request).andExpect(status().isOk());
+		verify(permitAll).authorize(any(), any(RequestAuthorizationContext.class));
+		verifyNoMoreInteractions(permitAll);
+		verifyNoInteractions(authorizationManager);
+	}
+
+	@Test
+	public void getWhenCustomAuthorizationManagerFactoryRegisteredAndDenyAllThenRespondsWithForbidden()
+			throws Exception {
+		AuthorizationManager<RequestAuthorizationContext> authorizationManager = mock();
+		AuthorizationManagerFactory<RequestAuthorizationContext> authorizationManagerFactory = mockAuthorizationManagerFactory(
+				authorizationManager);
+		AuthorizationManager<RequestAuthorizationContext> denyAll = spy(SingleResultAuthorizationManager.denyAll());
+		given(authorizationManagerFactory.denyAll()).willReturn(denyAll);
+		AuthorizationManagerFactoryConfig.authorizationManagerFactory = authorizationManagerFactory;
+
+		this.spring.register(AuthorizationManagerFactoryConfig.class, AccessTestController.class).autowire();
+		MockHttpServletRequestBuilder request = get("/private").with(user("user"));
+		this.mvc.perform(request).andExpect(status().isForbidden());
+		verify(denyAll).authorize(any(), any(RequestAuthorizationContext.class));
+		verifyNoMoreInteractions(denyAll);
+		verifyNoInteractions(authorizationManager);
+	}
+
+	@Test
+	public void getWhenCustomAuthorizationManagerFactoryRegisteredAndHasRoleThenRespondsWithOk() throws Exception {
+		AuthorizationManager<RequestAuthorizationContext> authorizationManager = mock();
+		AuthorizationManagerFactory<RequestAuthorizationContext> authorizationManagerFactory = mockAuthorizationManagerFactory(
+				authorizationManager);
+		AuthorizationManager<RequestAuthorizationContext> hasRole = spy(AuthorityAuthorizationManager.hasRole("ADMIN"));
+		given(authorizationManagerFactory.hasRole(anyString())).willReturn(hasRole);
+		AuthorizationManagerFactoryConfig.authorizationManagerFactory = authorizationManagerFactory;
+
+		this.spring.register(AuthorizationManagerFactoryConfig.class, AccessTestController.class).autowire();
+		MockHttpServletRequestBuilder request = get("/admin").with(user("admin").roles("ADMIN"));
+		this.mvc.perform(request).andExpect(status().isOk());
+		verify(hasRole).authorize(any(), any(RequestAuthorizationContext.class));
+		verifyNoMoreInteractions(hasRole);
+		verifyNoInteractions(authorizationManager);
+	}
+
+	@Test
+	public void getWhenCustomAuthorizationManagerFactoryRegisteredAndHasAnyRoleThenRespondsWithOk() throws Exception {
+		AuthorizationManager<RequestAuthorizationContext> authorizationManager = mock();
+		AuthorizationManagerFactory<RequestAuthorizationContext> authorizationManagerFactory = mockAuthorizationManagerFactory(
+				authorizationManager);
+		AuthorizationManager<RequestAuthorizationContext> hasAnyRole = spy(
+				AuthorityAuthorizationManager.hasAnyRole("USER", "ADMIN"));
+		given(authorizationManagerFactory.hasAnyRole(any(String[].class))).willReturn(hasAnyRole);
+		AuthorizationManagerFactoryConfig.authorizationManagerFactory = authorizationManagerFactory;
+
+		this.spring.register(AuthorizationManagerFactoryConfig.class, AccessTestController.class).autowire();
+		MockHttpServletRequestBuilder request = get("/user").with(user("user").roles("USER"));
+		this.mvc.perform(request).andExpect(status().isOk());
+		verify(hasAnyRole).authorize(any(), any(RequestAuthorizationContext.class));
+		verifyNoMoreInteractions(hasAnyRole);
+		verifyNoInteractions(authorizationManager);
+	}
+
+	@Test
+	public void postWhenCustomAuthorizationManagerFactoryRegisteredAndHasAuthorityThenRespondsWithOk()
+			throws Exception {
+		AuthorizationManager<RequestAuthorizationContext> authorizationManager = mock();
+		AuthorizationManagerFactory<RequestAuthorizationContext> authorizationManagerFactory = mockAuthorizationManagerFactory(
+				authorizationManager);
+		AuthorizationManager<RequestAuthorizationContext> hasAuthority = spy(
+				AuthorityAuthorizationManager.hasAuthority("write"));
+		given(authorizationManagerFactory.hasAuthority(anyString())).willReturn(hasAuthority);
+		AuthorizationManagerFactoryConfig.authorizationManagerFactory = authorizationManagerFactory;
+
+		this.spring.register(AuthorizationManagerFactoryConfig.class, AccessTestController.class).autowire();
+		MockHttpServletRequestBuilder request = post("/resource")
+			.with(user("user").authorities(new SimpleGrantedAuthority("write")))
+			.with(csrf());
+		this.mvc.perform(request).andExpect(status().isOk());
+		verify(hasAuthority).authorize(any(), any(RequestAuthorizationContext.class));
+		verifyNoMoreInteractions(hasAuthority);
+		verifyNoInteractions(authorizationManager);
+	}
+
+	@Test
+	public void getWhenCustomAuthorizationManagerFactoryRegisteredAndHasAnyAuthorityThenRespondsWithOk()
+			throws Exception {
+		AuthorizationManager<RequestAuthorizationContext> authorizationManager = mock();
+		AuthorizationManagerFactory<RequestAuthorizationContext> authorizationManagerFactory = mockAuthorizationManagerFactory(
+				authorizationManager);
+		AuthorizationManager<RequestAuthorizationContext> hasAnyAuthority = spy(
+				AuthorityAuthorizationManager.hasAnyAuthority("resource.read", "read"));
+		given(authorizationManagerFactory.hasAnyAuthority(any(String[].class))).willReturn(hasAnyAuthority);
+		AuthorizationManagerFactoryConfig.authorizationManagerFactory = authorizationManagerFactory;
+
+		this.spring.register(AuthorizationManagerFactoryConfig.class, AccessTestController.class).autowire();
+		MockHttpServletRequestBuilder request = get("/resource")
+			.with(user("user").authorities(new SimpleGrantedAuthority("read")));
+		this.mvc.perform(request).andExpect(status().isOk());
+		verify(hasAnyAuthority).authorize(any(), any(RequestAuthorizationContext.class));
+		verifyNoMoreInteractions(hasAnyAuthority);
+		verifyNoInteractions(authorizationManager);
+	}
+
+	@Test
+	public void getWhenCustomAuthorizationManagerFactoryRegisteredAndAuthenticatedThenRespondsWithOk()
+			throws Exception {
+		AuthorizationManager<RequestAuthorizationContext> authorizationManager = mock();
+		AuthorizationManagerFactory<RequestAuthorizationContext> authorizationManagerFactory = mockAuthorizationManagerFactory(
+				authorizationManager);
+		AuthorizationManager<RequestAuthorizationContext> authenticated = spy(
+				AuthenticatedAuthorizationManager.authenticated());
+		given(authorizationManagerFactory.authenticated()).willReturn(authenticated);
+		AuthorizationManagerFactoryConfig.authorizationManagerFactory = authorizationManagerFactory;
+
+		this.spring.register(AuthorizationManagerFactoryConfig.class, AccessTestController.class).autowire();
+		MockHttpServletRequestBuilder request = get("/authenticated").with(user("user"));
+		this.mvc.perform(request).andExpect(status().isOk());
+		verify(authenticated).authorize(any(), any(RequestAuthorizationContext.class));
+		verifyNoMoreInteractions(authenticated);
+		verifyNoInteractions(authorizationManager);
+	}
+
+	@Test
+	public void getWhenCustomAuthorizationManagerFactoryRegisteredAndFullyAuthenticatedThenRespondsWithOk()
+			throws Exception {
+		AuthorizationManager<RequestAuthorizationContext> authorizationManager = mock();
+		AuthorizationManagerFactory<RequestAuthorizationContext> authorizationManagerFactory = mockAuthorizationManagerFactory(
+				authorizationManager);
+		AuthorizationManager<RequestAuthorizationContext> fullyAuthenticated = spy(
+				AuthenticatedAuthorizationManager.fullyAuthenticated());
+		given(authorizationManagerFactory.fullyAuthenticated()).willReturn(fullyAuthenticated);
+		AuthorizationManagerFactoryConfig.authorizationManagerFactory = authorizationManagerFactory;
+
+		this.spring.register(AuthorizationManagerFactoryConfig.class, AccessTestController.class).autowire();
+		MockHttpServletRequestBuilder request = get("/fully-authenticated").with(user("user"));
+		this.mvc.perform(request).andExpect(status().isOk());
+		verify(fullyAuthenticated).authorize(any(), any(RequestAuthorizationContext.class));
+		verifyNoMoreInteractions(fullyAuthenticated);
+		verifyNoInteractions(authorizationManager);
+	}
+
+	@Test
+	public void getWhenCustomAuthorizationManagerFactoryRegisteredAndRememberMeThenRespondsWithOk() throws Exception {
+		AuthorizationManager<RequestAuthorizationContext> authorizationManager = mock();
+		AuthorizationManagerFactory<RequestAuthorizationContext> authorizationManagerFactory = mockAuthorizationManagerFactory(
+				authorizationManager);
+		AuthorizationManager<RequestAuthorizationContext> rememberMe = spy(
+				AuthenticatedAuthorizationManager.rememberMe());
+		given(authorizationManagerFactory.rememberMe()).willReturn(rememberMe);
+		AuthorizationManagerFactoryConfig.authorizationManagerFactory = authorizationManagerFactory;
+
+		this.spring.register(AuthorizationManagerFactoryConfig.class, AccessTestController.class).autowire();
+		MockHttpServletRequestBuilder request = get("/remember-me")
+			.with(authentication(new RememberMeAuthenticationToken("test", "user", Set.of())));
+		this.mvc.perform(request).andExpect(status().isOk());
+		verify(rememberMe).authorize(any(), any(RequestAuthorizationContext.class));
+		verifyNoMoreInteractions(rememberMe);
+		verifyNoInteractions(authorizationManager);
+	}
+
+	@Test
+	public void getWhenCustomAuthorizationManagerFactoryRegisteredAndAnonymousThenRespondsWithOk() throws Exception {
+		AuthorizationManager<RequestAuthorizationContext> authorizationManager = mock();
+		AuthorizationManagerFactory<RequestAuthorizationContext> authorizationManagerFactory = mockAuthorizationManagerFactory(
+				authorizationManager);
+		AuthorizationManager<RequestAuthorizationContext> anonymous = spy(
+				AuthenticatedAuthorizationManager.anonymous());
+		given(authorizationManagerFactory.anonymous()).willReturn(anonymous);
+		AuthorizationManagerFactoryConfig.authorizationManagerFactory = authorizationManagerFactory;
+
+		this.spring.register(AuthorizationManagerFactoryConfig.class, AccessTestController.class).autowire();
+		MockHttpServletRequestBuilder request = get("/anonymous").with(anonymous());
+		this.mvc.perform(request).andExpect(status().isOk());
+		verify(anonymous).authorize(any(), any(RequestAuthorizationContext.class));
+		verifyNoMoreInteractions(anonymous);
+		verifyNoInteractions(authorizationManager);
+	}
+
+	@Test
+	public void getWhenCustomAuthorizationManagerFactoryRegisteredAndAccessThenRespondsWithForbidden()
+			throws Exception {
+		AuthorizationManager<RequestAuthorizationContext> authorizationManager = mock();
+		AuthorizationManagerFactoryConfig.authorizationManagerFactory = mockAuthorizationManagerFactory(
+				authorizationManager);
+
+		this.spring.register(AuthorizationManagerFactoryConfig.class).autowire();
+		MockHttpServletRequestBuilder request = get("/").with(user("user"));
+		this.mvc.perform(request).andExpect(status().isForbidden());
+		verifyNoInteractions(authorizationManager);
+	}
+
+	@Test
 	public void getWhenExpressionHasIpAddressLocalhostConfiguredIpAddressIsLocalhostThenRespondsWithOk()
 			throws Exception {
 		this.spring.register(ExpressionIpAddressLocalhostConfig.class, BasicController.class).autowire();
@@ -585,6 +814,23 @@ public class AuthorizeHttpRequestsConfigurerTests {
 			request.setRemoteAddr(remoteAddress);
 			return request;
 		};
+	}
+
+	private AuthorizationManagerFactory<RequestAuthorizationContext> mockAuthorizationManagerFactory(
+			AuthorizationManager<RequestAuthorizationContext> authorizationManager) {
+		AuthorizationManagerFactory<RequestAuthorizationContext> authorizationManagerFactory = mock();
+		given(authorizationManagerFactory.permitAll()).willReturn(authorizationManager);
+		given(authorizationManagerFactory.denyAll()).willReturn(authorizationManager);
+		given(authorizationManagerFactory.hasRole(anyString())).willReturn(authorizationManager);
+		given(authorizationManagerFactory.hasAnyRole(any(String[].class))).willReturn(authorizationManager);
+		given(authorizationManagerFactory.hasAuthority(anyString())).willReturn(authorizationManager);
+		given(authorizationManagerFactory.hasAnyAuthority(any(String[].class))).willReturn(authorizationManager);
+		given(authorizationManagerFactory.authenticated()).willReturn(authorizationManager);
+		given(authorizationManagerFactory.fullyAuthenticated()).willReturn(authorizationManager);
+		given(authorizationManagerFactory.rememberMe()).willReturn(authorizationManager);
+		given(authorizationManagerFactory.anonymous()).willReturn(authorizationManager);
+
+		return authorizationManagerFactory;
 	}
 
 	@Test
@@ -843,6 +1089,41 @@ public class AuthorizeHttpRequestsConfigurerTests {
 			http
 				.authorizeHttpRequests((authorize) -> authorize
 					.anyRequest().access(authorizationManager));
+			// @formatter:on
+
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class AuthorizationManagerFactoryConfig {
+
+		static AuthorizationManagerFactory<RequestAuthorizationContext> authorizationManagerFactory;
+
+		@Bean
+		AuthorizationManagerFactory<RequestAuthorizationContext> authorizationManagerFactory() {
+			return authorizationManagerFactory;
+		}
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((authorize) -> authorize
+					.requestMatchers("/public").permitAll()
+					.requestMatchers("/private").denyAll()
+					.requestMatchers("/admin").hasRole("ADMIN")
+					.requestMatchers("/user").hasAnyRole("USER", "ADMIN")
+					.requestMatchers(HttpMethod.POST, "/resource").hasAuthority("write")
+					.requestMatchers("/resource").hasAnyAuthority("resource.read", "read")
+					.requestMatchers("/authenticated").authenticated()
+					.requestMatchers("/fully-authenticated").fullyAuthenticated()
+					.requestMatchers("/remember-me").rememberMe()
+					.requestMatchers("/anonymous").anonymous()
+					.anyRequest().access((authentication, context) -> new AuthorizationDecision(false))
+				);
 			// @formatter:on
 
 			return http.build();
@@ -1291,6 +1572,47 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 		@GetMapping("/path")
 		void path() {
+		}
+
+	}
+
+	@RestController
+	static class AccessTestController {
+
+		@RequestMapping("/public")
+		void publicEndpoint() {
+		}
+
+		@RequestMapping("/private")
+		void privateEndpoint() {
+		}
+
+		@RequestMapping("/admin")
+		void adminEndpoint() {
+		}
+
+		@RequestMapping("/user")
+		void userEndpoint() {
+		}
+
+		@RequestMapping("/resource")
+		void resourceEndpoint() {
+		}
+
+		@RequestMapping("/authenticated")
+		void authenticatedEndpoint() {
+		}
+
+		@RequestMapping("/fully-authenticated")
+		void fullyAuthenticatedEndpoint() {
+		}
+
+		@RequestMapping("/remember-me")
+		void rememberMeEndpoint() {
+		}
+
+		@RequestMapping("/anonymous")
+		void anonymousEndpoint() {
 		}
 
 	}
