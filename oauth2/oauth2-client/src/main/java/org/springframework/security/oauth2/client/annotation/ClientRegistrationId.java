@@ -33,7 +33,7 @@ import org.springframework.core.annotation.AliasFor;
  * @since 7.0
  * @see org.springframework.security.oauth2.client.web.client.ClientRegistrationIdProcessor
  */
-@Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
+@Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface ClientRegistrationId {
