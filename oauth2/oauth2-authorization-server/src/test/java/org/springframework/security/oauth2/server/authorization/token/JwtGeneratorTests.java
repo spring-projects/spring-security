@@ -58,7 +58,7 @@ import org.springframework.security.oauth2.server.authorization.settings.OAuth2T
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -93,14 +93,15 @@ public class JwtGeneratorTests {
 
 	@Test
 	public void constructorWhenJwtEncoderNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new JwtGenerator(null)).isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("jwtEncoder cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> new JwtGenerator(null))
+			.withMessage("jwtEncoder cannot be null");
 	}
 
 	@Test
 	public void setJwtCustomizerWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.jwtGenerator.setJwtCustomizer(null)).isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("jwtCustomizer cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.jwtGenerator.setJwtCustomizer(null))
+			.withMessage("jwtCustomizer cannot be null");
 	}
 
 	@Test

@@ -31,7 +31,7 @@ import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.server.authorization.oidc.authentication.OidcLogoutAuthenticationToken;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -56,9 +56,8 @@ public class OidcLogoutAuthenticationSuccessHandlerTests {
 	@Test
 	public void setLogoutHandlerWhenNullThenThrowIllegalArgumentException() {
 		// @formatter:off
-		assertThatThrownBy(() -> this.authenticationSuccessHandler.setLogoutHandler(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("logoutHandler cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> this.authenticationSuccessHandler.setLogoutHandler(null))
+				.withMessage("logoutHandler cannot be null");
 		// @formatter:on
 	}
 
@@ -67,10 +66,10 @@ public class OidcLogoutAuthenticationSuccessHandlerTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		assertThatThrownBy(
-				() -> this.authenticationSuccessHandler.onAuthenticationSuccess(request, response, this.principal))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(
+					() -> this.authenticationSuccessHandler.onAuthenticationSuccess(request, response, this.principal))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.SERVER_ERROR);
 	}

@@ -44,7 +44,7 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenClaimsSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
@@ -75,17 +75,16 @@ public class OAuth2TokenIntrospectionAuthenticationProviderTests {
 
 	@Test
 	public void constructorWhenRegisteredClientRepositoryNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2TokenIntrospectionAuthenticationProvider(null, this.authorizationService))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("registeredClientRepository cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2TokenIntrospectionAuthenticationProvider(null, this.authorizationService))
+			.withMessage("registeredClientRepository cannot be null");
 	}
 
 	@Test
 	public void constructorWhenAuthorizationServiceNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(
-				() -> new OAuth2TokenIntrospectionAuthenticationProvider(this.registeredClientRepository, null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("authorizationService cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2TokenIntrospectionAuthenticationProvider(this.registeredClientRepository, null))
+			.withMessage("authorizationService cannot be null");
 	}
 
 	@Test
@@ -102,9 +101,9 @@ public class OAuth2TokenIntrospectionAuthenticationProviderTests {
 		OAuth2TokenIntrospectionAuthenticationToken authentication = new OAuth2TokenIntrospectionAuthenticationToken(
 				"token", clientPrincipal, null, null);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_CLIENT);
 	}
@@ -119,9 +118,9 @@ public class OAuth2TokenIntrospectionAuthenticationProviderTests {
 		OAuth2TokenIntrospectionAuthenticationToken authentication = new OAuth2TokenIntrospectionAuthenticationToken(
 				"token", clientPrincipal, null, null);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_CLIENT);
 	}

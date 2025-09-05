@@ -60,7 +60,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -130,54 +130,48 @@ public class JdbcOAuth2AuthorizationServiceTests {
 	@Test
 	public void constructorWhenJdbcOperationsIsNullThenThrowIllegalArgumentException() {
 		// @formatter:off
-		assertThatThrownBy(() -> new JdbcOAuth2AuthorizationService(null, this.registeredClientRepository))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("jdbcOperations cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> new JdbcOAuth2AuthorizationService(null, this.registeredClientRepository))
+				.withMessage("jdbcOperations cannot be null");
 		// @formatter:on
 	}
 
 	@Test
 	public void constructorWhenRegisteredClientRepositoryIsNullThenThrowIllegalArgumentException() {
 		// @formatter:off
-		assertThatThrownBy(() -> new JdbcOAuth2AuthorizationService(this.jdbcOperations, null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("registeredClientRepository cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> new JdbcOAuth2AuthorizationService(this.jdbcOperations, null))
+				.withMessage("registeredClientRepository cannot be null");
 		// @formatter:on
 	}
 
 	@Test
 	public void constructorWhenLobHandlerIsNullThenThrowIllegalArgumentException() {
 		// @formatter:off
-		assertThatThrownBy(() -> new JdbcOAuth2AuthorizationService(this.jdbcOperations, this.registeredClientRepository, null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("lobHandler cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> new JdbcOAuth2AuthorizationService(this.jdbcOperations, this.registeredClientRepository, null))
+				.withMessage("lobHandler cannot be null");
 		// @formatter:on
 	}
 
 	@Test
 	public void setAuthorizationRowMapperWhenNullThenThrowIllegalArgumentException() {
 		// @formatter:off
-		assertThatThrownBy(() -> this.authorizationService.setAuthorizationRowMapper(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("authorizationRowMapper cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> this.authorizationService.setAuthorizationRowMapper(null))
+				.withMessage("authorizationRowMapper cannot be null");
 		// @formatter:on
 	}
 
 	@Test
 	public void setAuthorizationParametersMapperWhenNullThenThrowIllegalArgumentException() {
 		// @formatter:off
-		assertThatThrownBy(() -> this.authorizationService.setAuthorizationParametersMapper(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("authorizationParametersMapper cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> this.authorizationService.setAuthorizationParametersMapper(null))
+				.withMessage("authorizationParametersMapper cannot be null");
 		// @formatter:on
 	}
 
 	@Test
 	public void saveWhenAuthorizationNullThenThrowIllegalArgumentException() {
 		// @formatter:off
-		assertThatThrownBy(() -> this.authorizationService.save(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("authorization cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> this.authorizationService.save(null))
+				.withMessage("authorization cannot be null");
 		// @formatter:on
 	}
 
@@ -247,9 +241,8 @@ public class JdbcOAuth2AuthorizationServiceTests {
 	@Test
 	public void removeWhenAuthorizationNullThenThrowIllegalArgumentException() {
 		// @formatter:off
-		assertThatThrownBy(() -> this.authorizationService.remove(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("authorization cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> this.authorizationService.remove(null))
+				.withMessage("authorization cannot be null");
 		// @formatter:on
 	}
 
@@ -277,27 +270,24 @@ public class JdbcOAuth2AuthorizationServiceTests {
 	@Test
 	public void findByIdWhenIdNullThenThrowIllegalArgumentException() {
 		// @formatter:off
-		assertThatThrownBy(() -> this.authorizationService.findById(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("id cannot be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> this.authorizationService.findById(null))
+				.withMessage("id cannot be empty");
 		// @formatter:on
 	}
 
 	@Test
 	public void findByIdWhenIdEmptyThenThrowIllegalArgumentException() {
 		// @formatter:off
-		assertThatThrownBy(() -> this.authorizationService.findById(" "))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("id cannot be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> this.authorizationService.findById(" "))
+				.withMessage("id cannot be empty");
 		// @formatter:on
 	}
 
 	@Test
 	public void findByTokenWhenTokenNullThenThrowIllegalArgumentException() {
 		// @formatter:off
-		assertThatThrownBy(() -> this.authorizationService.findByToken(null, AUTHORIZATION_CODE_TOKEN_TYPE))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("token cannot be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> this.authorizationService.findByToken(null, AUTHORIZATION_CODE_TOKEN_TYPE))
+				.withMessage("token cannot be empty");
 		// @formatter:on
 	}
 

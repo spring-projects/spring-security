@@ -33,7 +33,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.TestRegisteredClients;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link InMemoryOAuth2AuthorizationService}.
@@ -69,16 +69,16 @@ public class InMemoryOAuth2AuthorizationServiceTests {
 
 	@Test
 	public void constructorVarargsWhenAuthorizationNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new InMemoryOAuth2AuthorizationService((OAuth2Authorization) null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("authorization cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new InMemoryOAuth2AuthorizationService((OAuth2Authorization) null))
+			.withMessage("authorization cannot be null");
 	}
 
 	@Test
 	public void constructorListWhenAuthorizationsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new InMemoryOAuth2AuthorizationService((List<OAuth2Authorization>) null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("authorizations cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new InMemoryOAuth2AuthorizationService((List<OAuth2Authorization>) null))
+			.withMessage("authorizations cannot be null");
 	}
 
 	@Test
@@ -90,15 +90,15 @@ public class InMemoryOAuth2AuthorizationServiceTests {
 			.token(AUTHORIZATION_CODE)
 			.build();
 
-		assertThatThrownBy(() -> new InMemoryOAuth2AuthorizationService(authorization, authorization))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("The authorization must be unique. Found duplicate identifier: id");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new InMemoryOAuth2AuthorizationService(authorization, authorization))
+			.withMessage("The authorization must be unique. Found duplicate identifier: id");
 	}
 
 	@Test
 	public void saveWhenAuthorizationNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizationService.save(null)).isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("authorization cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> this.authorizationService.save(null))
+			.withMessage("authorization cannot be null");
 	}
 
 	@Test
@@ -179,8 +179,9 @@ public class InMemoryOAuth2AuthorizationServiceTests {
 
 	@Test
 	public void removeWhenAuthorizationNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizationService.remove(null)).isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("authorization cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.authorizationService.remove(null))
+			.withMessage("authorization cannot be null");
 	}
 
 	@Test
@@ -205,15 +206,16 @@ public class InMemoryOAuth2AuthorizationServiceTests {
 
 	@Test
 	public void findByIdWhenIdNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizationService.findById(null)).isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("id cannot be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.authorizationService.findById(null))
+			.withMessage("id cannot be empty");
 	}
 
 	@Test
 	public void findByTokenWhenTokenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authorizationService.findByToken(null, AUTHORIZATION_CODE_TOKEN_TYPE))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("token cannot be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.authorizationService.findByToken(null, AUTHORIZATION_CODE_TOKEN_TYPE))
+			.withMessage("token cannot be empty");
 	}
 
 	@Test

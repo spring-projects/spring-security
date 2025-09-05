@@ -28,7 +28,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.TestRegisteredClients;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link OAuth2TokenExchangeAuthenticationToken}.
@@ -62,45 +62,38 @@ public class OAuth2TokenExchangeAuthenticationTokenTests {
 	@Test
 	public void constructorWhenClientPrincipalNullThenThrowIllegalArgumentException() {
 		// @formatter:off
-		assertThatThrownBy(() -> new OAuth2TokenExchangeAuthenticationToken(null, null, null, null, null, null, null, null, null, this.additionalParameters))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("clientPrincipal cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> new OAuth2TokenExchangeAuthenticationToken(null, null, null, null, null, null, null, null, null, this.additionalParameters))
+				.withMessage("clientPrincipal cannot be null");
 		// @formatter:on
 	}
 
 	@Test
 	public void constructorWhenRequestedTokenTypeNullOrEmptyThenThrowIllegalArgumentException() {
 		// @formatter:off
-		assertThatThrownBy(() -> new OAuth2TokenExchangeAuthenticationToken(null, null, null, this.clientPrincipal, null, null, null, null, null, this.additionalParameters))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("requestedTokenType cannot be empty");
-		assertThatThrownBy(() -> new OAuth2TokenExchangeAuthenticationToken("", null, null, this.clientPrincipal, null, null, null, null, null, this.additionalParameters))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("requestedTokenType cannot be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> new OAuth2TokenExchangeAuthenticationToken(null, null, null, this.clientPrincipal, null, null, null, null, null, this.additionalParameters))
+				.withMessage("requestedTokenType cannot be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> new OAuth2TokenExchangeAuthenticationToken("", null, null, this.clientPrincipal, null, null, null, null, null, this.additionalParameters))
+				.withMessage("requestedTokenType cannot be empty");
 		// @formatter:on
 	}
 
 	@Test
 	public void constructorWhenSubjectTokenNullOrEmptyThenThrowIllegalArgumentException() {
 		// @formatter:off
-		assertThatThrownBy(() -> new OAuth2TokenExchangeAuthenticationToken(JWT_TOKEN_TYPE_VALUE, null, null, this.clientPrincipal, null, null, null, null, this.scopes, this.additionalParameters))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("subjectToken cannot be empty");
-		assertThatThrownBy(() -> new OAuth2TokenExchangeAuthenticationToken(JWT_TOKEN_TYPE_VALUE, "", null, this.clientPrincipal, null, null, null, null, this.scopes, this.additionalParameters))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("subjectToken cannot be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> new OAuth2TokenExchangeAuthenticationToken(JWT_TOKEN_TYPE_VALUE, null, null, this.clientPrincipal, null, null, null, null, this.scopes, this.additionalParameters))
+				.withMessage("subjectToken cannot be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> new OAuth2TokenExchangeAuthenticationToken(JWT_TOKEN_TYPE_VALUE, "", null, this.clientPrincipal, null, null, null, null, this.scopes, this.additionalParameters))
+				.withMessage("subjectToken cannot be empty");
 		// @formatter:on
 	}
 
 	@Test
 	public void constructorWhenSubjectTokenTypeNullOrEmptyThenThrowIllegalArgumentException() {
 		// @formatter:off
-		assertThatThrownBy(() -> new OAuth2TokenExchangeAuthenticationToken(JWT_TOKEN_TYPE_VALUE, SUBJECT_TOKEN, null, this.clientPrincipal, null, null, null, null, this.scopes, this.additionalParameters))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("subjectTokenType cannot be empty");
-		assertThatThrownBy(() -> new OAuth2TokenExchangeAuthenticationToken(JWT_TOKEN_TYPE_VALUE, SUBJECT_TOKEN, "", this.clientPrincipal, null, null, null, null, this.scopes, this.additionalParameters))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("subjectTokenType cannot be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> new OAuth2TokenExchangeAuthenticationToken(JWT_TOKEN_TYPE_VALUE, SUBJECT_TOKEN, null, this.clientPrincipal, null, null, null, null, this.scopes, this.additionalParameters))
+				.withMessage("subjectTokenType cannot be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> new OAuth2TokenExchangeAuthenticationToken(JWT_TOKEN_TYPE_VALUE, SUBJECT_TOKEN, "", this.clientPrincipal, null, null, null, null, this.scopes, this.additionalParameters))
+				.withMessage("subjectTokenType cannot be empty");
 		// @formatter:on
 	}
 

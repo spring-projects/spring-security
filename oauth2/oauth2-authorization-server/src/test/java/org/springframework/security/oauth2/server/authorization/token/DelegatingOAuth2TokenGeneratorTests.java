@@ -24,7 +24,7 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2Token;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -40,16 +40,16 @@ public class DelegatingOAuth2TokenGeneratorTests {
 	@SuppressWarnings("unchecked")
 	public void constructorWhenTokenGeneratorsEmptyThenThrowIllegalArgumentException() {
 		OAuth2TokenGenerator<OAuth2Token>[] tokenGenerators = new OAuth2TokenGenerator[0];
-		assertThatThrownBy(() -> new DelegatingOAuth2TokenGenerator(tokenGenerators))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("tokenGenerators cannot be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new DelegatingOAuth2TokenGenerator(tokenGenerators))
+			.withMessage("tokenGenerators cannot be empty");
 	}
 
 	@Test
 	public void constructorWhenTokenGeneratorsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new DelegatingOAuth2TokenGenerator(null, null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("tokenGenerator cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new DelegatingOAuth2TokenGenerator(null, null))
+			.withMessage("tokenGenerator cannot be null");
 	}
 
 	@Test

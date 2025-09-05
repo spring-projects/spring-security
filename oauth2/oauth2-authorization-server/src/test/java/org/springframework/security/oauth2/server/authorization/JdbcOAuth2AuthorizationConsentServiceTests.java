@@ -41,8 +41,8 @@ import org.springframework.security.oauth2.server.authorization.client.TestRegis
 import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -100,36 +100,32 @@ public class JdbcOAuth2AuthorizationConsentServiceTests {
 	@Test
 	public void constructorWhenJdbcOperationsIsNullThenThrowIllegalArgumentException() {
 		// @formatter:off
-		assertThatThrownBy(() -> new JdbcOAuth2AuthorizationConsentService(null, this.registeredClientRepository))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("jdbcOperations cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> new JdbcOAuth2AuthorizationConsentService(null, this.registeredClientRepository))
+				.withMessage("jdbcOperations cannot be null");
 		// @formatter:on
 	}
 
 	@Test
 	public void constructorWhenRegisteredClientRepositoryIsNullThenThrowIllegalArgumentException() {
 		// @formatter:off
-		assertThatThrownBy(() -> new JdbcOAuth2AuthorizationConsentService(this.jdbcOperations, null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("registeredClientRepository cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> new JdbcOAuth2AuthorizationConsentService(this.jdbcOperations, null))
+				.withMessage("registeredClientRepository cannot be null");
 		// @formatter:on
 	}
 
 	@Test
 	public void setAuthorizationConsentRowMapperWhenNullThenThrowIllegalArgumentException() {
 		// @formatter:off
-		assertThatThrownBy(() -> this.authorizationConsentService.setAuthorizationConsentRowMapper(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("authorizationConsentRowMapper cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> this.authorizationConsentService.setAuthorizationConsentRowMapper(null))
+				.withMessage("authorizationConsentRowMapper cannot be null");
 		// @formatter:on
 	}
 
 	@Test
 	public void setAuthorizationConsentParametersMapperWhenNullThenThrowIllegalArgumentException() {
 		// @formatter:off
-		assertThatThrownBy(() -> this.authorizationConsentService.setAuthorizationConsentParametersMapper(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("authorizationConsentParametersMapper cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> this.authorizationConsentService.setAuthorizationConsentParametersMapper(null))
+				.withMessage("authorizationConsentParametersMapper cannot be null");
 		// @formatter:on
 	}
 

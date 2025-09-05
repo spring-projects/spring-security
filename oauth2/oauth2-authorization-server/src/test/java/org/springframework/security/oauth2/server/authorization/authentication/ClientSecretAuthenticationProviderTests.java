@@ -41,7 +41,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.TestRegisteredClients;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -103,23 +103,23 @@ public class ClientSecretAuthenticationProviderTests {
 
 	@Test
 	public void constructorWhenRegisteredClientRepositoryNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new ClientSecretAuthenticationProvider(null, this.authorizationService))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("registeredClientRepository cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new ClientSecretAuthenticationProvider(null, this.authorizationService))
+			.withMessage("registeredClientRepository cannot be null");
 	}
 
 	@Test
 	public void constructorWhenAuthorizationServiceNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new ClientSecretAuthenticationProvider(this.registeredClientRepository, null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("authorizationService cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new ClientSecretAuthenticationProvider(this.registeredClientRepository, null))
+			.withMessage("authorizationService cannot be null");
 	}
 
 	@Test
 	public void setPasswordEncoderWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authenticationProvider.setPasswordEncoder(null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("passwordEncoder cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.authenticationProvider.setPasswordEncoder(null))
+			.withMessage("passwordEncoder cannot be null");
 	}
 
 	@Test
@@ -136,9 +136,9 @@ public class ClientSecretAuthenticationProviderTests {
 		OAuth2ClientAuthenticationToken authentication = new OAuth2ClientAuthenticationToken(
 				registeredClient.getClientId() + "-invalid", ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
 				registeredClient.getClientSecret(), null);
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_CLIENT);
 				assertThat(error.getDescription()).contains(OAuth2ParameterNames.CLIENT_ID);
@@ -154,9 +154,9 @@ public class ClientSecretAuthenticationProviderTests {
 		OAuth2ClientAuthenticationToken authentication = new OAuth2ClientAuthenticationToken(
 				registeredClient.getClientId(), ClientAuthenticationMethod.CLIENT_SECRET_POST,
 				registeredClient.getClientSecret(), null);
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_CLIENT);
 				assertThat(error.getDescription()).contains("authentication_method");
@@ -171,9 +171,9 @@ public class ClientSecretAuthenticationProviderTests {
 
 		OAuth2ClientAuthenticationToken authentication = new OAuth2ClientAuthenticationToken(
 				registeredClient.getClientId(), ClientAuthenticationMethod.CLIENT_SECRET_BASIC, null, null);
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_CLIENT);
 				assertThat(error.getDescription()).contains("credentials");
@@ -189,9 +189,9 @@ public class ClientSecretAuthenticationProviderTests {
 		OAuth2ClientAuthenticationToken authentication = new OAuth2ClientAuthenticationToken(
 				registeredClient.getClientId(), ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
 				registeredClient.getClientSecret() + "-invalid", null);
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_CLIENT);
 				assertThat(error.getDescription()).contains(OAuth2ParameterNames.CLIENT_SECRET);
@@ -210,9 +210,9 @@ public class ClientSecretAuthenticationProviderTests {
 		OAuth2ClientAuthenticationToken authentication = new OAuth2ClientAuthenticationToken(
 				registeredClient.getClientId(), ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
 				registeredClient.getClientSecret(), null);
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_CLIENT);
 				assertThat(error.getDescription()).contains("client_secret_expires_at");
@@ -302,9 +302,9 @@ public class ClientSecretAuthenticationProviderTests {
 				registeredClient.getClientId(), ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
 				registeredClient.getClientSecret(), parameters);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_GRANT);
 				assertThat(error.getDescription()).contains(OAuth2ParameterNames.CODE);
@@ -329,9 +329,9 @@ public class ClientSecretAuthenticationProviderTests {
 				registeredClient.getClientId(), ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
 				registeredClient.getClientSecret(), parameters);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_GRANT);
 				assertThat(error.getDescription()).contains(PkceParameterNames.CODE_VERIFIER);

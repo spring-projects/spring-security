@@ -53,8 +53,8 @@ import org.springframework.security.oauth2.server.authorization.context.TestAuth
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -133,9 +133,9 @@ public class OidcLogoutAuthenticationProviderTests {
 		OidcLogoutAuthenticationToken authentication = new OidcLogoutAuthenticationToken("id-token", principal,
 				"session-1", null, null, null);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 				assertThat(error.getDescription()).contains("id_token_hint");
@@ -167,9 +167,9 @@ public class OidcLogoutAuthenticationProviderTests {
 		OidcLogoutAuthenticationToken authentication = new OidcLogoutAuthenticationToken(idToken.getTokenValue(),
 				principal, "session-1", null, null, null);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 				assertThat(error.getDescription()).contains("id_token_hint");
@@ -201,9 +201,9 @@ public class OidcLogoutAuthenticationProviderTests {
 		OidcLogoutAuthenticationToken authentication = new OidcLogoutAuthenticationToken(idToken.getTokenValue(),
 				principal, "session-1", null, null, null);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 				assertThat(error.getDescription()).contains(IdTokenClaimNames.AUD);
@@ -236,9 +236,9 @@ public class OidcLogoutAuthenticationProviderTests {
 		OidcLogoutAuthenticationToken authentication = new OidcLogoutAuthenticationToken(idToken.getTokenValue(),
 				principal, "session-1", null, null, null);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 				assertThat(error.getDescription()).contains(IdTokenClaimNames.AUD);
@@ -271,9 +271,9 @@ public class OidcLogoutAuthenticationProviderTests {
 		OidcLogoutAuthenticationToken authentication = new OidcLogoutAuthenticationToken(idToken.getTokenValue(),
 				principal, "session-1", registeredClient.getClientId() + "-invalid", null, null);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_REQUEST);
 				assertThat(error.getDescription()).contains(OAuth2ParameterNames.CLIENT_ID);
@@ -306,9 +306,9 @@ public class OidcLogoutAuthenticationProviderTests {
 		OidcLogoutAuthenticationToken authentication = new OidcLogoutAuthenticationToken(idToken.getTokenValue(),
 				principal, "session-1", registeredClient.getClientId(), "https://example.com/callback-1-invalid", null);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_REQUEST);
 				assertThat(error.getDescription()).contains("post_logout_redirect_uri");
@@ -319,9 +319,9 @@ public class OidcLogoutAuthenticationProviderTests {
 
 	@Test
 	public void setAuthenticationValidatorWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authenticationProvider.setAuthenticationValidator(null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("authenticationValidator cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.authenticationProvider.setAuthenticationValidator(null))
+			.withMessage("authenticationValidator cannot be null");
 	}
 
 	@Test
@@ -371,9 +371,9 @@ public class OidcLogoutAuthenticationProviderTests {
 		OidcLogoutAuthenticationToken authentication = new OidcLogoutAuthenticationToken(idToken.getTokenValue(),
 				principal, "session-1", null, null, null);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 				assertThat(error.getDescription()).contains("sub");
@@ -412,9 +412,9 @@ public class OidcLogoutAuthenticationProviderTests {
 		OidcLogoutAuthenticationToken authentication = new OidcLogoutAuthenticationToken(idToken.getTokenValue(),
 				otherPrincipal, "session-1", null, null, null);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 				assertThat(error.getDescription()).contains("sub");
@@ -454,9 +454,9 @@ public class OidcLogoutAuthenticationProviderTests {
 		OidcLogoutAuthenticationToken authentication = new OidcLogoutAuthenticationToken(idToken.getTokenValue(),
 				principal, sessionId, null, null, null);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 				assertThat(error.getDescription()).contains("sid");
@@ -497,9 +497,9 @@ public class OidcLogoutAuthenticationProviderTests {
 		OidcLogoutAuthenticationToken authentication = new OidcLogoutAuthenticationToken(idToken.getTokenValue(),
 				principal, sessionId, null, null, null);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 				assertThat(error.getDescription()).contains("sid");

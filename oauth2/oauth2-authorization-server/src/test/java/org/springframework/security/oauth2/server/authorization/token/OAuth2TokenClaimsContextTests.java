@@ -40,7 +40,7 @@ import org.springframework.security.oauth2.server.authorization.context.TestAuth
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link OAuth2TokenClaimsContext}.
@@ -51,8 +51,8 @@ public class OAuth2TokenClaimsContextTests {
 
 	@Test
 	public void withWhenClaimsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2TokenClaimsContext.with(null)).isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("claimsBuilder cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> OAuth2TokenClaimsContext.with(null))
+			.withMessage("claimsBuilder cannot be null");
 	}
 
 	@Test

@@ -80,7 +80,7 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -154,17 +154,17 @@ public class OAuth2RefreshTokenAuthenticationProviderTests {
 
 	@Test
 	public void constructorWhenAuthorizationServiceNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2RefreshTokenAuthenticationProvider(null, this.tokenGenerator))
-			.isInstanceOf(IllegalArgumentException.class)
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2RefreshTokenAuthenticationProvider(null, this.tokenGenerator))
 			.extracting(Throwable::getMessage)
 			.isEqualTo("authorizationService cannot be null");
 	}
 
 	@Test
 	public void constructorWhenTokenGeneratorNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2RefreshTokenAuthenticationProvider(this.authorizationService, null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("tokenGenerator cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2RefreshTokenAuthenticationProvider(this.authorizationService, null))
+			.withMessage("tokenGenerator cannot be null");
 	}
 
 	@Test
@@ -391,9 +391,9 @@ public class OAuth2RefreshTokenAuthenticationProviderTests {
 		OAuth2RefreshTokenAuthenticationToken authentication = new OAuth2RefreshTokenAuthenticationToken(
 				authorization.getRefreshToken().getToken().getTokenValue(), clientPrincipal, requestedScopes, null);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_SCOPE);
 	}
@@ -406,9 +406,9 @@ public class OAuth2RefreshTokenAuthenticationProviderTests {
 		OAuth2RefreshTokenAuthenticationToken authentication = new OAuth2RefreshTokenAuthenticationToken("invalid",
 				clientPrincipal, null, null);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_GRANT);
 	}
@@ -421,9 +421,9 @@ public class OAuth2RefreshTokenAuthenticationProviderTests {
 		OAuth2RefreshTokenAuthenticationToken authentication = new OAuth2RefreshTokenAuthenticationToken(
 				"refresh-token", clientPrincipal, null, null);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_CLIENT);
 	}
@@ -437,9 +437,9 @@ public class OAuth2RefreshTokenAuthenticationProviderTests {
 		OAuth2RefreshTokenAuthenticationToken authentication = new OAuth2RefreshTokenAuthenticationToken(
 				"refresh-token", clientPrincipal, null, null);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_CLIENT);
 	}
@@ -458,9 +458,9 @@ public class OAuth2RefreshTokenAuthenticationProviderTests {
 		OAuth2RefreshTokenAuthenticationToken authentication = new OAuth2RefreshTokenAuthenticationToken(
 				authorization.getRefreshToken().getToken().getTokenValue(), clientPrincipal, null, null);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_GRANT);
 	}
@@ -480,9 +480,9 @@ public class OAuth2RefreshTokenAuthenticationProviderTests {
 		OAuth2RefreshTokenAuthenticationToken authentication = new OAuth2RefreshTokenAuthenticationToken(
 				authorization.getRefreshToken().getToken().getTokenValue(), clientPrincipal, null, null);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.UNAUTHORIZED_CLIENT);
 	}
@@ -503,9 +503,9 @@ public class OAuth2RefreshTokenAuthenticationProviderTests {
 		OAuth2RefreshTokenAuthenticationToken authentication = new OAuth2RefreshTokenAuthenticationToken(
 				authorization.getRefreshToken().getToken().getTokenValue(), clientPrincipal, null, null);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_GRANT);
 	}
@@ -527,9 +527,9 @@ public class OAuth2RefreshTokenAuthenticationProviderTests {
 		OAuth2RefreshTokenAuthenticationToken authentication = new OAuth2RefreshTokenAuthenticationToken(
 				authorization.getRefreshToken().getToken().getTokenValue(), clientPrincipal, null, null);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_GRANT);
 	}
@@ -557,9 +557,9 @@ public class OAuth2RefreshTokenAuthenticationProviderTests {
 			}
 		}).given(this.tokenGenerator).generate(any());
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.SERVER_ERROR);
 				assertThat(error.getDescription()).contains("The token generator failed to generate the access token.");
@@ -591,9 +591,9 @@ public class OAuth2RefreshTokenAuthenticationProviderTests {
 			}
 		}).given(this.tokenGenerator).generate(any());
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.SERVER_ERROR);
 				assertThat(error.getDescription())
@@ -624,9 +624,9 @@ public class OAuth2RefreshTokenAuthenticationProviderTests {
 			}
 		}).given(this.tokenGenerator).generate(any());
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.SERVER_ERROR);
 				assertThat(error.getDescription()).contains("The token generator failed to generate the ID token.");

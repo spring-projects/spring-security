@@ -54,7 +54,7 @@ import org.springframework.security.oauth2.server.authorization.settings.ClientS
 import org.springframework.security.oauth2.server.authorization.util.TestX509Certificates;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -123,23 +123,23 @@ public class X509ClientCertificateAuthenticationProviderTests {
 
 	@Test
 	public void constructorWhenRegisteredClientRepositoryNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new X509ClientCertificateAuthenticationProvider(null, this.authorizationService))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("registeredClientRepository cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new X509ClientCertificateAuthenticationProvider(null, this.authorizationService))
+			.withMessage("registeredClientRepository cannot be null");
 	}
 
 	@Test
 	public void constructorWhenAuthorizationServiceNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new X509ClientCertificateAuthenticationProvider(this.registeredClientRepository, null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("authorizationService cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new X509ClientCertificateAuthenticationProvider(this.registeredClientRepository, null))
+			.withMessage("authorizationService cannot be null");
 	}
 
 	@Test
 	public void setCertificateVerifierWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authenticationProvider.setCertificateVerifier(null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("certificateVerifier cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.authenticationProvider.setCertificateVerifier(null))
+			.withMessage("certificateVerifier cannot be null");
 	}
 
 	@Test
@@ -160,9 +160,9 @@ public class X509ClientCertificateAuthenticationProviderTests {
 		OAuth2ClientAuthenticationToken authentication = new OAuth2ClientAuthenticationToken(
 				registeredClient.getClientId() + "-invalid", ClientAuthenticationMethod.TLS_CLIENT_AUTH,
 				TestX509Certificates.DEMO_CLIENT_PKI_CERTIFICATE, null);
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_CLIENT);
 				assertThat(error.getDescription()).contains(OAuth2ParameterNames.CLIENT_ID);
@@ -178,9 +178,9 @@ public class X509ClientCertificateAuthenticationProviderTests {
 		OAuth2ClientAuthenticationToken authentication = new OAuth2ClientAuthenticationToken(
 				registeredClient.getClientId(), ClientAuthenticationMethod.TLS_CLIENT_AUTH,
 				TestX509Certificates.DEMO_CLIENT_PKI_CERTIFICATE, null);
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_CLIENT);
 				assertThat(error.getDescription()).contains("authentication_method");
@@ -199,9 +199,9 @@ public class X509ClientCertificateAuthenticationProviderTests {
 
 		OAuth2ClientAuthenticationToken authentication = new OAuth2ClientAuthenticationToken(
 				registeredClient.getClientId(), ClientAuthenticationMethod.TLS_CLIENT_AUTH, null, null);
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_CLIENT);
 				assertThat(error.getDescription()).contains("credentials");
@@ -226,9 +226,9 @@ public class X509ClientCertificateAuthenticationProviderTests {
 		OAuth2ClientAuthenticationToken authentication = new OAuth2ClientAuthenticationToken(
 				registeredClient.getClientId(), ClientAuthenticationMethod.TLS_CLIENT_AUTH,
 				TestX509Certificates.DEMO_CLIENT_PKI_CERTIFICATE, null);
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_CLIENT);
 				assertThat(error.getDescription()).contains("x509_certificate_subject_dn");
@@ -284,9 +284,9 @@ public class X509ClientCertificateAuthenticationProviderTests {
 		OAuth2ClientAuthenticationToken authentication = new OAuth2ClientAuthenticationToken(
 				registeredClient.getClientId(), ClientAuthenticationMethod.SELF_SIGNED_TLS_CLIENT_AUTH,
 				TestX509Certificates.DEMO_CLIENT_PKI_CERTIFICATE, null);
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_CLIENT);
 				assertThat(error.getDescription()).contains("x509_certificate_issuer");
@@ -306,9 +306,9 @@ public class X509ClientCertificateAuthenticationProviderTests {
 		OAuth2ClientAuthenticationToken authentication = new OAuth2ClientAuthenticationToken(
 				registeredClient.getClientId(), ClientAuthenticationMethod.SELF_SIGNED_TLS_CLIENT_AUTH,
 				TestX509Certificates.DEMO_CLIENT_SELF_SIGNED_CERTIFICATE, null);
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_CLIENT);
 				assertThat(error.getDescription()).contains("client_jwk_set_url");
@@ -333,9 +333,9 @@ public class X509ClientCertificateAuthenticationProviderTests {
 		OAuth2ClientAuthenticationToken authentication = new OAuth2ClientAuthenticationToken(
 				registeredClient.getClientId(), ClientAuthenticationMethod.SELF_SIGNED_TLS_CLIENT_AUTH,
 				TestX509Certificates.DEMO_CLIENT_SELF_SIGNED_CERTIFICATE, null);
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_CLIENT);
 				assertThat(error.getDescription()).contains("jwk_set_uri");
@@ -414,9 +414,9 @@ public class X509ClientCertificateAuthenticationProviderTests {
 		OAuth2ClientAuthenticationToken authentication = new OAuth2ClientAuthenticationToken(
 				registeredClient.getClientId(), ClientAuthenticationMethod.SELF_SIGNED_TLS_CLIENT_AUTH,
 				TestX509Certificates.DEMO_CLIENT_SELF_SIGNED_CERTIFICATE, null);
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting((ex) -> ex.getError())
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_CLIENT);
 				assertThat(error.getDescription()).contains(expectedErrorDescription);

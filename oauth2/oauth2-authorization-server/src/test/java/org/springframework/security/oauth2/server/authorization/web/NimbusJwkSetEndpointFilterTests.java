@@ -39,7 +39,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.oauth2.jose.TestJwks;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -69,15 +69,15 @@ public class NimbusJwkSetEndpointFilterTests {
 
 	@Test
 	public void constructorWhenJwkSourceNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new NimbusJwkSetEndpointFilter(null)).isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("jwkSource cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> new NimbusJwkSetEndpointFilter(null))
+			.withMessage("jwkSource cannot be null");
 	}
 
 	@Test
 	public void constructorWhenJwkSetEndpointUriNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new NimbusJwkSetEndpointFilter(this.jwkSource, null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("jwkSetEndpointUri cannot be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new NimbusJwkSetEndpointFilter(this.jwkSource, null))
+			.withMessage("jwkSetEndpointUri cannot be empty");
 	}
 
 	@Test

@@ -23,7 +23,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.TestRegisteredClients;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link OAuth2ClientAuthenticationToken}.
@@ -35,25 +35,25 @@ public class OAuth2ClientAuthenticationTokenTests {
 
 	@Test
 	public void constructorWhenClientIdNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2ClientAuthenticationToken(null,
-				ClientAuthenticationMethod.CLIENT_SECRET_BASIC, "secret", null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("clientId cannot be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2ClientAuthenticationToken(null, ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
+					"secret", null))
+			.withMessage("clientId cannot be empty");
 	}
 
 	@Test
 	public void constructorWhenClientAuthenticationMethodNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2ClientAuthenticationToken("clientId", null, "clientSecret", null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("clientAuthenticationMethod cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2ClientAuthenticationToken("clientId", null, "clientSecret", null))
+			.withMessage("clientAuthenticationMethod cannot be null");
 	}
 
 	@Test
 	public void constructorWhenRegisteredClientNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2ClientAuthenticationToken(null,
-				ClientAuthenticationMethod.CLIENT_SECRET_BASIC, "clientSecret"))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("registeredClient cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2ClientAuthenticationToken(null, ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
+					"clientSecret"))
+			.withMessage("registeredClient cannot be null");
 	}
 
 	@Test

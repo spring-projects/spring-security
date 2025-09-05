@@ -30,7 +30,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.TestRegisteredClients;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link OAuth2AccessTokenAuthenticationToken}.
@@ -54,33 +54,32 @@ public class OAuth2AccessTokenAuthenticationTokenTests {
 
 	@Test
 	public void constructorWhenRegisteredClientNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2AccessTokenAuthenticationToken(null, this.clientPrincipal, this.accessToken))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("registeredClient cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2AccessTokenAuthenticationToken(null, this.clientPrincipal, this.accessToken))
+			.withMessage("registeredClient cannot be null");
 	}
 
 	@Test
 	public void constructorWhenClientPrincipalNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(
-				() -> new OAuth2AccessTokenAuthenticationToken(this.registeredClient, null, this.accessToken))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("clientPrincipal cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2AccessTokenAuthenticationToken(this.registeredClient, null, this.accessToken))
+			.withMessage("clientPrincipal cannot be null");
 	}
 
 	@Test
 	public void constructorWhenAccessTokenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(
-				() -> new OAuth2AccessTokenAuthenticationToken(this.registeredClient, this.clientPrincipal, null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("accessToken cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(
+					() -> new OAuth2AccessTokenAuthenticationToken(this.registeredClient, this.clientPrincipal, null))
+			.withMessage("accessToken cannot be null");
 	}
 
 	@Test
 	public void constructorWhenAdditionalParametersNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2AccessTokenAuthenticationToken(this.registeredClient, this.clientPrincipal,
-				this.accessToken, this.refreshToken, null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("additionalParameters cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2AccessTokenAuthenticationToken(this.registeredClient, this.clientPrincipal,
+					this.accessToken, this.refreshToken, null))
+			.withMessage("additionalParameters cannot be null");
 	}
 
 	@Test

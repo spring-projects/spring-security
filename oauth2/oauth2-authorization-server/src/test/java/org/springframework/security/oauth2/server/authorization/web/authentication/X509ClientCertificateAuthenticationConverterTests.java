@@ -31,7 +31,7 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 import org.springframework.security.oauth2.server.authorization.util.TestX509Certificates;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.entry;
 
 /**
@@ -74,8 +74,8 @@ public class X509ClientCertificateAuthenticationConverterTests {
 				TestX509Certificates.DEMO_CLIENT_PKI_CERTIFICATE);
 		request.addParameter(OAuth2ParameterNames.CLIENT_ID, "client-1");
 		request.addParameter(OAuth2ParameterNames.CLIENT_ID, "client-2");
-		assertThatThrownBy(() -> this.converter.convert(request)).isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.converter.convert(request))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_REQUEST);
 	}

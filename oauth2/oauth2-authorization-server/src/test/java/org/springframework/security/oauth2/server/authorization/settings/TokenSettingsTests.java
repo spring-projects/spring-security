@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link TokenSettings}.
@@ -57,18 +57,18 @@ public class TokenSettingsTests {
 
 	@Test
 	public void authorizationCodeTimeToLiveWhenNullOrZeroOrNegativeThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> TokenSettings.builder().authorizationCodeTimeToLive(null))
-			.isInstanceOf(IllegalArgumentException.class)
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> TokenSettings.builder().authorizationCodeTimeToLive(null))
 			.extracting(Throwable::getMessage)
 			.isEqualTo("authorizationCodeTimeToLive cannot be null");
 
-		assertThatThrownBy(() -> TokenSettings.builder().authorizationCodeTimeToLive(Duration.ZERO))
-			.isInstanceOf(IllegalArgumentException.class)
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> TokenSettings.builder().authorizationCodeTimeToLive(Duration.ZERO))
 			.extracting(Throwable::getMessage)
 			.isEqualTo("authorizationCodeTimeToLive must be greater than Duration.ZERO");
 
-		assertThatThrownBy(() -> TokenSettings.builder().authorizationCodeTimeToLive(Duration.ofSeconds(-10)))
-			.isInstanceOf(IllegalArgumentException.class)
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> TokenSettings.builder().authorizationCodeTimeToLive(Duration.ofSeconds(-10)))
 			.extracting(Throwable::getMessage)
 			.isEqualTo("authorizationCodeTimeToLive must be greater than Duration.ZERO");
 	}
@@ -82,18 +82,18 @@ public class TokenSettingsTests {
 
 	@Test
 	public void accessTokenTimeToLiveWhenNullOrZeroOrNegativeThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> TokenSettings.builder().accessTokenTimeToLive(null))
-			.isInstanceOf(IllegalArgumentException.class)
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> TokenSettings.builder().accessTokenTimeToLive(null))
 			.extracting(Throwable::getMessage)
 			.isEqualTo("accessTokenTimeToLive cannot be null");
 
-		assertThatThrownBy(() -> TokenSettings.builder().accessTokenTimeToLive(Duration.ZERO))
-			.isInstanceOf(IllegalArgumentException.class)
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> TokenSettings.builder().accessTokenTimeToLive(Duration.ZERO))
 			.extracting(Throwable::getMessage)
 			.isEqualTo("accessTokenTimeToLive must be greater than Duration.ZERO");
 
-		assertThatThrownBy(() -> TokenSettings.builder().accessTokenTimeToLive(Duration.ofSeconds(-10)))
-			.isInstanceOf(IllegalArgumentException.class)
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> TokenSettings.builder().accessTokenTimeToLive(Duration.ofSeconds(-10)))
 			.extracting(Throwable::getMessage)
 			.isEqualTo("accessTokenTimeToLive must be greater than Duration.ZERO");
 	}
@@ -106,8 +106,8 @@ public class TokenSettingsTests {
 
 	@Test
 	public void accessTokenFormatWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> TokenSettings.builder().accessTokenFormat(null))
-			.isInstanceOf(IllegalArgumentException.class)
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> TokenSettings.builder().accessTokenFormat(null))
 			.extracting(Throwable::getMessage)
 			.isEqualTo("accessTokenFormat cannot be null");
 	}
@@ -127,18 +127,18 @@ public class TokenSettingsTests {
 
 	@Test
 	public void refreshTokenTimeToLiveWhenNullOrZeroOrNegativeThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> TokenSettings.builder().refreshTokenTimeToLive(null))
-			.isInstanceOf(IllegalArgumentException.class)
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> TokenSettings.builder().refreshTokenTimeToLive(null))
 			.extracting(Throwable::getMessage)
 			.isEqualTo("refreshTokenTimeToLive cannot be null");
 
-		assertThatThrownBy(() -> TokenSettings.builder().refreshTokenTimeToLive(Duration.ZERO))
-			.isInstanceOf(IllegalArgumentException.class)
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> TokenSettings.builder().refreshTokenTimeToLive(Duration.ZERO))
 			.extracting(Throwable::getMessage)
 			.isEqualTo("refreshTokenTimeToLive must be greater than Duration.ZERO");
 
-		assertThatThrownBy(() -> TokenSettings.builder().refreshTokenTimeToLive(Duration.ofSeconds(-10)))
-			.isInstanceOf(IllegalArgumentException.class)
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> TokenSettings.builder().refreshTokenTimeToLive(Duration.ofSeconds(-10)))
 			.extracting(Throwable::getMessage)
 			.isEqualTo("refreshTokenTimeToLive must be greater than Duration.ZERO");
 	}

@@ -28,7 +28,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.TestRegisteredClients;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link OAuth2TokenIntrospectionAuthenticationToken}.
@@ -49,40 +49,38 @@ public class OAuth2TokenIntrospectionAuthenticationTokenTests {
 
 	@Test
 	public void constructorWhenTokenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(
-				() -> new OAuth2TokenIntrospectionAuthenticationToken(null, this.clientPrincipal, null, null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("token cannot be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2TokenIntrospectionAuthenticationToken(null, this.clientPrincipal, null, null))
+			.withMessage("token cannot be empty");
 	}
 
 	@Test
 	public void constructorWhenClientPrincipalNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2TokenIntrospectionAuthenticationToken(this.token, null, null, null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("clientPrincipal cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2TokenIntrospectionAuthenticationToken(this.token, null, null, null))
+			.withMessage("clientPrincipal cannot be null");
 	}
 
 	@Test
 	public void constructorWhenAuthenticatedAndTokenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(
-				() -> new OAuth2TokenIntrospectionAuthenticationToken(null, this.clientPrincipal, this.tokenClaims))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("token cannot be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(
+					() -> new OAuth2TokenIntrospectionAuthenticationToken(null, this.clientPrincipal, this.tokenClaims))
+			.withMessage("token cannot be empty");
 	}
 
 	@Test
 	public void constructorWhenAuthenticatedAndClientPrincipalNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2TokenIntrospectionAuthenticationToken(this.token, null, this.tokenClaims))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("clientPrincipal cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2TokenIntrospectionAuthenticationToken(this.token, null, this.tokenClaims))
+			.withMessage("clientPrincipal cannot be null");
 	}
 
 	@Test
 	public void constructorWhenAuthenticatedAndTokenClaimsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(
-				() -> new OAuth2TokenIntrospectionAuthenticationToken(this.token, this.clientPrincipal, null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("tokenClaims cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2TokenIntrospectionAuthenticationToken(this.token, this.clientPrincipal, null))
+			.withMessage("tokenClaims cannot be null");
 	}
 
 	@Test

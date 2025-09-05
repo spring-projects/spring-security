@@ -31,7 +31,7 @@ import org.springframework.security.oauth2.server.authorization.settings.Authori
 import org.springframework.web.util.InvalidUrlException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -56,9 +56,9 @@ public class OidcProviderConfigurationEndpointFilterTests {
 
 	@Test
 	public void setProviderConfigurationCustomizerWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.filter.setProviderConfigurationCustomizer(null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("providerConfigurationCustomizer cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.filter.setProviderConfigurationCustomizer(null))
+			.withMessage("providerConfigurationCustomizer cannot be null");
 	}
 
 	@Test
@@ -178,8 +178,8 @@ public class OidcProviderConfigurationEndpointFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 
-		assertThatThrownBy(() -> this.filter.doFilter(request, response, filterChain))
-			.isInstanceOf(InvalidUrlException.class);
+		assertThatExceptionOfType(InvalidUrlException.class)
+			.isThrownBy(() -> this.filter.doFilter(request, response, filterChain));
 	}
 
 }

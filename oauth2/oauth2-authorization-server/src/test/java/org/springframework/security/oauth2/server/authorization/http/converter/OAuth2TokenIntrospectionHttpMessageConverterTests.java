@@ -35,7 +35,6 @@ import org.springframework.security.oauth2.server.authorization.OAuth2TokenIntro
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests for {@link OAuth2TokenIntrospectionHttpMessageConverter}
@@ -166,10 +165,10 @@ public class OAuth2TokenIntrospectionHttpMessageConverterTests {
 
 		MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
 
-		assertThatThrownBy(() -> this.messageConverter.writeInternal(tokenClaims, outputMessage))
-			.isInstanceOf(HttpMessageNotWritableException.class)
-			.hasMessageContaining("An error occurred writing the Token Introspection Response")
-			.hasMessageContaining(errorMessage);
+		assertThatExceptionOfType(HttpMessageNotWritableException.class)
+			.isThrownBy(() -> this.messageConverter.writeInternal(tokenClaims, outputMessage))
+			.withMessageContaining("An error occurred writing the Token Introspection Response")
+			.withMessageContaining(errorMessage);
 	}
 
 }

@@ -47,7 +47,7 @@ import org.springframework.security.oauth2.server.authorization.context.TestAuth
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -97,26 +97,26 @@ public class OAuth2AuthorizationConsentAuthenticationProviderTests {
 
 	@Test
 	public void constructorWhenRegisteredClientRepositoryNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2AuthorizationConsentAuthenticationProvider(null, this.authorizationService,
-				this.authorizationConsentService))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("registeredClientRepository cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2AuthorizationConsentAuthenticationProvider(null, this.authorizationService,
+					this.authorizationConsentService))
+			.withMessage("registeredClientRepository cannot be null");
 	}
 
 	@Test
 	public void constructorWhenAuthorizationServiceNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2AuthorizationConsentAuthenticationProvider(this.registeredClientRepository,
-				null, this.authorizationConsentService))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("authorizationService cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2AuthorizationConsentAuthenticationProvider(this.registeredClientRepository,
+					null, this.authorizationConsentService))
+			.withMessage("authorizationService cannot be null");
 	}
 
 	@Test
 	public void constructorWhenAuthorizationConsentServiceNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2AuthorizationConsentAuthenticationProvider(this.registeredClientRepository,
-				this.authorizationService, null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("authorizationConsentService cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2AuthorizationConsentAuthenticationProvider(this.registeredClientRepository,
+					this.authorizationService, null))
+			.withMessage("authorizationConsentService cannot be null");
 	}
 
 	@Test
@@ -126,16 +126,16 @@ public class OAuth2AuthorizationConsentAuthenticationProviderTests {
 
 	@Test
 	public void setAuthorizationCodeGeneratorWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authenticationProvider.setAuthorizationCodeGenerator(null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("authorizationCodeGenerator cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.authenticationProvider.setAuthorizationCodeGenerator(null))
+			.withMessage("authorizationCodeGenerator cannot be null");
 	}
 
 	@Test
 	public void setAuthorizationConsentCustomizerWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authenticationProvider.setAuthorizationConsentCustomizer(null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("authorizationConsentCustomizer cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.authenticationProvider.setAuthorizationConsentCustomizer(null))
+			.withMessage("authorizationConsentCustomizer cannot be null");
 	}
 
 	@Test
@@ -147,10 +147,10 @@ public class OAuth2AuthorizationConsentAuthenticationProviderTests {
 		given(this.authorizationService.findByToken(eq(authentication.getState()), eq(STATE_TOKEN_TYPE)))
 			.willReturn(null);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthorizationCodeRequestAuthenticationException.class)
-			.satisfies((ex) -> assertAuthenticationException((OAuth2AuthorizationCodeRequestAuthenticationException) ex,
-					OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.STATE, null));
+		assertThatExceptionOfType(OAuth2AuthorizationCodeRequestAuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.satisfies((ex) -> assertAuthenticationException(ex, OAuth2ErrorCodes.INVALID_REQUEST,
+					OAuth2ParameterNames.STATE, null));
 	}
 
 	@Test
@@ -166,10 +166,10 @@ public class OAuth2AuthorizationConsentAuthenticationProviderTests {
 			.willReturn(authorization);
 		this.principal.setAuthenticated(false);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthorizationCodeRequestAuthenticationException.class)
-			.satisfies((ex) -> assertAuthenticationException((OAuth2AuthorizationCodeRequestAuthenticationException) ex,
-					OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.STATE, null));
+		assertThatExceptionOfType(OAuth2AuthorizationCodeRequestAuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.satisfies((ex) -> assertAuthenticationException(ex, OAuth2ErrorCodes.INVALID_REQUEST,
+					OAuth2ParameterNames.STATE, null));
 	}
 
 	@Test
@@ -184,10 +184,10 @@ public class OAuth2AuthorizationConsentAuthenticationProviderTests {
 		given(this.authorizationService.findByToken(eq(authentication.getState()), eq(STATE_TOKEN_TYPE)))
 			.willReturn(authorization);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthorizationCodeRequestAuthenticationException.class)
-			.satisfies((ex) -> assertAuthenticationException((OAuth2AuthorizationCodeRequestAuthenticationException) ex,
-					OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.STATE, null));
+		assertThatExceptionOfType(OAuth2AuthorizationCodeRequestAuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.satisfies((ex) -> assertAuthenticationException(ex, OAuth2ErrorCodes.INVALID_REQUEST,
+					OAuth2ParameterNames.STATE, null));
 	}
 
 	@Test
@@ -202,10 +202,10 @@ public class OAuth2AuthorizationConsentAuthenticationProviderTests {
 				AUTHORIZATION_URI, otherRegisteredClient.getClientId(), this.principal, STATE,
 				registeredClient.getScopes(), null);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthorizationCodeRequestAuthenticationException.class)
-			.satisfies((ex) -> assertAuthenticationException((OAuth2AuthorizationCodeRequestAuthenticationException) ex,
-					OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.CLIENT_ID, null));
+		assertThatExceptionOfType(OAuth2AuthorizationCodeRequestAuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.satisfies((ex) -> assertAuthenticationException(ex, OAuth2ErrorCodes.INVALID_REQUEST,
+					OAuth2ParameterNames.CLIENT_ID, null));
 	}
 
 	@Test
@@ -222,10 +222,10 @@ public class OAuth2AuthorizationConsentAuthenticationProviderTests {
 				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, STATE, registeredClient.getScopes(),
 				null);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthorizationCodeRequestAuthenticationException.class)
-			.satisfies((ex) -> assertAuthenticationException((OAuth2AuthorizationCodeRequestAuthenticationException) ex,
-					OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.CLIENT_ID, null));
+		assertThatExceptionOfType(OAuth2AuthorizationCodeRequestAuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.satisfies((ex) -> assertAuthenticationException(ex, OAuth2ErrorCodes.INVALID_REQUEST,
+					OAuth2ParameterNames.CLIENT_ID, null));
 	}
 
 	@Test
@@ -245,10 +245,10 @@ public class OAuth2AuthorizationConsentAuthenticationProviderTests {
 		given(this.authorizationService.findByToken(eq(authentication.getState()), eq(STATE_TOKEN_TYPE)))
 			.willReturn(authorization);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthorizationCodeRequestAuthenticationException.class)
-			.satisfies((ex) -> assertAuthenticationException((OAuth2AuthorizationCodeRequestAuthenticationException) ex,
-					OAuth2ErrorCodes.INVALID_SCOPE, OAuth2ParameterNames.SCOPE, authorizationRequest.getRedirectUri()));
+		assertThatExceptionOfType(OAuth2AuthorizationCodeRequestAuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.satisfies((ex) -> assertAuthenticationException(ex, OAuth2ErrorCodes.INVALID_SCOPE,
+					OAuth2ParameterNames.SCOPE, authorizationRequest.getRedirectUri()));
 	}
 
 	@Test
@@ -269,11 +269,10 @@ public class OAuth2AuthorizationConsentAuthenticationProviderTests {
 		OAuth2AuthorizationRequest authorizationRequest = authorization
 			.getAttribute(OAuth2AuthorizationRequest.class.getName());
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthorizationCodeRequestAuthenticationException.class)
-			.satisfies((ex) -> assertAuthenticationException((OAuth2AuthorizationCodeRequestAuthenticationException) ex,
-					OAuth2ErrorCodes.ACCESS_DENIED, OAuth2ParameterNames.CLIENT_ID,
-					authorizationRequest.getRedirectUri()));
+		assertThatExceptionOfType(OAuth2AuthorizationCodeRequestAuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.satisfies((ex) -> assertAuthenticationException(ex, OAuth2ErrorCodes.ACCESS_DENIED,
+					OAuth2ParameterNames.CLIENT_ID, authorizationRequest.getRedirectUri()));
 
 		verify(this.authorizationService).remove(eq(authorization));
 	}
@@ -423,11 +422,10 @@ public class OAuth2AuthorizationConsentAuthenticationProviderTests {
 				(authorizationConsentContext) -> authorizationConsentContext.getAuthorizationConsent()
 					.authorities(Set::clear));
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthorizationCodeRequestAuthenticationException.class)
-			.satisfies((ex) -> assertAuthenticationException((OAuth2AuthorizationCodeRequestAuthenticationException) ex,
-					OAuth2ErrorCodes.ACCESS_DENIED, OAuth2ParameterNames.CLIENT_ID,
-					authorizationRequest.getRedirectUri()));
+		assertThatExceptionOfType(OAuth2AuthorizationCodeRequestAuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.satisfies((ex) -> assertAuthenticationException(ex, OAuth2ErrorCodes.ACCESS_DENIED,
+					OAuth2ParameterNames.CLIENT_ID, authorizationRequest.getRedirectUri()));
 
 		verify(this.authorizationConsentService).remove(eq(previousAuthorizationConsent));
 		verify(this.authorizationService).remove(eq(authorization));

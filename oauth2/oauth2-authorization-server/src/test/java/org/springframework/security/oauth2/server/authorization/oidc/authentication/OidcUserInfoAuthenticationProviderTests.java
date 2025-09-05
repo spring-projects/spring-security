@@ -43,8 +43,8 @@ import org.springframework.security.oauth2.server.authorization.TestOAuth2Author
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -90,9 +90,9 @@ public class OidcUserInfoAuthenticationProviderTests {
 		OidcUserInfoAuthenticationToken authentication = new OidcUserInfoAuthenticationToken(
 				new UsernamePasswordAuthenticationToken(null, null));
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 
@@ -106,9 +106,9 @@ public class OidcUserInfoAuthenticationProviderTests {
 		principal.setAuthenticated(false);
 		OidcUserInfoAuthenticationToken authentication = new OidcUserInfoAuthenticationToken(principal);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 
@@ -121,9 +121,9 @@ public class OidcUserInfoAuthenticationProviderTests {
 		JwtAuthenticationToken principal = createJwtAuthenticationToken(tokenValue);
 		OidcUserInfoAuthenticationToken authentication = new OidcUserInfoAuthenticationToken(principal);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 
@@ -143,9 +143,9 @@ public class OidcUserInfoAuthenticationProviderTests {
 		JwtAuthenticationToken principal = createJwtAuthenticationToken(tokenValue);
 		OidcUserInfoAuthenticationToken authentication = new OidcUserInfoAuthenticationToken(principal);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 
@@ -161,9 +161,9 @@ public class OidcUserInfoAuthenticationProviderTests {
 		JwtAuthenticationToken principal = createJwtAuthenticationToken(tokenValue);
 		OidcUserInfoAuthenticationToken authentication = new OidcUserInfoAuthenticationToken(principal);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
 
@@ -182,9 +182,9 @@ public class OidcUserInfoAuthenticationProviderTests {
 		JwtAuthenticationToken principal = createJwtAuthenticationToken(tokenValue);
 		OidcUserInfoAuthenticationToken authentication = new OidcUserInfoAuthenticationToken(principal);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 

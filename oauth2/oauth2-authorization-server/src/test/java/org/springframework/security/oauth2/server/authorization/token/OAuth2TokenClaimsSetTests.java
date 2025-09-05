@@ -23,7 +23,7 @@ import java.util.Collections;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link OAuth2TokenClaimsSet}.
@@ -34,8 +34,9 @@ public class OAuth2TokenClaimsSetTests {
 
 	@Test
 	public void buildWhenClaimsEmptyThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2TokenClaimsSet.builder().build()).isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("claims cannot be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> OAuth2TokenClaimsSet.builder().build())
+			.withMessage("claims cannot be empty");
 	}
 
 	@Test
@@ -82,16 +83,16 @@ public class OAuth2TokenClaimsSetTests {
 
 	@Test
 	public void claimWhenNameNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2TokenClaimsSet.builder().claim(null, "value"))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("name cannot be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> OAuth2TokenClaimsSet.builder().claim(null, "value"))
+			.withMessage("name cannot be empty");
 	}
 
 	@Test
 	public void claimWhenValueNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2TokenClaimsSet.builder().claim("name", null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("value cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> OAuth2TokenClaimsSet.builder().claim("name", null))
+			.withMessage("value cannot be null");
 	}
 
 }

@@ -30,7 +30,7 @@ import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -46,9 +46,8 @@ public class OAuth2ErrorAuthenticationFailureHandlerTests {
 	@Test
 	public void setErrorResponseConverterWhenNullThenThrowIllegalArgumentException() {
 		// @formatter:off
-		assertThatThrownBy(() -> this.authenticationFailureHandler.setErrorResponseConverter(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("errorResponseConverter cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> this.authenticationFailureHandler.setErrorResponseConverter(null))
+				.withMessage("errorResponseConverter cannot be null");
 		// @formatter:on
 	}
 

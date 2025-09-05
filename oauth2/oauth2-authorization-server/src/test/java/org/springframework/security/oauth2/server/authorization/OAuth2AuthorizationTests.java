@@ -28,7 +28,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.TestRegisteredClients;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link OAuth2Authorization}.
@@ -56,15 +56,15 @@ public class OAuth2AuthorizationTests {
 
 	@Test
 	public void withRegisteredClientWhenRegisteredClientNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2Authorization.withRegisteredClient(null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("registeredClient cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> OAuth2Authorization.withRegisteredClient(null))
+			.withMessage("registeredClient cannot be null");
 	}
 
 	@Test
 	public void fromWhenAuthorizationNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2Authorization.from(null)).isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("authorization cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> OAuth2Authorization.from(null))
+			.withMessage("authorization cannot be null");
 	}
 
 	@Test
@@ -91,32 +91,31 @@ public class OAuth2AuthorizationTests {
 
 	@Test
 	public void buildWhenPrincipalNameNotProvidedThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2Authorization.withRegisteredClient(REGISTERED_CLIENT).build())
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> OAuth2Authorization.withRegisteredClient(REGISTERED_CLIENT).build())
 			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("principalName cannot be empty");
+			.withMessage("principalName cannot be empty");
 	}
 
 	@Test
 	public void buildWhenAuthorizationGrantTypeNotProvidedThenThrowIllegalArgumentException() {
-		assertThatThrownBy(
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
 				() -> OAuth2Authorization.withRegisteredClient(REGISTERED_CLIENT).principalName(PRINCIPAL_NAME).build())
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("authorizationGrantType cannot be null");
+			.withMessage("authorizationGrantType cannot be null");
 	}
 
 	@Test
 	public void attributeWhenNameNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
 				() -> OAuth2Authorization.withRegisteredClient(REGISTERED_CLIENT).attribute(null, AUTHORIZATION_CODE))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("name cannot be empty");
+			.withMessage("name cannot be empty");
 	}
 
 	@Test
 	public void attributeWhenValueNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2Authorization.withRegisteredClient(REGISTERED_CLIENT).attribute("name", null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("value cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> OAuth2Authorization.withRegisteredClient(REGISTERED_CLIENT).attribute("name", null))
+			.withMessage("value cannot be null");
 	}
 
 	@Test

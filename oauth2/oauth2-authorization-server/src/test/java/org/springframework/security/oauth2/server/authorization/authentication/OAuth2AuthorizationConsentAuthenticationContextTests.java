@@ -29,7 +29,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.TestRegisteredClients;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link OAuth2AuthorizationConsentAuthenticationContext}.
@@ -58,9 +58,9 @@ public class OAuth2AuthorizationConsentAuthenticationContextTests {
 
 	@Test
 	public void withWhenAuthenticationNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2AuthorizationConsentAuthenticationContext.with(null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("authentication cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> OAuth2AuthorizationConsentAuthenticationContext.with(null))
+			.withMessage("authentication cannot be null");
 	}
 
 	@Test
@@ -68,11 +68,11 @@ public class OAuth2AuthorizationConsentAuthenticationContextTests {
 		OAuth2AuthorizationConsentAuthenticationContext.Builder builder = OAuth2AuthorizationConsentAuthenticationContext
 			.with(this.authorizationConsentAuthentication);
 
-		assertThatThrownBy(() -> builder.authorizationConsent(null)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> builder.registeredClient(null)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> builder.authorization(null)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> builder.authorizationRequest(null)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> builder.put(null, "")).isInstanceOf(IllegalArgumentException.class);
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> builder.authorizationConsent(null));
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> builder.registeredClient(null));
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> builder.authorization(null));
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> builder.authorizationRequest(null));
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> builder.put(null, ""));
 	}
 
 	@Test
@@ -80,20 +80,20 @@ public class OAuth2AuthorizationConsentAuthenticationContextTests {
 		OAuth2AuthorizationConsentAuthenticationContext.Builder builder = OAuth2AuthorizationConsentAuthenticationContext
 			.with(this.authorizationConsentAuthentication);
 
-		assertThatThrownBy(builder::build).isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("authorizationConsentBuilder cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(builder::build)
+			.withMessage("authorizationConsentBuilder cannot be null");
 		builder.authorizationConsent(this.authorizationConsentBuilder);
 
-		assertThatThrownBy(builder::build).isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("registeredClient cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(builder::build)
+			.withMessage("registeredClient cannot be null");
 		builder.registeredClient(this.registeredClient);
 
-		assertThatThrownBy(builder::build).isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("authorization cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(builder::build)
+			.withMessage("authorization cannot be null");
 		builder.authorization(this.authorization);
 
-		assertThatThrownBy(builder::build).isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("authorizationRequest cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(builder::build)
+			.withMessage("authorizationRequest cannot be null");
 		builder.authorizationRequest(this.authorizationRequest);
 
 		builder.build();

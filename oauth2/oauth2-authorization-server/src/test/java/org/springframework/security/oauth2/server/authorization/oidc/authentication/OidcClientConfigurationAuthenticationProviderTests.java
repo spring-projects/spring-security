@@ -58,8 +58,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -131,9 +131,9 @@ public class OidcClientConfigurationAuthenticationProviderTests {
 		OidcClientRegistrationAuthenticationToken authentication = new OidcClientRegistrationAuthenticationToken(
 				principal, "client-id");
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 	}
@@ -145,9 +145,9 @@ public class OidcClientConfigurationAuthenticationProviderTests {
 		OidcClientRegistrationAuthenticationToken authentication = new OidcClientRegistrationAuthenticationToken(
 				principal, "client-id");
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 	}
@@ -161,9 +161,9 @@ public class OidcClientConfigurationAuthenticationProviderTests {
 		OidcClientRegistrationAuthenticationToken authentication = new OidcClientRegistrationAuthenticationToken(
 				principal, "client-id");
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 		verify(this.authorizationService).findByToken(eq(jwt.getTokenValue()), eq(OAuth2TokenType.ACCESS_TOKEN));
@@ -189,9 +189,9 @@ public class OidcClientConfigurationAuthenticationProviderTests {
 		OidcClientRegistrationAuthenticationToken authentication = new OidcClientRegistrationAuthenticationToken(
 				principal, registeredClient.getClientId());
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 		verify(this.authorizationService).findByToken(eq(jwtAccessToken.getTokenValue()),
@@ -217,9 +217,9 @@ public class OidcClientConfigurationAuthenticationProviderTests {
 		OidcClientRegistrationAuthenticationToken authentication = new OidcClientRegistrationAuthenticationToken(
 				principal, registeredClient.getClientId());
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting((ex) -> ex.getError())
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
 		verify(this.authorizationService).findByToken(eq(jwtAccessToken.getTokenValue()),
@@ -245,9 +245,9 @@ public class OidcClientConfigurationAuthenticationProviderTests {
 		OidcClientRegistrationAuthenticationToken authentication = new OidcClientRegistrationAuthenticationToken(
 				principal, registeredClient.getClientId());
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 		verify(this.authorizationService).findByToken(eq(jwtAccessToken.getTokenValue()),
@@ -273,9 +273,9 @@ public class OidcClientConfigurationAuthenticationProviderTests {
 		OidcClientRegistrationAuthenticationToken authentication = new OidcClientRegistrationAuthenticationToken(
 				principal, registeredClient.getClientId());
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_CLIENT);
 		verify(this.authorizationService).findByToken(eq(jwtAccessToken.getTokenValue()),
@@ -308,9 +308,9 @@ public class OidcClientConfigurationAuthenticationProviderTests {
 		OidcClientRegistrationAuthenticationToken authentication = new OidcClientRegistrationAuthenticationToken(
 				principal, registeredClient.getClientId());
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_CLIENT);
 		verify(this.authorizationService).findByToken(eq(jwtAccessToken.getTokenValue()),

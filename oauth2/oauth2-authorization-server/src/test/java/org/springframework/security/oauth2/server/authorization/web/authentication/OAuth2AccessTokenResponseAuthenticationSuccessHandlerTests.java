@@ -46,7 +46,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.TestRegisteredClients;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link OAuth2AccessTokenResponseAuthenticationSuccessHandler}.
@@ -68,9 +68,8 @@ public class OAuth2AccessTokenResponseAuthenticationSuccessHandlerTests {
 	@Test
 	public void setAccessTokenResponseCustomizerWhenNullThenThrowIllegalArgumentException() {
 		// @formatter:off
-		assertThatThrownBy(() -> this.authenticationSuccessHandler.setAccessTokenResponseCustomizer(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("accessTokenResponseCustomizer cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> this.authenticationSuccessHandler.setAccessTokenResponseCustomizer(null))
+				.withMessage("accessTokenResponseCustomizer cannot be null");
 		// @formatter:on
 	}
 
@@ -106,10 +105,10 @@ public class OAuth2AccessTokenResponseAuthenticationSuccessHandlerTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		assertThatThrownBy(() -> this.authenticationSuccessHandler.onAuthenticationSuccess(request, response,
-				new TestingAuthenticationToken(this.clientPrincipal, null)))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationSuccessHandler.onAuthenticationSuccess(request, response,
+					new TestingAuthenticationToken(this.clientPrincipal, null)))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.SERVER_ERROR);
 	}

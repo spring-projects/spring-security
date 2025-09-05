@@ -51,7 +51,7 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -95,37 +95,37 @@ public class OAuth2ClientAuthenticationFilterTests {
 
 	@Test
 	public void constructorWhenAuthenticationManagerNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2ClientAuthenticationFilter(null, this.requestMatcher))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("authenticationManager cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2ClientAuthenticationFilter(null, this.requestMatcher))
+			.withMessage("authenticationManager cannot be null");
 	}
 
 	@Test
 	public void constructorWhenRequestMatcherNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2ClientAuthenticationFilter(this.authenticationManager, null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("requestMatcher cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2ClientAuthenticationFilter(this.authenticationManager, null))
+			.withMessage("requestMatcher cannot be null");
 	}
 
 	@Test
 	public void setAuthenticationConverterWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.filter.setAuthenticationConverter(null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("authenticationConverter cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.filter.setAuthenticationConverter(null))
+			.withMessage("authenticationConverter cannot be null");
 	}
 
 	@Test
 	public void setAuthenticationSuccessHandlerWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.filter.setAuthenticationSuccessHandler(null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("authenticationSuccessHandler cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.filter.setAuthenticationSuccessHandler(null))
+			.withMessage("authenticationSuccessHandler cannot be null");
 	}
 
 	@Test
 	public void setAuthenticationFailureHandlerWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.filter.setAuthenticationFailureHandler(null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("authenticationFailureHandler cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.filter.setAuthenticationFailureHandler(null))
+			.withMessage("authenticationFailureHandler cannot be null");
 	}
 
 	@Test

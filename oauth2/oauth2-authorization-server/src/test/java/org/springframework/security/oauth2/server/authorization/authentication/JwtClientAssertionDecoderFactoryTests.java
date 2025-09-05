@@ -28,7 +28,7 @@ import org.springframework.security.oauth2.server.authorization.client.TestRegis
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link JwtClientAssertionDecoderFactory}.
@@ -41,9 +41,9 @@ public class JwtClientAssertionDecoderFactoryTests {
 
 	@Test
 	public void setJwtValidatorFactoryWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.jwtDecoderFactory.setJwtValidatorFactory(null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("jwtValidatorFactory cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.jwtDecoderFactory.setJwtValidatorFactory(null))
+			.withMessage("jwtValidatorFactory cannot be null");
 	}
 
 	@Test
@@ -59,9 +59,9 @@ public class JwtClientAssertionDecoderFactoryTests {
 				.build();
 		// @formatter:on
 
-		assertThatThrownBy(() -> this.jwtDecoderFactory.createDecoder(registeredClient))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.jwtDecoderFactory.createDecoder(registeredClient))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_CLIENT);
 				assertThat(error.getDescription()).isEqualTo("Failed to find a Signature Verifier for Client: '"
@@ -83,9 +83,9 @@ public class JwtClientAssertionDecoderFactoryTests {
 				.build();
 		// @formatter:on
 
-		assertThatThrownBy(() -> this.jwtDecoderFactory.createDecoder(registeredClient))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.jwtDecoderFactory.createDecoder(registeredClient))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_CLIENT);
 				assertThat(error.getDescription()).isEqualTo("Failed to find a Signature Verifier for Client: '"
@@ -101,9 +101,9 @@ public class JwtClientAssertionDecoderFactoryTests {
 				.build();
 		// @formatter:on
 
-		assertThatThrownBy(() -> this.jwtDecoderFactory.createDecoder(registeredClient))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.jwtDecoderFactory.createDecoder(registeredClient))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_CLIENT);
 				assertThat(error.getDescription())

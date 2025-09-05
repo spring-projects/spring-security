@@ -28,7 +28,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.TestRegisteredClients;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link OAuth2TokenRevocationAuthenticationToken}.
@@ -52,31 +52,31 @@ public class OAuth2TokenRevocationAuthenticationTokenTests {
 
 	@Test
 	public void constructorWhenTokenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(
-				() -> new OAuth2TokenRevocationAuthenticationToken(null, this.clientPrincipal, this.tokenTypeHint))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("token cannot be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(
+					() -> new OAuth2TokenRevocationAuthenticationToken(null, this.clientPrincipal, this.tokenTypeHint))
+			.withMessage("token cannot be empty");
 	}
 
 	@Test
 	public void constructorWhenClientPrincipalNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2TokenRevocationAuthenticationToken(this.token, null, this.tokenTypeHint))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("clientPrincipal cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2TokenRevocationAuthenticationToken(this.token, null, this.tokenTypeHint))
+			.withMessage("clientPrincipal cannot be null");
 	}
 
 	@Test
 	public void constructorWhenRevokedTokenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2TokenRevocationAuthenticationToken(null, this.clientPrincipal))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("revokedToken cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2TokenRevocationAuthenticationToken(null, this.clientPrincipal))
+			.withMessage("revokedToken cannot be null");
 	}
 
 	@Test
 	public void constructorWhenRevokedTokenAndClientPrincipalNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2TokenRevocationAuthenticationToken(this.accessToken, null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("clientPrincipal cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2TokenRevocationAuthenticationToken(this.accessToken, null))
+			.withMessage("clientPrincipal cannot be null");
 	}
 
 	@Test

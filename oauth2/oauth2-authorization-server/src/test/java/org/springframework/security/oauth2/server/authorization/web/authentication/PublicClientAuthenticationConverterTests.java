@@ -29,7 +29,7 @@ import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientAuthenticationToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.entry;
 
 /**
@@ -52,8 +52,8 @@ public class PublicClientAuthenticationConverterTests {
 	public void convertWhenMissingClientIdThenInvalidRequestError() {
 		MockHttpServletRequest request = createPkceTokenRequest();
 		request.removeParameter(OAuth2ParameterNames.CLIENT_ID);
-		assertThatThrownBy(() -> this.converter.convert(request)).isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.converter.convert(request))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_REQUEST);
 	}
@@ -62,8 +62,8 @@ public class PublicClientAuthenticationConverterTests {
 	public void convertWhenMultipleClientIdThenInvalidRequestError() {
 		MockHttpServletRequest request = createPkceTokenRequest();
 		request.addParameter(OAuth2ParameterNames.CLIENT_ID, "client-2");
-		assertThatThrownBy(() -> this.converter.convert(request)).isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.converter.convert(request))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_REQUEST);
 	}
@@ -72,8 +72,8 @@ public class PublicClientAuthenticationConverterTests {
 	public void convertWhenMultipleCodeVerifierThenInvalidRequestError() {
 		MockHttpServletRequest request = createPkceTokenRequest();
 		request.addParameter(PkceParameterNames.CODE_VERIFIER, "code-verifier-2");
-		assertThatThrownBy(() -> this.converter.convert(request)).isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.converter.convert(request))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_REQUEST);
 	}

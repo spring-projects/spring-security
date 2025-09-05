@@ -28,7 +28,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.TestRegisteredClients;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link OAuth2RefreshTokenAuthenticationToken}.
@@ -49,22 +49,22 @@ public class OAuth2RefreshTokenAuthenticationTokenTests {
 
 	@Test
 	public void constructorWhenRefreshTokenNullOrEmptyThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2RefreshTokenAuthenticationToken(null, this.clientPrincipal, this.scopes,
-				this.additionalParameters))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("refreshToken cannot be empty");
-		assertThatThrownBy(() -> new OAuth2RefreshTokenAuthenticationToken("", this.clientPrincipal, this.scopes,
-				this.additionalParameters))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("refreshToken cannot be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2RefreshTokenAuthenticationToken(null, this.clientPrincipal, this.scopes,
+					this.additionalParameters))
+			.withMessage("refreshToken cannot be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2RefreshTokenAuthenticationToken("", this.clientPrincipal, this.scopes,
+					this.additionalParameters))
+			.withMessage("refreshToken cannot be empty");
 	}
 
 	@Test
 	public void constructorWhenClientPrincipalNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2RefreshTokenAuthenticationToken("refresh-token", null, this.scopes,
-				this.additionalParameters))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("clientPrincipal cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> new OAuth2RefreshTokenAuthenticationToken("refresh-token", null, this.scopes,
+					this.additionalParameters))
+			.withMessage("clientPrincipal cannot be null");
 	}
 
 	@Test

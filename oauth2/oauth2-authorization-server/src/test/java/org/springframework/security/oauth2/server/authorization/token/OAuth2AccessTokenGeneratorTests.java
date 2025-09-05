@@ -46,7 +46,7 @@ import org.springframework.security.oauth2.server.authorization.settings.OAuth2T
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -76,9 +76,9 @@ public class OAuth2AccessTokenGeneratorTests {
 
 	@Test
 	public void setAccessTokenCustomizerWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.accessTokenGenerator.setAccessTokenCustomizer(null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("accessTokenCustomizer cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.accessTokenGenerator.setAccessTokenCustomizer(null))
+			.withMessage("accessTokenCustomizer cannot be null");
 	}
 
 	@Test

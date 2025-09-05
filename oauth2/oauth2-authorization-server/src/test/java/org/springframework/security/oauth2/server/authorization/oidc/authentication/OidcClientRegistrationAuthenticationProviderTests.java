@@ -68,8 +68,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -179,9 +179,9 @@ public class OidcClientRegistrationAuthenticationProviderTests {
 
 	@Test
 	public void setPasswordEncoderWhenNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> this.authenticationProvider.setPasswordEncoder(null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("passwordEncoder cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.authenticationProvider.setPasswordEncoder(null))
+			.withMessage("passwordEncoder cannot be null");
 	}
 
 	@Test
@@ -199,9 +199,9 @@ public class OidcClientRegistrationAuthenticationProviderTests {
 		OidcClientRegistrationAuthenticationToken authentication = new OidcClientRegistrationAuthenticationToken(
 				principal, clientRegistration);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 	}
@@ -216,9 +216,9 @@ public class OidcClientRegistrationAuthenticationProviderTests {
 		OidcClientRegistrationAuthenticationToken authentication = new OidcClientRegistrationAuthenticationToken(
 				principal, clientRegistration);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 	}
@@ -235,9 +235,9 @@ public class OidcClientRegistrationAuthenticationProviderTests {
 		OidcClientRegistrationAuthenticationToken authentication = new OidcClientRegistrationAuthenticationToken(
 				principal, clientRegistration);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 		verify(this.authorizationService).findByToken(eq(jwt.getTokenValue()), eq(OAuth2TokenType.ACCESS_TOKEN));
@@ -266,9 +266,9 @@ public class OidcClientRegistrationAuthenticationProviderTests {
 		OidcClientRegistrationAuthenticationToken authentication = new OidcClientRegistrationAuthenticationToken(
 				principal, clientRegistration);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 		verify(this.authorizationService).findByToken(eq(jwtAccessToken.getTokenValue()),
@@ -297,9 +297,9 @@ public class OidcClientRegistrationAuthenticationProviderTests {
 		OidcClientRegistrationAuthenticationToken authentication = new OidcClientRegistrationAuthenticationToken(
 				principal, clientRegistration);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
 		verify(this.authorizationService).findByToken(eq(jwtAccessToken.getTokenValue()),
@@ -328,9 +328,9 @@ public class OidcClientRegistrationAuthenticationProviderTests {
 		OidcClientRegistrationAuthenticationToken authentication = new OidcClientRegistrationAuthenticationToken(
 				principal, clientRegistration);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.extracting("errorCode")
 			.isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
 		verify(this.authorizationService).findByToken(eq(jwtAccessToken.getTokenValue()),
@@ -361,9 +361,9 @@ public class OidcClientRegistrationAuthenticationProviderTests {
 		OidcClientRegistrationAuthenticationToken authentication = new OidcClientRegistrationAuthenticationToken(
 				principal, clientRegistration);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_REDIRECT_URI);
 				assertThat(error.getDescription()).contains(OidcClientMetadataClaimNames.REDIRECT_URIS);
@@ -396,9 +396,9 @@ public class OidcClientRegistrationAuthenticationProviderTests {
 		OidcClientRegistrationAuthenticationToken authentication = new OidcClientRegistrationAuthenticationToken(
 				principal, clientRegistration);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_REDIRECT_URI);
 				assertThat(error.getDescription()).contains(OidcClientMetadataClaimNames.REDIRECT_URIS);
@@ -432,9 +432,9 @@ public class OidcClientRegistrationAuthenticationProviderTests {
 		OidcClientRegistrationAuthenticationToken authentication = new OidcClientRegistrationAuthenticationToken(
 				principal, clientRegistration);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo("invalid_client_metadata");
 				assertThat(error.getDescription()).contains(OidcClientMetadataClaimNames.POST_LOGOUT_REDIRECT_URIS);
@@ -468,9 +468,9 @@ public class OidcClientRegistrationAuthenticationProviderTests {
 		OidcClientRegistrationAuthenticationToken authentication = new OidcClientRegistrationAuthenticationToken(
 				principal, clientRegistration);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo("invalid_client_metadata");
 				assertThat(error.getDescription()).contains(OidcClientMetadataClaimNames.POST_LOGOUT_REDIRECT_URIS);
@@ -550,9 +550,9 @@ public class OidcClientRegistrationAuthenticationProviderTests {
 		OidcClientRegistrationAuthenticationToken authentication = new OidcClientRegistrationAuthenticationToken(
 				principal, clientRegistration);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(errorCode);
 				assertThat(error.getDescription()).contains(errorDescription);
@@ -641,9 +641,9 @@ public class OidcClientRegistrationAuthenticationProviderTests {
 		OidcClientRegistrationAuthenticationToken authentication = new OidcClientRegistrationAuthenticationToken(
 				principal, clientRegistration);
 
-		assertThatThrownBy(() -> this.authenticationProvider.authenticate(authentication))
-			.isInstanceOf(OAuth2AuthenticationException.class)
-			.extracting((ex) -> ((OAuth2AuthenticationException) ex).getError())
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
 			.satisfies((error) -> {
 				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.SERVER_ERROR);
 				assertThat(error.getDescription())

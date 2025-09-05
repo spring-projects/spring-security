@@ -38,7 +38,6 @@ import org.springframework.security.oauth2.server.authorization.oidc.OidcClientR
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests for {@link OidcClientRegistrationHttpMessageConverter}
@@ -271,9 +270,8 @@ public class OidcClientRegistrationHttpMessageConverterTests {
 
 		MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
 
-		assertThatThrownBy(() -> this.messageConverter.writeInternal(clientRegistration, outputMessage))
-				.isInstanceOf(HttpMessageNotWritableException.class)
-				.hasMessageContaining("An error occurred writing the OpenID Client Registration")
-				.hasMessageContaining(errorMessage);
+		assertThatExceptionOfType(HttpMessageNotWritableException.class).isThrownBy(() -> this.messageConverter.writeInternal(clientRegistration, outputMessage))
+				.withMessageContaining("An error occurred writing the OpenID Client Registration")
+				.withMessageContaining(errorMessage);
 	}
 }

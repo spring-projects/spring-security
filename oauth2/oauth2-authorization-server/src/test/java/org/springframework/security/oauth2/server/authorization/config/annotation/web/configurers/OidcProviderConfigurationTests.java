@@ -25,6 +25,7 @@ import com.nimbusds.jose.proc.SecurityContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,7 +53,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -182,43 +183,44 @@ public class OidcProviderConfigurationTests {
 
 	@Test
 	public void loadContextWhenIssuerNotValidUrlThenThrowException() {
-		assertThatThrownBy(
+		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(
 				() -> this.spring.register(AuthorizationServerConfigurationWithInvalidIssuerUrl.class).autowire());
 	}
 
 	@Test
 	public void loadContextWhenIssuerNotValidUriThenThrowException() {
-		assertThatThrownBy(
+		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(
 				() -> this.spring.register(AuthorizationServerConfigurationWithInvalidIssuerUri.class).autowire());
 	}
 
 	@Test
 	public void loadContextWhenIssuerWithQueryThenThrowException() {
-		assertThatThrownBy(
-				() -> this.spring.register(AuthorizationServerConfigurationWithIssuerQuery.class).autowire());
+		assertThatExceptionOfType(BeanCreationException.class)
+			.isThrownBy(() -> this.spring.register(AuthorizationServerConfigurationWithIssuerQuery.class).autowire());
 	}
 
 	@Test
 	public void loadContextWhenIssuerWithFragmentThenThrowException() {
-		assertThatThrownBy(
+		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(
 				() -> this.spring.register(AuthorizationServerConfigurationWithIssuerFragment.class).autowire());
 	}
 
 	@Test
 	public void loadContextWhenIssuerWithQueryAndFragmentThenThrowException() {
-		assertThatThrownBy(() -> this.spring.register(AuthorizationServerConfigurationWithIssuerQueryAndFragment.class)
-			.autowire());
+		assertThatExceptionOfType(BeanCreationException.class)
+			.isThrownBy(() -> this.spring.register(AuthorizationServerConfigurationWithIssuerQueryAndFragment.class)
+				.autowire());
 	}
 
 	@Test
 	public void loadContextWhenIssuerWithEmptyQueryThenThrowException() {
-		assertThatThrownBy(
+		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(
 				() -> this.spring.register(AuthorizationServerConfigurationWithIssuerEmptyQuery.class).autowire());
 	}
 
 	@Test
 	public void loadContextWhenIssuerWithEmptyFragmentThenThrowException() {
-		assertThatThrownBy(
+		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(
 				() -> this.spring.register(AuthorizationServerConfigurationWithIssuerEmptyFragment.class).autowire());
 	}
 

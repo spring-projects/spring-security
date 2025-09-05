@@ -37,7 +37,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.TestRegisteredClients;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link JwtEncodingContext}.
@@ -48,29 +48,30 @@ public class JwtEncodingContextTests {
 
 	@Test
 	public void withWhenJwsHeaderNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> JwtEncodingContext.with(null, TestJwtClaimsSets.jwtClaimsSet()))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("jwsHeaderBuilder cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> JwtEncodingContext.with(null, TestJwtClaimsSets.jwtClaimsSet()))
+			.withMessage("jwsHeaderBuilder cannot be null");
 	}
 
 	@Test
 	public void withWhenClaimsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> JwtEncodingContext.with(TestJwsHeaders.jwsHeader(), null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("claimsBuilder cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> JwtEncodingContext.with(TestJwsHeaders.jwsHeader(), null))
+			.withMessage("claimsBuilder cannot be null");
 	}
 
 	@Test
 	public void setWhenValueNullThenThrowIllegalArgumentException() {
 		JwtEncodingContext.Builder builder = JwtEncodingContext.with(TestJwsHeaders.jwsHeader(),
 				TestJwtClaimsSets.jwtClaimsSet());
-		assertThatThrownBy(() -> builder.registeredClient(null)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> builder.principal(null)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> builder.authorization(null)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> builder.tokenType(null)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> builder.authorizationGrantType(null)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> builder.authorizationGrant(null)).isInstanceOf(IllegalArgumentException.class);
-		assertThatThrownBy(() -> builder.put(null, "")).isInstanceOf(IllegalArgumentException.class);
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> builder.registeredClient(null));
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> builder.principal(null));
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> builder.authorization(null));
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> builder.tokenType(null));
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> builder.authorizationGrantType(null));
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> builder.authorizationGrant(null));
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> builder.put(null, ""));
 	}
 
 	@Test

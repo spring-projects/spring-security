@@ -28,7 +28,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.TestRegisteredClients;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link OAuth2ClientCredentialsAuthenticationToken}.
@@ -49,10 +49,10 @@ public class OAuth2ClientCredentialsAuthenticationTokenTests {
 
 	@Test
 	public void constructorWhenClientPrincipalNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(
-				() -> new OAuth2ClientCredentialsAuthenticationToken(null, this.scopes, this.additionalParameters))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("clientPrincipal cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(
+					() -> new OAuth2ClientCredentialsAuthenticationToken(null, this.scopes, this.additionalParameters))
+			.withMessage("clientPrincipal cannot be null");
 	}
 
 	@Test

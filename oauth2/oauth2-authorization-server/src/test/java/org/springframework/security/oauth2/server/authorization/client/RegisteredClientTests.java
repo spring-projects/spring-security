@@ -29,7 +29,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link RegisteredClient}.
@@ -57,13 +57,13 @@ public class RegisteredClientTests {
 
 	@Test
 	public void buildWhenAuthorizationGrantTypesNotSetThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> RegisteredClient.withId(ID)
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> RegisteredClient.withId(ID)
 			.clientId(CLIENT_ID)
 			.clientSecret(CLIENT_SECRET)
 			.redirectUris((redirectUris) -> redirectUris.addAll(REDIRECT_URIS))
 			.scopes((scopes) -> scopes.addAll(SCOPES))
 			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-			.build()).isInstanceOf(IllegalArgumentException.class);
+			.build());
 	}
 
 	@Test
@@ -100,35 +100,35 @@ public class RegisteredClientTests {
 
 	@Test
 	public void buildWhenIdIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> RegisteredClient.withId(null)).isInstanceOf(IllegalArgumentException.class);
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> RegisteredClient.withId(null));
 	}
 
 	@Test
 	public void buildWhenClientIdIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> RegisteredClient.withId(ID)
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> RegisteredClient.withId(ID)
 			.clientId(null)
 			.clientSecret(CLIENT_SECRET)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 			.redirectUris((redirectUris) -> redirectUris.addAll(REDIRECT_URIS))
 			.scopes((scopes) -> scopes.addAll(SCOPES))
-			.build()).isInstanceOf(IllegalArgumentException.class);
+			.build());
 	}
 
 	@Test
 	public void buildWhenRedirectUrisNotProvidedThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> RegisteredClient.withId(ID)
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> RegisteredClient.withId(ID)
 			.clientId(CLIENT_ID)
 			.clientSecret(CLIENT_SECRET)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 			.scopes((scopes) -> scopes.addAll(SCOPES))
-			.build()).isInstanceOf(IllegalArgumentException.class);
+			.build());
 	}
 
 	@Test
 	public void buildWhenRedirectUrisConsumerClearsSetThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> RegisteredClient.withId(ID)
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> RegisteredClient.withId(ID)
 			.clientId(CLIENT_ID)
 			.clientSecret(CLIENT_SECRET)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
@@ -136,7 +136,7 @@ public class RegisteredClientTests {
 			.redirectUri("https://example.com")
 			.redirectUris(Set::clear)
 			.scopes((scopes) -> scopes.addAll(SCOPES))
-			.build()).isInstanceOf(IllegalArgumentException.class);
+			.build());
 	}
 
 	@Test
@@ -180,66 +180,66 @@ public class RegisteredClientTests {
 
 	@Test
 	public void buildWhenScopeContainsSpaceThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> RegisteredClient.withId(ID)
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> RegisteredClient.withId(ID)
 			.clientId(CLIENT_ID)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 			.redirectUris((redirectUris) -> redirectUris.addAll(REDIRECT_URIS))
 			.scope("openid profile")
-			.build()).isInstanceOf(IllegalArgumentException.class);
+			.build());
 	}
 
 	@Test
 	public void buildWhenScopeContainsInvalidCharacterThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> RegisteredClient.withId(ID)
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> RegisteredClient.withId(ID)
 			.clientId(CLIENT_ID)
 			.clientSecret(CLIENT_SECRET)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 			.redirectUris((redirectUris) -> redirectUris.addAll(REDIRECT_URIS))
 			.scope("an\"invalid\"scope")
-			.build()).isInstanceOf(IllegalArgumentException.class);
+			.build());
 	}
 
 	@Test
 	public void buildWhenRedirectUriInvalidThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> RegisteredClient.withId(ID)
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> RegisteredClient.withId(ID)
 			.clientId(CLIENT_ID)
 			.clientSecret(CLIENT_SECRET)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 			.redirectUri("invalid URI")
 			.scopes((scopes) -> scopes.addAll(SCOPES))
-			.build()).isInstanceOf(IllegalArgumentException.class);
+			.build());
 	}
 
 	@Test
 	public void buildWhenRedirectUriContainsFragmentThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> RegisteredClient.withId(ID)
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> RegisteredClient.withId(ID)
 			.clientId(CLIENT_ID)
 			.clientSecret(CLIENT_SECRET)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 			.redirectUri("https://example.com/page#fragment")
 			.scopes((scopes) -> scopes.addAll(SCOPES))
-			.build()).isInstanceOf(IllegalArgumentException.class);
+			.build());
 	}
 
 	@Test
 	public void buildWhenPostLogoutRedirectUriInvalidThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> RegisteredClient.withId(ID)
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> RegisteredClient.withId(ID)
 			.clientId(CLIENT_ID)
 			.clientSecret(CLIENT_SECRET)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 			.redirectUris((redirectUris) -> redirectUris.addAll(REDIRECT_URIS))
 			.postLogoutRedirectUri("invalid URI")
-			.build()).isInstanceOf(IllegalArgumentException.class);
+			.build());
 	}
 
 	@Test
 	public void buildWhenPostLogoutRedirectUriContainsFragmentThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> RegisteredClient.withId(ID)
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> RegisteredClient.withId(ID)
 			.clientId(CLIENT_ID)
 			.clientSecret(CLIENT_SECRET)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
@@ -247,7 +247,7 @@ public class RegisteredClientTests {
 			.redirectUri("https://example.com")
 			.postLogoutRedirectUri("https://example.com/index#fragment")
 			.scopes((scopes) -> scopes.addAll(SCOPES))
-			.build()).isInstanceOf(IllegalArgumentException.class);
+			.build());
 	}
 
 	@Test
@@ -286,7 +286,7 @@ public class RegisteredClientTests {
 
 	@Test
 	public void buildWhenAuthorizationGrantTypesConsumerClearsSetThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> RegisteredClient.withId(ID)
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> RegisteredClient.withId(ID)
 			.clientId(CLIENT_ID)
 			.clientSecret(CLIENT_SECRET)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
@@ -294,7 +294,7 @@ public class RegisteredClientTests {
 			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 			.redirectUris((redirectUris) -> redirectUris.addAll(REDIRECT_URIS))
 			.scopes((scopes) -> scopes.addAll(SCOPES))
-			.build()).isInstanceOf(IllegalArgumentException.class);
+			.build());
 	}
 
 	@Test

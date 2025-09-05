@@ -27,7 +27,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.TestRegisteredClients;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link OAuth2AccessTokenAuthenticationContext}
@@ -50,9 +50,9 @@ public class OAuth2AccessTokenAuthenticationContextTests {
 
 	@Test
 	public void withWhenAuthenticationNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> OAuth2AccessTokenAuthenticationContext.with(null))
-			.isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("authentication cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> OAuth2AccessTokenAuthenticationContext.with(null))
+			.withMessage("authentication cannot be null");
 	}
 
 	@Test
@@ -60,8 +60,8 @@ public class OAuth2AccessTokenAuthenticationContextTests {
 		OAuth2AccessTokenAuthenticationContext.Builder builder = OAuth2AccessTokenAuthenticationContext
 			.with(this.accessTokenAuthenticationToken);
 
-		assertThatThrownBy(() -> builder.accessTokenResponse(null)).isInstanceOf(IllegalArgumentException.class)
-			.hasMessage("value cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> builder.accessTokenResponse(null))
+			.withMessage("value cannot be null");
 	}
 
 	@Test
