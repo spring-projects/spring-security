@@ -35,13 +35,18 @@ import org.springframework.security.web.csrf.DefaultCsrfToken;
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
  *     mapper.registerModule(new WebJackson2Module());
- * </pre> <b>Note: use {@link SecurityJackson2Modules#getModules(ClassLoader)} to get list
- * of all security modules.</b>
+ * </pre>
+ *
+ * <b>Note: use {@link SecurityJackson2Modules#getModules(ClassLoader)} to get list of all
+ * security modules.</b>
  *
  * @author Jitendra Singh
  * @since 4.2
  * @see SecurityJackson2Modules
+ * @deprecated as of 7.0 in favor of
+ * {@link org.springframework.security.web.jackson.WebJacksonModule} based on Jackson 3
  */
+@Deprecated(forRemoval = true)
 @SuppressWarnings("serial")
 public class WebJackson2Module extends SimpleModule {
 
