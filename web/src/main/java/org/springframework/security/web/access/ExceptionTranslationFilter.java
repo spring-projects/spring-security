@@ -196,7 +196,8 @@ public class ExceptionTranslationFilter extends GenericFilterBean implements Mes
 			}
 			AuthenticationException ex = new InsufficientAuthenticationException(
 					this.messages.getMessage("ExceptionTranslationFilter.insufficientAuthentication",
-							"Full authentication is required to access this resource"));
+							"Full authentication is required to access this resource"),
+					exception);
 			ex.setAuthenticationRequest(authentication);
 			sendStartAuthentication(request, response, chain, ex);
 		}

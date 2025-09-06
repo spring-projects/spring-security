@@ -204,6 +204,12 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 					principal, credentials);
 			authenticationRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
 			Authentication authenticationResult = this.authenticationManager.authenticate(authenticationRequest);
+			Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
+			if (current != null && current.isAuthenticated()) {
+				authenticationResult = authenticationResult.toBuilder()
+					.authorities((a) -> a.addAll(current.getAuthorities()))
+					.build();
+			}
 			successfulAuthentication(request, response, authenticationResult);
 		}
 		catch (AuthenticationException ex) {

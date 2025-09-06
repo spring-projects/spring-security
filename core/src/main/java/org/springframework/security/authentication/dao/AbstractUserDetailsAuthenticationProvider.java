@@ -18,7 +18,6 @@ package org.springframework.security.authentication.dao;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
@@ -34,6 +33,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.userdetails.UserCache;
@@ -93,6 +93,8 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 	private UserDetailsChecker postAuthenticationChecks = new DefaultPostAuthenticationChecks();
 
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
+
+	private static final String AUTHORITY = "FACTOR_PASSWORD";
 
 	/**
 	 * Allows subclasses to perform any additional checks of a returned (or cached)
@@ -197,8 +199,12 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 		// so subsequent attempts are successful even with encoded passwords.
 		// Also ensure we return the original getDetails(), so that future
 		// authentication events after cache expiry contain the details
-		UsernamePasswordAuthenticationToken result = UsernamePasswordAuthenticationToken.authenticated(principal,
-				authentication.getCredentials(), this.authoritiesMapper.mapAuthorities(user.getAuthorities()));
+		UsernamePasswordAuthenticationToken result = UsernamePasswordAuthenticationToken
+			.authenticated(principal, authentication.getCredentials(),
+					this.authoritiesMapper.mapAuthorities(user.getAuthorities()))
+			.toBuilder()
+			.authorities((a) -> a.add(new SimpleGrantedAuthority(AUTHORITY)))
+			.build();
 		result.setDetails(authentication.getDetails());
 		this.logger.debug("Authenticated user");
 		return result;

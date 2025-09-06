@@ -16,6 +16,8 @@
 
 package org.springframework.security.config.http;
 
+import java.util.Collection;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -26,6 +28,7 @@ import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.Transient;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -82,7 +85,7 @@ public class SessionManagementConfigTransientAuthenticationTests {
 	static class SomeTransientAuthentication extends AbstractAuthenticationToken {
 
 		SomeTransientAuthentication() {
-			super(null);
+			super((Collection<? extends GrantedAuthority>) null);
 		}
 
 		@Override

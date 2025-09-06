@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.client;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -25,6 +26,7 @@ import java.util.function.Consumer;
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -157,7 +159,7 @@ public final class OAuth2AuthorizeRequest {
 
 		private static Authentication createAuthentication(final String principalName) {
 			Assert.hasText(principalName, "principalName cannot be empty");
-			return new AbstractAuthenticationToken(null) {
+			return new AbstractAuthenticationToken((Collection<? extends GrantedAuthority>) null) {
 
 				@Override
 				public Object getCredentials() {

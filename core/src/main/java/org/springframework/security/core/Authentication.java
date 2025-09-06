@@ -19,6 +19,7 @@ package org.springframework.security.core;
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.Collection;
+import java.util.function.Consumer;
 
 import org.jspecify.annotations.Nullable;
 
@@ -135,5 +136,44 @@ public interface Authentication extends Principal, Serializable {
 	 * {@link #isAuthenticated()}
 	 */
 	void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException;
+
+	/**
+	 * Return an {@link Builder} based on this instance
+	 * @return an {@link Builder} for building a new {@link Authentication} based on this
+	 * instance
+	 * @since 7.0
+	 */
+	default Builder<?, ?, ?> toBuilder() {
+		return new SimpleAuthentication.Builder(this);
+	}
+
+	/**
+	 * A builder based on a given {@link Authentication} instance
+	 *
+	 * @author Josh Cummings
+	 * @since 7.0
+	 */
+	interface Builder<P, C, B extends Builder<P, C, B>> {
+
+		B authorities(Consumer<Collection<GrantedAuthority>> authorities);
+
+		default B credentials(@Nullable C credentials) {
+			throw new UnsupportedOperationException(
+					String.format("%s does not store credentials", this.getClass().getSimpleName()));
+		}
+
+		B details(@Nullable Object details);
+
+		B principal(@Nullable P principal);
+
+		B authenticated(boolean authenticated);
+
+		/**
+		 * Build an {@link Authentication} instance
+		 * @return the {@link Authentication} instance
+		 */
+		Authentication build();
+
+	}
 
 }

@@ -259,6 +259,10 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		if (authenticationProvider != null) {
 			http.authenticationProvider(authenticationProvider);
 		}
+		ExceptionHandlingConfigurer<H> exceptions = http.getConfigurer(ExceptionHandlingConfigurer.class);
+		if (exceptions != null) {
+			exceptions.defaultAuthenticationEntryPointFor(this.authenticationEntryPoint, "FACTOR_BEARER");
+		}
 	}
 
 	@Override

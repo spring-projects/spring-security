@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.client.web.reactive.function.client;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
@@ -36,6 +37,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -551,7 +553,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 
 	private static Authentication createAuthentication(final String principalName) {
 		Assert.hasText(principalName, "principalName cannot be empty");
-		return new AbstractAuthenticationToken(null) {
+		return new AbstractAuthenticationToken((Collection<? extends GrantedAuthority>) null) {
 
 			@Override
 			public Object getCredentials() {

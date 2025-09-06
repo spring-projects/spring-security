@@ -180,6 +180,12 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 				BearerTokenError error = BearerTokenErrors.invalidToken("Invalid bearer token");
 				throw new OAuth2AuthenticationException(error);
 			}
+			Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
+			if (current != null && current.isAuthenticated()) {
+				authenticationResult = authenticationResult.toBuilder()
+					.authorities((a) -> a.addAll(current.getAuthorities()))
+					.build();
+			}
 			SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
 			context.setAuthentication(authenticationResult);
 			this.securityContextHolderStrategy.setContext(context);

@@ -21,6 +21,9 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.Transient;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -56,9 +59,56 @@ public class BearerTokenAuthentication extends AbstractOAuth2TokenAuthentication
 		setAuthenticated(true);
 	}
 
+	protected BearerTokenAuthentication(Builder<?> builder) {
+		super(builder);
+		this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(builder.attributes));
+	}
+
 	@Override
 	public Map<String, Object> getTokenAttributes() {
 		return this.attributes;
+	}
+
+	@Override
+	public Builder<?> toBuilder() {
+		return new Builder<>(this);
+	}
+
+	/**
+	 * A builder preserving the concrete {@link Authentication} type
+	 *
+	 * @since 7.0
+	 */
+	public static class Builder<B extends Builder<B>>
+			extends AbstractOAuth2TokenAuthenticationBuilder<OAuth2AccessToken, B> {
+
+		private Map<String, Object> attributes;
+
+		protected Builder(BearerTokenAuthentication token) {
+			super(token);
+			this.attributes = token.getTokenAttributes();
+		}
+
+		@Override
+		public B principal(@Nullable Object principal) {
+			Assert.isInstanceOf(OAuth2AuthenticatedPrincipal.class, principal,
+					"principal must be of type OAuth2AuthenticatedPrincipal");
+			this.attributes = ((OAuth2AuthenticatedPrincipal) principal).getAttributes();
+			return super.principal(principal);
+		}
+
+		@Override
+		public B token(OAuth2AccessToken token) {
+			Assert.isTrue(token.getTokenType() == OAuth2AccessToken.TokenType.BEARER,
+					"credentials must be a bearer token");
+			return super.token(token);
+		}
+
+		@Override
+		public BearerTokenAuthentication build() {
+			return new BearerTokenAuthentication(this);
+		}
+
 	}
 
 }
