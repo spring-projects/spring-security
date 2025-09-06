@@ -49,6 +49,7 @@ import org.springframework.web.util.pattern.PathPatternParser;
  * </p>
  *
  * @author Josh Cummings
+ * @author Andrey Litvitski
  * @since 6.5
  */
 public final class PathPatternRequestMatcher implements RequestMatcher {
@@ -234,14 +235,15 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 		 *
 		 * <p>
 		 * Prefixes should be of the form {@code /my/prefix}, starting with a slash, not
-		 * ending in a slash, and not containing and wildcards
+		 * ending in a slash, and not containing and wildcards The special value
+		 * {@code "/"} may be used to indicate the root context.
 		 * @param basePath the path prefix
 		 * @return the {@link Builder} for more configuration
 		 */
 		public Builder basePath(String basePath) {
 			Assert.notNull(basePath, "basePath cannot be null");
 			Assert.isTrue(basePath.startsWith("/"), "basePath must start with '/'");
-			Assert.isTrue(!basePath.endsWith("/"), "basePath must not end with a slash");
+			Assert.isTrue("/".equals(basePath) || !basePath.endsWith("/"), "basePath must not end with a slash");
 			Assert.isTrue(!basePath.contains("*"), "basePath must not contain a star");
 			return new Builder(this.parser, basePath);
 		}
@@ -316,7 +318,8 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 		public PathPatternRequestMatcher matcher(@Nullable HttpMethod method, String path) {
 			Assert.notNull(path, "pattern cannot be null");
 			Assert.isTrue(path.startsWith("/"), "pattern must start with a /");
-			PathPattern pathPattern = this.parser.parse(this.basePath + path);
+			String prefix = ("/".equals(this.basePath)) ? "" : this.basePath;
+			PathPattern pathPattern = this.parser.parse(prefix + path);
 			return new PathPatternRequestMatcher(pathPattern,
 					(method != null) ? new HttpMethodRequestMatcher(method) : AnyRequestMatcher.INSTANCE);
 		}
