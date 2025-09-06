@@ -1,7 +1,7 @@
-[[protocol-endpoints]]
+[[oauth2AuthorizationServer-protocol-endpoints]]
 = Protocol Endpoints
 
-[[oauth2-authorization-endpoint]]
+[[oauth2AuthorizationServer-oauth2-authorization-endpoint]]
 == OAuth2 Authorization Endpoint
 
 `OAuth2AuthorizationEndpointConfigurer` provides the ability to customize the https://datatracker.ietf.org/doc/html/rfc6749#section-3.1[OAuth2 Authorization endpoint].
@@ -53,7 +53,7 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 * `*AuthenticationSuccessHandler*` -- An internal implementation that handles an "`authenticated`" `OAuth2AuthorizationCodeRequestAuthenticationToken` and returns the `OAuth2AuthorizationResponse`.
 * `*AuthenticationFailureHandler*` -- An internal implementation that uses the `OAuth2Error` associated with the `OAuth2AuthorizationCodeRequestAuthenticationException` and returns the `OAuth2Error` response.
 
-[[oauth2-authorization-endpoint-customizing-authorization-request-validation]]
+[[oauth2AuthorizationServer-oauth2-authorization-endpoint-customizing-authorization-request-validation]]
 === Customizing Authorization Request Validation
 
 `OAuth2AuthorizationCodeRequestAuthenticationValidator` is the default validator used for validating specific OAuth2 authorization request parameters used in the Authorization Code Grant.
@@ -126,7 +126,7 @@ static class CustomRedirectUriValidator implements Consumer<OAuth2AuthorizationC
 }
 ----
 
-[[oauth2-pushed-authorization-request-endpoint]]
+[[oauth2AuthorizationServer-oauth2-pushed-authorization-request-endpoint]]
 == OAuth2 Pushed Authorization Request Endpoint
 
 `OAuth2PushedAuthorizationRequestEndpointConfigurer` provides the ability to customize the https://datatracker.ietf.org/doc/html/rfc9126#section-2[OAuth2 Pushed Authorization Request endpoint].
@@ -176,7 +176,7 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 * `*AuthenticationSuccessHandler*` -- An internal implementation that handles an "`authenticated`" `OAuth2PushedAuthorizationRequestAuthenticationToken` and returns the OAuth2 pushed authorization response.
 * `*AuthenticationFailureHandler*` -- An `OAuth2ErrorAuthenticationFailureHandler`.
 
-[[oauth2-pushed-authorization-request-endpoint-customizing-authorization-request-validation]]
+[[oauth2AuthorizationServer-oauth2-pushed-authorization-request-endpoint-customizing-pushed-authorization-request-validation]]
 === Customizing Pushed Authorization Request Validation
 
 `OAuth2AuthorizationCodeRequestAuthenticationValidator` is the default validator used for validating specific OAuth2 pushed authorization request parameters used in the Authorization Code Grant.
@@ -249,7 +249,7 @@ static class CustomRedirectUriValidator implements Consumer<OAuth2AuthorizationC
 }
 ----
 
-[[oauth2-device-authorization-endpoint]]
+[[oauth2AuthorizationServer-oauth2-device-authorization-endpoint]]
 == OAuth2 Device Authorization Endpoint
 
 `OAuth2DeviceAuthorizationEndpointConfigurer` provides the ability to customize the https://datatracker.ietf.org/doc/html/rfc8628#section-3.1[OAuth2 Device Authorization endpoint].
@@ -301,7 +301,7 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 * `*AuthenticationSuccessHandler*` -- An internal implementation that handles an "`authenticated`" `OAuth2DeviceAuthorizationRequestAuthenticationToken` and returns the `OAuth2DeviceAuthorizationResponse`.
 * `*AuthenticationFailureHandler*` -- An `OAuth2ErrorAuthenticationFailureHandler`.
 
-[[oauth2-device-verification-endpoint]]
+[[oauth2AuthorizationServer-oauth2-device-verification-endpoint]]
 == OAuth2 Device Verification Endpoint
 
 `OAuth2DeviceVerificationEndpointConfigurer` provides the ability to customize the https://datatracker.ietf.org/doc/html/rfc8628#section-3.3[OAuth2 Device Verification endpoint] (or "User Interaction").
@@ -353,7 +353,7 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 * `*AuthenticationSuccessHandler*` -- A `SimpleUrlAuthenticationSuccessHandler` that handles an "`authenticated`" `OAuth2DeviceVerificationAuthenticationToken` and redirects the user to a success page (`/?success`).
 * `*AuthenticationFailureHandler*` -- An internal implementation that uses the `OAuth2Error` associated with the `OAuth2AuthenticationException` and returns the `OAuth2Error` response.
 
-[[oauth2-token-endpoint]]
+[[oauth2AuthorizationServer-oauth2-token-endpoint]]
 == OAuth2 Token Endpoint
 
 `OAuth2TokenEndpointConfigurer` provides the ability to customize the https://datatracker.ietf.org/doc/html/rfc6749#section-3.2[OAuth2 Token endpoint].
@@ -404,7 +404,7 @@ The supported https://datatracker.ietf.org/doc/html/rfc6749#section-1.3[authoriz
 * `*AuthenticationSuccessHandler*` -- An `OAuth2AccessTokenResponseAuthenticationSuccessHandler`.
 * `*AuthenticationFailureHandler*` -- An `OAuth2ErrorAuthenticationFailureHandler`.
 
-[[oauth2-token-endpoint-customizing-client-credentials-grant-request-validation]]
+[[oauth2AuthorizationServer-oauth2-token-endpoint-customizing-client-credentials-grant-request-validation]]
 === Customizing Client Credentials Grant Request Validation
 
 `OAuth2ClientCredentialsAuthenticationValidator` is the default validator used for validating specific OAuth2 Client Credentials Grant request parameters.
@@ -472,7 +472,7 @@ static class CustomScopeValidator implements Consumer<OAuth2ClientCredentialsAut
 }
 ----
 
-[[oauth2-token-endpoint-dpop-bound-access-tokens]]
+[[oauth2AuthorizationServer-oauth2-token-endpoint-dpop-bound-access-tokens]]
 === DPoP-bound Access Tokens
 
 https://datatracker.ietf.org/doc/html/rfc9449[RFC 9449 OAuth 2.0 Demonstrating Proof of Possession (DPoP)] is an application-level mechanism for sender-constraining an access token.
@@ -489,11 +489,11 @@ The authorization server binds (sender-constrains) the access token to the publi
 
 When the client initiates a protected resource request, it again attaches a DPoP proof to the request in an HTTP header.
 
-The resource server obtains information about the public key bound to the access token, either directly in the access token (JWT) or via the <<oauth2-token-introspection-endpoint,OAuth2 Token Introspection endpoint>>.
+The resource server obtains information about the public key bound to the access token, either directly in the access token (JWT) or via the <<oauth2AuthorizationServer-oauth2-token-introspection-endpoint,OAuth2 Token Introspection endpoint>>.
 The resource server then verifies that the public key bound to the access token matches the public key in the DPoP proof.
 It also verifies that the access token hash in the DPoP proof matches the access token in the request.
 
-[[oauth2-token-endpoint-dpop-access-token-request]]
+[[oauth2AuthorizationServer-oauth2-token-endpoint-dpop-access-token-request]]
 ==== DPoP Access Token Request
 
 To request an access token that is bound to a public key using DPoP, the client MUST provide a valid DPoP proof in the `DPoP` header when making an access token request to the OAuth2 Token endpoint.
@@ -580,7 +580,7 @@ Cache-Control: no-store
 }
 ----
 
-[[oauth2-token-endpoint-dpop-public-key-confirmation]]
+[[oauth2AuthorizationServer-oauth2-token-endpoint-dpop-public-key-confirmation]]
 ==== Public Key Confirmation
 
 Resource servers MUST be able to identify whether an access token is DPoP-bound and verify the binding to the public key of the DPoP proof.
@@ -604,7 +604,7 @@ The following example shows the claims of a JWT access token containing a `cnf` 
 }
 ----
 
-[[oauth2-token-introspection-endpoint]]
+[[oauth2AuthorizationServer-oauth2-token-introspection-endpoint]]
 == OAuth2 Token Introspection Endpoint
 
 `OAuth2TokenIntrospectionEndpointConfigurer` provides the ability to customize the https://datatracker.ietf.org/doc/html/rfc7662#section-2[OAuth2 Token Introspection endpoint].
@@ -654,7 +654,7 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 * `*AuthenticationSuccessHandler*` -- An internal implementation that handles an "`authenticated`" `OAuth2TokenIntrospectionAuthenticationToken` and returns the `OAuth2TokenIntrospection` response.
 * `*AuthenticationFailureHandler*` -- An `OAuth2ErrorAuthenticationFailureHandler`.
 
-[[oauth2-token-revocation-endpoint]]
+[[oauth2AuthorizationServer-oauth2-token-revocation-endpoint]]
 == OAuth2 Token Revocation Endpoint
 
 `OAuth2TokenRevocationEndpointConfigurer` provides the ability to customize the https://datatracker.ietf.org/doc/html/rfc7009#section-2[OAuth2 Token Revocation endpoint].
@@ -704,7 +704,7 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 * `*AuthenticationSuccessHandler*` -- An internal implementation that handles an "`authenticated`" `OAuth2TokenRevocationAuthenticationToken` and returns the OAuth2 revocation response.
 * `*AuthenticationFailureHandler*` -- An `OAuth2ErrorAuthenticationFailureHandler`.
 
-[[oauth2-authorization-server-metadata-endpoint]]
+[[oauth2AuthorizationServer-oauth2-authorization-server-metadata-endpoint]]
 == OAuth2 Authorization Server Metadata Endpoint
 
 `OAuth2AuthorizationServerMetadataEndpointConfigurer` provides the ability to customize the https://datatracker.ietf.org/doc/html/rfc8414#section-3[OAuth2 Authorization Server Metadata endpoint].
@@ -737,7 +737,7 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 `OAuth2AuthorizationServerMetadataEndpointConfigurer` configures the `OAuth2AuthorizationServerMetadataEndpointFilter` and registers it with the OAuth2 authorization server `SecurityFilterChain` `@Bean`.
 `OAuth2AuthorizationServerMetadataEndpointFilter` is the `Filter` that returns the https://datatracker.ietf.org/doc/html/rfc8414#section-3.2[OAuth2AuthorizationServerMetadata response].
 
-[[jwk-set-endpoint]]
+[[oauth2AuthorizationServer-jwk-set-endpoint]]
 == JWK Set Endpoint
 
 `OAuth2AuthorizationServerConfigurer` provides support for the https://datatracker.ietf.org/doc/html/rfc7517[JWK Set endpoint].
@@ -748,7 +748,7 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 [NOTE]
 The JWK Set endpoint is configured *only* if a `JWKSource<SecurityContext>` `@Bean` is registered.
 
-[[oidc-provider-configuration-endpoint]]
+[[oauth2AuthorizationServer-oidc-provider-configuration-endpoint]]
 == OpenID Connect 1.0 Provider Configuration Endpoint
 
 `OidcProviderConfigurationEndpointConfigurer` provides the ability to customize the https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[OpenID Connect 1.0 Provider Configuration endpoint].
@@ -784,7 +784,7 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 `OidcProviderConfigurationEndpointConfigurer` configures the `OidcProviderConfigurationEndpointFilter` and registers it with the OAuth2 authorization server `SecurityFilterChain` `@Bean`.
 `OidcProviderConfigurationEndpointFilter` is the `Filter` that returns the https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse[OidcProviderConfiguration response].
 
-[[oidc-logout-endpoint]]
+[[oauth2AuthorizationServer-oidc-logout-endpoint]]
 == OpenID Connect 1.0 Logout Endpoint
 
 `OidcLogoutEndpointConfigurer` provides the ability to customize the https://openid.net/specs/openid-connect-rpinitiated-1_0.html#RPLogout[OpenID Connect 1.0 Logout endpoint].
@@ -838,12 +838,12 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 * `*AuthenticationFailureHandler*` -- An internal implementation that uses the `OAuth2Error` associated with the `OAuth2AuthenticationException` and returns the `OAuth2Error` response.
 
 [NOTE]
-`OidcLogoutAuthenticationProvider` uses a xref:core-model-components.adoc#session-registry[`SessionRegistry`] to look up the `SessionInformation` instance associated to the End-User requesting to be logged out.
+`OidcLogoutAuthenticationProvider` uses a xref:servlet/oauth2/authorization-server/core-model-components.adoc#oauth2AuthorizationServer-session-registry[`SessionRegistry`] to look up the `SessionInformation` instance associated to the End-User requesting to be logged out.
 
 [TIP]
-`OidcClientInitiatedLogoutSuccessHandler` is the corresponding configuration in Spring Security’s OAuth2 Client support for configuring {spring-security-reference-base-url}/servlet/oauth2/login/advanced.html#oauth2login-advanced-oidc-logout[OpenID Connect 1.0 RP-Initiated Logout].
+`OidcClientInitiatedLogoutSuccessHandler` is the corresponding configuration in Spring Security’s OAuth2 Client support for configuring xref:servlet/oauth2/login/advanced.adoc#oauth2login-advanced-oidc-logout[OpenID Connect 1.0 RP-Initiated Logout].
 
-[[oidc-logout-endpoint-customizing-logout-request-validation]]
+[[oauth2AuthorizationServer-oidc-logout-endpoint-customizing-logout-request-validation]]
 === Customizing Logout Request Validation
 
 `OidcLogoutAuthenticationValidator` is the default validator used for validating specific OpenID Connect RP-Initiated Logout Request parameters.
@@ -907,7 +907,7 @@ static class CustomPostLogoutRedirectUriValidator implements Consumer<OidcLogout
 }
 ----
 
-[[oidc-user-info-endpoint]]
+[[oauth2AuthorizationServer-oidc-user-info-endpoint]]
 == OpenID Connect 1.0 UserInfo Endpoint
 
 `OidcUserInfoEndpointConfigurer` provides the ability to customize the https://openid.net/specs/openid-connect-core-1_0.html#UserInfo[OpenID Connect 1.0 UserInfo endpoint].
@@ -963,17 +963,14 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 * `*AuthenticationFailureHandler*` -- An internal implementation that uses the `OAuth2Error` associated with the `OAuth2AuthenticationException` and returns the `OAuth2Error` response.
 
 [TIP]
-You can customize the ID Token by providing an xref:core-model-components.adoc#oauth2-token-customizer[`OAuth2TokenCustomizer<JwtEncodingContext>`] `@Bean`.
+You can customize the ID Token by providing an xref:servlet/oauth2/authorization-server/core-model-components.adoc#oauth2AuthorizationServer-oauth2-token-customizer[`OAuth2TokenCustomizer<JwtEncodingContext>`] `@Bean`.
 
 The OpenID Connect 1.0 UserInfo endpoint is an OAuth2 protected resource, which *REQUIRES* an access token to be sent as a bearer token in the https://openid.net/specs/openid-connect-core-1_0.html#UserInfoRequest[UserInfo request].
 
 [NOTE]
 OAuth2 resource server support is autoconfigured, however, a `JwtDecoder` `@Bean` is *REQUIRED* for the OpenID Connect 1.0 UserInfo endpoint.
 
-[TIP]
-The guide xref:guides/how-to-userinfo.adoc[How-to: Customize the OpenID Connect 1.0 UserInfo response] contains examples of customizing the UserInfo endpoint.
-
-[[oidc-client-registration-endpoint]]
+[[oauth2AuthorizationServer-oidc-client-registration-endpoint]]
 == OpenID Connect 1.0 Client Registration Endpoint
 
 `OidcClientRegistrationEndpointConfigurer` provides the ability to customize the https://openid.net/specs/openid-connect-registration-1_0.html#ClientRegistration[OpenID Connect 1.0 Client Registration endpoint].

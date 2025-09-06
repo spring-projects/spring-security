@@ -1,7 +1,7 @@
-[[core-model-components]]
+[[oauth2AuthorizationServer-core-model-components]]
 = Core Model / Components
 
-[[registered-client]]
+[[oauth2AuthorizationServer-registered-client]]
 == RegisteredClient
 
 A `RegisteredClient` is a representation of a client that is https://datatracker.ietf.org/doc/html/rfc6749#section-2[registered] with the authorization server.
@@ -11,7 +11,7 @@ During client registration, the client is assigned a unique https://datatracker.
 The client's metadata can range from human-facing display strings (such as client name) to items specific to a protocol flow (such as the list of valid redirect URIs).
 
 [TIP]
-The corresponding client registration model in Spring Security's OAuth2 Client support is {spring-security-reference-base-url}/servlet/oauth2/client/core.html#oauth2Client-client-registration[ClientRegistration].
+The corresponding client registration model in Spring Security's OAuth2 Client support is xref:servlet/oauth2/client/core.adoc#oauth2Client-client-registration[ClientRegistration].
 
 The primary purpose of a client is to request access to protected resources.
 The client first requests an access token by authenticating with the authorization server and presenting the authorization grant.
@@ -32,9 +32,9 @@ RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().to
 	.clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
 	.build();
 ----
-<1> `\{noop\}` represents the `PasswordEncoder` id for Spring Security's {spring-security-reference-base-url}/features/authentication/password-storage.html#authentication-password-storage-dpe[NoOpPasswordEncoder].
+<1> `\{noop\}` represents the `PasswordEncoder` id for Spring Security's xref:features/authentication/password-storage.adoc#authentication-password-storage-dpe[NoOpPasswordEncoder].
 
-The corresponding configuration in Spring Security's {spring-security-reference-base-url}/servlet/oauth2/client/index.html[OAuth2 Client support] is:
+The corresponding configuration in Spring Security's xref:servlet/oauth2/client/index.adoc[OAuth2 Client support] is:
 
 [source,yaml]
 ----
@@ -81,7 +81,7 @@ public class RegisteredClient implements Serializable {
 <1> `id`: The ID that uniquely identifies the `RegisteredClient`.
 <2> `clientId`: The client identifier.
 <3> `clientIdIssuedAt`: The time at which the client identifier was issued.
-<4> `clientSecret`: The client's secret. The value should be encoded using Spring Security's {spring-security-reference-base-url}/features/authentication/password-storage.html#authentication-password-storage-dpe[PasswordEncoder].
+<4> `clientSecret`: The client's secret. The value should be encoded using Spring Security's xref:features/authentication/password-storage.adoc#authentication-password-storage-dpe[PasswordEncoder].
 <5> `clientSecretExpiresAt`: The time at which the client secret expires.
 <6> `clientName`: A descriptive name used for the client. The name may be used in certain scenarios, such as when displaying the client name in the consent page.
 <7> `clientAuthenticationMethods`: The authentication method(s) that the client may use. The supported values are `client_secret_basic`, `client_secret_post`, https://datatracker.ietf.org/doc/html/rfc7523[`private_key_jwt`], `client_secret_jwt`, and `none` https://datatracker.ietf.org/doc/html/rfc7636[(public clients)].
@@ -92,7 +92,7 @@ public class RegisteredClient implements Serializable {
 <12> `clientSettings`: The custom settings for the client – for example, require https://datatracker.ietf.org/doc/html/rfc7636[PKCE], require authorization consent, and others.
 <13> `tokenSettings`: The custom settings for the OAuth2 tokens issued to the client – for example, access/refresh token time-to-live, reuse refresh tokens, and others.
 
-[[registered-client-repository]]
+[[oauth2AuthorizationServer-registered-client-repository]]
 == RegisteredClientRepository
 
 The `RegisteredClientRepository` is the central component where new clients can be registered and existing clients can be queried.
@@ -116,7 +116,7 @@ public RegisteredClientRepository registeredClientRepository() {
 }
 ----
 
-Alternatively, you can configure the `RegisteredClientRepository` through the xref:configuration-model.adoc#customizing-the-configuration[`OAuth2AuthorizationServerConfigurer`]:
+Alternatively, you can configure the `RegisteredClientRepository` through the xref:servlet/oauth2/authorization-server/configuration-model.adoc#oauth2AuthorizationServer-customizing-the-configuration[`OAuth2AuthorizationServerConfigurer`]:
 
 [source,java]
 ----
@@ -140,21 +140,21 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 [NOTE]
 The `OAuth2AuthorizationServerConfigurer` is useful when applying multiple configuration options simultaneously.
 
-[[oauth2-authorization]]
+[[oauth2AuthorizationServer-oauth2-authorization]]
 == OAuth2Authorization
 
-An `OAuth2Authorization` is a representation of an OAuth2 authorization, which holds state related to the authorization granted to a xref:core-model-components.adoc#registered-client[client], by the resource owner or itself in the case of the `client_credentials` authorization grant type.
+An `OAuth2Authorization` is a representation of an OAuth2 authorization, which holds state related to the authorization granted to a xref:servlet/oauth2/authorization-server/core-model-components.adoc#oauth2AuthorizationServer-registered-client[client], by the resource owner or itself in the case of the `client_credentials` authorization grant type.
 
 [TIP]
-The corresponding authorization model in Spring Security's OAuth2 Client support is {spring-security-reference-base-url}/servlet/oauth2/client/core.html#oauth2Client-authorized-client[OAuth2AuthorizedClient].
+The corresponding authorization model in Spring Security's OAuth2 Client support is xref:servlet/oauth2/client/core.adoc#oauth2Client-authorized-client[OAuth2AuthorizedClient].
 
-After the successful completion of an authorization grant flow, an `OAuth2Authorization` is created and associates an {spring-security-api-base-url}/org/springframework/security/oauth2/core/OAuth2AccessToken.html[`OAuth2AccessToken`], an (optional) {spring-security-api-base-url}/org/springframework/security/oauth2/core/OAuth2RefreshToken.html[`OAuth2RefreshToken`], and additional state specific to the executed authorization grant type.
+After the successful completion of an authorization grant flow, an `OAuth2Authorization` is created and associates an {security-api-url}/org/springframework/security/oauth2/core/OAuth2AccessToken.html[`OAuth2AccessToken`], an (optional) {security-api-url}/org/springframework/security/oauth2/core/OAuth2RefreshToken.html[`OAuth2RefreshToken`], and additional state specific to the executed authorization grant type.
 
-The {spring-security-api-base-url}/org/springframework/security/oauth2/core/OAuth2Token.html[`OAuth2Token`] instances associated with an `OAuth2Authorization` vary, depending on the authorization grant type.
+The {security-api-url}/org/springframework/security/oauth2/core/OAuth2Token.html[`OAuth2Token`] instances associated with an `OAuth2Authorization` vary, depending on the authorization grant type.
 
 For the OAuth2 https://datatracker.ietf.org/doc/html/rfc6749#section-4.1[authorization_code grant], an `OAuth2AuthorizationCode`, an `OAuth2AccessToken`, and an (optional) `OAuth2RefreshToken` are associated.
 
-For the OpenID Connect 1.0 https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth[authorization_code grant], an `OAuth2AuthorizationCode`, an {spring-security-api-base-url}/org/springframework/security/oauth2/core/oidc/OidcIdToken.html[`OidcIdToken`], an `OAuth2AccessToken`, and an (optional) `OAuth2RefreshToken` are associated.
+For the OpenID Connect 1.0 https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth[authorization_code grant], an `OAuth2AuthorizationCode`, an {security-api-url}/org/springframework/security/oauth2/core/oidc/OidcIdToken.html[`OidcIdToken`], an `OAuth2AccessToken`, and an (optional) `OAuth2RefreshToken` are associated.
 
 For the OAuth2 https://datatracker.ietf.org/doc/html/rfc6749#section-4.4[client_credentials grant], only an `OAuth2AccessToken` is associated.
 
@@ -176,7 +176,7 @@ public class OAuth2Authorization implements Serializable {
 }
 ----
 <1> `id`: The ID that uniquely identifies the `OAuth2Authorization`.
-<2> `registeredClientId`: The ID that uniquely identifies the xref:core-model-components.adoc#registered-client[RegisteredClient].
+<2> `registeredClientId`: The ID that uniquely identifies the xref:servlet/oauth2/authorization-server/core-model-components.adoc#oauth2AuthorizationServer-registered-client[RegisteredClient].
 <3> `principalName`: The principal name of the resource owner (or client).
 <4> `authorizationGrantType`: The `AuthorizationGrantType` used.
 <5> `authorizedScopes`: The `Set` of scope(s) authorized for the client.
@@ -190,7 +190,7 @@ Each `OAuth2Token` is held in an `OAuth2Authorization.Token`, which provides acc
 
 `OAuth2Authorization.Token` also provides `getClaims()`, which returns the claims (if any) associated with the `OAuth2Token`.
 
-[[oauth2-authorization-service]]
+[[oauth2AuthorizationServer-oauth2-authorization-service]]
 == OAuth2AuthorizationService
 
 The `OAuth2AuthorizationService` is the central component where new authorizations are stored and existing authorizations are queried.
@@ -213,7 +213,7 @@ public OAuth2AuthorizationService authorizationService() {
 }
 ----
 
-Alternatively, you can configure the `OAuth2AuthorizationService` through the xref:configuration-model.adoc#customizing-the-configuration[`OAuth2AuthorizationServerConfigurer`]:
+Alternatively, you can configure the `OAuth2AuthorizationService` through the xref:servlet/oauth2/authorization-server/configuration-model.adoc#oauth2AuthorizationServer-customizing-the-configuration[`OAuth2AuthorizationServerConfigurer`]:
 
 [source,java]
 ----
@@ -237,10 +237,10 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 [NOTE]
 The `OAuth2AuthorizationServerConfigurer` is useful when applying multiple configuration options simultaneously.
 
-[[oauth2-authorization-consent]]
+[[oauth2AuthorizationServer-oauth2-authorization-consent]]
 == OAuth2AuthorizationConsent
 
-An `OAuth2AuthorizationConsent` is a representation of an authorization "consent" (decision) from an https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.1[OAuth2 authorization request flow] – for example, the `authorization_code` grant, which holds the authorities granted to a xref:core-model-components.adoc#registered-client[client] by the resource owner.
+An `OAuth2AuthorizationConsent` is a representation of an authorization "consent" (decision) from an https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.1[OAuth2 authorization request flow] – for example, the `authorization_code` grant, which holds the authorities granted to a xref:servlet/oauth2/authorization-server/core-model-components.adoc#oauth2AuthorizationServer-registered-client[client] by the resource owner.
 
 When authorizing access to a client, the resource owner may grant only a subset of the authorities requested by the client.
 The typical use case is the `authorization_code` grant flow, in which the client requests scope(s) and the resource owner grants (or denies) access to the requested scope(s).
@@ -260,11 +260,11 @@ public final class OAuth2AuthorizationConsent implements Serializable {
 
 }
 ----
-<1> `registeredClientId`: The ID that uniquely identifies the xref:core-model-components.adoc#registered-client[RegisteredClient].
+<1> `registeredClientId`: The ID that uniquely identifies the xref:servlet/oauth2/authorization-server/core-model-components.adoc#oauth2AuthorizationServer-registered-client[RegisteredClient].
 <2> `principalName`: The principal name of the resource owner.
 <3> `authorities`: The authorities granted to the client by the resource owner. An authority can represent a scope, a claim, a permission, a role, and others.
 
-[[oauth2-authorization-consent-service]]
+[[oauth2AuthorizationServer-oauth2-authorization-consent-service]]
 == OAuth2AuthorizationConsentService
 
 The `OAuth2AuthorizationConsentService` is the central component where new authorization consents are stored and existing authorization consents are queried.
@@ -287,7 +287,7 @@ public OAuth2AuthorizationConsentService authorizationConsentService() {
 }
 ----
 
-Alternatively, you can configure the `OAuth2AuthorizationConsentService` through the xref:configuration-model.adoc#customizing-the-configuration[`OAuth2AuthorizationServerConfigurer`]:
+Alternatively, you can configure the `OAuth2AuthorizationConsentService` through the xref:servlet/oauth2/authorization-server/configuration-model.adoc#oauth2AuthorizationServer-customizing-the-configuration[`OAuth2AuthorizationServerConfigurer`]:
 
 [source,java]
 ----
@@ -311,10 +311,10 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 [NOTE]
 The `OAuth2AuthorizationServerConfigurer` is useful when applying multiple configuration options simultaneously.
 
-[[oauth2-token-context]]
+[[oauth2AuthorizationServer-oauth2-token-context]]
 == OAuth2TokenContext
 
-An `OAuth2TokenContext` is a context object that holds information associated with an `OAuth2Token` and is used by an xref:core-model-components.adoc#oauth2-token-generator[OAuth2TokenGenerator] and xref:core-model-components.adoc#oauth2-token-customizer[OAuth2TokenCustomizer].
+An `OAuth2TokenContext` is a context object that holds information associated with an `OAuth2Token` and is used by an xref:servlet/oauth2/authorization-server/core-model-components.adoc#oauth2AuthorizationServer-oauth2-token-generator[OAuth2TokenGenerator] and xref:servlet/oauth2/authorization-server/core-model-components.adoc#oauth2AuthorizationServer-oauth2-token-customizer[OAuth2TokenCustomizer].
 
 `OAuth2TokenContext` provides the following accessors:
 
@@ -343,19 +343,19 @@ public interface OAuth2TokenContext extends Context {
 
 }
 ----
-<1> `getRegisteredClient()`: The xref:core-model-components.adoc#registered-client[RegisteredClient] associated with the authorization grant.
+<1> `getRegisteredClient()`: The xref:servlet/oauth2/authorization-server/core-model-components.adoc#oauth2AuthorizationServer-registered-client[RegisteredClient] associated with the authorization grant.
 <2> `getPrincipal()`: The `Authentication` instance of the resource owner (or client).
-<3> `getAuthorizationServerContext()`: The xref:configuration-model.adoc#configuring-authorization-server-settings[`AuthorizationServerContext`] object that holds information of the Authorization Server runtime environment.
-<4> `getAuthorization()`: The xref:core-model-components.adoc#oauth2-authorization[OAuth2Authorization] associated with the authorization grant.
+<3> `getAuthorizationServerContext()`: The xref:servlet/oauth2/authorization-server/configuration-model.adoc#oauth2AuthorizationServer-configuring-authorization-server-settings[`AuthorizationServerContext`] object that holds information of the Authorization Server runtime environment.
+<4> `getAuthorization()`: The xref:servlet/oauth2/authorization-server/core-model-components.adoc#oauth2AuthorizationServer-oauth2-authorization[OAuth2Authorization] associated with the authorization grant.
 <5> `getAuthorizedScopes()`: The scope(s) authorized for the client.
 <6> `getTokenType()`: The `OAuth2TokenType` to generate. The supported values are `code`, `access_token`, `refresh_token`, and `id_token`.
 <7> `getAuthorizationGrantType()`: The `AuthorizationGrantType` associated with the authorization grant.
 <8> `getAuthorizationGrant()`: The `Authentication` instance used by the `AuthenticationProvider` that processes the authorization grant.
 
-[[oauth2-token-generator]]
+[[oauth2AuthorizationServer-oauth2-token-generator]]
 == OAuth2TokenGenerator
 
-An `OAuth2TokenGenerator` is responsible for generating an `OAuth2Token` from the information contained in the provided xref:core-model-components.adoc#oauth2-token-context[OAuth2TokenContext].
+An `OAuth2TokenGenerator` is responsible for generating an `OAuth2Token` from the information contained in the provided xref:servlet/oauth2/authorization-server/core-model-components.adoc#oauth2AuthorizationServer-oauth2-token-context[OAuth2TokenContext].
 
 The `OAuth2Token` generated primarily depends on the type of `OAuth2TokenType` specified in the `OAuth2TokenContext`.
 
@@ -366,11 +366,11 @@ For example, when the `value` for `OAuth2TokenType` is:
 * `refresh_token`, then `OAuth2RefreshToken` is generated.
 * `id_token`, then `OidcIdToken` is generated.
 
-Furthermore, the format of the generated `OAuth2AccessToken` varies, depending on the `TokenSettings.getAccessTokenFormat()` configured for the xref:core-model-components.adoc#registered-client[RegisteredClient].
+Furthermore, the format of the generated `OAuth2AccessToken` varies, depending on the `TokenSettings.getAccessTokenFormat()` configured for the xref:servlet/oauth2/authorization-server/core-model-components.adoc#oauth2AuthorizationServer-registered-client[RegisteredClient].
 If the format is `OAuth2TokenFormat.SELF_CONTAINED` (the default), then a `Jwt` is generated.
 If the format is `OAuth2TokenFormat.REFERENCE`, then an "opaque" token is generated.
 
-Finally, if the generated `OAuth2Token` has a set of claims and implements `ClaimAccessor`, the claims are made accessible from xref:core-model-components.adoc#oauth2-authorization[OAuth2Authorization.Token.getClaims()].
+Finally, if the generated `OAuth2Token` has a set of claims and implements `ClaimAccessor`, the claims are made accessible from xref:servlet/oauth2/authorization-server/core-model-components.adoc#oauth2AuthorizationServer-oauth2-authorization[OAuth2Authorization.Token.getClaims()].
 
 The `OAuth2TokenGenerator` is primarily used by components that implement authorization grant processing – for example, `authorization_code`, `client_credentials`, and `refresh_token`.
 
@@ -400,7 +400,7 @@ public OAuth2TokenGenerator<?> tokenGenerator() {
 }
 ----
 
-Alternatively, you can configure the `OAuth2TokenGenerator` through the xref:configuration-model.adoc#customizing-the-configuration[`OAuth2AuthorizationServerConfigurer`]:
+Alternatively, you can configure the `OAuth2TokenGenerator` through the xref:servlet/oauth2/authorization-server/configuration-model.adoc#oauth2AuthorizationServer-customizing-the-configuration[`OAuth2AuthorizationServerConfigurer`]:
 
 [source,java]
 ----
@@ -424,11 +424,11 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 [NOTE]
 The `OAuth2AuthorizationServerConfigurer` is useful when applying multiple configuration options simultaneously.
 
-[[oauth2-token-customizer]]
+[[oauth2AuthorizationServer-oauth2-token-customizer]]
 == OAuth2TokenCustomizer
 
-An `OAuth2TokenCustomizer` provides the ability to customize the attributes of an `OAuth2Token`, which are accessible in the provided xref:core-model-components.adoc#oauth2-token-context[OAuth2TokenContext].
-It is used by an xref:core-model-components.adoc#oauth2-token-generator[OAuth2TokenGenerator] to let it customize the attributes of the `OAuth2Token` before it is generated.
+An `OAuth2TokenCustomizer` provides the ability to customize the attributes of an `OAuth2Token`, which are accessible in the provided xref:servlet/oauth2/authorization-server/core-model-components.adoc#oauth2AuthorizationServer-oauth2-token-context[OAuth2TokenContext].
+It is used by an xref:servlet/oauth2/authorization-server/core-model-components.adoc#oauth2AuthorizationServer-oauth2-token-generator[OAuth2TokenGenerator] to let it customize the attributes of the `OAuth2Token` before it is generated.
 
 An `OAuth2TokenCustomizer<OAuth2TokenClaimsContext>` declared with a generic type of `OAuth2TokenClaimsContext` (`implements OAuth2TokenContext`) provides the ability to customize the claims of an "opaque" `OAuth2AccessToken`.
 `OAuth2TokenClaimsContext.getClaims()` provides access to the `OAuth2TokenClaimsSet.Builder`, allowing the ability to add, replace, and remove claims.
@@ -499,14 +499,11 @@ public OAuth2TokenCustomizer<JwtEncodingContext> jwtCustomizer() {
 [NOTE]
 If the `OAuth2TokenGenerator` is not provided as a `@Bean` or is not configured through the `OAuth2AuthorizationServerConfigurer`, an `OAuth2TokenCustomizer<JwtEncodingContext>` `@Bean` will automatically be configured with a `JwtGenerator`.
 
-[TIP]
-For an example showing how you can xref:guides/how-to-userinfo.adoc#customize-id-token[customize the ID token], see the guide xref:guides/how-to-userinfo.adoc[How-to: Customize the OpenID Connect 1.0 UserInfo response].
-
-[[session-registry]]
+[[oauth2AuthorizationServer-session-registry]]
 == SessionRegistry
 
 If OpenID Connect 1.0 is enabled, a `SessionRegistry` instance is used to track authenticated sessions.
-The `SessionRegistry` is used by the default implementation of `SessionAuthenticationStrategy` associated to the xref:protocol-endpoints.adoc#oauth2-authorization-endpoint[OAuth2 Authorization Endpoint] for registering new authenticated sessions.
+The `SessionRegistry` is used by the default implementation of `SessionAuthenticationStrategy` associated to the xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oauth2-authorization-endpoint[OAuth2 Authorization Endpoint] for registering new authenticated sessions.
 
 [NOTE]
 If a `SessionRegistry` `@Bean` is not registered, the default implementation `SessionRegistryImpl` will be used.
@@ -514,9 +511,9 @@ If a `SessionRegistry` `@Bean` is not registered, the default implementation `Se
 [IMPORTANT]
 If a `SessionRegistry` `@Bean` is registered and is an instance of `SessionRegistryImpl`, a `HttpSessionEventPublisher` `@Bean` *SHOULD* also be registered as it's responsible for notifying `SessionRegistryImpl` of session lifecycle events, for example, `SessionDestroyedEvent`, to provide the ability to remove the `SessionInformation` instance.
 
-When a logout is requested by an End-User, the xref:protocol-endpoints.adoc#oidc-logout-endpoint[OpenID Connect 1.0 Logout Endpoint] uses the `SessionRegistry` to lookup the `SessionInformation` associated to the authenticated End-User to perform the logout.
+When a logout is requested by an End-User, the xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oidc-logout-endpoint[OpenID Connect 1.0 Logout Endpoint] uses the `SessionRegistry` to lookup the `SessionInformation` associated to the authenticated End-User to perform the logout.
 
-If Spring Security's {spring-security-reference-base-url}/servlet/authentication/session-management.html#ns-concurrent-sessions[Concurrent Session Control] feature is being used, it is *RECOMMENDED* to register a `SessionRegistry` `@Bean` to ensure it's shared between Spring Security's Concurrent Session Control and Spring Authorization Server's Logout feature.
+If Spring Security's xref:servlet/authentication/session-management.adoc#ns-concurrent-sessions[Concurrent Session Control] feature is being used, it is *RECOMMENDED* to register a `SessionRegistry` `@Bean` to ensure it's shared between Spring Security's Concurrent Session Control and Spring Security Authorization Server's Logout feature.
 
 The following example shows how to register a `SessionRegistry` `@Bean` and `HttpSessionEventPublisher` `@Bean` (required by `SessionRegistryImpl`):
 

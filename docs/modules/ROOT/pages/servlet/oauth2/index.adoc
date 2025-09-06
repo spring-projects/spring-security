@@ -6,10 +6,11 @@ This section discusses how to integrate OAuth 2.0 into your servlet based applic
 [[oauth2-overview]]
 == Overview
 
-Spring Security's OAuth 2.0 support consists of two primary feature sets:
+Spring Security's OAuth 2.0 support consists of three primary feature sets:
 
 * <<oauth2-resource-server>>
 * <<oauth2-client>>
+* xref:servlet/oauth2/authorization-server/index.adoc[OAuth2 Authorization Server]
 
 [NOTE]
 ====
@@ -17,10 +18,10 @@ Spring Security's OAuth 2.0 support consists of two primary feature sets:
 However, it does not exist as a standalone feature and requires OAuth2 Client in order to function.
 ====
 
-These feature sets cover the _resource server_ and _client_ roles defined in the https://tools.ietf.org/html/rfc6749#section-1.1[OAuth 2.0 Authorization Framework], while the _authorization server_ role is covered by https://docs.spring.io/spring-authorization-server/reference/index.html[Spring Authorization Server], which is a separate project built on xref:index.adoc[Spring Security].
+These feature sets cover the _resource server_, _client_ and _authorization server_ roles defined in the https://tools.ietf.org/html/rfc6749#section-1.1[OAuth 2.0 Authorization Framework].
 
 The _resource server_ and _client_ roles in OAuth2 are typically represented by one or more server-side applications.
-Additionally, the _authorization server_ role can be represented by one or more third parties (as is the case when centralizing identity management and/or authentication within an organization) *-or-* it can be represented by an application (as is the case with Spring Authorization Server).
+Additionally, the _authorization server_ role can be represented by one or more third parties (as is the case when centralizing identity management and/or authentication within an organization) *-or-* it can be represented by an application (as is the case with the _authorization server_ feature).
 
 For example, a typical OAuth2-based microservices architecture might consist of a single user-facing client application, several backend resource servers providing REST APIs and a third party authorization server for managing users and authentication concerns.
 It is also common to have a single application representing only one of these roles with the need to integrate with one or more third parties that are providing the other roles.
@@ -2010,8 +2011,9 @@ class SecurityConfig {
 == Further Reading
 
 The preceding sections introduced Spring Security's support for OAuth2 with examples for common scenarios.
-You can read more about OAuth2 Client and Resource Server in the following sections of the reference documentation:
+You can read more about OAuth2 Client, Resource Server and Authorization Server in the following sections of the reference documentation:
 
 * xref:servlet/oauth2/login/index.adoc[]
 * xref:servlet/oauth2/client/index.adoc[]
 * xref:servlet/oauth2/resource-server/index.adoc[]
+* xref:servlet/oauth2/authorization-server/index.adoc[]
