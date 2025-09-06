@@ -297,6 +297,7 @@ import org.springframework.web.util.pattern.PathPatternParser;
  * @author Ankur Pathak
  * @author Alexey Nesterov
  * @author Yanming Zhou
+ * @author Andrey Litvitski
  * @since 5.0
  */
 public class ServerHttpSecurity {
@@ -2588,12 +2589,20 @@ public class ServerHttpSecurity {
 		 * Configures {@code Feature-Policy} response header.
 		 * @param policyDirectives the policy
 		 * @return the {@link FeaturePolicySpec} to configure
-		 * @deprecated For removal in 7.0. Use {@link #permissionsPolicy(Customizer)}
-		 * instead.
 		 */
-		@Deprecated
 		public FeaturePolicySpec featurePolicy(String policyDirectives) {
 			return new FeaturePolicySpec(policyDirectives);
+		}
+
+		/**
+		 * Configures {@code Feature-Policy} response header.
+		 * @param featurePolicyCustomizer the {@link Customizer} to provide more options
+		 * for the {@link FeaturePolicySpec}
+		 * @return the {@link HeaderSpec} to customize
+		 */
+		public HeaderSpec featurePolicy(Customizer<FeaturePolicySpec> featurePolicyCustomizer) {
+			featurePolicyCustomizer.customize(new FeaturePolicySpec());
+			return this;
 		}
 
 		/**
@@ -2875,6 +2884,9 @@ public class ServerHttpSecurity {
 		 * @see #featurePolicy(String)
 		 */
 		public final class FeaturePolicySpec {
+
+			private FeaturePolicySpec() {
+			}
 
 			private FeaturePolicySpec(String policyDirectives) {
 				HeaderSpec.this.featurePolicy.setPolicyDirectives(policyDirectives);
