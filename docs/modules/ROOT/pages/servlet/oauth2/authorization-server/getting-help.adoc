@@ -1,0 +1,24 @@
+[[getting-help]]
+= Getting Help
+:page-section-summary-toc: 1
+
+[[community]]
+== Community
+
+Welcome to the https://docs.spring.io/spring-security/reference/community.html[Spring Security Community].
+Spring Authorization Server is an open source project led by the Spring Security team.
+If you need help with Spring Authorization Server, we are here to help.
+
+[[resources]]
+== Resources
+
+The following are some of the best ways to get help:
+
+* Try the xref:how-to.adoc[How-to guides]. They provide solutions to the most common questions.
+* Learn the Spring Security basics that Spring Authorization Server builds on. If you are starting out with Spring Security, check the https://spring.io/projects/spring-security#learn[reference documentation] or try one of the https://github.com/spring-projects/spring-security-samples[samples].
+* Read through xref:index.adoc[this documentation].
+* Try one of our many https://github.com/spring-projects/spring-authorization-server/tree/main/samples[sample applications].
+* Ask a question on Stack Overflow with the https://stackoverflow.com/questions/tagged/spring-authorization-server[`spring-authorization-server`] tag.
+* Report bugs and enhancement requests on https://github.com/spring-projects/spring-authorization-server/issues[GitHub].
+
+NOTE: Spring Authorization Server is open source, including the documentation. If you find problems with the docs or if you want to improve them, please https://github.com/spring-projects/spring-authorization-server[get involved].

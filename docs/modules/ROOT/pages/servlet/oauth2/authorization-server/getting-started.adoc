@@ -1,0 +1,107 @@
+
+[[getting-started]]
+= Getting Started
+
+If you are just getting started with Spring Authorization Server, the following sections walk you through creating your first application.
+
+[[system-requirements]]
+== System Requirements
+
+Spring Authorization Server requires a Java 17 or higher Runtime Environment.
+
+[[installing-spring-authorization-server]]
+== Installing Spring Authorization Server
+
+Spring Authorization Server can be used anywhere you already use https://docs.spring.io/spring-security/reference/prerequisites.html[Spring Security].
+
+The easiest way to begin using Spring Authorization Server is by creating a https://spring.io/projects/spring-boot[Spring Boot]-based application.
+You can use https://start.spring.io[start.spring.io] to generate a basic project or use the https://github.com/spring-projects/spring-authorization-server/tree/main/samples/default-authorizationserver[default authorization server sample] as a guide.
+Then add Spring Boot's starter for Spring Authorization Server as a dependency:
+
+[tabs]
+======
+Maven::
++
+[[spring-boot-maven-dependency]]
+[source,xml,role="primary",subs="attributes,verbatim"]
+----
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-oauth2-authorization-server</artifactId>
+</dependency>
+----
+
+Gradle::
++
+[[spring-boot-gradle-dependency]]
+[source,gradle,role="secondary",subs="attributes,verbatim"]
+----
+implementation "org.springframework.boot:spring-boot-starter-oauth2-authorization-server"
+----
+======
+
+TIP: See https://docs.spring.io/spring-boot/docs/current/reference/html/getting-started.html#getting-started.installing[Installing Spring Boot] for more information on using Spring Boot with Maven or Gradle.
+
+Alternatively, you can add Spring Authorization Server without Spring Boot using the following example:
+
+[tabs]
+======
+Maven::
++
+[[maven-dependency]]
+[source,xml,role="primary",subs="attributes,verbatim"]
+----
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-oauth2-authorization-server</artifactId>
+    <version>{spring-authorization-server-version}</version>
+</dependency>
+----
+
+Gradle::
++
+[[gradle-dependency]]
+[source,gradle,role="secondary",subs="attributes,verbatim"]
+----
+implementation "org.springframework.security:spring-security-oauth2-authorization-server:{spring-authorization-server-version}"
+----
+======
+
+[[developing-your-first-application]]
+== Developing Your First Application
+
+To get started, you need the minimum required components defined as a `@Bean`. When using the `spring-boot-starter-oauth2-authorization-server` dependency, define the following properties and Spring Boot will provide the necessary `@Bean` definitions for you:
+
+[[application-yml]]
+.application.yml
+[source,yaml]
+----
+include::{docs-java}/sample/gettingstarted/application.yml[]
+----
+
+TIP: Beyond the Getting Started experience, most users will want to customize the default configuration. The xref:getting-started.adoc#defining-required-components[next section] demonstrates providing all of the necessary beans yourself.
+
+[[defining-required-components]]
+== Defining Required Components
+
+If you want to customize the default configuration (regardless of whether you're using Spring Boot), you can define the minimum required components as a `@Bean` in a Spring `@Configuration`.
+
+These components can be defined as follows:
+
+[[sample.gettingstarted]]
+.SecurityConfig.java
+[source,java]
+----
+include::{docs-java}/sample/gettingstarted/SecurityConfig.java[]
+----
+
+This is a minimal configuration for getting started quickly. To understand what each component is used for, see the following descriptions:
+
+<1> A Spring Security filter chain for the xref:protocol-endpoints.adoc[Protocol Endpoints].
+<2> A Spring Security filter chain for https://docs.spring.io/spring-security/reference/servlet/authentication/index.html[authentication].
+<3> An instance of {spring-security-api-base-url}/org/springframework/security/core/userdetails/UserDetailsService.html[`UserDetailsService`] for retrieving users to authenticate.
+<4> An instance of xref:core-model-components.adoc#registered-client-repository[`RegisteredClientRepository`] for managing clients.
+<5> An instance of `com.nimbusds.jose.jwk.source.JWKSource` for signing access tokens.
+<6> An instance of `java.security.KeyPair` with keys generated on startup used to create the `JWKSource` above.
+<7> An instance of {spring-security-api-base-url}/org/springframework/security/oauth2/jwt/JwtDecoder.html[`JwtDecoder`] for decoding signed access tokens.
+<8> An instance of xref:configuration-model#configuring-authorization-server-settings[`AuthorizationServerSettings`] to configure Spring Authorization Server.

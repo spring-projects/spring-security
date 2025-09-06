@@ -1,0 +1,1044 @@
+[[protocol-endpoints]]
+= Protocol Endpoints
+
+[[oauth2-authorization-endpoint]]
+== OAuth2 Authorization Endpoint
+
+`OAuth2AuthorizationEndpointConfigurer` provides the ability to customize the https://datatracker.ietf.org/doc/html/rfc6749#section-3.1[OAuth2 Authorization endpoint].
+It defines extension points that let you customize the pre-processing, main processing, and post-processing logic for https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.1[OAuth2 authorization requests].
+
+`OAuth2AuthorizationEndpointConfigurer` provides the following configuration options:
+
+[source,java]
+----
+@Bean
+public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+			OAuth2AuthorizationServerConfigurer.authorizationServer();
+
+	http
+		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+		.with(authorizationServerConfigurer, (authorizationServer) ->
+			authorizationServer
+				.authorizationEndpoint(authorizationEndpoint ->
+					authorizationEndpoint
+        				.authorizationRequestConverter(authorizationRequestConverter)   <1>
+                        .authorizationRequestConverters(authorizationRequestConvertersConsumer) <2>
+                        .authenticationProvider(authenticationProvider) <3>
+                        .authenticationProviders(authenticationProvidersConsumer)   <4>
+                        .authorizationResponseHandler(authorizationResponseHandler) <5>
+                        .errorResponseHandler(errorResponseHandler) <6>
+                        .consentPage("/oauth2/v1/authorize")    <7>
+				)
+		);
+
+	return http.build();
+}
+----
+<1> `authorizationRequestConverter()`: Adds an `AuthenticationConverter` (_pre-processor_) used when attempting to extract an https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.1[OAuth2 authorization request] (or consent) from `HttpServletRequest` to an instance of `OAuth2AuthorizationCodeRequestAuthenticationToken` or `OAuth2AuthorizationConsentAuthenticationToken`.
+<2> `authorizationRequestConverters()`: Sets the `Consumer` providing access to the `List` of default and (optionally) added ``AuthenticationConverter``'s allowing the ability to add, remove, or customize a specific `AuthenticationConverter`.
+<3> `authenticationProvider()`: Adds an `AuthenticationProvider` (_main processor_) used for authenticating the `OAuth2AuthorizationCodeRequestAuthenticationToken` or `OAuth2AuthorizationConsentAuthenticationToken`.
+<4> `authenticationProviders()`: Sets the `Consumer` providing access to the `List` of default and (optionally) added ``AuthenticationProvider``'s allowing the ability to add, remove, or customize a specific `AuthenticationProvider`.
+<5> `authorizationResponseHandler()`: The `AuthenticationSuccessHandler` (_post-processor_) used for handling an "`authenticated`" `OAuth2AuthorizationCodeRequestAuthenticationToken` and returning the https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.2[OAuth2AuthorizationResponse].
+<6> `errorResponseHandler()`: The `AuthenticationFailureHandler` (_post-processor_) used for handling an `OAuth2AuthorizationCodeRequestAuthenticationException` and returning the https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.2.1[OAuth2Error response].
+<7> `consentPage()`: The `URI` of the custom consent page to redirect resource owners to if consent is required during the authorization request flow.
+
+`OAuth2AuthorizationEndpointConfigurer` configures the `OAuth2AuthorizationEndpointFilter` and registers it with the OAuth2 authorization server `SecurityFilterChain` `@Bean`.
+`OAuth2AuthorizationEndpointFilter` is the `Filter` that processes OAuth2 authorization requests (and consents).
+
+`OAuth2AuthorizationEndpointFilter` is configured with the following defaults:
+
+* `*AuthenticationConverter*` -- A `DelegatingAuthenticationConverter` composed of `OAuth2AuthorizationCodeRequestAuthenticationConverter` and `OAuth2AuthorizationConsentAuthenticationConverter`.
+* `*AuthenticationManager*` -- An `AuthenticationManager` composed of `OAuth2AuthorizationCodeRequestAuthenticationProvider` and `OAuth2AuthorizationConsentAuthenticationProvider`.
+* `*AuthenticationSuccessHandler*` -- An internal implementation that handles an "`authenticated`" `OAuth2AuthorizationCodeRequestAuthenticationToken` and returns the `OAuth2AuthorizationResponse`.
+* `*AuthenticationFailureHandler*` -- An internal implementation that uses the `OAuth2Error` associated with the `OAuth2AuthorizationCodeRequestAuthenticationException` and returns the `OAuth2Error` response.
+
+[[oauth2-authorization-endpoint-customizing-authorization-request-validation]]
+=== Customizing Authorization Request Validation
+
+`OAuth2AuthorizationCodeRequestAuthenticationValidator` is the default validator used for validating specific OAuth2 authorization request parameters used in the Authorization Code Grant.
+The default implementation validates the `redirect_uri` and `scope` parameters.
+If validation fails, an `OAuth2AuthorizationCodeRequestAuthenticationException` is thrown.
+
+`OAuth2AuthorizationCodeRequestAuthenticationProvider` provides the ability to override the default authorization request validation by supplying a custom authentication validator of type `Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext>` to `setAuthenticationValidator()`.
+
+[TIP]
+`OAuth2AuthorizationCodeRequestAuthenticationContext` holds the `OAuth2AuthorizationCodeRequestAuthenticationToken`, which contains the OAuth2 authorization request parameters.
+
+[IMPORTANT]
+If validation fails, the authentication validator *MUST* throw `OAuth2AuthorizationCodeRequestAuthenticationException`.
+
+A common use case during the development life cycle phase is to allow for `localhost` in the `redirect_uri` parameter.
+
+The following example shows how to configure `OAuth2AuthorizationCodeRequestAuthenticationProvider` with a custom authentication validator that allows for `localhost` in the `redirect_uri` parameter:
+
+[source,java]
+----
+@Bean
+public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+			OAuth2AuthorizationServerConfigurer.authorizationServer();
+
+	http
+		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+		.with(authorizationServerConfigurer, (authorizationServer) ->
+			authorizationServer
+				.authorizationEndpoint(authorizationEndpoint ->
+					authorizationEndpoint
+                        .authenticationProviders(configureAuthenticationValidator())
+				)
+		);
+
+	return http.build();
+}
+
+private Consumer<List<AuthenticationProvider>> configureAuthenticationValidator() {
+	return (authenticationProviders) ->
+		authenticationProviders.forEach((authenticationProvider) -> {
+			if (authenticationProvider instanceof OAuth2AuthorizationCodeRequestAuthenticationProvider) {
+				Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> authenticationValidator =
+					// Override default redirect_uri validator
+					new CustomRedirectUriValidator()
+						// Reuse default scope validator
+						.andThen(OAuth2AuthorizationCodeRequestAuthenticationValidator.DEFAULT_SCOPE_VALIDATOR);
+
+				((OAuth2AuthorizationCodeRequestAuthenticationProvider) authenticationProvider)
+					.setAuthenticationValidator(authenticationValidator);
+			}
+		});
+}
+
+static class CustomRedirectUriValidator implements Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> {
+
+	@Override
+	public void accept(OAuth2AuthorizationCodeRequestAuthenticationContext authenticationContext) {
+		OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication =
+			authenticationContext.getAuthentication();
+		RegisteredClient registeredClient = authenticationContext.getRegisteredClient();
+		String requestedRedirectUri = authorizationCodeRequestAuthentication.getRedirectUri();
+
+		// Use exact string matching when comparing client redirect URIs against pre-registered URIs
+		if (!registeredClient.getRedirectUris().contains(requestedRedirectUri)) {
+			OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST);
+			throw new OAuth2AuthorizationCodeRequestAuthenticationException(error, null);
+		}
+	}
+}
+----
+
+[[oauth2-pushed-authorization-request-endpoint]]
+== OAuth2 Pushed Authorization Request Endpoint
+
+`OAuth2PushedAuthorizationRequestEndpointConfigurer` provides the ability to customize the https://datatracker.ietf.org/doc/html/rfc9126#section-2[OAuth2 Pushed Authorization Request endpoint].
+It defines extension points that let you customize the pre-processing, main processing, and post-processing logic for https://datatracker.ietf.org/doc/html/rfc9126#section-2.1[OAuth2 Pushed Authorization requests].
+
+`OAuth2PushedAuthorizationRequestEndpointConfigurer` provides the following configuration options:
+
+[source,java]
+----
+@Bean
+public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+			OAuth2AuthorizationServerConfigurer.authorizationServer();
+
+	http
+		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+		.with(authorizationServerConfigurer, (authorizationServer) ->
+			authorizationServer
+				.pushedAuthorizationRequestEndpoint(pushedAuthorizationRequestEndpoint ->
+					pushedAuthorizationRequestEndpoint
+        				.pushedAuthorizationRequestConverter(pushedAuthorizationRequestConverter)   <1>
+                        .pushedAuthorizationRequestConverters(pushedAuthorizationRequestConvertersConsumer) <2>
+                        .authenticationProvider(authenticationProvider) <3>
+                        .authenticationProviders(authenticationProvidersConsumer)   <4>
+                        .pushedAuthorizationResponseHandler(pushedAuthorizationResponseHandler) <5>
+                        .errorResponseHandler(errorResponseHandler) <6>
+				)
+		);
+
+	return http.build();
+}
+----
+<1> `pushedAuthorizationRequestConverter()`: Adds an `AuthenticationConverter` (_pre-processor_) used when attempting to extract an https://datatracker.ietf.org/doc/html/rfc9126#section-2.1[OAuth2 pushed authorization request] from `HttpServletRequest` to an instance of `OAuth2PushedAuthorizationRequestAuthenticationToken`.
+<2> `pushedAuthorizationRequestConverters()`: Sets the `Consumer` providing access to the `List` of default and (optionally) added ``AuthenticationConverter``'s allowing the ability to add, remove, or customize a specific `AuthenticationConverter`.
+<3> `authenticationProvider()`: Adds an `AuthenticationProvider` (_main processor_) used for authenticating the `OAuth2PushedAuthorizationRequestAuthenticationToken`.
+<4> `authenticationProviders()`: Sets the `Consumer` providing access to the `List` of default and (optionally) added ``AuthenticationProvider``'s allowing the ability to add, remove, or customize a specific `AuthenticationProvider`.
+<5> `pushedAuthorizationResponseHandler()`: The `AuthenticationSuccessHandler` (_post-processor_) used for handling an "`authenticated`" `OAuth2PushedAuthorizationRequestAuthenticationToken` and returning the https://datatracker.ietf.org/doc/html/rfc9126#section-2.2[OAuth2 pushed authorization response].
+<6> `errorResponseHandler()`: The `AuthenticationFailureHandler` (_post-processor_) used for handling an `OAuth2AuthenticationException` and returning the https://datatracker.ietf.org/doc/html/rfc9126#section-2.3[OAuth2Error response].
+
+`OAuth2PushedAuthorizationRequestEndpointConfigurer` configures the `OAuth2PushedAuthorizationRequestEndpointFilter` and registers it with the OAuth2 authorization server `SecurityFilterChain` `@Bean`.
+`OAuth2PushedAuthorizationRequestEndpointFilter` is the `Filter` that processes OAuth2 pushed authorization requests.
+
+`OAuth2PushedAuthorizationRequestEndpointFilter` is configured with the following defaults:
+
+* `*AuthenticationConverter*` -- A `DelegatingAuthenticationConverter` composed of `OAuth2AuthorizationCodeRequestAuthenticationConverter`.
+* `*AuthenticationManager*` -- An `AuthenticationManager` composed of `OAuth2PushedAuthorizationRequestAuthenticationProvider`.
+* `*AuthenticationSuccessHandler*` -- An internal implementation that handles an "`authenticated`" `OAuth2PushedAuthorizationRequestAuthenticationToken` and returns the OAuth2 pushed authorization response.
+* `*AuthenticationFailureHandler*` -- An `OAuth2ErrorAuthenticationFailureHandler`.
+
+[[oauth2-pushed-authorization-request-endpoint-customizing-authorization-request-validation]]
+=== Customizing Pushed Authorization Request Validation
+
+`OAuth2AuthorizationCodeRequestAuthenticationValidator` is the default validator used for validating specific OAuth2 pushed authorization request parameters used in the Authorization Code Grant.
+The default implementation validates the `redirect_uri` and `scope` parameters.
+If validation fails, an `OAuth2AuthorizationCodeRequestAuthenticationException` is thrown.
+
+`OAuth2PushedAuthorizationRequestAuthenticationProvider` provides the ability to override the default pushed authorization request validation by supplying a custom authentication validator of type `Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext>` to `setAuthenticationValidator()`.
+
+[TIP]
+`OAuth2AuthorizationCodeRequestAuthenticationContext` holds the `OAuth2AuthorizationCodeRequestAuthenticationToken`, which contains the OAuth2 pushed authorization request parameters.
+
+[IMPORTANT]
+If validation fails, the authentication validator *MUST* throw `OAuth2AuthorizationCodeRequestAuthenticationException`.
+
+A common use case during the development life cycle phase is to allow for `localhost` in the `redirect_uri` parameter.
+
+The following example shows how to configure `OAuth2PushedAuthorizationRequestAuthenticationProvider` with a custom authentication validator that allows for `localhost` in the `redirect_uri` parameter:
+
+[source,java]
+----
+@Bean
+public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+			OAuth2AuthorizationServerConfigurer.authorizationServer();
+
+	http
+		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+		.with(authorizationServerConfigurer, (authorizationServer) ->
+			authorizationServer
+				.pushedAuthorizationRequestEndpoint(pushedAuthorizationRequestEndpoint ->
+					pushedAuthorizationRequestEndpoint
+                        .authenticationProviders(configureAuthenticationValidator())
+				)
+		);
+
+	return http.build();
+}
+
+private Consumer<List<AuthenticationProvider>> configureAuthenticationValidator() {
+	return (authenticationProviders) ->
+		authenticationProviders.forEach((authenticationProvider) -> {
+			if (authenticationProvider instanceof OAuth2PushedAuthorizationRequestAuthenticationProvider) {
+				Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> authenticationValidator =
+					// Override default redirect_uri validator
+					new CustomRedirectUriValidator()
+						// Reuse default scope validator
+						.andThen(OAuth2AuthorizationCodeRequestAuthenticationValidator.DEFAULT_SCOPE_VALIDATOR);
+
+				((OAuth2PushedAuthorizationRequestAuthenticationProvider) authenticationProvider)
+					.setAuthenticationValidator(authenticationValidator);
+			}
+		});
+}
+
+static class CustomRedirectUriValidator implements Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> {
+
+	@Override
+	public void accept(OAuth2AuthorizationCodeRequestAuthenticationContext authenticationContext) {
+		OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication =
+			authenticationContext.getAuthentication();
+		RegisteredClient registeredClient = authenticationContext.getRegisteredClient();
+		String requestedRedirectUri = authorizationCodeRequestAuthentication.getRedirectUri();
+
+		// Use exact string matching when comparing client redirect URIs against pre-registered URIs
+		if (!registeredClient.getRedirectUris().contains(requestedRedirectUri)) {
+			OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST);
+			throw new OAuth2AuthorizationCodeRequestAuthenticationException(error, null);
+		}
+	}
+}
+----
+
+[[oauth2-device-authorization-endpoint]]
+== OAuth2 Device Authorization Endpoint
+
+`OAuth2DeviceAuthorizationEndpointConfigurer` provides the ability to customize the https://datatracker.ietf.org/doc/html/rfc8628#section-3.1[OAuth2 Device Authorization endpoint].
+It defines extension points that let you customize the pre-processing, main processing, and post-processing logic for OAuth2 device authorization requests.
+
+`OAuth2DeviceAuthorizationEndpointConfigurer` provides the following configuration options:
+
+[source,java]
+----
+@Bean
+public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+			OAuth2AuthorizationServerConfigurer.authorizationServer();
+
+	http
+		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+		.with(authorizationServerConfigurer, (authorizationServer) ->
+			authorizationServer
+				.deviceAuthorizationEndpoint(deviceAuthorizationEndpoint ->
+                    deviceAuthorizationEndpoint
+                        .deviceAuthorizationRequestConverter(deviceAuthorizationRequestConverter)   <1>
+                        .deviceAuthorizationRequestConverters(deviceAuthorizationRequestConvertersConsumer) <2>
+                        .authenticationProvider(authenticationProvider) <3>
+                        .authenticationProviders(authenticationProvidersConsumer)   <4>
+                        .deviceAuthorizationResponseHandler(deviceAuthorizationResponseHandler) <5>
+                        .errorResponseHandler(errorResponseHandler) <6>
+                        .verificationUri("/oauth2/v1/device_verification")  <7>
+				)
+		);
+
+	return http.build();
+}
+----
+<1> `deviceAuthorizationRequestConverter()`: Adds an `AuthenticationConverter` (_pre-processor_) used when attempting to extract an https://datatracker.ietf.org/doc/html/rfc8628#section-3.1[OAuth2 device authorization request] from `HttpServletRequest` to an instance of `OAuth2DeviceAuthorizationRequestAuthenticationToken`.
+<2> `deviceAuthorizationRequestConverters()`: Sets the `Consumer` providing access to the `List` of default and (optionally) added ``AuthenticationConverter``'s allowing the ability to add, remove, or customize a specific `AuthenticationConverter`.
+<3> `authenticationProvider()`: Adds an `AuthenticationProvider` (_main processor_) used for authenticating the `OAuth2DeviceAuthorizationRequestAuthenticationToken`.
+<4> `authenticationProviders()`: Sets the `Consumer` providing access to the `List` of default and (optionally) added ``AuthenticationProvider``'s allowing the ability to add, remove, or customize a specific `AuthenticationProvider`.
+<5> `deviceAuthorizationResponseHandler()`: The `AuthenticationSuccessHandler` (_post-processor_) used for handling an "`authenticated`" `OAuth2DeviceAuthorizationRequestAuthenticationToken` and returning the https://datatracker.ietf.org/doc/html/rfc8628#section-3.2[OAuth2DeviceAuthorizationResponse].
+<6> `errorResponseHandler()`: The `AuthenticationFailureHandler` (_post-processor_) used for handling an `OAuth2AuthenticationException` and returning the https://datatracker.ietf.org/doc/html/rfc6749#section-5.2[OAuth2Error response].
+<7> `verificationUri()`: The `URI` of the custom end-user verification page to direct resource owners to on a secondary device.
+
+`OAuth2DeviceAuthorizationEndpointConfigurer` configures the `OAuth2DeviceAuthorizationEndpointFilter` and registers it with the OAuth2 authorization server `SecurityFilterChain` `@Bean`.
+`OAuth2DeviceAuthorizationEndpointFilter` is the `Filter` that processes OAuth2 device authorization requests.
+
+`OAuth2DeviceAuthorizationEndpointFilter` is configured with the following defaults:
+
+* `*AuthenticationConverter*` -- An `OAuth2DeviceAuthorizationRequestAuthenticationConverter`.
+* `*AuthenticationManager*` -- An `AuthenticationManager` composed of `OAuth2DeviceAuthorizationRequestAuthenticationProvider`.
+* `*AuthenticationSuccessHandler*` -- An internal implementation that handles an "`authenticated`" `OAuth2DeviceAuthorizationRequestAuthenticationToken` and returns the `OAuth2DeviceAuthorizationResponse`.
+* `*AuthenticationFailureHandler*` -- An `OAuth2ErrorAuthenticationFailureHandler`.
+
+[[oauth2-device-verification-endpoint]]
+== OAuth2 Device Verification Endpoint
+
+`OAuth2DeviceVerificationEndpointConfigurer` provides the ability to customize the https://datatracker.ietf.org/doc/html/rfc8628#section-3.3[OAuth2 Device Verification endpoint] (or "User Interaction").
+It defines extension points that let you customize the pre-processing, main processing, and post-processing logic for OAuth2 device verification requests.
+
+`OAuth2DeviceVerificationEndpointConfigurer` provides the following configuration options:
+
+[source,java]
+----
+@Bean
+public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+			OAuth2AuthorizationServerConfigurer.authorizationServer();
+
+	http
+		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+		.with(authorizationServerConfigurer, (authorizationServer) ->
+			authorizationServer
+				.deviceVerificationEndpoint(deviceVerificationEndpoint ->
+                    deviceVerificationEndpoint
+                        .deviceVerificationRequestConverter(deviceVerificationRequestConverter) <1>
+                        .deviceVerificationRequestConverters(deviceVerificationRequestConvertersConsumer)   <2>
+                        .authenticationProvider(authenticationProvider) <3>
+                        .authenticationProviders(authenticationProvidersConsumer)   <4>
+                        .deviceVerificationResponseHandler(deviceVerificationResponseHandler)   <5>
+                        .errorResponseHandler(errorResponseHandler) <6>
+                        .consentPage("/oauth2/v1/consent")  <7>
+				)
+		);
+
+	return http.build();
+}
+----
+<1> `deviceVerificationRequestConverter()`: Adds an `AuthenticationConverter` (_pre-processor_) used when attempting to extract an https://datatracker.ietf.org/doc/html/rfc8628#section-3.3[OAuth2 device verification request] (or consent) from `HttpServletRequest` to an instance of `OAuth2DeviceVerificationAuthenticationToken` or `OAuth2DeviceAuthorizationConsentAuthenticationToken`.
+<2> `deviceVerificationRequestConverters()`: Sets the `Consumer` providing access to the `List` of default and (optionally) added ``AuthenticationConverter``'s allowing the ability to add, remove, or customize a specific `AuthenticationConverter`.
+<3> `authenticationProvider()`: Adds an `AuthenticationProvider` (_main processor_) used for authenticating the `OAuth2DeviceVerificationAuthenticationToken` or `OAuth2DeviceAuthorizationConsentAuthenticationToken`.
+<4> `authenticationProviders()`: Sets the `Consumer` providing access to the `List` of default and (optionally) added ``AuthenticationProvider``'s allowing the ability to add, remove, or customize a specific `AuthenticationProvider`.
+<5> `deviceVerificationResponseHandler()`: The `AuthenticationSuccessHandler` (_post-processor_) used for handling an "`authenticated`" `OAuth2DeviceVerificationAuthenticationToken` and directing the resource owner to return to their device.
+<6> `errorResponseHandler()`: The `AuthenticationFailureHandler` (_post-processor_) used for handling an `OAuth2AuthenticationException` and returning the error response.
+<7> `consentPage()`: The `URI` of the custom consent page to redirect resource owners to if consent is required during the device verification request flow.
+
+`OAuth2DeviceVerificationEndpointConfigurer` configures the `OAuth2DeviceVerificationEndpointFilter` and registers it with the OAuth2 authorization server `SecurityFilterChain` `@Bean`.
+`OAuth2DeviceVerificationEndpointFilter` is the `Filter` that processes OAuth2 device verification requests (and consents).
+
+`OAuth2DeviceVerificationEndpointFilter` is configured with the following defaults:
+
+* `*AuthenticationConverter*` -- A `DelegatingAuthenticationConverter` composed of `OAuth2DeviceVerificationAuthenticationConverter` and `OAuth2DeviceAuthorizationConsentAuthenticationConverter`.
+* `*AuthenticationManager*` -- An `AuthenticationManager` composed of `OAuth2DeviceVerificationAuthenticationProvider` and `OAuth2DeviceAuthorizationConsentAuthenticationProvider`.
+* `*AuthenticationSuccessHandler*` -- A `SimpleUrlAuthenticationSuccessHandler` that handles an "`authenticated`" `OAuth2DeviceVerificationAuthenticationToken` and redirects the user to a success page (`/?success`).
+* `*AuthenticationFailureHandler*` -- An internal implementation that uses the `OAuth2Error` associated with the `OAuth2AuthenticationException` and returns the `OAuth2Error` response.
+
+[[oauth2-token-endpoint]]
+== OAuth2 Token Endpoint
+
+`OAuth2TokenEndpointConfigurer` provides the ability to customize the https://datatracker.ietf.org/doc/html/rfc6749#section-3.2[OAuth2 Token endpoint].
+It defines extension points that let you customize the pre-processing, main processing, and post-processing logic for https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.3[OAuth2 access token requests].
+
+`OAuth2TokenEndpointConfigurer` provides the following configuration options:
+[source,java]
+----
+@Bean
+public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+			OAuth2AuthorizationServerConfigurer.authorizationServer();
+
+	http
+		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+		.with(authorizationServerConfigurer, (authorizationServer) ->
+			authorizationServer
+				.tokenEndpoint(tokenEndpoint ->
+                    tokenEndpoint
+                        .accessTokenRequestConverter(accessTokenRequestConverter)   <1>
+                        .accessTokenRequestConverters(accessTokenRequestConvertersConsumer) <2>
+                        .authenticationProvider(authenticationProvider) <3>
+                        .authenticationProviders(authenticationProvidersConsumer)   <4>
+                        .accessTokenResponseHandler(accessTokenResponseHandler) <5>
+                        .errorResponseHandler(errorResponseHandler) <6>
+				)
+		);
+
+	return http.build();
+}
+----
+<1> `accessTokenRequestConverter()`: Adds an `AuthenticationConverter` (_pre-processor_) used when attempting to extract an https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.3[OAuth2 access token request] from `HttpServletRequest` to an instance of `OAuth2AuthorizationGrantAuthenticationToken`.
+<2> `accessTokenRequestConverters()`: Sets the `Consumer` providing access to the `List` of default and (optionally) added ``AuthenticationConverter``'s allowing the ability to add, remove, or customize a specific `AuthenticationConverter`.
+<3> `authenticationProvider()`: Adds an `AuthenticationProvider` (_main processor_) used for authenticating the `OAuth2AuthorizationGrantAuthenticationToken`.
+<4> `authenticationProviders()`: Sets the `Consumer` providing access to the `List` of default and (optionally) added ``AuthenticationProvider``'s allowing the ability to add, remove, or customize a specific `AuthenticationProvider`.
+<5> `accessTokenResponseHandler()`: The `AuthenticationSuccessHandler` (_post-processor_) used for handling an `OAuth2AccessTokenAuthenticationToken` and returning the https://datatracker.ietf.org/doc/html/rfc6749#section-5.1[`OAuth2AccessTokenResponse`].
+<6> `errorResponseHandler()`: The `AuthenticationFailureHandler` (_post-processor_) used for handling an `OAuth2AuthenticationException` and returning the https://datatracker.ietf.org/doc/html/rfc6749#section-5.2[OAuth2Error response].
+
+`OAuth2TokenEndpointConfigurer` configures the `OAuth2TokenEndpointFilter` and registers it with the OAuth2 authorization server `SecurityFilterChain` `@Bean`.
+`OAuth2TokenEndpointFilter` is the `Filter` that processes OAuth2 access token requests.
+
+The supported https://datatracker.ietf.org/doc/html/rfc6749#section-1.3[authorization grant types] are `authorization_code`, `refresh_token`, `client_credentials`, `urn:ietf:params:oauth:grant-type:device_code`, and `urn:ietf:params:oauth:grant-type:token-exchange`.
+
+`OAuth2TokenEndpointFilter` is configured with the following defaults:
+
+* `*AuthenticationConverter*` -- A `DelegatingAuthenticationConverter` composed of `OAuth2AuthorizationCodeAuthenticationConverter`, `OAuth2RefreshTokenAuthenticationConverter`, `OAuth2ClientCredentialsAuthenticationConverter`, `OAuth2DeviceCodeAuthenticationConverter`, and `OAuth2TokenExchangeAuthenticationConverter`.
+* `*AuthenticationManager*` -- An `AuthenticationManager` composed of `OAuth2AuthorizationCodeAuthenticationProvider`, `OAuth2RefreshTokenAuthenticationProvider`, `OAuth2ClientCredentialsAuthenticationProvider`, `OAuth2DeviceCodeAuthenticationProvider`, and `OAuth2TokenExchangeAuthenticationProvider`.
+* `*AuthenticationSuccessHandler*` -- An `OAuth2AccessTokenResponseAuthenticationSuccessHandler`.
+* `*AuthenticationFailureHandler*` -- An `OAuth2ErrorAuthenticationFailureHandler`.
+
+[[oauth2-token-endpoint-customizing-client-credentials-grant-request-validation]]
+=== Customizing Client Credentials Grant Request Validation
+
+`OAuth2ClientCredentialsAuthenticationValidator` is the default validator used for validating specific OAuth2 Client Credentials Grant request parameters.
+The default implementation validates the `scope` parameter.
+If validation fails, an `OAuth2AuthenticationException` is thrown.
+
+`OAuth2ClientCredentialsAuthenticationProvider` provides the ability to override the default request validation by supplying a custom authentication validator of type `Consumer<OAuth2ClientCredentialsAuthenticationContext>` to `setAuthenticationValidator()`.
+
+[TIP]
+`OAuth2ClientCredentialsAuthenticationContext` holds the `OAuth2ClientCredentialsAuthenticationToken`, which contains the OAuth2 Client Credentials Grant request parameters.
+
+[IMPORTANT]
+If validation fails, the authentication validator *MUST* throw `OAuth2AuthenticationException`.
+
+The following example shows how to configure `OAuth2ClientCredentialsAuthenticationProvider` with a custom authentication validator that overrides the default `scope` validation:
+
+[source,java]
+----
+@Bean
+public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+			OAuth2AuthorizationServerConfigurer.authorizationServer();
+
+	http
+		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+		.with(authorizationServerConfigurer, (authorizationServer) ->
+			authorizationServer
+				.tokenEndpoint(tokenEndpoint ->
+                    tokenEndpoint
+                        .authenticationProviders(configureAuthenticationValidator())
+				)
+		);
+
+	return http.build();
+}
+
+private Consumer<List<AuthenticationProvider>> configureAuthenticationValidator() {
+	return (authenticationProviders) ->
+		authenticationProviders.forEach((authenticationProvider) -> {
+			if (authenticationProvider instanceof OAuth2ClientCredentialsAuthenticationProvider) {
+				Consumer<OAuth2ClientCredentialsAuthenticationContext> authenticationValidator =
+					new CustomScopeValidator();
+
+				// Override default scope validation
+				((OAuth2ClientCredentialsAuthenticationProvider) authenticationProvider)
+					.setAuthenticationValidator(authenticationValidator);
+			}
+		});
+}
+
+static class CustomScopeValidator implements Consumer<OAuth2ClientCredentialsAuthenticationContext> {
+
+	@Override
+	public void accept(OAuth2ClientCredentialsAuthenticationContext authenticationContext) {
+		OAuth2ClientCredentialsAuthenticationToken clientCredentialsAuthentication =
+			authenticationContext.getAuthentication();
+
+		Set<String> requestedScopes = clientCredentialsAuthentication.getScopes();
+		RegisteredClient registeredClient = authenticationContext.getRegisteredClient();
+		Set<String> allowedScopes = registeredClient.getScopes();
+
+        // TODO Implement scope validation
+
+	}
+}
+----
+
+[[oauth2-token-endpoint-dpop-bound-access-tokens]]
+=== DPoP-bound Access Tokens
+
+https://datatracker.ietf.org/doc/html/rfc9449[RFC 9449 OAuth 2.0 Demonstrating Proof of Possession (DPoP)] is an application-level mechanism for sender-constraining an access token.
+
+The primary goal of DPoP is to prevent unauthorized or illegitimate clients from using leaked or stolen access tokens, by binding an access token to a public key upon issuance by the authorization server and requiring that the client proves possession of the corresponding private key when using the access token at the resource server.
+
+Access tokens that are sender-constrained via DPoP stand in contrast to the typical bearer token, which can be used by any client in possession of the access token.
+
+DPoP introduces the concept of a https://datatracker.ietf.org/doc/html/rfc9449#name-dpop-proof-jwts[DPoP Proof], which is a JWT created by the client and sent as a header in an HTTP request.
+A client uses a DPoP proof to prove the possession of a private key corresponding to a certain public key.
+
+When the client initiates an access token request, it attaches a DPoP proof to the request in an HTTP header.
+The authorization server binds (sender-constrains) the access token to the public key associated in the DPoP proof.
+
+When the client initiates a protected resource request, it again attaches a DPoP proof to the request in an HTTP header.
+
+The resource server obtains information about the public key bound to the access token, either directly in the access token (JWT) or via the <<oauth2-token-introspection-endpoint,OAuth2 Token Introspection endpoint>>.
+The resource server then verifies that the public key bound to the access token matches the public key in the DPoP proof.
+It also verifies that the access token hash in the DPoP proof matches the access token in the request.
+
+[[oauth2-token-endpoint-dpop-access-token-request]]
+==== DPoP Access Token Request
+
+To request an access token that is bound to a public key using DPoP, the client MUST provide a valid DPoP proof in the `DPoP` header when making an access token request to the OAuth2 Token endpoint.
+This is applicable for all access token requests regardless of authorization grant type (e.g. `authorization_code`, `refresh_token`, `client_credentials`, etc).
+
+The following HTTP request shows an `authorization_code` access token request with a DPoP proof in the `DPoP` header:
+
+[source,shell]
+----
+POST /oauth2/token HTTP/1.1
+Host: server.example.com
+Content-Type: application/x-www-form-urlencoded
+DPoP: eyJraWQiOiJyc2EtandrLWtpZCIsInR5cCI6ImRwb3Arand0IiwiYWxnIjoiUlMyNTYiLCJqd2siOnsia3R5IjoiUlNBIiwiZSI6IkFRQUIiLCJraWQiOiJyc2EtandrLWtpZCIsIm4iOiIzRmxxSnI1VFJza0lRSWdkRTNEZDdEOWxib1dkY1RVVDhhLWZKUjdNQXZRbTdYWE5vWWttM3Y3TVFMMU5ZdER2TDJsOENBbmMwV2RTVElOVTZJUnZjNUtxbzJRNGNzTlg5U0hPbUVmem9ST2pRcWFoRWN2ZTFqQlhsdW9DWGRZdVlweDRfMXRmUmdHNmlpNFVoeGg2aUk4cU5NSlFYLWZMZnFoYmZZZnhCUVZSUHl3QmtBYklQNHgxRUFzYkM2RlNObWtoQ3hpTU5xRWd4YUlwWThDMmtKZEpfWklWLVdXNG5vRGR6cEtxSGN3bUI4RnNydW1sVllfRE5WdlVTRElpcGlxOVBiUDRIOTlUWE4xbzc0Nm9SYU5hMDdycTFob0NnTVNTeS04NVNhZ0NveGxteUUtRC1vZjlTc01ZOE9sOXQwcmR6cG9iQnVoeUpfbzVkZnZqS3cifX0.eyJodG0iOiJQT1NUIiwiaHR1IjoiaHR0cHM6Ly9zZXJ2ZXIuZXhhbXBsZS5jb20vb2F1dGgyL3Rva2VuIiwiaWF0IjoxNzQ2ODA2MzA1LCJqdGkiOiI0YjIzNDBkMi1hOTFmLTQwYTUtYmFhOS1kZDRlNWRlYWM4NjcifQ.wq8gJ_G6vpiEinfaY3WhereqCCLoeJOG8tnWBBAzRWx9F1KU5yAAWq-ZVCk_k07-h6DIqz2wgv6y9dVbNpRYwNwDUeik9qLRsC60M8YW7EFVyI3n_NpujLwzZeub_nDYMVnyn4ii0NaZrYHtoGXOlswQfS_-ET-jpC0XWm5nBZsCdUEXjOYtwaACC6Js-pyNwKmSLp5SKIk11jZUR5xIIopaQy521y9qJHhGRwzj8DQGsP7wMZ98UFL0E--1c-hh4rTy8PMeWCqRHdwjj_ry_eTe0DJFcxxYQdeL7-0_0CIO4Ayx5WHEpcUOIzBRoN32RsNpDZc-5slDNj9ku004DA
+
+grant_type=authorization_code\
+&client_id=s6BhdRkqt\
+&code=SplxlOBeZQQYbYS6WxSbIA\
+&redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb\
+&code_verifier=bEaL42izcC-o-xBk0K2vuJ6U-y1p9r_wW2dFWIWgjz-
+----
+
+The following shows a representation of the DPoP Proof JWT header and claims:
+
+[source,json]
+----
+{
+  "typ": "dpop+jwt",
+  "alg": "RS256",
+  "jwk": {
+    "kty": "RSA",
+    "e": "AQAB",
+    "n": "3FlqJr5TRskIQIgdE3Dd7D9lboWdcTUT8a-fJR7MAvQm7XXNoYkm3v7MQL1NYtDvL2l8CAnc0WdSTINU6IRvc5Kqo2Q4csNX9SHOmEfzoROjQqahEcve1jBXluoCXdYuYpx4_1tfRgG6ii4Uhxh6iI8qNMJQX-fLfqhbfYfxBQVRPywBkAbIP4x1EAsbC6FSNmkhCxiMNqEgxaIpY8C2kJdJ_ZIV-WW4noDdzpKqHcwmB8FsrumlVY_DNVvUSDIipiq9PbP4H99TXN1o746oRaNa07rq1hoCgMSSy-85SagCoxlmyE-D-of9SsMY8Ol9t0rdzpobBuhyJ_o5dfvjKw"
+  }
+}
+----
+
+[source,json]
+----
+{
+  "htm": "POST",
+  "htu": "https://server.example.com/oauth2/token",
+  "iat": 1746806305,
+  "jti": "4b2340d2-a91f-40a5-baa9-dd4e5deac867"
+}
+----
+
+The following code shows an example of how to generate the DPoP Proof JWT:
+
+[source,java]
+----
+RSAKey rsaKey = ...
+JWKSource<SecurityContext> jwkSource = (jwkSelector, securityContext) -> jwkSelector
+		.select(new JWKSet(rsaKey));
+NimbusJwtEncoder jwtEncoder = new NimbusJwtEncoder(jwkSource);
+
+JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256)
+		.type("dpop+jwt")
+		.jwk(rsaKey.toPublicJWK().toJSONObject())
+		.build();
+JwtClaimsSet claims = JwtClaimsSet.builder()
+		.issuedAt(Instant.now())
+		.claim("htm", "POST")
+		.claim("htu", "https://server.example.com/oauth2/token")
+		.id(UUID.randomUUID().toString())
+		.build();
+
+Jwt dPoPProof = jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims));
+----
+
+After the authorization server successfully validates the DPoP proof, the public key from the DPoP proof will be bound (sender-constrained) to the issued access token.
+
+The following access token response shows the `token_type` parameter as `DPoP` to signal to the client that the access token was bound to its DPoP proof public key:
+
+[source,shell]
+----
+HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: no-store
+
+{
+ "access_token": "Kz~8mXK1EalYznwH-LC-1fBAo.4Ljp~zsPE_NeO.gxU",
+ "token_type": "DPoP",
+ "expires_in": 2677
+}
+----
+
+[[oauth2-token-endpoint-dpop-public-key-confirmation]]
+==== Public Key Confirmation
+
+Resource servers MUST be able to identify whether an access token is DPoP-bound and verify the binding to the public key of the DPoP proof.
+The binding is accomplished by associating the public key with the access token in a way that can be accessed by the resource server, such as embedding the public key hash in the access token directly (JWT) or through token introspection.
+
+When an access token is represented as a JWT, the public key hash is contained in the `jkt` claim under the confirmation method (`cnf`) claim.
+
+The following example shows the claims of a JWT access token containing a `cnf` claim with a `jkt` claim, which is the JWK SHA-256 Thumbprint of the DPoP proof public key:
+
+[source,json]
+----
+{
+  "sub":"user@example.com",
+  "iss":"https://server.example.com",
+  "nbf":1562262611,
+  "exp":1562266216,
+  "cnf":
+  {
+    "jkt":"CQMknzRoZ5YUi7vS58jck1q8TmZT8wiIiXrCN1Ny4VU"
+  }
+}
+----
+
+[[oauth2-token-introspection-endpoint]]
+== OAuth2 Token Introspection Endpoint
+
+`OAuth2TokenIntrospectionEndpointConfigurer` provides the ability to customize the https://datatracker.ietf.org/doc/html/rfc7662#section-2[OAuth2 Token Introspection endpoint].
+It defines extension points that let you customize the pre-processing, main processing, and post-processing logic for https://datatracker.ietf.org/doc/html/rfc7662#section-2.1[OAuth2 introspection requests].
+
+`OAuth2TokenIntrospectionEndpointConfigurer` provides the following configuration options:
+
+[source,java]
+----
+@Bean
+public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+			OAuth2AuthorizationServerConfigurer.authorizationServer();
+
+	http
+		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+		.with(authorizationServerConfigurer, (authorizationServer) ->
+			authorizationServer
+				.tokenIntrospectionEndpoint(tokenIntrospectionEndpoint ->
+                    tokenIntrospectionEndpoint
+                        .introspectionRequestConverter(introspectionRequestConverter)   <1>
+                        .introspectionRequestConverters(introspectionRequestConvertersConsumer) <2>
+                        .authenticationProvider(authenticationProvider) <3>
+                        .authenticationProviders(authenticationProvidersConsumer)   <4>
+                        .introspectionResponseHandler(introspectionResponseHandler) <5>
+                        .errorResponseHandler(errorResponseHandler) <6>
+				)
+		);
+
+	return http.build();
+}
+----
+<1> `introspectionRequestConverter()`: Adds an `AuthenticationConverter` (_pre-processor_) used when attempting to extract an https://datatracker.ietf.org/doc/html/rfc7662#section-2.1[OAuth2 introspection request] from `HttpServletRequest` to an instance of `OAuth2TokenIntrospectionAuthenticationToken`.
+<2> `introspectionRequestConverters()`: Sets the `Consumer` providing access to the `List` of default and (optionally) added ``AuthenticationConverter``'s allowing the ability to add, remove, or customize a specific `AuthenticationConverter`.
+<3> `authenticationProvider()`: Adds an `AuthenticationProvider` (_main processor_) used for authenticating the `OAuth2TokenIntrospectionAuthenticationToken`.
+<4> `authenticationProviders()`: Sets the `Consumer` providing access to the `List` of default and (optionally) added ``AuthenticationProvider``'s allowing the ability to add, remove, or customize a specific `AuthenticationProvider`.
+<5> `introspectionResponseHandler()`: The `AuthenticationSuccessHandler` (_post-processor_) used for handling an "`authenticated`" `OAuth2TokenIntrospectionAuthenticationToken` and returning the https://datatracker.ietf.org/doc/html/rfc7662#section-2.2[OAuth2TokenIntrospection response].
+<6> `errorResponseHandler()`: The `AuthenticationFailureHandler` (_post-processor_) used for handling an `OAuth2AuthenticationException` and returning the https://datatracker.ietf.org/doc/html/rfc7662#section-2.3[OAuth2Error response].
+
+`OAuth2TokenIntrospectionEndpointConfigurer` configures the `OAuth2TokenIntrospectionEndpointFilter` and registers it with the OAuth2 authorization server `SecurityFilterChain` `@Bean`.
+`OAuth2TokenIntrospectionEndpointFilter` is the `Filter` that processes OAuth2 introspection requests.
+
+`OAuth2TokenIntrospectionEndpointFilter` is configured with the following defaults:
+
+* `*AuthenticationConverter*` -- An `OAuth2TokenIntrospectionAuthenticationConverter`.
+* `*AuthenticationManager*` -- An `AuthenticationManager` composed of `OAuth2TokenIntrospectionAuthenticationProvider`.
+* `*AuthenticationSuccessHandler*` -- An internal implementation that handles an "`authenticated`" `OAuth2TokenIntrospectionAuthenticationToken` and returns the `OAuth2TokenIntrospection` response.
+* `*AuthenticationFailureHandler*` -- An `OAuth2ErrorAuthenticationFailureHandler`.
+
+[[oauth2-token-revocation-endpoint]]
+== OAuth2 Token Revocation Endpoint
+
+`OAuth2TokenRevocationEndpointConfigurer` provides the ability to customize the https://datatracker.ietf.org/doc/html/rfc7009#section-2[OAuth2 Token Revocation endpoint].
+It defines extension points that let you customize the pre-processing, main processing, and post-processing logic for https://datatracker.ietf.org/doc/html/rfc7009#section-2.1[OAuth2 revocation requests].
+
+`OAuth2TokenRevocationEndpointConfigurer` provides the following configuration options:
+
+[source,java]
+----
+@Bean
+public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+			OAuth2AuthorizationServerConfigurer.authorizationServer();
+
+	http
+		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+		.with(authorizationServerConfigurer, (authorizationServer) ->
+			authorizationServer
+				.tokenRevocationEndpoint(tokenRevocationEndpoint ->
+                    tokenRevocationEndpoint
+                        .revocationRequestConverter(revocationRequestConverter) <1>
+                        .revocationRequestConverters(revocationRequestConvertersConsumer)   <2>
+                        .authenticationProvider(authenticationProvider) <3>
+                        .authenticationProviders(authenticationProvidersConsumer)   <4>
+                        .revocationResponseHandler(revocationResponseHandler)   <5>
+                        .errorResponseHandler(errorResponseHandler) <6>
+				)
+		);
+
+	return http.build();
+}
+----
+<1> `revocationRequestConverter()`: Adds an `AuthenticationConverter` (_pre-processor_) used when attempting to extract an https://datatracker.ietf.org/doc/html/rfc7009#section-2.1[OAuth2 revocation request] from `HttpServletRequest` to an instance of `OAuth2TokenRevocationAuthenticationToken`.
+<2> `revocationRequestConverters()`: Sets the `Consumer` providing access to the `List` of default and (optionally) added ``AuthenticationConverter``'s allowing the ability to add, remove, or customize a specific `AuthenticationConverter`.
+<3> `authenticationProvider()`: Adds an `AuthenticationProvider` (_main processor_) used for authenticating the `OAuth2TokenRevocationAuthenticationToken`.
+<4> `authenticationProviders()`: Sets the `Consumer` providing access to the `List` of default and (optionally) added ``AuthenticationProvider``'s allowing the ability to add, remove, or customize a specific `AuthenticationProvider`.
+<5> `revocationResponseHandler()`: The `AuthenticationSuccessHandler` (_post-processor_) used for handling an "`authenticated`" `OAuth2TokenRevocationAuthenticationToken` and returning the https://datatracker.ietf.org/doc/html/rfc7009#section-2.2[OAuth2 revocation response].
+<6> `errorResponseHandler()`: The `AuthenticationFailureHandler` (_post-processor_) used for handling an `OAuth2AuthenticationException` and returning the https://datatracker.ietf.org/doc/html/rfc7009#section-2.2.1[OAuth2Error response].
+
+`OAuth2TokenRevocationEndpointConfigurer` configures the `OAuth2TokenRevocationEndpointFilter` and registers it with the OAuth2 authorization server `SecurityFilterChain` `@Bean`.
+`OAuth2TokenRevocationEndpointFilter` is the `Filter` that processes OAuth2 revocation requests.
+
+`OAuth2TokenRevocationEndpointFilter` is configured with the following defaults:
+
+* `*AuthenticationConverter*` -- An `OAuth2TokenRevocationAuthenticationConverter`.
+* `*AuthenticationManager*` -- An `AuthenticationManager` composed of `OAuth2TokenRevocationAuthenticationProvider`.
+* `*AuthenticationSuccessHandler*` -- An internal implementation that handles an "`authenticated`" `OAuth2TokenRevocationAuthenticationToken` and returns the OAuth2 revocation response.
+* `*AuthenticationFailureHandler*` -- An `OAuth2ErrorAuthenticationFailureHandler`.
+
+[[oauth2-authorization-server-metadata-endpoint]]
+== OAuth2 Authorization Server Metadata Endpoint
+
+`OAuth2AuthorizationServerMetadataEndpointConfigurer` provides the ability to customize the https://datatracker.ietf.org/doc/html/rfc8414#section-3[OAuth2 Authorization Server Metadata endpoint].
+It defines an extension point that lets you customize the https://datatracker.ietf.org/doc/html/rfc8414#section-3.2[OAuth2 Authorization Server Metadata response].
+
+`OAuth2AuthorizationServerMetadataEndpointConfigurer` provides the following configuration option:
+
+[source,java]
+----
+@Bean
+public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+			OAuth2AuthorizationServerConfigurer.authorizationServer();
+
+	http
+		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+		.with(authorizationServerConfigurer, (authorizationServer) ->
+			authorizationServer
+				.authorizationServerMetadataEndpoint(authorizationServerMetadataEndpoint ->
+                    authorizationServerMetadataEndpoint
+                        .authorizationServerMetadataCustomizer(authorizationServerMetadataCustomizer)   <1>
+				)
+		);
+
+	return http.build();
+}
+----
+<1> `authorizationServerMetadataCustomizer()`: The `Consumer` providing access to the `OAuth2AuthorizationServerMetadata.Builder` allowing the ability to customize the claims of the Authorization Server's configuration.
+
+`OAuth2AuthorizationServerMetadataEndpointConfigurer` configures the `OAuth2AuthorizationServerMetadataEndpointFilter` and registers it with the OAuth2 authorization server `SecurityFilterChain` `@Bean`.
+`OAuth2AuthorizationServerMetadataEndpointFilter` is the `Filter` that returns the https://datatracker.ietf.org/doc/html/rfc8414#section-3.2[OAuth2AuthorizationServerMetadata response].
+
+[[jwk-set-endpoint]]
+== JWK Set Endpoint
+
+`OAuth2AuthorizationServerConfigurer` provides support for the https://datatracker.ietf.org/doc/html/rfc7517[JWK Set endpoint].
+
+`OAuth2AuthorizationServerConfigurer` configures the `NimbusJwkSetEndpointFilter` and registers it with the OAuth2 authorization server `SecurityFilterChain` `@Bean`.
+`NimbusJwkSetEndpointFilter` is the `Filter` that returns the https://datatracker.ietf.org/doc/html/rfc7517#section-5[JWK Set].
+
+[NOTE]
+The JWK Set endpoint is configured *only* if a `JWKSource<SecurityContext>` `@Bean` is registered.
+
+[[oidc-provider-configuration-endpoint]]
+== OpenID Connect 1.0 Provider Configuration Endpoint
+
+`OidcProviderConfigurationEndpointConfigurer` provides the ability to customize the https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[OpenID Connect 1.0 Provider Configuration endpoint].
+It defines an extension point that lets you customize the https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse[OpenID Provider Configuration response].
+
+`OidcProviderConfigurationEndpointConfigurer` provides the following configuration option:
+
+[source,java]
+----
+@Bean
+public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+			OAuth2AuthorizationServerConfigurer.authorizationServer();
+
+	http
+		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+		.with(authorizationServerConfigurer, (authorizationServer) ->
+			authorizationServer
+                .oidc(oidc ->
+                    oidc
+                        .providerConfigurationEndpoint(providerConfigurationEndpoint ->
+                            providerConfigurationEndpoint
+                                .providerConfigurationCustomizer(providerConfigurationCustomizer)   <1>
+                        )
+                )
+		);
+
+	return http.build();
+}
+----
+<1> `providerConfigurationCustomizer()`: The `Consumer` providing access to the `OidcProviderConfiguration.Builder` allowing the ability to customize the claims of the OpenID Provider's configuration.
+
+`OidcProviderConfigurationEndpointConfigurer` configures the `OidcProviderConfigurationEndpointFilter` and registers it with the OAuth2 authorization server `SecurityFilterChain` `@Bean`.
+`OidcProviderConfigurationEndpointFilter` is the `Filter` that returns the https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse[OidcProviderConfiguration response].
+
+[[oidc-logout-endpoint]]
+== OpenID Connect 1.0 Logout Endpoint
+
+`OidcLogoutEndpointConfigurer` provides the ability to customize the https://openid.net/specs/openid-connect-rpinitiated-1_0.html#RPLogout[OpenID Connect 1.0 Logout endpoint].
+It defines extension points that let you customize the pre-processing, main processing, and post-processing logic for RP-Initiated Logout requests.
+
+`OidcLogoutEndpointConfigurer` provides the following configuration options:
+
+[source,java]
+----
+@Bean
+public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+			OAuth2AuthorizationServerConfigurer.authorizationServer();
+
+	http
+		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+		.with(authorizationServerConfigurer, (authorizationServer) ->
+			authorizationServer
+                .oidc(oidc ->
+                    oidc
+                        .logoutEndpoint(logoutEndpoint ->
+                            logoutEndpoint
+                                .logoutRequestConverter(logoutRequestConverter) <1>
+                                .logoutRequestConverters(logoutRequestConvertersConsumer)   <2>
+                                .authenticationProvider(authenticationProvider) <3>
+                                .authenticationProviders(authenticationProvidersConsumer)   <4>
+                                .logoutResponseHandler(logoutResponseHandler)   <5>
+                                .errorResponseHandler(errorResponseHandler) <6>
+                        )
+                )
+		);
+
+	return http.build();
+}
+----
+<1> `logoutRequestConverter()`: Adds an `AuthenticationConverter` (_pre-processor_) used when attempting to extract a https://openid.net/specs/openid-connect-rpinitiated-1_0.html#RPLogout[Logout request] from `HttpServletRequest` to an instance of `OidcLogoutAuthenticationToken`.
+<2> `logoutRequestConverters()`: Sets the `Consumer` providing access to the `List` of default and (optionally) added ``AuthenticationConverter``'s allowing the ability to add, remove, or customize a specific `AuthenticationConverter`.
+<3> `authenticationProvider()`: Adds an `AuthenticationProvider` (_main processor_) used for authenticating the `OidcLogoutAuthenticationToken`.
+<4> `authenticationProviders()`: Sets the `Consumer` providing access to the `List` of default and (optionally) added ``AuthenticationProvider``'s allowing the ability to add, remove, or customize a specific `AuthenticationProvider`.
+<5> `logoutResponseHandler()`: The `AuthenticationSuccessHandler` (_post-processor_) used for handling an "`authenticated`" `OidcLogoutAuthenticationToken` and performing the logout.
+<6> `errorResponseHandler()`: The `AuthenticationFailureHandler` (_post-processor_) used for handling an `OAuth2AuthenticationException` and returning the error response.
+
+`OidcLogoutEndpointConfigurer` configures the `OidcLogoutEndpointFilter` and registers it with the OAuth2 authorization server `SecurityFilterChain` `@Bean`.
+`OidcLogoutEndpointFilter` is the `Filter` that processes https://openid.net/specs/openid-connect-rpinitiated-1_0.html#RPLogout[RP-Initiated Logout requests] and performs the logout of the End-User.
+
+`OidcLogoutEndpointFilter` is configured with the following defaults:
+
+* `*AuthenticationConverter*` -- An `OidcLogoutAuthenticationConverter`.
+* `*AuthenticationManager*` -- An `AuthenticationManager` composed of `OidcLogoutAuthenticationProvider`.
+* `*AuthenticationSuccessHandler*` -- An `OidcLogoutAuthenticationSuccessHandler`.
+* `*AuthenticationFailureHandler*` -- An internal implementation that uses the `OAuth2Error` associated with the `OAuth2AuthenticationException` and returns the `OAuth2Error` response.
+
+[NOTE]
+`OidcLogoutAuthenticationProvider` uses a xref:core-model-components.adoc#session-registry[`SessionRegistry`] to look up the `SessionInformation` instance associated to the End-User requesting to be logged out.
+
+[TIP]
+`OidcClientInitiatedLogoutSuccessHandler` is the corresponding configuration in Spring Security’s OAuth2 Client support for configuring {spring-security-reference-base-url}/servlet/oauth2/login/advanced.html#oauth2login-advanced-oidc-logout[OpenID Connect 1.0 RP-Initiated Logout].
+
+[[oidc-logout-endpoint-customizing-logout-request-validation]]
+=== Customizing Logout Request Validation
+
+`OidcLogoutAuthenticationValidator` is the default validator used for validating specific OpenID Connect RP-Initiated Logout Request parameters.
+The default implementation validates the `post_logout_redirect_uri` parameter.
+If validation fails, an `OAuth2AuthenticationException` is thrown.
+
+`OidcLogoutAuthenticationProvider` provides the ability to override the default logout request validation by supplying a custom authentication validator of type `Consumer<OidcLogoutAuthenticationContext>` to `setAuthenticationValidator()`.
+
+[TIP]
+`OidcLogoutAuthenticationContext` holds the `OidcLogoutAuthenticationToken`, which contains the logout request parameters.
+
+[IMPORTANT]
+If validation fails, the authentication validator *MUST* throw `OAuth2AuthenticationException`.
+
+The following example shows how to configure `OidcLogoutAuthenticationProvider` with a custom authentication validator:
+
+[source,java]
+----
+@Bean
+public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+			OAuth2AuthorizationServerConfigurer.authorizationServer();
+
+	http
+		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+		.with(authorizationServerConfigurer, (authorizationServer) ->
+			authorizationServer
+                .oidc(oidc ->
+                    oidc
+                        .logoutEndpoint(logoutEndpoint ->
+                            logoutEndpoint
+                                .authenticationProviders(configureAuthenticationValidator())
+                        )
+                )
+		);
+
+	return http.build();
+}
+
+private Consumer<List<AuthenticationProvider>> configureAuthenticationValidator() {
+	return (authenticationProviders) ->
+			authenticationProviders.forEach((authenticationProvider) -> {
+				if (authenticationProvider instanceof OidcLogoutAuthenticationProvider oidcLogoutAuthenticationProvider) {
+					Consumer<OidcLogoutAuthenticationContext> authenticationValidator = new CustomPostLogoutRedirectUriValidator();
+					oidcLogoutAuthenticationProvider.setAuthenticationValidator(authenticationValidator);
+				}
+			});
+}
+
+static class CustomPostLogoutRedirectUriValidator implements Consumer<OidcLogoutAuthenticationContext> {
+
+	@Override
+	public void accept(OidcLogoutAuthenticationContext authenticationContext) {
+		OidcLogoutAuthenticationToken oidcLogoutAuthentication =
+				authenticationContext.getAuthentication();
+		RegisteredClient registeredClient = authenticationContext.getRegisteredClient();
+
+		// TODO
+
+	}
+}
+----
+
+[[oidc-user-info-endpoint]]
+== OpenID Connect 1.0 UserInfo Endpoint
+
+`OidcUserInfoEndpointConfigurer` provides the ability to customize the https://openid.net/specs/openid-connect-core-1_0.html#UserInfo[OpenID Connect 1.0 UserInfo endpoint].
+It defines extension points that let you customize the pre-processing, main processing, and post-processing logic for https://openid.net/specs/openid-connect-core-1_0.html#UserInfoRequest[UserInfo requests].
+
+`OidcUserInfoEndpointConfigurer` provides the following configuration options:
+
+[source,java]
+----
+@Bean
+public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+			OAuth2AuthorizationServerConfigurer.authorizationServer();
+
+	http
+		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+		.with(authorizationServerConfigurer, (authorizationServer) ->
+			authorizationServer
+                .oidc(oidc ->
+                    oidc
+                        .userInfoEndpoint(userInfoEndpoint ->
+                            userInfoEndpoint
+                                .userInfoRequestConverter(userInfoRequestConverter) <1>
+                                .userInfoRequestConverters(userInfoRequestConvertersConsumer)   <2>
+                                .authenticationProvider(authenticationProvider) <3>
+                                .authenticationProviders(authenticationProvidersConsumer)   <4>
+                                .userInfoResponseHandler(userInfoResponseHandler)   <5>
+                                .errorResponseHandler(errorResponseHandler) <6>
+                                .userInfoMapper(userInfoMapper) <7>
+                        )
+                )
+		);
+
+	return http.build();
+}
+----
+<1> `userInfoRequestConverter()`: Adds an `AuthenticationConverter` (_pre-processor_) used when attempting to extract an https://openid.net/specs/openid-connect-core-1_0.html#UserInfoRequest[UserInfo request] from `HttpServletRequest` to an instance of `OidcUserInfoAuthenticationToken`.
+<2> `userInfoRequestConverters()`: Sets the `Consumer` providing access to the `List` of default and (optionally) added ``AuthenticationConverter``'s allowing the ability to add, remove, or customize a specific `AuthenticationConverter`.
+<3> `authenticationProvider()`: Adds an `AuthenticationProvider` (_main processor_) used for authenticating the `OidcUserInfoAuthenticationToken`.
+<4> `authenticationProviders()`: Sets the `Consumer` providing access to the `List` of default and (optionally) added ``AuthenticationProvider``'s allowing the ability to add, remove, or customize a specific `AuthenticationProvider`.
+<5> `userInfoResponseHandler()`: The `AuthenticationSuccessHandler` (_post-processor_) used for handling an "`authenticated`" `OidcUserInfoAuthenticationToken` and returning the https://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse[UserInfo response].
+<6> `errorResponseHandler()`: The `AuthenticationFailureHandler` (_post-processor_) used for handling an `OAuth2AuthenticationException` and returning the https://openid.net/specs/openid-connect-core-1_0.html#UserInfoError[UserInfo Error response].
+<7> `userInfoMapper()`: The `Function` used to extract claims from `OidcUserInfoAuthenticationContext` to an instance of `OidcUserInfo`.
+
+`OidcUserInfoEndpointConfigurer` configures the `OidcUserInfoEndpointFilter` and registers it with the OAuth2 authorization server `SecurityFilterChain` `@Bean`.
+`OidcUserInfoEndpointFilter` is the `Filter` that processes https://openid.net/specs/openid-connect-core-1_0.html#UserInfoRequest[UserInfo requests] and returns the https://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse[OidcUserInfo response].
+
+`OidcUserInfoEndpointFilter` is configured with the following defaults:
+
+* `*AuthenticationConverter*` -- An internal implementation that obtains the `Authentication` from the `SecurityContext` and creates an `OidcUserInfoAuthenticationToken` with the principal.
+* `*AuthenticationManager*` -- An `AuthenticationManager` composed of `OidcUserInfoAuthenticationProvider`, which is associated with an internal implementation of `userInfoMapper` that extracts https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims[standard claims] from the https://openid.net/specs/openid-connect-core-1_0.html#IDToken[ID Token] based on the https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims[scopes requested] during authorization.
+* `*AuthenticationSuccessHandler*` -- An internal implementation that handles an "`authenticated`" `OidcUserInfoAuthenticationToken` and returns the `OidcUserInfo` response.
+* `*AuthenticationFailureHandler*` -- An internal implementation that uses the `OAuth2Error` associated with the `OAuth2AuthenticationException` and returns the `OAuth2Error` response.
+
+[TIP]
+You can customize the ID Token by providing an xref:core-model-components.adoc#oauth2-token-customizer[`OAuth2TokenCustomizer<JwtEncodingContext>`] `@Bean`.
+
+The OpenID Connect 1.0 UserInfo endpoint is an OAuth2 protected resource, which *REQUIRES* an access token to be sent as a bearer token in the https://openid.net/specs/openid-connect-core-1_0.html#UserInfoRequest[UserInfo request].
+
+[NOTE]
+OAuth2 resource server support is autoconfigured, however, a `JwtDecoder` `@Bean` is *REQUIRED* for the OpenID Connect 1.0 UserInfo endpoint.
+
+[TIP]
+The guide xref:guides/how-to-userinfo.adoc[How-to: Customize the OpenID Connect 1.0 UserInfo response] contains examples of customizing the UserInfo endpoint.
+
+[[oidc-client-registration-endpoint]]
+== OpenID Connect 1.0 Client Registration Endpoint
+
+`OidcClientRegistrationEndpointConfigurer` provides the ability to customize the https://openid.net/specs/openid-connect-registration-1_0.html#ClientRegistration[OpenID Connect 1.0 Client Registration endpoint].
+It defines extension points that let you customize the pre-processing, main processing, and post-processing logic for https://openid.net/specs/openid-connect-registration-1_0.html#RegistrationRequest[Client Registration requests] or https://openid.net/specs/openid-connect-registration-1_0.html#ReadRequest[Client Read requests].
+
+`OidcClientRegistrationEndpointConfigurer` provides the following configuration options:
+
+[source,java]
+----
+@Bean
+public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+			OAuth2AuthorizationServerConfigurer.authorizationServer();
+
+	http
+		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+		.with(authorizationServerConfigurer, (authorizationServer) ->
+			authorizationServer
+                .oidc(oidc ->
+                    oidc
+                        .clientRegistrationEndpoint(clientRegistrationEndpoint ->
+                            clientRegistrationEndpoint
+                                .clientRegistrationRequestConverter(clientRegistrationRequestConverter) <1>
+                                .clientRegistrationRequestConverters(clientRegistrationRequestConvertersConsumers)  <2>
+                                .authenticationProvider(authenticationProvider) <3>
+                                .authenticationProviders(authenticationProvidersConsumer)   <4>
+                                .clientRegistrationResponseHandler(clientRegistrationResponseHandler)   <5>
+                                .errorResponseHandler(errorResponseHandler) <6>
+                        )
+                )
+		);
+
+	return http.build();
+}
+----
+<1> `clientRegistrationRequestConverter()`: Adds an `AuthenticationConverter` (_pre-processor_) used when attempting to extract a https://openid.net/specs/openid-connect-registration-1_0.html#RegistrationRequest[Client Registration request] or https://openid.net/specs/openid-connect-registration-1_0.html#ReadRequest[Client Read request] from `HttpServletRequest` to an instance of `OidcClientRegistrationAuthenticationToken`.
+<2> `clientRegistrationRequestConverters()`: Sets the `Consumer` providing access to the `List` of default and (optionally) added ``AuthenticationConverter``'s allowing the ability to add, remove, or customize a specific `AuthenticationConverter`.
+<3> `authenticationProvider()`: Adds an `AuthenticationProvider` (_main processor_) used for authenticating the `OidcClientRegistrationAuthenticationToken`.
+<4> `authenticationProviders()`: Sets the `Consumer` providing access to the `List` of default and (optionally) added ``AuthenticationProvider``'s allowing the ability to add, remove, or customize a specific `AuthenticationProvider`.
+<5> `clientRegistrationResponseHandler()`: The `AuthenticationSuccessHandler` (_post-processor_) used for handling an "`authenticated`" `OidcClientRegistrationAuthenticationToken` and returning the https://openid.net/specs/openid-connect-registration-1_0.html#RegistrationResponse[Client Registration response] or https://openid.net/specs/openid-connect-registration-1_0.html#ReadResponse[Client Read response].
+<6> `errorResponseHandler()`: The `AuthenticationFailureHandler` (_post-processor_) used for handling an `OAuth2AuthenticationException` and returning the https://openid.net/specs/openid-connect-registration-1_0.html#RegistrationError[Client Registration Error response] or https://openid.net/specs/openid-connect-registration-1_0.html#ReadError[Client Read Error response].
+
+[NOTE]
+The OpenID Connect 1.0 Client Registration endpoint is disabled by default because many deployments do not require dynamic client registration.
+
+`OidcClientRegistrationEndpointConfigurer` configures the `OidcClientRegistrationEndpointFilter` and registers it with the OAuth2 authorization server `SecurityFilterChain` `@Bean`.
+`OidcClientRegistrationEndpointFilter` is the `Filter` that processes https://openid.net/specs/openid-connect-registration-1_0.html#RegistrationRequest[Client Registration requests] and returns the https://openid.net/specs/openid-connect-registration-1_0.html#RegistrationResponse[OidcClientRegistration response].
+
+[TIP]
+`OidcClientRegistrationEndpointFilter` also processes https://openid.net/specs/openid-connect-registration-1_0.html#ReadRequest[Client Read requests] and returns the https://openid.net/specs/openid-connect-registration-1_0.html#ReadResponse[OidcClientRegistration response].
+
+`OidcClientRegistrationEndpointFilter` is configured with the following defaults:
+
+* `*AuthenticationConverter*` -- An `OidcClientRegistrationAuthenticationConverter`.
+* `*AuthenticationManager*` -- An `AuthenticationManager` composed of `OidcClientRegistrationAuthenticationProvider` and `OidcClientConfigurationAuthenticationProvider`.
+* `*AuthenticationSuccessHandler*` -- An internal implementation that handles an "`authenticated`" `OidcClientRegistrationAuthenticationToken` and returns the `OidcClientRegistration` response.
+* `*AuthenticationFailureHandler*` -- An internal implementation that uses the `OAuth2Error` associated with the `OAuth2AuthenticationException` and returns the `OAuth2Error` response.
+
+The OpenID Connect 1.0 Client Registration endpoint is an https://openid.net/specs/openid-connect-registration-1_0.html#ClientRegistration[OAuth2 protected resource], which *REQUIRES* an access token to be sent as a bearer token in the Client Registration (or Client Read) request.
+
+[NOTE]
+OAuth2 resource server support is autoconfigured, however, a `JwtDecoder` `@Bean` is *REQUIRED* for the OpenID Connect 1.0 Client Registration endpoint.
+
+[IMPORTANT]
+The access token in a Client Registration request *REQUIRES* the OAuth2 scope `client.create`.
+
+[IMPORTANT]
+The access token in a Client Read request *REQUIRES* the OAuth2 scope `client.read`.

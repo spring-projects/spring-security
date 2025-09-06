@@ -1,0 +1,18 @@
+:noheader:
+[[top]]
+= Spring Authorization Server Reference
+
+[horizontal]
+xref:overview.adoc[Overview] :: Introduction, use cases and feature list
+xref:getting-help.adoc[Getting Help] :: Links to samples, questions and issues
+xref:getting-started.adoc[Getting Started] :: System requirements, dependencies and developing your first application
+xref:configuration-model.adoc[Configuration Model] :: Default configuration and customizing the configuration
+xref:core-model-components.adoc[Core Model / Components] :: Core domain model and component interfaces
+xref:protocol-endpoints.adoc[Protocol Endpoints] :: OAuth2 and OpenID Connect 1.0 protocol endpoint implementations
+xref:how-to.adoc[How-to Guides] :: Guides to get the most from Spring Authorization Server
+
+Joe Grandja, Steve Riesenberg
+
+Copyright © 2020 - 2024
+
+Copies of this document may be made for your own use and for distribution to others, provided that you do not charge any fee for such copies and further provided that each copy contains this Copyright Notice, whether distributed in print or electronically.
