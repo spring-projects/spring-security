@@ -16,11 +16,14 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
@@ -28,6 +31,7 @@ import com.nimbusds.jose.proc.SecurityContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jose.TestJwks;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 
@@ -343,13 +347,20 @@ public class DPoPProofJwtDecoderFactoryTests {
 		String method = "GET";
 		String targetUri = "https://resource1";
 
+		Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+		JwtIssuedAtValidator issuedAtValidator = new JwtIssuedAtValidator(true);
+		issuedAtValidator.setClock(clock);
+		Function<DPoPProofContext, OAuth2TokenValidator<Jwt>> validatorFactory = (context) -> issuedAtValidator;
+		DPoPProofJwtDecoderFactory jwtDecoderFactory = new DPoPProofJwtDecoderFactory();
+		jwtDecoderFactory.setJwtValidatorFactory(validatorFactory);
+
 		// @formatter:off
 		Map<String, Object> publicJwk = rsaJwk.toPublicJWK().toJSONObject();
 		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256)
 				.type("dpop+jwt")
 				.jwk(publicJwk)
 				.build();
-		Instant issuedAt = Instant.now().minus(Duration.ofSeconds(65));		// now minus 65 seconds
+		Instant issuedAt = Instant.now(clock).minus(Duration.ofSeconds(65));		// now minus 65 seconds
 		JwtClaimsSet claims = JwtClaimsSet.builder()
 				.issuedAt(issuedAt)
 				.claim("htm", method)
@@ -367,7 +378,7 @@ public class DPoPProofJwtDecoderFactoryTests {
 				.build();
 		// @formatter:on
 
-		JwtDecoder jwtDecoder = this.jwtDecoderFactory.createDecoder(dPoPProofContext);
+		JwtDecoder jwtDecoder = jwtDecoderFactory.createDecoder(dPoPProofContext);
 
 		assertThatExceptionOfType(BadJwtException.class)
 			.isThrownBy(() -> jwtDecoder.decode(dPoPProofContext.getDPoPProof()))
@@ -382,13 +393,20 @@ public class DPoPProofJwtDecoderFactoryTests {
 		String method = "GET";
 		String targetUri = "https://resource1";
 
+		Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+		JwtIssuedAtValidator issuedAtValidator = new JwtIssuedAtValidator(true);
+		issuedAtValidator.setClock(clock);
+		Function<DPoPProofContext, OAuth2TokenValidator<Jwt>> validatorFactory = (context) -> issuedAtValidator;
+		DPoPProofJwtDecoderFactory jwtDecoderFactory = new DPoPProofJwtDecoderFactory();
+		jwtDecoderFactory.setJwtValidatorFactory(validatorFactory);
+
 		// @formatter:off
 		Map<String, Object> publicJwk = rsaJwk.toPublicJWK().toJSONObject();
 		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256)
 				.type("dpop+jwt")
 				.jwk(publicJwk)
 				.build();
-		Instant issuedAt = Instant.now().plus(Duration.ofSeconds(65));		// now plus 65 seconds
+		Instant issuedAt = Instant.now(clock).plus(Duration.ofSeconds(65));		// now plus 65 seconds
 		JwtClaimsSet claims = JwtClaimsSet.builder()
 				.issuedAt(issuedAt)
 				.claim("htm", method)
@@ -406,7 +424,7 @@ public class DPoPProofJwtDecoderFactoryTests {
 				.build();
 		// @formatter:on
 
-		JwtDecoder jwtDecoder = this.jwtDecoderFactory.createDecoder(dPoPProofContext);
+		JwtDecoder jwtDecoder = jwtDecoderFactory.createDecoder(dPoPProofContext);
 
 		assertThatExceptionOfType(BadJwtException.class)
 			.isThrownBy(() -> jwtDecoder.decode(dPoPProofContext.getDPoPProof()))
