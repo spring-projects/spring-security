@@ -22,7 +22,6 @@ import java.util.Collection;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
@@ -122,7 +121,7 @@ public class CasServiceTicketAuthenticationToken extends AbstractAuthenticationT
 	}
 
 	/**
-	 * A builder preserving the concrete {@link Authentication} type
+	 * A builder of {@link CasServiceTicketAuthenticationToken} instances
 	 *
 	 * @since 7.0
 	 */

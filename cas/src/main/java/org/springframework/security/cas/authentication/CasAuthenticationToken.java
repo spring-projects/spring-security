@@ -23,7 +23,6 @@ import org.apereo.cas.client.validation.Assertion;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.Assert;
@@ -183,7 +182,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 	}
 
 	/**
-	 * A builder preserving the concrete {@link Authentication} type
+	 * A builder of {@link CasAuthenticationToken} instances
 	 *
 	 * @since 7.0
 	 */
@@ -208,8 +207,13 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 			this.assertion = token.assertion;
 		}
 
-		public B keyHash(Integer keyHash) {
-			this.keyHash = keyHash;
+		/**
+		 * Use this key
+		 * @param key the key to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public B key(String key) {
+			this.keyHash = key.hashCode();
 			return (B) this;
 		}
 
@@ -227,11 +231,21 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 			return (B) this;
 		}
 
+		/**
+		 * Use this {@link UserDetails}
+		 * @param userDetails the {@link UserDetails} to use
+		 * @return the {@link Builder} for further configurations
+		 */
 		public B userDetails(UserDetails userDetails) {
 			this.userDetails = userDetails;
 			return (B) this;
 		}
 
+		/**
+		 * Use this {@link Assertion}
+		 * @param assertion the {@link Assertion} to use
+		 * @return the {@link Builder} for further configurations
+		 */
 		public B assertion(Assertion assertion) {
 			this.assertion = assertion;
 			return (B) this;

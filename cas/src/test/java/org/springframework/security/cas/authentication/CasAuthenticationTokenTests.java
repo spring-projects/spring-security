@@ -167,7 +167,7 @@ public class CasAuthenticationTokenTests {
 				AuthorityUtils.createAuthorityList("FACTOR_TWO"), PasswordEncodedUser.admin(), assertionTwo);
 		CasAuthenticationToken authentication = factorOne.toBuilder()
 			.authorities((a) -> a.addAll(factorTwo.getAuthorities()))
-			.keyHash(factorTwo.getKeyHash())
+			.key("yek")
 			.principal(factorTwo.getPrincipal())
 			.credentials(factorTwo.getCredentials())
 			.userDetails(factorTwo.getUserDetails())
