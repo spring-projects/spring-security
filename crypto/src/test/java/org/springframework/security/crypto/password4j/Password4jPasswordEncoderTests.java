@@ -16,16 +16,14 @@
 
 package org.springframework.security.crypto.password4j;
 
-import com.password4j.AlgorithmFinder;
 import com.password4j.BcryptFunction;
-import com.password4j.HashingFunction;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
- * Tests for {@link Password4jPasswordEncoder}.
+ * Base functionality tests for {@link Password4jPasswordEncoder} implementations. These
+ * tests verify the common behavior across all concrete password encoder subclasses.
  *
  * @author Mehrdad Bozorgmehr
  */
@@ -35,27 +33,10 @@ class Password4jPasswordEncoderTests {
 
 	private static final String WRONG_PASSWORD = "wrongpassword";
 
-	// Constructor Tests
-	@Test
-	void constructorWithNullHashingFunctionShouldThrowException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new Password4jPasswordEncoder(null))
-			.withMessage("hashingFunction cannot be null");
-	}
-
-	@Test
-	void constructorWithValidHashingFunctionShouldWork() {
-		HashingFunction hashingFunction = BcryptFunction.getInstance(10);
-		Password4jPasswordEncoder encoder = new Password4jPasswordEncoder(hashingFunction);
-		assertThat(encoder).isNotNull();
-	}
-
-	// Basic functionality tests with real HashingFunction instances
+	// Test abstract class behavior through concrete implementation
 	@Test
 	void encodeShouldReturnNonNullHashedPassword() {
-		HashingFunction hashingFunction = BcryptFunction.getInstance(4); // Use low cost
-		// for faster
-		// tests
-		Password4jPasswordEncoder encoder = new Password4jPasswordEncoder(hashingFunction);
+		BcryptPassword4jPasswordEncoder encoder = new BcryptPassword4jPasswordEncoder(BcryptFunction.getInstance(4));
 
 		String result = encoder.encode(PASSWORD);
 
@@ -64,10 +45,7 @@ class Password4jPasswordEncoderTests {
 
 	@Test
 	void matchesShouldReturnTrueForValidPassword() {
-		HashingFunction hashingFunction = BcryptFunction.getInstance(4); // Use low cost
-		// for faster
-		// tests
-		Password4jPasswordEncoder encoder = new Password4jPasswordEncoder(hashingFunction);
+		BcryptPassword4jPasswordEncoder encoder = new BcryptPassword4jPasswordEncoder(BcryptFunction.getInstance(4));
 
 		String encoded = encoder.encode(PASSWORD);
 		boolean result = encoder.matches(PASSWORD, encoded);
@@ -77,10 +55,7 @@ class Password4jPasswordEncoderTests {
 
 	@Test
 	void matchesShouldReturnFalseForInvalidPassword() {
-		HashingFunction hashingFunction = BcryptFunction.getInstance(4); // Use low cost
-		// for faster
-		// tests
-		Password4jPasswordEncoder encoder = new Password4jPasswordEncoder(hashingFunction);
+		BcryptPassword4jPasswordEncoder encoder = new BcryptPassword4jPasswordEncoder(BcryptFunction.getInstance(4));
 
 		String encoded = encoder.encode(PASSWORD);
 		boolean result = encoder.matches(WRONG_PASSWORD, encoded);
@@ -89,20 +64,27 @@ class Password4jPasswordEncoderTests {
 	}
 
 	@Test
-	void matchesShouldReturnFalseForMalformedHash() {
-		HashingFunction hashingFunction = BcryptFunction.getInstance(4);
-		Password4jPasswordEncoder encoder = new Password4jPasswordEncoder(hashingFunction);
+	void encodeNullPasswordShouldReturnNull() {
+		BcryptPassword4jPasswordEncoder encoder = new BcryptPassword4jPasswordEncoder(BcryptFunction.getInstance(4));
 
-		// Test with malformed hash that should cause Password4j to throw an exception
-		boolean result = encoder.matches(PASSWORD, "invalid-hash-format");
+		assertThat(encoder.encode(null)).isNull();
+	}
 
-		assertThat(result).isFalse();
+	@Test
+	void multipleEncodesProduceDifferentHashesButAllMatch() {
+		BcryptPassword4jPasswordEncoder encoder = new BcryptPassword4jPasswordEncoder(BcryptFunction.getInstance(4));
+
+		String encoded1 = encoder.encode(PASSWORD);
+		String encoded2 = encoder.encode(PASSWORD);
+		// Bcrypt should produce different salted hashes for the same raw password
+		assertThat(encoded1).isNotEqualTo(encoded2);
+		assertThat(encoder.matches(PASSWORD, encoded1)).isTrue();
+		assertThat(encoder.matches(PASSWORD, encoded2)).isTrue();
 	}
 
 	@Test
 	void upgradeEncodingShouldReturnFalse() {
-		HashingFunction hashingFunction = BcryptFunction.getInstance(4);
-		Password4jPasswordEncoder encoder = new Password4jPasswordEncoder(hashingFunction);
+		BcryptPassword4jPasswordEncoder encoder = new BcryptPassword4jPasswordEncoder(BcryptFunction.getInstance(4));
 
 		String encoded = encoder.encode(PASSWORD);
 		boolean result = encoder.upgradeEncoding(encoded);
@@ -110,32 +92,14 @@ class Password4jPasswordEncoderTests {
 		assertThat(result).isFalse();
 	}
 
-	// AlgorithmFinder Sanity Check Tests
 	@Test
-	void algorithmFinderBcryptSanityCheck() {
-		Password4jPasswordEncoder encoder = new Password4jPasswordEncoder(AlgorithmFinder.getBcryptInstance());
-
+	void matchesShouldReturnFalseWhenRawOrEncodedNullOrEmpty() {
+		BcryptPassword4jPasswordEncoder encoder = new BcryptPassword4jPasswordEncoder(BcryptFunction.getInstance(4));
 		String encoded = encoder.encode(PASSWORD);
-		assertThat(encoder.matches(PASSWORD, encoded)).isTrue();
-		assertThat(encoder.matches(WRONG_PASSWORD, encoded)).isFalse();
-	}
-
-	@Test
-	void algorithmFinderArgon2SanityCheck() {
-		Password4jPasswordEncoder encoder = new Password4jPasswordEncoder(AlgorithmFinder.getArgon2Instance());
-
-		String encoded = encoder.encode(PASSWORD);
-		assertThat(encoder.matches(PASSWORD, encoded)).isTrue();
-		assertThat(encoder.matches(WRONG_PASSWORD, encoded)).isFalse();
-	}
-
-	@Test
-	void algorithmFinderScryptSanityCheck() {
-		Password4jPasswordEncoder encoder = new Password4jPasswordEncoder(AlgorithmFinder.getScryptInstance());
-
-		String encoded = encoder.encode(PASSWORD);
-		assertThat(encoder.matches(PASSWORD, encoded)).isTrue();
-		assertThat(encoder.matches(WRONG_PASSWORD, encoded)).isFalse();
+		assertThat(encoder.matches(null, encoded)).isFalse();
+		assertThat(encoder.matches("", encoded)).isFalse();
+		assertThat(encoder.matches(PASSWORD, null)).isFalse();
+		assertThat(encoder.matches(PASSWORD, "")).isFalse();
 	}
 
 }
