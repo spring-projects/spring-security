@@ -22,7 +22,6 @@ import java.util.Collection;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
 import org.springframework.util.Assert;
@@ -81,7 +80,7 @@ public class WebAuthnAuthentication extends AbstractAuthenticationToken {
 	}
 
 	/**
-	 * A builder preserving the concrete {@link Authentication} type
+	 * A builder of {@link WebAuthnAuthentication} instances
 	 *
 	 * @since 7.0
 	 */
@@ -94,6 +93,11 @@ public class WebAuthnAuthentication extends AbstractAuthenticationToken {
 			this.principal = token.principal;
 		}
 
+		/**
+		 * Use this principal. It must be of type {@link PublicKeyCredentialUserEntity}
+		 * @param principal the principal to use
+		 * @return the {@link Builder} for further configurations
+		 */
 		@Override
 		public B principal(@Nullable Object principal) {
 			Assert.isInstanceOf(PublicKeyCredentialUserEntity.class, principal,
