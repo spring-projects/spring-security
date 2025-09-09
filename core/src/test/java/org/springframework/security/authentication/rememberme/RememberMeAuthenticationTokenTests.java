@@ -18,6 +18,7 @@ package org.springframework.security.authentication.rememberme;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -25,6 +26,7 @@ import org.springframework.security.authentication.RememberMeAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.PasswordEncodedUser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -94,6 +96,23 @@ public class RememberMeAuthenticationTokenTests {
 		assertThat(token.isAuthenticated()).isTrue();
 		token.setAuthenticated(false);
 		assertThat(!token.isAuthenticated()).isTrue();
+	}
+
+	@Test
+	public void toBuilderWhenApplyThenCopies() {
+		RememberMeAuthenticationToken factorOne = new RememberMeAuthenticationToken("key", PasswordEncodedUser.user(),
+				AuthorityUtils.createAuthorityList("FACTOR_ONE"));
+		RememberMeAuthenticationToken factorTwo = new RememberMeAuthenticationToken("yek", PasswordEncodedUser.admin(),
+				AuthorityUtils.createAuthorityList("FACTOR_TWO"));
+		RememberMeAuthenticationToken authentication = factorOne.toBuilder()
+			.authorities((a) -> a.addAll(factorTwo.getAuthorities()))
+			.key("yek")
+			.principal(factorTwo.getPrincipal())
+			.build();
+		Set<String> authorities = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
+		assertThat(authentication.getKeyHash()).isEqualTo(factorTwo.getKeyHash());
+		assertThat(authentication.getPrincipal()).isEqualTo(factorTwo.getPrincipal());
+		assertThat(authorities).containsExactlyInAnyOrder("FACTOR_ONE", "FACTOR_TWO");
 	}
 
 }

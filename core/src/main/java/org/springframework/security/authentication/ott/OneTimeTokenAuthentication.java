@@ -65,7 +65,9 @@ public class OneTimeTokenAuthentication extends AbstractAuthenticationToken {
 	}
 
 	/**
-	 * A builder for constructing a {@link OneTimeTokenAuthentication} instance
+	 * A builder of {@link OneTimeTokenAuthentication} instances
+	 *
+	 * @since 7.0
 	 */
 	public static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<B> {
 
@@ -77,7 +79,7 @@ public class OneTimeTokenAuthentication extends AbstractAuthenticationToken {
 		}
 
 		/**
-		 * Use this principal
+		 * Use this principal.
 		 * @return the {@link Builder} for further configuration
 		 */
 		@Override

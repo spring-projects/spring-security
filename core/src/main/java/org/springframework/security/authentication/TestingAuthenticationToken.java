@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.Assert;
@@ -87,7 +86,7 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	/**
-	 * A builder preserving the concrete {@link Authentication} type
+	 * A builder of {@link TestingAuthenticationToken} instances
 	 *
 	 * @since 7.0
 	 */

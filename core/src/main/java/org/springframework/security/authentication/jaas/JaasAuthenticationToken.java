@@ -23,9 +23,7 @@ import javax.security.auth.login.LoginContext;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.util.Assert;
 
 /**
  * UsernamePasswordAuthenticationToken extension to carry the Jaas LoginContext that the
@@ -65,7 +63,7 @@ public class JaasAuthenticationToken extends UsernamePasswordAuthenticationToken
 	}
 
 	/**
-	 * A builder preserving the concrete {@link Authentication} type
+	 * A builder of {@link JaasAuthenticationToken} instances
 	 *
 	 * @since 7.0
 	 */
@@ -81,7 +79,7 @@ public class JaasAuthenticationToken extends UsernamePasswordAuthenticationToken
 		/**
 		 * Use this {@link LoginContext}
 		 * @param loginContext the {@link LoginContext} to use
-		 * @return the {@link Builder} for further configuration
+		 * @return the {@link Builder} for further configurations
 		 */
 		public B loginContext(LoginContext loginContext) {
 			this.loginContext = loginContext;
@@ -90,7 +88,6 @@ public class JaasAuthenticationToken extends UsernamePasswordAuthenticationToken
 
 		@Override
 		public JaasAuthenticationToken build() {
-			Assert.notNull(this.principal, "principal cannot be null");
 			return new JaasAuthenticationToken(this);
 		}
 

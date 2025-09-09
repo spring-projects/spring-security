@@ -197,14 +197,22 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 		return sb.toString();
 	}
 
+	/**
+	 * A common abstract implementation of {@link Authentication.Builder}. It implements
+	 * the builder methods that correspond to the {@link Authentication} methods that
+	 * {@link AbstractAuthenticationToken} implements
+	 *
+	 * @param <B>
+	 * @since 7.0
+	 */
 	protected abstract static class AbstractAuthenticationBuilder<B extends AbstractAuthenticationBuilder<B>>
 			implements Authentication.Builder<B> {
 
-		protected boolean authenticated;
+		private boolean authenticated;
 
-		protected @Nullable Object details;
+		private @Nullable Object details;
 
-		protected final Collection<GrantedAuthority> authorities;
+		private final Collection<GrantedAuthority> authorities;
 
 		protected AbstractAuthenticationBuilder(AbstractAuthenticationToken token) {
 			this.authorities = new LinkedHashSet<>(token.getAuthorities());

@@ -18,10 +18,8 @@ package org.springframework.security.authentication;
 
 import java.util.Set;
 
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.security.authentication.AbstractAuthenticationToken.AbstractAuthenticationBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 
@@ -40,20 +38,15 @@ class AbstractAuthenticationBuilderTests {
 	}
 
 	private static final class TestAbstractAuthenticationBuilder
-			extends AbstractAuthenticationBuilder<TestAbstractAuthenticationBuilder> {
+			extends TestingAuthenticationToken.Builder<TestAbstractAuthenticationBuilder> {
 
 		private TestAbstractAuthenticationBuilder(TestingAuthenticationToken token) {
 			super(token);
 		}
 
 		@Override
-		public TestAbstractAuthenticationBuilder principal(@Nullable Object principal) {
-			return this;
-		}
-
-		@Override
 		public TestingAuthenticationToken build() {
-			return new TestingAuthenticationToken("user", "password", this.authorities);
+			return new TestingAuthenticationToken(this);
 		}
 
 	}

@@ -20,7 +20,6 @@ import java.util.Collection;
 
 import org.jspecify.annotations.Nullable;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
@@ -99,8 +98,8 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	@Override
-	public Builder toBuilder() {
-		return new Builder(this);
+	public Builder<?> toBuilder() {
+		return new Builder<>(this);
 	}
 
 	@Override
@@ -122,7 +121,7 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	/**
-	 * A builder preserving the concrete {@link Authentication} type
+	 * A builder of {@link RememberMeAuthenticationToken} instances
 	 *
 	 * @since 7.0
 	 */
@@ -145,8 +144,13 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 			return (B) this;
 		}
 
-		public B keyHash(int keyHash) {
-			this.keyHash = keyHash;
+		/**
+		 * Use this key
+		 * @param key the key to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public B key(String key) {
+			this.keyHash = key.hashCode();
 			return (B) this;
 		}
 

@@ -20,7 +20,6 @@ import java.util.Collection;
 
 import org.jspecify.annotations.Nullable;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
@@ -137,15 +136,15 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 	}
 
 	/**
-	 * A builder preserving the concrete {@link Authentication} type
+	 * A builder of {@link UsernamePasswordAuthenticationToken} instances
 	 *
 	 * @since 7.0
 	 */
 	public static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<B> {
 
-		protected @Nullable Object principal;
+		private @Nullable Object principal;
 
-		protected @Nullable Object credentials;
+		private @Nullable Object credentials;
 
 		protected Builder(UsernamePasswordAuthenticationToken token) {
 			super(token);
