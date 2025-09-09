@@ -21,8 +21,8 @@ import java.util.Collection;
 
 import org.jspecify.annotations.Nullable;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.util.Assert;
 
 /**
@@ -78,7 +78,7 @@ public class Saml2AssertionAuthentication extends Saml2Authentication {
 	}
 
 	/**
-	 * A builder preserving the concrete {@link Authentication} type
+	 * A builder of {@link Saml2AssertionAuthentication} instances
 	 *
 	 * @since 7.0
 	 */
@@ -94,6 +94,12 @@ public class Saml2AssertionAuthentication extends Saml2Authentication {
 			this.relyingPartyRegistrationId = token.relyingPartyRegistrationId;
 		}
 
+		/**
+		 * Use these credentials. They must be of type
+		 * {@link Saml2ResponseAssertionAccessor}.
+		 * @param credentials the credentials to use
+		 * @return the {@link Builder} for further configurations
+		 */
 		@Override
 		public B credentials(@Nullable Object credentials) {
 			Assert.isInstanceOf(Saml2ResponseAssertionAccessor.class, credentials,
@@ -103,6 +109,12 @@ public class Saml2AssertionAuthentication extends Saml2Authentication {
 			return (B) this;
 		}
 
+		/**
+		 * Use this registration id
+		 * @param relyingPartyRegistrationId the
+		 * {@link RelyingPartyRegistration#getRegistrationId} to use
+		 * @return the {@link Builder} for further configurations
+		 */
 		public B relyingPartyRegistrationId(String relyingPartyRegistrationId) {
 			this.relyingPartyRegistrationId = relyingPartyRegistrationId;
 			return (B) this;
