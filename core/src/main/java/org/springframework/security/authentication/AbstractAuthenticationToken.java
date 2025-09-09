@@ -69,7 +69,7 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 		this.authorities = Collections.unmodifiableList(new ArrayList<>(authorities));
 	}
 
-	protected AbstractAuthenticationToken(AbstractAuthenticationBuilder<?, ?, ?> builder) {
+	protected AbstractAuthenticationToken(AbstractAuthenticationBuilder<?> builder) {
 		this(builder.authorities);
 		this.authenticated = builder.authenticated;
 		this.details = builder.details;
@@ -197,8 +197,8 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 		return sb.toString();
 	}
 
-	protected abstract static class AbstractAuthenticationBuilder<P, C, B extends AbstractAuthenticationBuilder<P, C, B>>
-			implements Authentication.Builder<P, C, B> {
+	protected abstract static class AbstractAuthenticationBuilder<B extends AbstractAuthenticationBuilder<B>>
+			implements Authentication.Builder<B> {
 
 		protected boolean authenticated;
 

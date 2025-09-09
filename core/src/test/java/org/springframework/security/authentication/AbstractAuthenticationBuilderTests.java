@@ -40,7 +40,7 @@ class AbstractAuthenticationBuilderTests {
 	}
 
 	private static final class TestAbstractAuthenticationBuilder
-			extends AbstractAuthenticationBuilder<Object, Object, TestAbstractAuthenticationBuilder> {
+			extends AbstractAuthenticationBuilder<TestAbstractAuthenticationBuilder> {
 
 		private TestAbstractAuthenticationBuilder(TestingAuthenticationToken token) {
 			super(token);

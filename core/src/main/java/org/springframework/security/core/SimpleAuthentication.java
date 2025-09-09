@@ -21,6 +21,8 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.function.Consumer;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.Nullable;
 
 @Transient
@@ -83,7 +85,9 @@ final class SimpleAuthentication implements Authentication {
 		return (this.principal == null) ? "" : this.principal.toString();
 	}
 
-	static final class Builder implements Authentication.Builder<Object, Object, Builder> {
+	static final class Builder implements Authentication.Builder<Builder> {
+
+		private final Log logger = LogFactory.getLog(getClass());
 
 		private final Collection<GrantedAuthority> authorities = new LinkedHashSet<>();
 
@@ -96,11 +100,15 @@ final class SimpleAuthentication implements Authentication {
 		private boolean authenticated;
 
 		Builder(Authentication authentication) {
+			this.logger.debug("Creating a builder which will result in exchanging an authentication of type "
+					+ authentication.getClass() + " for " + SimpleAuthentication.class.getSimpleName() + ";"
+					+ " consider implementing " + authentication.getClass().getSimpleName() + "#toBuilder");
 			this.authorities.addAll(authentication.getAuthorities());
 			this.principal = authentication.getPrincipal();
 			this.credentials = authentication.getCredentials();
 			this.details = authentication.getDetails();
 			this.authenticated = authentication.isAuthenticated();
+
 		}
 
 		@Override

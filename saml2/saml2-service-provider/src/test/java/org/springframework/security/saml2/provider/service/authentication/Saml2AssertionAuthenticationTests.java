@@ -32,7 +32,7 @@ class Saml2AssertionAuthenticationTests {
 		Saml2AssertionAuthentication factorOne = new Saml2AssertionAuthentication("alice",
 				prototype.nameId("alice").build(), AuthorityUtils.createAuthorityList("FACTOR_ONE"), "alice");
 		Saml2AssertionAuthentication factorTwo = new Saml2AssertionAuthentication("bob",
-				prototype.nameId("alice").build(), AuthorityUtils.createAuthorityList("FACTOR_TWO"), "bob");
+				prototype.nameId("bob").build(), AuthorityUtils.createAuthorityList("FACTOR_TWO"), "bob");
 		Saml2AssertionAuthentication result = factorOne.toBuilder()
 			.authorities((a) -> a.addAll(factorTwo.getAuthorities()))
 			.principal(factorTwo.getPrincipal())

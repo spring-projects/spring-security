@@ -67,7 +67,7 @@ public class OneTimeTokenAuthentication extends AbstractAuthenticationToken {
 	/**
 	 * A builder for constructing a {@link OneTimeTokenAuthentication} instance
 	 */
-	public static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<Object, Object, B> {
+	public static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<B> {
 
 		private Object principal;
 

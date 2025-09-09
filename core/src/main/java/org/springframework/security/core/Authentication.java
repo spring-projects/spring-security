@@ -143,7 +143,7 @@ public interface Authentication extends Principal, Serializable {
 	 * instance
 	 * @since 7.0
 	 */
-	default Builder<?, ?, ?> toBuilder() {
+	default Builder<?> toBuilder() {
 		return new SimpleAuthentication.Builder(this);
 	}
 
@@ -153,18 +153,18 @@ public interface Authentication extends Principal, Serializable {
 	 * @author Josh Cummings
 	 * @since 7.0
 	 */
-	interface Builder<P, C, B extends Builder<P, C, B>> {
+	interface Builder<B extends Builder<B>> {
 
 		B authorities(Consumer<Collection<GrantedAuthority>> authorities);
 
-		default B credentials(@Nullable C credentials) {
+		default B credentials(@Nullable Object credentials) {
 			throw new UnsupportedOperationException(
 					String.format("%s does not store credentials", this.getClass().getSimpleName()));
 		}
 
 		B details(@Nullable Object details);
 
-		B principal(@Nullable P principal);
+		B principal(@Nullable Object principal);
 
 		B authenticated(boolean authenticated);
 

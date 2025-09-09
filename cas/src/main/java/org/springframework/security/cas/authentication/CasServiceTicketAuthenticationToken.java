@@ -126,7 +126,7 @@ public class CasServiceTicketAuthenticationToken extends AbstractAuthenticationT
 	 *
 	 * @since 7.0
 	 */
-	public static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<String, Object, B> {
+	public static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<B> {
 
 		private String principal;
 
@@ -139,9 +139,9 @@ public class CasServiceTicketAuthenticationToken extends AbstractAuthenticationT
 		}
 
 		@Override
-		public B principal(@Nullable String principal) {
-			Assert.notNull(principal, "principal cannot be null");
-			this.principal = principal;
+		public B principal(@Nullable Object principal) {
+			Assert.isInstanceOf(String.class, principal, "principal must be of type String");
+			this.principal = (String) principal;
 			return (B) this;
 		}
 

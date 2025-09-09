@@ -71,7 +71,7 @@ public class Saml2Authentication extends AbstractAuthenticationToken {
 		setAuthenticated(true);
 	}
 
-	Saml2Authentication(Builder<?, ?> builder) {
+	Saml2Authentication(Builder<?> builder) {
 		super(builder);
 		this.principal = builder.principal;
 		this.saml2Response = builder.saml2Response;
@@ -95,7 +95,7 @@ public class Saml2Authentication extends AbstractAuthenticationToken {
 		return getSaml2Response();
 	}
 
-	abstract static class Builder<C, B extends Builder<C, B>> extends AbstractAuthenticationBuilder<Object, C, B> {
+	abstract static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<B> {
 
 		private Object principal;
 

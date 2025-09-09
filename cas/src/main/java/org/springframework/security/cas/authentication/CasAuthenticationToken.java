@@ -187,7 +187,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 	 *
 	 * @since 7.0
 	 */
-	public static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<Object, Object, B> {
+	public static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<B> {
 
 		private Integer keyHash;
 

@@ -82,8 +82,7 @@ public class Saml2AssertionAuthentication extends Saml2Authentication {
 	 *
 	 * @since 7.0
 	 */
-	public static class Builder<B extends Builder<B>>
-			extends Saml2Authentication.Builder<Saml2ResponseAssertionAccessor, B> {
+	public static class Builder<B extends Builder<B>> extends Saml2Authentication.Builder<B> {
 
 		private Saml2ResponseAssertionAccessor assertion;
 
@@ -96,10 +95,11 @@ public class Saml2AssertionAuthentication extends Saml2Authentication {
 		}
 
 		@Override
-		public B credentials(@Nullable Saml2ResponseAssertionAccessor credentials) {
-			saml2Response(credentials.getResponseValue());
-			Assert.notNull(credentials, "assertion cannot be null");
-			this.assertion = credentials;
+		public B credentials(@Nullable Object credentials) {
+			Assert.isInstanceOf(Saml2ResponseAssertionAccessor.class, credentials,
+					"credentials must be of type Saml2ResponseAssertionAccessor");
+			saml2Response(((Saml2ResponseAssertionAccessor) credentials).getResponseValue());
+			this.assertion = (Saml2ResponseAssertionAccessor) credentials;
 			return (B) this;
 		}
 

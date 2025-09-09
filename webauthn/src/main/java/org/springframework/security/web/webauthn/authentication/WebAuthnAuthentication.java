@@ -85,19 +85,20 @@ public class WebAuthnAuthentication extends AbstractAuthenticationToken {
 	 *
 	 * @since 7.0
 	 */
-	public static final class Builder<B extends Builder<B>>
-			extends AbstractAuthenticationBuilder<PublicKeyCredentialUserEntity, Object, B> {
+	public static final class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<B> {
 
 		private PublicKeyCredentialUserEntity principal;
 
 		private Builder(WebAuthnAuthentication token) {
 			super(token);
+			this.principal = token.principal;
 		}
 
 		@Override
-		public B principal(@Nullable PublicKeyCredentialUserEntity principal) {
-			Assert.notNull(principal, "principal cannot be null");
-			this.principal = principal;
+		public B principal(@Nullable Object principal) {
+			Assert.isInstanceOf(PublicKeyCredentialUserEntity.class, principal,
+					"principal must be of type PublicKeyCredentialUserEntity");
+			this.principal = (PublicKeyCredentialUserEntity) principal;
 			return (B) this;
 		}
 

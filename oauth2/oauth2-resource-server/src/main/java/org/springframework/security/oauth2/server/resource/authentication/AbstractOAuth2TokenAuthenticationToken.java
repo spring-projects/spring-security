@@ -123,7 +123,7 @@ public abstract class AbstractOAuth2TokenAuthenticationToken<T extends OAuth2Tok
 	 * @since 7.0
 	 */
 	public abstract static class AbstractOAuth2TokenAuthenticationBuilder<T extends OAuth2Token, B extends AbstractOAuth2TokenAuthenticationBuilder<T, B>>
-			extends AbstractAuthenticationBuilder<Object, Object, B> {
+			extends AbstractAuthenticationBuilder<B> {
 
 		private Object principal;
 

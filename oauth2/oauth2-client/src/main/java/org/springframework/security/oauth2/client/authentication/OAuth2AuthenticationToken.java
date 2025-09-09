@@ -105,7 +105,7 @@ public class OAuth2AuthenticationToken extends AbstractAuthenticationToken {
 	 *
 	 * @since 7.0
 	 */
-	public static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<OAuth2User, Object, B> {
+	public static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<B> {
 
 		private OAuth2User principal;
 
@@ -118,9 +118,9 @@ public class OAuth2AuthenticationToken extends AbstractAuthenticationToken {
 		}
 
 		@Override
-		public B principal(@Nullable OAuth2User principal) {
-			Assert.notNull(principal, "principal cannot be null");
-			this.principal = principal;
+		public B principal(@Nullable Object principal) {
+			Assert.isInstanceOf(OAuth2User.class, principal, "principal must be of type OAuth2User");
+			this.principal = (OAuth2User) principal;
 			return (B) this;
 		}
 
