@@ -56,6 +56,8 @@ See the javadoc:org.springframework.security.web.AuthenticationEntryPoint[] inte
 
 image:{icondir}/number_4.png[] If authentication is successful, then __Success__.
 
+* Any already-authenticated `Authentication` in the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[`SecurityContextHolder`] is loaded and its
+authorities are added to the returned xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[`Authentication`].
 . The xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[Authentication] is set on the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder].
 . `RememberMeServices.loginSuccess` is invoked.
 If remember me is not configured, this is a no-op.

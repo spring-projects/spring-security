@@ -140,6 +140,11 @@ In many cases, this is cleared after the user is authenticated, to ensure that i
 * `authorities`: The <<servlet-authentication-granted-authority,`GrantedAuthority`>> instances are high-level permissions the user is granted.
 Two examples are roles and scopes.
 
+It is also equipped with a `Builder` that allows you to mutate an existing `Authentication` instance and potentially merge it with another.
+This is useful in scenarios like taking the authorities from one authentication step, like form login, and applying them to another, like one-time-token login, like so:
+
+include-code::./CopyAuthoritiesTests[tag=springSecurity,indent=0]
+
 [[servlet-authentication-granted-authority]]
 == GrantedAuthority
 javadoc:org.springframework.security.core.GrantedAuthority[] instances are high-level permissions that the user is granted.
@@ -231,8 +236,6 @@ In other cases, a client makes an unauthenticated request to a resource that the
 In this case, an implementation of `AuthenticationEntryPoint` is used to request credentials from the client.
 The `AuthenticationEntryPoint` implementation might perform a xref:servlet/authentication/passwords/form.adoc#servlet-authentication-form[redirect to a log in page], respond with an xref:servlet/authentication/passwords/basic.adoc#servlet-authentication-basic[WWW-Authenticate] header, or take other action.
 
-
-
 // FIXME: authenticationsuccesshandler
 // FIXME: authenticationfailurehandler
 
@@ -266,6 +269,8 @@ image:{icondir}/number_4.png[] If authentication is successful, then __Success__
 
 * `SessionAuthenticationStrategy` is notified of a new login.
 See the javadoc:org.springframework.security.web.authentication.session.SessionAuthenticationStrategy[] interface.
+* Any already-authenticated `Authentication` in the <<servlet-authentication-securitycontextholder>> is loaded and its
+authorities are added to the returned <<servlet-authentication-authentication>>.
 * The <<servlet-authentication-authentication>> is set on the <<servlet-authentication-securitycontextholder>>.
 Later, if you need to save the `SecurityContext` so that it can be automatically set on future requests, `SecurityContextRepository#saveContext` must be explicitly invoked.
 See the javadoc:org.springframework.security.web.context.SecurityContextHolderFilter[] class.
