@@ -17,7 +17,6 @@
 package org.springframework.security.config.ldap;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,7 +37,6 @@ import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -82,8 +80,7 @@ public class LdapBindAuthenticationManagerFactoryITests {
 		this.spring.register(CustomAuthoritiesPopulatorConfig.class).autowire();
 
 		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
-			.andExpect(
-					authenticated().withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_EXTRA"))));
+			.andExpect(authenticated().withRoles("EXTRA"));
 	}
 
 	@Test
@@ -94,8 +91,7 @@ public class LdapBindAuthenticationManagerFactoryITests {
 		this.spring.register(CustomAuthoritiesMapperConfig.class).autowire();
 
 		this.mockMvc.perform(formLogin().user("bob").password("bobspassword"))
-			.andExpect(
-					authenticated().withAuthorities(Collections.singleton(new SimpleGrantedAuthority("ROLE_CUSTOM"))));
+			.andExpect(authenticated().withRoles("CUSTOM"));
 	}
 
 	@Test
