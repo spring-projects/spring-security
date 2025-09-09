@@ -84,7 +84,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
  * @author Anoop Garlapati
  * @author Dmitriy Dubson
  * @author Greg Li
- * @since 0.0.1
+ * @since 7.0
  */
 public class OAuth2AuthorizationEndpointFilterTests {
 

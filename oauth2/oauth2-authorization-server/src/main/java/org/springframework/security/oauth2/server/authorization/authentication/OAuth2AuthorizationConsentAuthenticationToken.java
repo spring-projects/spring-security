@@ -33,7 +33,7 @@ import org.springframework.util.Assert;
  * in the Authorization Code Grant.
  *
  * @author Joe Grandja
- * @since 0.4.0
+ * @since 7.0
  * @see OAuth2AuthorizationConsentAuthenticationProvider
  * @see OAuth2AuthorizationCodeRequestAuthenticationProvider
  */

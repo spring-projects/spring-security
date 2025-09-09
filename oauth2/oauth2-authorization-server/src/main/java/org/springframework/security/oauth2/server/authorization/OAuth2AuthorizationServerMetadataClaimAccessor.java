@@ -29,7 +29,7 @@ import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
  *
  * @author Daniel Garnier-Moiroux
  * @author Joe Grandja
- * @since 0.1.1
+ * @since 7.0
  * @see ClaimAccessor
  * @see OAuth2AuthorizationServerMetadataClaimNames
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc8414#section-2">2.
@@ -73,7 +73,6 @@ public interface OAuth2AuthorizationServerMetadataClaimAccessor extends ClaimAcc
 	 * Returns the {@code URL} of the OAuth 2.0 Pushed Authorization Request Endpoint
 	 * {@code (pushed_authorization_request_endpoint)}.
 	 * @return the {@code URL} of the OAuth 2.0 Pushed Authorization Request Endpoint
-	 * @since 1.5
 	 */
 	default URL getPushedAuthorizationRequestEndpoint() {
 		return getClaimAsURL(OAuth2AuthorizationServerMetadataClaimNames.PUSHED_AUTHORIZATION_REQUEST_ENDPOINT);
@@ -83,7 +82,6 @@ public interface OAuth2AuthorizationServerMetadataClaimAccessor extends ClaimAcc
 	 * Returns the {@code URL} of the OAuth 2.0 Device Authorization Endpoint
 	 * {@code (device_authorization_endpoint)}.
 	 * @return the {@code URL} of the OAuth 2.0 Device Authorization Endpoint
-	 * @since 1.1
 	 */
 	default URL getDeviceAuthorizationEndpoint() {
 		return getClaimAsURL(OAuth2AuthorizationServerMetadataClaimNames.DEVICE_AUTHORIZATION_ENDPOINT);
@@ -184,7 +182,6 @@ public interface OAuth2AuthorizationServerMetadataClaimAccessor extends ClaimAcc
 	 * Returns the {@code URL} of the OAuth 2.0 Dynamic Client Registration Endpoint
 	 * {@code (registration_endpoint)}.
 	 * @return the {@code URL} of the OAuth 2.0 Dynamic Client Registration Endpoint
-	 * @since 0.4.0
 	 */
 	default URL getClientRegistrationEndpoint() {
 		return getClaimAsURL(OAuth2AuthorizationServerMetadataClaimNames.REGISTRATION_ENDPOINT);
@@ -204,7 +201,6 @@ public interface OAuth2AuthorizationServerMetadataClaimAccessor extends ClaimAcc
 	 * access tokens {@code (tls_client_certificate_bound_access_tokens)}.
 	 * @return {@code true} to indicate support for mutual-TLS client certificate-bound
 	 * access tokens, {@code false} otherwise
-	 * @since 1.3
 	 */
 	default boolean isTlsClientCertificateBoundAccessTokens() {
 		return Boolean.TRUE.equals(getClaimAsBoolean(
@@ -216,7 +212,6 @@ public interface OAuth2AuthorizationServerMetadataClaimAccessor extends ClaimAcc
 	 * DPoP Proof JWTs {@code (dpop_signing_alg_values_supported)}.
 	 * @return the {@link JwsAlgorithms JSON Web Signature (JWS) algorithms} supported for
 	 * DPoP Proof JWTs
-	 * @since 1.5
 	 */
 	default List<String> getDPoPSigningAlgorithms() {
 		return getClaimAsStringList(OAuth2AuthorizationServerMetadataClaimNames.DPOP_SIGNING_ALG_VALUES_SUPPORTED);

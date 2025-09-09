@@ -40,7 +40,7 @@ import org.springframework.util.CollectionUtils;
  *
  * @author Joe Grandja
  * @author Dmitriy Dubson
- * @since 1.2.0
+ * @since 7.0
  */
 public final class OidcClientRegistrationRegisteredClientConverter
 		implements Converter<OidcClientRegistration, RegisteredClient> {

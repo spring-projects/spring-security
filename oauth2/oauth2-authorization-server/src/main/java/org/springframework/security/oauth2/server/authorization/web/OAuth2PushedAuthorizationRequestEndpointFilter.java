@@ -59,7 +59,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * the processing of the OAuth 2.0 Pushed Authorization Request.
  *
  * @author Joe Grandja
- * @since 1.5
+ * @since 7.0
  * @see AuthenticationManager
  * @see OAuth2PushedAuthorizationRequestAuthenticationProvider
  * @see <a target="_blank" href=

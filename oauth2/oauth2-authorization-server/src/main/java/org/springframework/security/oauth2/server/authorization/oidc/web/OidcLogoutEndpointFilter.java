@@ -49,7 +49,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * A {@code Filter} that processes OpenID Connect 1.0 RP-Initiated Logout Requests.
  *
  * @author Joe Grandja
- * @since 1.1
+ * @since 7.0
  * @see OidcLogoutAuthenticationConverter
  * @see OidcLogoutAuthenticationSuccessHandler
  * @see OidcLogoutAuthenticationProvider

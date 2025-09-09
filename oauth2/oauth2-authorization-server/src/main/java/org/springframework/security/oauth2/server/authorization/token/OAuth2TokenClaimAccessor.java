@@ -27,7 +27,7 @@ import org.springframework.security.oauth2.core.ClaimAccessor;
  * {@link OAuth2TokenClaimsSet}.
  *
  * @author Joe Grandja
- * @since 0.2.3
+ * @since 7.0
  * @see ClaimAccessor
  * @see OAuth2TokenClaimNames
  * @see OAuth2TokenClaimsSet

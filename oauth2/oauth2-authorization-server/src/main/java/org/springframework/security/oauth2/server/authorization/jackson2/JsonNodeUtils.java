@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Utility class for {@code JsonNode}.
  *
  * @author Joe Grandja
- * @since 0.1.2
+ * @since 7.0
  */
 abstract class JsonNodeUtils {
 

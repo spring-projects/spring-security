@@ -31,7 +31,7 @@ import org.springframework.util.Assert;
  * Logout Endpoint.
  *
  * @author Joe Grandja
- * @since 1.1
+ * @since 7.0
  * @see AbstractAuthenticationToken
  * @see OidcLogoutAuthenticationProvider
  */

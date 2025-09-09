@@ -28,7 +28,7 @@ import org.springframework.util.ClassUtils;
  *
  * @author Joe Grandja
  * @author l uamas
- * @since 0.1.0
+ * @since 7.0
  */
 final class HttpMessageConverters {
 

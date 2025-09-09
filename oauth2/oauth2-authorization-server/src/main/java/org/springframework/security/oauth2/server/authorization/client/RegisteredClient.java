@@ -41,7 +41,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Joe Grandja
  * @author Anoop Garlapati
- * @since 0.0.1
+ * @since 7.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-2">Section 2
  * Client Registration</a>
  */
@@ -165,7 +165,6 @@ public class RegisteredClient implements Serializable {
 	 * {@code post_logout_redirect_uri} parameter is used by the client when requesting
 	 * that the End-User's User Agent be redirected to after a logout has been performed.
 	 * @return the {@code Set} of post logout redirect URI(s)
-	 * @since 1.1
 	 */
 	public Set<String> getPostLogoutRedirectUris() {
 		return this.postLogoutRedirectUris;
@@ -456,7 +455,6 @@ public class RegisteredClient implements Serializable {
 		 * been performed.
 		 * @param postLogoutRedirectUri the post logout redirect URI
 		 * @return the {@link Builder}
-		 * @since 1.1
 		 */
 		public Builder postLogoutRedirectUri(String postLogoutRedirectUri) {
 			this.postLogoutRedirectUris.add(postLogoutRedirectUri);
@@ -469,7 +467,6 @@ public class RegisteredClient implements Serializable {
 		 * @param postLogoutRedirectUrisConsumer a {@link Consumer} of the post logout
 		 * redirect URI(s)
 		 * @return the {@link Builder}
-		 * @since 1.1
 		 */
 		public Builder postLogoutRedirectUris(Consumer<Set<String>> postLogoutRedirectUrisConsumer) {
 			postLogoutRedirectUrisConsumer.accept(this.postLogoutRedirectUris);

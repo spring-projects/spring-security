@@ -32,7 +32,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * Configurer for the OpenID Connect 1.0 Provider Configuration Endpoint.
  *
  * @author Joe Grandja
- * @since 0.4.0
+ * @since 7.0
  * @see OidcConfigurer#providerConfigurationEndpoint
  * @see OidcProviderConfigurationEndpointFilter
  */

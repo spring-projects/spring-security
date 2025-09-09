@@ -30,7 +30,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
  * Grant.
  *
  * @author Alexey Nesterov
- * @since 0.0.1
+ * @since 7.0
  * @see OAuth2AuthorizationGrantAuthenticationToken
  * @see OAuth2ClientCredentialsAuthenticationProvider
  */

@@ -40,7 +40,7 @@ import org.springframework.util.StringUtils;
  * {@code tls_client_auth} or {@code self_signed_tls_client_auth} method.
  *
  * @author Joe Grandja
- * @since 1.3
+ * @since 7.0
  * @see AuthenticationConverter
  * @see OAuth2ClientAuthenticationToken
  * @see OAuth2ClientAuthenticationFilter

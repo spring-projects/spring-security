@@ -32,7 +32,7 @@ import org.springframework.util.Assert;
  * An {@link OAuth2TokenContext} implementation used when encoding a {@link Jwt}.
  *
  * @author Joe Grandja
- * @since 0.1.0
+ * @since 7.0
  * @see OAuth2TokenContext
  * @see JwsHeader.Builder
  * @see JwtClaimsSet.Builder

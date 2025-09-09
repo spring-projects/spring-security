@@ -31,7 +31,7 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
  *
  * @author Daniel Garnier-Moiroux
  * @author Joe Grandja
- * @since 0.1.0
+ * @since 7.0
  * @see ClaimAccessor
  * @see OAuth2AuthorizationServerMetadataClaimAccessor
  * @see OidcProviderMetadataClaimNames
@@ -65,7 +65,6 @@ public interface OidcProviderMetadataClaimAccessor extends OAuth2AuthorizationSe
 	 * Returns the {@code URL} of the OpenID Connect 1.0 UserInfo Endpoint
 	 * {@code (userinfo_endpoint)}.
 	 * @return the {@code URL} of the OpenID Connect 1.0 UserInfo Endpoint
-	 * @since 0.2.2
 	 */
 	default URL getUserInfoEndpoint() {
 		return getClaimAsURL(OidcProviderMetadataClaimNames.USER_INFO_ENDPOINT);
@@ -75,7 +74,6 @@ public interface OidcProviderMetadataClaimAccessor extends OAuth2AuthorizationSe
 	 * Returns the {@code URL} of the OpenID Connect 1.0 End Session Endpoint
 	 * {@code (end_session_endpoint)}.
 	 * @return the {@code URL} of the OpenID Connect 1.0 End Session Endpoint
-	 * @since 1.1
 	 */
 	default URL getEndSessionEndpoint() {
 		return getClaimAsURL(OidcProviderMetadataClaimNames.END_SESSION_ENDPOINT);

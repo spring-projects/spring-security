@@ -32,7 +32,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * Configurer for the OAuth 2.0 Authorization Server Metadata Endpoint.
  *
  * @author Joe Grandja
- * @since 0.4.0
+ * @since 7.0
  * @see OAuth2AuthorizationServerConfigurer#authorizationServerMetadataEndpoint
  * @see OAuth2AuthorizationServerMetadataEndpointFilter
  */

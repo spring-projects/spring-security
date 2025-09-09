@@ -40,7 +40,7 @@ import org.springframework.util.StringUtils;
  * {@link OidcClientRegistrationAuthenticationToken} used for authenticating the request.
  *
  * @author Joe Grandja
- * @since 0.4.0
+ * @since 7.0
  * @see AuthenticationConverter
  * @see OidcClientRegistrationAuthenticationToken
  * @see OidcClientRegistrationEndpointFilter

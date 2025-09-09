@@ -27,7 +27,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
  *
  * @author Ovidiu Popa
  * @author Joe Grandja
- * @since 0.1.1
+ * @since 7.0
  * @see <a target="_blank" href=
  * "https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata">2.
  * Client Metadata</a>
@@ -73,7 +73,6 @@ public final class OidcClientMetadataClaimNames {
 	 * used by the Client. The {@code post_logout_redirect_uri} parameter is used by the
 	 * client when requesting that the End-User's User Agent be redirected to after a
 	 * logout has been performed.
-	 * @since 1.1
 	 */
 	public static final String POST_LOGOUT_REDIRECT_URIS = "post_logout_redirect_uris";
 
@@ -89,7 +88,6 @@ public final class OidcClientMetadataClaimNames {
 	 * at the Token Endpoint for the {@link ClientAuthenticationMethod#PRIVATE_KEY_JWT
 	 * private_key_jwt} and {@link ClientAuthenticationMethod#CLIENT_SECRET_JWT
 	 * client_secret_jwt} authentication methods
-	 * @since 0.2.2
 	 */
 	public static final String TOKEN_ENDPOINT_AUTH_SIGNING_ALG = "token_endpoint_auth_signing_alg";
 
@@ -113,7 +111,6 @@ public final class OidcClientMetadataClaimNames {
 
 	/**
 	 * {@code jwks_uri} - the {@code URL} for the Client's JSON Web Key Set
-	 * @since 0.2.2
 	 */
 	public static final String JWKS_URI = "jwks_uri";
 
@@ -126,14 +123,12 @@ public final class OidcClientMetadataClaimNames {
 	/**
 	 * {@code registration_access_token} - the Registration Access Token that can be used
 	 * at the Client Configuration Endpoint
-	 * @since 0.2.1
 	 */
 	public static final String REGISTRATION_ACCESS_TOKEN = "registration_access_token";
 
 	/**
 	 * {@code registration_client_uri} - the {@code URL} of the Client Configuration
 	 * Endpoint where the Registration Access Token can be used
-	 * @since 0.2.1
 	 */
 	public static final String REGISTRATION_CLIENT_URI = "registration_client_uri";
 

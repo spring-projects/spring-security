@@ -51,7 +51,7 @@ import org.springframework.util.StringUtils;
  * authorization grant.
  *
  * @author Steve Riesenberg
- * @since 1.3
+ * @since 7.0
  * @see AuthenticationConverter
  * @see OAuth2TokenExchangeAuthenticationToken
  * @see OAuth2TokenEndpointFilter

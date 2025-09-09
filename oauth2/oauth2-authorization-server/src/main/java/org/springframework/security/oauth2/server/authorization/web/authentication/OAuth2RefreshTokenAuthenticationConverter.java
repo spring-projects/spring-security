@@ -43,7 +43,7 @@ import org.springframework.util.StringUtils;
  * grant.
  *
  * @author Joe Grandja
- * @since 0.1.2
+ * @since 7.0
  * @see AuthenticationConverter
  * @see OAuth2RefreshTokenAuthenticationToken
  * @see OAuth2TokenEndpointFilter

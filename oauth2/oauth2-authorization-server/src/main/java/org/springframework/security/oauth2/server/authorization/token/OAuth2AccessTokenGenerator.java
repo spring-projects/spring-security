@@ -42,7 +42,7 @@ import org.springframework.util.StringUtils;
  * "reference"} (opaque) {@link OAuth2AccessToken}.
  *
  * @author Joe Grandja
- * @since 0.2.3
+ * @since 7.0
  * @see OAuth2TokenGenerator
  * @see OAuth2AccessToken
  * @see OAuth2TokenCustomizer

@@ -33,7 +33,7 @@ import org.springframework.util.Assert;
  * {@code non-null} {@link OAuth2Token} being returned.
  *
  * @author Joe Grandja
- * @since 0.2.3
+ * @since 7.0
  * @see OAuth2TokenGenerator
  * @see JwtGenerator
  * @see OAuth2RefreshTokenGenerator

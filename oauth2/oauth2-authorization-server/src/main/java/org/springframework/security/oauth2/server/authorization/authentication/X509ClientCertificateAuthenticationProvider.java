@@ -44,7 +44,7 @@ import org.springframework.util.StringUtils;
  * method is used.
  *
  * @author Joe Grandja
- * @since 1.3
+ * @since 7.0
  * @see AuthenticationProvider
  * @see OAuth2ClientAuthenticationToken
  * @see RegisteredClientRepository

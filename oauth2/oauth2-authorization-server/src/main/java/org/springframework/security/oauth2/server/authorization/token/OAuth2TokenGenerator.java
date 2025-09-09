@@ -27,7 +27,7 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
  *
  * @param <T> the type of the OAuth 2.0 Token
  * @author Joe Grandja
- * @since 0.2.3
+ * @since 7.0
  * @see OAuth2Token
  * @see OAuth2TokenContext
  * @see OAuth2TokenClaimsSet

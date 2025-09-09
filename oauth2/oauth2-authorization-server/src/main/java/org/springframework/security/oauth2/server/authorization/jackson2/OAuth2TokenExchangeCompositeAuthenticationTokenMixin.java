@@ -32,7 +32,7 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
  * {@link OAuth2TokenExchangeCompositeAuthenticationToken}.
  *
  * @author Steve Riesenberg
- * @since 1.3
+ * @since 7.0
  * @see OAuth2TokenExchangeCompositeAuthenticationToken
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)

@@ -53,7 +53,7 @@ import org.springframework.util.StringUtils;
  * Logout Endpoint.
  *
  * @author Joe Grandja
- * @since 1.1
+ * @since 7.0
  * @see RegisteredClientRepository
  * @see OAuth2AuthorizationService
  * @see SessionRegistry
@@ -199,7 +199,6 @@ public final class OidcLogoutAuthenticationProvider implements AuthenticationPro
 	 * @param authenticationValidator the {@code Consumer} providing access to the
 	 * {@link OidcLogoutAuthenticationContext} and is responsible for validating specific
 	 * OpenID Connect RP-Initiated Logout Request parameters
-	 * @since 1.4
 	 */
 	public void setAuthenticationValidator(Consumer<OidcLogoutAuthenticationContext> authenticationValidator) {
 		Assert.notNull(authenticationValidator, "authenticationValidator cannot be null");

@@ -25,7 +25,7 @@ import org.springframework.security.oauth2.core.AbstractOAuth2Token;
  * Authorization Code Grant.
  *
  * @author Joe Grandja
- * @since 0.0.3
+ * @since 7.0
  * @see AbstractOAuth2Token
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section
  * 4.1 Authorization Code Grant</a>

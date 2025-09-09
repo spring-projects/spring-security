@@ -69,7 +69,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Joe Grandja
  * @author Daniel Garnier-Moiroux
- * @since 0.0.1
+ * @since 7.0
  * @see OAuth2AuthorizationCodeAuthenticationToken
  * @see OAuth2AccessTokenAuthenticationToken
  * @see OAuth2AuthorizationCodeRequestAuthenticationProvider
@@ -103,7 +103,6 @@ public final class OAuth2AuthorizationCodeAuthenticationProvider implements Auth
 	 * provided parameters.
 	 * @param authorizationService the authorization service
 	 * @param tokenGenerator the token generator
-	 * @since 0.2.3
 	 */
 	public OAuth2AuthorizationCodeAuthenticationProvider(OAuth2AuthorizationService authorizationService,
 			OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator) {
@@ -326,7 +325,6 @@ public final class OAuth2AuthorizationCodeAuthenticationProvider implements Auth
 	 * Sets the {@link SessionRegistry} used to track OpenID Connect sessions.
 	 * @param sessionRegistry the {@link SessionRegistry} used to track OpenID Connect
 	 * sessions
-	 * @since 1.1
 	 */
 	public void setSessionRegistry(SessionRegistry sessionRegistry) {
 		Assert.notNull(sessionRegistry, "sessionRegistry cannot be null");

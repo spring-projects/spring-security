@@ -21,7 +21,7 @@ package org.springframework.security.oauth2.server.authorization.context;
  * thread using a {@code ThreadLocal}.
  *
  * @author Joe Grandja
- * @since 0.2.2
+ * @since 7.0
  * @see AuthorizationServerContext
  */
 public final class AuthorizationServerContextHolder {

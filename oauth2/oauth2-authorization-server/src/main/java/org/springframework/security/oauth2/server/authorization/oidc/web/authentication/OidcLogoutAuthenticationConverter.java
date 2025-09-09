@@ -39,7 +39,7 @@ import org.springframework.util.StringUtils;
  * {@link OidcLogoutAuthenticationToken} used for authenticating the request.
  *
  * @author Joe Grandja
- * @since 1.1
+ * @since 7.0
  * @see AuthenticationConverter
  * @see OidcLogoutAuthenticationToken
  * @see OidcLogoutEndpointFilter

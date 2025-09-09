@@ -37,7 +37,7 @@ import org.springframework.context.annotation.AnnotationBeanNameGenerator;
  * not already present.
  *
  * @author Steve Riesenberg
- * @since 0.2.0
+ * @since 7.0
  */
 final class RegisterMissingBeanPostProcessor implements BeanDefinitionRegistryPostProcessor, BeanFactoryAware {
 

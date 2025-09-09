@@ -26,7 +26,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
  * {@link OAuth2AuthorizationConsent OAuth 2.0 Authorization Consent(s)}.
  *
  * @author Daniel Garnier-Moiroux
- * @since 0.1.2
+ * @since 7.0
  * @see OAuth2AuthorizationConsent
  */
 public interface OAuth2AuthorizationConsentService {

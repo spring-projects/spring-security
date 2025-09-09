@@ -48,7 +48,7 @@ import org.springframework.util.Assert;
  *
  * @author Arfat Chaus
  * @author Joe Grandja
- * @since 0.2.2
+ * @since 7.0
  * @see OAuth2AuthorizationServerConfigurer#tokenRevocationEndpoint
  * @see OAuth2TokenRevocationEndpointFilter
  */
@@ -106,7 +106,6 @@ public final class OAuth2TokenRevocationEndpointConfigurer extends AbstractOAuth
 	 * {@link AuthenticationConverter}'s
 	 * @return the {@link OAuth2TokenRevocationEndpointConfigurer} for further
 	 * configuration
-	 * @since 0.4.0
 	 */
 	public OAuth2TokenRevocationEndpointConfigurer revocationRequestConverters(
 			Consumer<List<AuthenticationConverter>> revocationRequestConvertersConsumer) {
@@ -139,7 +138,6 @@ public final class OAuth2TokenRevocationEndpointConfigurer extends AbstractOAuth
 	 * {@code List} of default and (optionally) added {@link AuthenticationProvider}'s
 	 * @return the {@link OAuth2TokenRevocationEndpointConfigurer} for further
 	 * configuration
-	 * @since 0.4.0
 	 */
 	public OAuth2TokenRevocationEndpointConfigurer authenticationProviders(
 			Consumer<List<AuthenticationProvider>> authenticationProvidersConsumer) {

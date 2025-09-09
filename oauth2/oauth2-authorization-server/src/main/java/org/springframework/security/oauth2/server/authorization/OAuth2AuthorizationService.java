@@ -23,7 +23,7 @@ import org.springframework.lang.Nullable;
  * {@link OAuth2Authorization OAuth 2.0 Authorization(s)}.
  *
  * @author Joe Grandja
- * @since 0.0.1
+ * @since 7.0
  * @see OAuth2Authorization
  * @see OAuth2TokenType
  */

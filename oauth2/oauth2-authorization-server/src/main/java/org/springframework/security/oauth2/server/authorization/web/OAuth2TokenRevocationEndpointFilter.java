@@ -52,7 +52,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @author Vivek Babu
  * @author Joe Grandja
  * @author Arfat Chaus
- * @since 0.0.3
+ * @since 7.0
  * @see OAuth2TokenRevocationAuthenticationProvider
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7009#section-2">Section 2
  * Token Revocation</a>
@@ -138,7 +138,6 @@ public final class OAuth2TokenRevocationEndpointFilter extends OncePerRequestFil
 	 * details instance from {@link HttpServletRequest}.
 	 * @param authenticationDetailsSource the {@link AuthenticationDetailsSource} used for
 	 * building an authentication details instance from {@link HttpServletRequest}
-	 * @since 1.4
 	 */
 	public void setAuthenticationDetailsSource(
 			AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
@@ -153,7 +152,6 @@ public final class OAuth2TokenRevocationEndpointFilter extends OncePerRequestFil
 	 * request.
 	 * @param authenticationConverter the {@link AuthenticationConverter} used when
 	 * attempting to extract a Revoke Token Request from {@link HttpServletRequest}
-	 * @since 0.2.2
 	 */
 	public void setAuthenticationConverter(AuthenticationConverter authenticationConverter) {
 		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
@@ -165,7 +163,6 @@ public final class OAuth2TokenRevocationEndpointFilter extends OncePerRequestFil
 	 * {@link OAuth2TokenRevocationAuthenticationToken}.
 	 * @param authenticationSuccessHandler the {@link AuthenticationSuccessHandler} used
 	 * for handling an {@link OAuth2TokenRevocationAuthenticationToken}
-	 * @since 0.2.2
 	 */
 	public void setAuthenticationSuccessHandler(AuthenticationSuccessHandler authenticationSuccessHandler) {
 		Assert.notNull(authenticationSuccessHandler, "authenticationSuccessHandler cannot be null");
@@ -178,7 +175,6 @@ public final class OAuth2TokenRevocationEndpointFilter extends OncePerRequestFil
 	 * Response}.
 	 * @param authenticationFailureHandler the {@link AuthenticationFailureHandler} used
 	 * for handling an {@link OAuth2AuthenticationException}
-	 * @since 0.2.2
 	 */
 	public void setAuthenticationFailureHandler(AuthenticationFailureHandler authenticationFailureHandler) {
 		Assert.notNull(authenticationFailureHandler, "authenticationFailureHandler cannot be null");

@@ -25,7 +25,7 @@ import org.springframework.util.Assert;
  * Standard data formats for OAuth 2.0 Tokens.
  *
  * @author Joe Grandja
- * @since 0.2.3
+ * @since 7.0
  */
 public final class OAuth2TokenFormat implements Serializable {
 

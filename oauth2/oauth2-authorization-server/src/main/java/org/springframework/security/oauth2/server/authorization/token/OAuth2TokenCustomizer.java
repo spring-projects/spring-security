@@ -22,7 +22,7 @@ package org.springframework.security.oauth2.server.authorization.token;
  *
  * @param <T> the type of the context containing the OAuth 2.0 Token attributes
  * @author Joe Grandja
- * @since 0.1.0
+ * @since 7.0
  * @see OAuth2TokenContext
  */
 @FunctionalInterface

@@ -28,7 +28,7 @@ import org.springframework.util.Assert;
  * OAuth 2.0 Authorization Server Metadata specification (RFC 8414).
  *
  * @author Daniel Garnier-Moiroux
- * @since 0.1.1
+ * @since 7.0
  * @see AbstractOAuth2AuthorizationServerMetadata
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc8414#section-3.2">3.2.
  * Authorization Server Metadata Response</a>

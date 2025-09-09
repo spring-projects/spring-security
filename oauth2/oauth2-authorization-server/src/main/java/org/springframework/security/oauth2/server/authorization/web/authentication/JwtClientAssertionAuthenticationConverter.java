@@ -38,7 +38,7 @@ import org.springframework.util.StringUtils;
  * the client.
  *
  * @author Rafal Lewczuk
- * @since 0.2.2
+ * @since 7.0
  * @see AuthenticationConverter
  * @see OAuth2ClientAuthenticationToken
  * @see OAuth2ClientAuthenticationFilter

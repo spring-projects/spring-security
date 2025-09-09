@@ -37,7 +37,7 @@ import org.springframework.util.Assert;
  *
  * @author Gerardo Roza
  * @author Joe Grandja
- * @since 0.1.1
+ * @since 7.0
  * @see OAuth2TokenIntrospectionClaimAccessor
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7662#section-2.2">Section
  * 2.2 Introspection Response</a>

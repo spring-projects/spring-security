@@ -55,7 +55,7 @@ import org.springframework.util.Assert;
  *
  * @author Steve Riesenberg
  * @author Daniel Garnier-Moiroux
- * @since 0.2.1
+ * @since 7.0
  * @see OidcConfigurer#userInfoEndpoint
  * @see OidcUserInfoEndpointFilter
  */
@@ -94,7 +94,6 @@ public final class OidcUserInfoEndpointConfigurer extends AbstractOAuth2Configur
 	 * @param userInfoRequestConverter an {@link AuthenticationConverter} used when
 	 * attempting to extract an UserInfo Request from {@link HttpServletRequest}
 	 * @return the {@link OidcUserInfoEndpointConfigurer} for further configuration
-	 * @since 0.4.0
 	 */
 	public OidcUserInfoEndpointConfigurer userInfoRequestConverter(AuthenticationConverter userInfoRequestConverter) {
 		Assert.notNull(userInfoRequestConverter, "userInfoRequestConverter cannot be null");
@@ -111,7 +110,6 @@ public final class OidcUserInfoEndpointConfigurer extends AbstractOAuth2Configur
 	 * the {@code List} of default and (optionally) added
 	 * {@link AuthenticationConverter}'s
 	 * @return the {@link OidcUserInfoEndpointConfigurer} for further configuration
-	 * @since 0.4.0
 	 */
 	public OidcUserInfoEndpointConfigurer userInfoRequestConverters(
 			Consumer<List<AuthenticationConverter>> userInfoRequestConvertersConsumer) {
@@ -126,7 +124,6 @@ public final class OidcUserInfoEndpointConfigurer extends AbstractOAuth2Configur
 	 * @param authenticationProvider an {@link AuthenticationProvider} used for
 	 * authenticating an {@link OidcUserInfoAuthenticationToken}
 	 * @return the {@link OidcUserInfoEndpointConfigurer} for further configuration
-	 * @since 0.4.0
 	 */
 	public OidcUserInfoEndpointConfigurer authenticationProvider(AuthenticationProvider authenticationProvider) {
 		Assert.notNull(authenticationProvider, "authenticationProvider cannot be null");
@@ -142,7 +139,6 @@ public final class OidcUserInfoEndpointConfigurer extends AbstractOAuth2Configur
 	 * @param authenticationProvidersConsumer the {@code Consumer} providing access to the
 	 * {@code List} of default and (optionally) added {@link AuthenticationProvider}'s
 	 * @return the {@link OidcUserInfoEndpointConfigurer} for further configuration
-	 * @since 0.4.0
 	 */
 	public OidcUserInfoEndpointConfigurer authenticationProviders(
 			Consumer<List<AuthenticationProvider>> authenticationProvidersConsumer) {
@@ -158,7 +154,6 @@ public final class OidcUserInfoEndpointConfigurer extends AbstractOAuth2Configur
 	 * @param userInfoResponseHandler the {@link AuthenticationSuccessHandler} used for
 	 * handling an {@link OidcUserInfoAuthenticationToken}
 	 * @return the {@link OidcUserInfoEndpointConfigurer} for further configuration
-	 * @since 0.4.0
 	 */
 	public OidcUserInfoEndpointConfigurer userInfoResponseHandler(
 			AuthenticationSuccessHandler userInfoResponseHandler) {
@@ -173,7 +168,6 @@ public final class OidcUserInfoEndpointConfigurer extends AbstractOAuth2Configur
 	 * @param errorResponseHandler the {@link AuthenticationFailureHandler} used for
 	 * handling an {@link OAuth2AuthenticationException}
 	 * @return the {@link OidcUserInfoEndpointConfigurer} for further configuration
-	 * @since 0.4.0
 	 */
 	public OidcUserInfoEndpointConfigurer errorResponseHandler(AuthenticationFailureHandler errorResponseHandler) {
 		this.errorResponseHandler = errorResponseHandler;

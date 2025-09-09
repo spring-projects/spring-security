@@ -41,7 +41,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * {@link AuthorizationServerContextHolder}.
  *
  * @author Joe Grandja
- * @since 0.2.2
+ * @since 7.0
  * @see AuthorizationServerContext
  * @see AuthorizationServerContextHolder
  * @see AuthorizationServerSettings

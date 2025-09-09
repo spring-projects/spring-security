@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  *
  * @author Ovidiu Popa
  * @author Joe Grandja
- * @since 0.1.1
+ * @since 7.0
  */
 public class OidcClientRegistrationHttpMessageConverterTests {
 

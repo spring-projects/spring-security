@@ -43,7 +43,7 @@ import org.springframework.util.Assert;
  *
  * @author Ovidiu Popa
  * @author Joe Grandja
- * @since 0.1.1
+ * @since 7.0
  * @see OidcClientMetadataClaimAccessor
  * @see <a target="_blank" href=
  * "https://openid.net/specs/openid-connect-registration-1_0.html#RegistrationRequest">3.1.
@@ -181,7 +181,6 @@ public final class OidcClientRegistration implements OidcClientMetadataClaimAcce
 		 * @param postLogoutRedirectUri the post logout redirection {@code URI} used by
 		 * the Client
 		 * @return the {@link Builder} for further configuration
-		 * @since 1.1
 		 */
 		public Builder postLogoutRedirectUri(String postLogoutRedirectUri) {
 			addClaimToClaimList(OidcClientMetadataClaimNames.POST_LOGOUT_REDIRECT_URIS, postLogoutRedirectUri);
@@ -194,7 +193,6 @@ public final class OidcClientRegistration implements OidcClientMetadataClaimAcce
 		 * @param postLogoutRedirectUrisConsumer a {@code Consumer} of the post logout
 		 * redirection {@code URI} values used by the Client
 		 * @return the {@link Builder} for further configuration
-		 * @since 1.1
 		 */
 		public Builder postLogoutRedirectUris(Consumer<List<String>> postLogoutRedirectUrisConsumer) {
 			acceptClaimValues(OidcClientMetadataClaimNames.POST_LOGOUT_REDIRECT_URIS, postLogoutRedirectUrisConsumer);
@@ -222,7 +220,6 @@ public final class OidcClientRegistration implements OidcClientMetadataClaimAcce
 		 * that must be used for signing the {@link Jwt JWT} used to authenticate the
 		 * Client at the Token Endpoint
 		 * @return the {@link Builder} for further configuration
-		 * @since 0.2.2
 		 */
 		public Builder tokenEndpointAuthenticationSigningAlgorithm(String authenticationSigningAlgorithm) {
 			return claim(OidcClientMetadataClaimNames.TOKEN_ENDPOINT_AUTH_SIGNING_ALG, authenticationSigningAlgorithm);
@@ -307,7 +304,6 @@ public final class OidcClientRegistration implements OidcClientMetadataClaimAcce
 		 * Sets the {@code URL} for the Client's JSON Web Key Set, OPTIONAL.
 		 * @param jwkSetUrl the {@code URL} for the Client's JSON Web Key Set
 		 * @return the {@link Builder} for further configuration
-		 * @since 0.2.2
 		 */
 		public Builder jwkSetUrl(String jwkSetUrl) {
 			return claim(OidcClientMetadataClaimNames.JWKS_URI, jwkSetUrl);
@@ -331,7 +327,6 @@ public final class OidcClientRegistration implements OidcClientMetadataClaimAcce
 		 * @param registrationAccessToken the Registration Access Token that can be used
 		 * at the Client Configuration Endpoint
 		 * @return the {@link Builder} for further configuration
-		 * @since 0.2.1
 		 */
 		public Builder registrationAccessToken(String registrationAccessToken) {
 			return claim(OidcClientMetadataClaimNames.REGISTRATION_ACCESS_TOKEN, registrationAccessToken);
@@ -343,7 +338,6 @@ public final class OidcClientRegistration implements OidcClientMetadataClaimAcce
 		 * @param registrationClientUrl the {@code URL} of the Client Configuration
 		 * Endpoint where the Registration Access Token can be used
 		 * @return the {@link Builder} for further configuration
-		 * @since 0.2.1
 		 */
 		public Builder registrationClientUrl(String registrationClientUrl) {
 			return claim(OidcClientMetadataClaimNames.REGISTRATION_CLIENT_URI, registrationClientUrl);

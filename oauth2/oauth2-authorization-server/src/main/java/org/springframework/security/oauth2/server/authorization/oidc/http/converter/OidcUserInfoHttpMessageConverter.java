@@ -43,7 +43,7 @@ import org.springframework.util.Assert;
  *
  * @author Ido Salomon
  * @author Steve Riesenberg
- * @since 0.2.1
+ * @since 7.0
  * @see AbstractHttpMessageConverter
  * @see OidcUserInfo
  */

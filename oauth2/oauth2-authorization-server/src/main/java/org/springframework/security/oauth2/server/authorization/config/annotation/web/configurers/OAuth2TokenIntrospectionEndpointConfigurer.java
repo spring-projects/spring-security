@@ -49,7 +49,7 @@ import org.springframework.util.Assert;
  *
  * @author Gaurav Tiwari
  * @author Joe Grandja
- * @since 0.2.3
+ * @since 7.0
  * @see OAuth2AuthorizationServerConfigurer#tokenIntrospectionEndpoint(Customizer)
  * @see OAuth2TokenIntrospectionEndpointFilter
  */
@@ -107,7 +107,6 @@ public final class OAuth2TokenIntrospectionEndpointConfigurer extends AbstractOA
 	 * {@link AuthenticationConverter}'s
 	 * @return the {@link OAuth2TokenIntrospectionEndpointConfigurer} for further
 	 * configuration
-	 * @since 0.4.0
 	 */
 	public OAuth2TokenIntrospectionEndpointConfigurer introspectionRequestConverters(
 			Consumer<List<AuthenticationConverter>> introspectionRequestConvertersConsumer) {
@@ -140,7 +139,6 @@ public final class OAuth2TokenIntrospectionEndpointConfigurer extends AbstractOA
 	 * {@code List} of default and (optionally) added {@link AuthenticationProvider}'s
 	 * @return the {@link OAuth2TokenIntrospectionEndpointConfigurer} for further
 	 * configuration
-	 * @since 0.4.0
 	 */
 	public OAuth2TokenIntrospectionEndpointConfigurer authenticationProviders(
 			Consumer<List<AuthenticationProvider>> authenticationProvidersConsumer) {

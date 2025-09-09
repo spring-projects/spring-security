@@ -28,7 +28,7 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
  * Utility methods for the OpenID Connect 1.0 {@link AuthenticationProvider}'s.
  *
  * @author Joe Grandja
- * @since 0.1.1
+ * @since 7.0
  */
 final class OidcAuthenticationProviderUtils {
 

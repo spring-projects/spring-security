@@ -90,7 +90,7 @@ import org.springframework.util.StringUtils;
  * @author Ovidiu Popa
  * @author Joe Grandja
  * @author Josh Long
- * @since 0.1.2
+ * @since 7.0
  * @see OAuth2AuthorizationService
  * @see OAuth2Authorization
  * @see JdbcOperations

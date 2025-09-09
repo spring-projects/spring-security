@@ -48,7 +48,7 @@ import org.springframework.web.util.UriUtils;
  * RP-Initiated Logout.
  *
  * @author Joe Grandja
- * @since 1.4
+ * @since 7.0
  * @see OidcLogoutEndpointFilter#setAuthenticationSuccessHandler(AuthenticationSuccessHandler)
  * @see LogoutHandler
  */

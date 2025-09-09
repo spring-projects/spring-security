@@ -71,7 +71,7 @@ import org.springframework.util.StringUtils;
  * @author Joe Grandja
  * @author Rafal Lewczuk
  * @author Dmitriy Dubson
- * @since 0.1.1
+ * @since 7.0
  * @see RegisteredClientRepository
  * @see OAuth2AuthorizationService
  * @see OAuth2TokenGenerator
@@ -108,7 +108,6 @@ public final class OidcClientRegistrationAuthenticationProvider implements Authe
 	 * @param registeredClientRepository the repository of registered clients
 	 * @param authorizationService the authorization service
 	 * @param tokenGenerator the token generator
-	 * @since 0.2.3
 	 */
 	public OidcClientRegistrationAuthenticationProvider(RegisteredClientRepository registeredClientRepository,
 			OAuth2AuthorizationService authorizationService,
@@ -176,7 +175,6 @@ public final class OidcClientRegistrationAuthenticationProvider implements Authe
 	 * a {@link RegisteredClient}.
 	 * @param registeredClientConverter the {@link Converter} used for converting an
 	 * {@link OidcClientRegistration} to a {@link RegisteredClient}
-	 * @since 0.4.0
 	 */
 	public void setRegisteredClientConverter(
 			Converter<OidcClientRegistration, RegisteredClient> registeredClientConverter) {
@@ -189,7 +187,6 @@ public final class OidcClientRegistrationAuthenticationProvider implements Authe
 	 * {@link OidcClientRegistration}.
 	 * @param clientRegistrationConverter the {@link Converter} used for converting a
 	 * {@link RegisteredClient} to an {@link OidcClientRegistration}
-	 * @since 1.2.0
 	 */
 	public void setClientRegistrationConverter(
 			Converter<RegisteredClient, OidcClientRegistration> clientRegistrationConverter) {
@@ -203,7 +200,6 @@ public final class OidcClientRegistrationAuthenticationProvider implements Authe
 	 * secret will be encoded using
 	 * {@link PasswordEncoderFactories#createDelegatingPasswordEncoder()}.
 	 * @param passwordEncoder the {@link PasswordEncoder} used to encode the client secret
-	 * @since 1.1.0
 	 */
 	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
 		Assert.notNull(passwordEncoder, "passwordEncoder cannot be null");

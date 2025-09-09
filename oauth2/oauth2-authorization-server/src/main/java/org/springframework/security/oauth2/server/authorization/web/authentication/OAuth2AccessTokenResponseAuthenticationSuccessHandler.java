@@ -49,7 +49,7 @@ import org.springframework.util.CollectionUtils;
  * {@link OAuth2AccessTokenResponse Access Token Response}.
  *
  * @author Dmitriy Dubson
- * @since 1.3
+ * @since 7.0
  * @see AuthenticationSuccessHandler
  * @see OAuth2AccessTokenResponseHttpMessageConverter
  */

@@ -33,7 +33,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
  * A {@code JsonDeserializer} for {@link OAuth2AuthorizationRequest}.
  *
  * @author Joe Grandja
- * @since 0.1.2
+ * @since 7.0
  * @see OAuth2AuthorizationRequest
  * @see OAuth2AuthorizationRequestMixin
  */

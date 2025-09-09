@@ -43,7 +43,7 @@ import org.springframework.util.Assert;
  * 2.0 Authorization Server Metadata Response}.
  *
  * @author Daniel Garnier-Moiroux
- * @since 0.1.1
+ * @since 7.0
  * @see AbstractHttpMessageConverter
  * @see OAuth2AuthorizationServerMetadata
  */

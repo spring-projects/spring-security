@@ -52,7 +52,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * fails, an {@link OAuth2AuthorizationCodeRequestAuthenticationException} is thrown.
  *
  * @author Joe Grandja
- * @since 0.4.0
+ * @since 7.0
  * @see OAuth2AuthorizationCodeRequestAuthenticationContext
  * @see OAuth2AuthorizationCodeRequestAuthenticationToken
  * @see OAuth2AuthorizationCodeRequestAuthenticationProvider#setAuthenticationValidator(Consumer)

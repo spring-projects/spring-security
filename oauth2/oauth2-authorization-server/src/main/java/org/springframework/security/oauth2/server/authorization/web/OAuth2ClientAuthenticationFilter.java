@@ -63,7 +63,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  *
  * @author Joe Grandja
  * @author Patryk Kostrzewa
- * @since 0.0.1
+ * @since 7.0
  * @see AuthenticationManager
  * @see JwtClientAssertionAuthenticationConverter
  * @see JwtClientAssertionAuthenticationProvider

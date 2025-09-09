@@ -52,7 +52,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @author Gerardo Roza
  * @author Joe Grandja
  * @author Gaurav Tiwari
- * @since 0.1.1
+ * @since 7.0
  * @see OAuth2TokenIntrospectionAuthenticationProvider
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7662#section-2">Section 2
  * Introspection Endpoint</a>
@@ -136,7 +136,6 @@ public final class OAuth2TokenIntrospectionEndpointFilter extends OncePerRequest
 	 * request.
 	 * @param authenticationConverter the {@link AuthenticationConverter} used when
 	 * attempting to extract an Introspection Request from {@link HttpServletRequest}
-	 * @since 0.2.3
 	 */
 	public void setAuthenticationConverter(AuthenticationConverter authenticationConverter) {
 		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
@@ -148,7 +147,6 @@ public final class OAuth2TokenIntrospectionEndpointFilter extends OncePerRequest
 	 * {@link OAuth2TokenIntrospectionAuthenticationToken}.
 	 * @param authenticationSuccessHandler the {@link AuthenticationSuccessHandler} used
 	 * for handling an {@link OAuth2TokenIntrospectionAuthenticationToken}
-	 * @since 0.2.3
 	 */
 	public void setAuthenticationSuccessHandler(AuthenticationSuccessHandler authenticationSuccessHandler) {
 		Assert.notNull(authenticationSuccessHandler, "authenticationSuccessHandler cannot be null");
@@ -161,7 +159,6 @@ public final class OAuth2TokenIntrospectionEndpointFilter extends OncePerRequest
 	 * Resonse}.
 	 * @param authenticationFailureHandler the {@link AuthenticationFailureHandler} used
 	 * for handling an {@link OAuth2AuthenticationException}
-	 * @since 0.2.3
 	 */
 	public void setAuthenticationFailureHandler(AuthenticationFailureHandler authenticationFailureHandler) {
 		Assert.notNull(authenticationFailureHandler, "authenticationFailureHandler cannot be null");

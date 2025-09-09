@@ -48,7 +48,7 @@ import org.springframework.util.Assert;
  * Endpoint.
  *
  * @author Steve Riesenberg
- * @since 0.2.1
+ * @since 7.0
  * @see OAuth2AuthorizationService
  * @see <a href="https://openid.net/specs/openid-connect-core-1_0.html#UserInfo">5.3.
  * UserInfo Endpoint</a>

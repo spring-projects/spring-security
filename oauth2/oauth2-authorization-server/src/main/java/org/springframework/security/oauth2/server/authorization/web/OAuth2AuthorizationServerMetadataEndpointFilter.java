@@ -48,7 +48,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  *
  * @author Daniel Garnier-Moiroux
  * @author Joe Grandja
- * @since 0.1.1
+ * @since 7.0
  * @see OAuth2AuthorizationServerMetadata
  * @see AuthorizationServerSettings
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc8414#section-3">3.
@@ -76,7 +76,6 @@ public final class OAuth2AuthorizationServerMetadataEndpointFilter extends OnceP
 	 * the claims of the Authorization Server's configuration.
 	 * @param authorizationServerMetadataCustomizer the {@code Consumer} providing access
 	 * to the {@link OAuth2AuthorizationServerMetadata.Builder}
-	 * @since 0.4.0
 	 */
 	public void setAuthorizationServerMetadataCustomizer(
 			Consumer<OAuth2AuthorizationServerMetadata.Builder> authorizationServerMetadataCustomizer) {

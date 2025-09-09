@@ -57,7 +57,7 @@ import org.springframework.web.client.RestTemplate;
  * {@code self_signed_tls_client_auth} authentication method.
  *
  * @author Joe Grandja
- * @since 1.3
+ * @since 7.0
  * @see X509ClientCertificateAuthenticationProvider#setCertificateVerifier(Consumer)
  */
 final class X509SelfSignedCertificateVerifier implements Consumer<OAuth2ClientAuthenticationContext> {

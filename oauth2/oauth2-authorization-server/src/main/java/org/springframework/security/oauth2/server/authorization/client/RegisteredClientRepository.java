@@ -24,7 +24,7 @@ import org.springframework.lang.Nullable;
  * @author Joe Grandja
  * @author Anoop Garlapati
  * @author Ovidiu Popa
- * @since 0.0.1
+ * @since 7.0
  * @see RegisteredClient
  */
 public interface RegisteredClientRepository {

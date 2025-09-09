@@ -31,7 +31,7 @@ import org.springframework.util.Assert;
  * validating an OAuth 2.0 Client Authentication.
  *
  * @author Joe Grandja
- * @since 1.3
+ * @since 7.0
  * @see OAuth2AuthenticationContext
  * @see OAuth2ClientAuthenticationToken
  * @see X509ClientCertificateAuthenticationProvider#setCertificateVerifier(Consumer)

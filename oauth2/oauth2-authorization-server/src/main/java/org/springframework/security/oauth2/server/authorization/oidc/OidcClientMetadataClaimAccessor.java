@@ -33,7 +33,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
  *
  * @author Ovidiu Popa
  * @author Joe Grandja
- * @since 0.1.1
+ * @since 7.0
  * @see ClaimAccessor
  * @see OidcClientMetadataClaimNames
  * @see OidcClientRegistration
@@ -104,7 +104,6 @@ public interface OidcClientMetadataClaimAccessor extends ClaimAccessor {
 	 * is used by the client when requesting that the End-User's User Agent be redirected
 	 * to after a logout has been performed.
 	 * @return the post logout redirection {@code URI} values used by the Client
-	 * @since 1.1
 	 */
 	default List<String> getPostLogoutRedirectUris() {
 		return getClaimAsStringList(OidcClientMetadataClaimNames.POST_LOGOUT_REDIRECT_URIS);
@@ -127,7 +126,6 @@ public interface OidcClientMetadataClaimAccessor extends ClaimAccessor {
 	 * authentication methods {@code (token_endpoint_auth_signing_alg)}.
 	 * @return the {@link JwsAlgorithm JWS} algorithm that must be used for signing the
 	 * {@link Jwt JWT} used to authenticate the Client at the Token Endpoint
-	 * @since 0.2.2
 	 */
 	default String getTokenEndpointAuthenticationSigningAlgorithm() {
 		return getClaimAsString(OidcClientMetadataClaimNames.TOKEN_ENDPOINT_AUTH_SIGNING_ALG);
@@ -166,7 +164,6 @@ public interface OidcClientMetadataClaimAccessor extends ClaimAccessor {
 	/**
 	 * Returns the {@code URL} for the Client's JSON Web Key Set {@code (jwks_uri)}.
 	 * @return the {@code URL} for the Client's JSON Web Key Set {@code (jwks_uri)}
-	 * @since 0.2.2
 	 */
 	default URL getJwkSetUrl() {
 		return getClaimAsURL(OidcClientMetadataClaimNames.JWKS_URI);
@@ -188,7 +185,6 @@ public interface OidcClientMetadataClaimAccessor extends ClaimAccessor {
 	 * Endpoint.
 	 * @return the Registration Access Token that can be used at the Client Configuration
 	 * Endpoint
-	 * @since 0.2.1
 	 */
 	default String getRegistrationAccessToken() {
 		return getClaimAsString(OidcClientMetadataClaimNames.REGISTRATION_ACCESS_TOKEN);
@@ -199,7 +195,6 @@ public interface OidcClientMetadataClaimAccessor extends ClaimAccessor {
 	 * Access Token can be used.
 	 * @return the {@code URL} of the Client Configuration Endpoint where the Registration
 	 * Access Token can be used
-	 * @since 0.2.1
 	 */
 	default URL getRegistrationClientUrl() {
 		return getClaimAsURL(OidcClientMetadataClaimNames.REGISTRATION_CLIENT_URI);

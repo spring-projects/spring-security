@@ -61,7 +61,7 @@ import org.springframework.util.Assert;
  * Configurer for the OAuth 2.0 Token Endpoint.
  *
  * @author Joe Grandja
- * @since 0.1.2
+ * @since 7.0
  * @see OAuth2AuthorizationServerConfigurer#tokenEndpoint
  * @see OAuth2TokenEndpointFilter
  */
@@ -117,7 +117,6 @@ public final class OAuth2TokenEndpointConfigurer extends AbstractOAuth2Configure
 	 * to the {@code List} of default and (optionally) added
 	 * {@link AuthenticationConverter}'s
 	 * @return the {@link OAuth2TokenEndpointConfigurer} for further configuration
-	 * @since 0.4.0
 	 */
 	public OAuth2TokenEndpointConfigurer accessTokenRequestConverters(
 			Consumer<List<AuthenticationConverter>> accessTokenRequestConvertersConsumer) {
@@ -147,7 +146,6 @@ public final class OAuth2TokenEndpointConfigurer extends AbstractOAuth2Configure
 	 * @param authenticationProvidersConsumer the {@code Consumer} providing access to the
 	 * {@code List} of default and (optionally) added {@link AuthenticationProvider}'s
 	 * @return the {@link OAuth2TokenEndpointConfigurer} for further configuration
-	 * @since 0.4.0
 	 */
 	public OAuth2TokenEndpointConfigurer authenticationProviders(
 			Consumer<List<AuthenticationProvider>> authenticationProvidersConsumer) {

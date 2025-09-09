@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * This mixin class is used to serialize/deserialize {@link String} array.
  *
  * @author Nikola Jovanovic
- * @since 1.2.6
+ * @since 7.0
  * @see String
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)

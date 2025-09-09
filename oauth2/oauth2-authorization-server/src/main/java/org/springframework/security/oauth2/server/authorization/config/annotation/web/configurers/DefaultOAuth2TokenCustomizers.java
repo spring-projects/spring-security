@@ -45,7 +45,7 @@ import org.springframework.util.CollectionUtils;
 /**
  * @author Joe Grandja
  * @author Steve Riesenberg
- * @since 1.3
+ * @since 7.0
  */
 final class DefaultOAuth2TokenCustomizers {
 

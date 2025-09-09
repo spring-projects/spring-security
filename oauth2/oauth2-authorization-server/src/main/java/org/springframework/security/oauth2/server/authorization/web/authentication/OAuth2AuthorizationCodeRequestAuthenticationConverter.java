@@ -59,7 +59,7 @@ import org.springframework.util.StringUtils;
  * request.
  *
  * @author Joe Grandja
- * @since 0.1.2
+ * @since 7.0
  * @see AuthenticationConverter
  * @see OAuth2AuthorizationCodeRequestAuthenticationToken
  * @see OAuth2PushedAuthorizationRequestAuthenticationToken

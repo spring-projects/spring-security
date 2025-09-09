@@ -24,7 +24,7 @@ import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
  *
  * @author Daniel Garnier-Moiroux
  * @author Joe Grandja
- * @since 0.1.1
+ * @since 7.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc8414#section-2">2.
  * Authorization Server Metadata</a>
  * @see <a target="_blank" href=
@@ -59,14 +59,12 @@ public class OAuth2AuthorizationServerMetadataClaimNames {
 	/**
 	 * {@code pushed_authorization_request_endpoint} - the {@code URL} of the OAuth 2.0
 	 * Pushed Authorization Request Endpoint
-	 * @since 1.5
 	 */
 	public static final String PUSHED_AUTHORIZATION_REQUEST_ENDPOINT = "pushed_authorization_request_endpoint";
 
 	/**
 	 * {@code device_authorization_endpoint} - the {@code URL} of the OAuth 2.0 Device
 	 * Authorization Endpoint
-	 * @since 1.1
 	 */
 	public static final String DEVICE_AUTHORIZATION_ENDPOINT = "device_authorization_endpoint";
 
@@ -129,7 +127,6 @@ public class OAuth2AuthorizationServerMetadataClaimNames {
 	/**
 	 * {@code registration_endpoint} - the {@code URL} of the OAuth 2.0 Dynamic Client
 	 * Registration Endpoint
-	 * @since 0.4.0
 	 */
 	public static final String REGISTRATION_ENDPOINT = "registration_endpoint";
 
@@ -142,14 +139,12 @@ public class OAuth2AuthorizationServerMetadataClaimNames {
 	/**
 	 * {@code tls_client_certificate_bound_access_tokens} - {@code true} to indicate
 	 * support for mutual-TLS client certificate-bound access tokens
-	 * @since 1.3
 	 */
 	public static final String TLS_CLIENT_CERTIFICATE_BOUND_ACCESS_TOKENS = "tls_client_certificate_bound_access_tokens";
 
 	/**
 	 * {@code dpop_signing_alg_values_supported} - the {@link JwsAlgorithms JSON Web
 	 * Signature (JWS) algorithms} supported for DPoP Proof JWTs
-	 * @since 1.5
 	 */
 	public static final String DPOP_SIGNING_ALG_VALUES_SUPPORTED = "dpop_signing_alg_values_supported";
 

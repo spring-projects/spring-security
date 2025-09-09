@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * This mixin class is used to serialize/deserialize {@link HashSet}.
  *
  * @author Steve Riesenberg
- * @since 0.1.2
+ * @since 7.0
  * @see HashSet
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)

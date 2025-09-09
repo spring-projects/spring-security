@@ -40,7 +40,7 @@ import org.springframework.util.StringUtils;
  * grant.
  *
  * @author Steve Riesenberg
- * @since 1.1
+ * @since 7.0
  * @see AuthenticationConverter
  * @see OAuth2DeviceCodeAuthenticationToken
  * @see OAuth2TokenEndpointFilter

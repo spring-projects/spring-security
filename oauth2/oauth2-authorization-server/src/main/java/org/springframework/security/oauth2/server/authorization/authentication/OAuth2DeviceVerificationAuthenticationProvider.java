@@ -50,7 +50,7 @@ import org.springframework.util.Assert;
  * (submission of the user code) used in the OAuth 2.0 Device Authorization Grant.
  *
  * @author Steve Riesenberg
- * @since 1.1
+ * @since 7.0
  * @see OAuth2DeviceVerificationAuthenticationToken
  * @see OAuth2DeviceAuthorizationRequestAuthenticationProvider
  * @see OAuth2DeviceAuthorizationConsentAuthenticationProvider

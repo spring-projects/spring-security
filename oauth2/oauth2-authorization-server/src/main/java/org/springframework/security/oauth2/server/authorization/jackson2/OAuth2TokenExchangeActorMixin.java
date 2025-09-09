@@ -30,7 +30,7 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
  * This mixin class is used to serialize/deserialize {@link OAuth2TokenExchangeActor}.
  *
  * @author Steve Riesenberg
- * @since 1.3
+ * @since 7.0
  * @see OAuth2TokenExchangeActor
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)

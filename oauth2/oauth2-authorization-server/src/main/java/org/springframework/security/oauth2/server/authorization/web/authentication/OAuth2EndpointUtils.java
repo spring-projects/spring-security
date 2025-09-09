@@ -40,7 +40,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Joe Grandja
  * @author Greg Li
- * @since 0.1.2
+ * @since 7.0
  */
 final class OAuth2EndpointUtils {
 

@@ -50,7 +50,7 @@ import org.springframework.util.StringUtils;
  * @author Joe Grandja
  * @author Rafal Lewczuk
  * @author Dmitriy Dubson
- * @since 0.4.0
+ * @since 7.0
  * @see RegisteredClientRepository
  * @see OAuth2AuthorizationService
  * @see OidcClientRegistrationAuthenticationToken
@@ -91,7 +91,6 @@ public final class OidcClientConfigurationAuthenticationProvider implements Auth
 	 * {@link OidcClientRegistration}.
 	 * @param clientRegistrationConverter the {@link Converter} used for converting a
 	 * {@link RegisteredClient} to an {@link OidcClientRegistration}
-	 * @since 1.2.0
 	 */
 	public void setClientRegistrationConverter(
 			Converter<RegisteredClient, OidcClientRegistration> clientRegistrationConverter) {

@@ -121,7 +121,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for the OAuth 2.0 Refresh Token Grant.
  *
  * @author Alexey Nesterov
- * @since 0.0.3
+ * @since 7.0
  */
 @ExtendWith(SpringTestContextExtension.class)
 public class OAuth2RefreshTokenGrantTests {

@@ -35,7 +35,7 @@ import org.springframework.util.Assert;
  *
  * @author Daniel Garnier-Moiroux
  * @author Joe Grandja
- * @since 0.1.0
+ * @since 7.0
  * @see AbstractOAuth2AuthorizationServerMetadata
  * @see OidcProviderMetadataClaimAccessor
  * @see <a target="_blank" href=
@@ -132,7 +132,6 @@ public final class OidcProviderConfiguration extends AbstractOAuth2Authorization
 		 * @param userInfoEndpoint the {@code URL} of the OpenID Connect 1.0 UserInfo
 		 * Endpoint
 		 * @return the {@link Builder} for further configuration
-		 * @since 0.2.2
 		 */
 		public Builder userInfoEndpoint(String userInfoEndpoint) {
 			return claim(OidcProviderMetadataClaimNames.USER_INFO_ENDPOINT, userInfoEndpoint);
@@ -144,7 +143,6 @@ public final class OidcProviderConfiguration extends AbstractOAuth2Authorization
 		 * @param endSessionEndpoint the {@code URL} of the OpenID Connect 1.0 End Session
 		 * Endpoint
 		 * @return the {@link Builder} for further configuration
-		 * @since 1.1
 		 */
 		public Builder endSessionEndpoint(String endSessionEndpoint) {
 			return claim(OidcProviderMetadataClaimNames.END_SESSION_ENDPOINT, endSessionEndpoint);

@@ -83,7 +83,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @author Madhu Bhat
  * @author Daniel Garnier-Moiroux
  * @author Dmitriy Dubson
- * @since 0.0.1
+ * @since 7.0
  * @see AuthenticationManager
  * @see OAuth2AuthorizationCodeAuthenticationProvider
  * @see OAuth2RefreshTokenAuthenticationProvider

@@ -27,7 +27,7 @@ import org.springframework.security.oauth2.core.OAuth2Error;
  * authenticate the OAuth 2.0 Authorization Request (or Consent) fails.
  *
  * @author Joe Grandja
- * @since 0.1.2
+ * @since 7.0
  * @see OAuth2AuthorizationCodeRequestAuthenticationToken
  * @see OAuth2AuthorizationCodeRequestAuthenticationProvider
  */

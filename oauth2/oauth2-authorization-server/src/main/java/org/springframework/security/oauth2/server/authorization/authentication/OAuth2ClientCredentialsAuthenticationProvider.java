@@ -50,7 +50,7 @@ import org.springframework.util.Assert;
  *
  * @author Alexey Nesterov
  * @author Joe Grandja
- * @since 0.0.1
+ * @since 7.0
  * @see OAuth2ClientCredentialsAuthenticationToken
  * @see OAuth2AccessTokenAuthenticationToken
  * @see OAuth2AuthorizationService
@@ -79,7 +79,6 @@ public final class OAuth2ClientCredentialsAuthenticationProvider implements Auth
 	 * provided parameters.
 	 * @param authorizationService the authorization service
 	 * @param tokenGenerator the token generator
-	 * @since 0.2.3
 	 */
 	public OAuth2ClientCredentialsAuthenticationProvider(OAuth2AuthorizationService authorizationService,
 			OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator) {
@@ -192,7 +191,6 @@ public final class OAuth2ClientCredentialsAuthenticationProvider implements Auth
 	 * @param authenticationValidator the {@code Consumer} providing access to the
 	 * {@link OAuth2ClientCredentialsAuthenticationContext} and is responsible for
 	 * validating specific OAuth 2.0 Client Credentials Grant Request parameters
-	 * @since 1.3
 	 */
 	public void setAuthenticationValidator(
 			Consumer<OAuth2ClientCredentialsAuthenticationContext> authenticationValidator) {

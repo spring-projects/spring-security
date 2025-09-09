@@ -34,7 +34,7 @@ import org.springframework.util.CollectionUtils;
  * Utility methods for the OAuth 2.0 {@link AuthenticationProvider}'s.
  *
  * @author Joe Grandja
- * @since 0.0.3
+ * @since 7.0
  */
 final class OAuth2AuthenticationProviderUtils {
 

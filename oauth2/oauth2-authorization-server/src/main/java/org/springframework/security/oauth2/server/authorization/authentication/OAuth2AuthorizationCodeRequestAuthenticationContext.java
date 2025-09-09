@@ -35,7 +35,7 @@ import org.springframework.util.Assert;
  * determining if authorization consent is required.
  *
  * @author Joe Grandja
- * @since 0.4.0
+ * @since 7.0
  * @see OAuth2AuthenticationContext
  * @see OAuth2AuthorizationCodeRequestAuthenticationToken
  * @see OAuth2AuthorizationCodeRequestAuthenticationProvider#setAuthenticationValidator(Consumer)
@@ -73,7 +73,6 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationContext implement
 	/**
 	 * Returns the {@link OAuth2AuthorizationRequest authorization request}.
 	 * @return the {@link OAuth2AuthorizationRequest}
-	 * @since 1.3
 	 */
 	@Nullable
 	public OAuth2AuthorizationRequest getAuthorizationRequest() {
@@ -83,7 +82,6 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationContext implement
 	/**
 	 * Returns the {@link OAuth2AuthorizationConsent authorization consent}.
 	 * @return the {@link OAuth2AuthorizationConsent}
-	 * @since 1.3
 	 */
 	@Nullable
 	public OAuth2AuthorizationConsent getAuthorizationConsent() {
@@ -123,7 +121,6 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationContext implement
 		 * Sets the {@link OAuth2AuthorizationRequest authorization request}.
 		 * @param authorizationRequest the {@link OAuth2AuthorizationRequest}
 		 * @return the {@link Builder} for further configuration
-		 * @since 1.3
 		 */
 		public Builder authorizationRequest(OAuth2AuthorizationRequest authorizationRequest) {
 			return put(OAuth2AuthorizationRequest.class, authorizationRequest);
@@ -133,7 +130,6 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationContext implement
 		 * Sets the {@link OAuth2AuthorizationConsent authorization consent}.
 		 * @param authorizationConsent the {@link OAuth2AuthorizationConsent}
 		 * @return the {@link Builder} for further configuration
-		 * @since 1.3
 		 */
 		public Builder authorizationConsent(OAuth2AuthorizationConsent authorizationConsent) {
 			return put(OAuth2AuthorizationConsent.class, authorizationConsent);

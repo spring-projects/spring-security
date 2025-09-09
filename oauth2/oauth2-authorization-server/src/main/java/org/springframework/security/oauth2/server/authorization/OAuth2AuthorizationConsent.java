@@ -43,7 +43,7 @@ import org.springframework.util.CollectionUtils;
  * The resource owner then selects which scopes they grant to the client.
  *
  * @author Daniel Garnier-Moiroux
- * @since 0.1.2
+ * @since 7.0
  */
 public final class OAuth2AuthorizationConsent implements Serializable {
 

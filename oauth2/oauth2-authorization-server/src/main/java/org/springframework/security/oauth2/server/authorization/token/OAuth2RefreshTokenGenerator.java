@@ -32,7 +32,7 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
  * An {@link OAuth2TokenGenerator} that generates an {@link OAuth2RefreshToken}.
  *
  * @author Joe Grandja
- * @since 0.2.3
+ * @since 7.0
  * @see OAuth2TokenGenerator
  * @see OAuth2RefreshToken
  */

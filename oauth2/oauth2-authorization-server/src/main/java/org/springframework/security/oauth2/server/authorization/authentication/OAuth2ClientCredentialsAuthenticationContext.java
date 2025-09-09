@@ -31,7 +31,7 @@ import org.springframework.util.Assert;
  * used when validating the OAuth 2.0 Client Credentials Grant Request.
  *
  * @author Adam Pilling
- * @since 1.3
+ * @since 7.0
  * @see OAuth2AuthenticationContext
  * @see OAuth2ClientCredentialsAuthenticationToken
  * @see OAuth2ClientCredentialsAuthenticationProvider#setAuthenticationValidator(Consumer)

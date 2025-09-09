@@ -38,7 +38,7 @@ import org.springframework.util.Assert;
  * by an {@link OAuth2TokenGenerator} and {@link OAuth2TokenCustomizer}.
  *
  * @author Joe Grandja
- * @since 0.1.0
+ * @since 7.0
  * @see Context
  * @see OAuth2TokenGenerator
  * @see OAuth2TokenCustomizer
@@ -47,7 +47,6 @@ public interface OAuth2TokenContext extends Context {
 
 	/**
 	 * The key used for the DPoP Proof {@link Jwt} (if available).
-	 * @since 1.5
 	 */
 	String DPOP_PROOF_KEY = Jwt.class.getName().concat(".DPOP_PROOF");
 
@@ -73,7 +72,6 @@ public interface OAuth2TokenContext extends Context {
 	/**
 	 * Returns the {@link AuthorizationServerContext authorization server context}.
 	 * @return the {@link AuthorizationServerContext}
-	 * @since 0.2.3
 	 */
 	default AuthorizationServerContext getAuthorizationServerContext() {
 		return get(AuthorizationServerContext.class);
@@ -164,7 +162,6 @@ public interface OAuth2TokenContext extends Context {
 		 * Sets the {@link AuthorizationServerContext authorization server context}.
 		 * @param authorizationServerContext the {@link AuthorizationServerContext}
 		 * @return the {@link AbstractBuilder} for further configuration
-		 * @since 0.2.3
 		 */
 		public B authorizationServerContext(AuthorizationServerContext authorizationServerContext) {
 			return put(AuthorizationServerContext.class, authorizationServerContext);

@@ -35,7 +35,7 @@ import org.springframework.util.StringUtils;
  * @author Anoop Garlapati
  * @author Ovidiu Popa
  * @author Joe Grandja
- * @since 0.0.1
+ * @since 7.0
  * @see RegisteredClientRepository
  * @see RegisteredClient
  */

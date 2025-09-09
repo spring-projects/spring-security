@@ -25,7 +25,7 @@ import org.springframework.util.Assert;
  * Standard token types defined in the OAuth Token Type Hints Registry.
  *
  * @author Joe Grandja
- * @since 0.0.1
+ * @since 7.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7009#section-4.1.2">4.1.2
  * OAuth Token Type Hints Registry</a>
  */

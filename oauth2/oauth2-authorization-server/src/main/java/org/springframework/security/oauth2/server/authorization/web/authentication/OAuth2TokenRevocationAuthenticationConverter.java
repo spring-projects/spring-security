@@ -37,7 +37,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Vivek Babu
  * @author Joe Grandja
- * @since 0.4.0
+ * @since 7.0
  * @see AuthenticationConverter
  * @see OAuth2TokenRevocationAuthenticationToken
  * @see OAuth2TokenRevocationEndpointFilter

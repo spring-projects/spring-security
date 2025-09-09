@@ -44,7 +44,7 @@ import org.springframework.util.Assert;
  *
  * @author Rafal Lewczuk
  * @author Joe Grandja
- * @since 0.2.3
+ * @since 7.0
  * @see AuthenticationProvider
  * @see OAuth2ClientAuthenticationToken
  * @see RegisteredClientRepository
@@ -153,7 +153,6 @@ public final class JwtClientAssertionAuthenticationProvider implements Authentic
 	 * {@link JwtClientAssertionDecoderFactory}.
 	 * @param jwtDecoderFactory the {@link JwtDecoderFactory} that provides a
 	 * {@link JwtDecoder} for the specified {@link RegisteredClient}
-	 * @since 0.4.0
 	 */
 	public void setJwtDecoderFactory(JwtDecoderFactory<RegisteredClient> jwtDecoderFactory) {
 		Assert.notNull(jwtDecoderFactory, "jwtDecoderFactory cannot be null");

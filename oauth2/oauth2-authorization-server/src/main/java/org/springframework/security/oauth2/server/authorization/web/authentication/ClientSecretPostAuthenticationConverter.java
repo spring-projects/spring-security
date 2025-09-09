@@ -38,7 +38,7 @@ import org.springframework.util.StringUtils;
  * {@link OAuth2ClientAuthenticationToken} used for authenticating the client.
  *
  * @author Anoop Garlapati
- * @since 0.1.0
+ * @since 7.0
  * @see AuthenticationConverter
  * @see OAuth2ClientAuthenticationToken
  * @see OAuth2ClientAuthenticationFilter

@@ -22,7 +22,7 @@ import org.springframework.security.oauth2.server.authorization.settings.Authori
  * A context that holds information of the Authorization Server runtime environment.
  *
  * @author Joe Grandja
- * @since 0.2.2
+ * @since 7.0
  * @see AuthorizationServerSettings
  * @see AuthorizationServerContextHolder
  */

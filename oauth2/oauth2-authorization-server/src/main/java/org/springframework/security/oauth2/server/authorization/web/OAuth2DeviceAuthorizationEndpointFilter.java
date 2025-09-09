@@ -60,7 +60,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * processing of the OAuth 2.0 Device Authorization Request.
  *
  * @author Steve Riesenberg
- * @since 1.1
+ * @since 7.0
  * @see AuthenticationManager
  * @see OAuth2DeviceAuthorizationRequestAuthenticationConverter
  * @see OAuth2DeviceAuthorizationRequestAuthenticationProvider

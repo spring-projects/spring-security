@@ -28,7 +28,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
  * It also registers a custom deserializer {@link OAuth2AuthorizationRequestDeserializer}.
  *
  * @author Joe Grandja
- * @since 0.1.2
+ * @since 7.0
  * @see OAuth2AuthorizationRequest
  * @see OAuth2AuthorizationRequestDeserializer
  */

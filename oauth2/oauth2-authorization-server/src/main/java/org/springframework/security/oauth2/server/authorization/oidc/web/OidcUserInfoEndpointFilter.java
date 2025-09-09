@@ -55,7 +55,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @author Ido Salomon
  * @author Steve Riesenberg
  * @author Daniel Garnier-Moiroux
- * @since 0.2.1
+ * @since 7.0
  * @see OidcUserInfo
  * @see OidcUserInfoAuthenticationProvider
  * @see <a href="https://openid.net/specs/openid-connect-core-1_0.html#UserInfo">5.3.
@@ -149,7 +149,6 @@ public final class OidcUserInfoEndpointFilter extends OncePerRequestFilter {
 	 * {@link OidcUserInfoAuthenticationToken} used for authenticating the request.
 	 * @param authenticationConverter the {@link AuthenticationConverter} used when
 	 * attempting to extract an UserInfo Request from {@link HttpServletRequest}
-	 * @since 0.4.0
 	 */
 	public void setAuthenticationConverter(AuthenticationConverter authenticationConverter) {
 		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
@@ -162,7 +161,6 @@ public final class OidcUserInfoEndpointFilter extends OncePerRequestFilter {
 	 * UserInfo Response}.
 	 * @param authenticationSuccessHandler the {@link AuthenticationSuccessHandler} used
 	 * for handling an {@link OidcUserInfoAuthenticationToken}
-	 * @since 0.4.0
 	 */
 	public void setAuthenticationSuccessHandler(AuthenticationSuccessHandler authenticationSuccessHandler) {
 		Assert.notNull(authenticationSuccessHandler, "authenticationSuccessHandler cannot be null");
@@ -175,7 +173,6 @@ public final class OidcUserInfoEndpointFilter extends OncePerRequestFilter {
 	 * Response}.
 	 * @param authenticationFailureHandler the {@link AuthenticationFailureHandler} used
 	 * for handling an {@link OAuth2AuthenticationException}
-	 * @since 0.4.0
 	 */
 	public void setAuthenticationFailureHandler(AuthenticationFailureHandler authenticationFailureHandler) {
 		Assert.notNull(authenticationFailureHandler, "authenticationFailureHandler cannot be null");

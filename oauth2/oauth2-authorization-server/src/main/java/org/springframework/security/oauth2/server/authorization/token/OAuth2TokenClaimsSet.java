@@ -32,7 +32,7 @@ import org.springframework.util.Assert;
  * A representation of a set of claims that are associated to an {@link OAuth2Token}.
  *
  * @author Joe Grandja
- * @since 0.2.3
+ * @since 7.0
  * @see OAuth2TokenClaimAccessor
  * @see OAuth2TokenClaimNames
  * @see OAuth2Token

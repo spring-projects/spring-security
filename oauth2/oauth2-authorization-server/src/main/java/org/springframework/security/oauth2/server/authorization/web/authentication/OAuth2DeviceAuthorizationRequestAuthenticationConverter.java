@@ -41,7 +41,7 @@ import org.springframework.util.StringUtils;
  * request.
  *
  * @author Steve Riesenberg
- * @since 1.1
+ * @since 7.0
  * @see AuthenticationConverter
  * @see OAuth2DeviceAuthorizationRequestAuthenticationToken
  * @see OAuth2DeviceAuthorizationEndpointFilter

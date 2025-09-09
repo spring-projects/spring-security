@@ -49,7 +49,7 @@ import org.springframework.util.Assert;
  * Configurer for the OAuth 2.0 Pushed Authorization Request Endpoint.
  *
  * @author Joe Grandja
- * @since 1.5
+ * @since 7.0
  * @see OAuth2AuthorizationServerConfigurer#pushedAuthorizationRequestEndpoint
  * @see OAuth2PushedAuthorizationRequestEndpointFilter
  */

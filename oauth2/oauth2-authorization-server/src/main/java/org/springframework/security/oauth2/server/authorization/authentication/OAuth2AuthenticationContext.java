@@ -30,7 +30,7 @@ import org.springframework.util.Assert;
  * and is used in an {@link AuthenticationProvider}.
  *
  * @author Joe Grandja
- * @since 0.2.0
+ * @since 7.0
  * @see Context
  */
 public interface OAuth2AuthenticationContext extends Context {
@@ -50,7 +50,6 @@ public interface OAuth2AuthenticationContext extends Context {
 	 *
 	 * @param <T> the type of the authentication context
 	 * @param <B> the type of the builder
-	 * @since 0.2.1
 	 */
 	abstract class AbstractBuilder<T extends OAuth2AuthenticationContext, B extends AbstractBuilder<T, B>> {
 

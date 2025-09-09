@@ -97,7 +97,7 @@ import static org.mockito.Mockito.verify;
  * @author Alexey Nesterov
  * @author Joe Grandja
  * @author Anoop Garlapati
- * @since 0.0.3
+ * @since 7.0
  */
 public class OAuth2RefreshTokenAuthenticationProviderTests {
 

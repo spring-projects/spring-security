@@ -30,7 +30,7 @@ import org.springframework.util.Assert;
  * An {@link Authentication} implementation used for the OAuth 2.0 Refresh Token Grant.
  *
  * @author Alexey Nesterov
- * @since 0.0.3
+ * @since 7.0
  * @see OAuth2AuthorizationGrantAuthenticationToken
  * @see OAuth2RefreshTokenAuthenticationProvider
  */

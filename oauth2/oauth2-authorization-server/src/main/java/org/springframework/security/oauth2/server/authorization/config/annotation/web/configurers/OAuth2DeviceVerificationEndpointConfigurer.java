@@ -55,7 +55,7 @@ import org.springframework.util.StringUtils;
  * Configurer for the OAuth 2.0 Device Verification Endpoint.
  *
  * @author Steve Riesenberg
- * @since 1.1
+ * @since 7.0
  * @see OAuth2AuthorizationServerConfigurer#deviceVerificationEndpoint
  * @see OAuth2DeviceVerificationEndpointFilter
  */

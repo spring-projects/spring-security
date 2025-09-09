@@ -35,7 +35,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * Configurer for OpenID Connect 1.0 support.
  *
  * @author Joe Grandja
- * @since 0.2.0
+ * @since 7.0
  * @see OAuth2AuthorizationServerConfigurer#oidc
  * @see OidcProviderConfigurationEndpointConfigurer
  * @see OidcLogoutEndpointConfigurer
@@ -65,7 +65,6 @@ public final class OidcConfigurer extends AbstractOAuth2Configurer {
 	 * @param providerConfigurationEndpointCustomizer the {@link Customizer} providing
 	 * access to the {@link OidcProviderConfigurationEndpointConfigurer}
 	 * @return the {@link OidcConfigurer} for further configuration
-	 * @since 0.4.0
 	 */
 	public OidcConfigurer providerConfigurationEndpoint(
 			Customizer<OidcProviderConfigurationEndpointConfigurer> providerConfigurationEndpointCustomizer) {
@@ -79,7 +78,6 @@ public final class OidcConfigurer extends AbstractOAuth2Configurer {
 	 * @param logoutEndpointCustomizer the {@link Customizer} providing access to the
 	 * {@link OidcLogoutEndpointConfigurer}
 	 * @return the {@link OidcConfigurer} for further configuration
-	 * @since 1.1
 	 */
 	public OidcConfigurer logoutEndpoint(Customizer<OidcLogoutEndpointConfigurer> logoutEndpointCustomizer) {
 		logoutEndpointCustomizer.customize(getConfigurer(OidcLogoutEndpointConfigurer.class));

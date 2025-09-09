@@ -55,7 +55,7 @@ import org.springframework.util.StringUtils;
  * Consent used in the Authorization Code Grant.
  *
  * @author Joe Grandja
- * @since 0.4.0
+ * @since 7.0
  * @see OAuth2AuthorizationConsentAuthenticationToken
  * @see OAuth2AuthorizationConsent
  * @see OAuth2AuthorizationCodeRequestAuthenticationProvider

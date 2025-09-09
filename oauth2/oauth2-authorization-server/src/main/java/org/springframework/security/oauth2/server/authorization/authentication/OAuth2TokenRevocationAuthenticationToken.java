@@ -30,7 +30,7 @@ import org.springframework.util.Assert;
  *
  * @author Vivek Babu
  * @author Joe Grandja
- * @since 0.0.3
+ * @since 7.0
  * @see AbstractAuthenticationToken
  * @see OAuth2TokenRevocationAuthenticationProvider
  */

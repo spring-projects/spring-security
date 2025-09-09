@@ -60,7 +60,7 @@ import org.springframework.util.CollectionUtils;
  * @author Alexey Nesterov
  * @author Joe Grandja
  * @author Anoop Garlapati
- * @since 0.0.3
+ * @since 7.0
  * @see OAuth2RefreshTokenAuthenticationToken
  * @see OAuth2AccessTokenAuthenticationToken
  * @see OAuth2AuthorizationService
@@ -89,7 +89,6 @@ public final class OAuth2RefreshTokenAuthenticationProvider implements Authentic
 	 * parameters.
 	 * @param authorizationService the authorization service
 	 * @param tokenGenerator the token generator
-	 * @since 0.2.3
 	 */
 	public OAuth2RefreshTokenAuthenticationProvider(OAuth2AuthorizationService authorizationService,
 			OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator) {

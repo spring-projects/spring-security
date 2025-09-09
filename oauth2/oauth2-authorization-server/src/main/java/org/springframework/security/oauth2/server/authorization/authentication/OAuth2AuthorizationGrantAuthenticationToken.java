@@ -32,7 +32,7 @@ import org.springframework.util.Assert;
  * Authorization Grant.
  *
  * @author Joe Grandja
- * @since 0.1.0
+ * @since 7.0
  * @see AbstractAuthenticationToken
  * @see AuthorizationGrantType
  * @see OAuth2ClientAuthenticationToken

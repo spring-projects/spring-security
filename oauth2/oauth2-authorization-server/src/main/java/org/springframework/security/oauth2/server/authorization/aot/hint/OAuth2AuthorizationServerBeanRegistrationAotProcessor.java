@@ -63,7 +63,7 @@ import org.springframework.util.ClassUtils;
  * @author Joe Grandja
  * @author Josh Long
  * @author William Koch
- * @since 1.2
+ * @since 7.0
  */
 class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegistrationAotProcessor {
 

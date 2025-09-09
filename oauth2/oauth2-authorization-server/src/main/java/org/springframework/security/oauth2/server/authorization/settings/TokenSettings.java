@@ -28,7 +28,7 @@ import org.springframework.util.Assert;
  * A facility for token configuration settings.
  *
  * @author Joe Grandja
- * @since 0.0.2
+ * @since 7.0
  * @see AbstractSettings
  * @see ConfigurationSettingNames.Token
  */
@@ -44,7 +44,6 @@ public final class TokenSettings extends AbstractSettings {
 	/**
 	 * Returns the time-to-live for an authorization code. The default is 5 minutes.
 	 * @return the time-to-live for an authorization code
-	 * @since 0.4.0
 	 */
 	public Duration getAuthorizationCodeTimeToLive() {
 		return getSetting(ConfigurationSettingNames.Token.AUTHORIZATION_CODE_TIME_TO_LIVE);
@@ -62,7 +61,6 @@ public final class TokenSettings extends AbstractSettings {
 	 * Returns the token format for an access token. The default is
 	 * {@link OAuth2TokenFormat#SELF_CONTAINED}.
 	 * @return the token format for an access token
-	 * @since 0.2.3
 	 */
 	public OAuth2TokenFormat getAccessTokenFormat() {
 		return getSetting(ConfigurationSettingNames.Token.ACCESS_TOKEN_FORMAT);
@@ -71,7 +69,6 @@ public final class TokenSettings extends AbstractSettings {
 	/**
 	 * Returns the time-to-live for a device code. The default is 5 minutes.
 	 * @return the time-to-live for a device code
-	 * @since 1.1
 	 */
 	public Duration getDeviceCodeTimeToLive() {
 		return getSetting(ConfigurationSettingNames.Token.DEVICE_CODE_TIME_TO_LIVE);
@@ -114,7 +111,6 @@ public final class TokenSettings extends AbstractSettings {
 	 * is {@code false}.
 	 * @return {@code true} if access tokens must be bound to the client
 	 * {@code X509Certificate}, {@code false} otherwise
-	 * @since 1.3
 	 */
 	public boolean isX509CertificateBoundAccessTokens() {
 		return getSetting(ConfigurationSettingNames.Token.X509_CERTIFICATE_BOUND_ACCESS_TOKENS);
@@ -159,7 +155,6 @@ public final class TokenSettings extends AbstractSettings {
 		 * RECOMMENDED.
 		 * @param authorizationCodeTimeToLive the time-to-live for an authorization code
 		 * @return the {@link Builder} for further configuration
-		 * @since 0.4.0
 		 */
 		public Builder authorizationCodeTimeToLive(Duration authorizationCodeTimeToLive) {
 			Assert.notNull(authorizationCodeTimeToLive, "authorizationCodeTimeToLive cannot be null");
@@ -186,7 +181,6 @@ public final class TokenSettings extends AbstractSettings {
 		 * Set the token format for an access token.
 		 * @param accessTokenFormat the token format for an access token
 		 * @return the {@link Builder} for further configuration
-		 * @since 0.2.3
 		 */
 		public Builder accessTokenFormat(OAuth2TokenFormat accessTokenFormat) {
 			Assert.notNull(accessTokenFormat, "accessTokenFormat cannot be null");
@@ -198,7 +192,6 @@ public final class TokenSettings extends AbstractSettings {
 		 * {@code Duration.ZERO}.
 		 * @param deviceCodeTimeToLive the time-to-live for a device code
 		 * @return the {@link Builder} for further configuration
-		 * @since 1.1
 		 */
 		public Builder deviceCodeTimeToLive(Duration deviceCodeTimeToLive) {
 			Assert.notNull(deviceCodeTimeToLive, "deviceCodeTimeToLive cannot be null");
@@ -250,7 +243,6 @@ public final class TokenSettings extends AbstractSettings {
 		 * @param x509CertificateBoundAccessTokens {@code true} if access tokens must be
 		 * bound to the client {@code X509Certificate}, {@code false} otherwise
 		 * @return the {@link Builder} for further configuration
-		 * @since 1.3
 		 */
 		public Builder x509CertificateBoundAccessTokens(boolean x509CertificateBoundAccessTokens) {
 			return setting(ConfigurationSettingNames.Token.X509_CERTIFICATE_BOUND_ACCESS_TOKENS,

@@ -27,7 +27,7 @@ import org.springframework.security.oauth2.server.authorization.settings.OAuth2T
  * This mixin class is used to serialize/deserialize {@link OAuth2TokenFormat}.
  *
  * @author Joe Grandja
- * @since 0.2.3
+ * @since 7.0
  * @see OAuth2TokenFormat
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)

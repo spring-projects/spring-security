@@ -31,7 +31,7 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
  * An {@link OAuth2TokenGenerator} that generates an {@link OAuth2AuthorizationCode}.
  *
  * @author Joe Grandja
- * @since 0.4.0
+ * @since 7.0
  * @see OAuth2TokenGenerator
  * @see OAuth2AuthorizationCode
  * @see OAuth2AuthorizationCodeRequestAuthenticationProvider

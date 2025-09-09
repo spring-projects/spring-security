@@ -39,7 +39,7 @@ import org.springframework.util.StringUtils;
  * authenticating public clients using Proof Key for Code Exchange (PKCE).
  *
  * @author Joe Grandja
- * @since 0.0.2
+ * @since 7.0
  * @see AuthenticationConverter
  * @see OAuth2ClientAuthenticationToken
  * @see OAuth2ClientAuthenticationFilter

@@ -74,7 +74,7 @@ import org.springframework.util.StringUtils;
  * @author Joe Grandja
  * @author Ovidiu Popa
  * @author Josh Long
- * @since 0.1.2
+ * @since 7.0
  * @see RegisteredClientRepository
  * @see RegisteredClient
  * @see JdbcOperations

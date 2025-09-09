@@ -30,7 +30,7 @@ import org.springframework.util.Assert;
  * "delegation" use case).
  *
  * @author Steve Riesenberg
- * @since 1.3
+ * @since 7.0
  * @see OAuth2TokenExchangeCompositeAuthenticationToken
  */
 public final class OAuth2TokenExchangeActor implements ClaimAccessor {

@@ -46,7 +46,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Joe Grandja
  * @author Krisztian Toth
- * @since 0.0.1
+ * @since 7.0
  * @see RegisteredClient
  * @see AuthorizationGrantType
  * @see OAuth2Token
@@ -111,7 +111,6 @@ public class OAuth2Authorization implements Serializable {
 	/**
 	 * Returns the authorized scope(s).
 	 * @return the {@code Set} of authorized scope(s)
-	 * @since 0.4.0
 	 */
 	public Set<String> getAuthorizedScopes() {
 		return this.authorizedScopes;
@@ -244,7 +243,6 @@ public class OAuth2Authorization implements Serializable {
 	 *
 	 * @param <T> the type of the {@link OAuth2Token}
 	 * @author Joe Grandja
-	 * @since 0.1.0
 	 */
 	public static class Token<T extends OAuth2Token> implements Serializable {
 
@@ -436,7 +434,6 @@ public class OAuth2Authorization implements Serializable {
 		 * Sets the authorized scope(s).
 		 * @param authorizedScopes the {@code Set} of authorized scope(s)
 		 * @return the {@link Builder}
-		 * @since 0.4.0
 		 */
 		public Builder authorizedScopes(Set<String> authorizedScopes) {
 			this.authorizedScopes = authorizedScopes;
@@ -497,7 +494,6 @@ public class OAuth2Authorization implements Serializable {
 		 * @param token the token
 		 * @param <T> the type of the token
 		 * @return the {@link Builder}
-		 * @since 1.4
 		 */
 		public <T extends OAuth2Token> Builder invalidate(T token) {
 			Assert.notNull(token, "token cannot be null");

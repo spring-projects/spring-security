@@ -27,7 +27,7 @@ import org.springframework.security.crypto.keygen.StringKeyGenerator;
  * Requests.
  *
  * @author Joe Grandja
- * @since 1.5
+ * @since 7.0
  */
 final class OAuth2PushedAuthorizationRequestUri {
 

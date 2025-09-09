@@ -36,7 +36,7 @@ import org.springframework.util.Assert;
  *
  * @author Steve Riesenberg
  * @author Joe Grandja
- * @since 0.2.1
+ * @since 7.0
  * @see OAuth2AuthenticationContext
  * @see OAuth2AuthorizationConsent
  * @see OAuth2AuthorizationConsentAuthenticationProvider#setAuthorizationConsentCustomizer(Consumer)

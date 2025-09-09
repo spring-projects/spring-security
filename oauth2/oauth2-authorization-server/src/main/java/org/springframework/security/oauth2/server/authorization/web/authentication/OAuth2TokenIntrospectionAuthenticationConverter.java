@@ -40,7 +40,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Gerardo Roza
  * @author Joe Grandja
- * @since 0.4.0
+ * @since 7.0
  * @see AuthenticationConverter
  * @see OAuth2TokenIntrospectionAuthenticationToken
  * @see OAuth2TokenIntrospectionEndpointFilter

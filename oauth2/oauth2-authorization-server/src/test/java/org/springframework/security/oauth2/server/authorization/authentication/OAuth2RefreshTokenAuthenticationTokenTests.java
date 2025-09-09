@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * Tests for {@link OAuth2RefreshTokenAuthenticationToken}.
  *
  * @author Alexey Nesterov
- * @since 0.0.3
+ * @since 7.0
  */
 public class OAuth2RefreshTokenAuthenticationTokenTests {
 

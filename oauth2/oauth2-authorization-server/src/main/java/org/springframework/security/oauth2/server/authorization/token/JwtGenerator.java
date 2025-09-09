@@ -50,7 +50,7 @@ import org.springframework.util.StringUtils;
  * {@link OAuth2AccessToken} or {@link OidcIdToken}.
  *
  * @author Joe Grandja
- * @since 0.2.3
+ * @since 7.0
  * @see OAuth2TokenGenerator
  * @see Jwt
  * @see JwtEncoder

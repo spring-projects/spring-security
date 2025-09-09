@@ -41,7 +41,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
  * {@link OAuth2AuthenticationException} is thrown.
  *
  * @author Adam Pilling
- * @since 1.3
+ * @since 7.0
  * @see OAuth2ClientCredentialsAuthenticationContext
  * @see OAuth2ClientCredentialsAuthenticationToken
  * @see OAuth2ClientCredentialsAuthenticationProvider#setAuthenticationValidator(Consumer)

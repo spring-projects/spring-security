@@ -50,7 +50,7 @@ import org.springframework.util.StringUtils;
  * Configurer for the OAuth 2.0 Device Authorization Endpoint.
  *
  * @author Steve Riesenberg
- * @since 1.1
+ * @since 7.0
  * @see OAuth2AuthorizationServerConfigurer#deviceAuthorizationEndpoint
  * @see OAuth2DeviceAuthorizationEndpointFilter
  */

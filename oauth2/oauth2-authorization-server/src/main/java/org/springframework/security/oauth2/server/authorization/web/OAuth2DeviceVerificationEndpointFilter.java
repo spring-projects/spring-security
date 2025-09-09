@@ -69,7 +69,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * Device Authorization Consent.
  *
  * @author Steve Riesenberg
- * @since 1.1
+ * @since 7.0
  * @see AuthenticationManager
  * @see OAuth2DeviceVerificationAuthenticationConverter
  * @see OAuth2DeviceVerificationAuthenticationProvider

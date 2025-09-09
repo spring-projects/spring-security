@@ -31,7 +31,7 @@ import org.springframework.security.core.GrantedAuthority;
  * This mixin class is used to serialize/deserialize {@link TestingAuthenticationToken}.
  *
  * @author Steve Riesenberg
- * @since 0.1.2
+ * @since 7.0
  * @see TestingAuthenticationToken
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)

@@ -42,7 +42,7 @@ import org.springframework.util.Assert;
  *
  * @author Krisztian Toth
  * @author Joe Grandja
- * @since 0.0.1
+ * @since 7.0
  * @see OAuth2AuthorizationService
  */
 public final class InMemoryOAuth2AuthorizationService implements OAuth2AuthorizationService {

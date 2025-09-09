@@ -30,7 +30,7 @@ import org.springframework.util.Assert;
  * represent the principal in a composite token (e.g. the "delegation" use case).
  *
  * @author Steve Riesenberg
- * @since 1.3
+ * @since 7.0
  * @see OAuth2TokenExchangeAuthenticationToken
  */
 public class OAuth2TokenExchangeCompositeAuthenticationToken extends AbstractAuthenticationToken {

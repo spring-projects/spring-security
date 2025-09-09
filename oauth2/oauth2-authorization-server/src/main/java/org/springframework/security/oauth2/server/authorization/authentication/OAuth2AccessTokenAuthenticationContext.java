@@ -32,7 +32,7 @@ import org.springframework.util.Assert;
  * when customizing the {@link OAuth2AccessTokenResponse}.
  *
  * @author Dmitriy Dubson
- * @since 1.3
+ * @since 7.0
  * @see OAuth2AuthenticationContext
  * @see OAuth2AccessTokenAuthenticationToken
  * @see OAuth2AccessTokenResponse

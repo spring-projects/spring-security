@@ -46,7 +46,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Daniel Garnier-Moiroux
  * @author Joe Grandja
- * @since 0.2.3
+ * @since 7.0
  * @see OAuth2ClientAuthenticationToken
  * @see OAuth2AuthorizationService
  */

@@ -26,7 +26,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
  * The names for all the configuration settings.
  *
  * @author Joe Grandja
- * @since 0.2.0
+ * @since 7.0
  */
 public final class ConfigurationSettingNames {
 
@@ -58,7 +58,6 @@ public final class ConfigurationSettingNames {
 
 		/**
 		 * Set the {@code URL} for the Client's JSON Web Key Set.
-		 * @since 0.2.2
 		 */
 		public static final String JWK_SET_URL = CLIENT_SETTINGS_NAMESPACE.concat("jwk-set-url");
 
@@ -68,7 +67,6 @@ public final class ConfigurationSettingNames {
 		 * {@link ClientAuthenticationMethod#PRIVATE_KEY_JWT private_key_jwt} and
 		 * {@link ClientAuthenticationMethod#CLIENT_SECRET_JWT client_secret_jwt}
 		 * authentication methods.
-		 * @since 0.2.2
 		 */
 		public static final String TOKEN_ENDPOINT_AUTHENTICATION_SIGNING_ALGORITHM = CLIENT_SETTINGS_NAMESPACE
 			.concat("token-endpoint-authentication-signing-algorithm");
@@ -77,7 +75,6 @@ public final class ConfigurationSettingNames {
 		 * Set the expected subject distinguished name associated to the client
 		 * {@code X509Certificate} received during client authentication when using the
 		 * {@code tls_client_auth} method.
-		 * @since 1.3
 		 */
 		public static final String X509_CERTIFICATE_SUBJECT_DN = CLIENT_SETTINGS_NAMESPACE
 			.concat("x509-certificate-subject-dn");
@@ -102,7 +99,6 @@ public final class ConfigurationSettingNames {
 
 		/**
 		 * Set to {@code true} if multiple issuers are allowed per host.
-		 * @since 1.3
 		 */
 		public static final String MULTIPLE_ISSUERS_ALLOWED = AUTHORIZATION_SERVER_SETTINGS_NAMESPACE
 			.concat("multiple-issuers-allowed");
@@ -115,7 +111,6 @@ public final class ConfigurationSettingNames {
 
 		/**
 		 * Set the OAuth 2.0 Pushed Authorization Request endpoint.
-		 * @since 1.5
 		 */
 		public static final String PUSHED_AUTHORIZATION_REQUEST_ENDPOINT = AUTHORIZATION_SERVER_SETTINGS_NAMESPACE
 			.concat("pushed-authorization-request-endpoint");
@@ -169,7 +164,6 @@ public final class ConfigurationSettingNames {
 
 		/**
 		 * Set the OpenID Connect 1.0 Logout endpoint.
-		 * @since 1.1
 		 */
 		public static final String OIDC_LOGOUT_ENDPOINT = AUTHORIZATION_SERVER_SETTINGS_NAMESPACE
 			.concat("oidc-logout-endpoint");
@@ -188,7 +182,6 @@ public final class ConfigurationSettingNames {
 
 		/**
 		 * Set the time-to-live for an authorization code.
-		 * @since 0.4.0
 		 */
 		public static final String AUTHORIZATION_CODE_TIME_TO_LIVE = TOKEN_SETTINGS_NAMESPACE
 			.concat("authorization-code-time-to-live");
@@ -201,13 +194,11 @@ public final class ConfigurationSettingNames {
 
 		/**
 		 * Set the {@link OAuth2TokenFormat token format} for an access token.
-		 * @since 0.2.3
 		 */
 		public static final String ACCESS_TOKEN_FORMAT = TOKEN_SETTINGS_NAMESPACE.concat("access-token-format");
 
 		/**
 		 * Set the time-to-live for a device code.
-		 * @since 1.1
 		 */
 		public static final String DEVICE_CODE_TIME_TO_LIVE = TOKEN_SETTINGS_NAMESPACE
 			.concat("device-code-time-to-live");
@@ -235,7 +226,6 @@ public final class ConfigurationSettingNames {
 		 * Set to {@code true} if access tokens must be bound to the client
 		 * {@code X509Certificate} received during client authentication when using the
 		 * {@code tls_client_auth} or {@code self_signed_tls_client_auth} method.
-		 * @since 1.3
 		 */
 		public static final String X509_CERTIFICATE_BOUND_ACCESS_TOKENS = TOKEN_SETTINGS_NAMESPACE
 			.concat("x509-certificate-bound-access-tokens");

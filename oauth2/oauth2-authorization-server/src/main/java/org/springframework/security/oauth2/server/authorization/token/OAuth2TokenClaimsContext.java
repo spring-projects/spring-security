@@ -28,7 +28,7 @@ import org.springframework.util.Assert;
  * {@link #getClaims() claims} of an OAuth 2.0 Token, allowing the ability to customize.
  *
  * @author Joe Grandja
- * @since 0.2.3
+ * @since 7.0
  * @see OAuth2TokenContext
  * @see OAuth2TokenClaimsSet.Builder
  */

@@ -67,7 +67,7 @@ import org.springframework.util.Assert;
  * @author Gerardo Roza
  * @author Ovidiu Popa
  * @author Gaurav Tiwari
- * @since 0.0.1
+ * @since 7.0
  * @see AbstractHttpConfigurer
  * @see OAuth2ClientAuthenticationConfigurer
  * @see OAuth2AuthorizationServerMetadataEndpointConfigurer
@@ -96,7 +96,6 @@ public final class OAuth2AuthorizationServerConfigurer
 	 * configuring.
 	 * @return a new instance of {@link OAuth2AuthorizationServerConfigurer} for
 	 * configuring
-	 * @since 1.4
 	 */
 	public static OAuth2AuthorizationServerConfigurer authorizationServer() {
 		return new OAuth2AuthorizationServerConfigurer();
@@ -153,7 +152,6 @@ public final class OAuth2AuthorizationServerConfigurer
 	 * Sets the token generator.
 	 * @param tokenGenerator the token generator
 	 * @return the {@link OAuth2AuthorizationServerConfigurer} for further configuration
-	 * @since 0.2.3
 	 */
 	public OAuth2AuthorizationServerConfigurer tokenGenerator(
 			OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator) {
@@ -179,7 +177,6 @@ public final class OAuth2AuthorizationServerConfigurer
 	 * @param authorizationServerMetadataEndpointCustomizer the {@link Customizer}
 	 * providing access to the {@link OAuth2AuthorizationServerMetadataEndpointConfigurer}
 	 * @return the {@link OAuth2AuthorizationServerConfigurer} for further configuration
-	 * @since 0.4.0
 	 */
 	public OAuth2AuthorizationServerConfigurer authorizationServerMetadataEndpoint(
 			Customizer<OAuth2AuthorizationServerMetadataEndpointConfigurer> authorizationServerMetadataEndpointCustomizer) {
@@ -205,7 +202,6 @@ public final class OAuth2AuthorizationServerConfigurer
 	 * @param pushedAuthorizationRequestEndpointCustomizer the {@link Customizer}
 	 * providing access to the {@link OAuth2PushedAuthorizationRequestEndpointConfigurer}
 	 * @return the {@link OAuth2AuthorizationServerConfigurer} for further configuration
-	 * @since 1.5
 	 */
 	public OAuth2AuthorizationServerConfigurer pushedAuthorizationRequestEndpoint(
 			Customizer<OAuth2PushedAuthorizationRequestEndpointConfigurer> pushedAuthorizationRequestEndpointCustomizer) {
@@ -238,7 +234,6 @@ public final class OAuth2AuthorizationServerConfigurer
 	 * @param tokenIntrospectionEndpointCustomizer the {@link Customizer} providing access
 	 * to the {@link OAuth2TokenIntrospectionEndpointConfigurer}
 	 * @return the {@link OAuth2AuthorizationServerConfigurer} for further configuration
-	 * @since 0.2.3
 	 */
 	public OAuth2AuthorizationServerConfigurer tokenIntrospectionEndpoint(
 			Customizer<OAuth2TokenIntrospectionEndpointConfigurer> tokenIntrospectionEndpointCustomizer) {
@@ -251,7 +246,6 @@ public final class OAuth2AuthorizationServerConfigurer
 	 * @param tokenRevocationEndpointCustomizer the {@link Customizer} providing access to
 	 * the {@link OAuth2TokenRevocationEndpointConfigurer}
 	 * @return the {@link OAuth2AuthorizationServerConfigurer} for further configuration
-	 * @since 0.2.2
 	 */
 	public OAuth2AuthorizationServerConfigurer tokenRevocationEndpoint(
 			Customizer<OAuth2TokenRevocationEndpointConfigurer> tokenRevocationEndpointCustomizer) {
@@ -264,7 +258,6 @@ public final class OAuth2AuthorizationServerConfigurer
 	 * @param deviceAuthorizationEndpointCustomizer the {@link Customizer} providing
 	 * access to the {@link OAuth2DeviceAuthorizationEndpointConfigurer}
 	 * @return the {@link OAuth2AuthorizationServerConfigurer} for further configuration
-	 * @since 1.1
 	 */
 	public OAuth2AuthorizationServerConfigurer deviceAuthorizationEndpoint(
 			Customizer<OAuth2DeviceAuthorizationEndpointConfigurer> deviceAuthorizationEndpointCustomizer) {
@@ -278,7 +271,6 @@ public final class OAuth2AuthorizationServerConfigurer
 	 * @param deviceVerificationEndpointCustomizer the {@link Customizer} providing access
 	 * to the {@link OAuth2DeviceVerificationEndpointConfigurer}
 	 * @return the {@link OAuth2AuthorizationServerConfigurer} for further configuration
-	 * @since 1.1
 	 */
 	public OAuth2AuthorizationServerConfigurer deviceVerificationEndpoint(
 			Customizer<OAuth2DeviceVerificationEndpointConfigurer> deviceVerificationEndpointCustomizer) {

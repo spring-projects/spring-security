@@ -51,7 +51,7 @@ import org.springframework.util.StringUtils;
  * Utility methods for the OAuth 2.0 Configurers.
  *
  * @author Joe Grandja
- * @since 0.1.2
+ * @since 7.0
  */
 final class OAuth2ConfigurerUtils {
 

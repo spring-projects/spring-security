@@ -58,7 +58,7 @@ import org.springframework.util.Assert;
  * Configurer for OAuth 2.0 Client Authentication.
  *
  * @author Joe Grandja
- * @since 0.2.0
+ * @since 7.0
  * @see OAuth2AuthorizationServerConfigurer#clientAuthentication
  * @see OAuth2ClientAuthenticationFilter
  */
@@ -112,7 +112,6 @@ public final class OAuth2ClientAuthenticationConfigurer extends AbstractOAuth2Co
 	 * the {@code List} of default and (optionally) added
 	 * {@link AuthenticationConverter}'s
 	 * @return the {@link OAuth2ClientAuthenticationConfigurer} for further configuration
-	 * @since 0.4.0
 	 */
 	public OAuth2ClientAuthenticationConfigurer authenticationConverters(
 			Consumer<List<AuthenticationConverter>> authenticationConvertersConsumer) {
@@ -142,7 +141,6 @@ public final class OAuth2ClientAuthenticationConfigurer extends AbstractOAuth2Co
 	 * @param authenticationProvidersConsumer the {@code Consumer} providing access to the
 	 * {@code List} of default and (optionally) added {@link AuthenticationProvider}'s
 	 * @return the {@link OAuth2ClientAuthenticationConfigurer} for further configuration
-	 * @since 0.4.0
 	 */
 	public OAuth2ClientAuthenticationConfigurer authenticationProviders(
 			Consumer<List<AuthenticationProvider>> authenticationProvidersConsumer) {

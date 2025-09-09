@@ -61,7 +61,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @author Ovidiu Popa
  * @author Joe Grandja
  * @author Daniel Garnier-Moiroux
- * @since 0.1.1
+ * @since 7.0
  * @see OidcClientRegistration
  * @see OidcClientRegistrationAuthenticationConverter
  * @see OidcClientRegistrationAuthenticationProvider
@@ -178,7 +178,6 @@ public final class OidcClientRegistrationEndpointFilter extends OncePerRequestFi
 	 * request.
 	 * @param authenticationConverter an {@link AuthenticationConverter} used when
 	 * attempting to extract a Client Registration Request from {@link HttpServletRequest}
-	 * @since 0.4.0
 	 */
 	public void setAuthenticationConverter(AuthenticationConverter authenticationConverter) {
 		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
@@ -191,7 +190,6 @@ public final class OidcClientRegistrationEndpointFilter extends OncePerRequestFi
 	 * {@link OidcClientRegistration Client Registration Response}.
 	 * @param authenticationSuccessHandler the {@link AuthenticationSuccessHandler} used
 	 * for handling an {@link OidcClientRegistrationAuthenticationToken}
-	 * @since 0.4.0
 	 */
 	public void setAuthenticationSuccessHandler(AuthenticationSuccessHandler authenticationSuccessHandler) {
 		Assert.notNull(authenticationSuccessHandler, "authenticationSuccessHandler cannot be null");
@@ -204,7 +202,6 @@ public final class OidcClientRegistrationEndpointFilter extends OncePerRequestFi
 	 * Response}.
 	 * @param authenticationFailureHandler the {@link AuthenticationFailureHandler} used
 	 * for handling an {@link OAuth2AuthenticationException}
-	 * @since 0.4.0
 	 */
 	public void setAuthenticationFailureHandler(AuthenticationFailureHandler authenticationFailureHandler) {
 		Assert.notNull(authenticationFailureHandler, "authenticationFailureHandler cannot be null");

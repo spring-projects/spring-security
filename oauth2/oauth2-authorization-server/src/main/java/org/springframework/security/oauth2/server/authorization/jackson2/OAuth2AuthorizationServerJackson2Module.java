@@ -60,7 +60,7 @@ import org.springframework.security.oauth2.server.authorization.settings.OAuth2T
  * of all security modules.
  *
  * @author Steve Riesenberg
- * @since 0.1.2
+ * @since 7.0
  * @see SecurityJackson2Modules
  * @see UnmodifiableMapMixin
  * @see HashSetMixin

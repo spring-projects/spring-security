@@ -28,7 +28,7 @@ import org.springframework.util.Assert;
  * An {@link Authentication} implementation used for OpenID Connect 1.0 UserInfo Endpoint.
  *
  * @author Steve Riesenberg
- * @since 0.2.1
+ * @since 7.0
  * @see AbstractAuthenticationToken
  * @see OidcUserInfo
  * @see OidcUserInfoAuthenticationProvider

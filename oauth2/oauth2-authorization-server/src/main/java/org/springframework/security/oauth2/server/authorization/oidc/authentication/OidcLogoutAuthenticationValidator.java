@@ -37,7 +37,7 @@ import org.springframework.util.StringUtils;
  * an {@link OAuth2AuthenticationException} is thrown.
  *
  * @author Daniel Garnier-Moiroux
- * @since 1.4
+ * @since 7.0
  * @see OidcLogoutAuthenticationContext
  * @see OidcLogoutAuthenticationToken
  * @see OidcLogoutAuthenticationProvider#setAuthenticationValidator(Consumer)

@@ -45,7 +45,7 @@ import org.springframework.util.CollectionUtils;
  *
  * @author Gerardo Roza
  * @author Joe Grandja
- * @since 0.1.1
+ * @since 7.0
  * @see OAuth2TokenIntrospectionAuthenticationToken
  * @see RegisteredClientRepository
  * @see OAuth2AuthorizationService

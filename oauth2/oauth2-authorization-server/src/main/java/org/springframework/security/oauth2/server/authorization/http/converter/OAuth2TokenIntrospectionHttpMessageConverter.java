@@ -51,7 +51,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Gerardo Roza
  * @author Joe Grandja
- * @since 0.1.1
+ * @since 7.0
  * @see AbstractHttpMessageConverter
  * @see OAuth2TokenIntrospection
  */

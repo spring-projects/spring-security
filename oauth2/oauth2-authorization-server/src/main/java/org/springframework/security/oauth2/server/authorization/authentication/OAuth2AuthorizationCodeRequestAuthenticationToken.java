@@ -30,7 +30,7 @@ import org.springframework.util.Assert;
  * in the Authorization Code Grant.
  *
  * @author Joe Grandja
- * @since 0.1.2
+ * @since 7.0
  * @see OAuth2AuthorizationCodeRequestAuthenticationProvider
  * @see OAuth2AuthorizationConsentAuthenticationProvider
  */
@@ -52,7 +52,6 @@ public class OAuth2AuthorizationCodeRequestAuthenticationToken
 	 * @param state the state
 	 * @param scopes the requested scope(s)
 	 * @param additionalParameters the additional parameters
-	 * @since 0.4.0
 	 */
 	public OAuth2AuthorizationCodeRequestAuthenticationToken(String authorizationUri, String clientId,
 			Authentication principal, @Nullable String redirectUri, @Nullable String state,
@@ -71,7 +70,6 @@ public class OAuth2AuthorizationCodeRequestAuthenticationToken
 	 * @param redirectUri the redirect uri
 	 * @param state the state
 	 * @param scopes the authorized scope(s)
-	 * @since 0.4.0
 	 */
 	public OAuth2AuthorizationCodeRequestAuthenticationToken(String authorizationUri, String clientId,
 			Authentication principal, OAuth2AuthorizationCode authorizationCode, @Nullable String redirectUri,

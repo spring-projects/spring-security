@@ -40,7 +40,7 @@ import org.springframework.util.Assert;
  * Error Response}.
  *
  * @author Dmitriy Dubson
- * @since 1.2
+ * @since 7.0
  * @see AuthenticationFailureHandler
  * @see OAuth2ErrorHttpMessageConverter
  */

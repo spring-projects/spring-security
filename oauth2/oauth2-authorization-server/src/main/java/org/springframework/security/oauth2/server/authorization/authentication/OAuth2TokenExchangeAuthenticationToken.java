@@ -31,7 +31,7 @@ import org.springframework.util.Assert;
  * An {@link Authentication} implementation used for the OAuth 2.0 Token Exchange Grant.
  *
  * @author Steve Riesenberg
- * @since 1.3
+ * @since 7.0
  * @see OAuth2AuthorizationGrantAuthenticationToken
  * @see OAuth2TokenExchangeAuthenticationProvider
  */

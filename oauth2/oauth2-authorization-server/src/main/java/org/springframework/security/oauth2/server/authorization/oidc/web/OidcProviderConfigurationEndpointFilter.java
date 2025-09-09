@@ -50,7 +50,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  *
  * @author Daniel Garnier-Moiroux
  * @author Joe Grandja
- * @since 0.1.0
+ * @since 7.0
  * @see OidcProviderConfiguration
  * @see AuthorizationServerSettings
  * @see <a target="_blank" href=
@@ -77,7 +77,6 @@ public final class OidcProviderConfigurationEndpointFilter extends OncePerReques
 	 * claims of the OpenID Provider's configuration.
 	 * @param providerConfigurationCustomizer the {@code Consumer} providing access to the
 	 * {@link OidcProviderConfiguration.Builder}
-	 * @since 0.4.0
 	 */
 	public void setProviderConfigurationCustomizer(
 			Consumer<OidcProviderConfiguration.Builder> providerConfigurationCustomizer) {

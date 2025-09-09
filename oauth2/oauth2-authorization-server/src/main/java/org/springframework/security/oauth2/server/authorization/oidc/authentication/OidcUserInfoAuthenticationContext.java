@@ -34,7 +34,7 @@ import org.springframework.util.Assert;
  * mapping claims to an instance of {@link OidcUserInfo}.
  *
  * @author Joe Grandja
- * @since 0.2.1
+ * @since 7.0
  * @see OAuth2AuthenticationContext
  * @see OidcUserInfo
  * @see OidcUserInfoAuthenticationProvider#setUserInfoMapper(Function)

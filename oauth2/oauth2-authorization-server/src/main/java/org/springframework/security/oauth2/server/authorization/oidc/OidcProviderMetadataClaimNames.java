@@ -26,7 +26,7 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
  *
  * @author Daniel Garnier-Moiroux
  * @author Joe Grandja
- * @since 0.1.0
+ * @since 7.0
  * @see OAuth2AuthorizationServerMetadataClaimNames
  * @see <a target="_blank" href=
  * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata">3. OpenID
@@ -48,14 +48,12 @@ public final class OidcProviderMetadataClaimNames extends OAuth2AuthorizationSer
 	/**
 	 * {@code userinfo_endpoint} - the {@code URL} of the OpenID Connect 1.0 UserInfo
 	 * Endpoint
-	 * @since 0.2.2
 	 */
 	public static final String USER_INFO_ENDPOINT = "userinfo_endpoint";
 
 	/**
 	 * {@code end_session_endpoint} - the {@code URL} of the OpenID Connect 1.0 End
 	 * Session Endpoint
-	 * @since 1.1
 	 */
 	public static final String END_SESSION_ENDPOINT = "end_session_endpoint";
 

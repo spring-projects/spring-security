@@ -63,7 +63,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  *
  * @author Rafal Lewczuk
  * @author Joe Grandja
- * @since 0.4.0
+ * @since 7.0
  * @see JwtDecoderFactory
  * @see RegisteredClient
  * @see OAuth2TokenValidator

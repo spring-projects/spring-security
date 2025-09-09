@@ -34,7 +34,7 @@ import org.springframework.util.Assert;
  * <b>NOTE:</b> This implementation should ONLY be used during development/testing.
  *
  * @author Daniel Garnier-Moiroux
- * @since 0.1.2
+ * @since 7.0
  * @see OAuth2AuthorizationConsentService
  */
 public final class InMemoryOAuth2AuthorizationConsentService implements OAuth2AuthorizationConsentService {

@@ -56,7 +56,7 @@ import org.springframework.util.StringUtils;
  * Configurer for the OAuth 2.0 Authorization Endpoint.
  *
  * @author Joe Grandja
- * @since 0.1.2
+ * @since 7.0
  * @see OAuth2AuthorizationServerConfigurer#authorizationEndpoint
  * @see OAuth2AuthorizationEndpointFilter
  */
@@ -120,7 +120,6 @@ public final class OAuth2AuthorizationEndpointConfigurer extends AbstractOAuth2C
 	 * to the {@code List} of default and (optionally) added
 	 * {@link AuthenticationConverter}'s
 	 * @return the {@link OAuth2AuthorizationEndpointConfigurer} for further configuration
-	 * @since 0.4.0
 	 */
 	public OAuth2AuthorizationEndpointConfigurer authorizationRequestConverters(
 			Consumer<List<AuthenticationConverter>> authorizationRequestConvertersConsumer) {
@@ -150,7 +149,6 @@ public final class OAuth2AuthorizationEndpointConfigurer extends AbstractOAuth2C
 	 * @param authenticationProvidersConsumer the {@code Consumer} providing access to the
 	 * {@code List} of default and (optionally) added {@link AuthenticationProvider}'s
 	 * @return the {@link OAuth2AuthorizationEndpointConfigurer} for further configuration
-	 * @since 0.4.0
 	 */
 	public OAuth2AuthorizationEndpointConfigurer authenticationProviders(
 			Consumer<List<AuthenticationProvider>> authenticationProvidersConsumer) {

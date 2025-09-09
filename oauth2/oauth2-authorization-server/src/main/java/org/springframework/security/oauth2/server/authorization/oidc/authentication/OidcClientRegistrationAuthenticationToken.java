@@ -31,7 +31,7 @@ import org.springframework.util.Assert;
  *
  * @author Joe Grandja
  * @author Ovidiu Popa
- * @since 0.1.1
+ * @since 7.0
  * @see AbstractAuthenticationToken
  * @see OidcClientRegistration
  * @see OidcClientRegistrationAuthenticationProvider
@@ -70,7 +70,6 @@ public class OidcClientRegistrationAuthenticationToken extends AbstractAuthentic
 	 * parameters.
 	 * @param principal the authenticated principal
 	 * @param clientId the client identifier
-	 * @since 0.2.1
 	 */
 	public OidcClientRegistrationAuthenticationToken(Authentication principal, String clientId) {
 		super(Collections.emptyList());
@@ -103,7 +102,6 @@ public class OidcClientRegistrationAuthenticationToken extends AbstractAuthentic
 	/**
 	 * Returns the client identifier.
 	 * @return the client identifier
-	 * @since 0.2.1
 	 */
 	@Nullable
 	public String getClientId() {

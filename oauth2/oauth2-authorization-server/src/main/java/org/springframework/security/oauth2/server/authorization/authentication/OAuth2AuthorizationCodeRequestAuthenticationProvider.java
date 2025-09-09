@@ -63,7 +63,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Joe Grandja
  * @author Steve Riesenberg
- * @since 0.1.2
+ * @since 7.0
  * @see OAuth2AuthorizationCodeRequestAuthenticationToken
  * @see OAuth2AuthorizationCodeRequestAuthenticationValidator
  * @see OAuth2AuthorizationCodeAuthenticationProvider
@@ -342,7 +342,6 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 	 * {@link OAuth2AuthorizationCode}.
 	 * @param authorizationCodeGenerator the {@link OAuth2TokenGenerator} that generates
 	 * the {@link OAuth2AuthorizationCode}
-	 * @since 0.2.3
 	 */
 	public void setAuthorizationCodeGenerator(
 			OAuth2TokenGenerator<OAuth2AuthorizationCode> authorizationCodeGenerator) {
@@ -364,7 +363,6 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 	 * @param authenticationValidator the {@code Consumer} providing access to the
 	 * {@link OAuth2AuthorizationCodeRequestAuthenticationContext} and is responsible for
 	 * validating specific OAuth 2.0 Authorization Request parameters
-	 * @since 0.4.0
 	 */
 	public void setAuthenticationValidator(
 			Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> authenticationValidator) {
@@ -388,7 +386,6 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 	 * </ul>
 	 * @param authorizationConsentRequired the {@code Predicate} used to determine if
 	 * authorization consent is required
-	 * @since 1.3
 	 */
 	public void setAuthorizationConsentRequired(
 			Predicate<OAuth2AuthorizationCodeRequestAuthenticationContext> authorizationConsentRequired) {

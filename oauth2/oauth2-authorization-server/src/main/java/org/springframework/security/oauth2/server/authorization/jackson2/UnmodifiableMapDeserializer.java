@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * A {@code JsonDeserializer} for {@link Collections#unmodifiableMap(Map)}.
  *
  * @author Joe Grandja
- * @since 0.1.2
+ * @since 7.0
  * @see Collections#unmodifiableMap(Map)
  * @see UnmodifiableMapMixin
  */

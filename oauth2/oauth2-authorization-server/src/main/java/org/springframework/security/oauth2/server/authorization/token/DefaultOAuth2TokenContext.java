@@ -27,7 +27,7 @@ import org.springframework.util.Assert;
  * Default implementation of {@link OAuth2TokenContext}.
  *
  * @author Joe Grandja
- * @since 0.2.3
+ * @since 7.0
  * @see OAuth2TokenContext
  */
 public final class DefaultOAuth2TokenContext implements OAuth2TokenContext {

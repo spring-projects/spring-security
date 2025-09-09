@@ -28,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * This mixin class is used to serialize/deserialize {@link Duration}.
  *
  * @author Joe Grandja
- * @since 0.1.2
+ * @since 7.0
  * @see Duration
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)

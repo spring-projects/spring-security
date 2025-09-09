@@ -28,7 +28,7 @@ import org.springframework.util.Assert;
  * A facility for client configuration settings.
  *
  * @author Joe Grandja
- * @since 0.0.2
+ * @since 7.0
  * @see AbstractSettings
  * @see ConfigurationSettingNames.Client
  */
@@ -65,7 +65,6 @@ public final class ClientSettings extends AbstractSettings {
 	/**
 	 * Returns the {@code URL} for the Client's JSON Web Key Set.
 	 * @return the {@code URL} for the Client's JSON Web Key Set
-	 * @since 0.2.2
 	 */
 	public String getJwkSetUrl() {
 		return getSetting(ConfigurationSettingNames.Client.JWK_SET_URL);
@@ -79,7 +78,6 @@ public final class ClientSettings extends AbstractSettings {
 	 * authentication methods.
 	 * @return the {@link JwsAlgorithm JWS} algorithm that must be used for signing the
 	 * {@link Jwt JWT} used to authenticate the Client at the Token Endpoint
-	 * @since 0.2.2
 	 */
 	public JwsAlgorithm getTokenEndpointAuthenticationSigningAlgorithm() {
 		return getSetting(ConfigurationSettingNames.Client.TOKEN_ENDPOINT_AUTHENTICATION_SIGNING_ALGORITHM);
@@ -91,7 +89,6 @@ public final class ClientSettings extends AbstractSettings {
 	 * {@code tls_client_auth} method.
 	 * @return the expected subject distinguished name associated to the client
 	 * {@code X509Certificate} received during client authentication
-	 * @since 1.3
 	 */
 	public String getX509CertificateSubjectDN() {
 		return getSetting(ConfigurationSettingNames.Client.X509_CERTIFICATE_SUBJECT_DN);
@@ -150,7 +147,6 @@ public final class ClientSettings extends AbstractSettings {
 		 * Sets the {@code URL} for the Client's JSON Web Key Set.
 		 * @param jwkSetUrl the {@code URL} for the Client's JSON Web Key Set
 		 * @return the {@link Builder} for further configuration
-		 * @since 0.2.2
 		 */
 		public Builder jwkSetUrl(String jwkSetUrl) {
 			return setting(ConfigurationSettingNames.Client.JWK_SET_URL, jwkSetUrl);
@@ -166,7 +162,6 @@ public final class ClientSettings extends AbstractSettings {
 		 * that must be used for signing the {@link Jwt JWT} used to authenticate the
 		 * Client at the Token Endpoint
 		 * @return the {@link Builder} for further configuration
-		 * @since 0.2.2
 		 */
 		public Builder tokenEndpointAuthenticationSigningAlgorithm(JwsAlgorithm authenticationSigningAlgorithm) {
 			return setting(ConfigurationSettingNames.Client.TOKEN_ENDPOINT_AUTHENTICATION_SIGNING_ALGORITHM,
@@ -181,7 +176,6 @@ public final class ClientSettings extends AbstractSettings {
 		 * associated to the client {@code X509Certificate} received during client
 		 * authentication * @return the {@link Builder} for further configuration
 		 * @return the {@link Builder} for further configuration
-		 * @since 1.3
 		 */
 		public Builder x509CertificateSubjectDN(String x509CertificateSubjectDN) {
 			return setting(ConfigurationSettingNames.Client.X509_CERTIFICATE_SUBJECT_DN, x509CertificateSubjectDN);

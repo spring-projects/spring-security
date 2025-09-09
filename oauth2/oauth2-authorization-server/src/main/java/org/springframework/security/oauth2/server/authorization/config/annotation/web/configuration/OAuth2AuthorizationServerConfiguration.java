@@ -43,7 +43,7 @@ import org.springframework.security.web.SecurityFilterChain;
  * {@link Configuration} for OAuth 2.0 Authorization Server support.
  *
  * @author Joe Grandja
- * @since 0.0.1
+ * @since 7.0
  * @see OAuth2AuthorizationServerConfigurer
  */
 @Configuration(proxyBeanMethods = false)

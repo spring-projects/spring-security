@@ -43,7 +43,7 @@ import org.springframework.util.Assert;
  * Configuration Response}.
  *
  * @author Daniel Garnier-Moiroux
- * @since 0.1.0
+ * @since 7.0
  * @see AbstractHttpMessageConverter
  * @see OidcProviderConfiguration
  */

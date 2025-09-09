@@ -32,7 +32,7 @@ import org.springframework.util.Assert;
  * validating the OpenID Connect RP-Initiated Logout Request parameters.
  *
  * @author Daniel Garnier-Moiroux
- * @since 1.4
+ * @since 7.0
  * @see OAuth2AuthenticationContext
  * @see OidcLogoutAuthenticationToken
  * @see OidcLogoutAuthenticationProvider#setAuthenticationValidator(Consumer)

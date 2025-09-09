@@ -40,7 +40,7 @@ import org.springframework.util.StringUtils;
  * authorization grant.
  *
  * @author Joe Grandja
- * @since 0.1.2
+ * @since 7.0
  * @see AuthenticationConverter
  * @see OAuth2AuthorizationCodeAuthenticationToken
  * @see OAuth2TokenEndpointFilter

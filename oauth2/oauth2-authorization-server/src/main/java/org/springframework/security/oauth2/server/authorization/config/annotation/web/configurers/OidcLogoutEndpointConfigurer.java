@@ -49,7 +49,7 @@ import org.springframework.util.Assert;
  * Configurer for OpenID Connect 1.0 RP-Initiated Logout Endpoint.
  *
  * @author Joe Grandja
- * @since 1.1
+ * @since 7.0
  * @see OidcConfigurer#logoutEndpoint
  * @see OidcLogoutEndpointFilter
  */

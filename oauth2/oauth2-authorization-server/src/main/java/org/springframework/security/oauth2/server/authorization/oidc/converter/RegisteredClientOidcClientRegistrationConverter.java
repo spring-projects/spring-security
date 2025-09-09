@@ -33,7 +33,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * {@link OidcClientRegistration}.
  *
  * @author Joe Grandja
- * @since 1.2.0
+ * @since 7.0
  */
 public final class RegisteredClientOidcClientRegistrationConverter
 		implements Converter<RegisteredClient, OidcClientRegistration> {

@@ -34,7 +34,7 @@ import org.springframework.util.Assert;
  *
  * @author Joe Grandja
  * @author Madhu Bhat
- * @since 0.0.1
+ * @since 7.0
  * @see AbstractAuthenticationToken
  * @see RegisteredClient
  * @see OAuth2AccessToken

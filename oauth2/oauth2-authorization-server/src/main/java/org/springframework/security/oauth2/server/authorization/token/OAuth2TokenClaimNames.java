@@ -23,7 +23,7 @@ import org.springframework.security.oauth2.core.OAuth2Token;
  * are associated to an {@link OAuth2Token}.
  *
  * @author Joe Grandja
- * @since 0.2.3
+ * @since 7.0
  * @see OAuth2TokenClaimAccessor
  * @see OAuth2TokenClaimsSet
  * @see OAuth2Token

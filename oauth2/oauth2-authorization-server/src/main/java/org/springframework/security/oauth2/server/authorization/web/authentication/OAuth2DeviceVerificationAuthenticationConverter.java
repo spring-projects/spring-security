@@ -39,7 +39,7 @@ import org.springframework.util.MultiValueMap;
  * request.
  *
  * @author Steve Riesenberg
- * @since 1.1
+ * @since 7.0
  * @see AuthenticationConverter
  * @see OAuth2DeviceVerificationAuthenticationToken
  * @see OAuth2DeviceVerificationEndpointFilter

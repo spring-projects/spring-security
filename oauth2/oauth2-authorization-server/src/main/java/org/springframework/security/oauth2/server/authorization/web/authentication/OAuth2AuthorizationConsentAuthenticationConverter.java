@@ -47,7 +47,7 @@ import org.springframework.util.StringUtils;
  * request.
  *
  * @author Joe Grandja
- * @since 0.4.0
+ * @since 7.0
  * @see AuthenticationConverter
  * @see OAuth2AuthorizationConsentAuthenticationToken
  * @see OAuth2AuthorizationEndpointFilter

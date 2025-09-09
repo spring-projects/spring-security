@@ -21,7 +21,7 @@ package org.springframework.security.oauth2.server.authorization.authentication;
  * Request.
  *
  * @author Joe Grandja
- * @since 1.5
+ * @since 7.0
  */
 final class OidcPrompt {
 

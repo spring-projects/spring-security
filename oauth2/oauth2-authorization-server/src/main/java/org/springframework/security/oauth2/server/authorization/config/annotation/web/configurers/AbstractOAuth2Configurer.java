@@ -24,7 +24,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * Base configurer for an OAuth 2.0 component (e.g. protocol endpoint).
  *
  * @author Joe Grandja
- * @since 0.1.2
+ * @since 7.0
  */
 abstract class AbstractOAuth2Configurer {
 

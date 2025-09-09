@@ -40,7 +40,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * A {@code Filter} that processes JWK Set requests.
  *
  * @author Joe Grandja
- * @since 0.0.1
+ * @since 7.0
  * @see com.nimbusds.jose.jwk.source.JWKSource
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7517">JSON Web Key
  * (JWK)</a>

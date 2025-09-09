@@ -30,7 +30,7 @@ import org.springframework.util.Assert;
  * Base implementation for configuration settings.
  *
  * @author Joe Grandja
- * @since 0.0.2
+ * @since 7.0
  */
 public abstract class AbstractSettings implements Serializable {
 

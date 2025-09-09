@@ -25,7 +25,7 @@ import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
  * This mixin class is used to serialize/deserialize {@link SignatureAlgorithm}.
  *
  * @author Joe Grandja
- * @since 0.1.2
+ * @since 7.0
  * @see SignatureAlgorithm
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)

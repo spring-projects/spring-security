@@ -29,7 +29,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * {@link UnmodifiableMapDeserializer}.
  *
  * @author Joe Grandja
- * @since 0.1.2
+ * @since 7.0
  * @see Collections#unmodifiableMap(Map)
  * @see UnmodifiableMapDeserializer
  */

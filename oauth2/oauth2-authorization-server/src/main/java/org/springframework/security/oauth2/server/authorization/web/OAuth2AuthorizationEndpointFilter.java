@@ -77,7 +77,7 @@ import org.springframework.web.util.UriUtils;
  * @author Daniel Garnier-Moiroux
  * @author Anoop Garlapati
  * @author Dmitriy Dubson
- * @since 0.0.1
+ * @since 7.0
  * @see AuthenticationManager
  * @see OAuth2AuthorizationCodeRequestAuthenticationProvider
  * @see OAuth2AuthorizationConsentAuthenticationProvider
@@ -216,7 +216,6 @@ public final class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilte
 	 * details instance from {@link HttpServletRequest}.
 	 * @param authenticationDetailsSource the {@link AuthenticationDetailsSource} used for
 	 * building an authentication details instance from {@link HttpServletRequest}
-	 * @since 0.3.1
 	 */
 	public void setAuthenticationDetailsSource(
 			AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
@@ -270,7 +269,6 @@ public final class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilte
 	 * implementation tracks OpenID Connect sessions using a {@link SessionRegistry}.
 	 * @param sessionAuthenticationStrategy the {@link SessionAuthenticationStrategy} used
 	 * for handling an {@link OAuth2AuthorizationCodeRequestAuthenticationToken}
-	 * @since 1.1
 	 */
 	public void setSessionAuthenticationStrategy(SessionAuthenticationStrategy sessionAuthenticationStrategy) {
 		Assert.notNull(sessionAuthenticationStrategy, "sessionAuthenticationStrategy cannot be null");

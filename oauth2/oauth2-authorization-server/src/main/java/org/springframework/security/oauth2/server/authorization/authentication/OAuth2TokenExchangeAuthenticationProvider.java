@@ -59,7 +59,7 @@ import org.springframework.util.StringUtils;
  * Grant.
  *
  * @author Steve Riesenberg
- * @since 1.3
+ * @since 7.0
  * @see OAuth2TokenExchangeAuthenticationToken
  * @see OAuth2AccessTokenAuthenticationToken
  * @see OAuth2AuthorizationService

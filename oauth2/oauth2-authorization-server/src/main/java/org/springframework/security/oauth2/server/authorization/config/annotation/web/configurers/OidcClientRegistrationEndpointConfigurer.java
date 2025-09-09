@@ -52,7 +52,7 @@ import org.springframework.util.Assert;
  *
  * @author Joe Grandja
  * @author Daniel Garnier-Moiroux
- * @since 0.2.0
+ * @since 7.0
  * @see OidcConfigurer#clientRegistrationEndpoint
  * @see OidcClientRegistrationEndpointFilter
  */
@@ -93,7 +93,6 @@ public final class OidcClientRegistrationEndpointConfigurer extends AbstractOAut
 	 * {@link HttpServletRequest}
 	 * @return the {@link OidcClientRegistrationEndpointConfigurer} for further
 	 * configuration
-	 * @since 0.4.0
 	 */
 	public OidcClientRegistrationEndpointConfigurer clientRegistrationRequestConverter(
 			AuthenticationConverter clientRegistrationRequestConverter) {
@@ -112,7 +111,6 @@ public final class OidcClientRegistrationEndpointConfigurer extends AbstractOAut
 	 * access to the {@code List} of default and (optionally) added
 	 * {@link AuthenticationConverter}'s
 	 * @return the {@link OidcUserInfoEndpointConfigurer} for further configuration
-	 * @since 0.4.0
 	 */
 	public OidcClientRegistrationEndpointConfigurer clientRegistrationRequestConverters(
 			Consumer<List<AuthenticationConverter>> clientRegistrationRequestConvertersConsumer) {
@@ -129,7 +127,6 @@ public final class OidcClientRegistrationEndpointConfigurer extends AbstractOAut
 	 * authenticating an {@link OidcClientRegistrationAuthenticationToken}
 	 * @return the {@link OidcClientRegistrationEndpointConfigurer} for further
 	 * configuration
-	 * @since 0.4.0
 	 */
 	public OidcClientRegistrationEndpointConfigurer authenticationProvider(
 			AuthenticationProvider authenticationProvider) {
@@ -147,7 +144,6 @@ public final class OidcClientRegistrationEndpointConfigurer extends AbstractOAut
 	 * {@code List} of default and (optionally) added {@link AuthenticationProvider}'s
 	 * @return the {@link OidcClientRegistrationEndpointConfigurer} for further
 	 * configuration
-	 * @since 0.4.0
 	 */
 	public OidcClientRegistrationEndpointConfigurer authenticationProviders(
 			Consumer<List<AuthenticationProvider>> authenticationProvidersConsumer) {
@@ -164,7 +160,6 @@ public final class OidcClientRegistrationEndpointConfigurer extends AbstractOAut
 	 * used for handling an {@link OidcClientRegistrationAuthenticationToken}
 	 * @return the {@link OidcClientRegistrationEndpointConfigurer} for further
 	 * configuration
-	 * @since 0.4.0
 	 */
 	public OidcClientRegistrationEndpointConfigurer clientRegistrationResponseHandler(
 			AuthenticationSuccessHandler clientRegistrationResponseHandler) {
@@ -180,7 +175,6 @@ public final class OidcClientRegistrationEndpointConfigurer extends AbstractOAut
 	 * handling an {@link OAuth2AuthenticationException}
 	 * @return the {@link OidcClientRegistrationEndpointConfigurer} for further
 	 * configuration
-	 * @since 0.4.0
 	 */
 	public OidcClientRegistrationEndpointConfigurer errorResponseHandler(
 			AuthenticationFailureHandler errorResponseHandler) {

@@ -38,7 +38,7 @@ import org.springframework.util.Assert;
  *
  * @author Daniel Garnier-Moiroux
  * @author Joe Grandja
- * @since 0.1.1
+ * @since 7.0
  * @see OAuth2AuthorizationServerMetadataClaimAccessor
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc8414#section-3.2">3.2.
  * Authorization Server Metadata Response</a>
@@ -130,7 +130,6 @@ public abstract class AbstractOAuth2AuthorizationServerMetadata
 		 * @param pushedAuthorizationRequestEndpoint the {@code URL} of the OAuth 2.0
 		 * Pushed Authorization Request Endpoint
 		 * @return the {@link AbstractBuilder} for further configuration
-		 * @since 1.5
 		 */
 		public B pushedAuthorizationRequestEndpoint(String pushedAuthorizationRequestEndpoint) {
 			return claim(OAuth2AuthorizationServerMetadataClaimNames.PUSHED_AUTHORIZATION_REQUEST_ENDPOINT,
@@ -143,7 +142,6 @@ public abstract class AbstractOAuth2AuthorizationServerMetadata
 		 * @param deviceAuthorizationEndpoint the {@code URL} of the OAuth 2.0 Device
 		 * Authorization Endpoint
 		 * @return the {@link AbstractBuilder} for further configuration
-		 * @since 1.1
 		 */
 		public B deviceAuthorizationEndpoint(String deviceAuthorizationEndpoint) {
 			return claim(OAuth2AuthorizationServerMetadataClaimNames.DEVICE_AUTHORIZATION_ENDPOINT,
@@ -355,7 +353,6 @@ public abstract class AbstractOAuth2AuthorizationServerMetadata
 		 * @param clientRegistrationEndpoint the {@code URL} of the OAuth 2.0 Dynamic
 		 * Client Registration Endpoint
 		 * @return the {@link AbstractBuilder} for further configuration
-		 * @since 0.4.0
 		 */
 		public B clientRegistrationEndpoint(String clientRegistrationEndpoint) {
 			return claim(OAuth2AuthorizationServerMetadataClaimNames.REGISTRATION_ENDPOINT, clientRegistrationEndpoint);
@@ -394,7 +391,6 @@ public abstract class AbstractOAuth2AuthorizationServerMetadata
 		 * @param tlsClientCertificateBoundAccessTokens {@code true} to indicate support
 		 * for mutual-TLS client certificate-bound access tokens
 		 * @return the {@link AbstractBuilder} for further configuration
-		 * @since 1.3
 		 */
 		public B tlsClientCertificateBoundAccessTokens(boolean tlsClientCertificateBoundAccessTokens) {
 			return claim(OAuth2AuthorizationServerMetadataClaimNames.TLS_CLIENT_CERTIFICATE_BOUND_ACCESS_TOKENS,
@@ -408,7 +404,6 @@ public abstract class AbstractOAuth2AuthorizationServerMetadata
 		 * @param dPoPSigningAlgorithm the {@link JwsAlgorithms JSON Web Signature (JWS)
 		 * algorithm} supported for DPoP Proof JWTs
 		 * @return the {@link AbstractBuilder} for further configuration
-		 * @since 1.5
 		 */
 		public B dPoPSigningAlgorithm(String dPoPSigningAlgorithm) {
 			addClaimToClaimList(OAuth2AuthorizationServerMetadataClaimNames.DPOP_SIGNING_ALG_VALUES_SUPPORTED,
@@ -424,7 +419,6 @@ public abstract class AbstractOAuth2AuthorizationServerMetadata
 		 * {@link JwsAlgorithms JSON Web Signature (JWS) algorithms} supported for DPoP
 		 * Proof JWTs
 		 * @return the {@link AbstractBuilder} for further configuration
-		 * @since 1.5
 		 */
 		public B dPoPSigningAlgorithms(Consumer<List<String>> dPoPSigningAlgorithmsConsumer) {
 			acceptClaimValues(OAuth2AuthorizationServerMetadataClaimNames.DPOP_SIGNING_ALG_VALUES_SUPPORTED,

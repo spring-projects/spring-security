@@ -35,7 +35,7 @@ import org.springframework.util.Assert;
  *
  * @author Vivek Babu
  * @author Joe Grandja
- * @since 0.0.3
+ * @since 7.0
  * @see OAuth2TokenRevocationAuthenticationToken
  * @see OAuth2AuthorizationService
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7009#section-2.1">Section
