@@ -48,6 +48,11 @@ public class WebAuthnAuthentication extends AbstractAuthenticationToken {
 		super.setAuthenticated(true);
 	}
 
+	private WebAuthnAuthentication(Builder<?> builder) {
+		super(builder);
+		this.principal = builder.principal;
+	}
+
 	@Override
 	public void setAuthenticated(boolean authenticated) {
 		Assert.isTrue(!authenticated, "Cannot set this token to trusted");
@@ -67,6 +72,45 @@ public class WebAuthnAuthentication extends AbstractAuthenticationToken {
 	@Override
 	public String getName() {
 		return this.principal.getName();
+	}
+
+	@Override
+	public Builder<?> toBuilder() {
+		return new Builder<>(this);
+	}
+
+	/**
+	 * A builder of {@link WebAuthnAuthentication} instances
+	 *
+	 * @since 7.0
+	 */
+	public static final class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<B> {
+
+		private PublicKeyCredentialUserEntity principal;
+
+		private Builder(WebAuthnAuthentication token) {
+			super(token);
+			this.principal = token.principal;
+		}
+
+		/**
+		 * Use this principal. It must be of type {@link PublicKeyCredentialUserEntity}
+		 * @param principal the principal to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		@Override
+		public B principal(@Nullable Object principal) {
+			Assert.isInstanceOf(PublicKeyCredentialUserEntity.class, principal,
+					"principal must be of type PublicKeyCredentialUserEntity");
+			this.principal = (PublicKeyCredentialUserEntity) principal;
+			return (B) this;
+		}
+
+		@Override
+		public WebAuthnAuthentication build() {
+			return new WebAuthnAuthentication(this);
+		}
+
 	}
 
 }

@@ -21,6 +21,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Collection;
 import java.util.Collections;
 
 import jakarta.servlet.Filter;
@@ -46,6 +47,7 @@ import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.Transient;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
@@ -810,7 +812,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 	private static class SomeTransientAuthentication extends AbstractAuthenticationToken {
 
 		SomeTransientAuthentication() {
-			super(null);
+			super((Collection<? extends GrantedAuthority>) null);
 		}
 
 		@Override
@@ -840,7 +842,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 	private static class SomeOtherTransientAuthentication extends AbstractAuthenticationToken {
 
 		SomeOtherTransientAuthentication() {
-			super(null);
+			super((Collection<? extends GrantedAuthority>) null);
 		}
 
 		@Override

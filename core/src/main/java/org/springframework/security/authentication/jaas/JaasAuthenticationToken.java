@@ -48,8 +48,49 @@ public class JaasAuthenticationToken extends UsernamePasswordAuthenticationToken
 		this.loginContext = loginContext;
 	}
 
+	protected JaasAuthenticationToken(Builder<?> builder) {
+		super(builder);
+		this.loginContext = builder.loginContext;
+	}
+
 	public LoginContext getLoginContext() {
 		return this.loginContext;
+	}
+
+	@Override
+	public Builder<?> toBuilder() {
+		return new Builder<>(this);
+	}
+
+	/**
+	 * A builder of {@link JaasAuthenticationToken} instances
+	 *
+	 * @since 7.0
+	 */
+	public static class Builder<B extends Builder<B>> extends UsernamePasswordAuthenticationToken.Builder<B> {
+
+		private LoginContext loginContext;
+
+		protected Builder(JaasAuthenticationToken token) {
+			super(token);
+			this.loginContext = token.getLoginContext();
+		}
+
+		/**
+		 * Use this {@link LoginContext}
+		 * @param loginContext the {@link LoginContext} to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public B loginContext(LoginContext loginContext) {
+			this.loginContext = loginContext;
+			return (B) this;
+		}
+
+		@Override
+		public JaasAuthenticationToken build() {
+			return new JaasAuthenticationToken(this);
+		}
+
 	}
 
 }

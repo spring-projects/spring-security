@@ -18,7 +18,10 @@ package org.springframework.security.authentication;
 
 import java.util.Collection;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.Assert;
 
 /**
  * Represents a remembered <code>Authentication</code>.
@@ -70,6 +73,12 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 		setAuthenticated(true);
 	}
 
+	protected RememberMeAuthenticationToken(Builder<?> builder) {
+		super(builder);
+		this.keyHash = builder.keyHash;
+		this.principal = builder.principal;
+	}
+
 	/**
 	 * Always returns an empty <code>String</code>
 	 * @return an empty String
@@ -89,6 +98,11 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	@Override
+	public Builder<?> toBuilder() {
+		return new Builder<>(this);
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (!super.equals(obj)) {
 			return false;
@@ -104,6 +118,47 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 		int result = super.hashCode();
 		result = 31 * result + this.keyHash;
 		return result;
+	}
+
+	/**
+	 * A builder of {@link RememberMeAuthenticationToken} instances
+	 *
+	 * @since 7.0
+	 */
+	public static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<B> {
+
+		private Integer keyHash;
+
+		private Object principal;
+
+		protected Builder(RememberMeAuthenticationToken token) {
+			super(token);
+			this.keyHash = token.getKeyHash();
+			this.principal = token.getPrincipal();
+		}
+
+		@Override
+		public B principal(@Nullable Object principal) {
+			Assert.notNull(principal, "principal cannot be null");
+			this.principal = principal;
+			return (B) this;
+		}
+
+		/**
+		 * Use this key
+		 * @param key the key to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public B key(String key) {
+			this.keyHash = key.hashCode();
+			return (B) this;
+		}
+
+		@Override
+		public RememberMeAuthenticationToken build() {
+			return new RememberMeAuthenticationToken(this);
+		}
+
 	}
 
 }

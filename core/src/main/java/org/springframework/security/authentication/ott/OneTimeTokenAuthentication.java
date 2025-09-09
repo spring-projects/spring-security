@@ -23,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.Assert;
 
 /**
  * The result of a successful one-time-token authentication
@@ -43,6 +44,11 @@ public class OneTimeTokenAuthentication extends AbstractAuthenticationToken {
 		setAuthenticated(true);
 	}
 
+	protected OneTimeTokenAuthentication(Builder<?> builder) {
+		super(builder);
+		this.principal = builder.principal;
+	}
+
 	@Override
 	public Object getPrincipal() {
 		return this.principal;
@@ -51,6 +57,43 @@ public class OneTimeTokenAuthentication extends AbstractAuthenticationToken {
 	@Override
 	public @Nullable Object getCredentials() {
 		return null;
+	}
+
+	@Override
+	public Builder<?> toBuilder() {
+		return new Builder<>(this);
+	}
+
+	/**
+	 * A builder of {@link OneTimeTokenAuthentication} instances
+	 *
+	 * @since 7.0
+	 */
+	public static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<B> {
+
+		private Object principal;
+
+		protected Builder(OneTimeTokenAuthentication token) {
+			super(token);
+			this.principal = token.principal;
+		}
+
+		/**
+		 * Use this principal.
+		 * @return the {@link Builder} for further configuration
+		 */
+		@Override
+		public B principal(@Nullable Object principal) {
+			Assert.notNull(principal, "principal cannot be null");
+			this.principal = principal;
+			return (B) this;
+		}
+
+		@Override
+		public OneTimeTokenAuthentication build() {
+			return new OneTimeTokenAuthentication(this);
+		}
+
 	}
 
 }

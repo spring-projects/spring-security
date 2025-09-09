@@ -16,10 +16,13 @@
 
 package org.springframework.security.authentication;
 
+import java.io.Serial;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.function.Consumer;
 
 import org.jspecify.annotations.Nullable;
 
@@ -41,6 +44,9 @@ import org.springframework.util.Assert;
  */
 public abstract class AbstractAuthenticationToken implements Authentication, CredentialsContainer {
 
+	@Serial
+	private static final long serialVersionUID = -3194696462184782834L;
+
 	private final Collection<GrantedAuthority> authorities;
 
 	private @Nullable Object details;
@@ -61,6 +67,12 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 			Assert.notNull(a, "Authorities collection cannot contain any null elements");
 		}
 		this.authorities = Collections.unmodifiableList(new ArrayList<>(authorities));
+	}
+
+	protected AbstractAuthenticationToken(AbstractAuthenticationBuilder<?> builder) {
+		this(builder.authorities);
+		this.authenticated = builder.authenticated;
+		this.details = builder.details;
 	}
 
 	@Override
@@ -183,6 +195,50 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 		sb.append("Granted Authorities=").append(this.authorities);
 		sb.append("]");
 		return sb.toString();
+	}
+
+	/**
+	 * A common abstract implementation of {@link Authentication.Builder}. It implements
+	 * the builder methods that correspond to the {@link Authentication} methods that
+	 * {@link AbstractAuthenticationToken} implements
+	 *
+	 * @param <B>
+	 * @since 7.0
+	 */
+	protected abstract static class AbstractAuthenticationBuilder<B extends AbstractAuthenticationBuilder<B>>
+			implements Authentication.Builder<B> {
+
+		private boolean authenticated;
+
+		private @Nullable Object details;
+
+		private final Collection<GrantedAuthority> authorities;
+
+		protected AbstractAuthenticationBuilder(AbstractAuthenticationToken token) {
+			this.authorities = new LinkedHashSet<>(token.getAuthorities());
+			this.authenticated = token.isAuthenticated();
+			this.details = token.getDetails();
+		}
+
+		@Override
+		public B authenticated(boolean authenticated) {
+			this.authenticated = authenticated;
+			return (B) this;
+		}
+
+		@Override
+		public B details(@Nullable Object details) {
+			this.details = details;
+			return (B) this;
+		}
+
+		@Override
+		public B authorities(Consumer<Collection<GrantedAuthority>> authorities) {
+			authorities.accept(this.authorities);
+			this.authenticated = true;
+			return (B) this;
+		}
+
 	}
 
 }

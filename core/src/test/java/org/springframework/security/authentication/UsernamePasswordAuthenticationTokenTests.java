@@ -16,6 +16,8 @@
 
 package org.springframework.security.authentication;
 
+import java.util.Set;
+
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -83,6 +85,23 @@ public class UsernamePasswordAuthenticationTokenTests {
 		UsernamePasswordAuthenticationToken grantedToken = UsernamePasswordAuthenticationToken.authenticated("Test",
 				"Password", AuthorityUtils.NO_AUTHORITIES);
 		assertThat(grantedToken.isAuthenticated()).isTrue();
+	}
+
+	@Test
+	public void toBuilderWhenApplyThenCopies() {
+		UsernamePasswordAuthenticationToken factorOne = new UsernamePasswordAuthenticationToken("alice", "pass",
+				AuthorityUtils.createAuthorityList("FACTOR_ONE"));
+		UsernamePasswordAuthenticationToken factorTwo = new UsernamePasswordAuthenticationToken("bob", "ssap",
+				AuthorityUtils.createAuthorityList("FACTOR_TWO"));
+		UsernamePasswordAuthenticationToken result = factorOne.toBuilder()
+			.authorities((a) -> a.addAll(factorTwo.getAuthorities()))
+			.principal(factorTwo.getPrincipal())
+			.credentials(factorTwo.getCredentials())
+			.build();
+		Set<String> authorities = AuthorityUtils.authorityListToSet(result.getAuthorities());
+		assertThat(result.getPrincipal()).isEqualTo("bob");
+		assertThat(result.getCredentials()).isEqualTo("ssap");
+		assertThat(authorities).containsExactlyInAnyOrder("FACTOR_ONE", "FACTOR_TWO");
 	}
 
 }

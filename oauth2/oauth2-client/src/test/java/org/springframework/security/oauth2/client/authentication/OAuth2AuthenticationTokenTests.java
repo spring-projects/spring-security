@@ -18,12 +18,15 @@ package org.springframework.security.oauth2.client.authentication;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.core.user.TestOAuth2Users;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -80,6 +83,23 @@ public class OAuth2AuthenticationTokenTests {
 		assertThat(authentication.getAuthorities()).isEqualTo(this.authorities);
 		assertThat(authentication.getAuthorizedClientRegistrationId()).isEqualTo(this.authorizedClientRegistrationId);
 		assertThat(authentication.isAuthenticated()).isEqualTo(true);
+	}
+
+	@Test
+	public void toBuilderWhenApplyThenCopies() {
+		OAuth2AuthenticationToken factorOne = new OAuth2AuthenticationToken(TestOAuth2Users.create(),
+				AuthorityUtils.createAuthorityList("FACTOR_ONE"), "alice");
+		OAuth2AuthenticationToken factorTwo = new OAuth2AuthenticationToken(TestOAuth2Users.create(),
+				AuthorityUtils.createAuthorityList("FACTOR_TWO"), "bob");
+		OAuth2AuthenticationToken result = factorOne.toBuilder()
+			.authorities((a) -> a.addAll(factorTwo.getAuthorities()))
+			.principal(factorTwo.getPrincipal())
+			.authorizedClientRegistrationId(factorTwo.getAuthorizedClientRegistrationId())
+			.build();
+		Set<String> authorities = AuthorityUtils.authorityListToSet(result.getAuthorities());
+		assertThat(result.getPrincipal()).isSameAs(factorTwo.getPrincipal());
+		assertThat(result.getAuthorizedClientRegistrationId()).isSameAs(factorTwo.getAuthorizedClientRegistrationId());
+		assertThat(authorities).containsExactlyInAnyOrder("FACTOR_ONE", "FACTOR_TWO");
 	}
 
 }

@@ -19,8 +19,11 @@ package org.springframework.security.authentication;
 import java.util.Collection;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.util.Assert;
 
 /**
  * An {@link org.springframework.security.core.Authentication} implementation that is
@@ -39,7 +42,7 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 	private final Object principal;
 
 	public TestingAuthenticationToken(Object principal, Object credentials) {
-		super(null);
+		super((Collection<? extends GrantedAuthority>) null);
 		this.principal = principal;
 		this.credentials = credentials;
 	}
@@ -61,6 +64,12 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 		setAuthenticated(true);
 	}
 
+	protected TestingAuthenticationToken(Builder<?> builder) {
+		super(builder);
+		this.principal = builder.principal;
+		this.credentials = builder.credentials;
+	}
+
 	@Override
 	public Object getCredentials() {
 		return this.credentials;
@@ -69,6 +78,49 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 	@Override
 	public Object getPrincipal() {
 		return this.principal;
+	}
+
+	@Override
+	public Builder<?> toBuilder() {
+		return new Builder<>(this);
+	}
+
+	/**
+	 * A builder of {@link TestingAuthenticationToken} instances
+	 *
+	 * @since 7.0
+	 */
+	public static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<B> {
+
+		private Object principal;
+
+		private Object credentials;
+
+		protected Builder(TestingAuthenticationToken token) {
+			super(token);
+			this.principal = token.principal;
+			this.credentials = token.credentials;
+		}
+
+		@Override
+		public B principal(@Nullable Object principal) {
+			Assert.notNull(principal, "principal cannot be null");
+			this.principal = principal;
+			return (B) this;
+		}
+
+		@Override
+		public B credentials(@Nullable Object credentials) {
+			Assert.notNull(credentials, "credentials cannot be null");
+			this.credentials = credentials;
+			return (B) this;
+		}
+
+		@Override
+		public TestingAuthenticationToken build() {
+			return new TestingAuthenticationToken(this);
+		}
+
 	}
 
 }

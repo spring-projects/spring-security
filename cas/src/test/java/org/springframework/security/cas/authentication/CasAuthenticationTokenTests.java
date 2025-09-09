@@ -18,6 +18,7 @@ package org.springframework.security.cas.authentication;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.apereo.cas.client.validation.Assertion;
 import org.apereo.cas.client.validation.AssertionImpl;
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -153,6 +155,31 @@ public class CasAuthenticationTokenTests {
 				makeUserDetails(), assertion);
 		String result = token.toString();
 		assertThat(result.lastIndexOf("Credentials (Service/Proxy Ticket):") != -1).isTrue();
+	}
+
+	@Test
+	public void toBuilderWhenApplyThenCopies() {
+		Assertion assertionOne = new AssertionImpl("test");
+		CasAuthenticationToken factorOne = new CasAuthenticationToken("key", "alice", "pass",
+				AuthorityUtils.createAuthorityList("FACTOR_ONE"), PasswordEncodedUser.user(), assertionOne);
+		Assertion assertionTwo = new AssertionImpl("test");
+		CasAuthenticationToken factorTwo = new CasAuthenticationToken("yek", "bob", "ssap",
+				AuthorityUtils.createAuthorityList("FACTOR_TWO"), PasswordEncodedUser.admin(), assertionTwo);
+		CasAuthenticationToken authentication = factorOne.toBuilder()
+			.authorities((a) -> a.addAll(factorTwo.getAuthorities()))
+			.key("yek")
+			.principal(factorTwo.getPrincipal())
+			.credentials(factorTwo.getCredentials())
+			.userDetails(factorTwo.getUserDetails())
+			.assertion(factorTwo.getAssertion())
+			.build();
+		Set<String> authorities = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
+		assertThat(authentication.getKeyHash()).isEqualTo(factorTwo.getKeyHash());
+		assertThat(authentication.getPrincipal()).isEqualTo(factorTwo.getPrincipal());
+		assertThat(authentication.getCredentials()).isEqualTo(factorTwo.getCredentials());
+		assertThat(authentication.getUserDetails()).isEqualTo(factorTwo.getUserDetails());
+		assertThat(authentication.getAssertion()).isEqualTo(factorTwo.getAssertion());
+		assertThat(authorities).containsExactlyInAnyOrder("FACTOR_ONE", "FACTOR_TWO");
 	}
 
 }

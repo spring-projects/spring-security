@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.Collection;
 
 import org.apereo.cas.client.validation.Assertion;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -104,6 +105,19 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 		setAuthenticated(true);
 	}
 
+	protected CasAuthenticationToken(Builder<?> builder) {
+		super(builder);
+		Assert.isTrue(!"".equals(builder.principal), "principal cannot be null or empty");
+		Assert.notNull(!"".equals(builder.credentials), "credentials cannot be null or empty");
+		Assert.notNull(builder.userDetails, "userDetails cannot be null");
+		Assert.notNull(builder.assertion, "assertion cannot be null");
+		this.keyHash = builder.keyHash;
+		this.principal = builder.principal;
+		this.credentials = builder.credentials;
+		this.userDetails = builder.userDetails;
+		this.assertion = builder.assertion;
+	}
+
 	private static Integer extractKeyHash(String key) {
 		Assert.hasLength(key, "key cannot be null or empty");
 		return key.hashCode();
@@ -154,12 +168,94 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 	}
 
 	@Override
+	public Builder<?> toBuilder() {
+		return new Builder<>(this);
+	}
+
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(super.toString());
 		sb.append(" Assertion: ").append(this.assertion);
 		sb.append(" Credentials (Service/Proxy Ticket): ").append(this.credentials);
 		return (sb.toString());
+	}
+
+	/**
+	 * A builder of {@link CasAuthenticationToken} instances
+	 *
+	 * @since 7.0
+	 */
+	public static class Builder<B extends Builder<B>> extends AbstractAuthenticationBuilder<B> {
+
+		private Integer keyHash;
+
+		private Object principal;
+
+		private Object credentials;
+
+		private UserDetails userDetails;
+
+		private Assertion assertion;
+
+		protected Builder(CasAuthenticationToken token) {
+			super(token);
+			this.keyHash = token.keyHash;
+			this.principal = token.principal;
+			this.credentials = token.credentials;
+			this.userDetails = token.userDetails;
+			this.assertion = token.assertion;
+		}
+
+		/**
+		 * Use this key
+		 * @param key the key to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public B key(String key) {
+			this.keyHash = key.hashCode();
+			return (B) this;
+		}
+
+		@Override
+		public B principal(@Nullable Object principal) {
+			Assert.notNull(principal, "principal cannot be null");
+			this.principal = principal;
+			return (B) this;
+		}
+
+		@Override
+		public B credentials(@Nullable Object credentials) {
+			Assert.notNull(credentials, "credentials cannot be null");
+			this.credentials = credentials;
+			return (B) this;
+		}
+
+		/**
+		 * Use this {@link UserDetails}
+		 * @param userDetails the {@link UserDetails} to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public B userDetails(UserDetails userDetails) {
+			this.userDetails = userDetails;
+			return (B) this;
+		}
+
+		/**
+		 * Use this {@link Assertion}
+		 * @param assertion the {@link Assertion} to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public B assertion(Assertion assertion) {
+			this.assertion = assertion;
+			return (B) this;
+		}
+
+		@Override
+		public CasAuthenticationToken build() {
+			return new CasAuthenticationToken(this);
+		}
+
 	}
 
 }

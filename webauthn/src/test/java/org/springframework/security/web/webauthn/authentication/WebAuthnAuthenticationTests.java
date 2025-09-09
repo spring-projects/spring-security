@@ -17,6 +17,7 @@
 package org.springframework.security.web.webauthn.authentication;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -53,6 +54,23 @@ class WebAuthnAuthenticationTests {
 		WebAuthnAuthentication authentication = new WebAuthnAuthentication(userEntity, authorities);
 		authentication.setAuthenticated(false);
 		assertThat(authentication.isAuthenticated()).isFalse();
+	}
+
+	@Test
+	void toBuilderWhenApplyThenCopies() {
+		PublicKeyCredentialUserEntity alice = TestPublicKeyCredentialUserEntities.userEntity().build();
+		WebAuthnAuthentication factorOne = new WebAuthnAuthentication(alice,
+				AuthorityUtils.createAuthorityList("FACTOR_ONE"));
+		PublicKeyCredentialUserEntity bob = TestPublicKeyCredentialUserEntities.userEntity().build();
+		WebAuthnAuthentication factorTwo = new WebAuthnAuthentication(bob,
+				AuthorityUtils.createAuthorityList("FACTOR_TWO"));
+		WebAuthnAuthentication result = factorOne.toBuilder()
+			.authorities((a) -> a.addAll(factorTwo.getAuthorities()))
+			.principal(factorTwo.getPrincipal())
+			.build();
+		Set<String> authorities = AuthorityUtils.authorityListToSet(result.getAuthorities());
+		assertThat(result.getPrincipal()).isSameAs(factorTwo.getPrincipal());
+		assertThat(authorities).containsExactlyInAnyOrder("FACTOR_ONE", "FACTOR_TWO");
 	}
 
 }
