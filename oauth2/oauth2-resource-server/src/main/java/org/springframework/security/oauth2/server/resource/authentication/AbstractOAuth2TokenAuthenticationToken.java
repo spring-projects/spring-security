@@ -118,8 +118,9 @@ public abstract class AbstractOAuth2TokenAuthenticationToken<T extends OAuth2Tok
 	public abstract Map<String, Object> getTokenAttributes();
 
 	/**
-	 * A builder preserving the concrete {@link Authentication} type
+	 * A builder for {@link AbstractOAuth2TokenAuthenticationToken} implementations
 	 *
+	 * @param <B>
 	 * @since 7.0
 	 */
 	public abstract static class AbstractOAuth2TokenAuthenticationBuilder<T extends OAuth2Token, B extends AbstractOAuth2TokenAuthenticationBuilder<T, B>>
@@ -152,8 +153,13 @@ public abstract class AbstractOAuth2TokenAuthenticationToken<T extends OAuth2Tok
 			return (B) this;
 		}
 
+		/**
+		 * The OAuth 2.0 Token to use
+		 * @param token the token to use
+		 * @return the {@link Builder} for further configurations
+		 */
 		public B token(T token) {
-			Assert.notNull(token, "credentials cannot be null");
+			Assert.notNull(token, "token cannot be null");
 			this.token = token;
 			return (B) this;
 		}

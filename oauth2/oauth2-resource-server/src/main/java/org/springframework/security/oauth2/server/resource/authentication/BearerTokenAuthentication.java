@@ -89,6 +89,11 @@ public class BearerTokenAuthentication extends AbstractOAuth2TokenAuthentication
 			this.attributes = token.getTokenAttributes();
 		}
 
+		/**
+		 * Use this principal. Must be of type {@link OAuth2AuthenticatedPrincipal}
+		 * @param principal the principal to use
+		 * @return the {@link Builder} for further configurations
+		 */
 		@Override
 		public B principal(@Nullable Object principal) {
 			Assert.isInstanceOf(OAuth2AuthenticatedPrincipal.class, principal,
@@ -97,13 +102,33 @@ public class BearerTokenAuthentication extends AbstractOAuth2TokenAuthentication
 			return super.principal(principal);
 		}
 
+		/**
+		 * A synonym for {@link #token(OAuth2AccessToken)}
+		 * @param token the token to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		@Override
+		public B credentials(@Nullable Object token) {
+			Assert.isInstanceOf(OAuth2AccessToken.class, token, "token must be of type OAuth2AccessToken");
+			return token((OAuth2AccessToken) token);
+		}
+
+		/**
+		 * Use this token. Must have a {@link OAuth2AccessToken#getTokenType()} as
+		 * {@link OAuth2AccessToken.TokenType#BEARER}.
+		 * @param token the token to use
+		 * @return the {@link Builder} for further configurations
+		 */
 		@Override
 		public B token(OAuth2AccessToken token) {
-			Assert.isTrue(token.getTokenType() == OAuth2AccessToken.TokenType.BEARER,
-					"credentials must be a bearer token");
+			Assert.isTrue(token.getTokenType() == OAuth2AccessToken.TokenType.BEARER, "token must be a bearer token");
+			super.credentials(token);
 			return super.token(token);
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
 		@Override
 		public BearerTokenAuthentication build() {
 			return new BearerTokenAuthentication(this);

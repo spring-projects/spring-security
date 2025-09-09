@@ -101,7 +101,7 @@ public class OAuth2AuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	/**
-	 * A builder preserving the concrete {@link Authentication} type
+	 * A builder of {@link OAuth2AuthenticationToken} instances
 	 *
 	 * @since 7.0
 	 */
@@ -124,6 +124,14 @@ public class OAuth2AuthenticationToken extends AbstractAuthenticationToken {
 			return (B) this;
 		}
 
+		/**
+		 * Use this
+		 * {@link org.springframework.security.oauth2.client.registration.ClientRegistration}
+		 * {@code registrationId}.
+		 * @param authorizedClientRegistrationId the registration id to use
+		 * @return the {@link Builder} for further configurations
+		 * @see OAuth2AuthenticationToken#getAuthorizedClientRegistrationId
+		 */
 		public B authorizedClientRegistrationId(String authorizedClientRegistrationId) {
 			this.authorizedClientRegistrationId = authorizedClientRegistrationId;
 			return (B) this;
