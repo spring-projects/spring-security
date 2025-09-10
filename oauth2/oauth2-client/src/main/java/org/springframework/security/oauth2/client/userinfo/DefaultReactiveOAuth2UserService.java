@@ -130,13 +130,15 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 					.bodyToMono(DefaultReactiveOAuth2UserService.STRING_OBJECT_MAP)
 					.mapNotNull((attributes) -> this.attributesConverter.convert(userRequest).convert(attributes));
 			return userAttributes.map((attrs) -> {
-				GrantedAuthority authority = new OAuth2UserAuthority(attrs, userNameAttributeName);
-				Set<GrantedAuthority> authorities = new HashSet<>();
-				authorities.add(authority);
-				OAuth2AccessToken token = userRequest.getAccessToken();
-				for (String scope : token.getScopes()) {
-					authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope));
-				}
+					String username = OAuth2UsernameExpressionUtils.evaluateUsername(attrs, usernameExpression);
+					Set<GrantedAuthority> authorities = new HashSet<>();
+					authorities.add(OAuth2UserAuthority.withUsername(username)
+						.attributes(attrs)
+						.build());
+					OAuth2AccessToken token = userRequest.getAccessToken();
+					for (String scope : token.getScopes()) {
+						authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope));
+					}
 
 				return new DefaultOAuth2User(authorities, attrs, userNameAttributeName);
 			})
@@ -166,6 +168,21 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 			});
 		});
 		// @formatter:on
+	}
+
+	private String getUsernameExpression(OAuth2UserRequest userRequest) {
+		String usernameExpression = userRequest.getClientRegistration()
+			.getProviderDetails()
+			.getUserInfoEndpoint()
+			.getUsernameExpression();
+		if (!StringUtils.hasText(usernameExpression)) {
+			OAuth2Error oauth2Error = new OAuth2Error(MISSING_USER_NAME_ATTRIBUTE_ERROR_CODE,
+					"Missing required \"user name\" attribute name in UserInfoEndpoint for Client Registration: "
+							+ userRequest.getClientRegistration().getRegistrationId(),
+					null);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
+		}
+		return usernameExpression;
 	}
 
 	private WebClient.RequestHeadersSpec<?> getRequestHeaderSpec(OAuth2UserRequest userRequest, String userInfoUri,
