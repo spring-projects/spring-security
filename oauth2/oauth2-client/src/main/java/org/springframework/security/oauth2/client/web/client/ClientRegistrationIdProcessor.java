@@ -17,12 +17,12 @@
 package org.springframework.security.oauth2.client.web.client;
 
 import java.lang.reflect.Method;
-import java.util.Optional;
 
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.MethodParameter;
-import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.security.core.annotation.SecurityAnnotationScanner;
+import org.springframework.security.core.annotation.SecurityAnnotationScanners;
 import org.springframework.security.oauth2.client.annotation.ClientRegistrationId;
 import org.springframework.security.oauth2.client.web.ClientAttributes;
 import org.springframework.web.service.invoker.HttpRequestValues;
@@ -38,20 +38,21 @@ public final class ClientRegistrationIdProcessor implements HttpRequestValues.Pr
 
 	public static ClientRegistrationIdProcessor DEFAULT_INSTANCE = new ClientRegistrationIdProcessor();
 
-	private ClientRegistrationIdProcessor() {
-	}
+	private SecurityAnnotationScanner<ClientRegistrationId> securityAnnotationScanner = SecurityAnnotationScanners
+		.requireUnique(ClientRegistrationId.class);
 
 	@Override
 	public void process(Method method, MethodParameter[] parameters, @Nullable Object[] arguments,
 			HttpRequestValues.Builder builder) {
-		ClientRegistrationId registeredId = Optional
-			.ofNullable(AnnotationUtils.findAnnotation(method, ClientRegistrationId.class))
-			.orElseGet(() -> AnnotationUtils.findAnnotation(method.getDeclaringClass(), ClientRegistrationId.class));
+		ClientRegistrationId registeredId = this.securityAnnotationScanner.scan(method, method.getDeclaringClass());
 
 		if (registeredId != null) {
 			String registrationId = registeredId.registrationId();
 			builder.configureAttributes(ClientAttributes.clientRegistrationId(registrationId));
 		}
+	}
+
+	private ClientRegistrationIdProcessor() {
 	}
 
 }
