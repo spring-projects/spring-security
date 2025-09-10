@@ -16,10 +16,10 @@
 
 package org.springframework.security.web.webauthn.jackson;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
+import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.security.web.webauthn.api.CredProtectAuthenticationExtensionsClientInput;
 import org.springframework.security.web.webauthn.api.ImmutableAuthenticationExtensionsClientInputs;
@@ -31,12 +31,11 @@ import org.springframework.security.web.webauthn.api.ImmutableAuthenticationExte
  */
 class CredProtectAuthenticationExtensionsClientInputJacksonTests {
 
-	private ObjectMapper mapper;
+	private JsonMapper mapper;
 
 	@BeforeEach
 	void setup() {
-		this.mapper = new ObjectMapper();
-		this.mapper.registerModule(new WebauthnJackson2Module());
+		this.mapper = JsonMapper.builder().addModule(new WebauthnJacksonModule()).build();
 	}
 
 	@Test

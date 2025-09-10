@@ -15,6 +15,7 @@ dependencies {
 
 	optional 'org.springframework:spring-jdbc'
 	optional 'org.springframework:spring-tx'
+	optional 'tools.jackson.core:jackson-databind'
 
 	provided 'jakarta.servlet:jakarta.servlet-api'
 

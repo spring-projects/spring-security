@@ -16,8 +16,8 @@
 
 package org.springframework.security.web.webauthn.jackson;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonPOJOBuilder;
 
 import org.springframework.security.web.webauthn.api.AuthenticatorAssertionResponse;
 
