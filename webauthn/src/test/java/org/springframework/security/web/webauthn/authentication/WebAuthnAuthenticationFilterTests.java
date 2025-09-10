@@ -27,7 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.converter.GenericHttpMessageConverter;
+import org.springframework.http.converter.SmartHttpMessageConverter;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
@@ -79,7 +79,7 @@ class WebAuthnAuthenticationFilterTests {
 			""";
 
 	@Mock
-	private GenericHttpMessageConverter<Object> converter;
+	private SmartHttpMessageConverter<Object> converter;
 
 	@Mock
 	private PublicKeyCredentialRequestOptionsRepository requestOptionsRepository;

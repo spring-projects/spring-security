@@ -16,9 +16,9 @@
 
 package org.springframework.security.web.webauthn.registration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.security.web.webauthn.api.AuthenticatorAttachment;
 import org.springframework.security.web.webauthn.api.AuthenticatorAttestationResponse;
@@ -29,7 +29,7 @@ import org.springframework.security.web.webauthn.api.ImmutableAuthenticationExte
 import org.springframework.security.web.webauthn.api.PublicKeyCredential;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialType;
 import org.springframework.security.web.webauthn.jackson.PublicKeyCredentialJson;
-import org.springframework.security.web.webauthn.jackson.WebauthnJackson2Module;
+import org.springframework.security.web.webauthn.jackson.WebauthnJacksonModule;
 import org.springframework.security.web.webauthn.management.RelyingPartyPublicKey;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,12 +40,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class WebAuthnRegistrationRequestJacksonTests {
 
-	private ObjectMapper mapper;
+	private JsonMapper mapper;
 
 	@BeforeEach
 	void setup() {
-		this.mapper = new ObjectMapper();
-		this.mapper.registerModule(new WebauthnJackson2Module());
+		this.mapper = JsonMapper.builder().addModule(new WebauthnJacksonModule()).build();
 	}
 
 	@Test

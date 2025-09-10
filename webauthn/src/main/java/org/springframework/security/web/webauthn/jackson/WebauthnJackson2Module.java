@@ -46,8 +46,12 @@ import org.springframework.security.web.webauthn.management.RelyingPartyPublicKe
  *
  * @author Rob Winch
  * @since 6.4
+ * @deprecated as of 7.0 in favor of
+ * {@link org.springframework.security.web.webauthn.jackson.WebauthnJacksonModule} based
+ * on Jackson 3
  */
-@SuppressWarnings("serial")
+@Deprecated(forRemoval = true)
+@SuppressWarnings({ "serial", "removal" })
 public class WebauthnJackson2Module extends SimpleModule {
 
 	/**
@@ -59,39 +63,41 @@ public class WebauthnJackson2Module extends SimpleModule {
 
 	@Override
 	public void setupModule(SetupContext context) {
-		context.setMixInAnnotations(Bytes.class, BytesMixin.class);
-		context.setMixInAnnotations(AttestationConveyancePreference.class, AttestationConveyancePreferenceMixin.class);
+		context.setMixInAnnotations(Bytes.class, BytesJackson2Mixin.class);
+		context.setMixInAnnotations(AttestationConveyancePreference.class,
+				AttestationConveyancePreferenceJackson2Mixin.class);
 		context.setMixInAnnotations(AuthenticationExtensionsClientInput.class,
-				AuthenticationExtensionsClientInputMixin.class);
+				AuthenticationExtensionsClientInputJackson2Mixin.class);
 		context.setMixInAnnotations(AuthenticationExtensionsClientInputs.class,
-				AuthenticationExtensionsClientInputsMixin.class);
+				AuthenticationExtensionsClientInputsJackson2Mixin.class);
 		context.setMixInAnnotations(AuthenticationExtensionsClientOutputs.class,
-				AuthenticationExtensionsClientOutputsMixin.class);
+				AuthenticationExtensionsClientOutputsJackson2Mixin.class);
 		context.setMixInAnnotations(AuthenticatorAssertionResponse.AuthenticatorAssertionResponseBuilder.class,
-				AuthenticatorAssertionResponseMixin.AuthenticatorAssertionResponseBuilderMixin.class);
-		context.setMixInAnnotations(AuthenticatorAssertionResponse.class, AuthenticatorAssertionResponseMixin.class);
-		context.setMixInAnnotations(AuthenticatorAttachment.class, AuthenticatorAttachmentMixin.class);
+				AuthenticatorAssertionResponseJackson2Mixin.AuthenticatorAssertionResponseBuilderMixin.class);
+		context.setMixInAnnotations(AuthenticatorAssertionResponse.class,
+				AuthenticatorAssertionResponseJackson2Mixin.class);
+		context.setMixInAnnotations(AuthenticatorAttachment.class, AuthenticatorAttachmentJackson2Mixin.class);
 		context.setMixInAnnotations(AuthenticatorAttestationResponse.class,
-				AuthenticatorAttestationResponseMixin.class);
+				AuthenticatorAttestationResponseJackson2Mixin.class);
 		context.setMixInAnnotations(AuthenticatorAttestationResponse.AuthenticatorAttestationResponseBuilder.class,
-				AuthenticatorAttestationResponseMixin.AuthenticatorAttestationResponseBuilderMixin.class);
+				AuthenticatorAttestationResponseJackson2Mixin.AuthenticatorAttestationResponseBuilderMixin.class);
 		context.setMixInAnnotations(AuthenticatorSelectionCriteria.class, AuthenticatorSelectionCriteriaMixin.class);
-		context.setMixInAnnotations(AuthenticatorTransport.class, AuthenticatorTransportMixin.class);
-		context.setMixInAnnotations(COSEAlgorithmIdentifier.class, COSEAlgorithmIdentifierMixin.class);
-		context.setMixInAnnotations(CredentialPropertiesOutput.class, CredentialPropertiesOutputMixin.class);
+		context.setMixInAnnotations(AuthenticatorTransport.class, AuthenticatorTransportJackson2Mixin.class);
+		context.setMixInAnnotations(COSEAlgorithmIdentifier.class, COSEAlgorithmIdentifierJackson2Mixin.class);
+		context.setMixInAnnotations(CredentialPropertiesOutput.class, CredentialPropertiesOutputJackson2Mixin.class);
 		context.setMixInAnnotations(CredProtectAuthenticationExtensionsClientInput.class,
-				CredProtectAuthenticationExtensionsClientInputMixin.class);
+				CredProtectAuthenticationExtensionsClientInputJackson2Mixin.class);
 		context.setMixInAnnotations(PublicKeyCredential.PublicKeyCredentialBuilder.class,
-				PublicKeyCredentialMixin.PublicKeyCredentialBuilderMixin.class);
-		context.setMixInAnnotations(PublicKeyCredential.class, PublicKeyCredentialMixin.class);
+				PublicKeyCredentialJackson2Mixin.PublicKeyCredentialBuilderMixin.class);
+		context.setMixInAnnotations(PublicKeyCredential.class, PublicKeyCredentialJackson2Mixin.class);
 		context.setMixInAnnotations(PublicKeyCredentialCreationOptions.class,
-				PublicKeyCredentialCreationOptionsMixin.class);
+				PublicKeyCredentialCreationOptionsJackson2Mixin.class);
 		context.setMixInAnnotations(PublicKeyCredentialRequestOptions.class,
-				PublicKeyCredentialRequestOptionsMixin.class);
-		context.setMixInAnnotations(PublicKeyCredentialType.class, PublicKeyCredentialTypeMixin.class);
-		context.setMixInAnnotations(RelyingPartyPublicKey.class, RelyingPartyPublicKeyMixin.class);
-		context.setMixInAnnotations(ResidentKeyRequirement.class, ResidentKeyRequirementMixin.class);
-		context.setMixInAnnotations(UserVerificationRequirement.class, UserVerificationRequirementMixin.class);
+				PublicKeyCredentialRequestOptionsJackson2Mixin.class);
+		context.setMixInAnnotations(PublicKeyCredentialType.class, PublicKeyCredentialTypeJackson2Mixin.class);
+		context.setMixInAnnotations(RelyingPartyPublicKey.class, RelyingPartyPublicKeyJackson2Mixin.class);
+		context.setMixInAnnotations(ResidentKeyRequirement.class, ResidentKeyRequirementJackson2Mixin.class);
+		context.setMixInAnnotations(UserVerificationRequirement.class, UserVerificationRequirementJackson2Mixin.class);
 	}
 
 }
