@@ -16,12 +16,10 @@
 
 package org.springframework.security.web.webauthn.jackson;
 
-import java.io.IOException;
-
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialType;
 
@@ -42,8 +40,7 @@ class PublicKeyCredentialTypeDeserializer extends StdDeserializer<PublicKeyCrede
 	}
 
 	@Override
-	public PublicKeyCredentialType deserialize(JsonParser parser, DeserializationContext ctxt)
-			throws IOException, JacksonException {
+	public PublicKeyCredentialType deserialize(JsonParser parser, DeserializationContext ctxt) throws JacksonException {
 		String type = parser.readValueAs(String.class);
 		return PublicKeyCredentialType.valueOf(type);
 	}

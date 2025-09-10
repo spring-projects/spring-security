@@ -16,17 +16,16 @@
 
 package org.springframework.security.web.webauthn.jackson;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientOutput;
 import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientOutputs;
@@ -53,9 +52,9 @@ class AuthenticationExtensionsClientOutputsDeserializer extends StdDeserializer<
 
 	@Override
 	public AuthenticationExtensionsClientOutputs deserialize(JsonParser parser, DeserializationContext ctxt)
-			throws IOException, JacksonException {
+			throws JacksonException {
 		List<AuthenticationExtensionsClientOutput<?>> outputs = new ArrayList<>();
-		for (String key = parser.nextFieldName(); key != null; key = parser.nextFieldName()) {
+		for (String key = parser.nextName(); key != null; key = parser.nextName()) {
 			JsonToken startObject = parser.nextValue();
 			if (startObject != JsonToken.START_OBJECT) {
 				break;
