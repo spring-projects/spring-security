@@ -16,11 +16,10 @@
 
 package org.springframework.security.web.webauthn.jackson;
 
-import java.io.IOException;
-
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 import org.springframework.security.web.webauthn.api.ResidentKeyRequirement;
 
@@ -41,8 +40,8 @@ class ResidentKeyRequirementSerializer extends StdSerializer<ResidentKeyRequirem
 	}
 
 	@Override
-	public void serialize(ResidentKeyRequirement requirement, JsonGenerator jgen, SerializerProvider provider)
-			throws IOException {
+	public void serialize(ResidentKeyRequirement requirement, JsonGenerator jgen, SerializationContext ctxt)
+			throws JacksonException {
 		jgen.writeString(requirement.getValue());
 	}
 
