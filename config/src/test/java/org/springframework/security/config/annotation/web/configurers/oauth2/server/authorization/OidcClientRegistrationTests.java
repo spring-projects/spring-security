@@ -191,7 +191,7 @@ public class OidcClientRegistrationTests {
 	public static void init() {
 		JWKSet jwkSet = new JWKSet(TestJwks.DEFAULT_RSA_JWK);
 		jwkSource = (jwkSelector, securityContext) -> jwkSelector.select(jwkSet);
-		clientJwkSet = new JWKSet(TestJwks.generateRsaJwk().build());
+		clientJwkSet = new JWKSet(TestJwks.generateRsa().build());
 		jwtClientAssertionEncoder = new NimbusJwtEncoder(
 				(jwkSelector, securityContext) -> jwkSelector.select(clientJwkSet));
 		db = new EmbeddedDatabaseBuilder().generateUniqueName(true)

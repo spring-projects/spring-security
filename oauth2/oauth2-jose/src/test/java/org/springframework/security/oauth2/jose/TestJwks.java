@@ -16,10 +16,13 @@
 
 package org.springframework.security.oauth2.jose;
 
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
@@ -32,6 +35,17 @@ import com.nimbusds.jose.jwk.RSAKey;
  * @author Joe Grandja
  */
 public final class TestJwks {
+
+	private static final KeyPairGenerator rsaKeyPairGenerator;
+	static {
+		try {
+			rsaKeyPairGenerator = KeyPairGenerator.getInstance("RSA");
+			rsaKeyPairGenerator.initialize(2048);
+		}
+		catch (Exception ex) {
+			throw new IllegalStateException(ex);
+		}
+	}
 
 	// @formatter:off
 	public static final RSAKey DEFAULT_RSA_JWK =
@@ -57,6 +71,16 @@ public final class TestJwks {
 	// @formatter:on
 
 	private TestJwks() {
+	}
+
+	public static RSAKey.Builder generateRsa() {
+		KeyPair keyPair = rsaKeyPairGenerator.generateKeyPair();
+		RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
+		RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+		// @formatter:off
+		return jwk(publicKey, privateKey)
+				.keyID(UUID.randomUUID().toString());
+		// @formatter:on
 	}
 
 	public static RSAKey.Builder rsa() {

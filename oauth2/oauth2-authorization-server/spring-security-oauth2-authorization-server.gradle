@@ -17,6 +17,7 @@ dependencies {
 	optional "org.springframework:spring-jdbc"
 
 	testImplementation project(":spring-security-test")
+	testImplementation project(path : ':spring-security-oauth2-jose', configuration : 'tests')
 	testImplementation "org.springframework:spring-webmvc"
 	testImplementation "org.bouncycastle:bcpkix-jdk18on"
 	testImplementation "org.bouncycastle:bcprov-jdk18on"

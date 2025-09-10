@@ -22,7 +22,6 @@ import java.util.List;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.OctetSequenceKey;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
@@ -132,13 +131,11 @@ public class NimbusJwkSetEndpointFilterTests {
 		assertThat(rsaJwkResult).isNotNull();
 		assertThat(rsaJwkResult.toRSAPublicKey()).isEqualTo(rsaJwk.toRSAPublicKey());
 		assertThat(rsaJwkResult.toRSAPrivateKey()).isNull();
-		assertThat(rsaJwkResult.getKeyUse()).isEqualTo(KeyUse.SIGNATURE);
 
 		ECKey ecJwkResult = (ECKey) jwkSet.getKeyByKeyId(ecJwk.getKeyID());
 		assertThat(ecJwkResult).isNotNull();
 		assertThat(ecJwkResult.toECPublicKey()).isEqualTo(ecJwk.toECPublicKey());
 		assertThat(ecJwkResult.toECPrivateKey()).isNull();
-		assertThat(ecJwkResult.getKeyUse()).isEqualTo(KeyUse.SIGNATURE);
 	}
 
 	@Test
