@@ -48,6 +48,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Luke Taylor
+ * @author Yanming Zhou
  */
 @ExtendWith(MockitoExtension.class)
 public class JdbcTokenRepositoryImplTests {
@@ -78,7 +79,7 @@ public class JdbcTokenRepositoryImplTests {
 		this.repo = new JdbcTokenRepositoryImpl();
 		ReflectionTestUtils.setField(this.repo, "logger", this.logger);
 		this.repo.setDataSource(dataSource);
-		this.repo.initDao();
+		this.repo.afterPropertiesSet();
 		this.template = this.repo.getJdbcTemplate();
 		this.template.execute("create table persistent_logins (username varchar(100) not null, "
 				+ "series varchar(100) not null, token varchar(500) not null, last_used timestamp not null)");
@@ -170,7 +171,7 @@ public class JdbcTokenRepositoryImplTests {
 		this.repo = new JdbcTokenRepositoryImpl();
 		this.repo.setDataSource(dataSource);
 		this.repo.setCreateTableOnStartup(true);
-		this.repo.initDao();
+		this.repo.afterPropertiesSet();
 		this.template.queryForList("select username,series,token,last_used from persistent_logins");
 	}
 

@@ -20,22 +20,28 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 
+import javax.sql.DataSource;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.beans.factory.BeanInitializationException;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.log.LogMessage;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 /**
  * JDBC based persistent login token repository implementation.
  *
  * @author Luke Taylor
+ * @author Yanming Zhou
  * @since 2.0
  */
-public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements PersistentTokenRepository {
+public class JdbcTokenRepositoryImpl implements PersistentTokenRepository, InitializingBean {
 
 	/** Default SQL for creating the database table to store the tokens */
 	public static final String CREATE_TABLE_SQL = "create table persistent_logins (username varchar(64) not null, series varchar(64) primary key, "
@@ -53,6 +59,10 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
 	/** The default SQL used by <tt>removeUserTokens</tt> */
 	public static final String DEF_REMOVE_USER_TOKENS_SQL = "delete from persistent_logins where username = ?";
 
+	protected final Log logger = LogFactory.getLog(getClass());
+
+	private @Nullable JdbcTemplate jdbcTemplate;
+
 	private String tokensBySeriesSql = DEF_TOKEN_BY_SERIES_SQL;
 
 	private String insertTokenSql = DEF_INSERT_TOKEN_SQL;
@@ -64,6 +74,54 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
 	private boolean createTableOnStartup;
 
 	@Override
+	public final void afterPropertiesSet() throws IllegalArgumentException, BeanInitializationException {
+		// Let abstract subclasses check their configuration.
+		checkDaoConfig();
+
+		// Let concrete implementations initialize themselves.
+		try {
+			initDao();
+		}
+		catch (Exception ex) {
+			throw new BeanInitializationException("Initialization of DAO failed", ex);
+		}
+	}
+
+	/**
+	 * Set the JDBC DataSource to be used by this DAO.
+	 */
+	public final void setDataSource(DataSource dataSource) {
+		if (this.jdbcTemplate == null || dataSource != this.jdbcTemplate.getDataSource()) {
+			this.jdbcTemplate = new JdbcTemplate(dataSource);
+		}
+	}
+
+	public final @Nullable DataSource getDataSource() {
+		return (this.jdbcTemplate != null) ? this.jdbcTemplate.getDataSource() : null;
+	}
+
+	/**
+	 * Set the JdbcTemplate for this DAO explicitly, as an alternative to specifying a
+	 * DataSource.
+	 */
+	public final void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+		this.jdbcTemplate = jdbcTemplate;
+	}
+
+	/**
+	 * Return the JdbcTemplate for this DAO, pre-initialized with the DataSource or set
+	 * explicitly.
+	 */
+	public final @Nullable JdbcTemplate getJdbcTemplate() {
+		return this.jdbcTemplate;
+	}
+
+	protected void checkDaoConfig() {
+		if (this.jdbcTemplate == null) {
+			throw new IllegalArgumentException("'dataSource' or 'jdbcTemplate' is required");
+		}
+	}
+
 	protected void initDao() {
 		if (this.createTableOnStartup) {
 			getTemplate().execute(CREATE_TABLE_SQL);
@@ -128,7 +186,7 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
 	}
 
 	private JdbcTemplate getTemplate() {
-		@Nullable JdbcTemplate result = super.getJdbcTemplate();
+		@Nullable JdbcTemplate result = this.jdbcTemplate;
 		if (result == null) {
 			throw new IllegalStateException("JdbcTemplate was removed");
 		}

@@ -21,13 +21,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.context.ApplicationContextException;
+import javax.sql.DataSource;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
+
+import org.springframework.beans.factory.BeanInitializationException;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -108,8 +114,9 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @author colin sampaleanu
  * @author Luke Taylor
+ * @author Yanming Zhou
  */
-public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, MessageSourceAware {
+public class JdbcDaoImpl implements UserDetailsService, MessageSourceAware, InitializingBean {
 
 	public static final String DEFAULT_USER_SCHEMA_DDL_LOCATION = "org/springframework/security/core/userdetails/jdbc/users.ddl";
 
@@ -130,6 +137,10 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 			+ "from groups g, group_members gm, group_authorities ga "
 			+ "where gm.username = ? " + "and g.id = ga.group_id " + "and g.id = gm.group_id";
 	// @formatter:on
+
+	protected final Log logger = LogFactory.getLog(getClass());
+
+	private @Nullable JdbcTemplate jdbcTemplate;
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
@@ -154,6 +165,60 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 	}
 
 	/**
+	 * Set the JDBC DataSource to be used by this DAO.
+	 */
+	public final void setDataSource(DataSource dataSource) {
+		if (this.jdbcTemplate == null || dataSource != this.jdbcTemplate.getDataSource()) {
+			this.jdbcTemplate = new JdbcTemplate(dataSource);
+		}
+	}
+
+	public final @Nullable DataSource getDataSource() {
+		return (this.jdbcTemplate != null) ? this.jdbcTemplate.getDataSource() : null;
+	}
+
+	/**
+	 * Set the JdbcTemplate for this DAO explicitly, as an alternative to specifying a
+	 * DataSource.
+	 */
+	public final void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+		this.jdbcTemplate = jdbcTemplate;
+	}
+
+	/**
+	 * Return the JdbcTemplate for this DAO, pre-initialized with the DataSource or set
+	 * explicitly.
+	 */
+	public final @Nullable JdbcTemplate getJdbcTemplate() {
+		return this.jdbcTemplate;
+	}
+
+	@Override
+	public final void afterPropertiesSet() {
+		// Let abstract subclasses check their configuration.
+		checkDaoConfig();
+
+		// Let concrete implementations initialize themselves.
+		try {
+			initDao();
+		}
+		catch (Exception ex) {
+			throw new BeanInitializationException("Initialization of DAO failed", ex);
+		}
+	}
+
+	protected void checkDaoConfig() {
+		if (this.jdbcTemplate == null) {
+			throw new IllegalArgumentException("'dataSource' or 'jdbcTemplate' is required");
+		}
+	}
+
+	protected void initDao() {
+		Assert.isTrue(this.enableAuthorities || this.enableGroups,
+				"Use of either authorities or groups must be enabled");
+	}
+
+	/**
 	 * @return the messages
 	 */
 	protected MessageSourceAccessor getMessages() {
@@ -172,12 +237,6 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 
 	public String getUsersByUsernameQuery() {
 		return this.usersByUsernameQuery;
-	}
-
-	@Override
-	protected void initDao() throws ApplicationContextException {
-		Assert.isTrue(this.enableAuthorities || this.enableGroups,
-				"Use of either authorities or groups must be enabled");
 	}
 
 	@Override
@@ -219,7 +278,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 			return new User(username1, password, enabled, true, true, true, AuthorityUtils.NO_AUTHORITIES);
 		};
 		// @formatter:on
-		return getJdbc().query(this.usersByUsernameQuery, mapper, username);
+		return requireJdbcTemplate().query(this.usersByUsernameQuery, mapper, username);
 	}
 
 	/**
@@ -227,7 +286,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 	 * @return a list of GrantedAuthority objects for the user
 	 */
 	protected List<GrantedAuthority> loadUserAuthorities(String username) {
-		return getJdbc().query(this.authoritiesByUsernameQuery, (rs, rowNum) -> {
+		return requireJdbcTemplate().query(this.authoritiesByUsernameQuery, (rs, rowNum) -> {
 			String roleName = JdbcDaoImpl.this.rolePrefix + rs.getString(2);
 			return new SimpleGrantedAuthority(roleName);
 		}, username);
@@ -239,7 +298,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 	 * @return a list of GrantedAuthority objects for the user
 	 */
 	protected List<GrantedAuthority> loadGroupAuthorities(String username) {
-		return getJdbc().query(this.groupAuthoritiesByUsernameQuery, (rs, rowNum) -> {
+		return requireJdbcTemplate().query(this.groupAuthoritiesByUsernameQuery, (rs, rowNum) -> {
 			String roleName = getRolePrefix() + rs.getString(3);
 			return new SimpleGrantedAuthority(roleName);
 		}, username);
@@ -375,8 +434,8 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 		this.messages = new MessageSourceAccessor(messageSource);
 	}
 
-	private JdbcTemplate getJdbc() {
-		JdbcTemplate template = getJdbcTemplate();
+	protected JdbcTemplate requireJdbcTemplate() {
+		JdbcTemplate template = this.jdbcTemplate;
 		Assert.notNull(template, "JdbcTemplate cannot be null");
 		return template;
 	}

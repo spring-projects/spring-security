@@ -27,11 +27,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.Nullable;
 
-import org.springframework.context.ApplicationContextException;
 import org.springframework.core.log.LogMessage;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.access.AccessDeniedException;
@@ -67,6 +65,7 @@ import org.springframework.util.Assert;
  *
  * @author Luke Taylor
  * @author Junhyeok Lee
+ * @author Yanming Zhou
  * @since 2.0
  */
 public class JdbcUserDetailsManager extends JdbcDaoImpl
@@ -209,7 +208,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl
 	}
 
 	@Override
-	protected void initDao() throws ApplicationContextException {
+	protected void initDao() {
 		if (this.authenticationManager == null) {
 			this.logger.info(
 					"No authentication manager set. Reauthentication of users when changing passwords will not be performed.");
@@ -469,12 +468,6 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl
 			throw new EmptyResultDataAccessException("Could not find required group '" + group + "'", 1);
 		}
 		return groupId;
-	}
-
-	private JdbcTemplate requireJdbcTemplate() {
-		JdbcTemplate jdbc = getJdbcTemplate();
-		Assert.notNull(jdbc, "JdbcTemplate cannot be null");
-		return jdbc;
 	}
 
 	/**

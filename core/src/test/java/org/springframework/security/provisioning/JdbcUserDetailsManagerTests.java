@@ -62,6 +62,7 @@ import static org.mockito.BDDMockito.verify;
  * @author Luke Taylor
  * @author dae won
  * @author Junhyeok Lee
+ * @author Yanming Zhou
  */
 public class JdbcUserDetailsManagerTests {
 
@@ -104,7 +105,7 @@ public class JdbcUserDetailsManagerTests {
 		this.manager.setDeleteUserAuthoritiesSql(JdbcUserDetailsManager.DEF_DELETE_USER_AUTHORITIES_SQL);
 		this.manager.setDeleteUserSql(JdbcUserDetailsManager.DEF_DELETE_USER_SQL);
 		this.manager.setChangePasswordSql(JdbcUserDetailsManager.DEF_CHANGE_PASSWORD_SQL);
-		this.manager.initDao();
+		this.manager.afterPropertiesSet();
 		this.template = this.manager.getJdbcTemplate();
 		this.template.execute("create table users(username varchar(20) not null primary key,"
 				+ "password varchar(20) not null, enabled boolean not null)");
