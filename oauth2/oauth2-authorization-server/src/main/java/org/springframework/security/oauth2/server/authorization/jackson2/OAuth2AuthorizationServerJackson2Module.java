@@ -33,8 +33,8 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 import org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat;
 
 /**
- * Jackson {@code Module} for {@code spring-authorization-server}, that registers the
- * following mix-in annotations:
+ * Jackson {@code Module} for {@code spring-security-oauth2-authorization-server}, that
+ * registers the following mix-in annotations:
  *
  * <ul>
  * <li>{@link UnmodifiableMapMixin}</li>
@@ -70,6 +70,7 @@ import org.springframework.security.oauth2.server.authorization.settings.OAuth2T
  * @see OAuth2TokenFormatMixin
  * @see StringArrayMixin
  */
+@SuppressWarnings("serial")
 public class OAuth2AuthorizationServerJackson2Module extends SimpleModule {
 
 	public OAuth2AuthorizationServerJackson2Module() {
