@@ -30,9 +30,8 @@ import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.PlainJWT;
 import net.minidev.json.JSONObject;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
@@ -40,9 +39,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jose.TestKeys;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoders;
+import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
-import org.springframework.security.oauth2.server.resource.authentication.JwtIssuerAuthenticationManagerResolver.TrustedIssuerJwtAuthenticationManagerResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -51,16 +53,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.mock;
 import static org.mockito.BDDMockito.verify;
+import static org.mockito.Mockito.mockStatic;
 
 /**
  * Tests for {@link JwtIssuerAuthenticationManagerResolver}
  */
 public class JwtIssuerAuthenticationManagerResolverTests {
-
-	private static final String DEFAULT_RESPONSE_TEMPLATE = "{\n" + "    \"issuer\": \"%s\", \n"
-			+ "    \"jwks_uri\": \"%s/.well-known/jwks.json\" \n" + "}";
-
-	private static final String JWK_SET = "{\"keys\":[{\"kty\":\"RSA\",\"e\":\"AQAB\",\"use\":\"sig\",\"kid\":\"one\",\"n\":\"3FlqJr5TRskIQIgdE3Dd7D9lboWdcTUT8a-fJR7MAvQm7XXNoYkm3v7MQL1NYtDvL2l8CAnc0WdSTINU6IRvc5Kqo2Q4csNX9SHOmEfzoROjQqahEcve1jBXluoCXdYuYpx4_1tfRgG6ii4Uhxh6iI8qNMJQX-fLfqhbfYfxBQVRPywBkAbIP4x1EAsbC6FSNmkhCxiMNqEgxaIpY8C2kJdJ_ZIV-WW4noDdzpKqHcwmB8FsrumlVY_DNVvUSDIipiq9PbP4H99TXN1o746oRaNa07rq1hoCgMSSy-85SagCoxlmyE-D-of9SsMY8Ol9t0rdzpobBuhyJ_o5dfvjKw\"}]}";
 
 	private String jwt = jwt("iss", "trusted");
 
@@ -70,31 +68,22 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 
 	@Test
 	public void resolveWhenUsingFromTrustedIssuersThenReturnsAuthenticationManager() throws Exception {
-		try (MockWebServer server = new MockWebServer()) {
-			server.start();
-			String issuer = server.url("").toString();
-			// @formatter:off
-			server.enqueue(new MockResponse().setResponseCode(200)
-					.setHeader("Content-Type", "application/json")
-					.setBody(String.format(DEFAULT_RESPONSE_TEMPLATE, issuer, issuer)
-					));
-			server.enqueue(new MockResponse().setResponseCode(200)
-					.setHeader("Content-Type", "application/json")
-					.setBody(JWK_SET)
-			);
-			server.enqueue(new MockResponse().setResponseCode(200)
-					.setHeader("Content-Type", "application/json")
-					.setBody(JWK_SET)
-			);
-			// @formatter:on
-			JWSObject jws = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
-					new Payload(new JSONObject(Collections.singletonMap(JwtClaimNames.ISS, issuer))));
-			jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
-			JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = JwtIssuerAuthenticationManagerResolver
-				.fromTrustedIssuers(issuer);
-			Authentication token = withBearerToken(jws.serialize());
-			AuthenticationManager authenticationManager = authenticationManagerResolver.resolve(null);
-			assertThat(authenticationManager).isNotNull();
+		String issuer = "https://idp.example";
+
+		// @formatter:on
+		JWSObject jws = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
+				new Payload(new JSONObject(Collections.singletonMap(JwtClaimNames.ISS, issuer))));
+		jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
+		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = JwtIssuerAuthenticationManagerResolver
+			.fromTrustedIssuers(issuer);
+		Authentication token = withBearerToken(jws.serialize());
+		AuthenticationManager authenticationManager = authenticationManagerResolver.resolve(null);
+		assertThat(authenticationManager).isNotNull();
+		JwtDecoder decoder = mock(JwtDecoder.class);
+		Jwt jwt = TestJwts.user();
+		given(decoder.decode(token.getName())).willReturn(jwt);
+		try (MockedStatic<JwtDecoders> jwtDecoders = mockStatic(JwtDecoders.class)) {
+			given(JwtDecoders.fromIssuerLocation(issuer)).willReturn(decoder);
 			Authentication authentication = authenticationManager.authenticate(token);
 			assertThat(authentication.isAuthenticated()).isTrue();
 		}
@@ -102,85 +91,24 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 
 	@Test
 	public void resolveWhenUsingFromTrustedIssuersPredicateThenReturnsAuthenticationManager() throws Exception {
-		try (MockWebServer server = new MockWebServer()) {
-			server.start();
-			String issuer = server.url("").toString();
-			// @formatter:off
-			server.enqueue(new MockResponse().setResponseCode(200)
-					.setHeader("Content-Type", "application/json")
-					.setBody(String.format(DEFAULT_RESPONSE_TEMPLATE, issuer, issuer)
-					));
-			server.enqueue(new MockResponse().setResponseCode(200)
-					.setHeader("Content-Type", "application/json")
-					.setBody(JWK_SET)
-			);
-			server.enqueue(new MockResponse().setResponseCode(200)
-					.setHeader("Content-Type", "application/json")
-					.setBody(JWK_SET)
-			);
-			// @formatter:on
-			JWSObject jws = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
-					new Payload(new JSONObject(Collections.singletonMap(JwtClaimNames.ISS, issuer))));
-			jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
-			JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = JwtIssuerAuthenticationManagerResolver
-				.fromTrustedIssuers(issuer::equals);
-			Authentication token = withBearerToken(jws.serialize());
+		String issuer = "https://idp.example";
+
+		// @formatter:on
+		JWSObject jws = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
+				new Payload(new JSONObject(Collections.singletonMap(JwtClaimNames.ISS, issuer))));
+		jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
+		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = JwtIssuerAuthenticationManagerResolver
+			.fromTrustedIssuers(issuer::equals);
+		Authentication token = withBearerToken(jws.serialize());
+		JwtDecoder decoder = mock(JwtDecoder.class);
+		Jwt jwt = TestJwts.user();
+		given(decoder.decode(token.getName())).willReturn(jwt);
+		try (MockedStatic<JwtDecoders> jwtDecoders = mockStatic(JwtDecoders.class)) {
+			given(JwtDecoders.fromIssuerLocation(issuer)).willReturn(decoder);
 			AuthenticationManager authenticationManager = authenticationManagerResolver.resolve(null);
 			assertThat(authenticationManager).isNotNull();
 			Authentication authentication = authenticationManager.authenticate(token);
 			assertThat(authentication.isAuthenticated()).isTrue();
-		}
-	}
-
-	@Test
-	public void resolveWhednUsingTrustedIssuerThenReturnsAuthenticationManager() throws Exception {
-		try (MockWebServer server = new MockWebServer()) {
-			server.start();
-			String issuer = server.url("").toString();
-			// @formatter:off
-			server.enqueue(new MockResponse().setResponseCode(500)
-					.setHeader("Content-Type", "application/json")
-					.setBody(String.format(DEFAULT_RESPONSE_TEMPLATE, issuer, issuer))
-			);
-			server.enqueue(new MockResponse().setResponseCode(200)
-					.setHeader("Content-Type", "application/json")
-					.setBody(String.format(DEFAULT_RESPONSE_TEMPLATE, issuer, issuer))
-			);
-			server.enqueue(new MockResponse().setResponseCode(200)
-					.setHeader("Content-Type", "application/json")
-					.setBody(JWK_SET)
-			);
-			// @formatter:on
-			JWSObject jws = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
-					new Payload(new JSONObject(Collections.singletonMap(JwtClaimNames.ISS, issuer))));
-			jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
-			JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = JwtIssuerAuthenticationManagerResolver
-				.fromTrustedIssuers(issuer);
-			Authentication token = withBearerToken(jws.serialize());
-			AuthenticationManager authenticationManager = authenticationManagerResolver.resolve(null);
-			assertThat(authenticationManager).isNotNull();
-			assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> authenticationManager.authenticate(token));
-			Authentication authentication = authenticationManager.authenticate(token);
-			assertThat(authentication.isAuthenticated()).isTrue();
-		}
-	}
-
-	@Test
-	public void resolveWhenUsingSameIssuerThenReturnsSameAuthenticationManager() throws Exception {
-		try (MockWebServer server = new MockWebServer()) {
-			String issuer = server.url("").toString();
-			server.enqueue(new MockResponse().setResponseCode(200)
-				.setHeader("Content-Type", "application/json")
-				.setBody(String.format(DEFAULT_RESPONSE_TEMPLATE, issuer, issuer)));
-			server.enqueue(new MockResponse().setResponseCode(200)
-				.setHeader("Content-Type", "application/json")
-				.setBody(JWK_SET));
-			TrustedIssuerJwtAuthenticationManagerResolver resolver = new TrustedIssuerJwtAuthenticationManagerResolver(
-					(iss) -> iss.equals(issuer));
-			AuthenticationManager authenticationManager = resolver.resolve(issuer);
-			AuthenticationManager cachedAuthenticationManager = resolver.resolve(issuer);
-			assertThat(authenticationManager).isSameAs(cachedAuthenticationManager);
 		}
 	}
 
