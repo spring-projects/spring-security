@@ -95,6 +95,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
+import org.springframework.security.core.authority.TimestampedGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.context.TransientSecurityContext;
@@ -587,6 +588,11 @@ final class SerializationSamples {
 		});
 		generatorByClassName.put(FactorGrantedAuthority.class,
 				(r) -> FactorGrantedAuthority.withAuthority("profile:read").issuedAt(Instant.now()).build());
+		generatorByClassName.put(TimestampedGrantedAuthority.class,
+				(r) -> TimestampedGrantedAuthority.withAuthority("profile:read")
+					.issuedAt(Instant.now())
+					.expiresAt(Instant.now().plusSeconds(300))
+					.build());
 		generatorByClassName.put(UsernamePasswordAuthenticationToken.class, (r) -> {
 			var token = UsernamePasswordAuthenticationToken.unauthenticated(user, "creds");
 			token.setDetails(details);
