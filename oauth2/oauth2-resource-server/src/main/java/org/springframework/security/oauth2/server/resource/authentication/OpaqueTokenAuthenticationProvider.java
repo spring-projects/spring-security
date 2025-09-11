@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,6 +29,7 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
@@ -71,6 +73,8 @@ import org.springframework.util.Assert;
  * @see AuthenticationProvider
  */
 public final class OpaqueTokenAuthenticationProvider implements AuthenticationProvider {
+
+	private static final String AUTHORITY = "FACTOR_BEARER";
 
 	private final Log logger = LogFactory.getLog(getClass());
 
@@ -149,8 +153,9 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 		Instant exp = authenticatedPrincipal.getAttribute(OAuth2TokenIntrospectionClaimNames.EXP);
 		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, introspectedToken,
 				iat, exp);
-		return new BearerTokenAuthentication(authenticatedPrincipal, accessToken,
-				authenticatedPrincipal.getAuthorities());
+		Collection<GrantedAuthority> authorities = new HashSet<>(authenticatedPrincipal.getAuthorities());
+		authorities.add(new SimpleGrantedAuthority(AUTHORITY));
+		return new BearerTokenAuthentication(authenticatedPrincipal, accessToken, authorities);
 	}
 
 	/**
