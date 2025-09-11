@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,7 +53,7 @@ class PasswordCompatibilityTests {
 	}
 
 	@Test
-	void bcryptEncodedWithPassword4jShouldMatchWithSpringSecirity() {
+	void bcryptEncodedWithPassword4jShouldMatchWithSpringSecurity() {
 		BcryptPassword4jPasswordEncoder password4jEncoder = new BcryptPassword4jPasswordEncoder(
 				BcryptFunction.getInstance(10));
 		BCryptPasswordEncoder springEncoder = new BCryptPasswordEncoder(10);
@@ -77,7 +78,7 @@ class PasswordCompatibilityTests {
 	}
 
 	@Test
-	void argon2EncodedWithPassword4jShouldMatchWithSpringSecirity() {
+	void argon2EncodedWithPassword4jShouldMatchWithSpringSecurity() {
 		Argon2Password4jPasswordEncoder password4jEncoder = new Argon2Password4jPasswordEncoder(
 				Argon2Function.getInstance(4096, 3, 1, 32, Argon2.ID));
 		Argon2PasswordEncoder springEncoder = new Argon2PasswordEncoder(16, 32, 1, 4096, 3);
@@ -102,7 +103,7 @@ class PasswordCompatibilityTests {
 	}
 
 	@Test
-	void scryptEncodedWithPassword4jShouldMatchWithSpringSecirity() {
+	void scryptEncodedWithPassword4jShouldMatchWithSpringSecurity() {
 		ScryptPassword4jPasswordEncoder password4jEncoder = new ScryptPassword4jPasswordEncoder(
 				ScryptFunction.getInstance(16384, 8, 1, 32));
 		SCryptPasswordEncoder springEncoder = new SCryptPasswordEncoder(16384, 8, 1, 32, 64);
@@ -111,6 +112,42 @@ class PasswordCompatibilityTests {
 		boolean matchedBySpring = springEncoder.matches(PASSWORD, encodedByPassword4j);
 
 		assertThat(matchedBySpring).isTrue();
+	}
+
+	// PBKDF2 Compatibility Tests
+	@Test
+	void pbkdf2EncodedWithSpringSecurityCannotMatchWithPassword4j() {
+		// Note: Direct compatibility between Spring Security's Pbkdf2PasswordEncoder
+		// and Password4j's PBKDF2 implementation is not possible because they use
+		// different output formats. Spring Security uses hex encoding with a specific
+		// format,
+		// while our Password4jPasswordEncoder uses salt:hash format with Base64 encoding.
+		Pbkdf2PasswordEncoder springEncoder = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8();
+		Pbkdf2Password4jPasswordEncoder password4jEncoder = new Pbkdf2Password4jPasswordEncoder();
+
+		String encodedBySpring = springEncoder.encode(PASSWORD);
+		String encodedByPassword4j = password4jEncoder.encode(PASSWORD);
+
+		// These should NOT match due to different formats
+		// Spring Security will throw an exception when trying to decode Password4j
+		// format,
+		// which should be treated as a non-match
+		boolean password4jCanMatchSpring = password4jEncoder.matches(PASSWORD, encodedBySpring);
+		boolean springCanMatchPassword4j;
+		try {
+			springCanMatchPassword4j = springEncoder.matches(PASSWORD, encodedByPassword4j);
+		}
+		catch (IllegalArgumentException ex) {
+			// Expected exception due to format incompatibility - treat as non-match
+			springCanMatchPassword4j = false;
+		}
+
+		assertThat(password4jCanMatchSpring).isFalse();
+		assertThat(springCanMatchPassword4j).isFalse();
+
+		// But each should match its own encoding
+		assertThat(springEncoder.matches(PASSWORD, encodedBySpring)).isTrue();
+		assertThat(password4jEncoder.matches(PASSWORD, encodedByPassword4j)).isTrue();
 	}
 
 }
