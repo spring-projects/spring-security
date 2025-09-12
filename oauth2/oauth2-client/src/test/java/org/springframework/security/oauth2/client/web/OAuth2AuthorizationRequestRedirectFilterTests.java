@@ -183,7 +183,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		verifyNoMoreInteractions(filterChain);
 		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?"
 				+ "response_type=code&client_id=client-id&" + "scope=read:user&state=.{15,}&"
-				+ "redirect_uri=http://localhost/login/oauth2/code/registration-id");
+				+ "redirect_uri=http://localhost/login/oauth2/code/registration-id&code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}&code_challenge_method=S256");
 	}
 
 	@Test
@@ -215,7 +215,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		verifyNoMoreInteractions(filterChain);
 		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?"
 				+ "response_type=code&client_id=client-id&" + "scope=read:user&state=.{15,}&"
-				+ "redirect_uri=http://localhost/login/oauth2/code/registration-id");
+				+ "redirect_uri=http://localhost/login/oauth2/code/registration-id&code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}&code_challenge_method=S256");
 	}
 
 	@Test
@@ -231,7 +231,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		verify(filterChain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?"
 				+ "response_type=code&client_id=client-id&" + "scope=read:user&state=.{15,}&"
-				+ "redirect_uri=http://localhost/authorize/oauth2/code/registration-id");
+				+ "redirect_uri=http://localhost/authorize/oauth2/code/registration-id&code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}&code_challenge_method=S256");
 		verify(this.requestCache).saveRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
@@ -278,7 +278,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?"
 				+ "response_type=code&client_id=client-id&" + "scope=read:user&state=.{15,}&"
 				+ "redirect_uri=http://localhost/login/oauth2/code/registration-id&"
-				+ "idp=https://other.provider.com");
+				+ "code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}&code_challenge_method=S256&idp=https://other.provider.com");
 	}
 
 	// gh-4911, gh-5244
@@ -318,7 +318,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?"
 				+ "response_type=code&client_id=client-id&" + "scope=read:user&state=.{15,}&"
 				+ "redirect_uri=http://localhost/login/oauth2/code/registration-id&"
-				+ "login_hint=user@provider\\.com");
+				+ "code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}&code_challenge_method=S256&login_hint=user@provider\\.com");
 	}
 
 	@Test
@@ -344,7 +344,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		assertThat(response.getContentAsString(StandardCharsets.UTF_8))
 			.matches("https://example.com/login/oauth/authorize\\?" + "response_type=code&client_id=client-id&"
 					+ "scope=read:user&state=.{15,}&"
-					+ "redirect_uri=http://localhost/login/oauth2/code/registration-id");
+					+ "redirect_uri=http://localhost/login/oauth2/code/registration-id&code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}&code_challenge_method=S256");
 	}
 
 	// gh-11602
