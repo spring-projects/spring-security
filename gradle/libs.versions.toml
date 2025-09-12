@@ -47,7 +47,8 @@ jakarta-xml-bind-jakarta-xml-bind-api = "jakarta.xml.bind:jakarta.xml.bind-api:4
 ldapsdk = "ldapsdk:ldapsdk:4.1"
 net-sourceforge-htmlunit = "net.sourceforge.htmlunit:htmlunit:2.70.0"
 org-htmlunit-htmlunit = "org.htmlunit:htmlunit:4.11.1"
-org-apache-httpcomponents-httpclient = "org.apache.httpcomponents:httpclient:4.5.14"
+org-apache-httpcomponents-httpclient = "org.apache.httpcomponents.client5:httpclient5:5.5"
+org-apache-kerby-simplekdc='org.apache.kerby:kerb-simplekdc:2.1.0'
 org-apache-maven-maven-resolver-provider = "org.apache.maven:maven-resolver-provider:3.9.11"
 org-apache-maven-resolver-maven-resolver-connector-basic = { module = "org.apache.maven.resolver:maven-resolver-connector-basic", version.ref = "org-apache-maven-resolver" }
 org-apache-maven-resolver-maven-resolver-impl = { module = "org.apache.maven.resolver:maven-resolver-impl", version.ref = "org-apache-maven-resolver" }
