@@ -504,7 +504,7 @@ public class ServerHttpSecurityTests {
 		this.http.x509((x509) -> x509.serverAuthenticationConverter(mockConverter));
 		SecurityWebFilterChain securityWebFilterChain = this.http.build();
 		WebFilter x509WebFilter = securityWebFilterChain.getWebFilters()
-			.filter(filter -> matchesX509Converter(filter, mockConverter))
+			.filter((filter) -> matchesX509Converter(filter, mockConverter))
 			.blockFirst();
 		assertThat(x509WebFilter).isNotNull();
 	}
