@@ -55,11 +55,8 @@ https://openid.net/specs/openid-connect-core-1_0.html[OpenID Connect 1.0] is dis
 ----
 @Bean
 public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-			OAuth2AuthorizationServerConfigurer.authorizationServer();
 	http
-		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-		.with(authorizationServerConfigurer, (authorizationServer) ->
+		.oauth2AuthorizationServer((authorizationServer) ->
 			authorizationServer
 				.oidc(Customizer.withDefaults())	// Initialize `OidcConfigurer`
 		);
@@ -104,12 +101,8 @@ Furthermore, it lets you customize the request processing logic for the protocol
 ----
 @Bean
 public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-			OAuth2AuthorizationServerConfigurer.authorizationServer();
-
 	http
-		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-		.with(authorizationServerConfigurer, (authorizationServer) ->
+		.oauth2AuthorizationServer((authorizationServer) ->
 			authorizationServer
 				.registeredClientRepository(registeredClientRepository)	<1>
 				.authorizationService(authorizationService)	<2>
@@ -238,12 +231,8 @@ It defines extension points that let you customize the pre-processing, main proc
 ----
 @Bean
 public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-			OAuth2AuthorizationServerConfigurer.authorizationServer();
-
 	http
-		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-		.with(authorizationServerConfigurer, (authorizationServer) ->
+		.oauth2AuthorizationServer((authorizationServer) ->
 			authorizationServer
 				.clientAuthentication(clientAuthentication ->
 					clientAuthentication
@@ -297,12 +286,8 @@ The following example shows how to configure `JwtClientAssertionAuthenticationPr
 ----
 @Bean
 public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-			OAuth2AuthorizationServerConfigurer.authorizationServer();
-
 	http
-		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-		.with(authorizationServerConfigurer, (authorizationServer) ->
+		.oauth2AuthorizationServer((authorizationServer) ->
 			authorizationServer
 				.clientAuthentication(clientAuthentication ->
 					clientAuthentication
@@ -351,12 +336,8 @@ If you need to verify another attribute of the client `X509Certificate`, for exa
 ----
 @Bean
 public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-			OAuth2AuthorizationServerConfigurer.authorizationServer();
-
 	http
-		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-		.with(authorizationServerConfigurer, (authorizationServer) ->
+		.oauth2AuthorizationServer((authorizationServer) ->
 			authorizationServer
 				.clientAuthentication(clientAuthentication ->
 					clientAuthentication

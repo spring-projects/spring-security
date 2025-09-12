@@ -60,7 +60,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
 /**
- * An {@link AbstractHttpConfigurer} for OAuth 2.0 Authorization Server support.
+ * An {@link AbstractHttpConfigurer} for OAuth 2.1 Authorization Server support.
  *
  * @author Joe Grandja
  * @author Daniel Garnier-Moiroux
@@ -90,16 +90,6 @@ public final class OAuth2AuthorizationServerConfigurer
 	private final Map<Class<? extends AbstractOAuth2Configurer>, AbstractOAuth2Configurer> configurers = createConfigurers();
 
 	private RequestMatcher endpointsMatcher;
-
-	/**
-	 * Returns a new instance of {@link OAuth2AuthorizationServerConfigurer} for
-	 * configuring.
-	 * @return a new instance of {@link OAuth2AuthorizationServerConfigurer} for
-	 * configuring
-	 */
-	public static OAuth2AuthorizationServerConfigurer authorizationServer() {
-		return new OAuth2AuthorizationServerConfigurer();
-	}
 
 	/**
 	 * Sets the repository of registered clients.
@@ -382,6 +372,8 @@ public final class OAuth2AuthorizationServerConfigurer
 			exceptionHandling.defaultAuthenticationEntryPointFor(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
 					new OrRequestMatcher(preferredMatchers));
 		}
+
+		httpSecurity.securityMatchers((securityMatchers) -> securityMatchers.requestMatchers(this.endpointsMatcher));
 
 		httpSecurity.csrf((csrf) -> csrf.ignoringRequestMatchers(this.endpointsMatcher));
 

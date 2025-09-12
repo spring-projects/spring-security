@@ -129,13 +129,10 @@ public class SecurityConfig {
 	@Order(1)
 	public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
 			throws Exception {
-		OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-				OAuth2AuthorizationServerConfigurer.authorizationServer();
 
 		// @formatter:off
 		http
-			.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-			.with(authorizationServerConfigurer, (authorizationServer) ->
+			.oauth2AuthorizationServer((authorizationServer) ->
 				authorizationServer
 					.oidc(Customizer.withDefaults())	// Enable OpenID Connect 1.0
 			)

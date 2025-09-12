@@ -193,11 +193,8 @@ public class OAuth2AuthorizationServerMetadataTests {
 		// @formatter:off
 		@Bean
 		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-			OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-					OAuth2AuthorizationServerConfigurer.authorizationServer();
 			http
-					.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-					.with(authorizationServerConfigurer, (authorizationServer) ->
+					.oauth2AuthorizationServer((authorizationServer) ->
 							authorizationServer
 									.authorizationServerMetadataEndpoint((authorizationServerMetadataEndpoint) ->
 											authorizationServerMetadataEndpoint

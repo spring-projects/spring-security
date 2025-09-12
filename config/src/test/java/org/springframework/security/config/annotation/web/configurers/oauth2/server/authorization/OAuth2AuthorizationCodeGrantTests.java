@@ -1271,11 +1271,8 @@ public class OAuth2AuthorizationCodeGrantTests {
 		// @formatter:off
 		@Bean
 		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-			OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-					OAuth2AuthorizationServerConfigurer.authorizationServer();
 			http
-					.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-					.with(authorizationServerConfigurer, Customizer.withDefaults())
+					.oauth2AuthorizationServer(Customizer.withDefaults())
 					.authorizeHttpRequests((authorize) ->
 							authorize.anyRequest().authenticated()
 					)
@@ -1331,11 +1328,8 @@ public class OAuth2AuthorizationCodeGrantTests {
 		// @formatter:off
 		@Bean
 		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-			OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-					OAuth2AuthorizationServerConfigurer.authorizationServer();
 			http
-					.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-					.with(authorizationServerConfigurer, (authorizationServer) ->
+					.oauth2AuthorizationServer((authorizationServer) ->
 							authorizationServer
 									.authorizationEndpoint((authorizationEndpoint) ->
 											authorizationEndpoint.consentPage(consentPage))
@@ -1359,11 +1353,8 @@ public class OAuth2AuthorizationCodeGrantTests {
 		// @formatter:off
 		@Bean
 		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-			OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-					OAuth2AuthorizationServerConfigurer.authorizationServer();
 			http
-					.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-					.with(authorizationServerConfigurer, (authorizationServer) ->
+					.oauth2AuthorizationServer((authorizationServer) ->
 							authorizationServer
 									.authorizationEndpoint((authorizationEndpoint) ->
 											authorizationEndpoint.authenticationProviders(configureAuthenticationProviders()))
@@ -1446,11 +1437,8 @@ public class OAuth2AuthorizationCodeGrantTests {
 		// @formatter:off
 		@Bean
 		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-			OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-					OAuth2AuthorizationServerConfigurer.authorizationServer();
 			http
-					.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-					.with(authorizationServerConfigurer, (authorizationServer) ->
+					.oauth2AuthorizationServer((authorizationServer) ->
 							authorizationServer
 									.authorizationEndpoint((authorizationEndpoint) ->
 											authorizationEndpoint
@@ -1490,11 +1478,8 @@ public class OAuth2AuthorizationCodeGrantTests {
 		// @formatter:off
 		@Bean
 		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-			OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-					OAuth2AuthorizationServerConfigurer.authorizationServer();
 			http
-					.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-					.with(authorizationServerConfigurer, (authorizationServer) ->
+					.oauth2AuthorizationServer((authorizationServer) ->
 							authorizationServer
 									.pushedAuthorizationRequestEndpoint(Customizer.withDefaults())
 					)

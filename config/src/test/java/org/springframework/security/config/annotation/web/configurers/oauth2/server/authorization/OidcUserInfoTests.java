@@ -406,11 +406,8 @@ public class OidcUserInfoTests {
 		@Override
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
-			OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-					OAuth2AuthorizationServerConfigurer.authorizationServer();
 			http
-					.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-					.with(authorizationServerConfigurer, (authorizationServer) ->
+					.oauth2AuthorizationServer((authorizationServer) ->
 							authorizationServer
 									.oidc((oidc) ->
 											oidc
@@ -442,11 +439,8 @@ public class OidcUserInfoTests {
 		@Override
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
-			OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-					OAuth2AuthorizationServerConfigurer.authorizationServer();
 			http
-					.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-					.with(authorizationServerConfigurer, (authorizationServer) ->
+					.oauth2AuthorizationServer((authorizationServer) ->
 							authorizationServer
 									.oidc(Customizer.withDefaults())
 					)
@@ -469,11 +463,8 @@ public class OidcUserInfoTests {
 		@Bean
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
-			OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-					OAuth2AuthorizationServerConfigurer.authorizationServer();
 			http
-					.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-					.with(authorizationServerConfigurer, (authorizationServer) ->
+					.oauth2AuthorizationServer((authorizationServer) ->
 							authorizationServer
 									.oidc(Customizer.withDefaults())
 					)

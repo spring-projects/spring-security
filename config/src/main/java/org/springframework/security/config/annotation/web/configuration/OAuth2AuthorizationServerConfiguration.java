@@ -40,7 +40,7 @@ import org.springframework.security.oauth2.server.authorization.settings.Authori
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
- * {@link Configuration} for OAuth 2.0 Authorization Server support.
+ * {@link Configuration} for OAuth 2.1 Authorization Server support.
  *
  * @author Joe Grandja
  * @since 7.0
@@ -53,11 +53,8 @@ public class OAuth2AuthorizationServerConfiguration {
 	@Order(Ordered.HIGHEST_PRECEDENCE)
 	public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
 		// @formatter:off
-		OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-				OAuth2AuthorizationServerConfigurer.authorizationServer();
 		http
-			.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-			.with(authorizationServerConfigurer, Customizer.withDefaults())
+			.oauth2AuthorizationServer(Customizer.withDefaults())
 			.authorizeHttpRequests((authorize) ->
 				authorize.anyRequest().authenticated()
 			);

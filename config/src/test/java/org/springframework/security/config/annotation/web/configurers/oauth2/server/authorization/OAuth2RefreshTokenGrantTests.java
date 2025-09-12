@@ -542,11 +542,8 @@ public class OAuth2RefreshTokenGrantTests {
 		SecurityFilterChain authorizationServerSecurityFilterChain(
 				HttpSecurity http, RegisteredClientRepository registeredClientRepository) throws Exception {
 
-			OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-					OAuth2AuthorizationServerConfigurer.authorizationServer();
 			http
-					.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-					.with(authorizationServerConfigurer, (authorizationServer) ->
+					.oauth2AuthorizationServer((authorizationServer) ->
 							authorizationServer
 									.clientAuthentication((clientAuthentication) ->
 											clientAuthentication

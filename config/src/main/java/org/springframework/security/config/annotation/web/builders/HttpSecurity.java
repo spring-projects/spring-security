@@ -71,6 +71,7 @@ import org.springframework.security.config.annotation.web.configurers.X509Config
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2ClientConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OidcLogoutConfigurer;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ott.OneTimeTokenLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.saml2.Saml2LoginConfigurer;
@@ -1549,6 +1550,23 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 				new OAuth2ResourceServerConfigurer<>(getContext()));
 		this.postProcess(configurer);
 		oauth2ResourceServerCustomizer.customize(configurer);
+		return HttpSecurity.this;
+	}
+
+	/**
+	 * Configures OAuth 2.1 Authorization Server support.
+	 * @param oauth2AuthorizationServerCustomizer the {@link Customizer} providing access
+	 * to the {@link OAuth2AuthorizationServerConfigurer} for further customizations
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 * @since 7.0
+	 * @see <a target="_blank" href=
+	 * "https://www.ietf.org/archive/id/draft-ietf-oauth-v2-1-13.html">OAuth 2.1
+	 * Authorization Framework</a>
+	 */
+	public HttpSecurity oauth2AuthorizationServer(
+			Customizer<OAuth2AuthorizationServerConfigurer> oauth2AuthorizationServerCustomizer) throws Exception {
+		oauth2AuthorizationServerCustomizer.customize(getOrApply(new OAuth2AuthorizationServerConfigurer()));
 		return HttpSecurity.this;
 	}
 

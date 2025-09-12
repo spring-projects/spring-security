@@ -13,12 +13,8 @@ It defines extension points that let you customize the pre-processing, main proc
 ----
 @Bean
 public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-			OAuth2AuthorizationServerConfigurer.authorizationServer();
-
 	http
-		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-		.with(authorizationServerConfigurer, (authorizationServer) ->
+		.oauth2AuthorizationServer((authorizationServer) ->
 			authorizationServer
 				.authorizationEndpoint(authorizationEndpoint ->
 					authorizationEndpoint
@@ -76,12 +72,8 @@ The following example shows how to configure `OAuth2AuthorizationCodeRequestAuth
 ----
 @Bean
 public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-			OAuth2AuthorizationServerConfigurer.authorizationServer();
-
 	http
-		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-		.with(authorizationServerConfigurer, (authorizationServer) ->
+		.oauth2AuthorizationServer((authorizationServer) ->
 			authorizationServer
 				.authorizationEndpoint(authorizationEndpoint ->
 					authorizationEndpoint
@@ -138,12 +130,8 @@ It defines extension points that let you customize the pre-processing, main proc
 ----
 @Bean
 public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-			OAuth2AuthorizationServerConfigurer.authorizationServer();
-
 	http
-		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-		.with(authorizationServerConfigurer, (authorizationServer) ->
+		.oauth2AuthorizationServer((authorizationServer) ->
 			authorizationServer
 				.pushedAuthorizationRequestEndpoint(pushedAuthorizationRequestEndpoint ->
 					pushedAuthorizationRequestEndpoint
@@ -199,12 +187,8 @@ The following example shows how to configure `OAuth2PushedAuthorizationRequestAu
 ----
 @Bean
 public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-			OAuth2AuthorizationServerConfigurer.authorizationServer();
-
 	http
-		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-		.with(authorizationServerConfigurer, (authorizationServer) ->
+		.oauth2AuthorizationServer((authorizationServer) ->
 			authorizationServer
 				.pushedAuthorizationRequestEndpoint(pushedAuthorizationRequestEndpoint ->
 					pushedAuthorizationRequestEndpoint
@@ -261,12 +245,8 @@ It defines extension points that let you customize the pre-processing, main proc
 ----
 @Bean
 public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-			OAuth2AuthorizationServerConfigurer.authorizationServer();
-
 	http
-		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-		.with(authorizationServerConfigurer, (authorizationServer) ->
+		.oauth2AuthorizationServer((authorizationServer) ->
 			authorizationServer
 				.deviceAuthorizationEndpoint(deviceAuthorizationEndpoint ->
                     deviceAuthorizationEndpoint
@@ -313,12 +293,8 @@ It defines extension points that let you customize the pre-processing, main proc
 ----
 @Bean
 public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-			OAuth2AuthorizationServerConfigurer.authorizationServer();
-
 	http
-		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-		.with(authorizationServerConfigurer, (authorizationServer) ->
+		.oauth2AuthorizationServer((authorizationServer) ->
 			authorizationServer
 				.deviceVerificationEndpoint(deviceVerificationEndpoint ->
                     deviceVerificationEndpoint
@@ -364,12 +340,8 @@ It defines extension points that let you customize the pre-processing, main proc
 ----
 @Bean
 public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-			OAuth2AuthorizationServerConfigurer.authorizationServer();
-
 	http
-		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-		.with(authorizationServerConfigurer, (authorizationServer) ->
+		.oauth2AuthorizationServer((authorizationServer) ->
 			authorizationServer
 				.tokenEndpoint(tokenEndpoint ->
                     tokenEndpoint
@@ -425,12 +397,8 @@ The following example shows how to configure `OAuth2ClientCredentialsAuthenticat
 ----
 @Bean
 public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-			OAuth2AuthorizationServerConfigurer.authorizationServer();
-
 	http
-		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-		.with(authorizationServerConfigurer, (authorizationServer) ->
+		.oauth2AuthorizationServer((authorizationServer) ->
 			authorizationServer
 				.tokenEndpoint(tokenEndpoint ->
                     tokenEndpoint
@@ -616,12 +584,8 @@ It defines extension points that let you customize the pre-processing, main proc
 ----
 @Bean
 public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-			OAuth2AuthorizationServerConfigurer.authorizationServer();
-
 	http
-		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-		.with(authorizationServerConfigurer, (authorizationServer) ->
+		.oauth2AuthorizationServer((authorizationServer) ->
 			authorizationServer
 				.tokenIntrospectionEndpoint(tokenIntrospectionEndpoint ->
                     tokenIntrospectionEndpoint
@@ -666,12 +630,8 @@ It defines extension points that let you customize the pre-processing, main proc
 ----
 @Bean
 public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-			OAuth2AuthorizationServerConfigurer.authorizationServer();
-
 	http
-		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-		.with(authorizationServerConfigurer, (authorizationServer) ->
+		.oauth2AuthorizationServer((authorizationServer) ->
 			authorizationServer
 				.tokenRevocationEndpoint(tokenRevocationEndpoint ->
                     tokenRevocationEndpoint
@@ -716,12 +676,8 @@ It defines an extension point that lets you customize the https://datatracker.ie
 ----
 @Bean
 public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-			OAuth2AuthorizationServerConfigurer.authorizationServer();
-
 	http
-		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-		.with(authorizationServerConfigurer, (authorizationServer) ->
+		.oauth2AuthorizationServer((authorizationServer) ->
 			authorizationServer
 				.authorizationServerMetadataEndpoint(authorizationServerMetadataEndpoint ->
                     authorizationServerMetadataEndpoint
@@ -760,12 +716,8 @@ It defines an extension point that lets you customize the https://openid.net/spe
 ----
 @Bean
 public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-			OAuth2AuthorizationServerConfigurer.authorizationServer();
-
 	http
-		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-		.with(authorizationServerConfigurer, (authorizationServer) ->
+		.oauth2AuthorizationServer((authorizationServer) ->
 			authorizationServer
                 .oidc(oidc ->
                     oidc
@@ -796,12 +748,8 @@ It defines extension points that let you customize the pre-processing, main proc
 ----
 @Bean
 public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-			OAuth2AuthorizationServerConfigurer.authorizationServer();
-
 	http
-		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-		.with(authorizationServerConfigurer, (authorizationServer) ->
+		.oauth2AuthorizationServer((authorizationServer) ->
 			authorizationServer
                 .oidc(oidc ->
                     oidc
@@ -864,12 +812,8 @@ The following example shows how to configure `OidcLogoutAuthenticationProvider` 
 ----
 @Bean
 public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-			OAuth2AuthorizationServerConfigurer.authorizationServer();
-
 	http
-		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-		.with(authorizationServerConfigurer, (authorizationServer) ->
+		.oauth2AuthorizationServer((authorizationServer) ->
 			authorizationServer
                 .oidc(oidc ->
                     oidc
@@ -919,12 +863,8 @@ It defines extension points that let you customize the pre-processing, main proc
 ----
 @Bean
 public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-			OAuth2AuthorizationServerConfigurer.authorizationServer();
-
 	http
-		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-		.with(authorizationServerConfigurer, (authorizationServer) ->
+		.oauth2AuthorizationServer((authorizationServer) ->
 			authorizationServer
                 .oidc(oidc ->
                     oidc
@@ -982,12 +922,8 @@ It defines extension points that let you customize the pre-processing, main proc
 ----
 @Bean
 public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-	OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-			OAuth2AuthorizationServerConfigurer.authorizationServer();
-
 	http
-		.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-		.with(authorizationServerConfigurer, (authorizationServer) ->
+		.oauth2AuthorizationServer((authorizationServer) ->
 			authorizationServer
                 .oidc(oidc ->
                     oidc

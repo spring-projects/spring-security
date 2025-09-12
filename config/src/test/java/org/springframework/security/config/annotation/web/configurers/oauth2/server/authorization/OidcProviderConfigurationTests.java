@@ -230,12 +230,9 @@ public class OidcProviderConfigurationTests {
 
 		@Bean
 		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-			OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer
-				.authorizationServer();
 			// @formatter:off
 			http
-				.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-				.with(authorizationServerConfigurer, (authorizationServer) ->
+				.oauth2AuthorizationServer((authorizationServer) ->
 					authorizationServer
 						.oidc(Customizer.withDefaults())	// Enable OpenID Connect 1.0
 				);
@@ -285,11 +282,8 @@ public class OidcProviderConfigurationTests {
 		// @formatter:off
 		@Bean
 		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-			OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-					OAuth2AuthorizationServerConfigurer.authorizationServer();
 			http
-					.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-					.with(authorizationServerConfigurer, (authorizationServer) ->
+					.oauth2AuthorizationServer((authorizationServer) ->
 							authorizationServer
 									.oidc((oidc) ->
 											oidc.providerConfigurationEndpoint((providerConfigurationEndpoint) ->
@@ -317,11 +311,8 @@ public class OidcProviderConfigurationTests {
 		// @formatter:off
 		@Bean
 		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-			OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-					OAuth2AuthorizationServerConfigurer.authorizationServer();
 			http
-					.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-					.with(authorizationServerConfigurer, (authorizationServer) ->
+					.oauth2AuthorizationServer((authorizationServer) ->
 							authorizationServer
 									.oidc((oidc) ->
 											oidc.clientRegistrationEndpoint(Customizer.withDefaults())
