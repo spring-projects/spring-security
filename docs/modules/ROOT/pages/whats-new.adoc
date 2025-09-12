@@ -9,6 +9,10 @@ Below are the highlights of the release, or you can view https://github.com/spri
 Being a major release, there are a number of deprecated APIs that are removed in Spring Security 7.
 Each section that follows will indicate the more notable removals as well as the new features in that module
 
+== Modules
+
+* The https://github.com/spring-projects/spring-security-kerberos[Spring Security Kerberos Extension] is now part of Spring Security. See the xref:servlet/authentication/kerberos/index.adoc[Kerberos] section of the reference for details.
+
 == Core
 
 * Removed `AuthorizationManager#check` in favor of `AuthorizationManager#authorize`

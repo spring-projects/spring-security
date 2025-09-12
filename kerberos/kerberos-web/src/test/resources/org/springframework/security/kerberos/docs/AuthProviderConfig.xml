@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- tag::snippetA[] -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:sec="http://www.springframework.org/schema/security"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="
+    http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context-3.2.xsd
+    http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+    http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd">
+
+  <sec:http entry-point-ref="spnegoEntryPoint" use-expressions="true">
+    <sec:intercept-url pattern="/" access="permitAll" />
+    <sec:intercept-url pattern="/home" access="permitAll" />
+    <sec:intercept-url pattern="/**" access="authenticated"/>
+  </sec:http>
+
+  <sec:authentication-manager alias="authenticationManager">
+    <sec:authentication-provider ref="kerberosAuthenticationProvider"/>
+  </sec:authentication-manager>
+
+  <bean id="kerberosAuthenticationProvider"
+    class="org.springframework.security.kerberos.authentication.KerberosAuthenticationProvider">
+    <property name="kerberosClient">
+      <bean class="org.springframework.security.kerberos.authentication.sun.SunJaasKerberosClient">
+        <property name="debug" value="true"/>
+      </bean>
+    </property>
+    <property name="userDetailsService" ref="dummyUserDetailsService"/>
+  </bean>
+
+  <bean
+    class="org.springframework.security.kerberos.authentication.sun.GlobalSunJaasKerberosConfig">
+    <property name="debug" value="true" />
+    <property name="krbConfLocation" value="/path/to/krb5.ini"/>
+  </bean>
+
+  <bean id="dummyUserDetailsService"
+    class="org.springframework.security.kerberos.docs.DummyUserDetailsService" />
+
+  <bean id="spnegoEntryPoint"
+    class="org.springframework.security.kerberos.web.authentication.SpnegoEntryPoint" >
+    <constructor-arg value="/login" />
+  </bean>
+
+</beans>
+<!-- end::snippetA[] -->

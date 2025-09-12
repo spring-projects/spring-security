@@ -1,0 +1,225 @@
+[[springsecuritykerberossamples]]
+= Spring Security Kerberos Samples
+:figures: servlet/authentication/kerberos
+
+This part of the reference documentation is introducing samples
+projects. Samples can be compiled manually by building main
+distribution from
+https://github.com/spring-projects/spring-security-kerberos.
+
+[IMPORTANT]
+====
+If you run sample as is it will not work until a correct configuration
+is applied. See notes below for specific samples.
+====
+
+<<samples-sec-server-win-auth>> sample for Windows environment
+
+<<samples-sec-server-client-auth>> sample using server side authenticator
+
+<<samples-sec-server-spnego-form-auth>> sample using ticket validation
+with spnego and form
+
+<<samples-sec-client-rest-template>> sample for KerberosRestTemplate
+
+[[samples-sec-server-win-auth]]
+== Security Server Windows Auth Sample
+Goals of this sample:
+
+- In windows environment, User will be able to logon to application
+  with Windows Active directory Credential which has been entered
+  during log on to windows. There should not be any ask for
+  userid/password credentials.
+- In non-windows environment, User will be presented with a screen
+  to provide Active directory credentials.
+
+[source,yaml,indent=0]
+----
+server:
+    port: 8080
+    app:
+        ad-domain: EXAMPLE.ORG
+        ad-server: ldap://WIN-EKBO0EQ7TS7.example.org/
+        service-principal: HTTP/neo.example.org@EXAMPLE.ORG
+        keytab-location: /tmp/tomcat.keytab
+        ldap-search-base: dc=example,dc=org
+        ldap-search-filter: "(| (userPrincipalName={0}) (sAMAccountName={0}))"
+----
+In above you can see the default configuration for this sample. You
+can override these settings using a normal Spring Boot tricks like
+using command-line options or custom `application.yml` file.
+
+Run a server.
+[source,text,subs="attributes"]
+----
+$ java -jar sec-server-win-auth-{spring-security-version}.jar
+----
+
+[IMPORTANT]
+====
+You may need to use custom kerberos config with Linux either by using
+`-Djava.security.krb5.conf=/path/to/krb5.ini` or
+`GlobalSunJaasKerberosConfig` bean.
+====
+
+[NOTE]
+====
+See xref:servlet/authentication/kerberos/appendix.adoc#setupwinkerberos[Setup Windows Domain Controller]
+for more instructions how to work with windows kerberos environment.
+====
+
+Login to `Windows 8.1` using domain credentials and access sample
+
+image::{figures}/ie1.png[]
+image::{figures}/ie2.png[]
+
+Access sample application from a non windows vm and use domain
+credentials manually.
+
+image::{figures}/ff1.png[]
+image::{figures}/ff2.png[]
+image::{figures}/ff3.png[]
+
+
+[[samples-sec-server-client-auth]]
+== Security Server Side Auth Sample
+This sample demonstrates how server is able to authenticate user
+against kerberos environment using his credentials passed in via a
+form login.
+
+Run a server.
+[source,text,subs="attributes"]
+----
+$ java -jar sec-server-client-auth-{spring-security-version}.jar
+----
+
+[source,yaml,indent=0]
+----
+server:
+    port: 8080
+----
+
+[[samples-sec-server-spnego-form-auth]]
+== Security Server Spnego and Form Auth Sample
+This sample demonstrates how a server can be configured to accept a
+Spnego based negotiation from a browser while still being able to fall
+back to a form based authentication.
+
+Using a `user1` principal xref:servlet/authentication/kerberos/appendix.adoc#setupmitkerberos[Setup MIT Kerberos],
+do a kerberos login manually using credentials.
+[source,text]
+----
+$ kinit user1
+Password for user1@EXAMPLE.ORG:
+
+$ klist
+Ticket cache: FILE:/tmp/krb5cc_1000
+Default principal: user1@EXAMPLE.ORG
+
+Valid starting     Expires            Service principal
+10/03/15 17:18:45  11/03/15 03:18:45  krbtgt/EXAMPLE.ORG@EXAMPLE.ORG
+  renew until 11/03/15 17:18:40
+----
+
+or using a keytab file.
+
+[source,text]
+----
+$ kinit -kt user2.keytab user1
+
+$ klist
+Ticket cache: FILE:/tmp/krb5cc_1000
+Default principal: user2@EXAMPLE.ORG
+
+Valid starting     Expires            Service principal
+10/03/15 17:25:03  11/03/15 03:25:03  krbtgt/EXAMPLE.ORG@EXAMPLE.ORG
+  renew until 11/03/15 17:25:03
+----
+
+Run a server.
+[source,text,subs="attributes"]
+----
+$ java -jar sec-server-spnego-form-auth-{spring-security-version}.jar
+----
+
+Now you should be able to open your browser and let it do Spnego
+authentication with existing ticket.
+
+[NOTE]
+====
+See xref:servlet/authentication/kerberos/appendix.adoc#browserspnegoconfig[Configure Browsers for Spnego Negotiation]
+for more instructions for configuring browsers to use Spnego.
+====
+
+[source,yaml,indent=0]
+----
+server:
+    port: 8080
+app:
+    service-principal: HTTP/neo.example.org@EXAMPLE.ORG
+    keytab-location: /tmp/tomcat.keytab
+----
+
+[[samples-sec-client-rest-template]]
+== Security Client KerberosRestTemplate Sample
+This is a sample using a Spring RestTemplate to access Kerberos
+protected resource. You can use this together with
+<<samples-sec-server-spnego-form-auth>>.
+
+Default application is configured as shown below.
+[source,yaml,indent=0]
+----
+app:
+    user-principal: user2@EXAMPLE.ORG
+    keytab-location: /tmp/user2.keytab
+    access-url: http://neo.example.org:8080/hello
+----
+
+
+Using a `user1` principal xref:servlet/authentication/kerberos/appendix.adoc#setupmitkerberos[Setup MIT Kerberos],
+do a kerberos login manually using credentials.
+[source,text,subs="attributes"]
+----
+$ java -jar sec-client-rest-template-{spring-security-version}.jar --app.user-principal --app.keytab-location
+----
+
+[NOTE]
+====
+In above we simply set `app.user-principal` and `app.keytab-location`
+to empty values which disables a use of keytab file.
+====
+
+If operation is succesfull you should see below output with `user1@EXAMPLE.ORG`.
+[source,text]
+----
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+  <head>
+    <title>Spring Security Kerberos Example</title>
+  </head>
+  <body>
+    <h1>Hello user1@EXAMPLE.ORG!</h1>
+  </body>
+</html>
+----
+
+Or use a `user2` with a keytab file.
+[source,text,subs="attributes"]
+----
+$ java -jar sec-client-rest-template-{spring-security-version}.jar
+----
+
+If operation is succesfull you should see below output with `user2@EXAMPLE.ORG`.
+[source,text]
+----
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+  <head>
+    <title>Spring Security Kerberos Example</title>
+  </head>
+  <body>
+    <h1>Hello user2@EXAMPLE.ORG!</h1>
+  </body>
+</html>
+----
+
