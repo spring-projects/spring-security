@@ -3256,7 +3256,7 @@ public class ServerHttpSecurity {
 			X509PrincipalExtractor principalExtractor = getPrincipalExtractor();
 			ServerAuthenticationConverter converter = getServerAuthenticationConverter(principalExtractor);
 			AuthenticationWebFilter filter = new AuthenticationWebFilter(authenticationManager);
-			filter.setServerAuthenticationConverter(serverAuthenticationConverter);
+			filter.setServerAuthenticationConverter(converter);
 			http.addFilterAt(filter, SecurityWebFiltersOrder.AUTHENTICATION);
 		}
 
