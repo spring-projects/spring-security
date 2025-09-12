@@ -51,6 +51,13 @@ include-code::./UserService[tag=getAuthenticatedUser]
 
 The xref:features/integrations/rest/http-interface.adoc#client-registration-id[`@ClientRegistrationId`] will be processed by xref:features/integrations/rest/http-interface.adoc#client-registration-id-processor[`ClientRegistrationIdProcessor`]
 
+[[type]]
+=== Type Level Declarations
+
+`@ClientRegistrationId` can also be added at the type level to avoid repeating the declaration on every method.
+
+include-code::./UserService[tag=type]
+
 [[client-registration-id-processor]]
 == `ClientRegistrationIdProcessor`
 
