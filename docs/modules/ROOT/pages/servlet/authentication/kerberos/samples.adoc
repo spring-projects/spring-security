@@ -172,7 +172,7 @@ Default application is configured as shown below.
 app:
     user-principal: user2@EXAMPLE.ORG
     keytab-location: /tmp/user2.keytab
-    access-url: http://neo.example.org:8080/hello
+    access-url: https://neo.example.org:8080/hello
 ----
 
 
@@ -192,8 +192,8 @@ to empty values which disables a use of keytab file.
 If operation is succesfull you should see below output with `user1@EXAMPLE.ORG`.
 [source,text]
 ----
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<html xmlns="https://www.w3.org/1999/xhtml"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
   <head>
     <title>Spring Security Kerberos Example</title>
   </head>
@@ -212,8 +212,8 @@ $ java -jar sec-client-rest-template-{spring-security-version}.jar
 If operation is succesfull you should see below output with `user2@EXAMPLE.ORG`.
 [source,text]
 ----
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<html xmlns="https://www.w3.org/1999/xhtml"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
   <head>
     <title>Spring Security Kerberos Example</title>
   </head>
