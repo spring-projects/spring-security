@@ -838,6 +838,11 @@ public class StrictServerWebExchangeFirewall implements ServerWebExchangeFirewal
 				}
 
 				@Override
+				public Builder localAddress(InetSocketAddress localAddress) {
+					return new StrictFirewallBuilder(this.delegate.localAddress(localAddress));
+				}
+
+				@Override
 				public ServerHttpRequest build() {
 					return new StrictFirewallHttpRequest(this.delegate.build());
 				}
