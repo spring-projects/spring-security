@@ -138,12 +138,13 @@ If you use hashed passwords, make sure the value stored in your database is _exa
 === My application goes into an "`endless loop`" when I try to log in. What is going on?
 
 A common user problem with infinite loop and redirecting to the login page is caused by accidentally configuring the login page as a "`secured`" resource.
-Make sure your configuration allows anonymous access to the login page, either by excluding it from the security filter chain or marking it as requiring `ROLE_ANONYMOUS`.
+Make sure your configuration allows anonymous access to the login page.
+You can do so with the xref:servlet/authorization/authorize-http-requests.adoc[`authorizeHttpRequests`] DSL.
 
-If your `AccessDecisionManager` includes an `AuthenticatedVoter`, you can use the `IS_AUTHENTICATED_ANONYMOUSLY` attribute. This is automatically available if you use the standard namespace configuration setup.
-
-From Spring Security 2.0.1 onwards, when you use namespace-based configuration, a check is made on loading the application context and a warning message logged if your login page appears to be protected.
-
+[TIP]
+====
+When you use namespace- or DSL-based configuration, a check is made on loading the application context and a warning message logged if your login page appears to be protected.
+====
 
 [[appendix-faq-anon-access-denied]]
 === I get an exception with the message "Access is denied (user is anonymous);". What's wrong?
@@ -382,16 +383,16 @@ You should probably read the chapters on namespace parsing in the standard Sprin
 
 
 [[appendix-faq-role-prefix]]
-=== What does "ROLE_" mean and why do I need it on my role names?
+=== What does "ROLE_" mean?
 
-Spring Security has a voter-based architecture, which means that an access decision is made by a series of `AccessDecisionVoter` instances.
-The voters act on the "`configuration attributes`", which are specified for a secured resource (such as a method invocation). With this approach, not all attributes may be relevant to all voters, and a voter needs to know when it should ignore an attribute (abstain) and when it should vote to grant or deny access based on the attribute value.
-The most common voter is the `RoleVoter`, which, by default, votes whenever it finds an attribute with the `ROLE_` prefix.
-It makes a simple comparison of the attribute (such as `ROLE_USER`) with the names of the authorities that the current user has been assigned.
-If it finds a match (they have an authority called `ROLE_USER`), it votes to grant access. Otherwise, it votes to deny access.
+`ROLE_` is a way to identify the nature of a given authority.
+An authority prefixed by `ROLE_` means that this authority is a role, likely derived from an RBAC authorization model.
 
-You can change the prefix by setting the `rolePrefix` property of `RoleVoter`. If you need only to use roles in your application and have no need for other custom voters, you can set the prefix to a blank string. In that case, the `RoleVoter` treats all attributes as roles.
+Having a prefix allows for clear differentiation from OAuth 2.0 scopes (which use `SCOPE_`) and authorities granted from other sources as well.
 
+You may choose to not prefix your authorities.
+Modern Spring Security authorization components either allow you to supply the entire authority name, rendering the prefix unnecessary.
+An example of this is how xref:servlet/authorization/authorize-http-requests.adoc[`authorizeHttpRequests`] and xref:servlet/authorization/method-security.adoc[`@PreAuthorize`] allow you to call `hasAuthority` or `hasRole`.
 
 [[appendix-faq-what-dependencies]]
 === How do I know which dependencies to add to my application to work with Spring Security?

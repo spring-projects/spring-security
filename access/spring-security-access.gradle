@@ -1,0 +1,49 @@
+apply plugin: 'io.spring.convention.spring-module'
+
+dependencies {
+	management platform(project(":spring-security-dependencies"))
+	api project(':spring-security-crypto')
+	api project(':spring-security-core')
+	api 'org.springframework:spring-aop'
+	api 'org.springframework:spring-beans'
+	api 'org.springframework:spring-context'
+	api 'org.springframework:spring-core'
+	api 'org.springframework:spring-expression'
+	api 'io.micrometer:micrometer-observation'
+
+	optional project(':spring-security-acl')
+	optional project(':spring-security-messaging')
+	optional project(':spring-security-web')
+	optional 'org.springframework:spring-websocket'
+	optional 'com.fasterxml.jackson.core:jackson-databind'
+	optional 'io.micrometer:context-propagation'
+	optional 'io.projectreactor:reactor-core'
+	optional 'jakarta.annotation:jakarta.annotation-api'
+	optional 'org.aspectj:aspectjrt'
+	optional 'org.springframework:spring-jdbc'
+	optional 'org.springframework:spring-tx'
+	optional 'org.jetbrains.kotlinx:kotlinx-coroutines-reactor'
+
+	provided 'jakarta.servlet:jakarta.servlet-api'
+
+	testImplementation project(path : ':spring-security-web', configuration : 'tests')
+	testImplementation 'commons-collections:commons-collections'
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation "org.assertj:assertj-core"
+	testImplementation "org.junit.jupiter:junit-jupiter-api"
+	testImplementation "org.junit.jupiter:junit-jupiter-params"
+	testImplementation "org.junit.jupiter:junit-jupiter-engine"
+	testImplementation "org.mockito:mockito-core"
+	testImplementation "org.mockito:mockito-junit-jupiter"
+	testImplementation "org.springframework:spring-core-test"
+	testImplementation "org.springframework:spring-test"
+	testImplementation 'org.skyscreamer:jsonassert'
+	testImplementation 'org.springframework:spring-test'
+	testImplementation 'org.jetbrains.kotlin:kotlin-reflect'
+	testImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+	testImplementation 'io.mockk:mockk'
+
+	testRuntimeOnly 'org.hsqldb:hsqldb'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+

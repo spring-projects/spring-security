@@ -22,7 +22,6 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.aop.framework.AdvisedSupport;
-import org.springframework.security.access.annotation.BusinessServiceImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

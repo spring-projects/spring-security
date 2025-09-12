@@ -5,6 +5,7 @@
 * xref:migration-8/index.adoc[Preparing for 8.0]
 * xref:migration/index.adoc[Migrating to 7]
 ** xref:migration/servlet/index.adoc[Servlet]
+*** xref:migration/servlet/authorization.adoc[Authorization]
 *** xref:migration/servlet/oauth2.adoc[OAuth 2.0]
 *** xref:migration/servlet/saml2.adoc[SAML 2.0]
 ** xref:migration/reactive.adoc[Reactive]

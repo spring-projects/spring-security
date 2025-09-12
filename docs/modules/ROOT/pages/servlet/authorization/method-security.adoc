@@ -3089,6 +3089,28 @@ Make sure to read the <<meta-annotations,Meta Annotations Support>> section for 
 
 If you are using `@EnableGlobalMethodSecurity`, you should migrate to `@EnableMethodSecurity`.
 
+If you cannot migrate at this time, please include the `spring-security-access` module as a dependency like so:
+
+[tabs]
+======
+Maven::
++
+[source,xml,role="primary"]
+----
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-access</artifactId>
+</dependency>
+----
+
+Gradle::
++
+[source,groovy,role="primary"]
+----
+implementation('org.springframework.security:spring-security-access')
+----
+======
+
 [[servlet-replace-globalmethodsecurity-with-methodsecurity]]
 === Replace xref:servlet/authorization/method-security.adoc#jc-enable-global-method-security[global method security] with xref:servlet/authorization/method-security.adoc#jc-enable-method-security[method security]
 

@@ -31,7 +31,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.test.context.showcase.service.HelloMessageService;
 import org.springframework.security.test.context.showcase.service.MessageService;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -53,8 +54,8 @@ public class WithMockUserTests {
 
 	@Test
 	public void getMessageUnauthenticated() {
-		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
-			.isThrownBy(() -> this.messageService.getMessage());
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> this.messageService.getMessage())
+			.withRootCauseInstanceOf(AuthenticationCredentialsNotFoundException.class);
 	}
 
 	@Test
@@ -104,7 +105,8 @@ public class WithMockUserTests {
 		assertThat(message).contains("admin").contains("ADMIN").contains("ROLE_ADMIN");
 	}
 
-	@EnableGlobalMethodSecurity(prePostEnabled = true)
+	@EnableMethodSecurity
+	@EnableWebSecurity
 	@ComponentScan(basePackageClasses = HelloMessageService.class)
 	static class Config {
 

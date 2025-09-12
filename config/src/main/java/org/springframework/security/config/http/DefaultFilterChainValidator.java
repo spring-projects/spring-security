@@ -56,8 +56,12 @@ import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.util.ClassUtils;
 
 public class DefaultFilterChainValidator implements FilterChainProxy.FilterChainValidator {
+
+	private static final boolean USING_ACCESS = ClassUtils
+		.isPresent("org.springframework.security.access.SecurityConfig", null);
 
 	private static final Authentication TEST = new TestingAuthenticationToken("", "", Collections.emptyList());
 
@@ -120,7 +124,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 				if (filter instanceof AuthorizationFilter) {
 					authorizationFilter = filter;
 				}
-				if (filter instanceof FilterSecurityInterceptor) {
+				if (USING_ACCESS && AccessComponents.isFilterSecurityInterceptor(filter)) {
 					filterSecurityInterceptor = filter;
 				}
 			}
@@ -138,7 +142,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 	}
 
 	@SuppressWarnings({ "unchecked" })
-	private <F extends Filter> F getFilter(Class<F> type, List<Filter> filters) {
+	private static <F extends Filter> F getFilter(Class<F> type, List<Filter> filters) {
 		for (Filter f : filters) {
 			if (type.isAssignableFrom(f.getClass())) {
 				return (F) f;
@@ -158,7 +162,9 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 		checkForDuplicates(SecurityContextHolderAwareRequestFilter.class, filters);
 		checkForDuplicates(JaasApiIntegrationFilter.class, filters);
 		checkForDuplicates(ExceptionTranslationFilter.class, filters);
-		checkForDuplicates(FilterSecurityInterceptor.class, filters);
+		if (USING_ACCESS) {
+			checkForDuplicates(AccessComponents.getFilterSecurityInterceptorClass(), filters);
+		}
 		checkForDuplicates(AuthorizationFilter.class, filters);
 	}
 
@@ -243,19 +249,11 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 	}
 
 	private boolean checkLoginPageIsPublic(List<Filter> filters, HttpServletRequest loginRequest) {
-		FilterSecurityInterceptor authorizationInterceptor = getFilter(FilterSecurityInterceptor.class, filters);
-		if (authorizationInterceptor != null) {
-			FilterInvocationSecurityMetadataSource fids = authorizationInterceptor.getSecurityMetadataSource();
-			Collection<ConfigAttribute> attributes = fids.getAttributes(loginRequest);
-			if (attributes == null) {
-				this.logger.debug("No access attributes defined for login page URL");
-				if (authorizationInterceptor.isRejectPublicInvocations()) {
-					this.logger.warn("FilterSecurityInterceptor is configured to reject public invocations."
-							+ " Your login page may not be accessible.");
-				}
-				return true;
+		if (USING_ACCESS) {
+			Boolean isPublic = AccessComponents.checkLoginPageIsPublic(filters, loginRequest);
+			if (isPublic != null) {
+				return isPublic;
 			}
-			return false;
 		}
 		AuthorizationFilter authorizationFilter = getFilter(AuthorizationFilter.class, filters);
 		if (authorizationFilter != null) {
@@ -274,8 +272,60 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 
 	private Supplier<Boolean> deriveAnonymousCheck(List<Filter> filters, HttpServletRequest loginRequest,
 			AnonymousAuthenticationToken token) {
-		FilterSecurityInterceptor authorizationInterceptor = getFilter(FilterSecurityInterceptor.class, filters);
-		if (authorizationInterceptor != null) {
+		if (USING_ACCESS) {
+			Supplier<Boolean> check = AccessComponents.getAnonymousCheck(filters, loginRequest, token);
+			if (check != null) {
+				return check;
+			}
+		}
+		AuthorizationFilter authorizationFilter = getFilter(AuthorizationFilter.class, filters);
+		if (authorizationFilter != null) {
+			return () -> {
+				AuthorizationManager<HttpServletRequest> authorizationManager = authorizationFilter
+					.getAuthorizationManager();
+				AuthorizationResult result = authorizationManager.authorize(() -> token, loginRequest);
+				return result != null && result.isGranted();
+			};
+		}
+		return () -> true;
+	}
+
+	private static final class AccessComponents {
+
+		private static final Log logger = LogFactory.getLog(DefaultFilterChainValidator.class);
+
+		private static boolean isFilterSecurityInterceptor(Filter filter) {
+			return filter instanceof FilterSecurityInterceptor;
+		}
+
+		private static Class<FilterSecurityInterceptor> getFilterSecurityInterceptorClass() {
+			return FilterSecurityInterceptor.class;
+		}
+
+		private static Boolean checkLoginPageIsPublic(List<Filter> filters, HttpServletRequest loginRequest) {
+			FilterSecurityInterceptor authorizationInterceptor = getFilter(FilterSecurityInterceptor.class, filters);
+			if (authorizationInterceptor == null) {
+				return null;
+			}
+			FilterInvocationSecurityMetadataSource fids = authorizationInterceptor.getSecurityMetadataSource();
+			Collection<ConfigAttribute> attributes = fids.getAttributes(loginRequest);
+			if (attributes == null) {
+				logger.debug("No access attributes defined for login page URL");
+				if (authorizationInterceptor.isRejectPublicInvocations()) {
+					logger.warn("FilterSecurityInterceptor is configured to reject public invocations."
+							+ " Your login page may not be accessible.");
+				}
+				return true;
+			}
+			return false;
+		}
+
+		private static Supplier<Boolean> getAnonymousCheck(List<Filter> filters, HttpServletRequest loginRequest,
+				AnonymousAuthenticationToken token) {
+			FilterSecurityInterceptor authorizationInterceptor = getFilter(FilterSecurityInterceptor.class, filters);
+			if (authorizationInterceptor == null) {
+				return null;
+			}
 			return () -> {
 				FilterInvocationSecurityMetadataSource source = authorizationInterceptor.getSecurityMetadataSource();
 				Collection<ConfigAttribute> attributes = source.getAttributes(loginRequest);
@@ -288,16 +338,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 				}
 			};
 		}
-		AuthorizationFilter authorizationFilter = getFilter(AuthorizationFilter.class, filters);
-		if (authorizationFilter != null) {
-			return () -> {
-				AuthorizationManager<HttpServletRequest> authorizationManager = authorizationFilter
-					.getAuthorizationManager();
-				AuthorizationResult result = authorizationManager.authorize(() -> token, loginRequest);
-				return result != null && result.isGranted();
-			};
-		}
-		return () -> true;
+
 	}
 
 }
