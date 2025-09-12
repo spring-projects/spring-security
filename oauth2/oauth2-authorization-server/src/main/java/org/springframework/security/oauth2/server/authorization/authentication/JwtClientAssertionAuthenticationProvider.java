@@ -138,7 +138,10 @@ public final class JwtClientAssertionAuthenticationProvider implements Authentic
 			this.logger.trace("Authenticated client assertion");
 		}
 
-		return new OAuth2ClientAuthenticationToken(registeredClient, clientAuthenticationMethod, jwtAssertion);
+		OAuth2ClientAuthenticationToken clientAuthenticationResult = new OAuth2ClientAuthenticationToken(
+				registeredClient, clientAuthenticationMethod, jwtAssertion);
+		clientAuthenticationResult.setDetails(clientAuthentication.getDetails());
+		return clientAuthenticationResult;
 	}
 
 	@Override

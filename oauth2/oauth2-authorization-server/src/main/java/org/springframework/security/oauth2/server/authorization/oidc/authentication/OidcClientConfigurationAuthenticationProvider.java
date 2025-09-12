@@ -169,8 +169,10 @@ public final class OidcClientConfigurationAuthenticationProvider implements Auth
 			this.logger.trace("Authenticated client configuration request");
 		}
 
-		return new OidcClientRegistrationAuthenticationToken(
+		OidcClientRegistrationAuthenticationToken clientRegistrationAuthenticationResult = new OidcClientRegistrationAuthenticationToken(
 				(Authentication) clientRegistrationAuthentication.getPrincipal(), clientRegistration);
+		clientRegistrationAuthenticationResult.setDetails(clientRegistrationAuthentication.getDetails());
+		return clientRegistrationAuthenticationResult;
 	}
 
 	@SuppressWarnings("unchecked")

@@ -103,8 +103,10 @@ public final class PublicClientAuthenticationProvider implements AuthenticationP
 			this.logger.trace("Authenticated public client");
 		}
 
-		return new OAuth2ClientAuthenticationToken(registeredClient,
-				clientAuthentication.getClientAuthenticationMethod(), null);
+		OAuth2ClientAuthenticationToken clientAuthenticationResult = new OAuth2ClientAuthenticationToken(
+				registeredClient, clientAuthentication.getClientAuthenticationMethod(), null);
+		clientAuthenticationResult.setDetails(clientAuthentication.getDetails());
+		return clientAuthenticationResult;
 	}
 
 	@Override

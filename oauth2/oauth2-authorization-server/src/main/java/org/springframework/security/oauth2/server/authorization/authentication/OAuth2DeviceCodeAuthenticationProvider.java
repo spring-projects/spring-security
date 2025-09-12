@@ -260,7 +260,10 @@ public final class OAuth2DeviceCodeAuthenticationProvider implements Authenticat
 			this.logger.trace("Authenticated device token request");
 		}
 
-		return new OAuth2AccessTokenAuthenticationToken(registeredClient, clientPrincipal, accessToken, refreshToken);
+		OAuth2AccessTokenAuthenticationToken accessTokenAuthenticationResult = new OAuth2AccessTokenAuthenticationToken(
+				registeredClient, clientPrincipal, accessToken, refreshToken);
+		accessTokenAuthenticationResult.setDetails(deviceCodeAuthentication.getDetails());
+		return accessTokenAuthenticationResult;
 	}
 
 	@Override

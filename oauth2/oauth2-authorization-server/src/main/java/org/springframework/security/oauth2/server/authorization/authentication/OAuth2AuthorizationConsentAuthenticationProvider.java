@@ -260,9 +260,11 @@ public final class OAuth2AuthorizationConsentAuthenticationProvider implements A
 			this.logger.trace("Authenticated authorization consent request");
 		}
 
-		return new OAuth2AuthorizationCodeRequestAuthenticationToken(authorizationRequest.getAuthorizationUri(),
-				registeredClient.getClientId(), principal, authorizationCode, redirectUri,
-				authorizationRequest.getState(), authorizedScopes);
+		OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthenticationResult = new OAuth2AuthorizationCodeRequestAuthenticationToken(
+				authorizationRequest.getAuthorizationUri(), registeredClient.getClientId(), principal,
+				authorizationCode, redirectUri, authorizationRequest.getState(), authorizedScopes);
+		authorizationCodeRequestAuthenticationResult.setDetails(authorizationConsentAuthentication.getDetails());
+		return authorizationCodeRequestAuthenticationResult;
 	}
 
 	@Override
@@ -362,6 +364,7 @@ public final class OAuth2AuthorizationConsentAuthenticationProvider implements A
 				authorizationConsentAuthentication.getClientId(),
 				(Authentication) authorizationConsentAuthentication.getPrincipal(), redirectUri, state, requestedScopes,
 				null);
+		authorizationCodeRequestAuthenticationResult.setDetails(authorizationConsentAuthentication.getDetails());
 
 		throw new OAuth2AuthorizationCodeRequestAuthenticationException(error,
 				authorizationCodeRequestAuthenticationResult);

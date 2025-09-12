@@ -118,8 +118,10 @@ public final class OAuth2TokenIntrospectionAuthenticationProvider implements Aut
 			this.logger.trace("Authenticated token introspection request");
 		}
 
-		return new OAuth2TokenIntrospectionAuthenticationToken(authorizedToken.getToken().getTokenValue(),
-				clientPrincipal, tokenClaims);
+		OAuth2TokenIntrospectionAuthenticationToken tokenIntrospectionAuthenticationResult = new OAuth2TokenIntrospectionAuthenticationToken(
+				authorizedToken.getToken().getTokenValue(), clientPrincipal, tokenClaims);
+		tokenIntrospectionAuthenticationResult.setDetails(tokenIntrospectionAuthentication.getDetails());
+		return tokenIntrospectionAuthenticationResult;
 	}
 
 	@Override

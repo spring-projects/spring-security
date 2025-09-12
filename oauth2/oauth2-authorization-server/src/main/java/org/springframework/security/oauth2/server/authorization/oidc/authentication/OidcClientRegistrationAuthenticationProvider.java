@@ -279,8 +279,10 @@ public final class OidcClientRegistrationAuthenticationProvider implements Authe
 			this.logger.trace("Authenticated client registration request");
 		}
 
-		return new OidcClientRegistrationAuthenticationToken(
+		OidcClientRegistrationAuthenticationToken clientRegistrationAuthenticationResult = new OidcClientRegistrationAuthenticationToken(
 				(Authentication) clientRegistrationAuthentication.getPrincipal(), clientRegistration);
+		clientRegistrationAuthenticationResult.setDetails(clientRegistrationAuthentication.getDetails());
+		return clientRegistrationAuthenticationResult;
 	}
 
 	private OAuth2Authorization registerAccessToken(RegisteredClient registeredClient) {

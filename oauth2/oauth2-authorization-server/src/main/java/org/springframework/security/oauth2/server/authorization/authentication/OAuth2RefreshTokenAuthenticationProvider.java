@@ -283,8 +283,10 @@ public final class OAuth2RefreshTokenAuthenticationProvider implements Authentic
 			this.logger.trace("Authenticated token request");
 		}
 
-		return new OAuth2AccessTokenAuthenticationToken(registeredClient, clientPrincipal, accessToken,
-				currentRefreshToken, additionalParameters);
+		OAuth2AccessTokenAuthenticationToken accessTokenAuthenticationResult = new OAuth2AccessTokenAuthenticationToken(
+				registeredClient, clientPrincipal, accessToken, currentRefreshToken, additionalParameters);
+		accessTokenAuthenticationResult.setDetails(refreshTokenAuthentication.getDetails());
+		return accessTokenAuthenticationResult;
 	}
 
 	@Override

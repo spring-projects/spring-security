@@ -114,6 +114,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -363,6 +364,7 @@ public class OAuth2ClientCredentialsGrantTests {
 				Instant.now(), Instant.now().plus(Duration.ofHours(1)));
 		OAuth2AccessTokenAuthenticationToken accessTokenAuthentication = new OAuth2AccessTokenAuthenticationToken(
 				registeredClient, clientPrincipal, accessToken);
+		accessTokenAuthentication.setDetails(new WebAuthenticationDetails("remoteAddress", "sessionId"));
 		given(authenticationProvider.supports(eq(OAuth2ClientCredentialsAuthenticationToken.class))).willReturn(true);
 		given(authenticationProvider.authenticate(any())).willReturn(accessTokenAuthentication);
 

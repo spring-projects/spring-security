@@ -167,11 +167,13 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 						authorizationCodeRequestAuthentication, null);
 			}
 
+			Object authenticationDetails = authorizationCodeRequestAuthentication.getDetails();
 			authorizationCodeRequestAuthentication = new OAuth2AuthorizationCodeRequestAuthenticationToken(
 					authorizationCodeRequestAuthentication.getAuthorizationUri(), authorizationRequest.getClientId(),
 					(Authentication) authorizationCodeRequestAuthentication.getPrincipal(),
 					authorizationRequest.getRedirectUri(), authorizationRequest.getState(),
 					authorizationRequest.getScopes(), authorizationRequest.getAdditionalParameters());
+			authorizationCodeRequestAuthentication.setDetails(authenticationDetails);
 		}
 
 		RegisteredClient registeredClient = this.registeredClientRepository
@@ -283,8 +285,11 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 			Set<String> currentAuthorizedScopes = (currentAuthorizationConsent != null)
 					? currentAuthorizationConsent.getScopes() : null;
 
-			return new OAuth2AuthorizationConsentAuthenticationToken(authorizationRequest.getAuthorizationUri(),
-					registeredClient.getClientId(), principal, state, currentAuthorizedScopes, null);
+			OAuth2AuthorizationConsentAuthenticationToken authorizationConsentAuthentication = new OAuth2AuthorizationConsentAuthenticationToken(
+					authorizationRequest.getAuthorizationUri(), registeredClient.getClientId(), principal, state,
+					currentAuthorizedScopes, null);
+			authorizationConsentAuthentication.setDetails(authorizationCodeRequestAuthentication.getDetails());
+			return authorizationConsentAuthentication;
 		}
 
 		OAuth2TokenContext tokenContext = createAuthorizationCodeTokenContext(authorizationCodeRequestAuthentication,
@@ -327,9 +332,11 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 			this.logger.trace("Authenticated authorization code request");
 		}
 
-		return new OAuth2AuthorizationCodeRequestAuthenticationToken(authorizationRequest.getAuthorizationUri(),
-				registeredClient.getClientId(), principal, authorizationCode, redirectUri,
-				authorizationRequest.getState(), authorizationRequest.getScopes());
+		OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthenticationResult = new OAuth2AuthorizationCodeRequestAuthenticationToken(
+				authorizationRequest.getAuthorizationUri(), registeredClient.getClientId(), principal,
+				authorizationCode, redirectUri, authorizationRequest.getState(), authorizationRequest.getScopes());
+		authorizationCodeRequestAuthenticationResult.setDetails(authorizationCodeRequestAuthentication.getDetails());
+		return authorizationCodeRequestAuthenticationResult;
 	}
 
 	@Override
@@ -481,6 +488,7 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 				(Authentication) authorizationCodeRequestAuthentication.getPrincipal(), redirectUri,
 				authorizationCodeRequestAuthentication.getState(), authorizationCodeRequestAuthentication.getScopes(),
 				authorizationCodeRequestAuthentication.getAdditionalParameters());
+		authorizationCodeRequestAuthenticationResult.setDetails(authorizationCodeRequestAuthentication.getDetails());
 
 		throw new OAuth2AuthorizationCodeRequestAuthenticationException(error,
 				authorizationCodeRequestAuthenticationResult);

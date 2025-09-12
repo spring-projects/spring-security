@@ -312,8 +312,10 @@ public final class OAuth2AuthorizationCodeAuthenticationProvider implements Auth
 			this.logger.trace("Authenticated token request");
 		}
 
-		return new OAuth2AccessTokenAuthenticationToken(registeredClient, clientPrincipal, accessToken, refreshToken,
-				additionalParameters);
+		OAuth2AccessTokenAuthenticationToken accessTokenAuthenticationResult = new OAuth2AccessTokenAuthenticationToken(
+				registeredClient, clientPrincipal, accessToken, refreshToken, additionalParameters);
+		accessTokenAuthenticationResult.setDetails(authorizationCodeAuthentication.getDetails());
+		return accessTokenAuthenticationResult;
 	}
 
 	@Override
