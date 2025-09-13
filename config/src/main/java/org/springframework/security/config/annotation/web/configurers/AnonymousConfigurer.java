@@ -19,7 +19,10 @@ package org.springframework.security.config.annotation.web.configurers;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.security.authentication.AnonymousAuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.SecurityConfigurer;
@@ -39,6 +42,7 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
  * other than applying this {@link SecurityConfigurer}.
  *
  * @author Rob Winch
+ * @author DingHao
  * @since 3.2
  */
 public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>>
@@ -49,6 +53,8 @@ public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>>
 	private AuthenticationProvider authenticationProvider;
 
 	private AnonymousAuthenticationFilter authenticationFilter;
+
+	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
 
 	private Object principal = "anonymousUser";
 
@@ -142,6 +148,19 @@ public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>>
 		return this;
 	}
 
+	/**
+	 * Specifies a custom {@link AuthenticationDetailsSource} to use for anonymous
+	 * authentication.
+	 * @param authenticationDetailsSource the custom {@link AuthenticationDetailsSource}
+	 * to use
+	 * @return {@link AnonymousConfigurer} for additional customization
+	 */
+	public AnonymousConfigurer<H> authenticationDetailsSource(
+			AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
+		this.authenticationDetailsSource = authenticationDetailsSource;
+		return this;
+	}
+
 	@Override
 	public void init(H http) {
 		if (this.authenticationProvider == null) {
@@ -155,6 +174,9 @@ public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>>
 	public void configure(H http) {
 		if (this.authenticationFilter == null) {
 			this.authenticationFilter = new AnonymousAuthenticationFilter(getKey(), this.principal, this.authorities);
+		}
+		if (this.authenticationDetailsSource != null) {
+			this.authenticationFilter.setAuthenticationDetailsSource(this.authenticationDetailsSource);
 		}
 		this.authenticationFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		this.authenticationFilter.afterPropertiesSet();
