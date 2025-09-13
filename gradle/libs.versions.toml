@@ -13,6 +13,7 @@ org-jetbrains-kotlinx = "1.10.2"
 org-mockito = "5.17.0"
 org-opensaml5 = "5.1.6"
 org-springframework = "7.0.0-M9"
+com-password4j = "1.8.2"
 
 [libraries]
 ch-qos-logback-logback-classic = "ch.qos.logback:logback-classic:1.5.18"
@@ -101,6 +102,7 @@ org-instancio-instancio-junit = "org.instancio:instancio-junit:3.7.1"
 
 spring-nullability = 'io.spring.nullability:io.spring.nullability.gradle.plugin:0.0.4'
 webauthn4j-core = 'com.webauthn4j:webauthn4j-core:0.29.6.RELEASE'
+com-password4j-password4j = { module = "com.password4j:password4j", version.ref = "com-password4j" }
 
 [plugins]
 
