@@ -26,6 +26,7 @@ import org.springframework.security.saml2.provider.service.authentication.Defaul
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SuppressWarnings("removal")
 class DefaultSaml2AuthenticatedPrincipalMixinTests {
 
 	private ObjectMapper mapper;

@@ -56,6 +56,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  *
  * @author Joe Grandja
  */
+@SuppressWarnings("removal")
 public class OAuth2AuthenticationTokenMixinTests {
 
 	private ObjectMapper mapper;

@@ -32,7 +32,6 @@ import java.util.function.Consumer;
 
 import javax.xml.namespace.QName;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
@@ -69,13 +68,14 @@ import org.opensaml.saml.saml2.core.impl.StatusBuilder;
 import org.opensaml.saml.saml2.core.impl.StatusCodeBuilder;
 import org.opensaml.xmlsec.encryption.impl.EncryptedDataBuilder;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
+import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.jackson2.SecurityJackson2Modules;
+import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ResponseValidatorResult;
@@ -341,9 +341,8 @@ public class OpenSaml5AuthenticationProviderTests {
 	// gh-11785
 	@Test
 	public void deserializeWhenAssertionContainsAttributesThenWorks() throws Exception {
-		ObjectMapper mapper = new ObjectMapper();
 		ClassLoader loader = getClass().getClassLoader();
-		mapper.registerModules(SecurityJackson2Modules.getModules(loader));
+		JsonMapper mapper = JsonMapper.builder().addModules(SecurityJacksonModules.getModules(loader)).build();
 		Response response = response();
 		Assertion assertion = assertion();
 		List<AttributeStatement> attributes = TestOpenSamlObjects.attributeStatements();

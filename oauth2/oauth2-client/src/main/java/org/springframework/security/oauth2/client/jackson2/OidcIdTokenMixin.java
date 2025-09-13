@@ -34,7 +34,11 @@ import org.springframework.security.oauth2.core.oidc.OidcIdToken;
  * @since 5.3
  * @see OidcIdToken
  * @see OAuth2ClientJackson2Module
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.oauth2.client.jackson.OidcIdTokenMixin} based on
+ * Jackson 3
  */
+@Deprecated(forRemoval = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)

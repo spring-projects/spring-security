@@ -30,6 +30,7 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SuppressWarnings("removal")
 public class StdConvertersTests {
 
 	private final StdConverter<JsonNode, ClientAuthenticationMethod> clientAuthenticationMethodConverter = new StdConverters.ClientAuthenticationMethodConverter();

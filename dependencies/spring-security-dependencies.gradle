@@ -25,6 +25,7 @@ dependencies {
 	api platform(libs.org.jetbrains.kotlin.kotlin.bom)
 	api platform(libs.org.jetbrains.kotlinx.kotlinx.coroutines.bom)
 	api platform(libs.com.fasterxml.jackson.jackson.bom)
+	api platform(libs.tools.jackson.jackson.bom)
 	constraints {
 		api libs.ch.qos.logback.logback.classic
 		api libs.com.google.inject.guice
