@@ -308,7 +308,7 @@ final class UniqueSecurityAnnotationScanner<A extends Annotation> extends Abstra
 		}
 		for (int i = 0; i < rootParameterTypes.length; i++) {
 			Class<?> resolvedParameterType = ResolvableType.forMethodParameter(candidateMethod, i, sourceDeclaringClass)
-				.resolve();
+				.toClass();
 			if (rootParameterTypes[i] != resolvedParameterType) {
 				return false;
 			}
