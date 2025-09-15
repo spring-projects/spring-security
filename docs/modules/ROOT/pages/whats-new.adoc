@@ -38,11 +38,11 @@ http.csrf((csrf) -> csrf.spa());
 == Crypto
 
 * Added Password4j-based password encoders providing alternative implementations for popular hashing algorithms:
-** `Argon2Password4jPasswordEncoder` - xref:features/authentication/password-storage.adoc#authentication-password-storage-password4j-argon2[Argon2 implementation using Password4j]
-** `BcryptPassword4jPasswordEncoder` - xref:features/authentication/password-storage.adoc#authentication-password-storage-password4j-bcrypt[BCrypt implementation using Password4j]
-** `ScryptPassword4jPasswordEncoder` - xref:features/authentication/password-storage.adoc#authentication-password-storage-password4j-scrypt[SCrypt implementation using Password4j]
-** `Pbkdf2Password4jPasswordEncoder` - xref:features/authentication/password-storage.adoc#authentication-password-storage-password4j-pbkdf2[PBKDF2 implementation using Password4j]
-** `BalloonHashingPassword4jPasswordEncoder` - xref:features/authentication/password-storage.adoc#authentication-password-storage-password4j-balloon[Balloon Hashing implementation using Password4j]
+** `Argon2Password4jPasswordEncoder` - xref:features/authentication/password-storage.adoc#password4j-argon2[Argon2]
+** `BcryptPassword4jPasswordEncoder` - xref:features/authentication/password-storage.adoc#password4j-bcrypt[BCrypt]
+** `ScryptPassword4jPasswordEncoder` - xref:features/authentication/password-storage.adoc#password4j-scrypt[SCrypt]
+** `Pbkdf2Password4jPasswordEncoder` - xref:features/authentication/password-storage.adoc#password4j-pbkdf2[PBKDF2]
+** `BalloonHashingPassword4jPasswordEncoder` - xref:features/authentication/password-storage.adoc#password4j-balloon[Balloon Hashing]
 
 == Data
 
