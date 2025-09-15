@@ -8,6 +8,7 @@ dependencies {
 	management platform(project(":spring-security-dependencies"))
 	optional 'org.springframework:spring-core'
 	optional 'org.bouncycastle:bcpkix-jdk18on'
+	optional libs.com.password4j.password4j
 
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"

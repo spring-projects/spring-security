@@ -78,6 +78,6 @@ dependencies {
 		api libs.org.apache.maven.resolver.maven.resolver.transport.http
 		api libs.org.apache.maven.maven.resolver.provider
 		api libs.org.instancio.instancio.junit
+		api libs.com.password4j.password4j
 	}
 }
-
