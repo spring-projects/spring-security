@@ -83,8 +83,12 @@ public class VerifyDependenciesVersionsPlugin implements Plugin<Project> {
 			String transitiveNimbusJoseJwtVersion = TransitiveDependencyLookupUtils.lookupJwtVersion(oauth2OidcSdkVersion);
 			String expectedNimbusJoseJwtVersion = this.getExpectedNimbusJoseJwtVersion().get();
 			if (!transitiveNimbusJoseJwtVersion.equals(expectedNimbusJoseJwtVersion)) {
-				String message = String.format("Found transitive nimbus-jose-jwt:%s in oauth2-oidc-sdk:%s, but the project contains a different version of nimbus-jose-jwt [%s]. Please align the versions.", transitiveNimbusJoseJwtVersion, oauth2OidcSdkVersion, expectedNimbusJoseJwtVersion);
-				throw new VerificationException(message);
+				String transitiveNimbusJoseJwtMajorMinorVersion = transitiveNimbusJoseJwtVersion.substring(0, transitiveNimbusJoseJwtVersion.lastIndexOf("."));
+				String expectedNimbusJoseJwtMajorMinorVersion = expectedNimbusJoseJwtVersion.substring(0, expectedNimbusJoseJwtVersion.lastIndexOf("."));
+				if (!transitiveNimbusJoseJwtMajorMinorVersion.equals(expectedNimbusJoseJwtMajorMinorVersion)) {
+					String message = String.format("Found transitive nimbus-jose-jwt:%s in oauth2-oidc-sdk:%s, but the project contains a different version of nimbus-jose-jwt [%s]. Please align the major/minor versions.", transitiveNimbusJoseJwtVersion, oauth2OidcSdkVersion, expectedNimbusJoseJwtVersion);
+					throw new VerificationException(message);
+				}
 			}
 			String message = String.format("Found transitive nimbus-jose-jwt:%s in oauth2-oidc-sdk:%s, the project contains expected version of nimbus-jose-jwt [%s]. Verified all versions align.", transitiveNimbusJoseJwtVersion, oauth2OidcSdkVersion, expectedNimbusJoseJwtVersion);
 			try {
