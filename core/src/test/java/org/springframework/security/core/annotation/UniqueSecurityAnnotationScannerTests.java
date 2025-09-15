@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.core.annotation.AnnotationConfigurationException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -271,6 +272,14 @@ public class UniqueSecurityAnnotationScannerTests {
 	@Test
 	void scanWhenAnnotationOnParameterizedMethodThenLocates() throws Exception {
 		Method method = MyServiceImpl.class.getDeclaredMethod("getExtByClass", Class.class, Long.class);
+		PreAuthorize pre = this.scanner.scan(method, method.getDeclaringClass());
+		assertThat(pre).isNotNull();
+	}
+
+	// gh-17898
+	@Test
+	void scanWhenAnnotationOnParameterizedUndeclaredMethodAndThenLocates() throws Exception {
+		Method method = ClassUtils.getMethod(GenericInterfaceImpl.class, "processOneAndTwo", Long.class, Object.class);
 		PreAuthorize pre = this.scanner.scan(method, method.getDeclaringClass());
 		assertThat(pre).isNotNull();
 	}
@@ -634,6 +643,29 @@ public class UniqueSecurityAnnotationScannerTests {
 		<S extends Number> S getExtByClass(Class<S> clazz, Long l) {
 			return null;
 		}
+
+	}
+
+	interface GenericInterface<A, B> {
+
+		@PreAuthorize("hasAuthority('thirtythree')")
+		void processOneAndTwo(A value1, B value2);
+
+	}
+
+	abstract static class GenericAbstractSuperclass<C> implements GenericInterface<Long, C> {
+
+		@Override
+		public void processOneAndTwo(Long value1, C value2) {
+		}
+
+	}
+
+	static class GenericInterfaceImpl extends GenericAbstractSuperclass<String> {
+
+		// The compiler does not require us to declare a concrete
+		// processOneAndTwo(Long, String) method, and we intentionally
+		// do not declare one here.
 
 	}
 
