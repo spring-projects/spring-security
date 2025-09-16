@@ -233,7 +233,10 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 		initDefaultLoginFilter(http);
 		ExceptionHandlingConfigurer<H> exceptions = http.getConfigurer(ExceptionHandlingConfigurer.class);
 		if (exceptions != null) {
-			exceptions.defaultAuthenticationEntryPointFor(getAuthenticationEntryPoint(), "FACTOR_PASSWORD");
+			AuthenticationEntryPoint entryPoint = getAuthenticationEntryPoint();
+			RequestMatcher requestMatcher = getAuthenticationEntryPointMatcher(http);
+			exceptions.defaultAuthenticationEntryPointFor((ep) -> ep.addEntryPointFor(entryPoint, requestMatcher),
+					"FACTOR_PASSWORD");
 		}
 	}
 
