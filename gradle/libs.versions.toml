@@ -13,7 +13,7 @@ org-jetbrains-kotlinx = "1.10.2"
 org-mockito = "5.17.0"
 org-opensaml5 = "5.1.6"
 org-springframework = "7.0.0-M9"
-com-password4j = "1.8.2"
+com-password4j = "1.8.4"
 
 [libraries]
 ch-qos-logback-logback-classic = "ch.qos.logback:logback-classic:1.5.18"
