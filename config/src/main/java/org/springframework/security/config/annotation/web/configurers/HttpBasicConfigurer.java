@@ -18,7 +18,6 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -103,11 +102,12 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>>
 	 */
 	public HttpBasicConfigurer() {
 		realmName(DEFAULT_REALM);
-		LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints = new LinkedHashMap<>();
-		entryPoints.put(X_REQUESTED_WITH, new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
-		DelegatingAuthenticationEntryPoint defaultEntryPoint = new DelegatingAuthenticationEntryPoint(entryPoints);
-		defaultEntryPoint.setDefaultEntryPoint(this.basicAuthEntryPoint);
-		this.authenticationEntryPoint = defaultEntryPoint;
+		// @formatter:off
+		this.authenticationEntryPoint = DelegatingAuthenticationEntryPoint.builder()
+				.addEntryPointFor(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), X_REQUESTED_WITH)
+				.defaultEntryPoint(this.basicAuthEntryPoint)
+				.build();
+		// @formatter:on
 	}
 
 	/**

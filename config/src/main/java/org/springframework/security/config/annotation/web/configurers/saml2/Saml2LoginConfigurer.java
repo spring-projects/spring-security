@@ -339,13 +339,15 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 				new OrRequestMatcher(loginPageMatcher, faviconMatcher), defaultEntryPointMatcher);
 		RequestMatcher notXRequestedWith = new NegatedRequestMatcher(
 				new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
-		LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints = new LinkedHashMap<>();
 		LoginUrlAuthenticationEntryPoint loginUrlEntryPoint = new LoginUrlAuthenticationEntryPoint(providerLoginPage);
-		entryPoints.put(new AndRequestMatcher(notXRequestedWith, new NegatedRequestMatcher(defaultLoginPageMatcher)),
-				loginUrlEntryPoint);
-		DelegatingAuthenticationEntryPoint loginEntryPoint = new DelegatingAuthenticationEntryPoint(entryPoints);
-		loginEntryPoint.setDefaultEntryPoint(this.getAuthenticationEntryPoint());
-		return loginEntryPoint;
+		RequestMatcher loginUrlMatcher = new AndRequestMatcher(notXRequestedWith,
+				new NegatedRequestMatcher(defaultLoginPageMatcher));
+		// @formatter:off
+		return DelegatingAuthenticationEntryPoint.builder()
+				.addEntryPointFor(loginUrlEntryPoint, loginUrlMatcher)
+				.defaultEntryPoint(getAuthenticationEntryPoint())
+				.build();
+		// @formatter:on
 	}
 
 	private void setAuthenticationRequestRepository(B http,

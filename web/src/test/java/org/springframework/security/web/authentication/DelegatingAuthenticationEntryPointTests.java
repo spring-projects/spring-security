@@ -16,7 +16,9 @@
 
 package org.springframework.security.web.authentication;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +27,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcherEntry;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -52,8 +56,6 @@ public class DelegatingAuthenticationEntryPointTests {
 	public void before() {
 		this.defaultEntryPoint = mock(AuthenticationEntryPoint.class);
 		this.entryPoints = new LinkedHashMap<>();
-		this.daep = new DelegatingAuthenticationEntryPoint(this.entryPoints);
-		this.daep.setDefaultEntryPoint(this.defaultEntryPoint);
 	}
 
 	@Test
@@ -62,6 +64,8 @@ public class DelegatingAuthenticationEntryPointTests {
 		RequestMatcher firstRM = mock(RequestMatcher.class);
 		given(firstRM.matches(this.request)).willReturn(false);
 		this.entryPoints.put(firstRM, firstAEP);
+		this.daep = new DelegatingAuthenticationEntryPoint(this.entryPoints);
+		this.daep.setDefaultEntryPoint(this.defaultEntryPoint);
 		this.daep.commence(this.request, null, null);
 		verify(this.defaultEntryPoint).commence(this.request, null, null);
 		verify(firstAEP, never()).commence(this.request, null, null);
@@ -76,6 +80,8 @@ public class DelegatingAuthenticationEntryPointTests {
 		given(firstRM.matches(this.request)).willReturn(true);
 		this.entryPoints.put(firstRM, firstAEP);
 		this.entryPoints.put(secondRM, secondAEP);
+		this.daep = new DelegatingAuthenticationEntryPoint(this.entryPoints);
+		this.daep.setDefaultEntryPoint(this.defaultEntryPoint);
 		this.daep.commence(this.request, null, null);
 		verify(firstAEP).commence(this.request, null, null);
 		verify(secondAEP, never()).commence(this.request, null, null);
@@ -93,6 +99,103 @@ public class DelegatingAuthenticationEntryPointTests {
 		given(secondRM.matches(this.request)).willReturn(true);
 		this.entryPoints.put(firstRM, firstAEP);
 		this.entryPoints.put(secondRM, secondAEP);
+		this.daep = new DelegatingAuthenticationEntryPoint(this.entryPoints);
+		this.daep.setDefaultEntryPoint(this.defaultEntryPoint);
+		this.daep.commence(this.request, null, null);
+		verify(secondAEP).commence(this.request, null, null);
+		verify(firstAEP, never()).commence(this.request, null, null);
+		verify(this.defaultEntryPoint, never()).commence(this.request, null, null);
+	}
+
+	@Test
+	public void constructorAepListWhenNullEntryPoints() {
+		List<RequestMatcherEntry<AuthenticationEntryPoint>> entryPoints = null;
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new DelegatingAuthenticationEntryPoint(mock(AuthenticationEntryPoint.class), entryPoints));
+	}
+
+	@Test
+	public void constructorAepListWhenEmptyEntryPoints() {
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> new DelegatingAuthenticationEntryPoint(mock(AuthenticationEntryPoint.class),
+					Collections.emptyList()));
+	}
+
+	@Test
+	public void constructorAepListWhenNullDefaultEntryPoint() {
+		AuthenticationEntryPoint entryPoint = mock(AuthenticationEntryPoint.class);
+		RequestMatcher matcher = mock(RequestMatcher.class);
+		List<RequestMatcherEntry<AuthenticationEntryPoint>> entryPoints = List
+			.of(new RequestMatcherEntry<>(matcher, entryPoint));
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> new DelegatingAuthenticationEntryPoint(null, entryPoints));
+	}
+
+	@Test
+	public void constructorAepVargsWhenNullEntryPoints() {
+		RequestMatcherEntry<AuthenticationEntryPoint>[] entryPoints = null;
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new DelegatingAuthenticationEntryPoint(mock(AuthenticationEntryPoint.class), entryPoints));
+	}
+
+	@Test
+	public void constructorAepVargsWhenEmptyEntryPoints() {
+		RequestMatcherEntry<AuthenticationEntryPoint>[] entryPoints = new RequestMatcherEntry[0];
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new DelegatingAuthenticationEntryPoint(mock(AuthenticationEntryPoint.class), entryPoints));
+	}
+
+	@Test
+	public void constructorAepVargsWhenNullDefaultEntryPoint() {
+		AuthenticationEntryPoint entryPoint = mock(AuthenticationEntryPoint.class);
+		RequestMatcher matcher = mock(RequestMatcher.class);
+		RequestMatcherEntry<AuthenticationEntryPoint>[] entryPoints = new RequestMatcherEntry[] {
+				new RequestMatcherEntry<>(matcher, entryPoint) };
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> new DelegatingAuthenticationEntryPoint(null, entryPoints));
+	}
+
+	@Test
+	public void commenceWhenNoMatchThenDefaultEntryPoint() throws Exception {
+		AuthenticationEntryPoint firstAEP = mock(AuthenticationEntryPoint.class);
+		RequestMatcher firstRM = mock(RequestMatcher.class);
+		given(firstRM.matches(this.request)).willReturn(false);
+		RequestMatcherEntry<AuthenticationEntryPoint> entry = new RequestMatcherEntry<>(firstRM, firstAEP);
+		this.daep = new DelegatingAuthenticationEntryPoint(this.defaultEntryPoint, entry);
+		this.daep.commence(this.request, null, null);
+		verify(this.defaultEntryPoint).commence(this.request, null, null);
+		verify(firstAEP, never()).commence(this.request, null, null);
+	}
+
+	@Test
+	public void commenceWhenMatchFirstEntryPointThenOthersNotInvoked() throws Exception {
+		AuthenticationEntryPoint firstAEP = mock(AuthenticationEntryPoint.class);
+		RequestMatcher firstRM = mock(RequestMatcher.class);
+		given(firstRM.matches(this.request)).willReturn(true);
+		RequestMatcherEntry<AuthenticationEntryPoint> firstEntry = new RequestMatcherEntry<>(firstRM, firstAEP);
+		AuthenticationEntryPoint secondAEP = mock(AuthenticationEntryPoint.class);
+		RequestMatcher secondRM = mock(RequestMatcher.class);
+		given(secondRM.matches(this.request)).willReturn(false);
+		RequestMatcherEntry<AuthenticationEntryPoint> secondEntry = new RequestMatcherEntry<>(firstRM, firstAEP);
+		this.daep = new DelegatingAuthenticationEntryPoint(this.defaultEntryPoint, firstEntry, secondEntry);
+		this.daep.commence(this.request, null, null);
+		verify(firstAEP).commence(this.request, null, null);
+		verify(secondAEP, never()).commence(this.request, null, null);
+		verify(this.defaultEntryPoint, never()).commence(this.request, null, null);
+		verify(secondRM, never()).matches(this.request);
+	}
+
+	@Test
+	public void commenceWhenSecondMatchesThenDefaultNotInvoked() throws Exception {
+		AuthenticationEntryPoint firstAEP = mock(AuthenticationEntryPoint.class);
+		RequestMatcher firstRM = mock(RequestMatcher.class);
+		given(firstRM.matches(this.request)).willReturn(false);
+		RequestMatcherEntry<AuthenticationEntryPoint> firstEntry = new RequestMatcherEntry<>(firstRM, firstAEP);
+		AuthenticationEntryPoint secondAEP = mock(AuthenticationEntryPoint.class);
+		RequestMatcher secondRM = mock(RequestMatcher.class);
+		given(secondRM.matches(this.request)).willReturn(true);
+		RequestMatcherEntry<AuthenticationEntryPoint> secondEntry = new RequestMatcherEntry<>(secondRM, secondAEP);
+		this.daep = new DelegatingAuthenticationEntryPoint(this.defaultEntryPoint, firstEntry, secondEntry);
 		this.daep.commence(this.request, null, null);
 		verify(secondAEP).commence(this.request, null, null);
 		verify(firstAEP, never()).commence(this.request, null, null);

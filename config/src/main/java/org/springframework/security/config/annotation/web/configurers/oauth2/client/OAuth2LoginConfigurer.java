@@ -19,7 +19,6 @@ package org.springframework.security.config.annotation.web.configurers.oauth2.cl
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -553,13 +552,15 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		RequestMatcher notXRequestedWith = new NegatedRequestMatcher(
 				new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
 		RequestMatcher formLoginNotEnabled = getFormLoginNotEnabledRequestMatcher(http);
-		LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints = new LinkedHashMap<>();
 		LoginUrlAuthenticationEntryPoint loginUrlEntryPoint = new LoginUrlAuthenticationEntryPoint(providerLoginPage);
-		entryPoints.put(new AndRequestMatcher(notXRequestedWith, new NegatedRequestMatcher(defaultLoginPageMatcher),
-				formLoginNotEnabled), loginUrlEntryPoint);
-		DelegatingAuthenticationEntryPoint loginEntryPoint = new DelegatingAuthenticationEntryPoint(entryPoints);
-		loginEntryPoint.setDefaultEntryPoint(this.getAuthenticationEntryPoint());
-		return loginEntryPoint;
+		RequestMatcher loginUrlMatcher = new AndRequestMatcher(notXRequestedWith,
+				new NegatedRequestMatcher(defaultLoginPageMatcher), formLoginNotEnabled);
+		// @formatter:off
+		return DelegatingAuthenticationEntryPoint.builder()
+			.addEntryPointFor(loginUrlEntryPoint, loginUrlMatcher)
+			.defaultEntryPoint(getAuthenticationEntryPoint())
+			.build();
+		// @formatter:on
 	}
 
 	private RequestMatcher getFormLoginNotEnabledRequestMatcher(B http) {

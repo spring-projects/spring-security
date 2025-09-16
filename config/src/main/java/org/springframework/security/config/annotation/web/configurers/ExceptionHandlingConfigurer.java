@@ -18,6 +18,8 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.LinkedHashMap;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -71,7 +73,7 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private AccessDeniedHandler accessDeniedHandler;
 
-	private LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> defaultEntryPointMappings = new LinkedHashMap<>();
+	private DelegatingAuthenticationEntryPoint.@Nullable Builder defaultEntryPoint;
 
 	private LinkedHashMap<RequestMatcher, AccessDeniedHandler> defaultDeniedHandlerMappings = new LinkedHashMap<>();
 
@@ -161,7 +163,10 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	public ExceptionHandlingConfigurer<H> defaultAuthenticationEntryPointFor(AuthenticationEntryPoint entryPoint,
 			RequestMatcher preferredMatcher) {
-		this.defaultEntryPointMappings.put(preferredMatcher, entryPoint);
+		if (this.defaultEntryPoint == null) {
+			this.defaultEntryPoint = DelegatingAuthenticationEntryPoint.builder();
+		}
+		this.defaultEntryPoint.addEntryPointFor(entryPoint, preferredMatcher);
 		return this;
 	}
 
@@ -235,16 +240,10 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	private AuthenticationEntryPoint createDefaultEntryPoint(H http) {
-		if (this.defaultEntryPointMappings.isEmpty()) {
+		if (this.defaultEntryPoint == null) {
 			return new Http403ForbiddenEntryPoint();
 		}
-		if (this.defaultEntryPointMappings.size() == 1) {
-			return this.defaultEntryPointMappings.values().iterator().next();
-		}
-		DelegatingAuthenticationEntryPoint entryPoint = new DelegatingAuthenticationEntryPoint(
-				this.defaultEntryPointMappings);
-		entryPoint.setDefaultEntryPoint(this.defaultEntryPointMappings.values().iterator().next());
-		return entryPoint;
+		return this.defaultEntryPoint.build();
 	}
 
 	/**
