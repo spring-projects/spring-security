@@ -25,6 +25,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
 
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -39,7 +40,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class AllAuthoritiesAuthorizationManagerTests {
+class AllAuthoritiesReactiveAuthorizationManagerTests {
 
 	public static final String ROLE_USER = "ROLE_USER";
 
@@ -55,37 +56,38 @@ class AllAuthoritiesAuthorizationManagerTests {
 	void hasAllAuthoritiesWhenNullAuthoritiesThenIllegalArgumentException() {
 		String[] requiredAuthorities = null;
 		assertThatIllegalArgumentException()
-			.isThrownBy(() -> AllAuthoritiesAuthorizationManager.hasAllAuthorities(requiredAuthorities));
+			.isThrownBy(() -> AllAuthoritiesReactiveAuthorizationManager.hasAllAuthorities(requiredAuthorities));
 	}
 
 	@Test
 	void hasAllAuthortiesWhenEmptyAuthoritiesThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-			.isThrownBy(() -> AllAuthoritiesAuthorizationManager.hasAllAuthorities((new String[0])));
+			.isThrownBy(() -> AllAuthoritiesReactiveAuthorizationManager.hasAllAuthorities((new String[0])));
 	}
 
 	@Test
 	void authorizeWhenGranted() {
 		Authentication authentication = new TestingAuthenticationToken("user", "password", ROLE_USER);
-		AllAuthoritiesAuthorizationManager<Object> manager = AllAuthoritiesAuthorizationManager
+		AllAuthoritiesReactiveAuthorizationManager<Object> manager = AllAuthoritiesReactiveAuthorizationManager
 			.hasAllAuthorities(ROLE_USER);
-		assertThat(manager.authorize(() -> authentication, "").isGranted()).isTrue();
+		assertThat(manager.authorize(Mono.just(authentication), "").block().isGranted()).isTrue();
 	}
 
 	@Test
 	void authorizeWhenNotAuthenticated() {
 		Authentication authentication = new TestingAuthenticationToken("user", "password", ROLE_USER);
 		authentication.setAuthenticated(false);
-		AllAuthoritiesAuthorizationManager<Object> manager = AllAuthoritiesAuthorizationManager
+		AllAuthoritiesReactiveAuthorizationManager<Object> manager = AllAuthoritiesReactiveAuthorizationManager
 			.hasAllAuthorities(ROLE_USER);
-		assertThat(manager.authorize(() -> authentication, "").isGranted()).isFalse();
+		assertThat(manager.authorize(Mono.just(authentication), "").block().isGranted()).isFalse();
 	}
 
 	@Test
 	void hasAllRolesAuthorizeWhenGranted() {
 		Authentication authentication = new TestingAuthenticationToken("user", "password", ROLE_USER);
-		AllAuthoritiesAuthorizationManager<Object> manager = AllAuthoritiesAuthorizationManager.hasAllRoles("USER");
-		assertThat(manager.authorize(() -> authentication, "").isGranted()).isTrue();
+		AllAuthoritiesReactiveAuthorizationManager<Object> manager = AllAuthoritiesReactiveAuthorizationManager
+			.hasAllRoles("USER");
+		assertThat(manager.authorize(Mono.just(authentication), "").block().isGranted()).isTrue();
 	}
 
 	@Test
@@ -95,25 +97,27 @@ class AllAuthoritiesAuthorizationManagerTests {
 		String authority2 = "AUTHORITY2";
 		Authentication authentication = new TestingAuthenticationToken("user", "password", prefix + authority1,
 				prefix + authority2);
-		AllAuthoritiesAuthorizationManager<Object> manager = AllAuthoritiesAuthorizationManager
+		AllAuthoritiesReactiveAuthorizationManager<Object> manager = AllAuthoritiesReactiveAuthorizationManager
 			.hasAllPrefixedAuthorities(prefix, authority1, authority2);
-		assertThat(manager.authorize(() -> authentication, "").isGranted()).isTrue();
+		assertThat(manager.authorize(Mono.just(authentication), "").block().isGranted()).isTrue();
 	}
 
 	@Test
 	void authorizeWhenSingleMissingThenDenied() {
 		Authentication authentication = new TestingAuthenticationToken("user", "password", ROLE_USER);
-		AllAuthoritiesAuthorizationManager<Object> manager = AllAuthoritiesAuthorizationManager
+		AllAuthoritiesReactiveAuthorizationManager<Object> manager = AllAuthoritiesReactiveAuthorizationManager
 			.hasAllAuthorities(ROLE_ADMIN);
-		assertThat(manager.authorize(() -> authentication, "").isGranted()).isFalse();
+		assertThat(manager.authorize(Mono.just(authentication), "").block().isGranted()).isFalse();
 	}
 
 	@Test
 	void authorizeWhenMultipleMissingOneThenDenied() {
 		Authentication authentication = new TestingAuthenticationToken("user", "password", ROLE_USER);
-		AllAuthoritiesAuthorizationManager<Object> manager = AllAuthoritiesAuthorizationManager
+		AllAuthoritiesReactiveAuthorizationManager<Object> manager = AllAuthoritiesReactiveAuthorizationManager
 			.hasAllAuthorities(ROLE_ADMIN, ROLE_USER);
-		AuthorityAuthorizationDecision result = manager.authorize(() -> authentication, "");
+		AuthorityAuthorizationDecision result = manager.authorize(Mono.just(authentication), "")
+			.cast(AuthorityAuthorizationDecision.class)
+			.block();
 		assertThat(result.isGranted()).isFalse();
 		assertThat(result.getAuthorities()).hasSize(1);
 		assertThat(new ArrayList<>(result.getAuthorities()).get(0).getAuthority()).isEqualTo(ROLE_ADMIN);
@@ -121,7 +125,8 @@ class AllAuthoritiesAuthorizationManagerTests {
 
 	@Test
 	void setRoleHierarchyWhenNullThenIllegalArgumentException() {
-		AllAuthoritiesAuthorizationManager<?> manager = AllAuthoritiesAuthorizationManager.hasAllAuthorities(ROLE_USER);
+		AllAuthoritiesReactiveAuthorizationManager<?> manager = AllAuthoritiesReactiveAuthorizationManager
+			.hasAllAuthorities(ROLE_USER);
 		assertThatIllegalArgumentException().isThrownBy(() -> manager.setRoleHierarchy(null));
 	}
 
@@ -129,13 +134,15 @@ class AllAuthoritiesAuthorizationManagerTests {
 	void setRoleHierarchyThenUsesResult() {
 		Collection result = AuthorityUtils.createAuthorityList(ROLE_USER, ROLE_ADMIN);
 		given(this.roleHierarchy.getReachableGrantedAuthorities(any())).willReturn(result);
-		AllAuthoritiesAuthorizationManager<Object> manager = AllAuthoritiesAuthorizationManager
+		AllAuthoritiesReactiveAuthorizationManager<Object> manager = AllAuthoritiesReactiveAuthorizationManager
 			.hasAllAuthorities(ROLE_USER);
 		manager.setRoleHierarchy(this.roleHierarchy);
 
 		Authentication authentication = new TestingAuthenticationToken("user", "password", ROLE_USER);
 
-		AuthorityAuthorizationDecision authz = manager.authorize(() -> authentication, "");
+		AuthorityAuthorizationDecision authz = manager.authorize(Mono.just(authentication), "")
+			.cast(AuthorityAuthorizationDecision.class)
+			.block();
 		assertThat(authz.isGranted()).isTrue();
 		verify(this.roleHierarchy).getReachableGrantedAuthorities(this.authoritiesCaptor.capture());
 		assertThat(this.authoritiesCaptor.getValue()).map(GrantedAuthority::getAuthority).contains(ROLE_USER);

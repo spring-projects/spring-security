@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
-import org.jspecify.annotations.Nullable;
+import reactor.core.publisher.Mono;
 
 import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -32,14 +32,15 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.Assert;
 
 /**
- * An {@link AuthorizationManager} that determines if the current user is authorized by
- * evaluating if the {@link Authentication} contains all the specified authorities.
+ * A {@link ReactiveAuthorizationManager} that determines if the current user is
+ * authorized by evaluating if the {@link Authentication} contains all the specified
+ * authorities.
  *
  * @author Rob Winch
  * @since 7.0
- * @see AuthorityAuthorizationManager
+ * @see AuthorityReactiveAuthorizationManager
  */
-public final class AllAuthoritiesAuthorizationManager<T> implements AuthorizationManager<T> {
+public final class AllAuthoritiesReactiveAuthorizationManager<T> implements ReactiveAuthorizationManager<T> {
 
 	private static final String ROLE_PREFIX = "ROLE_";
 
@@ -47,13 +48,17 @@ public final class AllAuthoritiesAuthorizationManager<T> implements Authorizatio
 
 	private final List<String> requiredAuthorities;
 
+	private final AuthorityAuthorizationDecision defaultDecision;
+
 	/**
 	 * Creates a new instance.
 	 * @param requiredAuthorities the authorities that are required.
 	 */
-	private AllAuthoritiesAuthorizationManager(String... requiredAuthorities) {
+	private AllAuthoritiesReactiveAuthorizationManager(String... requiredAuthorities) {
 		Assert.notEmpty(requiredAuthorities, "requiredAuthorities cannot be empty");
 		this.requiredAuthorities = Arrays.asList(requiredAuthorities);
+		this.defaultDecision = new AuthorityAuthorizationDecision(false,
+				AuthorityUtils.createAuthorityList(this.requiredAuthorities));
 	}
 
 	/**
@@ -74,19 +79,23 @@ public final class AllAuthoritiesAuthorizationManager<T> implements Authorizatio
 	 * @return an {@link AuthorityAuthorizationDecision}
 	 */
 	@Override
-	public AuthorityAuthorizationDecision authorize(Supplier<? extends @Nullable Authentication> authentication,
-			T object) {
-		List<String> authenticatedAuthorities = getGrantedAuthorities(authentication.get());
-		List<String> missingAuthorities = new ArrayList<>(this.requiredAuthorities);
-		missingAuthorities.removeIf(authenticatedAuthorities::contains);
-		return new AuthorityAuthorizationDecision(missingAuthorities.isEmpty(),
-				AuthorityUtils.createAuthorityList(missingAuthorities));
+	public Mono<AuthorizationResult> authorize(Mono<Authentication> authentication, T object) {
+		// @formatter:off
+		return authentication
+			.filter(Authentication::isAuthenticated)
+			.map(this::getGrantedAuthorities)
+			.defaultIfEmpty(Collections.emptyList())
+			.map((authenticatedAuthorities) -> {
+				List<String> missingAuthorities = new ArrayList<>(this.requiredAuthorities);
+				missingAuthorities.removeIf(authenticatedAuthorities::contains);
+				return new AuthorityAuthorizationDecision(missingAuthorities.isEmpty(),
+						AuthorityUtils.createAuthorityList(missingAuthorities));
+			});
+		// @formatter:on
+
 	}
 
 	private List<String> getGrantedAuthorities(Authentication authentication) {
-		if (authentication == null || !authentication.isAuthenticated()) {
-			return Collections.emptyList();
-		}
 		return this.roleHierarchy.getReachableGrantedAuthorities(authentication.getAuthorities())
 			.stream()
 			.map(GrantedAuthority::getAuthority)
@@ -94,26 +103,26 @@ public final class AllAuthoritiesAuthorizationManager<T> implements Authorizatio
 	}
 
 	/**
-	 * Creates an instance of {@link AllAuthoritiesAuthorizationManager} with the provided
-	 * authorities.
+	 * Creates an instance of {@link AllAuthoritiesReactiveAuthorizationManager} with the
+	 * provided authorities.
 	 * @param roles the authorities to check for prefixed with "ROLE_". Each role should
 	 * not start with "ROLE_" since it is automatically prepended already.
 	 * @param <T> the type of object being authorized
 	 * @return the new instance
 	 */
-	public static <T> AllAuthoritiesAuthorizationManager<T> hasAllRoles(String... roles) {
+	public static <T> AllAuthoritiesReactiveAuthorizationManager<T> hasAllRoles(String... roles) {
 		return hasAllPrefixedAuthorities(ROLE_PREFIX, roles);
 	}
 
 	/**
-	 * Creates an instance of {@link AllAuthoritiesAuthorizationManager} with the provided
-	 * authorities.
+	 * Creates an instance of {@link AllAuthoritiesReactiveAuthorizationManager} with the
+	 * provided authorities.
 	 * @param prefix the prefix for <code>authorities</code>
 	 * @param authorities the authorities to check for prefixed with <code>prefix</code>
 	 * @param <T> the type of object being authorized
 	 * @return the new instance
 	 */
-	public static <T> AllAuthoritiesAuthorizationManager<T> hasAllPrefixedAuthorities(String prefix,
+	public static <T> AllAuthoritiesReactiveAuthorizationManager<T> hasAllPrefixedAuthorities(String prefix,
 			String... authorities) {
 		Assert.notNull(prefix, "rolePrefix cannot be null");
 		Assert.notEmpty(authorities, "roles cannot be empty");
@@ -122,16 +131,16 @@ public final class AllAuthoritiesAuthorizationManager<T> implements Authorizatio
 	}
 
 	/**
-	 * Creates an instance of {@link AllAuthoritiesAuthorizationManager} with the provided
-	 * authorities.
+	 * Creates an instance of {@link AllAuthoritiesReactiveAuthorizationManager} with the
+	 * provided authorities.
 	 * @param authorities the authorities to check for
 	 * @param <T> the type of object being authorized
 	 * @return the new instance
 	 */
-	public static <T> AllAuthoritiesAuthorizationManager<T> hasAllAuthorities(String... authorities) {
+	public static <T> AllAuthoritiesReactiveAuthorizationManager<T> hasAllAuthorities(String... authorities) {
 		Assert.notEmpty(authorities, "authorities cannot be empty");
 		Assert.noNullElements(authorities, "authorities cannot contain null values");
-		return new AllAuthoritiesAuthorizationManager<>(authorities);
+		return new AllAuthoritiesReactiveAuthorizationManager<>(authorities);
 	}
 
 	private static String[] toNamedRolesArray(String rolePrefix, String[] roles) {
