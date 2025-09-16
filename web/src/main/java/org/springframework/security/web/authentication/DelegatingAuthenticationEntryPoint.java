@@ -167,7 +167,7 @@ public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPo
 	 * @author Rob Winch
 	 * @since 7.0
 	 */
-	public static class Builder {
+	public static final class Builder {
 
 		private @Nullable AuthenticationEntryPoint defaultEntryPoint;
 
@@ -221,6 +221,9 @@ public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPo
 				defaultEntryPoint = firstAuthenticationEntryPoint;
 			}
 			return new DelegatingAuthenticationEntryPoint(defaultEntryPoint, this.entryPoints);
+		}
+
+		private Builder() {
 		}
 
 	}
