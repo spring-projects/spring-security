@@ -64,7 +64,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
@@ -79,7 +78,6 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -423,8 +421,8 @@ public class FormLoginConfigurerTests {
 			.andExpect(redirectedUrl("http://localhost/login"));
 		user = PasswordEncodedUser.withUserDetails(user).authorities("profile:read", "FACTOR_PASSWORD").build();
 		this.mockMvc.perform(get("/profile").with(user(user)))
-			.andExpect(status().isOk())
-			.andExpect(content().string(containsString("/ott/generate")));
+			.andExpect(status().is3xxRedirection())
+			.andExpect(redirectedUrl("http://localhost/login"));
 		user = PasswordEncodedUser.withUserDetails(user)
 			.authorities("profile:read", "FACTOR_PASSWORD", "FACTOR_OTT")
 			.build();
@@ -433,8 +431,8 @@ public class FormLoginConfigurerTests {
 
 	@Test
 	void requestWhenUnauthenticatedX509ThenRequiresTwoSteps() throws Exception {
-		this.spring.register(MfaDslX509Config.class, UserConfig.class, org.springframework.security.config.annotation.web.configurers.FormLoginConfigurerTests.BasicMfaController.class).autowire();
-		this.mockMvc.perform(get("/profile")).andExpect(status().isForbidden());
+		this.spring.register(MfaDslX509Config.class, UserConfig.class, BasicMfaController.class).autowire();
+		this.mockMvc.perform(get("/profile")).andExpect(status().is3xxRedirection());
 		this.mockMvc.perform(get("/profile").with(user(User.withUsername("rod").authorities("profile:read").build())))
 			.andExpect(status().isForbidden());
 		this.mockMvc.perform(get("/login")).andExpect(status().isOk());

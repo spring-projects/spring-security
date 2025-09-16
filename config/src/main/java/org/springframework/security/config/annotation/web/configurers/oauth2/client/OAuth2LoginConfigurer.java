@@ -373,10 +373,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			http.authenticationProvider(new OidcAuthenticationRequestChecker());
 		}
 		this.initDefaultLoginFilter(http);
-		ExceptionHandlingConfigurer<B> exceptions = http.getConfigurer(ExceptionHandlingConfigurer.class);
-		if (exceptions != null) {
-			exceptions.defaultAuthenticationEntryPointFor(getAuthenticationEntryPoint(), "FACTOR_AUTHORIZATION_CODE");
-		}
 	}
 
 	@Override
@@ -561,11 +557,18 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		RequestMatcher loginUrlMatcher = new AndRequestMatcher(notXRequestedWith,
 				new NegatedRequestMatcher(defaultLoginPageMatcher), formLoginNotEnabled);
 		// @formatter:off
-		return DelegatingAuthenticationEntryPoint.builder()
+		AuthenticationEntryPoint loginEntryPoint = DelegatingAuthenticationEntryPoint.builder()
 			.addEntryPointFor(loginUrlEntryPoint, loginUrlMatcher)
 			.defaultEntryPoint(getAuthenticationEntryPoint())
 			.build();
 		// @formatter:on
+		ExceptionHandlingConfigurer<B> exceptions = http.getConfigurer(ExceptionHandlingConfigurer.class);
+		if (exceptions != null) {
+			RequestMatcher requestMatcher = getAuthenticationEntryPointMatcher(http);
+			exceptions.defaultAuthenticationEntryPointFor((ep) -> ep.addEntryPointFor(loginEntryPoint, requestMatcher),
+					"FACTOR_AUTHORIZATION_CODE");
+		}
+		return loginEntryPoint;
 	}
 
 	private RequestMatcher getFormLoginNotEnabledRequestMatcher(B http) {
