@@ -34,6 +34,7 @@ import org.springframework.util.Assert;
  *
  * @author Evgeniy Cheban
  * @since 6.1
+ * @see AllAuthoritiesAuthorizationManager
  */
 public final class AuthoritiesAuthorizationManager implements AuthorizationManager<Collection<String>> {
 
