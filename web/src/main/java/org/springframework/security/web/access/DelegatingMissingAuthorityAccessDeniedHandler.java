@@ -91,14 +91,19 @@ public final class DelegatingMissingAuthorityAccessDeniedHandler implements Acce
 	public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException denied)
 			throws IOException, ServletException {
 		Collection<GrantedAuthority> authorities = missingAuthorities(denied);
-		AuthenticationEntryPoint entryPoint = entryPoint(authorities);
-		if (entryPoint == null) {
-			this.defaultAccessDeniedHandler.handle(request, response, denied);
+		for (GrantedAuthority needed : authorities) {
+			AuthenticationEntryPoint entryPoint = this.entryPoints.get(needed.getAuthority());
+			if (entryPoint == null) {
+				continue;
+			}
+			this.requestCache.saveRequest(request, response);
+			request.setAttribute(GrantedAuthority.MISSING_AUTHORITIES_ATTRIBUTE, List.of(needed));
+			String message = String.format("Missing Authorities %s", List.of(needed));
+			AuthenticationException ex = new InsufficientAuthenticationException(message, denied);
+			entryPoint.commence(request, response, ex);
 			return;
 		}
-		this.requestCache.saveRequest(request, response);
-		AuthenticationException ex = new InsufficientAuthenticationException("missing authorities", denied);
-		entryPoint.commence(request, response, ex);
+		this.defaultAccessDeniedHandler.handle(request, response, denied);
 	}
 
 	/**
@@ -119,17 +124,6 @@ public final class DelegatingMissingAuthorityAccessDeniedHandler implements Acce
 	 */
 	public void setRequestCache(RequestCache requestCache) {
 		this.requestCache = requestCache;
-	}
-
-	private @Nullable AuthenticationEntryPoint entryPoint(Collection<GrantedAuthority> authorities) {
-		for (GrantedAuthority needed : authorities) {
-			AuthenticationEntryPoint entryPoint = this.entryPoints.get(needed.getAuthority());
-			if (entryPoint == null) {
-				continue;
-			}
-			return entryPoint;
-		}
-		return null;
 	}
 
 	private Collection<GrantedAuthority> missingAuthorities(AccessDeniedException ex) {

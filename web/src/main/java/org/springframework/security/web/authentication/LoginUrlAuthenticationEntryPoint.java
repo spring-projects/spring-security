@@ -17,6 +17,7 @@
 package org.springframework.security.web.authentication;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -30,6 +31,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.PortMapper;
@@ -40,6 +42,7 @@ import org.springframework.security.web.util.RedirectUrlBuilder;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * Used by the {@link ExceptionTranslationFilter} to commence a form login authentication
@@ -109,6 +112,12 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	 */
 	protected String determineUrlToUseForThisRequest(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) {
+		Object value = request.getAttribute(GrantedAuthority.MISSING_AUTHORITIES_ATTRIBUTE);
+		if (value instanceof Collection<?> authorities) {
+			return UriComponentsBuilder.fromUriString(getLoginFormUrl())
+				.queryParam("authority", authorities)
+				.toUriString();
+		}
 		return getLoginFormUrl();
 	}
 

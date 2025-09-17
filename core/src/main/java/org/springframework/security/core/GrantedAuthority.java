@@ -31,6 +31,8 @@ import org.springframework.security.authorization.AuthorizationManager;
  */
 public interface GrantedAuthority extends Serializable {
 
+	String MISSING_AUTHORITIES_ATTRIBUTE = GrantedAuthority.class + ".missingAuthorities";
+
 	/**
 	 * If the <code>GrantedAuthority</code> can be represented as a <code>String</code>
 	 * and that <code>String</code> is sufficient in precision to be relied upon for an
