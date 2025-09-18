@@ -16,12 +16,18 @@
 
 package org.springframework.security.web.authentication.preauth;
 
+import java.util.Collection;
+import java.util.function.Supplier;
+
 import org.junit.jupiter.api.Test;
 
+import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
+import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,6 +35,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author TSARDD
@@ -87,6 +96,19 @@ public class PreAuthenticatedAuthenticationProviderTests {
 		PreAuthenticatedAuthenticationProvider provider = getProvider(ud);
 		Authentication request = new PreAuthenticatedAuthenticationToken("dummyUser2", "dummyPwd");
 		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> provider.authenticate(request));
+	}
+
+	@Test
+	void authenticateWhenSuccessThenIssuesFactor() {
+		UserDetails ud = PasswordEncodedUser.user();
+		PreAuthenticatedAuthenticationProvider provider = getProvider(ud);
+		Supplier<Collection<GrantedAuthority>> authorities = mock(Supplier.class);
+		given(authorities.get()).willReturn(AuthorityUtils.createAuthorityList("FACTOR"));
+		provider.setGrantedAuthoritySupplier(authorities);
+		Authentication request = new PreAuthenticatedAuthenticationToken(ud.getUsername(), ud.getPassword());
+		Authentication result = provider.authenticate(request);
+		SecurityAssertions.assertThat(result).hasAuthority("FACTOR");
+		verify(authorities).get();
 	}
 
 	@Test

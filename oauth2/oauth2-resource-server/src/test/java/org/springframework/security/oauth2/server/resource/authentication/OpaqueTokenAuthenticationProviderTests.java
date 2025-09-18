@@ -146,6 +146,17 @@ public class OpaqueTokenAuthenticationProviderTests {
 		verifyNoMoreInteractions(introspector, authenticationConverter);
 	}
 
+	@Test
+	void authenticateWhenSuccessThenIssuesFactor() {
+		OAuth2AuthenticatedPrincipal principal = TestOAuth2AuthenticatedPrincipals.active();
+		OpaqueTokenIntrospector introspector = mock(OpaqueTokenIntrospector.class);
+		given(introspector.introspect(any())).willReturn(principal);
+		OpaqueTokenAuthenticationProvider provider = new OpaqueTokenAuthenticationProvider(introspector);
+		Authentication request = new BearerTokenAuthenticationToken("token");
+		Authentication result = provider.authenticate(request);
+		SecurityAssertions.assertThat(result).hasAuthority("FACTOR_BEARER");
+	}
+
 	static Predicate<GrantedAuthority> isScope() {
 		return (a) -> a.getAuthority().startsWith("SCOPE_");
 	}

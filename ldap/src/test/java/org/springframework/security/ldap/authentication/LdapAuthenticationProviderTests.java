@@ -26,6 +26,7 @@ import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.support.LdapNameBuilder;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -154,6 +155,16 @@ public class LdapAuthenticationProviderTests {
 			.isThrownBy(() -> ldapProvider.authenticate(authRequest))
 			.havingCause()
 			.isSameAs(expectedCause);
+	}
+
+	@Test
+	void authenticateWhenSuccessThenIssuesFactor() {
+		MockAuthenticator authenticator = new MockAuthenticator();
+		MockAuthoritiesPopulator populator = new MockAuthoritiesPopulator();
+		LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(authenticator, populator);
+		UsernamePasswordAuthenticationToken request = new UsernamePasswordAuthenticationToken("ben", "benspassword");
+		Authentication result = ldapProvider.authenticate(request);
+		SecurityAssertions.assertThat(result).hasAuthority("FACTOR_PASSWORD");
 	}
 
 	class MockAuthenticator implements LdapAuthenticator {
