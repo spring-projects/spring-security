@@ -1,0 +1,528 @@
+= Adaptive Authentication
+
+Since authentication needs can vary from person-to-person and even from one login attempt to the next, Spring Security supports adapting authentication requirements to each situation.
+
+Some of the most common applications of this principal are:
+
+1. *Re-authentication* - Users need to provide authentication again in order to enter an area of elevated security
+2. *Multi-factor Authentication* - Users need more than one authentication mechanism to pass in order to access secured resources
+3. *Authorizing More Scopes* - Users are allowed to consent to a subset of scopes from an OAuth 2.0 Authorization Server.
+Then, if later on a scope that they did not grant is needed, consent can be re-requested for just that scope.
+4. *Opting-in to Stronger Authentication Mechanisms* - Users may not be ready yet to start using MFA, but the application wants to allow the subset of security-minded users to opt-in.
+5. *Requiring Additional Steps for Suspicious Logins* - The application may notice that the user's IP address has changed, that they are behind a VPN, or some other consideration that requires additional verification
+
+== Re-authentication
+
+The most common of these is re-authentication.
+Imagine an application configured in the following way:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    // @formatter:off
+    http
+        .authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+        .formLogin(Customizer.withDefaults())
+        .oneTimeTokenLogin(Customizer.withDefaults());
+    // @formatter:on
+    return http.build();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    // @formatter:off
+    http {
+        authorizeHttpRequests {
+            authorize(anyRequest, authenticated)
+        }
+        formLogin { }
+        oneTimeTokenLogin { }
+    }
+    // @formatter:on
+    return http.build()
+}
+----
+======
+
+By default, this application has two authentication mechanisms that it allows, meaning that the user could use either one and be fully-authenticated.
+
+If there is a set of endpoints that require a specific factor, we can specify that in `authorizeHttpRequests` as follows:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    // @formatter:off
+    http
+        .authorizeHttpRequests((authorize) -> authorize
+            .requestMatchers("/profile/**").hasAuthority("FACTOR_OTT") <1>
+            .anyRequest().authenticated()
+        )
+        .formLogin(Customizer.withDefaults())
+        .oneTimeTokenLogin(Customizer.withDefaults());
+    // @formatter:on
+    return http.build();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    // @formatter:off
+    http {
+        authorizeHttpRequests {
+            authorize("/profile/**", hasAuthority("FACTOR_OTT")) <1>
+            authorize(anyRequest, authenticated)
+        }
+        formLogin { }
+        oneTimeTokenLogin { }
+    }
+    // @formatter:on
+    return http.build()
+}
+----
+======
+<1> - States that all `/profile/**` endpoints require one-time-token login to be authorized
+
+Given the above configuration, users can log in with any mechanism that you support.
+And, if they want to visit the profile page, then Spring Security will redirect them to the One-Time-Token Login page to obtain it.
+
+In this way, the authority given to a user is directly proportional to the amount of proof given.
+This adaptive approach allows users to give only the proof needed to perform their intended operations.
+
+== Multi-Factor Authentication
+
+You may require that all users require both One-Time-Token login and Username/Password login to access any part of your site.
+
+To require both, you can state an authorization rule with `anyRequest` like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    // @formatter:off
+    http
+        .authorizeHttpRequests((authorize) -> authorize
+            .anyRequest().access(allOf(hasAuthority("FACTOR_PASSWORD"), hasAuthority("FACTOR_OTT"))) <1>
+        )
+        .formLogin(Customizer.withDefaults())
+        .oneTimeTokenLogin(Customizer.withDefaults());
+    // @formatter:on
+    return http.build();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    // @formatter:off
+    http {
+        authorizeHttpRequests {
+            authorize(anyRequest, allOf(hasAuthority("FACTOR_PASSWORD"), hasAuthority("FACTOR_OTT"))) <1>
+        }
+        formLogin { }
+        oneTimeTokenLogin { }
+    }
+    // @formatter:on
+    return http.build()
+}
+----
+======
+<1> - This states that both `FACTOR_PASSWORD` and `FACTOR_OTT` are needed to use any part of the application
+
+Spring Security behind the scenes knows which endpoint to go to depending on which authority is missing.
+If the user logged in initially with their username and password, then Spring Security redirects to the One-Time-Token Login page.
+If the user logged in initially with a token, then Spring Security redirects to the Username/Password Login page.
+
+=== Requiring MFA For All Endpoints
+
+Specifying all authorities for each request pattern could be unwanted boilerplate:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    // @formatter:off
+    http
+        .authorizeHttpRequests((authorize) -> authorize
+            .anyRequest("/admin/**").access(allOf(hasAuthority("FACTOR_PASSWORD"), hasAuthority("FACTOR_OTT"), hasRole("ADMIN"))) <1>
+            .anyRequest().access(allOf(hasAuthority("FACTOR_PASSWORD"), hasAuthority("FACTOR_OTT")))
+        )
+        .formLogin(Customizer.withDefaults())
+        .oneTimeTokenLogin(Customizer.withDefaults());
+    // @formatter:on
+    return http.build();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    // @formatter:off
+    http {
+        authorizeHttpRequests {
+            authorize("/admin/**", allOf(hasAuthority("FACTOR_PASSWORD"), hasAuthority("FACTOR_OTT"), hasRole("ADMIN"))) <1>
+            authorize(anyRequest, allOf(hasAuthority("FACTOR_PASSWORD"), hasAuthority("FACTOR_OTT")))
+        }
+        formLogin { }
+        oneTimeTokenLogin { }
+    }
+    // @formatter:on
+    return http.build()
+}
+----
+======
+<1> - Since all authorities need to be specified for each endpoint, deploying MFA in this way can create unwanted boilerplate
+
+This can be remedied by publishing an `AuthorizationManagerFactory` bean like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+DefaultAuthorizationManagerFactory<RequestAuthorizationContext> authz() {
+	return DefaultAuthorizationManager.withAuthorities("FACTOR_PASSWORD", "FACTOR_OTT");
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authz(): DefaultAuthorizationManagerFactory<RequestAuthorizationContext> {
+	return DefaultAuthorizationManager.withAuthorities("FACTOR_PASSWORD", "FACTOR_OTT")
+}
+----
+======
+
+This yields a more familiar configuration:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    // @formatter:off
+    http
+        .authorizeHttpRequests((authorize) -> authorize
+            .requestMatchers("/admin/**").hasRole("ADMIN")
+            .anyRequest().authenticated()
+        )
+        .formLogin(Customizer.withDefaults())
+        .oneTimeTokenLogin(Customizer.withDefaults());
+    // @formatter:on
+    return http.build();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    // @formatter:off
+    http {
+        authorizeHttpRequests {
+            authorize("/admin/**", hasRole("ADMIN"))
+            authorize(anyRequest, authenticated)
+        }
+        formLogin { }
+        oneTimeTokenLogin { }
+    }
+    // @formatter:on
+    return http.build()
+}
+----
+======
+
+== Authorizing More Scopes
+
+You can also configure exception handling to direct Spring Security on how to obtain a missing scope.
+
+Consider an application that requires a specific OAuth 2.0 scope for a given endpoint:
+
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    // @formatter:off
+    http
+        .authorizeHttpRequests((authorize) -> authorize
+            .requestMatchers("/profile/**").hasAuthority("SCOPE_profile:read")
+            .anyRequest().authenticated()
+        )
+        .x509(Customizer.withDefaults())
+        .oauth2Login(Customizer.withDefaults());
+    // @formatter:on
+    return http.build();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    // @formatter:off
+    http {
+        authorizeHttpRequests {
+            authorize("/profile/**", hasAuthority("SCOPE_profile:read"))
+            authorize(anyRequest, authenticated)
+        }
+        x509 { }
+        oauth2Login { }
+    }
+    // @formatter:on
+    return http.build()
+}
+----
+======
+
+If this is also configured with an `AuthorizationManagerFactory` bean like this one:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+DefaultAuthorizationManagerFactory<RequestAuthorizationContext> authz() {
+	return DefaultAuthorizationManager.withAuthorities("FACTOR_X509", "FACTOR_AUTHORIZATION_CODE");
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authz(): DefaultAuthorizationManagerFactory<RequestAuthorizationContext> {
+	return DefaultAuthorizationManager.withAuthorities("FACTOR_X509", "FACTOR_AUTHORIZATION_CODE")
+}
+----
+======
+
+Then the application will require an X.509 certificate as well as authorization from an OAuth 2.0 authorization server.
+
+In the event that the user does not consent to `profile:read`, this application as it stands will issue a 403.
+However, if you have a way for the application to re-ask for consent, then you can implement this in an `AuthenticationEntryPoint` like the following:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Component
+class ScopeRetrievingAuthenticationEntryPoint implements AuthenticationEntryPoint {
+	// ... redirects to authorization server to request profile:read scope
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Component
+class ScopeRetrievingAuthenticationEntryPoint : AuthenticationEntryPoint {
+	// ... redirects to authorization server to request profile:read scope
+}
+----
+======
+
+Then, your filter chain declaration can bind this entry point to the given authority like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http, ScopeRetrievingAuthenticationEntryPoint oauth2) throws Exception {
+    // @formatter:off
+    http
+        .authorizeHttpRequests((authorize) -> authorize
+            .requestMatchers("/profile/**").hasAuthority("SCOPE_profile:read")
+            .anyRequest().authenticated()
+        )
+        .x509(Customizer.withDefaults())
+        .oauth2Login(Customizer.withDefaults())
+        .exceptionHandling((exceptions) -> exceptions
+            .defaultAuthenticationEntryPointFor(oauth2, "SCOPE_profile:read")
+        );
+    // @formatter:on
+    return http.build();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    // @formatter:off
+    http {
+        authorizeHttpRequests {
+            authorize("/profile/**", hasAuthority("SCOPE_profile:read"))
+            authorize(anyRequest, authenticated)
+        }
+        x509 { }
+        oauth2Login { }
+        .exceptionHandling {
+            exceptions.defaultAuthenticationEntryPointFor(oauth2, "SCOPE_profile:read")
+        }
+    }
+    // @formatter:on
+    return http.build()
+}
+----
+======
+
+== Programmatically Decide Which Authorities Are Required
+
+`AuthorizationManager` is the core interface for making authorization decisions.
+Consider an authorization manager that looks at the logged in user to decide which factors are necessary:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Component
+class OptInToMfaAuthorizationManager implements AuthorizationManager<RequestAuthorizationContext> {
+	@Override
+    public AuthorizationResult authorize(Supplier<? extends Authentication> authentication, RequestAuthorizationContext context) {
+		MyPrincipal principal = (MyPrincipal) authentication.get().getPrincipal();
+		if (principal.isOptedIn()) {
+			WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(authentication, context);
+			return new AuthorityAuthorizationDecision(root.hasAuthority("FACTOR_OTT"), List.of("FACTOR_OTT"));
+		}
+		return AuthorizationDecision(true);
+    }
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Component
+class OptInToMfaAuthorizationManager : AuthorizationManager<RequestAuthorizationContext> {
+    override fun authorize(authentication : Supplier<Authentication>, context: RequestAuthorizationContext) {
+		val principal = authentication.get().getPrincipal() as MyPrincipal
+		if (principal.isOptedIn()) {
+			val root = WebSecurityExpressionRoot(authentication, context)
+			return AuthorityAuthorizationDecision(root.hasAuthority("FACTOR_OTT"), List.of("FACTOR_OTT"))
+		}
+		return AuthorizationDecision(true)
+    }
+}
+----
+======
+
+In this case, using One-Time-Token is only required for those who have opted in.
+
+This can then be enforced by a custom `AuthorizationManagerFactory` implementation:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Component
+class OptInAuthorizationManagerFactory implements AuthorizationManagerFactory<RequestAuthorizationContext> {
+	private final OptInAuthorizationManager optIn;
+	private final DefaultAuthorizationManagerFactory<RequestAuthorizationContext> delegate =
+            new DefaultAuthorizationManagerFactory<>();
+
+	// ...
+
+    @Override
+    public AuthorizationManager<RequestAuthorizationContext> hasRole(String role) {
+		return AuthorizationManagers.allOf(new AuthorizationDecision(false), this.optIn, this.delegate.hasRole(role));
+    }
+
+    @Override
+    public AuthorizationManager<RequestAuthorizationContext> authenticated() {
+		return AuthorizationManagers.allOf(new AuthorizationDecision(false), this.optIn, this.delegate.authenicated());
+    }
+
+	// ...
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Component
+class OptInAuthorizationManagerFactory : AuthorizationManagerFactory<RequestAuthorizationContext> {
+	val optIn: OptInAuthorizationManager
+	val delegate = DefaultAuthorizationManagerFactory()
+
+	// ...
+
+    override fun hasRole(role: String): AuthorizationManager<RequestAuthorizationContext> {
+		return AuthorizationManagers.allOf(AuthorizationDecision(false), this.optIn, this.delegate.hasRole(role))
+    }
+
+    override fun authenticated(): AuthorizationManager<RequestAuthorizationContext>  {
+		return AuthorizationManagers.allOf(AuthorizationDecision(false), this.optIn, this.delegate.authenicated())
+    }
+
+	// ...
+
+}
+----
+======
