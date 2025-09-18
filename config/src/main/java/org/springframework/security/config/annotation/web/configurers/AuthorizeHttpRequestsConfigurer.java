@@ -297,6 +297,17 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		}
 
 		/**
+		 * Specifies that a user requires all the provided roles.
+		 * @param roles the roles that the user should have (i.e. ADMIN, USER, etc). Each
+		 * role should not start with ROLE_ since it is automatically prepended already
+		 * @return the {@link AuthorizationManagerRequestMatcherRegistry} for further
+		 * customizations
+		 */
+		public AuthorizationManagerRequestMatcherRegistry hasAllRoles(String... roles) {
+			return access(this.authorizationManagerFactory.hasAllRoles(roles));
+		}
+
+		/**
 		 * Specifies a user requires an authority.
 		 * @param authority the authority that should be required
 		 * @return the {@link AuthorizationManagerRequestMatcherRegistry} for further
@@ -315,6 +326,17 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 */
 		public AuthorizationManagerRequestMatcherRegistry hasAnyAuthority(String... authorities) {
 			return access(this.authorizationManagerFactory.hasAnyAuthority(authorities));
+		}
+
+		/**
+		 * Specifies that a user requires all the provided authorities.
+		 * @param authorities the authorities that the user should have (i.e. ROLE_USER,
+		 * ROLE_ADMIN, etc)
+		 * @return the {@link AuthorizationManagerRequestMatcherRegistry} for further
+		 * customizations
+		 */
+		public AuthorizationManagerRequestMatcherRegistry hasAllAuthorities(String... authorities) {
+			return access(this.authorizationManagerFactory.hasAllAuthorities(authorities));
 		}
 
 		/**

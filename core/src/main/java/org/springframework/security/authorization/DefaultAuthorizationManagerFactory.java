@@ -80,6 +80,11 @@ public final class DefaultAuthorizationManagerFactory<T extends @Nullable Object
 	}
 
 	@Override
+	public AuthorizationManager<T> hasAllRoles(String... roles) {
+		return withRoleHierarchy(AllAuthoritiesAuthorizationManager.hasAllPrefixedAuthorities(this.rolePrefix, roles));
+	}
+
+	@Override
 	public AuthorizationManager<T> hasAuthority(String authority) {
 		return withRoleHierarchy(AuthorityAuthorizationManager.hasAuthority(authority));
 	}
@@ -87,6 +92,11 @@ public final class DefaultAuthorizationManagerFactory<T extends @Nullable Object
 	@Override
 	public AuthorizationManager<T> hasAnyAuthority(String... authorities) {
 		return withRoleHierarchy(AuthorityAuthorizationManager.hasAnyAuthority(authorities));
+	}
+
+	@Override
+	public AuthorizationManager<T> hasAllAuthorities(String... authorities) {
+		return withRoleHierarchy(AllAuthoritiesAuthorizationManager.hasAllAuthorities(authorities));
 	}
 
 	@Override
@@ -110,6 +120,12 @@ public final class DefaultAuthorizationManagerFactory<T extends @Nullable Object
 	}
 
 	private AuthorityAuthorizationManager<T> withRoleHierarchy(AuthorityAuthorizationManager<T> authorizationManager) {
+		authorizationManager.setRoleHierarchy(this.roleHierarchy);
+		return authorizationManager;
+	}
+
+	private AllAuthoritiesAuthorizationManager<T> withRoleHierarchy(
+			AllAuthoritiesAuthorizationManager<T> authorizationManager) {
 		authorizationManager.setRoleHierarchy(this.roleHierarchy);
 		return authorizationManager;
 	}

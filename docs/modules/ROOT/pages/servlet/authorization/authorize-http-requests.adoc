@@ -720,7 +720,9 @@ As a quick summary, here are the authorization rules built into the DSL:
 * `hasAuthority` - The request requires that the `Authentication` have xref:servlet/authorization/architecture.adoc#authz-authorities[a `GrantedAuthority`] that matches the given value
 * `hasRole` - A shortcut for `hasAuthority` that prefixes `ROLE_` or whatever is configured as the default prefix
 * `hasAnyAuthority` - The request requires that the `Authentication` have a `GrantedAuthority` that matches any of the given values
-* `hasAnyRole` - A shortcut for `hasAnyAuthority` that prefixes `ROLE_` or whatever is configured as the default prefix
+* `hasAnyRole` - A shortcut for `hasAnyAuthority` that prefixes `ROLE_` or whatever is configured as the default prefix* `hasAnyAuthority` - The request requires that the `Authentication` have a `GrantedAuthority` that matches any of the given values
+* `hasAllRoles` - A shortcut for `hasAllAuthorities` that prefixes `ROLE_` or whatever is configured as the default prefix
+* `hasAllAuthorities` - The request requires that the `Authentication` have a `GrantedAuthority` that matches all of the given values
 * `access` - The request uses this custom `AuthorizationManager` to determine access
 
 Having now learned the patterns, rules, and how they can be paired together, you should be able to understand what is going on in this more complex example:
@@ -746,7 +748,7 @@ SecurityFilterChain web(HttpSecurity http) throws Exception {
             .dispatcherTypeMatchers(FORWARD, ERROR).permitAll() // <2>
 			.requestMatchers("/static/**", "/signup", "/about").permitAll()         // <3>
 			.requestMatchers("/admin/**").hasRole("ADMIN")                             // <4>
-			.requestMatchers("/db/**").access(allOf(hasAuthority("db"), hasRole("ADMIN")))   // <5>
+			.requestMatchers("/db/**").hasAllAuthorities("db", "ROLE_ADMIN")   // <5>
 			.anyRequest().denyAll()                                                // <6>
 		);
 
@@ -762,7 +764,7 @@ Specifically, any user can access a request if the URL starts with "/static/", e
 <4> Any URL that starts with "/admin/" will be restricted to users who have the role "ROLE_ADMIN".
 You will notice that since we are invoking the `hasRole` method we do not need to specify the "ROLE_" prefix.
 <5> Any URL that starts with "/db/" requires the user to have both been granted the "db" permission as well as be a "ROLE_ADMIN".
-You will notice that since we are using the `hasRole` expression we do not need to specify the "ROLE_" prefix.
+You will notice that since we are using the `hasAllAuthorities` expression we must specify the "ROLE_" prefix.
 <6> Any URL that has not already been matched on is denied access.
 This is a good strategy if you do not want to accidentally forget to update your authorization rules.
 

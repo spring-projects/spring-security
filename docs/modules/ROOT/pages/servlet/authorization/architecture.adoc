@@ -157,8 +157,10 @@ public interface AuthorizationManagerFactory<T> {
 	AuthorizationManager<T> denyAll();
 	AuthorizationManager<T> hasRole(String role);
 	AuthorizationManager<T> hasAnyRole(String... roles);
+	AuthorizationManager<T> hasAllRoles(String... roles);
 	AuthorizationManager<T> hasAuthority(String authority);
 	AuthorizationManager<T> hasAnyAuthority(String... authorities);
+	AuthorizationManager<T> hasAllAuthorities(String... authorities);
 	AuthorizationManager<T> authenticated();
 	AuthorizationManager<T> fullyAuthenticated();
 	AuthorizationManager<T> rememberMe();

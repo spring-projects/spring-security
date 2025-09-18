@@ -56,6 +56,13 @@ public class AuthorizationManagerFactoryTests {
 	}
 
 	@Test
+	public void hasAllRolesReturnsAllAuthoritiesAuthorizationManagerByDefault() {
+		AuthorizationManagerFactory<String> factory = new DefaultAuthorizationManagerFactory<>();
+		AuthorizationManager<String> authorizationManager = factory.hasAllRoles("authority1", "authority2");
+		assertThat(authorizationManager).isInstanceOf(AllAuthoritiesAuthorizationManager.class);
+	}
+
+	@Test
 	public void hasAuthorityReturnsAuthorityAuthorizationManagerByDefault() {
 		AuthorizationManagerFactory<String> factory = new DefaultAuthorizationManagerFactory<>();
 		AuthorizationManager<String> authorizationManager = factory.hasAuthority("authority1");
@@ -67,6 +74,13 @@ public class AuthorizationManagerFactoryTests {
 		AuthorizationManagerFactory<String> factory = new DefaultAuthorizationManagerFactory<>();
 		AuthorizationManager<String> authorizationManager = factory.hasAnyAuthority("authority1", "authority2");
 		assertThat(authorizationManager).isInstanceOf(AuthorityAuthorizationManager.class);
+	}
+
+	@Test
+	public void hasAllAuthoritiesReturnsAllAuthoritiesAuthorizationManagerByDefault() {
+		AuthorizationManagerFactory<String> factory = new DefaultAuthorizationManagerFactory<>();
+		AuthorizationManager<String> authorizationManager = factory.hasAllAuthorities("authority1", "authority2");
+		assertThat(authorizationManager).isInstanceOf(AllAuthoritiesAuthorizationManager.class);
 	}
 
 	@Test

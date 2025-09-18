@@ -190,9 +190,11 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		verify(authorizationManagerFactory).permitAll();
 		verify(authorizationManagerFactory).denyAll();
 		verify(authorizationManagerFactory).hasRole("ADMIN");
+		verify(authorizationManagerFactory).hasAllRoles("hasAllRoles1", "hasAllRoles2");
 		verify(authorizationManagerFactory).hasAnyRole("USER", "ADMIN");
 		verify(authorizationManagerFactory).hasAuthority("write");
 		verify(authorizationManagerFactory).hasAnyAuthority("resource.read", "read");
+		verify(authorizationManagerFactory).hasAllAuthorities("hasAllAuthorities1", "hasAllAuthorities2");
 		verify(authorizationManagerFactory).authenticated();
 		verify(authorizationManagerFactory).fullyAuthenticated();
 		verify(authorizationManagerFactory).rememberMe();
@@ -823,8 +825,10 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		given(authorizationManagerFactory.denyAll()).willReturn(authorizationManager);
 		given(authorizationManagerFactory.hasRole(anyString())).willReturn(authorizationManager);
 		given(authorizationManagerFactory.hasAnyRole(any(String[].class))).willReturn(authorizationManager);
+		given(authorizationManagerFactory.hasAllRoles(any(String[].class))).willReturn(authorizationManager);
 		given(authorizationManagerFactory.hasAuthority(anyString())).willReturn(authorizationManager);
 		given(authorizationManagerFactory.hasAnyAuthority(any(String[].class))).willReturn(authorizationManager);
+		given(authorizationManagerFactory.hasAllAuthorities(any(String[].class))).willReturn(authorizationManager);
 		given(authorizationManagerFactory.authenticated()).willReturn(authorizationManager);
 		given(authorizationManagerFactory.fullyAuthenticated()).willReturn(authorizationManager);
 		given(authorizationManagerFactory.rememberMe()).willReturn(authorizationManager);
@@ -1116,8 +1120,10 @@ public class AuthorizeHttpRequestsConfigurerTests {
 					.requestMatchers("/private").denyAll()
 					.requestMatchers("/admin").hasRole("ADMIN")
 					.requestMatchers("/user").hasAnyRole("USER", "ADMIN")
+					.requestMatchers("/hasAllRoles").hasAllRoles("hasAllRoles1", "hasAllRoles2")
 					.requestMatchers(HttpMethod.POST, "/resource").hasAuthority("write")
 					.requestMatchers("/resource").hasAnyAuthority("resource.read", "read")
+					.requestMatchers("/hasAllAuthorities").hasAllAuthorities("hasAllAuthorities1", "hasAllAuthorities2")
 					.requestMatchers("/authenticated").authenticated()
 					.requestMatchers("/fully-authenticated").fullyAuthenticated()
 					.requestMatchers("/remember-me").rememberMe()

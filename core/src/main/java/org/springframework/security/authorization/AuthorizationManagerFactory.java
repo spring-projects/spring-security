@@ -66,6 +66,17 @@ public interface AuthorizationManagerFactory<T extends @Nullable Object> {
 	}
 
 	/**
+	 * Creates an {@link AuthorizationManager} that requires users to have all the
+	 * provided roles.
+	 * @param roles the roles (automatically prepended with ROLE_) that the user must have
+	 * to allow access (i.e. USER, ADMIN, etc.)
+	 * @return A new {@link AuthorizationManager} instance
+	 */
+	default AuthorizationManager<T> hasAllRoles(String... roles) {
+		return AllAuthoritiesAuthorizationManager.hasAllRoles(roles);
+	}
+
+	/**
 	 * Creates an {@link AuthorizationManager} that requires users to have the specified
 	 * authority.
 	 * @param authority the authority that should be required to allow access (i.e.
@@ -85,6 +96,17 @@ public interface AuthorizationManagerFactory<T extends @Nullable Object> {
 	 */
 	default AuthorizationManager<T> hasAnyAuthority(String... authorities) {
 		return AuthorityAuthorizationManager.hasAnyAuthority(authorities);
+	}
+
+	/**
+	 * Creates an {@link AuthorizationManager} that requires users to have all the
+	 * provided authorities.
+	 * @param authorities the authorities that the user must have to allow access (i.e.
+	 * USER, ADMIN, etc.)
+	 * @return A new {@link AuthorizationManager} instance
+	 */
+	default AuthorizationManager<T> hasAllAuthorities(String... authorities) {
+		return AllAuthoritiesAuthorizationManager.hasAllAuthorities(authorities);
 	}
 
 	/**

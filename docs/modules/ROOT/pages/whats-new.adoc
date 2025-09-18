@@ -16,7 +16,7 @@ Each section that follows will indicate the more notable removals as well as the
 == Core
 
 * Removed `AuthorizationManager#check` in favor of `AuthorizationManager#authorize`
-* Added javadoc:org.springframework.security.authorization.AllAuthoritiesAuthorizationManager[] and javadoc:org.springframework.security.authorization.AllAuthoritiesReactiveAuthorizationManager[]
+* Added javadoc:org.springframework.security.authorization.AllAuthoritiesAuthorizationManager[] and javadoc:org.springframework.security.authorization.AllAuthoritiesReactiveAuthorizationManager[] along with corresponding methods for xref:servlet/authorization/authorize-http-requests.adoc#authorize-requests[Authorizing `HttpServletRequests`]
 * Added xref:servlet/authorization/architecture.adoc#authz-authorization-manager-factory[`AuthorizationManagerFactory`] for creating `AuthorizationManager` instances in xref:servlet/authorization/authorize-http-requests.adoc#customizing-authorization-managers[request-based] and xref:servlet/authorization/method-security.adoc#customizing-authorization-managers[method-based] authorization components
 * Added `Authentication.Builder` for mutating and merging `Authentication` instances
 * Moved Access API (`AccessDecisionManager`, `AccessDecisionVoter`, etc.) to a new module, `spring-security-access`
