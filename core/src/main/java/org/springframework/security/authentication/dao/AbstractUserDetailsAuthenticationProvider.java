@@ -16,6 +16,9 @@
 
 package org.springframework.security.authentication.dao;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -33,6 +36,7 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
@@ -200,12 +204,11 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 		// so subsequent attempts are successful even with encoded passwords.
 		// Also ensure we return the original getDetails(), so that future
 		// authentication events after cache expiry contain the details
-		UsernamePasswordAuthenticationToken result = UsernamePasswordAuthenticationToken
-			.authenticated(principal, authentication.getCredentials(),
-					this.authoritiesMapper.mapAuthorities(user.getAuthorities()))
-			.toBuilder()
-			.authorities((a) -> a.add(new SimpleGrantedAuthority(AUTHORITY)))
-			.build();
+		Collection<GrantedAuthority> authorities = new ArrayList<>(
+				this.authoritiesMapper.mapAuthorities(user.getAuthorities()));
+		authorities.add(new SimpleGrantedAuthority(AUTHORITY));
+		UsernamePasswordAuthenticationToken result = UsernamePasswordAuthenticationToken.authenticated(principal,
+				authentication.getCredentials(), authorities);
 		result.setDetails(authentication.getDetails());
 		this.logger.debug("Authenticated user");
 		return result;
