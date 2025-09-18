@@ -60,7 +60,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 
 	private final AuthorizationEventPublisher publisher;
 
-	private final AuthorizationManagerFactory<RequestAuthorizationContext> authorizationManagerFactory;
+	private final AuthorizationManagerFactory<? super RequestAuthorizationContext> authorizationManagerFactory;
 
 	private ObjectPostProcessor<AuthorizationManager<HttpServletRequest>> postProcessor = ObjectPostProcessor
 		.identity();
@@ -85,7 +85,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		provider.ifUnique((postProcessor) -> this.postProcessor = postProcessor);
 	}
 
-	private AuthorizationManagerFactory<RequestAuthorizationContext> getAuthorizationManagerFactory(
+	private AuthorizationManagerFactory<? super RequestAuthorizationContext> getAuthorizationManagerFactory(
 			ApplicationContext context) {
 		ResolvableType authorizationManagerFactoryType = ResolvableType
 			.forClassWithGenerics(AuthorizationManagerFactory.class, RequestAuthorizationContext.class);
@@ -134,7 +134,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 	}
 
 	private AuthorizationManagerRequestMatcherRegistry addMapping(List<? extends RequestMatcher> matchers,
-			AuthorizationManager<RequestAuthorizationContext> manager) {
+			AuthorizationManager<? super RequestAuthorizationContext> manager) {
 		for (RequestMatcher matcher : matchers) {
 			this.registry.addMapping(matcher, manager);
 		}
@@ -166,13 +166,15 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 			setApplicationContext(context);
 		}
 
-		private void addMapping(RequestMatcher matcher, AuthorizationManager<RequestAuthorizationContext> manager) {
+		private void addMapping(RequestMatcher matcher,
+				AuthorizationManager<? super RequestAuthorizationContext> manager) {
 			this.unmappedMatchers = null;
 			this.managerBuilder.add(matcher, manager);
 			this.mappingCount++;
 		}
 
-		private void addFirst(RequestMatcher matcher, AuthorizationManager<RequestAuthorizationContext> manager) {
+		private void addFirst(RequestMatcher matcher,
+				AuthorizationManager<? super RequestAuthorizationContext> manager) {
 			this.unmappedMatchers = null;
 			this.managerBuilder.mappings((m) -> m.add(0, new RequestMatcherEntry<>(matcher, manager)));
 			this.mappingCount++;
@@ -220,7 +222,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 
 		private final List<? extends RequestMatcher> matchers;
 
-		private AuthorizationManagerFactory<RequestAuthorizationContext> authorizationManagerFactory;
+		private AuthorizationManagerFactory<? super RequestAuthorizationContext> authorizationManagerFactory;
 
 		private boolean not;
 
@@ -231,7 +233,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * creating instances of {@link AuthorizationManager}
 		 */
 		AuthorizedUrl(List<? extends RequestMatcher> matchers,
-				AuthorizationManagerFactory<RequestAuthorizationContext> authorizationManagerFactory) {
+				AuthorizationManagerFactory<? super RequestAuthorizationContext> authorizationManagerFactory) {
 			this.matchers = matchers;
 			this.authorizationManagerFactory = authorizationManagerFactory;
 		}
@@ -241,7 +243,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		}
 
 		void setAuthorizationManagerFactory(
-				AuthorizationManagerFactory<RequestAuthorizationContext> authorizationManagerFactory) {
+				AuthorizationManagerFactory<? super RequestAuthorizationContext> authorizationManagerFactory) {
 			this.authorizationManagerFactory = authorizationManagerFactory;
 		}
 
@@ -403,7 +405,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * customizations
 		 */
 		public AuthorizationManagerRequestMatcherRegistry access(
-				AuthorizationManager<RequestAuthorizationContext> manager) {
+				AuthorizationManager<? super RequestAuthorizationContext> manager) {
 			Assert.notNull(manager, "manager cannot be null");
 			return (this.not)
 					? AuthorizeHttpRequestsConfigurer.this.addMapping(this.matchers, AuthorizationManagers.not(manager))

@@ -55,10 +55,10 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 
 	private final Log logger = LogFactory.getLog(getClass());
 
-	private final List<RequestMatcherEntry<AuthorizationManager<RequestAuthorizationContext>>> mappings;
+	private final List<RequestMatcherEntry<AuthorizationManager<? super RequestAuthorizationContext>>> mappings;
 
 	private RequestMatcherDelegatingAuthorizationManager(
-			List<RequestMatcherEntry<AuthorizationManager<RequestAuthorizationContext>>> mappings) {
+			List<RequestMatcherEntry<AuthorizationManager<? super RequestAuthorizationContext>>> mappings) {
 		Assert.notEmpty(mappings, "mappings cannot be empty");
 		this.mappings = mappings;
 	}
@@ -69,12 +69,12 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace(LogMessage.format("Authorizing %s", requestLine(request)));
 		}
-		for (RequestMatcherEntry<AuthorizationManager<RequestAuthorizationContext>> mapping : this.mappings) {
+		for (RequestMatcherEntry<AuthorizationManager<? super RequestAuthorizationContext>> mapping : this.mappings) {
 
 			RequestMatcher matcher = mapping.getRequestMatcher();
 			MatchResult matchResult = matcher.matcher(request);
 			if (matchResult.isMatch()) {
-				AuthorizationManager<RequestAuthorizationContext> manager = mapping.getEntry();
+				AuthorizationManager<? super RequestAuthorizationContext> manager = mapping.getEntry();
 				if (this.logger.isTraceEnabled()) {
 					this.logger.trace(
 							LogMessage.format("Checking authorization on %s using %s", requestLine(request), manager));
@@ -108,7 +108,7 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 
 		private boolean anyRequestConfigured;
 
-		private final List<RequestMatcherEntry<AuthorizationManager<RequestAuthorizationContext>>> mappings = new ArrayList<>();
+		private final List<RequestMatcherEntry<AuthorizationManager<? super RequestAuthorizationContext>>> mappings = new ArrayList<>();
 
 		/**
 		 * Maps a {@link RequestMatcher} to an {@link AuthorizationManager}.
@@ -116,7 +116,7 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 		 * @param manager the {@link AuthorizationManager} to use
 		 * @return the {@link Builder} for further customizations
 		 */
-		public Builder add(RequestMatcher matcher, AuthorizationManager<RequestAuthorizationContext> manager) {
+		public Builder add(RequestMatcher matcher, AuthorizationManager<? super RequestAuthorizationContext> manager) {
 			Assert.state(!this.anyRequestConfigured, "Can't add mappings after anyRequest");
 			Assert.notNull(matcher, "matcher cannot be null");
 			Assert.notNull(manager, "manager cannot be null");
@@ -133,7 +133,7 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 		 * @since 5.7
 		 */
 		public Builder mappings(
-				Consumer<List<RequestMatcherEntry<AuthorizationManager<RequestAuthorizationContext>>>> mappingsConsumer) {
+				Consumer<List<RequestMatcherEntry<AuthorizationManager<? super RequestAuthorizationContext>>>> mappingsConsumer) {
 			Assert.state(!this.anyRequestConfigured, "Can't configure mappings after anyRequest");
 			Assert.notNull(mappingsConsumer, "mappingsConsumer cannot be null");
 			mappingsConsumer.accept(this.mappings);
