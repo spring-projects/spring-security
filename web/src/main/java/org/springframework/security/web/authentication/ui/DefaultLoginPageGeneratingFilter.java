@@ -88,7 +88,9 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 
 	private @Nullable String rememberMeParameter;
 
-	private final Collection<String> allowedParameters = List.of("authority");
+	private final String factorParameter = "factor";
+
+	private final Collection<String> allowedParameters = List.of(this.factorParameter);
 
 	@SuppressWarnings("NullAway.Init")
 	private Map<String, String> oauth2AuthenticationUrlToClientName;
@@ -257,29 +259,29 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			.withRawHtml("passkeyLogin", "");
 
 		Predicate<String> wantsAuthority = wantsAuthority(request);
-		if (wantsAuthority.test("FACTOR_WEBAUTHN")) {
+		if (wantsAuthority.test("webauthn")) {
 			builder.withRawHtml("javaScript", renderJavaScript(request, contextPath))
 				.withRawHtml("passkeyLogin", renderPasskeyLogin());
 		}
-		if (wantsAuthority.test("FACTOR_PASSWORD")) {
+		if (wantsAuthority.test("password")) {
 			builder.withRawHtml("formLogin",
 					renderFormLogin(request, loginError, logoutSuccess, contextPath, errorMsg));
 		}
-		if (wantsAuthority.test("FACTOR_OTT")) {
+		if (wantsAuthority.test("ott")) {
 			builder.withRawHtml("oneTimeTokenLogin",
 					renderOneTimeTokenLogin(request, loginError, logoutSuccess, contextPath, errorMsg));
 		}
-		if (wantsAuthority.test("FACTOR_AUTHORIZATION_CODE")) {
+		if (wantsAuthority.test("authorization_code")) {
 			builder.withRawHtml("oauth2Login", renderOAuth2Login(loginError, logoutSuccess, errorMsg, contextPath));
 		}
-		if (wantsAuthority.test("FACTOR_SAML_RESPONSE")) {
+		if (wantsAuthority.test("saml_response")) {
 			builder.withRawHtml("saml2Login", renderSaml2Login(loginError, logoutSuccess, errorMsg, contextPath));
 		}
 		return builder.render();
 	}
 
 	private Predicate<String> wantsAuthority(HttpServletRequest request) {
-		String[] authorities = request.getParameterValues("authority");
+		String[] authorities = request.getParameterValues(this.factorParameter);
 		if (authorities == null) {
 			return (authority) -> true;
 		}

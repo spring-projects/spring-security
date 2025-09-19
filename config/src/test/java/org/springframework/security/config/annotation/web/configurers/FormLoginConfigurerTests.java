@@ -402,7 +402,7 @@ public class FormLoginConfigurerTests {
 		UserDetails user = PasswordEncodedUser.user();
 		this.mockMvc.perform(get("/profile").with(user(user)))
 			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("http://localhost/login?authority=FACTOR_PASSWORD"));
+			.andExpect(redirectedUrl("http://localhost/login?factor=password"));
 		this.mockMvc
 			.perform(post("/ott/generate").param("username", "rod")
 				.with(user(user))
@@ -418,11 +418,11 @@ public class FormLoginConfigurerTests {
 		user = PasswordEncodedUser.withUserDetails(user).authorities("profile:read", "FACTOR_OTT").build();
 		this.mockMvc.perform(get("/profile").with(user(user)))
 			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("http://localhost/login?authority=FACTOR_PASSWORD"));
+			.andExpect(redirectedUrl("http://localhost/login?factor=password"));
 		user = PasswordEncodedUser.withUserDetails(user).authorities("profile:read", "FACTOR_PASSWORD").build();
 		this.mockMvc.perform(get("/profile").with(user(user)))
 			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("http://localhost/login?authority=FACTOR_OTT"));
+			.andExpect(redirectedUrl("http://localhost/login?factor=ott"));
 		user = PasswordEncodedUser.withUserDetails(user)
 			.authorities("profile:read", "FACTOR_PASSWORD", "FACTOR_OTT")
 			.build();
@@ -431,14 +431,14 @@ public class FormLoginConfigurerTests {
 
 	@Test
 	void requestWhenUnauthenticatedX509ThenRequiresTwoSteps() throws Exception {
-		this.spring.register(MfaDslX509Config.class, UserConfig.class, org.springframework.security.config.annotation.web.configurers.FormLoginConfigurerTests.BasicMfaController.class).autowire();
+		this.spring.register(MfaDslX509Config.class, UserConfig.class, BasicMfaController.class).autowire();
 		this.mockMvc.perform(get("/profile")).andExpect(status().isForbidden());
 		this.mockMvc.perform(get("/profile").with(user(User.withUsername("rod").authorities("profile:read").build())))
 			.andExpect(status().isForbidden());
 		this.mockMvc.perform(get("/login")).andExpect(status().isOk());
 		this.mockMvc.perform(get("/profile").with(SecurityMockMvcRequestPostProcessors.x509("rod.cer")))
 			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("http://localhost/login?authority=FACTOR_PASSWORD"));
+			.andExpect(redirectedUrl("http://localhost/login?factor=password"));
 		this.mockMvc
 			.perform(post("/login").param("username", "rod")
 				.param("password", "password")
@@ -793,7 +793,8 @@ public class FormLoginConfigurerTests {
 	static class MfaDslConfig {
 
 		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http, AuthorizationManagerFactory<RequestAuthorizationContext> authz) throws Exception {
+		SecurityFilterChain filterChain(HttpSecurity http,
+				AuthorizationManagerFactory<RequestAuthorizationContext> authz) throws Exception {
 			// @formatter:off
 			http
 				.formLogin(Customizer.withDefaults())
@@ -824,7 +825,8 @@ public class FormLoginConfigurerTests {
 	static class MfaDslX509Config {
 
 		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http, AuthorizationManagerFactory<RequestAuthorizationContext> authz) throws Exception {
+		SecurityFilterChain filterChain(HttpSecurity http,
+				AuthorizationManagerFactory<RequestAuthorizationContext> authz) throws Exception {
 			// @formatter:off
 			http
 				.x509(Customizer.withDefaults())
