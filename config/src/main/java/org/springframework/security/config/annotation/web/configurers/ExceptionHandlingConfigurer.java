@@ -80,8 +80,7 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private LinkedHashMap<RequestMatcher, AccessDeniedHandler> defaultDeniedHandlerMappings = new LinkedHashMap<>();
 
-	private final DelegatingMissingAuthorityAccessDeniedHandler.Builder missingAuthoritiesHandlerBuilder = DelegatingMissingAuthorityAccessDeniedHandler
-		.builder();
+	private DelegatingMissingAuthorityAccessDeniedHandler.@Nullable Builder missingAuthoritiesHandlerBuilder;
 
 	/**
 	 * Creates a new instance
@@ -142,8 +141,11 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link ExceptionHandlingConfigurer} for further customizations
 	 * @since 7.0
 	 */
-	public ExceptionHandlingConfigurer<H> defaultAuthenticationEntryPointFor(AuthenticationEntryPoint entryPoint,
+	public ExceptionHandlingConfigurer<H> defaultDeniedHandlerForMissingAuthority(AuthenticationEntryPoint entryPoint,
 			String authority) {
+		if (this.missingAuthoritiesHandlerBuilder == null) {
+			this.missingAuthoritiesHandlerBuilder = DelegatingMissingAuthorityAccessDeniedHandler.builder();
+		}
 		this.missingAuthoritiesHandlerBuilder.addEntryPointFor(entryPoint, authority);
 		return this;
 	}
@@ -158,8 +160,11 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link ExceptionHandlingConfigurer} for further customizations
 	 * @since 7.0
 	 */
-	public ExceptionHandlingConfigurer<H> defaultAuthenticationEntryPointFor(
+	public ExceptionHandlingConfigurer<H> defaultDeniedHandlerForMissingAuthority(
 			Consumer<DelegatingAuthenticationEntryPoint.Builder> entryPoint, String authority) {
+		if (this.missingAuthoritiesHandlerBuilder == null) {
+			this.missingAuthoritiesHandlerBuilder = DelegatingMissingAuthorityAccessDeniedHandler.builder();
+		}
 		this.missingAuthoritiesHandlerBuilder.addEntryPointFor(entryPoint, authority);
 		return this;
 	}
@@ -267,6 +272,9 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private AccessDeniedHandler createDefaultDeniedHandler(H http) {
 		AccessDeniedHandler defaults = createDefaultAccessDeniedHandler(http);
+		if (this.missingAuthoritiesHandlerBuilder == null) {
+			return defaults;
+		}
 		DelegatingMissingAuthorityAccessDeniedHandler deniedHandler = this.missingAuthoritiesHandlerBuilder.build();
 		deniedHandler.setRequestCache(getRequestCache(http));
 		deniedHandler.setDefaultAccessDeniedHandler(defaults);

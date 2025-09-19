@@ -35,11 +35,13 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.ThrowableAnalyzer;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.util.Assert;
 
 /**
  * An {@link AccessDeniedHandler} that adapts {@link AuthenticationEntryPoint}s based on
@@ -62,8 +64,8 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher;
  *
  * <code>
  *     AccessDeniedHandler handler = DelegatingMissingAuthorityAccessDeniedHandler.builder()
- *         .authorities("FACTOR_OTT").commence(new LoginUrlAuthenticationEntryPoint("/login"))
- *         .authorities("FACTOR_PASSWORD")...
+ *         .addEntryPointFor(new LoginUrlAuthenticationEntryPoint("/login"), "FACTOR_OTT")
+ *         .addEntryPointFor(new MyCustomEntryPoint(), "FACTOR_PASSWORD")
  *         .build();
  * </code>
  *
@@ -84,6 +86,7 @@ public final class DelegatingMissingAuthorityAccessDeniedHandler implements Acce
 	private AccessDeniedHandler defaultAccessDeniedHandler = new AccessDeniedHandlerImpl();
 
 	private DelegatingMissingAuthorityAccessDeniedHandler(Map<String, AuthenticationEntryPoint> entryPoints) {
+		Assert.notEmpty(entryPoints, "entryPoints cannot be empty");
 		this.entryPoints = entryPoints;
 	}
 
@@ -97,7 +100,7 @@ public final class DelegatingMissingAuthorityAccessDeniedHandler implements Acce
 				continue;
 			}
 			this.requestCache.saveRequest(request, response);
-			request.setAttribute(GrantedAuthority.MISSING_AUTHORITIES_ATTRIBUTE, List.of(needed));
+			request.setAttribute(WebAttributes.MISSING_AUTHORITIES, List.of(needed));
 			String message = String.format("Missing Authorities %s", List.of(needed));
 			AuthenticationException ex = new InsufficientAuthenticationException(message, denied);
 			entryPoint.commence(request, response, ex);
@@ -112,6 +115,7 @@ public final class DelegatingMissingAuthorityAccessDeniedHandler implements Acce
 	 * @param defaultAccessDeniedHandler the default {@link AccessDeniedHandler} to use
 	 */
 	public void setDefaultAccessDeniedHandler(AccessDeniedHandler defaultAccessDeniedHandler) {
+		Assert.notNull(defaultAccessDeniedHandler, "defaultAccessDeniedHandler cannot be null");
 		this.defaultAccessDeniedHandler = defaultAccessDeniedHandler;
 	}
 
@@ -123,6 +127,7 @@ public final class DelegatingMissingAuthorityAccessDeniedHandler implements Acce
 	 * @param requestCache the {@link RequestCache} to use
 	 */
 	public void setRequestCache(RequestCache requestCache) {
+		Assert.notNull(requestCache, "requestCachgrantedaue cannot be null");
 		this.requestCache = requestCache;
 	}
 
@@ -158,57 +163,44 @@ public final class DelegatingMissingAuthorityAccessDeniedHandler implements Acce
 	 */
 	public static final class Builder {
 
-		private final Map<String, DelegatingAuthenticationEntryPoint.Builder> entryPointByRequestMatcherByAuthority = new LinkedHashMap<>();
+		private final Map<String, DelegatingAuthenticationEntryPoint.Builder> entryPointBuilderByAuthority = new LinkedHashMap<>();
 
 		private Builder() {
 
 		}
 
-		DelegatingAuthenticationEntryPoint.Builder entryPointBuilder(String authority) {
-			return this.entryPointByRequestMatcherByAuthority.computeIfAbsent(authority,
-					(k) -> DelegatingAuthenticationEntryPoint.builder());
-		}
-
-		void entryPoint(String authority, AuthenticationEntryPoint entryPoint) {
-			DelegatingAuthenticationEntryPoint.Builder builder = DelegatingAuthenticationEntryPoint.builder()
-				.addEntryPointFor(entryPoint, AnyRequestMatcher.INSTANCE);
-			this.entryPointByRequestMatcherByAuthority.put(authority, builder);
-		}
-
 		/**
-		 * Bind these authorities to the given {@link AuthenticationEntryPoint}
-		 * @param entryPoint the {@link AuthenticationEntryPoint} for the given
-		 * authorities
-		 * @param authorities the authorities
+		 * Use this {@link AuthenticationEntryPoint} when the given
+		 * {@code missingAuthority} is missing from the authenticated user
+		 * @param entryPoint the {@link AuthenticationEntryPoint} for the given authority
+		 * @param missingAuthority the authority
 		 * @return the {@link Builder} for further configurations
 		 */
-		public Builder addEntryPointFor(AuthenticationEntryPoint entryPoint, String... authorities) {
-			for (String authority : authorities) {
-				Builder.this.entryPoint(authority, entryPoint);
-			}
+		public Builder addEntryPointFor(AuthenticationEntryPoint entryPoint, String missingAuthority) {
+			DelegatingAuthenticationEntryPoint.Builder builder = DelegatingAuthenticationEntryPoint.builder()
+				.addEntryPointFor(entryPoint, AnyRequestMatcher.INSTANCE);
+			this.entryPointBuilderByAuthority.put(missingAuthority, builder);
 			return this;
 		}
 
 		/**
-		 * Bind these authorities to the given {@link AuthenticationEntryPoint}
+		 * Use this {@link AuthenticationEntryPoint} when the given
+		 * {@code missingAuthority} is missing from the authenticated user
 		 * @param entryPoint a consumer to configure the underlying
 		 * {@link DelegatingAuthenticationEntryPoint}
-		 * @param authorities the authorities
+		 * @param missingAuthority the authority
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder addEntryPointFor(Consumer<DelegatingAuthenticationEntryPoint.Builder> entryPoint,
-				String... authorities) {
-			for (String authority : authorities) {
-				entryPoint.accept(Builder.this.entryPointBuilder(authority));
-			}
+				String missingAuthority) {
+			entryPoint.accept(this.entryPointBuilderByAuthority.computeIfAbsent(missingAuthority,
+					(k) -> DelegatingAuthenticationEntryPoint.builder()));
 			return this;
 		}
 
 		public DelegatingMissingAuthorityAccessDeniedHandler build() {
 			Map<String, AuthenticationEntryPoint> entryPointByAuthority = new LinkedHashMap<>();
-			for (String authority : this.entryPointByRequestMatcherByAuthority.keySet()) {
-				entryPointByAuthority.put(authority, this.entryPointByRequestMatcherByAuthority.get(authority).build());
-			}
+			this.entryPointBuilderByAuthority.forEach((key, value) -> entryPointByAuthority.put(key, value.build()));
 			return new DelegatingMissingAuthorityAccessDeniedHandler(entryPointByAuthority);
 		}
 

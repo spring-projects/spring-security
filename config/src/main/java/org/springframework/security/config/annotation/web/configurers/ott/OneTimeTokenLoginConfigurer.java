@@ -140,7 +140,7 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 		if (exceptions != null) {
 			AuthenticationEntryPoint entryPoint = getAuthenticationEntryPoint();
 			RequestMatcher requestMatcher = getAuthenticationEntryPointMatcher(http);
-			exceptions.defaultAuthenticationEntryPointFor((ep) -> ep.addEntryPointFor(entryPoint, requestMatcher),
+			exceptions.defaultDeniedHandlerForMissingAuthority((ep) -> ep.addEntryPointFor(entryPoint, requestMatcher),
 					"FACTOR_OTT");
 		}
 	}

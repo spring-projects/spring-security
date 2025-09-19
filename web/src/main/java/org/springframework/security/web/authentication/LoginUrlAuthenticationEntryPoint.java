@@ -38,6 +38,7 @@ import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.PortMapperImpl;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.util.RedirectUrlBuilder;
 import org.springframework.security.web.util.UrlUtils;
@@ -117,7 +118,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	@SuppressWarnings("unchecked")
 	protected String determineUrlToUseForThisRequest(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) {
-		Collection<GrantedAuthority> authorities = getAttribute(request, GrantedAuthority.MISSING_AUTHORITIES_ATTRIBUTE,
+		Collection<GrantedAuthority> authorities = getAttribute(request, WebAttributes.MISSING_AUTHORITIES,
 				Collection.class);
 		if (CollectionUtils.isEmpty(authorities)) {
 			return getLoginFormUrl();
@@ -130,7 +131,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	}
 
 	private static <T> @Nullable T getAttribute(HttpServletRequest request, String name, Class<T> clazz) {
-		Object value = request.getAttribute(GrantedAuthority.MISSING_AUTHORITIES_ATTRIBUTE);
+		Object value = request.getAttribute(name);
 		if (value == null) {
 			return null;
 		}

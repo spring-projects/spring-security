@@ -327,7 +327,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			RequestMatcher preferredMatcher = new OrRequestMatcher(
 					Arrays.asList(this.requestMatcher, X_REQUESTED_WITH, restNotHtmlMatcher, allMatcher));
 			exceptionHandling.defaultAuthenticationEntryPointFor(this.authenticationEntryPoint, preferredMatcher);
-			exceptionHandling.defaultAuthenticationEntryPointFor(
+			exceptionHandling.defaultDeniedHandlerForMissingAuthority(
 					(ep) -> ep.addEntryPointFor(this.authenticationEntryPoint, preferredMatcher), "FACTOR_BEARER");
 		}
 	}

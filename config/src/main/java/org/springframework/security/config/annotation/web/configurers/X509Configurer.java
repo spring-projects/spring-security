@@ -185,7 +185,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 		ExceptionHandlingConfigurer<H> exceptions = http.getConfigurer(ExceptionHandlingConfigurer.class);
 		if (exceptions != null) {
 			AuthenticationEntryPoint forbidden = new Http403ForbiddenEntryPoint();
-			exceptions.defaultAuthenticationEntryPointFor(
+			exceptions.defaultDeniedHandlerForMissingAuthority(
 					(ep) -> ep.addEntryPointFor(forbidden, AnyRequestMatcher.INSTANCE), "FACTOR_X509");
 		}
 	}
