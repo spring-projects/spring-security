@@ -51,6 +51,7 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.authentication.TestAuthentication;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory;
 import org.springframework.security.authorization.method.AuthorizationAdvisorProxyFactory.TargetVisitor;
 import org.springframework.security.authorization.method.AuthorizeReturnObject;
@@ -66,6 +67,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.test.context.support.WithMockUser;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
@@ -283,6 +285,15 @@ public class ReactiveMethodSecurityConfigurationTests {
 			.expectError()
 			.verify();
 		verifyNoInteractions(handler);
+	}
+
+	@Test
+	void checkCustomManagerWhenInvokedThenUsesBeanToAuthorize() {
+		this.spring.register(WithRolePrefixConfiguration.class, MethodSecurityServiceConfig.class).autowire();
+		ReactiveMethodSecurityService service = this.spring.getContext().getBean(ReactiveMethodSecurityService.class);
+		service.checkCustomManager(2).block();
+		assertThatExceptionOfType(AuthorizationDeniedException.class)
+			.isThrownBy(() -> service.checkCustomManager(1).block());
 	}
 
 	private static Consumer<User.UserBuilder> authorities(String... authorities) {

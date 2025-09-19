@@ -95,7 +95,7 @@ public final class PostAuthorizeAuthorizationManager
 		MethodSecurityExpressionHandler expressionHandler = this.registry.getExpressionHandler();
 		EvaluationContext ctx = expressionHandler.createEvaluationContext(authentication, mi.getMethodInvocation());
 		expressionHandler.setReturnObject(mi.getResult(), ctx);
-		return ExpressionUtils.evaluate(attribute.getExpression(), ctx);
+		return ExpressionUtils.evaluate(attribute.getExpression(), ctx, authentication, mi);
 	}
 
 	@Override

@@ -16,10 +16,13 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
+import org.aopalliance.intercept.MethodInvocation;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationResult;
+import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -53,6 +56,14 @@ public class Authz {
 
 	public Mono<AuthorizationResult> checkReactiveResult(boolean result) {
 		return Mono.just(checkResult(result));
+	}
+
+	public AuthorizationManager<MethodInvocation> checkManager(long id) {
+		return (authentication, context) -> new AuthorizationDecision(check(id));
+	}
+
+	public ReactiveAuthorizationManager<MethodInvocation> checkReactiveManager(long id) {
+		return (authentication, context) -> checkReactive(id).map(AuthorizationDecision::new);
 	}
 
 	@SuppressWarnings("serial")

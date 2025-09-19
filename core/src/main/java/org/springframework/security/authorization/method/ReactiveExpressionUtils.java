@@ -24,6 +24,9 @@ import org.springframework.expression.EvaluationException;
 import org.springframework.expression.Expression;
 import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.ExpressionAuthorizationDecision;
+import org.springframework.security.authorization.ReactiveAuthorizationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.util.Assert;
 
 /**
  * For internal use only, as this contract is likely to change.
@@ -34,6 +37,11 @@ import org.springframework.security.authorization.ExpressionAuthorizationDecisio
 final class ReactiveExpressionUtils {
 
 	static Mono<AuthorizationResult> evaluate(Expression expr, EvaluationContext ctx) {
+		return evaluate(expr, ctx, Mono.empty(), null);
+	}
+
+	static <T> Mono<AuthorizationResult> evaluate(Expression expr, EvaluationContext ctx,
+			Mono<Authentication> authentication, @Nullable T context) {
 		return Mono.defer(() -> {
 			Object value;
 			try {
@@ -42,6 +50,10 @@ final class ReactiveExpressionUtils {
 			catch (EvaluationException ex) {
 				return Mono.error(() -> new IllegalArgumentException(
 						"Failed to evaluate expression '" + expr.getExpressionString() + "'", ex));
+			}
+			if (value instanceof ReactiveAuthorizationManager<?> manager) {
+				Assert.notNull(context, "context cannot be null");
+				return ((ReactiveAuthorizationManager<T>) manager).authorize(authentication, context);
 			}
 			if (value instanceof Mono<?> mono) {
 				return mono.flatMap((data) -> adapt(expr, data));

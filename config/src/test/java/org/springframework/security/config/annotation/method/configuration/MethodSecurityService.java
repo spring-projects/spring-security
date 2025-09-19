@@ -196,6 +196,9 @@ public interface MethodSecurityService {
 	@HandleAuthorizationDenied(handlerClass = MethodAuthorizationDeniedHandler.class)
 	String checkCustomResult(boolean result);
 
+	@PreAuthorize("@authz.checkManager(#id)")
+	String checkCustomManager(long id);
+
 	class StarMaskingHandler implements MethodAuthorizationDeniedHandler {
 
 		@Override

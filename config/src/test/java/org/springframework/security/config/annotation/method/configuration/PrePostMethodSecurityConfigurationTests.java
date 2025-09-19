@@ -92,6 +92,7 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
@@ -1408,6 +1409,14 @@ public class PrePostMethodSecurityConfigurationTests {
 				.with(user("rob"));
 		// @formatter:on
 		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
+	}
+
+	@Test
+	void checkCustomManagerWhenInvokedThenUsesBeanToAuthorize() {
+		this.spring.register(MethodSecurityServiceConfig.class).autowire();
+		MethodSecurityService service = this.spring.getContext().getBean(MethodSecurityService.class);
+		service.checkCustomManager(2);
+		assertThatExceptionOfType(AuthorizationDeniedException.class).isThrownBy(() -> service.checkCustomManager(1));
 	}
 
 	private static Consumer<ConfigurableWebApplicationContext> disallowBeanOverriding() {

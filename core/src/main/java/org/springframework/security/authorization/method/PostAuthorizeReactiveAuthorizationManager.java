@@ -91,7 +91,7 @@ public final class PostAuthorizeReactiveAuthorizationManager
 		return authentication
 				.map((auth) -> expressionHandler.createEvaluationContext(auth, mi))
 				.doOnNext((ctx) -> expressionHandler.setReturnObject(result.getResult(), ctx))
-				.flatMap((ctx) -> ReactiveExpressionUtils.evaluate(attribute.getExpression(), ctx))
+				.flatMap((ctx) -> ReactiveExpressionUtils.evaluate(attribute.getExpression(), ctx, authentication, result))
 				.cast(AuthorizationResult.class);
 		// @formatter:on
 	}

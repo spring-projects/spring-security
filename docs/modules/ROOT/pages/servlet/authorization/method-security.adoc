@@ -1362,6 +1362,12 @@ Note, though, that returning an object is preferred as this doesn't incur the ex
 
 Then, you can access the custom details when you <<fallback-values-authorization-denied, customize how the authorization result is handled>>.
 
+[TIP]
+====
+Further, you can return an `AuthorizationManager` itself.
+This is helpful when unifying custom web authorization rules with method security ones since web security by default requires specifying an `AuthorizationManager` instance.
+====
+
 [[custom-authorization-managers]]
 === Using a Custom Authorization Manager
 

@@ -85,7 +85,7 @@ public final class PreAuthorizeReactiveAuthorizationManager
 		// @formatter:off
 		return authentication
 				.map((auth) -> this.registry.getExpressionHandler().createEvaluationContext(auth, mi))
-				.flatMap((ctx) -> ReactiveExpressionUtils.evaluate(attribute.getExpression(), ctx))
+				.flatMap((ctx) -> ReactiveExpressionUtils.evaluate(attribute.getExpression(), ctx, authentication, mi))
 				.cast(AuthorizationResult.class);
 		// @formatter:on
 	}

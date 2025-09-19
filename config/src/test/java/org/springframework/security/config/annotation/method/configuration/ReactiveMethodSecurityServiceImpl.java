@@ -101,6 +101,11 @@ public class ReactiveMethodSecurityServiceImpl implements ReactiveMethodSecurity
 	}
 
 	@Override
+	public Mono<String> checkCustomManager(long id) {
+		return Mono.just("ok");
+	}
+
+	@Override
 	public Mono<String> preAuthorizeHasPermission(String kgName) {
 		return Mono.just("ok");
 	}

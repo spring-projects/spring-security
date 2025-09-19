@@ -110,6 +110,9 @@ public interface ReactiveMethodSecurityService {
 	@HandleAuthorizationDenied(handlerClass = MethodAuthorizationDeniedHandler.class)
 	Mono<String> checkCustomResult(boolean result);
 
+	@PreAuthorize("@authz.checkReactiveManager(#id)")
+	Mono<String> checkCustomManager(long id);
+
 	@PreAuthorize("hasPermission(#kgName, 'read')")
 	Mono<String> preAuthorizeHasPermission(String kgName);
 

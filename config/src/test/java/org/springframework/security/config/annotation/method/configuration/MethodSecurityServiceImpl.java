@@ -204,6 +204,11 @@ public class MethodSecurityServiceImpl implements MethodSecurityService {
 	}
 
 	@Override
+	public String checkCustomManager(long id) {
+		return "ok";
+	}
+
+	@Override
 	public void hasAllRolesUserAdmin() {
 	}
 

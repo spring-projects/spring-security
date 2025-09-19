@@ -85,7 +85,7 @@ public final class PreAuthorizeAuthorizationManager
 			return null;
 		}
 		EvaluationContext ctx = this.registry.getExpressionHandler().createEvaluationContext(authentication, mi);
-		return ExpressionUtils.evaluate(attribute.getExpression(), ctx);
+		return ExpressionUtils.evaluate(attribute.getExpression(), ctx, authentication, mi);
 	}
 
 	@Override

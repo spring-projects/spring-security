@@ -16,14 +16,19 @@
 
 package org.springframework.security.authorization.method;
 
+import java.util.function.Supplier;
+
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.EvaluationException;
 import org.springframework.expression.Expression;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.ExpressionAuthorizationDecision;
+import org.springframework.security.core.Authentication;
+import org.springframework.util.Assert;
 
 final class ExpressionUtils {
 
@@ -31,8 +36,18 @@ final class ExpressionUtils {
 	}
 
 	static @Nullable AuthorizationResult evaluate(Expression expr, EvaluationContext ctx) {
+		return evaluate(expr, ctx, () -> null, null);
+	}
+
+	static <T> @Nullable AuthorizationResult evaluate(Expression expr, EvaluationContext ctx,
+			Supplier<? extends @Nullable Authentication> authentication, @Nullable T context) {
 		try {
 			Object result = expr.getValue(ctx);
+			if (result instanceof AuthorizationManager<?> manager) {
+				Assert.notNull(authentication, "authentication supplier cannot be null");
+				Assert.notNull(context, "context cannot be null");
+				return ((AuthorizationManager<T>) manager).authorize(authentication, context);
+			}
 			if (result instanceof AuthorizationResult decision) {
 				return decision;
 			}
