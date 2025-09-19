@@ -158,7 +158,7 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 		ExceptionHandlingConfigurer<H> exceptions = http.getConfigurer(ExceptionHandlingConfigurer.class);
 		if (exceptions != null) {
 			AuthenticationEntryPoint entryPoint = new LoginUrlAuthenticationEntryPoint("/login");
-			exceptions.defaultAuthenticationEntryPointFor(
+			exceptions.defaultDeniedHandlerForMissingAuthority(
 					(ep) -> ep.addEntryPointFor(entryPoint, AnyRequestMatcher.INSTANCE), "FACTOR_WEBAUTHN");
 		}
 	}
