@@ -16,12 +16,16 @@
 
 package org.springframework.security.config.annotation.web
 
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import jakarta.servlet.DispatcherType
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.UnsatisfiedDependencyException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.getBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -31,6 +35,7 @@ import org.springframework.security.authentication.RememberMeAuthenticationToken
 import org.springframework.security.authentication.TestAuthentication
 import org.springframework.security.authorization.AuthorizationDecision
 import org.springframework.security.authorization.AuthorizationManager
+import org.springframework.security.authorization.AuthorizationManagerFactory
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.core.GrantedAuthorityDefaults
@@ -958,6 +963,159 @@ class AuthorizeHttpRequestsDslTests {
         internal class PathController {
             @GetMapping("/path")
             fun path(): String {
+                return "ok"
+            }
+        }
+    }
+
+    @Test
+    fun `custom AuthorizationManagerFactory of RequestAuthorizationContext`() {
+        this.spring.register(AuthorizationManagerFactoryRequestAuthorizationContextConfig::class.java).autowire()
+        val authzManagerFactory =
+            this.spring.context.getBean<AuthorizationManagerFactory<RequestAuthorizationContext>>()
+        val authzManager = this.spring.context.getBean<AuthorizationManagerFactoryRequestAuthorizationContextConfig>().authorizationManager
+        every { authzManager.authorize(any(), any()) } returns AuthorizationDecision(true)
+
+        verify { authzManagerFactory.authenticated() }
+        verify { authzManagerFactory.denyAll() }
+        verify { authzManagerFactory.fullyAuthenticated() }
+        verify { authzManagerFactory.hasAllAuthorities("USER", "ADMIN") }
+        verify { authzManagerFactory.hasAllRoles("USER", "ADMIN") }
+        verify { authzManagerFactory.hasAnyAuthority("USER", "ADMIN") }
+        verify { authzManagerFactory.hasAnyRole("USER", "ADMIN") }
+        verify { authzManagerFactory.hasAuthority("USER") }
+        verify { authzManagerFactory.hasRole("USER") }
+        verify { authzManagerFactory.permitAll() }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class AuthorizationManagerFactoryRequestAuthorizationContextConfig {
+        val authorizationManager: AuthorizationManager<RequestAuthorizationContext> = mockk()
+
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                authorizeHttpRequests {
+                    authorize("/authenticated", authenticated)
+                    authorize("/denyAll", denyAll)
+                    authorize("/fullyAuthenticated", fullyAuthenticated)
+                    authorize("/hasAllAuthorities/user_admin", hasAllAuthorities("USER", "ADMIN"))
+                    authorize("/hasAllRoles/user_admin", hasAllRoles("USER", "ADMIN"))
+                    authorize("/hasAnyAuthority/user_admin", hasAnyAuthority("USER", "ADMIN"))
+                    authorize("/hasAnyRole/user_admin", hasAnyRole("USER", "ADMIN"))
+                    authorize("/hasAuthority/user", hasAuthority("USER"))
+                    authorize("/hasRole/user", hasRole("USER"))
+                    authorize("/permitAll", authenticated)
+                }
+                httpBasic { }
+                rememberMe { }
+            }
+            return http.build()
+        }
+
+        @Bean
+        open fun authorizationManagerFactory(): AuthorizationManagerFactory<RequestAuthorizationContext> {
+            val factory: AuthorizationManagerFactory<RequestAuthorizationContext> = mockk()
+            every { factory.authenticated() } returns this.authorizationManager
+            every { factory.denyAll() } returns this.authorizationManager
+            every { factory.fullyAuthenticated() } returns this.authorizationManager
+            every { factory.hasAllAuthorities("USER", "ADMIN") } returns this.authorizationManager
+            every { factory.hasAllRoles("USER", "ADMIN") } returns this.authorizationManager
+            every { factory.hasAnyAuthority("USER", "ADMIN") } returns this.authorizationManager
+            every { factory.hasAnyRole("USER", "ADMIN") } returns this.authorizationManager
+            every { factory.hasAuthority(any()) } returns this.authorizationManager
+            every { factory.hasRole(any()) } returns this.authorizationManager
+            every { factory.permitAll() } returns this.authorizationManager
+
+            return factory
+        }
+
+        @Bean
+        open fun userDetailsService(): UserDetailsService = InMemoryUserDetailsManager(TestAuthentication.user())
+
+        @RestController
+        internal class OkController {
+            @GetMapping("/**")
+            fun ok(): String {
+                return "ok"
+            }
+        }
+
+    }
+
+    @Test
+    fun `custom AuthorizationManagerFactory of Object`() {
+        this.spring.register(AuthorizationManagerFactoryObjectConfig::class.java).autowire()
+        val authzManagerFactory =
+            this.spring.context.getBean<AuthorizationManagerFactory<Object>>()
+        val authzManager = this.spring.context.getBean<AuthorizationManagerFactoryObjectConfig>().authorizationManager
+        every { authzManager.authorize(any(), any()) } returns AuthorizationDecision(true)
+
+        verify { authzManagerFactory.authenticated() }
+        verify { authzManagerFactory.denyAll() }
+        verify { authzManagerFactory.fullyAuthenticated() }
+        verify { authzManagerFactory.hasAllAuthorities("USER", "ADMIN") }
+        verify { authzManagerFactory.hasAllRoles("USER", "ADMIN") }
+        verify { authzManagerFactory.hasAnyAuthority("USER", "ADMIN") }
+        verify { authzManagerFactory.hasAnyRole("USER", "ADMIN") }
+        verify { authzManagerFactory.hasAuthority("USER") }
+        verify { authzManagerFactory.hasRole("USER") }
+        verify { authzManagerFactory.permitAll() }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class AuthorizationManagerFactoryObjectConfig {
+        val authorizationManager: AuthorizationManager<Object> = mockk()
+
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                authorizeHttpRequests {
+                    authorize("/authenticated", authenticated)
+                    authorize("/denyAll", denyAll)
+                    authorize("/fullyAuthenticated", fullyAuthenticated)
+                    authorize("/hasAllAuthorities/user_admin", hasAllAuthorities("USER", "ADMIN"))
+                    authorize("/hasAllRoles/user_admin", hasAllRoles("USER", "ADMIN"))
+                    authorize("/hasAnyAuthority/user_admin", hasAnyAuthority("USER", "ADMIN"))
+                    authorize("/hasAnyRole/user_admin", hasAnyRole("USER", "ADMIN"))
+                    authorize("/hasAuthority/user", hasAuthority("USER"))
+                    authorize("/hasRole/user", hasRole("USER"))
+                    authorize("/permitAll", authenticated)
+                }
+                httpBasic {  }
+                rememberMe {  }
+            }
+            return http.build()
+        }
+
+        @Bean
+        open fun authorizationManagerFactory(): AuthorizationManagerFactory<Object> {
+            val factory: AuthorizationManagerFactory<Object> = mockk()
+            every { factory.authenticated() } returns this.authorizationManager
+            every { factory.denyAll() } returns this.authorizationManager
+            every { factory.fullyAuthenticated() } returns this.authorizationManager
+            every { factory.hasAllAuthorities("USER", "ADMIN") } returns this.authorizationManager
+            every { factory.hasAllRoles("USER", "ADMIN") } returns this.authorizationManager
+            every { factory.hasAnyAuthority("USER", "ADMIN") } returns this.authorizationManager
+            every { factory.hasAnyRole("USER", "ADMIN") } returns this.authorizationManager
+            every { factory.hasAuthority(any()) } returns this.authorizationManager
+            every { factory.hasRole(any()) } returns this.authorizationManager
+            every { factory.permitAll() } returns this.authorizationManager
+
+            return factory
+        }
+
+        @Bean
+        open fun userDetailsService(): UserDetailsService = InMemoryUserDetailsManager(TestAuthentication.user())
+
+        @RestController
+        internal class OkController {
+            @GetMapping("/**")
+            fun ok(): String {
                 return "ok"
             }
         }

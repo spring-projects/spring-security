@@ -16,24 +16,23 @@
 
 package org.springframework.security.config.annotation.web
 
+import org.springframework.beans.factory.getBeanProvider
 import org.springframework.context.ApplicationContext
+import org.springframework.core.ResolvableType
 import org.springframework.http.HttpMethod
 import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy
-import org.springframework.security.authorization.AuthenticatedAuthorizationManager
-import org.springframework.security.authorization.AuthorityAuthorizationManager
-import org.springframework.security.authorization.AuthorizationDecision
 import org.springframework.security.authorization.AuthorizationManager
+import org.springframework.security.authorization.AuthorizationManagerFactory
+import org.springframework.security.authorization.DefaultAuthorizationManagerFactory
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer
 import org.springframework.security.config.core.GrantedAuthorityDefaults
-import org.springframework.security.core.Authentication
 import org.springframework.security.web.access.IpAddressAuthorizationManager
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher
 import org.springframework.security.web.util.matcher.AnyRequestMatcher
 import org.springframework.security.web.util.matcher.RequestMatcher
-import java.util.function.Supplier
 
 /**
  * A Kotlin DSL to configure [HttpSecurity] request authorization using idiomatic Kotlin code.
@@ -44,8 +43,7 @@ import java.util.function.Supplier
 class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
 
     private val authorizationRules = mutableListOf<AuthorizationManagerRule>()
-    private val rolePrefix: String
-    private val roleHierarchy: RoleHierarchy
+    private val authorizationManagerFactory: AuthorizationManagerFactory<in RequestAuthorizationContext>
 
     private val PATTERN_TYPE = PatternType.PATH
 
@@ -57,7 +55,7 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
      * (i.e. created via hasAuthority("ROLE_USER"))
      */
     fun authorize(matches: RequestMatcher = AnyRequestMatcher.INSTANCE,
-                  access: AuthorizationManager<RequestAuthorizationContext>) {
+                  access: AuthorizationManager<in RequestAuthorizationContext>) {
         authorizationRules.add(MatcherAuthorizationManagerRule(matches, access))
     }
 
@@ -77,7 +75,7 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
      * (i.e. created via hasAuthority("ROLE_USER"))
      */
     fun authorize(pattern: String,
-                  access: AuthorizationManager<RequestAuthorizationContext>) {
+                  access: AuthorizationManager<in RequestAuthorizationContext>) {
         authorizationRules.add(
             PatternAuthorizationManagerRule(
                 pattern = pattern,
@@ -105,7 +103,7 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
      */
     fun authorize(method: HttpMethod,
                   pattern: String,
-                  access: AuthorizationManager<RequestAuthorizationContext>) {
+                  access: AuthorizationManager<in RequestAuthorizationContext>) {
         authorizationRules.add(
             PatternAuthorizationManagerRule(
                 pattern = pattern,
@@ -135,7 +133,7 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
      */
     fun authorize(pattern: String,
                   servletPath: String,
-                  access: AuthorizationManager<RequestAuthorizationContext>) {
+                  access: AuthorizationManager<in RequestAuthorizationContext>) {
         authorizationRules.add(
             PatternAuthorizationManagerRule(
                 pattern = pattern,
@@ -167,7 +165,7 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
     fun authorize(method: HttpMethod,
                   pattern: String,
                   servletPath: String,
-                  access: AuthorizationManager<RequestAuthorizationContext>) {
+                  access: AuthorizationManager<in RequestAuthorizationContext>) {
         authorizationRules.add(
             PatternAuthorizationManagerRule(
                 pattern = pattern,
@@ -185,10 +183,7 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
      * @param authority the authority to require (i.e. ROLE_USER, ROLE_ADMIN, etc).
      * @return the [AuthorizationManager] with the provided authority
      */
-    fun hasAuthority(authority: String): AuthorizationManager<RequestAuthorizationContext> {
-        val manager = AuthorityAuthorizationManager.hasAuthority<RequestAuthorizationContext>(authority)
-        return withRoleHierarchy(manager)
-    }
+    fun hasAuthority(authority: String): AuthorizationManager<in RequestAuthorizationContext> = this.authorizationManagerFactory.hasAuthority(authority)
 
     /**
      * Specify that URLs require any of the provided authorities.
@@ -196,10 +191,16 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
      * @param authorities the authorities to require (i.e. ROLE_USER, ROLE_ADMIN, etc).
      * @return the [AuthorizationManager] with the provided authorities
      */
-    fun hasAnyAuthority(vararg authorities: String): AuthorizationManager<RequestAuthorizationContext> {
-        val manager = AuthorityAuthorizationManager.hasAnyAuthority<RequestAuthorizationContext>(*authorities)
-        return withRoleHierarchy(manager)
-    }
+    fun hasAnyAuthority(vararg authorities: String): AuthorizationManager<in RequestAuthorizationContext> = this.authorizationManagerFactory.hasAnyAuthority(*authorities)
+
+
+    /**
+     * Specify that URLs require any of the provided authorities.
+     *
+     * @param authorities the authorities to require (i.e. ROLE_USER, ROLE_ADMIN, etc).
+     * @return the [AuthorizationManager] with the provided authorities
+     */
+    fun hasAllAuthorities(vararg authorities: String): AuthorizationManager<in RequestAuthorizationContext> = this.authorizationManagerFactory.hasAllAuthorities(*authorities)
 
     /**
      * Specify that URLs require a particular role.
@@ -207,10 +208,7 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
      * @param role the role to require (i.e. USER, ADMIN, etc).
      * @return the [AuthorizationManager] with the provided role
      */
-    fun hasRole(role: String): AuthorizationManager<RequestAuthorizationContext> {
-        val manager = AuthorityAuthorizationManager.hasAnyRole<RequestAuthorizationContext>(this.rolePrefix, arrayOf(role))
-        return withRoleHierarchy(manager)
-    }
+    fun hasRole(role: String): AuthorizationManager<in RequestAuthorizationContext> = this.authorizationManagerFactory.hasRole(role)
 
     /**
      * Specify that URLs require any of the provided roles.
@@ -218,10 +216,15 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
      * @param roles the roles to require (i.e. USER, ADMIN, etc).
      * @return the [AuthorizationManager] with the provided roles
      */
-    fun hasAnyRole(vararg roles: String): AuthorizationManager<RequestAuthorizationContext> {
-        val manager = AuthorityAuthorizationManager.hasAnyRole<RequestAuthorizationContext>(this.rolePrefix, arrayOf(*roles))
-        return withRoleHierarchy(manager)
-    }
+    fun hasAnyRole(vararg roles: String): AuthorizationManager<in RequestAuthorizationContext> = this.authorizationManagerFactory.hasAnyRole(*roles)
+
+    /**
+     * Specify that URLs require any of the provided roles.
+     *
+     * @param roles the roles to require (i.e. USER, ADMIN, etc).
+     * @return the [AuthorizationManager] with the provided roles
+     */
+    fun hasAllRoles(vararg roles: String): AuthorizationManager<in RequestAuthorizationContext> = this.authorizationManagerFactory.hasAllRoles(*roles)
 
     /**
      * Require a specific IP or range of IP addresses.
@@ -233,27 +236,23 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
     /**
      * Specify that URLs are allowed by anyone.
      */
-    val permitAll: AuthorizationManager<RequestAuthorizationContext> =
-        AuthorizationManager { _: Supplier<out Authentication>, _: RequestAuthorizationContext -> AuthorizationDecision(true) }
+    val permitAll: AuthorizationManager<in RequestAuthorizationContext>
 
     /**
      * Specify that URLs are not allowed by anyone.
      */
-    val denyAll: AuthorizationManager<RequestAuthorizationContext> =
-        AuthorizationManager { _: Supplier<out Authentication>, _: RequestAuthorizationContext -> AuthorizationDecision(false) }
+    val denyAll: AuthorizationManager<in RequestAuthorizationContext>
 
     /**
      * Specify that URLs are allowed by any authenticated user.
      */
-    val authenticated: AuthorizationManager<RequestAuthorizationContext> =
-        AuthenticatedAuthorizationManager.authenticated()
+    val authenticated: AuthorizationManager<in RequestAuthorizationContext>
 
     /**
      * Specify that URLs are allowed by users who have authenticated and were not "remembered".
      * @since 6.5
      */
-    val fullyAuthenticated: AuthorizationManager<RequestAuthorizationContext> =
-            AuthenticatedAuthorizationManager.fullyAuthenticated()
+    val fullyAuthenticated: AuthorizationManager<in RequestAuthorizationContext>
 
     internal fun get(): (AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry) -> Unit {
         return { requests ->
@@ -274,16 +273,34 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
         }
     }
 
-    constructor() {
-        this.rolePrefix = "ROLE_"
-        this.roleHierarchy = NullRoleHierarchy()
+    constructor(context: ApplicationContext) {
+        this.authorizationManagerFactory = resolveAuthorizationManagerFactory(context)
+        this.authenticated = this.authorizationManagerFactory.authenticated()
+        this.denyAll = this.authorizationManagerFactory.denyAll()
+        this.fullyAuthenticated = this.authorizationManagerFactory.fullyAuthenticated()
+        this.permitAll = this.authorizationManagerFactory.permitAll()
     }
 
-    constructor(context: ApplicationContext) {
+    private fun resolveAuthorizationManagerFactory(context: ApplicationContext): AuthorizationManagerFactory<in RequestAuthorizationContext> {
+        val specific = context.getBeanProvider<AuthorizationManagerFactory<RequestAuthorizationContext>>().getIfUnique()
+        if (specific != null) {
+            return specific
+        }
+        val type = ResolvableType.forClassWithGenerics(AuthorizationManagerFactory::class.java, Object::class.java)
+        val general: AuthorizationManagerFactory<in RequestAuthorizationContext>? = context.getBeanProvider<AuthorizationManagerFactory<in RequestAuthorizationContext>>(type).getIfUnique()
+        if (general != null) {
+            return general
+        }
+        val defaultFactory: DefaultAuthorizationManagerFactory<RequestAuthorizationContext> = DefaultAuthorizationManagerFactory()
         val rolePrefix = resolveRolePrefix(context)
-        this.rolePrefix = rolePrefix
+        if (rolePrefix != null) {
+            defaultFactory.setRolePrefix(rolePrefix)
+        }
         val roleHierarchy = resolveRoleHierarchy(context)
-        this.roleHierarchy = roleHierarchy
+        if (roleHierarchy != null) {
+            defaultFactory.setRoleHierarchy(roleHierarchy)
+        }
+        return defaultFactory
     }
 
     private fun resolveRolePrefix(context: ApplicationContext): String {
@@ -300,10 +317,5 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
             return context.getBean(RoleHierarchy::class.java)
         }
         return NullRoleHierarchy()
-    }
-
-    private fun withRoleHierarchy(manager: AuthorityAuthorizationManager<RequestAuthorizationContext>): AuthorityAuthorizationManager<RequestAuthorizationContext> {
-        manager.setRoleHierarchy(this.roleHierarchy)
-        return manager
     }
 }

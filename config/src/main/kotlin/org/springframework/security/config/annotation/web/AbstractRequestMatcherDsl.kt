@@ -39,7 +39,7 @@ abstract class AbstractRequestMatcherDsl {
                                                   override val rule: String) : AuthorizationRule(rule)
 
     protected data class MatcherAuthorizationManagerRule(val matcher: RequestMatcher,
-                                                         override val rule: AuthorizationManager<RequestAuthorizationContext>) : AuthorizationManagerRule(rule)
+                                                         override val rule: AuthorizationManager<in RequestAuthorizationContext>) : AuthorizationManagerRule(rule)
 
     protected data class PatternAuthorizationRule(val pattern: String,
                                                   val patternType: PatternType,
@@ -51,11 +51,11 @@ abstract class AbstractRequestMatcherDsl {
                                                          val patternType: PatternType,
                                                          val servletPath: String? = null,
                                                          val httpMethod: HttpMethod? = null,
-                                                         override val rule: AuthorizationManager<RequestAuthorizationContext>) : AuthorizationManagerRule(rule)
+                                                         override val rule: AuthorizationManager<in RequestAuthorizationContext>) : AuthorizationManagerRule(rule)
 
     protected abstract class AuthorizationRule(open val rule: String)
 
-    protected abstract class AuthorizationManagerRule(open val rule: AuthorizationManager<RequestAuthorizationContext>)
+    protected abstract class AuthorizationManagerRule(open val rule: AuthorizationManager<in RequestAuthorizationContext>)
 
     protected enum class PatternType {
         ANT, MVC, PATH;
