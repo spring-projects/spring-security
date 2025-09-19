@@ -37,7 +37,11 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
  * @since 5.3
  * @see ClientRegistration
  * @see ClientRegistrationMixin
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.oauth2.client.jackson.ClientRegistrationDeserializer}
+ * based on Jackson 3
  */
+@Deprecated(forRemoval = true)
 final class ClientRegistrationDeserializer extends JsonDeserializer<ClientRegistration> {
 
 	private static final StdConverter<JsonNode, ClientAuthenticationMethod> CLIENT_AUTHENTICATION_METHOD_CONVERTER = new StdConverters.ClientAuthenticationMethodConverter();
