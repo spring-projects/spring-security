@@ -30,6 +30,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
@@ -322,8 +323,10 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		verify(this.authenticationSuccessHandler).onAuthenticationSuccess(any(), any(), authenticationCaptor.capture());
 		Authentication authentication = authenticationCaptor.getValue();
 		assertThat(authentication.getPrincipal()).isInstanceOf(OAuth2User.class);
-		assertThat(authentication.getAuthorities()).hasSize(1);
-		assertThat(authentication.getAuthorities()).first()
+		SecurityAssertions.assertThat(authentication)
+			.roles()
+			.hasSize(1)
+			.first()
 			.isInstanceOf(SimpleGrantedAuthority.class)
 			.hasToString("ROLE_OAUTH2_USER");
 		// re-setup for OIDC test

@@ -16,6 +16,9 @@
 
 package org.springframework.security.cas.authentication;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apereo.cas.client.validation.Assertion;
@@ -35,7 +38,9 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
@@ -63,6 +68,8 @@ import org.springframework.util.Assert;
 public class CasAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
 
 	private static final Log logger = LogFactory.getLog(CasAuthenticationProvider.class);
+
+	private static final String AUTHORITY = "FACTOR_CAS";
 
 	@SuppressWarnings("NullAway.Init")
 	private AuthenticationUserDetailsService<CasAssertionAuthenticationToken> authenticationUserDetailsService;
@@ -141,8 +148,10 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 			Assertion assertion = this.ticketValidator.validate(credentials.toString(), getServiceUrl(authentication));
 			UserDetails userDetails = loadUserByAssertion(assertion);
 			this.userDetailsChecker.check(userDetails);
-			return new CasAuthenticationToken(this.key, userDetails, credentials,
-					this.authoritiesMapper.mapAuthorities(userDetails.getAuthorities()), userDetails, assertion);
+			Collection<GrantedAuthority> authorities = new ArrayList<>(
+					this.authoritiesMapper.mapAuthorities(userDetails.getAuthorities()));
+			authorities.add(new SimpleGrantedAuthority(AUTHORITY));
+			return new CasAuthenticationToken(this.key, userDetails, credentials, authorities, userDetails, assertion);
 		}
 		catch (TicketValidationException ex) {
 			throw new BadCredentialsException(ex.getMessage(), ex);

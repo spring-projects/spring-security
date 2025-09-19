@@ -16,8 +16,8 @@
 
 package org.springframework.security.authentication.dao;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -204,7 +204,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 		// so subsequent attempts are successful even with encoded passwords.
 		// Also ensure we return the original getDetails(), so that future
 		// authentication events after cache expiry contain the details
-		Collection<GrantedAuthority> authorities = new ArrayList<>(
+		Collection<GrantedAuthority> authorities = new LinkedHashSet<>(
 				this.authoritiesMapper.mapAuthorities(user.getAuthorities()));
 		authorities.add(new SimpleGrantedAuthority(AUTHORITY));
 		UsernamePasswordAuthenticationToken result = UsernamePasswordAuthenticationToken.authenticated(principal,

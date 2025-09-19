@@ -35,6 +35,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.security.authentication.LockedException;
+import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -224,7 +225,9 @@ public class JaasAuthenticationProviderTests {
 				"password");
 		assertThat(this.jaasProvider.supports(UsernamePasswordAuthenticationToken.class)).isTrue();
 		Authentication auth = this.jaasProvider.authenticate(token);
-		assertThat(auth.getAuthorities()).withFailMessage("Only ROLE_TEST1 and ROLE_TEST2 should have been returned")
+		SecurityAssertions.assertThat(auth)
+			.roles()
+			.withFailMessage("Only ROLE_TEST1 and ROLE_TEST2 should have been returned")
 			.hasSize(2);
 	}
 
@@ -232,6 +235,13 @@ public class JaasAuthenticationProviderTests {
 	public void testUnsupportedAuthenticationObjectReturnsNull() {
 		assertThat(this.jaasProvider
 			.authenticate(new TestingAuthenticationToken("foo", "bar", AuthorityUtils.NO_AUTHORITIES))).isNull();
+	}
+
+	@Test
+	public void authenticateWhenSuccessThenIssuesFactor() {
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password");
+		Authentication result = this.jaasProvider.authenticate(token);
+		SecurityAssertions.assertThat(result).hasAuthority("FACTOR_PASSWORD");
 	}
 
 	private static class MockLoginContext extends LoginContext {

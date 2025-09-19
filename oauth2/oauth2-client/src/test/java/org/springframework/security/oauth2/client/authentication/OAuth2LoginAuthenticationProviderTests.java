@@ -59,6 +59,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link OAuth2LoginAuthenticationProvider}.
@@ -190,7 +191,8 @@ public class OAuth2LoginAuthenticationProviderTests {
 		this.authenticationProvider.setAuthoritiesMapper(authoritiesMapper);
 		OAuth2LoginAuthenticationToken authentication = (OAuth2LoginAuthenticationToken) this.authenticationProvider
 			.authenticate(new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
-		assertThat(authentication.getAuthorities()).isEqualTo(mappedAuthorities);
+		verify(authoritiesMapper).mapAuthorities(any());
+		SecurityAssertions.assertThat(authentication).authorities().containsAll(mappedAuthorities);
 	}
 
 	// gh-5368

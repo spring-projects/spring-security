@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.client.authentication;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -123,8 +124,9 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 		OAuth2User oauth2User = this.userService.loadUser(new OAuth2UserRequest(
 				loginAuthenticationToken.getClientRegistration(), accessToken, additionalParameters));
 		Collection<GrantedAuthority> authorities = new HashSet<>(oauth2User.getAuthorities());
-		authorities.add(new SimpleGrantedAuthority(AUTHORITY));
-		Collection<? extends GrantedAuthority> mappedAuthorities = this.authoritiesMapper.mapAuthorities(authorities);
+		Collection<GrantedAuthority> mappedAuthorities = new LinkedHashSet<>(
+				this.authoritiesMapper.mapAuthorities(authorities));
+		mappedAuthorities.add(new SimpleGrantedAuthority(AUTHORITY));
 		OAuth2LoginAuthenticationToken authenticationResult = new OAuth2LoginAuthenticationToken(
 				loginAuthenticationToken.getClientRegistration(), loginAuthenticationToken.getAuthorizationExchange(),
 				oauth2User, mappedAuthorities, accessToken, authorizationCodeAuthenticationToken.getRefreshToken());

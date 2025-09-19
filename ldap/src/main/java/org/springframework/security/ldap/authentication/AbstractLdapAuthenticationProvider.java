@@ -16,8 +16,8 @@
 
 package org.springframework.security.ldap.authentication;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -104,7 +104,7 @@ public abstract class AbstractLdapAuthenticationProvider implements Authenticati
 			UserDetails user) {
 		Object password = this.useAuthenticationRequestCredentials ? authentication.getCredentials()
 				: user.getPassword();
-		Collection<GrantedAuthority> authorities = new ArrayList<>(
+		Collection<GrantedAuthority> authorities = new LinkedHashSet<>(
 				this.authoritiesMapper.mapAuthorities(user.getAuthorities()));
 		authorities.add(new SimpleGrantedAuthority(AUTHORITY));
 		UsernamePasswordAuthenticationToken result = UsernamePasswordAuthenticationToken.authenticated(user, password,
