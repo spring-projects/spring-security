@@ -32,6 +32,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.PortMapper;
@@ -41,6 +42,7 @@ import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.util.RedirectUrlBuilder;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -110,15 +112,28 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	 * @param exception the exception
 	 * @return the URL (cannot be null or empty; defaults to {@link #getLoginFormUrl()})
 	 */
+	@SuppressWarnings("unchecked")
 	protected String determineUrlToUseForThisRequest(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) {
-		Object value = request.getAttribute(GrantedAuthority.MISSING_AUTHORITIES_ATTRIBUTE);
-		if (value instanceof Collection<?> authorities) {
-			return UriComponentsBuilder.fromUriString(getLoginFormUrl())
-				.queryParam("authority", authorities)
-				.toUriString();
+		Collection<GrantedAuthority> authorities = getAttribute(request, GrantedAuthority.MISSING_AUTHORITIES_ATTRIBUTE,
+				Collection.class);
+		if (CollectionUtils.isEmpty(authorities)) {
+			return getLoginFormUrl();
 		}
-		return getLoginFormUrl();
+		Collection<String> factors = AuthorityUtils.authoritiesOfType("FACTOR", authorities)
+			.map(AuthorityUtils::getSimpleName)
+			.toList();
+		return UriComponentsBuilder.fromUriString(getLoginFormUrl()).queryParam("factor", factors).toUriString();
+	}
+
+	private static <T> @Nullable T getAttribute(HttpServletRequest request, String name, Class<T> clazz) {
+		Object value = request.getAttribute(GrantedAuthority.MISSING_AUTHORITIES_ATTRIBUTE);
+		if (value == null) {
+			return null;
+		}
+		String message = String.format("Found %s in %s, but expecting a %s", value.getClass(), name, clazz);
+		Assert.isInstanceOf(clazz, value, message);
+		return (T) value;
 	}
 
 	/**

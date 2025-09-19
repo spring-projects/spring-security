@@ -21,7 +21,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
@@ -38,6 +40,8 @@ import org.springframework.util.StringUtils;
 public final class AuthorityUtils {
 
 	public static final List<GrantedAuthority> NO_AUTHORITIES = Collections.emptyList();
+
+	private static String[] KNOWN_PREFIXES = { "ROLE_", "SCOPE_", "FACTOR_" };
 
 	private AuthorityUtils() {
 	}
@@ -64,6 +68,40 @@ public final class AuthorityUtils {
 			set.add(authority.getAuthority());
 		}
 		return set;
+	}
+
+	/**
+	 * Return a {@link Stream} containing only the authorities of the given type;
+	 * {@code "ROLE"}, {@code "SCOPE"}, or {@code "FACTOR"}.
+	 * @param type the authority type; {@code "ROLE"}, {@code "SCOPE"}, or
+	 * {@code "FACTOR"}
+	 * @param authorities the list of authorities
+	 * @return a {@link Stream} containing the authorities of the given type
+	 */
+	public static Stream<GrantedAuthority> authoritiesOfType(String type, Collection<GrantedAuthority> authorities) {
+		return authorities.stream().filter((a) -> a.getAuthority().startsWith(type + "_"));
+	}
+
+	/**
+	 * Return the simple name of a {@link GrantedAuthority}, which is its name, less any
+	 * common prefix; that is, {@code ROLE_}, {@code SCOPE_}, or {@code FACTOR_}.
+	 * <p>
+	 * For example, if the authority is {@code ROLE_USER}, then the simple name is
+	 * {@code user}.
+	 * <p>
+	 * If the authority is {@code FACTOR_PASSWORD}, then the simple name is
+	 * {@code password}.
+	 * @param authority the granted authority
+	 * @return the simple name of the authority
+	 */
+	public static String getSimpleName(GrantedAuthority authority) {
+		String name = authority.getAuthority();
+		for (String prefix : KNOWN_PREFIXES) {
+			if (name.startsWith(prefix)) {
+				return name.substring(prefix.length()).toLowerCase(Locale.ROOT);
+			}
+		}
+		return name;
 	}
 
 	/**
