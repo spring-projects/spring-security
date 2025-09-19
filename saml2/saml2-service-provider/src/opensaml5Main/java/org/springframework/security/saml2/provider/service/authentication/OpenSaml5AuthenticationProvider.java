@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -59,6 +60,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ResponseValidatorResult;
@@ -110,6 +112,8 @@ import org.springframework.util.StringUtils;
  * @see <a href="https://shibboleth.atlassian.net/wiki/spaces/OSAML/overview">OpenSAML</a>
  */
 public final class OpenSaml5AuthenticationProvider implements AuthenticationProvider {
+
+	private static final String AUTHORITY = "FACTOR_SAML_RESPONSE";
 
 	private final BaseOpenSamlAuthenticationProvider delegate;
 
@@ -899,7 +903,9 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 				.attributes(BaseOpenSamlAuthenticationProvider.getAssertionAttributes(assertion))
 				.build();
 			Saml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal(username, accessor);
-			Collection<GrantedAuthority> authorities = this.grantedAuthoritiesConverter.convert(assertion);
+			Collection<GrantedAuthority> authorities = new HashSet<>(
+					this.grantedAuthoritiesConverter.convert(assertion));
+			authorities.add(new SimpleGrantedAuthority(AUTHORITY));
 			return new Saml2AssertionAuthentication(principal, accessor, authorities, registrationId);
 		}
 

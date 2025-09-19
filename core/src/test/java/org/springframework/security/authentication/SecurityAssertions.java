@@ -75,6 +75,10 @@ public final class SecurityAssertions {
 			return authorities().has(new Condition<>(test, "contains %s", Arrays.toString(authorities)));
 		}
 
+		public CollectionAssert<GrantedAuthority> roles() {
+			return authorities().filteredOn((authority) -> authority.getAuthority().startsWith("ROLE_"));
+		}
+
 		public CollectionAssert<GrantedAuthority> authorities() {
 			return new CollectionAssert<>(this.authentication.getAuthorities());
 		}

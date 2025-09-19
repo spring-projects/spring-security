@@ -985,6 +985,14 @@ public class OpenSaml5AuthenticationProviderTests {
 		assertThatExceptionOfType(Saml2AuthenticationException.class).isThrownBy(() -> provider.authenticate(token));
 	}
 
+	@Test
+	public void authenticateWhenSuccessThenIssuesFactor() {
+		Response response = TestOpenSamlObjects.signedResponseWithOneAssertion();
+		Authentication request = token(response, verifying(registration()));
+		Authentication result = this.provider.authenticate(request);
+		SecurityAssertions.assertThat(result).hasAuthority("FACTOR_SAML_RESPONSE");
+	}
+
 	private <T extends XMLObject> T build(QName qName) {
 		return (T) XMLObjectProviderRegistrySupport.getBuilderFactory().getBuilder(qName).buildObject(qName);
 	}

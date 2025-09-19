@@ -25,6 +25,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -37,6 +38,7 @@ import org.springframework.security.web.authentication.preauth.x509.SubjectDnX50
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 /**
  * Adds X509 based pre authentication to an application. Since validating the certificate
@@ -177,8 +179,13 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 	public void init(H http) {
 		PreAuthenticatedAuthenticationProvider authenticationProvider = new PreAuthenticatedAuthenticationProvider();
 		authenticationProvider.setPreAuthenticatedUserDetailsService(getAuthenticationUserDetailsService(http));
+		authenticationProvider.setGrantedAuthoritySupplier(() -> AuthorityUtils.createAuthorityList("FACTOR_X509"));
 		http.authenticationProvider(authenticationProvider)
 			.setSharedObject(AuthenticationEntryPoint.class, new Http403ForbiddenEntryPoint());
+		ExceptionHandlingConfigurer<H> exceptions = http.getConfigurer(ExceptionHandlingConfigurer.class);
+		if (exceptions != null) {
+			exceptions.defaultAuthenticationEntryPointFor(new Http403ForbiddenEntryPoint(), AnyRequestMatcher.INSTANCE);
+		}
 	}
 
 	@Override

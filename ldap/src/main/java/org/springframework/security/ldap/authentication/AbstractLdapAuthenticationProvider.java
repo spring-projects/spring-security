@@ -17,6 +17,7 @@
 package org.springframework.security.ldap.authentication;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,6 +34,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -49,6 +51,8 @@ import org.springframework.util.StringUtils;
  * @since 3.1
  */
 public abstract class AbstractLdapAuthenticationProvider implements AuthenticationProvider, MessageSourceAware {
+
+	private static final String AUTHORITY = "FACTOR_PASSWORD";
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
@@ -100,8 +104,11 @@ public abstract class AbstractLdapAuthenticationProvider implements Authenticati
 			UserDetails user) {
 		Object password = this.useAuthenticationRequestCredentials ? authentication.getCredentials()
 				: user.getPassword();
-		UsernamePasswordAuthenticationToken result = UsernamePasswordAuthenticationToken.authenticated(user, password,
+		Collection<GrantedAuthority> authorities = new LinkedHashSet<>(
 				this.authoritiesMapper.mapAuthorities(user.getAuthorities()));
+		authorities.add(new SimpleGrantedAuthority(AUTHORITY));
+		UsernamePasswordAuthenticationToken result = UsernamePasswordAuthenticationToken.authenticated(user, password,
+				authorities);
 		result.setDetails(authentication.getDetails());
 		this.logger.debug("Authenticated user");
 		return result;

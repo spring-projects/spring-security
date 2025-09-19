@@ -12,7 +12,7 @@ For example, if you use Tomcat, you should read the https://tomcat.apache.org/to
 You should get this working before trying it out with Spring Security.
 
 The Spring Security X.509 module extracts the certificate by using a filter.
-It maps the certificate to an application user and loads that user's set of granted authorities for use with the standard Spring Security infrastructure.
+It maps the certificate to an application user and loads that user's set of granted authorities for use with the standard Spring Security infrastructure, specifically including at least the `FACTOR_X509` authority when <<servlet-x509-config, using the `HttpSecurity` DSL>>.
 
 [[servlet-x509-config]]
 == Adding X.509 Authentication to Your Web Application

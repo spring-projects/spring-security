@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.SecurityAssertions;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -108,6 +109,13 @@ public class JwtAuthenticationConverterTests {
 		Jwt jwt = TestJwts.jwt().claim("user_id", 100).build();
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt);
 		assertThat(authentication.getName()).isEqualTo("100");
+	}
+
+	@Test
+	public void convertWhenDefaultsThenIssuesFactor() {
+		Jwt jwt = TestJwts.jwt().build();
+		Authentication result = this.jwtAuthenticationConverter.convert(jwt);
+		SecurityAssertions.assertThat(result).hasAuthority("FACTOR_BEARER");
 	}
 
 }

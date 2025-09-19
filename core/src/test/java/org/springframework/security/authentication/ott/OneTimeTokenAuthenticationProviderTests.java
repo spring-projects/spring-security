@@ -26,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -96,6 +97,18 @@ public class OneTimeTokenAuthenticationProviderTests {
 		OneTimeTokenAuthenticationToken token = new OneTimeTokenAuthenticationToken(TOKEN);
 
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> this.provider.authenticate(token));
+	}
+
+	@Test
+	void authenticateWhenSuccessThenIssuesFactor() {
+		given(this.oneTimeTokenService.consume(any()))
+			.willReturn(new DefaultOneTimeToken(TOKEN, USERNAME, Instant.now().plusSeconds(120)));
+		given(this.userDetailsService.loadUserByUsername(anyString()))
+			.willReturn(new User(USERNAME, PASSWORD, List.of()));
+		OneTimeTokenAuthenticationToken token = new OneTimeTokenAuthenticationToken(TOKEN);
+
+		Authentication authentication = this.provider.authenticate(token);
+		SecurityAssertions.assertThat(authentication).hasAuthority("FACTOR_OTT");
 	}
 
 	@Test

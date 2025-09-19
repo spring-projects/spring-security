@@ -17,12 +17,15 @@
 package org.springframework.security.oauth2.client.authentication;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
@@ -65,6 +68,8 @@ import org.springframework.util.Assert;
  * Response</a>
  */
 public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider {
+
+	private static final String AUTHORITY = "FACTOR_AUTHORIZATION_CODE";
 
 	private final OAuth2AuthorizationCodeAuthenticationProvider authorizationCodeAuthenticationProvider;
 
@@ -118,8 +123,10 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 		Map<String, Object> additionalParameters = authorizationCodeAuthenticationToken.getAdditionalParameters();
 		OAuth2User oauth2User = this.userService.loadUser(new OAuth2UserRequest(
 				loginAuthenticationToken.getClientRegistration(), accessToken, additionalParameters));
-		Collection<? extends GrantedAuthority> mappedAuthorities = this.authoritiesMapper
-			.mapAuthorities(oauth2User.getAuthorities());
+		Collection<GrantedAuthority> authorities = new HashSet<>(oauth2User.getAuthorities());
+		Collection<GrantedAuthority> mappedAuthorities = new LinkedHashSet<>(
+				this.authoritiesMapper.mapAuthorities(authorities));
+		mappedAuthorities.add(new SimpleGrantedAuthority(AUTHORITY));
 		OAuth2LoginAuthenticationToken authenticationResult = new OAuth2LoginAuthenticationToken(
 				loginAuthenticationToken.getClientRegistration(), loginAuthenticationToken.getAuthorizationExchange(),
 				oauth2User, mappedAuthorities, accessToken, authorizationCodeAuthenticationToken.getRefreshToken());

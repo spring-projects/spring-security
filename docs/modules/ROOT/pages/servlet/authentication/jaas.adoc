@@ -43,8 +43,12 @@ The `AbstractJaasAuthenticationProvider` obtains the JAAS principals by first su
 A call to `LoginContext.getSubject().getPrincipals()` is made, with each resulting principal passed to each `AuthorityGranter` defined against the `AbstractJaasAuthenticationProvider.setAuthorityGranters(List)` property.
 
 Spring Security does not include any production `AuthorityGranter` instances, given that every JAAS principal has an implementation-specific meaning.
-However, there is a `TestAuthorityGranter` in the unit tests that demonstrates a simple `AuthorityGranter` implementation.
+However, Spring Security does issue the `FACTOR_PASSWORD` authority by default when authentication suceeds.
 
+[TIP]
+====
+There is a `TestAuthorityGranter` in the unit tests that demonstrates a simple `AuthorityGranter` implementation.
+====
 
 [[jaas-defaultjaasauthenticationprovider]]
 == DefaultJaasAuthenticationProvider

@@ -613,6 +613,11 @@ class OAuth2LoginSecurityConfig {
 ----
 ======
 
+[TIP]
+====
+Once authentication completes, it also contains the `FACTOR_AUTHORIZATION_CODE` granted authority.
+====
+
 [[oauth2login-advanced-map-authorities-oauth2userservice]]
 ==== Delegation-based Strategy with OAuth2UserService
 

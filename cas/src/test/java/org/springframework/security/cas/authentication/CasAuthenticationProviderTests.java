@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.cas.ServiceProperties;
@@ -344,6 +345,22 @@ public class CasAuthenticationProviderTests {
 		cap.authenticate(token);
 
 		assertThat(checkCount.get()).isEqualTo(1);
+	}
+
+	@Test
+	public void authenticateWhenSuccessfulThenIssuesFactor() throws Exception {
+		CasAuthenticationProvider cap = new CasAuthenticationProvider();
+		cap.setAuthenticationUserDetailsService(new MockAuthoritiesPopulator());
+		cap.setKey("qwerty");
+		StatelessTicketCache cache = new MockStatelessTicketCache();
+		cap.setStatelessTicketCache(cache);
+		cap.setServiceProperties(makeServiceProperties());
+		cap.setTicketValidator(new MockTicketValidator(true));
+		cap.afterPropertiesSet();
+		CasServiceTicketAuthenticationToken token = CasServiceTicketAuthenticationToken.stateful("ST-123");
+		token.setDetails("details");
+		Authentication result = cap.authenticate(token);
+		SecurityAssertions.assertThat(result).hasAuthority("FACTOR_CAS");
 	}
 
 	private class MockAuthoritiesPopulator implements AuthenticationUserDetailsService {
