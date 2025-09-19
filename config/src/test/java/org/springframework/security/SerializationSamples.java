@@ -162,6 +162,7 @@ import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsent;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationServerMetadata;
+import org.springframework.security.oauth2.server.authorization.OAuth2ClientRegistration;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenIntrospection;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.TestOAuth2Authorizations;
@@ -170,6 +171,7 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationConsentAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationGrantAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientAuthenticationToken;
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientRegistrationAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2DeviceAuthorizationConsentAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2DeviceAuthorizationRequestAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2DeviceVerificationAuthenticationToken;
@@ -475,6 +477,18 @@ final class SerializationSamples {
 		generatorByClassName.put(OAuth2TokenRevocationAuthenticationToken.class, (r) -> {
 			OAuth2TokenRevocationAuthenticationToken authenticationToken = new OAuth2TokenRevocationAuthenticationToken(
 					"token", principal, "tokenTypeHint");
+			authenticationToken.setDetails(details);
+			return authenticationToken;
+		});
+		OAuth2ClientRegistration oauth2ClientRegistration = OAuth2ClientRegistration.builder()
+			.grantType(AuthorizationGrantType.AUTHORIZATION_CODE.getValue())
+			.scope("scope1")
+			.redirectUri("https://localhost/oauth2/callback")
+			.build();
+		generatorByClassName.put(OAuth2ClientRegistration.class, (r) -> oauth2ClientRegistration);
+		generatorByClassName.put(OAuth2ClientRegistrationAuthenticationToken.class, (r) -> {
+			OAuth2ClientRegistrationAuthenticationToken authenticationToken = new OAuth2ClientRegistrationAuthenticationToken(
+					principal, oauth2ClientRegistration);
 			authenticationToken.setDetails(details);
 			return authenticationToken;
 		});

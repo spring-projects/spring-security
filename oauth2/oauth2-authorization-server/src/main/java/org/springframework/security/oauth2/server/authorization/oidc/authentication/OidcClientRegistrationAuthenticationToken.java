@@ -40,7 +40,7 @@ import org.springframework.util.Assert;
 public class OidcClientRegistrationAuthenticationToken extends AbstractAuthenticationToken {
 
 	@Serial
-	private static final long serialVersionUID = -6198261907690781217L;
+	private static final long serialVersionUID = 5392324479052435784L;
 
 	private final Authentication principal;
 

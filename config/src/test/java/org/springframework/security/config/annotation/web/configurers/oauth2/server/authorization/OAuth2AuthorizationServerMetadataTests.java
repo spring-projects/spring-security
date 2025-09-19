@@ -36,12 +36,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.oauth2.jose.TestJwks;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationServerMetadata;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationServerMetadataClaimNames;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
@@ -74,6 +76,9 @@ public class OAuth2AuthorizationServerMetadataTests {
 	private static JWKSource<SecurityContext> jwkSource;
 
 	public final SpringTestContext spring = new SpringTestContext(this);
+
+	@Autowired
+	private AuthorizationServerSettings authorizationServerSettings;
 
 	@Autowired
 	private MockMvc mvc;
@@ -156,6 +161,17 @@ public class OAuth2AuthorizationServerMetadataTests {
 					hasItems("scope1", "scope2")));
 	}
 
+	@Test
+	public void requestWhenAuthorizationServerMetadataRequestAndClientRegistrationEnabledThenMetadataResponseIncludesRegistrationEndpoint()
+			throws Exception {
+		this.spring.register(AuthorizationServerConfigurationWithClientRegistrationEnabled.class).autowire();
+
+		this.mvc.perform(get(ISSUER.concat(DEFAULT_OAUTH2_AUTHORIZATION_SERVER_METADATA_ENDPOINT_URI)))
+			.andExpect(status().is2xxSuccessful())
+			.andExpect(jsonPath("$.registration_endpoint")
+				.value(ISSUER.concat(this.authorizationServerSettings.getClientRegistrationEndpoint())));
+	}
+
 	@EnableWebSecurity
 	@Import(OAuth2AuthorizationServerConfiguration.class)
 	static class AuthorizationServerConfiguration {
@@ -177,6 +193,11 @@ public class OAuth2AuthorizationServerMetadataTests {
 		@Bean
 		JWKSource<SecurityContext> jwkSource() {
 			return jwkSource;
+		}
+
+		@Bean
+		JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
+			return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
 		}
 
 		@Bean
@@ -221,6 +242,28 @@ public class OAuth2AuthorizationServerMetadataTests {
 		AuthorizationServerSettings authorizationServerSettings() {
 			return AuthorizationServerSettings.builder().multipleIssuersAllowed(true).build();
 		}
+
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
+	static class AuthorizationServerConfigurationWithClientRegistrationEnabled
+			extends AuthorizationServerConfiguration {
+
+		// @formatter:off
+		@Bean
+		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.clientRegistrationEndpoint(Customizer.withDefaults())
+					)
+					.authorizeHttpRequests((authorize) ->
+							authorize.anyRequest().authenticated()
+					);
+			return http.build();
+		}
+		// @formatter:on
 
 	}
 

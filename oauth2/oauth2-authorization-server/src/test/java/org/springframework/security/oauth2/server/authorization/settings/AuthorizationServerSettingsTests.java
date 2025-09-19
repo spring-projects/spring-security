@@ -41,6 +41,7 @@ public class AuthorizationServerSettingsTests {
 		assertThat(authorizationServerSettings.getJwkSetEndpoint()).isEqualTo("/oauth2/jwks");
 		assertThat(authorizationServerSettings.getTokenRevocationEndpoint()).isEqualTo("/oauth2/revoke");
 		assertThat(authorizationServerSettings.getTokenIntrospectionEndpoint()).isEqualTo("/oauth2/introspect");
+		assertThat(authorizationServerSettings.getClientRegistrationEndpoint()).isEqualTo("/oauth2/register");
 		assertThat(authorizationServerSettings.getOidcClientRegistrationEndpoint()).isEqualTo("/connect/register");
 		assertThat(authorizationServerSettings.getOidcUserInfoEndpoint()).isEqualTo("/userinfo");
 		assertThat(authorizationServerSettings.getOidcLogoutEndpoint()).isEqualTo("/connect/logout");
@@ -54,6 +55,7 @@ public class AuthorizationServerSettingsTests {
 		String jwkSetEndpoint = "/oauth2/v1/jwks";
 		String tokenRevocationEndpoint = "/oauth2/v1/revoke";
 		String tokenIntrospectionEndpoint = "/oauth2/v1/introspect";
+		String clientRegistrationEndpoint = "/oauth2/v1/register";
 		String oidcClientRegistrationEndpoint = "/connect/v1/register";
 		String oidcUserInfoEndpoint = "/connect/v1/userinfo";
 		String oidcLogoutEndpoint = "/connect/v1/logout";
@@ -68,6 +70,7 @@ public class AuthorizationServerSettingsTests {
 			.tokenRevocationEndpoint(tokenRevocationEndpoint)
 			.tokenIntrospectionEndpoint(tokenIntrospectionEndpoint)
 			.tokenRevocationEndpoint(tokenRevocationEndpoint)
+			.clientRegistrationEndpoint(clientRegistrationEndpoint)
 			.oidcClientRegistrationEndpoint(oidcClientRegistrationEndpoint)
 			.oidcUserInfoEndpoint(oidcUserInfoEndpoint)
 			.oidcLogoutEndpoint(oidcLogoutEndpoint)
@@ -82,6 +85,7 @@ public class AuthorizationServerSettingsTests {
 		assertThat(authorizationServerSettings.getJwkSetEndpoint()).isEqualTo(jwkSetEndpoint);
 		assertThat(authorizationServerSettings.getTokenRevocationEndpoint()).isEqualTo(tokenRevocationEndpoint);
 		assertThat(authorizationServerSettings.getTokenIntrospectionEndpoint()).isEqualTo(tokenIntrospectionEndpoint);
+		assertThat(authorizationServerSettings.getClientRegistrationEndpoint()).isEqualTo(clientRegistrationEndpoint);
 		assertThat(authorizationServerSettings.getOidcClientRegistrationEndpoint())
 			.isEqualTo(oidcClientRegistrationEndpoint);
 		assertThat(authorizationServerSettings.getOidcUserInfoEndpoint()).isEqualTo(oidcUserInfoEndpoint);
@@ -111,6 +115,7 @@ public class AuthorizationServerSettingsTests {
 		assertThat(authorizationServerSettings.getJwkSetEndpoint()).isEqualTo("/oauth2/jwks");
 		assertThat(authorizationServerSettings.getTokenRevocationEndpoint()).isEqualTo("/oauth2/revoke");
 		assertThat(authorizationServerSettings.getTokenIntrospectionEndpoint()).isEqualTo("/oauth2/introspect");
+		assertThat(authorizationServerSettings.getClientRegistrationEndpoint()).isEqualTo("/oauth2/register");
 		assertThat(authorizationServerSettings.getOidcClientRegistrationEndpoint()).isEqualTo("/connect/register");
 		assertThat(authorizationServerSettings.getOidcUserInfoEndpoint()).isEqualTo("/userinfo");
 		assertThat(authorizationServerSettings.getOidcLogoutEndpoint()).isEqualTo("/connect/logout");
@@ -123,7 +128,7 @@ public class AuthorizationServerSettingsTests {
 			.settings((settings) -> settings.put("name2", "value2"))
 			.build();
 
-		assertThat(authorizationServerSettings.getSettings()).hasSize(14);
+		assertThat(authorizationServerSettings.getSettings()).hasSize(15);
 		assertThat(authorizationServerSettings.<String>getSetting("name1")).isEqualTo("value1");
 		assertThat(authorizationServerSettings.<String>getSetting("name2")).isEqualTo("value2");
 	}
@@ -165,6 +170,13 @@ public class AuthorizationServerSettingsTests {
 	public void tokenIntrospectionEndpointWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> AuthorizationServerSettings.builder().tokenIntrospectionEndpoint(null))
+			.withMessage("value cannot be null");
+	}
+
+	@Test
+	public void clientRegistrationEndpointWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> AuthorizationServerSettings.builder().clientRegistrationEndpoint(null))
 			.withMessage("value cannot be null");
 	}
 

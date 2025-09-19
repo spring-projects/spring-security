@@ -48,6 +48,8 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationException;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
+import org.springframework.security.oauth2.server.authorization.context.AuthorizationServerContext;
+import org.springframework.security.oauth2.server.authorization.context.AuthorizationServerContextHolder;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.security.oauth2.server.authorization.web.NimbusJwkSetEndpointFilter;
@@ -58,6 +60,7 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * An {@link AbstractHttpConfigurer} for OAuth 2.1 Authorization Server support.
@@ -78,6 +81,7 @@ import org.springframework.util.Assert;
  * @see OAuth2TokenRevocationEndpointConfigurer
  * @see OAuth2DeviceAuthorizationEndpointConfigurer
  * @see OAuth2DeviceVerificationEndpointConfigurer
+ * @see OAuth2ClientRegistrationEndpointConfigurer
  * @see OidcConfigurer
  * @see RegisteredClientRepository
  * @see OAuth2AuthorizationService
@@ -269,6 +273,25 @@ public final class OAuth2AuthorizationServerConfigurer
 	}
 
 	/**
+	 * Configures the OAuth 2.0 Dynamic Client Registration Endpoint.
+	 * @param clientRegistrationEndpointCustomizer the {@link Customizer} providing access
+	 * to the {@link OAuth2ClientRegistrationEndpointConfigurer}
+	 * @return the {@link OAuth2AuthorizationServerConfigurer} for further configuration
+	 */
+	public OAuth2AuthorizationServerConfigurer clientRegistrationEndpoint(
+			Customizer<OAuth2ClientRegistrationEndpointConfigurer> clientRegistrationEndpointCustomizer) {
+		OAuth2ClientRegistrationEndpointConfigurer clientRegistrationEndpointConfigurer = getConfigurer(
+				OAuth2ClientRegistrationEndpointConfigurer.class);
+		if (clientRegistrationEndpointConfigurer == null) {
+			addConfigurer(OAuth2ClientRegistrationEndpointConfigurer.class,
+					new OAuth2ClientRegistrationEndpointConfigurer(this::postProcess));
+			clientRegistrationEndpointConfigurer = getConfigurer(OAuth2ClientRegistrationEndpointConfigurer.class);
+		}
+		clientRegistrationEndpointCustomizer.customize(clientRegistrationEndpointConfigurer);
+		return this;
+	}
+
+	/**
 	 * Configures OpenID Connect 1.0 support (disabled by default).
 	 * @param oidcCustomizer the {@link Customizer} providing access to the
 	 * {@link OidcConfigurer}
@@ -377,6 +400,12 @@ public final class OAuth2AuthorizationServerConfigurer
 
 		httpSecurity.csrf((csrf) -> csrf.ignoringRequestMatchers(this.endpointsMatcher));
 
+		if (getConfigurer(OAuth2ClientRegistrationEndpointConfigurer.class) != null) {
+			httpSecurity
+				// Accept access tokens for Client Registration
+				.oauth2ResourceServer((oauth2ResourceServer) -> oauth2ResourceServer.jwt(Customizer.withDefaults()));
+		}
+
 		OidcConfigurer oidcConfigurer = getConfigurer(OidcConfigurer.class);
 		if (oidcConfigurer != null) {
 			if (oidcConfigurer.getConfigurer(OidcUserInfoEndpointConfigurer.class) != null
@@ -392,6 +421,27 @@ public final class OAuth2AuthorizationServerConfigurer
 
 	@Override
 	public void configure(HttpSecurity httpSecurity) {
+		OAuth2ClientRegistrationEndpointConfigurer clientRegistrationEndpointConfigurer = getConfigurer(
+				OAuth2ClientRegistrationEndpointConfigurer.class);
+		if (clientRegistrationEndpointConfigurer != null) {
+			OAuth2AuthorizationServerMetadataEndpointConfigurer authorizationServerMetadataEndpointConfigurer = getConfigurer(
+					OAuth2AuthorizationServerMetadataEndpointConfigurer.class);
+
+			authorizationServerMetadataEndpointConfigurer.addDefaultAuthorizationServerMetadataCustomizer((builder) -> {
+				AuthorizationServerContext authorizationServerContext = AuthorizationServerContextHolder.getContext();
+				String issuer = authorizationServerContext.getIssuer();
+				AuthorizationServerSettings authorizationServerSettings = authorizationServerContext
+					.getAuthorizationServerSettings();
+
+				String clientRegistrationEndpoint = UriComponentsBuilder.fromUriString(issuer)
+					.path(authorizationServerSettings.getClientRegistrationEndpoint())
+					.build()
+					.toUriString();
+
+				builder.clientRegistrationEndpoint(clientRegistrationEndpoint);
+			});
+		}
+
 		this.configurers.values().forEach((configurer) -> configurer.configure(httpSecurity));
 
 		AuthorizationServerSettings authorizationServerSettings = OAuth2ConfigurerUtils

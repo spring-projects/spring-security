@@ -138,6 +138,15 @@ public final class AuthorizationServerSettings extends AbstractSettings {
 	}
 
 	/**
+	 * Returns the OAuth 2.0 Dynamic Client Registration endpoint. The default is
+	 * {@code /oauth2/register}.
+	 * @return the OAuth 2.0 Dynamic Client Registration endpoint
+	 */
+	public String getClientRegistrationEndpoint() {
+		return getSetting(ConfigurationSettingNames.AuthorizationServer.CLIENT_REGISTRATION_ENDPOINT);
+	}
+
+	/**
 	 * Returns the OpenID Connect 1.0 Client Registration endpoint. The default is
 	 * {@code /connect/register}.
 	 * @return the OpenID Connect 1.0 Client Registration endpoint
@@ -177,6 +186,7 @@ public final class AuthorizationServerSettings extends AbstractSettings {
 			.jwkSetEndpoint("/oauth2/jwks")
 			.tokenRevocationEndpoint("/oauth2/revoke")
 			.tokenIntrospectionEndpoint("/oauth2/introspect")
+			.clientRegistrationEndpoint("/oauth2/register")
 			.oidcClientRegistrationEndpoint("/connect/register")
 			.oidcUserInfoEndpoint("/userinfo")
 			.oidcLogoutEndpoint("/connect/logout");
@@ -313,6 +323,17 @@ public final class AuthorizationServerSettings extends AbstractSettings {
 		public Builder tokenIntrospectionEndpoint(String tokenIntrospectionEndpoint) {
 			return setting(ConfigurationSettingNames.AuthorizationServer.TOKEN_INTROSPECTION_ENDPOINT,
 					tokenIntrospectionEndpoint);
+		}
+
+		/**
+		 * Sets the OAuth 2.0 Dynamic Client Registration endpoint.
+		 * @param clientRegistrationEndpoint the OAuth 2.0 Dynamic Client Registration
+		 * endpoint
+		 * @return the {@link Builder} for further configuration
+		 */
+		public Builder clientRegistrationEndpoint(String clientRegistrationEndpoint) {
+			return setting(ConfigurationSettingNames.AuthorizationServer.CLIENT_REGISTRATION_ENDPOINT,
+					clientRegistrationEndpoint);
 		}
 
 		/**
