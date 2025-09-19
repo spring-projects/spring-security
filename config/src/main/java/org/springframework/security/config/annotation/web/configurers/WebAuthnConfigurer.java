@@ -27,11 +27,14 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.ui.DefaultResourcesFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialRpEntity;
 import org.springframework.security.web.webauthn.authentication.PublicKeyCredentialRequestOptionsFilter;
 import org.springframework.security.web.webauthn.authentication.WebAuthnAuthenticationFilter;
@@ -148,6 +151,16 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 		Assert.notNull(creationOptionsRepository, "creationOptionsRepository can't be null");
 		this.creationOptionsRepository = creationOptionsRepository;
 		return this;
+	}
+
+	@Override
+	public void init(H http) throws Exception {
+		ExceptionHandlingConfigurer<H> exceptions = http.getConfigurer(ExceptionHandlingConfigurer.class);
+		if (exceptions != null) {
+			AuthenticationEntryPoint entryPoint = new LoginUrlAuthenticationEntryPoint("/login");
+			exceptions.defaultDeniedHandlerForMissingAuthority(
+					(ep) -> ep.addEntryPointFor(entryPoint, AnyRequestMatcher.INSTANCE), "FACTOR_WEBAUTHN");
+		}
 	}
 
 	@Override

@@ -157,6 +157,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 	 * @param grantedAuthoritySupplier the supplier that grants authorities
 	 */
 	public void setGrantedAuthoritySupplier(Supplier<Collection<GrantedAuthority>> grantedAuthoritySupplier) {
+		Assert.notNull(grantedAuthoritySupplier, "grantedAuthoritySupplier cannot be null");
 		this.grantedAuthoritySupplier = grantedAuthoritySupplier;
 	}
 

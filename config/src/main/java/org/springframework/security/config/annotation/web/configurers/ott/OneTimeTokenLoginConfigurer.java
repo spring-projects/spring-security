@@ -35,8 +35,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -134,6 +136,13 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 		AuthenticationProvider authenticationProvider = getAuthenticationProvider();
 		http.authenticationProvider(postProcess(authenticationProvider));
 		intiDefaultLoginFilter(http);
+		ExceptionHandlingConfigurer<H> exceptions = http.getConfigurer(ExceptionHandlingConfigurer.class);
+		if (exceptions != null) {
+			AuthenticationEntryPoint entryPoint = getAuthenticationEntryPoint();
+			RequestMatcher requestMatcher = getAuthenticationEntryPointMatcher(http);
+			exceptions.defaultDeniedHandlerForMissingAuthority((ep) -> ep.addEntryPointFor(entryPoint, requestMatcher),
+					"FACTOR_OTT");
+		}
 	}
 
 	private void intiDefaultLoginFilter(H http) {

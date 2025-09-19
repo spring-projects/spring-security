@@ -26,10 +26,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.TestAuthentication;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.servlet.TestMockHttpServletRequests;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -188,6 +193,83 @@ public class DefaultLoginPageGeneratingFilterTests {
 
 				        <button class="primary" type="submit" form="ott-form">Send Token</button>
 				      </form>
+				""");
+	}
+
+	@Test
+	public void generateWhenOneTimeTokenRequestedThenOttForm() throws Exception {
+		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter();
+		filter.setLoginPageUrl(DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL);
+		filter.setFormLoginEnabled(true);
+		filter.setOneTimeTokenEnabled(true);
+		filter.setOneTimeTokenGenerationUrl("/ott/authenticate");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		filter.doFilter(TestMockHttpServletRequests.get("/login?factor=ott").build(), response, this.chain);
+		assertThat(response.getContentAsString()).contains("Request a One-Time Token");
+		assertThat(response.getContentAsString()).contains("""
+				      <form id="ott-form" class="login-form" method="post" action="/ott/authenticate">
+				        <h2>Request a One-Time Token</h2>
+
+				        <p>
+				          <label for="ott-username" class="screenreader">Username</label>
+				          <input type="text" id="ott-username" name="username" placeholder="Username" required>
+				        </p>
+
+				        <button class="primary" type="submit" form="ott-form">Send Token</button>
+				      </form>
+				""");
+		assertThat(response.getContentAsString()).doesNotContain("Password");
+	}
+
+	@Test
+	public void generateWhenTwoAuthoritiesRequestedThenBothForms() throws Exception {
+		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter();
+		filter.setLoginPageUrl(DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL);
+		filter.setFormLoginEnabled(true);
+		filter.setUsernameParameter("username");
+		filter.setPasswordParameter("password");
+		filter.setOneTimeTokenEnabled(true);
+		filter.setOneTimeTokenGenerationUrl("/ott/authenticate");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		filter.doFilter(TestMockHttpServletRequests.get("/login?factor=ott&factor=password").build(), response,
+				this.chain);
+		assertThat(response.getContentAsString()).contains("Request a One-Time Token");
+		assertThat(response.getContentAsString()).contains("""
+				      <form id="ott-form" class="login-form" method="post" action="/ott/authenticate">
+				        <h2>Request a One-Time Token</h2>
+
+				        <p>
+				          <label for="ott-username" class="screenreader">Username</label>
+				          <input type="text" id="ott-username" name="username" placeholder="Username" required>
+				        </p>
+
+				        <button class="primary" type="submit" form="ott-form">Send Token</button>
+				      </form>
+				""");
+		assertThat(response.getContentAsString()).contains("Password");
+	}
+
+	@Test
+	public void generateWhenAuthenticatedThenReadOnlyUsername() throws Exception {
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter();
+		filter.setLoginPageUrl(DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL);
+		filter.setFormLoginEnabled(true);
+		filter.setUsernameParameter("username");
+		filter.setPasswordParameter("password");
+		filter.setOneTimeTokenEnabled(true);
+		filter.setOneTimeTokenGenerationUrl("/ott/authenticate");
+		filter.setSecurityContextHolderStrategy(strategy);
+		given(strategy.getContext()).willReturn(new SecurityContextImpl(TestAuthentication.authenticatedUser()));
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		filter.doFilter(TestMockHttpServletRequests.get("/login").build(), response, this.chain);
+		assertThat(response.getContentAsString()).contains("Request a One-Time Token");
+		assertThat(response.getContentAsString()).contains(
+				"""
+						<input type="text" id="ott-username" name="username" value="user" placeholder="Username" required readonly>
+						""");
+		assertThat(response.getContentAsString()).contains("""
+				<input type="text" id="username" name="username" value="user" placeholder="Username" required readonly>
 				""");
 	}
 

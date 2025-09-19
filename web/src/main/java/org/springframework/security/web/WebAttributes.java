@@ -16,6 +16,7 @@
 
 package org.springframework.security.web;
 
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 
 /**
@@ -51,6 +52,15 @@ public final class WebAttributes {
 	 */
 	public static final String WEB_INVOCATION_PRIVILEGE_EVALUATOR_ATTRIBUTE = WebAttributes.class.getName()
 			+ ".WEB_INVOCATION_PRIVILEGE_EVALUATOR_ATTRIBUTE";
+
+	/**
+	 * Used to specify to the view layer what missing authorities caused an
+	 * {@link AuthorizationDeniedException}
+	 *
+	 * @since 7.0
+	 * @see org.springframework.security.web.access.DelegatingMissingAuthorityAccessDeniedHandler
+	 */
+	public static final String MISSING_AUTHORITIES = WebAttributes.class + ".MISSING_AUTHORITIES";
 
 	private WebAttributes() {
 	}
