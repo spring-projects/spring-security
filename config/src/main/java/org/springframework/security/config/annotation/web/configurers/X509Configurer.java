@@ -17,18 +17,15 @@
 package org.springframework.security.config.annotation.web.configurers;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.jspecify.annotations.Nullable;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -182,7 +179,8 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 	public void init(H http) {
 		PreAuthenticatedAuthenticationProvider authenticationProvider = new PreAuthenticatedAuthenticationProvider();
 		authenticationProvider.setPreAuthenticatedUserDetailsService(getAuthenticationUserDetailsService(http));
-		http.authenticationProvider(new AuthorityGrantingAuthenticationProvider(authenticationProvider))
+		authenticationProvider.setGrantedAuthoritySupplier(() -> AuthorityUtils.createAuthorityList("FACTOR_X509"));
+		http.authenticationProvider(authenticationProvider)
 			.setSharedObject(AuthenticationEntryPoint.class, new Http403ForbiddenEntryPoint());
 		ExceptionHandlingConfigurer<H> exceptions = http.getConfigurer(ExceptionHandlingConfigurer.class);
 		if (exceptions != null) {
@@ -232,33 +230,6 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 			return null;
 		}
 		return context.getBeanProvider(type).getIfUnique();
-	}
-
-	private static final class AuthorityGrantingAuthenticationProvider implements AuthenticationProvider {
-
-		private final AuthenticationProvider delegate;
-
-		private AuthorityGrantingAuthenticationProvider(AuthenticationProvider delegate) {
-			this.delegate = delegate;
-		}
-
-		@Override
-		public @Nullable Authentication authenticate(Authentication authentication) throws AuthenticationException {
-			Authentication result = this.delegate.authenticate(authentication);
-			if (result == null) {
-				return result;
-			}
-			return result
-				.toBuilder()
-				.authorities((a) -> a.add(new SimpleGrantedAuthority("FACTOR_X509")))
-				.build();
-		}
-
-		@Override
-		public boolean supports(Class<?> authentication) {
-			return true;
-		}
-
 	}
 
 }
