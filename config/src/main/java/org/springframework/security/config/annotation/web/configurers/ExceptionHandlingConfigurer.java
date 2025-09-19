@@ -16,23 +16,48 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.io.IOException;
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.authorization.AuthorityAuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.FormPostRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.RequestMatcherDelegatingAccessDeniedHandler;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.ott.GenerateOneTimeTokenFilter;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.Assert;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * Adds exception handling for Spring Security related exceptions to an application. All
@@ -230,13 +255,13 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private AccessDeniedHandler createDefaultDeniedHandler(H http) {
 		if (this.defaultDeniedHandlerMappings.isEmpty()) {
-			return new AccessDeniedHandlerImpl();
+			return new AuthenticationFactorDelegatingAccessDeniedHandler();
 		}
 		if (this.defaultDeniedHandlerMappings.size() == 1) {
 			return this.defaultDeniedHandlerMappings.values().iterator().next();
 		}
 		return new RequestMatcherDelegatingAccessDeniedHandler(this.defaultDeniedHandlerMappings,
-				new AccessDeniedHandlerImpl());
+				new AuthenticationFactorDelegatingAccessDeniedHandler());
 	}
 
 	private AuthenticationEntryPoint createDefaultEntryPoint(H http) {
@@ -260,6 +285,98 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 			return result;
 		}
 		return new HttpSessionRequestCache();
+	}
+
+	private static final class AuthenticationFactorDelegatingAccessDeniedHandler implements AccessDeniedHandler {
+
+		private final Map<String, AuthenticationEntryPoint> entryPoints = Map.of("FACTOR_PASSWORD",
+				new LoginUrlAuthenticationEntryPoint("/login"), "FACTOR_AUTHORIZATION_CODE",
+				new LoginUrlAuthenticationEntryPoint("/login"), "FACTOR_SAML_RESPONSE",
+				new LoginUrlAuthenticationEntryPoint("/login"), "FACTOR_WEBAUTHN",
+				new LoginUrlAuthenticationEntryPoint("/login"), "FACTOR_BEARER",
+				new BearerTokenAuthenticationEntryPoint(), "FACTOR_OTT",
+				new PostAuthenticationEntryPoint(GenerateOneTimeTokenFilter.DEFAULT_GENERATE_URL + "?username={u}",
+						Map.of("u", Authentication::getName)));
+
+		private final AccessDeniedHandler defaults = new AccessDeniedHandlerImpl();
+
+		@Override
+		public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException ex)
+				throws IOException, ServletException {
+			Collection<String> needed = authorizationRequest(ex);
+			if (needed == null) {
+				this.defaults.handle(request, response, ex);
+				return;
+			}
+			for (String authority : needed) {
+				AuthenticationEntryPoint entryPoint = this.entryPoints.get(authority);
+				if (entryPoint != null) {
+					AuthenticationException insufficient = new InsufficientAuthenticationException(ex.getMessage(), ex);
+					entryPoint.commence(request, response, insufficient);
+					return;
+				}
+			}
+			this.defaults.handle(request, response, ex);
+		}
+
+		private Collection<String> authorizationRequest(AccessDeniedException access) {
+			if (!(access instanceof AuthorizationDeniedException denied)) {
+				return null;
+			}
+			if (!(denied.getAuthorizationResult() instanceof AuthorityAuthorizationDecision decision)) {
+				return null;
+			}
+			return decision.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
+		}
+
+	}
+
+	private static final class PostAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
+		private final String entryPointUri;
+
+		private final Map<String, Function<Authentication, String>> params;
+
+		private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
+		private RedirectStrategy redirectStrategy = new FormPostRedirectStrategy();
+
+		private PostAuthenticationEntryPoint(String entryPointUri,
+				Map<String, Function<Authentication, String>> params) {
+			this.entryPointUri = entryPointUri;
+			this.params = params;
+		}
+
+		@Override
+		public void commence(HttpServletRequest request, HttpServletResponse response,
+				AuthenticationException authException) throws IOException, ServletException {
+			Authentication authentication = getAuthentication(authException);
+			Assert.notNull(authentication, "could not find authentication in order to perform post");
+			Map<String, String> params = this.params.entrySet()
+				.stream()
+				.collect(Collectors.toMap(Map.Entry::getKey, (entry) -> entry.getValue().apply(authentication)));
+			UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(this.entryPointUri);
+			CsrfToken csrf = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+			if (csrf != null) {
+				builder.queryParam(csrf.getParameterName(), csrf.getToken());
+			}
+			String entryPointUrl = builder.build(false).expand(params).toUriString();
+			this.redirectStrategy.sendRedirect(request, response, entryPointUrl);
+		}
+
+		private Authentication getAuthentication(AuthenticationException authException) {
+			Authentication authentication = authException.getAuthenticationRequest();
+			if (authentication != null && authentication.isAuthenticated()) {
+				return authentication;
+			}
+			authentication = this.securityContextHolderStrategy.getContext().getAuthentication();
+			if (authentication != null && authentication.isAuthenticated()) {
+				return authentication;
+			}
+			return null;
+		}
+
 	}
 
 }
