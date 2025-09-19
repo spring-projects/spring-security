@@ -129,10 +129,26 @@ public class SecurityExpressionRootTests {
 	}
 
 	@Test
+	public void hasAllRoles() {
+		assertThat(this.root.hasAllRoles("A")).isTrue();
+		assertThat(this.root.hasAllRoles("A", "B")).isTrue();
+		assertThat(this.root.hasAllRoles("NO")).isFalse();
+		assertThat(this.root.hasAllRoles("A", "NO")).isFalse();
+	}
+
+	@Test
 	public void hasAuthorityDoesNotAddDefaultPrefix() {
 		assertThat(this.root.hasAuthority("A")).isFalse();
 		assertThat(this.root.hasAnyAuthority("NO", "A")).isFalse();
 		assertThat(this.root.hasAnyAuthority("ROLE_A", "NOT")).isTrue();
+	}
+
+	@Test
+	public void hasAllAuthorities() {
+		assertThat(this.root.hasAllAuthorities("ROLE_A")).isTrue();
+		assertThat(this.root.hasAllAuthorities("ROLE_A", "ROLE_B")).isTrue();
+		assertThat(this.root.hasAllAuthorities("ROLE_NO")).isFalse();
+		assertThat(this.root.hasAllAuthorities("ROLE_A", "ROLE_NO")).isFalse();
 	}
 
 	@Test

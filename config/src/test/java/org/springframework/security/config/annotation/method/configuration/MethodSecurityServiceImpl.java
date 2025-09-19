@@ -203,4 +203,12 @@ public class MethodSecurityServiceImpl implements MethodSecurityService {
 		return "ok";
 	}
 
+	@Override
+	public void hasAllRolesUserAdmin() {
+	}
+
+	@Override
+	public void hasAllAuthoritiesRoleUserRoleAdmin() {
+	}
+
 }

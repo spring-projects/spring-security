@@ -282,6 +282,52 @@ public class PrePostMethodSecurityConfigurationTests {
 		verify(strategy, atLeastOnce()).getContext();
 	}
 
+	@WithMockUser(roles = { "ADMIN", "USER" })
+	@Test
+	public void hasAllAuthoritiesRoleUserRoleAdminWhenGranted() {
+		this.spring.register(MethodSecurityServiceConfig.class).autowire();
+		this.methodSecurityService.hasAllAuthoritiesRoleUserRoleAdmin();
+	}
+
+	@WithMockUser(roles = { "USER" })
+	@Test
+	public void hasAllAuthoritiesRoleUserRoleAdminWhenMissingOneThenDenied() {
+		this.spring.register(MethodSecurityServiceConfig.class).autowire();
+		assertThatExceptionOfType(AccessDeniedException.class)
+			.isThrownBy(this.methodSecurityService::hasAllAuthoritiesRoleUserRoleAdmin);
+	}
+
+	@WithMockUser(roles = { "OTHER" })
+	@Test
+	public void hasAllAuthoritiesRoleUserRoleAdminWhenAllThenDenied() {
+		this.spring.register(MethodSecurityServiceConfig.class).autowire();
+		assertThatExceptionOfType(AccessDeniedException.class)
+			.isThrownBy(this.methodSecurityService::hasAllAuthoritiesRoleUserRoleAdmin);
+	}
+
+	@WithMockUser(roles = { "ADMIN", "USER" })
+	@Test
+	public void hasAllRolesRoleUserRoleAdminWhenGranted() {
+		this.spring.register(MethodSecurityServiceConfig.class).autowire();
+		this.methodSecurityService.hasAllRolesUserAdmin();
+	}
+
+	@WithMockUser(roles = { "USER" })
+	@Test
+	public void hasAllRolesRoleUserRoleAdminWhenMissingOneThenDenied() {
+		this.spring.register(MethodSecurityServiceConfig.class).autowire();
+		assertThatExceptionOfType(AccessDeniedException.class)
+			.isThrownBy(this.methodSecurityService::hasAllRolesUserAdmin);
+	}
+
+	@WithMockUser(roles = { "OTHER" })
+	@Test
+	public void hasAllRolesRoleUserRoleAdminWhenAllThenDenied() {
+		this.spring.register(MethodSecurityServiceConfig.class).autowire();
+		assertThatExceptionOfType(AccessDeniedException.class)
+			.isThrownBy(this.methodSecurityService::hasAllRolesUserAdmin);
+	}
+
 	@WithMockUser(authorities = "PREFIX_ADMIN")
 	@Test
 	public void preAuthorizeAdminWhenRoleAdminAndCustomPrefixThenPasses() {

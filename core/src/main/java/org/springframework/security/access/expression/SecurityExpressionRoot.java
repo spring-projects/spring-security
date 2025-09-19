@@ -124,6 +124,11 @@ public abstract class SecurityExpressionRoot<T extends @Nullable Object> impleme
 		return isGranted(this.authorizationManagerFactory.hasAnyAuthority(authorities));
 	}
 
+	public final boolean hasAllAuthorities(String... authorities) {
+		AuthorizationManager<T> manager = this.authorizationManagerFactory.hasAllAuthorities(authorities);
+		return isGranted(manager);
+	}
+
 	@Override
 	public final boolean hasRole(String role) {
 		if (this.authorizationManagerFactory instanceof DefaultAuthorizationManagerFactory<T>) {
@@ -153,6 +158,11 @@ public abstract class SecurityExpressionRoot<T extends @Nullable Object> impleme
 			}
 		}
 		return isGranted(this.authorizationManagerFactory.hasAnyRole(roles));
+	}
+
+	public final boolean hasAllRoles(String... roles) {
+		AuthorizationManager<T> manager = this.authorizationManagerFactory.hasAllRoles(roles);
+		return isGranted(manager);
 	}
 
 	@Override
