@@ -96,7 +96,7 @@ image:{icondir}/number_2.png[] The `ProviderManager` is configured to use an xre
 
 [[oauth2resourceserver-opaque-architecture-introspector]]
 image:{icondir}/number_3.png[] `OpaqueTokenAuthenticationProvider` introspects the opaque token and adds granted authorities using an <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>>.
-When authentication is successful, the xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[`Authentication`] that is returned is of type `BearerTokenAuthentication` and has a principal that is the `OAuth2AuthenticatedPrincipal` returned by the configured <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>>.
+When authentication is successful, the xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[`Authentication`] that is returned is of type `BearerTokenAuthentication` and has a principal that is the `OAuth2AuthenticatedPrincipal` returned by the configured <<oauth2resourceserver-opaque-introspector,`OpaqueTokenIntrospector`>> and a set of authorities that contains at least `FACTOR_BEARER`.
 Ultimately, the returned `BearerTokenAuthentication` will be set on the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[`SecurityContextHolder`] by the authentication `Filter`.
 
 [[oauth2resourceserver-opaque-attributes]]

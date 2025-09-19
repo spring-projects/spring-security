@@ -19,5 +19,5 @@ image:{icondir}/number_3.png[] `DaoAuthenticationProvider` looks up the `UserDet
 
 image:{icondir}/number_4.png[] `DaoAuthenticationProvider` uses the xref:servlet/authentication/passwords/password-encoder.adoc#servlet-authentication-password-storage[`PasswordEncoder`] to validate the password on the `UserDetails` returned in the previous step.
 
-image:{icondir}/number_5.png[] When authentication is successful, the xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[`Authentication`] that is returned is of type `UsernamePasswordAuthenticationToken` and has a principal that is the `UserDetails` returned by the configured `UserDetailsService`.
+image:{icondir}/number_5.png[] When authentication is successful, the xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[`Authentication`] that is returned is of type `UsernamePasswordAuthenticationToken` and has a principal that is the `UserDetails` returned by the configured `UserDetailsService` and a set of authorities containing at least `FACTOR_PASSWORD`.
 Ultimately, the returned `UsernamePasswordAuthenticationToken` is set on the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[`SecurityContextHolder`] by the authentication `Filter`.

@@ -79,7 +79,7 @@ The `CasProxyDecider` indicates whether the proxy list in the `TicketResponse` i
 Several implementations are provided with Spring Security: `RejectProxyTickets`, `AcceptAnyCasProxy` and `NamedCasProxyDecider`.
 These names are largely self-explanatory, except `NamedCasProxyDecider` which allows a `List` of trusted proxies to be provided.
 * `CasAuthenticationProvider` will next request a `AuthenticationUserDetailsService` to load the `GrantedAuthority` objects that apply to the user contained in the `Assertion`.
-* If there were no problems, `CasAuthenticationProvider` constructs a `CasAuthenticationToken` including the details contained in the `TicketResponse` and the ``GrantedAuthority``s.
+* If there were no problems, `CasAuthenticationProvider` constructs a `CasAuthenticationToken` including the details contained in the `TicketResponse` and a set of ``GrantedAuthority``s that contains at least `FACTOR_BEARER`.
 * Control then returns to `CasAuthenticationFilter`, which places the created `CasAuthenticationToken` in the security context.
 * The user's browser is redirected to the original page that caused the `AuthenticationException` (or a custom destination depending on the configuration).
 

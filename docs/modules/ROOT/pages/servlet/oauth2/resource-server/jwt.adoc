@@ -105,7 +105,7 @@ image:{icondir}/number_3.png[] `JwtAuthenticationProvider` decodes, verifies, an
 [[oauth2resourceserver-jwt-architecture-jwtauthenticationconverter]]
 image:{icondir}/number_4.png[] `JwtAuthenticationProvider` then uses the <<oauth2resourceserver-jwt-authorization-extraction,`JwtAuthenticationConverter`>> to convert the `Jwt` into a `Collection` of granted authorities.
 
-image:{icondir}/number_5.png[] When authentication is successful, the xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[`Authentication`] that is returned is of type `JwtAuthenticationToken` and has a principal that is the `Jwt` returned by the configured `JwtDecoder`.
+image:{icondir}/number_5.png[] When authentication is successful, the xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[`Authentication`] that is returned is of type `JwtAuthenticationToken` and has a principal that is the `Jwt` returned by the configured `JwtDecoder` and a set of authorities that contains at least `FACTOR_BEARER`.
 Ultimately, the returned `JwtAuthenticationToken` will be set on the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[`SecurityContextHolder`] by the authentication `Filter`.
 
 [[oauth2resourceserver-jwt-jwkseturi]]
