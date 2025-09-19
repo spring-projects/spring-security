@@ -352,8 +352,8 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		ExceptionHandlingConfigurer<B> exceptions = http.getConfigurer(ExceptionHandlingConfigurer.class);
 		if (exceptions != null) {
 			RequestMatcher requestMatcher = getAuthenticationEntryPointMatcher(http);
-			exceptions.defaultAuthenticationEntryPointFor((ep) -> ep.addEntryPointFor(loginEntryPoint, requestMatcher),
-					"FACTOR_SAML_RESPONSE");
+			exceptions.defaultDeniedHandlerForMissingAuthority(
+					(ep) -> ep.addEntryPointFor(loginEntryPoint, requestMatcher), "FACTOR_SAML_RESPONSE");
 		}
 		return loginEntryPoint;
 	}

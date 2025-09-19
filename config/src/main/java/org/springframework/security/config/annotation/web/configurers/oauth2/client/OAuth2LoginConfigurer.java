@@ -565,8 +565,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		ExceptionHandlingConfigurer<B> exceptions = http.getConfigurer(ExceptionHandlingConfigurer.class);
 		if (exceptions != null) {
 			RequestMatcher requestMatcher = getAuthenticationEntryPointMatcher(http);
-			exceptions.defaultAuthenticationEntryPointFor((ep) -> ep.addEntryPointFor(loginEntryPoint, requestMatcher),
-					"FACTOR_AUTHORIZATION_CODE");
+			exceptions.defaultDeniedHandlerForMissingAuthority(
+					(ep) -> ep.addEntryPointFor(loginEntryPoint, requestMatcher), "FACTOR_AUTHORIZATION_CODE");
 		}
 		return loginEntryPoint;
 	}
