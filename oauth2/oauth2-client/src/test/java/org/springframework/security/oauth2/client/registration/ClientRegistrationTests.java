@@ -37,7 +37,6 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * Tests for {@link ClientRegistration}.
@@ -683,7 +682,7 @@ public class ClientRegistrationTests {
 		// should not be null
 		assertThat(clientRegistration.getClientSettings()).isNotNull();
 		// proof key should be false for passivity
-		assertThat(clientRegistration.getClientSettings().isRequireProofKey()).isFalse();
+		assertThat(clientRegistration.getClientSettings().isRequireProofKey()).isTrue();
 	}
 
 	// gh-16382
@@ -701,8 +700,53 @@ public class ClientRegistrationTests {
 			.tokenUri(TOKEN_URI)
 			.build();
 
-		// proof key should be false for passivity
 		assertThat(clientRegistration.getClientSettings().isRequireProofKey()).isTrue();
+	}
+
+	@Test
+	void buildWhenNewAuthorizationCodeAndPkceDisabledThenBuilds() {
+		ClientRegistration.ClientSettings pkceDisabled = ClientRegistration.ClientSettings.builder()
+			.requireProofKey(false)
+			.build();
+		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+			.clientId(CLIENT_ID)
+			.clientSettings(pkceDisabled)
+			.authorizationGrantType(new AuthorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE.getValue()))
+			.redirectUri(REDIRECT_URI)
+			.authorizationUri(AUTHORIZATION_URI)
+			.tokenUri(TOKEN_URI)
+			.build();
+
+		assertThat(clientRegistration.getClientSettings().isRequireProofKey()).isFalse();
+	}
+
+	@Test
+	void buildWhenNewAuthorizationCodeAndPrivateClientThenPkceEnabledAndExceptionThrown() {
+		List<ClientAuthenticationMethod> clientAuthenticationMethods = Arrays
+			.stream(ClientAuthenticationMethod.class.getFields())
+			.filter((field) -> Modifier.isFinal(field.getModifiers())
+					&& field.getType() == ClientAuthenticationMethod.class)
+			.map((field) -> getStaticValue(field, ClientAuthenticationMethod.class))
+			.filter((authenticationMethod) -> authenticationMethod != ClientAuthenticationMethod.NONE)
+			.map((authenticationMethod) -> new ClientAuthenticationMethod(authenticationMethod.getValue()))
+			.toList();
+		for (ClientAuthenticationMethod clientAuthenticationMethod : clientAuthenticationMethods) {
+			ClientRegistration.ClientSettings pkceEnabled = ClientRegistration.ClientSettings.builder()
+				.requireProofKey(true)
+				.build();
+			ClientRegistration clientRegistration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSettings(pkceEnabled)
+				.authorizationGrantType(
+						new AuthorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE.getValue()))
+				.clientAuthenticationMethod(clientAuthenticationMethod)
+				.redirectUri(REDIRECT_URI)
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.build();
+
+			assertThat(clientRegistration.getClientSettings().isRequireProofKey()).isTrue();
+		}
 	}
 
 	@ParameterizedTest
@@ -718,11 +762,7 @@ public class ClientRegistrationTests {
 			.redirectUri(REDIRECT_URI)
 			.authorizationUri(AUTHORIZATION_URI)
 			.tokenUri(TOKEN_URI);
-
-		assertThatIllegalStateException().describedAs(
-				"clientSettings.isRequireProofKey=true is only valid with authorizationGrantType=AUTHORIZATION_CODE. Got authorizationGrantType={}",
-				invalidGrantType)
-			.isThrownBy(builder::build);
+		assertThatIllegalArgumentException().isThrownBy(builder::build);
 	}
 
 	static List<AuthorizationGrantType> invalidPkceGrantTypes() {
