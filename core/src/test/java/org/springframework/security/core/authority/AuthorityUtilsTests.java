@@ -54,4 +54,38 @@ public class AuthorityUtilsTests {
 		assertThat(authorities).element(2).extracting(GrantedAuthority::getAuthority).isEqualTo("ROLE_C");
 	}
 
+	@Test
+	public void getSimpleNameWhenRoleThenRemovesPrefix() {
+		GrantedAuthority role = new SimpleGrantedAuthority("ROLE_ADMIN");
+		assertThat(AuthorityUtils.getSimpleName(role)).isEqualTo("ADMIN");
+	}
+
+	@Test
+	public void getSimpleNameWhenScopeThenRemovesPrefix() {
+		GrantedAuthority role = new SimpleGrantedAuthority("SCOPE_message:read");
+		assertThat(AuthorityUtils.getSimpleName(role)).isEqualTo("message:read");
+	}
+
+	@Test
+	public void getSimpleNameWhenFactorThenRemovesPrefix() {
+		GrantedAuthority role = new SimpleGrantedAuthority("FACTOR_PASSWORD");
+		assertThat(AuthorityUtils.getSimpleName(role)).isEqualTo("PASSWORD");
+	}
+
+	@Test
+	public void authoritiesOfTypeWhenEmptyThenReturnsEmptyStream() {
+		List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
+		List<GrantedAuthority> factors = AuthorityUtils.authoritiesOfType("FACTOR", authorities).toList();
+		assertThat(factors).isEmpty();
+	}
+
+	@Test
+	public void authoritiesOfTypeWhenFactorsThenReturnsOnlyFactors() {
+		List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER", "FACTOR_PASSWORD",
+				"FACTOR_OTT");
+		List<GrantedAuthority> factors = AuthorityUtils.authoritiesOfType("FACTOR", authorities).toList();
+		assertThat(factors).extracting(GrantedAuthority::getAuthority)
+			.containsExactlyInAnyOrder("FACTOR_PASSWORD", "FACTOR_OTT");
+	}
+
 }
