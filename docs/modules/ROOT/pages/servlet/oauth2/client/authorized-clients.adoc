@@ -495,9 +495,9 @@ class RestClientConfig {
 =====
 
 [[oauth2-client-rest-client-interface]]
-=== HTTP Interface Integration
+=== HTTP Service Clients
 
-Spring Security's OAuth support integrates with xref:features/integrations/rest/http-interface.adoc[].
+Spring Security's OAuth support integrates with xref:features/integrations/rest/http-service-client.adoc[].
 
 [[oauth2-client-web-client]]
 == [[oauth2Client-webclient-servlet]]WebClient Integration for Servlet Environments

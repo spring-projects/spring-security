@@ -21,7 +21,7 @@ import org.springframework.web.service.annotation.GetExchange
 import org.springframework.web.service.annotation.HttpExchange
 
 /**
- * Demonstrates a service for {@link ClientRegistrationId} and HTTP Interface clients.
+ * Demonstrates a service for {@link ClientRegistrationId} and HTTP Service Clients.
  * @author Rob Winch
  */
 @HttpExchange

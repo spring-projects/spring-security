@@ -56,10 +56,10 @@ http.csrf((csrf) -> csrf.spa());
 == OAuth 2.0
 
 * Removed support for password grant
-* Added OAuth2 Support for xref:features/integrations/rest/http-interface.adoc[HTTP Interface Integration]
+* Added OAuth2 Support for xref:features/integrations/rest/http-service-client.adoc[HTTP Service Clients]
 * Added support for custom `JwkSource` in `NimbusJwtDecoder`, allowing usage of Nimbus's `JwkSourceBuilder` API
 * Added builder for `NimbusJwtEncoder`, supports specifying an EC or RSA key pair or a secret key
-* Added support for `@ClientRegistrationId` at the xref:features/integrations/rest/http-interface.adoc#type[type level], eliminating the need for method level repetition
+* Added support for `@ClientRegistrationId` at the xref:features/integrations/rest/http-service-client.adoc#type[type level], eliminating the need for method level repetition
 
 == SAML 2.0
 
