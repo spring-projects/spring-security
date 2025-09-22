@@ -17,6 +17,7 @@
 package org.springframework.security.web.servlet;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -27,6 +28,7 @@ import java.util.stream.Stream;
 import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 
 public final class TestMockHttpServletRequests {
 
@@ -149,6 +151,14 @@ public final class TestMockHttpServletRequests {
 
 		public MockHttpServletRequest build() {
 			MockHttpServletRequest request = new MockHttpServletRequest();
+			Map<String, List<String>> params = UriComponentsBuilder.fromUriString("?" + this.queryString)
+				.build()
+				.getQueryParams();
+			for (Map.Entry<String, List<String>> entry : params.entrySet()) {
+				for (String value : entry.getValue()) {
+					request.addParameter(entry.getKey(), value);
+				}
+			}
 			applyElement(request::setContextPath, this.contextPath);
 			applyElement(request::setContextPath, this.contextPath);
 			applyElement(request::setMethod, this.method.name());
