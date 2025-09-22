@@ -59,11 +59,18 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 
 	private DefaultServerOAuth2AuthorizationRequestResolver resolver;
 
+	private ClientRegistration nonProofKeyPublicClientRegistration;
+
 	private ClientRegistration registration = TestClientRegistrations.clientRegistration().build();
 
 	@BeforeEach
 	public void setup() {
 		this.resolver = new DefaultServerOAuth2AuthorizationRequestResolver(this.clientRegistrationRepository);
+		this.nonProofKeyPublicClientRegistration = TestClientRegistrations.clientRegistration()
+			.registrationId("invalid-public-client-registration-id")
+			.clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
+			.clientSettings(ClientRegistration.ClientSettings.builder().requireProofKey(false).build())
+			.build();
 	}
 
 	@Test
@@ -90,7 +97,8 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 		OAuth2AuthorizationRequest request = resolve("/oauth2/authorization/not-found-id");
 		assertThat(request.getAuthorizationRequestUri())
 			.matches("https://example.com/login/oauth/authorize\\?" + "response_type=code&client_id=client-id&"
-					+ "scope=read:user&state=.*?&" + "redirect_uri=/login/oauth2/code/registration-id");
+					+ "scope=read:user&state=.*?&" + "redirect_uri=/login/oauth2/code/registration-id"
+					+ "&code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}&code_challenge_method=S256");
 	}
 
 	@Test
@@ -105,7 +113,8 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 		OAuth2AuthorizationRequest request = this.resolver.resolve(exchange).block();
 		assertThat(request.getAuthorizationRequestUri())
 			.matches("https://example.com/login/oauth/authorize\\?" + "response_type=code&client_id=client-id&"
-					+ "scope=read:user&state=.*?&" + "redirect_uri=/login/oauth2/code/registration-id");
+					+ "scope=read:user&state=.*?&" + "redirect_uri=/login/oauth2/code/registration-id"
+					+ "&code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}&code_challenge_method=S256");
 	}
 
 	@Test
@@ -149,9 +158,9 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 		ClientRegistration registration1 = TestClientRegistrations.clientRegistration().build();
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(registration1.getRegistrationId())))
 			.willReturn(Mono.just(registration1));
-		ClientRegistration registration2 = TestClientRegistrations.clientRegistration2().build();
-		given(this.clientRegistrationRepository.findByRegistrationId(eq(registration2.getRegistrationId())))
-			.willReturn(Mono.just(registration2));
+		given(this.clientRegistrationRepository
+			.findByRegistrationId(eq(this.nonProofKeyPublicClientRegistration.getRegistrationId())))
+			.willReturn(Mono.just(this.nonProofKeyPublicClientRegistration));
 
 		this.resolver.setAuthorizationRequestCustomizer((builder) -> {
 			builder.attributes((attrs) -> {
@@ -165,8 +174,8 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 		OAuth2AuthorizationRequest request = resolve("/oauth2/authorization/" + registration1.getRegistrationId());
 		assertPkceApplied(request, registration1);
 
-		request = resolve("/oauth2/authorization/" + registration2.getRegistrationId());
-		assertPkceNotApplied(request, registration2);
+		request = resolve("/oauth2/authorization/" + this.nonProofKeyPublicClientRegistration.getRegistrationId());
+		assertPkceApplied(request, this.nonProofKeyPublicClientRegistration);
 	}
 
 	@Test
@@ -220,7 +229,8 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 		assertThat((String) request.getAttribute(OidcParameterNames.NONCE)).matches("^([a-zA-Z0-9\\-\\.\\_\\~]){128}$");
 		assertThat(request.getAuthorizationRequestUri()).matches("https://example.com/login/oauth/authorize\\?"
 				+ "response_type=code&client_id=client-id&" + "scope=openid&state=.*?&"
-				+ "redirect_uri=/login/oauth2/code/registration-id&" + "nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}");
+				+ "redirect_uri=/login/oauth2/code/registration-id&" + "nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}&"
+				+ "code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}&" + "code_challenge_method=S256");
 	}
 
 	// gh-7696
@@ -237,7 +247,8 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 		assertThat(authorizationRequest.getAttributes()).containsKey(OAuth2ParameterNames.REGISTRATION_ID);
 		assertThat(authorizationRequest.getAuthorizationRequestUri())
 			.matches("https://example.com/login/oauth/authorize\\?" + "response_type=code&client_id=client-id&"
-					+ "scope=openid&state=.{15,}&" + "redirect_uri=/login/oauth2/code/registration-id");
+					+ "scope=openid&state=.{15,}&" + "redirect_uri=/login/oauth2/code/registration-id&"
+					+ "code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}&" + "code_challenge_method=S256");
 	}
 
 	@Test
@@ -252,7 +263,8 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 		assertThat(authorizationRequest.getAuthorizationRequestUri())
 			.matches("https://example.com/login/oauth/authorize\\?" + "response_type=code&client_id=client-id&"
 					+ "scope=openid&state=.{15,}&" + "redirect_uri=/login/oauth2/code/registration-id&"
-					+ "nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}&" + "param1=value1");
+					+ "nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}&" + "code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}&"
+					+ "code_challenge_method=S256&" + "param1=value1");
 	}
 
 	@Test
@@ -267,7 +279,8 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 		assertThat(authorizationRequest.getAuthorizationRequestUri())
 			.matches("https://example.com/login/oauth/authorize\\?" + "response_type=code&"
 					+ "scope=openid&state=.{15,}&" + "redirect_uri=/login/oauth2/code/registration-id&"
-					+ "nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}&" + "appid=client-id");
+					+ "nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}&" + "code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}&"
+					+ "code_challenge_method=S256&" + "appid=client-id");
 	}
 
 	private OAuth2AuthorizationRequest resolve(String path) {
