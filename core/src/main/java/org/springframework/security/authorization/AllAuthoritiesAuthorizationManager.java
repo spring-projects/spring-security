@@ -134,6 +134,19 @@ public final class AllAuthoritiesAuthorizationManager<T> implements Authorizatio
 		return new AllAuthoritiesAuthorizationManager<>(authorities);
 	}
 
+	/**
+	 * Creates an instance of {@link AllAuthoritiesAuthorizationManager} with the provided
+	 * authorities.
+	 * @param authorities the authorities to check for
+	 * @param <T> the type of object being authorized
+	 * @return the new instance
+	 */
+	public static <T> AllAuthoritiesAuthorizationManager<T> hasAllAuthorities(List<String> authorities) {
+		Assert.notEmpty(authorities, "authorities cannot be empty");
+		Assert.noNullElements(authorities, "authorities cannot contain null values");
+		return new AllAuthoritiesAuthorizationManager<>(authorities.toArray(new String[0]));
+	}
+
 	private static String[] toNamedRolesArray(String rolePrefix, String[] roles) {
 		String[] result = new String[roles.length];
 		for (int i = 0; i < roles.length; i++) {
