@@ -16,10 +16,12 @@
 
 package org.springframework.security.config.annotation.web
 
+import io.mockk.Called
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.servlet.DispatcherType
+import org.aopalliance.intercept.MethodInvocation
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -1105,6 +1107,53 @@ class AuthorizeHttpRequestsDslTests {
             every { factory.hasAuthority(any()) } returns this.authorizationManager
             every { factory.hasRole(any()) } returns this.authorizationManager
             every { factory.permitAll() } returns this.authorizationManager
+
+            return factory
+        }
+
+        @Bean
+        open fun userDetailsService(): UserDetailsService = InMemoryUserDetailsManager(TestAuthentication.user())
+
+        @RestController
+        internal class OkController {
+            @GetMapping("/**")
+            fun ok(): String {
+                return "ok"
+            }
+        }
+    }
+
+    @Test
+    fun `custom AuthorizationManagerFactory of MethodInvocation`() {
+        this.spring.register(AuthorizationManagerFactoryMethodInvocationConfig::class.java).autowire()
+        val authzManagerFactory =
+            this.spring.context.getBean<AuthorizationManagerFactory<MethodInvocation>>()
+
+        verify(exactly = 0) { authzManagerFactory.authenticated() }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class AuthorizationManagerFactoryMethodInvocationConfig {
+        val authorizationManager: AuthorizationManager<MethodInvocation> = mockk()
+
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                authorizeHttpRequests {
+                    authorize("/authenticated", authenticated)
+                }
+                httpBasic {  }
+                rememberMe {  }
+            }
+            return http.build()
+        }
+
+        @Bean
+        open fun authorizationManagerFactory(): AuthorizationManagerFactory<MethodInvocation> {
+            val factory: AuthorizationManagerFactory<MethodInvocation> = mockk()
+            every { factory.authenticated() } returns this.authorizationManager
 
             return factory
         }

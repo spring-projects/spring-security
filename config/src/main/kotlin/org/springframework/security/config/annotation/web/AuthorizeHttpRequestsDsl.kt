@@ -274,7 +274,7 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
     }
 
     constructor(context: ApplicationContext) {
-        this.authorizationManagerFactory = resolveAuthorizationManagerFactory(context)
+        this.authorizationManagerFactory =  resolveAuthorizationManagerFactory(context)
         this.authenticated = this.authorizationManagerFactory.authenticated()
         this.denyAll = this.authorizationManagerFactory.denyAll()
         this.fullyAuthenticated = this.authorizationManagerFactory.fullyAuthenticated()
@@ -282,14 +282,14 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
     }
 
     private fun resolveAuthorizationManagerFactory(context: ApplicationContext): AuthorizationManagerFactory<in RequestAuthorizationContext> {
-        val specific = context.getBeanProvider<AuthorizationManagerFactory<RequestAuthorizationContext>>().getIfUnique()
-        if (specific != null) {
-            return specific
+        val factoryOfRequestAuthorizationContext = context.getBeanProvider<AuthorizationManagerFactory<RequestAuthorizationContext>>().getIfUnique()
+        if (factoryOfRequestAuthorizationContext != null) {
+            return factoryOfRequestAuthorizationContext
         }
-        val type = ResolvableType.forClassWithGenerics(AuthorizationManagerFactory::class.java, Object::class.java)
-        val general: AuthorizationManagerFactory<in RequestAuthorizationContext>? = context.getBeanProvider<AuthorizationManagerFactory<in RequestAuthorizationContext>>(type).getIfUnique()
-        if (general != null) {
-            return general
+        val factoryOfObjectType = ResolvableType.forClassWithGenerics(AuthorizationManagerFactory::class.java, Object::class.java)
+        val factoryOfAny = context.getBeanProvider<AuthorizationManagerFactory<Any>>(factoryOfObjectType).getIfUnique()
+        if (factoryOfAny != null) {
+            return factoryOfAny
         }
         val defaultFactory: DefaultAuthorizationManagerFactory<RequestAuthorizationContext> = DefaultAuthorizationManagerFactory()
         val rolePrefix = resolveRolePrefix(context)
@@ -318,4 +318,5 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
         }
         return NullRoleHierarchy()
     }
+
 }
