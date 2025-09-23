@@ -14,21 +14,28 @@
  * limitations under the License.
  */
 
-package org.springframework.security.provisioning;
+package org.springframework.security.authentication.password;
+
+import java.util.Objects;
 
 import org.jspecify.annotations.Nullable;
 
-import org.springframework.security.authentication.password.PasswordAction;
 import org.springframework.security.core.userdetails.UserDetails;
 
-/**
- * @author Luke Taylor
- * @since 3.1
- */
-interface MutableUserDetails extends UserDetails {
+public final class RepeatedPasswordAdvisor implements UpdatePasswordAdvisor {
 
-	void setPassword(@Nullable String password);
+	@Override
+	public PasswordAdvice advise(UserDetails user, @Nullable String oldPassword, @Nullable String newPassword) {
+		boolean repeated = Objects.equals(oldPassword, newPassword);
+		return new RepeatedPasswordAdvice(repeated ? PasswordAction.MUST_CHANGE : PasswordAction.NONE);
+	}
 
-	void setPasswordAction(PasswordAction action);
+	public static final class RepeatedPasswordAdvice extends SimplePasswordAdvice {
+
+		RepeatedPasswordAdvice(PasswordAction action) {
+			super(action);
+		}
+
+	}
 
 }

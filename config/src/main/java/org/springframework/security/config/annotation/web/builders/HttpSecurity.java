@@ -1796,7 +1796,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 */
 	public HttpSecurity passwordManagement(
 			Customizer<PasswordManagementConfigurer<HttpSecurity>> passwordManagementCustomizer) throws Exception {
-		passwordManagementCustomizer.customize(getOrApply(new PasswordManagementConfigurer<>()));
+		PasswordManagementConfigurer<HttpSecurity> passwordManagement = new PasswordManagementConfigurer<>();
+		passwordManagement.setApplicationContext(getContext());
+		passwordManagementCustomizer.customize(getOrApply(passwordManagement));
 		return HttpSecurity.this;
 	}
 

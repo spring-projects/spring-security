@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package org.springframework.security.provisioning;
+package org.springframework.security.web.authentication.password;
 
-import org.jspecify.annotations.Nullable;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-import org.springframework.security.authentication.password.PasswordAction;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.authentication.password.PasswordAdvice;
 
-/**
- * @author Luke Taylor
- * @since 3.1
- */
-interface MutableUserDetails extends UserDetails {
+public interface PasswordAdviceRepository {
 
-	void setPassword(@Nullable String password);
+	PasswordAdvice loadPasswordAdvice(HttpServletRequest request);
 
-	void setPasswordAction(PasswordAction action);
+	void savePasswordAdvice(HttpServletRequest request, HttpServletResponse response, PasswordAdvice advice);
+
+	void removePasswordAdvice(HttpServletRequest request, HttpServletResponse response);
 
 }
