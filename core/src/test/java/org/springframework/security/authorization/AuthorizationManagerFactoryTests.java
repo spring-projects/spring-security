@@ -16,9 +16,23 @@
 
 package org.springframework.security.authorization;
 
+import java.util.Collection;
+
 import org.junit.jupiter.api.Test;
 
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.authentication.TestAuthentication;
+import org.springframework.security.core.authority.AuthorityUtils;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * Tests for {@link AuthorizationManagerFactory}.
@@ -109,6 +123,232 @@ public class AuthorizationManagerFactoryTests {
 		AuthorizationManagerFactory<String> factory = new DefaultAuthorizationManagerFactory<>();
 		AuthorizationManager<String> authorizationManager = factory.anonymous();
 		assertThat(authorizationManager).isInstanceOf(AuthenticatedAuthorizationManager.class);
+	}
+
+	@Test
+	public void anonymousWhenAdditionalAuthorizationThenNotInvoked() {
+		AuthorizationManager<String> additional = mock(AuthorizationManager.class);
+		DefaultAuthorizationManagerFactory<String> factory = new DefaultAuthorizationManagerFactory<>();
+		factory.setAdditionalAuthorization(additional);
+
+		factory.anonymous();
+
+		verifyNoInteractions(additional);
+	}
+
+	@Test
+	public void permitAllWhenAdditionalAuthorizationThenNotInvoked() {
+		AuthorizationManager<String> additional = mock(AuthorizationManager.class);
+		DefaultAuthorizationManagerFactory<String> factory = new DefaultAuthorizationManagerFactory<>();
+		factory.setAdditionalAuthorization(additional);
+
+		factory.permitAll();
+
+		verifyNoInteractions(additional);
+	}
+
+	@Test
+	public void denyAllAllWhenAdditionalAuthorizationThenNotInvoked() {
+		AuthorizationManager<String> additional = mock(AuthorizationManager.class);
+		DefaultAuthorizationManagerFactory<String> factory = new DefaultAuthorizationManagerFactory<>();
+		factory.setAdditionalAuthorization(additional);
+
+		factory.permitAll();
+
+		verifyNoInteractions(additional);
+	}
+
+	@Test
+	public void hasRoleWhenAdditionalAuthorizationThenInvoked() {
+		AuthorizationManager<String> additional = mock(AuthorizationManager.class);
+		given(additional.authorize(any(), any())).willReturn(new AuthorizationDecision(true),
+				new AuthorizationDecision(false));
+		DefaultAuthorizationManagerFactory<String> factory = new DefaultAuthorizationManagerFactory<>();
+		factory.setAdditionalAuthorization(additional);
+
+		assertUserGranted(factory.hasRole("USER"));
+		assertUserDenied(factory.hasRole("USER"));
+
+		verify(additional, times(2)).authorize(any(), any());
+
+	}
+
+	@Test
+	public void hasAnyRoleWhenAdditionalAuthorizationThenInvoked() {
+		AuthorizationManager<String> additional = mock(AuthorizationManager.class);
+		given(additional.authorize(any(), any())).willReturn(new AuthorizationDecision(true),
+				new AuthorizationDecision(false));
+		DefaultAuthorizationManagerFactory<String> factory = new DefaultAuthorizationManagerFactory<>();
+		factory.setAdditionalAuthorization(additional);
+
+		assertUserGranted(factory.hasAnyRole("USER"));
+		assertUserDenied(factory.hasAnyRole("USER"));
+
+		verify(additional, times(2)).authorize(any(), any());
+
+	}
+
+	@Test
+	public void hasAllRolesWhenAdditionalAuthorizationThenInvoked() {
+		AuthorizationManager<String> additional = mock(AuthorizationManager.class);
+		given(additional.authorize(any(), any())).willReturn(new AuthorizationDecision(true),
+				new AuthorizationDecision(false));
+		DefaultAuthorizationManagerFactory<String> factory = new DefaultAuthorizationManagerFactory<>();
+		factory.setAdditionalAuthorization(additional);
+
+		assertUserGranted(factory.hasAllRoles("USER"));
+		assertUserDenied(factory.hasAllRoles("USER"));
+
+		verify(additional, times(2)).authorize(any(), any());
+
+	}
+
+	@Test
+	public void hasAuthorityWhenAdditionalAuthorizationThenInvoked() {
+		AuthorizationManager<String> additional = mock(AuthorizationManager.class);
+		given(additional.authorize(any(), any())).willReturn(new AuthorizationDecision(true),
+				new AuthorizationDecision(false));
+		DefaultAuthorizationManagerFactory<String> factory = new DefaultAuthorizationManagerFactory<>();
+		factory.setAdditionalAuthorization(additional);
+
+		assertUserGranted(factory.hasAuthority("ROLE_USER"));
+		assertUserDenied(factory.hasAuthority("ROLE_USER"));
+
+		verify(additional, times(2)).authorize(any(), any());
+
+	}
+
+	@Test
+	public void hasAnyAuthorityWhenAdditionalAuthorizationThenInvoked() {
+		AuthorizationManager<String> additional = mock(AuthorizationManager.class);
+		given(additional.authorize(any(), any())).willReturn(new AuthorizationDecision(true),
+				new AuthorizationDecision(false));
+		DefaultAuthorizationManagerFactory<String> factory = new DefaultAuthorizationManagerFactory<>();
+		factory.setAdditionalAuthorization(additional);
+
+		assertUserGranted(factory.hasAnyAuthority("ROLE_USER"));
+		assertUserDenied(factory.hasAnyAuthority("ROLE_USER"));
+
+		verify(additional, times(2)).authorize(any(), any());
+
+	}
+
+	@Test
+	public void hasAllAuthoritiesWhenAdditionalAuthorizationThenInvoked() {
+		AuthorizationManager<String> additional = mock(AuthorizationManager.class);
+		given(additional.authorize(any(), any())).willReturn(new AuthorizationDecision(true),
+				new AuthorizationDecision(false));
+		DefaultAuthorizationManagerFactory<String> factory = new DefaultAuthorizationManagerFactory<>();
+		factory.setAdditionalAuthorization(additional);
+
+		assertUserGranted(factory.hasAllAuthorities("ROLE_USER"));
+		assertUserDenied(factory.hasAllAuthorities("ROLE_USER"));
+
+		verify(additional, times(2)).authorize(any(), any());
+	}
+
+	@Test
+	public void authenticatedWhenAdditionalAuthorizationThenInvoked() {
+		AuthorizationManager<String> additional = mock(AuthorizationManager.class);
+		given(additional.authorize(any(), any())).willReturn(new AuthorizationDecision(true),
+				new AuthorizationDecision(false));
+		DefaultAuthorizationManagerFactory<String> factory = new DefaultAuthorizationManagerFactory<>();
+		factory.setAdditionalAuthorization(additional);
+
+		assertUserGranted(factory.authenticated());
+		assertUserDenied(factory.authenticated());
+
+		verify(additional, times(2)).authorize(any(), any());
+	}
+
+	@Test
+	public void fullyAuthenticatedWhenAdditionalAuthorizationThenInvoked() {
+		AuthorizationManager<String> additional = mock(AuthorizationManager.class);
+		given(additional.authorize(any(), any())).willReturn(new AuthorizationDecision(true),
+				new AuthorizationDecision(false));
+		DefaultAuthorizationManagerFactory<String> factory = new DefaultAuthorizationManagerFactory<>();
+		factory.setAdditionalAuthorization(additional);
+
+		assertUserGranted(factory.fullyAuthenticated());
+		assertUserDenied(factory.fullyAuthenticated());
+
+		verify(additional, times(2)).authorize(any(), any());
+	}
+
+	@Test
+	public void rememberMeWhenAdditionalAuthorizationThenInvoked() {
+		AuthorizationManager<String> additional = mock(AuthorizationManager.class);
+		given(additional.authorize(any(), any())).willReturn(new AuthorizationDecision(true),
+				new AuthorizationDecision(false));
+		DefaultAuthorizationManagerFactory<String> factory = new DefaultAuthorizationManagerFactory<>();
+		factory.setAdditionalAuthorization(additional);
+
+		assertThat(factory.rememberMe().authorize(() -> TestAuthentication.rememberMeUser(), "").isGranted()).isTrue();
+		assertThat(factory.rememberMe().authorize(() -> TestAuthentication.rememberMeUser(), "").isGranted()).isFalse();
+
+		verify(additional, times(2)).authorize(any(), any());
+	}
+
+	@Test
+	public void builderWhenEmptyAdditionalAuthoritiesThenIllegalStateException() {
+		DefaultAuthorizationManagerFactory.Builder<Object> builder = DefaultAuthorizationManagerFactory.builder();
+		assertThatIllegalStateException().isThrownBy(() -> builder.build());
+	}
+
+	@Test
+	public void builderWhenAdditionalAuthorityThenRequired() {
+		AuthorizationManagerFactory<String> factory = DefaultAuthorizationManagerFactory.<String>builder()
+			.requireAdditionalAuthorities("ROLE_ADMIN")
+			.build();
+		assertUserDenied(factory.hasRole("USER"));
+		assertThat(factory.hasRole("USER").authorize(() -> TestAuthentication.authenticatedAdmin(), "").isGranted())
+			.isTrue();
+	}
+
+	@Test
+	public void builderWhenAdditionalAuthoritiesThenRequired() {
+		AuthorizationManagerFactory<String> factory = DefaultAuthorizationManagerFactory.<String>builder()
+			.requireAdditionalAuthorities("ROLE_ADMIN", "ROLE_USER")
+			.build();
+		assertUserDenied(factory.hasRole("USER"));
+		assertThat(factory.hasRole("USER").authorize(() -> TestAuthentication.authenticatedAdmin(), "").isGranted())
+			.isTrue();
+	}
+
+	@Test
+	public void builderWhenNullRoleHierachyThenIllegalArgumentException() {
+		DefaultAuthorizationManagerFactory.Builder<Object> builder = DefaultAuthorizationManagerFactory.builder();
+		assertThatIllegalArgumentException().isThrownBy(() -> builder.roleHierarchy(null));
+	}
+
+	@Test
+	public void builderWhenRoleHierarchyThenUsed() {
+
+		RoleHierarchy roleHierarchy = mock(RoleHierarchy.class);
+		String ROLE_HIERARCHY = "ROLE_HIERARCHY";
+		Collection authorityHierarchy = AuthorityUtils.createAuthorityList(ROLE_HIERARCHY, "ROLE_USER");
+		given(roleHierarchy.getReachableGrantedAuthorities(any())).willReturn(authorityHierarchy);
+		DefaultAuthorizationManagerFactory<String> factory = DefaultAuthorizationManagerFactory.<String>builder()
+			.requireAdditionalAuthorities(ROLE_HIERARCHY)
+			.roleHierarchy(roleHierarchy)
+			.build();
+
+		// ROLE_USER is replaced with the RoleHierarchy (ROLE_USER, ROLE_HIERARCHY)
+		assertUserGranted(factory.hasAuthority("ROLE_USER"));
+		// ROLE_ADMIN is replaced with the RoleHierarchy (ROLE_USER, ROLE_HIERARCHY)
+		assertThat(factory.hasAuthority("ROLE_ADMIN")
+			.authorize(() -> TestAuthentication.authenticatedAdmin(), "")
+			.isGranted()).isFalse();
+
+		verify(roleHierarchy, times(4)).getReachableGrantedAuthorities(any());
+	}
+
+	private void assertUserGranted(AuthorizationManager<String> manager) {
+		assertThat(manager.authorize(() -> TestAuthentication.authenticatedUser(), "").isGranted()).isTrue();
+	}
+
+	private void assertUserDenied(AuthorizationManager<String> manager) {
+		assertThat(manager.authorize(() -> TestAuthentication.authenticatedUser(), "").isGranted()).isFalse();
 	}
 
 }
