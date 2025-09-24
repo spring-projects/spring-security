@@ -62,6 +62,14 @@ This yields a more familiar configuration:
 
 include-code::./UseAuthorizationManagerFactoryConfiguration[tag=httpSecurity,indent=0]
 
+[[enable-global-mfa]]
+=== @EnableGlobalMultiFactorAuthentication
+
+You can simplify the configuration even further by using `@EnableGlobalMultiFactorAuthentication` to create the `AuthorizationManagerFactory` for you.
+
+include-code::./EnableGlobalMultiFactorAuthenticationConfiguration[tag=enable-global-mfa,indent=0]
+
+
 [[obtaining-more-authorization]]
 == Authorizing More Scopes
 
