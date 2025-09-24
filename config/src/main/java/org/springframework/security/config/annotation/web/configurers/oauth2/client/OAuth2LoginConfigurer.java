@@ -40,6 +40,7 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
 import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
 import org.springframework.security.context.DelegatingApplicationListener;
 import org.springframework.security.core.Authentication;
@@ -556,11 +557,18 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		RequestMatcher loginUrlMatcher = new AndRequestMatcher(notXRequestedWith,
 				new NegatedRequestMatcher(defaultLoginPageMatcher), formLoginNotEnabled);
 		// @formatter:off
-		return DelegatingAuthenticationEntryPoint.builder()
+		AuthenticationEntryPoint loginEntryPoint = DelegatingAuthenticationEntryPoint.builder()
 			.addEntryPointFor(loginUrlEntryPoint, loginUrlMatcher)
 			.defaultEntryPoint(getAuthenticationEntryPoint())
 			.build();
 		// @formatter:on
+		ExceptionHandlingConfigurer<B> exceptions = http.getConfigurer(ExceptionHandlingConfigurer.class);
+		if (exceptions != null) {
+			RequestMatcher requestMatcher = getAuthenticationEntryPointMatcher(http);
+			exceptions.defaultDeniedHandlerForMissingAuthority(
+					(ep) -> ep.addEntryPointFor(loginEntryPoint, requestMatcher), "FACTOR_AUTHORIZATION_CODE");
+		}
+		return loginEntryPoint;
 	}
 
 	private RequestMatcher getFormLoginNotEnabledRequestMatcher(B http) {

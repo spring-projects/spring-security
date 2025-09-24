@@ -16,6 +16,9 @@
 
 package org.springframework.security.web;
 
+import jakarta.servlet.http.HttpServletRequest;
+
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 
 /**
@@ -51,6 +54,17 @@ public final class WebAttributes {
 	 */
 	public static final String WEB_INVOCATION_PRIVILEGE_EVALUATOR_ATTRIBUTE = WebAttributes.class.getName()
 			+ ".WEB_INVOCATION_PRIVILEGE_EVALUATOR_ATTRIBUTE";
+
+	/**
+	 * Used to set a {@code Collection} of {@link GrantedAuthority} instances into the
+	 * {@link HttpServletRequest}.
+	 * <p>
+	 * Represents what authorities are missing to be authorized for the current request
+	 *
+	 * @since 7.0
+	 * @see org.springframework.security.web.access.DelegatingMissingAuthorityAccessDeniedHandler
+	 */
+	public static final String MISSING_AUTHORITIES = WebAttributes.class + ".MISSING_AUTHORITIES";
 
 	private WebAttributes() {
 	}

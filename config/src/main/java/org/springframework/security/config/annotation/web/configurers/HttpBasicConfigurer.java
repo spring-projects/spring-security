@@ -192,8 +192,10 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>>
 		if (exceptionHandling == null) {
 			return;
 		}
-		exceptionHandling.defaultAuthenticationEntryPointFor(postProcess(this.authenticationEntryPoint),
-				preferredMatcher);
+		AuthenticationEntryPoint entryPoint = postProcess(this.authenticationEntryPoint);
+		exceptionHandling.defaultAuthenticationEntryPointFor(entryPoint, preferredMatcher);
+		exceptionHandling.defaultDeniedHandlerForMissingAuthority(
+				(ep) -> ep.addEntryPointFor(entryPoint, preferredMatcher), "FACTOR_PASSWORD");
 	}
 
 	private void registerDefaultLogoutSuccessHandler(B http, RequestMatcher preferredMatcher) {

@@ -17,6 +17,8 @@
 package org.springframework.security.web.authentication;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Locale;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -30,16 +32,20 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.PortMapperImpl;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.util.RedirectUrlBuilder;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * Used by the {@link ExceptionTranslationFilter} to commence a form login authentication
@@ -67,6 +73,8 @@ import org.springframework.util.StringUtils;
 public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
 
 	private static final Log logger = LogFactory.getLog(LoginUrlAuthenticationEntryPoint.class);
+
+	private static final String FACTOR_PREFIX = "FACTOR_";
 
 	private PortMapper portMapper = new PortMapperImpl();
 
@@ -107,9 +115,29 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	 * @param exception the exception
 	 * @return the URL (cannot be null or empty; defaults to {@link #getLoginFormUrl()})
 	 */
+	@SuppressWarnings("unchecked")
 	protected String determineUrlToUseForThisRequest(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) {
-		return getLoginFormUrl();
+		Collection<GrantedAuthority> authorities = getAttribute(request, WebAttributes.MISSING_AUTHORITIES,
+				Collection.class);
+		if (CollectionUtils.isEmpty(authorities)) {
+			return getLoginFormUrl();
+		}
+		Collection<String> factors = authorities.stream()
+			.filter((a) -> a.getAuthority().startsWith(FACTOR_PREFIX))
+			.map((a) -> a.getAuthority().substring(FACTOR_PREFIX.length()).toLowerCase(Locale.ROOT))
+			.toList();
+		return UriComponentsBuilder.fromUriString(getLoginFormUrl()).queryParam("factor", factors).toUriString();
+	}
+
+	private static <T> @Nullable T getAttribute(HttpServletRequest request, String name, Class<T> clazz) {
+		Object value = request.getAttribute(name);
+		if (value == null) {
+			return null;
+		}
+		String message = String.format("Found %s in %s, but expecting a %s", value.getClass(), name, clazz);
+		Assert.isInstanceOf(clazz, value, message);
+		return (T) value;
 	}
 
 	/**
