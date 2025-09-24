@@ -20,19 +20,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.GrantedAuthorities;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.docs.servlet.authentication.servletx509config.CustomX509Configuration;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -43,7 +42,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author Rob Winch
  */
-@ExtendWith(SpringTestContextExtension.class)
+@ExtendWith({SpringExtension.class, SpringTestContextExtension.class})
+@TestExecutionListeners(WithSecurityContextTestExecutionListener.class)
 public class CustomAuthorizationManagerFactoryTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);
@@ -51,40 +51,36 @@ public class CustomAuthorizationManagerFactoryTests {
 	@Autowired
 	MockMvc mockMvc;
 
-	@Autowired
-	UserDetailsService users;
-
 	@Test
-	void getWhenOptedInThenRedirectsToOtt() throws Exception {
+	@WithMockUser(username = "admin")
+	void getWhenAdminThenRedirectsToOtt() throws Exception {
 		this.spring.register(CustomAuthorizationManagerFactory.class, Http200Controller.class).autowire();
-		UserDetails user = this.users.loadUserByUsername("optedin");
 		// @formatter:off
-		this.mockMvc.perform(get("/").with(user(user)))
+		this.mockMvc.perform(get("/"))
 			.andExpect(status().is3xxRedirection())
 			.andExpect(redirectedUrl("http://localhost/login?factor=ott"));
 		// @formatter:on
 	}
 
 	@Test
-	void getWhenNotOptedInThenAllows() throws Exception {
+	@WithMockUser
+	void getWhenNotAdminThenAllows() throws Exception {
 		this.spring.register(CustomAuthorizationManagerFactory.class, Http200Controller.class).autowire();
-		UserDetails user = this.users.loadUserByUsername("user");
 		// @formatter:off
-		this.mockMvc.perform(get("/").with(user(user)))
+		this.mockMvc.perform(get("/"))
 			.andExpect(status().isOk())
 			.andExpect(authenticated().withUsername("user"));
 		// @formatter:on
 	}
 
 	@Test
-	void getWhenOptedAndHasFactorThenAllows() throws Exception {
+	@WithMockUser(username = "admin", authorities = GrantedAuthorities.FACTOR_OTT_AUTHORITY)
+	void getWhenAdminAndHasFactorThenAllows() throws Exception {
 		this.spring.register(CustomAuthorizationManagerFactory.class, Http200Controller.class).autowire();
-		UserDetails user = this.users.loadUserByUsername("optedin");
-		TestingAuthenticationToken token = new TestingAuthenticationToken(user, "", GrantedAuthorities.FACTOR_OTT_AUTHORITY);
 		// @formatter:off
-		this.mockMvc.perform(get("/").with(authentication(token)))
+		this.mockMvc.perform(get("/"))
 			.andExpect(status().isOk())
-			.andExpect(authenticated().withUsername("optedin"));
+			.andExpect(authenticated().withUsername("admin"));
 		// @formatter:on
 	}
 

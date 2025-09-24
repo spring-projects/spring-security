@@ -58,69 +58,12 @@ internal class MissingAuthorityConfiguration {
 
     // tag::authorizationManagerFactoryBean[]
     @Bean
-    fun authz(): AuthorizationManagerFactory<RequestAuthorizationContext> {
-        return FactorAuthorizationManagerFactory(hasAllAuthorities(GrantedAuthorities.FACTOR_X509_AUTHORITY, GrantedAuthorities.FACTOR_AUTHORIZATION_CODE_AUTHORITY))
+    fun authz(): AuthorizationManagerFactory<Object> {
+        return DefaultAuthorizationManagerFactory.builder<Object>()
+                .requireAdditionalAuthorities(GrantedAuthorities.FACTOR_X509_AUTHORITY, GrantedAuthorities.FACTOR_AUTHORIZATION_CODE_AUTHORITY)
+                .build()
     }
     // end::authorizationManagerFactoryBean[]
-
-    // tag::authorizationManagerFactory[]
-    internal inner class FactorAuthorizationManagerFactory(private val hasAuthorities: AuthorizationManager<RequestAuthorizationContext>) :
-        AuthorizationManagerFactory<RequestAuthorizationContext> {
-        private val delegate = DefaultAuthorizationManagerFactory<RequestAuthorizationContext>()
-
-        override fun permitAll(): AuthorizationManager<RequestAuthorizationContext> {
-            return this.delegate.permitAll()
-        }
-
-        override fun denyAll(): AuthorizationManager<RequestAuthorizationContext> {
-            return this.delegate.denyAll()
-        }
-
-        override fun hasRole(role: String): AuthorizationManager<RequestAuthorizationContext> {
-            return hasAnyRole(role)
-        }
-
-        override fun hasAnyRole(vararg roles: String): AuthorizationManager<RequestAuthorizationContext> {
-            return addFactors(this.delegate.hasAnyRole(*roles))
-        }
-
-        override fun hasAllRoles(vararg roles: String): AuthorizationManager<RequestAuthorizationContext> {
-            return addFactors(this.delegate.hasAllRoles(*roles))
-        }
-
-        override fun hasAuthority(authority: String): AuthorizationManager<RequestAuthorizationContext> {
-            return hasAnyAuthority(authority)
-        }
-
-        override fun hasAnyAuthority(vararg authorities: String): AuthorizationManager<RequestAuthorizationContext> {
-            return addFactors(this.delegate.hasAnyAuthority(*authorities))
-        }
-
-        override fun hasAllAuthorities(vararg authorities: String): AuthorizationManager<RequestAuthorizationContext> {
-            return addFactors(this.delegate.hasAllAuthorities(*authorities))
-        }
-
-        override fun authenticated(): AuthorizationManager<RequestAuthorizationContext> {
-            return addFactors(this.delegate.authenticated())
-        }
-
-        override fun fullyAuthenticated(): AuthorizationManager<RequestAuthorizationContext> {
-            return addFactors(this.delegate.fullyAuthenticated())
-        }
-
-        override fun rememberMe(): AuthorizationManager<RequestAuthorizationContext> {
-            return addFactors(this.delegate.rememberMe())
-        }
-
-        override fun anonymous(): AuthorizationManager<RequestAuthorizationContext> {
-            return this.delegate.anonymous()
-        }
-
-        private fun addFactors(delegate: AuthorizationManager<RequestAuthorizationContext>): AuthorizationManager<RequestAuthorizationContext> {
-            return allOf(AuthorizationDecision(false), this.hasAuthorities, delegate)
-        }
-    }
-    // end::authorizationManagerFactory[]
 
     @Bean
     fun clients(): ClientRegistrationRepository {

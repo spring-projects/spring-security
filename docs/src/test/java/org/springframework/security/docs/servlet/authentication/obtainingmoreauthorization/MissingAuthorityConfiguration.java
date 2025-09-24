@@ -8,8 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authorization.AuthorizationDecision;
-import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationManagerFactory;
 import org.springframework.security.authorization.DefaultAuthorizationManagerFactory;
 import org.springframework.security.config.Customizer;
@@ -22,11 +20,7 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.stereotype.Component;
-
-import static org.springframework.security.authorization.AllAuthoritiesAuthorizationManager.hasAllAuthorities;
-import static org.springframework.security.authorization.AuthorizationManagers.allOf;
 
 @EnableWebSecurity
 @Configuration(proxyBeanMethods = false)
@@ -53,82 +47,12 @@ class MissingAuthorityConfiguration {
 
 	// tag::authorizationManagerFactoryBean[]
 	@Bean
-	AuthorizationManagerFactory<RequestAuthorizationContext> authz() {
-		return new FactorAuthorizationManagerFactory(hasAllAuthorities(GrantedAuthorities.FACTOR_X509_AUTHORITY, GrantedAuthorities.FACTOR_AUTHORIZATION_CODE_AUTHORITY));
+	AuthorizationManagerFactory<Object> authz() {
+		return DefaultAuthorizationManagerFactory.builder()
+				.requireAdditionalAuthorities(GrantedAuthorities.FACTOR_X509_AUTHORITY, GrantedAuthorities.FACTOR_AUTHORIZATION_CODE_AUTHORITY)
+				.build();
 	}
 	// end::authorizationManagerFactoryBean[]
-
-	// tag::authorizationManagerFactory[]
-	class FactorAuthorizationManagerFactory implements AuthorizationManagerFactory<RequestAuthorizationContext> {
-		private final AuthorizationManager<RequestAuthorizationContext> hasAuthorities;
-		private final DefaultAuthorizationManagerFactory<RequestAuthorizationContext> delegate =
-				new DefaultAuthorizationManagerFactory<>();
-
-		FactorAuthorizationManagerFactory(AuthorizationManager<RequestAuthorizationContext> hasAuthorities) {
-			this.hasAuthorities = hasAuthorities;
-		}
-
-		@Override
-		public AuthorizationManager<RequestAuthorizationContext> permitAll() {
-			return this.delegate.permitAll();
-		}
-
-		@Override
-		public AuthorizationManager<RequestAuthorizationContext> denyAll() {
-			return this.delegate.denyAll();
-		}
-
-		@Override
-		public AuthorizationManager<RequestAuthorizationContext> hasRole(String role) {
-			return hasAnyRole(role);
-		}
-
-		@Override
-		public AuthorizationManager<RequestAuthorizationContext> hasAnyRole(String... roles) {
-			return allOf(new AuthorizationDecision(false), this.hasAuthorities, this.delegate.hasAnyRole(roles));
-		}
-
-		@Override
-		public AuthorizationManager<RequestAuthorizationContext> hasAllRoles(String... roles) {
-			return allOf(new AuthorizationDecision(false), this.hasAuthorities, this.delegate.hasAllRoles(roles));
-		}
-
-		@Override
-		public AuthorizationManager<RequestAuthorizationContext> hasAuthority(String authority) {
-			return hasAnyAuthority(authority);
-		}
-
-		@Override
-		public AuthorizationManager<RequestAuthorizationContext> hasAnyAuthority(String... authorities) {
-			return allOf(new AuthorizationDecision(false), this.hasAuthorities, this.delegate.hasAnyAuthority(authorities));
-		}
-
-		@Override
-		public AuthorizationManager<RequestAuthorizationContext> hasAllAuthorities(String... authorities) {
-			return allOf(new AuthorizationDecision(false), this.hasAuthorities, this.delegate.hasAllAuthorities(authorities));
-		}
-
-		@Override
-		public AuthorizationManager<RequestAuthorizationContext> authenticated() {
-			return allOf(new AuthorizationDecision(false), this.hasAuthorities, this.delegate.authenticated());
-		}
-
-		@Override
-		public AuthorizationManager<RequestAuthorizationContext> fullyAuthenticated() {
-			return allOf(new AuthorizationDecision(false), this.hasAuthorities, this.delegate.fullyAuthenticated());
-		}
-
-		@Override
-		public AuthorizationManager<RequestAuthorizationContext> rememberMe() {
-			return allOf(new AuthorizationDecision(false), this.hasAuthorities, this.delegate.rememberMe());
-		}
-
-		@Override
-		public AuthorizationManager<RequestAuthorizationContext> anonymous() {
-			return this.delegate.anonymous();
-		}
-	}
-	// end::authorizationManagerFactory[]
 
 	// tag::authenticationEntryPoint[]
 	@Component

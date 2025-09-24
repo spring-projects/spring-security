@@ -18,16 +18,18 @@ package org.springframework.security.kt.docs.servlet.authentication.customauthor
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.core.GrantedAuthorities
-import org.springframework.security.core.userdetails.UserDetailsService
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
-import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers
+import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener
+import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated
+import org.springframework.test.context.TestExecutionListeners
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -36,7 +38,8 @@ import org.springframework.web.bind.annotation.RestController
  *
  * @author Rob Winch
  */
-@ExtendWith(SpringTestContextExtension::class)
+@ExtendWith(SpringExtension::class, SpringTestContextExtension::class)
+@TestExecutionListeners(WithSecurityContextTestExecutionListener::class)
 class CustomAuthorizationManagerFactoryTests {
     @JvmField
     val spring: SpringTestContext = SpringTestContext(this)
@@ -44,44 +47,40 @@ class CustomAuthorizationManagerFactoryTests {
     @Autowired
     var mockMvc: MockMvc? = null
 
-    @Autowired
-    var users: UserDetailsService? = null
-
     @Test
     @Throws(Exception::class)
-    fun getWhenOptedInThenRedirectsToOtt() {
+    @WithMockUser(username = "admin")
+    fun getWhenAdminThenRedirectsToOtt() {
         this.spring.register(CustomAuthorizationManagerFactory::class.java, Http200Controller::class.java).autowire()
-        val user = this.users!!.loadUserByUsername("optedin")
         // @formatter:off
-        this.mockMvc!!.perform(MockMvcRequestBuilders.get("/").with(SecurityMockMvcRequestPostProcessors.user(user)))
-        .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-        .andExpect(MockMvcResultMatchers.redirectedUrl("http://localhost/login?factor=ott"))
-    		// @formatter:on
+        this.mockMvc!!.perform(get("/"))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(redirectedUrl("http://localhost/login?factor=ott"))
+        // @formatter:on
     }
 
     @Test
     @Throws(Exception::class)
-    fun getWhenNotOptedInThenAllows() {
+    @WithMockUser
+    fun getWhenNotAdminThenAllows() {
         this.spring.register(CustomAuthorizationManagerFactory::class.java, Http200Controller::class.java).autowire()
-        val user = this.users!!.loadUserByUsername("user")
         // @formatter:off
-        this.mockMvc!!.perform(MockMvcRequestBuilders.get("/").with(SecurityMockMvcRequestPostProcessors.user(user)))
-        .andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(SecurityMockMvcResultMatchers.authenticated().withUsername("user"))
-    		// @formatter:on
+        this.mockMvc!!.perform(get("/"))
+            .andExpect(status().isOk())
+            .andExpect(authenticated().withUsername("user"))
+    	// @formatter:on
     }
 
     @Test
     @Throws(Exception::class)
-    fun getWhenOptedAndHasFactorThenAllows() {
+    @WithMockUser(username = "admin", authorities = [GrantedAuthorities.FACTOR_OTT_AUTHORITY])
+    fun getWhenAdminAndHasFactorThenAllows() {
         this.spring.register(CustomAuthorizationManagerFactory::class.java, Http200Controller::class.java).autowire()
-        val user = this.users!!.loadUserByUsername("optedin")
-        val token = TestingAuthenticationToken(user, "", GrantedAuthorities.FACTOR_OTT_AUTHORITY)
         // @formatter:off
-        this.mockMvc!!.perform(MockMvcRequestBuilders.get("/").with(SecurityMockMvcRequestPostProcessors.authentication(token)))
-        .andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(SecurityMockMvcResultMatchers.authenticated().withUsername("optedin"))
-    		// @formatter:on
+        this.mockMvc!!.perform(get("/"))
+            .andExpect(status().isOk())
+            .andExpect(authenticated().withUsername("admin"))
+    	// @formatter:on
     }
 
     @RestController

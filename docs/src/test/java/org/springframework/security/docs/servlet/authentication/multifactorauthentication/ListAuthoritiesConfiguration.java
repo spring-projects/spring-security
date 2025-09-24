@@ -13,9 +13,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.ott.OneTimeTokenGenerationSuccessHandler;
 import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenGenerationSuccessHandler;
 
-import static org.springframework.security.authorization.AuthorityAuthorizationManager.hasAuthority;
-import static org.springframework.security.authorization.AuthorizationManagers.allOf;
-
 @EnableWebSecurity
 @Configuration(proxyBeanMethods = false)
 class ListAuthoritiesConfiguration {
@@ -26,7 +23,7 @@ class ListAuthoritiesConfiguration {
 		// @formatter:off
 		http
 			.authorizeHttpRequests((authorize) -> authorize
-				.anyRequest().access(allOf(hasAuthority(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY), hasAuthority(GrantedAuthorities.FACTOR_OTT_AUTHORITY))) // <1>
+				.anyRequest().hasAllAuthorities(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, GrantedAuthorities.FACTOR_OTT_AUTHORITY) // <1>
 			)
 			.formLogin(Customizer.withDefaults())
 			.oneTimeTokenLogin(Customizer.withDefaults());
@@ -36,7 +33,7 @@ class ListAuthoritiesConfiguration {
 	// end::httpSecurity[]
 
 	@Bean
-	UserDetailsService userDetailsService() {
+	UserDetailsService users() {
 		return new InMemoryUserDetailsManager(
 				User.withDefaultPasswordEncoder()
 						.username("user")
