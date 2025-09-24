@@ -122,7 +122,6 @@ internal class MissingAuthorityConfiguration {
     }
     // end::authorizationManagerFactory[]
 
-    // end::authenticationEntryPoint[]
     @Bean
     fun clients(): ClientRegistrationRepository {
         return InMemoryClientRegistrationRepository(TestClientRegistrations.clientRegistration().build())

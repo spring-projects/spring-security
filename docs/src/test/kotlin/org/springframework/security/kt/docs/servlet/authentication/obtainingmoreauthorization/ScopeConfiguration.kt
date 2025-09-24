@@ -30,7 +30,6 @@ class ScopeConfiguration {
     }
     // end::httpSecurity[]
 
-    // end::httpSecurity[]
     @Bean
     fun clients(): ClientRegistrationRepository {
         return InMemoryClientRegistrationRepository(TestClientRegistrations.clientRegistration().build())

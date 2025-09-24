@@ -34,7 +34,6 @@ class RequireOttConfiguration {
     }
     // end::httpSecurity[]
 
-    // end::httpSecurity[]
     @Bean
     fun userDetailsService(): UserDetailsService {
         return InMemoryUserDetailsManager(
