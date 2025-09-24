@@ -20,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
+import org.springframework.security.core.GrantedAuthorities
 import org.springframework.security.docs.servlet.authentication.reauthentication.RequireOttConfiguration
 import org.springframework.security.docs.servlet.authentication.reauthentication.SimpleConfiguration
 import org.springframework.security.test.context.support.WithMockUser
@@ -72,7 +73,7 @@ class ReauthenticationTests {
     }
 
     @Test
-    @WithMockUser(authorities = ["FACTOR_OTT"])
+    @WithMockUser(authorities = [GrantedAuthorities.FACTOR_OTT_AUTHORITY])
     @Throws(Exception::class)
     fun ottWhenRequireOttConfigurationThenAllows() {
         this.spring.register(RequireOttConfiguration::class.java, Http200Controller::class.java).autowire()

@@ -29,6 +29,7 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
@@ -154,7 +155,7 @@ public class OpaqueTokenAuthenticationProviderTests {
 		OpaqueTokenAuthenticationProvider provider = new OpaqueTokenAuthenticationProvider(introspector);
 		Authentication request = new BearerTokenAuthenticationToken("token");
 		Authentication result = provider.authenticate(request);
-		SecurityAssertions.assertThat(result).hasAuthority("FACTOR_BEARER");
+		SecurityAssertions.assertThat(result).hasAuthority(GrantedAuthorities.FACTOR_BEARER_AUTHORITY);
 	}
 
 	static Predicate<GrantedAuthority> isScope() {

@@ -35,6 +35,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
@@ -353,7 +354,8 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		if (exceptions != null) {
 			RequestMatcher requestMatcher = getAuthenticationEntryPointMatcher(http);
 			exceptions.defaultDeniedHandlerForMissingAuthority(
-					(ep) -> ep.addEntryPointFor(loginEntryPoint, requestMatcher), "FACTOR_SAML_RESPONSE");
+					(ep) -> ep.addEntryPointFor(loginEntryPoint, requestMatcher),
+					GrantedAuthorities.FACTOR_SAML_RESPONSE_AUTHORITY);
 		}
 		return loginEntryPoint;
 	}

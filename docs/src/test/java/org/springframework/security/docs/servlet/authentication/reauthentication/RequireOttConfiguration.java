@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -22,7 +23,7 @@ public class RequireOttConfiguration {
 		// @formatter:off
 		http
 			.authorizeHttpRequests((authorize) -> authorize
-				.requestMatchers("/profile/**").hasAuthority("FACTOR_OTT") // <1>
+				.requestMatchers("/profile/**").hasAuthority(GrantedAuthorities.FACTOR_OTT_AUTHORITY) // <1>
 				.anyRequest().authenticated()
 			)
 			.formLogin(Customizer.withDefaults())

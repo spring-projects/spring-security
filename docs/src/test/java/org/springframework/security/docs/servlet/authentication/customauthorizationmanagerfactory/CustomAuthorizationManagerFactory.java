@@ -20,6 +20,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -56,8 +57,8 @@ class CustomAuthorizationManagerFactory {
 			MyPrincipal principal = (MyPrincipal) authentication.get().getPrincipal();
 			if (principal.optedIn()) {
 				SecurityExpressionOperations sec = new SecurityExpressionRoot<>(authentication, context) {};
-				return new AuthorityAuthorizationDecision(sec.hasAuthority("FACTOR_OTT"),
-						AuthorityUtils.createAuthorityList("FACTOR_OTT"));
+				return new AuthorityAuthorizationDecision(sec.hasAuthority(GrantedAuthorities.FACTOR_OTT_AUTHORITY),
+						AuthorityUtils.createAuthorityList(GrantedAuthorities.FACTOR_OTT_AUTHORITY));
 			}
 			return new AuthorizationDecision(true);
 		}

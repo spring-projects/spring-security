@@ -64,8 +64,8 @@ import org.springframework.util.Assert;
  *
  * <code>
  *     AccessDeniedHandler handler = DelegatingMissingAuthorityAccessDeniedHandler.builder()
- *         .addEntryPointFor(new LoginUrlAuthenticationEntryPoint("/login"), "FACTOR_OTT")
- *         .addEntryPointFor(new MyCustomEntryPoint(), "FACTOR_PASSWORD")
+ *         .addEntryPointFor(new LoginUrlAuthenticationEntryPoint("/login"), GrantedAuthorities.FACTOR_OTT_AUTHORITY)
+ *         .addEntryPointFor(new MyCustomEntryPoint(), GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY)
  *         .build();
  * </code>
  *

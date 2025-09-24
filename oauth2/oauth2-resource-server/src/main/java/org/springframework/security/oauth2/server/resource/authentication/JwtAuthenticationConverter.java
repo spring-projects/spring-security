@@ -21,6 +21,7 @@ import java.util.HashSet;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -36,7 +37,7 @@ import org.springframework.util.Assert;
  */
 public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
-	private static final String AUTHORITY = "FACTOR_BEARER";
+	private static final String AUTHORITY = GrantedAuthorities.FACTOR_BEARER_AUTHORITY;
 
 	private Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
 

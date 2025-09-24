@@ -26,6 +26,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
+import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
@@ -159,7 +160,8 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 		if (exceptions != null) {
 			AuthenticationEntryPoint entryPoint = new LoginUrlAuthenticationEntryPoint("/login");
 			exceptions.defaultDeniedHandlerForMissingAuthority(
-					(ep) -> ep.addEntryPointFor(entryPoint, AnyRequestMatcher.INSTANCE), "FACTOR_WEBAUTHN");
+					(ep) -> ep.addEntryPointFor(entryPoint, AnyRequestMatcher.INSTANCE),
+					GrantedAuthorities.FACTOR_WEBAUTHN_AUTHORITY);
 		}
 	}
 

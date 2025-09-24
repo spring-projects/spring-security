@@ -23,6 +23,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -40,7 +41,7 @@ import org.springframework.util.Assert;
  */
 public final class OneTimeTokenAuthenticationProvider implements AuthenticationProvider {
 
-	private static final String AUTHORITY = "FACTOR_OTT";
+	private static final String AUTHORITY = GrantedAuthorities.FACTOR_OTT_AUTHORITY;
 
 	private final OneTimeTokenService oneTimeTokenService;
 

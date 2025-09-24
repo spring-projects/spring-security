@@ -40,6 +40,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
@@ -241,7 +242,7 @@ public class JaasAuthenticationProviderTests {
 	public void authenticateWhenSuccessThenIssuesFactor() {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password");
 		Authentication result = this.jaasProvider.authenticate(token);
-		SecurityAssertions.assertThat(result).hasAuthority("FACTOR_PASSWORD");
+		SecurityAssertions.assertThat(result).hasAuthority(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY);
 	}
 
 	private static class MockLoginContext extends LoginContext {

@@ -22,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.docs.servlet.authentication.servletx509config.CustomX509Configuration;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener;
@@ -51,7 +52,7 @@ public class MultiFactorAuthenticationTests {
 	MockMvc mockMvc;
 
 	@Test
-	@WithMockUser(authorities = { "FACTOR_PASSWORD", "FACTOR_OTT" })
+	@WithMockUser(authorities = { GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, GrantedAuthorities.FACTOR_OTT_AUTHORITY })
 	void getWhenAuthenticatedWithPasswordAndOttThenPermits() throws Exception {
 		this.spring.register(ListAuthoritiesConfiguration.class, Http200Controller.class).autowire();
 		// @formatter:off
@@ -62,7 +63,7 @@ public class MultiFactorAuthenticationTests {
 	}
 
 	@Test
-	@WithMockUser(authorities = "FACTOR_PASSWORD")
+	@WithMockUser(authorities = GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY)
 	void getWhenAuthenticatedWithPasswordThenRedirectsToOtt() throws Exception {
 		this.spring.register(ListAuthoritiesConfiguration.class, Http200Controller.class).autowire();
 		// @formatter:off
@@ -73,7 +74,7 @@ public class MultiFactorAuthenticationTests {
 	}
 
 	@Test
-	@WithMockUser(authorities = "FACTOR_OTT")
+	@WithMockUser(authorities = GrantedAuthorities.FACTOR_OTT_AUTHORITY)
 	void getWhenAuthenticatedWithOttThenRedirectsToPassword() throws Exception {
 		this.spring.register(ListAuthoritiesConfiguration.class, Http200Controller.class).autowire();
 		// @formatter:off

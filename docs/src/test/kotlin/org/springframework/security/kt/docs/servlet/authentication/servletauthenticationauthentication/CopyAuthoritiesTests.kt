@@ -10,6 +10,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.authentication.ott.OneTimeTokenAuthentication
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.GrantedAuthorities
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.context.SecurityContextHolder
 
@@ -17,10 +18,10 @@ class CopyAuthoritiesTests {
     @Test
     fun toBuilderWhenApplyThenCopies() {
         val previous: Authentication = UsernamePasswordAuthenticationToken("alice", "pass",
-            AuthorityUtils.createAuthorityList("FACTOR_PASSWORD"))
+            AuthorityUtils.createAuthorityList(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY))
         SecurityContextHolder.getContext().authentication = previous
         var latest: Authentication = OneTimeTokenAuthentication("bob",
-            AuthorityUtils.createAuthorityList("FACTOR_OTT"))
+            AuthorityUtils.createAuthorityList(GrantedAuthorities.FACTOR_OTT_AUTHORITY))
         val authenticationManager: AuthenticationManager = Mockito.mock(AuthenticationManager::class.java)
         BDDMockito.given(authenticationManager.authenticate(ArgumentMatchers.any())).willReturn(latest)
         val authenticationRequest: Authentication = TestingAuthenticationToken("user", "pass")
@@ -33,7 +34,7 @@ class CopyAuthoritiesTests {
             }.build()
         }
         // end::springSecurity[]
-        SecurityAssertions.assertThat(latestResult).hasAuthorities("FACTOR_PASSWORD", "FACTOR_OTT")
+        SecurityAssertions.assertThat(latestResult).hasAuthorities(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, GrantedAuthorities.FACTOR_OTT_AUTHORITY)
         SecurityContextHolder.clearContext()
     }
 }

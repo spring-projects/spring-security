@@ -36,6 +36,7 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -99,7 +100,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
-	private static final String AUTHORITY = "FACTOR_PASSWORD";
+	private static final String AUTHORITY = GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY;
 
 	/**
 	 * Allows subclasses to perform any additional checks of a returned (or cached)

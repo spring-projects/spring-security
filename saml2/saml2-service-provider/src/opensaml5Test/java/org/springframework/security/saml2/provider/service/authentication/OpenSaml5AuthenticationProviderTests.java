@@ -73,6 +73,7 @@ import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
@@ -990,7 +991,7 @@ public class OpenSaml5AuthenticationProviderTests {
 		Response response = TestOpenSamlObjects.signedResponseWithOneAssertion();
 		Authentication request = token(response, verifying(registration()));
 		Authentication result = this.provider.authenticate(request);
-		SecurityAssertions.assertThat(result).hasAuthority("FACTOR_SAML_RESPONSE");
+		SecurityAssertions.assertThat(result).hasAuthority(GrantedAuthorities.FACTOR_SAML_RESPONSE_AUTHORITY);
 	}
 
 	private <T extends XMLObject> T build(QName qName) {

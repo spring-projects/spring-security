@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.docs.servlet.authentication.servletx509config.CustomX509Configuration;
@@ -79,7 +80,7 @@ public class CustomAuthorizationManagerFactoryTests {
 	void getWhenOptedAndHasFactorThenAllows() throws Exception {
 		this.spring.register(CustomAuthorizationManagerFactory.class, Http200Controller.class).autowire();
 		UserDetails user = this.users.loadUserByUsername("optedin");
-		TestingAuthenticationToken token = new TestingAuthenticationToken(user, "", "FACTOR_OTT");
+		TestingAuthenticationToken token = new TestingAuthenticationToken(user, "", GrantedAuthorities.FACTOR_OTT_AUTHORITY);
 		// @formatter:off
 		this.mockMvc.perform(get("/").with(authentication(token)))
 			.andExpect(status().isOk())

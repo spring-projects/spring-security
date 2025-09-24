@@ -40,6 +40,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.config.users.AuthenticationTestConfiguration;
+import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.context.SecurityContextChangedListener;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
@@ -415,16 +416,21 @@ public class FormLoginConfigurerTests {
 				.with(SecurityMockMvcRequestPostProcessors.csrf()))
 			.andExpect(status().is3xxRedirection())
 			.andExpect(redirectedUrl("/"));
-		user = PasswordEncodedUser.withUserDetails(user).authorities("profile:read", "FACTOR_OTT").build();
+		user = PasswordEncodedUser.withUserDetails(user)
+			.authorities("profile:read", GrantedAuthorities.FACTOR_OTT_AUTHORITY)
+			.build();
 		this.mockMvc.perform(get("/profile").with(user(user)))
 			.andExpect(status().is3xxRedirection())
 			.andExpect(redirectedUrl("http://localhost/login?factor=password"));
-		user = PasswordEncodedUser.withUserDetails(user).authorities("profile:read", "FACTOR_PASSWORD").build();
+		user = PasswordEncodedUser.withUserDetails(user)
+			.authorities("profile:read", GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY)
+			.build();
 		this.mockMvc.perform(get("/profile").with(user(user)))
 			.andExpect(status().is3xxRedirection())
 			.andExpect(redirectedUrl("http://localhost/login?factor=ott"));
 		user = PasswordEncodedUser.withUserDetails(user)
-			.authorities("profile:read", "FACTOR_PASSWORD", "FACTOR_OTT")
+			.authorities("profile:read", GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY,
+					GrantedAuthorities.FACTOR_OTT_AUTHORITY)
 			.build();
 		this.mockMvc.perform(get("/profile").with(user(user))).andExpect(status().isNotFound());
 	}
@@ -447,7 +453,8 @@ public class FormLoginConfigurerTests {
 			.andExpect(status().is3xxRedirection())
 			.andExpect(redirectedUrl("/"));
 		UserDetails authorized = PasswordEncodedUser.withUsername("rod")
-			.authorities("profile:read", "FACTOR_X509", "FACTOR_PASSWORD")
+			.authorities("profile:read", GrantedAuthorities.FACTOR_X509_AUTHORITY,
+					GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY)
 			.build();
 		this.mockMvc.perform(get("/profile").with(user(authorized))).andExpect(status().isOk());
 	}
@@ -814,7 +821,8 @@ public class FormLoginConfigurerTests {
 
 		@Bean
 		AuthorizationManagerFactory<?> authz() {
-			return new AuthorizationManagerFactory<>("FACTOR_PASSWORD", "FACTOR_OTT");
+			return new AuthorizationManagerFactory<>(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY,
+					GrantedAuthorities.FACTOR_OTT_AUTHORITY);
 		}
 
 	}
@@ -840,7 +848,8 @@ public class FormLoginConfigurerTests {
 
 		@Bean
 		AuthorizationManagerFactory<?> authz() {
-			return new AuthorizationManagerFactory<>("FACTOR_X509", "FACTOR_PASSWORD");
+			return new AuthorizationManagerFactory<>(GrantedAuthorities.FACTOR_X509_AUTHORITY,
+					GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY);
 		}
 
 	}

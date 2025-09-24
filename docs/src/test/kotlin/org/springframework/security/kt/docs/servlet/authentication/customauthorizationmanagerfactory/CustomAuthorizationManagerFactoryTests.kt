@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
+import org.springframework.security.core.GrantedAuthorities
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
 import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers
@@ -75,7 +76,7 @@ class CustomAuthorizationManagerFactoryTests {
     fun getWhenOptedAndHasFactorThenAllows() {
         this.spring.register(CustomAuthorizationManagerFactory::class.java, Http200Controller::class.java).autowire()
         val user = this.users!!.loadUserByUsername("optedin")
-        val token = TestingAuthenticationToken(user, "", "FACTOR_OTT")
+        val token = TestingAuthenticationToken(user, "", GrantedAuthorities.FACTOR_OTT_AUTHORITY)
         // @formatter:off
         this.mockMvc!!.perform(MockMvcRequestBuilders.get("/").with(SecurityMockMvcRequestPostProcessors.authentication(token)))
         .andExpect(MockMvcResultMatchers.status().isOk())

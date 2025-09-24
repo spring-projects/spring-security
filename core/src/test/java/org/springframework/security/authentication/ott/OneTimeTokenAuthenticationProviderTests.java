@@ -28,6 +28,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -108,7 +109,7 @@ public class OneTimeTokenAuthenticationProviderTests {
 		OneTimeTokenAuthenticationToken token = new OneTimeTokenAuthenticationToken(TOKEN);
 
 		Authentication authentication = this.provider.authenticate(token);
-		SecurityAssertions.assertThat(authentication).hasAuthority("FACTOR_OTT");
+		SecurityAssertions.assertThat(authentication).hasAuthority(GrantedAuthorities.FACTOR_OTT_AUTHORITY);
 	}
 
 	@Test

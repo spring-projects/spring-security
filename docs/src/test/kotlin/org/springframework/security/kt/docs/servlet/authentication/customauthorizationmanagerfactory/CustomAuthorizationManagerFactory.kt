@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.GrantedAuthorities
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.userdetails.UserDetails
@@ -49,8 +50,8 @@ internal class CustomAuthorizationManagerFactory {
             if (principal!!.optedIn) {
                 val root = object : SecurityExpressionRoot<Object>(authentication, context) { }
                 return AuthorityAuthorizationDecision(
-                    root.hasAuthority("FACTOR_OTT"),
-                    AuthorityUtils.createAuthorityList("FACTOR_OTT")
+                    root.hasAuthority(GrantedAuthorities.FACTOR_OTT_AUTHORITY),
+                    AuthorityUtils.createAuthorityList(GrantedAuthorities.FACTOR_OTT_AUTHORITY)
                 )
             }
             return AuthorizationDecision(true)

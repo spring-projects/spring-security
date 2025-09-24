@@ -16,6 +16,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
@@ -53,7 +54,7 @@ class MissingAuthorityConfiguration {
 	// tag::authorizationManagerFactoryBean[]
 	@Bean
 	AuthorizationManagerFactory<RequestAuthorizationContext> authz() {
-		return new FactorAuthorizationManagerFactory(hasAllAuthorities("FACTOR_X509", "FACTOR_AUTHORIZATION_CODE"));
+		return new FactorAuthorizationManagerFactory(hasAllAuthorities(GrantedAuthorities.FACTOR_X509_AUTHORITY, GrantedAuthorities.FACTOR_AUTHORIZATION_CODE_AUTHORITY));
 	}
 	// end::authorizationManagerFactoryBean[]
 

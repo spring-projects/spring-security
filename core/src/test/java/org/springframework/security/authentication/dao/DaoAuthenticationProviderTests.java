@@ -38,6 +38,7 @@ import org.springframework.security.authentication.password.CompromisedPasswordC
 import org.springframework.security.authentication.password.CompromisedPasswordDecision;
 import org.springframework.security.authentication.password.CompromisedPasswordException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
@@ -511,7 +512,7 @@ public class DaoAuthenticationProviderTests {
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(withUsers(user));
 		Authentication request = new UsernamePasswordAuthenticationToken("user", "password");
 		Authentication result = provider.authenticate(request);
-		SecurityAssertions.assertThat(result).hasAuthority("FACTOR_PASSWORD");
+		SecurityAssertions.assertThat(result).hasAuthority(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY);
 	}
 
 	private UserDetailsService withUsers(UserDetails... users) {

@@ -58,6 +58,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -113,7 +114,7 @@ import org.springframework.util.StringUtils;
  */
 public final class OpenSaml5AuthenticationProvider implements AuthenticationProvider {
 
-	private static final String AUTHORITY = "FACTOR_SAML_RESPONSE";
+	private static final String AUTHORITY = GrantedAuthorities.FACTOR_SAML_RESPONSE_AUTHORITY;
 
 	private final BaseOpenSamlAuthenticationProvider delegate;
 

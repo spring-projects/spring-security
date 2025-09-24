@@ -38,6 +38,7 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -328,7 +329,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 					Arrays.asList(this.requestMatcher, X_REQUESTED_WITH, restNotHtmlMatcher, allMatcher));
 			exceptionHandling.defaultAuthenticationEntryPointFor(this.authenticationEntryPoint, preferredMatcher);
 			exceptionHandling.defaultDeniedHandlerForMissingAuthority(
-					(ep) -> ep.addEntryPointFor(this.authenticationEntryPoint, preferredMatcher), "FACTOR_BEARER");
+					(ep) -> ep.addEntryPointFor(this.authenticationEntryPoint, preferredMatcher),
+					GrantedAuthorities.FACTOR_BEARER_AUTHORITY);
 		}
 	}
 

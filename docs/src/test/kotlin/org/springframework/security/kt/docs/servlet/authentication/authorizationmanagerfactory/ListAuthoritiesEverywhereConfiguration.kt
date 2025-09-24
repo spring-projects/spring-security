@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
+import org.springframework.security.core.GrantedAuthorities
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
@@ -22,8 +23,8 @@ class ListAuthoritiesEverywhereConfiguration {
         // @formatter:off
         http {
             authorizeHttpRequests {
-                authorize("/admin/**", hasAllAuthorities("FACTOR_PASSWORD", "FACTOR_OTT", "ROLE_ADMIN")) // <1>
-                authorize(anyRequest, hasAllAuthorities("FACTOR_PASSWORD", "FACTOR_OTT"))
+                authorize("/admin/**", hasAllAuthorities(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, GrantedAuthorities.FACTOR_OTT_AUTHORITY, "ROLE_ADMIN")) // <1>
+                authorize(anyRequest, hasAllAuthorities(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, GrantedAuthorities.FACTOR_OTT_AUTHORITY))
             }
             formLogin { }
             oneTimeTokenLogin {  }

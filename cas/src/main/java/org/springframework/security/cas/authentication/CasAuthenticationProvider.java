@@ -38,6 +38,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -69,7 +70,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
 	private static final Log logger = LogFactory.getLog(CasAuthenticationProvider.class);
 
-	private static final String AUTHORITY = "FACTOR_CAS";
+	private static final String AUTHORITY = GrantedAuthorities.FACTOR_CAS_AUTHORITY;
 
 	@SuppressWarnings("NullAway.Init")
 	private AuthenticationUserDetailsService<CasAssertionAuthenticationToken> authenticationUserDetailsService;

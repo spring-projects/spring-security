@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -25,7 +26,7 @@ class ListAuthoritiesConfiguration {
 		// @formatter:off
 		http
 			.authorizeHttpRequests((authorize) -> authorize
-				.anyRequest().access(allOf(hasAuthority("FACTOR_PASSWORD"), hasAuthority("FACTOR_OTT"))) // <1>
+				.anyRequest().access(allOf(hasAuthority(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY), hasAuthority(GrantedAuthorities.FACTOR_OTT_AUTHORITY))) // <1>
 			)
 			.formLogin(Customizer.withDefaults())
 			.oneTimeTokenLogin(Customizer.withDefaults());
