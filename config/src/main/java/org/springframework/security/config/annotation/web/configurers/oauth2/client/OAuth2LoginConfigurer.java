@@ -306,7 +306,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	@Override
-	public void init(B http) throws Exception {
+	public void init(B http) {
 		OAuth2LoginAuthenticationFilter authenticationFilter = new OAuth2LoginAuthenticationFilter(
 				this.getClientRegistrationRepository(), this.getAuthorizedClientRepository(), this.loginProcessingUrl);
 		RequestMatcher processUri = getRequestMatcherBuilder().matcher(this.loginProcessingUrl);
@@ -377,7 +377,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	@Override
-	public void configure(B http) throws Exception {
+	public void configure(B http) {
 		OAuth2AuthorizationRequestRedirectFilter authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
 				getAuthorizationRequestResolver());
 		if (this.authorizationEndpointConfig.authorizationRequestRepository != null) {

@@ -150,7 +150,7 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	}
 
 	@Override
-	protected void initUserDetailsService() throws Exception {
+	protected void initUserDetailsService() {
 		if (!this.initScripts.isEmpty()) {
 			getDataSourceInit().afterPropertiesSet();
 		}

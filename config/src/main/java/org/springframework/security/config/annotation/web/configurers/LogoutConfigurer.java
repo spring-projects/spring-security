@@ -45,7 +45,8 @@ import org.springframework.util.Assert;
 
 /**
  * Adds logout support. Other {@link SecurityConfigurer} instances may invoke
- * {@link #addLogoutHandler(LogoutHandler)} in the {@link #init(HttpSecurityBuilder)}
+ * {@link #addLogoutHandler(LogoutHandler)} in the
+ * {@link SecurityConfigurer#init(org.springframework.security.config.annotation.SecurityBuilder)}
  * phase.
  *
  * <h2>Security Filters</h2>
@@ -288,7 +289,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	@Override
-	public void configure(H http) throws Exception {
+	public void configure(H http) {
 		LogoutFilter logoutFilter = createLogoutFilter(http);
 		http.addFilter(logoutFilter);
 	}

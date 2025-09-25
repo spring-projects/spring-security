@@ -55,7 +55,7 @@ public class SecurityConfigurerAdapterClosureTests {
 		private List<Object> list = new ArrayList<>();
 
 		@Override
-		public void configure(SecurityBuilder<Object> builder) throws Exception {
+		public void configure(SecurityBuilder<Object> builder) {
 			this.list = postProcess(this.list);
 		}
 

@@ -24,7 +24,6 @@ import org.springframework.core.MethodParameter
 import org.springframework.core.ResolvableType
 import org.springframework.core.annotation.AnnotationUtils
 import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository

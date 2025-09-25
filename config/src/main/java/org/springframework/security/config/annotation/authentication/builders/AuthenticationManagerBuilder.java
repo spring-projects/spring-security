@@ -127,8 +127,7 @@ public class AuthenticationManagerBuilder
 	 * the in memory authentication
 	 * @throws Exception if an error occurs when adding the in memory authentication
 	 */
-	public InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> inMemoryAuthentication()
-			throws Exception {
+	public InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> inMemoryAuthentication() {
 		return apply(new InMemoryUserDetailsManagerConfigurer<>());
 	}
 
@@ -156,7 +155,7 @@ public class AuthenticationManagerBuilder
 	 * JDBC authentication
 	 * @throws Exception if an error occurs when adding the JDBC authentication
 	 */
-	public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthentication() throws Exception {
+	public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthentication() {
 		return apply(new JdbcUserDetailsManagerConfigurer<>());
 	}
 
@@ -177,7 +176,7 @@ public class AuthenticationManagerBuilder
 	 * based authentication
 	 */
 	public <T extends UserDetailsService> DaoAuthenticationConfigurer<AuthenticationManagerBuilder, T> userDetailsService(
-			T userDetailsService) throws Exception {
+			T userDetailsService) {
 		this.defaultUserDetailsService = userDetailsService;
 		return apply(new DaoAuthenticationConfigurer<>(userDetailsService));
 	}
@@ -222,7 +221,7 @@ public class AuthenticationManagerBuilder
 	}
 
 	@Override
-	protected ProviderManager performBuild() throws Exception {
+	protected ProviderManager performBuild() {
 		if (!isConfigured()) {
 			this.logger.debug("No authenticationProviders and no parentAuthenticationManager defined. Returning null.");
 			return null;
@@ -277,7 +276,7 @@ public class AuthenticationManagerBuilder
 	 * @throws Exception if an error occurs
 	 */
 	private <C extends UserDetailsAwareConfigurer<AuthenticationManagerBuilder, ? extends UserDetailsService>> C apply(
-			C configurer) throws Exception {
+			C configurer) {
 		this.defaultUserDetailsService = configurer.getUserDetailsService();
 		with(configurer);
 		return configurer;

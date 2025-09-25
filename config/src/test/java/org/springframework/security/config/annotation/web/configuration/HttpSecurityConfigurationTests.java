@@ -720,7 +720,7 @@ public class HttpSecurityConfigurationTests {
 	static class CustomDsl extends AbstractHttpConfigurer<CustomDsl, HttpSecurity> {
 
 		@Override
-		public void init(HttpSecurity http) throws Exception {
+		public void init(HttpSecurity http) {
 			http.formLogin(FormLoginConfigurer::disable);
 		}
 
@@ -824,7 +824,7 @@ public class HttpSecurityConfigurationTests {
 	static class WithCustomDsl extends AbstractHttpConfigurer<WithCustomDsl, HttpSecurity> {
 
 		@Override
-		public void init(HttpSecurity builder) throws Exception {
+		public void init(HttpSecurity builder) {
 			builder.formLogin(Customizer.withDefaults());
 		}
 

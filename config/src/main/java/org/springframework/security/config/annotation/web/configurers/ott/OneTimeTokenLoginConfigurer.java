@@ -129,7 +129,7 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	@Override
-	public void init(H http) throws Exception {
+	public void init(H http) {
 		if (getLoginProcessingUrl() == null) {
 			loginProcessingUrl(OneTimeTokenAuthenticationFilter.DEFAULT_LOGIN_PROCESSING_URL);
 		}
@@ -165,7 +165,7 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	@Override
-	public void configure(H http) throws Exception {
+	public void configure(H http) {
 		super.configure(http);
 		configureSubmitPage(http);
 		configureOttGenerateFilter(http);

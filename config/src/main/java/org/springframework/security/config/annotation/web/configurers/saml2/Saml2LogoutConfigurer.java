@@ -199,7 +199,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void configure(H http) throws Exception {
+	public void configure(H http) {
 		LogoutConfigurer<H> logout = http.getConfigurer(LogoutConfigurer.class);
 		if (logout != null) {
 			this.logoutHandlers = logout.getLogoutHandlers();

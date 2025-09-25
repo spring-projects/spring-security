@@ -43,7 +43,7 @@ public class UserDetailsServiceConfigurer<B extends ProviderManagerBuilder<B>, C
 	}
 
 	@Override
-	public void configure(B builder) throws Exception {
+	public void configure(B builder) {
 		initUserDetailsService();
 		super.configure(builder);
 	}
@@ -52,7 +52,7 @@ public class UserDetailsServiceConfigurer<B extends ProviderManagerBuilder<B>, C
 	 * Allows subclasses to initialize the {@link UserDetailsService}. For example, it
 	 * might add users, initialize schema, etc.
 	 */
-	protected void initUserDetailsService() throws Exception {
+	protected void initUserDetailsService() {
 	}
 
 }

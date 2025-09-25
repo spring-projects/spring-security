@@ -35,11 +35,11 @@ public abstract class GlobalAuthenticationConfigurerAdapter
 		implements SecurityConfigurer<AuthenticationManager, AuthenticationManagerBuilder> {
 
 	@Override
-	public void init(AuthenticationManagerBuilder auth) throws Exception {
+	public void init(AuthenticationManagerBuilder auth) {
 	}
 
 	@Override
-	public void configure(AuthenticationManagerBuilder auth) throws Exception {
+	public void configure(AuthenticationManagerBuilder auth) {
 	}
 
 }

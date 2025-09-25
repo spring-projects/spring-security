@@ -98,7 +98,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		unboundIdPresent = ClassUtils.isPresent(UNBOUNDID_CLASSNAME, classLoader);
 	}
 
-	private LdapAuthenticationProvider build() throws Exception {
+	private LdapAuthenticationProvider build() {
 		BaseLdapPathContextSource contextSource = getContextSource();
 		LdapAuthenticator ldapAuthenticator = createLdapAuthenticator(contextSource);
 		LdapAuthoritiesPopulator authoritiesPopulator = getLdapAuthoritiesPopulator();
@@ -172,7 +172,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	 * @return the {@link GrantedAuthoritiesMapper}
 	 * @throws Exception if errors in {@link SimpleAuthorityMapper#afterPropertiesSet()}
 	 */
-	protected GrantedAuthoritiesMapper getAuthoritiesMapper() throws Exception {
+	protected GrantedAuthoritiesMapper getAuthoritiesMapper() {
 		if (this.authoritiesMapper != null) {
 			return this.authoritiesMapper;
 		}
@@ -381,12 +381,12 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	}
 
 	@Override
-	public void configure(B builder) throws Exception {
+	public void configure(B builder) {
 		LdapAuthenticationProvider provider = postProcess(build());
 		builder.authenticationProvider(provider);
 	}
 
-	private BaseLdapPathContextSource getContextSource() throws Exception {
+	private BaseLdapPathContextSource getContextSource() {
 		if (this.contextSource == null) {
 			this.contextSource = this.contextSourceBuilder.build();
 		}
@@ -554,7 +554,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 			return LdapAuthenticationProviderConfigurer.this;
 		}
 
-		private DefaultSpringSecurityContextSource build() throws Exception {
+		private DefaultSpringSecurityContextSource build() {
 			if (this.url == null) {
 				startEmbeddedLdapServer();
 			}

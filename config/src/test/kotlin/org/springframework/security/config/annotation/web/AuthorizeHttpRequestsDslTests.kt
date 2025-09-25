@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.annotation.web
 
-import io.mockk.Called
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify

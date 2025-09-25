@@ -112,7 +112,7 @@ class HttpSecurityConfiguration {
 
 	@Bean(HTTPSECURITY_BEAN_NAME)
 	@Scope("prototype")
-	HttpSecurity httpSecurity() throws Exception {
+	HttpSecurity httpSecurity() {
 		LazyPasswordEncoder passwordEncoder = new LazyPasswordEncoder(this.context);
 		AuthenticationManagerBuilder authenticationBuilder = new DefaultPasswordEncoderAuthenticationManagerBuilder(
 				this.objectPostProcessor, passwordEncoder);
@@ -142,13 +142,13 @@ class HttpSecurityConfiguration {
 		return http;
 	}
 
-	private void applyCorsIfAvailable(HttpSecurity http) throws Exception {
+	private void applyCorsIfAvailable(HttpSecurity http) {
 		if (this.context.getBeanNamesForType(UrlBasedCorsConfigurationSource.class).length > 0) {
 			http.cors(withDefaults());
 		}
 	}
 
-	private AuthenticationManager authenticationManager() throws Exception {
+	private AuthenticationManager authenticationManager() {
 		return this.authenticationConfiguration.getAuthenticationManager();
 	}
 
@@ -159,7 +159,7 @@ class HttpSecurityConfiguration {
 		return this.objectPostProcessor.postProcess(new DefaultAuthenticationEventPublisher());
 	}
 
-	private void applyDefaultConfigurers(HttpSecurity http) throws Exception {
+	private void applyDefaultConfigurers(HttpSecurity http) {
 		ClassLoader classLoader = this.context.getClassLoader();
 		List<AbstractHttpConfigurer> defaultHttpConfigurers = SpringFactoriesLoader
 			.loadFactories(AbstractHttpConfigurer.class, classLoader);
@@ -197,8 +197,7 @@ class HttpSecurityConfiguration {
 	 * with the {@link Customizer} Bean as the argument</li>
 	 * </ul>
 	 * @param context the {@link ApplicationContext}
-	 * @param http the {@link HttpSecurity}
-	 * @throws Exception
+	 * @param http the {@link HttpSecurity} @
 	 */
 	private void applyTopLevelCustomizers(ApplicationContext context, HttpSecurity http) {
 		ReflectionUtils.MethodFilter isCustomizerMethod = (method) -> {
@@ -266,19 +265,18 @@ class HttpSecurityConfiguration {
 		}
 
 		@Override
-		public InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> inMemoryAuthentication()
-				throws Exception {
+		public InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> inMemoryAuthentication() {
 			return super.inMemoryAuthentication().passwordEncoder(this.defaultPasswordEncoder);
 		}
 
 		@Override
-		public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthentication() throws Exception {
+		public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthentication() {
 			return super.jdbcAuthentication().passwordEncoder(this.defaultPasswordEncoder);
 		}
 
 		@Override
 		public <T extends UserDetailsService> DaoAuthenticationConfigurer<AuthenticationManagerBuilder, T> userDetailsService(
-				T userDetailsService) throws Exception {
+				T userDetailsService) {
 			return super.userDetailsService(userDetailsService).passwordEncoder(this.defaultPasswordEncoder);
 		}
 

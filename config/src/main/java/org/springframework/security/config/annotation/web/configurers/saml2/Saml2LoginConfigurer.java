@@ -273,7 +273,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	 * </ul>
 	 */
 	@Override
-	public void init(B http) throws Exception {
+	public void init(B http) {
 		registerDefaultCsrfOverride(http);
 		relyingPartyRegistrationRepository(http);
 		this.saml2WebSsoAuthenticationFilter = new Saml2WebSsoAuthenticationFilter(getAuthenticationConverter(http));
@@ -316,7 +316,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	 * AuthNRequest redirects
 	 */
 	@Override
-	public void configure(B http) throws Exception {
+	public void configure(B http) {
 		Saml2WebSsoAuthenticationRequestFilter filter = getAuthenticationRequestFilter(http);
 		filter.setAuthenticationRequestRepository(getAuthenticationRequestRepository(http));
 		http.addFilter(postProcess(filter));

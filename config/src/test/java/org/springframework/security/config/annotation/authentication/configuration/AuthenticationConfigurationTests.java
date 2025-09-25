@@ -355,7 +355,7 @@ public class AuthenticationConfigurationTests {
 	static class UserGlobalAuthenticationConfigurerAdapter extends GlobalAuthenticationConfigurerAdapter {
 
 		@Override
-		public void init(AuthenticationManagerBuilder auth) throws Exception {
+		public void init(AuthenticationManagerBuilder auth) {
 			auth.inMemoryAuthentication().withUser(PasswordEncodedUser.user());
 		}
 
@@ -428,7 +428,7 @@ public class AuthenticationConfigurationTests {
 		static List<Class<?>> configs = new ArrayList<>();
 
 		@Override
-		public void init(AuthenticationManagerBuilder auth) throws Exception {
+		public void init(AuthenticationManagerBuilder auth) {
 			inits.add(getClass());
 		}
 
@@ -454,7 +454,7 @@ public class AuthenticationConfigurationTests {
 	static class ConfiguresInMemoryConfigurerAdapter extends GlobalAuthenticationConfigurerAdapter {
 
 		@Override
-		public void init(AuthenticationManagerBuilder auth) throws Exception {
+		public void init(AuthenticationManagerBuilder auth) {
 			// @formatter:off
 			auth
 				.inMemoryAuthentication()
@@ -468,7 +468,7 @@ public class AuthenticationConfigurationTests {
 	static class BootGlobalAuthenticationConfigurerAdapter extends DefaultOrderGlobalAuthenticationConfigurerAdapter {
 
 		@Override
-		public void init(AuthenticationManagerBuilder auth) throws Exception {
+		public void init(AuthenticationManagerBuilder auth) {
 			auth.apply(new DefaultBootGlobalAuthenticationConfigurerAdapter());
 		}
 

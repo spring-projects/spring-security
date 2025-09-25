@@ -96,10 +96,10 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	}
 
 	/**
-	 * Similar to {@link #build()} and {@link #getObject()} but checks the state to
-	 * determine if {@link #build()} needs to be called first.
-	 * @return the result of {@link #build()} or {@link #getObject()}. If an error occurs
-	 * while building, returns null.
+	 * Similar to {@link SecurityBuilder#build()} and {@link #getObject()} but checks the
+	 * state to determine if {@link SecurityBuilder#build()} needs to be called first.
+	 * @return the result of {@link SecurityBuilder#build()} or {@link #getObject()}. If
+	 * an error occurs while building, returns null.
 	 */
 	public O getOrBuild() {
 		if (!isUnbuilt()) {
@@ -122,7 +122,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * @return the {@link SecurityConfigurerAdapter} for further customizations
 	 * @throws Exception
 	 */
-	public <C extends SecurityConfigurer<O, B>> C apply(C configurer) throws Exception {
+	public <C extends SecurityConfigurer<O, B>> C apply(C configurer) {
 		add(configurer);
 		return configurer;
 	}
@@ -145,7 +145,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * @throws Exception
 	 * @since 7.0
 	 */
-	public <C extends SecurityConfigurerAdapter<O, B>> B with(C configurer) throws Exception {
+	public <C extends SecurityConfigurerAdapter<O, B>> B with(C configurer) {
 		return with(configurer, Customizer.withDefaults());
 	}
 
@@ -158,7 +158,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * @since 6.2
 	 */
 	@SuppressWarnings("unchecked")
-	public <C extends SecurityConfigurerAdapter<O, B>> B with(C configurer, Customizer<C> customizer) throws Exception {
+	public <C extends SecurityConfigurerAdapter<O, B>> B with(C configurer, Customizer<C> customizer) {
 		configurer.addObjectPostProcessor(this.objectPostProcessor);
 		configurer.setBuilder((B) this);
 		add(configurer);
@@ -326,7 +326,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * </ul>
 	 */
 	@Override
-	protected final O doBuild() throws Exception {
+	protected final O doBuild() {
 		synchronized (this.configurers) {
 			this.buildState = BuildState.INITIALIZING;
 			beforeInit();
@@ -346,7 +346,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * method. Subclasses may override this method to hook into the lifecycle without
 	 * using a {@link SecurityConfigurer}.
 	 */
-	protected void beforeInit() throws Exception {
+	protected void beforeInit() {
 	}
 
 	/**
@@ -355,17 +355,17 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * override this method to hook into the lifecycle without using a
 	 * {@link SecurityConfigurer}.
 	 */
-	protected void beforeConfigure() throws Exception {
+	protected void beforeConfigure() {
 	}
 
 	/**
 	 * Subclasses must implement this method to build the object that is being returned.
 	 * @return the Object to be buit or null if the implementation allows it
 	 */
-	protected abstract O performBuild() throws Exception;
+	protected abstract O performBuild();
 
 	@SuppressWarnings("unchecked")
-	private void init() throws Exception {
+	private void init() {
 		Collection<SecurityConfigurer<O, B>> configurers = getConfigurers();
 		for (SecurityConfigurer<O, B> configurer : configurers) {
 			configurer.init((B) this);
@@ -380,7 +380,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	}
 
 	@SuppressWarnings("unchecked")
-	private void configure() throws Exception {
+	private void configure() {
 		Collection<SecurityConfigurer<O, B>> configurers = getConfigurers();
 		for (SecurityConfigurer<O, B> configurer : configurers) {
 			configurer.configure((B) this);

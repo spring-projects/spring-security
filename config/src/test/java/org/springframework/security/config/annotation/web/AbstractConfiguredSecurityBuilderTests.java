@@ -173,7 +173,7 @@ public class AbstractConfiguredSecurityBuilderTests {
 			extends SecurityConfigurerAdapter<Object, TestConfiguredSecurityBuilder> {
 
 		@Override
-		public void init(TestConfiguredSecurityBuilder builder) throws Exception {
+		public void init(TestConfiguredSecurityBuilder builder) {
 			builder.with(new NestedConfigurer(), Customizer.withDefaults());
 		}
 
@@ -182,7 +182,7 @@ public class AbstractConfiguredSecurityBuilderTests {
 	private static class NestedConfigurer extends SecurityConfigurerAdapter<Object, TestConfiguredSecurityBuilder> {
 
 		@Override
-		public void init(TestConfiguredSecurityBuilder http) throws Exception {
+		public void init(TestConfiguredSecurityBuilder http) {
 			http.with(new DoubleNestedConfigurer(), Customizer.withDefaults());
 		}
 
@@ -199,7 +199,7 @@ public class AbstractConfiguredSecurityBuilderTests {
 		private static SecurityConfigurer<Object, TestConfiguredSecurityBuilder> CONFIGURER;
 
 		@Override
-		public void init(TestConfiguredSecurityBuilder builder) throws Exception {
+		public void init(TestConfiguredSecurityBuilder builder) {
 			builder.apply(CONFIGURER);
 			builder.removeConfigurer(CONFIGURER.getClass());
 		}
@@ -212,7 +212,7 @@ public class AbstractConfiguredSecurityBuilderTests {
 		private static SecurityConfigurer<Object, TestConfiguredSecurityBuilder> CONFIGURER;
 
 		@Override
-		public void init(TestConfiguredSecurityBuilder builder) throws Exception {
+		public void init(TestConfiguredSecurityBuilder builder) {
 			builder.apply(CONFIGURER);
 			builder.removeConfigurers(CONFIGURER.getClass());
 		}
@@ -225,7 +225,7 @@ public class AbstractConfiguredSecurityBuilderTests {
 		private static SecurityConfigurer<Object, TestConfiguredSecurityBuilder> CONFIGURER;
 
 		@Override
-		public void init(TestConfiguredSecurityBuilder builder) throws Exception {
+		public void init(TestConfiguredSecurityBuilder builder) {
 			builder.apply(CONFIGURER);
 		}
 

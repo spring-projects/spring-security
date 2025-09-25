@@ -122,7 +122,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 			UsernamePasswordAuthenticationToken authentication) throws AuthenticationException;
 
 	@Override
-	public final void afterPropertiesSet() throws Exception {
+	public final void afterPropertiesSet() {
 		Assert.notNull(this.userCache, "A user cache must be set");
 		Assert.notNull(this.messages, "A message source must be set");
 		Assert.notNull(this.preAuthenticationChecks, "A pre authentication checks must be set");
@@ -215,7 +215,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 		return result;
 	}
 
-	protected void doAfterPropertiesSet() throws Exception {
+	protected void doAfterPropertiesSet() {
 	}
 
 	public UserCache getUserCache() {

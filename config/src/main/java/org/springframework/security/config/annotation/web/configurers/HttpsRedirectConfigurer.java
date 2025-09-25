@@ -61,7 +61,7 @@ public final class HttpsRedirectConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	@Override
-	public void configure(H http) throws Exception {
+	public void configure(H http) {
 		HttpsRedirectFilter filter = new HttpsRedirectFilter();
 		if (this.requestMatcher != null) {
 			filter.setRequestMatcher(this.requestMatcher);

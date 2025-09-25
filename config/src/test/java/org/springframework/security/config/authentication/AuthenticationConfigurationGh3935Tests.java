@@ -94,7 +94,7 @@ public class AuthenticationConfigurationGh3935Tests {
 		}
 
 		@Override
-		public void init(AuthenticationManagerBuilder auth) throws Exception {
+		public void init(AuthenticationManagerBuilder auth) {
 			AuthenticationConfiguration configuration = this.context.getBean(AuthenticationConfiguration.class);
 			this.authenticationManager = configuration.getAuthenticationManager();
 		}

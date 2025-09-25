@@ -52,7 +52,7 @@ public final class PasswordManagementConfigurer<B extends HttpSecurityBuilder<B>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void configure(B http) throws Exception {
+	public void configure(B http) {
 		RequestMatcherRedirectFilter changePasswordFilter = new RequestMatcherRedirectFilter(
 				getRequestMatcherBuilder().matcher(WELL_KNOWN_CHANGE_PASSWORD_PATTERN), this.changePasswordPage);
 		http.addFilterBefore(postProcess(changePasswordFilter), UsernamePasswordAuthenticationFilter.class);

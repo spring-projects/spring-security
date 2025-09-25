@@ -154,7 +154,7 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	@Override
-	public void init(H http) throws Exception {
+	public void init(H http) {
 		ExceptionHandlingConfigurer<H> exceptions = http.getConfigurer(ExceptionHandlingConfigurer.class);
 		if (exceptions != null) {
 			AuthenticationEntryPoint entryPoint = new LoginUrlAuthenticationEntryPoint("/login");
@@ -164,7 +164,7 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	@Override
-	public void configure(H http) throws Exception {
+	public void configure(H http) {
 		UserDetailsService userDetailsService = getSharedOrBean(http, UserDetailsService.class)
 			.orElseThrow(() -> new IllegalStateException("Missing UserDetailsService Bean"));
 		PublicKeyCredentialUserEntityRepository userEntities = getSharedOrBean(http,

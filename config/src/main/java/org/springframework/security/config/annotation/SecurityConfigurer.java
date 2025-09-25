@@ -38,7 +38,7 @@ public interface SecurityConfigurer<O, B extends SecurityBuilder<O>> {
 	 * @param builder
 	 * @throws Exception
 	 */
-	void init(B builder) throws Exception;
+	void init(B builder);
 
 	/**
 	 * Configure the {@link SecurityBuilder} by setting the necessary properties on the
@@ -46,6 +46,6 @@ public interface SecurityConfigurer<O, B extends SecurityBuilder<O>> {
 	 * @param builder
 	 * @throws Exception
 	 */
-	void configure(B builder) throws Exception;
+	void configure(B builder);
 
 }

@@ -112,7 +112,7 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	@Override
-	public void configure(B builder) throws Exception {
+	public void configure(B builder) {
 		if (this.backChannel != null) {
 			this.backChannel.configure(builder);
 		}

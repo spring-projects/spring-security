@@ -17,7 +17,7 @@
 package org.springframework.security.config.annotation;
 
 /**
- * Thrown when {@link AbstractSecurityBuilder#build()} is two or more times.
+ * Thrown when {@link SecurityBuilder#build()} is two or more times.
  *
  * @author Rob Winch
  * @since 3.2

@@ -295,7 +295,7 @@ public final class OAuth2AuthorizationServerConfigurer
 	}
 
 	@Override
-	public void init(HttpSecurity httpSecurity) throws Exception {
+	public void init(HttpSecurity httpSecurity) {
 		AuthorizationServerSettings authorizationServerSettings = OAuth2ConfigurerUtils
 			.getAuthorizationServerSettings(httpSecurity);
 		validateAuthorizationServerSettings(authorizationServerSettings);

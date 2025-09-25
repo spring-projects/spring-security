@@ -81,7 +81,7 @@ public abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderMana
 	}
 
 	@Override
-	public void configure(B builder) throws Exception {
+	public void configure(B builder) {
 		this.provider = postProcess(this.provider);
 		builder.authenticationProvider(this.provider);
 	}

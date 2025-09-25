@@ -49,7 +49,7 @@ class InitializeAuthenticationProviderBeanManagerConfigurer extends GlobalAuthen
 	}
 
 	@Override
-	public void init(AuthenticationManagerBuilder auth) throws Exception {
+	public void init(AuthenticationManagerBuilder auth) {
 		auth.apply(new InitializeAuthenticationProviderManagerConfigurer());
 	}
 

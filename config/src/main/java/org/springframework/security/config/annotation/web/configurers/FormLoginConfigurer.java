@@ -229,7 +229,7 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 	}
 
 	@Override
-	public void init(H http) throws Exception {
+	public void init(H http) {
 		super.init(http);
 		initDefaultLoginFilter(http);
 		ExceptionHandlingConfigurer<H> exceptions = http.getConfigurer(ExceptionHandlingConfigurer.class);

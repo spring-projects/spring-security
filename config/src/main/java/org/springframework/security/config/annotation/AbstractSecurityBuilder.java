@@ -33,7 +33,7 @@ public abstract class AbstractSecurityBuilder<O> implements SecurityBuilder<O> {
 	private O object;
 
 	@Override
-	public final O build() throws Exception {
+	public final O build() {
 		if (this.building.compareAndSet(false, true)) {
 			this.object = doBuild();
 			return this.object;
@@ -55,9 +55,9 @@ public abstract class AbstractSecurityBuilder<O> implements SecurityBuilder<O> {
 
 	/**
 	 * Subclasses should implement this to perform the build.
-	 * @return the object that should be returned by {@link #build()}.
+	 * @return the object that should be returned by {@link SecurityBuilder#build()}.
 	 * @throws Exception if an error occurs
 	 */
-	protected abstract O doBuild() throws Exception;
+	protected abstract O doBuild();
 
 }

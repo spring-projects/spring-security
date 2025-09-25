@@ -30,6 +30,6 @@ public interface SecurityBuilder<O> {
 	 * @return the Object to be built or null if the implementation allows it.
 	 * @throws Exception if an error occurred when building the Object
 	 */
-	O build() throws Exception;
+	O build();
 
 }

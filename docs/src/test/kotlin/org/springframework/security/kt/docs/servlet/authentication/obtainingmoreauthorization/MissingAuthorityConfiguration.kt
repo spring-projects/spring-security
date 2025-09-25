@@ -4,11 +4,7 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.authorization.AllAuthoritiesAuthorizationManager.hasAllAuthorities
-import org.springframework.security.authorization.AuthorizationDecision
-import org.springframework.security.authorization.AuthorizationManager
 import org.springframework.security.authorization.AuthorizationManagerFactory
-import org.springframework.security.authorization.AuthorizationManagers.allOf
 import org.springframework.security.authorization.DefaultAuthorizationManagerFactory
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -21,7 +17,6 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.DefaultSecurityFilterChain
-import org.springframework.security.web.access.intercept.RequestAuthorizationContext
 import org.springframework.stereotype.Component
 
 @EnableWebSecurity

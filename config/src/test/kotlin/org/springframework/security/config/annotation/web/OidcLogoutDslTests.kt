@@ -24,11 +24,9 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OidcBackChannelLogoutHandler
-import org.springframework.security.config.annotation.web.oauth2.login.OidcBackChannelLogoutDsl
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.oauth2.client.oidc.session.InMemoryOidcSessionRegistry
-import org.springframework.security.oauth2.client.oidc.session.OidcSessionRegistry
 import org.springframework.security.oauth2.client.registration.ClientRegistration
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository

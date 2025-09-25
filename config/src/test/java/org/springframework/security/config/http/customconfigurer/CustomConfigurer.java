@@ -38,7 +38,7 @@ public class CustomConfigurer extends SecurityConfigurerAdapter<DefaultSecurityF
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void init(HttpSecurity http) throws Exception {
+	public void init(HttpSecurity http) {
 		// autowire this bean
 		ApplicationContext context = http.getSharedObject(ApplicationContext.class);
 		context.getAutowireCapableBeanFactory().autowireBean(this);

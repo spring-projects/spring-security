@@ -118,7 +118,7 @@ import org.springframework.web.filter.CorsFilter;
  * public class FormLoginSecurityConfig {
  *
  * 	&#064;Bean
- * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+ * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
  * 		http
  * 			.authorizeHttpRequests((authorize) -&gt; authorize
  * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
@@ -199,7 +199,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class CsrfSecurityConfig {
 	 *
 	 *	&#064;Bean
-	 *	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 *	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 *		http
 	 *			.headers((headers) -&gt;
 	 *				headers
@@ -222,7 +222,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class CsrfSecurityConfig {
 	 *
 	 *	&#064;Bean
-	 *	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 *	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.headers((headers) -&gt; headers.disable());
 	 *		return http.build();
@@ -242,7 +242,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class CsrfSecurityConfig {
 	 *
 	 *	&#064;Bean
-	 *	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 *	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 *		http
 	 *			.headers((headers) -&gt;
 	 *				headers
@@ -265,7 +265,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class CsrfSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 *  	http
 	 *  		.headers((headers) -&gt;
 	 *  			headers
@@ -277,10 +277,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @param headersCustomizer the {@link Customizer} to provide more options for the
 	 * {@link HeadersConfigurer}
-	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
+	 * @return the {@link HttpSecurity} for further customizations @
 	 */
-	public HttpSecurity headers(Customizer<HeadersConfigurer<HttpSecurity>> headersCustomizer) throws Exception {
+	public HttpSecurity headers(Customizer<HeadersConfigurer<HttpSecurity>> headersCustomizer) {
 		headersCustomizer.customize(getOrApply(new HeadersConfigurer<>()));
 		return HttpSecurity.this;
 	}
@@ -296,7 +295,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class CorsSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.cors(withDefaults());
 	 * 		return http.build();
@@ -305,10 +304,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @param corsCustomizer the {@link Customizer} to provide more options for the
 	 * {@link CorsConfigurer}
-	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
+	 * @return the {@link HttpSecurity} for further customizations @
 	 */
-	public HttpSecurity cors(Customizer<CorsConfigurer<HttpSecurity>> corsCustomizer) throws Exception {
+	public HttpSecurity cors(Customizer<CorsConfigurer<HttpSecurity>> corsCustomizer) {
 		corsCustomizer.customize(getOrApply(new CorsConfigurer<>()));
 		return HttpSecurity.this;
 	}
@@ -329,7 +327,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class SessionManagementSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
 	 * 				authorizeHttpRequests
@@ -379,11 +377,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * could return true.
 	 * @param sessionManagementCustomizer the {@link Customizer} to provide more options
 	 * for the {@link SessionManagementConfigurer}
-	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
+	 * @return the {@link HttpSecurity} for further customizations @
 	 */
 	public HttpSecurity sessionManagement(
-			Customizer<SessionManagementConfigurer<HttpSecurity>> sessionManagementCustomizer) throws Exception {
+			Customizer<SessionManagementConfigurer<HttpSecurity>> sessionManagementCustomizer) {
 		sessionManagementCustomizer.customize(getOrApply(new SessionManagementConfigurer<>()));
 		return HttpSecurity.this;
 	}
@@ -410,7 +407,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class PortMapperSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.requiresChannel((requiresChannel) -&gt;
 	 * 				requiresChannel
@@ -438,11 +435,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @param portMapperCustomizer the {@link Customizer} to provide more options for the
 	 * {@link PortMapperConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
-	 * @see #requiresChannel(Customizer)
+	 * @ @see #requiresChannel(Customizer)
 	 */
-	public HttpSecurity portMapper(Customizer<PortMapperConfigurer<HttpSecurity>> portMapperCustomizer)
-			throws Exception {
+	public HttpSecurity portMapper(Customizer<PortMapperConfigurer<HttpSecurity>> portMapperCustomizer) {
 		portMapperCustomizer.customize(getOrApply(new PortMapperConfigurer<>()));
 		return HttpSecurity.this;
 	}
@@ -463,7 +458,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class JeeSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
 	 * 				authorizeHttpRequests
@@ -520,10 +515,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * Servlet Container's documentation.
 	 * @param jeeCustomizer the {@link Customizer} to provide more options for the
 	 * {@link JeeConfigurer}
-	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
+	 * @return the {@link HttpSecurity} for further customizations @
 	 */
-	public HttpSecurity jee(Customizer<JeeConfigurer<HttpSecurity>> jeeCustomizer) throws Exception {
+	public HttpSecurity jee(Customizer<JeeConfigurer<HttpSecurity>> jeeCustomizer) {
 		jeeCustomizer.customize(getOrApply(new JeeConfigurer<>()));
 		return HttpSecurity.this;
 	}
@@ -543,7 +537,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class X509SecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
 	 * 				authorizeHttpRequests
@@ -556,10 +550,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @param x509Customizer the {@link Customizer} to provide more options for the
 	 * {@link X509Configurer}
-	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
+	 * @return the {@link HttpSecurity} for further customizations @
 	 */
-	public HttpSecurity x509(Customizer<X509Configurer<HttpSecurity>> x509Customizer) throws Exception {
+	public HttpSecurity x509(Customizer<X509Configurer<HttpSecurity>> x509Customizer) {
 		x509Customizer.customize(getOrApply(new X509Configurer<>()));
 		return HttpSecurity.this;
 	}
@@ -580,7 +573,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class RememberMeSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
 	 * 				authorizeHttpRequests
@@ -604,11 +597,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @param rememberMeCustomizer the {@link Customizer} to provide more options for the
 	 * {@link RememberMeConfigurer}
-	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
+	 * @return the {@link HttpSecurity} for further customizations @
 	 */
-	public HttpSecurity rememberMe(Customizer<RememberMeConfigurer<HttpSecurity>> rememberMeCustomizer)
-			throws Exception {
+	public HttpSecurity rememberMe(Customizer<RememberMeConfigurer<HttpSecurity>> rememberMeCustomizer) {
 		rememberMeCustomizer.customize(getOrApply(new RememberMeConfigurer<>()));
 		return HttpSecurity.this;
 	}
@@ -629,7 +620,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class AuthorizeUrlsSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.authorizeHttpRequests((authorize) -&gt; authorize
 	 * 					.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
@@ -665,7 +656,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class AuthorizeUrlsSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.authorizeHttpRequests((authorize) -&gt; authorize
 	 * 					.requestMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
@@ -702,7 +693,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class AuthorizeUrlsSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 		 	.authorizeHttpRequests((authorize) -&gt; authorize
 	 * 			 		.requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
@@ -715,12 +706,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @param authorizeHttpRequestsCustomizer the {@link Customizer} to provide more
 	 * options for the {@link AuthorizationManagerRequestMatcherRegistry}
 	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
-	 * @since 5.5
+	 * @ @since 5.5
 	 */
 	public HttpSecurity authorizeHttpRequests(
-			Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> authorizeHttpRequestsCustomizer)
-			throws Exception {
+			Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> authorizeHttpRequestsCustomizer) {
 		ApplicationContext context = getContext();
 		authorizeHttpRequestsCustomizer
 			.customize(getOrApply(new AuthorizeHttpRequestsConfigurer<>(context)).getRegistry());
@@ -744,7 +733,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class RequestCacheDisabledSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
 	 * 				authorizeHttpRequests
@@ -759,11 +748,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @param requestCacheCustomizer the {@link Customizer} to provide more options for
 	 * the {@link RequestCacheConfigurer}
-	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
+	 * @return the {@link HttpSecurity} for further customizations @
 	 */
-	public HttpSecurity requestCache(Customizer<RequestCacheConfigurer<HttpSecurity>> requestCacheCustomizer)
-			throws Exception {
+	public HttpSecurity requestCache(Customizer<RequestCacheConfigurer<HttpSecurity>> requestCacheCustomizer) {
 		requestCacheCustomizer.customize(getOrApply(new RequestCacheConfigurer<>()));
 		return HttpSecurity.this;
 	}
@@ -783,7 +770,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class ExceptionHandlingSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
 	 * 				authorizeHttpRequests
@@ -800,11 +787,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @param exceptionHandlingCustomizer the {@link Customizer} to provide more options
 	 * for the {@link ExceptionHandlingConfigurer}
-	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
+	 * @return the {@link HttpSecurity} for further customizations @
 	 */
 	public HttpSecurity exceptionHandling(
-			Customizer<ExceptionHandlingConfigurer<HttpSecurity>> exceptionHandlingCustomizer) throws Exception {
+			Customizer<ExceptionHandlingConfigurer<HttpSecurity>> exceptionHandlingCustomizer) {
 		exceptionHandlingCustomizer.customize(getOrApply(new ExceptionHandlingConfigurer<>()));
 		return HttpSecurity.this;
 	}
@@ -822,7 +808,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class SecurityContextSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.securityContext((securityContext) -&gt;
 	 * 				securityContext
@@ -834,11 +820,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @param securityContextCustomizer the {@link Customizer} to provide more options for
 	 * the {@link SecurityContextConfigurer}
-	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
+	 * @return the {@link HttpSecurity} for further customizations @
 	 */
-	public HttpSecurity securityContext(Customizer<SecurityContextConfigurer<HttpSecurity>> securityContextCustomizer)
-			throws Exception {
+	public HttpSecurity securityContext(Customizer<SecurityContextConfigurer<HttpSecurity>> securityContextCustomizer) {
 		securityContextCustomizer.customize(getOrApply(new SecurityContextConfigurer<>()));
 		return HttpSecurity.this;
 	}
@@ -854,7 +838,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class ServletApiSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.servletApi((servletApi) -&gt;
 	 * 				servletApi.disable()
@@ -865,11 +849,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @param servletApiCustomizer the {@link Customizer} to provide more options for the
 	 * {@link ServletApiConfigurer}
-	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
+	 * @return the {@link HttpSecurity} for further customizations @
 	 */
-	public HttpSecurity servletApi(Customizer<ServletApiConfigurer<HttpSecurity>> servletApiCustomizer)
-			throws Exception {
+	public HttpSecurity servletApi(Customizer<ServletApiConfigurer<HttpSecurity>> servletApiCustomizer) {
 		servletApiCustomizer.customize(getOrApply(new ServletApiConfigurer<>()));
 		return HttpSecurity.this;
 	}
@@ -884,7 +866,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class CsrfSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.csrf((csrf) -&gt; csrf.disable());
 	 * 		return http.build();
@@ -893,10 +875,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @param csrfCustomizer the {@link Customizer} to provide more options for the
 	 * {@link CsrfConfigurer}
-	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
+	 * @return the {@link HttpSecurity} for further customizations @
 	 */
-	public HttpSecurity csrf(Customizer<CsrfConfigurer<HttpSecurity>> csrfCustomizer) throws Exception {
+	public HttpSecurity csrf(Customizer<CsrfConfigurer<HttpSecurity>> csrfCustomizer) {
 		ApplicationContext context = getContext();
 		csrfCustomizer.customize(getOrApply(new CsrfConfigurer<>(context)));
 		return HttpSecurity.this;
@@ -921,7 +902,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class LogoutSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
 	 * 				authorizeHttpRequests
@@ -951,10 +932,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @param logoutCustomizer the {@link Customizer} to provide more options for the
 	 * {@link LogoutConfigurer}
-	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
+	 * @return the {@link HttpSecurity} for further customizations @
 	 */
-	public HttpSecurity logout(Customizer<LogoutConfigurer<HttpSecurity>> logoutCustomizer) throws Exception {
+	public HttpSecurity logout(Customizer<LogoutConfigurer<HttpSecurity>> logoutCustomizer) {
 		logoutCustomizer.customize(getOrApply(new LogoutConfigurer<>()));
 		return HttpSecurity.this;
 	}
@@ -977,7 +957,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class AnonymousSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
 	 * 				authorizeHttpRequests
@@ -1014,7 +994,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class AnonymousSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
 	 * 				authorizeHttpRequests
@@ -1041,10 +1021,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @param anonymousCustomizer the {@link Customizer} to provide more options for the
 	 * {@link AnonymousConfigurer}
-	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
+	 * @return the {@link HttpSecurity} for further customizations @
 	 */
-	public HttpSecurity anonymous(Customizer<AnonymousConfigurer<HttpSecurity>> anonymousCustomizer) throws Exception {
+	public HttpSecurity anonymous(Customizer<AnonymousConfigurer<HttpSecurity>> anonymousCustomizer) {
 		anonymousCustomizer.customize(getOrApply(new AnonymousConfigurer<>()));
 		return HttpSecurity.this;
 	}
@@ -1067,7 +1046,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class FormLoginSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
 	 * 				authorizeHttpRequests
@@ -1097,7 +1076,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class FormLoginSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
 	 * 				authorizeHttpRequests
@@ -1128,10 +1107,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @param formLoginCustomizer the {@link Customizer} to provide more options for the
 	 * {@link FormLoginConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
-	 * @see FormLoginConfigurer#loginPage(String)
+	 * @ @see FormLoginConfigurer#loginPage(String)
 	 */
-	public HttpSecurity formLogin(Customizer<FormLoginConfigurer<HttpSecurity>> formLoginCustomizer) throws Exception {
+	public HttpSecurity formLogin(Customizer<FormLoginConfigurer<HttpSecurity>> formLoginCustomizer) {
 		formLoginCustomizer.customize(getOrApply(new FormLoginConfigurer<>()));
 		return HttpSecurity.this;
 	}
@@ -1177,7 +1155,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class Saml2LoginSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
 	 * 				authorizeHttpRequests
@@ -1220,11 +1198,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @param saml2LoginCustomizer the {@link Customizer} to provide more options for the
 	 * {@link Saml2LoginConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
-	 * @since 5.2
+	 * @ @since 5.2
 	 */
-	public HttpSecurity saml2Login(Customizer<Saml2LoginConfigurer<HttpSecurity>> saml2LoginCustomizer)
-			throws Exception {
+	public HttpSecurity saml2Login(Customizer<Saml2LoginConfigurer<HttpSecurity>> saml2LoginCustomizer) {
 		saml2LoginCustomizer.customize(getOrApply(new Saml2LoginConfigurer<>()));
 		return HttpSecurity.this;
 	}
@@ -1266,7 +1242,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *	&#064;Configuration
 	 *	public class Saml2LogoutSecurityConfig {
 	 *		&#064;Bean
-	 *		public SecurityFilterChain web(HttpSecurity http) throws Exception {
+	 *		public SecurityFilterChain web(HttpSecurity http)  {
 	 *			http
 	 *				.authorizeHttpRequests((authorize) -&gt; authorize
 	 *					.anyRequest().authenticated()
@@ -1289,11 +1265,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *
 	 * <p>
 	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
-	 * @since 5.6
+	 * @ @since 5.6
 	 */
-	public HttpSecurity saml2Logout(Customizer<Saml2LogoutConfigurer<HttpSecurity>> saml2LogoutCustomizer)
-			throws Exception {
+	public HttpSecurity saml2Logout(Customizer<Saml2LogoutConfigurer<HttpSecurity>> saml2LogoutCustomizer) {
 		saml2LogoutCustomizer.customize(getOrApply(new Saml2LogoutConfigurer<>(getContext())));
 		return HttpSecurity.this;
 	}
@@ -1319,7 +1293,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *	&#064;Configuration
 	 *	public class Saml2LogoutSecurityConfig {
 	 *		&#064;Bean
-	 *		public SecurityFilterChain web(HttpSecurity http) throws Exception {
+	 *		public SecurityFilterChain web(HttpSecurity http)  {
 	 *			http
 	 *				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 	 *				.saml2Metadata(Customizer.withDefaults());
@@ -1339,11 +1313,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @param saml2MetadataConfigurer the {@link Customizer} to provide more options for
 	 * the {@link Saml2MetadataConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
-	 * @since 6.1
+	 * @ @since 6.1
 	 */
-	public HttpSecurity saml2Metadata(Customizer<Saml2MetadataConfigurer<HttpSecurity>> saml2MetadataConfigurer)
-			throws Exception {
+	public HttpSecurity saml2Metadata(Customizer<Saml2MetadataConfigurer<HttpSecurity>> saml2MetadataConfigurer) {
 		saml2MetadataConfigurer.customize(getOrApply(new Saml2MetadataConfigurer<>(getContext())));
 		return HttpSecurity.this;
 	}
@@ -1395,7 +1367,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class OAuth2LoginSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
 	 * 				authorizeHttpRequests
@@ -1435,28 +1407,25 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @param oauth2LoginCustomizer the {@link Customizer} to provide more options for the
 	 * {@link OAuth2LoginConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
-	 * @see <a target="_blank" href=
-	 * "https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code
-	 * Grant</a>
+	 * @ @see
+	 * <a target="_blank" href= "https://tools.ietf.org/html/rfc6749#section-4.1">Section
+	 * 4.1 Authorization Code Grant</a>
 	 * @see <a target="_blank" href=
 	 * "https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">Section 3.1
 	 * Authorization Code Flow</a>
 	 * @see org.springframework.security.oauth2.client.registration.ClientRegistration
 	 * @see org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 	 */
-	public HttpSecurity oauth2Login(Customizer<OAuth2LoginConfigurer<HttpSecurity>> oauth2LoginCustomizer)
-			throws Exception {
+	public HttpSecurity oauth2Login(Customizer<OAuth2LoginConfigurer<HttpSecurity>> oauth2LoginCustomizer) {
 		oauth2LoginCustomizer.customize(getOrApply(new OAuth2LoginConfigurer<>()));
 		return HttpSecurity.this;
 	}
 
-	public OidcLogoutConfigurer<HttpSecurity> oidcLogout() throws Exception {
+	public OidcLogoutConfigurer<HttpSecurity> oidcLogout() {
 		return getOrApply(new OidcLogoutConfigurer<>());
 	}
 
-	public HttpSecurity oidcLogout(Customizer<OidcLogoutConfigurer<HttpSecurity>> oidcLogoutCustomizer)
-			throws Exception {
+	public HttpSecurity oidcLogout(Customizer<OidcLogoutConfigurer<HttpSecurity>> oidcLogoutCustomizer) {
 		oidcLogoutCustomizer.customize(getOrApply(new OidcLogoutConfigurer<>()));
 		return HttpSecurity.this;
 	}
@@ -1475,7 +1444,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class OAuth2ClientSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
 	 * 				authorizeHttpRequests
@@ -1489,13 +1458,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @param oauth2ClientCustomizer the {@link Customizer} to provide more options for
 	 * the {@link OAuth2ClientConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
-	 * @see <a target="_blank" href=
-	 * "https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization
-	 * Framework</a>
+	 * @ @see
+	 * <a target="_blank" href= "https://tools.ietf.org/html/rfc6749#section-1.1">OAuth
+	 * 2.0 Authorization Framework</a>
 	 */
-	public HttpSecurity oauth2Client(Customizer<OAuth2ClientConfigurer<HttpSecurity>> oauth2ClientCustomizer)
-			throws Exception {
+	public HttpSecurity oauth2Client(Customizer<OAuth2ClientConfigurer<HttpSecurity>> oauth2ClientCustomizer) {
 		oauth2ClientCustomizer.customize(getOrApply(new OAuth2ClientConfigurer<>()));
 		return HttpSecurity.this;
 	}
@@ -1514,7 +1481,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class OAuth2ResourceServerSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
 	 * 				authorizeHttpRequests
@@ -1539,13 +1506,12 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @param oauth2ResourceServerCustomizer the {@link Customizer} to provide more
 	 * options for the {@link OAuth2ResourceServerConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
-	 * @see <a target="_blank" href=
-	 * "https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization
-	 * Framework</a>
+	 * @ @see
+	 * <a target="_blank" href= "https://tools.ietf.org/html/rfc6749#section-1.1">OAuth
+	 * 2.0 Authorization Framework</a>
 	 */
 	public HttpSecurity oauth2ResourceServer(
-			Customizer<OAuth2ResourceServerConfigurer<HttpSecurity>> oauth2ResourceServerCustomizer) throws Exception {
+			Customizer<OAuth2ResourceServerConfigurer<HttpSecurity>> oauth2ResourceServerCustomizer) {
 		OAuth2ResourceServerConfigurer<HttpSecurity> configurer = getOrApply(
 				new OAuth2ResourceServerConfigurer<>(getContext()));
 		this.postProcess(configurer);
@@ -1558,14 +1524,13 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @param oauth2AuthorizationServerCustomizer the {@link Customizer} providing access
 	 * to the {@link OAuth2AuthorizationServerConfigurer} for further customizations
 	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
-	 * @since 7.0
+	 * @ @since 7.0
 	 * @see <a target="_blank" href=
 	 * "https://www.ietf.org/archive/id/draft-ietf-oauth-v2-1-13.html">OAuth 2.1
 	 * Authorization Framework</a>
 	 */
 	public HttpSecurity oauth2AuthorizationServer(
-			Customizer<OAuth2AuthorizationServerConfigurer> oauth2AuthorizationServerCustomizer) throws Exception {
+			Customizer<OAuth2AuthorizationServerConfigurer> oauth2AuthorizationServerCustomizer) {
 		oauth2AuthorizationServerCustomizer.customize(getOrApply(new OAuth2AuthorizationServerConfigurer()));
 		return HttpSecurity.this;
 	}
@@ -1581,7 +1546,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class SecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.authorizeHttpRequests((authorize) -&gt; authorize
 	 * 					.anyRequest().authenticated()
@@ -1599,12 +1564,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @param oneTimeTokenLoginConfigurerCustomizer the {@link Customizer} to provide more
 	 * options for the {@link OneTimeTokenLoginConfigurer}
-	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
+	 * @return the {@link HttpSecurity} for further customizations @
 	 */
 	public HttpSecurity oneTimeTokenLogin(
-			Customizer<OneTimeTokenLoginConfigurer<HttpSecurity>> oneTimeTokenLoginConfigurerCustomizer)
-			throws Exception {
+			Customizer<OneTimeTokenLoginConfigurer<HttpSecurity>> oneTimeTokenLoginConfigurerCustomizer) {
 		oneTimeTokenLoginConfigurerCustomizer.customize(getOrApply(new OneTimeTokenLoginConfigurer<>(getContext())));
 		return HttpSecurity.this;
 	}
@@ -1627,7 +1590,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class ChannelSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
 	 * 				authorizeHttpRequests
@@ -1655,13 +1618,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @param requiresChannelCustomizer the {@link Customizer} to provide more options for
 	 * the {@link ChannelSecurityConfigurer.ChannelRequestMatcherRegistry}
 	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
 	 * @deprecated Use {@link #redirectToHttps}
 	 */
 	@Deprecated
 	public HttpSecurity requiresChannel(
-			Customizer<ChannelSecurityConfigurer<HttpSecurity>.ChannelRequestMatcherRegistry> requiresChannelCustomizer)
-			throws Exception {
+			Customizer<ChannelSecurityConfigurer<HttpSecurity>.ChannelRequestMatcherRegistry> requiresChannelCustomizer) {
 		ApplicationContext context = getContext();
 		requiresChannelCustomizer.customize(getOrApply(new ChannelSecurityConfigurer<>(context)).getRegistry());
 		return HttpSecurity.this;
@@ -1683,7 +1644,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class RequireHttpsConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.authorizeHttpRequests((authorize) -&gt; authorize
 	 * 				anyRequest().authenticated()
@@ -1709,7 +1670,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @return the {@link HttpSecurity} for further customizations
 	 */
 	public HttpSecurity redirectToHttps(
-			Customizer<HttpsRedirectConfigurer<HttpSecurity>> httpsRedirectConfigurerCustomizer) throws Exception {
+			Customizer<HttpsRedirectConfigurer<HttpSecurity>> httpsRedirectConfigurerCustomizer) {
 		httpsRedirectConfigurerCustomizer.customize(getOrApply(new HttpsRedirectConfigurer<>()));
 		return HttpSecurity.this;
 	}
@@ -1729,7 +1690,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class HttpBasicSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
 	 * 				authorizeHttpRequests
@@ -1752,10 +1713,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @param httpBasicCustomizer the {@link Customizer} to provide more options for the
 	 * {@link HttpBasicConfigurer}
-	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
+	 * @return the {@link HttpSecurity} for further customizations @
 	 */
-	public HttpSecurity httpBasic(Customizer<HttpBasicConfigurer<HttpSecurity>> httpBasicCustomizer) throws Exception {
+	public HttpSecurity httpBasic(Customizer<HttpBasicConfigurer<HttpSecurity>> httpBasicCustomizer) {
 		httpBasicCustomizer.customize(getOrApply(new HttpBasicConfigurer<>()));
 		return HttpSecurity.this;
 	}
@@ -1774,7 +1734,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class PasswordManagementSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.authorizeHttpRequests(authorizeHttpRequests -&gt;
 	 * 				authorizeHttpRequests
@@ -1791,11 +1751,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @param passwordManagementCustomizer the {@link Customizer} to provide more options
 	 * for the {@link PasswordManagementConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
-	 * @since 5.6
+	 * @ @since 5.6
 	 */
 	public HttpSecurity passwordManagement(
-			Customizer<PasswordManagementConfigurer<HttpSecurity>> passwordManagementCustomizer) throws Exception {
+			Customizer<PasswordManagementConfigurer<HttpSecurity>> passwordManagementCustomizer) {
 		passwordManagementCustomizer.customize(getOrApply(new PasswordManagementConfigurer<>()));
 		return HttpSecurity.this;
 	}
@@ -1818,7 +1777,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	}
 
 	@Override
-	protected void beforeConfigure() throws Exception {
+	protected void beforeConfigure() {
 		if (this.authenticationManager != null) {
 			setSharedObject(AuthenticationManager.class, this.authenticationManager);
 		}
@@ -1849,7 +1808,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	}
 
 	@Override
-	public HttpSecurity userDetailsService(UserDetailsService userDetailsService) throws Exception {
+	public HttpSecurity userDetailsService(UserDetailsService userDetailsService) {
 		getAuthenticationRegistry().userDetailsService(userDetailsService);
 		return this;
 	}
@@ -1937,7 +1896,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class RequestMatchersSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.securityMatchers((matchers) -&gt; matchers
 	 * 				.requestMatchers(&quot;/api/**&quot;, &quot;/oauth/**&quot;)
@@ -1969,7 +1928,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class RequestMatchersSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.securityMatchers((matchers) -&gt; matchers
 	 * 				.requestMatchers(&quot;/api/**&quot;)
@@ -2002,7 +1961,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * public class RequestMatchersSecurityConfig {
 	 *
 	 * 	&#064;Bean
-	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			.securityMatchers((matchers) -&gt; matchers
 	 * 				.requestMatchers(&quot;/api/**&quot;)
@@ -2089,7 +2048,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *
 	 * <pre>
 	 * 	&#064;Bean
-	 * 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 	SecurityFilterChain securityFilterChain(HttpSecurity http)  {
 	 * 		http
 	 * 			// ...
 	 * 			.webAuthn((webAuthn) -&gt; webAuthn
@@ -2101,10 +2060,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	}
 	 * </pre>
 	 * @param webAuthn the customizer to apply
-	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
+	 * @return the {@link HttpSecurity} for further customizations @
 	 */
-	public HttpSecurity webAuthn(Customizer<WebAuthnConfigurer<HttpSecurity>> webAuthn) throws Exception {
+	public HttpSecurity webAuthn(Customizer<WebAuthnConfigurer<HttpSecurity>> webAuthn) {
 		webAuthn.customize(getOrApply(new WebAuthnConfigurer<>()));
 		return HttpSecurity.this;
 	}
@@ -2114,12 +2072,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * otherwise apply the new {@link SecurityConfigurerAdapter}.
 	 * @param configurer the {@link SecurityConfigurer} to apply if one is not found for
 	 * this {@link SecurityConfigurer} class.
-	 * @return the current {@link SecurityConfigurer} for the configurer passed in
-	 * @throws Exception
+	 * @return the current {@link SecurityConfigurer} for the configurer passed in @
 	 */
 	@SuppressWarnings("unchecked")
-	private <C extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity>> C getOrApply(C configurer)
-			throws Exception {
+	private <C extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity>> C getOrApply(C configurer) {
 		C existingConfig = (C) getConfigurer(configurer.getClass());
 		if (existingConfig != null) {
 			return existingConfig;

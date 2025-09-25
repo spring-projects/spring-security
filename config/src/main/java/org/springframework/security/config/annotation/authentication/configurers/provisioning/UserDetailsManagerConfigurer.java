@@ -54,7 +54,7 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 	 * @throws Exception
 	 */
 	@Override
-	protected void initUserDetailsService() throws Exception {
+	protected void initUserDetailsService() {
 		for (UserDetailsBuilder userBuilder : this.userBuilders) {
 			getUserDetailsService().createUser(userBuilder.build());
 		}

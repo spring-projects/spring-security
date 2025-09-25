@@ -302,7 +302,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	}
 
 	@Override
-	protected Filter performBuild() throws Exception {
+	protected Filter performBuild() {
 		Assert.state(!this.securityFilterChainBuilders.isEmpty(),
 				() -> "At least one SecurityBuilder<? extends SecurityFilterChain> needs to be specified. "
 						+ "Typically this is done by exposing a SecurityFilterChain bean. "

@@ -135,7 +135,7 @@ public class Saml2MetadataConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	@Override
-	public void configure(H http) throws Exception {
+	public void configure(H http) {
 		Saml2MetadataResponseResolver metadataResponseResolver = createMetadataResponseResolver(http);
 		http.addFilterBefore(new Saml2MetadataFilter(metadataResponseResolver), BasicAuthenticationFilter.class);
 	}

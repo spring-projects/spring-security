@@ -6,7 +6,6 @@ import org.springframework.security.config.Customizer
 import org.springframework.security.config.ThrowingCustomizer
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.web.SecurityFilterChain
 

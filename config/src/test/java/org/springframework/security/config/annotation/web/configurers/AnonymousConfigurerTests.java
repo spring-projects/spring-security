@@ -200,7 +200,7 @@ public class AnonymousConfigurerTests {
 		static class CustomDsl extends AbstractHttpConfigurer<CustomDsl, HttpSecurity> {
 
 			@Override
-			public void init(HttpSecurity http) throws Exception {
+			public void init(HttpSecurity http) {
 				http.anonymous((anonymous) -> anonymous.principal("myAnonymousUser"));
 			}
 

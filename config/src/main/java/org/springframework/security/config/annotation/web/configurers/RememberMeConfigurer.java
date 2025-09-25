@@ -268,7 +268,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void init(H http) throws Exception {
+	public void init(H http) {
 		validateInput();
 		String key = getKey();
 		RememberMeServices rememberMeServices = getRememberMeServices(http, key);
@@ -346,7 +346,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link RememberMeServices} to use
 	 * @throws Exception
 	 */
-	private RememberMeServices getRememberMeServices(H http, String key) throws Exception {
+	private RememberMeServices getRememberMeServices(H http, String key) {
 		if (this.rememberMeServices != null) {
 			if (this.rememberMeServices instanceof LogoutHandler && this.logoutHandler == null) {
 				this.logoutHandler = (LogoutHandler) this.rememberMeServices;
