@@ -17,10 +17,9 @@
 package org.springframework.security.oauth2.client.jackson;
 
 import tools.jackson.core.Version;
-import tools.jackson.databind.cfg.MapperBuilder;
-import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
-import org.springframework.security.jackson.AllowlistTypeResolverBuilder;
+import org.springframework.security.jackson.SecurityJacksonModule;
 import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -91,15 +90,32 @@ import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
  * @see OAuth2ErrorMixin
  */
 @SuppressWarnings("serial")
-public class OAuth2ClientJacksonModule extends SimpleModule {
+public class OAuth2ClientJacksonModule extends SecurityJacksonModule {
 
 	public OAuth2ClientJacksonModule() {
 		super(OAuth2ClientJacksonModule.class.getName(), new Version(1, 0, 0, null, null, null));
 	}
 
 	@Override
+	protected void configurePolymorphicTypeValidator(BasicPolymorphicTypeValidator.Builder builder) {
+		builder.allowIfSubType(OAuth2AuthenticationException.class)
+			.allowIfSubType(DefaultOidcUser.class)
+			.allowIfSubType(OAuth2AuthorizationRequest.class)
+			.allowIfSubType(OAuth2Error.class)
+			.allowIfSubType(OAuth2AuthorizedClient.class)
+			.allowIfSubType(OidcIdToken.class)
+			.allowIfSubType(OidcUserInfo.class)
+			.allowIfSubType(DefaultOAuth2User.class)
+			.allowIfSubType(ClientRegistration.class)
+			.allowIfSubType(OAuth2AccessToken.class)
+			.allowIfSubType(OAuth2RefreshToken.class)
+			.allowIfSubType(OAuth2AuthenticationToken.class)
+			.allowIfSubType(OidcUserAuthority.class)
+			.allowIfSubType(OAuth2UserAuthority.class);
+	}
+
+	@Override
 	public void setupModule(SetupContext context) {
-		((MapperBuilder<?, ?>) context.getOwner()).setDefaultTyping(new AllowlistTypeResolverBuilder());
 		context.setMixIn(OAuth2AuthorizationRequest.class, OAuth2AuthorizationRequestMixin.class);
 		context.setMixIn(ClientRegistration.class, ClientRegistrationMixin.class);
 		context.setMixIn(OAuth2AccessToken.class, OAuth2AccessTokenMixin.class);

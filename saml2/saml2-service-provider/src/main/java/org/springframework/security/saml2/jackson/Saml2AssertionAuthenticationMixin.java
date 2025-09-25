@@ -53,7 +53,8 @@ class Saml2AssertionAuthenticationMixin {
 
 	@JsonCreator
 	Saml2AssertionAuthenticationMixin(@JsonProperty("principal") Object principal,
-			@JsonProperty("assertion") Saml2ResponseAssertionAccessor assertion,
+			@JsonTypeInfo(
+					use = JsonTypeInfo.Id.CLASS) @JsonProperty("assertion") Saml2ResponseAssertionAccessor assertion,
 			@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities,
 			@JsonProperty("relyingPartyRegistrationId") String relyingPartyRegistrationId) {
 	}

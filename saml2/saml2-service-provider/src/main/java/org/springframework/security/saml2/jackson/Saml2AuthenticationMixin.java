@@ -50,7 +50,8 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2A
 class Saml2AuthenticationMixin {
 
 	@JsonCreator
-	Saml2AuthenticationMixin(@JsonProperty("principal") AuthenticatedPrincipal principal,
+	Saml2AuthenticationMixin(
+			@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS) @JsonProperty("principal") AuthenticatedPrincipal principal,
 			@JsonProperty("saml2Response") String saml2Response,
 			@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities) {
 	}

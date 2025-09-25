@@ -23,7 +23,6 @@ import org.jspecify.annotations.Nullable;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.exc.StreamReadException;
-import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JavaType;
@@ -52,9 +51,6 @@ import org.springframework.security.core.GrantedAuthority;
  * @see UsernamePasswordAuthenticationTokenMixin
  */
 class UsernamePasswordAuthenticationTokenDeserializer extends ValueDeserializer<UsernamePasswordAuthenticationToken> {
-
-	private static final TypeReference<List<GrantedAuthority>> GRANTED_AUTHORITY_LIST = new TypeReference<>() {
-	};
 
 	/**
 	 * This method construct {@link UsernamePasswordAuthenticationToken} object from
@@ -99,7 +95,8 @@ class UsernamePasswordAuthenticationTokenDeserializer extends ValueDeserializer<
 	private Object getPrincipal(DeserializationContext ctxt, JsonNode principalNode)
 			throws StreamReadException, DatabindException {
 		if (principalNode.isObject()) {
-			return ctxt.readTreeAsValue(principalNode, Object.class);
+			JavaType type = ctxt.getTypeFactory().constructFromCanonical(principalNode.get("@class").stringValue());
+			return ctxt.readTreeAsValue(principalNode, type);
 		}
 		return principalNode.asString();
 	}

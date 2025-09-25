@@ -16,7 +16,6 @@
 
 package org.springframework.security.jackson;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.regex.Pattern;
 
@@ -67,14 +66,6 @@ public class UserDeserializerTests extends AbstractMixinTests {
 		User user = new User("admin", "1234", Collections.<GrantedAuthority>emptyList());
 		String userJson = this.mapper.writeValueAsString(user);
 		JSONAssert.assertEquals(userWithNoAuthoritiesJson(), userJson, true);
-	}
-
-	@Test
-	public void deserializeUserWithNullPasswordEmptyAuthorityTest() throws IOException {
-		String userJsonWithoutPasswordString = USER_JSON.replace(SimpleGrantedAuthorityMixinTests.AUTHORITIES_SET_JSON,
-				"[]");
-		assertThatExceptionOfType(MismatchedInputException.class)
-			.isThrownBy(() -> this.mapper.readValue(userJsonWithoutPasswordString, User.class));
 	}
 
 	@Test

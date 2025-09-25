@@ -52,7 +52,7 @@ import org.springframework.security.core.GrantedAuthority;
  * @see CoreJacksonModule
  * @see SecurityJacksonModules
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -68,8 +68,9 @@ class RememberMeAuthenticationTokenMixin {
 	 */
 	@JsonCreator
 	RememberMeAuthenticationTokenMixin(@JsonProperty("keyHash") Integer keyHash,
-			@JsonProperty("principal") Object principal,
-			@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities) {
+			@JsonProperty("principal") @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS) Object principal,
+			@JsonProperty("authorities") @JsonTypeInfo(
+					use = JsonTypeInfo.Id.CLASS) Collection<? extends GrantedAuthority> authorities) {
 	}
 
 }

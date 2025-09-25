@@ -44,7 +44,8 @@ abstract class OidcIdTokenMixin {
 
 	@JsonCreator
 	OidcIdTokenMixin(@JsonProperty("tokenValue") String tokenValue, @JsonProperty("issuedAt") Instant issuedAt,
-			@JsonProperty("expiresAt") Instant expiresAt, @JsonProperty("claims") Map<String, Object> claims) {
+			@JsonProperty("expiresAt") Instant expiresAt,
+			@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS) @JsonProperty("claims") Map<String, Object> claims) {
 	}
 
 }

@@ -17,14 +17,16 @@
 package org.springframework.security.web.jackson;
 
 import tools.jackson.core.Version;
-import tools.jackson.databind.cfg.MapperBuilder;
-import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
-import org.springframework.security.jackson.AllowlistTypeResolverBuilder;
+import org.springframework.security.jackson.SecurityJacksonModule;
 import org.springframework.security.jackson.SecurityJacksonModules;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.web.authentication.switchuser.SwitchUserGrantedAuthority;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
+import org.springframework.security.web.savedrequest.DefaultSavedRequest;
+import org.springframework.security.web.savedrequest.SavedCookie;
 
 /**
  * Jackson module for spring-security-web. This module register
@@ -50,16 +52,26 @@ import org.springframework.security.web.csrf.DefaultCsrfToken;
  * @see SecurityJacksonModules
  */
 @SuppressWarnings("serial")
-public class WebJacksonModule extends SimpleModule {
+public class WebJacksonModule extends SecurityJacksonModule {
 
 	public WebJacksonModule() {
 		super(WebJacksonModule.class.getName(), new Version(1, 0, 0, null, null, null));
 	}
 
 	@Override
+	protected void configurePolymorphicTypeValidator(BasicPolymorphicTypeValidator.Builder builder) {
+		builder.allowIfSubType(DefaultCsrfToken.class)
+			.allowIfSubType(SavedCookie.class)
+			.allowIfSubType(DefaultSavedRequest.class)
+			.allowIfSubType(WebAuthenticationDetails.class)
+			.allowIfSubType(PreAuthenticatedAuthenticationToken.class)
+			.allowIfSubType(SwitchUserGrantedAuthority.class);
+	}
+
+	@Override
 	public void setupModule(SetupContext context) {
-		((MapperBuilder<?, ?>) context.getOwner()).setDefaultTyping(new AllowlistTypeResolverBuilder());
 		context.setMixIn(DefaultCsrfToken.class, DefaultCsrfTokenMixin.class);
+		context.setMixIn(SavedCookie.class, SavedCookieMixin.class);
 		context.setMixIn(PreAuthenticatedAuthenticationToken.class, PreAuthenticatedAuthenticationTokenMixin.class);
 		context.setMixIn(SwitchUserGrantedAuthority.class, SwitchUserGrantedAuthorityMixIn.class);
 	}

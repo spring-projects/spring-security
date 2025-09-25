@@ -24,17 +24,22 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.JacksonModule;
+import tools.jackson.databind.cfg.MapperBuilder;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import tools.jackson.databind.module.SimpleModule;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.util.ClassUtils;
 
 /**
- * This utility class will find all the SecurityModules in classpath.
+ * This utility class will find all the Jackson modules contributed by Spring Security in
+ * the classpath.
  *
  * <p>
  * <pre>
+ *     ClassLoader loader = getClass().getClassLoader();
  *     JsonMapper mapper = JsonMapper.builder()
- * 				.addModule(new CoreJacksonModule())
+ * 				.addModules(SecurityJacksonModules.getModules(loader)
  * 				.build();
  * </pre>
  *
@@ -42,7 +47,6 @@ import org.springframework.util.ClassUtils;
  * <p>
  * <pre>
  *     JsonMapper mapper = JsonMapper.builder()
- * 				.setDefaultTyping(new AllowlistTypeResolverBuilder())
  * 				.addModules(
  * 						new CoreJacksonModule(),
  * 						new CasJacksonModule(),
@@ -101,9 +105,9 @@ public final class SecurityJacksonModules {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static @Nullable JacksonModule loadAndGetInstance(String className, ClassLoader loader) {
+	private static @Nullable SecurityJacksonModule loadAndGetInstance(String className, ClassLoader loader) {
 		try {
-			Class<? extends JacksonModule> securityModule = (Class<? extends JacksonModule>) ClassUtils
+			Class<? extends SecurityJacksonModule> securityModule = (Class<? extends SecurityJacksonModule>) ClassUtils
 				.forName(className, loader);
 			logger.debug(LogMessage.format("Loaded module %s, now registering", className));
 			return securityModule.getConstructor().newInstance();
@@ -117,8 +121,21 @@ public final class SecurityJacksonModules {
 	/**
 	 * @param loader the ClassLoader to use
 	 * @return List of available security modules in classpath.
+	 * @see #getModules(ClassLoader, BasicPolymorphicTypeValidator.Builder)
 	 */
 	public static List<JacksonModule> getModules(ClassLoader loader) {
+		return getModules(loader, null);
+	}
+
+	/**
+	 * @param loader the ClassLoader to use
+	 * @param typeValidatorBuilder the builder to configure custom types allowed in
+	 * addition to Spring Security ones
+	 * @return List of available security modules in classpath.
+	 */
+	public static List<JacksonModule> getModules(ClassLoader loader,
+			BasicPolymorphicTypeValidator.@Nullable Builder typeValidatorBuilder) {
+
 		List<JacksonModule> modules = new ArrayList<>();
 		for (String className : securityJacksonModuleClasses) {
 			addToModulesList(loader, modules, className);
@@ -138,7 +155,26 @@ public final class SecurityJacksonModules {
 		if (casJacksonPresent) {
 			addToModulesList(loader, modules, casJacksonModuleClass);
 		}
+		applyPolymorphicTypeValidator(modules, typeValidatorBuilder);
 		return modules;
+	}
+
+	private static void applyPolymorphicTypeValidator(List<JacksonModule> modules,
+			BasicPolymorphicTypeValidator.@Nullable Builder typeValidatorBuilder) {
+
+		BasicPolymorphicTypeValidator.Builder builder = (typeValidatorBuilder != null) ? typeValidatorBuilder
+				: BasicPolymorphicTypeValidator.builder();
+		for (JacksonModule module : modules) {
+			if (module instanceof SecurityJacksonModule securityModule) {
+				securityModule.configurePolymorphicTypeValidator(builder);
+			}
+		}
+		modules.add(new SimpleModule() {
+			@Override
+			public void setupModule(SetupContext context) {
+				((MapperBuilder<?, ?>) context.getOwner()).polymorphicTypeValidator(builder.build());
+			}
+		});
 	}
 
 	/**
@@ -147,7 +183,7 @@ public final class SecurityJacksonModules {
 	 * @param className name of the class to instantiate
 	 */
 	private static void addToModulesList(ClassLoader loader, List<JacksonModule> modules, String className) {
-		JacksonModule module = loadAndGetInstance(className, loader);
+		SecurityJacksonModule module = loadAndGetInstance(className, loader);
 		if (module != null) {
 			modules.add(module);
 		}

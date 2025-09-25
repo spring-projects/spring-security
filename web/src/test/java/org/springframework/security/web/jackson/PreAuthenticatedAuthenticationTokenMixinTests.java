@@ -23,7 +23,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import tools.jackson.core.JacksonException;
 
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.jackson2.SimpleGrantedAuthorityMixinTests;
+import org.springframework.security.jackson.SimpleGrantedAuthorityMixinTests;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 import static org.assertj.core.api.Assertions.assertThat;

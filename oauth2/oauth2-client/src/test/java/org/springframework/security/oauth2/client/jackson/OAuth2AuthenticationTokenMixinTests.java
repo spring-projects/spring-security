@@ -179,7 +179,7 @@ public class OAuth2AuthenticationTokenMixinTests {
 		return "{\n" +
 				"  \"@class\": \"org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken\",\n" +
 				"  \"principal\": " + principalJson + ",\n" +
-				"  \"authorities\": " + asJson(authentication.getAuthorities(), "java.util.Collections$UnmodifiableRandomAccessList") + ",\n" +
+				"  \"authorities\": " + asJson(authentication.getAuthorities()) + ",\n" +
 				"  \"authorizedClientRegistrationId\": \"" + authentication.getAuthorizedClientRegistrationId() + "\",\n" +
 				"  \"details\": null\n" +
 				"}";
@@ -190,9 +190,8 @@ public class OAuth2AuthenticationTokenMixinTests {
 		// @formatter:off
 		return "{\n" +
 				"    \"@class\": \"org.springframework.security.oauth2.core.user.DefaultOAuth2User\",\n" +
-				"    \"authorities\": " + asJson(oauth2User.getAuthorities(), "java.util.Collections$UnmodifiableSet") + ",\n" +
+				"    \"authorities\": " + asJson(oauth2User.getAuthorities()) + ",\n" +
 				"    \"attributes\": {\n" +
-				"      \"@class\": \"java.util.Collections$UnmodifiableMap\",\n" +
 				"      \"username\": \"user\"\n" +
 				"    },\n" +
 				"    \"nameAttributeKey\": \"username\"\n" +
@@ -204,7 +203,7 @@ public class OAuth2AuthenticationTokenMixinTests {
 		// @formatter:off
 		return "{\n" +
 				"    \"@class\": \"org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser\",\n" +
-				"    \"authorities\": " + asJson(oidcUser.getAuthorities(), "java.util.Collections$UnmodifiableSet") + ",\n" +
+				"    \"authorities\": " + asJson(oidcUser.getAuthorities()) + ",\n" +
 				"    \"idToken\": " + asJson(oidcUser.getIdToken()) + ",\n" +
 				"    \"userInfo\": " + asJson(oidcUser.getUserInfo()) + ",\n" +
 				"    \"nameAttributeKey\": \"" + IdTokenClaimNames.SUB + "\"\n" +
@@ -212,7 +211,7 @@ public class OAuth2AuthenticationTokenMixinTests {
 		// @formatter:on
 	}
 
-	private static String asJson(Collection<? extends GrantedAuthority> authorities, String classTypeInfo) {
+	private static String asJson(Collection<? extends GrantedAuthority> authorities) {
 		OAuth2UserAuthority oauth2UserAuthority = null;
 		OidcUserAuthority oidcUserAuthority = null;
 		List<SimpleGrantedAuthority> simpleAuthorities = new ArrayList<>();
@@ -235,12 +234,7 @@ public class OAuth2AuthenticationTokenMixinTests {
 			}
 			authoritiesJson += asJson(simpleAuthorities);
 		}
-		// @formatter:off
-		return "[\n" +
-				"      \"" + classTypeInfo + "\",\n" +
-				"      [" + authoritiesJson + "]\n" +
-				"    ]";
-		// @formatter:on
+		return "[" + authoritiesJson + "]";
 	}
 
 	private static String asJson(OAuth2UserAuthority oauth2UserAuthority) {
@@ -250,7 +244,6 @@ public class OAuth2AuthenticationTokenMixinTests {
 				"          \"authority\": \"" + oauth2UserAuthority.getAuthority() + "\",\n" +
 				"          \"userNameAttributeName\": \"username\",\n" +
 				"          \"attributes\": {\n" +
-				"            \"@class\": \"java.util.Collections$UnmodifiableMap\",\n" +
 				"            \"username\": \"user\"\n" +
 				"          }\n" +
 				"        }";
@@ -292,7 +285,6 @@ public class OAuth2AuthenticationTokenMixinTests {
 				"      \"issuedAt\": " + toString(idToken.getIssuedAt()) + ",\n" +
 				"      \"expiresAt\": " + toString(idToken.getExpiresAt()) + ",\n" +
 				"      \"claims\": {\n" +
-				"        \"@class\": \"java.util.Collections$UnmodifiableMap\",\n" +
 				"        \"iat\": [\n" +
 				"          \"java.time.Instant\",\n" +
 				"          " + toString(idToken.getIssuedAt()) + "\n" +
@@ -321,7 +313,6 @@ public class OAuth2AuthenticationTokenMixinTests {
 		return "{\n" +
 				"      \"@class\": \"org.springframework.security.oauth2.core.oidc.OidcUserInfo\",\n" +
 				"      \"claims\": {\n" +
-				"        \"@class\": \"java.util.Collections$UnmodifiableMap\",\n" +
 				"        \"sub\": \"" + userInfo.getSubject() + "\",\n" +
 				"        \"name\": \"" + userInfo.getClaim(StandardClaimNames.NAME) + "\"\n" +
 				"      }\n" +

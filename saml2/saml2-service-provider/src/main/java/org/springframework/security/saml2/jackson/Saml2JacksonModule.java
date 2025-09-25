@@ -17,8 +17,9 @@
 package org.springframework.security.saml2.jackson;
 
 import tools.jackson.core.Version;
-import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
+import org.springframework.security.jackson.SecurityJacksonModule;
 import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
@@ -48,10 +49,23 @@ import org.springframework.security.saml2.provider.service.authentication.logout
  * @see SecurityJacksonModules
  */
 @SuppressWarnings("serial")
-public class Saml2JacksonModule extends SimpleModule {
+public class Saml2JacksonModule extends SecurityJacksonModule {
 
 	public Saml2JacksonModule() {
 		super(Saml2JacksonModule.class.getName(), new Version(1, 0, 0, null, null, null));
+	}
+
+	@Override
+	protected void configurePolymorphicTypeValidator(BasicPolymorphicTypeValidator.Builder builder) {
+		builder.allowIfSubType(Saml2ResponseAssertion.class)
+			.allowIfSubType(DefaultSaml2AuthenticatedPrincipal.class)
+			.allowIfSubType(Saml2PostAuthenticationRequest.class)
+			.allowIfSubType(Saml2LogoutRequest.class)
+			.allowIfSubType(Saml2RedirectAuthenticationRequest.class)
+			.allowIfSubType(Saml2AuthenticationException.class)
+			.allowIfSubType(Saml2Error.class)
+			.allowIfSubType(Saml2AssertionAuthentication.class)
+			.allowIfSubType(Saml2Authentication.class);
 	}
 
 	@Override

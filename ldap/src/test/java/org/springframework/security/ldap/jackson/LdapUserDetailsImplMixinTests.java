@@ -31,7 +31,6 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsImpl;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link org.springframework.security.ldap.jackson.LdapUserDetailsImplMixin}.
@@ -40,7 +39,7 @@ public class LdapUserDetailsImplMixinTests {
 
 	private static final String USER_PASSWORD = "Password1234";
 
-	private static final String AUTHORITIES_ARRAYLIST_JSON = "[\"java.util.Collections$UnmodifiableRandomAccessList\", []]";
+	private static final String AUTHORITIES_ARRAYLIST_JSON = "[]";
 
 	// @formatter:off
 	private static final String USER_JSON = "{"
@@ -84,12 +83,6 @@ public class LdapUserDetailsImplMixinTests {
 		p.eraseCredentials();
 		String actualJson = this.mapper.writeValueAsString(p);
 		JSONAssert.assertEquals(USER_JSON.replaceAll("\"" + USER_PASSWORD + "\"", "null"), actualJson, true);
-	}
-
-	@Test
-	public void deserializeWhenMixinNotRegisteredThenThrowJsonProcessingException() {
-		assertThatExceptionOfType(JacksonException.class)
-			.isThrownBy(() -> new JsonMapper().readValue(USER_JSON, LdapUserDetailsImpl.class));
 	}
 
 	@Test

@@ -352,7 +352,7 @@ public class OpenSaml5AuthenticationProviderTests {
 		Saml2AuthenticationToken token = token(response, verifying(registration()));
 		Authentication authentication = this.provider.authenticate(token);
 		String result = mapper.writeValueAsString(authentication);
-		mapper.readValue(result, Authentication.class);
+		mapper.readValue(result, Saml2AssertionAuthentication.class);
 	}
 
 	@Test
