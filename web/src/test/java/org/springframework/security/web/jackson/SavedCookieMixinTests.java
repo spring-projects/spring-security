@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
 
 import org.springframework.security.web.savedrequest.SavedCookie;
 
@@ -47,9 +48,7 @@ public class SavedCookieMixinTests extends AbstractMixinTests {
 	+ "}";
 	// @formatter:on
 	// @formatter:off
-	private static final String COOKIES_JSON = "[\"java.util.ArrayList\", ["
-		+ COOKIE_JSON
-	+ "]]";
+	private static final String COOKIES_JSON = "[" + COOKIE_JSON + "]";
 	// @formatter:on
 	@Test
 	public void serializeWithDefaultConfigurationTest() throws JacksonException, JSONException {
@@ -73,14 +72,16 @@ public class SavedCookieMixinTests extends AbstractMixinTests {
 	public void serializeSavedCookieWithList() throws JacksonException, JSONException {
 		List<SavedCookie> savedCookies = new ArrayList<>();
 		savedCookies.add(new SavedCookie(new Cookie("SESSION", "123456789")));
-		String actualJson = this.mapper.writeValueAsString(savedCookies);
+		String actualJson = this.mapper.writerFor(new TypeReference<List<SavedCookie>>() {
+		}).writeValueAsString(savedCookies);
 		JSONAssert.assertEquals(COOKIES_JSON, actualJson, true);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void deserializeSavedCookieWithList() {
-		List<SavedCookie> savedCookies = (List<SavedCookie>) this.mapper.readValue(COOKIES_JSON, Object.class);
+		List<SavedCookie> savedCookies = this.mapper.readValue(COOKIES_JSON, new TypeReference<>() {
+		});
 		assertThat(savedCookies).isNotNull().hasSize(1);
 		assertThat(savedCookies.get(0).getName()).isEqualTo("SESSION");
 		assertThat(savedCookies.get(0).getValue()).isEqualTo("123456789");
@@ -88,7 +89,7 @@ public class SavedCookieMixinTests extends AbstractMixinTests {
 
 	@Test
 	public void deserializeSavedCookieJsonTest() {
-		SavedCookie savedCookie = (SavedCookie) this.mapper.readValue(COOKIE_JSON, Object.class);
+		SavedCookie savedCookie = this.mapper.readValue(COOKIE_JSON, SavedCookie.class);
 		assertThat(savedCookie).isNotNull();
 		assertThat(savedCookie.getName()).isEqualTo("SESSION");
 		assertThat(savedCookie.getValue()).isEqualTo("123456789");

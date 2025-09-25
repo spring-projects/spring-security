@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.GrantedAuthority;
 
@@ -47,7 +48,7 @@ import org.springframework.security.core.GrantedAuthority;
  * @see CoreJacksonModule
  * @see SecurityJacksonModules
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, isGetterVisibility = JsonAutoDetect.Visibility.NONE,
 		getterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -63,8 +64,12 @@ class AnonymousAuthenticationTokenMixin {
 	 */
 	@JsonCreator
 	AnonymousAuthenticationTokenMixin(@JsonProperty("keyHash") Integer keyHash,
-			@JsonProperty("principal") Object principal,
-			@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities) {
+			@JsonProperty("principal") @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS) Object principal,
+			@JsonProperty("authorities") @JsonTypeInfo(
+					use = JsonTypeInfo.Id.CLASS) Collection<? extends GrantedAuthority> authorities) {
 	}
+
+	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+	private final @Nullable Collection<GrantedAuthority> authorities = null;
 
 }

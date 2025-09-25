@@ -19,11 +19,9 @@ package org.springframework.security.cas.jackson;
 import org.apereo.cas.client.authentication.AttributePrincipalImpl;
 import org.apereo.cas.client.validation.AssertionImpl;
 import tools.jackson.core.Version;
-import tools.jackson.databind.cfg.MapperBuilder;
 import tools.jackson.databind.module.SimpleModule;
 
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
-import org.springframework.security.jackson.AllowlistTypeResolverBuilder;
 import org.springframework.security.jackson.SecurityJacksonModules;
 
 /**
@@ -55,7 +53,6 @@ public class CasJacksonModule extends SimpleModule {
 
 	@Override
 	public void setupModule(SetupContext context) {
-		((MapperBuilder<?, ?>) context.getOwner()).setDefaultTyping(new AllowlistTypeResolverBuilder());
 		context.setMixIn(AssertionImpl.class, AssertionImplMixin.class);
 		context.setMixIn(AttributePrincipalImpl.class, AttributePrincipalImplMixin.class);
 		context.setMixIn(CasAuthenticationToken.class, CasAuthenticationTokenMixin.class);

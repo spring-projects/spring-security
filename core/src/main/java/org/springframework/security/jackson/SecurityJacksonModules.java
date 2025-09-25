@@ -42,7 +42,6 @@ import org.springframework.util.ClassUtils;
  * <p>
  * <pre>
  *     JsonMapper mapper = JsonMapper.builder()
- * 				.setDefaultTyping(new AllowlistTypeResolverBuilder())
  * 				.addModules(
  * 						new CoreJacksonModule(),
  * 						new CasJacksonModule(),

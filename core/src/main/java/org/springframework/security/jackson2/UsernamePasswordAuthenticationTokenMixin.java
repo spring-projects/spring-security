@@ -47,7 +47,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * based on Jackson 3
  */
 @SuppressWarnings("removal")
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonDeserialize(using = UsernamePasswordAuthenticationTokenDeserializer.class)

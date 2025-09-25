@@ -56,11 +56,9 @@ public class CasAuthenticationTokenMixinTests {
 
 	public static final String AUTHORITY_JSON = "{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"authority\": \"ROLE_USER\"}";
 
-	public static final String AUTHORITIES_SET_JSON = "[\"java.util.Collections$UnmodifiableSet\", [" + AUTHORITY_JSON
-			+ "]]";
+	public static final String AUTHORITIES_SET_JSON = "[" + AUTHORITY_JSON + "]";
 
-	public static final String AUTHORITIES_ARRAYLIST_JSON = "[\"java.util.Collections$UnmodifiableRandomAccessList\", ["
-			+ AUTHORITY_JSON + "]]";
+	public static final String AUTHORITIES_ARRAYLIST_JSON = "[" + AUTHORITY_JSON + "]";
 
 	// @formatter:off
 	public static final String USER_JSON = "{"
@@ -81,13 +79,10 @@ public class CasAuthenticationTokenMixinTests {
 			+ "," + "\"authenticated\": true, " + "\"details\": null," + "\"assertion\": {"
 			+ "\"@class\": \"org.apereo.cas.client.validation.AssertionImpl\", " + "\"principal\": {"
 			+ "\"@class\": \"org.apereo.cas.client.authentication.AttributePrincipalImpl\", "
-			+ "\"name\": \"assertName\", " + "\"attributes\": {\"@class\": \"java.util.Collections$EmptyMap\"}, "
-			+ "\"proxyGrantingTicket\": null, " + "\"proxyRetriever\": null" + "}, "
-			+ "\"validFromDate\": [\"java.util.Date\", " + START_DATE.getTime() + "], "
-			+ "\"validUntilDate\": [\"java.util.Date\", " + END_DATE.getTime() + "],"
-			+ "\"authenticationDate\": [\"java.util.Date\", " + START_DATE.getTime() + "], "
-			+ "\"attributes\": {\"@class\": \"java.util.Collections$EmptyMap\"},"
-			+ "\"context\": {\"@class\":\"java.util.HashMap\"}" + "}" + "}";
+			+ "\"name\": \"assertName\", " + "\"attributes\": {}, " + "\"proxyGrantingTicket\": null, "
+			+ "\"proxyRetriever\": null" + "}, " + "\"validFromDate\":" + START_DATE.getTime() + ", "
+			+ "\"validUntilDate\":" + END_DATE.getTime() + "," + "\"authenticationDate\":" + START_DATE.getTime() + ", "
+			+ "\"attributes\": {}," + "\"context\": {}" + "}" + "}";
 
 	private static final String CAS_TOKEN_CLEARED_JSON = CAS_TOKEN_JSON.replaceFirst(PASSWORD, "null");
 

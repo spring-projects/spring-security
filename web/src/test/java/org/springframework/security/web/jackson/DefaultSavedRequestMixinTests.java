@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 
 	// @formatter:off
-	private static final String COOKIES_JSON = "[\"java.util.ArrayList\", [{"
+	private static final String COOKIES_JSON = "[{"
 		+ "\"@class\": \"org.springframework.security.web.savedrequest.SavedCookie\", "
 		+ "\"name\": \"SESSION\", "
 		+ "\"value\": \"123456789\", "
@@ -49,15 +49,15 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 		+ "\"path\": null, "
 		+ "\"secure\":false, "
 		+ "\"domain\": null"
-	+ "}]]";
+	+ "}]";
 	// @formatter:on
 	// @formatter:off
 	private static final String REQUEST_JSON = "{" +
 			"\"@class\": \"org.springframework.security.web.savedrequest.DefaultSavedRequest\", "
 			+ "\"cookies\": " + COOKIES_JSON + ","
-			+ "\"locales\": [\"java.util.ArrayList\", [\"en\"]], "
-			+ "\"headers\": {\"@class\": \"java.util.TreeMap\", \"x-auth-token\": [\"java.util.ArrayList\", [\"12\"]]}, "
-			+ "\"parameters\": {\"@class\": \"java.util.TreeMap\"},"
+			+ "\"locales\": [\"en\"], "
+			+ "\"headers\": { \"x-auth-token\": [\"12\"]}, "
+			+ "\"parameters\": {},"
 			+ "\"contextPath\": \"\", "
 			+ "\"method\": \"\", "
 			+ "\"pathInfo\": null, "
@@ -74,9 +74,9 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 	private static final String REQUEST_WITH_MATCHING_REQUEST_PARAM_NAME_JSON = "{" +
 			"\"@class\": \"org.springframework.security.web.savedrequest.DefaultSavedRequest\", "
 			+ "\"cookies\": " + COOKIES_JSON + ","
-			+ "\"locales\": [\"java.util.ArrayList\", [\"en\"]], "
-			+ "\"headers\": {\"@class\": \"java.util.TreeMap\", \"x-auth-token\": [\"java.util.ArrayList\", [\"12\"]]}, "
-			+ "\"parameters\": {\"@class\": \"java.util.TreeMap\"},"
+			+ "\"locales\": [\"en\"], "
+			+ "\"headers\": {\"x-auth-token\": [\"12\"]}, "
+			+ "\"parameters\": {},"
 			+ "\"contextPath\": \"\", "
 			+ "\"method\": \"\", "
 			+ "\"pathInfo\": null, "
@@ -148,7 +148,7 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 
 	@Test
 	public void deserializeDefaultSavedRequest() {
-		DefaultSavedRequest request = (DefaultSavedRequest) this.mapper.readValue(REQUEST_JSON, Object.class);
+		DefaultSavedRequest request = this.mapper.readValue(REQUEST_JSON, DefaultSavedRequest.class);
 		assertThat(request).isNotNull();
 		assertThat(request.getCookies()).hasSize(1);
 		assertThat(request.getLocales()).hasSize(1).contains(new Locale("en"));
@@ -158,14 +158,14 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 
 	@Test
 	public void deserializeWhenMatchingRequestParameterNameThenRedirectUrlContainsParam() {
-		DefaultSavedRequest request = (DefaultSavedRequest) this.mapper
-			.readValue(REQUEST_WITH_MATCHING_REQUEST_PARAM_NAME_JSON, Object.class);
+		DefaultSavedRequest request = this.mapper.readValue(REQUEST_WITH_MATCHING_REQUEST_PARAM_NAME_JSON,
+				DefaultSavedRequest.class);
 		assertThat(request.getRedirectUrl()).isEqualTo("http://localhost?success");
 	}
 
 	@Test
 	public void deserializeWhenNullMatchingRequestParameterNameThenRedirectUrlDoesNotContainParam() {
-		DefaultSavedRequest request = (DefaultSavedRequest) this.mapper.readValue(REQUEST_JSON, Object.class);
+		DefaultSavedRequest request = this.mapper.readValue(REQUEST_JSON, DefaultSavedRequest.class);
 		assertThat(request.getRedirectUrl()).isEqualTo("http://localhost");
 	}
 

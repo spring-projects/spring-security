@@ -39,7 +39,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @see WebJacksonModule
  * @see org.springframework.security.jackson.SecurityJacksonModules
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class DefaultCsrfTokenMixin {
 

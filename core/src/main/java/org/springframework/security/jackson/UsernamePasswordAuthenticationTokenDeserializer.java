@@ -16,15 +16,16 @@
 
 package org.springframework.security.jackson;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.exc.StreamReadException;
-import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JavaType;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.node.MissingNode;
@@ -50,9 +51,6 @@ import org.springframework.security.core.GrantedAuthority;
  */
 class UsernamePasswordAuthenticationTokenDeserializer extends ValueDeserializer<UsernamePasswordAuthenticationToken> {
 
-	private static final TypeReference<List<GrantedAuthority>> GRANTED_AUTHORITY_LIST = new TypeReference<>() {
-	};
-
 	/**
 	 * This method construct {@link UsernamePasswordAuthenticationToken} object from
 	 * serialized json.
@@ -70,8 +68,8 @@ class UsernamePasswordAuthenticationTokenDeserializer extends ValueDeserializer<
 		Object principal = getPrincipal(ctxt, principalNode);
 		JsonNode credentialsNode = readJsonNode(jsonNode, "credentials");
 		Object credentials = getCredentials(credentialsNode);
-		List<GrantedAuthority> authorities = ctxt.readTreeAsValue(readJsonNode(jsonNode, "authorities"),
-				ctxt.getTypeFactory().constructType(GRANTED_AUTHORITY_LIST));
+		JsonNode authoritiesNode = readJsonNode(jsonNode, "authorities");
+		List<GrantedAuthority> authorities = getAuthorities(ctxt, authoritiesNode);
 		UsernamePasswordAuthenticationToken token = (!authenticated)
 				? UsernamePasswordAuthenticationToken.unauthenticated(principal, credentials)
 				: UsernamePasswordAuthenticationToken.authenticated(principal, credentials, authorities);
@@ -96,9 +94,25 @@ class UsernamePasswordAuthenticationTokenDeserializer extends ValueDeserializer<
 	private Object getPrincipal(DeserializationContext ctxt, JsonNode principalNode)
 			throws StreamReadException, DatabindException {
 		if (principalNode.isObject()) {
-			return ctxt.readTreeAsValue(principalNode, Object.class);
+			JavaType type = ctxt.getTypeFactory().constructFromCanonical(principalNode.get("@class").stringValue());
+			return ctxt.readTreeAsValue(principalNode, type);
 		}
 		return principalNode.asString();
+	}
+
+	private List<GrantedAuthority> getAuthorities(DeserializationContext ctxt, JsonNode authoritiesNode)
+			throws StreamReadException, DatabindException {
+		List<GrantedAuthority> authorities = new ArrayList<>();
+		if (!authoritiesNode.isNull() && authoritiesNode.isArray()) {
+			for (JsonNode authorityNode : authoritiesNode.values()) {
+				JavaType type = ctxt.getTypeFactory().constructFromCanonical(authorityNode.get("@class").stringValue());
+				if (type.isTypeOrSubTypeOf(GrantedAuthority.class)) {
+					GrantedAuthority authority = ctxt.readTreeAsValue(authorityNode, type);
+					authorities.add(authority);
+				}
+			}
+		}
+		return authorities;
 	}
 
 	private JsonNode readJsonNode(JsonNode jsonNode, String field) {

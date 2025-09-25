@@ -39,7 +39,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @see WebServletJacksonModule
  * @see org.springframework.security.jackson.SecurityJacksonModules
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
 abstract class SavedCookieMixin {

@@ -16,15 +16,22 @@
 
 package org.springframework.security.jackson;
 
+import java.time.Instant;
+
 import tools.jackson.core.Version;
 import tools.jackson.databind.cfg.MapperBuilder;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 import tools.jackson.databind.module.SimpleModule;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.User;
 
 /**
@@ -60,13 +67,63 @@ public class CoreJacksonModule extends SimpleModule {
 
 	@Override
 	public void setupModule(SetupContext context) {
-		((MapperBuilder<?, ?>) context.getOwner()).setDefaultTyping(new AllowlistTypeResolverBuilder());
+		PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+			.allowIfSubType(Instant.class)
+			// TODO Check if really necessary
+			.allowIfSubType("java.util.Collections$UnmodifiableSet")
+			.allowIfBaseType(GrantedAuthority.class)
+			.allowIfBaseType(Authentication.class)
+			.allowIfSubType(User.class)
+			.allowIfSubType(BadCredentialsException.class)
+			.allowIfSubType(SecurityContextImpl.class)
+			// TODO Move to the proper cas module
+			.allowIfSubType("org.apereo.cas.client.validation.AssertionImpl")
+			.allowIfSubType("org.apereo.cas.client.authentication.AttributePrincipalImpl")
+			// TODO Move to the proper ldap module
+			.allowIfSubType("org.springframework.security.ldap.userdetails.InetOrgPerson")
+			.allowIfSubType("org.springframework.security.ldap.userdetails.LdapUserDetailsImpl")
+			.allowIfSubType("org.springframework.security.ldap.userdetails.Person")
+			// TODO Move to the proper oauth2-client module
+			.allowIfSubType("org.springframework.security.oauth2.core.OAuth2AuthenticationException")
+			.allowIfSubType("org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser")
+			.allowIfSubType("org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest")
+			.allowIfSubType("org.springframework.security.oauth2.core.OAuth2Error")
+			.allowIfSubType("org.springframework.security.oauth2.client.OAuth2AuthorizedClient")
+			.allowIfSubType("org.springframework.security.oauth2.core.oidc.OidcIdToken")
+			.allowIfSubType("org.springframework.security.oauth2.core.oidc.OidcUserInfo")
+			.allowIfSubType("org.springframework.security.oauth2.core.user.DefaultOAuth2User")
+			.allowIfSubType("org.springframework.security.oauth2.client.registration.ClientRegistration")
+			.allowIfSubType("org.springframework.security.oauth2.core.OAuth2AccessToken")
+			.allowIfSubType("org.springframework.security.oauth2.core.OAuth2RefreshToken")
+			// TODO Move to the proper saml2-service-provider module
+			.allowIfSubType("org.springframework.security.saml2.provider.service.authentication.Saml2ResponseAssertion")
+			.allowIfSubType(
+					"org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal")
+			.allowIfSubType(
+					"org.springframework.security.saml2.provider.service.authentication.Saml2PostAuthenticationRequest")
+			.allowIfSubType(
+					"org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest")
+			.allowIfSubType(
+					"org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest")
+			.allowIfSubType(
+					"org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException")
+			.allowIfSubType("org.springframework.security.saml2.core.Saml2Error")
+			// TODO Move to the proper web module
+			.allowIfSubType("jakarta.servlet.http.Cookie")
+			.allowIfSubType("org.springframework.security.web.csrf.DefaultCsrfToken")
+			.allowIfSubType("org.springframework.security.web.savedrequest.DefaultSavedRequest")
+			.allowIfSubType("org.springframework.security.web.savedrequest.SavedCookie")
+			.allowIfSubType("org.springframework.security.web.authentication.WebAuthenticationDetails")
+			.allowIfSubType("org.springframework.security.web.server.csrf.DefaultCsrfToken")
+			.build();
+		((MapperBuilder<?, ?>) context.getOwner()).polymorphicTypeValidator(ptv);
 		context.setMixIn(AnonymousAuthenticationToken.class, AnonymousAuthenticationTokenMixin.class);
 		context.setMixIn(RememberMeAuthenticationToken.class, RememberMeAuthenticationTokenMixin.class);
 		context.setMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class);
 		context.setMixIn(User.class, UserMixin.class);
 		context.setMixIn(UsernamePasswordAuthenticationToken.class, UsernamePasswordAuthenticationTokenMixin.class);
 		context.setMixIn(BadCredentialsException.class, BadCredentialsExceptionMixin.class);
+		context.setMixIn(SecurityContextImpl.class, SecurityContextImplMixin.class);
 	}
 
 }

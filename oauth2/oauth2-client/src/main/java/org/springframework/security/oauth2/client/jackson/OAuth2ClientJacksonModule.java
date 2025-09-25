@@ -17,10 +17,8 @@
 package org.springframework.security.oauth2.client.jackson;
 
 import tools.jackson.core.Version;
-import tools.jackson.databind.cfg.MapperBuilder;
 import tools.jackson.databind.module.SimpleModule;
 
-import org.springframework.security.jackson.AllowlistTypeResolverBuilder;
 import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -99,7 +97,6 @@ public class OAuth2ClientJacksonModule extends SimpleModule {
 
 	@Override
 	public void setupModule(SetupContext context) {
-		((MapperBuilder<?, ?>) context.getOwner()).setDefaultTyping(new AllowlistTypeResolverBuilder());
 		context.setMixIn(OAuth2AuthorizationRequest.class, OAuth2AuthorizationRequestMixin.class);
 		context.setMixIn(ClientRegistration.class, ClientRegistrationMixin.class);
 		context.setMixIn(OAuth2AccessToken.class, OAuth2AccessTokenMixin.class);

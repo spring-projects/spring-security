@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.client.jackson;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -40,5 +42,11 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
 abstract class OAuth2AuthorizationRequestMixin {
+
+	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+	private Map<String, Object> additionalParameters;
+
+	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+	private Map<String, Object> attributes;
 
 }

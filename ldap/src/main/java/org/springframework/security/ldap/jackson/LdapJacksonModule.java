@@ -17,10 +17,8 @@
 package org.springframework.security.ldap.jackson;
 
 import tools.jackson.core.Version;
-import tools.jackson.databind.cfg.MapperBuilder;
 import tools.jackson.databind.module.SimpleModule;
 
-import org.springframework.security.jackson.AllowlistTypeResolverBuilder;
 import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.ldap.userdetails.InetOrgPerson;
 import org.springframework.security.ldap.userdetails.LdapAuthority;
@@ -59,7 +57,6 @@ public class LdapJacksonModule extends SimpleModule {
 
 	@Override
 	public void setupModule(SetupContext context) {
-		((MapperBuilder<?, ?>) context.getOwner()).setDefaultTyping(new AllowlistTypeResolverBuilder());
 		context.setMixIn(LdapAuthority.class, LdapAuthorityMixin.class);
 		context.setMixIn(LdapUserDetailsImpl.class, LdapUserDetailsImplMixin.class);
 		context.setMixIn(Person.class, PersonMixin.class);

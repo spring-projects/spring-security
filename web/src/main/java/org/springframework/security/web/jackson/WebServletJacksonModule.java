@@ -18,10 +18,8 @@ package org.springframework.security.web.jackson;
 
 import jakarta.servlet.http.Cookie;
 import tools.jackson.core.Version;
-import tools.jackson.databind.cfg.MapperBuilder;
 import tools.jackson.databind.module.SimpleModule;
 
-import org.springframework.security.jackson.AllowlistTypeResolverBuilder;
 import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.switchuser.SwitchUserGrantedAuthority;
@@ -59,7 +57,6 @@ public class WebServletJacksonModule extends SimpleModule {
 
 	@Override
 	public void setupModule(SetupContext context) {
-		((MapperBuilder<?, ?>) context.getOwner()).setDefaultTyping(new AllowlistTypeResolverBuilder());
 		context.setMixIn(Cookie.class, CookieMixin.class);
 		context.setMixIn(SavedCookie.class, SavedCookieMixin.class);
 		context.setMixIn(DefaultSavedRequest.class, DefaultSavedRequestMixin.class);

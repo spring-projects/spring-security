@@ -17,10 +17,8 @@
 package org.springframework.security.web.jackson;
 
 import tools.jackson.core.Version;
-import tools.jackson.databind.cfg.MapperBuilder;
 import tools.jackson.databind.module.SimpleModule;
 
-import org.springframework.security.jackson.AllowlistTypeResolverBuilder;
 import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.web.authentication.switchuser.SwitchUserGrantedAuthority;
@@ -58,7 +56,6 @@ public class WebJacksonModule extends SimpleModule {
 
 	@Override
 	public void setupModule(SetupContext context) {
-		((MapperBuilder<?, ?>) context.getOwner()).setDefaultTyping(new AllowlistTypeResolverBuilder());
 		context.setMixIn(DefaultCsrfToken.class, DefaultCsrfTokenMixin.class);
 		context.setMixIn(PreAuthenticatedAuthenticationToken.class, PreAuthenticatedAuthenticationTokenMixin.class);
 		context.setMixIn(SwitchUserGrantedAuthority.class, SwitchUserGrantedAuthorityMixIn.class);

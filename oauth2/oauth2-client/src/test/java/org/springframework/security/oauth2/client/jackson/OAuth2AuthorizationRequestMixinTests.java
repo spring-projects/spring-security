@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -86,13 +85,6 @@ public class OAuth2AuthorizationRequestMixinTests {
 	}
 
 	@Test
-	public void deserializeWhenMixinNotRegisteredThenThrowJsonProcessingException() {
-		String json = asJson(this.authorizationRequestBuilder.build());
-		assertThatExceptionOfType(JacksonException.class)
-			.isThrownBy(() -> new JsonMapper().readValue(json, OAuth2AuthorizationRequest.class));
-	}
-
-	@Test
 	public void deserializeWhenMixinRegisteredThenDeserializes() throws Exception {
 		OAuth2AuthorizationRequest expectedAuthorizationRequest = this.authorizationRequestBuilder.build();
 		String json = asJson(expectedAuthorizationRequest);
@@ -152,17 +144,17 @@ public class OAuth2AuthorizationRequestMixinTests {
 		if (!CollectionUtils.isEmpty(authorizationRequest.getScopes())) {
 			scopes = StringUtils.collectionToDelimitedString(authorizationRequest.getScopes(), ",", "\"", "\"");
 		}
-		String additionalParameters = "\"@class\": \"java.util.Collections$UnmodifiableMap\"";
+		String additionalParameters = "";
 		if (!CollectionUtils.isEmpty(authorizationRequest.getAdditionalParameters())) {
-			additionalParameters += "," + authorizationRequest.getAdditionalParameters()
+			additionalParameters += authorizationRequest.getAdditionalParameters()
 				.keySet()
 				.stream()
 				.map((key) -> "\"" + key + "\": \"" + authorizationRequest.getAdditionalParameters().get(key) + "\"")
 				.collect(Collectors.joining(","));
 		}
-		String attributes = "\"@class\": \"java.util.Collections$UnmodifiableMap\"";
+		String attributes = "";
 		if (!CollectionUtils.isEmpty(authorizationRequest.getAttributes())) {
-			attributes += "," + authorizationRequest.getAttributes()
+			attributes += authorizationRequest.getAttributes()
 				.keySet()
 				.stream()
 				.map((key) -> "\"" + key + "\": \"" + authorizationRequest.getAttributes().get(key) + "\"")
@@ -180,10 +172,7 @@ public class OAuth2AuthorizationRequestMixinTests {
 				"  },\n" +
 				"  \"clientId\": \"" + authorizationRequest.getClientId() + "\",\n" +
 				"  \"redirectUri\": \"" + authorizationRequest.getRedirectUri() + "\",\n" +
-				"  \"scopes\": [\n" +
-				"    \"java.util.Collections$UnmodifiableSet\",\n" +
-				"    [" + scopes + "]\n" +
-				"  ],\n" +
+				"  \"scopes\": [" + scopes + "],\n" +
 				"  \"state\": " + ((authorizationRequest.getState() != null) ? "\"" + authorizationRequest.getState() + "\"" : "null") + ",\n" +
 				"  \"additionalParameters\": {\n" +
 				"    " + additionalParameters + "\n" +

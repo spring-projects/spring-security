@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.GrantedAuthority;
@@ -50,9 +51,16 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2A
 class Saml2AuthenticationMixin {
 
 	@JsonCreator
-	Saml2AuthenticationMixin(@JsonProperty("principal") AuthenticatedPrincipal principal,
+	Saml2AuthenticationMixin(
+			@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS) @JsonProperty("principal") AuthenticatedPrincipal principal,
 			@JsonProperty("saml2Response") String saml2Response,
 			@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities) {
 	}
+
+	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+	private final @Nullable Collection<GrantedAuthority> authorities = null;
+
+	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+	private @Nullable Object details = null;
 
 }

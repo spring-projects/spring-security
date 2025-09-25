@@ -31,7 +31,6 @@ import org.springframework.security.ldap.userdetails.InetOrgPerson;
 import org.springframework.security.ldap.userdetails.InetOrgPersonContextMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link org.springframework.security.ldap.jackson.InetOrgPersonMixin}.
@@ -40,7 +39,7 @@ public class InetOrgPersonMixinTests {
 
 	private static final String USER_PASSWORD = "Password1234";
 
-	private static final String AUTHORITIES_ARRAYLIST_JSON = "[\"java.util.Collections$UnmodifiableRandomAccessList\", []]";
+	private static final String AUTHORITIES_ARRAYLIST_JSON = "[]";
 
 	// @formatter:off
 	private static final String INET_ORG_PERSON_JSON = "{\n"
@@ -70,7 +69,7 @@ public class InetOrgPersonMixinTests {
 			+ "\"telephoneNumber\": \"+442075436521\","
 			+ "\"departmentNumber\": \"5679\","
 			+ "\"title\": \"T\","
-			+ "\"cn\": [\"java.util.Arrays$ArrayList\",[\"Ghengis Khan\"]],"
+			+ "\"cn\": [\"Ghengis Khan\"],"
 			+ "\"description\": \"Scary\","
 			+ "\"accountNonExpired\": true, "
 			+ "\"accountNonLocked\": true, "
@@ -108,12 +107,6 @@ public class InetOrgPersonMixinTests {
 		p.eraseCredentials();
 		String actualJson = this.mapper.writeValueAsString(p);
 		JSONAssert.assertEquals(INET_ORG_PERSON_JSON.replaceAll("\"" + USER_PASSWORD + "\"", "null"), actualJson, true);
-	}
-
-	@Test
-	public void deserializeWhenMixinNotRegisteredThenThrowJsonProcessingException() {
-		assertThatExceptionOfType(JacksonException.class)
-			.isThrownBy(() -> new JsonMapper().readValue(INET_ORG_PERSON_JSON, InetOrgPerson.class));
 	}
 
 	@Test

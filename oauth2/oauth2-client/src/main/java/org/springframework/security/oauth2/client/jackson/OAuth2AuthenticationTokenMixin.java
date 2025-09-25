@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -44,9 +45,13 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 abstract class OAuth2AuthenticationTokenMixin {
 
 	@JsonCreator
-	OAuth2AuthenticationTokenMixin(@JsonProperty("principal") OAuth2User principal,
+	OAuth2AuthenticationTokenMixin(
+			@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS) @JsonProperty("principal") OAuth2User principal,
 			@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities,
 			@JsonProperty("authorizedClientRegistrationId") String authorizedClientRegistrationId) {
 	}
+
+	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+	private final @Nullable Collection<GrantedAuthority> authorities = null;
 
 }
