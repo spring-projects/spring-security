@@ -39,7 +39,6 @@ import org.springframework.security.web.authentication.preauth.x509.SubjectDnX50
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
-import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 /**
  * Adds X509 based pre authentication to an application. Since validating the certificate
@@ -187,8 +186,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 		ExceptionHandlingConfigurer<H> exceptions = http.getConfigurer(ExceptionHandlingConfigurer.class);
 		if (exceptions != null) {
 			AuthenticationEntryPoint forbidden = new Http403ForbiddenEntryPoint();
-			exceptions.defaultDeniedHandlerForMissingAuthority(
-					(ep) -> ep.addEntryPointFor(forbidden, AnyRequestMatcher.INSTANCE),
+			exceptions.defaultDeniedHandlerForMissingAuthority((ep) -> ep.defaultEntryPoint(forbidden),
 					GrantedAuthorities.FACTOR_X509_AUTHORITY);
 		}
 	}
