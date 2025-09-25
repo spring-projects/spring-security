@@ -16,134 +16,65 @@
 
 package org.springframework.security.jackson;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.util.HashMap;
+import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonIgnoreType;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JacksonModule;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-/**
- * @author Rob Winch
- * @since 5.0
- */
 public class SecurityJacksonModulesTests {
 
-	private JsonMapper mapper;
-
-	@BeforeEach
-	public void setup() {
-		this.mapper = JsonMapper.builder().setDefaultTyping(new AllowlistTypeResolverBuilder()).build();
+	@Test
+	public void addModulesWithNoTypeValidatorBuilder() {
+		ClassLoader loader = getClass().getClassLoader();
+		List<JacksonModule> modules = SecurityJacksonModules.getModules(loader);
+		JsonMapper mapper = JsonMapper.builder().addModules(modules).build();
+		User user = new User("user", null, List.of(new SimpleGrantedAuthority("SCOPE_message:read")));
+		String json = mapper.writeValueAsString(user);
+		User deserializedUer = mapper.readerFor(User.class).readValue(json);
+		assertThat(deserializedUer).isEqualTo(user);
 	}
 
 	@Test
-	public void readValueWhenNotAllowedOrMappedThenThrowsException() {
-		String content = "{\"@class\":\"org.springframework.security.jackson.SecurityJacksonModulesTests$NotAllowlisted\",\"property\":\"bar\"}";
-		// @formatter:off
-		assertThatExceptionOfType(Exception.class)
-				.isThrownBy(() -> this.mapper.readValue(content, Object.class))
-				.withStackTraceContaining("allowlist");
-		// @formatter:on
+	public void addModulesWithDefaultTypeValidatorBuilder() {
+		ClassLoader loader = getClass().getClassLoader();
+		List<JacksonModule> modules = SecurityJacksonModules.getModules(loader,
+				BasicPolymorphicTypeValidator.builder());
+		JsonMapper mapper = JsonMapper.builder().addModules(modules).build();
+		User user = new User("user", null, List.of(new SimpleGrantedAuthority("SCOPE_message:read")));
+		String json = mapper.writeValueAsString(user);
+		User deserializedUer = mapper.readerFor(User.class).readValue(json);
+		assertThat(deserializedUer).isEqualTo(user);
 	}
 
 	@Test
-	@Disabled("Jackson 3 immutable ObjectMapper/JsonMapper does not allow this use case anymore")
-	public void readValueWhenExplicitDefaultTypingAfterSecuritySetupThenReadsAsSpecificType() throws Exception {
-		// this.mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL,
-		// JsonTypeInfo.As.PROPERTY);
-		String content = "{\"@class\":\"org.springframework.security.jackson.SecurityJacksonModulesTests$NotAllowlisted\",\"property\":\"bar\"}";
-		assertThat(this.mapper.readValue(content, Object.class))
-			.isInstanceOf(SecurityJacksonModulesTests.NotAllowlisted.class);
+	public void addModulesWithCustomTypeValidator() {
+		ClassLoader loader = getClass().getClassLoader();
+		BasicPolymorphicTypeValidator.Builder builder = BasicPolymorphicTypeValidator.builder()
+			.allowIfSubType(TestGrantedAuthority.class);
+		List<JacksonModule> modules = SecurityJacksonModules.getModules(loader, builder);
+		JsonMapper mapper = JsonMapper.builder().addModules(modules).build();
+		User user = new User("user", null, List.of(new TestGrantedAuthority()));
+		String json = mapper.writeValueAsString(user);
+		User deserializedUer = mapper.readerFor(User.class).readValue(json);
+		assertThat(deserializedUer).isEqualTo(user);
 	}
 
-	@Test
-	@Disabled("Jackson 3 immutable ObjectMapper/JsonMapper does not allow this use case anymore")
-	public void readValueWhenExplicitDefaultTypingBeforeSecuritySetupThenReadsAsSpecificType() throws Exception {
-		// this.mapper = new ObjectMapper();
-		// this.mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL,
-		// JsonTypeInfo.As.PROPERTY);
-		// SecurityJackson2Modules.enableDefaultTyping(this.mapper);
-		String content = "{\"@class\":\"org.springframework.security.jackson.SecurityJacksonModulesTests$NotAllowlisted\",\"property\":\"bar\"}";
-		assertThat(this.mapper.readValue(content, Object.class))
-			.isInstanceOf(SecurityJacksonModulesTests.NotAllowlisted.class);
-	}
+	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+	private static class TestGrantedAuthority implements GrantedAuthority {
 
-	@Test
-	public void readValueWhenAnnotatedThenReadsAsSpecificType() throws Exception {
-		String content = "{\"@class\":\"org.springframework.security.jackson.SecurityJacksonModulesTests$NotAllowlistedButAnnotated\",\"property\":\"bar\"}";
-		assertThat(this.mapper.readValue(content, Object.class)).isInstanceOf(NotAllowlistedButAnnotated.class);
-	}
-
-	@Test
-	public void readValueWhenMixinProvidedThenReadsAsSpecificType() throws Exception {
-		JsonMapper customizedMapper = this.mapper.rebuild()
-			.addMixIn(NotAllowlisted.class, NotAllowlistedMixin.class)
-			.build();
-		String content = "{\"@class\":\"org.springframework.security.jackson.SecurityJacksonModulesTests$NotAllowlisted\",\"property\":\"bar\"}";
-		assertThat(customizedMapper.readValue(content, Object.class)).isInstanceOf(NotAllowlisted.class);
-	}
-
-	@Test
-	public void readValueWhenHashMapThenReadsAsSpecificType() throws Exception {
-		JsonMapper customizedMapper = this.mapper.rebuild()
-			.addMixIn(NotAllowlisted.class, NotAllowlistedMixin.class)
-			.build();
-		String content = "{\"@class\":\"java.util.HashMap\"}";
-		assertThat(customizedMapper.readValue(content, Object.class)).isInstanceOf(HashMap.class);
-	}
-
-	@Target({ ElementType.TYPE, ElementType.ANNOTATION_TYPE })
-	@Retention(RetentionPolicy.RUNTIME)
-	@Documented
-	public @interface NotJacksonAnnotation {
-
-	}
-
-	@NotJacksonAnnotation
-	static class NotAllowlisted {
-
-		private String property = "bar";
-
-		String getProperty() {
-			return this.property;
+		@Override
+		public String getAuthority() {
+			return "test";
 		}
-
-		void setProperty(String property) {
-		}
-
-	}
-
-	@JsonIgnoreType(false)
-	static class NotAllowlistedButAnnotated {
-
-		private String property = "bar";
-
-		String getProperty() {
-			return this.property;
-		}
-
-		void setProperty(String property) {
-		}
-
-	}
-
-	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
-	@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
-			isGetterVisibility = JsonAutoDetect.Visibility.NONE)
-	@JsonIgnoreProperties(ignoreUnknown = true)
-	abstract class NotAllowlistedMixin {
 
 	}
 

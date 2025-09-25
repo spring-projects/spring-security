@@ -247,10 +247,7 @@ public class OAuth2AuthorizedClientMixinTests {
 				"      \"value\": \"" + clientRegistration.getAuthorizationGrantType().getValue() + "\"\n" +
 				"    },\n" +
 				"    \"redirectUri\": \"" + clientRegistration.getRedirectUri() + "\",\n" +
-				"    \"scopes\": [\n" +
-				"      \"java.util.Collections$UnmodifiableSet\",\n" +
-				"      [" + scopes + "]\n" +
-				"    ],\n" +
+				"    \"scopes\": [" + scopes + "],\n" +
 				"    \"providerDetails\": {\n" +
 				"      \"@class\": \"org.springframework.security.oauth2.client.registration.ClientRegistration$ProviderDetails\",\n" +
 				"      \"authorizationUri\": \"" + providerDetails.getAuthorizationUri() + "\",\n" +
@@ -298,9 +295,9 @@ public class OAuth2AuthorizedClientMixinTests {
 		if (!CollectionUtils.isEmpty(clientRegistration.getScopes())) {
 			scopes = StringUtils.collectionToDelimitedString(clientRegistration.getScopes(), ",", "\"", "\"");
 		}
-		String configurationMetadata = "\"@class\": \"java.util.Collections$UnmodifiableMap\"";
+		String configurationMetadata = "";
 		if (!CollectionUtils.isEmpty(providerDetails.getConfigurationMetadata())) {
-			configurationMetadata += "," + providerDetails.getConfigurationMetadata()
+			configurationMetadata += providerDetails.getConfigurationMetadata()
 				.keySet()
 				.stream()
 				.map((key) -> "\"" + key + "\": \"" + providerDetails.getConfigurationMetadata().get(key) + "\"")
@@ -319,16 +316,11 @@ public class OAuth2AuthorizedClientMixinTests {
 				"      \"value\": \"" + clientRegistration.getAuthorizationGrantType().getValue() + "\"\n" +
 				"    },\n" +
 				"    \"redirectUri\": \"" + clientRegistration.getRedirectUri() + "\",\n" +
-				"    \"scopes\": [\n" +
-				"      \"java.util.Collections$UnmodifiableSet\",\n" +
-				"      [" + scopes + "]\n" +
-				"    ],\n" +
+				"    \"scopes\": [" + scopes + "],\n" +
 				"    \"providerDetails\": {\n" +
-				"      \"@class\": \"org.springframework.security.oauth2.client.registration.ClientRegistration$ProviderDetails\",\n" +
 				"      \"authorizationUri\": \"" + providerDetails.getAuthorizationUri() + "\",\n" +
 				"      \"tokenUri\": \"" + providerDetails.getTokenUri() + "\",\n" +
 				"      \"userInfoEndpoint\": {\n" +
-				"        \"@class\": \"org.springframework.security.oauth2.client.registration.ClientRegistration$ProviderDetails$UserInfoEndpoint\",\n" +
 				"        \"uri\": " + ((userInfoEndpoint.getUri() != null) ? "\"" + userInfoEndpoint.getUri() + "\"" : null) + ",\n" +
 				"        \"authenticationMethod\": {\n" +
 				"          \"value\": \"" + userInfoEndpoint.getAuthenticationMethod().getValue() + "\"\n" +
@@ -363,10 +355,7 @@ public class OAuth2AuthorizedClientMixinTests {
 				"    \"tokenValue\": \"" + accessToken.getTokenValue() + "\",\n" +
 				"    \"issuedAt\": " + toString(accessToken.getIssuedAt()) + ",\n" +
 				"    \"expiresAt\": " + toString(accessToken.getExpiresAt()) + ",\n" +
-				"    \"scopes\": [\n" +
-				"      \"java.util.Collections$UnmodifiableSet\",\n" +
-				"      [" + scopes + "]\n" +
-				"    ]\n" +
+				"    \"scopes\": [" + scopes + "]\n" +
 				"}";
 		// @formatter:on
 	}

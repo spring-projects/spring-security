@@ -55,8 +55,7 @@ final class TestSaml2JsonPayloads {
 	static final String REG_ID = "REG_ID_TEST";
 	static final String REG_ID_JSON = "\"" + REG_ID + "\"";
 
-	static final String SESSION_INDEXES_JSON = "[" + "  \"java.util.Collections$UnmodifiableRandomAccessList\","
-			+ "  [ \"Index 1\", \"Index 2\" ]" + "]";
+	static final String SESSION_INDEXES_JSON = "[ \"Index 1\", \"Index 2\" ]";
 	static final List<String> SESSION_INDEXES = Collections.unmodifiableList(Arrays.asList("Index 1", "Index 2"));
 
 	static final String PRINCIPAL_NAME = "principalName";
@@ -66,19 +65,9 @@ final class TestSaml2JsonPayloads {
 			+ "  \"@class\": \"org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal\","
 			+ "  \"name\": \"" + PRINCIPAL_NAME + "\","
 			+ "  \"attributes\": {"
-			+ "    \"@class\": \"java.util.Collections$UnmodifiableMap\","
-			+ "    \"listOf\": ["
-			+ "      \"java.util.Collections$UnmodifiableRandomAccessList\","
-			+ "      [ \"Element1\", \"Element2\", 4, true ]"
-			+ "    ],"
-			+ "    \"email\": ["
-			+ "      \"java.util.Collections$SingletonList\","
-			+ "      [ \"attr_email\" ]"
-			+ "    ],"
-			+ "    \"name\": ["
-			+ "      \"java.util.Collections$SingletonList\","
-			+ "      [ \"attr_name\" ]"
-			+ "    ]"
+			+ "    \"listOf\": [ \"Element1\", \"Element2\", 4, true ],"
+			+ "    \"email\": [ \"attr_email\" ],"
+			+ "    \"name\": [ \"attr_name\" ]"
 			+ "  },"
 			+ "  \"sessionIndexes\": " + SESSION_INDEXES_JSON + ","
 			+ "  \"registrationId\": " + REG_ID_JSON + ""
@@ -136,7 +125,6 @@ final class TestSaml2JsonPayloads {
 			+ "  \"binding\": \"" + BINDNG + "\","
 			+ "  \"relyingPartyRegistrationId\": \"" + RELYINGPARTY_REGISTRATION_ID + "\","
 			+ "  \"parameters\": { "
-			+ "     \"@class\": \"java.util.Collections$UnmodifiableMap\","
 			+ "     \"SAMLRequest\": \"" + SAML_REQUEST + "\","
 			+ "     \"RelayState\": \"" + RELAY_STATE + "\","
 			+ "     \"AdditionalParam\": \"" + ADDITIONAL_PARAM + "\""
@@ -194,8 +182,6 @@ final class TestSaml2JsonPayloads {
 	static final String DEFAULT_SAML2AUTHENTICATION_JSON = "{"
 			+ "	\"@class\": \"org.springframework.security.saml2.provider.service.authentication.Saml2Authentication\","
 			+ "	\"authorities\": ["
-			+ "		\"java.util.Collections$UnmodifiableRandomAccessList\","
-			+ "		["
 			+ "			{"
 			+ "				\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\","
 			+ "				\"authority\": \"Role1\""
@@ -204,14 +190,12 @@ final class TestSaml2JsonPayloads {
 			+ "				\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\","
 			+ "				\"authority\": \"Role2\""
 			+ "			}"
-			+ "		]"
 			+ " ],"
 			+ "	\"details\": {"
 			+ "		\"@class\": \"org.springframework.security.core.userdetails.User\","
 			+ "		\"password\": \"empty\","
 			+ "		\"username\": \"username\","
 			+ "		\"authorities\": ["
-			+ "			\"java.util.Collections$UnmodifiableSet\", ["
 			+ "				{"
 			+ "					\"@class\":\"org.springframework.security.core.authority.SimpleGrantedAuthority\","
 			+ "					\"authority\":\"A\""
@@ -220,7 +204,7 @@ final class TestSaml2JsonPayloads {
 			+ "					\"@class\":\"org.springframework.security.core.authority.SimpleGrantedAuthority\","
 			+ "					\"authority\":\"B\""
 			+ "				}"
-			+ "		]],"
+			+ "		],"
 			+ "		\"accountNonExpired\": true,"
 			+ "		\"accountNonLocked\": true,"
 			+ "		\"credentialsNonExpired\": true,"

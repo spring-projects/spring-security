@@ -38,7 +38,7 @@ public class BadCredentialsExceptionMixinTests extends AbstractMixinTests {
 		+ "\"@class\": \"org.springframework.security.authentication.BadCredentialsException\","
 		+ "\"localizedMessage\": \"message\", "
 		+ "\"message\": \"message\", "
-		+ "\"suppressed\": [\"[Ljava.lang.Throwable;\",[]]"
+		+ "\"suppressed\": []"
 		+ "}";
 	// @formatter:on
 	@Test

@@ -17,10 +17,9 @@
 package org.springframework.security.ldap.jackson;
 
 import tools.jackson.core.Version;
-import tools.jackson.databind.cfg.MapperBuilder;
-import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
-import org.springframework.security.jackson.AllowlistTypeResolverBuilder;
+import org.springframework.security.jackson.SecurityJacksonModule;
 import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.ldap.userdetails.InetOrgPerson;
 import org.springframework.security.ldap.userdetails.LdapAuthority;
@@ -51,15 +50,21 @@ import org.springframework.security.ldap.userdetails.Person;
  * @see SecurityJacksonModules
  */
 @SuppressWarnings("serial")
-public class LdapJacksonModule extends SimpleModule {
+public class LdapJacksonModule extends SecurityJacksonModule {
 
 	public LdapJacksonModule() {
 		super(LdapJacksonModule.class.getName(), new Version(1, 0, 0, null, null, null));
 	}
 
 	@Override
+	protected void configurePolymorphicTypeValidator(BasicPolymorphicTypeValidator.Builder builder) {
+		builder.allowIfSubType(InetOrgPerson.class)
+			.allowIfSubType(LdapUserDetailsImpl.class)
+			.allowIfSubType(Person.class);
+	}
+
+	@Override
 	public void setupModule(SetupContext context) {
-		((MapperBuilder<?, ?>) context.getOwner()).setDefaultTyping(new AllowlistTypeResolverBuilder());
 		context.setMixIn(LdapAuthority.class, LdapAuthorityMixin.class);
 		context.setMixIn(LdapUserDetailsImpl.class, LdapUserDetailsImplMixin.class);
 		context.setMixIn(Person.class, PersonMixin.class);

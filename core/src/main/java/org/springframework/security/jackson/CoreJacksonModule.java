@@ -16,16 +16,19 @@
 
 package org.springframework.security.jackson;
 
-import tools.jackson.core.Version;
-import tools.jackson.databind.cfg.MapperBuilder;
-import tools.jackson.databind.module.SimpleModule;
+import java.time.Instant;
 
+import tools.jackson.core.Version;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.User;
 
 /**
@@ -53,15 +56,29 @@ import org.springframework.security.core.userdetails.User;
  * @see SecurityJacksonModules
  */
 @SuppressWarnings("serial")
-public class CoreJacksonModule extends SimpleModule {
+public class CoreJacksonModule extends SecurityJacksonModule {
 
 	public CoreJacksonModule() {
 		super(CoreJacksonModule.class.getName(), new Version(1, 0, 0, null, null, null));
 	}
 
 	@Override
+	protected void configurePolymorphicTypeValidator(BasicPolymorphicTypeValidator.Builder builder) {
+		builder.allowIfSubType(Instant.class)
+			.allowIfSubType(SimpleGrantedAuthority.class)
+			.allowIfSubType(FactorGrantedAuthority.class)
+			.allowIfSubType(UsernamePasswordAuthenticationToken.class)
+			.allowIfSubType(RememberMeAuthenticationToken.class)
+			.allowIfSubType(AnonymousAuthenticationToken.class)
+			.allowIfSubType(User.class)
+			.allowIfSubType(BadCredentialsException.class)
+			.allowIfSubType(SecurityContextImpl.class)
+			.allowIfSubType("java.util.Collections$UnmodifiableSet");
+	}
+
+	@Override
 	public void setupModule(SetupContext context) {
-		((MapperBuilder<?, ?>) context.getOwner()).setDefaultTyping(new AllowlistTypeResolverBuilder());
+		context.setMixIn(AbstractAuthenticationToken.class, AbstractAuthenticationTokenMixin.class);
 		context.setMixIn(AnonymousAuthenticationToken.class, AnonymousAuthenticationTokenMixin.class);
 		context.setMixIn(RememberMeAuthenticationToken.class, RememberMeAuthenticationTokenMixin.class);
 		context.setMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class);
@@ -69,6 +86,7 @@ public class CoreJacksonModule extends SimpleModule {
 		context.setMixIn(User.class, UserMixin.class);
 		context.setMixIn(UsernamePasswordAuthenticationToken.class, UsernamePasswordAuthenticationTokenMixin.class);
 		context.setMixIn(BadCredentialsException.class, BadCredentialsExceptionMixin.class);
+		context.setMixIn(SecurityContextImpl.class, SecurityContextImplMixin.class);
 	}
 
 }

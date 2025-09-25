@@ -35,7 +35,7 @@ public class CookieMixinTests extends AbstractMixinTests {
 		"	\"@class\": \"jakarta.servlet.http.Cookie\"," +
 		"	\"name\": \"demo\"," +
 		"	\"value\": \"cookie1\"," +
-		"	\"attributes\":{\"@class\":\"java.util.Collections$EmptyMap\"}," +
+		"	\"attributes\":{}," +
 		"	\"comment\": null," +
 		"	\"maxAge\": -1," +
 		"	\"path\": null," +
@@ -50,7 +50,7 @@ public class CookieMixinTests extends AbstractMixinTests {
 		"	\"@class\": \"jakarta.servlet.http.Cookie\"," +
 		"	\"name\": \"demo\"," +
 		"	\"value\": \"cookie1\"," +
-		"	\"attributes\":{\"@class\":\"java.util.Collections$UnmodifiableMap\", \"HttpOnly\": \"\"}," +
+		"	\"attributes\":{\"HttpOnly\": \"\"}," +
 		"	\"comment\": null," +
 		"	\"maxAge\": -1," +
 		"	\"path\": null," +

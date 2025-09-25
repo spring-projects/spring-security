@@ -2,7 +2,8 @@
 = Jackson Support
 
 Spring Security provides Jackson support for persisting Spring Security related classes.
-This can improve the performance of serializing Spring Security related classes when working with distributed sessions (i.e. session replication, Spring Session, etc).
+This can improve the performance of serializing Spring Security related classes when working with distributed sessions (i.e. session replication, Spring Session, etc)
+and allow proper deserialization.
 
 To use it, register the `SecurityJacksonModules.getModules(ClassLoader)` with `JsonMapper.Builder` (https://github.com/FasterXML/jackson-databind[jackson-databind]):
 
@@ -36,6 +37,35 @@ val mapper = JsonMapper.builder()
 val context: SecurityContext = SecurityContextImpl()
 // ...
 val json: String = mapper.writeValueAsString(context)
+----
+======
+
+It is also possible to add custom types allowed for deserialization:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+ClassLoader loader = getClass().getClassLoader();
+BasicPolymorphicTypeValidator.Builder typeValidatorBuilder = BasicPolymorphicTypeValidator.builder()
+			.allowIfSubType(CustomGrantedAuthority.class);
+JsonMapper mapper = JsonMapper.builder()
+        .addModules(SecurityJacksonModules.getModules(loader, typeValidatorBuilder))
+        .build();
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+val loader = javaClass.classLoader
+val typeValidatorBuilder = BasicPolymorphicTypeValidator.builder()
+			.allowIfSubType(CustomGrantedAuthority::class.java)
+val mapper = JsonMapper.builder()
+    .addModules(SecurityJacksonModules.getModules(loader, typeValidatorBuilder))
+    .build()
 ----
 ======
 

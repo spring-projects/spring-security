@@ -52,7 +52,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @see CasJacksonModule
  * @see org.springframework.security.jackson.SecurityJacksonModules
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, isGetterVisibility = JsonAutoDetect.Visibility.NONE,
 		getterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -75,10 +75,13 @@ class CasAuthenticationTokenMixin {
 	 * principal and how to obtain a proxy ticket for the user.
 	 */
 	@JsonCreator
-	CasAuthenticationTokenMixin(@JsonProperty("keyHash") Integer keyHash, @JsonProperty("principal") Object principal,
-			@JsonProperty("credentials") Object credentials,
-			@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities,
-			@JsonProperty("userDetails") UserDetails userDetails, @JsonProperty("assertion") Assertion assertion) {
+	CasAuthenticationTokenMixin(@JsonProperty("keyHash") Integer keyHash,
+			@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS) @JsonProperty("principal") Object principal,
+			@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS) @JsonProperty("credentials") Object credentials,
+			@JsonTypeInfo(
+					use = JsonTypeInfo.Id.CLASS) @JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities,
+			@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS) @JsonProperty("userDetails") UserDetails userDetails,
+			@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS) @JsonProperty("assertion") Assertion assertion) {
 	}
 
 }

@@ -48,7 +48,8 @@ import org.springframework.security.web.authentication.switchuser.SwitchUserGran
 abstract class SwitchUserGrantedAuthorityMixIn {
 
 	@JsonCreator
-	SwitchUserGrantedAuthorityMixIn(@JsonProperty("role") String role, @JsonProperty("source") Authentication source) {
+	SwitchUserGrantedAuthorityMixIn(@JsonProperty("role") String role, @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS,
+			include = JsonTypeInfo.As.PROPERTY) @JsonProperty("source") Authentication source) {
 	}
 
 }

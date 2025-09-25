@@ -44,7 +44,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 abstract class OAuth2AuthenticationTokenMixin {
 
 	@JsonCreator
-	OAuth2AuthenticationTokenMixin(@JsonProperty("principal") OAuth2User principal,
+	OAuth2AuthenticationTokenMixin(
+			@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS) @JsonProperty("principal") OAuth2User principal,
 			@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities,
 			@JsonProperty("authorizedClientRegistrationId") String authorizedClientRegistrationId) {
 	}

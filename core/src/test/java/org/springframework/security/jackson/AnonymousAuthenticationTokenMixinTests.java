@@ -66,7 +66,7 @@ public class AnonymousAuthenticationTokenMixinTests extends AbstractMixinTests {
 	public void deserializeAnonymousAuthenticationTokenWithoutAuthoritiesTest() {
 		String jsonString = "{\"@class\": \"org.springframework.security.authentication.AnonymousAuthenticationToken\", \"details\": null,"
 				+ "\"principal\": \"user\", \"authenticated\": true, \"keyHash\": " + HASH_KEY.hashCode() + ","
-				+ "\"authorities\": [\"java.util.ArrayList\", []]}";
+				+ "\"authorities\": []}";
 		assertThatExceptionOfType(ValueInstantiationException.class)
 			.isThrownBy(() -> this.mapper.readValue(jsonString, AnonymousAuthenticationToken.class));
 	}

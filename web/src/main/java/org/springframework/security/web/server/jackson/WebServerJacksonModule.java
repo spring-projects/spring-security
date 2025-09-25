@@ -17,10 +17,8 @@
 package org.springframework.security.web.server.jackson;
 
 import tools.jackson.core.Version;
-import tools.jackson.databind.cfg.MapperBuilder;
 import tools.jackson.databind.module.SimpleModule;
 
-import org.springframework.security.jackson.AllowlistTypeResolverBuilder;
 import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.web.server.csrf.DefaultCsrfToken;
 
@@ -56,7 +54,6 @@ public class WebServerJacksonModule extends SimpleModule {
 
 	@Override
 	public void setupModule(SetupContext context) {
-		((MapperBuilder<?, ?>) context.getOwner()).setDefaultTyping(new AllowlistTypeResolverBuilder());
 		context.setMixIn(DefaultCsrfToken.class, DefaultCsrfServerTokenMixin.class);
 	}
 

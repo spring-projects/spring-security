@@ -22,7 +22,6 @@ import java.util.List;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.exc.StreamReadException;
-import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JavaType;
@@ -49,9 +48,6 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
  * @see PreAuthenticatedAuthenticationTokenMixin
  */
 class PreAuthenticatedAuthenticationTokenDeserializer extends ValueDeserializer<PreAuthenticatedAuthenticationToken> {
-
-	private static final TypeReference<List<GrantedAuthority>> GRANTED_AUTHORITY_LIST = new TypeReference<>() {
-	};
 
 	/**
 	 * This method construct {@link PreAuthenticatedAuthenticationToken} object from

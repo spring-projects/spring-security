@@ -18,6 +18,7 @@ package org.springframework.security.jackson;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonDeserialize;
 
 /**
@@ -43,10 +44,13 @@ import tools.jackson.databind.annotation.JsonDeserialize;
  * @see CoreJacksonModule
  * @see SecurityJacksonModules
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonDeserialize(using = UsernamePasswordAuthenticationTokenDeserializer.class)
 abstract class UsernamePasswordAuthenticationTokenMixin {
+
+	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+	private final @Nullable Object principal = null;
 
 }

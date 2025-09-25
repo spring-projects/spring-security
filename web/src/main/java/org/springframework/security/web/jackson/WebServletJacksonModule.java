@@ -18,15 +18,14 @@ package org.springframework.security.web.jackson;
 
 import jakarta.servlet.http.Cookie;
 import tools.jackson.core.Version;
-import tools.jackson.databind.cfg.MapperBuilder;
-import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
-import org.springframework.security.jackson.AllowlistTypeResolverBuilder;
+import org.springframework.security.jackson.SecurityJacksonModule;
 import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.switchuser.SwitchUserGrantedAuthority;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
-import org.springframework.security.web.savedrequest.SavedCookie;
+import org.springframework.security.web.server.csrf.DefaultCsrfToken;
 
 /**
  * Jackson module for spring-security-web related to servlet. This module registers
@@ -51,17 +50,21 @@ import org.springframework.security.web.savedrequest.SavedCookie;
  * @see SecurityJacksonModules
  */
 @SuppressWarnings("serial")
-public class WebServletJacksonModule extends SimpleModule {
+public class WebServletJacksonModule extends SecurityJacksonModule {
 
 	public WebServletJacksonModule() {
 		super(WebServletJacksonModule.class.getName(), new Version(1, 0, 0, null, null, null));
 	}
 
 	@Override
+	protected void configurePolymorphicTypeValidator(BasicPolymorphicTypeValidator.Builder builder) {
+		builder.allowIfSubType(Cookie.class).allowIfSubType(DefaultCsrfToken.class);
+	}
+
+	@Override
 	public void setupModule(SetupContext context) {
-		((MapperBuilder<?, ?>) context.getOwner()).setDefaultTyping(new AllowlistTypeResolverBuilder());
 		context.setMixIn(Cookie.class, CookieMixin.class);
-		context.setMixIn(SavedCookie.class, SavedCookieMixin.class);
+		context.setMixIn(DefaultCsrfToken.class, DefaultCsrfTokenMixin.class);
 		context.setMixIn(DefaultSavedRequest.class, DefaultSavedRequestMixin.class);
 		context.setMixIn(WebAuthenticationDetails.class, WebAuthenticationDetailsMixin.class);
 		context.setMixIn(SwitchUserGrantedAuthority.class, SwitchUserGrantedAuthorityMixIn.class);
