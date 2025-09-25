@@ -16,10 +16,12 @@
 
 package org.springframework.security.web.authentication;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,11 +31,15 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcherEntry;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * Test class for {@link DelegatingAuthenticationEntryPoint}
@@ -200,6 +206,51 @@ public class DelegatingAuthenticationEntryPointTests {
 		verify(secondAEP).commence(this.request, null, null);
 		verify(firstAEP, never()).commence(this.request, null, null);
 		verify(this.defaultEntryPoint, never()).commence(this.request, null, null);
+	}
+
+	@Test
+	void builderWhenDefaultNullAndSingleEntryPointThenReturnsSingle() {
+		AuthenticationEntryPoint entryPoint = mock(AuthenticationEntryPoint.class);
+
+		AuthenticationEntryPoint result = DelegatingAuthenticationEntryPoint.builder()
+			.addEntryPointFor(entryPoint, mock(RequestMatcher.class))
+			.build();
+
+		assertThat(result).isEqualTo(entryPoint);
+	}
+
+	@Test
+	void builderWhenDefaultNullThenFirstIsDefault() throws ServletException, IOException {
+		AuthenticationEntryPoint firstEntryPoint = mock(AuthenticationEntryPoint.class);
+		AuthenticationEntryPoint secondEntryPoint = mock(AuthenticationEntryPoint.class);
+		RequestMatcher neverMatch = mock(RequestMatcher.class);
+		given(neverMatch.matches(this.request)).willReturn(false);
+		AuthenticationEntryPoint result = DelegatingAuthenticationEntryPoint.builder()
+			.addEntryPointFor(firstEntryPoint, neverMatch)
+			.addEntryPointFor(secondEntryPoint, neverMatch)
+			.build();
+
+		result.commence(this.request, null, null);
+
+		verify(firstEntryPoint).commence(any(), any(), any());
+		verifyNoInteractions(secondEntryPoint);
+	}
+
+	@Test
+	void builderWhenDefaultAndEmptyEntryPointsThenReturnsDefault() {
+		AuthenticationEntryPoint defaultEntryPoint = mock(AuthenticationEntryPoint.class);
+
+		AuthenticationEntryPoint result = DelegatingAuthenticationEntryPoint.builder()
+			.defaultEntryPoint(defaultEntryPoint)
+			.build();
+
+		assertThat(result).isEqualTo(defaultEntryPoint);
+	}
+
+	@Test
+	void builderWhenNoEntryPointsThenIllegalStateException() {
+		DelegatingAuthenticationEntryPoint.Builder builder = DelegatingAuthenticationEntryPoint.builder();
+		assertThatIllegalStateException().isThrownBy(builder::build);
 	}
 
 }

@@ -211,14 +211,17 @@ public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPo
 		 * @return the {@link AuthenticationEntryPoint} to use.
 		 */
 		public AuthenticationEntryPoint build() {
-			Assert.notEmpty(this.entryPoints, "entryPoints cannot be empty");
 			AuthenticationEntryPoint defaultEntryPoint = this.defaultEntryPoint;
 			if (defaultEntryPoint == null) {
+				Assert.state(!this.entryPoints.isEmpty(), "entryPoints cannot be empty if defaultEntryPoint is null");
 				AuthenticationEntryPoint firstAuthenticationEntryPoint = this.entryPoints.get(0).getEntry();
 				if (this.entryPoints.size() == 1) {
 					return firstAuthenticationEntryPoint;
 				}
 				defaultEntryPoint = firstAuthenticationEntryPoint;
+			}
+			else if (this.entryPoints.isEmpty()) {
+				return defaultEntryPoint;
 			}
 			return new DelegatingAuthenticationEntryPoint(defaultEntryPoint, this.entryPoints);
 		}
