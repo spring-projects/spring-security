@@ -56,7 +56,7 @@ public class SessionInformation implements Serializable {
 		Assert.notNull(principal, "Principal required");
 		Assert.hasText(sessionId, "SessionId required");
 		Assert.notNull(lastRequest, "LastRequest required");
-		Assert.notNull(lastRequest, "CreatedTime required");
+		Assert.notNull(createdTime, "CreatedTime required");
 		this.principal = principal;
 		this.sessionId = sessionId;
 		this.lastRequest = lastRequest;
