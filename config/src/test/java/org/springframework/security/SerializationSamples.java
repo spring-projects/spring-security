@@ -192,6 +192,7 @@ import org.springframework.security.oauth2.server.authorization.settings.TokenSe
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrors;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
+import org.springframework.security.oauth2.server.resource.OAuth2ProtectedResourceMetadata;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.DPoPAuthenticationToken;
@@ -406,6 +407,15 @@ final class SerializationSamples {
 				(r) -> new OAuth2IntrospectionException("message", new RuntimeException()));
 		generatorByClassName.put(DPoPAuthenticationToken.class,
 				(r) -> applyDetails(new DPoPAuthenticationToken("token", "proof", "method", "uri")));
+		generatorByClassName.put(OAuth2ProtectedResourceMetadata.class,
+				(r) -> OAuth2ProtectedResourceMetadata.builder()
+					.resource("https://localhost/resource")
+					.authorizationServer("https://localhost/authorizationServer")
+					.scope("scope")
+					.bearerMethod("bearerMethod")
+					.resourceName("resourceName")
+					.tlsClientCertificateBoundAccessTokens(true)
+					.build());
 
 		// oauth2-authorization-server
 		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();

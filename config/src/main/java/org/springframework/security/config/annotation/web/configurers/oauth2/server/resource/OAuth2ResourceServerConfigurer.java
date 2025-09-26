@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,6 +44,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.OAuth2ProtectedResourceMetadata;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.authentication.OpaqueTokenAuthenticationProvider;
@@ -51,6 +53,7 @@ import org.springframework.security.oauth2.server.resource.introspection.OpaqueT
 import org.springframework.security.oauth2.server.resource.introspection.SpringOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.security.oauth2.server.resource.web.OAuth2ProtectedResourceMetadataFilter;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
@@ -59,6 +62,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.access.DelegatingAccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationConverter;
+import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.csrf.CsrfException;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
@@ -172,6 +176,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 	private OpaqueTokenConfigurer opaqueTokenConfigurer;
 
+	private final ProtectedResourceMetadataConfigurer protectedResourceMetadataConfigurer = new ProtectedResourceMetadataConfigurer();
+
 	private AccessDeniedHandler accessDeniedHandler = new DelegatingAccessDeniedHandler(
 			new LinkedHashMap<>(Map.of(CsrfException.class, new AccessDeniedHandlerImpl())),
 			new BearerTokenAccessDeniedHandler());
@@ -250,6 +256,18 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		return this;
 	}
 
+	/**
+	 * Configure OAuth 2.0 Protected Resource Metadata.
+	 * @param protectedResourceMetadataCustomizer the {@link Customizer} to provide more
+	 * options for the {@link ProtectedResourceMetadataConfigurer}
+	 * @return the {@link OAuth2ResourceServerConfigurer} for further customizations
+	 */
+	public OAuth2ResourceServerConfigurer<H> protectedResourceMetadata(
+			Customizer<ProtectedResourceMetadataConfigurer> protectedResourceMetadataCustomizer) {
+		protectedResourceMetadataCustomizer.customize(this.protectedResourceMetadataConfigurer);
+		return this;
+	}
+
 	@Override
 	public void init(H http) {
 		validateConfiguration();
@@ -277,10 +295,19 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		filter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		filter = postProcess(filter);
 		http.addFilter(filter);
+
 		if (dPoPAuthenticationAvailable) {
 			DPoPAuthenticationConfigurer<H> dPoPAuthenticationConfigurer = new DPoPAuthenticationConfigurer<>();
 			dPoPAuthenticationConfigurer.configure(http);
 		}
+
+		OAuth2ProtectedResourceMetadataFilter protectedResourceMetadataFilter = new OAuth2ProtectedResourceMetadataFilter();
+		if (this.protectedResourceMetadataConfigurer.protectedResourceMetadataCustomizer != null) {
+			protectedResourceMetadataFilter.setProtectedResourceMetadataCustomizer(
+					this.protectedResourceMetadataConfigurer.protectedResourceMetadataCustomizer);
+		}
+		protectedResourceMetadataFilter = postProcess(protectedResourceMetadataFilter);
+		http.addFilterBefore(protectedResourceMetadataFilter, AbstractPreAuthenticatedProcessingFilter.class);
 	}
 
 	private void validateConfiguration() {
@@ -558,6 +585,30 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 				return this.authenticationManager;
 			}
 			return http.getSharedObject(AuthenticationManager.class);
+		}
+
+	}
+
+	public static final class ProtectedResourceMetadataConfigurer {
+
+		private Consumer<OAuth2ProtectedResourceMetadata.Builder> protectedResourceMetadataCustomizer;
+
+		private ProtectedResourceMetadataConfigurer() {
+		}
+
+		/**
+		 * Sets the {@code Consumer} providing access to the
+		 * {@link OAuth2ProtectedResourceMetadata.Builder} allowing the ability to
+		 * customize the claims of the Resource Server's configuration.
+		 * @param protectedResourceMetadataCustomizer the {@code Consumer} providing
+		 * access to the {@link OAuth2ProtectedResourceMetadata.Builder}
+		 * @return the {@link ProtectedResourceMetadataConfigurer} for further
+		 * configuration
+		 */
+		public ProtectedResourceMetadataConfigurer protectedResourceMetadataCustomizer(
+				Consumer<OAuth2ProtectedResourceMetadata.Builder> protectedResourceMetadataCustomizer) {
+			this.protectedResourceMetadataCustomizer = protectedResourceMetadataCustomizer;
+			return this;
 		}
 
 	}

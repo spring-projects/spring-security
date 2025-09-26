@@ -30,7 +30,9 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * An {@link AuthenticationEntryPoint} implementation used to commence authentication of
@@ -81,6 +83,7 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 				status = bearerTokenError.getHttpStatus();
 			}
 		}
+		parameters.put("resource_metadata", getResourceMetadataParameter(request));
 		String wwwAuthenticate = computeWWWAuthenticateHeaderValue(parameters);
 		response.addHeader(HttpHeaders.WWW_AUTHENTICATE, wwwAuthenticate);
 		response.setStatus(status.value());
@@ -92,6 +95,17 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 	 */
 	public void setRealmName(String realmName) {
 		this.realmName = realmName;
+	}
+
+	private static String getResourceMetadataParameter(HttpServletRequest request) {
+		// @formatter:off
+		return UriComponentsBuilder.fromUriString(UrlUtils.buildFullRequestUrl(request))
+				.replacePath(OAuth2ProtectedResourceMetadataFilter.DEFAULT_OAUTH2_PROTECTED_RESOURCE_METADATA_ENDPOINT_URI)
+				.replaceQuery(null)
+				.fragment(null)
+				.build()
+				.toUriString();
+		// @formatter:on
 	}
 
 	private static String computeWWWAuthenticateHeaderValue(Map<String, String> parameters) {

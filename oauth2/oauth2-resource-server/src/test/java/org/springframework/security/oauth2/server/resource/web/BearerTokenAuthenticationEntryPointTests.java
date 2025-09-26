@@ -50,7 +50,8 @@ public class BearerTokenAuthenticationEntryPointTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		this.authenticationEntryPoint.commence(request, response, new BadCredentialsException("test"));
 		assertThat(response.getStatus()).isEqualTo(401);
-		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer");
+		assertThat(response.getHeader("WWW-Authenticate"))
+			.isEqualTo("Bearer resource_metadata=\"http://localhost/.well-known/oauth-protected-resource\"");
 	}
 
 	@Test
@@ -60,7 +61,8 @@ public class BearerTokenAuthenticationEntryPointTests {
 		this.authenticationEntryPoint.setRealmName("test");
 		this.authenticationEntryPoint.commence(request, response, new BadCredentialsException("test"));
 		assertThat(response.getStatus()).isEqualTo(401);
-		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer realm=\"test\"");
+		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo(
+				"Bearer realm=\"test\", resource_metadata=\"http://localhost/.well-known/oauth-protected-resource\"");
 	}
 
 	@Test
@@ -71,7 +73,8 @@ public class BearerTokenAuthenticationEntryPointTests {
 				null, null);
 		this.authenticationEntryPoint.commence(request, response, new OAuth2AuthenticationException(error));
 		assertThat(response.getStatus()).isEqualTo(400);
-		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer error=\"invalid_request\"");
+		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo(
+				"Bearer error=\"invalid_request\", resource_metadata=\"http://localhost/.well-known/oauth-protected-resource\"");
 	}
 
 	@Test
@@ -82,8 +85,8 @@ public class BearerTokenAuthenticationEntryPointTests {
 				"The access token expired", null, null);
 		this.authenticationEntryPoint.commence(request, response, new OAuth2AuthenticationException(error));
 		assertThat(response.getStatus()).isEqualTo(400);
-		assertThat(response.getHeader("WWW-Authenticate"))
-			.isEqualTo("Bearer error=\"invalid_request\", error_description=\"The access token expired\"");
+		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo(
+				"Bearer error=\"invalid_request\", error_description=\"The access token expired\", resource_metadata=\"http://localhost/.well-known/oauth-protected-resource\"");
 	}
 
 	@Test
@@ -94,8 +97,8 @@ public class BearerTokenAuthenticationEntryPointTests {
 				null, "https://example.com", null);
 		this.authenticationEntryPoint.commence(request, response, new OAuth2AuthenticationException(error));
 		assertThat(response.getStatus()).isEqualTo(400);
-		assertThat(response.getHeader("WWW-Authenticate"))
-			.isEqualTo("Bearer error=\"invalid_request\", error_uri=\"https://example.com\"");
+		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo(
+				"Bearer error=\"invalid_request\", error_uri=\"https://example.com\", resource_metadata=\"http://localhost/.well-known/oauth-protected-resource\"");
 	}
 
 	@Test
@@ -106,7 +109,8 @@ public class BearerTokenAuthenticationEntryPointTests {
 				null, null);
 		this.authenticationEntryPoint.commence(request, response, new OAuth2AuthenticationException(error));
 		assertThat(response.getStatus()).isEqualTo(401);
-		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer error=\"invalid_token\"");
+		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo(
+				"Bearer error=\"invalid_token\", resource_metadata=\"http://localhost/.well-known/oauth-protected-resource\"");
 	}
 
 	@Test
@@ -117,7 +121,8 @@ public class BearerTokenAuthenticationEntryPointTests {
 				null, null);
 		this.authenticationEntryPoint.commence(request, response, new OAuth2AuthenticationException(error));
 		assertThat(response.getStatus()).isEqualTo(403);
-		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer error=\"insufficient_scope\"");
+		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo(
+				"Bearer error=\"insufficient_scope\", resource_metadata=\"http://localhost/.well-known/oauth-protected-resource\"");
 	}
 
 	@Test
@@ -128,8 +133,8 @@ public class BearerTokenAuthenticationEntryPointTests {
 				null, null, "test.read test.write");
 		this.authenticationEntryPoint.commence(request, response, new OAuth2AuthenticationException(error));
 		assertThat(response.getStatus()).isEqualTo(403);
-		assertThat(response.getHeader("WWW-Authenticate"))
-			.isEqualTo("Bearer error=\"insufficient_scope\", scope=\"test.read test.write\"");
+		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo(
+				"Bearer error=\"insufficient_scope\", scope=\"test.read test.write\", resource_metadata=\"http://localhost/.well-known/oauth-protected-resource\"");
 	}
 
 	@Test
@@ -144,7 +149,7 @@ public class BearerTokenAuthenticationEntryPointTests {
 		assertThat(response.getStatus()).isEqualTo(403);
 		assertThat(response.getHeader("WWW-Authenticate"))
 			.isEqualTo("Bearer realm=\"test\", error=\"insufficient_scope\", error_description=\"Insufficient scope\", "
-					+ "error_uri=\"https://example.com\", scope=\"test.read test.write\"");
+					+ "error_uri=\"https://example.com\", scope=\"test.read test.write\", resource_metadata=\"http://localhost/.well-known/oauth-protected-resource\"");
 	}
 
 	@Test
