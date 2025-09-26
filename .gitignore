@@ -25,6 +25,7 @@ atlassian-ide-plugin.xml
 s101plugin.state
 .attach_pid*
 .~lock.*#
+.kotlin/
 
 !.idea/checkstyle-idea.xml
 !.idea/externalDependencies.xml

@@ -27,7 +27,6 @@ import java.util.Objects;
 import java.util.TreeMap;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
@@ -337,7 +336,8 @@ public class DefaultSavedRequest implements SavedRequest {
 	 * @since 4.2
 	 */
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	@JsonPOJOBuilder(withPrefix = "set")
+	@com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder(withPrefix = "set")
+	@tools.jackson.databind.annotation.JsonPOJOBuilder(withPrefix = "set")
 	public static class Builder {
 
 		private @Nullable List<SavedCookie> cookies = null;
