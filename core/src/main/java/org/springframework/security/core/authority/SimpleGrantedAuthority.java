@@ -27,21 +27,31 @@ import org.springframework.util.Assert;
  * {@link org.springframework.security.core.Authentication Authentication} object.
  *
  * @author Luke Taylor
+ * @author Yanming Zhou
  */
 public final class SimpleGrantedAuthority implements GrantedAuthority {
 
 	private static final long serialVersionUID = 620L;
 
+	@Deprecated // keep it for JDK deserialization
 	private final String role;
 
-	public SimpleGrantedAuthority(String role) {
-		Assert.hasText(role, "A granted authority textual representation is required");
-		this.role = role;
+	private final String authority;
+
+	/**
+	 * Constructs a {@code SimpleGrantedAuthority} using the provided authority.
+	 * @param authority The provided authority such as prefixed role
+	 */
+	public SimpleGrantedAuthority(String authority) {
+		Assert.hasText(authority, "A granted authority textual representation is required");
+		this.authority = authority;
+		this.role = authority;
 	}
 
 	@Override
 	public String getAuthority() {
-		return this.role;
+		// authority is null when deserialized from previous version
+		return (this.authority != null) ? this.authority : this.role;
 	}
 
 	@Override
@@ -50,19 +60,19 @@ public final class SimpleGrantedAuthority implements GrantedAuthority {
 			return true;
 		}
 		if (obj instanceof SimpleGrantedAuthority sga) {
-			return this.role.equals(sga.getAuthority());
+			return this.getAuthority().equals(sga.getAuthority());
 		}
 		return false;
 	}
 
 	@Override
 	public int hashCode() {
-		return this.role.hashCode();
+		return this.getAuthority().hashCode();
 	}
 
 	@Override
 	public String toString() {
-		return this.role;
+		return this.getAuthority();
 	}
 
 }
