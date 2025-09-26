@@ -56,7 +56,7 @@ public interface AuthenticationProvider {
 	 * </p>
 	 * <p>
 	 * Selection of an <code>AuthenticationProvider</code> capable of performing
-	 * authentication is conducted at runtime the <code>ProviderManager</code>.
+	 * authentication is conducted at runtime by the <code>ProviderManager</code>.
 	 * </p>
 	 * @param authentication
 	 * @return <code>true</code> if the implementation can more closely evaluate the
