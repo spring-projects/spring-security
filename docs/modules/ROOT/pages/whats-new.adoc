@@ -55,7 +55,7 @@ http.csrf((csrf) -> csrf.spa());
 * Removed `ApacheDsContainer` and related Apache DS support in favor of UnboundID
 
 == OAuth 2.0
-
+* OAuth2 Client now supports SpEL expressions for extracting usernames from nested UserInfo responses, eliminating the need for custom `OAuth2UserService` implementations in many cases. This is particularly useful for APIs like Twitter API v2 that return nested user data.
 * Removed support for password grant
 * Added OAuth2 Support for xref:features/integrations/rest/http-service-client.adoc[HTTP Service Clients]
 * Added support for custom `JwkSource` in `NimbusJwtDecoder`, allowing usage of Nimbus's `JwkSourceBuilder` API
