@@ -16,19 +16,15 @@
 
 package org.springframework.security.web.csrf;
 
-import java.security.SecureRandom;
-import java.util.Base64;
-import java.util.function.Supplier;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.Nullable;
-
-import org.springframework.core.log.LogMessage;
-import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.util.Assert;
+
+import java.security.SecureRandom;
+import java.util.function.Supplier;
 
 /**
  * An implementation of the {@link CsrfTokenRequestHandler} interface that is capable of
@@ -37,13 +33,14 @@ import org.springframework.util.Assert;
  *
  * @author Steve Riesenberg
  * @author Yoobin Yoon
+ * @author Cheol Jeon
  * @since 5.8
  */
 public final class XorCsrfTokenRequestAttributeHandler extends CsrfTokenRequestAttributeHandler {
 
 	private static final Log logger = LogFactory.getLog(XorCsrfTokenRequestAttributeHandler.class);
 
-	private SecureRandom secureRandom = new SecureRandom();
+	private CsrfTokenEncoder csrfTokenEncoder = new XorCsrfTokenEncoder();
 
 	/**
 	 * Specifies the {@code SecureRandom} used to generate random bytes that are used to
@@ -52,7 +49,7 @@ public final class XorCsrfTokenRequestAttributeHandler extends CsrfTokenRequestA
 	 */
 	public void setSecureRandom(SecureRandom secureRandom) {
 		Assert.notNull(secureRandom, "secureRandom cannot be null");
-		this.secureRandom = secureRandom;
+		this.csrfTokenEncoder = new XorCsrfTokenEncoder(secureRandom);
 	}
 
 	@Override
@@ -69,7 +66,7 @@ public final class XorCsrfTokenRequestAttributeHandler extends CsrfTokenRequestA
 		return new CachedCsrfTokenSupplier(() -> {
 			CsrfToken csrfToken = csrfTokenSupplier.get();
 			Assert.state(csrfToken != null, "csrfToken supplier returned null");
-			String updatedToken = createXoredCsrfToken(this.secureRandom, csrfToken.getToken());
+			String updatedToken = csrfTokenEncoder.encode(csrfToken.getToken());
 			return new DefaultCsrfToken(csrfToken.getHeaderName(), csrfToken.getParameterName(), updatedToken);
 		});
 	}
@@ -80,61 +77,7 @@ public final class XorCsrfTokenRequestAttributeHandler extends CsrfTokenRequestA
 		if (actualToken == null) {
 			return null;
 		}
-		return getTokenValue(actualToken, csrfToken.getToken());
-	}
-
-	private static @Nullable String getTokenValue(String actualToken, String token) {
-		byte[] actualBytes;
-		try {
-			actualBytes = Base64.getUrlDecoder().decode(actualToken);
-		}
-		catch (Exception ex) {
-			logger.trace(LogMessage.format("Not returning the CSRF token since it's not Base64-encoded"), ex);
-			return null;
-		}
-
-		byte[] tokenBytes = Utf8.encode(token);
-		int tokenSize = tokenBytes.length;
-		if (actualBytes.length != tokenSize * 2) {
-			logger.trace(LogMessage.format(
-					"Not returning the CSRF token since its Base64-decoded length (%d) is not equal to (%d)",
-					actualBytes.length, tokenSize * 2));
-			return null;
-		}
-
-		// extract token and random bytes
-		byte[] xoredCsrf = new byte[tokenSize];
-		byte[] randomBytes = new byte[tokenSize];
-
-		System.arraycopy(actualBytes, 0, randomBytes, 0, tokenSize);
-		System.arraycopy(actualBytes, tokenSize, xoredCsrf, 0, tokenSize);
-
-		byte[] csrfBytes = xorCsrf(randomBytes, xoredCsrf);
-		return Utf8.decode(csrfBytes);
-	}
-
-	private static String createXoredCsrfToken(SecureRandom secureRandom, String token) {
-		byte[] tokenBytes = Utf8.encode(token);
-		byte[] randomBytes = new byte[tokenBytes.length];
-		secureRandom.nextBytes(randomBytes);
-
-		byte[] xoredBytes = xorCsrf(randomBytes, tokenBytes);
-		byte[] combinedBytes = new byte[tokenBytes.length + randomBytes.length];
-		System.arraycopy(randomBytes, 0, combinedBytes, 0, randomBytes.length);
-		System.arraycopy(xoredBytes, 0, combinedBytes, randomBytes.length, xoredBytes.length);
-
-		return Base64.getUrlEncoder().encodeToString(combinedBytes);
-	}
-
-	private static byte[] xorCsrf(byte[] randomBytes, byte[] csrfBytes) {
-		Assert.isTrue(randomBytes.length == csrfBytes.length, "arrays must be equal length");
-		int len = csrfBytes.length;
-		byte[] xoredCsrf = new byte[len];
-		System.arraycopy(csrfBytes, 0, xoredCsrf, 0, len);
-		for (int i = 0; i < len; i++) {
-			xoredCsrf[i] ^= randomBytes[i];
-		}
-		return xoredCsrf;
+		return csrfTokenEncoder.decode(actualToken, csrfToken.getToken());
 	}
 
 	private static final class CachedCsrfTokenSupplier implements Supplier<CsrfToken> {
