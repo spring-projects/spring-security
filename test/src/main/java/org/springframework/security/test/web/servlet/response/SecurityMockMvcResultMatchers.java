@@ -17,6 +17,7 @@
 package org.springframework.security.test.web.servlet.response;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
@@ -38,6 +39,7 @@ import org.springframework.test.util.AssertionErrors;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.util.Assert;
 
 /**
  * Security related {@link MockMvc} {@link ResultMatcher}s.
@@ -96,6 +98,8 @@ public final class SecurityMockMvcResultMatchers {
 
 		private @Nullable Collection<? extends GrantedAuthority> expectedGrantedAuthorities;
 
+		private @Nullable Collection<String> expectedAuthorities;
+
 		private Predicate<GrantedAuthority> ignoreAuthorities = (authority) -> false;
 
 		private @Nullable Consumer<Authentication> assertAuthentication;
@@ -144,6 +148,20 @@ public final class SecurityMockMvcResultMatchers {
 				AssertionErrors.assertTrue(
 						this.expectedGrantedAuthorities + " does not contain the same authorities as " + authorities,
 						this.expectedGrantedAuthorities.containsAll(authorities));
+			}
+			if (this.expectedAuthorities != null) {
+				AssertionErrors.assertTrue("Authentication cannot be null", auth != null);
+				List<String> authorities = auth.getAuthorities()
+					.stream()
+					.filter(Predicate.not(this.ignoreAuthorities))
+					.map(GrantedAuthority::getAuthority)
+					.toList();
+				AssertionErrors.assertTrue(
+						authorities + " does not contain the same authorities as " + this.expectedAuthorities,
+						this.expectedAuthorities.containsAll(authorities));
+				AssertionErrors.assertTrue(
+						this.expectedAuthorities + " does not contain the same authorities as " + authorities,
+						authorities.containsAll(this.expectedAuthorities));
 			}
 		}
 
@@ -203,6 +221,17 @@ public final class SecurityMockMvcResultMatchers {
 		 */
 		public AuthenticatedMatcher withAuthenticationName(String expected) {
 			this.expectedAuthenticationName = expected;
+			return this;
+		}
+
+		/**
+		 * Specifies the {@link GrantedAuthority#getAuthority()}
+		 * @param authorities the authorityNames
+		 * @return the {@link AuthenticatedMatcher} for further customization
+		 */
+		public AuthenticatedMatcher withAuthorities(String... authorities) {
+			Assert.notNull(authorities, "authorities cannot be null");
+			this.expectedAuthorities = Arrays.asList(authorities);
 			return this;
 		}
 

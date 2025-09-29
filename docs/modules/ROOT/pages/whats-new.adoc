@@ -70,6 +70,10 @@ http.csrf((csrf) -> csrf.spa());
 * Made so that SLO still returns `<saml2:LogoutResponse>` even when validation fails
 * Removed Open SAML 4 support; applications should migrate to Open SAML 5
 
+== Test
+
+* https://github.com/spring-projects/spring-security/issues/17974[Add SecurityMockMvcResultMatchers.withAuthorities(String...)]
+
 == Web
 
 * Removed `MvcRequestMatcher` and `AntPathRequestMatcher` in favor of `PathPatternRequestMatcher`
