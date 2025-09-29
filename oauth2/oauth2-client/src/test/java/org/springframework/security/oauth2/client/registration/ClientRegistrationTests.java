@@ -43,6 +43,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  * Tests for {@link ClientRegistration}.
  *
  * @author Joe Grandja
+ * @author Yoobin Yoon
  */
 public class ClientRegistrationTests {
 
@@ -619,6 +620,7 @@ public class ClientRegistrationTests {
 			.isEqualTo(updatedUserInfoEndpoint.getAuthenticationMethod());
 		assertThat(userInfoEndpoint.getUserNameAttributeName())
 			.isEqualTo(updatedUserInfoEndpoint.getUserNameAttributeName());
+		assertThat(userInfoEndpoint.getUsernameExpression()).isEqualTo(updatedUserInfoEndpoint.getUsernameExpression());
 		assertThat(providerDetails.getJwkSetUri()).isEqualTo(updatedProviderDetails.getJwkSetUri());
 		assertThat(providerDetails.getIssuerUri()).isEqualTo(updatedProviderDetails.getIssuerUri());
 		assertThat(providerDetails.getConfigurationMetadata())
@@ -703,6 +705,84 @@ public class ClientRegistrationTests {
 
 		// proof key should be false for passivity
 		assertThat(clientRegistration.getClientSettings().isRequireProofKey()).isTrue();
+	}
+
+	@Test
+	public void buildWhenUsernameExpressionProvidedThenSet() {
+		String usernameExpression = "data.username";
+		// @formatter:off
+		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+			.clientId(CLIENT_ID)
+			.clientSecret(CLIENT_SECRET)
+			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+			.redirectUri(REDIRECT_URI)
+			.authorizationUri(AUTHORIZATION_URI)
+			.tokenUri(TOKEN_URI)
+			.usernameExpression(usernameExpression)
+			.build();
+		// @formatter:on
+		assertThat(registration.getProviderDetails().getUserInfoEndpoint().getUsernameExpression())
+			.isEqualTo(usernameExpression);
+	}
+
+	@Test
+	public void buildWhenBothUserNameAttributeNameAndUsernameExpressionProvidedThenUsernameExpressionTakesPrecedence() {
+		String userNameAttributeName = "username";
+		String usernameExpression = "data.username";
+		// @formatter:off
+		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+			.clientId(CLIENT_ID)
+			.clientSecret(CLIENT_SECRET)
+			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+			.redirectUri(REDIRECT_URI)
+			.authorizationUri(AUTHORIZATION_URI)
+			.tokenUri(TOKEN_URI)
+			.userNameAttributeName(userNameAttributeName)
+			.usernameExpression(usernameExpression)
+			.build();
+		// @formatter:on
+		assertThat(registration.getProviderDetails().getUserInfoEndpoint().getUsernameExpression())
+			.isEqualTo(usernameExpression);
+		assertThat(registration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName())
+			.isEqualTo(userNameAttributeName);
+	}
+
+	@Test
+	public void buildWhenOnlyUserNameAttributeNameProvidedThenAutoConvertToSpelExpression() {
+		String userNameAttributeName = "username";
+		// @formatter:off
+		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+			.clientId(CLIENT_ID)
+			.clientSecret(CLIENT_SECRET)
+			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+			.redirectUri(REDIRECT_URI)
+			.authorizationUri(AUTHORIZATION_URI)
+			.tokenUri(TOKEN_URI)
+			.userNameAttributeName(userNameAttributeName)
+			.build();
+		// @formatter:on
+		assertThat(registration.getProviderDetails().getUserInfoEndpoint().getUsernameExpression())
+			.isEqualTo("['" + userNameAttributeName + "']");
+		assertThat(registration.getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName())
+			.isEqualTo(userNameAttributeName);
+	}
+
+	@Test
+	public void buildWhenCopyingClientRegistrationWithUsernameExpressionThenPreserved() {
+		String usernameExpression = "profile.name";
+		// @formatter:off
+		ClientRegistration original = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+			.clientId(CLIENT_ID)
+			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+			.redirectUri(REDIRECT_URI)
+			.authorizationUri(AUTHORIZATION_URI)
+			.tokenUri(TOKEN_URI)
+			.usernameExpression(usernameExpression)
+			.build();
+		// @formatter:on
+		ClientRegistration copy = ClientRegistration.withClientRegistration(original).build();
+		assertThat(copy.getProviderDetails().getUserInfoEndpoint().getUsernameExpression())
+			.isEqualTo(usernameExpression);
 	}
 
 	@ParameterizedTest

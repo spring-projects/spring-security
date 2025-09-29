@@ -46,6 +46,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Joe Grandja
  * @author Michael Sosa
+ * @author Yoobin Yoon
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-2">Section 2
  * Client Registration</a>
@@ -298,7 +299,10 @@ public final class ClientRegistration implements Serializable {
 
 			private AuthenticationMethod authenticationMethod = AuthenticationMethod.HEADER;
 
+			@Deprecated
 			private String userNameAttributeName;
+
+			private String usernameExpression;
 
 			UserInfoEndpoint() {
 			}
@@ -321,13 +325,21 @@ public final class ClientRegistration implements Serializable {
 			}
 
 			/**
-			 * Returns the attribute name used to access the user's name from the user
-			 * info response.
-			 * @return the attribute name used to access the user's name from the user
-			 * info response
+			 * @deprecated Use {@link #getUsernameExpression()} instead
 			 */
+			@Deprecated
 			public String getUserNameAttributeName() {
 				return this.userNameAttributeName;
+			}
+
+			/**
+			 * Returns the SpEL expression used to extract the username from user info
+			 * response.
+			 * @return the SpEL expression for username extraction
+			 * @since 7.0
+			 */
+			public String getUsernameExpression() {
+				return this.usernameExpression;
 			}
 
 		}
@@ -369,7 +381,10 @@ public final class ClientRegistration implements Serializable {
 
 		private AuthenticationMethod userInfoAuthenticationMethod = AuthenticationMethod.HEADER;
 
+		@Deprecated
 		private String userNameAttributeName;
+
+		private String usernameExpression;
 
 		private String jwkSetUri;
 
@@ -398,6 +413,7 @@ public final class ClientRegistration implements Serializable {
 			this.userInfoUri = clientRegistration.providerDetails.userInfoEndpoint.uri;
 			this.userInfoAuthenticationMethod = clientRegistration.providerDetails.userInfoEndpoint.authenticationMethod;
 			this.userNameAttributeName = clientRegistration.providerDetails.userInfoEndpoint.userNameAttributeName;
+			this.usernameExpression = clientRegistration.providerDetails.userInfoEndpoint.usernameExpression;
 			this.jwkSetUri = clientRegistration.providerDetails.jwkSetUri;
 			this.issuerUri = clientRegistration.providerDetails.issuerUri;
 			Map<String, Object> configurationMetadata = clientRegistration.providerDetails.configurationMetadata;
@@ -551,14 +567,43 @@ public final class ClientRegistration implements Serializable {
 		}
 
 		/**
-		 * Sets the attribute name used to access the user's name from the user info
-		 * response.
-		 * @param userNameAttributeName the attribute name used to access the user's name
-		 * from the user info response
+		 * Sets the username attribute name. This method automatically converts the
+		 * attribute name to a SpEL expression for backward compatibility.
+		 *
+		 * <p>
+		 * This is a convenience method that internally calls
+		 * {@link #usernameExpression(String)} with the attribute name wrapped in bracket
+		 * notation.
+		 * @param userNameAttributeName the username attribute name
 		 * @return the {@link Builder}
 		 */
 		public Builder userNameAttributeName(String userNameAttributeName) {
 			this.userNameAttributeName = userNameAttributeName;
+			if (userNameAttributeName != null) {
+				this.usernameExpression = "['" + userNameAttributeName + "']";
+			}
+			return this;
+		}
+
+		/**
+		 * Sets the SpEL expression used to extract the username from user info response.
+		 *
+		 * <p>
+		 * Examples:
+		 * <ul>
+		 * <li>Simple attribute: {@code "['username']"} or {@code "username"}</li>
+		 * <li>Nested attribute: {@code "data.username"}</li>
+		 * <li>Complex expression: {@code "user_info?.name ?: 'anonymous'"}</li>
+		 * <li>Array access: {@code "users[0].name"}</li>
+		 * <li>Conditional:
+		 * {@code "preferred_username != null ? preferred_username : email"}</li>
+		 * </ul>
+		 * @param usernameExpression the SpEL expression for username extraction
+		 * @return the {@link Builder}
+		 * @since 7.0
+		 */
+		public Builder usernameExpression(String usernameExpression) {
+			this.usernameExpression = usernameExpression;
 			return this;
 		}
 
@@ -668,7 +713,10 @@ public final class ClientRegistration implements Serializable {
 			providerDetails.tokenUri = this.tokenUri;
 			providerDetails.userInfoEndpoint.uri = this.userInfoUri;
 			providerDetails.userInfoEndpoint.authenticationMethod = this.userInfoAuthenticationMethod;
+
+			providerDetails.userInfoEndpoint.usernameExpression = this.usernameExpression;
 			providerDetails.userInfoEndpoint.userNameAttributeName = this.userNameAttributeName;
+
 			providerDetails.jwkSetUri = this.jwkSetUri;
 			providerDetails.issuerUri = this.issuerUri;
 			providerDetails.configurationMetadata = Collections.unmodifiableMap(this.configurationMetadata);

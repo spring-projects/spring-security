@@ -16,18 +16,23 @@
 
 package org.springframework.security.oauth2.client.oidc.userinfo;
 
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UsernameExpressionUtils;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -35,6 +40,7 @@ import org.springframework.util.StringUtils;
  * Utilities for working with the {@link OidcUserRequest}
  *
  * @author Rob Winch
+ * @author Yoobin Yoon
  * @since 5.1
  */
 final class OidcUserRequestUtils {
@@ -81,21 +87,40 @@ final class OidcUserRequestUtils {
 		OidcUserInfo userInfo = userMetadata.getUserInfo();
 		Set<GrantedAuthority> authorities = new LinkedHashSet<>();
 		ClientRegistration.ProviderDetails providerDetails = userRequest.getClientRegistration().getProviderDetails();
-		String userNameAttributeName = providerDetails.getUserInfoEndpoint().getUserNameAttributeName();
-		if (StringUtils.hasText(userNameAttributeName)) {
-			authorities.add(new OidcUserAuthority(userRequest.getIdToken(), userInfo, userNameAttributeName));
+		String usernameExpression = providerDetails.getUserInfoEndpoint().getUsernameExpression();
+
+		String username;
+		if (StringUtils.hasText(usernameExpression)) {
+			Map<String, Object> claims = collectClaims(userRequest.getIdToken(), userInfo);
+			username = OAuth2UsernameExpressionUtils.evaluateUsername(claims, usernameExpression);
 		}
 		else {
-			authorities.add(new OidcUserAuthority(userRequest.getIdToken(), userInfo));
+			username = userRequest.getIdToken().getSubject();
 		}
+
+		authorities
+			.add(OidcUserAuthority.withUsername(username).idToken(userRequest.getIdToken()).userInfo(userInfo).build());
+
 		OAuth2AccessToken token = userRequest.getAccessToken();
 		for (String scope : token.getScopes()) {
 			authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope));
 		}
-		if (StringUtils.hasText(userNameAttributeName)) {
-			return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo, userNameAttributeName);
+
+		return DefaultOidcUser.withUsername(username)
+			.authorities(authorities)
+			.idToken(userRequest.getIdToken())
+			.userInfo(userInfo)
+			.build();
+	}
+
+	private static Map<String, Object> collectClaims(OidcIdToken idToken, OidcUserInfo userInfo) {
+		Assert.notNull(idToken, "idToken cannot be null");
+		Map<String, Object> claims = new HashMap<>();
+		if (userInfo != null) {
+			claims.putAll(userInfo.getClaims());
 		}
-		return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo);
+		claims.putAll(idToken.getClaims());
+		return claims;
 	}
 
 	private OidcUserRequestUtils() {

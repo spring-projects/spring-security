@@ -32,6 +32,7 @@ import org.springframework.util.Assert;
  * A {@link GrantedAuthority} that may be associated to an {@link OidcUser}.
  *
  * @author Joe Grandja
+ * @author Yoobin Yoon
  * @since 5.0
  * @see OidcUser
  */
@@ -47,7 +48,9 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 	/**
 	 * Constructs a {@code OidcUserAuthority} using the provided parameters.
 	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
+	 * @deprecated Use {@link #withUsername(String)} builder pattern instead
 	 */
+	@Deprecated
 	public OidcUserAuthority(OidcIdToken idToken) {
 		this(idToken, null);
 	}
@@ -58,7 +61,9 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
 	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user,
 	 * may be {@code null}
+	 * @deprecated Use {@link #withUsername(String)} builder pattern instead
 	 */
+	@Deprecated
 	public OidcUserAuthority(OidcIdToken idToken, OidcUserInfo userInfo) {
 		this("OIDC_USER", idToken, userInfo);
 	}
@@ -72,7 +77,9 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 	 * @param userNameAttributeName the attribute name used to access the user's name from
 	 * the attributes
 	 * @since 6.4
+	 * @deprecated Use {@link #withUsername(String)} builder pattern instead
 	 */
+	@Deprecated
 	public OidcUserAuthority(OidcIdToken idToken, OidcUserInfo userInfo, @Nullable String userNameAttributeName) {
 		this("OIDC_USER", idToken, userInfo, userNameAttributeName);
 	}
@@ -83,7 +90,9 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
 	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user,
 	 * may be {@code null}
+	 * @deprecated Use {@link #withUsername(String)} builder pattern instead
 	 */
+	@Deprecated
 	public OidcUserAuthority(String authority, OidcIdToken idToken, OidcUserInfo userInfo) {
 		this(authority, idToken, userInfo, IdTokenClaimNames.SUB);
 	}
@@ -97,12 +106,41 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 	 * @param userNameAttributeName the attribute name used to access the user's name from
 	 * the attributes
 	 * @since 6.4
+	 * @deprecated Use {@link #withUsername(String)} builder pattern instead
 	 */
+	@Deprecated
 	public OidcUserAuthority(String authority, OidcIdToken idToken, OidcUserInfo userInfo,
 			@Nullable String userNameAttributeName) {
 		super(authority, collectClaims(idToken, userInfo), userNameAttributeName);
 		this.idToken = idToken;
 		this.userInfo = userInfo;
+	}
+
+	/**
+	 * Constructs a {@code OidcUserAuthority} using the provided parameters. This
+	 * constructor is used by the Builder pattern.
+	 * @param username the username
+	 * @param authority the authority granted to the user
+	 * @param attributes the attributes about the user
+	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
+	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user,
+	 * may be {@code null}
+	 */
+	private OidcUserAuthority(String username, String authority, Map<String, Object> attributes, OidcIdToken idToken,
+			OidcUserInfo userInfo) {
+		super(username, authority, attributes);
+		this.idToken = idToken;
+		this.userInfo = userInfo;
+	}
+
+	/**
+	 * Creates a new {@code OidcUserAuthority} builder with the username.
+	 * @param username the username
+	 * @return a new {@code Builder}
+	 * @since 7.0
+	 */
+	public static Builder withUsername(String username) {
+		return new Builder(username);
 	}
 
 	/**
@@ -157,6 +195,68 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 		}
 		claims.putAll(idToken.getClaims());
 		return claims;
+	}
+
+	/**
+	 * A builder for {@link OidcUserAuthority}.
+	 *
+	 * @since 7.0
+	 */
+	public static final class Builder extends OAuth2UserAuthority.Builder {
+
+		private OidcIdToken idToken;
+
+		private OidcUserInfo userInfo;
+
+		private Builder(String username) {
+			super(username);
+			this.authority = "OIDC_USER";
+		}
+
+		/**
+		 * Sets the {@link OidcIdToken ID Token} containing claims about the user.
+		 * @param idToken the {@link OidcIdToken ID Token}
+		 * @return the {@link Builder}
+		 */
+		public Builder idToken(OidcIdToken idToken) {
+			this.idToken = idToken;
+			return this;
+		}
+
+		/**
+		 * Sets the {@link OidcUserInfo UserInfo} containing claims about the user.
+		 * @param userInfo the {@link OidcUserInfo UserInfo}
+		 * @return the {@link Builder}
+		 */
+		public Builder userInfo(OidcUserInfo userInfo) {
+			this.userInfo = userInfo;
+			return this;
+		}
+
+		@Override
+		public Builder authority(String authority) {
+			super.authority(authority);
+			return this;
+		}
+
+		@Override
+		public Builder attributes(Map<String, Object> attributes) {
+			super.attributes(attributes);
+			return this;
+		}
+
+		@Override
+		public OidcUserAuthority build() {
+			Assert.notNull(this.idToken, "idToken cannot be null");
+
+			if (this.attributes == null) {
+				this.attributes = collectClaims(this.idToken, this.userInfo);
+			}
+
+			Assert.notEmpty(this.attributes, "attributes cannot be empty");
+			return new OidcUserAuthority(this.username, this.authority, this.attributes, this.idToken, this.userInfo);
+		}
+
 	}
 
 }
