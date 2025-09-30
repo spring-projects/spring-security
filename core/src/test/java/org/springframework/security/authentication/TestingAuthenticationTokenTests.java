@@ -21,10 +21,13 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Josh Cummings
@@ -66,6 +69,22 @@ public class TestingAuthenticationTokenTests {
 		assertThat(result.getPrincipal()).isSameAs(factorTwo.getPrincipal());
 		assertThat(result.getCredentials()).isSameAs(factorTwo.getCredentials());
 		assertThat(authorities).containsExactlyInAnyOrder("FACTOR_ONE", "FACTOR_TWO");
+	}
+
+	@Test
+	void constructorObjectObjectStringVargsWhenNullAuthorities() {
+		String[] authorities = null;
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> new TestingAuthenticationToken("user", "password", authorities));
+	}
+
+	@Test
+	void constructorObjectObjectStringVargsWhenValid() {
+		Authentication auth = new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		assertThat(auth.isAuthenticated()).isTrue();
+		assertThat(auth.getPrincipal()).isEqualTo("user");
+		assertThat(auth.getCredentials()).isEqualTo("password");
+		assertThat(auth.getAuthorities()).extracting(GrantedAuthority::getAuthority).containsOnly("ROLE_USER");
 	}
 
 }

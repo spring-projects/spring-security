@@ -16,6 +16,7 @@
 
 package org.springframework.security.authentication;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -49,6 +50,10 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 
 	public TestingAuthenticationToken(Object principal, Object credentials, String... authorities) {
 		this(principal, credentials, AuthorityUtils.createAuthorityList(authorities));
+	}
+
+	public TestingAuthenticationToken(Object principal, Object credentials, GrantedAuthority... authorities) {
+		this(principal, credentials, Arrays.asList(authorities));
 	}
 
 	public TestingAuthenticationToken(Object principal, Object credentials,

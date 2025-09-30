@@ -72,6 +72,7 @@ public final class AuthorityUtils {
 	 * @return a List of GrantedAuthority objects
 	 */
 	public static List<GrantedAuthority> createAuthorityList(String... authorities) {
+		Assert.notNull(authorities, "authorities cannot be null");
 		List<GrantedAuthority> grantedAuthorities = new ArrayList<>(authorities.length);
 		for (String authority : authorities) {
 			grantedAuthorities.add(new SimpleGrantedAuthority(authority));
