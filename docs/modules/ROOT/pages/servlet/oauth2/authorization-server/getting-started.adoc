@@ -132,10 +132,11 @@ public class SecurityConfig {
 
 		// @formatter:off
 		http
-			.oauth2AuthorizationServer((authorizationServer) ->
+			.oauth2AuthorizationServer((authorizationServer) -> {
+				http.securityMatcher(authorizationServer.getEndpointsMatcher());
 				authorizationServer
-					.oidc(Customizer.withDefaults())	// Enable OpenID Connect 1.0
-			)
+					.oidc(Customizer.withDefaults());	// Enable OpenID Connect 1.0
+			})
 			.authorizeHttpRequests((authorize) ->
 				authorize
 					.anyRequest().authenticated()

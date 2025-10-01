@@ -396,8 +396,6 @@ public final class OAuth2AuthorizationServerConfigurer
 					new OrRequestMatcher(preferredMatchers));
 		}
 
-		httpSecurity.securityMatchers((securityMatchers) -> securityMatchers.requestMatchers(this.endpointsMatcher));
-
 		httpSecurity.csrf((csrf) -> csrf.ignoringRequestMatchers(this.endpointsMatcher));
 
 		if (getConfigurer(OAuth2ClientRegistrationEndpointConfigurer.class) != null) {
