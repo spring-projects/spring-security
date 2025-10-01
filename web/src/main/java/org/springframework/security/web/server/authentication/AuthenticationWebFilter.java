@@ -16,7 +16,9 @@
 
 package org.springframework.security.web.server.authentication;
 
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,6 +29,7 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.server.WebFilterExchange;
@@ -138,7 +141,20 @@ public class AuthenticationWebFilter implements WebFilter {
 			if (!current.isAuthenticated()) {
 				return result;
 			}
-			return result.toBuilder().authorities((a) -> a.addAll(current.getAuthorities())).build();
+			return result.toBuilder()
+			// @formatter:off
+				.authorities((a) -> {
+					Set<String> newAuthorities = a.stream()
+						.map(GrantedAuthority::getAuthority)
+						.collect(Collectors.toUnmodifiableSet());
+					for (GrantedAuthority currentAuthority : current.getAuthorities()) {
+						if (!newAuthorities.contains(currentAuthority.getAuthority())) {
+							a.add(currentAuthority);
+						}
+					}
+				})
+				.build();
+				// @formatter:on
 		}).switchIfEmpty(Mono.just(result));
 	}
 

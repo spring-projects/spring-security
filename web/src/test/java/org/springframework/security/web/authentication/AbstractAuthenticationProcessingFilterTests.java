@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.authentication;
 
+import java.util.ArrayList;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -23,6 +25,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,12 +38,15 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.TestAuthentication;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServicesTests;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
@@ -438,6 +444,42 @@ public class AbstractAuthenticationProcessingFilterTests {
 		assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 
+	@Test
+	void doFilterWhenAuthenticatedThenCombinesAuthorities() throws Exception {
+		String ROLE_EXISTING = "ROLE_EXISTING";
+		TestingAuthenticationToken existingAuthn = new TestingAuthenticationToken("username", "password",
+				ROLE_EXISTING);
+		SecurityContextHolder.setContext(new SecurityContextImpl(existingAuthn));
+		MockHttpServletRequest request = createMockAuthenticationRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockAuthenticationFilter filter = new MockAuthenticationFilter(true);
+		filter.doFilter(request, response, new MockFilterChain(false));
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		assertThat(authentication.getAuthorities()).extracting(GrantedAuthority::getAuthority)
+			.containsExactlyInAnyOrder(ROLE_EXISTING, "TEST");
+	}
+
+	/**
+	 * This is critical to avoid adding duplicate GrantedAuthority instances with the
+	 * same' authority when the issuedAt is too old and a new instance is requested.
+	 * @throws Exception
+	 */
+	@Test
+	void doFilterWhenDefaultEqualsAuthorityThenNoDuplicates() throws Exception {
+		TestingAuthenticationToken existingAuthn = new TestingAuthenticationToken("username", "password",
+				new DefaultEqualsGrantedAuthority());
+		SecurityContextHolder.setContext(new SecurityContextImpl(existingAuthn));
+		MockHttpServletRequest request = createMockAuthenticationRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockAuthenticationFilter filter = new MockAuthenticationFilter(
+				new TestingAuthenticationToken("username", "password", new DefaultEqualsGrantedAuthority()));
+		filter.doFilter(request, response, new MockFilterChain(false));
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		assertThat(new ArrayList<GrantedAuthority>(authentication.getAuthorities()))
+			.extracting(GrantedAuthority::getAuthority)
+			.containsExactly(DefaultEqualsGrantedAuthority.AUTHORITY);
+	}
+
 	/**
 	 * https://github.com/spring-projects/spring-security/pull/3905
 	 */
@@ -453,38 +495,41 @@ public class AbstractAuthenticationProcessingFilterTests {
 
 		private AuthenticationException exceptionToThrow;
 
-		private boolean grantAccess;
+		private final @Nullable Authentication authentication;
+
+		MockAuthenticationFilter(Authentication authentication) {
+			super(DEFAULT_FILTER_PROCESSING_URL);
+			this.authentication = authentication;
+			setupRememberMeServicesAndAuthenticationException();
+		}
 
 		MockAuthenticationFilter(boolean grantAccess) {
-			this();
-			setupRememberMeServicesAndAuthenticationException();
-			this.grantAccess = grantAccess;
+			this(createDefaultAuthentication(grantAccess));
 		}
 
 		private MockAuthenticationFilter() {
-			super(DEFAULT_FILTER_PROCESSING_URL);
+			this(null);
 		}
 
 		private MockAuthenticationFilter(String defaultFilterProcessingUrl,
 				AuthenticationManager authenticationManager) {
 			super(defaultFilterProcessingUrl, authenticationManager);
 			setupRememberMeServicesAndAuthenticationException();
-			this.grantAccess = true;
+			this.authentication = createDefaultAuthentication(true);
 		}
 
 		private MockAuthenticationFilter(RequestMatcher requiresAuthenticationRequestMatcher,
 				AuthenticationManager authenticationManager) {
 			super(requiresAuthenticationRequestMatcher, authenticationManager);
 			setupRememberMeServicesAndAuthenticationException();
-			this.grantAccess = true;
+			this.authentication = createDefaultAuthentication(true);
 		}
 
 		@Override
 		public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 				throws AuthenticationException {
-			if (this.grantAccess) {
-				return UsernamePasswordAuthenticationToken.authenticated("test", "test",
-						AuthorityUtils.createAuthorityList("TEST"));
+			if (this.authentication != null) {
+				return this.authentication;
 			}
 			else {
 				throw this.exceptionToThrow;
@@ -494,6 +539,14 @@ public class AbstractAuthenticationProcessingFilterTests {
 		private void setupRememberMeServicesAndAuthenticationException() {
 			setRememberMeServices(new NullRememberMeServices());
 			this.exceptionToThrow = new BadCredentialsException("Mock requested to do so");
+		}
+
+		private static @Nullable Authentication createDefaultAuthentication(boolean grantAccess) {
+			if (!grantAccess) {
+				return null;
+			}
+			return UsernamePasswordAuthenticationToken.authenticated("test", "test",
+					AuthorityUtils.createAuthorityList("TEST"));
 		}
 
 	}

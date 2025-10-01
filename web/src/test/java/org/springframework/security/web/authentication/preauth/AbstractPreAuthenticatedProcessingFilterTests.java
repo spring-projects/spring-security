@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.authentication.preauth;
 
+import java.util.ArrayList;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,14 +35,18 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.WebAttributes;
+import org.springframework.security.web.authentication.DefaultEqualsGrantedAuthority;
 import org.springframework.security.web.authentication.ForwardAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.ForwardAuthenticationSuccessHandler;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -387,6 +393,56 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		filter.afterPropertiesSet();
 		filter.doFilter(request, response, chain);
 		verify(am).authenticate(any(PreAuthenticatedAuthenticationToken.class));
+	}
+
+	@Test
+	void doFilterWhenAuthenticatedThenCombinesAuthorities() throws Exception {
+		String ROLE_EXISTING = "ROLE_EXISTING";
+		TestingAuthenticationToken existingAuthn = new TestingAuthenticationToken("username", "password",
+				ROLE_EXISTING);
+		SecurityContextHolder.setContext(new SecurityContextImpl(existingAuthn));
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		this.filter = createFilterAuthenticatesWith(new TestingAuthenticationToken("username", "password", "TEST"));
+		this.filter.doFilter(request, response, new MockFilterChain());
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		// @formatter:off
+		assertThat(authentication.getAuthorities())
+				.extracting(GrantedAuthority::getAuthority)
+				.containsExactlyInAnyOrder(ROLE_EXISTING, "TEST");
+		// @formatter:on
+	}
+
+	/**
+	 * This is critical to avoid adding duplicate GrantedAuthority instances with the
+	 * same' authority when the issuedAt is too old and a new instance is requested.
+	 * @throws Exception
+	 */
+	@Test
+	void doFilterWhenDefaultEqualsGrantedAuthorityThenNoDuplicates() throws Exception {
+		TestingAuthenticationToken existingAuthn = new TestingAuthenticationToken("username", "password",
+				new DefaultEqualsGrantedAuthority());
+		SecurityContextHolder.setContext(new SecurityContextImpl(existingAuthn));
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		this.filter = createFilterAuthenticatesWith(
+				new TestingAuthenticationToken("username", "password", new DefaultEqualsGrantedAuthority()));
+		this.filter.doFilter(request, response, new MockFilterChain());
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		// @formatter:off
+		assertThat(new ArrayList<GrantedAuthority>(authentication.getAuthorities()))
+				.extracting(GrantedAuthority::getAuthority)
+				.containsExactly(DefaultEqualsGrantedAuthority.AUTHORITY);
+		// @formatter:on
+	}
+
+	private AbstractPreAuthenticatedProcessingFilter createFilterAuthenticatesWith(Authentication authentication) {
+		ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
+		filter.setRequiresAuthenticationRequestMatcher(AnyRequestMatcher.INSTANCE);
+		AuthenticationManager am = mock(AuthenticationManager.class);
+		given(am.authenticate(any())).willReturn(authentication);
+		filter.setAuthenticationManager(am);
+		return filter;
 	}
 
 	private void testDoFilter(boolean grantAccess) throws Exception {

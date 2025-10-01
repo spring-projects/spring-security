@@ -39,6 +39,7 @@ import org.springframework.security.authentication.AuthenticationManagerResolver
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -301,6 +302,50 @@ public class AuthenticationFilterTests {
 				this.authenticationConverter);
 		filter.doFilter(request, response, chain);
 		assertThat(request.getSession(false)).isNull();
+	}
+
+	@Test
+	public void doFilterWhenAuthenticatedThenCombinesAuthorities() throws Exception {
+		String ROLE_EXISTING = "ROLE_EXISTING";
+		TestingAuthenticationToken existingAuthn = new TestingAuthenticationToken("username", "password",
+				ROLE_EXISTING);
+		SecurityContextHolder.setContext(new SecurityContextImpl(existingAuthn));
+		given(this.authenticationConverter.convert(any())).willReturn(existingAuthn);
+		given(this.authenticationManager.authenticate(any()))
+			.willReturn(new TestingAuthenticationToken("user", "password", "TEST"));
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain chain = new MockFilterChain();
+		AuthenticationFilter filter = new AuthenticationFilter(this.authenticationManager,
+				this.authenticationConverter);
+		filter.doFilter(request, response, chain);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		assertThat(authentication.getAuthorities()).extracting(GrantedAuthority::getAuthority)
+			.containsExactlyInAnyOrder(ROLE_EXISTING, "TEST");
+	}
+
+	/**
+	 * This is critical to avoid adding duplicate GrantedAuthority instances with the
+	 * same' authority when the issuedAt is too old and a new instance is requested.
+	 * @throws Exception
+	 */
+	@Test
+	public void doFilterWhenDefaultEqualsGrantedAuthorityThenNoDuplicates() throws Exception {
+		TestingAuthenticationToken existingAuthn = new TestingAuthenticationToken("username", "password",
+				new DefaultEqualsGrantedAuthority());
+		SecurityContextHolder.setContext(new SecurityContextImpl(existingAuthn));
+		given(this.authenticationConverter.convert(any())).willReturn(existingAuthn);
+		given(this.authenticationManager.authenticate(any()))
+			.willReturn(new TestingAuthenticationToken("user", "password", new DefaultEqualsGrantedAuthority()));
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain chain = new MockFilterChain();
+		AuthenticationFilter filter = new AuthenticationFilter(this.authenticationManager,
+				this.authenticationConverter);
+		filter.doFilter(request, response, chain);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		assertThat(authentication.getAuthorities()).extracting(GrantedAuthority::getAuthority)
+			.containsExactlyInAnyOrder(DefaultEqualsGrantedAuthority.AUTHORITY);
 	}
 
 	@Test

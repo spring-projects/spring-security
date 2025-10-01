@@ -17,6 +17,8 @@
 package org.springframework.security.web.authentication.preauth;
 
 import java.io.IOException;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -35,6 +37,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -207,8 +210,19 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 			Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
 			if (current != null && current.isAuthenticated()) {
 				authenticationResult = authenticationResult.toBuilder()
-					.authorities((a) -> a.addAll(current.getAuthorities()))
+				// @formatter:off
+					.authorities((a) -> {
+						Set<String> newAuthorities = a.stream()
+								.map(GrantedAuthority::getAuthority)
+								.collect(Collectors.toUnmodifiableSet());
+						for (GrantedAuthority currentAuthority : current.getAuthorities()) {
+							if (!newAuthorities.contains(currentAuthority.getAuthority())) {
+								a.add(currentAuthority);
+							}
+						}
+					})
 					.build();
+					// @formatter:on
 			}
 			successfulAuthentication(request, response, authenticationResult);
 		}

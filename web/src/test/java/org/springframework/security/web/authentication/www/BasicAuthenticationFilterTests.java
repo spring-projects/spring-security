@@ -17,6 +17,7 @@
 package org.springframework.security.web.authentication.www;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletRequest;
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -37,12 +39,15 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.web.CodecTestUtils;
 import org.springframework.security.web.authentication.AuthenticationConverter;
+import org.springframework.security.web.authentication.DefaultEqualsGrantedAuthority;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
@@ -490,6 +495,48 @@ public class BasicAuthenticationFilterTests {
 		verify(this.manager, never()).authenticate(any(Authentication.class));
 		verify(filterChain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		verifyNoMoreInteractions(this.manager, filterChain);
+	}
+
+	@Test
+	void doFilterWhenAuthenticatedThenCombinesAuthorities() throws Exception {
+		String ROLE_EXISTING = "ROLE_EXISTING";
+		TestingAuthenticationToken existingAuthn = new TestingAuthenticationToken("username", "password",
+				ROLE_EXISTING);
+		SecurityContextHolder.setContext(new SecurityContextImpl(existingAuthn));
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader(HttpHeaders.AUTHORIZATION, "Basic " + CodecTestUtils.encodeBase64("a:b"));
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		AuthenticationManager manager = mock(AuthenticationManager.class);
+		given(manager.authenticate(any())).willReturn(new TestingAuthenticationToken("username", "password", "TEST"));
+		BasicAuthenticationFilter filter = new BasicAuthenticationFilter(manager);
+		filter.doFilter(request, response, new MockFilterChain());
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		assertThat(authentication.getAuthorities()).extracting(GrantedAuthority::getAuthority)
+			.containsExactlyInAnyOrder(ROLE_EXISTING, "TEST");
+	}
+
+	/**
+	 * This is critical to avoid adding duplicate GrantedAuthority instances with the
+	 * same' authority when the issuedAt is too old and a new instance is requested.
+	 * @throws Exception
+	 */
+	@Test
+	void doFilterWhenDefaultEqualsGrantedAuthorityThenNoDuplicates() throws Exception {
+		TestingAuthenticationToken existingAuthn = new TestingAuthenticationToken("username", "password",
+				new DefaultEqualsGrantedAuthority());
+		SecurityContextHolder.setContext(new SecurityContextImpl(existingAuthn));
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader(HttpHeaders.AUTHORIZATION, "Basic " + CodecTestUtils.encodeBase64("a:b"));
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		AuthenticationManager manager = mock(AuthenticationManager.class);
+		given(manager.authenticate(any()))
+			.willReturn(new TestingAuthenticationToken("username", "password", new DefaultEqualsGrantedAuthority()));
+		BasicAuthenticationFilter filter = new BasicAuthenticationFilter(manager);
+		filter.doFilter(request, response, new MockFilterChain());
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		assertThat(new ArrayList<GrantedAuthority>(authentication.getAuthorities()))
+			.extracting(GrantedAuthority::getAuthority)
+			.containsExactly(DefaultEqualsGrantedAuthority.AUTHORITY);
 	}
 
 	@Test
