@@ -61,7 +61,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ResponseValidatorResult;
@@ -906,7 +906,7 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 			Saml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal(username, accessor);
 			Collection<GrantedAuthority> authorities = new HashSet<>(
 					this.grantedAuthoritiesConverter.convert(assertion));
-			authorities.add(new SimpleGrantedAuthority(AUTHORITY));
+			authorities.add(FactorGrantedAuthority.fromAuthority(AUTHORITY));
 			return new Saml2AssertionAuthentication(principal, accessor, authorities, registrationId);
 		}
 

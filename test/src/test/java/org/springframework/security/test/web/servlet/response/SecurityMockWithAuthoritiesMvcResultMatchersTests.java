@@ -67,12 +67,10 @@ public class SecurityMockWithAuthoritiesMvcResultMatchersTests {
 	}
 
 	@Test
-	public void withAuthoritiesNotOrderSensitive() throws Exception {
-		List<SimpleGrantedAuthority> grantedAuthorities = new ArrayList<>();
-		grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-		grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_SELLER"));
-		grantedAuthorities.add(new SimpleGrantedAuthority(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY));
-		this.mockMvc.perform(formLogin()).andExpect(authenticated().withAuthorities(grantedAuthorities));
+	public void withAuthoritiesStringAllowsAnyOrderAndPermitsAnyImpl() throws Exception {
+		this.mockMvc.perform(formLogin())
+			.andExpect(authenticated().withAuthorities("ROLE_ADMIN", "ROLE_SELLER",
+					GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY));
 	}
 
 	@Test

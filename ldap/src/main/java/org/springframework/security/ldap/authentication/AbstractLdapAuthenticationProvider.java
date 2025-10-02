@@ -35,7 +35,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityMessageSource;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -107,7 +107,7 @@ public abstract class AbstractLdapAuthenticationProvider implements Authenticati
 				: user.getPassword();
 		Collection<GrantedAuthority> authorities = new LinkedHashSet<>(
 				this.authoritiesMapper.mapAuthorities(user.getAuthorities()));
-		authorities.add(new SimpleGrantedAuthority(AUTHORITY));
+		authorities.add(FactorGrantedAuthority.fromAuthority(AUTHORITY));
 		UsernamePasswordAuthenticationToken result = UsernamePasswordAuthenticationToken.authenticated(user, password,
 				authorities);
 		result.setDetails(authentication.getDetails());

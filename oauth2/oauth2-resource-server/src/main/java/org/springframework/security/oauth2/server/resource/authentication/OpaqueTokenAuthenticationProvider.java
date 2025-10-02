@@ -30,7 +30,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
@@ -155,7 +155,7 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, introspectedToken,
 				iat, exp);
 		Collection<GrantedAuthority> authorities = new HashSet<>(authenticatedPrincipal.getAuthorities());
-		authorities.add(new SimpleGrantedAuthority(AUTHORITY));
+		authorities.add(FactorGrantedAuthority.fromAuthority(AUTHORITY));
 		return new BearerTokenAuthentication(authenticatedPrincipal, accessToken, authorities);
 	}
 
