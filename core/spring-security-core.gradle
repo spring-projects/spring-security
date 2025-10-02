@@ -27,6 +27,7 @@ dependencies {
 	optional 'org.jetbrains.kotlinx:kotlinx-coroutines-reactor'
 
 	testImplementation 'commons-collections:commons-collections'
+	testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"

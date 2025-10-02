@@ -25,7 +25,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -65,7 +65,7 @@ public final class OneTimeTokenAuthenticationProvider implements AuthenticationP
 		try {
 			UserDetails user = this.userDetailsService.loadUserByUsername(consumed.getUsername());
 			Collection<GrantedAuthority> authorities = new HashSet<>(user.getAuthorities());
-			authorities.add(new SimpleGrantedAuthority(AUTHORITY));
+			authorities.add(FactorGrantedAuthority.fromAuthority(AUTHORITY));
 			OneTimeTokenAuthentication authenticated = new OneTimeTokenAuthentication(user, authorities);
 			authenticated.setDetails(otpAuthenticationToken.getDetails());
 			return authenticated;

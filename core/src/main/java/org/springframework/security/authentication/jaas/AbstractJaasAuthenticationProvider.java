@@ -46,7 +46,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.session.SessionDestroyedEvent;
 import org.springframework.util.Assert;
@@ -214,7 +214,7 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 				}
 			}
 		}
-		authorities.add(new SimpleGrantedAuthority(AUTHORITY));
+		authorities.add(FactorGrantedAuthority.fromAuthority(AUTHORITY));
 		return authorities;
 	}
 

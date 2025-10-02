@@ -94,6 +94,7 @@ import org.springframework.security.config.annotation.AlreadyBuiltException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.context.TransientSecurityContext;
@@ -584,6 +585,8 @@ final class SerializationSamples {
 			token.setDetails(details);
 			return token;
 		});
+		generatorByClassName.put(FactorGrantedAuthority.class,
+				(r) -> FactorGrantedAuthority.withAuthority("profile:read").issuedAt(Instant.now()).build());
 		generatorByClassName.put(UsernamePasswordAuthenticationToken.class, (r) -> {
 			var token = UsernamePasswordAuthenticationToken.unauthenticated(user, "creds");
 			token.setDetails(details);
