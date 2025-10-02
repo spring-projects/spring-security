@@ -30,7 +30,7 @@ com-unboundid-unboundid-ldapsdk7 = "com.unboundid:unboundid-ldapsdk:7.0.1"
 commons-collections = "commons-collections:commons-collections:3.2.2"
 io-micrometer-context-propagation = "io.micrometer:context-propagation:1.1.3"
 io-micrometer-micrometer-observation = "io.micrometer:micrometer-observation:1.14.11"
-io-mockk = "io.mockk:mockk:1.14.5"
+io-mockk = "io.mockk:mockk:1.14.6"
 io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2023.0.19"
 io-rsocket-rsocket-bom = { module = "io.rsocket:rsocket-bom", version.ref = "io-rsocket" }
 io-spring-javaformat-spring-javaformat-checkstyle = { module = "io.spring.javaformat:spring-javaformat-checkstyle", version.ref = "io-spring-javaformat" }
