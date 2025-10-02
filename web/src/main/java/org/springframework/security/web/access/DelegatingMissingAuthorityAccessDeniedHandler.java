@@ -17,11 +17,11 @@
 package org.springframework.security.web.access;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,6 +32,10 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authorization.AuthorityAuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.authorization.AuthorizationResult;
+import org.springframework.security.authorization.FactorAuthorizationDecision;
+import org.springframework.security.authorization.RequiredFactor;
+import org.springframework.security.authorization.RequiredFactorError;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -93,15 +97,19 @@ public final class DelegatingMissingAuthorityAccessDeniedHandler implements Acce
 	@Override
 	public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException denied)
 			throws IOException, ServletException {
-		Collection<GrantedAuthority> authorities = missingAuthorities(denied);
-		for (GrantedAuthority needed : authorities) {
-			AuthenticationEntryPoint entryPoint = this.entryPoints.get(needed.getAuthority());
+		List<AuthorityRequiredFactorErrorEntry> authorityErrors = authorityErrors(denied);
+		for (AuthorityRequiredFactorErrorEntry authorityError : authorityErrors) {
+			String requiredAuthority = authorityError.getAuthority();
+			AuthenticationEntryPoint entryPoint = this.entryPoints.get(requiredAuthority);
 			if (entryPoint == null) {
 				continue;
 			}
 			this.requestCache.saveRequest(request, response);
-			request.setAttribute(WebAttributes.MISSING_AUTHORITIES, List.of(needed));
-			String message = String.format("Missing Authorities %s", List.of(needed));
+			RequiredFactorError required = authorityError.getError();
+			if (required != null) {
+				request.setAttribute(WebAttributes.REQUIRED_FACTOR_ERRORS, List.of(required));
+			}
+			String message = String.format("Missing Authorities %s", requiredAuthority);
 			AuthenticationException ex = new InsufficientAuthenticationException(message, denied);
 			entryPoint.commence(request, response, ex);
 			return;
@@ -131,15 +139,39 @@ public final class DelegatingMissingAuthorityAccessDeniedHandler implements Acce
 		this.requestCache = requestCache;
 	}
 
-	private Collection<GrantedAuthority> missingAuthorities(AccessDeniedException ex) {
+	private List<AuthorityRequiredFactorErrorEntry> authorityErrors(AccessDeniedException ex) {
 		AuthorizationDeniedException denied = findAuthorizationDeniedException(ex);
 		if (denied == null) {
 			return List.of();
 		}
-		if (!(denied.getAuthorizationResult() instanceof AuthorityAuthorizationDecision authorization)) {
-			return List.of();
+		AuthorizationResult authorizationResult = denied.getAuthorizationResult();
+		if (authorizationResult instanceof FactorAuthorizationDecision factorDecision) {
+			// @formatter:off
+			return factorDecision.getFactorErrors().stream()
+				.map((error) -> {
+					String authority = error.getRequiredFactor().getAuthority();
+					return new AuthorityRequiredFactorErrorEntry(authority, error);
+				})
+				.collect(Collectors.toList());
+			// @formatter:on
 		}
-		return authorization.getAuthorities();
+		if (authorizationResult instanceof AuthorityAuthorizationDecision authorityDecision) {
+			// @formatter:off
+			return authorityDecision.getAuthorities().stream()
+				.map((grantedAuthority) -> {
+					String authority = grantedAuthority.getAuthority();
+					if (authority.startsWith("FACTOR_")) {
+						RequiredFactor required = RequiredFactor.withAuthority(authority).build();
+						return new AuthorityRequiredFactorErrorEntry(authority, RequiredFactorError.createMissing(required));
+					}
+					else {
+						return new AuthorityRequiredFactorErrorEntry(authority, null);
+					}
+				})
+				.collect(Collectors.toList());
+			// @formatter:on
+		}
+		return List.of();
 	}
 
 	private @Nullable AuthorizationDeniedException findAuthorizationDeniedException(AccessDeniedException ex) {
@@ -202,6 +234,35 @@ public final class DelegatingMissingAuthorityAccessDeniedHandler implements Acce
 			Map<String, AuthenticationEntryPoint> entryPointByAuthority = new LinkedHashMap<>();
 			this.entryPointBuilderByAuthority.forEach((key, value) -> entryPointByAuthority.put(key, value.build()));
 			return new DelegatingMissingAuthorityAccessDeniedHandler(entryPointByAuthority);
+		}
+
+	}
+
+	/**
+	 * A mapping of a {@link GrantedAuthority#getAuthority()} to a possibly null
+	 * {@link RequiredFactorError}.
+	 *
+	 * @author Rob Winch
+	 * @since 7.0
+	 */
+	private static final class AuthorityRequiredFactorErrorEntry {
+
+		private final String authority;
+
+		private final @Nullable RequiredFactorError error;
+
+		private AuthorityRequiredFactorErrorEntry(String authority, @Nullable RequiredFactorError error) {
+			Assert.notNull(authority, "authority cannot be null");
+			this.authority = authority;
+			this.error = error;
+		}
+
+		private String getAuthority() {
+			return this.authority;
+		}
+
+		private @Nullable RequiredFactorError getError() {
+			return this.error;
 		}
 
 	}

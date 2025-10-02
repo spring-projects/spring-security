@@ -66,7 +66,7 @@ class MultiFactorAuthenticationTests {
         // @formatter:off
         this.mockMvc!!.perform(MockMvcRequestBuilders.get("/"))
         .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-        .andExpect(MockMvcResultMatchers.redirectedUrl("http://localhost/login?factor=ott"))
+        .andExpect(MockMvcResultMatchers.redirectedUrl("http://localhost/login?factor.type=ott&factor.reason=missing"))
     		// @formatter:on
     }
 
@@ -78,7 +78,7 @@ class MultiFactorAuthenticationTests {
         // @formatter:off
         this.mockMvc!!.perform(MockMvcRequestBuilders.get("/"))
         .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-        .andExpect(MockMvcResultMatchers.redirectedUrl("http://localhost/login?factor=password"))
+        .andExpect(MockMvcResultMatchers.redirectedUrl("http://localhost/login?factor.type=password&factor.reason=missing"))
     		// @formatter:on
     }
 
@@ -90,7 +90,7 @@ class MultiFactorAuthenticationTests {
         // @formatter:off
         this.mockMvc!!.perform(MockMvcRequestBuilders.get("/"))
         .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-        .andExpect(MockMvcResultMatchers.redirectedUrl("http://localhost/login?factor=password"))
+        .andExpect(MockMvcResultMatchers.redirectedUrl("http://localhost/login?factor.type=password&factor.reason=missing"))
     		// @formatter:on
     }
 

@@ -69,7 +69,7 @@ public class ReauthenticationTests {
 		// @formatter:off
 		this.mockMvc.perform(get("/profile"))
 			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("http://localhost/login?factor=ott"));
+			.andExpect(redirectedUrl("http://localhost/login?factor.type=ott&factor.reason=missing"));
 		// @formatter:on
 	}
 

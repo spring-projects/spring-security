@@ -18,10 +18,10 @@ package org.springframework.security.web.authentication.ui;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -88,9 +88,11 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 
 	private @Nullable String rememberMeParameter;
 
-	private final String factorParameter = "factor";
+	private final String factorTypeParameter = "factor.type";
 
-	private final Collection<String> allowedParameters = List.of(this.factorParameter);
+	private final String factorReasonParameter = "factor.reason";
+
+	private final Set<String> allowedParameters = Set.of(this.factorTypeParameter, this.factorReasonParameter);
 
 	@SuppressWarnings("NullAway.Init")
 	private Map<String, String> oauth2AuthenticationUrlToClientName;
@@ -281,7 +283,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	}
 
 	private Predicate<String> wantsAuthority(HttpServletRequest request) {
-		String[] authorities = request.getParameterValues(this.factorParameter);
+		String[] authorities = request.getParameterValues(this.factorTypeParameter);
 		if (authorities == null) {
 			return (authority) -> true;
 		}

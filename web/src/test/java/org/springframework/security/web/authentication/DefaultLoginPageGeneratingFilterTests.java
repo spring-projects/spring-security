@@ -204,7 +204,8 @@ public class DefaultLoginPageGeneratingFilterTests {
 		filter.setOneTimeTokenEnabled(true);
 		filter.setOneTimeTokenGenerationUrl("/ott/authenticate");
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		filter.doFilter(TestMockHttpServletRequests.get("/login?factor=ott").build(), response, this.chain);
+		filter.doFilter(TestMockHttpServletRequests.get("/login?factor.type=ott&factor.reason=missing").build(),
+				response, this.chain);
 		assertThat(response.getContentAsString()).contains("Request a One-Time Token");
 		assertThat(response.getContentAsString()).contains("""
 				      <form id="ott-form" class="login-form" method="post" action="/ott/authenticate">
@@ -231,8 +232,9 @@ public class DefaultLoginPageGeneratingFilterTests {
 		filter.setOneTimeTokenEnabled(true);
 		filter.setOneTimeTokenGenerationUrl("/ott/authenticate");
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		filter.doFilter(TestMockHttpServletRequests.get("/login?factor=ott&factor=password").build(), response,
-				this.chain);
+		filter.doFilter(TestMockHttpServletRequests
+			.get("/login?factor.type=ott&factor.type=password&factor.reason=missing&factor.reason=missing")
+			.build(), response, this.chain);
 		assertThat(response.getContentAsString()).contains("Request a One-Time Token");
 		assertThat(response.getContentAsString()).contains("""
 				      <form id="ott-form" class="login-form" method="post" action="/ott/authenticate">

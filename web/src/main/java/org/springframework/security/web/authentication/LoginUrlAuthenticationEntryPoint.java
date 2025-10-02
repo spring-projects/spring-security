@@ -18,6 +18,7 @@ package org.springframework.security.web.authentication;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 
 import jakarta.servlet.RequestDispatcher;
@@ -31,8 +32,8 @@ import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.log.LogMessage;
+import org.springframework.security.authorization.RequiredFactorError;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.PortMapper;
@@ -118,16 +119,22 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	@SuppressWarnings("unchecked")
 	protected String determineUrlToUseForThisRequest(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) {
-		Collection<GrantedAuthority> authorities = getAttribute(request, WebAttributes.MISSING_AUTHORITIES,
+		Collection<RequiredFactorError> factorErrors = getAttribute(request, WebAttributes.REQUIRED_FACTOR_ERRORS,
 				Collection.class);
-		if (CollectionUtils.isEmpty(authorities)) {
+		if (CollectionUtils.isEmpty(factorErrors)) {
 			return getLoginFormUrl();
 		}
-		Collection<String> factors = authorities.stream()
-			.filter((a) -> a.getAuthority().startsWith(FACTOR_PREFIX))
-			.map((a) -> a.getAuthority().substring(FACTOR_PREFIX.length()).toLowerCase(Locale.ROOT))
+		List<String> factorTypes = factorErrors.stream()
+			.map((factorError) -> factorError.getRequiredFactor().getAuthority())
+			.map((a) -> a.substring(FACTOR_PREFIX.length()).toLowerCase(Locale.ROOT))
 			.toList();
-		return UriComponentsBuilder.fromUriString(getLoginFormUrl()).queryParam("factor", factors).toUriString();
+		List<String> factorReasons = factorErrors.stream()
+			.map((factorError) -> factorError.isExpired() ? "expired" : "missing")
+			.toList();
+		return UriComponentsBuilder.fromUriString(getLoginFormUrl())
+			.queryParam("factor.type", factorTypes)
+			.queryParam("factor.reason", factorReasons)
+			.toUriString();
 	}
 
 	private static <T> @Nullable T getAttribute(HttpServletRequest request, String name, Class<T> clazz) {
