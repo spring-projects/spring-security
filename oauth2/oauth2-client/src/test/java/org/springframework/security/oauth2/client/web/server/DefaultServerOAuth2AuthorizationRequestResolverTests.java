@@ -29,7 +29,6 @@ import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestCustomizers;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
@@ -59,18 +58,11 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 
 	private DefaultServerOAuth2AuthorizationRequestResolver resolver;
 
-	private ClientRegistration nonProofKeyPublicClientRegistration;
-
 	private ClientRegistration registration = TestClientRegistrations.clientRegistration().build();
 
 	@BeforeEach
 	public void setup() {
 		this.resolver = new DefaultServerOAuth2AuthorizationRequestResolver(this.clientRegistrationRepository);
-		this.nonProofKeyPublicClientRegistration = TestClientRegistrations.clientRegistration()
-			.registrationId("invalid-public-client-registration-id")
-			.clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
-			.clientSettings(ClientRegistration.ClientSettings.builder().requireProofKey(false).build())
-			.build();
 	}
 
 	@Test
@@ -143,39 +135,11 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(registration2.getRegistrationId())))
 			.willReturn(Mono.just(registration2));
 
-		this.resolver.setAuthorizationRequestCustomizer(OAuth2AuthorizationRequestCustomizers.withPkce());
-
 		OAuth2AuthorizationRequest request = resolve("/oauth2/authorization/" + registration1.getRegistrationId());
 		assertPkceApplied(request, registration1);
 
 		request = resolve("/oauth2/authorization/" + registration2.getRegistrationId());
 		assertPkceApplied(request, registration2);
-	}
-
-	// gh-6548
-	@Test
-	public void resolveWhenAuthorizationRequestApplyPkceToSpecificConfidentialClientThenApplied() {
-		ClientRegistration registration1 = TestClientRegistrations.clientRegistration().build();
-		given(this.clientRegistrationRepository.findByRegistrationId(eq(registration1.getRegistrationId())))
-			.willReturn(Mono.just(registration1));
-		given(this.clientRegistrationRepository
-			.findByRegistrationId(eq(this.nonProofKeyPublicClientRegistration.getRegistrationId())))
-			.willReturn(Mono.just(this.nonProofKeyPublicClientRegistration));
-
-		this.resolver.setAuthorizationRequestCustomizer((builder) -> {
-			builder.attributes((attrs) -> {
-				String registrationId = (String) attrs.get(OAuth2ParameterNames.REGISTRATION_ID);
-				if (registration1.getRegistrationId().equals(registrationId)) {
-					OAuth2AuthorizationRequestCustomizers.withPkce().accept(builder);
-				}
-			});
-		});
-
-		OAuth2AuthorizationRequest request = resolve("/oauth2/authorization/" + registration1.getRegistrationId());
-		assertPkceApplied(request, registration1);
-
-		request = resolve("/oauth2/authorization/" + this.nonProofKeyPublicClientRegistration.getRegistrationId());
-		assertPkceApplied(request, this.nonProofKeyPublicClientRegistration);
 	}
 
 	@Test

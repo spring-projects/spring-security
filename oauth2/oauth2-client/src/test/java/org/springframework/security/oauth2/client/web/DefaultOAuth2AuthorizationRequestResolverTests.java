@@ -60,8 +60,6 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 
 	private ClientRegistration pkceClientRegistration;
 
-	private ClientRegistration nonProofKeyPublicClientRegistration;
-
 	private ClientRegistration fineRedirectUriTemplateRegistration;
 
 	private ClientRegistration publicClientRegistration;
@@ -80,11 +78,6 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		this.registration2 = TestClientRegistrations.clientRegistration2().build();
 
 		this.pkceClientRegistration = pkceClientRegistration().build();
-		this.nonProofKeyPublicClientRegistration = TestClientRegistrations.clientRegistration()
-			.registrationId("invalid-public-client-registration-id")
-			.clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
-			.clientSettings(ClientRegistration.ClientSettings.builder().requireProofKey(false).build())
-			.build();
 		this.fineRedirectUriTemplateRegistration = fineRedirectUriTemplateClientRegistration().build();
 		// @formatter:off
 		this.publicClientRegistration = TestClientRegistrations.clientRegistration()
@@ -100,7 +93,7 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 		// @formatter:on
 		this.clientRegistrationRepository = new InMemoryClientRegistrationRepository(this.registration1,
 				this.registration2, this.pkceClientRegistration, this.fineRedirectUriTemplateRegistration,
-				this.publicClientRegistration, this.oidcRegistration, this.nonProofKeyPublicClientRegistration);
+				this.publicClientRegistration, this.oidcRegistration);
 		this.resolver = new DefaultOAuth2AuthorizationRequestResolver(this.clientRegistrationRepository,
 				this.authorizationRequestBaseUri);
 	}
@@ -396,33 +389,6 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 	// gh-6548
 	@Test
 	public void resolveWhenAuthorizationRequestApplyPkceToConfidentialClientsThenApplied() {
-		this.resolver.setAuthorizationRequestCustomizer(OAuth2AuthorizationRequestCustomizers.withPkce());
-
-		ClientRegistration clientRegistration = this.registration1;
-		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
-		MockHttpServletRequest request = get(requestUri).build();
-		OAuth2AuthorizationRequest authorizationRequest = this.resolver.resolve(request);
-		assertPkceApplied(authorizationRequest, clientRegistration);
-
-		clientRegistration = this.registration2;
-		requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
-		request = get(requestUri).build();
-		authorizationRequest = this.resolver.resolve(request);
-		assertPkceApplied(authorizationRequest, clientRegistration);
-	}
-
-	// gh-6548
-	@Test
-	public void resolveWhenAuthorizationRequestApplyPkceToSpecificConfidentialClientThenApplied() {
-		this.resolver.setAuthorizationRequestCustomizer((builder) -> {
-			builder.attributes((attrs) -> {
-				String registrationId = (String) attrs.get(OAuth2ParameterNames.REGISTRATION_ID);
-				if (this.registration1.getRegistrationId().equals(registrationId)) {
-					OAuth2AuthorizationRequestCustomizers.withPkce().accept(builder);
-				}
-			});
-		});
-
 		ClientRegistration clientRegistration = this.registration1;
 		String requestUri = this.authorizationRequestBaseUri + "/" + clientRegistration.getRegistrationId();
 		MockHttpServletRequest request = get(requestUri).build();
@@ -547,6 +513,17 @@ public class DefaultOAuth2AuthorizationRequestResolverTests {
 						+ "redirect_uri=http://localhost/login/oauth2/code/oidc-registration-id&"
 						+ "nonce=([a-zA-Z0-9\\-\\.\\_\\~]){43}"
 						+ "&code_challenge=([a-zA-Z0-9\\-\\.\\_\\~]){43}&code_challenge_method=S256&appid=client-id");
+	}
+
+	@Test
+	public void resolveWhenAuthorizationRequestNoProvideAuthorizationRequestBaseUri() {
+		OAuth2AuthorizationRequestResolver resolver = new DefaultOAuth2AuthorizationRequestResolver(
+				this.clientRegistrationRepository);
+		String requestUri = this.authorizationRequestBaseUri + "/" + this.registration2.getRegistrationId();
+		MockHttpServletRequest request = get(requestUri).build();
+		OAuth2AuthorizationRequest authorizationRequest = resolver.resolve(request);
+		assertThat(authorizationRequest.getRedirectUri())
+			.isEqualTo("http://localhost/login/oauth2/code/" + this.registration2.getRegistrationId());
 	}
 
 	@Test

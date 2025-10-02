@@ -651,10 +651,6 @@ public final class ClientRegistration implements Serializable {
 			clientRegistration.clientName = StringUtils.hasText(this.clientName) ? this.clientName
 					: this.registrationId;
 			clientRegistration.clientSettings = this.clientSettings;
-			if (clientRegistration.clientSettings.requireProofKey) {
-				clientRegistration.clientSettings.requireProofKey = AuthorizationGrantType.AUTHORIZATION_CODE
-					.equals(this.authorizationGrantType);
-			}
 			return clientRegistration;
 		}
 
@@ -705,6 +701,13 @@ public final class ClientRegistration implements Serializable {
 							"AuthorizationGrantType: %s does not match the pre-defined constant %s and won't match a valid OAuth2AuthorizedClientProvider",
 							this.authorizationGrantType, authorizationGrantType));
 				}
+			}
+			if (!AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType)
+					&& this.clientSettings.isRequireProofKey()) {
+				this.clientSettings = ClientSettings.builder().requireProofKey(false).build();
+				logger.warn(LogMessage.format(
+						"clientSettings.isRequireProofKey=true is only valid with authorizationGrantType=%s. Got authorizationGrantType=%s. Resetting to clientSettings.isRequireProofKey=false",
+						AuthorizationGrantType.AUTHORIZATION_CODE, this.authorizationGrantType));
 			}
 		}
 
