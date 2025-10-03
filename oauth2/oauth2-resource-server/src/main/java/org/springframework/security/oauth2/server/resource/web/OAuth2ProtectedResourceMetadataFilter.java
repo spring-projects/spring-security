@@ -31,9 +31,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.GenericHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.http.converter.json.GsonHttpMessageConverter;
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.http.converter.json.JsonbHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpResponse;
+import org.springframework.security.oauth2.core.http.converter.GenericHttpMessageConverterAdapter;
 import org.springframework.security.oauth2.server.resource.OAuth2ProtectedResourceMetadata;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.UrlUtils;
@@ -139,6 +141,8 @@ public final class OAuth2ProtectedResourceMetadataFilter extends OncePerRequestF
 
 	private static final class HttpMessageConverters {
 
+		private static final boolean jacksonPresent;
+
 		private static final boolean jackson2Present;
 
 		private static final boolean gsonPresent;
@@ -147,6 +151,7 @@ public final class OAuth2ProtectedResourceMetadataFilter extends OncePerRequestF
 
 		static {
 			ClassLoader classLoader = HttpMessageConverters.class.getClassLoader();
+			jacksonPresent = ClassUtils.isPresent("tools.jackson.databind.json.JsonMapper", classLoader);
 			jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", classLoader)
 					&& ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", classLoader);
 			gsonPresent = ClassUtils.isPresent("com.google.gson.Gson", classLoader);
@@ -158,6 +163,9 @@ public final class OAuth2ProtectedResourceMetadataFilter extends OncePerRequestF
 
 		@SuppressWarnings("removal")
 		private static GenericHttpMessageConverter<Object> getJsonMessageConverter() {
+			if (jacksonPresent) {
+				return new GenericHttpMessageConverterAdapter<>(new JacksonJsonHttpMessageConverter());
+			}
 			if (jackson2Present) {
 				return new MappingJackson2HttpMessageConverter();
 			}

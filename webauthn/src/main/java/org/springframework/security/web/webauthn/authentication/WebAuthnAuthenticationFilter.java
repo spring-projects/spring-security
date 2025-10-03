@@ -38,6 +38,7 @@ import org.springframework.security.web.authentication.AuthenticationEntryPointF
 import org.springframework.security.web.authentication.HttpMessageConverterAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.http.GenericHttpMessageConverterAdapter;
 import org.springframework.security.web.webauthn.api.AuthenticatorAssertionResponse;
 import org.springframework.security.web.webauthn.api.PublicKeyCredential;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestOptions;
@@ -50,7 +51,8 @@ import static org.springframework.security.web.servlet.util.matcher.PathPatternR
 /**
  * Authenticates {@code PublicKeyCredential<AuthenticatorAssertionResponse>} that is
  * parsed from the body of the {@link HttpServletRequest} using the
- * {@link #setConverter(SmartHttpMessageConverter)}. An example request is provided below:
+ * {@link #setConverter(GenericHttpMessageConverter)}. An example request is provided
+ * below:
  *
  * <pre>
  * {
@@ -72,8 +74,8 @@ import static org.springframework.security.web.servlet.util.matcher.PathPatternR
  */
 public class WebAuthnAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
-	private SmartHttpMessageConverter<Object> converter = new JacksonJsonHttpMessageConverter(
-			JsonMapper.builder().addModule(new WebauthnJacksonModule()).build());
+	private GenericHttpMessageConverter<Object> converter = new GenericHttpMessageConverterAdapter<>(
+			new JacksonJsonHttpMessageConverter(JsonMapper.builder().addModule(new WebauthnJacksonModule()).build()));
 
 	private PublicKeyCredentialRequestOptionsRepository requestOptionsRepository = new HttpSessionPublicKeyCredentialRequestOptionsRepository();
 
@@ -94,7 +96,7 @@ public class WebAuthnAuthenticationFilter extends AbstractAuthenticationProcessi
 		PublicKeyCredential<AuthenticatorAssertionResponse> publicKeyCredential = null;
 		try {
 			publicKeyCredential = (PublicKeyCredential<AuthenticatorAssertionResponse>) this.converter
-				.read(resolvableType, httpRequest, null);
+				.read(resolvableType.getType(), getClass(), httpRequest);
 		}
 		catch (Exception ex) {
 			throw new BadCredentialsException("Unable to authenticate the PublicKeyCredential", ex);
@@ -114,13 +116,24 @@ public class WebAuthnAuthenticationFilter extends AbstractAuthenticationProcessi
 	/**
 	 * Sets the {@link GenericHttpMessageConverter} to use for writing
 	 * {@code PublicKeyCredential<AuthenticatorAssertionResponse>} to the response. The
-	 * default is @{code Jackson2HttpMessageConverter}
+	 * default is @{code MappingJackson2HttpMessageConverter}
 	 * @param converter the {@link GenericHttpMessageConverter} to use. Cannot be null.
 	 */
-	// TODO Accept HttpMessageConverter
-	public void setConverter(SmartHttpMessageConverter<Object> converter) {
+	public void setConverter(GenericHttpMessageConverter<Object> converter) {
 		Assert.notNull(converter, "converter cannot be null");
 		this.converter = converter;
+	}
+
+	/**
+	 * Sets the {@link SmartHttpMessageConverter} to use for writing
+	 * {@code PublicKeyCredential<AuthenticatorAssertionResponse>} to the response. The
+	 * default is @{code MappingJackson2HttpMessageConverter}
+	 * @param converter the {@link SmartHttpMessageConverter} to use. Cannot be null.
+	 * @since 7.0
+	 */
+	public void setConverter(SmartHttpMessageConverter<Object> converter) {
+		Assert.notNull(converter, "converter cannot be null");
+		this.converter = new GenericHttpMessageConverterAdapter<>(converter);
 	}
 
 	/**
