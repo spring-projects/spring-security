@@ -52,7 +52,8 @@ public class OAuth2ErrorHttpMessageConverter extends AbstractHttpMessageConverte
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<>() {
 	};
 
-	private GenericHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters.getJsonMessageConverter();
+	private final GenericHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters
+		.getJsonMessageConverter();
 
 	protected Converter<Map<String, String>, OAuth2Error> errorConverter = new OAuth2ErrorConverter();
 
