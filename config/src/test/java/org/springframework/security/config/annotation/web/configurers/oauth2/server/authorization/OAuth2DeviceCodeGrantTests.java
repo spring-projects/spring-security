@@ -34,7 +34,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -47,8 +47,9 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.mock.http.client.MockClientHttpResponse;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
@@ -82,6 +83,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.TestRegisteredClients;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.util.LinkedMultiValueMap;
@@ -645,8 +647,24 @@ public class OAuth2DeviceCodeGrantTests {
 	}
 
 	@EnableWebSecurity
-	@Import(OAuth2AuthorizationServerConfiguration.class)
+	@Configuration(proxyBeanMethods = false)
 	static class AuthorizationServerConfiguration {
+
+		// @formatter:off
+		@Bean
+		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.deviceAuthorizationEndpoint(Customizer.withDefaults())
+									.deviceVerificationEndpoint(Customizer.withDefaults())
+					)
+					.authorizeHttpRequests((authorize) ->
+							authorize.anyRequest().authenticated()
+					);
+			return http.build();
+		}
+		// @formatter:on
 
 		@Bean
 		RegisteredClientRepository registeredClientRepository(JdbcOperations jdbcOperations) {
@@ -676,6 +694,11 @@ public class OAuth2DeviceCodeGrantTests {
 		}
 
 		@Bean
+		AuthorizationServerSettings authorizationServerSettings() {
+			return AuthorizationServerSettings.builder().build();
+		}
+
+		@Bean
 		PasswordEncoder passwordEncoder() {
 			return NoOpPasswordEncoder.getInstance();
 		}
@@ -683,8 +706,24 @@ public class OAuth2DeviceCodeGrantTests {
 	}
 
 	@EnableWebSecurity
-	@Import(OAuth2AuthorizationServerConfiguration.class)
+	@Configuration(proxyBeanMethods = false)
 	static class AuthorizationServerConfigurationWithMultipleIssuersAllowed extends AuthorizationServerConfiguration {
+
+		// @formatter:off
+		@Bean
+		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.deviceAuthorizationEndpoint(Customizer.withDefaults())
+									.deviceVerificationEndpoint(Customizer.withDefaults())
+					)
+					.authorizeHttpRequests((authorize) ->
+							authorize.anyRequest().authenticated()
+					);
+			return http.build();
+		}
+		// @formatter:on
 
 		@Bean
 		AuthorizationServerSettings authorizationServerSettings() {

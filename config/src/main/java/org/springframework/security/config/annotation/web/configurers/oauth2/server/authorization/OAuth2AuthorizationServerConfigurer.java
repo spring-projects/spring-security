@@ -255,8 +255,16 @@ public final class OAuth2AuthorizationServerConfigurer
 	 */
 	public OAuth2AuthorizationServerConfigurer deviceAuthorizationEndpoint(
 			Customizer<OAuth2DeviceAuthorizationEndpointConfigurer> deviceAuthorizationEndpointCustomizer) {
-		deviceAuthorizationEndpointCustomizer
-			.customize(getConfigurer(OAuth2DeviceAuthorizationEndpointConfigurer.class));
+		OAuth2DeviceAuthorizationEndpointConfigurer deviceAuthorizationEndpointConfigurer = getConfigurer(
+				OAuth2DeviceAuthorizationEndpointConfigurer.class);
+		if (deviceAuthorizationEndpointConfigurer == null) {
+			addConfigurer(OAuth2DeviceAuthorizationEndpointConfigurer.class,
+					new OAuth2DeviceAuthorizationEndpointConfigurer(this::postProcess));
+			deviceAuthorizationEndpointConfigurer = getConfigurer(OAuth2DeviceAuthorizationEndpointConfigurer.class);
+			deviceVerificationEndpoint((configurer) -> {
+			}); // Ensure the Device Verification Endpoint is enabled
+		}
+		deviceAuthorizationEndpointCustomizer.customize(deviceAuthorizationEndpointConfigurer);
 		return this;
 	}
 
@@ -268,7 +276,16 @@ public final class OAuth2AuthorizationServerConfigurer
 	 */
 	public OAuth2AuthorizationServerConfigurer deviceVerificationEndpoint(
 			Customizer<OAuth2DeviceVerificationEndpointConfigurer> deviceVerificationEndpointCustomizer) {
-		deviceVerificationEndpointCustomizer.customize(getConfigurer(OAuth2DeviceVerificationEndpointConfigurer.class));
+		OAuth2DeviceVerificationEndpointConfigurer deviceVerificationEndpointConfigurer = getConfigurer(
+				OAuth2DeviceVerificationEndpointConfigurer.class);
+		if (deviceVerificationEndpointConfigurer == null) {
+			addConfigurer(OAuth2DeviceVerificationEndpointConfigurer.class,
+					new OAuth2DeviceVerificationEndpointConfigurer(this::postProcess));
+			deviceVerificationEndpointConfigurer = getConfigurer(OAuth2DeviceVerificationEndpointConfigurer.class);
+			deviceAuthorizationEndpoint((configurer) -> {
+			}); // Ensure the Device Authorization Endpoint is enabled
+		}
+		deviceVerificationEndpointCustomizer.customize(deviceVerificationEndpointConfigurer);
 		return this;
 	}
 
@@ -386,9 +403,11 @@ public final class OAuth2AuthorizationServerConfigurer
 			preferredMatchers.add(getRequestMatcher(OAuth2TokenEndpointConfigurer.class));
 			preferredMatchers.add(getRequestMatcher(OAuth2TokenIntrospectionEndpointConfigurer.class));
 			preferredMatchers.add(getRequestMatcher(OAuth2TokenRevocationEndpointConfigurer.class));
-			preferredMatchers.add(getRequestMatcher(OAuth2DeviceAuthorizationEndpointConfigurer.class));
-			RequestMatcher preferredMatcher = getRequestMatcher(
-					OAuth2PushedAuthorizationRequestEndpointConfigurer.class);
+			RequestMatcher preferredMatcher = getRequestMatcher(OAuth2DeviceAuthorizationEndpointConfigurer.class);
+			if (preferredMatcher != null) {
+				preferredMatchers.add(preferredMatcher);
+			}
+			preferredMatcher = getRequestMatcher(OAuth2PushedAuthorizationRequestEndpointConfigurer.class);
 			if (preferredMatcher != null) {
 				preferredMatchers.add(preferredMatcher);
 			}
@@ -478,10 +497,6 @@ public final class OAuth2AuthorizationServerConfigurer
 				new OAuth2TokenIntrospectionEndpointConfigurer(this::postProcess));
 		configurers.put(OAuth2TokenRevocationEndpointConfigurer.class,
 				new OAuth2TokenRevocationEndpointConfigurer(this::postProcess));
-		configurers.put(OAuth2DeviceAuthorizationEndpointConfigurer.class,
-				new OAuth2DeviceAuthorizationEndpointConfigurer(this::postProcess));
-		configurers.put(OAuth2DeviceVerificationEndpointConfigurer.class,
-				new OAuth2DeviceVerificationEndpointConfigurer(this::postProcess));
 		return configurers;
 	}
 
