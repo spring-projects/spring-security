@@ -38,6 +38,7 @@ import org.springframework.security.context.DelegatingApplicationListener;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2Token;
@@ -459,6 +460,28 @@ public final class OAuth2AuthorizationServerConfigurer
 			});
 		}
 
+		OAuth2DeviceAuthorizationEndpointConfigurer deviceAuthorizationEndpointConfigurer = getConfigurer(
+				OAuth2DeviceAuthorizationEndpointConfigurer.class);
+		if (deviceAuthorizationEndpointConfigurer != null) {
+			OAuth2AuthorizationServerMetadataEndpointConfigurer authorizationServerMetadataEndpointConfigurer = getConfigurer(
+					OAuth2AuthorizationServerMetadataEndpointConfigurer.class);
+
+			authorizationServerMetadataEndpointConfigurer.addDefaultAuthorizationServerMetadataCustomizer((builder) -> {
+				AuthorizationServerContext authorizationServerContext = AuthorizationServerContextHolder.getContext();
+				String issuer = authorizationServerContext.getIssuer();
+				AuthorizationServerSettings authorizationServerSettings = authorizationServerContext
+					.getAuthorizationServerSettings();
+
+				String deviceAuthorizationEndpoint = UriComponentsBuilder.fromUriString(issuer)
+					.path(authorizationServerSettings.getDeviceAuthorizationEndpoint())
+					.build()
+					.toUriString();
+
+				builder.deviceAuthorizationEndpoint(deviceAuthorizationEndpoint);
+				builder.grantType(AuthorizationGrantType.DEVICE_CODE.getValue());
+			});
+		}
+
 		this.configurers.values().forEach((configurer) -> configurer.configure(httpSecurity));
 
 		AuthorizationServerSettings authorizationServerSettings = OAuth2ConfigurerUtils
@@ -501,7 +524,7 @@ public final class OAuth2AuthorizationServerConfigurer
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T> T getConfigurer(Class<T> type) {
+	<T> T getConfigurer(Class<T> type) {
 		return (T) this.configurers.get(type);
 	}
 

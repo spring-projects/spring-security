@@ -657,7 +657,6 @@ public class OAuth2DeviceCodeGrantTests {
 					.oauth2AuthorizationServer((authorizationServer) ->
 							authorizationServer
 									.deviceAuthorizationEndpoint(Customizer.withDefaults())
-									.deviceVerificationEndpoint(Customizer.withDefaults())
 					)
 					.authorizeHttpRequests((authorize) ->
 							authorize.anyRequest().authenticated()

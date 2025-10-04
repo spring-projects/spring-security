@@ -132,6 +132,7 @@ public class OAuth2AuthorizationServerMetadataEndpointFilterTests {
 			.contains("\"authorization_endpoint\":\"https://example.com/oauth2/v1/authorize\"");
 		assertThat(authorizationServerMetadataResponse)
 			.contains("\"pushed_authorization_request_endpoint\":\"https://example.com/oauth2/v1/par\"");
+		assertThat(authorizationServerMetadataResponse).doesNotContain("\"device_authorization_endpoint\"");
 		assertThat(authorizationServerMetadataResponse)
 			.contains("\"token_endpoint\":\"https://example.com/oauth2/v1/token\"");
 		assertThat(authorizationServerMetadataResponse).contains(
@@ -139,7 +140,7 @@ public class OAuth2AuthorizationServerMetadataEndpointFilterTests {
 		assertThat(authorizationServerMetadataResponse).contains("\"jwks_uri\":\"https://example.com/oauth2/v1/jwks\"");
 		assertThat(authorizationServerMetadataResponse).contains("\"response_types_supported\":[\"code\"]");
 		assertThat(authorizationServerMetadataResponse).contains(
-				"\"grant_types_supported\":[\"authorization_code\",\"client_credentials\",\"refresh_token\",\"urn:ietf:params:oauth:grant-type:device_code\",\"urn:ietf:params:oauth:grant-type:token-exchange\"]");
+				"\"grant_types_supported\":[\"authorization_code\",\"client_credentials\",\"refresh_token\",\"urn:ietf:params:oauth:grant-type:token-exchange\"]");
 		assertThat(authorizationServerMetadataResponse)
 			.contains("\"revocation_endpoint\":\"https://example.com/oauth2/v1/revoke\"");
 		assertThat(authorizationServerMetadataResponse).contains(

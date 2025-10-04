@@ -42,6 +42,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.jose.TestJwks;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationServerMetadata;
@@ -172,6 +173,18 @@ public class OAuth2AuthorizationServerMetadataTests {
 				.value(ISSUER.concat(this.authorizationServerSettings.getClientRegistrationEndpoint())));
 	}
 
+	@Test
+	public void requestWhenAuthorizationServerMetadataRequestAndDeviceCodeGrantEnabledThenMetadataResponseIncludesDeviceAuthorizationEndpoint()
+			throws Exception {
+		this.spring.register(AuthorizationServerConfigurationWithDeviceCodeGrantEnabled.class).autowire();
+
+		this.mvc.perform(get(ISSUER.concat(DEFAULT_OAUTH2_AUTHORIZATION_SERVER_METADATA_ENDPOINT_URI)))
+			.andExpect(status().is2xxSuccessful())
+			.andExpect(jsonPath("$.device_authorization_endpoint")
+				.value(ISSUER.concat(this.authorizationServerSettings.getDeviceAuthorizationEndpoint())))
+			.andExpect(jsonPath("$.grant_types_supported[4]").value(AuthorizationGrantType.DEVICE_CODE.getValue()));
+	}
+
 	@EnableWebSecurity
 	@Import(OAuth2AuthorizationServerConfiguration.class)
 	static class AuthorizationServerConfiguration {
@@ -257,6 +270,27 @@ public class OAuth2AuthorizationServerMetadataTests {
 					.oauth2AuthorizationServer((authorizationServer) ->
 							authorizationServer
 									.clientRegistrationEndpoint(Customizer.withDefaults())
+					)
+					.authorizeHttpRequests((authorize) ->
+							authorize.anyRequest().authenticated()
+					);
+			return http.build();
+		}
+		// @formatter:on
+
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
+	static class AuthorizationServerConfigurationWithDeviceCodeGrantEnabled extends AuthorizationServerConfiguration {
+
+		// @formatter:off
+		@Bean
+		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.deviceAuthorizationEndpoint(Customizer.withDefaults())
 					)
 					.authorizeHttpRequests((authorize) ->
 							authorize.anyRequest().authenticated()

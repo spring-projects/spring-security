@@ -146,6 +146,19 @@ public class OidcProviderConfigurationTests {
 				.value(ISSUER.concat(this.authorizationServerSettings.getOidcClientRegistrationEndpoint())));
 	}
 
+	@Test
+	public void requestWhenConfigurationRequestAndDeviceCodeGrantEnabledThenConfigurationResponseIncludesDeviceAuthorizationEndpoint()
+			throws Exception {
+		this.spring.register(AuthorizationServerConfigurationWithDeviceCodeGrantEnabled.class).autowire();
+
+		this.mvc.perform(get(ISSUER.concat(DEFAULT_OIDC_PROVIDER_CONFIGURATION_ENDPOINT_URI)))
+			.andExpect(status().is2xxSuccessful())
+			.andExpectAll(defaultConfigurationMatchers(ISSUER))
+			.andExpect(jsonPath("$.device_authorization_endpoint")
+				.value(ISSUER.concat(this.authorizationServerSettings.getDeviceAuthorizationEndpoint())))
+			.andExpect(jsonPath("$.grant_types_supported[4]").value(AuthorizationGrantType.DEVICE_CODE.getValue()));
+	}
+
 	private ResultMatcher[] defaultConfigurationMatchers(String issuer) {
 		// @formatter:off
 		return new ResultMatcher[] {
@@ -163,6 +176,7 @@ public class OidcProviderConfigurationTests {
 				jsonPath("$.grant_types_supported[0]").value(AuthorizationGrantType.AUTHORIZATION_CODE.getValue()),
 				jsonPath("$.grant_types_supported[1]").value(AuthorizationGrantType.CLIENT_CREDENTIALS.getValue()),
 				jsonPath("$.grant_types_supported[2]").value(AuthorizationGrantType.REFRESH_TOKEN.getValue()),
+				jsonPath("$.grant_types_supported[3]").value(AuthorizationGrantType.TOKEN_EXCHANGE.getValue()),
 				jsonPath("revocation_endpoint").value(issuer.concat(this.authorizationServerSettings.getTokenRevocationEndpoint())),
 				jsonPath("$.revocation_endpoint_auth_methods_supported[0]").value(ClientAuthenticationMethod.CLIENT_SECRET_BASIC.getValue()),
 				jsonPath("$.revocation_endpoint_auth_methods_supported[1]").value(ClientAuthenticationMethod.CLIENT_SECRET_POST.getValue()),
@@ -317,6 +331,25 @@ public class OidcProviderConfigurationTests {
 									.oidc((oidc) ->
 											oidc.clientRegistrationEndpoint(Customizer.withDefaults())
 									)
+					);
+			return http.build();
+		}
+		// @formatter:on
+
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
+	static class AuthorizationServerConfigurationWithDeviceCodeGrantEnabled extends AuthorizationServerConfiguration {
+
+		// @formatter:off
+		@Bean
+		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.deviceAuthorizationEndpoint(Customizer.withDefaults())
+									.oidc(Customizer.withDefaults())
 					);
 			return http.build();
 		}

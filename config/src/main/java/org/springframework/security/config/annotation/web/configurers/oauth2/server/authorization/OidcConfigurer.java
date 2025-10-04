@@ -24,6 +24,7 @@ import java.util.Map;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.server.authorization.context.AuthorizationServerContext;
 import org.springframework.security.oauth2.server.authorization.context.AuthorizationServerContextHolder;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
@@ -144,6 +145,29 @@ public final class OidcConfigurer extends AbstractOAuth2Configurer {
 					.toUriString();
 
 				builder.clientRegistrationEndpoint(clientRegistrationEndpoint);
+			});
+		}
+
+		OAuth2DeviceAuthorizationEndpointConfigurer deviceAuthorizationEndpointConfigurer = httpSecurity
+			.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+			.getConfigurer(OAuth2DeviceAuthorizationEndpointConfigurer.class);
+		if (deviceAuthorizationEndpointConfigurer != null) {
+			OidcProviderConfigurationEndpointConfigurer providerConfigurationEndpointConfigurer = getConfigurer(
+					OidcProviderConfigurationEndpointConfigurer.class);
+
+			providerConfigurationEndpointConfigurer.addDefaultProviderConfigurationCustomizer((builder) -> {
+				AuthorizationServerContext authorizationServerContext = AuthorizationServerContextHolder.getContext();
+				String issuer = authorizationServerContext.getIssuer();
+				AuthorizationServerSettings authorizationServerSettings = authorizationServerContext
+					.getAuthorizationServerSettings();
+
+				String deviceAuthorizationEndpoint = UriComponentsBuilder.fromUriString(issuer)
+					.path(authorizationServerSettings.getDeviceAuthorizationEndpoint())
+					.build()
+					.toUriString();
+
+				builder.deviceAuthorizationEndpoint(deviceAuthorizationEndpoint);
+				builder.grantType(AuthorizationGrantType.DEVICE_CODE.getValue());
 			});
 		}
 

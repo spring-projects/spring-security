@@ -136,13 +136,14 @@ public class OidcProviderConfigurationEndpointFilterTests {
 			.contains("\"authorization_endpoint\":\"https://example.com/oauth2/v1/authorize\"");
 		assertThat(providerConfigurationResponse)
 			.contains("\"pushed_authorization_request_endpoint\":\"https://example.com/oauth2/v1/par\"");
+		assertThat(providerConfigurationResponse).doesNotContain("\"device_authorization_endpoint\"");
 		assertThat(providerConfigurationResponse)
 			.contains("\"token_endpoint\":\"https://example.com/oauth2/v1/token\"");
 		assertThat(providerConfigurationResponse).contains("\"jwks_uri\":\"https://example.com/oauth2/v1/jwks\"");
 		assertThat(providerConfigurationResponse).contains("\"scopes_supported\":[\"openid\"]");
 		assertThat(providerConfigurationResponse).contains("\"response_types_supported\":[\"code\"]");
 		assertThat(providerConfigurationResponse).contains(
-				"\"grant_types_supported\":[\"authorization_code\",\"client_credentials\",\"refresh_token\",\"urn:ietf:params:oauth:grant-type:device_code\",\"urn:ietf:params:oauth:grant-type:token-exchange\"]");
+				"\"grant_types_supported\":[\"authorization_code\",\"client_credentials\",\"refresh_token\",\"urn:ietf:params:oauth:grant-type:token-exchange\"]");
 		assertThat(providerConfigurationResponse)
 			.contains("\"revocation_endpoint\":\"https://example.com/oauth2/v1/revoke\"");
 		assertThat(providerConfigurationResponse).contains(

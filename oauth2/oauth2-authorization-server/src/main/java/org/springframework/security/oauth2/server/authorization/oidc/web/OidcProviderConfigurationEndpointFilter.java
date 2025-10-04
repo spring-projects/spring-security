@@ -103,7 +103,6 @@ public final class OidcProviderConfigurationEndpointFilter extends OncePerReques
 			.authorizationEndpoint(asUrl(issuer, authorizationServerSettings.getAuthorizationEndpoint()))
 			.pushedAuthorizationRequestEndpoint(
 					asUrl(issuer, authorizationServerSettings.getPushedAuthorizationRequestEndpoint()))
-			.deviceAuthorizationEndpoint(asUrl(issuer, authorizationServerSettings.getDeviceAuthorizationEndpoint()))
 			.tokenEndpoint(asUrl(issuer, authorizationServerSettings.getTokenEndpoint()))
 			.tokenEndpointAuthenticationMethods(clientAuthenticationMethods())
 			.jwkSetUrl(asUrl(issuer, authorizationServerSettings.getJwkSetEndpoint()))
@@ -113,7 +112,6 @@ public final class OidcProviderConfigurationEndpointFilter extends OncePerReques
 			.grantType(AuthorizationGrantType.AUTHORIZATION_CODE.getValue())
 			.grantType(AuthorizationGrantType.CLIENT_CREDENTIALS.getValue())
 			.grantType(AuthorizationGrantType.REFRESH_TOKEN.getValue())
-			.grantType(AuthorizationGrantType.DEVICE_CODE.getValue())
 			.grantType(AuthorizationGrantType.TOKEN_EXCHANGE.getValue())
 			.tokenRevocationEndpoint(asUrl(issuer, authorizationServerSettings.getTokenRevocationEndpoint()))
 			.tokenRevocationEndpointAuthenticationMethods(clientAuthenticationMethods())
