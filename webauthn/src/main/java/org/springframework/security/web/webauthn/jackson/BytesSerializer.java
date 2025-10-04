@@ -16,11 +16,10 @@
 
 package org.springframework.security.web.webauthn.jackson;
 
-import java.io.IOException;
-
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 import org.springframework.security.web.webauthn.api.Bytes;
 
@@ -41,7 +40,7 @@ class BytesSerializer extends StdSerializer<Bytes> {
 	}
 
 	@Override
-	public void serialize(Bytes bytes, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+	public void serialize(Bytes bytes, JsonGenerator jgen, SerializationContext provider) throws JacksonException {
 		jgen.writeString(bytes.toBase64UrlString());
 	}
 

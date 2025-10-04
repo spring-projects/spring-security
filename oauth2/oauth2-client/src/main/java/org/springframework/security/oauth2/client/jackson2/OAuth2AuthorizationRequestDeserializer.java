@@ -37,7 +37,11 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
  * @since 5.3
  * @see OAuth2AuthorizationRequest
  * @see OAuth2AuthorizationRequestMixin
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.oauth2.client.jackson.OAuth2AuthorizationRequestDeserializer}
+ * based on Jackson 3
  */
+@Deprecated(forRemoval = true)
 final class OAuth2AuthorizationRequestDeserializer extends JsonDeserializer<OAuth2AuthorizationRequest> {
 
 	private static final StdConverter<JsonNode, AuthorizationGrantType> AUTHORIZATION_GRANT_TYPE_CONVERTER = new StdConverters.AuthorizationGrantTypeConverter();

@@ -28,7 +28,12 @@ import java.util.Set;
  * @author Hyunmin Choi
  * @since 4.2
  * @see UnmodifiableSetMixin
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.jackson.UnmodifiableSetDeserializer} based on
+ * Jackson 3
  */
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true)
 class UnmodifiableSetDeserializer extends AbstractUnmodifiableCollectionDeserializer<Set> {
 
 	@Override
