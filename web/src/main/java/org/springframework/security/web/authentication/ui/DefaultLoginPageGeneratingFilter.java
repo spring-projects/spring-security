@@ -21,7 +21,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -92,7 +91,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 
 	private final String factorReasonParameter = "factor.reason";
 
-	private final Set<String> allowedParameters = Set.of(this.factorTypeParameter, this.factorReasonParameter);
+	private final List<String> allowedParameters = List.of(this.factorTypeParameter, this.factorReasonParameter);
 
 	@SuppressWarnings("NullAway.Init")
 	private Map<String, String> oauth2AuthenticationUrlToClientName;
