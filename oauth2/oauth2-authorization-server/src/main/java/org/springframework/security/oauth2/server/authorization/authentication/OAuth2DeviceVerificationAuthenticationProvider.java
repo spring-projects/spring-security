@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.server.authorization.authentication;
 import java.security.Principal;
 import java.util.Base64;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -78,6 +79,8 @@ public final class OAuth2DeviceVerificationAuthenticationProvider implements Aut
 	private final OAuth2AuthorizationService authorizationService;
 
 	private final OAuth2AuthorizationConsentService authorizationConsentService;
+
+	private Predicate<OAuth2DeviceVerificationAuthenticationContext> authorizationConsentRequired = OAuth2DeviceVerificationAuthenticationProvider::isAuthorizationConsentRequired;
 
 	/**
 	 * Constructs an {@code OAuth2DeviceVerificationAuthenticationProvider} using the
@@ -143,10 +146,18 @@ public final class OAuth2DeviceVerificationAuthenticationProvider implements Aut
 
 		Set<String> requestedScopes = authorization.getAttribute(OAuth2ParameterNames.SCOPE);
 
+		OAuth2DeviceVerificationAuthenticationContext.Builder authenticationContextBuilder = OAuth2DeviceVerificationAuthenticationContext
+			.with(deviceVerificationAuthentication)
+			.registeredClient(registeredClient)
+			.authorization(authorization);
+
 		OAuth2AuthorizationConsent currentAuthorizationConsent = this.authorizationConsentService
 			.findById(registeredClient.getId(), principal.getName());
+		if (currentAuthorizationConsent != null) {
+			authenticationContextBuilder.authorizationConsent(currentAuthorizationConsent);
+		}
 
-		if (requiresAuthorizationConsent(requestedScopes, currentAuthorizationConsent)) {
+		if (this.authorizationConsentRequired.test(authenticationContextBuilder.build())) {
 			String state = DEFAULT_STATE_GENERATOR.generateKey();
 			authorization = OAuth2Authorization.from(authorization)
 				.principalName(principal.getName())
@@ -204,10 +215,37 @@ public final class OAuth2DeviceVerificationAuthenticationProvider implements Aut
 		return OAuth2DeviceVerificationAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
-	private static boolean requiresAuthorizationConsent(Set<String> requestedScopes,
-			OAuth2AuthorizationConsent authorizationConsent) {
+	/**
+	 * Sets the {@code Predicate} used to determine if authorization consent is required.
+	 *
+	 * <p>
+	 * The {@link OAuth2DeviceVerificationAuthenticationContext} gives the predicate
+	 * access to the {@link OAuth2DeviceVerificationAuthenticationToken}, as well as, the
+	 * following context attributes:
+	 * <ul>
+	 * <li>The {@link RegisteredClient} associated with the device authorization
+	 * request.</li>
+	 * <li>The {@link OAuth2Authorization} containing the device authorization request
+	 * parameters.</li>
+	 * <li>The {@link OAuth2AuthorizationConsent} previously granted to the
+	 * {@link RegisteredClient}, or {@code null} if not available.</li>
+	 * </ul>
+	 * </p>
+	 * @param authorizationConsentRequired the {@code Predicate} used to determine if
+	 * authorization consent is required
+	 */
+	public void setAuthorizationConsentRequired(
+			Predicate<OAuth2DeviceVerificationAuthenticationContext> authorizationConsentRequired) {
+		Assert.notNull(authorizationConsentRequired, "authorizationConsentRequired cannot be null");
+		this.authorizationConsentRequired = authorizationConsentRequired;
+	}
 
-		if (authorizationConsent != null && authorizationConsent.getScopes().containsAll(requestedScopes)) {
+	private static boolean isAuthorizationConsentRequired(
+			OAuth2DeviceVerificationAuthenticationContext authenticationContext) {
+
+		if (authenticationContext.getAuthorizationConsent() != null && authenticationContext.getAuthorizationConsent()
+			.getScopes()
+			.containsAll(authenticationContext.getRequestedScopes())) {
 			return false;
 		}
 

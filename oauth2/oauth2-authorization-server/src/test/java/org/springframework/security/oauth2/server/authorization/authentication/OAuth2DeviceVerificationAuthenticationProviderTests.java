@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -123,6 +124,13 @@ public class OAuth2DeviceVerificationAuthenticationProviderTests {
 						this.registeredClientRepository, this.authorizationService, null))
 				.withMessage("authorizationConsentService cannot be null");
 		// @formatter:on
+	}
+
+	@Test
+	public void setAuthorizationConsentRequiredWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> this.authenticationProvider.setAuthorizationConsentRequired(null))
+			.withMessage("authorizationConsentRequired cannot be null");
 	}
 
 	@Test
@@ -380,6 +388,31 @@ public class OAuth2DeviceVerificationAuthenticationProviderTests {
 		OAuth2Authorization updatedAuthorization = authorizationCaptor.getValue();
 		assertThat(updatedAuthorization.<String>getAttribute(OAuth2ParameterNames.STATE))
 			.isEqualTo(authenticationResult.getState());
+	}
+
+	@Test
+	public void authenticateWhenCustomAuthorizationConsentRequiredThenUsed() {
+		@SuppressWarnings("unchecked")
+		Predicate<OAuth2DeviceVerificationAuthenticationContext> authorizationConsentRequired = mock(Predicate.class);
+		this.authenticationProvider.setAuthorizationConsentRequired(authorizationConsentRequired);
+
+		// @formatter:off
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
+		OAuth2Authorization authorization = TestOAuth2Authorizations.authorization(registeredClient)
+				.authorizationGrantType(AuthorizationGrantType.DEVICE_CODE)
+				.token(createDeviceCode())
+				.token(createUserCode())
+				.attributes(Map::clear)
+				.attribute(OAuth2ParameterNames.SCOPE, registeredClient.getScopes())
+				.build();
+		// @formatter:on
+		Authentication authentication = createAuthentication();
+		given(this.registeredClientRepository.findById(anyString())).willReturn(registeredClient);
+		given(this.authorizationService.findByToken(anyString(), any(OAuth2TokenType.class))).willReturn(authorization);
+
+		this.authenticationProvider.authenticate(authentication);
+
+		verify(authorizationConsentRequired).test(any());
 	}
 
 	private static void mockAuthorizationServerContext() {
