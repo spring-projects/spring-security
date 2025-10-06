@@ -21,6 +21,7 @@ import java.util.Arrays;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -33,9 +34,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
- * Lazily initializes the global authentication with a {@link UserDetailsService} if it is
- * not yet configured and there is only a single Bean of that type. Optionally, if a
- * {@link PasswordEncoder} is defined will wire this up too.
+ * Lazily initializes the global authentication with a {@link UserDetailsService}. If
+ * multiple beans of that type exist, the container's autowire rules are used to select a
+ * single candidate (e.g. {@code @Primary}). If no single candidate can be resolved, the
+ * configurer logs a warning and does not auto-wire. Optionally wires a
+ * {@link PasswordEncoder}, {@link UserDetailsPasswordService}, and
+ * {@link CompromisedPasswordChecker} when available.
  *
  * @author Rob Winch
  * @author Ngoc Nhan
@@ -48,9 +52,6 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 
 	private final ApplicationContext context;
 
-	/**
-	 * @param context
-	 */
 	InitializeUserDetailsBeanManagerConfigurer(ApplicationContext context) {
 		this.context = context;
 	}
@@ -68,6 +69,7 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 		public void configure(AuthenticationManagerBuilder auth) {
 			String[] beanNames = InitializeUserDetailsBeanManagerConfigurer.this.context
 				.getBeanNamesForType(UserDetailsService.class);
+
 			if (auth.isConfigured()) {
 				if (beanNames.length > 0) {
 					this.logger.warn("Global AuthenticationManager configured with an AuthenticationProvider bean. "
@@ -83,18 +85,27 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 			if (beanNames.length == 0) {
 				return;
 			}
-			else if (beanNames.length > 1) {
-				this.logger.warn(LogMessage.format("Found %s UserDetailsService beans, with names %s. "
-						+ "Global Authentication Manager will not use a UserDetailsService for username/password login. "
-						+ "Consider publishing a single UserDetailsService bean.", beanNames.length,
-						Arrays.toString(beanNames)));
+
+			// Try to resolve a single candidate using the container's rules (@Primary,
+			// etc.)
+			UserDetailsService userDetailsService = getAutowireCandidateOrNull(UserDetailsService.class);
+
+			// If ambiguous or otherwise not resolvable, keep the warn-and-skip behavior
+			if (userDetailsService == null) {
+				if (beanNames.length > 1) {
+					this.logger.warn(LogMessage.format("Found %s UserDetailsService beans, with names %s. "
+							+ "Global Authentication Manager will not use a UserDetailsService for username/password login. "
+							+ "Consider publishing a single (or primary) UserDetailsService bean.", beanNames.length,
+							Arrays.toString(beanNames)));
+				}
 				return;
 			}
-			UserDetailsService userDetailsService = InitializeUserDetailsBeanManagerConfigurer.this.context
-				.getBean(beanNames[0], UserDetailsService.class);
-			PasswordEncoder passwordEncoder = getBeanOrNull(PasswordEncoder.class);
-			UserDetailsPasswordService passwordManager = getBeanOrNull(UserDetailsPasswordService.class);
-			CompromisedPasswordChecker passwordChecker = getBeanOrNull(CompromisedPasswordChecker.class);
+
+			PasswordEncoder passwordEncoder = getBeanIfUnique(PasswordEncoder.class);
+			// Also resolve UDPS via container so @Primary is honored
+			UserDetailsPasswordService passwordManager = getAutowireCandidateOrNull(UserDetailsPasswordService.class);
+			CompromisedPasswordChecker passwordChecker = getBeanIfUnique(CompromisedPasswordChecker.class);
+
 			DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
 			if (passwordEncoder != null) {
 				provider.setPasswordEncoder(passwordEncoder);
@@ -107,16 +118,45 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 			}
 			provider.afterPropertiesSet();
 			auth.authenticationProvider(provider);
+
+			String selectedName = resolveBeanName(beanNames, userDetailsService);
 			this.logger.info(LogMessage.format(
-					"Global AuthenticationManager configured with UserDetailsService bean with name %s", beanNames[0]));
+					"Global AuthenticationManager configured with UserDetailsService bean with name %s", selectedName));
 		}
 
 		/**
-		 * @return a bean of the requested class if there's just a single registered
-		 * component, null otherwise.
+		 * Resolve a single autowire candidate for the given type (honors
+		 * {@code @Primary}). Returns {@code null} if ambiguous or not present.
 		 */
-		private <T> T getBeanOrNull(Class<T> type) {
+		private <T> T getAutowireCandidateOrNull(Class<T> type) {
+			try {
+				return InitializeUserDetailsBeanManagerConfigurer.this.context.getBeanProvider(type).getIfAvailable();
+			}
+			catch (BeansException ex) {
+				return null;
+			}
+		}
+
+		/**
+		 * Return a bean of the requested class if there's exactly one registered
+		 * component; {@code null} otherwise.
+		 */
+		private <T> T getBeanIfUnique(Class<T> type) {
 			return InitializeUserDetailsBeanManagerConfigurer.this.context.getBeanProvider(type).getIfUnique();
+		}
+
+		private String resolveBeanName(String[] candidates, Object instance) {
+			for (String name : candidates) {
+				try {
+					Object bean = InitializeUserDetailsBeanManagerConfigurer.this.context.getBean(name);
+					if (bean == instance) {
+						return name;
+					}
+				}
+				catch (BeansException ignored) {
+				}
+			}
+			return instance.getClass().getName();
 		}
 
 	}
