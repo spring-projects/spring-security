@@ -50,8 +50,7 @@ public final class ConfigurationSettingNames {
 
 		/**
 		 * Set to {@code true} if authorization consent is required when the client
-		 * requests access. This applies to all interactive flows (e.g.
-		 * {@code authorization_code} and {@code device_code}).
+		 * requests access. This applies to {@code authorization_code} flow.
 		 */
 		public static final String REQUIRE_AUTHORIZATION_CONSENT = CLIENT_SETTINGS_NAMESPACE
 			.concat("require-authorization-consent");

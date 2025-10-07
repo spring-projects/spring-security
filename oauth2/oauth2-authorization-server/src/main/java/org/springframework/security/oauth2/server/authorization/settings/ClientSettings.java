@@ -133,8 +133,7 @@ public final class ClientSettings extends AbstractSettings {
 
 		/**
 		 * Set to {@code true} if authorization consent is required when the client
-		 * requests access. This applies to all interactive flows (e.g.
-		 * {@code authorization_code} and {@code device_code}).
+		 * requests access. This applies to {@code authorization_code} flow.
 		 * @param requireAuthorizationConsent {@code true} if authorization consent is
 		 * required when the client requests access, {@code false} otherwise
 		 * @return the {@link Builder} for further configuration
