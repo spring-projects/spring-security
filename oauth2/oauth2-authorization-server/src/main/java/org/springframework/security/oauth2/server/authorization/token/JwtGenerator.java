@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.server.authorization.token;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -65,6 +66,8 @@ public final class JwtGenerator implements OAuth2TokenGenerator<Jwt> {
 
 	private OAuth2TokenCustomizer<JwtEncodingContext> jwtCustomizer;
 
+	private Clock clock = Clock.systemUTC();
+
 	/**
 	 * Constructs a {@code JwtGenerator} using the provided parameters.
 	 * @param jwtEncoder the jwt encoder
@@ -95,7 +98,7 @@ public final class JwtGenerator implements OAuth2TokenGenerator<Jwt> {
 		}
 		RegisteredClient registeredClient = context.getRegisteredClient();
 
-		Instant issuedAt = Instant.now();
+		Instant issuedAt = this.clock.instant();
 		Instant expiresAt;
 		JwsAlgorithm jwsAlgorithm = SignatureAlgorithm.RS256;
 		if (OidcParameterNames.ID_TOKEN.equals(context.getTokenType().getValue())) {
@@ -206,6 +209,17 @@ public final class JwtGenerator implements OAuth2TokenGenerator<Jwt> {
 	public void setJwtCustomizer(OAuth2TokenCustomizer<JwtEncodingContext> jwtCustomizer) {
 		Assert.notNull(jwtCustomizer, "jwtCustomizer cannot be null");
 		this.jwtCustomizer = jwtCustomizer;
+	}
+
+	/**
+	 * Sets the {@link Clock} used when obtaining the current instant via
+	 * {@link Clock#instant()}.
+	 * @param clock the {@link Clock} used when obtaining the current instant via
+	 * {@link Clock#instant()}
+	 */
+	public void setClock(Clock clock) {
+		Assert.notNull(clock, "clock cannot be null");
+		this.clock = clock;
 	}
 
 }

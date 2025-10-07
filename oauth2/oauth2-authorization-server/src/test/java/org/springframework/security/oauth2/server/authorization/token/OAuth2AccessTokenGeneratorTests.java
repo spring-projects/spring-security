@@ -17,6 +17,8 @@
 package org.springframework.security.oauth2.server.authorization.token;
 
 import java.security.Principal;
+import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Set;
@@ -79,6 +81,13 @@ public class OAuth2AccessTokenGeneratorTests {
 		assertThatExceptionOfType(IllegalArgumentException.class)
 			.isThrownBy(() -> this.accessTokenGenerator.setAccessTokenCustomizer(null))
 			.withMessage("accessTokenCustomizer cannot be null");
+	}
+
+	@Test
+	public void setClockWhenNullThenThrowIllegalArgumentException() {
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.accessTokenGenerator.setClock(null))
+			.withMessage("clock cannot be null");
 	}
 
 	@Test
@@ -150,10 +159,13 @@ public class OAuth2AccessTokenGeneratorTests {
 				.build();
 		// @formatter:on
 
+		Clock clock = Clock.offset(Clock.systemUTC(), Duration.ofMinutes(5));
+		this.accessTokenGenerator.setClock(clock);
+
 		OAuth2AccessToken accessToken = this.accessTokenGenerator.generate(tokenContext);
 		assertThat(accessToken).isNotNull();
 
-		Instant issuedAt = Instant.now();
+		Instant issuedAt = clock.instant();
 		Instant expiresAt = issuedAt
 			.plus(tokenContext.getRegisteredClient().getTokenSettings().getAccessTokenTimeToLive());
 		assertThat(accessToken.getIssuedAt()).isBetween(issuedAt.minusSeconds(1), issuedAt.plusSeconds(1));

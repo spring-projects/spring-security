@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.server.authorization.token;
 
+import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 
 import org.junit.jupiter.api.Test;
@@ -26,6 +28,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.TestRegisteredClients;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link OAuth2RefreshTokenGenerator}.
@@ -35,6 +38,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class OAuth2RefreshTokenGeneratorTests {
 
 	private final OAuth2RefreshTokenGenerator tokenGenerator = new OAuth2RefreshTokenGenerator();
+
+	@Test
+	public void setClockWhenNullThenThrowIllegalArgumentException() {
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> this.tokenGenerator.setClock(null))
+			.withMessage("clock cannot be null");
+	}
 
 	@Test
 	public void generateWhenUnsupportedTokenTypeThenReturnNull() {
@@ -58,10 +67,13 @@ public class OAuth2RefreshTokenGeneratorTests {
 				.build();
 		// @formatter:on
 
+		Clock clock = Clock.offset(Clock.systemUTC(), Duration.ofMinutes(5));
+		this.tokenGenerator.setClock(clock);
+
 		OAuth2RefreshToken refreshToken = this.tokenGenerator.generate(tokenContext);
 		assertThat(refreshToken).isNotNull();
 
-		Instant issuedAt = Instant.now();
+		Instant issuedAt = clock.instant();
 		Instant expiresAt = issuedAt
 			.plus(tokenContext.getRegisteredClient().getTokenSettings().getRefreshTokenTimeToLive());
 		assertThat(refreshToken.getIssuedAt()).isBetween(issuedAt.minusSeconds(1), issuedAt.plusSeconds(1));

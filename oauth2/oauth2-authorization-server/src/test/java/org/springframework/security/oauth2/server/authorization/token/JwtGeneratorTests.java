@@ -17,6 +17,8 @@
 package org.springframework.security.oauth2.server.authorization.token;
 
 import java.security.Principal;
+import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -105,6 +107,12 @@ public class JwtGeneratorTests {
 	}
 
 	@Test
+	public void setClockWhenNullThenThrowIllegalArgumentException() {
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> this.jwtGenerator.setClock(null))
+			.withMessage("clock cannot be null");
+	}
+
+	@Test
 	public void generateWhenUnsupportedTokenTypeThenReturnNull() {
 		// @formatter:off
 		OAuth2TokenContext tokenContext = DefaultOAuth2TokenContext.builder()
@@ -158,7 +166,10 @@ public class JwtGeneratorTests {
 				.build();
 		// @formatter:on
 
-		assertGeneratedTokenType(tokenContext);
+		Clock clock = Clock.offset(Clock.systemUTC(), Duration.ofMinutes(5));
+		this.jwtGenerator.setClock(clock);
+
+		assertGeneratedTokenType(tokenContext, clock);
 	}
 
 	@Test
@@ -282,6 +293,10 @@ public class JwtGeneratorTests {
 	}
 
 	private void assertGeneratedTokenType(OAuth2TokenContext tokenContext) {
+		assertGeneratedTokenType(tokenContext, Clock.systemUTC());
+	}
+
+	private void assertGeneratedTokenType(OAuth2TokenContext tokenContext, Clock clock) {
 		this.jwtGenerator.generate(tokenContext);
 
 		ArgumentCaptor<JwtEncodingContext> jwtEncodingContextCaptor = ArgumentCaptor.forClass(JwtEncodingContext.class);
@@ -318,7 +333,7 @@ public class JwtGeneratorTests {
 		assertThat(jwtClaimsSet.getSubject()).isEqualTo(tokenContext.getAuthorization().getPrincipalName());
 		assertThat(jwtClaimsSet.getAudience()).containsExactly(tokenContext.getRegisteredClient().getClientId());
 
-		Instant issuedAt = Instant.now();
+		Instant issuedAt = clock.instant();
 		Instant expiresAt;
 		if (tokenContext.getTokenType().equals(OAuth2TokenType.ACCESS_TOKEN)) {
 			expiresAt = issuedAt.plus(tokenContext.getRegisteredClient().getTokenSettings().getAccessTokenTimeToLive());

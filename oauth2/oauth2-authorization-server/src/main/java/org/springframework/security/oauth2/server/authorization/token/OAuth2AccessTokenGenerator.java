@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.server.authorization.token;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Collections;
@@ -56,6 +57,8 @@ public final class OAuth2AccessTokenGenerator implements OAuth2TokenGenerator<OA
 
 	private OAuth2TokenCustomizer<OAuth2TokenClaimsContext> accessTokenCustomizer;
 
+	private Clock clock = Clock.systemUTC();
+
 	@Nullable
 	@Override
 	public OAuth2AccessToken generate(OAuth2TokenContext context) {
@@ -72,7 +75,7 @@ public final class OAuth2AccessTokenGenerator implements OAuth2TokenGenerator<OA
 		}
 		RegisteredClient registeredClient = context.getRegisteredClient();
 
-		Instant issuedAt = Instant.now();
+		Instant issuedAt = this.clock.instant();
 		Instant expiresAt = issuedAt.plus(registeredClient.getTokenSettings().getAccessTokenTimeToLive());
 
 		// @formatter:off
@@ -138,6 +141,17 @@ public final class OAuth2AccessTokenGenerator implements OAuth2TokenGenerator<OA
 	public void setAccessTokenCustomizer(OAuth2TokenCustomizer<OAuth2TokenClaimsContext> accessTokenCustomizer) {
 		Assert.notNull(accessTokenCustomizer, "accessTokenCustomizer cannot be null");
 		this.accessTokenCustomizer = accessTokenCustomizer;
+	}
+
+	/**
+	 * Sets the {@link Clock} used when obtaining the current instant via
+	 * {@link Clock#instant()}.
+	 * @param clock the {@link Clock} used when obtaining the current instant via
+	 * {@link Clock#instant()}
+	 */
+	public void setClock(Clock clock) {
+		Assert.notNull(clock, "clock cannot be null");
+		this.clock = clock;
 	}
 
 	private static final class OAuth2AccessTokenClaims extends OAuth2AccessToken implements ClaimAccessor {

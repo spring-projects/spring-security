@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.server.authorization.token;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Base64;
 
@@ -27,6 +28,7 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientAuthenticationToken;
+import org.springframework.util.Assert;
 
 /**
  * An {@link OAuth2TokenGenerator} that generates an {@link OAuth2RefreshToken}.
@@ -41,6 +43,8 @@ public final class OAuth2RefreshTokenGenerator implements OAuth2TokenGenerator<O
 	private final StringKeyGenerator refreshTokenGenerator = new Base64StringKeyGenerator(
 			Base64.getUrlEncoder().withoutPadding(), 96);
 
+	private Clock clock = Clock.systemUTC();
+
 	@Nullable
 	@Override
 	public OAuth2RefreshToken generate(OAuth2TokenContext context) {
@@ -52,9 +56,20 @@ public final class OAuth2RefreshTokenGenerator implements OAuth2TokenGenerator<O
 			return null;
 		}
 
-		Instant issuedAt = Instant.now();
+		Instant issuedAt = this.clock.instant();
 		Instant expiresAt = issuedAt.plus(context.getRegisteredClient().getTokenSettings().getRefreshTokenTimeToLive());
 		return new OAuth2RefreshToken(this.refreshTokenGenerator.generateKey(), issuedAt, expiresAt);
+	}
+
+	/**
+	 * Sets the {@link Clock} used when obtaining the current instant via
+	 * {@link Clock#instant()}.
+	 * @param clock the {@link Clock} used when obtaining the current instant via
+	 * {@link Clock#instant()}
+	 */
+	public void setClock(Clock clock) {
+		Assert.notNull(clock, "clock cannot be null");
+		this.clock = clock;
 	}
 
 	private static boolean isPublicClientForAuthorizationCodeGrant(OAuth2TokenContext context) {
