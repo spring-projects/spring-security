@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.docs.servlet.authentication.multifactorauthentication;
+package org.springframework.security.docs.servlet.authentication.programmaticmfa;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,9 +42,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author Rob Winch
  */
-@ExtendWith({ SpringExtension.class, SpringTestContextExtension.class })
+@ExtendWith({SpringExtension.class, SpringTestContextExtension.class})
 @TestExecutionListeners(WithSecurityContextTestExecutionListener.class)
-public class MultiFactorAuthenticationTests {
+public class RequiredAuthoritiesAuthorizationManagerConfigurationTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);
 
@@ -52,20 +52,9 @@ public class MultiFactorAuthenticationTests {
 	MockMvc mockMvc;
 
 	@Test
-	@WithMockUser(authorities = { GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, GrantedAuthorities.FACTOR_OTT_AUTHORITY })
-	void getWhenAuthenticatedWithPasswordAndOttThenPermits() throws Exception {
-		this.spring.register(ListAuthoritiesConfiguration.class, Http200Controller.class).autowire();
-		// @formatter:off
-		this.mockMvc.perform(get("/"))
-			.andExpect(status().isOk())
-			.andExpect(authenticated().withUsername("user"));
-		// @formatter:on
-	}
-
-	@Test
-	@WithMockUser(authorities = GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY)
-	void getWhenAuthenticatedWithPasswordThenRedirectsToOtt() throws Exception {
-		this.spring.register(ListAuthoritiesConfiguration.class, Http200Controller.class).autowire();
+	@WithMockUser(username = "admin")
+	void getWhenAdminThenRedirectsToOtt() throws Exception {
+		this.spring.register(AdminMfaAuthorizationManagerConfiguration.class, Http200Controller.class).autowire();
 		// @formatter:off
 		this.mockMvc.perform(get("/"))
 			.andExpect(status().is3xxRedirection())
@@ -74,34 +63,24 @@ public class MultiFactorAuthenticationTests {
 	}
 
 	@Test
-	@WithMockUser(authorities = GrantedAuthorities.FACTOR_OTT_AUTHORITY)
-	void getWhenAuthenticatedWithOttThenRedirectsToPassword() throws Exception {
-		this.spring.register(ListAuthoritiesConfiguration.class, Http200Controller.class).autowire();
-		// @formatter:off
-		this.mockMvc.perform(get("/"))
-			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("http://localhost/login?factor.type=password&factor.reason=missing"));
-		// @formatter:on
-	}
-
-	@Test
 	@WithMockUser
-	void getWhenAuthenticatedThenRedirectsToPassword() throws Exception {
-		this.spring.register(ListAuthoritiesConfiguration.class, Http200Controller.class).autowire();
+	void getWhenNotAdminThenAllows() throws Exception {
+		this.spring.register(AdminMfaAuthorizationManagerConfiguration.class, Http200Controller.class).autowire();
 		// @formatter:off
 		this.mockMvc.perform(get("/"))
-			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("http://localhost/login?factor.type=password&factor.reason=missing"));
+			.andExpect(status().isOk())
+			.andExpect(authenticated().withUsername("user"));
 		// @formatter:on
 	}
 
 	@Test
-	void getWhenUnauthenticatedThenRedirectsToBoth() throws Exception {
-		this.spring.register(ListAuthoritiesConfiguration.class, Http200Controller.class).autowire();
+	@WithMockUser(username = "admin", authorities = { GrantedAuthorities.FACTOR_OTT_AUTHORITY, GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY })
+	void getWhenAdminAndHasFactorThenAllows() throws Exception {
+		this.spring.register(AdminMfaAuthorizationManagerConfiguration.class, Http200Controller.class).autowire();
 		// @formatter:off
 		this.mockMvc.perform(get("/"))
-			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("http://localhost/login"));
+			.andExpect(status().isOk())
+			.andExpect(authenticated().withUsername("admin"));
 		// @formatter:on
 	}
 

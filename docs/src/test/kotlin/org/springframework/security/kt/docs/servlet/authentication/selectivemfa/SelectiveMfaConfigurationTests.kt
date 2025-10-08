@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.kt.docs.servlet.authentication.enableglobalmfa
+package org.springframework.security.kt.docs.servlet.authentication.selectivemfa
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -39,7 +39,7 @@ import org.springframework.web.bind.annotation.RestController
  */
 @ExtendWith(SpringExtension::class, SpringTestContextExtension::class)
 @TestExecutionListeners(WithSecurityContextTestExecutionListener::class)
-class AuthorizationManagerFactoryTests {
+class SelectiveMfaConfigurationTests {
     @JvmField
     val spring: SpringTestContext = SpringTestContext(this)
 
@@ -47,66 +47,73 @@ class AuthorizationManagerFactoryTests {
     var mockMvc: MockMvc? = null
 
     @Test
-    @WithMockUser(authorities = [GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, GrantedAuthorities.FACTOR_OTT_AUTHORITY])
+    @WithMockUser(authorities = [GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, "ROLE_ADMIN"])
     @Throws(Exception::class)
-    fun getWhenAuthenticatedWithPasswordAndOttThenPermits() {
-        this.spring.register(UseAuthorizationManagerFactoryConfiguration::class.java, Http200Controller::class.java)
-            .autowire()
+    fun adminWhenMissingOttThenRequired() {
+        this.spring.register(
+            SelectiveMfaConfiguration::class.java, Http200Controller::class.java
+        ).autowire()
         // @formatter:off
-        this.mockMvc!!.perform(MockMvcRequestBuilders.get("/"))
+        this.mockMvc!!.perform(MockMvcRequestBuilders.get("/admin/"))
+        .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+        .andExpect(MockMvcResultMatchers.redirectedUrlPattern("http://localhost/login?*"))
+    		// @formatter:on
+    }
+
+    @Test
+    @WithMockUser(authorities = [GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, GrantedAuthorities.FACTOR_OTT_AUTHORITY, "ROLE_ADMIN"])
+    @Throws(
+        Exception::class
+    )
+    fun adminWhenMfaThenAllowed() {
+        this.spring.register(
+            SelectiveMfaConfiguration::class.java, Http200Controller::class.java
+        ).autowire()
+        // @formatter:off
+        this.mockMvc!!.perform(MockMvcRequestBuilders.get("/admin/"))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(SecurityMockMvcResultMatchers.authenticated().withUsername("user"))
     		// @formatter:on
     }
 
     @Test
-    @WithMockUser(authorities = [GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY])
+    @WithMockUser(authorities = [GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, "ROLE_ADMIN"])
     @Throws(Exception::class)
-    fun getWhenAuthenticatedWithPasswordThenRedirectsToOtt() {
-        this.spring.register(UseAuthorizationManagerFactoryConfiguration::class.java, Http200Controller::class.java)
-            .autowire()
+    fun userSettingsRequiresMfa() {
+        this.spring.register(
+            SelectiveMfaConfiguration::class.java, Http200Controller::class.java
+        ).autowire()
         // @formatter:off
-        this.mockMvc!!.perform(MockMvcRequestBuilders.get("/"))
+        this.mockMvc!!.perform(MockMvcRequestBuilders.get("/admin/"))
         .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
         .andExpect(MockMvcResultMatchers.redirectedUrl("http://localhost/login?factor.type=ott&factor.reason=missing"))
     		// @formatter:on
     }
 
     @Test
-    @WithMockUser(authorities = [GrantedAuthorities.FACTOR_OTT_AUTHORITY])
+    @WithMockUser(authorities = [GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, "ROLE_USER"])
     @Throws(Exception::class)
-    fun getWhenAuthenticatedWithOttThenRedirectsToPassword() {
-        this.spring.register(UseAuthorizationManagerFactoryConfiguration::class.java, Http200Controller::class.java)
-            .autowire()
+    fun userSettingsWhenMissingOttThenRequired() {
+        this.spring.register(
+            SelectiveMfaConfiguration::class.java, Http200Controller::class.java
+        ).autowire()
         // @formatter:off
-        this.mockMvc!!.perform(MockMvcRequestBuilders.get("/"))
+        this.mockMvc!!.perform(MockMvcRequestBuilders.get("/user/settings/"))
         .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-        .andExpect(MockMvcResultMatchers.redirectedUrl("http://localhost/login?factor.type=password&factor.reason=missing"))
+        .andExpect(MockMvcResultMatchers.redirectedUrlPattern("http://localhost/login?*"))
     		// @formatter:on
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = ["USER"])
     @Throws(Exception::class)
-    fun getWhenAuthenticatedThenRedirectsToPassword() {
-        this.spring.register(UseAuthorizationManagerFactoryConfiguration::class.java, Http200Controller::class.java)
-            .autowire()
+    fun rootDoesNotRequireMfa() {
+        this.spring.register(
+            SelectiveMfaConfiguration::class.java, Http200Controller::class.java
+        ).autowire()
         // @formatter:off
         this.mockMvc!!.perform(MockMvcRequestBuilders.get("/"))
-        .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-        .andExpect(MockMvcResultMatchers.redirectedUrl("http://localhost/login?factor.type=password&factor.reason=missing"))
-    		// @formatter:on
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun getWhenUnauthenticatedThenRedirectsToBoth() {
-        this.spring.register(UseAuthorizationManagerFactoryConfiguration::class.java, Http200Controller::class.java)
-            .autowire()
-        // @formatter:off
-        this.mockMvc!!.perform(MockMvcRequestBuilders.get("/"))
-        .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-        .andExpect(MockMvcResultMatchers.redirectedUrl("http://localhost/login"))
+        .andExpect(MockMvcResultMatchers.status().isOk())
     		// @formatter:on
     }
 

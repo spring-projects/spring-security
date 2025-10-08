@@ -1,8 +1,9 @@
-package org.springframework.security.docs.servlet.authentication.multifactorauthentication;
+package org.springframework.security.docs.servlet.authentication.egmfa;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authorization.EnableGlobalMultiFactorAuthentication;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.GrantedAuthorities;
@@ -15,7 +16,12 @@ import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenG
 
 @EnableWebSecurity
 @Configuration(proxyBeanMethods = false)
-class ListAuthoritiesConfiguration {
+// tag::enable-global-mfa[]
+@EnableGlobalMultiFactorAuthentication(authorities = {
+	GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY,
+	GrantedAuthorities.FACTOR_OTT_AUTHORITY })
+// end::enable-global-mfa[]
+public class EnableGlobalMultiFactorAuthenticationConfiguration {
 
 	// tag::httpSecurity[]
 	@Bean
@@ -23,8 +29,12 @@ class ListAuthoritiesConfiguration {
 		// @formatter:off
 		http
 			.authorizeHttpRequests((authorize) -> authorize
-				.anyRequest().hasAllAuthorities(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, GrantedAuthorities.FACTOR_OTT_AUTHORITY) // <1>
+				// <1>
+				.requestMatchers("/admin/**").hasRole("ADMIN")
+				// <2>
+				.anyRequest().authenticated()
 			)
+			// <3>
 			.formLogin(Customizer.withDefaults())
 			.oneTimeTokenLogin(Customizer.withDefaults());
 		// @formatter:on
@@ -33,7 +43,7 @@ class ListAuthoritiesConfiguration {
 	// end::httpSecurity[]
 
 	@Bean
-	UserDetailsService users() {
+	UserDetailsService userDetailsService() {
 		return new InMemoryUserDetailsManager(
 				User.withDefaultPasswordEncoder()
 						.username("user")
@@ -48,3 +58,4 @@ class ListAuthoritiesConfiguration {
 		return new RedirectOneTimeTokenGenerationSuccessHandler("/ott/sent");
 	}
 }
+

@@ -1,4 +1,4 @@
-package org.springframework.security.kt.docs.servlet.authentication.authorizationmanagerfactory
+package org.springframework.security.kt.docs.servlet.authentication.selectivemfa
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -17,36 +17,38 @@ import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenG
 
 @EnableWebSecurity
 @Configuration(proxyBeanMethods = false)
-internal class UseAuthorizationManagerFactoryConfiguration {
+internal class SelectiveMfaConfiguration {
     // tag::httpSecurity[]
     @Bean
+    @Throws(Exception::class)
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain? {
         // @formatter:off
+        // <1>
+        val mfa: AuthorizationManagerFactory<Any> =
+            DefaultAuthorizationManagerFactory.builder<Any>()
+                .requireAdditionalAuthorities(
+        GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY,
+                    GrantedAuthorities.FACTOR_OTT_AUTHORITY
+                )
+                .build()
         http {
             authorizeHttpRequests {
-                authorize("/admin/**", hasRole("ADMIN"))
+                // <2>
+                authorize("/admin/**", mfa.hasRole("ADMIN"))
+                // <3>
+                authorize("/user/settings/**", mfa.authenticated())
+                // <4>
                 authorize(anyRequest, authenticated)
             }
+            // <5>
             formLogin { }
-            oneTimeTokenLogin { }
+            oneTimeTokenLogin {  }
         }
         // @formatter:on
         return http.build()
     }
+
     // end::httpSecurity[]
-
-    // tag::authorizationManagerFactoryBean[]
-    @Bean
-    fun authz(): AuthorizationManagerFactory<Object> {
-        return DefaultAuthorizationManagerFactory.builder<Object>()
-            .requireAdditionalAuthorities(
-                GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY,
-                GrantedAuthorities.FACTOR_OTT_AUTHORITY
-            )
-            .build()
-    }
-    // end::authorizationManagerFactoryBean[]
-
     @Bean
     fun userDetailsService(): UserDetailsService {
         return InMemoryUserDetailsManager(

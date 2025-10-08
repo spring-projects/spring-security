@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.kt.docs.servlet.authentication.customauthorizationmanagerfactory
+package org.springframework.security.kt.docs.servlet.authentication.programmaticmfa
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RestController
  */
 @ExtendWith(SpringExtension::class, SpringTestContextExtension::class)
 @TestExecutionListeners(WithSecurityContextTestExecutionListener::class)
-class CustomAuthorizationManagerFactoryTests {
+class AdminMfaAuthorizationManagerConfigurationTests {
     @JvmField
     val spring: SpringTestContext = SpringTestContext(this)
 
@@ -51,7 +51,7 @@ class CustomAuthorizationManagerFactoryTests {
     @Throws(Exception::class)
     @WithMockUser(username = "admin")
     fun getWhenAdminThenRedirectsToOtt() {
-        this.spring.register(CustomAuthorizationManagerFactory::class.java, Http200Controller::class.java).autowire()
+        this.spring.register(AdminMfaAuthorizationManagerConfiguration::class.java, Http200Controller::class.java).autowire()
         // @formatter:off
         this.mockMvc!!.perform(get("/"))
             .andExpect(status().is3xxRedirection())
@@ -63,7 +63,7 @@ class CustomAuthorizationManagerFactoryTests {
     @Throws(Exception::class)
     @WithMockUser
     fun getWhenNotAdminThenAllows() {
-        this.spring.register(CustomAuthorizationManagerFactory::class.java, Http200Controller::class.java).autowire()
+        this.spring.register(AdminMfaAuthorizationManagerConfiguration::class.java, Http200Controller::class.java).autowire()
         // @formatter:off
         this.mockMvc!!.perform(get("/"))
             .andExpect(status().isOk())
@@ -73,9 +73,9 @@ class CustomAuthorizationManagerFactoryTests {
 
     @Test
     @Throws(Exception::class)
-    @WithMockUser(username = "admin", authorities = [GrantedAuthorities.FACTOR_OTT_AUTHORITY])
+    @WithMockUser(username = "admin", authorities = [GrantedAuthorities.FACTOR_OTT_AUTHORITY, GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY ])
     fun getWhenAdminAndHasFactorThenAllows() {
-        this.spring.register(CustomAuthorizationManagerFactory::class.java, Http200Controller::class.java).autowire()
+        this.spring.register(AdminMfaAuthorizationManagerConfiguration::class.java, Http200Controller::class.java).autowire()
         // @formatter:off
         this.mockMvc!!.perform(get("/"))
             .andExpect(status().isOk())

@@ -1,7 +1,8 @@
-package org.springframework.security.kt.docs.servlet.authentication.multifactorauthentication
+package org.springframework.security.kt.docs.servlet.authentication.egmfa
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.config.annotation.authorization.EnableGlobalMultiFactorAuthentication
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
@@ -15,7 +16,13 @@ import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenG
 
 @EnableWebSecurity
 @Configuration(proxyBeanMethods = false)
-internal class ListAuthoritiesConfiguration {
+
+// tag::enable-global-mfa[]
+@EnableGlobalMultiFactorAuthentication( authorities = [
+    GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY,
+    GrantedAuthorities.FACTOR_OTT_AUTHORITY])
+// end::enable-global-mfa[]
+internal class EnableGlobalMultiFactorAuthenticationConfiguration {
 
     // tag::httpSecurity[]
     @Bean
@@ -23,8 +30,12 @@ internal class ListAuthoritiesConfiguration {
         // @formatter:off
         http {
             authorizeHttpRequests {
-                authorize(anyRequest, hasAllAuthorities(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, GrantedAuthorities.FACTOR_OTT_AUTHORITY))
+                // <1>
+                authorize("/admin/**", hasRole("ADMIN"))
+                // <2>
+                authorize(anyRequest, authenticated)
             }
+            // <3>
             formLogin { }
             oneTimeTokenLogin {  }
         }

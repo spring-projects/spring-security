@@ -1,4 +1,4 @@
-package org.springframework.security.kt.docs.servlet.authentication.authorizationmanagerfactory
+package org.springframework.security.kt.docs.servlet.authentication.hasallauthorities
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -15,7 +15,7 @@ import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenG
 
 @EnableWebSecurity
 @Configuration(proxyBeanMethods = false)
-class ListAuthoritiesEverywhereConfiguration {
+internal class MultipleAuthorizationRulesConfiguration {
 
     // tag::httpSecurity[]
     @Bean
@@ -23,9 +23,20 @@ class ListAuthoritiesEverywhereConfiguration {
         // @formatter:off
         http {
             authorizeHttpRequests {
-                authorize("/admin/**", hasAllAuthorities(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, GrantedAuthorities.FACTOR_OTT_AUTHORITY, "ROLE_ADMIN")) // <1>
-                authorize(anyRequest, hasAllAuthorities(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, GrantedAuthorities.FACTOR_OTT_AUTHORITY))
+                // <1>
+                authorize("/admin/**", hasAllAuthorities(
+                    "ROLE_ADMIN",
+                    GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY,
+                    GrantedAuthorities.FACTOR_OTT_AUTHORITY
+                ))
+                // <2>
+                authorize(anyRequest, hasAllAuthorities(
+                    "ROLE_USER",
+                    GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY,
+                    GrantedAuthorities.FACTOR_OTT_AUTHORITY
+                ))
             }
+            // <3>
             formLogin { }
             oneTimeTokenLogin {  }
         }

@@ -1,9 +1,10 @@
-package org.springframework.security.docs.servlet.authentication.enableglobalmfa;
+package org.springframework.security.docs.servlet.authentication.selectivemfa;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authorization.AuthorizationManagerFactory;
+import org.springframework.security.authorization.DefaultAuthorizationManagerFactory;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authorization.EnableGlobalMultiFactorAuthentication;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.GrantedAuthorities;
@@ -16,24 +17,32 @@ import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenG
 
 @EnableWebSecurity
 @Configuration(proxyBeanMethods = false)
-// tag::enable-global-mfa[]
-@EnableGlobalMultiFactorAuthentication(authorities = {
-		GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY,
-		GrantedAuthorities.FACTOR_OTT_AUTHORITY })
-// end::enable-global-mfa[]
-public class EnableGlobalMultiFactorAuthenticationConfiguration {
+class SelectiveMfaConfiguration {
 
 	// tag::httpSecurity[]
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		// @formatter:off
-		http
-				.authorizeHttpRequests((authorize) -> authorize
-						.requestMatchers("/admin/**").hasRole("ADMIN")
-						.anyRequest().authenticated()
+		// <1>
+		AuthorizationManagerFactory<Object> mfa =
+			DefaultAuthorizationManagerFactory.<Object>builder()
+				.requireAdditionalAuthorities(
+					GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY,
+					GrantedAuthorities.FACTOR_OTT_AUTHORITY
 				)
-				.formLogin(Customizer.withDefaults())
-				.oneTimeTokenLogin(Customizer.withDefaults());
+				.build();
+		http
+			.authorizeHttpRequests((authorize) -> authorize
+				// <2>
+				.requestMatchers("/admin/**").access(mfa.hasRole("ADMIN"))
+				// <3>
+				.requestMatchers("/user/settings/**").access(mfa.authenticated())
+				// <4>
+				.anyRequest().authenticated()
+			)
+			// <5>
+			.formLogin(Customizer.withDefaults())
+			.oneTimeTokenLogin(Customizer.withDefaults());
 		// @formatter:on
 		return http.build();
 	}
@@ -55,4 +64,3 @@ public class EnableGlobalMultiFactorAuthenticationConfiguration {
 		return new RedirectOneTimeTokenGenerationSuccessHandler("/ott/sent");
 	}
 }
-

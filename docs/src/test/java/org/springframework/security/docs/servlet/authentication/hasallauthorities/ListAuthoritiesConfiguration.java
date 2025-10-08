@@ -1,4 +1,4 @@
-package org.springframework.security.docs.servlet.authentication.authorizationmanagerfactory;
+package org.springframework.security.docs.servlet.authentication.hasallauthorities;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,17 +15,21 @@ import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenG
 
 @EnableWebSecurity
 @Configuration(proxyBeanMethods = false)
-public class ListAuthoritiesEverywhereConfiguration {
+class ListAuthoritiesConfiguration {
 
 	// tag::httpSecurity[]
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		// @formatter:off
 		http
 			.authorizeHttpRequests((authorize) -> authorize
-				.requestMatchers("/admin/**").hasAllAuthorities(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, GrantedAuthorities.FACTOR_OTT_AUTHORITY, "ROLE_ADMIN") // <1>
-				.anyRequest().hasAllAuthorities(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, GrantedAuthorities.FACTOR_OTT_AUTHORITY)
+				// <1>
+				.anyRequest().hasAllAuthorities(
+					GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY,
+					GrantedAuthorities.FACTOR_OTT_AUTHORITY
+				)
 			)
+			// <2>
 			.formLogin(Customizer.withDefaults())
 			.oneTimeTokenLogin(Customizer.withDefaults());
 		// @formatter:on
@@ -34,7 +38,7 @@ public class ListAuthoritiesEverywhereConfiguration {
 	// end::httpSecurity[]
 
 	@Bean
-	UserDetailsService userDetailsService() {
+	UserDetailsService users() {
 		return new InMemoryUserDetailsManager(
 				User.withDefaultPasswordEncoder()
 						.username("user")

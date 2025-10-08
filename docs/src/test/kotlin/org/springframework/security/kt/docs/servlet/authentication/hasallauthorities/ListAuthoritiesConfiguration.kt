@@ -1,4 +1,4 @@
-package org.springframework.security.kt.docs.servlet.authentication.enableglobalmfa
+package org.springframework.security.kt.docs.servlet.authentication.hasallauthorities
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -15,7 +15,7 @@ import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenG
 
 @EnableWebSecurity
 @Configuration(proxyBeanMethods = false)
-class ListAuthoritiesEverywhereConfiguration {
+internal class ListAuthoritiesConfiguration {
 
     // tag::httpSecurity[]
     @Bean
@@ -23,9 +23,13 @@ class ListAuthoritiesEverywhereConfiguration {
         // @formatter:off
         http {
             authorizeHttpRequests {
-                authorize("/admin/**", hasAllAuthorities(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, GrantedAuthorities.FACTOR_OTT_AUTHORITY, "ROLE_ADMIN")) // <1>
-                authorize(anyRequest, hasAllAuthorities(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, GrantedAuthorities.FACTOR_OTT_AUTHORITY))
+                // <1>
+                authorize(anyRequest, hasAllAuthorities(
+                    GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY,
+                    GrantedAuthorities.FACTOR_OTT_AUTHORITY
+                ))
             }
+            // <2>
             formLogin { }
             oneTimeTokenLogin {  }
         }
@@ -34,8 +38,6 @@ class ListAuthoritiesEverywhereConfiguration {
     }
     // end::httpSecurity[]
 
-
-    // end::httpSecurity[]
     @Bean
     fun userDetailsService(): UserDetailsService {
         return InMemoryUserDetailsManager(

@@ -1,4 +1,4 @@
-package org.springframework.security.kt.docs.servlet.authentication.customauthorizationmanagerfactory
+package org.springframework.security.kt.docs.servlet.authentication.programmaticmfa
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -19,7 +19,7 @@ import java.util.function.Supplier
 
 @EnableWebSecurity
 @Configuration(proxyBeanMethods = false)
-internal class CustomAuthorizationManagerFactory {
+internal class AdminMfaAuthorizationManagerConfiguration {
 
     // tag::httpSecurity[]
     @Bean
@@ -40,13 +40,19 @@ internal class CustomAuthorizationManagerFactory {
 
     // tag::authorizationManager[]
     @Component
-    internal open class UserBasedOttAuthorizationManager : AuthorizationManager<Object> {
+    internal open class AdminMfaAuthorizationManager : AuthorizationManager<Object> {
         override fun authorize(
             authentication: Supplier<out Authentication?>, context: Object): AuthorizationResult {
             return if ("admin" == authentication.get().name) {
-                AuthorityAuthorizationManager.hasAuthority<Object>(GrantedAuthorities.FACTOR_OTT_AUTHORITY)
-                    .authorize(authentication, context)
+                var admins =
+                    AllAuthoritiesAuthorizationManager.hasAllAuthorities<Any>(
+                        GrantedAuthorities.FACTOR_OTT_AUTHORITY,
+                        GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY
+                    )
+                // <1>
+                admins.authorize(authentication, context)
             } else {
+                // <2>
                 AuthorizationDecision(true)
             }
         }
@@ -55,9 +61,11 @@ internal class CustomAuthorizationManagerFactory {
 
     // tag::authorizationManagerFactory[]
     @Bean
-    fun authorizationManagerFactory(optIn: UserBasedOttAuthorizationManager?): AuthorizationManagerFactory<Object> {
+    fun authorizationManagerFactory(admins: AdminMfaAuthorizationManager): AuthorizationManagerFactory<Object> {
         val defaults = DefaultAuthorizationManagerFactory<Object>()
-        defaults.setAdditionalAuthorization(optIn)
+        // <1>
+        defaults.setAdditionalAuthorization(admins)
+        // <2>
         return defaults
     }
     // end::authorizationManagerFactory[]
