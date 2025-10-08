@@ -21,11 +21,21 @@ import java.util.Objects;
 
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.util.Assert;
 
 /**
- * The requirements for an {@link FactorGrantedAuthority} to be considered valid.
+ * The requirements for an {@link GrantedAuthority} to be considered a valid factor.
+ *
+ * <ul>
+ * <li>If the {@link #getAuthority()} is specified, then it must match
+ * {@link GrantedAuthority#getAuthority()}</li>
+ * <li>If {@link #getValidDuration()} is specified, the matching {@link GrantedAuthority}
+ * must be of type {@link FactorGrantedAuthority} and
+ * {@link FactorGrantedAuthority#getIssuedAt()} must be such that it is not considered
+ * expired when compared to {@link #getValidDuration()}.</li>
+ * </ul>
  *
  * @author Rob Winch
  * @since 7.0
@@ -43,7 +53,7 @@ public final class RequiredFactor {
 	}
 
 	/**
-	 * The {@link FactorGrantedAuthority#getAuthority()}.
+	 * The expected {@link GrantedAuthority#getAuthority()}.
 	 * @return the authority.
 	 */
 	public String getAuthority() {

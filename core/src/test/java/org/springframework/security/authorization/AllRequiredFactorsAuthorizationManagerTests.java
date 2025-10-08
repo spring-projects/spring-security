@@ -32,12 +32,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
- * Test {@link AllFactorsAuthorizationManager}.
+ * Test {@link AllRequiredFactorsAuthorizationManager}.
  *
  * @author Rob Winch
  * @since 7.0
  */
-class AllFactorsAuthorizationManagerTests {
+class AllRequiredFactorsAuthorizationManagerTests {
 
 	private static final Object DOES_NOT_MATTER = new Object();
 
@@ -52,8 +52,8 @@ class AllFactorsAuthorizationManagerTests {
 
 	@Test
 	void authorizeWhenGranted() {
-		AllFactorsAuthorizationManager<Object> allFactors = AllFactorsAuthorizationManager.builder()
-			.requiredFactor(REQUIRED_PASSWORD)
+		AllRequiredFactorsAuthorizationManager<Object> allFactors = AllRequiredFactorsAuthorizationManager.builder()
+			.requireFactor(REQUIRED_PASSWORD)
 			.build();
 		FactorGrantedAuthority passwordFactor = FactorGrantedAuthority.withAuthority(REQUIRED_PASSWORD.getAuthority())
 			.issuedAt(Instant.now())
@@ -65,8 +65,8 @@ class AllFactorsAuthorizationManagerTests {
 
 	@Test
 	void authorizeWhenConsumerGranted() {
-		AllFactorsAuthorizationManager<Object> allFactors = AllFactorsAuthorizationManager.builder()
-			.requiredFactor((required) -> required.authority(FactorGrantedAuthority.PASSWORD_AUTHORITY))
+		AllRequiredFactorsAuthorizationManager<Object> allFactors = AllRequiredFactorsAuthorizationManager.builder()
+			.requireFactor((required) -> required.authority(FactorGrantedAuthority.PASSWORD_AUTHORITY))
 			.build();
 		FactorGrantedAuthority passwordFactor = FactorGrantedAuthority
 			.withAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY)
@@ -79,8 +79,8 @@ class AllFactorsAuthorizationManagerTests {
 
 	@Test
 	void authorizeWhenUnauthenticated() {
-		AllFactorsAuthorizationManager<Object> allFactors = AllFactorsAuthorizationManager.builder()
-			.requiredFactor(REQUIRED_PASSWORD)
+		AllRequiredFactorsAuthorizationManager<Object> allFactors = AllRequiredFactorsAuthorizationManager.builder()
+			.requireFactor(REQUIRED_PASSWORD)
 			.build();
 		FactorGrantedAuthority passwordFactor = FactorGrantedAuthority.withAuthority(REQUIRED_PASSWORD.getAuthority())
 			.issuedAt(Instant.now())
@@ -94,8 +94,8 @@ class AllFactorsAuthorizationManagerTests {
 
 	@Test
 	void authorizeWhenNullAuthentication() {
-		AllFactorsAuthorizationManager<Object> allFactors = AllFactorsAuthorizationManager.builder()
-			.requiredFactor(EXPIRING_PASSWORD)
+		AllRequiredFactorsAuthorizationManager<Object> allFactors = AllRequiredFactorsAuthorizationManager.builder()
+			.requireFactor(EXPIRING_PASSWORD)
 			.build();
 		Authentication authentication = null;
 		FactorAuthorizationDecision result = allFactors.authorize(() -> authentication, DOES_NOT_MATTER);
@@ -105,8 +105,8 @@ class AllFactorsAuthorizationManagerTests {
 
 	@Test
 	void authorizeWhenRequiredFactorHasNullDurationThenNullIssuedAtGranted() {
-		AllFactorsAuthorizationManager<Object> allFactors = AllFactorsAuthorizationManager.builder()
-			.requiredFactor(REQUIRED_PASSWORD)
+		AllRequiredFactorsAuthorizationManager<Object> allFactors = AllRequiredFactorsAuthorizationManager.builder()
+			.requireFactor(REQUIRED_PASSWORD)
 			.build();
 		FactorGrantedAuthority passwordFactor = FactorGrantedAuthority.withAuthority(REQUIRED_PASSWORD.getAuthority())
 			.build();
@@ -116,21 +116,21 @@ class AllFactorsAuthorizationManagerTests {
 	}
 
 	@Test
-	void authorizeWhenRequiredFactorHasDurationAndNotFactorGrantedAuthorityThenMissing() {
-		AllFactorsAuthorizationManager<Object> allFactors = AllFactorsAuthorizationManager.builder()
-			.requiredFactor(EXPIRING_PASSWORD)
+	void authorizeWhenRequiredFactorHasDurationAndNotFactorGrantedAuthorityThenExpired() {
+		AllRequiredFactorsAuthorizationManager<Object> allFactors = AllRequiredFactorsAuthorizationManager.builder()
+			.requireFactor(EXPIRING_PASSWORD)
 			.build();
 		Authentication authentication = new TestingAuthenticationToken("user", "password",
 				EXPIRING_PASSWORD.getAuthority());
 		FactorAuthorizationDecision result = allFactors.authorize(() -> authentication, DOES_NOT_MATTER);
 		assertThat(result.isGranted()).isFalse();
-		assertThat(result.getFactorErrors()).containsExactly(RequiredFactorError.createMissing(EXPIRING_PASSWORD));
+		assertThat(result.getFactorErrors()).containsExactly(RequiredFactorError.createExpired(EXPIRING_PASSWORD));
 	}
 
 	@Test
 	void authorizeWhenFactorAuthorityMissingThenMissing() {
-		AllFactorsAuthorizationManager<Object> allFactors = AllFactorsAuthorizationManager.builder()
-			.requiredFactor(REQUIRED_PASSWORD)
+		AllRequiredFactorsAuthorizationManager<Object> allFactors = AllRequiredFactorsAuthorizationManager.builder()
+			.requireFactor(REQUIRED_PASSWORD)
 			.build();
 		Authentication authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		FactorAuthorizationDecision result = allFactors.authorize(() -> authentication, DOES_NOT_MATTER);
@@ -139,21 +139,20 @@ class AllFactorsAuthorizationManagerTests {
 	}
 
 	@Test
-	void authorizeWhenFactorGrantedAuthorityMissingThenMissing() {
-		AllFactorsAuthorizationManager<Object> allFactors = AllFactorsAuthorizationManager.builder()
-			.requiredFactor(REQUIRED_PASSWORD)
+	void authorizeWhenGrantedAuthorityThenGranted() {
+		AllRequiredFactorsAuthorizationManager<Object> allFactors = AllRequiredFactorsAuthorizationManager.builder()
+			.requireFactor(REQUIRED_PASSWORD)
 			.build();
 		Authentication authentication = new TestingAuthenticationToken("user", "password",
 				REQUIRED_PASSWORD.getAuthority());
 		FactorAuthorizationDecision result = allFactors.authorize(() -> authentication, DOES_NOT_MATTER);
-		assertThat(result.isGranted()).isFalse();
-		assertThat(result.getFactorErrors()).containsExactly(RequiredFactorError.createMissing(REQUIRED_PASSWORD));
+		assertThat(result.isGranted()).isTrue();
 	}
 
 	@Test
 	void authorizeWhenExpired() {
-		AllFactorsAuthorizationManager<Object> allFactors = AllFactorsAuthorizationManager.builder()
-			.requiredFactor(EXPIRING_PASSWORD)
+		AllRequiredFactorsAuthorizationManager<Object> allFactors = AllRequiredFactorsAuthorizationManager.builder()
+			.requireFactor(EXPIRING_PASSWORD)
 			.build();
 		FactorGrantedAuthority passwordFactor = FactorGrantedAuthority.withAuthority(EXPIRING_PASSWORD.getAuthority())
 			.issuedAt(Instant.now().minus(Duration.ofHours(2)))
@@ -173,8 +172,8 @@ class AllFactorsAuthorizationManagerTests {
 		RequiredFactor expiringPassword = RequiredFactor.withAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY)
 			.validDuration(expiresIn)
 			.build();
-		AllFactorsAuthorizationManager<Object> allFactors = AllFactorsAuthorizationManager.builder()
-			.requiredFactor(expiringPassword)
+		AllRequiredFactorsAuthorizationManager<Object> allFactors = AllRequiredFactorsAuthorizationManager.builder()
+			.requireFactor(expiringPassword)
 			.build();
 		allFactors.setClock(clock);
 		FactorGrantedAuthority passwordFactor = FactorGrantedAuthority.withAuthority(expiringPassword.getAuthority())
@@ -195,8 +194,8 @@ class AllFactorsAuthorizationManagerTests {
 		RequiredFactor expiringPassword = RequiredFactor.withAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY)
 			.validDuration(expiresIn)
 			.build();
-		AllFactorsAuthorizationManager<Object> allFactors = AllFactorsAuthorizationManager.builder()
-			.requiredFactor(expiringPassword)
+		AllRequiredFactorsAuthorizationManager<Object> allFactors = AllRequiredFactorsAuthorizationManager.builder()
+			.requireFactor(expiringPassword)
 			.build();
 		allFactors.setClock(clock);
 		FactorGrantedAuthority passwordFactor = FactorGrantedAuthority.withAuthority(expiringPassword.getAuthority())
@@ -209,8 +208,8 @@ class AllFactorsAuthorizationManagerTests {
 
 	@Test
 	void authorizeWhenDifferentFactorGrantedAuthorityThenMissing() {
-		AllFactorsAuthorizationManager<Object> allFactors = AllFactorsAuthorizationManager.builder()
-			.requiredFactor(REQUIRED_PASSWORD)
+		AllRequiredFactorsAuthorizationManager<Object> allFactors = AllRequiredFactorsAuthorizationManager.builder()
+			.requireFactor(REQUIRED_PASSWORD)
 			.build();
 		Authentication authentication = new TestingAuthenticationToken("user", "password",
 				FactorGrantedAuthority.fromAuthority(REQUIRED_PASSWORD.getAuthority()) + "DIFFERENT");
@@ -221,28 +220,28 @@ class AllFactorsAuthorizationManagerTests {
 
 	@Test
 	void setClockWhenNullThenIllegalArgumentException() {
-		AllFactorsAuthorizationManager<Object> allFactors = AllFactorsAuthorizationManager.builder()
-			.requiredFactor(REQUIRED_PASSWORD)
+		AllRequiredFactorsAuthorizationManager<Object> allFactors = AllRequiredFactorsAuthorizationManager.builder()
+			.requireFactor(REQUIRED_PASSWORD)
 			.build();
 		assertThatIllegalArgumentException().isThrownBy(() -> allFactors.setClock(null));
 	}
 
 	@Test
 	void builderBuildWhenEmpty() {
-		assertThatIllegalArgumentException().isThrownBy(() -> AllFactorsAuthorizationManager.builder().build());
+		assertThatIllegalArgumentException().isThrownBy(() -> AllRequiredFactorsAuthorizationManager.builder().build());
 	}
 
 	@Test
 	void builderWhenNullRequiredFactor() {
-		AllFactorsAuthorizationManager.Builder builder = AllFactorsAuthorizationManager.builder();
-		assertThatIllegalArgumentException().isThrownBy(() -> builder.requiredFactor((RequiredFactor) null));
+		AllRequiredFactorsAuthorizationManager.Builder builder = AllRequiredFactorsAuthorizationManager.builder();
+		assertThatIllegalArgumentException().isThrownBy(() -> builder.requireFactor((RequiredFactor) null));
 	}
 
 	@Test
 	void builderWhenNullConsumerRequiredFactorBuilder() {
-		AllFactorsAuthorizationManager.Builder builder = AllFactorsAuthorizationManager.builder();
+		AllRequiredFactorsAuthorizationManager.Builder builder = AllRequiredFactorsAuthorizationManager.builder();
 		assertThatIllegalArgumentException()
-			.isThrownBy(() -> builder.requiredFactor((Consumer<RequiredFactor.Builder>) null));
+			.isThrownBy(() -> builder.requireFactor((Consumer<RequiredFactor.Builder>) null));
 	}
 
 }

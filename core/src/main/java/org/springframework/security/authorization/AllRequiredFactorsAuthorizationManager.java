@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.util.Assert;
 
@@ -42,7 +43,7 @@ import org.springframework.util.Assert;
  * @since 7.0
  * @see AuthorityAuthorizationManager
  */
-public final class AllFactorsAuthorizationManager<T> implements AuthorizationManager<T> {
+public final class AllRequiredFactorsAuthorizationManager<T> implements AuthorizationManager<T> {
 
 	private Clock clock = Clock.systemUTC();
 
@@ -52,7 +53,7 @@ public final class AllFactorsAuthorizationManager<T> implements AuthorizationMan
 	 * Creates a new instance.
 	 * @param requiredFactors the authorities that are required.
 	 */
-	private AllFactorsAuthorizationManager(List<RequiredFactor> requiredFactors) {
+	private AllRequiredFactorsAuthorizationManager(List<RequiredFactor> requiredFactors) {
 		Assert.notEmpty(requiredFactors, "requiredFactors cannot be empty");
 		Assert.noNullElements(requiredFactors, "requiredFactors must not contain null elements");
 		this.requiredFactors = Collections.unmodifiableList(requiredFactors);
@@ -80,7 +81,7 @@ public final class AllFactorsAuthorizationManager<T> implements AuthorizationMan
 	@Override
 	public FactorAuthorizationDecision authorize(Supplier<? extends @Nullable Authentication> authentication,
 			T object) {
-		List<FactorGrantedAuthority> currentFactorAuthorities = getFactorGrantedAuthorities(authentication.get());
+		List<GrantedAuthority> currentFactorAuthorities = getFactorGrantedAuthorities(authentication.get());
 		List<RequiredFactorError> factorErrors = this.requiredFactors.stream()
 			.map((factor) -> requiredFactorError(factor, currentFactorAuthorities))
 			.filter(Objects::nonNull)
@@ -96,8 +97,8 @@ public final class AllFactorsAuthorizationManager<T> implements AuthorizationMan
 	 * @return the {@link RequiredFactor} or null if granted.
 	 */
 	private @Nullable RequiredFactorError requiredFactorError(RequiredFactor requiredFactor,
-			List<FactorGrantedAuthority> currentFactors) {
-		Optional<FactorGrantedAuthority> matchingAuthority = currentFactors.stream()
+			List<GrantedAuthority> currentFactors) {
+		Optional<GrantedAuthority> matchingAuthority = currentFactors.stream()
 			.filter((authority) -> authority.getAuthority().equals(requiredFactor.getAuthority()))
 			.findFirst();
 		if (!matchingAuthority.isPresent()) {
@@ -108,13 +109,16 @@ public final class AllFactorsAuthorizationManager<T> implements AuthorizationMan
 				// granted (only requires authority to match)
 				return null;
 			}
-			Instant now = this.clock.instant();
-			Instant expiresAt = authority.getIssuedAt().plus(requiredFactor.getValidDuration());
-			if (now.isBefore(expiresAt)) {
-				// granted
-				return null;
+			else if (authority instanceof FactorGrantedAuthority factorAuthority) {
+				Instant now = this.clock.instant();
+				Instant expiresAt = factorAuthority.getIssuedAt().plus(requiredFactor.getValidDuration());
+				if (now.isBefore(expiresAt)) {
+					// granted
+					return null;
+				}
 			}
-			// denied (expired)
+
+			// denied (expired or no issuedAt to compare)
 			return RequiredFactorError.createExpired(requiredFactor);
 		}).orElse(null);
 	}
@@ -128,14 +132,12 @@ public final class AllFactorsAuthorizationManager<T> implements AuthorizationMan
 	 * @return all of the {@link FactorGrantedAuthority} instances from
 	 * {@link Authentication#getAuthorities()}.
 	 */
-	private List<FactorGrantedAuthority> getFactorGrantedAuthorities(@Nullable Authentication authentication) {
+	private List<GrantedAuthority> getFactorGrantedAuthorities(@Nullable Authentication authentication) {
 		if (authentication == null || !authentication.isAuthenticated()) {
 			return Collections.emptyList();
 		}
 		// @formatter:off
 		return authentication.getAuthorities().stream()
-			.filter(FactorGrantedAuthority.class::isInstance)
-			.map(FactorGrantedAuthority.class::cast)
 			.collect(Collectors.toList());
 		// @formatter:on
 	}
@@ -149,7 +151,7 @@ public final class AllFactorsAuthorizationManager<T> implements AuthorizationMan
 	}
 
 	/**
-	 * A builder for {@link AllFactorsAuthorizationManager}.
+	 * A builder for {@link AllRequiredFactorsAuthorizationManager}.
 	 *
 	 * @author Rob Winch
 	 * @since 7.0
@@ -160,15 +162,15 @@ public final class AllFactorsAuthorizationManager<T> implements AuthorizationMan
 
 		/**
 		 * Allows the user to consume the {@link RequiredFactor.Builder} that is passed in
-		 * and then adds the result to the {@link #requiredFactor(RequiredFactor)}.
+		 * and then adds the result to the {@link #requireFactor(RequiredFactor)}.
 		 * @param requiredFactor the {@link Consumer} to invoke.
 		 * @return the builder.
 		 */
-		public Builder requiredFactor(Consumer<RequiredFactor.Builder> requiredFactor) {
+		public Builder requireFactor(Consumer<RequiredFactor.Builder> requiredFactor) {
 			Assert.notNull(requiredFactor, "requiredFactor cannot be null");
 			RequiredFactor.Builder builder = RequiredFactor.builder();
 			requiredFactor.accept(builder);
-			return requiredFactor(builder.build());
+			return requireFactor(builder.build());
 		}
 
 		/**
@@ -176,19 +178,20 @@ public final class AllFactorsAuthorizationManager<T> implements AuthorizationMan
 		 * @param requiredFactor the requiredFactor to add. Cannot be null.
 		 * @return the builder.
 		 */
-		public Builder requiredFactor(RequiredFactor requiredFactor) {
+		public Builder requireFactor(RequiredFactor requiredFactor) {
 			Assert.notNull(requiredFactor, "requiredFactor cannot be null");
 			this.requiredFactors.add(requiredFactor);
 			return this;
 		}
 
 		/**
-		 * Builds the {@link AllFactorsAuthorizationManager}.
+		 * Builds the {@link AllRequiredFactorsAuthorizationManager}.
 		 * @param <T> the type.
-		 * @return the {@link AllFactorsAuthorizationManager}
+		 * @return the {@link AllRequiredFactorsAuthorizationManager}
 		 */
-		public <T> AllFactorsAuthorizationManager<T> build() {
-			return new AllFactorsAuthorizationManager<T>(this.requiredFactors);
+		public <T> AllRequiredFactorsAuthorizationManager<T> build() {
+			Assert.state(!this.requiredFactors.isEmpty(), "requiredFactors cannot be empty");
+			return new AllRequiredFactorsAuthorizationManager<T>(this.requiredFactors);
 		}
 
 	}
