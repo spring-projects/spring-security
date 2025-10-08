@@ -2,8 +2,8 @@ package org.springframework.security.docs.servlet.authentication.authorizationma
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authorization.AuthorizationManagerFactories;
 import org.springframework.security.authorization.AuthorizationManagerFactory;
-import org.springframework.security.authorization.DefaultAuthorizationManagerFactory;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -38,8 +38,8 @@ class UseAuthorizationManagerFactoryConfiguration {
 	// tag::authorizationManagerFactoryBean[]
 	@Bean
 	AuthorizationManagerFactory<Object> authz() {
-		return DefaultAuthorizationManagerFactory.builder()
-			.requireAdditionalAuthorities(
+		return AuthorizationManagerFactories.multiFactor()
+			.requireFactors(
 				FactorGrantedAuthority.PASSWORD_AUTHORITY,
 				FactorGrantedAuthority.OTT_AUTHORITY
 			)

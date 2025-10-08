@@ -30,6 +30,7 @@ import org.springframework.security.core.authority.FactorGrantedAuthority;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * Test {@link AllRequiredFactorsAuthorizationManager}.
@@ -228,7 +229,7 @@ class AllRequiredFactorsAuthorizationManagerTests {
 
 	@Test
 	void builderBuildWhenEmpty() {
-		assertThatIllegalArgumentException().isThrownBy(() -> AllRequiredFactorsAuthorizationManager.builder().build());
+		assertThatIllegalStateException().isThrownBy(() -> AllRequiredFactorsAuthorizationManager.builder().build());
 	}
 
 	@Test

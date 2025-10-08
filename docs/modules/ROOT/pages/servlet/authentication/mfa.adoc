@@ -91,9 +91,10 @@ This instructs `DefaultAuthorizationManagerFactory` that any authorization rule 
 <2> Publish `DefaultAuthorizationManagerFactory` as a Bean, so it is used globally
 
 This should feel very similar to our previous example in xref:./mfa.adoc#authorization-manager-factory[].
-The difference is that in the previous example, the `Builder` is setting `DefaultAuthorization.additionalAuthorization` with a built in `AuthorizationManager` that always requires the same authorities.
+The difference is that in the previous example, the `AuthorizationManagerFactories` is setting `DefaultAuthorization.additionalAuthorization` with a built in `AuthorizationManager` that always requires the same authorities.
 
 We can now define our authorization rules which are combined with `AdminMfaAuthorizationManager`.
+
 include-code::./AdminMfaAuthorizationManagerConfiguration[tag=httpSecurity,indent=0]
 <1> URLs that begin with `/admin/**` require `ROLE_ADMIN`.
 If the username is `admin`, then `FACTOR_OTT` and `FACTOR_PASSWORD` are also required.

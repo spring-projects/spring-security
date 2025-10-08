@@ -140,7 +140,7 @@ In many cases, this is cleared after the user is authenticated, to ensure that i
 * `authorities`: The <<servlet-authentication-granted-authority,`GrantedAuthority`>> instances are high-level permissions the user is granted.
 Two examples are roles and scopes.
 
-It is also equipped with a `Builder` that allows you to mutate an existing `Authentication` instance and potentially merge it with another.
+It is also equipped with a `AdditionalRequiredFactorsBuilder` that allows you to mutate an existing `Authentication` instance and potentially merge it with another.
 This is useful in scenarios like taking the authorities from one authentication step, like form login, and applying them to another, like one-time-token login, like so:
 
 include-code::./CopyAuthoritiesTests[tag=springSecurity,indent=0]

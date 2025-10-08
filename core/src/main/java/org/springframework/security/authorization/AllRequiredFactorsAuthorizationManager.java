@@ -146,8 +146,8 @@ public final class AllRequiredFactorsAuthorizationManager<T> implements Authoriz
 	 * Creates a new {@link Builder}
 	 * @return
 	 */
-	public static Builder builder() {
-		return new Builder();
+	public static <T> Builder<T> builder() {
+		return new Builder<>();
 	}
 
 	/**
@@ -156,7 +156,7 @@ public final class AllRequiredFactorsAuthorizationManager<T> implements Authoriz
 	 * @author Rob Winch
 	 * @since 7.0
 	 */
-	public static final class Builder {
+	public static final class Builder<T> {
 
 		private List<RequiredFactor> requiredFactors = new ArrayList<>();
 

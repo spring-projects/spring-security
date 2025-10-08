@@ -16,16 +16,11 @@
 
 package org.springframework.security.authorization;
 
-import java.util.Collection;
-
 import org.junit.jupiter.api.Test;
 
-import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.TestAuthentication;
-import org.springframework.security.core.authority.AuthorityUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -291,14 +286,15 @@ public class AuthorizationManagerFactoryTests {
 
 	@Test
 	public void builderWhenEmptyAdditionalAuthoritiesThenIllegalStateException() {
-		DefaultAuthorizationManagerFactory.Builder<Object> builder = DefaultAuthorizationManagerFactory.builder();
+		AuthorizationManagerFactories.AdditionalRequiredFactorsBuilder<Object> builder = AuthorizationManagerFactories
+			.multiFactor();
 		assertThatIllegalStateException().isThrownBy(() -> builder.build());
 	}
 
 	@Test
 	public void builderWhenAdditionalAuthorityThenRequired() {
-		AuthorizationManagerFactory<String> factory = DefaultAuthorizationManagerFactory.<String>builder()
-			.requireAdditionalAuthorities("ROLE_ADMIN")
+		AuthorizationManagerFactory<String> factory = AuthorizationManagerFactories.<String>multiFactor()
+			.requireFactors("ROLE_ADMIN")
 			.build();
 		assertUserDenied(factory.hasRole("USER"));
 		assertThat(factory.hasRole("USER").authorize(() -> TestAuthentication.authenticatedAdmin(), "").isGranted())
@@ -307,40 +303,12 @@ public class AuthorizationManagerFactoryTests {
 
 	@Test
 	public void builderWhenAdditionalAuthoritiesThenRequired() {
-		AuthorizationManagerFactory<String> factory = DefaultAuthorizationManagerFactory.<String>builder()
-			.requireAdditionalAuthorities("ROLE_ADMIN", "ROLE_USER")
+		AuthorizationManagerFactory<String> factory = AuthorizationManagerFactories.<String>multiFactor()
+			.requireFactors("ROLE_ADMIN", "ROLE_USER")
 			.build();
 		assertUserDenied(factory.hasRole("USER"));
 		assertThat(factory.hasRole("USER").authorize(() -> TestAuthentication.authenticatedAdmin(), "").isGranted())
 			.isTrue();
-	}
-
-	@Test
-	public void builderWhenNullRoleHierachyThenIllegalArgumentException() {
-		DefaultAuthorizationManagerFactory.Builder<Object> builder = DefaultAuthorizationManagerFactory.builder();
-		assertThatIllegalArgumentException().isThrownBy(() -> builder.roleHierarchy(null));
-	}
-
-	@Test
-	public void builderWhenRoleHierarchyThenUsed() {
-
-		RoleHierarchy roleHierarchy = mock(RoleHierarchy.class);
-		String ROLE_HIERARCHY = "ROLE_HIERARCHY";
-		Collection authorityHierarchy = AuthorityUtils.createAuthorityList(ROLE_HIERARCHY, "ROLE_USER");
-		given(roleHierarchy.getReachableGrantedAuthorities(any())).willReturn(authorityHierarchy);
-		DefaultAuthorizationManagerFactory<String> factory = DefaultAuthorizationManagerFactory.<String>builder()
-			.requireAdditionalAuthorities(ROLE_HIERARCHY)
-			.roleHierarchy(roleHierarchy)
-			.build();
-
-		// ROLE_USER is replaced with the RoleHierarchy (ROLE_USER, ROLE_HIERARCHY)
-		assertUserGranted(factory.hasAuthority("ROLE_USER"));
-		// ROLE_ADMIN is replaced with the RoleHierarchy (ROLE_USER, ROLE_HIERARCHY)
-		assertThat(factory.hasAuthority("ROLE_ADMIN")
-			.authorize(() -> TestAuthentication.authenticatedAdmin(), "")
-			.isGranted()).isFalse();
-
-		verify(roleHierarchy, times(4)).getReachableGrantedAuthorities(any());
 	}
 
 	private void assertUserGranted(AuthorizationManager<String> manager) {

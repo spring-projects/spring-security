@@ -4,8 +4,8 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.authorization.AuthorizationManagerFactories
 import org.springframework.security.authorization.AuthorizationManagerFactory
-import org.springframework.security.authorization.DefaultAuthorizationManagerFactory
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer
@@ -54,8 +54,8 @@ internal class MissingAuthorityConfiguration {
     // tag::authorizationManagerFactoryBean[]
     @Bean
     fun authz(): AuthorizationManagerFactory<Object> {
-        return DefaultAuthorizationManagerFactory.builder<Object>()
-                .requireAdditionalAuthorities(
+        return AuthorizationManagerFactories.multiFactor<Object>()
+                .requireFactors(
                     FactorGrantedAuthority.X509_AUTHORITY,
                     FactorGrantedAuthority.AUTHORIZATION_CODE_AUTHORITY
                 )

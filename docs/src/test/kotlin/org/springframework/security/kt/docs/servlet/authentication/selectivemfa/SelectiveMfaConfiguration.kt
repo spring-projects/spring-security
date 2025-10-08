@@ -2,8 +2,8 @@ package org.springframework.security.kt.docs.servlet.authentication.selectivemfa
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.authorization.AuthorizationManagerFactories
 import org.springframework.security.authorization.AuthorizationManagerFactory
-import org.springframework.security.authorization.DefaultAuthorizationManagerFactory
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
@@ -25,8 +25,8 @@ internal class SelectiveMfaConfiguration {
         // @formatter:off
         // <1>
         val mfa: AuthorizationManagerFactory<Any> =
-            DefaultAuthorizationManagerFactory.builder<Any>()
-                .requireAdditionalAuthorities(
+            AuthorizationManagerFactories.multiFactor<Any>()
+                .requireFactors(
                     FactorGrantedAuthority.PASSWORD_AUTHORITY,
                     FactorGrantedAuthority.OTT_AUTHORITY
                 )
