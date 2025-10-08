@@ -22,7 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
-import org.springframework.security.core.GrantedAuthorities;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.docs.servlet.authentication.servletx509config.CustomX509Configuration;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener;
@@ -62,7 +62,7 @@ public class ObtainingMoreAuthorizationTests {
 	}
 
 	@Test
-	@WithMockUser(authorities = { GrantedAuthorities.FACTOR_X509_AUTHORITY, GrantedAuthorities.FACTOR_AUTHORIZATION_CODE_AUTHORITY })
+	@WithMockUser(authorities = { FactorGrantedAuthority.X509_AUTHORITY, FactorGrantedAuthority.AUTHORIZATION_CODE_AUTHORITY })
 	void profileWhenMissingAuthorityConfigurationThenRedirectsToAuthorizationServer() throws Exception {
 		this.spring.register(MissingAuthorityConfiguration.class, Http200Controller.class).autowire();
 		// @formatter:off
@@ -83,7 +83,7 @@ public class ObtainingMoreAuthorizationTests {
 	}
 
 	@Test
-	@WithMockUser(authorities = { GrantedAuthorities.FACTOR_X509_AUTHORITY, GrantedAuthorities.FACTOR_AUTHORIZATION_CODE_AUTHORITY, "SCOPE_profile:read" })
+	@WithMockUser(authorities = { FactorGrantedAuthority.X509_AUTHORITY, FactorGrantedAuthority.AUTHORIZATION_CODE_AUTHORITY, "SCOPE_profile:read" })
 	void profileWhenAuthenticatedAndHasScopeThenPermits() throws Exception {
 		this.spring.register(MissingAuthorityConfiguration.class, Http200Controller.class).autowire();
 		// @formatter:off

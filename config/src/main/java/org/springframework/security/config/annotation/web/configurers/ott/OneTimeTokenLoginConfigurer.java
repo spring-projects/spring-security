@@ -37,7 +37,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractAu
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthorities;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AuthenticationConverter;
@@ -142,7 +142,7 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 			AuthenticationEntryPoint entryPoint = getAuthenticationEntryPoint();
 			RequestMatcher requestMatcher = getAuthenticationEntryPointMatcher(http);
 			exceptions.defaultDeniedHandlerForMissingAuthority((ep) -> ep.addEntryPointFor(entryPoint, requestMatcher),
-					GrantedAuthorities.FACTOR_OTT_AUTHORITY);
+					FactorGrantedAuthority.OTT_AUTHORITY);
 		}
 	}
 

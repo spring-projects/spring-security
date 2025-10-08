@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import org.springframework.security.core.GrantedAuthorities;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -37,16 +37,16 @@ class MapRequiredAuthoritiesRepositoryTests {
 
 	private String username = "user";
 
-	private List<String> authorities = List.of(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY,
-			GrantedAuthorities.FACTOR_OTT_AUTHORITY);
+	private List<String> authorities = List.of(FactorGrantedAuthority.PASSWORD_AUTHORITY,
+			FactorGrantedAuthority.OTT_AUTHORITY);
 
 	@Test
 	void workflow() {
 		this.repository.saveRequiredAuthorities(this.username, this.authorities);
 		assertThat(this.repository.findRequiredAuthorities(this.username))
 			.containsExactlyInAnyOrderElementsOf(this.authorities);
-		List<String> otherAuthorities = List.of(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY,
-				GrantedAuthorities.FACTOR_WEBAUTHN_AUTHORITY);
+		List<String> otherAuthorities = List.of(FactorGrantedAuthority.PASSWORD_AUTHORITY,
+				FactorGrantedAuthority.WEBAUTHN_AUTHORITY);
 		this.repository.saveRequiredAuthorities(this.username, otherAuthorities);
 		assertThat(this.repository.findRequiredAuthorities(this.username))
 			.containsExactlyInAnyOrderElementsOf(otherAuthorities);

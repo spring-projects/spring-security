@@ -33,7 +33,7 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.FactorAuthorizationDecision;
 import org.springframework.security.authorization.RequiredFactor;
 import org.springframework.security.authorization.RequiredFactorError;
-import org.springframework.security.core.GrantedAuthorities;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.WebAttributes;
@@ -213,7 +213,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 		filter.setOneTimeTokenGenerationUrl("/ott/authenticate");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockHttpServletRequest loginRequest = createLoginRequestFromMissingAuthority(
-				GrantedAuthorities.FACTOR_OTT_AUTHORITY);
+				FactorGrantedAuthority.OTT_AUTHORITY);
 		filter.doFilter(loginRequest, response, this.chain);
 		assertThat(response.getContentAsString()).contains("Request a One-Time Token");
 		assertThat(response.getContentAsString()).contains("""

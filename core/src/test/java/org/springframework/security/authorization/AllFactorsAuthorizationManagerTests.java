@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,11 +42,11 @@ class AllFactorsAuthorizationManagerTests {
 	private static final Object DOES_NOT_MATTER = new Object();
 
 	private static RequiredFactor REQUIRED_PASSWORD = RequiredFactor
-		.withAuthority(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY)
+		.withAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY)
 		.build();
 
 	private static RequiredFactor EXPIRING_PASSWORD = RequiredFactor
-		.withAuthority(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY)
+		.withAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY)
 		.validDuration(Duration.ofHours(1))
 		.build();
 
@@ -67,10 +66,10 @@ class AllFactorsAuthorizationManagerTests {
 	@Test
 	void authorizeWhenConsumerGranted() {
 		AllFactorsAuthorizationManager<Object> allFactors = AllFactorsAuthorizationManager.builder()
-			.requiredFactor((required) -> required.authority(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY))
+			.requiredFactor((required) -> required.authority(FactorGrantedAuthority.PASSWORD_AUTHORITY))
 			.build();
 		FactorGrantedAuthority passwordFactor = FactorGrantedAuthority
-			.withAuthority(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY)
+			.withAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY)
 			.issuedAt(Instant.now())
 			.build();
 		Authentication authentication = new TestingAuthenticationToken("user", "password", passwordFactor);
@@ -171,7 +170,7 @@ class AllFactorsAuthorizationManagerTests {
 		Duration expiresIn = Duration.ofHours(1);
 		Instant justExpired = now.minus(expiresIn);
 		Clock clock = Clock.fixed(now, ZoneId.systemDefault());
-		RequiredFactor expiringPassword = RequiredFactor.withAuthority(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY)
+		RequiredFactor expiringPassword = RequiredFactor.withAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY)
 			.validDuration(expiresIn)
 			.build();
 		AllFactorsAuthorizationManager<Object> allFactors = AllFactorsAuthorizationManager.builder()
@@ -193,7 +192,7 @@ class AllFactorsAuthorizationManagerTests {
 		Duration expiresIn = Duration.ofHours(1);
 		Instant justExpired = now.minus(expiresIn).plus(Duration.ofNanos(1));
 		Clock clock = Clock.fixed(now, ZoneId.systemDefault());
-		RequiredFactor expiringPassword = RequiredFactor.withAuthority(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY)
+		RequiredFactor expiringPassword = RequiredFactor.withAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY)
 			.validDuration(expiresIn)
 			.build();
 		AllFactorsAuthorizationManager<Object> allFactors = AllFactorsAuthorizationManager.builder()

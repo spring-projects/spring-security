@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import org.springframework.security.core.GrantedAuthorities;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -42,7 +42,7 @@ class FactorAuthorizationDecisionTests {
 
 	@Test
 	void isGrantedWhenNotEmptyThenFalse() {
-		RequiredFactor requiredPassword = RequiredFactor.withAuthority(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY)
+		RequiredFactor requiredPassword = RequiredFactor.withAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY)
 			.build();
 		RequiredFactorError missingPassword = RequiredFactorError.createMissing(requiredPassword);
 		FactorAuthorizationDecision decision = new FactorAuthorizationDecision(List.of(missingPassword));
@@ -51,7 +51,7 @@ class FactorAuthorizationDecisionTests {
 
 	@Test
 	void getFactorErrors() {
-		RequiredFactor requiredPassword = RequiredFactor.withAuthority(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY)
+		RequiredFactor requiredPassword = RequiredFactor.withAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY)
 			.build();
 		RequiredFactorError missingPassword = RequiredFactorError.createMissing(requiredPassword);
 		List<RequiredFactorError> factorErrors = List.of(missingPassword);
@@ -67,7 +67,7 @@ class FactorAuthorizationDecisionTests {
 
 	@Test
 	void constructorWhenContainsNullThenThrowIllegalArgumentException() {
-		RequiredFactor requiredPassword = RequiredFactor.withAuthority(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY)
+		RequiredFactor requiredPassword = RequiredFactor.withAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY)
 			.build();
 		RequiredFactorError missingPassword = RequiredFactorError.createMissing(requiredPassword);
 		List<RequiredFactorError> hasNullValue = Arrays.asList(missingPassword, null);

@@ -20,7 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
-import org.springframework.security.core.GrantedAuthorities
+import org.springframework.security.core.authority.FactorGrantedAuthority
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener
 import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers
@@ -47,7 +47,7 @@ class AuthorizationManagerFactoryTests {
     var mockMvc: MockMvc? = null
 
     @Test
-    @WithMockUser(authorities = [GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, GrantedAuthorities.FACTOR_OTT_AUTHORITY])
+    @WithMockUser(authorities = [FactorGrantedAuthority.PASSWORD_AUTHORITY, FactorGrantedAuthority.OTT_AUTHORITY])
     @Throws(Exception::class)
     fun getWhenAuthenticatedWithPasswordAndOttThenPermits() {
         this.spring.register(UseAuthorizationManagerFactoryConfiguration::class.java, Http200Controller::class.java)
@@ -60,7 +60,7 @@ class AuthorizationManagerFactoryTests {
     }
 
     @Test
-    @WithMockUser(authorities = [GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY])
+    @WithMockUser(authorities = [FactorGrantedAuthority.PASSWORD_AUTHORITY])
     @Throws(Exception::class)
     fun getWhenAuthenticatedWithPasswordThenRedirectsToOtt() {
         this.spring.register(UseAuthorizationManagerFactoryConfiguration::class.java, Http200Controller::class.java)
@@ -73,7 +73,7 @@ class AuthorizationManagerFactoryTests {
     }
 
     @Test
-    @WithMockUser(authorities = [GrantedAuthorities.FACTOR_OTT_AUTHORITY])
+    @WithMockUser(authorities = [FactorGrantedAuthority.OTT_AUTHORITY])
     @Throws(Exception::class)
     fun getWhenAuthenticatedWithOttThenRedirectsToPassword() {
         this.spring.register(UseAuthorizationManagerFactoryConfiguration::class.java, Http200Controller::class.java)

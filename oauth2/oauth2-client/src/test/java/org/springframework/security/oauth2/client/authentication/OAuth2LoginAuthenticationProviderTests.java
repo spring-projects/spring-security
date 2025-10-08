@@ -31,9 +31,9 @@ import org.mockito.stubbing.Answer;
 
 import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
@@ -220,7 +220,7 @@ public class OAuth2LoginAuthenticationProviderTests {
 		Authentication request = new OAuth2LoginAuthenticationToken(this.clientRegistration,
 				this.authorizationExchange);
 		Authentication result = this.authenticationProvider.authenticate(request);
-		SecurityAssertions.assertThat(result).hasAuthority(GrantedAuthorities.FACTOR_AUTHORIZATION_CODE_AUTHORITY);
+		SecurityAssertions.assertThat(result).hasAuthority(FactorGrantedAuthority.AUTHORIZATION_CODE_AUTHORITY);
 	}
 
 	private OAuth2AccessTokenResponse accessTokenSuccessResponse() {

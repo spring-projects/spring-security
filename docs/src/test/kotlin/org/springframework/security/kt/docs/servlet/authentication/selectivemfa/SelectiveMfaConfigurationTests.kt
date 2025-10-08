@@ -20,7 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
-import org.springframework.security.core.GrantedAuthorities
+import org.springframework.security.core.authority.FactorGrantedAuthority
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener
 import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers
@@ -47,7 +47,7 @@ class SelectiveMfaConfigurationTests {
     var mockMvc: MockMvc? = null
 
     @Test
-    @WithMockUser(authorities = [GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, "ROLE_ADMIN"])
+    @WithMockUser(authorities = [FactorGrantedAuthority.PASSWORD_AUTHORITY, "ROLE_ADMIN"])
     @Throws(Exception::class)
     fun adminWhenMissingOttThenRequired() {
         this.spring.register(
@@ -61,7 +61,7 @@ class SelectiveMfaConfigurationTests {
     }
 
     @Test
-    @WithMockUser(authorities = [GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, GrantedAuthorities.FACTOR_OTT_AUTHORITY, "ROLE_ADMIN"])
+    @WithMockUser(authorities = [FactorGrantedAuthority.PASSWORD_AUTHORITY, FactorGrantedAuthority.OTT_AUTHORITY, "ROLE_ADMIN"])
     @Throws(
         Exception::class
     )
@@ -77,7 +77,7 @@ class SelectiveMfaConfigurationTests {
     }
 
     @Test
-    @WithMockUser(authorities = [GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, "ROLE_ADMIN"])
+    @WithMockUser(authorities = [FactorGrantedAuthority.PASSWORD_AUTHORITY, "ROLE_ADMIN"])
     @Throws(Exception::class)
     fun userSettingsRequiresMfa() {
         this.spring.register(
@@ -91,7 +91,7 @@ class SelectiveMfaConfigurationTests {
     }
 
     @Test
-    @WithMockUser(authorities = [GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, "ROLE_USER"])
+    @WithMockUser(authorities = [FactorGrantedAuthority.PASSWORD_AUTHORITY, "ROLE_USER"])
     @Throws(Exception::class)
     fun userSettingsWhenMissingOttThenRequired() {
         this.spring.register(

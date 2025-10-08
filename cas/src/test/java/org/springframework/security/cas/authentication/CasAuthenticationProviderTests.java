@@ -33,8 +33,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.User;
@@ -361,7 +361,7 @@ public class CasAuthenticationProviderTests {
 		CasServiceTicketAuthenticationToken token = CasServiceTicketAuthenticationToken.stateful("ST-123");
 		token.setDetails("details");
 		Authentication result = cap.authenticate(token);
-		SecurityAssertions.assertThat(result).hasAuthority(GrantedAuthorities.FACTOR_CAS_AUTHORITY);
+		SecurityAssertions.assertThat(result).hasAuthority(FactorGrantedAuthority.CAS_AUTHORITY);
 	}
 
 	private class MockAuthoritiesPopulator implements AuthenticationUserDetailsService {

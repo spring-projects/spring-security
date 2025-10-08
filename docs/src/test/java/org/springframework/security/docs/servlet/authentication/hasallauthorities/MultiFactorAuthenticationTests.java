@@ -22,7 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
-import org.springframework.security.core.GrantedAuthorities;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.docs.servlet.authentication.servletx509config.CustomX509Configuration;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener;
@@ -52,7 +52,7 @@ public class MultiFactorAuthenticationTests {
 	MockMvc mockMvc;
 
 	@Test
-	@WithMockUser(authorities = { GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, GrantedAuthorities.FACTOR_OTT_AUTHORITY })
+	@WithMockUser(authorities = { FactorGrantedAuthority.PASSWORD_AUTHORITY, FactorGrantedAuthority.OTT_AUTHORITY })
 	void getWhenAuthenticatedWithPasswordAndOttThenPermits() throws Exception {
 		this.spring.register(ListAuthoritiesConfiguration.class, Http200Controller.class).autowire();
 		// @formatter:off
@@ -63,7 +63,7 @@ public class MultiFactorAuthenticationTests {
 	}
 
 	@Test
-	@WithMockUser(authorities = GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY)
+	@WithMockUser(authorities = FactorGrantedAuthority.PASSWORD_AUTHORITY)
 	void getWhenAuthenticatedWithPasswordThenRedirectsToOtt() throws Exception {
 		this.spring.register(ListAuthoritiesConfiguration.class, Http200Controller.class).autowire();
 		// @formatter:off
@@ -74,7 +74,7 @@ public class MultiFactorAuthenticationTests {
 	}
 
 	@Test
-	@WithMockUser(authorities = GrantedAuthorities.FACTOR_OTT_AUTHORITY)
+	@WithMockUser(authorities = FactorGrantedAuthority.OTT_AUTHORITY)
 	void getWhenAuthenticatedWithOttThenRedirectsToPassword() throws Exception {
 		this.spring.register(ListAuthoritiesConfiguration.class, Http200Controller.class).autowire();
 		// @formatter:off

@@ -7,7 +7,7 @@ import org.springframework.security.authorization.DefaultAuthorizationManagerFac
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
-import org.springframework.security.core.GrantedAuthorities
+import org.springframework.security.core.authority.FactorGrantedAuthority
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
@@ -40,8 +40,8 @@ internal class UseAuthorizationManagerFactoryConfiguration {
     fun authz(): AuthorizationManagerFactory<Object> {
         return DefaultAuthorizationManagerFactory.builder<Object>()
             .requireAdditionalAuthorities(
-                GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY,
-                GrantedAuthorities.FACTOR_OTT_AUTHORITY
+                FactorGrantedAuthority.PASSWORD_AUTHORITY,
+                FactorGrantedAuthority.OTT_AUTHORITY
             )
             .build()
     }

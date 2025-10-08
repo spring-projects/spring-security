@@ -7,7 +7,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.GrantedAuthorities
+import org.springframework.security.core.authority.FactorGrantedAuthority
 import org.springframework.security.core.userdetails.PasswordEncodedUser
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
@@ -27,7 +27,9 @@ internal class AdminMfaAuthorizationManagerConfiguration {
         // @formatter:off
         http {
             authorizeHttpRequests {
+                // <1>
                 authorize("/admin/**", hasRole("ADMIN"))
+                // <2>
                 authorize(anyRequest, authenticated)
             }
             formLogin { }
@@ -46,9 +48,8 @@ internal class AdminMfaAuthorizationManagerConfiguration {
             return if ("admin" == authentication.get().name) {
                 var admins =
                     AllAuthoritiesAuthorizationManager.hasAllAuthorities<Any>(
-                        GrantedAuthorities.FACTOR_OTT_AUTHORITY,
-                        GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY
-                    )
+                        FactorGrantedAuthority.OTT_AUTHORITY,
+                        FactorGrantedAuthority.PASSWORD_AUTHORITY)
                 // <1>
                 admins.authorize(authentication, context)
             } else {

@@ -34,6 +34,54 @@ import org.springframework.util.Assert;
  */
 public final class FactorGrantedAuthority implements GrantedAuthority {
 
+	/**
+	 * The standard {@link GrantedAuthority#getAuthority()} that indicates that OAuth2
+	 * Authorization Code was used to authenticate.
+	 */
+	public static final String AUTHORIZATION_CODE_AUTHORITY = "FACTOR_AUTHORIZATION_CODE";
+
+	/**
+	 * The standard {@link GrantedAuthority#getAuthority()} that indicates that bearer
+	 * authentication was used to authenticate.
+	 */
+	public static final String BEARER_AUTHORITY = "FACTOR_BEARER";
+
+	/**
+	 * The standard {@link GrantedAuthority#getAuthority()} that indicates that CAS was
+	 * used to authenticate.
+	 */
+	public static final String CAS_AUTHORITY = "FACTOR_CAS";
+
+	/**
+	 * The standard {@link GrantedAuthority#getAuthority()} that indicates that one time
+	 * token was used to authenticate.
+	 */
+	public static final String OTT_AUTHORITY = "FACTOR_OTT";
+
+	/**
+	 * The standard {@link GrantedAuthority#getAuthority()} that indicates that a password
+	 * was used to authenticate.
+	 */
+	public static final String PASSWORD_AUTHORITY = "FACTOR_PASSWORD";
+
+	/**
+	 * The standard {@link GrantedAuthority#getAuthority()} that indicates that SAML was
+	 * used to authenticate.
+	 */
+	public static final String SAML_RESPONSE_AUTHORITY = "FACTOR_SAML_RESPONSE";
+
+	/**
+	 * The standard {@link GrantedAuthority#getAuthority()} that indicates that WebAuthn
+	 * was used to authenticate.
+	 */
+	public static final String WEBAUTHN_AUTHORITY = "FACTOR_WEBAUTHN";
+
+	/**
+	 * The standard {@link GrantedAuthority#getAuthority()} that indicates that X509 was
+	 * used to authenticate.
+	 */
+	public static final String X509_AUTHORITY = "FACTOR_X509";
+
 	private static final long serialVersionUID = 1998010439847123984L;
 
 	private final String authority;

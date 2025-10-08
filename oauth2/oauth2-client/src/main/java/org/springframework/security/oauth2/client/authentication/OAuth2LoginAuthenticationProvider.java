@@ -24,7 +24,6 @@ import java.util.Map;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
@@ -70,7 +69,7 @@ import org.springframework.util.Assert;
  */
 public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider {
 
-	private static final String AUTHORITY = GrantedAuthorities.FACTOR_AUTHORIZATION_CODE_AUTHORITY;
+	private static final String AUTHORITY = FactorGrantedAuthority.AUTHORIZATION_CODE_AUTHORITY;
 
 	private final OAuth2AuthorizationCodeAuthenticationProvider authorizationCodeAuthenticationProvider;
 

@@ -27,7 +27,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.GrantedAuthorities;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -57,8 +57,7 @@ public class EnableGlobalMultiFactorAuthenticationTests {
 	Service service;
 
 	@Test
-	@WithMockUser(
-			authorities = { GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, GrantedAuthorities.FACTOR_OTT_AUTHORITY })
+	@WithMockUser(authorities = { FactorGrantedAuthority.PASSWORD_AUTHORITY, FactorGrantedAuthority.OTT_AUTHORITY })
 	void webWhenAuthorized() throws Exception {
 		this.mvc.perform(get("/")).andExpect(status().isOk());
 	}
@@ -70,8 +69,7 @@ public class EnableGlobalMultiFactorAuthenticationTests {
 	}
 
 	@Test
-	@WithMockUser(
-			authorities = { GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, GrantedAuthorities.FACTOR_OTT_AUTHORITY })
+	@WithMockUser(authorities = { FactorGrantedAuthority.PASSWORD_AUTHORITY, FactorGrantedAuthority.OTT_AUTHORITY })
 	void methodWhenAuthorized() throws Exception {
 		Assertions.assertThatNoException().isThrownBy(() -> this.service.authenticated());
 	}
@@ -87,7 +85,7 @@ public class EnableGlobalMultiFactorAuthenticationTests {
 	@EnableMethodSecurity
 	@Configuration
 	@EnableGlobalMultiFactorAuthentication(
-			authorities = { GrantedAuthorities.FACTOR_OTT_AUTHORITY, GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY })
+			authorities = { FactorGrantedAuthority.OTT_AUTHORITY, FactorGrantedAuthority.PASSWORD_AUTHORITY })
 	static class Config {
 
 		@Bean

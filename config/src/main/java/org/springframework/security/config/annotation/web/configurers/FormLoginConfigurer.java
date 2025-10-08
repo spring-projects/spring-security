@@ -21,7 +21,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.GrantedAuthorities;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ForwardAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.ForwardAuthenticationSuccessHandler;
@@ -237,7 +237,7 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 			AuthenticationEntryPoint entryPoint = getAuthenticationEntryPoint();
 			RequestMatcher requestMatcher = getAuthenticationEntryPointMatcher(http);
 			exceptions.defaultDeniedHandlerForMissingAuthority((ep) -> ep.addEntryPointFor(entryPoint, requestMatcher),
-					GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY);
+					FactorGrantedAuthority.PASSWORD_AUTHORITY);
 		}
 	}
 

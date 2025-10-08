@@ -22,7 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
-import org.springframework.security.core.GrantedAuthorities;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.docs.servlet.authentication.servletx509config.CustomX509Configuration;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener;
@@ -74,7 +74,7 @@ public class RequiredAuthoritiesAuthorizationManagerConfigurationTests {
 	}
 
 	@Test
-	@WithMockUser(username = "admin", authorities = { GrantedAuthorities.FACTOR_OTT_AUTHORITY, GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY })
+	@WithMockUser(username = "admin", authorities = { FactorGrantedAuthority.OTT_AUTHORITY, FactorGrantedAuthority.PASSWORD_AUTHORITY })
 	void getWhenAdminAndHasFactorThenAllows() throws Exception {
 		this.spring.register(AdminMfaAuthorizationManagerConfiguration.class, Http200Controller.class).autowire();
 		// @formatter:off

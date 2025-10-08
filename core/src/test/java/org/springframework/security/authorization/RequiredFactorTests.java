@@ -20,7 +20,7 @@ import java.time.Duration;
 
 import org.junit.jupiter.api.Test;
 
-import org.springframework.security.core.GrantedAuthorities;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -41,19 +41,19 @@ class RequiredFactorTests {
 
 	@Test
 	void withAuthorityThenEquals() {
-		RequiredFactor requiredPassword = RequiredFactor.withAuthority(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY)
+		RequiredFactor requiredPassword = RequiredFactor.withAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY)
 			.build();
-		assertThat(requiredPassword.getAuthority()).isEqualTo(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY);
+		assertThat(requiredPassword.getAuthority()).isEqualTo(FactorGrantedAuthority.PASSWORD_AUTHORITY);
 		assertThat(requiredPassword.getValidDuration()).isNull();
 	}
 
 	@Test
 	void builderValidDurationThenEquals() {
 		Duration validDuration = Duration.ofMinutes(1);
-		RequiredFactor requiredPassword = RequiredFactor.withAuthority(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY)
+		RequiredFactor requiredPassword = RequiredFactor.withAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY)
 			.validDuration(validDuration)
 			.build();
-		assertThat(requiredPassword.getAuthority()).isEqualTo(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY);
+		assertThat(requiredPassword.getAuthority()).isEqualTo(FactorGrantedAuthority.PASSWORD_AUTHORITY);
 		assertThat(requiredPassword.getValidDuration()).isEqualTo(validDuration);
 	}
 

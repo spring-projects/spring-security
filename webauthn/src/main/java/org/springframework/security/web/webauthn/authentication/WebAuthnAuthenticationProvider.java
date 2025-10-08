@@ -23,7 +23,6 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -45,7 +44,7 @@ import org.springframework.util.Assert;
  */
 public class WebAuthnAuthenticationProvider implements AuthenticationProvider {
 
-	private static final String AUTHORITY = GrantedAuthorities.FACTOR_WEBAUTHN_AUTHORITY;
+	private static final String AUTHORITY = FactorGrantedAuthority.WEBAUTHN_AUTHORITY;
 
 	private final WebAuthnRelyingPartyOperations relyingPartyOperations;
 

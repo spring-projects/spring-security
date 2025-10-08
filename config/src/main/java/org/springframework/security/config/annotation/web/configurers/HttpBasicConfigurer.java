@@ -28,7 +28,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.GrantedAuthorities;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
@@ -196,8 +196,7 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>>
 		AuthenticationEntryPoint entryPoint = postProcess(this.authenticationEntryPoint);
 		exceptionHandling.defaultAuthenticationEntryPointFor(entryPoint, preferredMatcher);
 		exceptionHandling.defaultDeniedHandlerForMissingAuthority(
-				(ep) -> ep.addEntryPointFor(entryPoint, preferredMatcher),
-				GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY);
+				(ep) -> ep.addEntryPointFor(entryPoint, preferredMatcher), FactorGrantedAuthority.PASSWORD_AUTHORITY);
 	}
 
 	private void registerDefaultLogoutSuccessHandler(B http, RequestMatcher preferredMatcher) {

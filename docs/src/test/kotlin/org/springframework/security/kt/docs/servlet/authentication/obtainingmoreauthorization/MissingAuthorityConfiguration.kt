@@ -11,7 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.core.AuthenticationException
-import org.springframework.security.core.GrantedAuthorities
+import org.springframework.security.core.authority.FactorGrantedAuthority
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations
@@ -55,7 +55,10 @@ internal class MissingAuthorityConfiguration {
     @Bean
     fun authz(): AuthorizationManagerFactory<Object> {
         return DefaultAuthorizationManagerFactory.builder<Object>()
-                .requireAdditionalAuthorities(GrantedAuthorities.FACTOR_X509_AUTHORITY, GrantedAuthorities.FACTOR_AUTHORIZATION_CODE_AUTHORITY)
+                .requireAdditionalAuthorities(
+                    FactorGrantedAuthority.X509_AUTHORITY,
+                    FactorGrantedAuthority.AUTHORIZATION_CODE_AUTHORITY
+                )
                 .build()
     }
     // end::authorizationManagerFactoryBean[]

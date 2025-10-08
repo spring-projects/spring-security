@@ -20,7 +20,7 @@ import java.time.Duration;
 
 import org.junit.jupiter.api.Test;
 
-import org.springframework.security.core.GrantedAuthorities;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 class RequiredFactorErrorTests {
 
 	public static final RequiredFactor REQUIRED_FACTOR = RequiredFactor
-		.withAuthority(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY)
+		.withAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY)
 		.validDuration(Duration.ofHours(1))
 		.build();
 
@@ -56,7 +56,7 @@ class RequiredFactorErrorTests {
 
 	@Test
 	void createExpiredWhenNullValidDurationThenIllegalArgumentException() {
-		RequiredFactor requiredPassword = RequiredFactor.withAuthority(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY)
+		RequiredFactor requiredPassword = RequiredFactor.withAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY)
 			.build();
 		assertThatIllegalArgumentException().isThrownBy(() -> RequiredFactorError.createExpired(requiredPassword));
 	}
