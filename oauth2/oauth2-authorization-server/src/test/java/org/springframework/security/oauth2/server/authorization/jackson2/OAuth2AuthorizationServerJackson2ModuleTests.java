@@ -66,7 +66,7 @@ public class OAuth2AuthorizationServerJackson2ModuleTests {
 	public void readValueWhenOAuth2AuthorizationAttributesThenSuccess() throws Exception {
 		Authentication principal = new UsernamePasswordAuthenticationToken("principal", "credentials");
 		OAuth2Authorization authorization = TestOAuth2Authorizations.authorization()
-			.attributes(attrs -> attrs.put(Principal.class.getName(), principal))
+			.attributes((attrs) -> attrs.put(Principal.class.getName(), principal))
 			.build();
 		Map<String, Object> attributes = authorization.getAttributes();
 		String json = this.objectMapper.writeValueAsString(attributes);
