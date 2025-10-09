@@ -75,6 +75,12 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 
 	private static final String AUTHORIZATION_URI = "https://provider.com/oauth2/authorize";
 
+	// See RFC 7636: Appendix B. Example for the S256 code_challenge_method
+	// https://tools.ietf.org/html/rfc7636#appendix-B
+	private static final String S256_CODE_VERIFIER = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
+
+	private static final String S256_CODE_CHALLENGE = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM";
+
 	private static final String STATE = "state";
 
 	private static final OAuth2TokenType STATE_TOKEN_TYPE = new OAuth2TokenType(OAuth2ParameterNames.STATE);
@@ -225,7 +231,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 			.willReturn(registeredClient);
 		OAuth2AuthorizationCodeRequestAuthenticationToken authentication = new OAuth2AuthorizationCodeRequestAuthenticationToken(
 				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, "https://127.0.0.1:5000", STATE,
-				registeredClient.getScopes(), null);
+				registeredClient.getScopes(), createPkceParameters());
 
 		OAuth2AuthorizationCodeRequestAuthenticationToken authenticationResult = (OAuth2AuthorizationCodeRequestAuthenticationToken) this.authenticationProvider
 			.authenticate(authentication);
@@ -244,7 +250,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 			.willReturn(registeredClient);
 		OAuth2AuthorizationCodeRequestAuthenticationToken authentication = new OAuth2AuthorizationCodeRequestAuthenticationToken(
 				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, "https://[::1]:5000", STATE,
-				registeredClient.getScopes(), null);
+				registeredClient.getScopes(), createPkceParameters());
 
 		OAuth2AuthorizationCodeRequestAuthenticationToken authenticationResult = (OAuth2AuthorizationCodeRequestAuthenticationToken) this.authenticationProvider
 			.authenticate(authentication);
@@ -319,9 +325,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenPkceRequiredAndMissingCodeChallengeThenThrowOAuth2AuthorizationCodeRequestAuthenticationException() {
-		RegisteredClient registeredClient = TestRegisteredClients.registeredClient()
-			.clientSettings(ClientSettings.builder().requireProofKey(true).build())
-			.build();
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
 		given(this.registeredClientRepository.findByClientId(eq(registeredClient.getClientId())))
 			.willReturn(registeredClient);
 		String redirectUri = registeredClient.getRedirectUris().toArray(new String[0])[2];
@@ -341,7 +345,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 			.willReturn(registeredClient);
 		String redirectUri = registeredClient.getRedirectUris().toArray(new String[0])[0];
 		Map<String, Object> additionalParameters = new HashMap<>();
-		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE, "code-challenge");
+		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE, S256_CODE_CHALLENGE);
 		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE_METHOD, "unsupported");
 		OAuth2AuthorizationCodeRequestAuthenticationToken authentication = new OAuth2AuthorizationCodeRequestAuthenticationToken(
 				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, redirectUri, STATE,
@@ -360,7 +364,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 			.willReturn(registeredClient);
 		String redirectUri = registeredClient.getRedirectUris().toArray(new String[0])[2];
 		Map<String, Object> additionalParameters = new HashMap<>();
-		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE, "code-challenge");
+		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE, S256_CODE_CHALLENGE);
 		OAuth2AuthorizationCodeRequestAuthenticationToken authentication = new OAuth2AuthorizationCodeRequestAuthenticationToken(
 				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, redirectUri, STATE,
 				registeredClient.getScopes(), additionalParameters);
@@ -394,7 +398,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 		given(this.registeredClientRepository.findByClientId(eq(registeredClient.getClientId())))
 			.willReturn(registeredClient);
 		String redirectUri = registeredClient.getRedirectUris().toArray(new String[0])[2];
-		Map<String, Object> additionalParameters = new HashMap<>();
+		Map<String, Object> additionalParameters = createPkceParameters();
 		additionalParameters.put("prompt", prompt);
 		OAuth2AuthorizationCodeRequestAuthenticationToken authentication = new OAuth2AuthorizationCodeRequestAuthenticationToken(
 				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, redirectUri, STATE,
@@ -412,7 +416,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 			.willReturn(registeredClient);
 		this.principal.setAuthenticated(false);
 		String redirectUri = registeredClient.getRedirectUris().toArray(new String[0])[2];
-		Map<String, Object> additionalParameters = new HashMap<>();
+		Map<String, Object> additionalParameters = createPkceParameters();
 		additionalParameters.put("prompt", "none");
 		OAuth2AuthorizationCodeRequestAuthenticationToken authentication = new OAuth2AuthorizationCodeRequestAuthenticationToken(
 				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, redirectUri, STATE,
@@ -433,7 +437,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 		String redirectUri = registeredClient.getRedirectUris().toArray(new String[0])[1];
 		OAuth2AuthorizationCodeRequestAuthenticationToken authentication = new OAuth2AuthorizationCodeRequestAuthenticationToken(
 				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, redirectUri, STATE,
-				registeredClient.getScopes(), null);
+				registeredClient.getScopes(), createPkceParameters());
 
 		OAuth2AuthorizationCodeRequestAuthenticationToken authenticationResult = (OAuth2AuthorizationCodeRequestAuthenticationToken) this.authenticationProvider
 			.authenticate(authentication);
@@ -451,7 +455,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 		given(this.registeredClientRepository.findByClientId(eq(registeredClient.getClientId())))
 			.willReturn(registeredClient);
 		String redirectUri = registeredClient.getRedirectUris().toArray(new String[0])[2];
-		Map<String, Object> additionalParameters = new HashMap<>();
+		Map<String, Object> additionalParameters = createPkceParameters();
 		additionalParameters.put("prompt", "none");
 		OAuth2AuthorizationCodeRequestAuthenticationToken authentication = new OAuth2AuthorizationCodeRequestAuthenticationToken(
 				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, redirectUri, STATE,
@@ -473,7 +477,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 		String redirectUri = registeredClient.getRedirectUris().toArray(new String[0])[0];
 		OAuth2AuthorizationCodeRequestAuthenticationToken authentication = new OAuth2AuthorizationCodeRequestAuthenticationToken(
 				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, redirectUri, STATE,
-				registeredClient.getScopes(), null);
+				registeredClient.getScopes(), createPkceParameters());
 
 		OAuth2AuthorizationConsentAuthenticationToken authenticationResult = (OAuth2AuthorizationConsentAuthenticationToken) this.authenticationProvider
 			.authenticate(authentication);
@@ -524,7 +528,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 		String redirectUri = registeredClient.getRedirectUris().toArray(new String[0])[1];
 		OAuth2AuthorizationCodeRequestAuthenticationToken authentication = new OAuth2AuthorizationCodeRequestAuthenticationToken(
 				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, redirectUri, STATE,
-				registeredClient.getScopes(), null);
+				registeredClient.getScopes(), createPkceParameters());
 
 		OAuth2AuthorizationCodeRequestAuthenticationToken authenticationResult = (OAuth2AuthorizationCodeRequestAuthenticationToken) this.authenticationProvider
 			.authenticate(authentication);
@@ -551,7 +555,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 		String redirectUri = registeredClient.getRedirectUris().toArray(new String[0])[2];
 		OAuth2AuthorizationCodeRequestAuthenticationToken authentication = new OAuth2AuthorizationCodeRequestAuthenticationToken(
 				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, redirectUri, STATE,
-				registeredClient.getScopes(), null);
+				registeredClient.getScopes(), createPkceParameters());
 
 		OAuth2AuthorizationCodeRequestAuthenticationToken authenticationResult = (OAuth2AuthorizationCodeRequestAuthenticationToken) this.authenticationProvider
 			.authenticate(authentication);
@@ -574,7 +578,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 		String redirectUri = registeredClient.getRedirectUris().toArray(new String[0])[1];
 		OAuth2AuthorizationCodeRequestAuthenticationToken authentication = new OAuth2AuthorizationCodeRequestAuthenticationToken(
 				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, redirectUri, STATE,
-				registeredClient.getScopes(), null);
+				registeredClient.getScopes(), createPkceParameters());
 
 		OAuth2AuthorizationCodeRequestAuthenticationToken authenticationResult = (OAuth2AuthorizationCodeRequestAuthenticationToken) this.authenticationProvider
 			.authenticate(authentication);
@@ -592,12 +596,9 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 			.willReturn(registeredClient);
 
 		String redirectUri = registeredClient.getRedirectUris().toArray(new String[0])[0];
-		Map<String, Object> additionalParameters = new HashMap<>();
-		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE, "code-challenge");
-		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE_METHOD, "S256");
 		OAuth2AuthorizationCodeRequestAuthenticationToken authentication = new OAuth2AuthorizationCodeRequestAuthenticationToken(
 				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, redirectUri, STATE,
-				registeredClient.getScopes(), additionalParameters);
+				registeredClient.getScopes(), createPkceParameters());
 
 		OAuth2AuthorizationCodeRequestAuthenticationToken authenticationResult = (OAuth2AuthorizationCodeRequestAuthenticationToken) this.authenticationProvider
 			.authenticate(authentication);
@@ -614,7 +615,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 
 		OAuth2PushedAuthorizationRequestUri pushedAuthorizationRequestUri = OAuth2PushedAuthorizationRequestUri
 			.create();
-		Map<String, Object> additionalParameters = new HashMap<>();
+		Map<String, Object> additionalParameters = createPkceParameters();
 		additionalParameters.put(OAuth2ParameterNames.REQUEST_URI, pushedAuthorizationRequestUri.getRequestUri());
 		OAuth2Authorization authorization = TestOAuth2Authorizations
 			.authorization(registeredClient, additionalParameters)
@@ -640,7 +641,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 
 		OAuth2PushedAuthorizationRequestUri pushedAuthorizationRequestUri = OAuth2PushedAuthorizationRequestUri
 			.create();
-		Map<String, Object> additionalParameters = new HashMap<>();
+		Map<String, Object> additionalParameters = createPkceParameters();
 		additionalParameters.put(OAuth2ParameterNames.REQUEST_URI, pushedAuthorizationRequestUri.getRequestUri());
 		OAuth2Authorization authorization = TestOAuth2Authorizations
 			.authorization(registeredClient, additionalParameters)
@@ -665,7 +666,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 
 		OAuth2PushedAuthorizationRequestUri pushedAuthorizationRequestUri = OAuth2PushedAuthorizationRequestUri
 			.create();
-		Map<String, Object> additionalParameters = new HashMap<>();
+		Map<String, Object> additionalParameters = createPkceParameters();
 		additionalParameters.put(OAuth2ParameterNames.REQUEST_URI, pushedAuthorizationRequestUri.getRequestUri());
 		OAuth2Authorization authorization = TestOAuth2Authorizations
 			.authorization(registeredClient, additionalParameters)
@@ -689,7 +690,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 
 		OAuth2PushedAuthorizationRequestUri pushedAuthorizationRequestUri = OAuth2PushedAuthorizationRequestUri
 			.create(Instant.now().minusSeconds(5));
-		Map<String, Object> additionalParameters = new HashMap<>();
+		Map<String, Object> additionalParameters = createPkceParameters();
 		additionalParameters.put(OAuth2ParameterNames.REQUEST_URI, pushedAuthorizationRequestUri.getRequestUri());
 		OAuth2Authorization authorization = TestOAuth2Authorizations
 			.authorization(registeredClient, additionalParameters)
@@ -721,7 +722,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 		String redirectUri = registeredClient.getRedirectUris().toArray(new String[0])[1];
 		OAuth2AuthorizationCodeRequestAuthenticationToken authentication = new OAuth2AuthorizationCodeRequestAuthenticationToken(
 				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, redirectUri, STATE,
-				registeredClient.getScopes(), null);
+				registeredClient.getScopes(), createPkceParameters());
 
 		assertThatExceptionOfType(OAuth2AuthorizationCodeRequestAuthenticationException.class)
 			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
@@ -746,7 +747,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 		String redirectUri = registeredClient.getRedirectUris().toArray(new String[0])[2];
 		OAuth2AuthorizationCodeRequestAuthenticationToken authentication = new OAuth2AuthorizationCodeRequestAuthenticationToken(
 				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, redirectUri, STATE,
-				registeredClient.getScopes(), null);
+				registeredClient.getScopes(), createPkceParameters());
 
 		OAuth2AuthorizationCodeRequestAuthenticationToken authenticationResult = (OAuth2AuthorizationCodeRequestAuthenticationToken) this.authenticationProvider
 			.authenticate(authentication);
@@ -810,6 +811,13 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 		OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication = authenticationException
 			.getAuthorizationCodeRequestAuthentication();
 		assertThat(authorizationCodeRequestAuthentication.getRedirectUri()).isEqualTo(redirectUri);
+	}
+
+	private static Map<String, Object> createPkceParameters() {
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put(PkceParameterNames.CODE_CHALLENGE_METHOD, "S256");
+		parameters.put(PkceParameterNames.CODE_CHALLENGE, S256_CODE_CHALLENGE);
+		return parameters;
 	}
 
 }

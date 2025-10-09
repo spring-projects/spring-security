@@ -44,7 +44,7 @@ public final class ClientSettings extends AbstractSettings {
 	/**
 	 * Returns {@code true} if the client is required to provide a proof key challenge and
 	 * verifier when performing the Authorization Code Grant flow. The default is
-	 * {@code false}.
+	 * {@code true}.
 	 * @return {@code true} if the client is required to provide a proof key challenge and
 	 * verifier, {@code false} otherwise
 	 */
@@ -99,7 +99,7 @@ public final class ClientSettings extends AbstractSettings {
 	 * @return the {@link Builder}
 	 */
 	public static Builder builder() {
-		return new Builder().requireProofKey(false).requireAuthorizationConsent(false);
+		return new Builder().requireProofKey(true).requireAuthorizationConsent(false);
 	}
 
 	/**

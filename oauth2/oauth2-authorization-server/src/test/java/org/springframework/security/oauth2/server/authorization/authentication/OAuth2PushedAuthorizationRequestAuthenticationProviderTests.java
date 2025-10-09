@@ -40,7 +40,6 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.TestRegisteredClients;
-import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -56,6 +55,12 @@ import static org.mockito.Mockito.verify;
 public class OAuth2PushedAuthorizationRequestAuthenticationProviderTests {
 
 	private static final String AUTHORIZATION_URI = "https://provider.com/oauth2/par";
+
+	// See RFC 7636: Appendix B. Example for the S256 code_challenge_method
+	// https://tools.ietf.org/html/rfc7636#appendix-B
+	private static final String S256_CODE_VERIFIER = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
+
+	private static final String S256_CODE_CHALLENGE = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM";
 
 	private static final String STATE = "state";
 
@@ -177,7 +182,7 @@ public class OAuth2PushedAuthorizationRequestAuthenticationProviderTests {
 				ClientAuthenticationMethod.CLIENT_SECRET_BASIC, registeredClient.getClientSecret());
 		OAuth2PushedAuthorizationRequestAuthenticationToken authentication = new OAuth2PushedAuthorizationRequestAuthenticationToken(
 				AUTHORIZATION_URI, registeredClient.getClientId(), clientPrincipal, "https://127.0.0.1:5000", STATE,
-				registeredClient.getScopes(), null);
+				registeredClient.getScopes(), createPkceParameters());
 		OAuth2PushedAuthorizationRequestAuthenticationToken authenticationResult = (OAuth2PushedAuthorizationRequestAuthenticationToken) this.authenticationProvider
 			.authenticate(authentication);
 		assertPushedAuthorizationResponse(registeredClient, authentication, authenticationResult);
@@ -192,7 +197,7 @@ public class OAuth2PushedAuthorizationRequestAuthenticationProviderTests {
 				ClientAuthenticationMethod.CLIENT_SECRET_BASIC, registeredClient.getClientSecret());
 		OAuth2PushedAuthorizationRequestAuthenticationToken authentication = new OAuth2PushedAuthorizationRequestAuthenticationToken(
 				AUTHORIZATION_URI, registeredClient.getClientId(), clientPrincipal, "https://[::1]:5000", STATE,
-				registeredClient.getScopes(), null);
+				registeredClient.getScopes(), createPkceParameters());
 		OAuth2PushedAuthorizationRequestAuthenticationToken authenticationResult = (OAuth2PushedAuthorizationRequestAuthenticationToken) this.authenticationProvider
 			.authenticate(authentication);
 		assertPushedAuthorizationResponse(registeredClient, authentication, authenticationResult);
@@ -246,9 +251,7 @@ public class OAuth2PushedAuthorizationRequestAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenPkceRequiredAndMissingCodeChallengeThenThrowOAuth2AuthorizationCodeRequestAuthenticationException() {
-		RegisteredClient registeredClient = TestRegisteredClients.registeredClient()
-			.clientSettings(ClientSettings.builder().requireProofKey(true).build())
-			.build();
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
 		OAuth2ClientAuthenticationToken clientPrincipal = new OAuth2ClientAuthenticationToken(registeredClient,
 				ClientAuthenticationMethod.CLIENT_SECRET_BASIC, registeredClient.getClientSecret());
 		String redirectUri = registeredClient.getRedirectUris().toArray(new String[0])[2];
@@ -320,7 +323,7 @@ public class OAuth2PushedAuthorizationRequestAuthenticationProviderTests {
 		OAuth2ClientAuthenticationToken clientPrincipal = new OAuth2ClientAuthenticationToken(registeredClient,
 				ClientAuthenticationMethod.CLIENT_SECRET_BASIC, registeredClient.getClientSecret());
 		String redirectUri = registeredClient.getRedirectUris().toArray(new String[0])[2];
-		Map<String, Object> additionalParameters = new HashMap<>();
+		Map<String, Object> additionalParameters = createPkceParameters();
 		additionalParameters.put("prompt", prompt);
 		OAuth2PushedAuthorizationRequestAuthenticationToken authentication = new OAuth2PushedAuthorizationRequestAuthenticationToken(
 				AUTHORIZATION_URI, registeredClient.getClientId(), clientPrincipal, redirectUri, STATE,
@@ -337,12 +340,9 @@ public class OAuth2PushedAuthorizationRequestAuthenticationProviderTests {
 		OAuth2ClientAuthenticationToken clientPrincipal = new OAuth2ClientAuthenticationToken(registeredClient,
 				ClientAuthenticationMethod.CLIENT_SECRET_BASIC, registeredClient.getClientSecret());
 		String redirectUri = registeredClient.getRedirectUris().toArray(new String[0])[0];
-		Map<String, Object> additionalParameters = new HashMap<>();
-		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE, "code-challenge");
-		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE_METHOD, "S256");
 		OAuth2PushedAuthorizationRequestAuthenticationToken authentication = new OAuth2PushedAuthorizationRequestAuthenticationToken(
 				AUTHORIZATION_URI, registeredClient.getClientId(), clientPrincipal, redirectUri, STATE,
-				registeredClient.getScopes(), additionalParameters);
+				registeredClient.getScopes(), createPkceParameters());
 		OAuth2PushedAuthorizationRequestAuthenticationToken authenticationResult = (OAuth2PushedAuthorizationRequestAuthenticationToken) this.authenticationProvider
 			.authenticate(authentication);
 		assertPushedAuthorizationResponse(registeredClient, authentication, authenticationResult);
@@ -360,7 +360,7 @@ public class OAuth2PushedAuthorizationRequestAuthenticationProviderTests {
 		String redirectUri = registeredClient.getRedirectUris().toArray(new String[0])[2];
 		OAuth2PushedAuthorizationRequestAuthenticationToken authentication = new OAuth2PushedAuthorizationRequestAuthenticationToken(
 				AUTHORIZATION_URI, registeredClient.getClientId(), clientPrincipal, redirectUri, STATE,
-				registeredClient.getScopes(), null);
+				registeredClient.getScopes(), createPkceParameters());
 		OAuth2PushedAuthorizationRequestAuthenticationToken authenticationResult = (OAuth2PushedAuthorizationRequestAuthenticationToken) this.authenticationProvider
 			.authenticate(authentication);
 		assertPushedAuthorizationResponse(registeredClient, authentication, authenticationResult);
@@ -413,6 +413,13 @@ public class OAuth2PushedAuthorizationRequestAuthenticationProviderTests {
 		OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication = authenticationException
 			.getAuthorizationCodeRequestAuthentication();
 		assertThat(authorizationCodeRequestAuthentication.getRedirectUri()).isEqualTo(redirectUri);
+	}
+
+	private static Map<String, Object> createPkceParameters() {
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put(PkceParameterNames.CODE_CHALLENGE_METHOD, "S256");
+		parameters.put(PkceParameterNames.CODE_CHALLENGE, S256_CODE_CHALLENGE);
+		return parameters;
 	}
 
 }

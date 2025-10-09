@@ -22,8 +22,10 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.nimbusds.jose.jwk.JWKSet;
@@ -69,6 +71,7 @@ import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponseType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
@@ -132,6 +135,12 @@ public class OidcTests {
 	private static final String DEFAULT_TOKEN_ENDPOINT_URI = "/oauth2/token";
 
 	private static final String DEFAULT_OIDC_LOGOUT_ENDPOINT_URI = "/connect/logout";
+
+	// See RFC 7636: Appendix B. Example for the S256 code_challenge_method
+	// https://tools.ietf.org/html/rfc7636#appendix-B
+	private static final String S256_CODE_VERIFIER = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
+
+	private static final String S256_CODE_CHALLENGE = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM";
 
 	private static final String AUTHORITIES_CLAIM = "authorities";
 
@@ -462,7 +471,7 @@ public class OidcTests {
 		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().scope(OidcScopes.OPENID).build();
 		this.registeredClientRepository.save(registeredClient);
 
-		OAuth2Authorization authorization = TestOAuth2Authorizations.authorization(registeredClient).build();
+		OAuth2Authorization authorization = createAuthorization(registeredClient);
 		this.authorizationService.save(authorization);
 
 		this.mvc
@@ -557,6 +566,13 @@ public class OidcTests {
 			.andReturn();
 	}
 
+	private static OAuth2Authorization createAuthorization(RegisteredClient registeredClient) {
+		Map<String, Object> additionalParameters = new HashMap<>();
+		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE, S256_CODE_CHALLENGE);
+		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE_METHOD, "S256");
+		return TestOAuth2Authorizations.authorization(registeredClient, additionalParameters).build();
+	}
+
 	private static MultiValueMap<String, String> getAuthorizationRequestParameters(RegisteredClient registeredClient) {
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 		parameters.set(OAuth2ParameterNames.RESPONSE_TYPE, OAuth2AuthorizationResponseType.CODE.getValue());
@@ -565,6 +581,8 @@ public class OidcTests {
 		parameters.set(OAuth2ParameterNames.SCOPE,
 				StringUtils.collectionToDelimitedString(registeredClient.getScopes(), " "));
 		parameters.set(OAuth2ParameterNames.STATE, "state");
+		parameters.set(PkceParameterNames.CODE_CHALLENGE, S256_CODE_CHALLENGE);
+		parameters.set(PkceParameterNames.CODE_CHALLENGE_METHOD, "S256");
 		return parameters;
 	}
 
@@ -575,6 +593,7 @@ public class OidcTests {
 		parameters.set(OAuth2ParameterNames.CODE,
 				authorization.getToken(OAuth2AuthorizationCode.class).getToken().getTokenValue());
 		parameters.set(OAuth2ParameterNames.REDIRECT_URI, registeredClient.getRedirectUris().iterator().next());
+		parameters.set(PkceParameterNames.CODE_VERIFIER, S256_CODE_VERIFIER);
 		return parameters;
 	}
 

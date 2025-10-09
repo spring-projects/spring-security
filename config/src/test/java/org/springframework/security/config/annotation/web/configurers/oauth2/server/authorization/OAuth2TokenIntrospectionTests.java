@@ -89,6 +89,7 @@ import org.springframework.security.oauth2.server.authorization.client.TestRegis
 import org.springframework.security.oauth2.server.authorization.http.converter.OAuth2TokenIntrospectionHttpMessageConverter;
 import org.springframework.security.oauth2.server.authorization.jackson2.TestingAuthenticationTokenMixin;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
+import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenClaimsContext;
@@ -310,6 +311,7 @@ public class OAuth2TokenIntrospectionTests {
 				.build();
 		RegisteredClient authorizedRegisteredClient = TestRegisteredClients.registeredClient()
 				.tokenSettings(tokenSettings)
+				.clientSettings(ClientSettings.builder().requireProofKey(false).build())
 				.build();
 		// @formatter:on
 		this.registeredClientRepository.save(authorizedRegisteredClient);

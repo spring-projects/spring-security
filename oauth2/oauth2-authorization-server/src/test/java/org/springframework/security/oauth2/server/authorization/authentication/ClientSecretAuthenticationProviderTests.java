@@ -267,11 +267,12 @@ public class ClientSecretAuthenticationProviderTests {
 		given(this.registeredClientRepository.findByClientId(eq(registeredClient.getClientId())))
 			.willReturn(registeredClient);
 
+		OAuth2Authorization authorization = createAuthorization(registeredClient);
 		given(this.authorizationService.findByToken(eq(AUTHORIZATION_CODE), eq(AUTHORIZATION_CODE_TOKEN_TYPE)))
-			.willReturn(TestOAuth2Authorizations.authorization().build());
+			.willReturn(authorization);
 		OAuth2ClientAuthenticationToken authentication = new OAuth2ClientAuthenticationToken(
 				registeredClient.getClientId(), ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
-				registeredClient.getClientSecret(), createAuthorizationCodeTokenParameters());
+				registeredClient.getClientSecret(), createPkceTokenParameters(S256_CODE_VERIFIER));
 		OAuth2ClientAuthenticationToken authenticationResult = (OAuth2ClientAuthenticationToken) this.authenticationProvider
 			.authenticate(authentication);
 
@@ -289,9 +290,7 @@ public class ClientSecretAuthenticationProviderTests {
 		given(this.registeredClientRepository.findByClientId(eq(registeredClient.getClientId())))
 			.willReturn(registeredClient);
 
-		OAuth2Authorization authorization = TestOAuth2Authorizations
-			.authorization(registeredClient, createPkceAuthorizationParametersS256())
-			.build();
+		OAuth2Authorization authorization = createAuthorization(registeredClient);
 		given(this.authorizationService.findByToken(eq(AUTHORIZATION_CODE), eq(AUTHORIZATION_CODE_TOKEN_TYPE)))
 			.willReturn(authorization);
 
@@ -317,9 +316,7 @@ public class ClientSecretAuthenticationProviderTests {
 		given(this.registeredClientRepository.findByClientId(eq(registeredClient.getClientId())))
 			.willReturn(registeredClient);
 
-		OAuth2Authorization authorization = TestOAuth2Authorizations
-			.authorization(registeredClient, createPkceAuthorizationParametersS256())
-			.build();
+		OAuth2Authorization authorization = createAuthorization(registeredClient);
 		given(this.authorizationService.findByToken(eq(AUTHORIZATION_CODE), eq(AUTHORIZATION_CODE_TOKEN_TYPE)))
 			.willReturn(authorization);
 
@@ -344,9 +341,7 @@ public class ClientSecretAuthenticationProviderTests {
 		given(this.registeredClientRepository.findByClientId(eq(registeredClient.getClientId())))
 			.willReturn(registeredClient);
 
-		OAuth2Authorization authorization = TestOAuth2Authorizations
-			.authorization(registeredClient, createPkceAuthorizationParametersS256())
-			.build();
+		OAuth2Authorization authorization = createAuthorization(registeredClient);
 		given(this.authorizationService.findByToken(eq(AUTHORIZATION_CODE), eq(AUTHORIZATION_CODE_TOKEN_TYPE)))
 			.willReturn(authorization);
 
@@ -366,6 +361,13 @@ public class ClientSecretAuthenticationProviderTests {
 		assertThat(authenticationResult.getRegisteredClient()).isEqualTo(registeredClient);
 	}
 
+	private static OAuth2Authorization createAuthorization(RegisteredClient registeredClient) {
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put(PkceParameterNames.CODE_CHALLENGE_METHOD, "S256");
+		parameters.put(PkceParameterNames.CODE_CHALLENGE, S256_CODE_CHALLENGE);
+		return TestOAuth2Authorizations.authorization(registeredClient, parameters).build();
+	}
+
 	private static Map<String, Object> createAuthorizationCodeTokenParameters() {
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantType.AUTHORIZATION_CODE.getValue());
@@ -376,13 +378,6 @@ public class ClientSecretAuthenticationProviderTests {
 	private static Map<String, Object> createPkceTokenParameters(String codeVerifier) {
 		Map<String, Object> parameters = createAuthorizationCodeTokenParameters();
 		parameters.put(PkceParameterNames.CODE_VERIFIER, codeVerifier);
-		return parameters;
-	}
-
-	private static Map<String, Object> createPkceAuthorizationParametersS256() {
-		Map<String, Object> parameters = new HashMap<>();
-		parameters.put(PkceParameterNames.CODE_CHALLENGE_METHOD, "S256");
-		parameters.put(PkceParameterNames.CODE_CHALLENGE, S256_CODE_CHALLENGE);
 		return parameters;
 	}
 

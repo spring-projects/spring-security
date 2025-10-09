@@ -33,7 +33,7 @@ public class ClientSettingsTests {
 	public void buildWhenDefaultThenDefaultsAreSet() {
 		ClientSettings clientSettings = ClientSettings.builder().build();
 		assertThat(clientSettings.getSettings()).hasSize(2);
-		assertThat(clientSettings.isRequireProofKey()).isFalse();
+		assertThat(clientSettings.isRequireProofKey()).isTrue();
 		assertThat(clientSettings.isRequireAuthorizationConsent()).isFalse();
 	}
 
