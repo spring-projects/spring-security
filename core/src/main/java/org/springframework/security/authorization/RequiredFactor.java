@@ -128,6 +128,78 @@ public final class RequiredFactor {
 		}
 
 		/**
+		 * A convenience method for invoking {@link #authority(String)} with
+		 * {@link FactorGrantedAuthority#AUTHORIZATION_CODE_AUTHORITY}.
+		 * @return the builder.
+		 */
+		public Builder authorizationCodeAuthority() {
+			return authority(FactorGrantedAuthority.AUTHORIZATION_CODE_AUTHORITY);
+		}
+
+		/**
+		 * A convenience method for invoking {@link #authority(String)} with
+		 * {@link FactorGrantedAuthority#BEARER_AUTHORITY}.
+		 * @return the builder.
+		 */
+		public Builder bearerTokenAuthority() {
+			return authority(FactorGrantedAuthority.BEARER_AUTHORITY);
+		}
+
+		/**
+		 * A convenience method for invoking {@link #authority(String)} with
+		 * {@link FactorGrantedAuthority#CAS_AUTHORITY}.
+		 * @return the builder.
+		 */
+		public Builder casAuthority() {
+			return authority(FactorGrantedAuthority.CAS_AUTHORITY);
+		}
+
+		/**
+		 * A convenience method for invoking {@link #authority(String)} with
+		 * {@link FactorGrantedAuthority#PASSWORD_AUTHORITY}.
+		 * @return the builder.
+		 */
+		public Builder passwordAuthority() {
+			return authority(FactorGrantedAuthority.PASSWORD_AUTHORITY);
+		}
+
+		/**
+		 * A convenience method for invoking {@link #authority(String)} with
+		 * {@link FactorGrantedAuthority#OTT_AUTHORITY}.
+		 * @return the builder.
+		 */
+		public Builder ottAuthority() {
+			return authority(FactorGrantedAuthority.OTT_AUTHORITY);
+		}
+
+		/**
+		 * A convenience method for invoking {@link #authority(String)} with
+		 * {@link FactorGrantedAuthority#SAML_RESPONSE_AUTHORITY}.
+		 * @return the builder.
+		 */
+		public Builder samlAuthority() {
+			return authority(FactorGrantedAuthority.SAML_RESPONSE_AUTHORITY);
+		}
+
+		/**
+		 * A convenience method for invoking {@link #authority(String)} with
+		 * {@link FactorGrantedAuthority#WEBAUTHN_AUTHORITY}.
+		 * @return the builder.
+		 */
+		public Builder webauthnAuthority() {
+			return authority(FactorGrantedAuthority.WEBAUTHN_AUTHORITY);
+		}
+
+		/**
+		 * A convenience method for invoking {@link #authority(String)} with
+		 * {@link FactorGrantedAuthority#X509_AUTHORITY}.
+		 * @return the builder.
+		 */
+		public Builder x509Authority() {
+			return authority(FactorGrantedAuthority.X509_AUTHORITY);
+		}
+
+		/**
 		 * Sets the optional {@link Duration} of time that the {@link RequiredFactor} is
 		 * valid for.
 		 * @param validDuration the {@link Duration}.

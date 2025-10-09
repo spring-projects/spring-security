@@ -17,6 +17,7 @@
 package org.springframework.security.authorization;
 
 import java.time.Duration;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.Test;
 
@@ -55,6 +56,58 @@ class RequiredFactorTests {
 			.build();
 		assertThat(requiredPassword.getAuthority()).isEqualTo(FactorGrantedAuthority.PASSWORD_AUTHORITY);
 		assertThat(requiredPassword.getValidDuration()).isEqualTo(validDuration);
+	}
+
+	@Test
+	void builderAuthorizationCodeAuthority() {
+		assertBuilderSetsAuthority(RequiredFactor.Builder::authorizationCodeAuthority,
+				FactorGrantedAuthority.AUTHORIZATION_CODE_AUTHORITY);
+	}
+
+	@Test
+	void builderBearerTokenAuthority() {
+		assertBuilderSetsAuthority(RequiredFactor.Builder::bearerTokenAuthority,
+				FactorGrantedAuthority.BEARER_AUTHORITY);
+	}
+
+	@Test
+	void builderCasAuthority() {
+		assertBuilderSetsAuthority(RequiredFactor.Builder::casAuthority, FactorGrantedAuthority.CAS_AUTHORITY);
+	}
+
+	@Test
+	void builderPasswordAuthority() {
+		assertBuilderSetsAuthority(RequiredFactor.Builder::passwordAuthority,
+				FactorGrantedAuthority.PASSWORD_AUTHORITY);
+	}
+
+	@Test
+	void builderOttAuthority() {
+		assertBuilderSetsAuthority(RequiredFactor.Builder::ottAuthority, FactorGrantedAuthority.OTT_AUTHORITY);
+	}
+
+	@Test
+	void builderSamlAuthority() {
+		assertBuilderSetsAuthority(RequiredFactor.Builder::samlAuthority,
+				FactorGrantedAuthority.SAML_RESPONSE_AUTHORITY);
+	}
+
+	@Test
+	void builderWebauthnAuthority() {
+		assertBuilderSetsAuthority(RequiredFactor.Builder::webauthnAuthority,
+				FactorGrantedAuthority.WEBAUTHN_AUTHORITY);
+	}
+
+	@Test
+	void builderX509Authority() {
+		assertBuilderSetsAuthority(RequiredFactor.Builder::x509Authority, FactorGrantedAuthority.X509_AUTHORITY);
+	}
+
+	private static void assertBuilderSetsAuthority(Consumer<RequiredFactor.Builder> configure, String expected) {
+		RequiredFactor.Builder builder = RequiredFactor.builder();
+		configure.accept(builder);
+		RequiredFactor requiredFactor = builder.build();
+		assertThat(requiredFactor.getAuthority()).isEqualTo(expected);
 	}
 
 }
