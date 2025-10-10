@@ -55,7 +55,7 @@ We have demonstrated how to configure an entire application to require MFA (Glob
 However, there are times that an application only wants parts of the application to require MFA.
 Consider the following requirements:
 
-- URLs that begin with `/admin/**` should require the authorities `FACTOR_OTT`, `FACTOR_PASSWORD`, `ROLE_ADMIN`.
+- URLs that begin with `/admin/` should require the authorities `FACTOR_OTT`, `FACTOR_PASSWORD`, `ROLE_ADMIN`.
 - URLs that begin with `/user/settings` should require the authorities `FACTOR_OTT`, `FACTOR_PASSWORD`
 - Every other URL requires an authenticated user
 
@@ -71,6 +71,30 @@ By not publishing it as a Bean, we are able to selectively use the `Authorizatio
 <4> Otherwise, the request must be authenticated.
 There is no MFA requirement, because the `AuthorizationManagerFactory` is not used.
 <5> Set up the authentication mechanisms that can provide the required factors.
+
+[[valid-duration]]
+== Specifying a Valid Duration
+
+At times, we may want to define authorization rules based upon how recently we authenticated.
+For example, an application may want to require that the user has authenticated within the last hour in order to allow access to the `/user/settings` endpoint.
+
+Remember at the time of authentication, a `FactorGrantedAuthority` is added to the `Authentication`.
+The `FactorGrantedAuthority` specifies when it was `issuedAt`, but does not describe how long it is valid for.
+This is intentional, because it allows a single `FactorGrantedAuthority` to be used with different ``validDuration``s.
+
+Let's take a look at an example that illustrates how to meet the following requirements:
+
+- URLs that begin with `/admin/` should require that a password has been provided within the last 30 minutes
+- URLs that being with `/user/settings` should require that a password has been provided within the last hour
+- Otherwise, authentication is required, but it does not care if it is a password or how long ago authentication occurred
+
+include-code::./ValidDurationConfiguration[tag=httpSecurity,indent=0]
+<1> First we define `passwordIn30m` as a requirement for a password within 30 minutes
+<2> Next, we define `passwordInHour` as a requirement for a password within an hour
+<3> We use `passwordIn30m` to require that URLs that begin with `/admin/` should require that a password has been provided in the last 30 minutes and that the user has the `ROLE_ADMIN` authority
+<4> We use `passwordInHour` to require that URLs that begin with `/user/settings` should require that a password has been provided in the last hour
+<5> Otherwise, authentication is required, but it does not care if it is a password or how long ago authentication occurred
+<6> Set up the authentication mechanisms that can provide the required factors.
 
 [[programmatic-mfa]]
 == Programmatic MFA

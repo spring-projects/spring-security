@@ -1,4 +1,4 @@
-package org.springframework.security.kt.docs.servlet.authentication.selectivemfa
+package org.springframework.security.kt.docs.servlet.authentication.validduration
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -14,34 +14,41 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.ott.OneTimeTokenGenerationSuccessHandler
 import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenGenerationSuccessHandler
+import java.time.Duration
 
 @EnableWebSecurity
 @Configuration(proxyBeanMethods = false)
-internal class SelectiveMfaConfiguration {
+internal class ValidDurationConfiguration {
     // tag::httpSecurity[]
     @Bean
     @Throws(Exception::class)
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain? {
         // @formatter:off
         // <1>
-        val mfa = AuthorizationManagerFactories.multiFactor<Any>()
-            .requireFactors(
-                FactorGrantedAuthority.PASSWORD_AUTHORITY,
-                FactorGrantedAuthority.OTT_AUTHORITY
-            )
+        val passwordIn30m = AuthorizationManagerFactories.multiFactor<Any>()
+            .requireFactor( { factor -> factor
+                .passwordAuthority()
+                .validDuration(Duration.ofMinutes(30))
+            })
+            .build()
+        // <2>
+        val passwordInHour = AuthorizationManagerFactories.multiFactor<Any>()
+            .requireFactor( { factor -> factor
+                .passwordAuthority()
+                .validDuration(Duration.ofHours(1))
+            })
             .build()
         http {
             authorizeHttpRequests {
-                // <2>
-                authorize("/admin/**", mfa.hasRole("ADMIN"))
                 // <3>
-                authorize("/user/settings/**", mfa.authenticated())
+                authorize("/admin/**", passwordIn30m.hasRole("ADMIN"))
                 // <4>
+                authorize("/user/settings/**", passwordInHour.authenticated())
+                // <5>
                 authorize(anyRequest, authenticated)
             }
-            // <5>
+            // <6>
             formLogin { }
-            oneTimeTokenLogin {  }
         }
         // @formatter:on
         return http.build()

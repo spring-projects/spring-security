@@ -1,4 +1,6 @@
-package org.springframework.security.docs.servlet.authentication.selectivemfa;
+package org.springframework.security.docs.servlet.authentication.validduration;
+
+import java.time.Duration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,31 +19,37 @@ import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenG
 
 @EnableWebSecurity
 @Configuration(proxyBeanMethods = false)
-class SelectiveMfaConfiguration {
+class ValidDurationConfiguration {
 
 	// tag::httpSecurity[]
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		// @formatter:off
 		// <1>
-		var mfa = AuthorizationManagerFactories.multiFactor()
-			.requireFactors(
-				FactorGrantedAuthority.PASSWORD_AUTHORITY,
-				FactorGrantedAuthority.OTT_AUTHORITY
+		var passwordIn30m = AuthorizationManagerFactories.multiFactor()
+			.requireFactor( (factor) -> factor
+				.passwordAuthority()
+				.validDuration(Duration.ofMinutes(30))
+			)
+			.build();
+		// <2>
+		var passwordInHour = AuthorizationManagerFactories.multiFactor()
+			.requireFactor( (factor) -> factor
+				.passwordAuthority()
+				.validDuration(Duration.ofHours(1))
 			)
 			.build();
 		http
 			.authorizeHttpRequests((authorize) -> authorize
-				// <2>
-				.requestMatchers("/admin/**").access(mfa.hasRole("ADMIN"))
 				// <3>
-				.requestMatchers("/user/settings/**").access(mfa.authenticated())
+				.requestMatchers("/admin/**").access(passwordIn30m.hasRole("ADMIN"))
 				// <4>
+				.requestMatchers("/user/settings/**").access(passwordInHour.authenticated())
+				// <5>
 				.anyRequest().authenticated()
 			)
-			// <5>
-			.formLogin(Customizer.withDefaults())
-			.oneTimeTokenLogin(Customizer.withDefaults());
+			// <6>
+			.formLogin(Customizer.withDefaults());
 		// @formatter:on
 		return http.build();
 	}
@@ -56,10 +64,5 @@ class SelectiveMfaConfiguration {
 						.authorities("app")
 						.build()
 		);
-	}
-
-	@Bean
-	OneTimeTokenGenerationSuccessHandler tokenGenerationSuccessHandler() {
-		return new RedirectOneTimeTokenGenerationSuccessHandler("/ott/sent");
 	}
 }
