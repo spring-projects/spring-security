@@ -35,7 +35,7 @@ import jakarta.servlet.http.HttpSession
  * @since 5.3
  * @property clearAuthentication whether the [SecurityContextLogoutHandler] should clear
  * the [Authentication] at the time of logout.
- * @property clearAuthentication whether to invalidate the [HttpSession] at the time of logout.
+ * @property invalidateHttpSession whether to invalidate the [HttpSession] at the time of logout.
  * @property logoutUrl the URL that triggers log out to occur.
  * @property logoutRequestMatcher the [RequestMatcher] that triggers log out to occur.
  * @property logoutSuccessUrl the URL to redirect to after logout has occurred.
