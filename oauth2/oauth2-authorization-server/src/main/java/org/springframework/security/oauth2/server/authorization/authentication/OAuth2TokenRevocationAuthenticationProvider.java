@@ -89,10 +89,7 @@ public final class OAuth2TokenRevocationAuthenticationProvider implements Authen
 			this.logger.trace("Authenticated token revocation request");
 		}
 
-		OAuth2TokenRevocationAuthenticationToken tokenRevocationAuthenticationResult = new OAuth2TokenRevocationAuthenticationToken(
-				token.getToken(), clientPrincipal);
-		tokenRevocationAuthenticationResult.setDetails(tokenRevocationAuthentication.getDetails());
-		return tokenRevocationAuthenticationResult;
+		return new OAuth2TokenRevocationAuthenticationToken(token.getToken(), clientPrincipal);
 	}
 
 	@Override

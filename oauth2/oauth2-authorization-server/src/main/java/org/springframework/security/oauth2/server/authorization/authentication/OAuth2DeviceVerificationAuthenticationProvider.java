@@ -182,11 +182,9 @@ public final class OAuth2DeviceVerificationAuthenticationProvider implements Aut
 				.getAuthorizationServerSettings();
 			String deviceVerificationUri = authorizationServerSettings.getDeviceVerificationEndpoint();
 
-			OAuth2DeviceAuthorizationConsentAuthenticationToken deviceAuthorizationConsentAuthenticationResult = new OAuth2DeviceAuthorizationConsentAuthenticationToken(
-					deviceVerificationUri, registeredClient.getClientId(), principal,
-					deviceVerificationAuthentication.getUserCode(), state, requestedScopes, currentAuthorizedScopes);
-			deviceAuthorizationConsentAuthenticationResult.setDetails(deviceVerificationAuthentication.getDetails());
-			return deviceAuthorizationConsentAuthenticationResult;
+			return new OAuth2DeviceAuthorizationConsentAuthenticationToken(deviceVerificationUri,
+					registeredClient.getClientId(), principal, deviceVerificationAuthentication.getUserCode(), state,
+					requestedScopes, currentAuthorizedScopes);
 		}
 
 		// @formatter:off

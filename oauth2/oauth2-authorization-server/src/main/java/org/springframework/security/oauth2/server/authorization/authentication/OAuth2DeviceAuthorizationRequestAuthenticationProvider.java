@@ -181,11 +181,8 @@ public final class OAuth2DeviceAuthorizationRequestAuthenticationProvider implem
 			this.logger.trace("Authenticated device authorization request");
 		}
 
-		OAuth2DeviceAuthorizationRequestAuthenticationToken deviceAuthorizationRequestAuthenticationResult = new OAuth2DeviceAuthorizationRequestAuthenticationToken(
-				clientPrincipal, requestedScopes, deviceCode, userCode);
-		deviceAuthorizationRequestAuthenticationResult
-			.setDetails(deviceAuthorizationRequestAuthentication.getDetails());
-		return deviceAuthorizationRequestAuthenticationResult;
+		return new OAuth2DeviceAuthorizationRequestAuthenticationToken(clientPrincipal, requestedScopes, deviceCode,
+				userCode);
 	}
 
 	@Override

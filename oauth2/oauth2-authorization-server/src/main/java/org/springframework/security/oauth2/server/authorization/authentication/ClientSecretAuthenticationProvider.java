@@ -155,11 +155,8 @@ public final class ClientSecretAuthenticationProvider implements AuthenticationP
 			this.logger.trace("Authenticated client secret");
 		}
 
-		OAuth2ClientAuthenticationToken clientAuthenticationResult = new OAuth2ClientAuthenticationToken(
-				registeredClient, clientAuthentication.getClientAuthenticationMethod(),
-				clientAuthentication.getCredentials());
-		clientAuthenticationResult.setDetails(clientAuthentication.getDetails());
-		return clientAuthenticationResult;
+		return new OAuth2ClientAuthenticationToken(registeredClient,
+				clientAuthentication.getClientAuthenticationMethod(), clientAuthentication.getCredentials());
 	}
 
 	@Override

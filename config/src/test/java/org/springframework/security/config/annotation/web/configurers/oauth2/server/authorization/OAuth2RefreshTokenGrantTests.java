@@ -624,10 +624,7 @@ public class OAuth2RefreshTokenGrantTests {
 				throwInvalidClient("authentication_method");
 			}
 
-			PublicClientRefreshTokenAuthenticationToken publicClientRefreshTokenAuthenticationResult = new PublicClientRefreshTokenAuthenticationToken(
-					registeredClient);
-			publicClientRefreshTokenAuthenticationResult.setDetails(publicClientAuthentication.getDetails());
-			return publicClientRefreshTokenAuthenticationResult;
+			return new PublicClientRefreshTokenAuthenticationToken(registeredClient);
 		}
 
 		@Override

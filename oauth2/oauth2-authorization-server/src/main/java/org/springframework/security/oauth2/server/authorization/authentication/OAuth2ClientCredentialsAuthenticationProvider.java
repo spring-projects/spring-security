@@ -170,10 +170,7 @@ public final class OAuth2ClientCredentialsAuthenticationProvider implements Auth
 			this.logger.trace("Authenticated token request");
 		}
 
-		OAuth2AccessTokenAuthenticationToken accessTokenAuthenticationResult = new OAuth2AccessTokenAuthenticationToken(
-				registeredClient, clientPrincipal, accessToken);
-		accessTokenAuthenticationResult.setDetails(clientCredentialsAuthentication.getDetails());
-		return accessTokenAuthenticationResult;
+		return new OAuth2AccessTokenAuthenticationToken(registeredClient, clientPrincipal, accessToken);
 	}
 
 	@Override
