@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.context.MessageSource;
@@ -160,6 +161,20 @@ public class ProviderManagerTests {
 		Authentication result = authMgr.authenticate(request);
 		assertThat(result.getCredentials()).isNotNull();
 		assertThat(result.getDetails()).isSameAs(details);
+	}
+
+	// gh-18027
+	@Test
+	void authenticationIsSameWhenDetailsSetAndAuthenticationToBuilderIsDefault() {
+		Authentication customAuthentication = new DefaultToBuilderAuthentication();
+		AuthenticationProvider provider = mock(AuthenticationProvider.class);
+		given(provider.supports(any())).willReturn(true);
+		given(provider.authenticate(any())).willReturn(customAuthentication);
+		TestingAuthenticationToken request = createAuthenticationToken();
+		request.setDetails(new Object());
+		ProviderManager authMgr = new ProviderManager(provider);
+		Authentication result = authMgr.authenticate(request);
+		assertThat(result).isSameAs(customAuthentication);
 	}
 
 	@Test
@@ -352,6 +367,50 @@ public class ProviderManagerTests {
 		public boolean supports(Class<?> authentication) {
 			return TestingAuthenticationToken.class.isAssignableFrom(authentication)
 					|| UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
+		}
+
+	}
+
+	/**
+	 * Represents a custom {@link Authentication} that does not override
+	 * {@link #toBuilder()}. We should remain passive to previous versions of Spring
+	 * Security and not change the {@link Authentication} type.
+	 */
+	private static final class DefaultToBuilderAuthentication implements Authentication {
+
+		@Override
+		public Collection<? extends GrantedAuthority> getAuthorities() {
+			return List.of();
+		}
+
+		@Override
+		public @Nullable Object getCredentials() {
+			return null;
+		}
+
+		@Override
+		public @Nullable Object getDetails() {
+			return null;
+		}
+
+		@Override
+		public @Nullable Object getPrincipal() {
+			return null;
+		}
+
+		@Override
+		public boolean isAuthenticated() {
+			return false;
+		}
+
+		@Override
+		public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
+
+		}
+
+		@Override
+		public String getName() {
+			return "";
 		}
 
 	}

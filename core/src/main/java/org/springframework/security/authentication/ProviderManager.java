@@ -182,7 +182,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 			try {
 				result = provider.authenticate(authentication);
 				if (result != null) {
-					result = copyDetails(authentication, result);
+					copyDetails(authentication, result);
 					break;
 				}
 			}
@@ -277,14 +277,10 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 	 * @param source source authentication
 	 * @param dest the destination authentication object
 	 */
-	private Authentication copyDetails(Authentication source, Authentication dest) {
-		if (source.getDetails() == null) {
-			return dest;
+	private void copyDetails(Authentication source, Authentication dest) {
+		if ((dest instanceof AbstractAuthenticationToken token) && (dest.getDetails() == null)) {
+			token.setDetails(source.getDetails());
 		}
-		if (dest.getDetails() != null) {
-			return dest;
-		}
-		return dest.toBuilder().details(source.getDetails()).build();
 	}
 
 	public List<AuthenticationProvider> getProviders() {
