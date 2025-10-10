@@ -16,11 +16,10 @@
 
 package org.springframework.security.web.webauthn.jackson;
 
-import java.io.IOException;
-
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 
 import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
 
@@ -30,11 +29,11 @@ import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
  * @author Rob Winch
  * @since 6.4
  */
-class AuthenticatorTransportSerializer extends JsonSerializer<AuthenticatorTransport> {
+class AuthenticatorTransportSerializer extends ValueSerializer<AuthenticatorTransport> {
 
 	@Override
-	public void serialize(AuthenticatorTransport transport, JsonGenerator jgen, SerializerProvider provider)
-			throws IOException {
+	public void serialize(AuthenticatorTransport transport, JsonGenerator jgen, SerializationContext ctxt)
+			throws JacksonException {
 		jgen.writeString(transport.getValue());
 	}
 

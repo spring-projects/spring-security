@@ -16,7 +16,7 @@
 
 package org.springframework.security.web.webauthn.jackson;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 import org.springframework.security.web.webauthn.api.AttestationConveyancePreference;
 

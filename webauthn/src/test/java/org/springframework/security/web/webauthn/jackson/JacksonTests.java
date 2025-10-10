@@ -19,11 +19,11 @@ package org.springframework.security.web.webauthn.jackson;
 import java.time.Duration;
 import java.util.Arrays;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientOutputs;
 import org.springframework.security.web.webauthn.api.AuthenticatorAssertionResponse;
@@ -46,12 +46,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class JacksonTests {
 
-	private ObjectMapper mapper;
+	private JsonMapper mapper;
 
 	@BeforeEach
 	void setup() {
-		this.mapper = new ObjectMapper();
-		this.mapper.registerModule(new WebauthnJackson2Module());
+		this.mapper = JsonMapper.builder().addModule(new WebauthnJacksonModule()).build();
 	}
 
 	@Test
