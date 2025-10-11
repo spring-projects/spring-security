@@ -49,13 +49,13 @@ public class CacheControlServerHttpHeadersWriter implements ServerHttpHeadersWri
 	/**
 	 * The value for cache control value
 	 */
-	public static final String CACHE_CONTRTOL_VALUE = "no-cache, no-store, max-age=0, must-revalidate";
+	public static final String CACHE_CONTROL_VALUE = "no-cache, no-store, max-age=0, must-revalidate";
 
 	/**
 	 * The delegate to write all the cache control related headers
 	 */
 	private static final ServerHttpHeadersWriter CACHE_HEADERS = StaticServerHttpHeadersWriter.builder()
-		.header(HttpHeaders.CACHE_CONTROL, CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE)
+		.header(HttpHeaders.CACHE_CONTROL, CacheControlServerHttpHeadersWriter.CACHE_CONTROL_VALUE)
 		.header(HttpHeaders.PRAGMA, CacheControlServerHttpHeadersWriter.PRAGMA_VALUE)
 		.header(HttpHeaders.EXPIRES, CacheControlServerHttpHeadersWriter.EXPIRES_VALUE)
 		.build();
