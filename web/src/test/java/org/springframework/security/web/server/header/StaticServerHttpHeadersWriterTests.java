@@ -69,7 +69,7 @@ public class StaticServerHttpHeadersWriterTests {
 		// due to the fact that gh-10557 reports NettyHeadersAdapter as the
 		// response headers implementation, which is not accessible here.
 		HttpHeaders caseSensitiveHeaders = new HttpHeaders(new LinkedMultiValueMap<>());
-		caseSensitiveHeaders.set(HttpHeaders.CACHE_CONTROL, CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE);
+		caseSensitiveHeaders.set(HttpHeaders.CACHE_CONTROL, CacheControlServerHttpHeadersWriter.CACHE_CONTROL_VALUE);
 		caseSensitiveHeaders.set(HttpHeaders.PRAGMA, CacheControlServerHttpHeadersWriter.PRAGMA_VALUE);
 		caseSensitiveHeaders.set(HttpHeaders.EXPIRES, CacheControlServerHttpHeadersWriter.EXPIRES_VALUE);
 		this.writer = new StaticServerHttpHeadersWriter(caseSensitiveHeaders);
@@ -80,13 +80,13 @@ public class StaticServerHttpHeadersWriterTests {
 	@Test
 	public void writeHeadersWhenMultiHeaderThenWritesAllHeaders() {
 		this.writer = StaticServerHttpHeadersWriter.builder()
-			.header(HttpHeaders.CACHE_CONTROL, CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE)
+			.header(HttpHeaders.CACHE_CONTROL, CacheControlServerHttpHeadersWriter.CACHE_CONTROL_VALUE)
 			.header(HttpHeaders.PRAGMA, CacheControlServerHttpHeadersWriter.PRAGMA_VALUE)
 			.header(HttpHeaders.EXPIRES, CacheControlServerHttpHeadersWriter.EXPIRES_VALUE)
 			.build();
 		this.writer.writeHttpHeaders(this.exchange);
 		assertThat(this.headers.get(HttpHeaders.CACHE_CONTROL))
-			.containsOnly(CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE);
+			.containsOnly(CacheControlServerHttpHeadersWriter.CACHE_CONTROL_VALUE);
 		assertThat(this.headers.get(HttpHeaders.PRAGMA)).containsOnly(CacheControlServerHttpHeadersWriter.PRAGMA_VALUE);
 		assertThat(this.headers.get(HttpHeaders.EXPIRES))
 			.containsOnly(CacheControlServerHttpHeadersWriter.EXPIRES_VALUE);
@@ -97,7 +97,7 @@ public class StaticServerHttpHeadersWriterTests {
 		String headerValue = "other";
 		this.headers.set(HttpHeaders.CACHE_CONTROL, headerValue);
 		this.writer = StaticServerHttpHeadersWriter.builder()
-			.header(HttpHeaders.CACHE_CONTROL, CacheControlServerHttpHeadersWriter.CACHE_CONTRTOL_VALUE)
+			.header(HttpHeaders.CACHE_CONTROL, CacheControlServerHttpHeadersWriter.CACHE_CONTROL_VALUE)
 			.header(HttpHeaders.PRAGMA, CacheControlServerHttpHeadersWriter.PRAGMA_VALUE)
 			.header(HttpHeaders.EXPIRES, CacheControlServerHttpHeadersWriter.EXPIRES_VALUE)
 			.build();

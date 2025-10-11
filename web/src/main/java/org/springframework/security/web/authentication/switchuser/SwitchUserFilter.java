@@ -99,7 +99,7 @@ import static org.springframework.security.web.servlet.util.matcher.PathPatternR
  * <p>
  * To configure the Switch User Processing Filter, create a bean definition for the Switch
  * User processing filter and add to the filterChainProxy. Note that the filter must come
- * <b>after</b> the <tt>FilterSecurityInteceptor</tt> in the chain, in order to apply the
+ * <b>after</b> the <tt>FilterSecurityInterceptor</tt> in the chain, in order to apply the
  * correct constraints to the <tt>switchUserUrl</tt>. Example:
  *
  * <pre>

@@ -71,7 +71,7 @@ import org.springframework.util.StringUtils;
  * <tt>AclEntryVoter</tt>:
  * <ul>
  * <li>Process domain object class <code>BankAccount</code>, configuration attribute
- * <code>VOTE_ACL_BANK_ACCONT_READ</code>, require permission
+ * <code>VOTE_ACL_BANK_ACCOUNT_READ</code>, require permission
  * <code>BasePermission.READ</code></li>
  * <li>Process domain object class <code>BankAccount</code>, configuration attribute
  * <code>VOTE_ACL_BANK_ACCOUNT_WRITE</code>, require permission list

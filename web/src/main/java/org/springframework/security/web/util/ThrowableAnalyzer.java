@@ -204,8 +204,8 @@ public class ThrowableAnalyzer {
 
 	/**
 	 * Verifies that the provided throwable is a valid subclass of the provided type (or
-	 * of the type itself). If <code>expectdBaseType</code> is <code>null</code>, no check
-	 * will be performed.
+	 * of the type itself). If <code>expectedBaseType</code> is <code>null</code>, no
+	 * check will be performed.
 	 * <p>
 	 * Can be used for verification purposes in implementations of
 	 * {@link ThrowableCauseExtractor extractors}.

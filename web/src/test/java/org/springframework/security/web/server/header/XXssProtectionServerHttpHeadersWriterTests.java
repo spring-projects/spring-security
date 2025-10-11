@@ -52,7 +52,7 @@ public class XXssProtectionServerHttpHeadersWriterTests {
 	}
 
 	@Test
-	public void writeHeadersWhenHeaderWrittenThenDoesNotOverrride() {
+	public void writeHeadersWhenHeaderWrittenThenDoesNotOverride() {
 		String headerValue = "value";
 		this.headers.set(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, headerValue);
 		this.writer.writeHttpHeaders(this.exchange);
