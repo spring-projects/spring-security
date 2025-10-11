@@ -18,6 +18,8 @@ package org.springframework.security.core;
 
 import java.io.Serializable;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authorization.AuthorizationManager;
 
 /**
@@ -46,6 +48,6 @@ public interface GrantedAuthority extends Serializable {
 	 * granted authority cannot be expressed as a <code>String</code> with sufficient
 	 * precision).
 	 */
-	String getAuthority();
+	@Nullable String getAuthority();
 
 }
