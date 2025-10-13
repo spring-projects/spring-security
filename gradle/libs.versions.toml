@@ -12,7 +12,7 @@ org-jetbrains-kotlin = "2.2.20"
 org-jetbrains-kotlinx = "1.10.2"
 org-mockito = "5.17.0"
 org-opensaml5 = "5.1.6"
-org-springframework = "7.0.0-M9"
+org-springframework = "7.0.0-SNAPSHOT"
 com-password4j = "1.8.4"
 
 [libraries]
@@ -70,7 +70,7 @@ org-hsqldb = "org.hsqldb:hsqldb:2.7.4"
 org-jetbrains-kotlin-kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "org-jetbrains-kotlin" }
 org-jetbrains-kotlin-kotlin-gradle-plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.20"
 org-jetbrains-kotlinx-kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bom", version.ref = "org-jetbrains-kotlinx" }
-org-junit-junit-bom = "org.junit:junit-bom:5.12.2"
+org-junit-junit-bom = "org.junit:junit-bom:6.0.0"
 org-mockito-mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "org-mockito" }
 org-opensaml-opensaml5-saml-api = { module = "org.opensaml:opensaml-saml-api", version.ref = "org-opensaml5" }
 org-opensaml-opensaml5-saml-impl = { module = "org.opensaml:opensaml-saml-impl", version.ref = "org-opensaml5" }
