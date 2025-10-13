@@ -43,6 +43,7 @@ public final class InMemoryReactiveOneTimeTokenService implements ReactiveOneTim
 	}
 
 	@Override
+	@SuppressWarnings("NullAway") // https://github.com/uber/NullAway/issues/1290
 	public Mono<OneTimeToken> consume(OneTimeTokenAuthenticationToken authenticationToken) {
 		return Mono.just(authenticationToken).mapNotNull(this.oneTimeTokenService::consume);
 	}

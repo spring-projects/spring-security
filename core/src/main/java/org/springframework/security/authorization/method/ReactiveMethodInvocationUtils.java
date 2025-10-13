@@ -28,7 +28,7 @@ import reactor.core.Exceptions;
  */
 final class ReactiveMethodInvocationUtils {
 
-	static <T> @Nullable T proceed(MethodInvocation mi) {
+	static @Nullable <T> T proceed(MethodInvocation mi) {
 		try {
 			return (T) mi.proceed();
 		}

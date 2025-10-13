@@ -52,12 +52,13 @@ public final class PayloadExchangeMatcherReactiveAuthorizationManager
 	}
 
 	@Override
+	@SuppressWarnings("NullAway") // https://github.com/uber/NullAway/issues/1290
 	public Mono<AuthorizationResult> authorize(Mono<Authentication> authentication, PayloadExchange exchange) {
 		return Flux.fromIterable(this.mappings)
 			.concatMap((mapping) -> mapping.getMatcher()
 				.matches(exchange)
 				.filter(PayloadExchangeMatcher.MatchResult::isMatch)
-				.map(MatchResult::getVariables)
+				.mapNotNull(MatchResult::getVariables)
 				.flatMap((variables) -> mapping.getEntry()
 					.authorize(authentication, new PayloadExchangeAuthorizationContext(exchange, variables))))
 			.next()

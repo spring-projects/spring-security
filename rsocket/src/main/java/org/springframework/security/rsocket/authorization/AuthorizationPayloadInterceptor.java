@@ -55,10 +55,10 @@ public class AuthorizationPayloadInterceptor implements PayloadInterceptor, Orde
 	}
 
 	@Override
+	@SuppressWarnings("NullAway") // https://github.com/uber/NullAway/issues/1290
 	public Mono<Void> intercept(PayloadExchange exchange, PayloadInterceptorChain chain) {
 		return ReactiveSecurityContextHolder.getContext()
-			.filter((c) -> c.getAuthentication() != null)
-			.map(SecurityContext::getAuthentication)
+			.mapNotNull(SecurityContext::getAuthentication)
 			.switchIfEmpty(Mono.error(() -> new AuthenticationCredentialsNotFoundException(
 					"An Authentication (possibly AnonymousAuthenticationToken) is required.")))
 			.as((authentication) -> this.authorizationManager.verify(authentication, exchange))

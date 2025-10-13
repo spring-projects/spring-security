@@ -45,10 +45,11 @@ public class AuthorizationWebFilter implements WebFilter {
 	}
 
 	@Override
+	@SuppressWarnings("NullAway") // https://github.com/uber/NullAway/issues/1290
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		return ReactiveSecurityContextHolder.getContext()
 			.filter((c) -> c.getAuthentication() != null)
-			.map(SecurityContext::getAuthentication)
+			.mapNotNull(SecurityContext::getAuthentication)
 			.as((authentication) -> this.authorizationManager.verify(authentication, exchange))
 			.doOnSuccess((it) -> logger.debug("Authorization successful"))
 			.doOnError(AccessDeniedException.class,

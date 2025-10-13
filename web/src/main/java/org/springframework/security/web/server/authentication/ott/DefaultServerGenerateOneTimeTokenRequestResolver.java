@@ -41,6 +41,7 @@ public final class DefaultServerGenerateOneTimeTokenRequestResolver
 	private Duration expiresIn = DEFAULT_EXPIRES_IN;
 
 	@Override
+	@SuppressWarnings("NullAway") // https://github.com/uber/NullAway/issues/1290
 	public Mono<GenerateOneTimeTokenRequest> resolve(ServerWebExchange exchange) {
 		// @formatter:off
 		return exchange.getFormData()
