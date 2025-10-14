@@ -17,7 +17,6 @@
 package org.springframework.security.core;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -85,6 +84,30 @@ public interface BuildableAuthentication extends Authentication {
 	interface Builder<B extends Builder<B>> {
 
 		/**
+		 * Apply this authentication instance
+		 * <p>
+		 * By default, merges the authorities in the provided {@code authentication} with
+		 * the authentication being built. Only those authorities that haven't already
+		 * been specified to the builder will be added.
+		 * </p>
+		 * @param authentication the {@link Authentication} to appluy
+		 * @return the {@link Builder} for additional configuration
+		 * @see BuildableAuthentication#getAuthorities
+		 */
+		default B authentication(Authentication authentication) {
+			return authorities((a) -> {
+				Set<String> newAuthorities = a.stream()
+					.map(GrantedAuthority::getAuthority)
+					.collect(Collectors.toUnmodifiableSet());
+				for (GrantedAuthority currentAuthority : authentication.getAuthorities()) {
+					if (!newAuthorities.contains(currentAuthority.getAuthority())) {
+						a.add(currentAuthority);
+					}
+				}
+			});
+		}
+
+		/**
 		 * Mutate the authorities with this {@link Consumer}.
 		 * <p>
 		 * Note that since a non-empty set of authorities implies an
@@ -145,8 +168,8 @@ public interface BuildableAuthentication extends Authentication {
 
 		/**
 		 * Mark this authentication as authenticated or not
-		 * @param authenticated whether this is an authenticated
-		 * {@link Authentication} instance
+		 * @param authenticated whether this is an authenticated {@link Authentication}
+		 * instance
 		 * @return the {@link Builder} for additional configuration
 		 * @see Authentication#isAuthenticated
 		 */

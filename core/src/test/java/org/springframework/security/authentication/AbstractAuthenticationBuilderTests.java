@@ -37,6 +37,16 @@ class AbstractAuthenticationBuilderTests {
 		assertThat(authorities).containsExactlyInAnyOrder("FACTOR_ONE", "FACTOR_TWO");
 	}
 
+	@Test
+	void authenticationWhenAuthoritiesThenAdds() {
+		TestingAuthenticationToken factorOne = new TestingAuthenticationToken("user", "pass", "FACTOR_ONE");
+		TestingAuthenticationToken factorTwo = new TestingAuthenticationToken("user", "pass", "FACTOR_TWO");
+		TestAbstractAuthenticationBuilder builder = new TestAbstractAuthenticationBuilder(factorOne);
+		Authentication result = builder.authentication(factorTwo).build();
+		Set<String> authorities = AuthorityUtils.authorityListToSet(result.getAuthorities());
+		assertThat(authorities).containsExactlyInAnyOrder("FACTOR_ONE", "FACTOR_TWO");
+	}
+
 	private static final class TestAbstractAuthenticationBuilder
 			extends TestingAuthenticationToken.Builder<TestAbstractAuthenticationBuilder> {
 

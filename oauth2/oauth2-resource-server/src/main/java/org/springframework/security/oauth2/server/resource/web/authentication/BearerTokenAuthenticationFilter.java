@@ -184,9 +184,7 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 			Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
 			if (current != null && current.isAuthenticated()) {
 				if (authenticationResult instanceof BuildableAuthentication buildable) {
-					authenticationResult = buildable.toBuilder()
-						.authorities((a) -> a.addAll(current.getAuthorities()))
-						.build();
+					authenticationResult = buildable.toBuilder().authentication(current).build();
 				}
 			}
 			SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();

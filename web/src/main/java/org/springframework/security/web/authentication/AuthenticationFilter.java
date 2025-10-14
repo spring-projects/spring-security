@@ -17,8 +17,6 @@
 package org.springframework.security.web.authentication;
 
 import java.io.IOException;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -34,7 +32,6 @@ import org.springframework.security.authentication.AuthenticationManagerResolver
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.BuildableAuthentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -191,20 +188,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 			Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
 			if (current != null && current.isAuthenticated()) {
 				if (authenticationResult instanceof BuildableAuthentication buildable) {
-					authenticationResult = buildable.toBuilder()
-					// @formatter:off
-						.authorities((a) -> {
-							Set<String> newAuthorities = a.stream()
-								.map(GrantedAuthority::getAuthority)
-								.collect(Collectors.toUnmodifiableSet());
-							for (GrantedAuthority currentAuthority : current.getAuthorities()) {
-								if (!newAuthorities.contains(currentAuthority.getAuthority())) {
-									a.add(currentAuthority);
-								}
-							}
-						})
-						.build();
-						// @formatter:on
+					authenticationResult = buildable.toBuilder().authentication(current).build();
 				}
 			}
 			HttpSession session = request.getSession(false);

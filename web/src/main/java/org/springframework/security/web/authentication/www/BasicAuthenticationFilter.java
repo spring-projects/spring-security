@@ -18,8 +18,6 @@ package org.springframework.security.web.authentication.www;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -34,7 +32,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.BuildableAuthentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -193,20 +190,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 				Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
 				if (current != null && current.isAuthenticated()) {
 					if (authResult instanceof BuildableAuthentication buildable) {
-						authResult = buildable.toBuilder()
-						// @formatter:off
-							.authorities((a) -> {
-								Set<String> newAuthorities = a.stream()
-									.map(GrantedAuthority::getAuthority)
-									.collect(Collectors.toUnmodifiableSet());
-								for (GrantedAuthority currentAuthority : current.getAuthorities()) {
-									if (!newAuthorities.contains(currentAuthority.getAuthority())) {
-										a.add(currentAuthority);
-									}
-								}
-							})
-							.build();
-							// @formatter:on
+						authResult = buildable.toBuilder().authentication(current).build();
 					}
 				}
 				SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
