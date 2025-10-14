@@ -22,6 +22,7 @@ import java.util.Collection;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.BuildableAuthentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
@@ -32,7 +33,8 @@ import org.springframework.util.Assert;
  * @author Hal Deadman
  * @since 6.1
  */
-public class CasServiceTicketAuthenticationToken extends AbstractAuthenticationToken {
+public class CasServiceTicketAuthenticationToken extends AbstractAuthenticationToken
+		implements BuildableAuthentication {
 
 	static final String CAS_STATELESS_IDENTIFIER = "_cas_stateless_";
 

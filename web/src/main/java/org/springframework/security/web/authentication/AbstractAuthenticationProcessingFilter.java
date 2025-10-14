@@ -41,6 +41,7 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.BuildableAuthentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.context.SecurityContext;
@@ -253,20 +254,22 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 			}
 			Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
 			if (current != null && current.isAuthenticated()) {
-				authenticationResult = authenticationResult.toBuilder()
-				// @formatter:off
-					.authorities((a) -> {
-						Set<String> newAuthorities = a.stream()
-							.map(GrantedAuthority::getAuthority)
-							.collect(Collectors.toUnmodifiableSet());
-						for (GrantedAuthority currentAuthority : current.getAuthorities()) {
-							if (!newAuthorities.contains(currentAuthority.getAuthority())) {
-								a.add(currentAuthority);
+				if (authenticationResult instanceof BuildableAuthentication buildable) {
+					authenticationResult = buildable.toBuilder()
+					// @formatter:off
+						.authorities((a) -> {
+							Set<String> newAuthorities = a.stream()
+								.map(GrantedAuthority::getAuthority)
+								.collect(Collectors.toUnmodifiableSet());
+							for (GrantedAuthority currentAuthority : current.getAuthorities()) {
+								if (!newAuthorities.contains(currentAuthority.getAuthority())) {
+									a.add(currentAuthority);
+								}
 							}
-						}
-					})
-					.build();
-					// @formatter:on
+						})
+						.build();
+						// @formatter:on
+				}
 			}
 			this.sessionStrategy.onAuthentication(authenticationResult, request, response);
 			// Authentication success

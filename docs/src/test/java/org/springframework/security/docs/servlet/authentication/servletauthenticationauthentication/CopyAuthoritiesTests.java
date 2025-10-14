@@ -8,6 +8,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.ott.OneTimeTokenAuthentication;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.BuildableAuthentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,8 +31,9 @@ public class CopyAuthoritiesTests {
 		// tag::springSecurity[]
 		Authentication lastestResult = authenticationManager.authenticate(authenticationRequest);
 		Authentication previousResult = SecurityContextHolder.getContext().getAuthentication();
-		if (previousResult != null && previousResult.isAuthenticated()) {
-			lastestResult = lastestResult.toBuilder()
+		if (previousResult != null && previousResult.isAuthenticated() &&
+			lastestResult instanceof BuildableAuthentication buildable) {
+			lastestResult = buildable.toBuilder()
 					.authorities((a) -> a.addAll(previous.getAuthorities()))
 					.build();
 		}

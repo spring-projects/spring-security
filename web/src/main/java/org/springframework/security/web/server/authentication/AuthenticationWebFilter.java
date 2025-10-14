@@ -29,6 +29,7 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.BuildableAuthentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
@@ -141,7 +142,10 @@ public class AuthenticationWebFilter implements WebFilter {
 			if (!current.isAuthenticated()) {
 				return result;
 			}
-			return result.toBuilder()
+			if (!(result instanceof BuildableAuthentication buildable)) {
+				return result;
+			}
+			return buildable.toBuilder()
 			// @formatter:off
 				.authorities((a) -> {
 					Set<String> newAuthorities = a.stream()

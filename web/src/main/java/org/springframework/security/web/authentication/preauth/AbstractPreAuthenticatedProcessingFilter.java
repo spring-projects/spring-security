@@ -37,6 +37,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.BuildableAuthentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -209,20 +210,22 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 			Authentication authenticationResult = this.authenticationManager.authenticate(authenticationRequest);
 			Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
 			if (current != null && current.isAuthenticated()) {
-				authenticationResult = authenticationResult.toBuilder()
-				// @formatter:off
-					.authorities((a) -> {
-						Set<String> newAuthorities = a.stream()
-								.map(GrantedAuthority::getAuthority)
-								.collect(Collectors.toUnmodifiableSet());
-						for (GrantedAuthority currentAuthority : current.getAuthorities()) {
-							if (!newAuthorities.contains(currentAuthority.getAuthority())) {
-								a.add(currentAuthority);
+				if (authenticationResult instanceof BuildableAuthentication buildable) {
+					authenticationResult = buildable.toBuilder()
+					// @formatter:off
+						.authorities((a) -> {
+							Set<String> newAuthorities = a.stream()
+									.map(GrantedAuthority::getAuthority)
+									.collect(Collectors.toUnmodifiableSet());
+							for (GrantedAuthority currentAuthority : current.getAuthorities()) {
+								if (!newAuthorities.contains(currentAuthority.getAuthority())) {
+									a.add(currentAuthority);
+								}
 							}
-						}
-					})
-					.build();
-					// @formatter:on
+						})
+						.build();
+						// @formatter:on
+				}
 			}
 			successfulAuthentication(request, response, authenticationResult);
 		}

@@ -33,6 +33,7 @@ import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.BuildableAuthentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -191,20 +192,22 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 				Authentication authResult = this.authenticationManager.authenticate(authRequest);
 				Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
 				if (current != null && current.isAuthenticated()) {
-					authResult = authResult.toBuilder()
-					// @formatter:off
-						.authorities((a) -> {
-							Set<String> newAuthorities = a.stream()
-								.map(GrantedAuthority::getAuthority)
-								.collect(Collectors.toUnmodifiableSet());
-							for (GrantedAuthority currentAuthority : current.getAuthorities()) {
-								if (!newAuthorities.contains(currentAuthority.getAuthority())) {
-									a.add(currentAuthority);
+					if (authResult instanceof BuildableAuthentication buildable) {
+						authResult = buildable.toBuilder()
+						// @formatter:off
+							.authorities((a) -> {
+								Set<String> newAuthorities = a.stream()
+									.map(GrantedAuthority::getAuthority)
+									.collect(Collectors.toUnmodifiableSet());
+								for (GrantedAuthority currentAuthority : current.getAuthorities()) {
+									if (!newAuthorities.contains(currentAuthority.getAuthority())) {
+										a.add(currentAuthority);
+									}
 								}
-							}
-						})
-						.build();
-						// @formatter:on
+							})
+							.build();
+							// @formatter:on
+					}
 				}
 				SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
 				context.setAuthentication(authResult);
