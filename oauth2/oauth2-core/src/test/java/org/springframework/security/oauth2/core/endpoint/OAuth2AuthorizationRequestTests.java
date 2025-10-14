@@ -388,4 +388,40 @@ public class OAuth2AuthorizationRequestTests {
 		assertThat(authorizationRequest1HashCode).isEqualTo(authorizationRequest2HashCode);
 	}
 
+	@Test
+	public void buildWhenExtendedTypeAndAllValuesProvidedThenAllValuesAreSet() {
+		Map<String, Object> additionalParameters = new HashMap<>();
+		additionalParameters.put("param1", "value1");
+		additionalParameters.put("param2", "value2");
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.put("attribute1", "value1");
+		attributes.put("attribute2", "value2");
+		// @formatter:off
+		TestOidcAuthorizationRequest oidcAuthorizationRequest = TestOidcAuthorizationRequest.builder()
+				.authorizationUri(AUTHORIZATION_URI)
+				.clientId(CLIENT_ID)
+				.redirectUri(REDIRECT_URI)
+				.scopes(SCOPES)
+				.state(STATE)
+				.additionalParameters(additionalParameters)
+				.attributes(attributes)
+				.nonce("nonce1234")
+				.build();
+		// @formatter:on
+		assertThat(oidcAuthorizationRequest.getAuthorizationUri()).isEqualTo(AUTHORIZATION_URI);
+		assertThat(oidcAuthorizationRequest.getGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
+		assertThat(oidcAuthorizationRequest.getResponseType()).isEqualTo(OAuth2AuthorizationResponseType.CODE);
+		assertThat(oidcAuthorizationRequest.getClientId()).isEqualTo(CLIENT_ID);
+		assertThat(oidcAuthorizationRequest.getRedirectUri()).isEqualTo(REDIRECT_URI);
+		assertThat(oidcAuthorizationRequest.getScopes()).isEqualTo(SCOPES);
+		assertThat(oidcAuthorizationRequest.getState()).isEqualTo(STATE);
+		assertThat(oidcAuthorizationRequest.getAdditionalParameters()).isEqualTo(additionalParameters);
+		assertThat(oidcAuthorizationRequest.getAttributes()).isEqualTo(attributes);
+		assertThat(oidcAuthorizationRequest.getNonce()).isEqualTo("nonce1234");
+		assertThat(oidcAuthorizationRequest.getAuthorizationRequestUri())
+			.isEqualTo("https://provider.com/oauth2/authorize?" + "response_type=code&client_id=client-id&"
+					+ "scope=scope1%20scope2&state=state&"
+					+ "redirect_uri=https://example.com&param1=value1&param2=value2&nonce=nonce1234");
+	}
+
 }
