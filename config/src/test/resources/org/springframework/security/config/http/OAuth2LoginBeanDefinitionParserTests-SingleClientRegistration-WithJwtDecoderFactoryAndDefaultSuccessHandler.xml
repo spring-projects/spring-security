@@ -27,6 +27,7 @@
 	<http auto-config="true">
 		<intercept-url pattern="/**" access="authenticated"/>
 		<oauth2-login access-token-response-client-ref="accessTokenResponseClient"
+					  	oidc-user-service-ref="oidcUserService"
 						jwt-decoder-factory-ref="jwtDecoderFactory"
 						authorization-request-repository-ref="authorizationRequestRepository"/>
 		<request-cache ref="requestCache" />
@@ -34,6 +35,9 @@
 
 	<b:bean id="accessTokenResponseClient" class="org.mockito.Mockito" factory-method="mock">
     <b:constructor-arg value="org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient" type="java.lang.Class"/>
+</b:bean>
+	<b:bean id="oidcUserService" class="org.mockito.Mockito" factory-method="mock">
+	<b:constructor-arg value="org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService" type="java.lang.Class"/>
 </b:bean>
 	<b:bean id="jwtDecoderFactory" class="org.mockito.Mockito" factory-method="mock">
     <b:constructor-arg value="org.springframework.security.oauth2.jwt.JwtDecoderFactory" type="java.lang.Class"/>

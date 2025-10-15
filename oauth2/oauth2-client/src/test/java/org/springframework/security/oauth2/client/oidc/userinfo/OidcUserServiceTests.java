@@ -17,7 +17,6 @@
 package org.springframework.security.oauth2.client.oidc.userinfo;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -131,16 +130,6 @@ public class OidcUserServiceTests {
 	}
 
 	@Test
-	public void setAccessibleScopesWhenNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.userService.setAccessibleScopes(null));
-	}
-
-	@Test
-	public void setAccessibleScopesWhenEmptyThenSet() {
-		this.userService.setAccessibleScopes(Collections.emptySet());
-	}
-
-	@Test
 	public void setRetrieveUserInfoWhenNullThenThrowIllegalArgumentException() {
 		// @formatter:off
 		assertThatIllegalArgumentException()
@@ -177,83 +166,6 @@ public class OidcUserServiceTests {
 		OidcUser user = this.userService
 			.loadUser(new OidcUserRequest(this.clientRegistrationBuilder.build(), this.accessToken, this.idToken));
 		assertThat(user.getUserInfo()).isNull();
-	}
-
-	@Test
-	public void loadUserWhenNonStandardScopesAuthorizedThenUserInfoEndpointNotRequested() {
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri("https://provider.com/user")
-			.build();
-		this.accessToken = TestOAuth2AccessTokens.scopes("scope1", "scope2");
-		OidcUser user = this.userService
-			.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
-		assertThat(user.getUserInfo()).isNull();
-	}
-
-	// gh-6886
-	@Test
-	public void loadUserWhenNonStandardScopesAuthorizedAndAccessibleScopesMatchThenUserInfoEndpointRequested() {
-		// @formatter:off
-		String userInfoResponse = "{\n"
-			+ "   \"sub\": \"subject1\",\n"
-			+ "   \"name\": \"first last\",\n"
-			+ "   \"given_name\": \"first\",\n"
-			+ "   \"family_name\": \"last\",\n"
-			+ "   \"preferred_username\": \"user1\",\n"
-			+ "   \"email\": \"user1@example.com\"\n"
-			+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(userInfoResponse));
-		String userInfoUri = this.server.url("/user").toString();
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
-		this.accessToken = TestOAuth2AccessTokens.scopes("scope1", "scope2");
-		this.userService.setAccessibleScopes(Collections.singleton("scope2"));
-		OidcUser user = this.userService
-			.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
-		assertThat(user.getUserInfo()).isNotNull();
-	}
-
-	// gh-6886
-	@Test
-	public void loadUserWhenNonStandardScopesAuthorizedAndAccessibleScopesEmptyThenUserInfoEndpointRequested() {
-		// @formatter:off
-		String userInfoResponse = "{\n"
-			+ "   \"sub\": \"subject1\",\n"
-			+ "   \"name\": \"first last\",\n"
-			+ "   \"given_name\": \"first\",\n"
-			+ "   \"family_name\": \"last\",\n"
-			+ "   \"preferred_username\": \"user1\",\n"
-			+ "   \"email\": \"user1@example.com\"\n"
-			+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(userInfoResponse));
-		String userInfoUri = this.server.url("/user").toString();
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
-		this.accessToken = TestOAuth2AccessTokens.scopes("scope1", "scope2");
-		this.userService.setAccessibleScopes(Collections.emptySet());
-		OidcUser user = this.userService
-			.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
-		assertThat(user.getUserInfo()).isNotNull();
-	}
-
-	// gh-6886
-	@Test
-	public void loadUserWhenStandardScopesAuthorizedThenUserInfoEndpointRequested() {
-		// @formatter:off
-		String userInfoResponse = "{\n"
-			+ "	\"sub\": \"subject1\",\n"
-			+ "   \"name\": \"first last\",\n"
-			+ "   \"given_name\": \"first\",\n"
-			+ "   \"family_name\": \"last\",\n"
-			+ "   \"preferred_username\": \"user1\",\n"
-			+ "   \"email\": \"user1@example.com\"\n"
-			+ "}\n";
-		// @formatter:on
-		this.server.enqueue(jsonResponse(userInfoResponse));
-		String userInfoUri = this.server.url("/user").toString();
-		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
-		OidcUser user = this.userService
-			.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
-		assertThat(user.getUserInfo()).isNotNull();
 	}
 
 	@Test
@@ -571,6 +483,7 @@ public class OidcUserServiceTests {
 	@Test
 	public void loadUserWhenTokenContainsScopesThenIndividualScopeAuthorities() {
 		OidcUserService userService = new OidcUserService();
+		userService.setRetrieveUserInfo((req) -> false);
 		OidcUserRequest request = new OidcUserRequest(TestClientRegistrations.clientRegistration().build(),
 				TestOAuth2AccessTokens.scopes("message:read", "message:write"), TestOidcIdTokens.idToken().build());
 		OidcUser user = userService.loadUser(request);

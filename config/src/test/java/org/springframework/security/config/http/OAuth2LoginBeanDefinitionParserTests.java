@@ -60,7 +60,9 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.oidc.user.TestOidcUsers;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.TestOAuth2Users;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -132,6 +134,9 @@ public class OAuth2LoginBeanDefinitionParserTests {
 
 	@Autowired(required = false)
 	private OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService;
+
+	@Autowired(required = false)
+	private OAuth2UserService<OAuth2UserRequest, OAuth2User> oidcUserService;
 
 	@Autowired(required = false)
 	private JwtDecoderFactory<ClientRegistration> jwtDecoderFactory;
@@ -286,6 +291,8 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 		Jwt jwt = TestJwts.user();
 		given(this.jwtDecoderFactory.createDecoder(any())).willReturn((token) -> jwt);
+		DefaultOidcUser oidcUser = TestOidcUsers.create();
+		given(this.oidcUserService.loadUser(any())).willReturn(oidcUser);
 		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 		params.add("code", "code123");
 		params.add("state", authorizationRequest.getState());
@@ -339,6 +346,8 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
 		Jwt jwt = TestJwts.user();
 		given(this.jwtDecoderFactory.createDecoder(any())).willReturn((token) -> jwt);
+		DefaultOidcUser oidcUser = TestOidcUsers.create();
+		given(this.oidcUserService.loadUser(any())).willReturn(oidcUser);
 		given(this.userAuthoritiesMapper.mapAuthorities(any()))
 			.willReturn((Collection) AuthorityUtils.createAuthorityList("ROLE_OIDC_USER"));
 		// @formatter:off
