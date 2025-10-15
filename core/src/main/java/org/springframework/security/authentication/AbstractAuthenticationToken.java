@@ -28,7 +28,6 @@ import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.BuildableAuthentication;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -199,15 +198,15 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 	}
 
 	/**
-	 * A common abstract implementation of {@link BuildableAuthentication.Builder}. It
-	 * implements the builder methods that correspond to the {@link Authentication}
-	 * methods that {@link AbstractAuthenticationToken} implements
+	 * A common abstract implementation of {@link Authentication.Builder}. It implements
+	 * the builder methods that correspond to the {@link Authentication} methods that
+	 * {@link AbstractAuthenticationToken} implements
 	 *
 	 * @param <B>
 	 * @since 7.0
 	 */
 	protected abstract static class AbstractAuthenticationBuilder<B extends AbstractAuthenticationBuilder<B>>
-			implements BuildableAuthentication.Builder<B> {
+			implements Authentication.Builder<B> {
 
 		private boolean authenticated;
 
