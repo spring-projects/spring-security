@@ -21,6 +21,7 @@ import java.util.Collection;
 
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.security.core.BuildableAuthentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.util.Assert;
@@ -33,7 +34,7 @@ import org.springframework.util.Assert;
  * @see Saml2ResponseAssertionAccessor
  * @see Saml2ResponseAssertion
  */
-public class Saml2AssertionAuthentication extends Saml2Authentication {
+public class Saml2AssertionAuthentication extends Saml2Authentication implements BuildableAuthentication {
 
 	@Serial
 	private static final long serialVersionUID = -4194323643788693205L;

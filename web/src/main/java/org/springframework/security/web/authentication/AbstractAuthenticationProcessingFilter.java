@@ -17,8 +17,6 @@
 package org.springframework.security.web.authentication;
 
 import java.io.IOException;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -41,7 +39,7 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.BuildableAuthentication;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -253,20 +251,9 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 			}
 			Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
 			if (current != null && current.isAuthenticated()) {
-				authenticationResult = authenticationResult.toBuilder()
-				// @formatter:off
-					.authorities((a) -> {
-						Set<String> newAuthorities = a.stream()
-							.map(GrantedAuthority::getAuthority)
-							.collect(Collectors.toUnmodifiableSet());
-						for (GrantedAuthority currentAuthority : current.getAuthorities()) {
-							if (!newAuthorities.contains(currentAuthority.getAuthority())) {
-								a.add(currentAuthority);
-							}
-						}
-					})
-					.build();
-					// @formatter:on
+				if (authenticationResult instanceof BuildableAuthentication buildable) {
+					authenticationResult = buildable.toBuilder().authentication(current).build();
+				}
 			}
 			this.sessionStrategy.onAuthentication(authenticationResult, request, response);
 			// Authentication success

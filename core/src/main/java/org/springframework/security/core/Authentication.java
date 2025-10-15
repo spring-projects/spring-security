@@ -19,7 +19,9 @@ package org.springframework.security.core;
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.Collection;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 
@@ -138,34 +140,36 @@ public interface Authentication extends Principal, Serializable {
 	void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException;
 
 	/**
-	 * Return an {@link Builder} based on this instance. By default, returns a builder
-	 * that builds a {@link SimpleAuthentication}.
-	 * <p>
-	 * Although a {@code default} method, all {@link Authentication} implementations
-	 * should implement this. The reason is to ensure that the {@link Authentication} type
-	 * is preserved when {@link Builder#build} is invoked. This is especially important in
-	 * the event that your authentication implementation contains custom fields.
-	 * </p>
-	 * <p>
-	 * This isn't strictly necessary since it is recommended that applications code to the
-	 * {@link Authentication} interface and that custom information is often contained in
-	 * the {@link Authentication#getPrincipal} value.
-	 * </p>
-	 * @return an {@link Builder} for building a new {@link Authentication} based on this
-	 * instance
-	 * @since 7.0
-	 */
-	default Builder<?> toBuilder() {
-		return new SimpleAuthentication.Builder(this);
-	}
-
-	/**
-	 * A builder based on a given {@link Authentication} instance
+	 * A builder based on a given {@link BuildableAuthentication} instance
 	 *
 	 * @author Josh Cummings
 	 * @since 7.0
 	 */
 	interface Builder<B extends Builder<B>> {
+
+		/**
+		 * Apply this authentication instance
+		 * <p>
+		 * By default, merges the authorities in the provided {@code authentication} with
+		 * the authentication being built. Only those authorities that haven't already
+		 * been specified to the builder will be added.
+		 * </p>
+		 * @param authentication the {@link Authentication} to appluy
+		 * @return the {@link Builder} for additional configuration
+		 * @see BuildableAuthentication#getAuthorities
+		 */
+		default B authentication(Authentication authentication) {
+			return authorities((a) -> {
+				Set<String> newAuthorities = a.stream()
+					.map(GrantedAuthority::getAuthority)
+					.collect(Collectors.toUnmodifiableSet());
+				for (GrantedAuthority currentAuthority : authentication.getAuthorities()) {
+					if (!newAuthorities.contains(currentAuthority.getAuthority())) {
+						a.add(currentAuthority);
+					}
+				}
+			});
+		}
 
 		/**
 		 * Mutate the authorities with this {@link Consumer}.

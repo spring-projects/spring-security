@@ -24,6 +24,7 @@ import java.util.Map;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.BuildableAuthentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.Transient;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -38,7 +39,8 @@ import org.springframework.util.Assert;
  * @since 5.2
  */
 @Transient
-public class BearerTokenAuthentication extends AbstractOAuth2TokenAuthenticationToken<OAuth2AccessToken> {
+public class BearerTokenAuthentication extends AbstractOAuth2TokenAuthenticationToken<OAuth2AccessToken>
+		implements BuildableAuthentication {
 
 	private static final long serialVersionUID = 620L;
 

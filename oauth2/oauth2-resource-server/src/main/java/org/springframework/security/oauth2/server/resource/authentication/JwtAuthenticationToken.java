@@ -22,6 +22,7 @@ import java.util.Map;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.BuildableAuthentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.Transient;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -37,7 +38,8 @@ import org.springframework.util.Assert;
  * @see Jwt
  */
 @Transient
-public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationToken<Jwt> {
+public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationToken<Jwt>
+		implements BuildableAuthentication {
 
 	private static final long serialVersionUID = 620L;
 
