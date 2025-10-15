@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.server.resource.web.authentication;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
 
@@ -38,9 +39,11 @@ import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -151,6 +154,8 @@ public class BearerTokenAuthenticationFilterTests {
 				new BearerTokenAuthenticationFilter(this.authenticationManagerResolver));
 		given(this.bearerTokenResolver.resolve(this.request)).willReturn("token");
 		given(this.authenticationManagerResolver.resolve(any())).willReturn(this.authenticationManager);
+		TestingAuthenticationToken expectedAuthentication = new TestingAuthenticationToken("test", "password");
+		given(this.authenticationManager.authenticate(any())).willReturn(expectedAuthentication);
 		filter.doFilter(this.request, this.response, this.filterChain);
 		ArgumentCaptor<BearerTokenAuthenticationToken> captor = ArgumentCaptor
 			.forClass(BearerTokenAuthenticationToken.class);
@@ -374,6 +379,17 @@ public class BearerTokenAuthenticationFilterTests {
 				new BearerTokenAuthenticationFilter(this.authenticationManager));
 		filter.doFilter(this.request, this.response, this.filterChain);
 		verifyNoMoreInteractions(this.authenticationManager);
+	}
+
+	static final class DefaultEqualsGrantedAuthority implements GrantedAuthority {
+
+		public static final String AUTHORITY = "CUSTOM_AUTHORITY";
+
+		@Override
+		public String getAuthority() {
+			return AUTHORITY;
+		}
+
 	}
 
 }
