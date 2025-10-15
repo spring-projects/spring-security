@@ -17,6 +17,8 @@
 package org.springframework.security.web.access;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,13 +31,18 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorityAuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.authorization.FactorAuthorizationDecision;
+import org.springframework.security.authorization.RequiredFactor;
+import org.springframework.security.authorization.RequiredFactorError;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -136,9 +143,28 @@ class DelegatingMissingAuthorityAccessDeniedHandlerTests {
 		verify(basicPasswordEntryPoint).commence(any(), any(), any());
 	}
 
+	// gh-18000
+	@Test
+	void whenMultipleFactorErrorsThenPropagatesAll() throws Exception {
+		AccessDeniedHandler accessDeniedHandler = this.builder.build();
+		accessDeniedHandler.handle(this.request, this.response, missingFactors("FACTOR", "PASSWORD"));
+		verify(this.factorEntryPoint).commence(any(), any(), any());
+		Object attribute = this.request.getAttribute(WebAttributes.REQUIRED_FACTOR_ERRORS);
+		assertThat(attribute).isInstanceOf(Collection.class);
+		assertThat((Collection<?>) attribute).hasSize(2);
+	}
+
 	AuthorizationDeniedException missingAuthorities(String... authorities) {
 		Collection<GrantedAuthority> granted = AuthorityUtils.createAuthorityList(authorities);
 		AuthorityAuthorizationDecision decision = new AuthorityAuthorizationDecision(false, granted);
+		return new AuthorizationDeniedException("access denied", decision);
+	}
+
+	AuthorizationDeniedException missingFactors(String... factors) {
+		List<RequiredFactorError> errors = Stream.of(factors)
+			.map((f) -> RequiredFactorError.createMissing(RequiredFactor.withAuthority(f).build()))
+			.toList();
+		FactorAuthorizationDecision decision = new FactorAuthorizationDecision(errors);
 		return new AuthorizationDeniedException("access denied", decision);
 	}
 

@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -97,17 +98,20 @@ public final class DelegatingMissingAuthorityAccessDeniedHandler implements Acce
 	@Override
 	public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException denied)
 			throws IOException, ServletException {
-		List<AuthorityRequiredFactorErrorEntry> authorityErrors = authorityErrors(denied);
-		for (AuthorityRequiredFactorErrorEntry authorityError : authorityErrors) {
+		List<AuthorityRequiredFactorErrorEntry> errorEntries = authorityErrors(denied);
+		List<RequiredFactorError> errors = errorEntries.stream()
+			.map(AuthorityRequiredFactorErrorEntry::getError)
+			.filter(Objects::nonNull)
+			.toList();
+		for (AuthorityRequiredFactorErrorEntry authorityError : errorEntries) {
 			String requiredAuthority = authorityError.getAuthority();
 			AuthenticationEntryPoint entryPoint = this.entryPoints.get(requiredAuthority);
 			if (entryPoint == null) {
 				continue;
 			}
 			this.requestCache.saveRequest(request, response);
-			RequiredFactorError required = authorityError.getError();
-			if (required != null) {
-				request.setAttribute(WebAttributes.REQUIRED_FACTOR_ERRORS, List.of(required));
+			if (!errors.isEmpty()) {
+				request.setAttribute(WebAttributes.REQUIRED_FACTOR_ERRORS, errors);
 			}
 			String message = String.format("Missing Authorities %s", requiredAuthority);
 			AuthenticationException ex = new InsufficientAuthenticationException(message, denied);

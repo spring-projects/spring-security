@@ -403,7 +403,8 @@ public class FormLoginConfigurerTests {
 		UserDetails user = PasswordEncodedUser.user();
 		this.mockMvc.perform(get("/profile").with(user(user)))
 			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("http://localhost/login?factor.type=password&factor.reason=missing"));
+			.andExpect(redirectedUrl(
+					"http://localhost/login?factor.type=password&factor.type=ott&factor.reason=missing&factor.reason=missing"));
 		this.mockMvc
 			.perform(post("/ott/generate").param("username", "rod")
 				.with(user(user))
