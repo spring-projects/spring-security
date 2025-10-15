@@ -18,6 +18,8 @@ package org.springframework.security.oauth2.server.resource.web.authentication;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,6 +32,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -53,6 +56,7 @@ import org.springframework.security.web.context.RequestAttributeSecurityContextR
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -181,10 +185,17 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 				throw new OAuth2AuthenticationException(error);
 			}
 			Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
-			if (current != null && current.isAuthenticated()) {
-				authenticationResult = authenticationResult.toBuilder()
-					.authorities((a) -> a.addAll(current.getAuthorities()))
-					.build();
+			if (current != null && current.isAuthenticated() && declaresToBuilder(authenticationResult)) {
+				authenticationResult = authenticationResult.toBuilder().authorities((a) -> {
+					Set<String> newAuthorities = a.stream()
+						.map(GrantedAuthority::getAuthority)
+						.collect(Collectors.toUnmodifiableSet());
+					for (GrantedAuthority currentAuthority : current.getAuthorities()) {
+						if (!newAuthorities.contains(currentAuthority.getAuthority())) {
+							a.add(currentAuthority);
+						}
+					}
+				}).build();
 			}
 			SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
 			context.setAuthentication(authenticationResult);
@@ -200,6 +211,10 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 			this.logger.trace("Failed to process authentication request", failed);
 			this.authenticationFailureHandler.onAuthenticationFailure(request, response, failed);
 		}
+	}
+
+	private static boolean declaresToBuilder(Authentication authentication) {
+		return ReflectionUtils.findMethod(authentication.getClass(), "toBuilder") != null;
 	}
 
 	/**

@@ -17,7 +17,6 @@
 package org.springframework.security.oauth2.server.resource.web.authentication;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
 
@@ -291,6 +290,30 @@ public class BearerTokenAuthenticationFilterTests {
 				authenticationConverter);
 		assertThatExceptionOfType(IllegalArgumentException.class)
 			.isThrownBy(() -> filter.setBearerTokenResolver(this.bearerTokenResolver));
+	}
+
+	/**
+	 * This is critical to avoid adding duplicate GrantedAuthority instances with the same
+	 * authority when the issuedAt is too old and a new instance is requested.
+	 * @throws Exception
+	 */
+	@Test
+	void doFilterWhenDefaultEqualsGrantedAuthorityThenNoDuplicates() throws Exception {
+		TestingAuthenticationToken existingAuthn = new TestingAuthenticationToken("username", "password",
+				new DefaultEqualsGrantedAuthority());
+		SecurityContextHolder.setContext(new SecurityContextImpl(existingAuthn));
+		given(this.authenticationManager.authenticate(any()))
+			.willReturn(new TestingAuthenticationToken("username", "password", new DefaultEqualsGrantedAuthority()));
+		given(this.bearerTokenResolver.resolve(any())).willReturn("token");
+		BearerTokenAuthenticationFilter filter = addMocks(
+				new BearerTokenAuthenticationFilter(this.authenticationManager));
+		filter.doFilter(this.request, this.response, this.filterChain);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		// @formatter:off
+		SecurityAssertions.assertThat(authentication).authorities()
+				.extracting(GrantedAuthority::getAuthority)
+				.containsExactly(DefaultEqualsGrantedAuthority.AUTHORITY);
+		// @formatter:on
 	}
 
 	@Test
