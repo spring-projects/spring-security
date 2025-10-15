@@ -22,7 +22,6 @@ import java.util.Collection;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.BuildableAuthentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
 import org.springframework.util.Assert;
@@ -35,7 +34,7 @@ import org.springframework.util.Assert;
  * @since 6.4
  * @see WebAuthnAuthenticationRequestToken
  */
-public class WebAuthnAuthentication extends AbstractAuthenticationToken implements BuildableAuthentication {
+public class WebAuthnAuthentication extends AbstractAuthenticationToken {
 
 	@Serial
 	private static final long serialVersionUID = -4879907158750659197L;

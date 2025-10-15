@@ -30,7 +30,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.BuildableAuthentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -183,9 +182,9 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 			}
 			Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
 			if (current != null && current.isAuthenticated()) {
-				if (authenticationResult instanceof BuildableAuthentication buildable) {
-					authenticationResult = buildable.toBuilder().authentication(current).build();
-				}
+				authenticationResult = authenticationResult.toBuilder()
+					.authorities((a) -> a.addAll(current.getAuthorities()))
+					.build();
 			}
 			SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
 			context.setAuthentication(authenticationResult);

@@ -22,7 +22,6 @@ import java.util.Collection;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.BuildableAuthentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
@@ -32,7 +31,7 @@ import org.springframework.util.Assert;
  * @author Josh Cummings
  * @since 7.0
  */
-public class OneTimeTokenAuthentication extends AbstractAuthenticationToken implements BuildableAuthentication {
+public class OneTimeTokenAuthentication extends AbstractAuthenticationToken {
 
 	@Serial
 	private static final long serialVersionUID = 1195893764725073959L;
