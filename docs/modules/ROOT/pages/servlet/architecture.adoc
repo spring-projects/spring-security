@@ -51,28 +51,9 @@ image::{figures}/delegatingfilterproxy.png[]
 The following listing shows pseudo code of `DelegatingFilterProxy`:
 
 .`DelegatingFilterProxy` Pseudo Code
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
-	Filter delegate = getFilterBean(someBeanName); // <1>
-	delegate.doFilter(request, response); // <2>
-}
-----
 
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-	val delegate: Filter = getFilterBean(someBeanName) // <1>
-	delegate.doFilter(request, response) // <2>
-}
-----
-======
+include-code::./SampleDelegatingFilterProxy[tag=dofilter,indent=0]
+
 <1> Lazily get Filter that was registered as a Spring Bean.
 For the example in <<servlet-delegatingfilterproxy-figure>> `delegate` is an instance of __Bean Filter~0~__.
 <2> Delegate work to the Spring Bean.
@@ -155,58 +136,7 @@ However, there are times that it is beneficial to know the ordering, if you want
 These security filters are most often declared using an javadoc:org.springframework.security.config.annotation.web.builders.HttpSecurity[`HttpSecurity`] instance.
 To exemplify the above paragraph, let's consider the following security configuration:
 
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Configuration
-@EnableWebSecurity
-public class SecurityConfig {
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(Customizer.withDefaults())
-            .httpBasic(Customizer.withDefaults())
-            .formLogin(Customizer.withDefaults())
-            .authorizeHttpRequests(authorize -> authorize
-                .anyRequest().authenticated()
-            );
-
-        return http.build();
-    }
-
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-import org.springframework.security.config.web.servlet.invoke
-
-@Configuration
-@EnableWebSecurity
-class SecurityConfig {
-
-    @Bean
-    fun filterChain(http: HttpSecurity): SecurityFilterChain {
-        http {
-            csrf { }
-            httpBasic { }
-            formLogin { }
-            authorizeHttpRequests {
-                authorize(anyRequest, authenticated)
-            }
-        }
-        return http.build()
-    }
-
-}
-----
-======
+include-code::./SecurityConfig[tag=snippet,indent=0]
 
 The above configuration will result in the following `Filter` ordering:
 
@@ -233,7 +163,7 @@ If you want to see the list of filters invoked for a particular request, you can
 === Printing the Security Filters
 
 Often times, it is useful to see the list of security ``Filter``s that are invoked for a particular request.
-For example, you want to make sure that the <<adding-custom-filter,filter you have added>> is in the list of the security filters.
+For example, you want to make sure that the <<adding-filters-to-chain,filter you have added>> is in the list of the security filters.
 
 The list of filters is printed at DEBUG level on the application startup, so you can see something like the following on the console output for example:
 
@@ -248,7 +178,7 @@ But that is not all, you can also configure your application to print the invoca
 That is helpful to see if the filter you have added is invoked for a particular request or to check where an exception is coming from.
 To do that, you can configure your application to <<servlet-logging,log the security events>>.
 
-[[adding-custom-filter]]
+[[adding-filters-to-chain]]
 === Adding Filters to the Filter Chain
 
 Most of the time, the default <<servlet-security-filters>> are enough to provide security to your application.
@@ -260,6 +190,7 @@ javadoc:org.springframework.security.config.annotation.web.builders.HttpSecurity
 * `#addFilterAfter(Filter, Class<?>)` adds your filter after another filter
 * `#addFilterAt(Filter, Class<?>)` replaces another filter with your filter
 
+[[adding-custom-filter]]
 ==== Adding a Custom Filter
 
 If you are creating a filter of your own, you will need to determine its location in the filter chain.
@@ -298,39 +229,7 @@ For example, let's say that you want to add a `Filter` that gets a tenant id hea
 
 First, let's create the `Filter`:
 
-[source,java]
-----
-import java.io.IOException;
-
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
-import org.springframework.security.access.AccessDeniedException;
-
-public class TenantFilter implements Filter {
-
-    @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest) servletRequest;
-        HttpServletResponse response = (HttpServletResponse) servletResponse;
-
-        String tenantId = request.getHeader("X-Tenant-Id"); <1>
-        boolean hasAccess = isUserAllowed(tenantId); <2>
-        if (hasAccess) {
-            filterChain.doFilter(request, response); <3>
-            return;
-        }
-        throw new AccessDeniedException("Access denied"); <4>
-    }
-
-}
-
-----
+include-code::./TenantFilter[tag=snippet,indent=0]
 
 The sample code above does the following:
 
@@ -349,34 +248,7 @@ The previous description already gives us a clue on where to add the filter, sin
 
 Based on the rule of thumb, add it after xref:servlet/authentication/anonymous.adoc[ `AnonymousAuthenticationFilter`], the last authentication filter in the chain, like so:
 
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Bean
-SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http
-        // ...
-        .addFilterAfter(new TenantFilter(), AnonymousAuthenticationFilter.class); <1>
-    return http.build();
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Bean
-fun filterChain(http: HttpSecurity): SecurityFilterChain {
-    http
-        // ...
-        .addFilterAfter(TenantFilter(), AnonymousAuthenticationFilter::class.java) <1>
-    return http.build()
-}
-----
-======
+include-code::./SecurityConfig[tag=snippet,indent=0]
 
 <1> Use `HttpSecurity#addFilterAfter` to add the `TenantFilter` after the `AnonymousAuthenticationFilter`.
 
@@ -405,127 +277,23 @@ public FilterRegistrationBean<TenantFilter> tenantFilterRegistration(TenantFilte
 
 This makes so that `HttpSecurity` is the only one adding it.
 
+[[customizing-filter]]
 ==== Customizing a Spring Security Filter
 
 Generally, you can use a filter's DSL method to configure Spring Security's filters.
 For example, the simplest way to add `BasicAuthenticationFilter` is by asking the DSL to do it:
 
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Bean
-SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-	http
-		.httpBasic(Customizer.withDefaults())
-        // ...
-
-	return http.build();
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Bean
-fun filterChain(http: HttpSecurity): SecurityFilterChain {
-	http {
-        httpBasic { }
-        // ...
-	}
-
-	return http.build()
-}
-----
-======
-
+include-code::./CustomizingFilterTests[tag=basic-default,indent=0]
 
 However, in the event that you want to construct a Spring Security filter yourself, you specify it in the DSL using `addFilterAt` like so:
 
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Bean
-SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-	BasicAuthenticationFilter basic = new BasicAuthenticationFilter();
-	// ... configure
-
-	http
-		// ...
-		.addFilterAt(basic, BasicAuthenticationFilter.class);
-
-	return http.build();
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Bean
-fun filterChain(http: HttpSecurity): SecurityFilterChain {
-	val basic = BasicAuthenticationFilter()
-	// ... configure
-
-	http
-		// ...
-		.addFilterAt(basic, BasicAuthenticationFilter::class.java)
-
-	return http.build()
-}
-----
-======
+include-code::./CustomizingFilterTests[tag=custom-filter,indent=0]
 
 Note that if that filter has already been added, then Spring Security will throw an exception.
 For example, calling xref:servlet/authentication/passwords/basic.adoc[ `HttpSecurity#httpBasic`] adds a `BasicAuthenticationFilter` for you.
 So, the following arrangement fails since there are two calls that are both trying to add `BasicAuthenticationFilter`:
 
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Bean
-SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-	BasicAuthenticationFilter basic = new BasicAuthenticationFilter();
-	// ... configure
-
-	http
-		.httpBasic(Customizer.withDefaults())
-		// ... on no! BasicAuthenticationFilter is added twice!
-		.addFilterAt(basic, BasicAuthenticationFilter.class);
-
-	return http.build();
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Bean
-fun filterChain(http: HttpSecurity): SecurityFilterChain {
-	val basic = BasicAuthenticationFilter()
-	// ... configure
-
-	http {
-		httpBasic { }
-	}
-
-	// ... on no! BasicAuthenticationFilter is added twice!
-    http.addFilterAt(basic, BasicAuthenticationFilter::class.java)
-
-	return http.build()
-}
-----
-======
+include-code::./CustomizingFilterTests[tag=incorrect,indent=0]
 
 In this case, remove the call to `httpBasic` since you are constructing `BasicAuthenticationFilter` yourself.
 
@@ -533,10 +301,7 @@ In this case, remove the call to `httpBasic` since you are constructing `BasicAu
 ====
 In the event that you are unable to reconfigure `HttpSecurity` to not add a certain filter, you can typically disable the Spring Security filter by calling its DSL's `disable` method like so:
 
-[source,java]
-----
-.httpBasic((basic) -> basic.disable())
-----
+include-java::./CustomizingFilterTests[tag=disable,indent=0]
 ====
 
 [[servlet-exceptiontranslationfilter]]
@@ -618,53 +383,7 @@ Or you may want to shut off this feature since you always want to redirect the u
 To do that, you can use the javadoc:org.springframework.security.web.savedrequest.NullRequestCache[NullRequestCache] implementation.
 
 .Prevent the Request From Being Saved
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Bean
-SecurityFilterChain springSecurity(HttpSecurity http) throws Exception {
-    RequestCache nullRequestCache = new NullRequestCache();
-    http
-        // ...
-        .requestCache((cache) -> cache
-            .requestCache(nullRequestCache)
-        );
-    return http.build();
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Bean
-open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
-    val nullRequestCache = NullRequestCache()
-    http {
-        requestCache {
-            requestCache = nullRequestCache
-        }
-    }
-    return http.build()
-}
-----
-
-XML::
-+
-[source,xml,role="secondary"]
-----
-<http auto-config="true">
-	<!-- ... -->
-	<request-cache ref="nullRequestCache"/>
-</http>
-
-<b:bean id="nullRequestCache" class="org.springframework.security.web.savedrequest.NullRequestCache"/>
-----
-======
-
+include-code::./SecurityConfig[tag=snippet,indent=0]
 
 [[requestcacheawarefilter]]
 === RequestCacheAwareFilter
