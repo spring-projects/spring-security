@@ -101,7 +101,7 @@ public final class FormPostRedirectStrategy implements RedirectStrategy {
 		// @formatter:off
 		final String html = REDIRECT_PAGE_TEMPLATE
 			// Clear the query string as we don't want that to be part of the form action URL
-			.replace("{{action}}", HtmlUtils.htmlEscape(uriComponentsBuilder.query(null).build().toUriString()))
+			.replace("{{action}}", HtmlUtils.htmlEscape(uriComponentsBuilder.replaceQuery(null).build().toUriString()))
 			.replace("{{params}}", hiddenInputsHtmlBuilder.toString())
 			.replace("{{nonce}}", HtmlUtils.htmlEscape(nonce));
 		// @formatter:on
