@@ -200,22 +200,6 @@ public class OidcReactiveOAuth2UserServiceTests {
 	}
 
 	@Test
-	public void loadUserWhenTokenScopesIsEmptyThenUserInfoNotRetrieved() {
-		// @formatter:off
-		OAuth2AccessToken accessToken = new OAuth2AccessToken(
-				this.accessToken.getTokenType(),
-				this.accessToken.getTokenValue(),
-				this.accessToken.getIssuedAt(),
-				this.accessToken.getExpiresAt(),
-				Collections.emptySet());
-		// @formatter:on
-		OidcUserRequest userRequest = new OidcUserRequest(this.registration.build(), accessToken, this.idToken);
-		OidcUser oidcUser = this.userService.loadUser(userRequest).block();
-		assertThat(oidcUser).isNotNull();
-		assertThat(oidcUser.getUserInfo()).isNull();
-	}
-
-	@Test
 	public void loadUserWhenCustomRetrieveUserInfoSetThenUsed() {
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put(StandardClaimNames.SUB, "subject");
@@ -281,6 +265,7 @@ public class OidcReactiveOAuth2UserServiceTests {
 				IdTokenClaimNames.SUB);
 		given(customOidcUserMapper.apply(any(OidcUserRequest.class), isNull())).willReturn(Mono.just(actualUser));
 		this.userService.setOidcUserMapper(customOidcUserMapper);
+		this.userService.setRetrieveUserInfo((oidcUserRequest) -> false);
 		OidcUserRequest userRequest = userRequest();
 		OidcUser oidcUser = this.userService.loadUser(userRequest).block();
 		assertThat(oidcUser).isNotNull();
@@ -291,6 +276,7 @@ public class OidcReactiveOAuth2UserServiceTests {
 	@Test
 	public void loadUserWhenTokenContainsScopesThenIndividualScopeAuthorities() {
 		OidcReactiveOAuth2UserService userService = new OidcReactiveOAuth2UserService();
+		userService.setRetrieveUserInfo((oidcUserRequest) -> false);
 		OidcUserRequest request = new OidcUserRequest(TestClientRegistrations.clientRegistration().build(),
 				TestOAuth2AccessTokens.scopes("message:read", "message:write"), TestOidcIdTokens.idToken().build());
 		OidcUser user = userService.loadUser(request).block();
@@ -304,6 +290,7 @@ public class OidcReactiveOAuth2UserServiceTests {
 	@Test
 	public void loadUserWhenTokenDoesNotContainScopesThenNoScopeAuthorities() {
 		OidcReactiveOAuth2UserService userService = new OidcReactiveOAuth2UserService();
+		userService.setRetrieveUserInfo((oidcUserRequest) -> false);
 		OidcUserRequest request = new OidcUserRequest(TestClientRegistrations.clientRegistration().build(),
 				TestOAuth2AccessTokens.noScopes(), TestOidcIdTokens.idToken().build());
 		OidcUser user = userService.loadUser(request).block();

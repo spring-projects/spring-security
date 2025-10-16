@@ -156,15 +156,14 @@ public class OidcReactiveOAuth2UserService implements ReactiveOAuth2UserService<
 	 * Sets the {@code Predicate} used to determine if the UserInfo Endpoint should be
 	 * called to retrieve information about the End-User (Resource Owner).
 	 * <p>
-	 * By default, the UserInfo Endpoint is called if all of the following are true:
+	 * By default, the UserInfo Endpoint is called if all the following are true:
 	 * <ul>
 	 * <li>The user info endpoint is defined on the ClientRegistration</li>
 	 * <li>The Client Registration uses the
-	 * {@link AuthorizationGrantType#AUTHORIZATION_CODE} and scopes in the access token
-	 * are defined in the {@link ClientRegistration}</li>
+	 * {@link AuthorizationGrantType#AUTHORIZATION_CODE}</li>
 	 * </ul>
-	 * @param retrieveUserInfo the function used to determine if the UserInfo Endpoint
-	 * should be called
+	 * @param retrieveUserInfo the {@code Predicate} used to determine if the UserInfo
+	 * Endpoint should be called
 	 * @since 6.3
 	 */
 	public final void setRetrieveUserInfo(Predicate<OidcUserRequest> retrieveUserInfo) {

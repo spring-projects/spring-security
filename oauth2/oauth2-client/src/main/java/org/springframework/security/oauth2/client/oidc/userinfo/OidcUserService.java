@@ -27,7 +27,6 @@ import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.ClientRegistration.ProviderDetails;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -45,7 +44,6 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 /**
  * An implementation of an {@link OAuth2UserService} that supports OpenID Connect 1.0
@@ -72,7 +70,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	private Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory = (
 			clientRegistration) -> DEFAULT_CLAIM_TYPE_CONVERTER;
 
-	private Predicate<OidcUserRequest> retrieveUserInfo = this::shouldRetrieveUserInfo;
+	private Predicate<OidcUserRequest> retrieveUserInfo = OidcUserRequestUtils::shouldRetrieveUserInfo;
 
 	private Converter<OidcUserSource, OidcUser> oidcUserConverter = OidcUserRequestUtils::getUser;
 
@@ -137,17 +135,6 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 			return converter.convert(oauth2User.getAttributes());
 		}
 		return DEFAULT_CLAIM_TYPE_CONVERTER.convert(oauth2User.getAttributes());
-	}
-
-	private boolean shouldRetrieveUserInfo(OidcUserRequest userRequest) {
-		// Auto-disabled if UserInfo Endpoint URI is not provided
-		ProviderDetails providerDetails = userRequest.getClientRegistration().getProviderDetails();
-		if (StringUtils.hasLength(providerDetails.getUserInfoEndpoint().getUri())
-				&& AuthorizationGrantType.AUTHORIZATION_CODE
-					.equals(userRequest.getClientRegistration().getAuthorizationGrantType())) {
-			return true;
-		}
-		return false;
 	}
 
 	/**
