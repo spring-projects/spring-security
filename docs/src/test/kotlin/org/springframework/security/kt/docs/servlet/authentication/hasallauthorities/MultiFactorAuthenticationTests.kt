@@ -90,7 +90,7 @@ class MultiFactorAuthenticationTests {
         // @formatter:off
         this.mockMvc!!.perform(MockMvcRequestBuilders.get("/"))
         .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-        .andExpect(MockMvcResultMatchers.redirectedUrl("http://localhost/login?factor.type=password&factor.reason=missing"))
+        .andExpect(MockMvcResultMatchers.redirectedUrl("http://localhost/login?factor.type=password&factor.type=ott&factor.reason=missing&factor.reason=missing"))
     		// @formatter:on
     }
 

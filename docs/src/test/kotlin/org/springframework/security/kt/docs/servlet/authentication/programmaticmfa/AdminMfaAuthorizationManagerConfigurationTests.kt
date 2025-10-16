@@ -55,7 +55,7 @@ class AdminMfaAuthorizationManagerConfigurationTests {
         // @formatter:off
         this.mockMvc!!.perform(get("/"))
             .andExpect(status().is3xxRedirection())
-            .andExpect(redirectedUrl("http://localhost/login?factor.type=ott&factor.reason=missing"))
+            .andExpect(redirectedUrl("http://localhost/login?factor.type=ott&factor.type=password&factor.reason=missing&factor.reason=missing"))
         // @formatter:on
     }
 

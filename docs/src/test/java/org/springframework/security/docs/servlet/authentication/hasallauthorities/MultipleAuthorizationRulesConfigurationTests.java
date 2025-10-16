@@ -91,7 +91,7 @@ public class MultipleAuthorizationRulesConfigurationTests {
 		// @formatter:off
 		this.mockMvc.perform(get("/"))
 			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("http://localhost/login?factor.type=password&factor.reason=missing"));
+			.andExpect(redirectedUrl("http://localhost/login?factor.type=password&factor.type=ott&factor.reason=missing&factor.reason=missing"));
 		// @formatter:on
 	}
 
