@@ -17,6 +17,7 @@
 package org.springframework.security.web.authentication.www;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -190,7 +191,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 			if (authenticationIsRequired(username)) {
 				Authentication authResult = this.authenticationManager.authenticate(authRequest);
 				Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
-				if (current != null && current.isAuthenticated()) {
+				if (current != null && current.isAuthenticated() && declaresToBuilder(authResult)) {
 					authResult = authResult.toBuilder()
 					// @formatter:off
 						.authorities((a) -> {
@@ -232,6 +233,15 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 		}
 
 		chain.doFilter(request, response);
+	}
+
+	private static boolean declaresToBuilder(Authentication authentication) {
+		for (Method method : authentication.getClass().getDeclaredMethods()) {
+			if (method.getName().equals("toBuilder") && method.getParameterTypes().length == 0) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	protected boolean authenticationIsRequired(String username) {

@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.server.resource.web.authentication;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -56,7 +57,6 @@ import org.springframework.security.web.context.RequestAttributeSecurityContextR
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -214,7 +214,12 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 	}
 
 	private static boolean declaresToBuilder(Authentication authentication) {
-		return ReflectionUtils.findMethod(authentication.getClass(), "toBuilder") != null;
+		for (Method method : authentication.getClass().getDeclaredMethods()) {
+			if (method.getName().equals("toBuilder") && method.getParameterTypes().length == 0) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

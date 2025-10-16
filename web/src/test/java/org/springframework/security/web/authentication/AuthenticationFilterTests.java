@@ -37,6 +37,8 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.NonBuildableAuthenticationToken;
+import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -346,6 +348,26 @@ public class AuthenticationFilterTests {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		assertThat(authentication.getAuthorities()).extracting(GrantedAuthority::getAuthority)
 			.containsExactlyInAnyOrder(DefaultEqualsGrantedAuthority.AUTHORITY);
+	}
+
+	@Test
+	void doFilterWhenNotOverridingToBuilderThenDoesNotMergeAuthorities() throws Exception {
+		TestingAuthenticationToken existingAuthn = new TestingAuthenticationToken("username", "password", "FACTORONE");
+		SecurityContextHolder.setContext(new SecurityContextImpl(existingAuthn));
+		given(this.authenticationConverter.convert(any())).willReturn(existingAuthn);
+		given(this.authenticationManager.authenticate(any()))
+			.willReturn(new NonBuildableAuthenticationToken("user", "password", "FACTORTWO"));
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain chain = new MockFilterChain();
+		AuthenticationFilter filter = new AuthenticationFilter(this.authenticationManager,
+				this.authenticationConverter);
+		filter.doFilter(request, response, chain);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		SecurityAssertions.assertThat(authentication)
+			.authorities()
+			.extracting(GrantedAuthority::getAuthority)
+			.containsExactly("FACTORTWO");
 	}
 
 	@Test

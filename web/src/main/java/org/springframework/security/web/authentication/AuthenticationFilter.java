@@ -17,6 +17,7 @@
 package org.springframework.security.web.authentication;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -188,7 +189,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 				return;
 			}
 			Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
-			if (current != null && current.isAuthenticated()) {
+			if (current != null && current.isAuthenticated() && declaresToBuilder(authenticationResult)) {
 				authenticationResult = authenticationResult.toBuilder()
 				// @formatter:off
 					.authorities((a) -> {
@@ -213,6 +214,15 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 		catch (AuthenticationException ex) {
 			unsuccessfulAuthentication(request, response, ex);
 		}
+	}
+
+	private static boolean declaresToBuilder(Authentication authentication) {
+		for (Method method : authentication.getClass().getDeclaredMethods()) {
+			if (method.getName().equals("toBuilder") && method.getParameterTypes().length == 0) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
