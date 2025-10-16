@@ -52,6 +52,13 @@ public class CacheControlServerHttpHeadersWriter implements ServerHttpHeadersWri
 	public static final String CACHE_CONTROL_VALUE = "no-cache, no-store, max-age=0, must-revalidate";
 
 	/**
+	 * The value for the cache control value.
+	 * @deprecated Please use {@link #CACHE_CONTROL_VALUE}
+	 */
+	@Deprecated(forRemoval = true, since = "7.0")
+	public static final String CACHE_CONTRTOL_VALUE = CACHE_CONTROL_VALUE;
+
+	/**
 	 * The delegate to write all the cache control related headers
 	 */
 	private static final ServerHttpHeadersWriter CACHE_HEADERS = StaticServerHttpHeadersWriter.builder()
