@@ -58,7 +58,6 @@ import org.springframework.security.core.userdetails.User;
  * @see SecurityJacksonModules
  */
 @SuppressWarnings("serial")
-
 public class CoreJacksonModule extends SecurityJacksonModule {
 
 	public CoreJacksonModule() {
