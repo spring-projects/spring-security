@@ -40,7 +40,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -53,7 +52,6 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
@@ -94,7 +92,6 @@ import org.springframework.security.oauth2.server.authorization.client.JdbcRegis
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.TestRegisteredClients;
-import org.springframework.security.oauth2.server.authorization.jackson2.TestingAuthenticationTokenMixin;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
@@ -534,11 +531,7 @@ public class OAuth2ClientCredentialsGrantTests {
 		@Bean
 		OAuth2AuthorizationService authorizationService(JdbcOperations jdbcOperations,
 				RegisteredClientRepository registeredClientRepository) {
-			JdbcOAuth2AuthorizationService authorizationService = new JdbcOAuth2AuthorizationService(jdbcOperations,
-					registeredClientRepository);
-			authorizationService.setAuthorizationRowMapper(new RowMapper(registeredClientRepository));
-			authorizationService.setAuthorizationParametersMapper(new ParametersMapper());
-			return authorizationService;
+			return new JdbcOAuth2AuthorizationService(jdbcOperations, registeredClientRepository);
 		}
 
 		@Bean
@@ -568,26 +561,6 @@ public class OAuth2ClientCredentialsGrantTests {
 		@Bean
 		PasswordEncoder passwordEncoder() {
 			return NoOpPasswordEncoder.getInstance();
-		}
-
-		static class RowMapper extends JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper {
-
-			RowMapper(RegisteredClientRepository registeredClientRepository) {
-				super(registeredClientRepository);
-				setMapper(new JdbcOAuth2AuthorizationService.JacksonDelegate(JsonMapper.builder()
-					.addMixIn(TestingAuthenticationToken.class, TestingAuthenticationTokenMixin.class)));
-			}
-
-		}
-
-		static class ParametersMapper extends JdbcOAuth2AuthorizationService.OAuth2AuthorizationParametersMapper {
-
-			ParametersMapper() {
-				super();
-				setMapper(new JdbcOAuth2AuthorizationService.JacksonDelegate(JsonMapper.builder()
-					.addMixIn(TestingAuthenticationToken.class, TestingAuthenticationTokenMixin.class)));
-			}
-
 		}
 
 	}

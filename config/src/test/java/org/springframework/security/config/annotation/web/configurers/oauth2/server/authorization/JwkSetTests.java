@@ -24,7 +24,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -35,7 +34,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.config.test.SpringTestContext;
@@ -45,7 +43,6 @@ import org.springframework.security.oauth2.server.authorization.JdbcOAuth2Author
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
-import org.springframework.security.oauth2.server.authorization.jackson2.TestingAuthenticationTokenMixin;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -142,11 +139,7 @@ public class JwkSetTests {
 		@Bean
 		OAuth2AuthorizationService authorizationService(JdbcOperations jdbcOperations,
 				RegisteredClientRepository registeredClientRepository) {
-			JdbcOAuth2AuthorizationService authorizationService = new JdbcOAuth2AuthorizationService(jdbcOperations,
-					registeredClientRepository);
-			authorizationService.setAuthorizationRowMapper(new RowMapper(registeredClientRepository));
-			authorizationService.setAuthorizationParametersMapper(new ParametersMapper());
-			return authorizationService;
+			return new JdbcOAuth2AuthorizationService(jdbcOperations, registeredClientRepository);
 		}
 
 		@Bean
@@ -162,26 +155,6 @@ public class JwkSetTests {
 		@Bean
 		JWKSource<SecurityContext> jwkSource() {
 			return jwkSource;
-		}
-
-		static class RowMapper extends JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper {
-
-			RowMapper(RegisteredClientRepository registeredClientRepository) {
-				super(registeredClientRepository);
-				setMapper(new JdbcOAuth2AuthorizationService.JacksonDelegate(JsonMapper.builder()
-					.addMixIn(TestingAuthenticationToken.class, TestingAuthenticationTokenMixin.class)));
-			}
-
-		}
-
-		static class ParametersMapper extends JdbcOAuth2AuthorizationService.OAuth2AuthorizationParametersMapper {
-
-			ParametersMapper() {
-				super();
-				setMapper(new JdbcOAuth2AuthorizationService.JacksonDelegate(JsonMapper.builder()
-					.addMixIn(TestingAuthenticationToken.class, TestingAuthenticationTokenMixin.class)));
-			}
-
 		}
 
 	}

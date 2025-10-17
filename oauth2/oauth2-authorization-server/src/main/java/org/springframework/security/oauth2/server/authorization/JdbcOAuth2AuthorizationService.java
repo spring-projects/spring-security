@@ -71,7 +71,6 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.jackson.OAuth2AuthorizationServerJacksonModule;
 import org.springframework.security.oauth2.server.authorization.jackson2.OAuth2AuthorizationServerJackson2Module;
 import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -245,11 +244,11 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 		Assert.notNull(lobHandler, "lobHandler cannot be null");
 		this.jdbcOperations = jdbcOperations;
 		this.lobHandler = lobHandler;
-		OAuth2AuthorizationRowMapper authorizationRowMapper = new OAuth2AuthorizationRowMapper(
+		JsonMapperOAuth2AuthorizationRowMapper authorizationRowMapper = new JsonMapperOAuth2AuthorizationRowMapper(
 				registeredClientRepository);
 		authorizationRowMapper.setLobHandler(lobHandler);
 		this.authorizationRowMapper = authorizationRowMapper;
-		this.authorizationParametersMapper = new OAuth2AuthorizationParametersMapper();
+		this.authorizationParametersMapper = new JsonMapperOAuth2AuthorizationParametersMapper();
 		initColumnMetadata(jdbcOperations);
 	}
 
@@ -467,18 +466,86 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 
 	/**
 	 * The default {@link RowMapper} that maps the current row in
-	 * {@code java.sql.ResultSet} to {@link OAuth2Authorization}.
+	 * {@code java.sql.ResultSet} to {@link OAuth2Authorization} using Jackson 3's
+	 * {@link JsonMapper} to read all {@code Map<String,Object>} within the result.
+	 *
+	 * @author Rob Winch
+	 * @since 7.0
 	 */
-	public static class OAuth2AuthorizationRowMapper implements RowMapper<OAuth2Authorization> {
+	public static class JsonMapperOAuth2AuthorizationRowMapper extends AbstractOAuth2AuthorizationRowMapper {
+
+		private final JsonMapper jsonMapper;
+
+		public JsonMapperOAuth2AuthorizationRowMapper(RegisteredClientRepository registeredClientRepository) {
+			this(registeredClientRepository, Jackson3.createJsonMapper());
+		}
+
+		public JsonMapperOAuth2AuthorizationRowMapper(RegisteredClientRepository registeredClientRepository,
+				JsonMapper jsonMapper) {
+			super(registeredClientRepository);
+			this.jsonMapper = jsonMapper;
+		}
+
+		@Override
+		Map<String, Object> readValue(String data) {
+			final ParameterizedTypeReference<Map<String, Object>> typeReference = new ParameterizedTypeReference<>() {
+			};
+			tools.jackson.databind.JavaType javaType = this.jsonMapper.getTypeFactory()
+				.constructType(typeReference.getType());
+			return this.jsonMapper.readValue(data, javaType);
+		}
+
+	}
+
+	/**
+	 * A {@link RowMapper} that maps the current row in {@code java.sql.ResultSet} to
+	 * {@link OAuth2Authorization} using Jackson 2's {@link ObjectMapper}.
+	 *
+	 * @deprecated Use {@link JsonMapperOAuth2AuthorizationRowMapper} to switch to Jackson
+	 * 3.
+	 */
+	@Deprecated(forRemoval = true, since = "7.0")
+	public static class OAuth2AuthorizationRowMapper extends AbstractOAuth2AuthorizationRowMapper {
+
+		private ObjectMapper objectMapper = Jackson2.createObjectMapper();
+
+		public OAuth2AuthorizationRowMapper(RegisteredClientRepository registeredClientRepository) {
+			super(registeredClientRepository);
+		}
+
+		public final void setObjectMapper(ObjectMapper objectMapper) {
+			Assert.notNull(objectMapper, "objectMapper cannot be null");
+			this.objectMapper = objectMapper;
+		}
+
+		protected ObjectMapper getObjectMapper() {
+			return this.objectMapper;
+		}
+
+		@Override
+		Map<String, Object> readValue(String data) throws JsonProcessingException {
+			final ParameterizedTypeReference<Map<String, Object>> typeReference = new ParameterizedTypeReference<>() {
+			};
+			com.fasterxml.jackson.databind.JavaType javaType = this.objectMapper.getTypeFactory()
+				.constructType(typeReference.getType());
+			return this.objectMapper.readValue(data, javaType);
+		}
+
+	}
+
+	/**
+	 * The base {@link RowMapper} that maps the current row in {@code java.sql.ResultSet}
+	 * to {@link OAuth2Authorization}. This is extracted to a distinct class so that
+	 * {@link OAuth2AuthorizationRowMapper} can be deprecated in favor of
+	 * {@link JsonMapperOAuth2AuthorizationRowMapper}.
+	 */
+	private abstract static class AbstractOAuth2AuthorizationRowMapper implements RowMapper<OAuth2Authorization> {
 
 		private final RegisteredClientRepository registeredClientRepository;
 
 		private LobHandler lobHandler = new DefaultLobHandler();
 
-		private Mapper mapper = (ClassUtils.isPresent("tools.jackson.databind.json.JsonMapper",
-				OAuth2AuthorizationRowMapper.class.getClassLoader())) ? new JacksonDelegate() : new Jackson2Delegate();
-
-		public OAuth2AuthorizationRowMapper(RegisteredClientRepository registeredClientRepository) {
+		AbstractOAuth2AuthorizationRowMapper(RegisteredClientRepository registeredClientRepository) {
 			Assert.notNull(registeredClientRepository, "registeredClientRepository cannot be null");
 			this.registeredClientRepository = registeredClientRepository;
 		}
@@ -625,11 +692,6 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 			this.lobHandler = lobHandler;
 		}
 
-		public final void setMapper(Mapper mapper) {
-			Assert.notNull(mapper, "objectMapper cannot be null");
-			this.mapper = mapper;
-		}
-
 		protected final RegisteredClientRepository getRegisteredClientRepository() {
 			return this.registeredClientRepository;
 		}
@@ -638,33 +700,116 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 			return this.lobHandler;
 		}
 
-		protected final Mapper getMapper() {
-			return this.mapper;
-		}
-
 		private Map<String, Object> parseMap(String data) {
 			try {
-				return this.mapper.readValue(data, new ParameterizedTypeReference<>() {
-				});
+				return readValue(data);
 			}
 			catch (Exception ex) {
 				throw new IllegalArgumentException(ex.getMessage(), ex);
 			}
 		}
 
+		abstract Map<String, Object> readValue(String data) throws Exception;
+
+	}
+
+	/**
+	 * Nested class to protect from getting {@link NoClassDefFoundError} when Jackson 2 is
+	 * not on the classpath.
+	 *
+	 * @deprecated This is used to allow transition to Jackson 3. Use {@link Jackson3}
+	 * instead.
+	 */
+	@Deprecated(forRemoval = true, since = "7.0")
+	private static final class Jackson2 {
+
+		static ObjectMapper createObjectMapper() {
+			ObjectMapper objectMapper = new ObjectMapper();
+			ClassLoader classLoader = Jackson2.class.getClassLoader();
+			List<Module> securityModules = SecurityJackson2Modules.getModules(classLoader);
+			objectMapper.registerModules(securityModules);
+			objectMapper.registerModule(new OAuth2AuthorizationServerJackson2Module());
+			return objectMapper;
+		}
+
+	}
+
+	/**
+	 * Nested class used to get a common default instance of {@link JsonMapper}. It is in
+	 * a nested class to protect from getting {@link NoClassDefFoundError} when Jackson 3
+	 * is not on the classpath.
+	 */
+	private static final class Jackson3 {
+
+		static JsonMapper createJsonMapper() {
+			List<JacksonModule> modules = SecurityJacksonModules.getModules(Jackson3.class.getClassLoader());
+			return JsonMapper.builder()
+				.addModules(modules)
+				.addModules(new OAuth2AuthorizationServerJacksonModule())
+				.build();
+		}
+
+	}
+
+	/**
+	 * @deprecated Use {@link JsonMapperOAuth2AuthorizationParametersMapper} to migrate to
+	 * Jackson 3.
+	 */
+	@Deprecated(forRemoval = true, since = "7.0")
+	public static class OAuth2AuthorizationParametersMapper extends AbstractOAuth2AuthorizationParametersMapper {
+
+		private ObjectMapper objectMapper = Jackson2.createObjectMapper();
+
+		@Override
+		String writeValueAsString(Map<String, Object> data) throws JsonProcessingException {
+			return this.objectMapper.writeValueAsString(data);
+		}
+
+		protected final ObjectMapper getObjectMapper() {
+			return this.objectMapper;
+		}
+
+		public final void setObjectMapper(ObjectMapper objectMapper) {
+			Assert.notNull(objectMapper, "objectMapper cannot be null");
+			this.objectMapper = objectMapper;
+		}
+
 	}
 
 	/**
 	 * The default {@code Function} that maps {@link OAuth2Authorization} to a
-	 * {@code List} of {@link SqlParameterValue}.
+	 * {@code List} of {@link SqlParameterValue} using an instance of Jackson 3's
+	 * {@link JsonMapper}.
 	 */
-	public static class OAuth2AuthorizationParametersMapper
+	public static final class JsonMapperOAuth2AuthorizationParametersMapper
+			extends AbstractOAuth2AuthorizationParametersMapper {
+
+		private final JsonMapper mapper;
+
+		public JsonMapperOAuth2AuthorizationParametersMapper() {
+			this(Jackson3.createJsonMapper());
+		}
+
+		public JsonMapperOAuth2AuthorizationParametersMapper(JsonMapper mapper) {
+			Assert.notNull(mapper, "mapper cannot be null");
+			this.mapper = mapper;
+		}
+
+		@Override
+		String writeValueAsString(Map<String, Object> data) throws Exception {
+			return this.mapper.writeValueAsString(data);
+		}
+
+	}
+
+	/**
+	 * The base {@code Function} that maps {@link OAuth2Authorization} to a {@code List}
+	 * of {@link SqlParameterValue}.
+	 */
+	private abstract static class AbstractOAuth2AuthorizationParametersMapper
 			implements Function<OAuth2Authorization, List<SqlParameterValue>> {
 
-		private Mapper mapper = (ClassUtils.isPresent("tools.jackson.databind.json.JsonMapper",
-				OAuth2AuthorizationRowMapper.class.getClassLoader())) ? new JacksonDelegate() : new Jackson2Delegate();
-
-		public OAuth2AuthorizationParametersMapper() {
+		protected AbstractOAuth2AuthorizationParametersMapper() {
 		}
 
 		@Override
@@ -736,15 +881,6 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 			return parameters;
 		}
 
-		public final void setMapper(Mapper mapper) {
-			Assert.notNull(mapper, "mapper cannot be null");
-			this.mapper = mapper;
-		}
-
-		protected final Mapper getMapper() {
-			return this.mapper;
-		}
-
 		private <T extends OAuth2Token> List<SqlParameterValue> toSqlParameterList(String tokenColumnName,
 				String tokenMetadataColumnName, OAuth2Authorization.Token<T> token) {
 
@@ -773,12 +909,14 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 
 		private String writeMap(Map<String, Object> data) {
 			try {
-				return this.mapper.writeValueAsString(data);
+				return writeValueAsString(data);
 			}
 			catch (Exception ex) {
 				throw new IllegalArgumentException(ex.getMessage(), ex);
 			}
 		}
+
+		abstract String writeValueAsString(Map<String, Object> data) throws Exception;
 
 	}
 
@@ -846,79 +984,6 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 			hints.resources()
 				.registerResource(new ClassPathResource(
 						"org/springframework/security/oauth2/server/authorization/oauth2-authorization-schema.sql"));
-		}
-
-	}
-
-	public interface Mapper {
-
-		String writeValueAsString(Object data);
-
-		<T> T readValue(String value, ParameterizedTypeReference<T> typeReference);
-
-	}
-
-	@SuppressWarnings("removal")
-	public static class Jackson2Delegate implements Mapper {
-
-		private final ObjectMapper objectMapper = new ObjectMapper();
-
-		public Jackson2Delegate() {
-			ClassLoader classLoader = Jackson2Delegate.class.getClassLoader();
-			List<Module> securityModules = SecurityJackson2Modules.getModules(classLoader);
-			this.objectMapper.registerModules(securityModules);
-			this.objectMapper.registerModule(new OAuth2AuthorizationServerJackson2Module());
-		}
-
-		@Override
-		public String writeValueAsString(Object data) {
-			try {
-				return this.objectMapper.writeValueAsString(data);
-			}
-			catch (JsonProcessingException ex) {
-				throw new IllegalArgumentException(ex.getMessage(), ex);
-			}
-		}
-
-		@Override
-		public <T> T readValue(String value, ParameterizedTypeReference<T> typeReference) {
-			try {
-				com.fasterxml.jackson.databind.JavaType javaType = this.objectMapper.getTypeFactory()
-					.constructType(typeReference.getType());
-				return this.objectMapper.readValue(value, javaType);
-			}
-			catch (JsonProcessingException ex) {
-				throw new IllegalArgumentException(ex.getMessage(), ex);
-			}
-		}
-
-	}
-
-	public static class JacksonDelegate implements Mapper {
-
-		private final JsonMapper jsonMapper;
-
-		public JacksonDelegate() {
-			this(JsonMapper.builder());
-		}
-
-		public JacksonDelegate(JsonMapper.Builder builder) {
-			List<JacksonModule> modules = SecurityJacksonModules.getModules(getClass().getClassLoader());
-			this.jsonMapper = builder.addModules(modules)
-				.addModules(new OAuth2AuthorizationServerJacksonModule())
-				.build();
-		}
-
-		@Override
-		public String writeValueAsString(Object data) {
-			return this.jsonMapper.writeValueAsString(data);
-		}
-
-		@Override
-		public <T> T readValue(String value, ParameterizedTypeReference<T> typeReference) {
-			tools.jackson.databind.JavaType javaType = this.jsonMapper.getTypeFactory()
-				.constructType(typeReference.getType());
-			return this.jsonMapper.readValue(value, javaType);
 		}
 
 	}
