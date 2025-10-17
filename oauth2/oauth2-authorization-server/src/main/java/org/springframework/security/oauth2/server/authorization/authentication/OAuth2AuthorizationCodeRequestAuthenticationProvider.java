@@ -21,7 +21,9 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -283,8 +285,13 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 			Set<String> currentAuthorizedScopes = (currentAuthorizationConsent != null)
 					? currentAuthorizationConsent.getScopes() : null;
 
+			Map<String, Object> additionalParameters = new HashMap<>();
+			if (pushedAuthorization != null) {
+				additionalParameters.put(OAuth2ParameterNames.SCOPE, authorizationRequest.getScopes());
+			}
+
 			return new OAuth2AuthorizationConsentAuthenticationToken(authorizationRequest.getAuthorizationUri(),
-					registeredClient.getClientId(), principal, state, currentAuthorizedScopes, null);
+					registeredClient.getClientId(), principal, state, currentAuthorizedScopes, additionalParameters);
 		}
 
 		OAuth2TokenContext tokenContext = createAuthorizationCodeTokenContext(authorizationCodeRequestAuthentication,
