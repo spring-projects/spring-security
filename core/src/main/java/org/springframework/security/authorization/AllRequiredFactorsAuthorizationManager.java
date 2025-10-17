@@ -166,7 +166,7 @@ public final class AllRequiredFactorsAuthorizationManager<T> implements Authoriz
 		 * @param requiredFactor the {@link Consumer} to invoke.
 		 * @return the builder.
 		 */
-		public Builder requireFactor(Consumer<RequiredFactor.Builder> requiredFactor) {
+		public Builder<T> requireFactor(Consumer<RequiredFactor.Builder> requiredFactor) {
 			Assert.notNull(requiredFactor, "requiredFactor cannot be null");
 			RequiredFactor.Builder builder = RequiredFactor.builder();
 			requiredFactor.accept(builder);
@@ -178,7 +178,7 @@ public final class AllRequiredFactorsAuthorizationManager<T> implements Authoriz
 		 * @param requiredFactor the requiredFactor to add. Cannot be null.
 		 * @return the builder.
 		 */
-		public Builder requireFactor(RequiredFactor requiredFactor) {
+		public Builder<T> requireFactor(RequiredFactor requiredFactor) {
 			Assert.notNull(requiredFactor, "requiredFactor cannot be null");
 			this.requiredFactors.add(requiredFactor);
 			return this;
@@ -186,10 +186,9 @@ public final class AllRequiredFactorsAuthorizationManager<T> implements Authoriz
 
 		/**
 		 * Builds the {@link AllRequiredFactorsAuthorizationManager}.
-		 * @param <T> the type.
 		 * @return the {@link AllRequiredFactorsAuthorizationManager}
 		 */
-		public <T> AllRequiredFactorsAuthorizationManager<T> build() {
+		public AllRequiredFactorsAuthorizationManager<T> build() {
 			Assert.state(!this.requiredFactors.isEmpty(), "requiredFactors cannot be empty");
 			return new AllRequiredFactorsAuthorizationManager<T>(this.requiredFactors);
 		}
