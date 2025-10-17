@@ -43,7 +43,12 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
  * @author Jitendra Singh
  * @since 4.2
  * @see PreAuthenticatedAuthenticationTokenMixin
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.web.jackson.PreAuthenticatedAuthenticationTokenDeserializer}
+ * based on Jackson 3
  */
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true)
 class PreAuthenticatedAuthenticationTokenDeserializer extends JsonDeserializer<PreAuthenticatedAuthenticationToken> {
 
 	private static final TypeReference<List<GrantedAuthority>> GRANTED_AUTHORITY_LIST = new TypeReference<>() {

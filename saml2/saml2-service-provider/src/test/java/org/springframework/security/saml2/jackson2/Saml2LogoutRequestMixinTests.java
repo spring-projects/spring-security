@@ -32,6 +32,7 @@ import org.springframework.security.saml2.provider.service.registration.Saml2Mes
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SuppressWarnings("removal")
 class Saml2LogoutRequestMixinTests {
 
 	private ObjectMapper mapper;

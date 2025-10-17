@@ -36,9 +36,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * @see UnmodifiableListDeserializer
  * @see CoreJackson2Module
  * @see SecurityJackson2Modules
+ * @deprecated as of 7.0
  */
+@SuppressWarnings("removal")
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonDeserialize(using = UnmodifiableListDeserializer.class)
+@Deprecated(forRemoval = true)
 class UnmodifiableListMixin {
 
 	/**

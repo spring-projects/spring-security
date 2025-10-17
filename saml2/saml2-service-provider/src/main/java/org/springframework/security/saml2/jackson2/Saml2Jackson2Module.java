@@ -40,8 +40,12 @@ import org.springframework.security.saml2.provider.service.authentication.logout
  * @author Ulrich Grave
  * @since 5.7
  * @see SecurityJackson2Modules
+ * @deprecated as of 7.0 in favor of
+ * {@link org.springframework.security.saml2.jackson.Saml2JacksonModule} based on Jackson
+ * 3
  */
-@SuppressWarnings("serial")
+@Deprecated(forRemoval = true)
+@SuppressWarnings({ "serial", "removal" })
 public class Saml2Jackson2Module extends SimpleModule {
 
 	public Saml2Jackson2Module() {
@@ -50,6 +54,7 @@ public class Saml2Jackson2Module extends SimpleModule {
 
 	@Override
 	public void setupModule(SetupContext context) {
+		// TODO Is it expected that default typing in not configured here?
 		context.setMixInAnnotations(Saml2Authentication.class, Saml2AuthenticationMixin.class);
 		context.setMixInAnnotations(Saml2AssertionAuthentication.class, Saml2AssertionAuthenticationMixin.class);
 		context.setMixInAnnotations(Saml2ResponseAssertion.class, SimpleSaml2ResponseAssertionAccessorMixin.class);

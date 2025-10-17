@@ -33,7 +33,12 @@ import org.springframework.security.web.authentication.switchuser.SwitchUserGran
  * @see WebJackson2Module
  * @see WebServletJackson2Module
  * @see org.springframework.security.jackson2.SecurityJackson2Modules
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.web.jackson.SwitchUserGrantedAuthorityMixIn} based
+ * on Jackson 3
  */
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)

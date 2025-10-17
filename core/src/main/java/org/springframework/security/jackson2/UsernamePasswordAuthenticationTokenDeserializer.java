@@ -48,7 +48,12 @@ import org.springframework.security.core.GrantedAuthority;
  * @author Onur Kagan Ozcan
  * @since 4.2
  * @see UsernamePasswordAuthenticationTokenMixin
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.jackson.UsernamePasswordAuthenticationTokenDeserializer}
+ * based on Jackson 3
  */
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true)
 class UsernamePasswordAuthenticationTokenDeserializer extends JsonDeserializer<UsernamePasswordAuthenticationToken> {
 
 	private static final TypeReference<List<GrantedAuthority>> GRANTED_AUTHORITY_LIST = new TypeReference<>() {
@@ -71,7 +76,7 @@ class UsernamePasswordAuthenticationTokenDeserializer extends JsonDeserializer<U
 			throws IOException, JsonProcessingException {
 		ObjectMapper mapper = (ObjectMapper) jp.getCodec();
 		JsonNode jsonNode = mapper.readTree(jp);
-		Boolean authenticated = readJsonNode(jsonNode, "authenticated").asBoolean();
+		boolean authenticated = readJsonNode(jsonNode, "authenticated").asBoolean();
 		JsonNode principalNode = readJsonNode(jsonNode, "principal");
 		Object principal = getPrincipal(mapper, principalNode);
 		JsonNode credentialsNode = readJsonNode(jsonNode, "credentials");

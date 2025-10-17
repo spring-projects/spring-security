@@ -32,7 +32,11 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
  * @author Steve Riesenberg
  * @since 7.0
  * @see OAuth2TokenExchangeActor
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.oauth2.server.authorization.jackson.OAuth2TokenExchangeActorMixin}
+ * based on Jackson 3
  */
+@Deprecated(forRemoval = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.NONE)

@@ -30,11 +30,13 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @author Joe Grandja
  * @since 7.0
  * @see Duration
+ * @deprecated as of 7.0
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.NONE, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE,
 		creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@Deprecated(forRemoval = true)
 abstract class DurationMixin {
 
 	@JsonCreator

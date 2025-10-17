@@ -33,7 +33,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author Ulrich Grave
  * @since 5.7
  * @see UnmodifiableMapMixin
+ * @deprecated as of 7.0
  */
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true)
 class UnmodifiableMapDeserializer extends JsonDeserializer<Map<?, ?>> {
 
 	@Override

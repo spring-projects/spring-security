@@ -32,11 +32,15 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  *		mapper.registerModule(new WebServletJackson2Module());
  * </pre>
  *
- * @author Jitendra Singh.
+ * @author Jitendra Singh
  * @since 4.2
  * @see WebServletJackson2Module
  * @see org.springframework.security.jackson2.SecurityJackson2Modules
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.web.jackson.SavedCookieMixin} based on Jackson 3
  */
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)

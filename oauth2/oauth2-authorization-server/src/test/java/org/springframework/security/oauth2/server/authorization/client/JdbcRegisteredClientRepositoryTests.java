@@ -365,6 +365,7 @@ public class JdbcRegisteredClientRepositoryTests {
 			return !result.isEmpty() ? result.get(0) : null;
 		}
 
+		@SuppressWarnings("removal")
 		private static final class CustomRegisteredClientRowMapper implements RowMapper<RegisteredClient> {
 
 			private final ObjectMapper objectMapper = new ObjectMapper();
