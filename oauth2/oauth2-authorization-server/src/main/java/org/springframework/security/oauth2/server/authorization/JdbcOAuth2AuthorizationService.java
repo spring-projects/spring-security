@@ -36,6 +36,7 @@ import java.util.function.Function;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JacksonModule;
 import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.aot.hint.RuntimeHints;
@@ -54,6 +55,7 @@ import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobCreator;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.lang.Nullable;
+import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -897,11 +899,14 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 		private final JsonMapper jsonMapper;
 
 		public JacksonDelegate() {
-			this.jsonMapper = JsonMapper.builder().addModules(new OAuth2AuthorizationServerJacksonModule()).build();
+			this(JsonMapper.builder());
 		}
 
 		public JacksonDelegate(JsonMapper.Builder builder) {
-			this.jsonMapper = builder.addModules(new OAuth2AuthorizationServerJacksonModule()).build();
+			List<JacksonModule> modules = SecurityJacksonModules.getModules(getClass().getClassLoader());
+			this.jsonMapper = builder.addModules(modules)
+				.addModules(new OAuth2AuthorizationServerJacksonModule())
+				.build();
 		}
 
 		@Override
