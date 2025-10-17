@@ -17,16 +17,25 @@
 package org.springframework.security.web.webauthn.authentication;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.core.ResolvableType;
+import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.AbstractSmartHttpMessageConverter;
 import org.springframework.http.converter.GenericHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.http.converter.SmartHttpMessageConverter;
 import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -38,7 +47,6 @@ import org.springframework.security.web.authentication.AuthenticationEntryPointF
 import org.springframework.security.web.authentication.HttpMessageConverterAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.http.GenericHttpMessageConverterAdapter;
 import org.springframework.security.web.webauthn.api.AuthenticatorAssertionResponse;
 import org.springframework.security.web.webauthn.api.PublicKeyCredential;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestOptions;
@@ -74,8 +82,8 @@ import static org.springframework.security.web.servlet.util.matcher.PathPatternR
  */
 public class WebAuthnAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
-	private GenericHttpMessageConverter<Object> converter = new GenericHttpMessageConverterAdapter<>(
-			new JacksonJsonHttpMessageConverter(JsonMapper.builder().addModule(new WebauthnJacksonModule()).build()));
+	private SmartHttpMessageConverter<Object> converter = new JacksonJsonHttpMessageConverter(
+			JsonMapper.builder().addModule(new WebauthnJacksonModule()).build());
 
 	private PublicKeyCredentialRequestOptionsRepository requestOptionsRepository = new HttpSessionPublicKeyCredentialRequestOptionsRepository();
 
@@ -96,7 +104,7 @@ public class WebAuthnAuthenticationFilter extends AbstractAuthenticationProcessi
 		PublicKeyCredential<AuthenticatorAssertionResponse> publicKeyCredential = null;
 		try {
 			publicKeyCredential = (PublicKeyCredential<AuthenticatorAssertionResponse>) this.converter
-				.read(resolvableType.getType(), getClass(), httpRequest);
+				.read(resolvableType, httpRequest, null);
 		}
 		catch (Exception ex) {
 			throw new BadCredentialsException("Unable to authenticate the PublicKeyCredential", ex);
@@ -118,10 +126,12 @@ public class WebAuthnAuthenticationFilter extends AbstractAuthenticationProcessi
 	 * {@code PublicKeyCredential<AuthenticatorAssertionResponse>} to the response. The
 	 * default is @{code MappingJackson2HttpMessageConverter}
 	 * @param converter the {@link GenericHttpMessageConverter} to use. Cannot be null.
+	 * @deprecated use {@link #setConverter(SmartHttpMessageConverter)}
 	 */
+	@Deprecated(forRemoval = true, since = "7.0")
 	public void setConverter(GenericHttpMessageConverter<Object> converter) {
 		Assert.notNull(converter, "converter cannot be null");
-		this.converter = converter;
+		this.converter = new GenericHttpMessageConverterAdapter<>(converter);
 	}
 
 	/**
@@ -133,7 +143,7 @@ public class WebAuthnAuthenticationFilter extends AbstractAuthenticationProcessi
 	 */
 	public void setConverter(SmartHttpMessageConverter<Object> converter) {
 		Assert.notNull(converter, "converter cannot be null");
-		this.converter = new GenericHttpMessageConverterAdapter<>(converter);
+		this.converter = converter;
 	}
 
 	/**
@@ -145,6 +155,57 @@ public class WebAuthnAuthenticationFilter extends AbstractAuthenticationProcessi
 	public void setRequestOptionsRepository(PublicKeyCredentialRequestOptionsRepository requestOptionsRepository) {
 		Assert.notNull(requestOptionsRepository, "requestOptionsRepository cannot be null");
 		this.requestOptionsRepository = requestOptionsRepository;
+	}
+
+	/**
+	 * Adapts a {@link GenericHttpMessageConverter} to a
+	 * {@link SmartHttpMessageConverter}.
+	 *
+	 * @param <T> The type
+	 * @author Rob Winch
+	 * @since 7.0
+	 */
+	private static final class GenericHttpMessageConverterAdapter<T> extends AbstractSmartHttpMessageConverter<T> {
+
+		private final GenericHttpMessageConverter<T> delegate;
+
+		private GenericHttpMessageConverterAdapter(GenericHttpMessageConverter<T> delegate) {
+			Assert.notNull(delegate, "delegate cannot be null");
+			this.delegate = delegate;
+		}
+
+		@Override
+		public boolean canRead(Class<?> clazz, @Nullable MediaType mediaType) {
+			return this.delegate.canRead(clazz, mediaType);
+		}
+
+		@Override
+		public boolean canWrite(Class<?> clazz, @Nullable MediaType mediaType) {
+			return this.delegate.canWrite(clazz, mediaType);
+		}
+
+		@Override
+		public List<MediaType> getSupportedMediaTypes() {
+			return this.delegate.getSupportedMediaTypes();
+		}
+
+		@Override
+		public List<MediaType> getSupportedMediaTypes(Class<?> clazz) {
+			return this.delegate.getSupportedMediaTypes(clazz);
+		}
+
+		@Override
+		protected void writeInternal(T t, ResolvableType type, HttpOutputMessage outputMessage,
+				@Nullable Map<String, Object> hints) throws IOException, HttpMessageNotWritableException {
+			this.delegate.write(t, null, outputMessage);
+		}
+
+		@Override
+		public T read(ResolvableType type, HttpInputMessage inputMessage, @Nullable Map<String, Object> hints)
+				throws IOException, HttpMessageNotReadableException {
+			return this.delegate.read(type.getType(), null, inputMessage);
+		}
+
 	}
 
 }
