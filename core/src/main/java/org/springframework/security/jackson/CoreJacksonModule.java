@@ -107,6 +107,7 @@ public class CoreJacksonModule extends SecurityJacksonModule {
 		context.setMixIn(FactorGrantedAuthority.class, FactorGrantedAuthorityMixin.class);
 		context.setMixIn(User.class, UserMixin.class);
 		context.setMixIn(UsernamePasswordAuthenticationToken.class, UsernamePasswordAuthenticationTokenMixin.class);
+		context.setMixIn(TestingAuthenticationToken.class, TestingAuthenticationTokenMixin.class);
 		context.setMixIn(BadCredentialsException.class, BadCredentialsExceptionMixin.class);
 	}
 
