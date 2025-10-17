@@ -35,6 +35,7 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2UserCode;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
@@ -156,6 +157,23 @@ public class OAuth2DeviceAuthorizationRequestAuthenticationProviderTests {
 				ClientAuthenticationMethod.CLIENT_SECRET_BASIC, null);
 		Authentication authentication = new OAuth2DeviceAuthorizationRequestAuthenticationToken(clientPrincipal,
 				AUTHORIZATION_URI, Collections.singleton("invalid"), null);
+		// @formatter:off
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+				.withMessageContaining(OAuth2ParameterNames.SCOPE)
+				.extracting(OAuth2AuthenticationException::getError)
+				.extracting(OAuth2Error::getErrorCode)
+				.isEqualTo(OAuth2ErrorCodes.INVALID_SCOPE);
+		// @formatter:on
+	}
+
+	@Test
+	public void authenticateWhenOpenIdScopeThenThrowOAuth2AuthenticationException() {
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient()
+			.authorizationGrantType(AuthorizationGrantType.DEVICE_CODE)
+			.scope(OidcScopes.OPENID)
+			.build();
+		Authentication authentication = createAuthentication(registeredClient);
 		// @formatter:off
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
 				.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
