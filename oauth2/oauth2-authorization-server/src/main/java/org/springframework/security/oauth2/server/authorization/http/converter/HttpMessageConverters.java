@@ -22,7 +22,6 @@ import org.springframework.http.converter.json.GsonHttpMessageConverter;
 import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.http.converter.json.JsonbHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.security.web.http.GenericHttpMessageConverterAdapter;
 import org.springframework.util.ClassUtils;
 
 /**

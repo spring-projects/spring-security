@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.core.http.converter;
+package org.springframework.security.oauth2.server.authorization.oidc.http.converter;
 
 import java.io.IOException;
 import java.lang.reflect.Type;

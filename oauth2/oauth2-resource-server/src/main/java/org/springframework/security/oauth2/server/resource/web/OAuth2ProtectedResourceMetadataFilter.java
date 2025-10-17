@@ -35,7 +35,6 @@ import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.http.converter.json.JsonbHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpResponse;
-import org.springframework.security.oauth2.core.http.converter.GenericHttpMessageConverterAdapter;
 import org.springframework.security.oauth2.server.resource.OAuth2ProtectedResourceMetadata;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.UrlUtils;
