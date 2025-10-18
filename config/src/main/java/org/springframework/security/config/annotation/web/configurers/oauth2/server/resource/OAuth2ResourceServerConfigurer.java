@@ -282,8 +282,11 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 	@Override
 	public void configure(H http) {
+		// Use the authenticationManagerResolver if configured, as it takes precedence
+		// over any jwt() or opaqueToken() configuration
 		AuthenticationManagerResolver resolver = this.authenticationManagerResolver;
 		if (resolver == null) {
+			// Fall back to jwt() or opaqueToken() configuration
 			AuthenticationManager authenticationManager = getAuthenticationManager(http);
 			resolver = (request) -> authenticationManager;
 		}
@@ -320,11 +323,9 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			Assert.state(this.jwtConfigurer == null || this.opaqueTokenConfigurer == null,
 					"Spring Security only supports JWTs or Opaque Tokens, not both at the " + "same time.");
 		}
-		else {
-			Assert.state(this.jwtConfigurer == null && this.opaqueTokenConfigurer == null,
-					"If an authenticationManagerResolver() is configured, then it takes "
-							+ "precedence over any jwt() or opaqueToken() configuration.");
-		}
+		// When authenticationManagerResolver is configured, it takes precedence over
+		// jwt() or opaqueToken()
+		// configuration, so no validation is needed for that case
 	}
 
 	private void registerDefaultAccessDeniedHandler(H http) {
