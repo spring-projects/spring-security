@@ -1,0 +1,44 @@
+= IDE Setup for Eclipse and VSCode
+
+This guide describes how to set up and import the project into Eclipse and VSCode, ensuring smooth development even with complex Gradle dependencies.
+
+== Why Custom Eclipse Plugin?
+
+This project contains cycles in Gradle dependencies (especially between main and test sources) that do not affect Gradle builds but can confuse IDEs when generating project metadata. A custom Eclipse plugin relaxes classpath rules, removes problematic references, and ensures both Eclipse and VSCode can import the project cleanly.
+
+== VSCode: Disable Automatic Gradle Import
+
+VSCode's default Gradle import can fail due to project cycles and Buildship limitations. To prevent this, `.vscode/settings.json` disables automatic Gradle import:
+[source,json]
+----
+{
+    "java.import.gradle.enabled": false
+}
+----
+
+== Eclipse: Relax Classpath Rules
+
+The custom plugin updates `.classpath`:
+- Cycles and incomplete classpath errors are downgraded to warnings.
+- Test code dependencies are handled smoothly.
+- References to build output folders without sources are removed.
+
+== Excluding xml-apis from Test Dependencies
+
+Some test dependencies (e.g., HtmlUnit, Selenium) include `xml-apis`, which are now part of the JDK and can cause warnings in Eclipse. These are excluded in the Gradle test configuration.
+
+== Manual Import Workflow
+
+1. Clean your workspace:
++
+[source,sh]
+----
+git clean -fxd
+./gradlew clean build cleanEclipse eclipse -x checkstyleNohttp -x test -x integrationTest
+----
+2. Import the generated Eclipse metadata into Eclipse or VSCode manually.
+3. Do not use Buildship's automatic import in VSCode.
+
+== Summary
+
+These changes ensure contributors can import and work with the project in Eclipse and VSCode without IDE errors caused by Gradle dependency cycles or unnecessary classpath entries.
