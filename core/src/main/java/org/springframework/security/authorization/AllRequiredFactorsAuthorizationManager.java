@@ -99,7 +99,7 @@ public final class AllRequiredFactorsAuthorizationManager<T> implements Authoriz
 	private @Nullable RequiredFactorError requiredFactorError(RequiredFactor requiredFactor,
 			List<GrantedAuthority> currentFactors) {
 		Optional<GrantedAuthority> matchingAuthority = currentFactors.stream()
-			.filter((authority) -> authority.getAuthority().equals(requiredFactor.getAuthority()))
+			.filter((authority) -> Objects.equals(authority.getAuthority(), requiredFactor.getAuthority()))
 			.findFirst();
 		if (!matchingAuthority.isPresent()) {
 			return RequiredFactorError.createMissing(requiredFactor);

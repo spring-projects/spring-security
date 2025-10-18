@@ -281,7 +281,8 @@ public final class SecurityMockMvcResultMatchers {
 			for (String role : roles) {
 				withPrefix.add(new SimpleGrantedAuthority(rolePrefix + role));
 			}
-			this.ignoreAuthorities = (authority) -> !authority.getAuthority().startsWith(rolePrefix);
+			this.ignoreAuthorities = (authority) -> (authority.getAuthority() != null
+					&& !authority.getAuthority().startsWith(rolePrefix));
 			return withAuthorities(withPrefix);
 		}
 

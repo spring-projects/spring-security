@@ -162,7 +162,8 @@ public final class DelegatingMissingAuthorityAccessDeniedHandler implements Acce
 		if (authorizationResult instanceof AuthorityAuthorizationDecision authorityDecision) {
 			// @formatter:off
 			return authorityDecision.getAuthorities().stream()
-				.map((grantedAuthority) -> {
+					.filter((ga) -> ga.getAuthority() != null)
+					.map((grantedAuthority) -> {
 					String authority = grantedAuthority.getAuthority();
 					if (authority.startsWith("FACTOR_")) {
 						RequiredFactor required = RequiredFactor.withAuthority(authority).build();
