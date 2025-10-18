@@ -158,9 +158,10 @@ public final class DelegatingMissingAuthorityAccessDeniedHandler implements Acce
 		if (authorizationResult instanceof AuthorityAuthorizationDecision authorityDecision) {
 			// @formatter:off
 			return authorityDecision.getAuthorities().stream()
-				.map((grantedAuthority) -> {
+					.filter((ga) -> ga.getAuthority() != null)
+					.map((grantedAuthority) -> {
 					String authority = grantedAuthority.getAuthority();
-					if (authority != null && authority.startsWith("FACTOR_")) {
+					if (authority.startsWith("FACTOR_")) {
 						RequiredFactor required = RequiredFactor.withAuthority(authority).build();
 						return new AuthorityRequiredFactorErrorEntry(authority, RequiredFactorError.createMissing(required));
 					}
@@ -247,16 +248,17 @@ public final class DelegatingMissingAuthorityAccessDeniedHandler implements Acce
 	 */
 	private static final class AuthorityRequiredFactorErrorEntry {
 
-		@Nullable private final String authority;
+		private final String authority;
 
 		private final @Nullable RequiredFactorError error;
 
-		private AuthorityRequiredFactorErrorEntry(@Nullable String authority, @Nullable RequiredFactorError error) {
+		private AuthorityRequiredFactorErrorEntry(String authority, @Nullable RequiredFactorError error) {
+			Assert.notNull(authority, "authority cannot be null");
 			this.authority = authority;
 			this.error = error;
 		}
 
-		@Nullable private String getAuthority() {
+		private String getAuthority() {
 			return this.authority;
 		}
 
