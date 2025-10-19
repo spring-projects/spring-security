@@ -27,16 +27,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.AbstractHttpMessageConverter;
-import org.springframework.http.converter.GenericHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.http.converter.SmartHttpMessageConverter;
 import org.springframework.security.oauth2.core.converter.ClaimConversionService;
 import org.springframework.security.oauth2.core.converter.ClaimTypeConverter;
 import org.springframework.security.oauth2.server.authorization.oidc.OidcClientMetadataClaimNames;
@@ -51,6 +52,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Ovidiu Popa
  * @author Joe Grandja
+ * @author Andrey Litvtitski
  * @since 7.0
  * @see AbstractHttpMessageConverter
  * @see OidcClientRegistration
@@ -60,7 +62,7 @@ public class OidcClientRegistrationHttpMessageConverter extends AbstractHttpMess
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<>() {
 	};
 
-	private final GenericHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters
+	private final SmartHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters
 		.getJsonMessageConverter();
 
 	private Converter<Map<String, Object>, OidcClientRegistration> clientRegistrationConverter = new MapOidcClientRegistrationConverter();
@@ -82,7 +84,7 @@ public class OidcClientRegistrationHttpMessageConverter extends AbstractHttpMess
 			HttpInputMessage inputMessage) throws HttpMessageNotReadableException {
 		try {
 			Map<String, Object> clientRegistrationParameters = (Map<String, Object>) this.jsonMessageConverter
-				.read(STRING_OBJECT_MAP.getType(), null, inputMessage);
+				.read(ResolvableType.forType(STRING_OBJECT_MAP.getType()), inputMessage, null);
 			return this.clientRegistrationConverter.convert(clientRegistrationParameters);
 		}
 		catch (Exception ex) {
@@ -97,8 +99,9 @@ public class OidcClientRegistrationHttpMessageConverter extends AbstractHttpMess
 		try {
 			Map<String, Object> clientRegistrationParameters = this.clientRegistrationParametersConverter
 				.convert(clientRegistration);
-			this.jsonMessageConverter.write(clientRegistrationParameters, STRING_OBJECT_MAP.getType(),
-					MediaType.APPLICATION_JSON, outputMessage);
+			this.jsonMessageConverter.write(clientRegistrationParameters,
+					ResolvableType.forType(STRING_OBJECT_MAP.getType()), MediaType.APPLICATION_JSON, outputMessage,
+					null);
 		}
 		catch (Exception ex) {
 			throw new HttpMessageNotWritableException(

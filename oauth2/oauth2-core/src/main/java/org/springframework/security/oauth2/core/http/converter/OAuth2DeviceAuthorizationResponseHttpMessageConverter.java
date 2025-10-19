@@ -26,15 +26,16 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.AbstractHttpMessageConverter;
-import org.springframework.http.converter.GenericHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.http.converter.SmartHttpMessageConverter;
 import org.springframework.security.oauth2.core.endpoint.OAuth2DeviceAuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
@@ -46,6 +47,7 @@ import org.springframework.util.StringUtils;
  * 2.0 Device Authorization Response}.
  *
  * @author Steve Riesenberg
+ * @author Andrey Litvitski
  * @since 6.1
  * @see AbstractHttpMessageConverter
  * @see OAuth2DeviceAuthorizationResponse
@@ -56,7 +58,7 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverter
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<>() {
 	};
 
-	private final GenericHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters
+	private final SmartHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters
 		.getJsonMessageConverter();
 
 	private Converter<Map<String, Object>, OAuth2DeviceAuthorizationResponse> deviceAuthorizationResponseConverter = new DefaultMapOAuth2DeviceAuthorizationResponseConverter();
@@ -75,7 +77,7 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverter
 
 		try {
 			Map<String, Object> deviceAuthorizationResponseParameters = (Map<String, Object>) this.jsonMessageConverter
-				.read(STRING_OBJECT_MAP.getType(), null, inputMessage);
+				.read(ResolvableType.forType(STRING_OBJECT_MAP.getType()), inputMessage, null);
 			return this.deviceAuthorizationResponseConverter.convert(deviceAuthorizationResponseParameters);
 		}
 		catch (Exception ex) {
@@ -92,8 +94,9 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverter
 		try {
 			Map<String, Object> deviceAuthorizationResponseParameters = this.deviceAuthorizationResponseParametersConverter
 				.convert(deviceAuthorizationResponse);
-			this.jsonMessageConverter.write(deviceAuthorizationResponseParameters, STRING_OBJECT_MAP.getType(),
-					MediaType.APPLICATION_JSON, outputMessage);
+			this.jsonMessageConverter.write(deviceAuthorizationResponseParameters,
+					ResolvableType.forType(STRING_OBJECT_MAP.getType()), MediaType.APPLICATION_JSON, outputMessage,
+					null);
 		}
 		catch (Exception ex) {
 			throw new HttpMessageNotWritableException(

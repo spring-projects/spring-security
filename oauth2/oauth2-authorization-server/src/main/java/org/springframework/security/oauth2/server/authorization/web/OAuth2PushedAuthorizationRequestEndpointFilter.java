@@ -28,11 +28,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.GenericHttpMessageConverter;
+import org.springframework.http.converter.SmartHttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
@@ -59,6 +60,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * the processing of the OAuth 2.0 Pushed Authorization Request.
  *
  * @author Joe Grandja
+ * @author Andrey Litvitski
  * @since 7.0
  * @see AuthenticationManager
  * @see OAuth2PushedAuthorizationRequestAuthenticationProvider
@@ -82,7 +84,7 @@ public final class OAuth2PushedAuthorizationRequestEndpointFilter extends OncePe
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<>() {
 	};
 
-	private static final GenericHttpMessageConverter<Object> JSON_MESSAGE_CONVERTER = HttpMessageConverters
+	private static final SmartHttpMessageConverter<Object> JSON_MESSAGE_CONVERTER = HttpMessageConverters
 		.getJsonMessageConverter();
 
 	private final AuthenticationManager authenticationManager;
@@ -218,8 +220,8 @@ public final class OAuth2PushedAuthorizationRequestEndpointFilter extends OncePe
 		ServletServerHttpResponse httpResponse = new ServletServerHttpResponse(response);
 		httpResponse.setStatusCode(HttpStatus.CREATED);
 
-		JSON_MESSAGE_CONVERTER.write(pushedAuthorizationResponse, STRING_OBJECT_MAP.getType(),
-				MediaType.APPLICATION_JSON, httpResponse);
+		JSON_MESSAGE_CONVERTER.write(pushedAuthorizationResponse, ResolvableType.forType(STRING_OBJECT_MAP.getType()),
+				MediaType.APPLICATION_JSON, httpResponse, null);
 	}
 
 }

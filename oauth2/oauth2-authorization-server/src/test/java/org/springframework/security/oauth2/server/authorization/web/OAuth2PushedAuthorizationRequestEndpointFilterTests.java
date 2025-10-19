@@ -30,9 +30,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.ResolvableType;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.converter.GenericHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.SmartHttpMessageConverter;
 import org.springframework.mock.http.client.MockClientHttpResponse;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -74,6 +75,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
  * Tests for {@link OAuth2PushedAuthorizationRequestEndpointFilter}.
  *
  * @author Joe Grandja
+ * @author Andrey Litvitski
  */
 public class OAuth2PushedAuthorizationRequestEndpointFilterTests {
 
@@ -85,7 +87,7 @@ public class OAuth2PushedAuthorizationRequestEndpointFilterTests {
 
 	private final HttpMessageConverter<OAuth2Error> errorHttpResponseConverter = new OAuth2ErrorHttpMessageConverter();
 
-	private final GenericHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters
+	private final SmartHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters
 		.getJsonMessageConverter();
 
 	private AuthenticationManager authenticationManager;
@@ -486,7 +488,8 @@ public class OAuth2PushedAuthorizationRequestEndpointFilterTests {
 		};
 		MockClientHttpResponse httpResponse = new MockClientHttpResponse(response.getContentAsByteArray(),
 				HttpStatus.valueOf(response.getStatus()));
-		return (Map<String, Object>) this.jsonMessageConverter.read(STRING_OBJECT_MAP.getType(), null, httpResponse);
+		return (Map<String, Object>) this.jsonMessageConverter.read(ResolvableType.forType(STRING_OBJECT_MAP.getType()),
+				httpResponse, null);
 	}
 
 }
