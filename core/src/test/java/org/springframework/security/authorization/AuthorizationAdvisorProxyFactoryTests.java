@@ -341,6 +341,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	}
 
 	// TODO Find why callbacks property is serialized with Jackson 3, not with Jackson 2
+	// FIXME: https://github.com/spring-projects/spring-security/issues/18077
 	@Disabled("callbacks property is serialized with Jackson 3, not with Jackson 2")
 	@Test
 	public void serializeWhenAuthorizationProxyObjectThenOnlyIncludesProxiedProperties() {
