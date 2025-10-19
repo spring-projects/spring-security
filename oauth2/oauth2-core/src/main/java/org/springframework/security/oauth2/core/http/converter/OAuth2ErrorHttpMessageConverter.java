@@ -23,15 +23,16 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.AbstractHttpMessageConverter;
-import org.springframework.http.converter.GenericHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.http.converter.SmartHttpMessageConverter;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.util.Assert;
@@ -41,6 +42,7 @@ import org.springframework.util.StringUtils;
  * A {@link HttpMessageConverter} for an {@link OAuth2Error OAuth 2.0 Error}.
  *
  * @author Joe Grandja
+ * @author Andrey Litvitski
  * @since 5.1
  * @see AbstractHttpMessageConverter
  * @see OAuth2Error
@@ -52,7 +54,7 @@ public class OAuth2ErrorHttpMessageConverter extends AbstractHttpMessageConverte
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<>() {
 	};
 
-	private GenericHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters.getJsonMessageConverter();
+	private SmartHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters.getJsonMessageConverter();
 
 	protected Converter<Map<String, String>, OAuth2Error> errorConverter = new OAuth2ErrorConverter();
 
@@ -75,7 +77,7 @@ public class OAuth2ErrorHttpMessageConverter extends AbstractHttpMessageConverte
 			// gh-8157: Parse parameter values as Object in order to handle potential JSON
 			// Object and then convert values to String
 			Map<String, Object> errorParameters = (Map<String, Object>) this.jsonMessageConverter
-				.read(STRING_OBJECT_MAP.getType(), null, inputMessage);
+				.read(ResolvableType.forType(STRING_OBJECT_MAP.getType()), inputMessage, null);
 			return this.errorConverter.convert(errorParameters.entrySet()
 				.stream()
 				.collect(Collectors.toMap(Map.Entry::getKey, (entry) -> String.valueOf(entry.getValue()))));
@@ -91,8 +93,8 @@ public class OAuth2ErrorHttpMessageConverter extends AbstractHttpMessageConverte
 			throws HttpMessageNotWritableException {
 		try {
 			Map<String, String> errorParameters = this.errorParametersConverter.convert(oauth2Error);
-			this.jsonMessageConverter.write(errorParameters, STRING_OBJECT_MAP.getType(), MediaType.APPLICATION_JSON,
-					outputMessage);
+			this.jsonMessageConverter.write(errorParameters, ResolvableType.forType(STRING_OBJECT_MAP.getType()),
+					MediaType.APPLICATION_JSON, outputMessage, null);
 		}
 		catch (Exception ex) {
 			throw new HttpMessageNotWritableException(

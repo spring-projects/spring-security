@@ -21,16 +21,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.AbstractHttpMessageConverter;
-import org.springframework.http.converter.GenericHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.http.converter.SmartHttpMessageConverter;
 import org.springframework.security.oauth2.core.converter.ClaimConversionService;
 import org.springframework.security.oauth2.core.converter.ClaimTypeConverter;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
@@ -43,6 +44,7 @@ import org.springframework.util.Assert;
  *
  * @author Ido Salomon
  * @author Steve Riesenberg
+ * @author Andrey Litvitski
  * @since 7.0
  * @see AbstractHttpMessageConverter
  * @see OidcUserInfo
@@ -52,7 +54,7 @@ public class OidcUserInfoHttpMessageConverter extends AbstractHttpMessageConvert
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<>() {
 	};
 
-	private final GenericHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters
+	private final SmartHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters
 		.getJsonMessageConverter();
 
 	private Converter<Map<String, Object>, OidcUserInfo> userInfoConverter = new MapOidcUserInfoConverter();
@@ -74,7 +76,7 @@ public class OidcUserInfoHttpMessageConverter extends AbstractHttpMessageConvert
 			throws HttpMessageNotReadableException {
 		try {
 			Map<String, Object> userInfoParameters = (Map<String, Object>) this.jsonMessageConverter
-				.read(STRING_OBJECT_MAP.getType(), null, inputMessage);
+				.read(ResolvableType.forType(STRING_OBJECT_MAP.getType()), inputMessage, null);
 			return this.userInfoConverter.convert(userInfoParameters);
 		}
 		catch (Exception ex) {
@@ -88,8 +90,9 @@ public class OidcUserInfoHttpMessageConverter extends AbstractHttpMessageConvert
 			throws HttpMessageNotWritableException {
 		try {
 			Map<String, Object> userInfoResponseParameters = this.userInfoParametersConverter.convert(oidcUserInfo);
-			this.jsonMessageConverter.write(userInfoResponseParameters, STRING_OBJECT_MAP.getType(),
-					MediaType.APPLICATION_JSON, outputMessage);
+			this.jsonMessageConverter.write(userInfoResponseParameters,
+					ResolvableType.forType(STRING_OBJECT_MAP.getType()), MediaType.APPLICATION_JSON, outputMessage,
+					null);
 		}
 		catch (Exception ex) {
 			throw new HttpMessageNotWritableException(

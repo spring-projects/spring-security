@@ -22,16 +22,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.AbstractHttpMessageConverter;
-import org.springframework.http.converter.GenericHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.http.converter.SmartHttpMessageConverter;
 import org.springframework.security.oauth2.core.converter.ClaimConversionService;
 import org.springframework.security.oauth2.core.converter.ClaimTypeConverter;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationServerMetadata;
@@ -43,6 +44,7 @@ import org.springframework.util.Assert;
  * 2.0 Authorization Server Metadata Response}.
  *
  * @author Daniel Garnier-Moiroux
+ * @author Andrey Livtitski
  * @since 7.0
  * @see AbstractHttpMessageConverter
  * @see OAuth2AuthorizationServerMetadata
@@ -53,7 +55,7 @@ public class OAuth2AuthorizationServerMetadataHttpMessageConverter
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<>() {
 	};
 
-	private final GenericHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters
+	private final SmartHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters
 		.getJsonMessageConverter();
 
 	private Converter<Map<String, Object>, OAuth2AuthorizationServerMetadata> authorizationServerMetadataConverter = new OAuth2AuthorizationServerMetadataConverter();
@@ -75,7 +77,7 @@ public class OAuth2AuthorizationServerMetadataHttpMessageConverter
 			HttpInputMessage inputMessage) throws HttpMessageNotReadableException {
 		try {
 			Map<String, Object> authorizationServerMetadataParameters = (Map<String, Object>) this.jsonMessageConverter
-				.read(STRING_OBJECT_MAP.getType(), null, inputMessage);
+				.read(ResolvableType.forType(STRING_OBJECT_MAP.getType()), inputMessage, null);
 			return this.authorizationServerMetadataConverter.convert(authorizationServerMetadataParameters);
 		}
 		catch (Exception ex) {
@@ -91,8 +93,9 @@ public class OAuth2AuthorizationServerMetadataHttpMessageConverter
 		try {
 			Map<String, Object> authorizationServerMetadataResponseParameters = this.authorizationServerMetadataParametersConverter
 				.convert(authorizationServerMetadata);
-			this.jsonMessageConverter.write(authorizationServerMetadataResponseParameters, STRING_OBJECT_MAP.getType(),
-					MediaType.APPLICATION_JSON, outputMessage);
+			this.jsonMessageConverter.write(authorizationServerMetadataResponseParameters,
+					ResolvableType.forType(STRING_OBJECT_MAP.getType()), MediaType.APPLICATION_JSON, outputMessage,
+					null);
 		}
 		catch (Exception ex) {
 			throw new HttpMessageNotWritableException(

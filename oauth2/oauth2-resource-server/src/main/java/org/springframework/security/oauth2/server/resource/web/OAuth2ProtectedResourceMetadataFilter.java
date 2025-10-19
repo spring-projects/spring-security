@@ -26,14 +26,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.ResolvableType;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.GenericHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.http.converter.SmartHttpMessageConverter;
 import org.springframework.http.converter.json.GsonHttpMessageConverter;
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.http.converter.json.JsonbHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpResponse;
+import org.springframework.security.oauth2.core.SmartGenericHttpMessageConverterAdapter;
 import org.springframework.security.oauth2.server.resource.OAuth2ProtectedResourceMetadata;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.UrlUtils;
@@ -48,6 +51,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * A {@code Filter} that processes OAuth 2.0 Protected Resource Metadata Requests.
  *
  * @author Joe Grandja
+ * @author Andrey Litvitski
  * @since 7.0
  * @see OAuth2ProtectedResourceMetadata
  * @see <a target="_blank" href=
@@ -59,7 +63,7 @@ public final class OAuth2ProtectedResourceMetadataFilter extends OncePerRequestF
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<>() {
 	};
 
-	private static final GenericHttpMessageConverter<Object> JSON_MESSAGE_CONVERTER = HttpMessageConverters
+	private static final SmartHttpMessageConverter<Object> JSON_MESSAGE_CONVERTER = HttpMessageConverters
 		.getJsonMessageConverter();
 
 	/**
@@ -108,8 +112,9 @@ public final class OAuth2ProtectedResourceMetadataFilter extends OncePerRequestF
 
 		try {
 			ServletServerHttpResponse httpResponse = new ServletServerHttpResponse(response);
-			JSON_MESSAGE_CONVERTER.write(protectedResourceMetadata.getClaims(), STRING_OBJECT_MAP.getType(),
-					MediaType.APPLICATION_JSON, httpResponse);
+			JSON_MESSAGE_CONVERTER.write(protectedResourceMetadata.getClaims(),
+					ResolvableType.forType(STRING_OBJECT_MAP.getType()), MediaType.APPLICATION_JSON, httpResponse,
+					null);
 		}
 		catch (Exception ex) {
 			throw new HttpMessageNotWritableException(
@@ -139,6 +144,8 @@ public final class OAuth2ProtectedResourceMetadataFilter extends OncePerRequestF
 
 	private static final class HttpMessageConverters {
 
+		private static final boolean jackson3Present;
+
 		private static final boolean jackson2Present;
 
 		private static final boolean gsonPresent;
@@ -147,6 +154,8 @@ public final class OAuth2ProtectedResourceMetadataFilter extends OncePerRequestF
 
 		static {
 			ClassLoader classLoader = HttpMessageConverters.class.getClassLoader();
+			jackson3Present = ClassUtils.isPresent("tools.jackson.databind.ObjectMapper", classLoader)
+					&& ClassUtils.isPresent("tools.jackson.core.JsonGenerator", classLoader);
 			jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", classLoader)
 					&& ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", classLoader);
 			gsonPresent = ClassUtils.isPresent("com.google.gson.Gson", classLoader);
@@ -156,15 +165,18 @@ public final class OAuth2ProtectedResourceMetadataFilter extends OncePerRequestF
 		private HttpMessageConverters() {
 		}
 
-		private static GenericHttpMessageConverter<Object> getJsonMessageConverter() {
+		static SmartHttpMessageConverter<Object> getJsonMessageConverter() {
+			if (jackson3Present) {
+				return new JacksonJsonHttpMessageConverter();
+			}
 			if (jackson2Present) {
-				return new MappingJackson2HttpMessageConverter();
+				return new SmartGenericHttpMessageConverterAdapter<>(new MappingJackson2HttpMessageConverter());
 			}
 			if (gsonPresent) {
-				return new GsonHttpMessageConverter();
+				return new SmartGenericHttpMessageConverterAdapter<>(new GsonHttpMessageConverter());
 			}
 			if (jsonbPresent) {
-				return new JsonbHttpMessageConverter();
+				return new SmartGenericHttpMessageConverterAdapter<>(new JsonbHttpMessageConverter());
 			}
 			return null;
 		}

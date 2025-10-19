@@ -27,16 +27,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.AbstractHttpMessageConverter;
-import org.springframework.http.converter.GenericHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
+import org.springframework.http.converter.SmartHttpMessageConverter;
 import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
 import org.springframework.security.oauth2.core.converter.ClaimConversionService;
 import org.springframework.security.oauth2.core.converter.ClaimTypeConverter;
@@ -51,6 +52,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Gerardo Roza
  * @author Joe Grandja
+ * @author Andrey Litvitski
  * @since 7.0
  * @see AbstractHttpMessageConverter
  * @see OAuth2TokenIntrospection
@@ -61,7 +63,7 @@ public class OAuth2TokenIntrospectionHttpMessageConverter
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<>() {
 	};
 
-	private final GenericHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters
+	private final SmartHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters
 		.getJsonMessageConverter();
 
 	private Converter<Map<String, Object>, OAuth2TokenIntrospection> tokenIntrospectionConverter = new MapOAuth2TokenIntrospectionConverter();
@@ -83,7 +85,7 @@ public class OAuth2TokenIntrospectionHttpMessageConverter
 			HttpInputMessage inputMessage) throws HttpMessageNotReadableException {
 		try {
 			Map<String, Object> tokenIntrospectionParameters = (Map<String, Object>) this.jsonMessageConverter
-				.read(STRING_OBJECT_MAP.getType(), null, inputMessage);
+				.read(ResolvableType.forType(STRING_OBJECT_MAP.getType()), inputMessage, null);
 			return this.tokenIntrospectionConverter.convert(tokenIntrospectionParameters);
 		}
 		catch (Exception ex) {
@@ -98,8 +100,9 @@ public class OAuth2TokenIntrospectionHttpMessageConverter
 		try {
 			Map<String, Object> tokenIntrospectionResponseParameters = this.tokenIntrospectionParametersConverter
 				.convert(tokenIntrospection);
-			this.jsonMessageConverter.write(tokenIntrospectionResponseParameters, STRING_OBJECT_MAP.getType(),
-					MediaType.APPLICATION_JSON, outputMessage);
+			this.jsonMessageConverter.write(tokenIntrospectionResponseParameters,
+					ResolvableType.forType(STRING_OBJECT_MAP.getType()), MediaType.APPLICATION_JSON, outputMessage,
+					null);
 		}
 		catch (Exception ex) {
 			throw new HttpMessageNotWritableException(

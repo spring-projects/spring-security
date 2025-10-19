@@ -16,11 +16,13 @@
 
 package org.springframework.security.oauth2.core.http.converter;
 
-import org.springframework.http.converter.GenericHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.SmartHttpMessageConverter;
 import org.springframework.http.converter.json.GsonHttpMessageConverter;
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.http.converter.json.JsonbHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.oauth2.core.SmartGenericHttpMessageConverterAdapter;
 import org.springframework.util.ClassUtils;
 
 /**
@@ -28,9 +30,12 @@ import org.springframework.util.ClassUtils;
  *
  * @author Joe Grandja
  * @author luamas
+ * @author Andrey Litvitski
  * @since 5.1
  */
 final class HttpMessageConverters {
+
+	private static final boolean jackson3Present;
 
 	private static final boolean jackson2Present;
 
@@ -40,6 +45,8 @@ final class HttpMessageConverters {
 
 	static {
 		ClassLoader classLoader = HttpMessageConverters.class.getClassLoader();
+		jackson3Present = ClassUtils.isPresent("tools.jackson.databind.ObjectMapper", classLoader)
+				&& ClassUtils.isPresent("tools.jackson.core.JsonGenerator", classLoader);
 		jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", classLoader)
 				&& ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", classLoader);
 		gsonPresent = ClassUtils.isPresent("com.google.gson.Gson", classLoader);
@@ -49,15 +56,18 @@ final class HttpMessageConverters {
 	private HttpMessageConverters() {
 	}
 
-	static GenericHttpMessageConverter<Object> getJsonMessageConverter() {
+	static SmartHttpMessageConverter<Object> getJsonMessageConverter() {
+		if (jackson3Present) {
+			return new JacksonJsonHttpMessageConverter();
+		}
 		if (jackson2Present) {
-			return new MappingJackson2HttpMessageConverter();
+			return new SmartGenericHttpMessageConverterAdapter<>(new MappingJackson2HttpMessageConverter());
 		}
 		if (gsonPresent) {
-			return new GsonHttpMessageConverter();
+			return new SmartGenericHttpMessageConverterAdapter<>(new GsonHttpMessageConverter());
 		}
 		if (jsonbPresent) {
-			return new JsonbHttpMessageConverter();
+			return new SmartGenericHttpMessageConverterAdapter<>(new JsonbHttpMessageConverter());
 		}
 		return null;
 	}
