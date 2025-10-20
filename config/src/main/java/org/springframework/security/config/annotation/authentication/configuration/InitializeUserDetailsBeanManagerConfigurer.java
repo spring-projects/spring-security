@@ -70,34 +70,30 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 			String[] beanNames = InitializeUserDetailsBeanManagerConfigurer.this.context
 				.getBeanNamesForType(UserDetailsService.class);
 
-			if (auth.isConfigured()) {
-				if (beanNames.length > 0) {
-					this.logger.warn("Global AuthenticationManager configured with an AuthenticationProvider bean. "
-							+ "UserDetailsService beans will not be used by Spring Security for automatically configuring username/password login. "
-							+ "Consider removing the AuthenticationProvider bean. "
-							+ "Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider. "
-							+ "If the current configuration is intentional, to turn off this warning, "
-							+ "increase the logging level of 'org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer' to ERROR");
-				}
+			if (beanNames.length == 0) {
 				return;
 			}
 
-			if (beanNames.length == 0) {
+			if (auth.isConfigured()) {
+				this.logger.warn("Global AuthenticationManager configured with an AuthenticationProvider bean. "
+						+ "UserDetailsService beans will not be used by Spring Security for automatically configuring username/password login. "
+						+ "Consider removing the AuthenticationProvider bean. "
+						+ "Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider. "
+						+ "If the current configuration is intentional, to turn off this warning, "
+						+ "increase the logging level of 'org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer' to ERROR");
 				return;
 			}
 
 			// Try to resolve a single candidate using the container's rules (@Primary,
 			// etc.)
-			UserDetailsService userDetailsService = getAutowireCandidateOrNull(UserDetailsService.class);
+			UserDetailsService userDetailsService = getBeanIfUnique(UserDetailsService.class);
 
 			// If ambiguous or otherwise not resolvable, keep the warn-and-skip behavior
 			if (userDetailsService == null) {
-				if (beanNames.length > 1) {
-					this.logger.warn(LogMessage.format("Found %s UserDetailsService beans, with names %s. "
-							+ "Global Authentication Manager will not use a UserDetailsService for username/password login. "
-							+ "Consider publishing a single (or primary) UserDetailsService bean.", beanNames.length,
-							Arrays.toString(beanNames)));
-				}
+				this.logger.warn(LogMessage.format("Found %s UserDetailsService beans, with names %s. "
+						+ "Global Authentication Manager will not use a UserDetailsService for username/password login. "
+						+ "Consider publishing a single (or primary) UserDetailsService bean.", beanNames.length,
+						Arrays.toString(beanNames)));
 				return;
 			}
 

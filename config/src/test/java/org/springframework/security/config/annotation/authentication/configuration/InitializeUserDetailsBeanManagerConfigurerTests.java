@@ -65,8 +65,8 @@ class InitializeUserDetailsBeanManagerConfigurerTests {
 		ObjectProvider<UserDetailsService> udsProvider = (ObjectProvider<UserDetailsService>) mock(
 				ObjectProvider.class);
 		given(ctx.getBeanProvider(UserDetailsService.class)).willReturn(udsProvider);
-		given(udsProvider.getIfAvailable()).willReturn(primary); // container picks single
-																	// candidate
+		given(udsProvider.getIfUnique()).willReturn(primary); // container picks single
+																// candidate
 
 		// resolveBeanName(..) path
 		given(ctx.getBean("udsA")).willReturn(secondary);
