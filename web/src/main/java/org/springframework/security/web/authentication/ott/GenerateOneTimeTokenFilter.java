@@ -68,11 +68,11 @@ public final class GenerateOneTimeTokenFilter extends OncePerRequestFilter {
 			return;
 		}
 		GenerateOneTimeTokenRequest generateRequest = this.requestResolver.resolve(request);
-		OneTimeToken ott = this.tokenService.generate(generateRequest);
 		if (generateRequest == null) {
 			filterChain.doFilter(request, response);
 			return;
 		}
+		OneTimeToken ott = this.tokenService.generate(generateRequest);
 		this.tokenGenerationSuccessHandler.handle(request, response, ott);
 	}
 
