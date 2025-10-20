@@ -27,7 +27,7 @@ individual modules like `CoreJacksonModule` by the module detection from `Securi
 automatic inclusion of type information and configure a `PolymorphicTypeValidator` that handles the validation of class
 names.
 
-The Jackson 3 support uses the same format than the now deprecated Jackson 2 one, so class instances serialized with
+The Jackson 3 support uses a format compatible with the now deprecated Jackson 2 one, so class instances serialized with
 Jackson 2 should be deserializable with the Jackson 3 support.
 
 `spring-security-oauth2-authorization-server` now uses Jackson 3 by default. If you want to continue
