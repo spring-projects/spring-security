@@ -8,7 +8,7 @@ class BCryptPasswordEncoderUsage {
         // tag::bcryptPasswordEncoder[]
         // Create an encoder with strength 16
         val encoder = BCryptPasswordEncoder(16)
-        val result: String = encoder.encode("myPassword")
+        val result: String? = encoder.encode("myPassword")
         assertTrue(encoder.matches("myPassword", result))
         // end::bcryptPasswordEncoder[]
     }

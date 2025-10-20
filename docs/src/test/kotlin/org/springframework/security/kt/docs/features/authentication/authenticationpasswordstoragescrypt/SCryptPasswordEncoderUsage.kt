@@ -8,7 +8,7 @@ class SCryptPasswordEncoderUsage {
         // tag::sCryptPasswordEncoder[]
         // Create an encoder with all the defaults
         val encoder = SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8()
-        val result: String = encoder.encode("myPassword")
+        val result: String? = encoder.encode("myPassword")
         assertTrue(encoder.matches("myPassword", result))
         // end::sCryptPasswordEncoder[]
     }

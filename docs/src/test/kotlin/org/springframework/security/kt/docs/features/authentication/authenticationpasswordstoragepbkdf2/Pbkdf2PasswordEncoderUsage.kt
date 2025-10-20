@@ -8,7 +8,7 @@ class Pbkdf2PasswordEncoderUsage {
         // tag::pbkdf2PasswordEncoder[]
         // Create an encoder with all the defaults
         val encoder = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8()
-        val result: String = encoder.encode("myPassword")
+        val result: String? = encoder.encode("myPassword")
         assertTrue(encoder.matches("myPassword", result))
         // end::pbkdf2PasswordEncoder[]
     }

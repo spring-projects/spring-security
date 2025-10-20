@@ -8,7 +8,7 @@ class Argon2PasswordEncoderUsage {
         // tag::argon2PasswordEncoder[]
         // Create an encoder with all the defaults
         val encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8()
-        val result: String = encoder.encode("myPassword")
+        val result: String? = encoder.encode("myPassword")
         assertTrue(encoder.matches("myPassword", result))
         // end::argon2PasswordEncoder[]
     }
