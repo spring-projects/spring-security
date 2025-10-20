@@ -18,7 +18,9 @@ package org.springframework.security.authorization;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.Authentication;
@@ -48,7 +50,7 @@ public class AuthorityReactiveAuthorizationManager<T> implements ReactiveAuthori
 		// @formatter:off
 		return authentication.filter(Authentication::isAuthenticated)
 				.flatMapIterable(Authentication::getAuthorities)
-				.mapNotNull(GrantedAuthority::getAuthority)
+				.mapNotNull((Function<GrantedAuthority, @Nullable String>) GrantedAuthority::getAuthority)
 				.any((grantedAuthority) -> this.authorities.stream().anyMatch((authority) -> Objects.equals(authority.getAuthority(), grantedAuthority)))
 				.map((granted) -> ((AuthorizationResult) new AuthorityAuthorizationDecision(granted, this.authorities)))
 				.defaultIfEmpty(new AuthorityAuthorizationDecision(false, this.authorities));
