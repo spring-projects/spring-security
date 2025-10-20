@@ -29,6 +29,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authorization.method.AuthorizationProxy;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextImpl;
@@ -108,6 +109,7 @@ public class CoreJacksonModule extends SecurityJacksonModule {
 		context.setMixIn(UsernamePasswordAuthenticationToken.class, UsernamePasswordAuthenticationTokenMixin.class);
 		context.setMixIn(TestingAuthenticationToken.class, TestingAuthenticationTokenMixin.class);
 		context.setMixIn(BadCredentialsException.class, BadCredentialsExceptionMixin.class);
+		context.setMixIn(AuthorizationProxy.class, AuthorizationProxyMixin.class);
 	}
 
 }
