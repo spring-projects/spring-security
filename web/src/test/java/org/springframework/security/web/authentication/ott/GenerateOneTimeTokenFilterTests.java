@@ -113,4 +113,22 @@ public class GenerateOneTimeTokenFilterTests {
 		// @formatter:on
 	}
 
+	@Test
+	void filterWhenUsernameFormParamIsEmptyButRequestResolverCanResolveThenSuccess()
+			throws ServletException, IOException {
+		GenerateOneTimeTokenRequestResolver requestResolver = mock();
+		given(this.oneTimeTokenService.generate(ArgumentMatchers.any(GenerateOneTimeTokenRequest.class)))
+			.willReturn((new DefaultOneTimeToken(TOKEN, USERNAME, Instant.now())));
+		given(requestResolver.resolve(this.request)).willReturn(new GenerateOneTimeTokenRequest(USERNAME));
+
+		GenerateOneTimeTokenFilter filter = new GenerateOneTimeTokenFilter(this.oneTimeTokenService,
+				this.successHandler);
+		filter.setRequestResolver(requestResolver);
+
+		filter.doFilter(this.request, this.response, this.filterChain);
+
+		verify(this.oneTimeTokenService).generate(ArgumentMatchers.any(GenerateOneTimeTokenRequest.class));
+		assertThat(this.response.getRedirectedUrl()).isEqualTo("/login/ott");
+	}
+
 }
