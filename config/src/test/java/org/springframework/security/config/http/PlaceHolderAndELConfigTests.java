@@ -73,7 +73,7 @@ public class PlaceHolderAndELConfigTests {
 		// login-page setting
 		// @formatter:off
 		this.mvc.perform(get("/secured"))
-				.andExpect(redirectedUrl("http://localhost/loginPage"));
+				.andExpect(redirectedUrl("/loginPage"));
 		// login-processing-url setting
 		// default-target-url setting
 		this.mvc.perform(post("/loginPage").param("username", "user").param("password", "password"))
@@ -98,7 +98,7 @@ public class PlaceHolderAndELConfigTests {
 		// login-page setting
 		// @formatter:off
 		this.mvc.perform(get("/secured"))
-				.andExpect(redirectedUrl("http://localhost/loginPage"));
+				.andExpect(redirectedUrl("/loginPage"));
 		// login-processing-url setting
 		// default-target-url setting
 		this.mvc.perform(post("/loginPage").param("username", "user").param("password", "password"))

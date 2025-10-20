@@ -72,7 +72,7 @@ class TokenEndpointDslTests {
                 .state("test")
                 .clientId("clientId")
                 .authorizationUri("https://test")
-                .redirectUri("http://localhost/login/oauth2/code/google")
+                .redirectUri("/login/oauth2/code/google")
                 .attributes(attributes)
                 .build()
         every {

@@ -68,7 +68,7 @@ class AuthorizationManagerFactoryTests {
         // @formatter:off
         this.mockMvc!!.perform(MockMvcRequestBuilders.get("/"))
         .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-        .andExpect(MockMvcResultMatchers.redirectedUrl("http://localhost/login?factor.type=ott&factor.reason=missing"))
+        .andExpect(MockMvcResultMatchers.redirectedUrl("/login?factor.type=ott&factor.reason=missing"))
     		// @formatter:on
     }
 
@@ -81,7 +81,7 @@ class AuthorizationManagerFactoryTests {
         // @formatter:off
         this.mockMvc!!.perform(MockMvcRequestBuilders.get("/"))
         .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-        .andExpect(MockMvcResultMatchers.redirectedUrl("http://localhost/login?factor.type=password&factor.reason=missing"))
+        .andExpect(MockMvcResultMatchers.redirectedUrl("/login?factor.type=password&factor.reason=missing"))
     		// @formatter:on
     }
 
@@ -94,7 +94,7 @@ class AuthorizationManagerFactoryTests {
         // @formatter:off
         this.mockMvc!!.perform(MockMvcRequestBuilders.get("/"))
         .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-        .andExpect(MockMvcResultMatchers.redirectedUrl("http://localhost/login?factor.type=password&factor.type=ott&factor.reason=missing&factor.reason=missing"))
+        .andExpect(MockMvcResultMatchers.redirectedUrl("/login?factor.type=password&factor.type=ott&factor.reason=missing&factor.reason=missing"))
     		// @formatter:on
     }
 
@@ -106,7 +106,7 @@ class AuthorizationManagerFactoryTests {
         // @formatter:off
         this.mockMvc!!.perform(MockMvcRequestBuilders.get("/"))
         .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-        .andExpect(MockMvcResultMatchers.redirectedUrl("http://localhost/login"))
+        .andExpect(MockMvcResultMatchers.redirectedUrl("/login"))
     		// @formatter:on
     }
 

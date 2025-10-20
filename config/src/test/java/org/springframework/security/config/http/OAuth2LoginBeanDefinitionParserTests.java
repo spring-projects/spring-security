@@ -180,7 +180,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/oauth2/authorization/google-login"));
+				.andExpect(redirectedUrl("/oauth2/authorization/google-login"));
 		// @formatter:on
 		verify(this.requestCache).saveRequest(any(), any());
 	}
@@ -193,7 +193,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/favicon.ico").accept(new MediaType("image", "*")))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"));
+				.andExpect(redirectedUrl("/login"));
 		// @formatter:on
 	}
 
@@ -205,7 +205,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/").header("X-Requested-With", "XMLHttpRequest"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"));
+				.andExpect(redirectedUrl("/login"));
 		// @formatter:on
 	}
 
@@ -423,7 +423,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"));
+				.andExpect(redirectedUrl("/login"));
 		// @formatter:on
 	}
 
@@ -433,7 +433,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/custom-login"));
+				.andExpect(redirectedUrl("/custom-login"));
 		// @formatter:on
 	}
 
@@ -445,7 +445,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"));
+				.andExpect(redirectedUrl("/login"));
 		// @formatter:on
 	}
 

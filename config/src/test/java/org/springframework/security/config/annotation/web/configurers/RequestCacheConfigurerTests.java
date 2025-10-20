@@ -90,7 +90,7 @@ public class RequestCacheConfigurerTests {
 		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
 		// @formatter:off
 		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/favicon.ico"))
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("/login"))
 				.andReturn()
 				.getRequest()
 				.getSession();
@@ -104,7 +104,7 @@ public class RequestCacheConfigurerTests {
 		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
 		// @formatter:off
 		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/favicon.png"))
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("/login"))
 				.andReturn()
 				.getRequest()
 				.getSession();
@@ -120,7 +120,7 @@ public class RequestCacheConfigurerTests {
 		MockHttpServletRequestBuilder request = get("/messages").header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
 		// @formatter:off
 		MockHttpSession session = (MockHttpSession) this.mvc.perform(request)
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("/login"))
 				.andReturn()
 				.getRequest()
 				.getSession();
@@ -140,7 +140,7 @@ public class RequestCacheConfigurerTests {
 				.header("X-Requested-With", "XMLHttpRequest");
 		MockHttpSession session = (MockHttpSession) this.mvc
 				.perform(xRequestedWith)
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("/login"))
 				.andReturn()
 				.getRequest()
 				.getSession();
@@ -157,7 +157,7 @@ public class RequestCacheConfigurerTests {
 				MediaType.TEXT_EVENT_STREAM);
 		// @formatter:off
 		MockHttpSession session = (MockHttpSession) this.mvc.perform(request)
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("/login"))
 				.andReturn()
 				.getRequest()
 				.getSession();
@@ -174,7 +174,7 @@ public class RequestCacheConfigurerTests {
 		MockHttpServletRequestBuilder request = get("/messages").header("Upgrade", "websocket");
 		// @formatter:off
 		MockHttpSession session = (MockHttpSession) this.mvc.perform(request)
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("/login"))
 				.andReturn()
 				.getRequest()
 				.getSession();
@@ -191,7 +191,7 @@ public class RequestCacheConfigurerTests {
 		MockHttpServletRequestBuilder request = get("/messages").header(HttpHeaders.ACCEPT, MediaType.ALL);
 		// @formatter:off
 		MockHttpSession session = (MockHttpSession) this.mvc.perform(request)
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("/login"))
 				.andReturn()
 				.getRequest()
 				.getSession();
@@ -205,7 +205,7 @@ public class RequestCacheConfigurerTests {
 		MockHttpServletRequestBuilder request = get("/messages").header(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
 		// @formatter:off
 		MockHttpSession session = (MockHttpSession) this.mvc.perform(request)
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("/login"))
 				.andReturn()
 				.getRequest()
 				.getSession();
@@ -220,7 +220,7 @@ public class RequestCacheConfigurerTests {
 		MockHttpServletRequestBuilder request = get("/messages")
 				.header(HttpHeaders.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
 		MockHttpSession session = (MockHttpSession) this.mvc.perform(request)
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("/login"))
 				.andReturn()
 				.getRequest()
 				.getSession();
@@ -235,7 +235,7 @@ public class RequestCacheConfigurerTests {
 		MockHttpServletRequestBuilder request = get("/messages")
 				.header("X-Requested-With", "com.android");
 		MockHttpSession session = (MockHttpSession) this.mvc.perform(request)
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("/login"))
 				.andReturn()
 				.getRequest()
 				.getSession();
@@ -315,7 +315,7 @@ public class RequestCacheConfigurerTests {
 			.autowire();
 		// @formatter:off
 		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/favicon.ico"))
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("/login"))
 				.andReturn()
 				.getRequest()
 				.getSession();

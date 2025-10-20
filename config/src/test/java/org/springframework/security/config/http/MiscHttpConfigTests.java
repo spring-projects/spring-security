@@ -612,7 +612,7 @@ public class MiscHttpConfigTests {
 		proxy.doFilter(request, new EncodeUrlDenyingHttpServletResponseWrapper(response), (req, resp) -> {
 		});
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_MOVED_TEMPORARILY);
-		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/login");
+		assertThat(response.getRedirectedUrl()).isEqualTo("/login");
 	}
 
 	@Test
@@ -841,7 +841,7 @@ public class MiscHttpConfigTests {
 		this.spring.configLocations(xml("PortsMappedRequiresHttps")).autowire();
 		// @formatter:off
 		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("https://localhost:9080/protected"))
-				.andExpect(redirectedUrl("https://localhost:9443/login"))
+				.andExpect(redirectedUrl("/login"))
 				.andReturn()
 				.getRequest()
 				.getSession(false);

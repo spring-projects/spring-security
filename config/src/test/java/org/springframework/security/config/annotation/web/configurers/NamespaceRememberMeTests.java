@@ -104,7 +104,7 @@ public class NamespaceRememberMeTests {
 				.with(csrf())
 				.cookie(rememberMe);
 		this.mvc.perform(authenticationClassRequest)
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("/login"))
 				.andReturn();
 		// @formatter:on
 	}
@@ -150,7 +150,7 @@ public class NamespaceRememberMeTests {
 		// @formatter:off
 		this.mvc.perform(somewhereRequest)
 				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("http://localhost/login"));
+				.andExpect(redirectedUrl("/login"));
 		MockHttpServletRequestBuilder loginWithRememberme = post("/login").with(rememberMeLogin());
 		Cookie withKey = this.mvc.perform(loginWithRememberme)
 				.andReturn()

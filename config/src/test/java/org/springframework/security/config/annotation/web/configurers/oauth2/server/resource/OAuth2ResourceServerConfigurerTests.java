@@ -1212,7 +1212,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		MvcResult result = this.mvc.perform(get("/authenticated")
 				.header("Accept", "text/html"))
 				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("/login"))
 				.andReturn();
 		// @formatter:on
 		assertThat(result.getRequest().getSession(false)).isNotNull();

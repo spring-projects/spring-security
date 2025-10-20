@@ -63,7 +63,7 @@ public class ValidDurationConfigurationTests {
 		// @formatter:off
 		this.mockMvc.perform(get("/admin/").with(admin(Duration.ofMinutes(31))))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrlPattern("http://localhost/login?*"));
+				.andExpect(redirectedUrlPattern("/login?*"));
 		// @formatter:on
 	}
 
@@ -84,7 +84,7 @@ public class ValidDurationConfigurationTests {
 		// @formatter:off
 		this.mockMvc.perform(get("/user/settings").with(user(Duration.ofMinutes(61))))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrlPattern("http://localhost/login?*"));
+				.andExpect(redirectedUrlPattern("/login?*"));
 		// @formatter:on
 	}
 

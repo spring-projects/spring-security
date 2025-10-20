@@ -146,7 +146,7 @@ class Saml2DslTests {
         val request = MockMvcRequestBuilders.get("/custom/auth/sso")
         this.mockMvc.perform(request)
             .andExpect(MockMvcResultMatchers.status().isFound())
-            .andExpect(MockMvcResultMatchers.redirectedUrl("http://localhost/custom/auth/sso?entityId=simplesamlphp"))
+            .andExpect(MockMvcResultMatchers.redirectedUrl("/custom/auth/sso?entityId=simplesamlphp"))
         request.queryParam("entityId", registration.registrationId)
         val result: MvcResult =
             this.mockMvc.perform(request).andExpect(MockMvcResultMatchers.status().isFound()).andReturn()

@@ -56,7 +56,7 @@ class SelectiveMfaConfigurationTests {
         // @formatter:off
         this.mockMvc!!.perform(MockMvcRequestBuilders.get("/admin/"))
         .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-        .andExpect(MockMvcResultMatchers.redirectedUrlPattern("http://localhost/login?*"))
+        .andExpect(MockMvcResultMatchers.redirectedUrlPattern("/login?*"))
     		// @formatter:on
     }
 
@@ -86,7 +86,7 @@ class SelectiveMfaConfigurationTests {
         // @formatter:off
         this.mockMvc!!.perform(MockMvcRequestBuilders.get("/admin/"))
         .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-        .andExpect(MockMvcResultMatchers.redirectedUrl("http://localhost/login?factor.type=ott&factor.reason=missing"))
+        .andExpect(MockMvcResultMatchers.redirectedUrl("/login?factor.type=ott&factor.reason=missing"))
     		// @formatter:on
     }
 
@@ -100,7 +100,7 @@ class SelectiveMfaConfigurationTests {
         // @formatter:off
         this.mockMvc!!.perform(MockMvcRequestBuilders.get("/user/settings/"))
         .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-        .andExpect(MockMvcResultMatchers.redirectedUrlPattern("http://localhost/login?*"))
+        .andExpect(MockMvcResultMatchers.redirectedUrlPattern("/login?*"))
     		// @formatter:on
     }
 

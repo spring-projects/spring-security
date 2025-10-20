@@ -60,7 +60,7 @@ class ValidDurationConfigurationTests {
         // @formatter:off
         this.mockMvc!!.perform(MockMvcRequestBuilders.get("/admin/").with(admin(Duration.ofMinutes(31))))
             .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-            .andExpect(MockMvcResultMatchers.redirectedUrlPattern("http://localhost/login?*"))
+            .andExpect(MockMvcResultMatchers.redirectedUrlPattern("/login?*"))
         // @formatter:on
     }
 
@@ -85,7 +85,7 @@ class ValidDurationConfigurationTests {
         // @formatter:off
         this.mockMvc!!.perform(MockMvcRequestBuilders.get("/user/settings").with(user(Duration.ofMinutes(61))))
             .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-            .andExpect(MockMvcResultMatchers.redirectedUrlPattern("http://localhost/login?*"))
+            .andExpect(MockMvcResultMatchers.redirectedUrlPattern("/login?*"))
         // @formatter:on
     }
 

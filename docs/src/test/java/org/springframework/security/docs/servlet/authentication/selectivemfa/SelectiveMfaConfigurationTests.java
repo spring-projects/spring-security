@@ -59,7 +59,7 @@ public class SelectiveMfaConfigurationTests {
 		// @formatter:off
 		this.mockMvc.perform(get("/admin/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrlPattern("http://localhost/login?*"));
+				.andExpect(redirectedUrlPattern("/login?*"));
 		// @formatter:on
 	}
 
@@ -81,7 +81,7 @@ public class SelectiveMfaConfigurationTests {
 		// @formatter:off
 		this.mockMvc.perform(get("/admin/"))
 			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("http://localhost/login?factor.type=ott&factor.reason=missing"));
+			.andExpect(redirectedUrl("/login?factor.type=ott&factor.reason=missing"));
 		// @formatter:on
 	}
 
@@ -92,7 +92,7 @@ public class SelectiveMfaConfigurationTests {
 		// @formatter:off
 		this.mockMvc.perform(get("/user/settings/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrlPattern("http://localhost/login?*"));
+				.andExpect(redirectedUrlPattern("/login?*"));
 		// @formatter:on
 	}
 

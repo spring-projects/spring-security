@@ -191,9 +191,7 @@ public class OneTimeTokenLoginConfigurerTests {
 	@Test
 	void oneTimeTokenWhenLoginPageConfiguredThenRedirects() throws Exception {
 		this.spring.register(OneTimeTokenLoginPageConfig.class).autowire();
-		this.mvc.perform(get("/login"))
-			.andExpect(status().isFound())
-			.andExpect(redirectedUrl("http://localhost/custom-login"));
+		this.mvc.perform(get("/login")).andExpect(status().isFound()).andExpect(redirectedUrl("/custom-login"));
 	}
 
 	@Test

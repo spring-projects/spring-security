@@ -161,7 +161,7 @@ public class Saml2LoginBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/saml2/authenticate/one"));
+				.andExpect(redirectedUrl("/saml2/authenticate/one"));
 		// @formatter:on
 		verify(this.requestCache).saveRequest(any(), any());
 	}
@@ -172,7 +172,7 @@ public class Saml2LoginBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"));
+				.andExpect(redirectedUrl("/login"));
 		// @formatter:on
 	}
 

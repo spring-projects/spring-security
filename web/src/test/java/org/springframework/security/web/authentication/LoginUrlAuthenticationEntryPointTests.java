@@ -105,6 +105,7 @@ public class LoginUrlAuthenticationEntryPointTests {
 			.build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint("/hello");
+		ep.setFavorRelativeUris(false);
 		ep.setPortMapper(new PortMapperImpl());
 		ep.setForceHttps(true);
 		ep.setPortMapper(new PortMapperImpl());
@@ -130,12 +131,13 @@ public class LoginUrlAuthenticationEntryPointTests {
 		MockHttpServletRequest request = get().requestUri("/bigWebApp", "/some_path", null).build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		ep.commence(request, response, null);
-		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/bigWebApp/hello");
+		assertThat(response.getRedirectedUrl()).isEqualTo("/bigWebApp/hello");
 	}
 
 	@Test
 	public void testOperationWhenHttpsRequestsButHttpsPortUnknown() throws Exception {
 		LoginUrlAuthenticationEntryPoint ep = new LoginUrlAuthenticationEntryPoint("/hello");
+		ep.setFavorRelativeUris(false);
 		ep.setForceHttps(true);
 		ep.afterPropertiesSet();
 		MockHttpServletRequest request = get("http://localhost:8888").requestUri("/bigWebApp", "/some_path", null)

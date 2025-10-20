@@ -148,7 +148,7 @@ internal class RememberMeDslTests {
             cookie(expiredRememberMeCookie)
         }.andExpect {
             status { isFound() }
-            redirectedUrl("http://localhost/login")
+            redirectedUrl("/login")
         }
     }
 
@@ -224,7 +224,7 @@ internal class RememberMeDslTests {
             cookie(withoutKeyRememberMeCookie)
         }.andExpect {
             status { isFound() }
-            redirectedUrl("http://localhost/login")
+            redirectedUrl("/login")
         }
         val keyMvcResult = mockMvc.post("/login") {
             loginRememberMeRequest()

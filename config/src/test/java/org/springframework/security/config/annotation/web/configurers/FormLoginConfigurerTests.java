@@ -181,7 +181,7 @@ public class FormLoginConfigurerTests {
 		// @formatter:off
 		this.mockMvc.perform(get("/private"))
 				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("http://localhost/login"));
+				.andExpect(redirectedUrl("/login"));
 		// @formatter:on
 	}
 
@@ -236,7 +236,7 @@ public class FormLoginConfigurerTests {
 		// @formatter:off
 		this.mockMvc.perform(get("/private"))
 				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("http://localhost/login"));
+				.andExpect(redirectedUrl("/login"));
 		// @formatter:on
 	}
 
@@ -350,7 +350,7 @@ public class FormLoginConfigurerTests {
 		// @formatter:off
 		this.mockMvc.perform(get("/login?error"))
 				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("http://localhost/login"));
+				.andExpect(redirectedUrl("/login"));
 		// @formatter:on
 	}
 
@@ -404,7 +404,7 @@ public class FormLoginConfigurerTests {
 		this.mockMvc.perform(get("/profile").with(user(user)))
 			.andExpect(status().is3xxRedirection())
 			.andExpect(redirectedUrl(
-					"http://localhost/login?factor.type=password&factor.type=ott&factor.reason=missing&factor.reason=missing"));
+					"/login?factor.type=password&factor.type=ott&factor.reason=missing&factor.reason=missing"));
 		this.mockMvc
 			.perform(post("/ott/generate").param("username", "rod")
 				.with(user(user))
@@ -422,13 +422,13 @@ public class FormLoginConfigurerTests {
 			.build();
 		this.mockMvc.perform(get("/profile").with(user(user)))
 			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("http://localhost/login?factor.type=password&factor.reason=missing"));
+			.andExpect(redirectedUrl("/login?factor.type=password&factor.reason=missing"));
 		user = PasswordEncodedUser.withUserDetails(user)
 			.authorities("profile:read", FactorGrantedAuthority.PASSWORD_AUTHORITY)
 			.build();
 		this.mockMvc.perform(get("/profile").with(user(user)))
 			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("http://localhost/login?factor.type=ott&factor.reason=missing"));
+			.andExpect(redirectedUrl("/login?factor.type=ott&factor.reason=missing"));
 		user = PasswordEncodedUser.withUserDetails(user)
 			.authorities("profile:read", FactorGrantedAuthority.PASSWORD_AUTHORITY,
 					FactorGrantedAuthority.OTT_AUTHORITY)
@@ -445,7 +445,7 @@ public class FormLoginConfigurerTests {
 		this.mockMvc.perform(get("/login")).andExpect(status().isOk());
 		this.mockMvc.perform(get("/profile").with(SecurityMockMvcRequestPostProcessors.x509("rod.cer")))
 			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("http://localhost/login?factor.type=password&factor.reason=missing"));
+			.andExpect(redirectedUrl("/login?factor.type=password&factor.reason=missing"));
 		this.mockMvc
 			.perform(post("/login").param("username", "rod")
 				.param("password", "password")

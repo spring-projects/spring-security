@@ -69,7 +69,7 @@ public class MultipleAuthorizationRulesConfigurationTests {
 		// @formatter:off
 		this.mockMvc.perform(get("/"))
 			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("http://localhost/login?factor.type=ott&factor.reason=missing"));
+			.andExpect(redirectedUrl("/login?factor.type=ott&factor.reason=missing"));
 		// @formatter:on
 	}
 
@@ -80,7 +80,7 @@ public class MultipleAuthorizationRulesConfigurationTests {
 		// @formatter:off
 		this.mockMvc.perform(get("/"))
 			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("http://localhost/login?factor.type=password&factor.reason=missing"));
+			.andExpect(redirectedUrl("/login?factor.type=password&factor.reason=missing"));
 		// @formatter:on
 	}
 
@@ -91,7 +91,7 @@ public class MultipleAuthorizationRulesConfigurationTests {
 		// @formatter:off
 		this.mockMvc.perform(get("/"))
 			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("http://localhost/login?factor.type=password&factor.type=ott&factor.reason=missing&factor.reason=missing"));
+			.andExpect(redirectedUrl("/login?factor.type=password&factor.type=ott&factor.reason=missing&factor.reason=missing"));
 		// @formatter:on
 	}
 
@@ -101,7 +101,7 @@ public class MultipleAuthorizationRulesConfigurationTests {
 		// @formatter:off
 		this.mockMvc.perform(get("/"))
 			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("http://localhost/login"));
+			.andExpect(redirectedUrl("/login"));
 		// @formatter:on
 	}
 

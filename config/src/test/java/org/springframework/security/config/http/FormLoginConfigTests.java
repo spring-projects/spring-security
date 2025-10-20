@@ -73,7 +73,7 @@ public class FormLoginConfigTests {
 		this.spring.configLocations(this.xml("WithRequestMatcher")).autowire();
 		// @formatter:off
 		this.mvc.perform(get("/"))
-				.andExpect(redirectedUrl("http://localhost/login"));
+				.andExpect(redirectedUrl("/login"));
 		// @formatter:on
 	}
 
@@ -107,7 +107,7 @@ public class FormLoginConfigTests {
 		this.mvc.perform(invalidPassword)
 				.andExpect(redirectedUrl(WebConfigUtilsTests.URL + "/failure"));
 		this.mvc.perform(get("/"))
-				.andExpect(redirectedUrl("http://localhost" + WebConfigUtilsTests.URL + "/login"));
+				.andExpect(redirectedUrl(WebConfigUtilsTests.URL + "/login"));
 		// @formatter:on
 	}
 

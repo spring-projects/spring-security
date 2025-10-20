@@ -78,7 +78,7 @@ public class SecurityContextHolderAwareRequestConfigTests {
 		// @formatter:off
 		this.mvc.perform(get("/authenticate"))
 				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("http://localhost/login"));
+				.andExpect(redirectedUrl("/login"));
 		// @formatter:on
 	}
 
@@ -114,7 +114,7 @@ public class SecurityContextHolderAwareRequestConfigTests {
 		// @formatter:off
 		this.mvc.perform(get("/authenticate"))
 				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("http://localhost/login"));
+				.andExpect(redirectedUrl("/login"));
 		// @formatter:on
 	}
 
@@ -137,10 +137,10 @@ public class SecurityContextHolderAwareRequestConfigTests {
 		// @formatter:off
 		this.mvc.perform(get("/authenticate"))
 				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("http://localhost/login"));
+				.andExpect(redirectedUrl("/login"));
 		this.mvc.perform(get("/v2/authenticate"))
 				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("http://localhost/login2"));
+				.andExpect(redirectedUrl("/login2"));
 		// @formatter:on
 	}
 
@@ -177,9 +177,7 @@ public class SecurityContextHolderAwareRequestConfigTests {
 	@Test
 	public void servletLogoutWhenUsingCustomLogoutThenUsesSpringSecurity() throws Exception {
 		this.spring.configLocations(this.xml("Logout")).autowire();
-		this.mvc.perform(get("/authenticate"))
-			.andExpect(status().isFound())
-			.andExpect(redirectedUrl("http://localhost/signin"));
+		this.mvc.perform(get("/authenticate")).andExpect(status().isFound()).andExpect(redirectedUrl("/signin"));
 		// @formatter:off
 		MvcResult result = this.mvc.perform(get("/good-login"))
 				.andReturn();
