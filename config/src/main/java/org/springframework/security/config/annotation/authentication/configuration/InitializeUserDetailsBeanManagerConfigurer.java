@@ -84,11 +84,7 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 				return;
 			}
 
-			// Try to resolve a single candidate using the container's rules (@Primary,
-			// etc.)
 			UserDetailsService userDetailsService = getBeanIfUnique(UserDetailsService.class);
-
-			// If ambiguous or otherwise not resolvable, keep the warn-and-skip behavior
 			if (userDetailsService == null) {
 				this.logger.warn(LogMessage.format("Found %s UserDetailsService beans, with names %s. "
 						+ "Global Authentication Manager will not use a UserDetailsService for username/password login. "
@@ -98,7 +94,6 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 			}
 
 			PasswordEncoder passwordEncoder = getBeanIfUnique(PasswordEncoder.class);
-			// Also resolve UDPS via container so @Primary is honored
 			UserDetailsPasswordService passwordManager = getAutowireCandidateOrNull(UserDetailsPasswordService.class);
 			CompromisedPasswordChecker passwordChecker = getBeanIfUnique(CompromisedPasswordChecker.class);
 
