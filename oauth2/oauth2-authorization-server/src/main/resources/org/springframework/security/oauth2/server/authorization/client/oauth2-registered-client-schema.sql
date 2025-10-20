@@ -1,3 +1,11 @@
+/*
+IMPORTANT:
+    If using PostgreSQL:
+        - update ALL columns defined with 'timestamp' to 'timestamptz', to ensure that time instants are stored accurately.
+    If using MySQL:
+        - add 'preserveInstants=true&connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true' to JDBC connection URL
+          to ensure that time instants are stored accurately. See https://dev.mysql.com/doc/connector-j/en/connector-j-time-instants.html
+*/
 CREATE TABLE oauth2_registered_client (
     id varchar(100) NOT NULL,
     client_id varchar(100) NOT NULL,
