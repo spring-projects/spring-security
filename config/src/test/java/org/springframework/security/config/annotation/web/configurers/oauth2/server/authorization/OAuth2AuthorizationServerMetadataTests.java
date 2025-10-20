@@ -185,6 +185,17 @@ public class OAuth2AuthorizationServerMetadataTests {
 			.andExpect(jsonPath("$.grant_types_supported[4]").value(AuthorizationGrantType.DEVICE_CODE.getValue()));
 	}
 
+	@Test
+	public void requestWhenAuthorizationServerMetadataRequestAndPushedAuthorizationRequestEnabledThenMetadataResponseIncludesPushedAuthorizationRequestEndpoint()
+			throws Exception {
+		this.spring.register(AuthorizationServerConfigurationWithPushedAuthorizationRequestEnabled.class).autowire();
+
+		this.mvc.perform(get(ISSUER.concat(DEFAULT_OAUTH2_AUTHORIZATION_SERVER_METADATA_ENDPOINT_URI)))
+			.andExpect(status().is2xxSuccessful())
+			.andExpect(jsonPath("$.pushed_authorization_request_endpoint")
+				.value(ISSUER.concat(this.authorizationServerSettings.getPushedAuthorizationRequestEndpoint())));
+	}
+
 	@EnableWebSecurity
 	@Import(OAuth2AuthorizationServerConfiguration.class)
 	static class AuthorizationServerConfiguration {
@@ -291,6 +302,28 @@ public class OAuth2AuthorizationServerMetadataTests {
 					.oauth2AuthorizationServer((authorizationServer) ->
 							authorizationServer
 									.deviceAuthorizationEndpoint(Customizer.withDefaults())
+					)
+					.authorizeHttpRequests((authorize) ->
+							authorize.anyRequest().authenticated()
+					);
+			return http.build();
+		}
+		// @formatter:on
+
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
+	static class AuthorizationServerConfigurationWithPushedAuthorizationRequestEnabled
+			extends AuthorizationServerConfiguration {
+
+		// @formatter:off
+		@Bean
+		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.pushedAuthorizationRequestEndpoint(Customizer.withDefaults())
 					)
 					.authorizeHttpRequests((authorize) ->
 							authorize.anyRequest().authenticated()

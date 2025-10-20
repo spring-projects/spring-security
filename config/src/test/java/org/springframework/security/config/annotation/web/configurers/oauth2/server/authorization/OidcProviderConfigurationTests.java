@@ -159,6 +159,18 @@ public class OidcProviderConfigurationTests {
 			.andExpect(jsonPath("$.grant_types_supported[4]").value(AuthorizationGrantType.DEVICE_CODE.getValue()));
 	}
 
+	@Test
+	public void requestWhenConfigurationRequestAndPushedAuthorizationRequestEnabledThenConfigurationResponseIncludesPushedAuthorizationRequestEndpoint()
+			throws Exception {
+		this.spring.register(AuthorizationServerConfigurationWithPushedAuthorizationRequestEnabled.class).autowire();
+
+		this.mvc.perform(get(ISSUER.concat(DEFAULT_OIDC_PROVIDER_CONFIGURATION_ENDPOINT_URI)))
+			.andExpect(status().is2xxSuccessful())
+			.andExpectAll(defaultConfigurationMatchers(ISSUER))
+			.andExpect(jsonPath("$.pushed_authorization_request_endpoint")
+				.value(ISSUER.concat(this.authorizationServerSettings.getPushedAuthorizationRequestEndpoint())));
+	}
+
 	private ResultMatcher[] defaultConfigurationMatchers(String issuer) {
 		// @formatter:off
 		return new ResultMatcher[] {
@@ -349,6 +361,26 @@ public class OidcProviderConfigurationTests {
 					.oauth2AuthorizationServer((authorizationServer) ->
 							authorizationServer
 									.deviceAuthorizationEndpoint(Customizer.withDefaults())
+									.oidc(Customizer.withDefaults())
+					);
+			return http.build();
+		}
+		// @formatter:on
+
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
+	static class AuthorizationServerConfigurationWithPushedAuthorizationRequestEnabled
+			extends AuthorizationServerConfiguration {
+
+		// @formatter:off
+		@Bean
+		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.pushedAuthorizationRequestEndpoint(Customizer.withDefaults())
 									.oidc(Customizer.withDefaults())
 					);
 			return http.build();

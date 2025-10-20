@@ -101,8 +101,6 @@ public final class OidcProviderConfigurationEndpointFilter extends OncePerReques
 		OidcProviderConfiguration.Builder providerConfiguration = OidcProviderConfiguration.builder()
 			.issuer(issuer)
 			.authorizationEndpoint(asUrl(issuer, authorizationServerSettings.getAuthorizationEndpoint()))
-			.pushedAuthorizationRequestEndpoint(
-					asUrl(issuer, authorizationServerSettings.getPushedAuthorizationRequestEndpoint()))
 			.tokenEndpoint(asUrl(issuer, authorizationServerSettings.getTokenEndpoint()))
 			.tokenEndpointAuthenticationMethods(clientAuthenticationMethods())
 			.jwkSetUrl(asUrl(issuer, authorizationServerSettings.getJwkSetEndpoint()))

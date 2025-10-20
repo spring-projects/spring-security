@@ -134,8 +134,7 @@ public class OidcProviderConfigurationEndpointFilterTests {
 		assertThat(providerConfigurationResponse).contains("\"issuer\":\"https://example.com\"");
 		assertThat(providerConfigurationResponse)
 			.contains("\"authorization_endpoint\":\"https://example.com/oauth2/v1/authorize\"");
-		assertThat(providerConfigurationResponse)
-			.contains("\"pushed_authorization_request_endpoint\":\"https://example.com/oauth2/v1/par\"");
+		assertThat(providerConfigurationResponse).doesNotContain("\"pushed_authorization_request_endpoint\"");
 		assertThat(providerConfigurationResponse).doesNotContain("\"device_authorization_endpoint\"");
 		assertThat(providerConfigurationResponse)
 			.contains("\"token_endpoint\":\"https://example.com/oauth2/v1/token\"");
