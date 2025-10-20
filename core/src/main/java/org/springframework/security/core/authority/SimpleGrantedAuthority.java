@@ -33,12 +33,12 @@ public final class SimpleGrantedAuthority implements GrantedAuthority {
 
 	private static final long serialVersionUID = 620L;
 
-	// CAUTION renaming to authority will break serialization compatibility
 	private final String role;
 
 	/**
 	 * Constructs a {@code SimpleGrantedAuthority} using the provided authority.
-	 * @param authority The provided authority such as prefixed role
+	 * @param authority The provided authority, including any prefix; for example,
+	 * {@code ROLE_ADMIN}
 	 */
 	public SimpleGrantedAuthority(String authority) {
 		Assert.hasText(authority, "A granted authority textual representation is required");
