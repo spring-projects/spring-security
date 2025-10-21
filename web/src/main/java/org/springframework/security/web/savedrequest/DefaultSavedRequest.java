@@ -102,7 +102,7 @@ public class DefaultSavedRequest implements SavedRequest {
 	private final @Nullable String matchingRequestParameterName;
 
 	public DefaultSavedRequest(HttpServletRequest request) {
-		this(request, (String) null);
+		this(request, null);
 	}
 
 	public DefaultSavedRequest(HttpServletRequest request, @Nullable String matchingRequestParameterName) {
@@ -208,10 +208,6 @@ public class DefaultSavedRequest implements SavedRequest {
 		}
 	}
 
-	private void addParameter(String name, String[] values) {
-		this.parameters.put(name, values);
-	}
-
 	public @Nullable String getContextPath() {
 		return this.contextPath;
 	}
@@ -301,16 +297,6 @@ public class DefaultSavedRequest implements SavedRequest {
 
 	public @Nullable String getServletPath() {
 		return this.servletPath;
-	}
-
-	private boolean propertyEquals(@Nullable Object arg1, Object arg2) {
-		if ((arg1 == null) && (arg2 == null)) {
-			return true;
-		}
-		if (arg1 == null || arg2 == null) {
-			return false;
-		}
-		return arg1.equals(arg2);
 	}
 
 	@Override

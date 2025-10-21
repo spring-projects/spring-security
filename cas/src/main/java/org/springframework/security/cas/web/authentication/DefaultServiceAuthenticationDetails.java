@@ -72,13 +72,13 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 
 	@Override
 	public boolean equals(Object obj) {
-		if (super.equals(obj)) {
+		if (this == obj) {
 			return true;
 		}
-		if (obj instanceof DefaultServiceAuthenticationDetails that) {
-			return this.serviceUrl.equals(that.getServiceUrl());
+		if (!(obj instanceof DefaultServiceAuthenticationDetails that)) {
+			return false;
 		}
-		return false;
+		return this.serviceUrl.equals(that.getServiceUrl());
 	}
 
 	@Override
@@ -111,7 +111,10 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 	 */
 	private @Nullable String getQueryString(final HttpServletRequest request, final Pattern artifactPattern) {
 		final String query = request.getQueryString();
-		String result = (query != null) ? artifactPattern.matcher(query).replaceFirst("") : "";
+		if (query == null) {
+			return null;
+		}
+		String result = artifactPattern.matcher(query).replaceFirst("");
 		if (result.isEmpty()) {
 			return null;
 		}
