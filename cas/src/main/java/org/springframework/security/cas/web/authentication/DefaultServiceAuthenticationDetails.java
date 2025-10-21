@@ -75,7 +75,7 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 		if (this == obj) {
 			return true;
 		}
-		if (!(obj instanceof DefaultServiceAuthenticationDetails that)) {
+		if (!super.equals(obj) || !(obj instanceof DefaultServiceAuthenticationDetails that)) {
 			return false;
 		}
 		return this.serviceUrl.equals(that.getServiceUrl());
