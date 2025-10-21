@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -23,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -34,11 +37,14 @@ import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.config.annotation.SecurityContextChangedListenerArgumentMatchers.setAuthentication;
@@ -99,6 +105,45 @@ public class AnonymousConfigurerTests {
 	public void shouldReturnMyCustomAnonymousConfig() throws Exception {
 		this.spring.register(AnonymousInCustomConfigurer.class, PrincipalController.class).autowire();
 		this.mockMvc.perform(get("/")).andExpect(status().isOk()).andExpect(content().string("myAnonymousUser"));
+	}
+
+	@Test
+	public void anonymousAuthenticationWhenUsingAuthenticationDetailsSourceRefThenMatchesNamespace() throws Exception {
+		this.spring.register(AuthenticationDetailsSourceAnonymousConfig.class).autowire();
+		AuthenticationDetailsSource<HttpServletRequest, ?> source = this.spring.getContext()
+			.getBean(AuthenticationDetailsSource.class);
+		this.mockMvc.perform(get("/"));
+		verify(source).buildDetails(any(HttpServletRequest.class));
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class AuthenticationDetailsSourceAnonymousConfig {
+
+		AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = mock(
+				AuthenticationDetailsSource.class);
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			return http.anonymous((anonymous) -> anonymous
+				.withObjectPostProcessor(new ObjectPostProcessor<AnonymousAuthenticationFilter>() {
+
+					@Override
+					public <O extends AnonymousAuthenticationFilter> O postProcess(O object) {
+						object.setAuthenticationDetailsSource(
+								AuthenticationDetailsSourceAnonymousConfig.this.authenticationDetailsSource);
+						return object;
+					}
+
+				})).build();
+		}
+
+		@Bean
+		AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource() {
+			return this.authenticationDetailsSource;
+		}
+
 	}
 
 	@Configuration
