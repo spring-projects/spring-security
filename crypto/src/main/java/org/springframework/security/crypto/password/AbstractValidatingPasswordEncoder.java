@@ -21,7 +21,11 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.util.StringUtils;
 
 /**
- * Implementation of PasswordEncoder.
+ * An abstract {@link PasswordEncoder} that implementers can use for expecting the
+ * password to be non-{@code null}. Each common password API method is accompanied with an
+ * abstract method with a {@code NonNull} prefix. By implementing this, the concrete class
+ * is specifying what to do with the password when it is non-{@code null}, allowing this
+ * class to handle the {@code null} case.
  *
  * @author Rob Winch
  * @since 7.0
@@ -50,10 +54,10 @@ public abstract class AbstractValidatingPasswordEncoder implements PasswordEncod
 
 	@Override
 	public final boolean upgradeEncoding(@Nullable String encodedPassword) {
-		if (StringUtils.hasLength(encodedPassword)) {
-			return upgradeEncodingNonNull(encodedPassword);
+		if (!StringUtils.hasLength(encodedPassword)) {
+			return false;
 		}
-		return false;
+		return upgradeEncodingNonNull(encodedPassword);
 	}
 
 	protected boolean upgradeEncodingNonNull(String encodedPassword) {

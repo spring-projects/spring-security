@@ -25,6 +25,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.jspecify.annotations.Nullable;
+import org.springframework.util.StringUtils;
 
 /**
  * Request wrapper which ensures values of {@code servletPath} and {@code pathInfo} are
@@ -58,7 +59,7 @@ final class RequestWrapper extends FirewalledRequest {
 		super(request);
 		this.strippedServletPath = strip(request.getServletPath());
 		String pathInfo = strip(request.getPathInfo());
-		if (pathInfo != null && pathInfo.isEmpty()) {
+		if (!StringUtils.hasLength(pathInfo)) {
 			pathInfo = null;
 		}
 		this.strippedPathInfo = pathInfo;
