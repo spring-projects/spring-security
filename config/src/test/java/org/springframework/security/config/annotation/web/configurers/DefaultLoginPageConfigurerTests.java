@@ -78,7 +78,7 @@ public class DefaultLoginPageConfigurerTests {
 	@Test
 	public void getWhenFormLoginEnabledThenRedirectsToLoginPage() throws Exception {
 		this.spring.register(DefaultLoginPageConfig.class).autowire();
-		this.mvc.perform(get("/")).andExpect(redirectedUrl("http://localhost/login"));
+		this.mvc.perform(get("/")).andExpect(redirectedUrl("/login"));
 	}
 
 	@Test

@@ -87,7 +87,7 @@ import static org.springframework.security.web.servlet.util.matcher.PathPatternR
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -175,7 +175,7 @@ public class NamespaceHttpTests {
 		// @formatter:off
 		this.mockMvc.perform(get("/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrlPattern("**/entry-point"));
+				.andExpect(redirectedUrl("/entry-point"));
 		// @formatter:on
 	}
 

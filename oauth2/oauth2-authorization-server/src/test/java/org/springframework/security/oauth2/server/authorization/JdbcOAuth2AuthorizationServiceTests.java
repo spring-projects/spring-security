@@ -29,10 +29,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
@@ -44,6 +45,7 @@ import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2DeviceCode;
@@ -526,6 +528,12 @@ public class JdbcOAuth2AuthorizationServiceTests {
 		// @formatter:on
 	}
 
+	private static JsonMapper createSecurityMapper() {
+		return JsonMapper.builder()
+			.addModules(SecurityJacksonModules.getModules(JdbcOAuth2AuthorizationServiceTests.class.getClassLoader()))
+			.build();
+	}
+
 	private static final class CustomJdbcOAuth2AuthorizationService extends JdbcOAuth2AuthorizationService {
 
 		// @formatter:off
@@ -626,8 +634,11 @@ public class JdbcOAuth2AuthorizationServiceTests {
 		private static final class CustomOAuth2AuthorizationRowMapper
 				extends JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper {
 
+			private JsonMapper mapper;
+
 			private CustomOAuth2AuthorizationRowMapper(RegisteredClientRepository registeredClientRepository) {
 				super(registeredClientRepository);
+				this.mapper = createSecurityMapper();
 			}
 
 			@Override
@@ -747,7 +758,7 @@ public class JdbcOAuth2AuthorizationServiceTests {
 
 			private Map<String, Object> parseMap(String data) {
 				try {
-					return getObjectMapper().readValue(data, new TypeReference<>() {
+					return this.mapper.readValue(data, new TypeReference<>() {
 					});
 				}
 				catch (Exception ex) {
@@ -759,6 +770,8 @@ public class JdbcOAuth2AuthorizationServiceTests {
 
 		private static final class CustomOAuth2AuthorizationParametersMapper
 				extends JdbcOAuth2AuthorizationService.OAuth2AuthorizationParametersMapper {
+
+			private final JsonMapper mapper = createSecurityMapper();
 
 			@Override
 			public List<SqlParameterValue> apply(OAuth2Authorization authorization) {
@@ -852,7 +865,7 @@ public class JdbcOAuth2AuthorizationServiceTests {
 
 			private String writeMap(Map<String, Object> data) {
 				try {
-					return getObjectMapper().writeValueAsString(data);
+					return this.mapper.writeValueAsString(data);
 				}
 				catch (Exception ex) {
 					throw new IllegalArgumentException(ex.getMessage(), ex);

@@ -12,12 +12,12 @@ org-jetbrains-kotlin = "2.2.20"
 org-jetbrains-kotlinx = "1.10.2"
 org-mockito = "5.17.0"
 org-opensaml5 = "5.1.6"
-org-springframework = "7.0.0-M9"
+org-springframework = "7.0.0-RC1"
 com-password4j = "1.8.4"
 
 [libraries]
-ch-qos-logback-logback-classic = "ch.qos.logback:logback-classic:1.5.19"
-com-fasterxml-jackson-jackson-bom = "com.fasterxml.jackson:jackson-bom:2.19.2"
+ch-qos-logback-logback-classic = "ch.qos.logback:logback-classic:1.5.20"
+com-fasterxml-jackson-jackson-bom = "com.fasterxml.jackson:jackson-bom:2.20.0"
 com-google-inject-guice = "com.google.inject:guice:3.0"
 com-netflix-nebula-nebula-project-plugin = "com.netflix.nebula:nebula-project-plugin:8.2.0"
 com-nimbusds-nimbus-jose-jwt = "com.nimbusds:nimbus-jose-jwt:10.4"
@@ -28,9 +28,9 @@ com-unboundid-unboundid-ldapsdk = "com.unboundid:unboundid-ldapsdk:7.0.3"
 com-jayway-jsonpath-json-path = "com.jayway.jsonpath:json-path:2.9.0"
 commons-collections = "commons-collections:commons-collections:3.2.2"
 io-micrometer-context-propagation = "io.micrometer:context-propagation:1.1.3"
-io-micrometer-micrometer-observation = "io.micrometer:micrometer-observation:1.14.11"
+io-micrometer-micrometer-observation = "io.micrometer:micrometer-observation:1.14.12"
 io-mockk = "io.mockk:mockk:1.14.6"
-io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2025.0.0-M7"
+io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2025.0.0-RC1"
 io-rsocket-rsocket-bom = { module = "io.rsocket:rsocket-bom", version.ref = "io-rsocket" }
 io-spring-javaformat-spring-javaformat-checkstyle = { module = "io.spring.javaformat:spring-javaformat-checkstyle", version.ref = "io-spring-javaformat" }
 io-spring-javaformat-spring-javaformat-gradle-plugin = { module = "io.spring.javaformat:spring-javaformat-gradle-plugin", version.ref = "io-spring-javaformat" }
@@ -70,7 +70,7 @@ org-hsqldb = "org.hsqldb:hsqldb:2.7.4"
 org-jetbrains-kotlin-kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "org-jetbrains-kotlin" }
 org-jetbrains-kotlin-kotlin-gradle-plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.20"
 org-jetbrains-kotlinx-kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bom", version.ref = "org-jetbrains-kotlinx" }
-org-junit-junit-bom = "org.junit:junit-bom:5.12.2"
+org-junit-junit-bom = "org.junit:junit-bom:6.0.0"
 org-mockito-mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "org-mockito" }
 org-opensaml-opensaml5-saml-api = { module = "org.opensaml:opensaml-saml-api", version.ref = "org-opensaml5" }
 org-opensaml-opensaml5-saml-impl = { module = "org.opensaml:opensaml-saml-impl", version.ref = "org-opensaml5" }
@@ -81,10 +81,11 @@ org-seleniumhq-selenium-selenium-support = "org.seleniumhq.selenium:selenium-sup
 org-skyscreamer-jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 org-slf4j-log4j-over-slf4j = "org.slf4j:log4j-over-slf4j:1.7.36"
 org-slf4j-slf4j-api = "org.slf4j:slf4j-api:2.0.17"
-org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2025.1.0-M6"
-org-springframework-ldap-spring-ldap-core = "org.springframework.ldap:spring-ldap-core:3.2.13"
+org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2025.1.0-RC1"
+org-springframework-ldap-spring-ldap-core = "org.springframework.ldap:spring-ldap-core:4.0.0-RC1"
 org-springframework-spring-framework-bom = { module = "org.springframework:spring-framework-bom", version.ref = "org-springframework" }
 org-synchronoss-cloud-nio-multipart-parser = "org.synchronoss.cloud:nio-multipart-parser:1.1.0"
+tools-jackson-jackson-bom = "tools.jackson:jackson-bom:3.0.0"
 
 com-google-code-gson-gson = "com.google.code.gson:gson:2.13.2"
 com-thaiopensource-trag = "com.thaiopensource:trang:20091111"
@@ -100,7 +101,7 @@ org-jfrog-buildinfo-build-info-extractor-gradle = "org.jfrog.buildinfo:build-inf
 org-sonarsource-scanner-gradle-sonarqube-gradle-plugin = "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8.0.1969"
 org-instancio-instancio-junit = "org.instancio:instancio-junit:3.7.1"
 
-spring-nullability = 'io.spring.nullability:io.spring.nullability.gradle.plugin:0.0.5'
+spring-nullability = 'io.spring.nullability:io.spring.nullability.gradle.plugin:0.0.6'
 webauthn4j-core = 'com.webauthn4j:webauthn4j-core:0.29.7.RELEASE'
 com-password4j-password4j = { module = "com.password4j:password4j", version.ref = "com-password4j" }
 

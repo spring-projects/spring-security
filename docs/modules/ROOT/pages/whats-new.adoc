@@ -12,14 +12,15 @@ Each section that follows will indicate the more notable removals as well as the
 == Modules
 
 * The https://github.com/spring-projects/spring-security-kerberos[Spring Security Kerberos Extension] is now part of Spring Security. See the xref:servlet/authentication/kerberos/index.adoc[Kerberos] section of the reference for details.
+* https://github.com/spring-projects/spring-authorization-server[Spring Authorization Server] is now part of Spring Security. See the xref:servlet/oauth2/authorization-server/index.adoc[OAuth 2.0 Authorization Server] section of the reference for details.
 
 == Core
 
-* Added Support for xref:servlet/authentication/adaptive.adoc[Multi-factor Authentication]
+* Added Support for xref:servlet/authentication/mfa.adoc[Multi-Factor Authentication]
 * Removed `AuthorizationManager#check` in favor of `AuthorizationManager#authorize`
 * Added javadoc:org.springframework.security.authorization.AllAuthoritiesAuthorizationManager[] and javadoc:org.springframework.security.authorization.AllAuthoritiesReactiveAuthorizationManager[] along with corresponding methods for xref:servlet/authorization/authorize-http-requests.adoc#authorize-requests[Authorizing `HttpServletRequests`] and xref:servlet/authorization/method-security.adoc#using-authorization-expression-fields-and-methods[method security expressions].
 * Added xref:servlet/authorization/architecture.adoc#authz-authorization-manager-factory[`AuthorizationManagerFactory`] for creating `AuthorizationManager` instances in xref:servlet/authorization/authorize-http-requests.adoc#customizing-authorization-managers[request-based] and xref:servlet/authorization/method-security.adoc#customizing-authorization-managers[method-based] authorization components
-* Added `Authentication.Builder` for mutating and merging `Authentication` instances
+* Added javadoc:org.springframework.security.core.Authentication$Builder[`Authentication.Builder`] for mutating and merging `Authentication` instances
 * Moved Access API (`AccessDecisionManager`, `AccessDecisionVoter`, etc.) to a new module, `spring-security-access`
 
 == Config
@@ -28,7 +29,8 @@ Each section that follows will indicate the more notable removals as well as the
 * Removed `and()` from the `HttpSecurity` DSL in favor of using the lambda methods
 * Removed `authorizeRequests` in favor of `authorizeHttpRequests`
 * Simplified expression migration for `authorizeRequests`
-* Added support for SPA-based CSRF configuration:
+* Added support for SPA-based CSRF configuration
+* Added support for javadoc:org.springframework.security.web.access.DelegatingMissingAuthorityAccessDeniedHandler[binding missing authorities to authentication mechanisms].
 
 Java::
 +
@@ -61,6 +63,8 @@ http.csrf((csrf) -> csrf.spa());
 * Added support for custom `JwkSource` in `NimbusJwtDecoder`, allowing usage of Nimbus's `JwkSourceBuilder` API
 * Added builder for `NimbusJwtEncoder`, supports specifying an EC or RSA key pair or a secret key
 * Added support for `@ClientRegistrationId` at the xref:features/integrations/rest/http-service-client.adoc#type[type level], eliminating the need for method level repetition
+* Added support for https://github.com/spring-projects/spring-security/issues/17964[OAuth 2.0 Dynamic Registration Protocol]
+* Enabled https://github.com/spring-projects/spring-security/issues/18020[PKCE by default] in OAuth 2.0 Authorization Server
 
 == SAML 2.0
 
@@ -80,3 +84,5 @@ http.csrf((csrf) -> csrf.spa());
 * Added javadoc:org.springframework.security.web.authentication.preauth.x509.SubjectX500PrincipalExtractor[]
 * Added support for propagating exceptions in Authorized proxies through Spring MVC controllers
 * Added support to Authorized objects for Spring MVC types
+* Added support to Default Login Page to show factors based on `factor.type` and `factor.reason` parameters
+* Changed LoginUrlAuthenticationEntryPoint to favor relative redirects by default

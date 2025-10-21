@@ -38,9 +38,14 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @author Yannick Lombardi
  * @since 5.0
  * @see CoreJackson2Module
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.jackson.BadCredentialsExceptionMixin} based on
+ * Jackson 3
  */
+@SuppressWarnings("removal")
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "cause", "stackTrace", "authenticationRequest" })
+@Deprecated(forRemoval = true)
 class BadCredentialsExceptionMixin {
 
 	/**

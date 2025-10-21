@@ -36,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 /**
  * Tests for {@link InetOrgPersonMixin}.
  */
+@SuppressWarnings("removal")
 public class InetOrgPersonMixinTests {
 
 	private static final String USER_PASSWORD = "Password1234";

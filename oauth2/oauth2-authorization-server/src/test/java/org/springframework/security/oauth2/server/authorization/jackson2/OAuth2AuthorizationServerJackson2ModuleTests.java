@@ -46,6 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Steve Riesenberg
  * @author Joe Grandja
  */
+@SuppressWarnings("removal")
 public class OAuth2AuthorizationServerJackson2ModuleTests {
 
 	private static final TypeReference<Map<String, Object>> STRING_OBJECT_MAP = new TypeReference<>() {

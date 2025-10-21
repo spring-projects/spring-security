@@ -44,7 +44,6 @@ import org.springframework.security.authentication.jaas.event.JaasAuthentication
 import org.springframework.security.authentication.jaas.event.JaasAuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -122,7 +121,7 @@ import org.springframework.util.ObjectUtils;
 public abstract class AbstractJaasAuthenticationProvider implements AuthenticationProvider,
 		ApplicationEventPublisherAware, InitializingBean, ApplicationListener<SessionDestroyedEvent> {
 
-	private static final String AUTHORITY = GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY;
+	private static final String AUTHORITY = FactorGrantedAuthority.PASSWORD_AUTHORITY;
 
 	private ApplicationEventPublisher applicationEventPublisher = (event) -> {
 	};

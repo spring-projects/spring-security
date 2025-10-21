@@ -138,11 +138,12 @@ public class AuthenticationPrincipalArgumentResolver implements HandlerMethodArg
 	}
 
 	@Override
+	@SuppressWarnings("NullAway") // https://github.com/uber/NullAway/issues/1290
 	public Mono<Object> resolveArgument(MethodParameter parameter, Message<?> message) {
 		ReactiveAdapter adapter = this.adapterRegistry.getAdapter(parameter.getParameterType());
 		// @formatter:off
 		return ReactiveSecurityContextHolder.getContext()
-				.map(SecurityContext::getAuthentication)
+				.mapNotNull(SecurityContext::getAuthentication)
 				.flatMap((a) -> {
 					Object p = resolvePrincipal(parameter, a.getPrincipal());
 					Mono<Object> principal = Mono.justOrEmpty(p);

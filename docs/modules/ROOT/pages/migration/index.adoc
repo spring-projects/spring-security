@@ -16,6 +16,24 @@ The first step is to ensure you are the latest patch release of Spring Boot 4.0.
 Next, you should ensure you are on the latest patch release of Spring Security 7.
 For directions, on how to update to Spring Security 7 visit the xref:getting-spring-security.adoc[] section of the reference guide.
 
+=== Migrate from Jackson 2 to Jackson 3
+
+The configuration of Jackson 2 `ObjectMapper` with `SecurityJackson2Modules` should be replaced by the configuration of
+Jackson 3 `JsonMapper.Builder` with `SecurityJacksonModules`. See the
+https://github.com/FasterXML/jackson/blob/main/jackson3/MIGRATING_TO_JACKSON_3.md[Jackson 3 Migration Guide] for more details.
+
+It is recommended to replace the configuration of
+individual modules like `CoreJacksonModule` by the module detection from `SecurityJacksonModules` as it enables
+automatic inclusion of type information and configure a `PolymorphicTypeValidator` that handles the validation of class
+names.
+
+The Jackson 3 support uses a format compatible with the now deprecated Jackson 2 one, so class instances serialized with
+Jackson 2 should be deserializable with the Jackson 3 support.
+
+`spring-security-oauth2-authorization-server` now uses Jackson 3 by default. If you want to continue
+to use the deprecated Jackson 2 support, the transitive dependency on Jackson 3 (`tools.jackson.core:jackson-databind`)
+should be excluded and a dependency on Jackson 2 (`com.fasterxml.jackson.core:jackson-databind`) should be added.
+
 == Perform Application-Specific Steps
 
 Next, there are steps you need to perform based on whether it is a xref:migration/servlet/index.adoc[Servlet] or xref:migration/reactive.adoc[Reactive] application.

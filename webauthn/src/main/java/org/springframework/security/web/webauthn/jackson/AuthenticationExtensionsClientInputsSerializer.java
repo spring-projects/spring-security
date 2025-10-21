@@ -16,11 +16,10 @@
 
 package org.springframework.security.web.webauthn.jackson;
 
-import java.io.IOException;
-
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientInput;
 import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientInputs;
@@ -42,11 +41,11 @@ class AuthenticationExtensionsClientInputsSerializer extends StdSerializer<Authe
 	}
 
 	@Override
-	public void serialize(AuthenticationExtensionsClientInputs inputs, JsonGenerator jgen, SerializerProvider provider)
-			throws IOException {
+	public void serialize(AuthenticationExtensionsClientInputs inputs, JsonGenerator jgen, SerializationContext ctxt)
+			throws JacksonException {
 		jgen.writeStartObject();
 		for (AuthenticationExtensionsClientInput input : inputs.getInputs()) {
-			jgen.writeObject(input);
+			jgen.writePOJO(input);
 		}
 		jgen.writeEndObject();
 	}

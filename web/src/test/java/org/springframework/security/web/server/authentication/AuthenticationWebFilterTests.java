@@ -25,8 +25,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.NonBuildableAuthenticationToken;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
+import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -228,6 +230,31 @@ public class AuthenticationWebFilterTests {
 		Authentication authentication = context.getValue().getAuthentication();
 		assertThat(authentication.getAuthorities()).extracting(GrantedAuthority::getAuthority)
 			.containsExactly(DefaultEqualsGrantedAuthority.AUTHORITY);
+	}
+
+	@Test
+	void doFilterWhenNotOverridingToBuilderThenDoesNotMergeAuthorities() throws Exception {
+		TestingAuthenticationToken existingAuthn = new TestingAuthenticationToken("username", "password", "FACTORONE");
+		given(this.authenticationManager.authenticate(any()))
+			.willReturn(Mono.just(new NonBuildableAuthenticationToken("user", "password", "FACTORTWO")));
+		given(this.securityContextRepository.save(any(), any())).willReturn(Mono.empty());
+		this.filter = new AuthenticationWebFilter(this.authenticationManager);
+		this.filter.setSecurityContextRepository(this.securityContextRepository);
+		WebTestClient client = WebTestClientBuilder.bindToWebFilters(new RunAsWebFilter(existingAuthn), this.filter)
+			.build();
+		client.get()
+			.uri("/")
+			.headers((headers) -> headers.setBasicAuth("test", "this"))
+			.exchange()
+			.expectStatus()
+			.isOk();
+		ArgumentCaptor<SecurityContext> context = ArgumentCaptor.forClass(SecurityContext.class);
+		verify(this.securityContextRepository).save(any(), context.capture());
+		Authentication authentication = context.getValue().getAuthentication();
+		SecurityAssertions.assertThat(authentication)
+			.authorities()
+			.extracting(GrantedAuthority::getAuthority)
+			.containsExactly("FACTORTWO");
 	}
 
 	@Test

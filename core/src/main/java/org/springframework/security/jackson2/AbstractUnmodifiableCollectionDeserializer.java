@@ -38,7 +38,12 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
  * @param <T> the type of the unmodifiable collection, such as {@link List} or
  * {@link Set}.
  * @author Hyunmin Choi
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.jackson.AbstractUnmodifiableCollectionDeserializer}
+ * based on Jackson 3
  */
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true)
 abstract class AbstractUnmodifiableCollectionDeserializer<T> extends JsonDeserializer<T> {
 
 	@Override

@@ -40,6 +40,7 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2UserCode;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
@@ -121,6 +122,9 @@ public final class OAuth2DeviceAuthorizationRequestAuthenticationProvider implem
 					throwError(OAuth2ErrorCodes.INVALID_SCOPE, OAuth2ParameterNames.SCOPE);
 				}
 			}
+			if (requestedScopes.contains(OidcScopes.OPENID)) {
+				throwError(OAuth2ErrorCodes.INVALID_SCOPE, OAuth2ParameterNames.SCOPE);
+			}
 		}
 
 		if (this.logger.isTraceEnabled()) {
@@ -181,11 +185,8 @@ public final class OAuth2DeviceAuthorizationRequestAuthenticationProvider implem
 			this.logger.trace("Authenticated device authorization request");
 		}
 
-		OAuth2DeviceAuthorizationRequestAuthenticationToken deviceAuthorizationRequestAuthenticationResult = new OAuth2DeviceAuthorizationRequestAuthenticationToken(
-				clientPrincipal, requestedScopes, deviceCode, userCode);
-		deviceAuthorizationRequestAuthenticationResult
-			.setDetails(deviceAuthorizationRequestAuthentication.getDetails());
-		return deviceAuthorizationRequestAuthenticationResult;
+		return new OAuth2DeviceAuthorizationRequestAuthenticationToken(clientPrincipal, requestedScopes, deviceCode,
+				userCode);
 	}
 
 	@Override

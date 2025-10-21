@@ -125,11 +125,8 @@ public final class X509ClientCertificateAuthenticationProvider implements Authen
 			this.logger.trace("Authenticated client X509Certificate");
 		}
 
-		OAuth2ClientAuthenticationToken clientAuthenticationResult = new OAuth2ClientAuthenticationToken(
-				registeredClient, clientAuthentication.getClientAuthenticationMethod(),
-				clientAuthentication.getCredentials());
-		clientAuthenticationResult.setDetails(clientAuthentication.getDetails());
-		return clientAuthenticationResult;
+		return new OAuth2ClientAuthenticationToken(registeredClient,
+				clientAuthentication.getClientAuthenticationMethod(), clientAuthentication.getCredentials());
 	}
 
 	@Override

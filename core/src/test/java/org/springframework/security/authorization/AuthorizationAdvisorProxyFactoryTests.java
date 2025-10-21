@@ -34,9 +34,8 @@ import java.util.TreeSet;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.aop.Pointcut;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
@@ -50,6 +49,7 @@ import org.springframework.security.authorization.method.AuthorizationAdvisorPro
 import org.springframework.security.authorization.method.AuthorizationProxy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.jackson.CoreJacksonModule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -341,12 +341,12 @@ public class AuthorizationAdvisorProxyFactoryTests {
 	}
 
 	@Test
-	public void serializeWhenAuthorizationProxyObjectThenOnlyIncludesProxiedProperties()
-			throws JsonProcessingException {
+	public void serializeWhenAuthorizationProxyObjectThenOnlyIncludesProxiedProperties() {
 		SecurityContextHolder.getContext().setAuthentication(this.admin);
 		AuthorizationAdvisorProxyFactory factory = AuthorizationAdvisorProxyFactory.withDefaults();
 		User user = proxy(factory, this.alan);
-		ObjectMapper mapper = new ObjectMapper();
+		// gh-18077
+		JsonMapper mapper = JsonMapper.builder().addModule(new CoreJacksonModule()).build();
 		String serialized = mapper.writeValueAsString(user);
 		Map<String, Object> properties = mapper.readValue(serialized, Map.class);
 		assertThat(properties).hasSize(3).containsKeys("id", "firstName", "lastName");

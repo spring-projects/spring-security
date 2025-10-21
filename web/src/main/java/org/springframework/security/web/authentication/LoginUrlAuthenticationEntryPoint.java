@@ -85,7 +85,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 
 	private boolean useForward = false;
 
-	private boolean favorRelativeUris = false;
+	private boolean favorRelativeUris = true;
 
 	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 

@@ -268,10 +268,8 @@ public final class OAuth2TokenExchangeAuthenticationProvider implements Authenti
 			this.logger.trace("Authenticated token request");
 		}
 
-		OAuth2AccessTokenAuthenticationToken accessTokenAuthenticationResult = new OAuth2AccessTokenAuthenticationToken(
-				registeredClient, clientPrincipal, accessToken, null, additionalParameters);
-		accessTokenAuthenticationResult.setDetails(tokenExchangeAuthentication.getDetails());
-		return accessTokenAuthenticationResult;
+		return new OAuth2AccessTokenAuthenticationToken(registeredClient, clientPrincipal, accessToken, null,
+				additionalParameters);
 	}
 
 	private static boolean isValidTokenType(String tokenType, OAuth2Authorization.Token<OAuth2Token> token) {

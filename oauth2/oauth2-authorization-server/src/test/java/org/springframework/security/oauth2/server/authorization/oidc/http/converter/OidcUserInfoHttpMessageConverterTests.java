@@ -90,7 +90,7 @@ public class OidcUserInfoHttpMessageConverterTests {
 				"		\"postal_code\": \"75007\",\n" +
 				"		\"country\": \"France\"\n" +
 				"	},\n" +
-				"	\"updated_at\": 1607633867\n" +
+				"	\"updated_at\": \"2020-12-10T20:57:47Z\"\n" +
 				"}\n";
 		// @formatter:on
 
@@ -178,7 +178,7 @@ public class OidcUserInfoHttpMessageConverterTests {
 		assertThat(userInfoResponse).contains("\"address\":");
 		assertThat(userInfoResponse)
 			.contains("\"formatted\":\"Champ de Mars\\n5 Av. Anatole France\\n75007 Paris\\nFrance\"");
-		assertThat(userInfoResponse).contains("\"updated_at\":1607633867");
+		assertThat(userInfoResponse).contains("\"updated_at\":\"2020-12-10T20:57:47Z\"");
 		assertThat(userInfoResponse).contains("\"custom_claim\":\"value\"");
 		assertThat(userInfoResponse).contains("\"custom_collection_claim\":[\"value1\",\"value2\"]");
 	}

@@ -16,11 +16,10 @@
 
 package org.springframework.security.web.webauthn.jackson;
 
-import java.io.IOException;
-
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 import org.springframework.security.web.webauthn.api.CredProtectAuthenticationExtensionsClientInput;
 
@@ -41,11 +40,11 @@ class CredProtectAuthenticationExtensionsClientInputSerializer
 
 	@Override
 	public void serialize(CredProtectAuthenticationExtensionsClientInput input, JsonGenerator jgen,
-			SerializerProvider provider) throws IOException {
+			SerializationContext ctxt) throws JacksonException {
 		CredProtectAuthenticationExtensionsClientInput.CredProtect credProtect = input.getInput();
 		String policy = toString(credProtect.getCredProtectionPolicy());
-		jgen.writeObjectField("credentialProtectionPolicy", policy);
-		jgen.writeObjectField("enforceCredentialProtectionPolicy", credProtect.isEnforceCredentialProtectionPolicy());
+		jgen.writePOJOProperty("credentialProtectionPolicy", policy);
+		jgen.writePOJOProperty("enforceCredentialProtectionPolicy", credProtect.isEnforceCredentialProtectionPolicy());
 	}
 
 	private static String toString(CredProtectAuthenticationExtensionsClientInput.CredProtect.ProtectionPolicy policy) {

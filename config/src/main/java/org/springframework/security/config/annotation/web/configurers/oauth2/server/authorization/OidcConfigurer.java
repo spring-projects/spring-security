@@ -171,6 +171,28 @@ public final class OidcConfigurer extends AbstractOAuth2Configurer {
 			});
 		}
 
+		OAuth2PushedAuthorizationRequestEndpointConfigurer pushedAuthorizationRequestEndpointConfigurer = httpSecurity
+			.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+			.getConfigurer(OAuth2PushedAuthorizationRequestEndpointConfigurer.class);
+		if (pushedAuthorizationRequestEndpointConfigurer != null) {
+			OidcProviderConfigurationEndpointConfigurer providerConfigurationEndpointConfigurer = getConfigurer(
+					OidcProviderConfigurationEndpointConfigurer.class);
+
+			providerConfigurationEndpointConfigurer.addDefaultProviderConfigurationCustomizer((builder) -> {
+				AuthorizationServerContext authorizationServerContext = AuthorizationServerContextHolder.getContext();
+				String issuer = authorizationServerContext.getIssuer();
+				AuthorizationServerSettings authorizationServerSettings = authorizationServerContext
+					.getAuthorizationServerSettings();
+
+				String pushedAuthorizationRequestEndpoint = UriComponentsBuilder.fromUriString(issuer)
+					.path(authorizationServerSettings.getPushedAuthorizationRequestEndpoint())
+					.build()
+					.toUriString();
+
+				builder.pushedAuthorizationRequestEndpoint(pushedAuthorizationRequestEndpoint);
+			});
+		}
+
 		this.configurers.values().forEach((configurer) -> configurer.configure(httpSecurity));
 	}
 

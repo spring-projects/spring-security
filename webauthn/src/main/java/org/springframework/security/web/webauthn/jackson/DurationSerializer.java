@@ -16,12 +16,12 @@
 
 package org.springframework.security.web.webauthn.jackson;
 
-import java.io.IOException;
 import java.time.Duration;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * Jackson serializer for {@link Duration}
@@ -40,7 +40,7 @@ class DurationSerializer extends StdSerializer<Duration> {
 	}
 
 	@Override
-	public void serialize(Duration duration, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+	public void serialize(Duration duration, JsonGenerator jgen, SerializationContext ctxt) throws JacksonException {
 		jgen.writeNumber(duration.toMillis());
 	}
 

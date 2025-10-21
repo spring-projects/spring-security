@@ -28,8 +28,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @author Steve Riesenberg
  * @since 7.0
  * @see HashSet
+ * @deprecated as of 7.0
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+@Deprecated(forRemoval = true)
 abstract class HashSetMixin {
 
 	@JsonCreator

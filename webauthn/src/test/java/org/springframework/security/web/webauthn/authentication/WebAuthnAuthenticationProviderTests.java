@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthorities;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.webauthn.api.AuthenticatorAssertionResponse;
@@ -56,7 +56,7 @@ class WebAuthnAuthenticationProviderTests {
 		given(users.loadUserByUsername(any())).willReturn(PasswordEncodedUser.user());
 		given(operations.authenticate(any())).willReturn(TestPublicKeyCredentialUserEntities.userEntity().build());
 		Authentication result = provider.authenticate(request);
-		SecurityAssertions.assertThat(result).hasAuthority(GrantedAuthorities.FACTOR_WEBAUTHN_AUTHORITY);
+		SecurityAssertions.assertThat(result).hasAuthority(FactorGrantedAuthority.WEBAUTHN_AUTHORITY);
 	}
 
 }

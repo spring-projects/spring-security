@@ -16,9 +16,6 @@
 
 package org.springframework.security.authorization;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
@@ -26,7 +23,6 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
 /**
  * A factory for creating different kinds of {@link AuthorizationManager} instances.
@@ -153,18 +149,6 @@ public final class DefaultAuthorizationManagerFactory<T extends @Nullable Object
 		return createManager(AuthenticatedAuthorizationManager.anonymous());
 	}
 
-	/**
-	 * Creates a {@link Builder} that helps build an {@link AuthorizationManager} to set
-	 * on {@link #setAdditionalAuthorization(AuthorizationManager)} for common scenarios.
-	 * <p>
-	 * Does not affect {@code anonymous}, {@code permitAll}, or {@code denyAll}.
-	 * @param <T> the secured object type
-	 * @return a factory configured with the required authorities
-	 */
-	public static <T> Builder<T> builder() {
-		return new Builder<>();
-	}
-
 	private AuthorizationManager<T> createManager(AuthorityAuthorizationManager<T> authorizationManager) {
 		authorizationManager.setRoleHierarchy(this.roleHierarchy);
 		return withAdditionalAuthorization(authorizationManager);
@@ -185,65 +169,6 @@ public final class DefaultAuthorizationManagerFactory<T extends @Nullable Object
 			return manager;
 		}
 		return AuthorizationManagers.allOf(new AuthorizationDecision(false), this.additionalAuthorization, manager);
-	}
-
-	/**
-	 * A builder that allows creating {@link DefaultAuthorizationManagerFactory} with
-	 * additional authorization for common scenarios.
-	 *
-	 * @param <T> the type for the {@link DefaultAuthorizationManagerFactory}
-	 * @author Rob Winch
-	 */
-	public static final class Builder<T> {
-
-		private final List<String> additionalAuthorities = new ArrayList<>();
-
-		private RoleHierarchy roleHierarchy = new NullRoleHierarchy();
-
-		/**
-		 * Add additional authorities that will be required.
-		 * @param additionalAuthorities the additional authorities.
-		 * @return the {@link Builder} to further customize.
-		 */
-		public Builder<T> requireAdditionalAuthorities(String... additionalAuthorities) {
-			Assert.notEmpty(additionalAuthorities, "additionalAuthorities cannot be empty");
-			for (String additionalAuthority : additionalAuthorities) {
-				this.additionalAuthorities.add(additionalAuthority);
-			}
-			return this;
-		}
-
-		/**
-		 * The {@link RoleHierarchy} to use.
-		 * @param roleHierarchy the non-null {@link RoleHierarchy} to use. Default is
-		 * {@link NullRoleHierarchy}.
-		 * @return the Builder to further customize.
-		 */
-		public Builder<T> roleHierarchy(RoleHierarchy roleHierarchy) {
-			Assert.notNull(roleHierarchy, "roleHierarchy cannot be null");
-			this.roleHierarchy = roleHierarchy;
-			return this;
-		}
-
-		/**
-		 * Builds a {@link DefaultAuthorizationManagerFactory} that has the
-		 * {@link #setAdditionalAuthorization(AuthorizationManager)} set.
-		 * @return the {@link DefaultAuthorizationManagerFactory}.
-		 */
-		public DefaultAuthorizationManagerFactory<T> build() {
-			Assert.state(!CollectionUtils.isEmpty(this.additionalAuthorities), "additionalAuthorities cannot be empty");
-			DefaultAuthorizationManagerFactory<T> result = new DefaultAuthorizationManagerFactory<>();
-			AllAuthoritiesAuthorizationManager<T> additionalChecks = AllAuthoritiesAuthorizationManager
-				.hasAllAuthorities(this.additionalAuthorities);
-			result.setRoleHierarchy(this.roleHierarchy);
-			additionalChecks.setRoleHierarchy(this.roleHierarchy);
-			result.setAdditionalAuthorization(additionalChecks);
-			return result;
-		}
-
-		private Builder() {
-		}
-
 	}
 
 }

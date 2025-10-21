@@ -23,13 +23,13 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -41,7 +41,7 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
-import org.springframework.security.web.webauthn.jackson.WebauthnJackson2Module;
+import org.springframework.security.web.webauthn.jackson.WebauthnJacksonModule;
 import org.springframework.security.web.webauthn.management.ImmutablePublicKeyCredentialCreationOptionsRequest;
 import org.springframework.security.web.webauthn.management.WebAuthnRelyingPartyOperations;
 import org.springframework.util.Assert;
@@ -69,8 +69,8 @@ public class PublicKeyCredentialCreationOptionsFilter extends OncePerRequestFilt
 
 	private final WebAuthnRelyingPartyOperations rpOperations;
 
-	private HttpMessageConverter<Object> converter = new MappingJackson2HttpMessageConverter(
-			Jackson2ObjectMapperBuilder.json().modules(new WebauthnJackson2Module()).build());
+	private HttpMessageConverter<Object> converter = new JacksonJsonHttpMessageConverter(
+			JsonMapper.builder().addModule(new WebauthnJacksonModule()).build());
 
 	/**
 	 * Creates a new instance.
@@ -131,7 +131,7 @@ public class PublicKeyCredentialCreationOptionsFilter extends OncePerRequestFilt
 	/**
 	 * Set the {@link HttpMessageConverter} to read the
 	 * {@link WebAuthnRegistrationFilter.WebAuthnRegistrationRequest} and write the
-	 * response. The default is {@link MappingJackson2HttpMessageConverter}.
+	 * response. The default is {@link JacksonJsonHttpMessageConverter}.
 	 * @param converter the {@link HttpMessageConverter} to use. Cannot be null.
 	 */
 	public void setConverter(HttpMessageConverter<Object> converter) {

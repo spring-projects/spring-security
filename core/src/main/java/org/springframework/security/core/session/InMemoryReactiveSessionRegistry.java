@@ -50,9 +50,10 @@ public class InMemoryReactiveSessionRegistry implements ReactiveSessionRegistry 
 	}
 
 	@Override
+	@SuppressWarnings("NullAway") // https://github.com/uber/NullAway/issues/1290
 	public Flux<ReactiveSessionInformation> getAllSessions(Object principal) {
 		return Flux.fromIterable(this.sessionIdsByPrincipal.getOrDefault(principal, Collections.emptySet()))
-			.map(this.sessionById::get);
+			.mapNotNull(this.sessionById::get);
 	}
 
 	@Override

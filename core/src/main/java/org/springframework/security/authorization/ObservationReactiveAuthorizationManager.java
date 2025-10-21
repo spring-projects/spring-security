@@ -58,9 +58,10 @@ public final class ObservationReactiveAuthorizationManager<T>
 	}
 
 	@Override
+	@SuppressWarnings("NullAway") // https://github.com/uber/NullAway/issues/1290
 	public Mono<AuthorizationResult> authorize(Mono<Authentication> authentication, T object) {
 		AuthorizationObservationContext<T> context = new AuthorizationObservationContext<>(object);
-		Mono<Authentication> wrapped = authentication.map((auth) -> {
+		Mono<Authentication> wrapped = authentication.mapNotNull((auth) -> {
 			context.setAuthentication(auth);
 			return context.getAuthentication();
 		});

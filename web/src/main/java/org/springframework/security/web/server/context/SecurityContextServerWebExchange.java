@@ -42,9 +42,9 @@ public class SecurityContextServerWebExchange extends ServerWebExchangeDecorator
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "NullAway" }) // https://github.com/uber/NullAway/issues/1290
 	public <T extends Principal> Mono<T> getPrincipal() {
-		return this.context.map((context) -> (T) context.getAuthentication());
+		return this.context.mapNotNull((context) -> (T) context.getAuthentication());
 	}
 
 }

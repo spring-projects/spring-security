@@ -67,6 +67,7 @@ public class ServerCsrfTokenRequestAttributeHandler implements ServerCsrfTokenRe
 		this.isTokenFromMultipartDataEnabled = tokenFromMultipartDataEnabled;
 	}
 
+	@SuppressWarnings("NullAway") // https://github.com/uber/NullAway/issues/1290
 	private Mono<String> tokenFromMultipartData(ServerWebExchange exchange, CsrfToken expected) {
 		if (!this.isTokenFromMultipartDataEnabled) {
 			return Mono.empty();
@@ -78,7 +79,7 @@ public class ServerCsrfTokenRequestAttributeHandler implements ServerCsrfTokenRe
 			return Mono.empty();
 		}
 		return exchange.getMultipartData()
-			.map((d) -> d.getFirst(expected.getParameterName()))
+			.mapNotNull((d) -> d.getFirst(expected.getParameterName()))
 			.cast(FormFieldPart.class)
 			.map(FormFieldPart::value);
 	}

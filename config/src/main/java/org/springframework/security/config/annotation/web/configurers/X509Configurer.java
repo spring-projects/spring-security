@@ -25,8 +25,8 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -180,14 +180,14 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 		PreAuthenticatedAuthenticationProvider authenticationProvider = new PreAuthenticatedAuthenticationProvider();
 		authenticationProvider.setPreAuthenticatedUserDetailsService(getAuthenticationUserDetailsService(http));
 		authenticationProvider.setGrantedAuthoritySupplier(
-				() -> AuthorityUtils.createAuthorityList(GrantedAuthorities.FACTOR_X509_AUTHORITY));
+				() -> AuthorityUtils.createAuthorityList(FactorGrantedAuthority.X509_AUTHORITY));
 		http.authenticationProvider(authenticationProvider)
 			.setSharedObject(AuthenticationEntryPoint.class, new Http403ForbiddenEntryPoint());
 		ExceptionHandlingConfigurer<H> exceptions = http.getConfigurer(ExceptionHandlingConfigurer.class);
 		if (exceptions != null) {
 			AuthenticationEntryPoint forbidden = new Http403ForbiddenEntryPoint();
 			exceptions.defaultDeniedHandlerForMissingAuthority((ep) -> ep.defaultEntryPoint(forbidden),
-					GrantedAuthorities.FACTOR_X509_AUTHORITY);
+					FactorGrantedAuthority.X509_AUTHORITY);
 		}
 	}
 

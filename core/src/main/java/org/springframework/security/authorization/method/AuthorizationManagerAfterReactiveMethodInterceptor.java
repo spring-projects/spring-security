@@ -120,6 +120,7 @@ public final class AuthorizationManagerAfterReactiveMethodInterceptor implements
 						+ "(for example, a Mono or Flux) or the function must be a Kotlin coroutine "
 						+ "in order to support Reactor Context");
 		Mono<Authentication> authentication = ReactiveAuthenticationUtils.getAuthentication();
+		@SuppressWarnings("NullAway") // Dataflow analysis limitation
 		Function<Signal<?>, Mono<?>> postAuthorize = (signal) -> {
 			if (signal.isOnComplete()) {
 				return Mono.empty();
@@ -130,12 +131,16 @@ public final class AuthorizationManagerAfterReactiveMethodInterceptor implements
 			if (signal.getThrowable() instanceof AuthorizationDeniedException denied) {
 				return postProcess(denied, mi);
 			}
+			// getThrowable must be non-null because hasError() is true
 			return Mono.error(signal.getThrowable());
 		};
 		ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(type);
 		if (hasFlowReturnType) {
 			if (isSuspendingFunction) {
 				Publisher<?> publisher = ReactiveMethodInvocationUtils.proceed(mi);
+				if (publisher == null) {
+					return Flux.empty();
+				}
 				return Flux.from(publisher).materialize().flatMap(postAuthorize);
 			}
 			else {
@@ -148,6 +153,9 @@ public final class AuthorizationManagerAfterReactiveMethodInterceptor implements
 			}
 		}
 		Publisher<?> publisher = ReactiveMethodInvocationUtils.proceed(mi);
+		if (publisher == null) {
+			return Flux.empty();
+		}
 		if (isMultiValue(type, adapter)) {
 			Flux<?> flux = Flux.from(publisher).materialize().flatMap(postAuthorize);
 			return (adapter != null) ? adapter.fromPublisher(flux) : flux;
@@ -173,7 +181,7 @@ public final class AuthorizationManagerAfterReactiveMethodInterceptor implements
 
 	private Mono<Object> postProcess(AuthorizationResult decision, MethodInvocationResult methodInvocationResult) {
 		if (decision.isGranted()) {
-			return Mono.just(methodInvocationResult.getResult());
+			return Mono.justOrEmpty(methodInvocationResult.getResult());
 		}
 		return Mono.fromSupplier(() -> {
 			if (this.authorizationManager instanceof MethodAuthorizationDeniedHandler handler) {

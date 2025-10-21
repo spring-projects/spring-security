@@ -30,6 +30,7 @@ import org.apereo.cas.client.proxy.ProxyRetriever;
  * {@link org.apereo.cas.client.authentication.AttributePrincipalImpl} which is used with
  * {@link org.springframework.security.cas.authentication.CasAuthenticationToken}. Type
  * information will be stored in property named @class.
+ *
  * <p>
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
@@ -40,7 +41,12 @@ import org.apereo.cas.client.proxy.ProxyRetriever;
  * @since 4.2
  * @see CasJackson2Module
  * @see org.springframework.security.jackson2.SecurityJackson2Modules
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.cas.jackson.AttributePrincipalImplMixin} based on
+ * Jackson 3
  */
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)

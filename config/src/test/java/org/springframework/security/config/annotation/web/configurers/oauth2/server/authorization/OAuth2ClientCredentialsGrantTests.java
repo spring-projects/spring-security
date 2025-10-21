@@ -52,7 +52,6 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
@@ -93,7 +92,6 @@ import org.springframework.security.oauth2.server.authorization.client.JdbcRegis
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.TestRegisteredClients;
-import org.springframework.security.oauth2.server.authorization.jackson2.TestingAuthenticationTokenMixin;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
@@ -114,7 +112,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -364,7 +361,6 @@ public class OAuth2ClientCredentialsGrantTests {
 				Instant.now(), Instant.now().plus(Duration.ofHours(1)));
 		OAuth2AccessTokenAuthenticationToken accessTokenAuthentication = new OAuth2AccessTokenAuthenticationToken(
 				registeredClient, clientPrincipal, accessToken);
-		accessTokenAuthentication.setDetails(new WebAuthenticationDetails("remoteAddress", "sessionId"));
 		given(authenticationProvider.supports(eq(OAuth2ClientCredentialsAuthenticationToken.class))).willReturn(true);
 		given(authenticationProvider.authenticate(any())).willReturn(accessTokenAuthentication);
 
@@ -535,11 +531,7 @@ public class OAuth2ClientCredentialsGrantTests {
 		@Bean
 		OAuth2AuthorizationService authorizationService(JdbcOperations jdbcOperations,
 				RegisteredClientRepository registeredClientRepository) {
-			JdbcOAuth2AuthorizationService authorizationService = new JdbcOAuth2AuthorizationService(jdbcOperations,
-					registeredClientRepository);
-			authorizationService.setAuthorizationRowMapper(new RowMapper(registeredClientRepository));
-			authorizationService.setAuthorizationParametersMapper(new ParametersMapper());
-			return authorizationService;
+			return new JdbcOAuth2AuthorizationService(jdbcOperations, registeredClientRepository);
 		}
 
 		@Bean
@@ -569,24 +561,6 @@ public class OAuth2ClientCredentialsGrantTests {
 		@Bean
 		PasswordEncoder passwordEncoder() {
 			return NoOpPasswordEncoder.getInstance();
-		}
-
-		static class RowMapper extends JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper {
-
-			RowMapper(RegisteredClientRepository registeredClientRepository) {
-				super(registeredClientRepository);
-				getObjectMapper().addMixIn(TestingAuthenticationToken.class, TestingAuthenticationTokenMixin.class);
-			}
-
-		}
-
-		static class ParametersMapper extends JdbcOAuth2AuthorizationService.OAuth2AuthorizationParametersMapper {
-
-			ParametersMapper() {
-				super();
-				getObjectMapper().addMixIn(TestingAuthenticationToken.class, TestingAuthenticationTokenMixin.class);
-			}
-
 		}
 
 	}

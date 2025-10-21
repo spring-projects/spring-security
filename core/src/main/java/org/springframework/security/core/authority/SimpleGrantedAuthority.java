@@ -27,6 +27,7 @@ import org.springframework.util.Assert;
  * {@link org.springframework.security.core.Authentication Authentication} object.
  *
  * @author Luke Taylor
+ * @author Yanming Zhou
  */
 public final class SimpleGrantedAuthority implements GrantedAuthority {
 
@@ -34,9 +35,14 @@ public final class SimpleGrantedAuthority implements GrantedAuthority {
 
 	private final String role;
 
-	public SimpleGrantedAuthority(String role) {
-		Assert.hasText(role, "A granted authority textual representation is required");
-		this.role = role;
+	/**
+	 * Constructs a {@code SimpleGrantedAuthority} using the provided authority.
+	 * @param authority The provided authority, including any prefix; for example,
+	 * {@code ROLE_ADMIN}
+	 */
+	public SimpleGrantedAuthority(String authority) {
+		Assert.hasText(authority, "A granted authority textual representation is required");
+		this.role = authority;
 	}
 
 	@Override

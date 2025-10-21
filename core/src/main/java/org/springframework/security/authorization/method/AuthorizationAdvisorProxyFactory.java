@@ -588,12 +588,14 @@ public final class AuthorizationAdvisorProxyFactory implements AuthorizationProx
 			return null;
 		}
 
+		@SuppressWarnings("NullAway") // https://github.com/uber/NullAway/issues/1290
 		private Mono<?> proxyMono(AuthorizationProxyFactory proxyFactory, Mono<?> mono) {
-			return mono.map(proxyFactory::proxy);
+			return mono.mapNotNull(proxyFactory::proxy);
 		}
 
+		@SuppressWarnings("NullAway") // https://github.com/uber/NullAway/issues/1290
 		private Flux<?> proxyFlux(AuthorizationProxyFactory proxyFactory, Flux<?> flux) {
-			return flux.map(proxyFactory::proxy);
+			return flux.mapNotNull(proxyFactory::proxy);
 		}
 
 	}

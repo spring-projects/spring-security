@@ -32,6 +32,8 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.NonBuildableAuthenticationToken;
+import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -434,6 +436,22 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 				.extracting(GrantedAuthority::getAuthority)
 				.containsExactly(DefaultEqualsGrantedAuthority.AUTHORITY);
 		// @formatter:on
+	}
+
+	@Test
+	void doFilterWhenNotOverridingToBuilderThenDoesNotMergeAuthorities() throws Exception {
+		TestingAuthenticationToken existingAuthn = new TestingAuthenticationToken("username", "password", "FACTORONE");
+		SecurityContextHolder.setContext(new SecurityContextImpl(existingAuthn));
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		this.filter = createFilterAuthenticatesWith(
+				new NonBuildableAuthenticationToken("username", "password", "FACTORTWO"));
+		this.filter.doFilter(request, response, new MockFilterChain());
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		SecurityAssertions.assertThat(authentication)
+			.authorities()
+			.extracting(GrantedAuthority::getAuthority)
+			.containsExactly("FACTORTWO");
 	}
 
 	private AbstractPreAuthenticatedProcessingFilter createFilterAuthenticatesWith(Authentication authentication) {

@@ -29,9 +29,9 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
@@ -165,7 +165,7 @@ public class LdapAuthenticationProviderTests {
 		LdapAuthenticationProvider ldapProvider = new LdapAuthenticationProvider(authenticator, populator);
 		UsernamePasswordAuthenticationToken request = new UsernamePasswordAuthenticationToken("ben", "benspassword");
 		Authentication result = ldapProvider.authenticate(request);
-		SecurityAssertions.assertThat(result).hasAuthority(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY);
+		SecurityAssertions.assertThat(result).hasAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY);
 	}
 
 	class MockAuthenticator implements LdapAuthenticator {

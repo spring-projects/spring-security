@@ -134,9 +134,9 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 		return this.defaultTargetUrl;
 	}
 
-	private void trace(String msg, @Nullable String... msgParts) {
+	private void trace(String msg, @Nullable Object... msgParts) {
 		if (this.logger.isTraceEnabled()) {
-			this.logger.trace(LogMessage.format(msg, msgParts));
+			this.logger.trace(String.format(msg, msgParts));
 		}
 	}
 

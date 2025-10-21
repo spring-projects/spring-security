@@ -36,6 +36,8 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.NonBuildableAuthenticationToken;
+import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -537,6 +539,25 @@ public class BasicAuthenticationFilterTests {
 		assertThat(new ArrayList<GrantedAuthority>(authentication.getAuthorities()))
 			.extracting(GrantedAuthority::getAuthority)
 			.containsExactly(DefaultEqualsGrantedAuthority.AUTHORITY);
+	}
+
+	@Test
+	void doFilterWhenNotOverridingToBuilderThenDoesNotMergeAuthorities() throws Exception {
+		TestingAuthenticationToken existingAuthn = new TestingAuthenticationToken("username", "password", "FACTORONE");
+		SecurityContextHolder.setContext(new SecurityContextImpl(existingAuthn));
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader(HttpHeaders.AUTHORIZATION, "Basic " + CodecTestUtils.encodeBase64("a:b"));
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		AuthenticationManager manager = mock(AuthenticationManager.class);
+		given(manager.authenticate(any()))
+			.willReturn(new NonBuildableAuthenticationToken("username", "password", "FACTORTWO"));
+		BasicAuthenticationFilter filter = new BasicAuthenticationFilter(manager);
+		filter.doFilter(request, response, new MockFilterChain());
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		SecurityAssertions.assertThat(authentication)
+			.authorities()
+			.extracting(GrantedAuthority::getAuthority)
+			.containsExactly("FACTORTWO");
 	}
 
 	@Test

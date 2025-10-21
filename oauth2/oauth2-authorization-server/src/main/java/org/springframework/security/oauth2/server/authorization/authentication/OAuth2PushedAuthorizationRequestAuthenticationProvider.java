@@ -138,14 +138,10 @@ public final class OAuth2PushedAuthorizationRequestAuthenticationProvider implem
 			this.logger.trace("Authenticated pushed authorization request");
 		}
 
-		OAuth2PushedAuthorizationRequestAuthenticationToken pushedAuthorizationRequestAuthenticationResult = new OAuth2PushedAuthorizationRequestAuthenticationToken(
-				authorizationRequest.getAuthorizationUri(), authorizationRequest.getClientId(), clientPrincipal,
-				pushedAuthorizationRequestUri.getRequestUri(), pushedAuthorizationRequestUri.getExpiresAt(),
-				authorizationRequest.getRedirectUri(), authorizationRequest.getState(),
-				authorizationRequest.getScopes());
-		pushedAuthorizationRequestAuthenticationResult
-			.setDetails(pushedAuthorizationRequestAuthentication.getDetails());
-		return pushedAuthorizationRequestAuthenticationResult;
+		return new OAuth2PushedAuthorizationRequestAuthenticationToken(authorizationRequest.getAuthorizationUri(),
+				authorizationRequest.getClientId(), clientPrincipal, pushedAuthorizationRequestUri.getRequestUri(),
+				pushedAuthorizationRequestUri.getExpiresAt(), authorizationRequest.getRedirectUri(),
+				authorizationRequest.getState(), authorizationRequest.getScopes());
 	}
 
 	@Override

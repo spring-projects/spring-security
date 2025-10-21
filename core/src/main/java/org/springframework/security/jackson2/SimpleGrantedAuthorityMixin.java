@@ -35,11 +35,16 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @since 4.2
  * @see CoreJackson2Module
  * @see SecurityJackson2Modules
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.jackson.SimpleGrantedAuthorityMixin} based on
+ * Jackson 3
  */
+@SuppressWarnings("removal")
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.NONE,
 		getterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY, isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Deprecated(forRemoval = true)
 public abstract class SimpleGrantedAuthorityMixin {
 
 	/**

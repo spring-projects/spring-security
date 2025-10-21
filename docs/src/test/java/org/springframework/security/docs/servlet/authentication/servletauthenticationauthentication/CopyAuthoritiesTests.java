@@ -8,8 +8,8 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.ott.OneTimeTokenAuthentication;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -20,10 +20,10 @@ public class CopyAuthoritiesTests {
 	@Test
 	void toBuilderWhenApplyThenCopies() {
 		UsernamePasswordAuthenticationToken previous = new UsernamePasswordAuthenticationToken("alice", "pass",
-				AuthorityUtils.createAuthorityList(	GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY));
+				AuthorityUtils.createAuthorityList(	FactorGrantedAuthority.PASSWORD_AUTHORITY));
 		SecurityContextHolder.getContext().setAuthentication(previous);
 		Authentication latest = new OneTimeTokenAuthentication("bob",
-				AuthorityUtils.createAuthorityList(GrantedAuthorities.FACTOR_OTT_AUTHORITY));
+				AuthorityUtils.createAuthorityList(FactorGrantedAuthority.OTT_AUTHORITY));
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
 		given(authenticationManager.authenticate(any())).willReturn(latest);
 		Authentication authenticationRequest = new TestingAuthenticationToken("user", "pass");
@@ -36,7 +36,8 @@ public class CopyAuthoritiesTests {
 					.build();
 		}
 		// end::springSecurity[]
-		SecurityAssertions.assertThat(lastestResult).hasAuthorities(GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY, GrantedAuthorities.FACTOR_OTT_AUTHORITY);
+		SecurityAssertions.assertThat(lastestResult).hasAuthorities(
+				FactorGrantedAuthority.PASSWORD_AUTHORITY, FactorGrantedAuthority.OTT_AUTHORITY);
 		SecurityContextHolder.clearContext();
 	}
 }

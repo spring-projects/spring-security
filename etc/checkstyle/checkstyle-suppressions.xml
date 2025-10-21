@@ -24,6 +24,7 @@
 	<suppress files="EnableWebFluxSecurityTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="ExpressionBasedPreInvocationAdviceTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="Jsr250MethodSecurityMetadataSourceTests\.java" checks="SpringMethodVisibility"/>
+	<suppress files="JdbcOAuth2AuthorizationService\.java" checks="SpringMethodVisibility"/>
 	<suppress files="MapBasedMethodSecurityMetadataSourceTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="OAuth2ResourceServerBeanDefinitionParserTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="ObjectIdentityImplTests\.java" checks="SpringMethodVisibility"/>

@@ -45,7 +45,7 @@ import org.springframework.security.config.annotation.web.configurers.SessionMan
 import org.springframework.security.context.DelegatingApplicationListener;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthorities;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.session.AbstractSessionEvent;
 import org.springframework.security.core.session.SessionDestroyedEvent;
@@ -568,7 +568,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			RequestMatcher requestMatcher = getAuthenticationEntryPointMatcher(http);
 			exceptions.defaultDeniedHandlerForMissingAuthority(
 					(ep) -> ep.addEntryPointFor(loginEntryPoint, requestMatcher),
-					GrantedAuthorities.FACTOR_AUTHORIZATION_CODE_AUTHORITY);
+					FactorGrantedAuthority.AUTHORIZATION_CODE_AUTHORITY);
 		}
 		return loginEntryPoint;
 	}

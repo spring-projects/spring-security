@@ -291,9 +291,19 @@ public final class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilte
 
 		String clientId = authorizationConsentAuthentication.getClientId();
 		Authentication principal = (Authentication) authorizationConsentAuthentication.getPrincipal();
-		Set<String> requestedScopes = authorizationCodeRequestAuthentication.getScopes();
 		Set<String> authorizedScopes = authorizationConsentAuthentication.getScopes();
 		String state = authorizationConsentAuthentication.getState();
+
+		Set<String> requestedScopes;
+		String requestUri = (String) authorizationCodeRequestAuthentication.getAdditionalParameters()
+			.get(OAuth2ParameterNames.REQUEST_URI);
+		if (StringUtils.hasText(requestUri)) {
+			requestedScopes = (Set<String>) authorizationConsentAuthentication.getAdditionalParameters()
+				.get(OAuth2ParameterNames.SCOPE);
+		}
+		else {
+			requestedScopes = authorizationCodeRequestAuthentication.getScopes();
+		}
 
 		if (hasConsentUri()) {
 			String redirectUri = UriComponentsBuilder.fromUriString(resolveConsentUri(request))

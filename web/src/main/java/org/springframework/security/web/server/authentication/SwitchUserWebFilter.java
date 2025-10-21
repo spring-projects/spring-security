@@ -176,11 +176,12 @@ public class SwitchUserWebFilter implements WebFilter {
 	 * @throws AuthenticationCredentialsNotFoundException If the target user can not be
 	 * found by username
 	 */
+	@SuppressWarnings("NullAway") // https://github.com/uber/NullAway/issues/1290
 	protected Mono<Authentication> switchUser(WebFilterExchange webFilterExchange) {
 		return this.switchUserMatcher.matches(webFilterExchange.getExchange())
 			.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
 			.flatMap((matchResult) -> ReactiveSecurityContextHolder.getContext())
-			.map(SecurityContext::getAuthentication)
+			.mapNotNull(SecurityContext::getAuthentication)
 			.flatMap((currentAuthentication) -> {
 				String username = getUsername(webFilterExchange.getExchange());
 				return attemptSwitchUser(currentAuthentication, username);
@@ -197,11 +198,12 @@ public class SwitchUserWebFilter implements WebFilter {
 	 * <code>Authentication</code> associated with this request or the user is not
 	 * switched.
 	 */
+	@SuppressWarnings("NullAway") // https://github.com/uber/NullAway/issues/1290
 	protected Mono<Authentication> exitSwitchUser(WebFilterExchange webFilterExchange) {
 		return this.exitUserMatcher.matches(webFilterExchange.getExchange())
 			.filter(ServerWebExchangeMatcher.MatchResult::isMatch)
 			.flatMap((matchResult) -> ReactiveSecurityContextHolder.getContext()
-				.map(SecurityContext::getAuthentication)
+				.mapNotNull(SecurityContext::getAuthentication)
 				.switchIfEmpty(Mono.error(this::noCurrentUserException)))
 			.map(this::attemptExitUser);
 	}

@@ -1,7 +1,11 @@
 /*
 IMPORTANT:
-    If using PostgreSQL, update ALL columns defined with 'blob' to 'text',
-    as PostgreSQL does not support the 'blob' data type.
+    If using PostgreSQL:
+        - update ALL columns defined with 'blob' to 'text', as PostgreSQL does not support the 'blob' data type.
+        - update ALL columns defined with 'timestamp' to 'timestamptz', to ensure that time instants are stored accurately.
+    If using MySQL:
+        - add 'preserveInstants=true&connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true' to JDBC connection URL
+          to ensure that time instants are stored accurately. See https://dev.mysql.com/doc/connector-j/en/connector-j-time-instants.html
 */
 CREATE TABLE oauth2_authorization (
     id varchar(100) NOT NULL,

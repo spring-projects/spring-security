@@ -12,7 +12,7 @@ java {
 repositories {
 	gradlePluginPortal()
 	mavenCentral()
-	maven { url 'https://repo.spring.io/milestone' }
+	maven { url 'https://repo.spring.io/snapshot' }
 }
 
 sourceSets {

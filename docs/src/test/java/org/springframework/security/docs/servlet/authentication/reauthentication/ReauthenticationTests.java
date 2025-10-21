@@ -22,7 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
-import org.springframework.security.core.GrantedAuthorities;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.docs.servlet.authentication.servletx509config.CustomX509Configuration;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener;
@@ -69,12 +69,12 @@ public class ReauthenticationTests {
 		// @formatter:off
 		this.mockMvc.perform(get("/profile"))
 			.andExpect(status().is3xxRedirection())
-			.andExpect(redirectedUrl("http://localhost/login?factor.type=ott&factor.reason=missing"));
+			.andExpect(redirectedUrl("/login?factor.type=ott&factor.reason=missing"));
 		// @formatter:on
 	}
 
 	@Test
-	@WithMockUser(authorities = GrantedAuthorities.FACTOR_OTT_AUTHORITY)
+	@WithMockUser(authorities = FactorGrantedAuthority.OTT_AUTHORITY)
 	void ottWhenRequireOttConfigurationThenAllows() throws Exception {
 		this.spring.register(RequireOttConfiguration.class, Http200Controller.class).autowire();
 		// @formatter:off

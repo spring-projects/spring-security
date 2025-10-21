@@ -379,7 +379,7 @@ public class CsrfConfigTests {
 		this.spring.configLocations(this.xml("CsrfEnabled")).autowire();
 		// simulates a request that has no authentication (e.g. session time-out)
 		MvcResult result = this.mvc.perform(post("/authenticated").with(csrf()))
-			.andExpect(redirectedUrl("http://localhost/login"))
+			.andExpect(redirectedUrl("/login"))
 			.andReturn();
 		MockHttpSession session = (MockHttpSession) result.getRequest().getSession();
 		// if the request cache is consulted, then it will redirect back to /some-url,
@@ -400,9 +400,7 @@ public class CsrfConfigTests {
 			throws Exception {
 		this.spring.configLocations(this.xml("CsrfEnabled")).autowire();
 		// simulates a request that has no authentication (e.g. session time-out)
-		MvcResult result = this.mvc.perform(get("/authenticated"))
-			.andExpect(redirectedUrl("http://localhost/login"))
-			.andReturn();
+		MvcResult result = this.mvc.perform(get("/authenticated")).andExpect(redirectedUrl("/login")).andReturn();
 		MockHttpSession session = (MockHttpSession) result.getRequest().getSession();
 		// if the request cache is consulted, then it will redirect back to /some-url,
 		// which we do want

@@ -35,9 +35,10 @@ final class ReactiveAuthenticationUtils {
 	private static final Authentication ANONYMOUS = new AnonymousAuthenticationToken("key", "anonymous",
 			AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 
+	@SuppressWarnings("NullAway") // https://github.com/uber/NullAway/issues/1290
 	static Mono<Authentication> getAuthentication() {
 		return ReactiveSecurityContextHolder.getContext()
-			.map(SecurityContext::getAuthentication)
+			.mapNotNull(SecurityContext::getAuthentication)
 			.defaultIfEmpty(ANONYMOUS);
 	}
 

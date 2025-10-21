@@ -71,7 +71,7 @@ public class HttpConfigTests {
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("http://localhost/login"));
+				.andExpect(redirectedUrl("/login"));
 		// @formatter:on
 	}
 
@@ -81,7 +81,7 @@ public class HttpConfigTests {
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("http://localhost/login"));
+				.andExpect(redirectedUrl("/login"));
 		// @formatter:on
 	}
 
@@ -94,7 +94,7 @@ public class HttpConfigTests {
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().isFound())
-				.andExpect(redirectedUrl("http://localhost/login"));
+				.andExpect(redirectedUrl("/login"));
 		// @formatter:on
 		verify(authorizationManager).authorize(any(), any());
 	}
@@ -108,7 +108,7 @@ public class HttpConfigTests {
 		proxy.doFilter(request, new EncodeUrlDenyingHttpServletResponseWrapper(response), (req, resp) -> {
 		});
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.SC_MOVED_TEMPORARILY);
-		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/login");
+		assertThat(response.getRedirectedUrl()).isEqualTo("/login");
 	}
 
 	@Test

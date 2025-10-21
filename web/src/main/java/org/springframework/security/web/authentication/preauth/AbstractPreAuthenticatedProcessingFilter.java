@@ -17,6 +17,7 @@
 package org.springframework.security.web.authentication.preauth;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -208,7 +209,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 			authenticationRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
 			Authentication authenticationResult = this.authenticationManager.authenticate(authenticationRequest);
 			Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
-			if (current != null && current.isAuthenticated()) {
+			if (current != null && current.isAuthenticated() && declaresToBuilder(authenticationResult)) {
 				authenticationResult = authenticationResult.toBuilder()
 				// @formatter:off
 					.authorities((a) -> {
@@ -232,6 +233,15 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 				throw ex;
 			}
 		}
+	}
+
+	private static boolean declaresToBuilder(Authentication authentication) {
+		for (Method method : authentication.getClass().getDeclaredMethods()) {
+			if (method.getName().equals("toBuilder") && method.getParameterTypes().length == 0) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

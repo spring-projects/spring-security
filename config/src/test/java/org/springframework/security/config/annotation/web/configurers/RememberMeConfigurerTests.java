@@ -240,7 +240,7 @@ public class RememberMeConfigurerTests {
 				.with(csrf())
 				.cookie(expiredRememberMeCookie);
 		// @formatter:on
-		this.mvc.perform(expiredRequest).andExpect(redirectedUrl("http://localhost/login"));
+		this.mvc.perform(expiredRequest).andExpect(redirectedUrl("/login"));
 	}
 
 	@Test

@@ -356,7 +356,7 @@ public class Saml2LoginConfigurerTests {
 		MockHttpServletRequestBuilder request = get("/custom/auth/sso");
 		this.mvc.perform(request)
 			.andExpect(status().isFound())
-			.andExpect(redirectedUrl("http://localhost/custom/auth/sso?entityId=registration-id"));
+			.andExpect(redirectedUrl("/custom/auth/sso?entityId=registration-id"));
 		request.queryParam("entityId", registration.getRegistrationId());
 		MvcResult result = this.mvc.perform(request).andExpect(status().isFound()).andReturn();
 		String redirectedUrl = result.getResponse().getRedirectedUrl();
@@ -407,10 +407,10 @@ public class Saml2LoginConfigurerTests {
 		this.spring.register(Saml2LoginConfig.class).autowire();
 		this.mvc.perform(get("/favicon.ico").accept(MediaType.TEXT_HTML))
 			.andExpect(status().isFound())
-			.andExpect(redirectedUrl("http://localhost/login"));
+			.andExpect(redirectedUrl("/login"));
 		this.mvc.perform(get("/").accept(MediaType.TEXT_HTML))
 			.andExpect(status().isFound())
-			.andExpect(header().string("Location", startsWith("http://localhost/saml2/authenticate")));
+			.andExpect(header().string("Location", startsWith("/saml2/authenticate")));
 	}
 
 	@Test

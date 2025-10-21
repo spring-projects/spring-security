@@ -482,6 +482,27 @@ public final class OAuth2AuthorizationServerConfigurer
 			});
 		}
 
+		OAuth2PushedAuthorizationRequestEndpointConfigurer pushedAuthorizationRequestEndpointConfigurer = getConfigurer(
+				OAuth2PushedAuthorizationRequestEndpointConfigurer.class);
+		if (pushedAuthorizationRequestEndpointConfigurer != null) {
+			OAuth2AuthorizationServerMetadataEndpointConfigurer authorizationServerMetadataEndpointConfigurer = getConfigurer(
+					OAuth2AuthorizationServerMetadataEndpointConfigurer.class);
+
+			authorizationServerMetadataEndpointConfigurer.addDefaultAuthorizationServerMetadataCustomizer((builder) -> {
+				AuthorizationServerContext authorizationServerContext = AuthorizationServerContextHolder.getContext();
+				String issuer = authorizationServerContext.getIssuer();
+				AuthorizationServerSettings authorizationServerSettings = authorizationServerContext
+					.getAuthorizationServerSettings();
+
+				String pushedAuthorizationRequestEndpoint = UriComponentsBuilder.fromUriString(issuer)
+					.path(authorizationServerSettings.getPushedAuthorizationRequestEndpoint())
+					.build()
+					.toUriString();
+
+				builder.pushedAuthorizationRequestEndpoint(pushedAuthorizationRequestEndpoint);
+			});
+		}
+
 		this.configurers.values().forEach((configurer) -> configurer.configure(httpSecurity));
 
 		AuthorizationServerSettings authorizationServerSettings = OAuth2ConfigurerUtils

@@ -26,13 +26,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
+import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
@@ -104,7 +104,7 @@ public class SpringReactiveOpaqueTokenIntrospectorTests {
 			+ "     }";
 	// @formatter:on
 
-	private final ObjectMapper mapper = new ObjectMapper();
+	private final JsonMapper mapper = new JsonMapper();
 
 	@Test
 	public void authenticateWhenActiveTokenThenOk() throws Exception {

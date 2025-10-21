@@ -57,8 +57,8 @@ public @interface EnableGlobalMultiFactorAuthentication {
 	/**
 	 * The additional authorities that are required.
 	 * @return the additional authorities that are required (e.g. {
-	 * GrantedAuthorities.FACTOR_OTT, GrantedAuthorities.FACTOR_PASSWORD })
-	 * @see org.springframework.security.core.GrantedAuthorities
+	 * FactorGrantedAuthority.FACTOR_OTT, FactorGrantedAuthority.FACTOR_PASSWORD })
+	 * @see org.springframework.security.core.authority.FactorGrantedAuthority
 	 */
 	String[] authorities();
 

@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.authorization.AuthorizationManagerFactories;
 import org.springframework.security.authorization.DefaultAuthorizationManagerFactory;
 
 /**
@@ -39,9 +40,9 @@ class GlobalMultiFactorAuthenticationConfiguration implements ImportAware {
 
 	@Bean
 	DefaultAuthorizationManagerFactory authorizationManagerFactory(ObjectProvider<RoleHierarchy> roleHierarchy) {
-		DefaultAuthorizationManagerFactory.Builder<Object> builder = DefaultAuthorizationManagerFactory.builder()
-			.requireAdditionalAuthorities(this.authorities);
-		roleHierarchy.ifAvailable(builder::roleHierarchy);
+		AuthorizationManagerFactories.AdditionalRequiredFactorsBuilder<Object> builder = AuthorizationManagerFactories
+			.multiFactor()
+			.requireFactors(this.authorities);
 		return builder.build();
 	}
 

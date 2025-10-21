@@ -8,13 +8,13 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authorization.AuthorizationManagerFactories;
 import org.springframework.security.authorization.AuthorizationManagerFactory;
-import org.springframework.security.authorization.DefaultAuthorizationManagerFactory;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthorities;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
@@ -48,8 +48,8 @@ class MissingAuthorityConfiguration {
 	// tag::authorizationManagerFactoryBean[]
 	@Bean
 	AuthorizationManagerFactory<Object> authz() {
-		return DefaultAuthorizationManagerFactory.builder()
-				.requireAdditionalAuthorities(GrantedAuthorities.FACTOR_X509_AUTHORITY, GrantedAuthorities.FACTOR_AUTHORIZATION_CODE_AUTHORITY)
+		return AuthorizationManagerFactories.multiFactor()
+				.requireFactors(FactorGrantedAuthority.X509_AUTHORITY, FactorGrantedAuthority.AUTHORIZATION_CODE_AUTHORITY)
 				.build();
 	}
 	// end::authorizationManagerFactoryBean[]

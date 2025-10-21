@@ -32,7 +32,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthorities;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
@@ -53,7 +52,7 @@ import org.springframework.util.StringUtils;
  */
 public abstract class AbstractLdapAuthenticationProvider implements AuthenticationProvider, MessageSourceAware {
 
-	private static final String AUTHORITY = GrantedAuthorities.FACTOR_PASSWORD_AUTHORITY;
+	private static final String AUTHORITY = FactorGrantedAuthority.PASSWORD_AUTHORITY;
 
 	protected final Log logger = LogFactory.getLog(getClass());
 

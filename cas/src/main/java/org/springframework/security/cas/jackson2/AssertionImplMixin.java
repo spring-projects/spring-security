@@ -33,6 +33,7 @@ import org.apereo.cas.client.authentication.AttributePrincipal;
  * this class we need to register with
  * {@link com.fasterxml.jackson.databind.ObjectMapper}. Type information will be stored
  * in @class property.
+ *
  * <p>
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
@@ -43,7 +44,11 @@ import org.apereo.cas.client.authentication.AttributePrincipal;
  * @since 4.2
  * @see CasJackson2Module
  * @see org.springframework.security.jackson2.SecurityJackson2Modules
+ * @deprecated as of 7.0 in favor of
+ * {@code org.springframework.security.cas.jackson.AssertionImplMixin} based on Jackson 3
  */
+@SuppressWarnings("removal")
+@Deprecated(forRemoval = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)

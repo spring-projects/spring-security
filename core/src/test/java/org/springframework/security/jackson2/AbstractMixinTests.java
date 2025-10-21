@@ -26,6 +26,7 @@ import org.springframework.security.core.userdetails.User;
  * @author Jitenra Singh
  * @since 4.2
  */
+@SuppressWarnings("removal")
 public abstract class AbstractMixinTests {
 
 	protected ObjectMapper mapper;

@@ -71,10 +71,11 @@ public class WebSessionServerCsrfTokenRepository implements ServerCsrfTokenRepos
 	}
 
 	@Override
+	@SuppressWarnings("NullAway") // https://github.com/uber/NullAway/issues/1290
 	public Mono<CsrfToken> loadToken(ServerWebExchange exchange) {
 		return exchange.getSession()
 			.filter((session) -> session.getAttributes().containsKey(this.sessionAttributeName))
-			.map((session) -> session.getAttribute(this.sessionAttributeName));
+			.mapNotNull((session) -> session.getAttribute(this.sessionAttributeName));
 	}
 
 	/**
@@ -102,7 +103,7 @@ public class WebSessionServerCsrfTokenRepository implements ServerCsrfTokenRepos
 	 * @param sessionAttributeName the new attribute name to use
 	 */
 	public void setSessionAttributeName(String sessionAttributeName) {
-		Assert.hasLength(sessionAttributeName, "sessionAttributename cannot be null or empty");
+		Assert.hasLength(sessionAttributeName, "sessionAttributeName cannot be null or empty");
 		this.sessionAttributeName = sessionAttributeName;
 	}
 

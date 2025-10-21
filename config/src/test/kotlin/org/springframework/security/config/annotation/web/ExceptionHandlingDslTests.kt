@@ -218,7 +218,7 @@ class ExceptionHandlingDslTests {
         this.mockMvc.get("/")
                 .andExpect {
                     status { isFound() }
-                    redirectedUrl("http://localhost/custom-login")
+                    redirectedUrl("/custom-login")
                 }
     }
 
@@ -247,13 +247,13 @@ class ExceptionHandlingDslTests {
         this.mockMvc.get("/secured1")
                 .andExpect {
                     status { isFound() }
-                    redirectedUrl("http://localhost/custom-login1")
+                    redirectedUrl("/custom-login1")
                 }
 
         this.mockMvc.get("/secured2")
                 .andExpect {
                     status { isFound() }
-                    redirectedUrl("http://localhost/custom-login2")
+                    redirectedUrl("/custom-login2")
                 }
     }
 

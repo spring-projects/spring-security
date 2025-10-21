@@ -214,8 +214,7 @@ public class ExceptionHandlingConfigurerTests {
 	@Test
 	public void getWhenUsingDefaultsAndUnauthenticatedThenRedirectsToLogin() throws Exception {
 		this.spring.register(DefaultHttpConfig.class).autowire();
-		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT, "bogus/type"))
-			.andExpect(redirectedUrl("http://localhost/login"));
+		this.mvc.perform(get("/").header(HttpHeaders.ACCEPT, "bogus/type")).andExpect(redirectedUrl("/login"));
 	}
 
 	@Test

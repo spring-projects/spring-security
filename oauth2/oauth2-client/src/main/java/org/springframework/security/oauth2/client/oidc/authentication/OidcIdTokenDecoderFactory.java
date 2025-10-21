@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -77,8 +76,6 @@ public final class OidcIdTokenDecoderFactory implements JwtDecoderFactory<Client
 	};
 
 	private static final ClaimTypeConverter DEFAULT_CLAIM_TYPE_CONVERTER = createDefaultClaimTypeConverter();
-
-	private final Map<String, JwtDecoder> jwtDecoders = new ConcurrentHashMap<>();
 
 	private Function<ClientRegistration, OAuth2TokenValidator<Jwt>> jwtValidatorFactory = new DefaultOidcIdTokenValidatorFactory();
 
@@ -135,16 +132,14 @@ public final class OidcIdTokenDecoderFactory implements JwtDecoderFactory<Client
 	@Override
 	public JwtDecoder createDecoder(ClientRegistration clientRegistration) {
 		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
-		return this.jwtDecoders.computeIfAbsent(clientRegistration.getRegistrationId(), (key) -> {
-			NimbusJwtDecoder jwtDecoder = buildDecoder(clientRegistration);
-			jwtDecoder.setJwtValidator(this.jwtValidatorFactory.apply(clientRegistration));
-			Converter<Map<String, Object>, Map<String, Object>> claimTypeConverter = this.claimTypeConverterFactory
-				.apply(clientRegistration);
-			if (claimTypeConverter != null) {
-				jwtDecoder.setClaimSetConverter(claimTypeConverter);
-			}
-			return jwtDecoder;
-		});
+		NimbusJwtDecoder jwtDecoder = buildDecoder(clientRegistration);
+		jwtDecoder.setJwtValidator(this.jwtValidatorFactory.apply(clientRegistration));
+		Converter<Map<String, Object>, Map<String, Object>> claimTypeConverter = this.claimTypeConverterFactory
+			.apply(clientRegistration);
+		if (claimTypeConverter != null) {
+			jwtDecoder.setClaimSetConverter(claimTypeConverter);
+		}
+		return jwtDecoder;
 	}
 
 	private NimbusJwtDecoder buildDecoder(ClientRegistration clientRegistration) {

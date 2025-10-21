@@ -1,10 +1,15 @@
 [[jackson]]
 = Jackson Support
 
-Spring Security provides Jackson support for persisting Spring Security related classes.
+Spring Security provides Jackson 3 support for persisting Spring Security related classes.
 This can improve the performance of serializing Spring Security related classes when working with distributed sessions (i.e. session replication, Spring Session, etc).
 
-To use it, register the `SecurityJackson2Modules.getModules(ClassLoader)` with `ObjectMapper` (https://github.com/FasterXML/jackson-databind[jackson-databind]):
+[NOTE]
+====
+Jackson 2 support is still available but deprecated for removal, so you are encouraged to migrate to Jackson 3.
+====
+
+To use it, register `SecurityJacksonModules.getModules(ClassLoader)` with `JsonMapper.Builder` (https://github.com/FasterXML/jackson-databind[jackson-databind]):
 
 [tabs]
 ======
@@ -12,12 +17,12 @@ Java::
 +
 [source,java,role="primary"]
 ----
-ObjectMapper mapper = new ObjectMapper();
 ClassLoader loader = getClass().getClassLoader();
-List<Module> modules = SecurityJackson2Modules.getModules(loader);
-mapper.registerModules(modules);
+JsonMapper mapper = JsonMapper.builder()
+        .addModules(SecurityJacksonModules.getModules(loader))
+        .build();
 
-// ... use ObjectMapper as normally ...
+// ... use JsonMapper as normally ...
 SecurityContext context = new SecurityContextImpl();
 // ...
 String json = mapper.writeValueAsString(context);
@@ -27,12 +32,12 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
-val mapper = ObjectMapper()
 val loader = javaClass.classLoader
-val modules: MutableList<Module> = SecurityJackson2Modules.getModules(loader)
-mapper.registerModules(modules)
+val mapper = JsonMapper.builder()
+    .addModules(SecurityJacksonModules.getModules(loader))
+    .build()
 
-// ... use ObjectMapper as normally ...
+// ... use JsonMapper as normally ...
 val context: SecurityContext = SecurityContextImpl()
 // ...
 val json: String = mapper.writeValueAsString(context)
@@ -41,10 +46,47 @@ val json: String = mapper.writeValueAsString(context)
 
 [NOTE]
 ====
+Using `SecurityJacksonModules` as above enables automatic inclusion of type information and configure a
+`PolymorphicTypeValidator` that handles the validation of class names.
+====
+
+If needed, you can add custom classes to the validation handling.
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+ClassLoader loader = getClass().getClassLoader();
+BasicPolymorphicTypeValidator.Builder builder = BasicPolymorphicTypeValidator.builder()
+        .allowIfSubType(MyCustomType.class);
+JsonMapper mapper = JsonMapper.builder()
+        .addModules(SecurityJacksonModules.getModules(loader, builder))
+        .build();
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+val loader = javaClass.classLoader
+val builder = BasicPolymorphicTypeValidator.builder()
+        .allowIfSubType(MyCustomType::class)
+val mapper = JsonMapper.builder()
+    .addModules(SecurityJacksonModules.getModules(loader, builder))
+    .build()
+----
+======
+
+[NOTE]
+====
 The following Spring Security modules provide Jackson support:
 
-- spring-security-core (`CoreJackson2Module`)
-- spring-security-web (`WebJackson2Module`, `WebServletJackson2Module`, `WebServerJackson2Module`)
-- xref:servlet/oauth2/client/index.adoc#oauth2client[ spring-security-oauth2-client] (`OAuth2ClientJackson2Module`)
-- spring-security-cas (`CasJackson2Module`)
+- spring-security-core (javadoc:org.springframework.security.jackson.CoreJacksonModule[])
+- spring-security-web (javadoc:org.springframework.security.web.jackson.WebJacksonModule[], javadoc:org.springframework.security.web.jackson.WebServletJacksonModule[], javadoc:org.springframework.security.web.server.jackson.WebServerJacksonModule[])
+- spring-security-oauth2-client (javadoc:org.springframework.security.oauth2.client.jackson.OAuth2ClientJacksonModule[])
+- spring-security-cas (javadoc:org.springframework.security.cas.jackson.CasJacksonModule[])
+- spring-security-ldap (javadoc:org.springframework.security.ldap.jackson.LdapJacksonModule[])
+- spring-security-saml2 (javadoc:org.springframework.security.saml2.jackson.Saml2JacksonModule[])
 ====
