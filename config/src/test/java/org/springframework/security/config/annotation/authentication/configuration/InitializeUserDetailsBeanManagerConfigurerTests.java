@@ -6,12 +6,6 @@
  * You may obtain a copy of the License at
  *
  *      https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 package org.springframework.security.config.annotation.authentication.configuration;
@@ -44,9 +38,7 @@ class InitializeUserDetailsBeanManagerConfigurerTests {
 	private static ObjectPostProcessor<Object> opp() {
 		return new ObjectPostProcessor<>() {
 			@Override
-			public <O> O postProcess(O object) {
-				return object;
-			}
+			public <O> O postProcess(O object) { return object; }
 		};
 	}
 
@@ -62,34 +54,35 @@ class InitializeUserDetailsBeanManagerConfigurerTests {
 				User.withUsername("alice").passwordEncoder(encoder::encode).password("pw").roles("USER").build());
 		InMemoryUserDetailsManager secondary = new InMemoryUserDetailsManager();
 
-		ObjectProvider<UserDetailsService> udsProvider = (ObjectProvider<UserDetailsService>) mock(
-				ObjectProvider.class);
+		ObjectProvider<UserDetailsService> udsProvider =
+				(ObjectProvider<UserDetailsService>) mock(ObjectProvider.class);
 		given(ctx.getBeanProvider(UserDetailsService.class)).willReturn(udsProvider);
-		given(udsProvider.getIfUnique()).willReturn(primary); // container picks single
-																// candidate
+		given(udsProvider.getIfAvailable()).willReturn(primary); // container picks single candidate
 
 		// resolveBeanName(..) path
 		given(ctx.getBean("udsA")).willReturn(secondary);
 		given(ctx.getBean("udsB")).willReturn(primary);
 
-		ObjectProvider<PasswordEncoder> peProvider = (ObjectProvider<PasswordEncoder>) mock(ObjectProvider.class);
+		ObjectProvider<PasswordEncoder> peProvider =
+				(ObjectProvider<PasswordEncoder>) mock(ObjectProvider.class);
 		given(ctx.getBeanProvider(PasswordEncoder.class)).willReturn(peProvider);
 		given(peProvider.getIfUnique()).willReturn(encoder);
 
 		// Stub optional providers to avoid NPEs
-		ObjectProvider<UserDetailsPasswordService> udpsProvider = (ObjectProvider<UserDetailsPasswordService>) mock(
-				ObjectProvider.class);
+		ObjectProvider<UserDetailsPasswordService> udpsProvider =
+				(ObjectProvider<UserDetailsPasswordService>) mock(ObjectProvider.class);
 		given(ctx.getBeanProvider(UserDetailsPasswordService.class)).willReturn(udpsProvider);
 		given(udpsProvider.getIfAvailable()).willReturn(null);
 
-		ObjectProvider<CompromisedPasswordChecker> cpcProvider = (ObjectProvider<CompromisedPasswordChecker>) mock(
-				ObjectProvider.class);
+		ObjectProvider<CompromisedPasswordChecker> cpcProvider =
+				(ObjectProvider<CompromisedPasswordChecker>) mock(ObjectProvider.class);
 		given(ctx.getBeanProvider(CompromisedPasswordChecker.class)).willReturn(cpcProvider);
 		given(cpcProvider.getIfUnique()).willReturn(null);
 
 		AuthenticationManagerBuilder builder = new AuthenticationManagerBuilder(opp());
-		new InitializeUserDetailsBeanManagerConfigurer(ctx).new InitializeUserDetailsManagerConfigurer()
-			.configure(builder);
+		new InitializeUserDetailsBeanManagerConfigurer(ctx)
+				.new InitializeUserDetailsManagerConfigurer()
+				.configure(builder);
 
 		AuthenticationManager manager = builder.build();
 
@@ -97,7 +90,7 @@ class InitializeUserDetailsBeanManagerConfigurerTests {
 		assertThat(manager).isInstanceOf(ProviderManager.class);
 		List<?> providers = ((ProviderManager) manager).getProviders();
 		assertThat(providers)
-			.anySatisfy((p) -> assertThat(p.getClass().getSimpleName()).isEqualTo("DaoAuthenticationProvider"));
+				.anySatisfy((p) -> assertThat(p.getClass().getSimpleName()).isEqualTo("DaoAuthenticationProvider"));
 
 		// Auth works with the primary UDS + encoder
 		var auth = manager.authenticate(new UsernamePasswordAuthenticationToken("alice", "pw"));
@@ -110,30 +103,31 @@ class InitializeUserDetailsBeanManagerConfigurerTests {
 		ApplicationContext ctx = mock(ApplicationContext.class);
 		given(ctx.getBeanNamesForType(UserDetailsService.class)).willReturn(new String[] { "udsA", "udsB" });
 
-		ObjectProvider<UserDetailsService> udsProvider = (ObjectProvider<UserDetailsService>) mock(
-				ObjectProvider.class);
+		ObjectProvider<UserDetailsService> udsProvider =
+				(ObjectProvider<UserDetailsService>) mock(ObjectProvider.class);
 		given(ctx.getBeanProvider(UserDetailsService.class)).willReturn(udsProvider);
-		given(udsProvider.getIfAvailable()).willReturn(null); // ambiguous → no single
-																// candidate
+		given(udsProvider.getIfAvailable()).willReturn(null); // ambiguous → no single candidate
 
 		// Also stub other providers to null
-		ObjectProvider<PasswordEncoder> peProvider = (ObjectProvider<PasswordEncoder>) mock(ObjectProvider.class);
+		ObjectProvider<PasswordEncoder> peProvider =
+				(ObjectProvider<PasswordEncoder>) mock(ObjectProvider.class);
 		given(ctx.getBeanProvider(PasswordEncoder.class)).willReturn(peProvider);
 		given(peProvider.getIfUnique()).willReturn(null);
 
-		ObjectProvider<UserDetailsPasswordService> udpsProvider = (ObjectProvider<UserDetailsPasswordService>) mock(
-				ObjectProvider.class);
+		ObjectProvider<UserDetailsPasswordService> udpsProvider =
+				(ObjectProvider<UserDetailsPasswordService>) mock(ObjectProvider.class);
 		given(ctx.getBeanProvider(UserDetailsPasswordService.class)).willReturn(udpsProvider);
 		given(udpsProvider.getIfAvailable()).willReturn(null);
 
-		ObjectProvider<CompromisedPasswordChecker> cpcProvider = (ObjectProvider<CompromisedPasswordChecker>) mock(
-				ObjectProvider.class);
+		ObjectProvider<CompromisedPasswordChecker> cpcProvider =
+				(ObjectProvider<CompromisedPasswordChecker>) mock(ObjectProvider.class);
 		given(ctx.getBeanProvider(CompromisedPasswordChecker.class)).willReturn(cpcProvider);
 		given(cpcProvider.getIfUnique()).willReturn(null);
 
 		AuthenticationManagerBuilder builder = new AuthenticationManagerBuilder(opp());
-		new InitializeUserDetailsBeanManagerConfigurer(ctx).new InitializeUserDetailsManagerConfigurer()
-			.configure(builder);
+		new InitializeUserDetailsBeanManagerConfigurer(ctx)
+				.new InitializeUserDetailsManagerConfigurer()
+				.configure(builder);
 
 		AuthenticationManager manager = builder.build();
 
@@ -143,11 +137,10 @@ class InitializeUserDetailsBeanManagerConfigurerTests {
 		}
 		else if (manager instanceof ProviderManager pm) {
 			assertThat(pm.getProviders())
-				.noneMatch((p) -> p.getClass().getSimpleName().equals("DaoAuthenticationProvider"));
+					.noneMatch((p) -> p.getClass().getSimpleName().equals("DaoAuthenticationProvider"));
 		}
 		else {
 			assertThat(manager.getClass().getSimpleName()).isNotEqualTo("ProviderManager");
 		}
 	}
-
 }
