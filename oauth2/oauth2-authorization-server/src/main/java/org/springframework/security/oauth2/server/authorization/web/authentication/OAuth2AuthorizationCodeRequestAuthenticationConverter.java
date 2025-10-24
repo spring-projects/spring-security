@@ -44,8 +44,6 @@ import org.springframework.security.oauth2.server.authorization.settings.Authori
 import org.springframework.security.oauth2.server.authorization.web.OAuth2AuthorizationEndpointFilter;
 import org.springframework.security.oauth2.server.authorization.web.OAuth2PushedAuthorizationRequestEndpointFilter;
 import org.springframework.security.web.authentication.AuthenticationConverter;
-import org.springframework.security.web.util.matcher.AndRequestMatcher;
-import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
@@ -198,12 +196,10 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationConverter impleme
 	}
 
 	private static RequestMatcher createDefaultRequestMatcher() {
-		RequestMatcher getMethodMatcher = (request) -> "GET".equals(request.getMethod());
-		RequestMatcher postMethodMatcher = (request) -> "POST".equals(request.getMethod());
-		RequestMatcher responseTypeParameterMatcher = (
-				request) -> request.getParameter(OAuth2ParameterNames.RESPONSE_TYPE) != null;
-		return new OrRequestMatcher(getMethodMatcher,
-				new AndRequestMatcher(postMethodMatcher, responseTypeParameterMatcher));
+		final RequestMatcher authorizationConsentMatcher = OAuth2AuthorizationConsentAuthenticationConverter
+			.createDefaultRequestMatcher();
+		return (request) -> "GET".equals(request.getMethod())
+				|| ("POST".equals(request.getMethod()) && !authorizationConsentMatcher.matches(request));
 	}
 
 	private static void throwError(String errorCode, String parameterName) {

@@ -40,6 +40,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationException;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationToken;
@@ -151,16 +152,22 @@ public final class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilte
 			.matcher(HttpMethod.GET, authorizationEndpointUri);
 		RequestMatcher authorizationRequestPostMatcher = PathPatternRequestMatcher.withDefaults()
 			.matcher(HttpMethod.POST, authorizationEndpointUri);
-
-		RequestMatcher responseTypeParameterMatcher = (
-				request) -> request.getParameter(OAuth2ParameterNames.RESPONSE_TYPE) != null;
-
+		RequestMatcher authorizationConsentMatcher = createAuthorizationConsentMatcher(authorizationEndpointUri);
 		RequestMatcher authorizationRequestMatcher = new OrRequestMatcher(authorizationRequestGetMatcher,
-				new AndRequestMatcher(authorizationRequestPostMatcher, responseTypeParameterMatcher));
-		RequestMatcher authorizationConsentMatcher = new AndRequestMatcher(authorizationRequestPostMatcher,
-				new NegatedRequestMatcher(responseTypeParameterMatcher));
-
+				new AndRequestMatcher(authorizationRequestPostMatcher,
+						new NegatedRequestMatcher(authorizationConsentMatcher)));
 		return new OrRequestMatcher(authorizationRequestMatcher, authorizationConsentMatcher);
+	}
+
+	private static RequestMatcher createAuthorizationConsentMatcher(String authorizationEndpointUri) {
+		final RequestMatcher authorizationConsentPostMatcher = PathPatternRequestMatcher.withDefaults()
+			.matcher(HttpMethod.POST, authorizationEndpointUri);
+		return (request) -> authorizationConsentPostMatcher.matches(request)
+				&& request.getParameter(OAuth2ParameterNames.RESPONSE_TYPE) == null
+				&& request.getParameter(OAuth2ParameterNames.REQUEST_URI) == null
+				&& request.getParameter(OAuth2ParameterNames.REDIRECT_URI) == null
+				&& request.getParameter(PkceParameterNames.CODE_CHALLENGE) == null
+				&& request.getParameter(PkceParameterNames.CODE_CHALLENGE_METHOD) == null;
 	}
 
 	@Override

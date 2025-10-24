@@ -207,6 +207,17 @@ public class OAuth2AuthorizationEndpointFilterTests {
 				});
 	}
 
+	// gh-2226
+	@Test
+	public void doFilterWhenPostAuthorizationRequestMissingResponseTypeThenInvalidRequestError() throws Exception {
+		doFilterWhenAuthorizationRequestInvalidParameterThenError(TestRegisteredClients.registeredClient().build(),
+				OAuth2ParameterNames.RESPONSE_TYPE, OAuth2ErrorCodes.INVALID_REQUEST, (request) -> {
+					request.setMethod("POST");
+					request.removeParameter(OAuth2ParameterNames.RESPONSE_TYPE);
+					request.setQueryString(null);
+				});
+	}
+
 	@Test
 	public void doFilterWhenAuthorizationRequestMultipleResponseTypeThenInvalidRequestError() throws Exception {
 		doFilterWhenAuthorizationRequestInvalidParameterThenError(TestRegisteredClients.registeredClient().build(),
@@ -646,7 +657,7 @@ public class OAuth2AuthorizationEndpointFilterTests {
 
 		this.filter.doFilter(request, response, filterChain);
 
-		verify(this.authenticationManager).authenticate(any());
+		verify(this.authenticationManager).authenticate(any(OAuth2AuthorizationCodeRequestAuthenticationToken.class));
 		verifyNoInteractions(filterChain);
 
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.FOUND.value());
@@ -675,7 +686,7 @@ public class OAuth2AuthorizationEndpointFilterTests {
 
 		this.filter.doFilter(request, response, filterChain);
 
-		verify(this.authenticationManager).authenticate(any());
+		verify(this.authenticationManager).authenticate(any(OAuth2AuthorizationCodeRequestAuthenticationToken.class));
 		verifyNoInteractions(filterChain);
 
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.FOUND.value());

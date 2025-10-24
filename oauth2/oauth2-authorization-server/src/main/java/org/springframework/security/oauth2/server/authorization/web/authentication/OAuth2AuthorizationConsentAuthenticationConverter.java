@@ -30,12 +30,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationException;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationConsentAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.web.OAuth2AuthorizationEndpointFilter;
 import org.springframework.security.web.authentication.AuthenticationConverter;
-import org.springframework.security.web.util.matcher.AndRequestMatcher;
-import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -106,11 +105,13 @@ public final class OAuth2AuthorizationConsentAuthenticationConverter implements 
 				additionalParameters);
 	}
 
-	private static RequestMatcher createDefaultRequestMatcher() {
-		RequestMatcher postMethodMatcher = (request) -> "POST".equals(request.getMethod());
-		RequestMatcher responseTypeParameterMatcher = (
-				request) -> request.getParameter(OAuth2ParameterNames.RESPONSE_TYPE) != null;
-		return new AndRequestMatcher(postMethodMatcher, new NegatedRequestMatcher(responseTypeParameterMatcher));
+	static RequestMatcher createDefaultRequestMatcher() {
+		return (request) -> "POST".equals(request.getMethod())
+				&& request.getParameter(OAuth2ParameterNames.RESPONSE_TYPE) == null
+				&& request.getParameter(OAuth2ParameterNames.REQUEST_URI) == null
+				&& request.getParameter(OAuth2ParameterNames.REDIRECT_URI) == null
+				&& request.getParameter(PkceParameterNames.CODE_CHALLENGE) == null
+				&& request.getParameter(PkceParameterNames.CODE_CHALLENGE_METHOD) == null;
 	}
 
 	private static void throwError(String errorCode, String parameterName) {
