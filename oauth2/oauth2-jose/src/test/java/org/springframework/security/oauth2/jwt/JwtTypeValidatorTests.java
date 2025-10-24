@@ -44,4 +44,12 @@ class JwtTypeValidatorTests {
 		assertThat(validator.validate(jwt.build()).hasErrors()).isFalse();
 	}
 
+	@Test
+	void validateWhenTypHeaderHasDifferentCaseThenSuccess() {
+		Jwt.Builder jwt = TestJwts.jwt();
+		JwtTypeValidator validator = new JwtTypeValidator("at+jwt");
+		jwt.header(JoseHeaderNames.TYP, "AT+JWT");
+		assertThat(validator.validate(jwt.build()).hasErrors()).isFalse();
+	}
+
 }
