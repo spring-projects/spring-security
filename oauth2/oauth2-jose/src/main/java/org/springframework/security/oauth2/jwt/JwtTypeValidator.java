@@ -72,8 +72,10 @@ public final class JwtTypeValidator implements OAuth2TokenValidator<Jwt> {
 		if (this.allowEmpty && !StringUtils.hasText(typ)) {
 			return OAuth2TokenValidatorResult.success();
 		}
-		if (this.validTypes.contains(typ)) {
-			return OAuth2TokenValidatorResult.success();
+		for (String validType : this.validTypes) {
+			if (validType.equalsIgnoreCase(typ)) {
+				return OAuth2TokenValidatorResult.success();
+			}
 		}
 		return OAuth2TokenValidatorResult.failure(new OAuth2Error(OAuth2ErrorCodes.INVALID_TOKEN,
 				"the given typ value needs to be one of " + this.validTypes,
