@@ -36,10 +36,9 @@ import org.springframework.util.ClassUtils;
 
 /**
  * This utility class will find all the Jackson modules contributed by Spring Security in
- * the classpath (except {@code OAuth2AuthorizationServerJacksonModule} and
- * {@code WebauthnJacksonModule}), enable automatic inclusion of type information and
- * configure a {@link PolymorphicTypeValidator} that handles the validation of class
- * names.
+ * the classpath (except {@code WebauthnJacksonModule}), enable automatic inclusion of
+ * type information and configure a {@link PolymorphicTypeValidator} that handles the
+ * validation of class names.
  *
  * <p>
  * <pre>
@@ -77,6 +76,8 @@ public final class SecurityJacksonModules {
 
 	private static final String oauth2ClientJacksonModuleClass = "org.springframework.security.oauth2.client.jackson.OAuth2ClientJacksonModule";
 
+	private static final String oauth2AuthorizationServerJacksonModuleClass = "org.springframework.security.oauth2.server.authorization.jackson.OAuth2AuthorizationServerJacksonModule";
+
 	private static final String ldapJacksonModuleClass = "org.springframework.security.ldap.jackson.LdapJacksonModule";
 
 	private static final String saml2JacksonModuleClass = "org.springframework.security.saml2.jackson.Saml2JacksonModule";
@@ -87,6 +88,8 @@ public final class SecurityJacksonModules {
 
 	private static final boolean oauth2ClientPresent;
 
+	private static final boolean oauth2AuthorizationServerPresent;
+
 	private static final boolean ldapJacksonPresent;
 
 	private static final boolean saml2JacksonPresent;
@@ -94,11 +97,12 @@ public final class SecurityJacksonModules {
 	private static final boolean casJacksonPresent;
 
 	static {
-
 		ClassLoader classLoader = SecurityJacksonModules.class.getClassLoader();
 		webServletPresent = ClassUtils.isPresent("jakarta.servlet.http.Cookie", classLoader);
 		oauth2ClientPresent = ClassUtils.isPresent("org.springframework.security.oauth2.client.OAuth2AuthorizedClient",
 				classLoader);
+		oauth2AuthorizationServerPresent = ClassUtils
+			.isPresent("org.springframework.security.oauth2.server.authorization.OAuth2Authorization", classLoader);
 		ldapJacksonPresent = ClassUtils.isPresent(ldapJacksonModuleClass, classLoader);
 		saml2JacksonPresent = ClassUtils.isPresent(saml2JacksonModuleClass, classLoader);
 		casJacksonPresent = ClassUtils.isPresent(casJacksonModuleClass, classLoader);
@@ -155,6 +159,9 @@ public final class SecurityJacksonModules {
 		}
 		if (oauth2ClientPresent) {
 			addToModulesList(loader, modules, oauth2ClientJacksonModuleClass);
+		}
+		if (oauth2AuthorizationServerPresent) {
+			addToModulesList(loader, modules, oauth2AuthorizationServerJacksonModuleClass);
 		}
 		if (ldapJacksonPresent) {
 			addToModulesList(loader, modules, ldapJacksonModuleClass);

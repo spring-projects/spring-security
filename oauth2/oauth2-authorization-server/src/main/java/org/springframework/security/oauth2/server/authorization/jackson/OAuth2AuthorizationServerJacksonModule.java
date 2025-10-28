@@ -18,13 +18,11 @@ package org.springframework.security.oauth2.server.authorization.jackson;
 
 import java.net.URL;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.core.Version;
-import tools.jackson.databind.DefaultTyping;
-import tools.jackson.databind.cfg.MapperBuilder;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
-import org.springframework.security.jackson.CoreJacksonModule;
+import org.springframework.security.jackson.SecurityJacksonModule;
+import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
@@ -37,20 +35,22 @@ import org.springframework.security.oauth2.server.authorization.settings.OAuth2T
  * registers the following mix-in annotations:
  *
  * <ul>
- * <li>{@link OAuth2TokenExchangeActor}</li>
+ * <li>{@link OAuth2TokenExchangeActorMixin}</li>
  * <li>{@link OAuth2AuthorizationRequestMixin}</li>
  * <li>{@link OAuth2TokenExchangeCompositeAuthenticationTokenMixin}</li>
  * <li>{@link JwsAlgorithmMixin}</li>
  * <li>{@link OAuth2TokenFormatMixin}</li>
  * </ul>
  *
- * If not already enabled, default typing will be automatically enabled as type info is
- * required to properly serialize/deserialize objects. In order to use this module just
- * add it to your {@code JsonMapper.Builder} configuration.
+ * <p>
+ * The recommended way to configure it is to use {@link SecurityJacksonModules} in order
+ * to enable properly automatic inclusion of type information with related validation.
  *
  * <pre>
+ *     ClassLoader loader = getClass().getClassLoader();
  *     JsonMapper mapper = JsonMapper.builder()
- *             .addModules(new OAuth2AuthorizationServerJacksonModule()).build;
+ * 				.addModules(SecurityJacksonModules.getModules(loader))
+ * 				.build();
  * </pre>
  *
  * @author Sebastien Deleuze
@@ -58,7 +58,7 @@ import org.springframework.security.oauth2.server.authorization.settings.OAuth2T
  * @since 7.0
  */
 @SuppressWarnings("serial")
-public class OAuth2AuthorizationServerJacksonModule extends CoreJacksonModule {
+public class OAuth2AuthorizationServerJacksonModule extends SecurityJacksonModule {
 
 	public OAuth2AuthorizationServerJacksonModule() {
 		super(OAuth2AuthorizationServerJacksonModule.class.getName(), new Version(1, 0, 0, null, null, null));
@@ -66,7 +66,6 @@ public class OAuth2AuthorizationServerJacksonModule extends CoreJacksonModule {
 
 	@Override
 	public void configurePolymorphicTypeValidator(BasicPolymorphicTypeValidator.Builder builder) {
-		super.configurePolymorphicTypeValidator(builder);
 		builder.allowIfSubType(OAuth2TokenFormat.class)
 			.allowIfSubType(OAuth2TokenExchangeActor.class)
 			.allowIfSubType(OAuth2TokenExchangeCompositeAuthenticationToken.class)
@@ -78,11 +77,6 @@ public class OAuth2AuthorizationServerJacksonModule extends CoreJacksonModule {
 
 	@Override
 	public void setupModule(SetupContext context) {
-		super.setupModule(context);
-		BasicPolymorphicTypeValidator.Builder builder = BasicPolymorphicTypeValidator.builder();
-		this.configurePolymorphicTypeValidator(builder);
-		((MapperBuilder<?, ?>) context.getOwner()).activateDefaultTyping(builder.build(), DefaultTyping.NON_FINAL,
-				JsonTypeInfo.As.PROPERTY);
 		context.setMixIn(OAuth2TokenExchangeActor.class, OAuth2TokenExchangeActorMixin.class);
 		context.setMixIn(OAuth2AuthorizationRequest.class, OAuth2AuthorizationRequestMixin.class);
 		context.setMixIn(OAuth2TokenExchangeCompositeAuthenticationToken.class,

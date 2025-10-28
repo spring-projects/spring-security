@@ -68,7 +68,6 @@ import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
-import org.springframework.security.oauth2.server.authorization.jackson.OAuth2AuthorizationServerJacksonModule;
 import org.springframework.security.oauth2.server.authorization.jackson2.OAuth2AuthorizationServerJackson2Module;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -361,7 +360,7 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 	/**
 	 * Sets the {@link RowMapper} used for mapping the current row in
 	 * {@code java.sql.ResultSet} to {@link OAuth2Authorization}. The default is
-	 * {@link OAuth2AuthorizationRowMapper}.
+	 * {@link JsonMapperOAuth2AuthorizationRowMapper}.
 	 * @param authorizationRowMapper the {@link RowMapper} used for mapping the current
 	 * row in {@code ResultSet} to {@link OAuth2Authorization}
 	 */
@@ -373,7 +372,7 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 	/**
 	 * Sets the {@code Function} used for mapping {@link OAuth2Authorization} to a
 	 * {@code List} of {@link SqlParameterValue}. The default is
-	 * {@link OAuth2AuthorizationParametersMapper}.
+	 * {@link JsonMapperOAuth2AuthorizationParametersMapper}.
 	 * @param authorizationParametersMapper the {@code Function} used for mapping
 	 * {@link OAuth2Authorization} to a {@code List} of {@link SqlParameterValue}
 	 */
@@ -743,10 +742,7 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 
 		static JsonMapper createJsonMapper() {
 			List<JacksonModule> modules = SecurityJacksonModules.getModules(Jackson3.class.getClassLoader());
-			return JsonMapper.builder()
-				.addModules(modules)
-				.addModules(new OAuth2AuthorizationServerJacksonModule())
-				.build();
+			return JsonMapper.builder().addModules(modules).build();
 		}
 
 	}

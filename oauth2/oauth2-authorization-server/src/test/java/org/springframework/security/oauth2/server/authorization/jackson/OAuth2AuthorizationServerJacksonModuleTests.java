@@ -27,20 +27,20 @@ import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.TestOAuth2Authorizations;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2TokenExchangeActor;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2TokenExchangeCompositeAuthenticationToken;
-import org.springframework.security.oauth2.server.authorization.jackson2.OAuth2AuthorizationServerJackson2Module;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link OAuth2AuthorizationServerJackson2Module}.
+ * Tests for {@link OAuth2AuthorizationServerJacksonModule}.
  *
  * @author Steve Riesenberg
  * @author Joe Grandja
@@ -55,7 +55,9 @@ public class OAuth2AuthorizationServerJacksonModuleTests {
 
 	@BeforeEach
 	public void setup() {
-		this.mapper = JsonMapper.builder().addModules(new OAuth2AuthorizationServerJacksonModule()).build();
+		this.mapper = JsonMapper.builder()
+			.addModules(SecurityJacksonModules.getModules(getClass().getClassLoader()))
+			.build();
 	}
 
 	@Test

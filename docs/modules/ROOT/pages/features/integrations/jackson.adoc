@@ -86,6 +86,7 @@ The following Spring Security modules provide Jackson support:
 - spring-security-core (javadoc:org.springframework.security.jackson.CoreJacksonModule[])
 - spring-security-web (javadoc:org.springframework.security.web.jackson.WebJacksonModule[], javadoc:org.springframework.security.web.jackson.WebServletJacksonModule[], javadoc:org.springframework.security.web.server.jackson.WebServerJacksonModule[])
 - spring-security-oauth2-client (javadoc:org.springframework.security.oauth2.client.jackson.OAuth2ClientJacksonModule[])
+- spring-security-oauth2-authorization-server (javadoc:org.springframework.security.oauth2.server.authorization.jackson.OAuth2AuthorizationServerJacksonModule[])
 - spring-security-cas (javadoc:org.springframework.security.cas.jackson.CasJacksonModule[])
 - spring-security-ldap (javadoc:org.springframework.security.ldap.jackson.LdapJacksonModule[])
 - spring-security-saml2 (javadoc:org.springframework.security.saml2.jackson.Saml2JacksonModule[])

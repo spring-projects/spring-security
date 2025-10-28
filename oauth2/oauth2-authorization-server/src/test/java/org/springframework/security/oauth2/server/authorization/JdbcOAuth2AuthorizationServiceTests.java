@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.server.authorization;
 
+import java.security.Principal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -45,6 +46,7 @@ import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -58,6 +60,7 @@ import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.TestRegisteredClients;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -227,10 +230,11 @@ public class JdbcOAuth2AuthorizationServiceTests {
 			.build();
 
 		RowMapper<OAuth2Authorization> authorizationRowMapper = spy(
-				new JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper(this.registeredClientRepository));
+				new JdbcOAuth2AuthorizationService.JsonMapperOAuth2AuthorizationRowMapper(
+						this.registeredClientRepository));
 		this.authorizationService.setAuthorizationRowMapper(authorizationRowMapper);
 		Function<OAuth2Authorization, List<SqlParameterValue>> authorizationParametersMapper = spy(
-				new JdbcOAuth2AuthorizationService.OAuth2AuthorizationParametersMapper());
+				new JdbcOAuth2AuthorizationService.JsonMapperOAuth2AuthorizationParametersMapper());
 		this.authorizationService.setAuthorizationParametersMapper(authorizationParametersMapper);
 
 		this.authorizationService.save(originalAuthorization);
@@ -459,6 +463,28 @@ public class JdbcOAuth2AuthorizationServiceTests {
 		OAuth2Authorization result = this.authorizationService.findByToken("access-token",
 				OAuth2TokenType.ACCESS_TOKEN);
 		assertThat(result).isNull();
+	}
+
+	// gh-18102
+	@Test
+	public void findByTokenWhenPrincipalHasWebAuthenticationDetailsThenDeserializes() {
+		given(this.registeredClientRepository.findById(eq(REGISTERED_CLIENT.getId()))).willReturn(REGISTERED_CLIENT);
+
+		String state = "state";
+		TestingAuthenticationToken principal = new TestingAuthenticationToken(PRINCIPAL_NAME, "credentials");
+		principal.setDetails(new WebAuthenticationDetails("remoteAddress", "sessionId"));
+
+		OAuth2Authorization authorization = OAuth2Authorization.withRegisteredClient(REGISTERED_CLIENT)
+			.id(ID)
+			.principalName(PRINCIPAL_NAME)
+			.authorizationGrantType(AUTHORIZATION_GRANT_TYPE)
+			.attribute(OAuth2ParameterNames.STATE, state)
+			.attribute(Principal.class.getName(), principal)
+			.build();
+		this.authorizationService.save(authorization);
+
+		OAuth2Authorization result = this.authorizationService.findByToken(state, STATE_TOKEN_TYPE);
+		assertThat(authorization).isEqualTo(result);
 	}
 
 	@Test
