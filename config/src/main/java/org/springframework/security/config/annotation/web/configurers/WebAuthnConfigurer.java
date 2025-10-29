@@ -192,9 +192,9 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 		if (webauthnOperationsBean.isPresent()) {
 			return webauthnOperationsBean.get();
 		}
-		Webauthn4JRelyingPartyOperations result = new Webauthn4JRelyingPartyOperations(userEntities, userCredentials,
-				PublicKeyCredentialRpEntity.builder().id(this.rpId).name(this.rpName).build(), this.allowedOrigins);
-		return result;
+		String rpName = (this.rpName != null) ? this.rpName : this.rpId;
+		return new Webauthn4JRelyingPartyOperations(userEntities, userCredentials,
+				PublicKeyCredentialRpEntity.builder().id(this.rpId).name(rpName).build(), this.allowedOrigins);
 	}
 
 }
