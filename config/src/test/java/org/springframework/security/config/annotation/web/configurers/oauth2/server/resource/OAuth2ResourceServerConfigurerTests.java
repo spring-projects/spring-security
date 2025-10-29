@@ -1339,10 +1339,18 @@ public class OAuth2ResourceServerConfigurerTests {
 	}
 
 	@Test
-	public void configureWhenUsingBothAuthenticationManagerResolverAndOpaqueThenWiringException() {
-		assertThatExceptionOfType(BeanCreationException.class)
-			.isThrownBy(() -> this.spring.register(AuthenticationManagerResolverPlusOtherConfig.class).autowire())
-			.withMessageContaining("authenticationManagerResolver");
+	public void configureWhenUsingBothAuthenticationManagerResolverAndOpaqueThenAuthenticationManagerResolverTakesPrecedence() {
+		// authenticationManagerResolver should take precedence over opaqueToken
+		// configuration
+		this.spring.register(AuthenticationManagerResolverPlusOtherConfig.class).autowire();
+		// No exception should be thrown
+	}
+
+	@Test
+	public void configureWhenUsingBothAuthenticationManagerResolverAndJwtThenAuthenticationManagerResolverTakesPrecedence() {
+		// authenticationManagerResolver should take precedence over jwt configuration
+		this.spring.register(AuthenticationManagerResolverPlusJwtConfig.class).autowire();
+		// No exception should be thrown
 	}
 
 	@Test
@@ -2606,14 +2614,19 @@ public class OAuth2ResourceServerConfigurerTests {
 	static class AuthenticationManagerResolverPlusOtherConfig {
 
 		@Bean
+		OpaqueTokenIntrospector opaqueTokenIntrospector() {
+			return mock(OpaqueTokenIntrospector.class);
+		}
+
+		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().authenticated())
 				.oauth2ResourceServer((server) -> server
-					.authenticationManagerResolver(mock(AuthenticationManagerResolver.class))
-					.opaqueToken(Customizer.withDefaults()));
+					.opaqueToken(Customizer.withDefaults())
+					.authenticationManagerResolver(mock(AuthenticationManagerResolver.class)));
 			return http.build();
 			// @formatter:on
 		}
@@ -2789,6 +2802,30 @@ public class OAuth2ResourceServerConfigurerTests {
 				request.addHeader("Authorization", "Bearer " + this.token);
 			}
 			return request;
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class AuthenticationManagerResolverPlusJwtConfig {
+
+		@Bean
+		JwtDecoder jwtDecoder() {
+			return mock(JwtDecoder.class);
+		}
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.oauth2ResourceServer((server) -> server
+					.jwt(Customizer.withDefaults())
+					.authenticationManagerResolver(mock(AuthenticationManagerResolver.class)));
+			return http.build();
+			// @formatter:on
 		}
 
 	}
