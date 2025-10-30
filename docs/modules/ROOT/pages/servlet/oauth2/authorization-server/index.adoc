@@ -86,6 +86,7 @@ Spring Security Authorization Server supports the following features:
 * xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oauth2-token-endpoint[OAuth2 Token Endpoint]
 * xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oauth2-token-introspection-endpoint[OAuth2 Token Introspection Endpoint]
 * xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oauth2-token-revocation-endpoint[OAuth2 Token Revocation Endpoint]
+* xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oauth2-client-registration-endpoint[OAuth2 Client Registration Endpoint]
 * xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oauth2-authorization-server-metadata-endpoint[OAuth2 Authorization Server Metadata Endpoint]
 * xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-jwk-set-endpoint[JWK Set Endpoint]
 * xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oidc-provider-configuration-endpoint[OpenID Connect 1.0 Provider Configuration Endpoint]
@@ -103,6 +104,7 @@ Spring Security Authorization Server supports the following features:
 ** https://tools.ietf.org/html/rfc8628#section-3.3[Device Verification Endpoint]
 * OAuth 2.0 Token Introspection (https://tools.ietf.org/html/rfc7662[RFC 7662])
 * OAuth 2.0 Token Revocation (https://tools.ietf.org/html/rfc7009[RFC 7009])
+* OAuth 2.0 Dynamic Client Registration Protocol (https://datatracker.ietf.org/doc/html/rfc7591[RFC 7591])
 * OAuth 2.0 Authorization Server Metadata (https://tools.ietf.org/html/rfc8414[RFC 8414])
 * JSON Web Key (JWK) (https://tools.ietf.org/html/rfc7517[RFC 7517])
 * OpenID Connect Discovery 1.0 (https://openid.net/specs/openid-connect-discovery-1_0.html[spec])

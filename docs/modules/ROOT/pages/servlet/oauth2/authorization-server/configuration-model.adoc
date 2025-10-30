@@ -22,6 +22,9 @@ The OAuth2 authorization server `SecurityFilterChain` `@Bean` is configured with
 [NOTE]
 The JWK Set endpoint is configured *only* if a `JWKSource<SecurityContext>` `@Bean` is registered.
 
+[NOTE]
+The xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oauth2-client-registration-endpoint[OAuth2 Client Registration endpoint] is disabled by default.
+
 The following example shows how to use `OAuth2AuthorizationServerConfiguration` to apply the minimal default configuration:
 
 [source,java]
@@ -71,7 +74,7 @@ In addition to the default protocol endpoints, the OAuth2 authorization server `
 * xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oidc-user-info-endpoint[OpenID Connect 1.0 UserInfo endpoint]
 
 [NOTE]
-The xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oidc-client-registration-endpoint[OpenID Connect 1.0 Client Registration endpoint] is disabled by default because many deployments do not require dynamic client registration.
+The xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oidc-client-registration-endpoint[OpenID Connect 1.0 Client Registration endpoint] is disabled by default.
 
 [TIP]
 `OAuth2AuthorizationServerConfiguration.jwtDecoder(JWKSource<SecurityContext>)` is a convenience (`static`) utility method that can be used to register a `JwtDecoder` `@Bean`, which is *REQUIRED* for the xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oidc-user-info-endpoint[OpenID Connect 1.0 UserInfo endpoint] and the xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oidc-client-registration-endpoint[OpenID Connect 1.0 Client Registration endpoint].
@@ -117,12 +120,13 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 				.tokenEndpoint(tokenEndpoint -> { })	<11>
 				.tokenIntrospectionEndpoint(tokenIntrospectionEndpoint -> { })	<12>
 				.tokenRevocationEndpoint(tokenRevocationEndpoint -> { })	<13>
-				.authorizationServerMetadataEndpoint(authorizationServerMetadataEndpoint -> { })	<14>
+				.clientRegistrationEndpoint(clientRegistrationEndpoint -> { })  <14>
+				.authorizationServerMetadataEndpoint(authorizationServerMetadataEndpoint -> { })	<15>
 				.oidc(oidc -> oidc
-					.providerConfigurationEndpoint(providerConfigurationEndpoint -> { })	<15>
-					.logoutEndpoint(logoutEndpoint -> { })	<16>
-					.userInfoEndpoint(userInfoEndpoint -> { })	<17>
-					.clientRegistrationEndpoint(clientRegistrationEndpoint -> { })	<18>
+					.providerConfigurationEndpoint(providerConfigurationEndpoint -> { })	<16>
+					.logoutEndpoint(logoutEndpoint -> { })	<17>
+					.userInfoEndpoint(userInfoEndpoint -> { })	<18>
+					.clientRegistrationEndpoint(clientRegistrationEndpoint -> { })	<19>
 				)
 		);
 
@@ -142,11 +146,12 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 <11> `tokenEndpoint()`: The configurer for the xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oauth2-token-endpoint[OAuth2 Token endpoint].
 <12> `tokenIntrospectionEndpoint()`: The configurer for the xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oauth2-token-introspection-endpoint[OAuth2 Token Introspection endpoint].
 <13> `tokenRevocationEndpoint()`: The configurer for the xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oauth2-token-revocation-endpoint[OAuth2 Token Revocation endpoint].
-<14> `authorizationServerMetadataEndpoint()`: The configurer for the xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oauth2-authorization-server-metadata-endpoint[OAuth2 Authorization Server Metadata endpoint].
-<15> `providerConfigurationEndpoint()`: The configurer for the xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oidc-provider-configuration-endpoint[OpenID Connect 1.0 Provider Configuration endpoint].
-<16> `logoutEndpoint()`: The configurer for the xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oidc-logout-endpoint[OpenID Connect 1.0 Logout endpoint].
-<17> `userInfoEndpoint()`: The configurer for the xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oidc-user-info-endpoint[OpenID Connect 1.0 UserInfo endpoint].
-<18> `clientRegistrationEndpoint()`: The configurer for the xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oidc-client-registration-endpoint[OpenID Connect 1.0 Client Registration endpoint].
+<14> `clientRegistrationEndpoint()`: The configurer for the xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oauth2-client-registration-endpoint[OAuth2 Client Registration endpoint].
+<15> `authorizationServerMetadataEndpoint()`: The configurer for the xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oauth2-authorization-server-metadata-endpoint[OAuth2 Authorization Server Metadata endpoint].
+<16> `providerConfigurationEndpoint()`: The configurer for the xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oidc-provider-configuration-endpoint[OpenID Connect 1.0 Provider Configuration endpoint].
+<17> `logoutEndpoint()`: The configurer for the xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oidc-logout-endpoint[OpenID Connect 1.0 Logout endpoint].
+<18> `userInfoEndpoint()`: The configurer for the xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oidc-user-info-endpoint[OpenID Connect 1.0 UserInfo endpoint].
+<19> `clientRegistrationEndpoint()`: The configurer for the xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc#oauth2AuthorizationServer-oidc-client-registration-endpoint[OpenID Connect 1.0 Client Registration endpoint].
 
 [[oauth2AuthorizationServer-configuring-authorization-server-settings]]
 == Configuring Authorization Server Settings
@@ -170,6 +175,7 @@ public final class AuthorizationServerSettings extends AbstractSettings {
 			.tokenEndpoint("/oauth2/token")
 			.tokenIntrospectionEndpoint("/oauth2/introspect")
 			.tokenRevocationEndpoint("/oauth2/revoke")
+			.clientRegistrationEndpoint("/oauth2/register")
 			.jwkSetEndpoint("/oauth2/jwks")
 			.oidcLogoutEndpoint("/connect/logout")
 			.oidcUserInfoEndpoint("/userinfo")
@@ -202,6 +208,7 @@ public AuthorizationServerSettings authorizationServerSettings() {
 		.tokenEndpoint("/oauth2/v1/token")
 		.tokenIntrospectionEndpoint("/oauth2/v1/introspect")
 		.tokenRevocationEndpoint("/oauth2/v1/revoke")
+		.clientRegistrationEndpoint("/oauth2/v1/register")
 		.jwkSetEndpoint("/oauth2/v1/jwks")
 		.oidcLogoutEndpoint("/connect/v1/logout")
 		.oidcUserInfoEndpoint("/connect/v1/userinfo")

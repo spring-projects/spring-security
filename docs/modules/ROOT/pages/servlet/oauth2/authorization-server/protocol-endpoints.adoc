@@ -664,6 +664,66 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 * `*AuthenticationSuccessHandler*` -- An internal implementation that handles an "`authenticated`" `OAuth2TokenRevocationAuthenticationToken` and returns the OAuth2 revocation response.
 * `*AuthenticationFailureHandler*` -- An `OAuth2ErrorAuthenticationFailureHandler`.
 
+[[oauth2AuthorizationServer-oauth2-client-registration-endpoint]]
+== OAuth2 Client Registration Endpoint
+
+`OAuth2ClientRegistrationEndpointConfigurer` provides the ability to customize the https://datatracker.ietf.org/doc/html/rfc7591#section-3[OAuth2 Client Registration endpoint].
+It defines extension points that let you customize the pre-processing, main processing, and post-processing logic for https://datatracker.ietf.org/doc/html/rfc7591#section-3.1[Client Registration requests].
+
+`OAuth2ClientRegistrationEndpointConfigurer` provides the following configuration options:
+
+[source,java]
+----
+@Bean
+public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+	http
+		.oauth2AuthorizationServer((authorizationServer) ->
+			authorizationServer
+				.clientRegistrationEndpoint(clientRegistrationEndpoint ->
+                    clientRegistrationEndpoint
+                        .clientRegistrationRequestConverter(clientRegistrationRequestConverter) <1>
+                        .clientRegistrationRequestConverters(clientRegistrationRequestConvertersConsumer)   <2>
+                        .authenticationProvider(authenticationProvider) <3>
+                        .authenticationProviders(authenticationProvidersConsumer)   <4>
+                        .clientRegistrationResponseHandler(clientRegistrationResponseHandler)   <5>
+                        .errorResponseHandler(errorResponseHandler) <6>
+				)
+		);
+
+	return http.build();
+}
+----
+<1> `clientRegistrationRequestConverter()`: Adds an `AuthenticationConverter` (_pre-processor_) used when attempting to extract a https://datatracker.ietf.org/doc/html/rfc7591#section-3.1[Client Registration request] from `HttpServletRequest` to an instance of `OAuth2ClientRegistrationAuthenticationToken`.
+<2> `clientRegistrationRequestConverters()`: Sets the `Consumer` providing access to the `List` of default and (optionally) added ``AuthenticationConverter``'s allowing the ability to add, remove, or customize a specific `AuthenticationConverter`.
+<3> `authenticationProvider()`: Adds an `AuthenticationProvider` (_main processor_) used for authenticating the `OAuth2ClientRegistrationAuthenticationToken`.
+<4> `authenticationProviders()`: Sets the `Consumer` providing access to the `List` of default and (optionally) added ``AuthenticationProvider``'s allowing the ability to add, remove, or customize a specific `AuthenticationProvider`.
+<5> `clientRegistrationResponseHandler()`: The `AuthenticationSuccessHandler` (_post-processor_) used for handling an "`authenticated`" `OAuth2ClientRegistrationAuthenticationToken` and returning the https://datatracker.ietf.org/doc/html/rfc7591#section-3.2.1[Client Registration response].
+<6> `errorResponseHandler()`: The `AuthenticationFailureHandler` (_post-processor_) used for handling an `OAuth2AuthenticationException` and returning the https://datatracker.ietf.org/doc/html/rfc7591#section-3.2.2[Client Registration Error response].
+
+[NOTE]
+The OAuth2 Client Registration endpoint is disabled by default.
+
+`OAuth2ClientRegistrationEndpointConfigurer` configures the `OAuth2ClientRegistrationEndpointFilter` and registers it with the OAuth2 authorization server `SecurityFilterChain` `@Bean`.
+`OAuth2ClientRegistrationEndpointFilter` is the `Filter` that processes https://datatracker.ietf.org/doc/html/rfc7591#section-3.1[Client Registration requests] and returns the https://datatracker.ietf.org/doc/html/rfc7591#section-3.2.1[OAuth2ClientRegistration response].
+
+`OAuth2ClientRegistrationEndpointFilter` is configured with the following defaults:
+
+* `*AuthenticationConverter*` -- An `OAuth2ClientRegistrationAuthenticationConverter`.
+* `*AuthenticationManager*` -- An `AuthenticationManager` composed of `OAuth2ClientRegistrationAuthenticationProvider`.
+* `*AuthenticationSuccessHandler*` -- An internal implementation that handles an "`authenticated`" `OAuth2ClientRegistrationAuthenticationToken` and returns the `OAuth2ClientRegistration` response.
+* `*AuthenticationFailureHandler*` -- An internal implementation that uses the `OAuth2Error` associated with the `OAuth2AuthenticationException` and returns the `OAuth2Error` response.
+
+The OAuth2 Client Registration endpoint is an https://datatracker.ietf.org/doc/html/rfc7591#section-3[OAuth2 protected resource], which *REQUIRES* an access token to be sent as a bearer token in the Client Registration request.
+
+[NOTE]
+OAuth2 resource server support is autoconfigured, however, a `JwtDecoder` `@Bean` is *REQUIRED* for the OAuth2 Client Registration endpoint.
+
+[IMPORTANT]
+The access token in a Client Registration request *REQUIRES* the OAuth2 scope `client.create`.
+
+[TIP]
+To allow open client registration (no access token in request), configure `OAuth2ClientRegistrationAuthenticationProvider.setOpenRegistrationAllowed(true)`.
+
 [[oauth2AuthorizationServer-oauth2-authorization-server-metadata-endpoint]]
 == OAuth2 Authorization Server Metadata Endpoint
 
@@ -950,7 +1010,7 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 <6> `errorResponseHandler()`: The `AuthenticationFailureHandler` (_post-processor_) used for handling an `OAuth2AuthenticationException` and returning the https://openid.net/specs/openid-connect-registration-1_0.html#RegistrationError[Client Registration Error response] or https://openid.net/specs/openid-connect-registration-1_0.html#ReadError[Client Read Error response].
 
 [NOTE]
-The OpenID Connect 1.0 Client Registration endpoint is disabled by default because many deployments do not require dynamic client registration.
+The OpenID Connect 1.0 Client Registration endpoint is disabled by default.
 
 `OidcClientRegistrationEndpointConfigurer` configures the `OidcClientRegistrationEndpointFilter` and registers it with the OAuth2 authorization server `SecurityFilterChain` `@Bean`.
 `OidcClientRegistrationEndpointFilter` is the `Filter` that processes https://openid.net/specs/openid-connect-registration-1_0.html#RegistrationRequest[Client Registration requests] and returns the https://openid.net/specs/openid-connect-registration-1_0.html#RegistrationResponse[OidcClientRegistration response].
