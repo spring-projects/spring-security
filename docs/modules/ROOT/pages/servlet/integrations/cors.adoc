@@ -183,3 +183,11 @@ fun corsConfigurationSource(): UrlBasedCorsConfigurationSource {
 }
 ----
 ======
+
+[WARNING]
+====
+CORS is a browser-based security feature.
+By disabling CORS in Spring Security with `.cors(CorsConfigurer::disable)`, you are not removing CORS protection from your browser.
+Instead, you are removing CORS support from Spring Security, and users will not be able to interact with your Spring backend from a cross-origin browser application.
+To fix CORS errors in your application, you must enable CORS support, and provide an appropriate configuration source.
+====
