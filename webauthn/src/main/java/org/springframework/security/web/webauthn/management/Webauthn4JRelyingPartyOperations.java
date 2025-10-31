@@ -22,15 +22,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.webauthn4j.WebAuthnManager;
-import com.webauthn4j.authenticator.Authenticator;
-import com.webauthn4j.authenticator.AuthenticatorImpl;
 import com.webauthn4j.converter.util.CborConverter;
 import com.webauthn4j.converter.util.ObjectConverter;
+import com.webauthn4j.credential.CredentialRecordImpl;
 import com.webauthn4j.data.AuthenticationData;
 import com.webauthn4j.data.AuthenticationParameters;
 import com.webauthn4j.data.RegistrationData;
@@ -248,9 +248,7 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 		byte[] attestationObject = response.getAttestationObject().getBytes();
 		byte[] clientDataJSON = response.getClientDataJSON().getBytes();
 		Challenge challenge = new DefaultChallenge(base64Challenge);
-		byte[] tokenBindingId = null /* set tokenBindingId */; // FIXME:
-																// https://www.w3.org/TR/webauthn-1/#dom-collectedclientdata-tokenbinding
-		ServerProperty serverProperty = new ServerProperty(origins, rpId, challenge, tokenBindingId);
+		ServerProperty serverProperty = new ServerProperty(origins, rpId, challenge);
 		boolean userVerificationRequired = creationOptions.getAuthenticatorSelection()
 			.getUserVerification() == UserVerificationRequirement.REQUIRED;
 		// requireUserPresence The constant Boolean value true
@@ -263,7 +261,7 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 				transports);
 		RegistrationParameters registrationParameters = new RegistrationParameters(serverProperty, pubKeyCredParams,
 				userVerificationRequired, userPresenceRequired);
-		RegistrationData wa4jRegistrationData = this.webAuthnManager.validate(webauthn4jRegistrationRequest,
+		RegistrationData wa4jRegistrationData = this.webAuthnManager.verify(webauthn4jRegistrationRequest,
 				registrationParameters);
 		AttestationObject wa4jAttestationObject = wa4jRegistrationData.getAttestationObject();
 		Assert.notNull(wa4jAttestationObject, "attestationObject cannot be null");
@@ -306,7 +304,7 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 
 	private List<com.webauthn4j.data.PublicKeyCredentialParameters> convertCredentialParamsToWebauthn4j(
 			List<PublicKeyCredentialParameters> parameters) {
-		return parameters.stream().map(this::convertParamToWebauthn4j).collect(Collectors.toUnmodifiableList());
+		return parameters.stream().map(this::convertParamToWebauthn4j).toList();
 	}
 
 	private com.webauthn4j.data.PublicKeyCredentialParameters convertParamToWebauthn4j(
@@ -382,28 +380,29 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 			.getAuthenticatorData();
 		AttestedCredentialData wa4jCredData = wa4jAuthData.getAttestedCredentialData();
 		Assert.notNull(wa4jCredData, "attestedCredentialData cannot be null");
-		AttestedCredentialData data = new AttestedCredentialData(wa4jCredData.getAaguid(), keyId.getBytes(),
-				wa4jCredData.getCOSEKey());
 
-		Authenticator authenticator = new AuthenticatorImpl(data, wa4jAttestationObject.getAttestationStatement(),
-				credentialRecord.getSignatureCount());
 		Set<Origin> origins = toOrigins();
 		Challenge challenge = new DefaultChallenge(requestOptions.getChallenge().getBytes());
-		// FIXME: should populate this
-		byte[] tokenBindingId = null /* set tokenBindingId */;
 		String rpId = requestOptions.getRpId();
 		Assert.notNull(rpId, "rpId cannot be null");
-		ServerProperty serverProperty = new ServerProperty(origins, rpId, challenge, tokenBindingId);
+		ServerProperty serverProperty = new ServerProperty(origins, rpId, challenge);
 		boolean userVerificationRequired = request.getRequestOptions()
 			.getUserVerification() == UserVerificationRequirement.REQUIRED;
 
 		com.webauthn4j.data.AuthenticationRequest authenticationRequest = new com.webauthn4j.data.AuthenticationRequest(
 				request.getPublicKey().getId().getBytes(), assertionResponse.getAuthenticatorData().getBytes(),
 				assertionResponse.getClientDataJSON().getBytes(), assertionResponse.getSignature().getBytes());
-		AuthenticationParameters authenticationParameters = new AuthenticationParameters(serverProperty, authenticator,
-				userVerificationRequired);
 
-		AuthenticationData wa4jAuthenticationData = this.webAuthnManager.validate(authenticationRequest,
+		// CollectedClientData and ExtensionsClientOutputs is registration data, and can
+		// be null at authentication time.
+		com.webauthn4j.credential.CredentialRecord wa4jCredentialRecord = new CredentialRecordImpl(
+				wa4jAttestationObject, null, null, convertTransportsToWebauthn4j(credentialRecord.getTransports()));
+		List<byte[]> allowCredentials = convertAllowedCredentialsToWebauthn4j(
+				request.getRequestOptions().getAllowCredentials());
+		AuthenticationParameters authenticationParameters = new AuthenticationParameters(serverProperty,
+				wa4jCredentialRecord, allowCredentials.isEmpty() ? null : allowCredentials, userVerificationRequired);
+
+		AuthenticationData wa4jAuthenticationData = this.webAuthnManager.verify(authenticationRequest,
 				authenticationParameters);
 
 		AuthenticatorData<AuthenticationExtensionAuthenticatorOutput> wa4jValidatedAuthData = wa4jAuthenticationData
@@ -422,6 +421,23 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 					"Unable to find UserEntity with id " + credentialRecord.getUserEntityUserId() + " for " + request);
 		}
 		return userEntity;
+	}
+
+	private static Set<com.webauthn4j.data.AuthenticatorTransport> convertTransportsToWebauthn4j(
+			Set<AuthenticatorTransport> transports) {
+		return transports.stream()
+			.map(AuthenticatorTransport::getValue)
+			.map(com.webauthn4j.data.AuthenticatorTransport::create)
+			.collect(Collectors.toSet());
+	}
+
+	private static List<byte[]> convertAllowedCredentialsToWebauthn4j(
+			List<PublicKeyCredentialDescriptor> allowedCredentials) {
+		return allowedCredentials.stream()
+			.map(PublicKeyCredentialDescriptor::getId)
+			.filter(Objects::nonNull)
+			.map(Bytes::getBytes)
+			.collect(Collectors.toList());
 	}
 
 }
