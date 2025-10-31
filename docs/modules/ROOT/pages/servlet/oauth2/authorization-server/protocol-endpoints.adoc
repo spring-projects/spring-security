@@ -271,6 +271,9 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 <6> `errorResponseHandler()`: The `AuthenticationFailureHandler` (_post-processor_) used for handling an `OAuth2AuthenticationException` and returning the https://datatracker.ietf.org/doc/html/rfc6749#section-5.2[OAuth2Error response].
 <7> `verificationUri()`: The `URI` of the custom end-user verification page to direct resource owners to on a secondary device.
 
+[NOTE]
+The OAuth2 Device Authorization endpoint is disabled by default.
+
 `OAuth2DeviceAuthorizationEndpointConfigurer` configures the `OAuth2DeviceAuthorizationEndpointFilter` and registers it with the OAuth2 authorization server `SecurityFilterChain` `@Bean`.
 `OAuth2DeviceAuthorizationEndpointFilter` is the `Filter` that processes OAuth2 device authorization requests.
 
@@ -318,6 +321,9 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 <5> `deviceVerificationResponseHandler()`: The `AuthenticationSuccessHandler` (_post-processor_) used for handling an "`authenticated`" `OAuth2DeviceVerificationAuthenticationToken` and directing the resource owner to return to their device.
 <6> `errorResponseHandler()`: The `AuthenticationFailureHandler` (_post-processor_) used for handling an `OAuth2AuthenticationException` and returning the error response.
 <7> `consentPage()`: The `URI` of the custom consent page to redirect resource owners to if consent is required during the device verification request flow.
+
+[NOTE]
+The OAuth2 Device Verification endpoint is disabled by default.
 
 `OAuth2DeviceVerificationEndpointConfigurer` configures the `OAuth2DeviceVerificationEndpointFilter` and registers it with the OAuth2 authorization server `SecurityFilterChain` `@Bean`.
 `OAuth2DeviceVerificationEndpointFilter` is the `Filter` that processes OAuth2 device verification requests (and consents).
