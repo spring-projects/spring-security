@@ -25,7 +25,7 @@ import org.springframework.util.Assert;
 
 /**
  * Provides support for
- * <a href="https://w3c.github.io/webappsec-permissions-policy//">Permisisons Policy</a>.
+ * <a href="https://w3c.github.io/webappsec-permissions-policy//">Permissions Policy</a>.
  * <p>
  * Permissions Policy allows web developers to selectively enable, disable, and modify the
  * behavior of certain APIs and web features in the browser.

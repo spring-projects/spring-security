@@ -167,7 +167,7 @@ class ServerHttpSecurityConfiguration {
 	}
 
 	/**
-	 * Applies all {@code Custmizer<ServerHttpSecurity>} Beans to
+	 * Applies all {@code Customizer<ServerHttpSecurity>} Beans to
 	 * {@link ServerHttpSecurity}.
 	 * @param context the {@link ApplicationContext}
 	 * @param http the {@link ServerHttpSecurity}

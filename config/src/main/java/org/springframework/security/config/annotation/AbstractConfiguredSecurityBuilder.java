@@ -177,7 +177,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	}
 
 	/**
-	 * Gets a shared Object. Note that object heirarchies are not considered.
+	 * Gets a shared Object. Note that object hierarchies are not considered.
 	 * @param sharedType the type of the shared Object
 	 * @return the shared Object or null if it is not found
 	 */
@@ -360,7 +360,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 
 	/**
 	 * Subclasses must implement this method to build the object that is being returned.
-	 * @return the Object to be buit or null if the implementation allows it
+	 * @return the Object to be built or null if the implementation allows it
 	 */
 	protected abstract O performBuild();
 
@@ -414,12 +414,12 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	private enum BuildState {
 
 		/**
-		 * This is the state before the {@link Builder#build()} is invoked
+		 * This is the state before the {@link SecurityBuilder#build()} is invoked
 		 */
 		UNBUILT(0),
 
 		/**
-		 * The state from when {@link Builder#build()} is first invoked until all the
+		 * The state from when {@link SecurityBuilder#build()} is first invoked until all the
 		 * {@link SecurityConfigurer#init(SecurityBuilder)} methods have been invoked.
 		 */
 		INITIALIZING(1),

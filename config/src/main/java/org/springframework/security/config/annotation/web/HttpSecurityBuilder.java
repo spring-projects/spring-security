@@ -82,7 +82,7 @@ public interface HttpSecurityBuilder<H extends HttpSecurityBuilder<H>>
 	<C> void setSharedObject(Class<C> sharedType, C object);
 
 	/**
-	 * Gets a shared Object. Note that object heirarchies are not considered.
+	 * Gets a shared Object. Note that object hierarchies are not considered.
 	 * @param sharedType the type of the shared Object
 	 * @return the shared Object or null if it is not found
 	 */

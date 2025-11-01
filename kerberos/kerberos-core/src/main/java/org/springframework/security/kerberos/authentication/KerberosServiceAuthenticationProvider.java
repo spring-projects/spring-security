@@ -39,7 +39,7 @@ import org.springframework.util.Assert;
  * It needs a <code>KerberosTicketValidator</code>, which contains the code to validate
  * the ticket, as this code is different between SUN and IBM JRE.<br>
  * It also needs an <code>UserDetailsService</code> to load the user properties and the
- * <code>GrantedAuthorities</code>, as we only get back the username from Kerbeos
+ * <code>GrantedAuthorities</code>, as we only get back the username from Kerberos
  * </p>
  *
  * You can see an example configuration in

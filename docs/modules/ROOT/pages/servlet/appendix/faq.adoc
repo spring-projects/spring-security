@@ -414,7 +414,7 @@ If you build your project with Maven, adding the appropriate Spring Security mod
 Any that are marked as "`optional`" in the Spring Security `pom.xml` files have to be added to your own `pom.xml` file if you need them.
 
 [[appendix-faq-unboundid-deps]]
-=== What dependences are needed to run an embedded UnboundID LDAP server?
+=== What dependencies are needed to run an embedded UnboundID LDAP server?
 
 You need to add the following dependency to your project:
 
