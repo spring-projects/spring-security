@@ -399,7 +399,7 @@ Second, each xref:#httpsecuritydsl-bean[HttpSecurityDsl.() -> Unit Beans] is app
 This means that if there are multiple `HttpSecurity.() -> Unit` Beans, the https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/core/annotation/Order.html[@Order] annotation can be added to the Bean definitions to control the ordering.
 
 Next, every xref:#top-level-dsl-bean[Top Level Security Dsl Beans] type is looked up and each is is applied using `ObjectProvider#orderedStream()`.
-If there is are differt types of top level security Beans (.e.g. `HeadersDsl.() -> Unit` and `HttpsRedirectDsl.() -> Unit`), then the order that each Dsl type is invoked is undefined.
+If there is are different types of top level security Beans (.e.g. `HeadersDsl.() -> Unit` and `HttpsRedirectDsl.() -> Unit`), then the order that each Dsl type is invoked is undefined.
 However, the order that each instance of of the same top level security Bean type is defined by `ObjectProvider#orderedStream()` and can be controlled using `@Order` on the Bean the definitions.
 
 Finally, the `HttpSecurityDsl` Bean is injected as a Bean.

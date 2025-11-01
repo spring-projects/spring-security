@@ -146,7 +146,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * This should not use RequestAttributeSecurityContextRepository since that is
-	 * stateless and sesison management is about state management.
+	 * stateless and session management is about state management.
 	 */
 	private SecurityContextRepository sessionManagementSecurityContextRepository = new HttpSessionSecurityContextRepository();
 

@@ -164,7 +164,7 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 	 * Called if the {@code AuthenticationManager} rejects the authentication object
 	 * returned from the {@code RememberMeServices} {@code autoLogin} method. This method
 	 * will not be called when no remember-me token is present in the request and
-	 * {@code autoLogin} reurns null.
+	 * {@code autoLogin} returns {@code null}.
 	 */
 	protected void onUnsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException failed) {
@@ -184,7 +184,7 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 	 * successfully authenticated. By default, the filter will just allow the current
 	 * request to proceed, but if an {@code AuthenticationSuccessHandler} is set, it will
 	 * be invoked and the {@code doFilter()} method will return immediately, thus allowing
-	 * the application to redirect the user to a specific URL, regardless of whatthe
+	 * the application to redirect the user to a specific URL, regardless of what the
 	 * original request was for.
 	 * @param successHandler the strategy to invoke immediately before returning from
 	 * {@code doFilter()}.

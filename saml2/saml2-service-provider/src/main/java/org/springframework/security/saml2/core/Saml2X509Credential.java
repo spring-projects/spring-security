@@ -48,7 +48,7 @@ public final class Saml2X509Credential implements Serializable {
 
 	/**
 	 * Creates a {@link Saml2X509Credential} using the provided parameters
-	 * @param certificate the credential's public certificiate
+	 * @param certificate the credential's public certificate
 	 * @param types the credential's intended usages, must be one of
 	 * {@link Saml2X509CredentialType#VERIFICATION} or
 	 * {@link Saml2X509CredentialType#ENCRYPTION} or both.

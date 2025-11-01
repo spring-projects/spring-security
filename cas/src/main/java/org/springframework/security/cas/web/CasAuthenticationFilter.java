@@ -326,7 +326,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	/**
 	 * Use this {@code RequestMatcher} to match proxy receptor requests. Without setting
 	 * this matcher, {@link CasAuthenticationFilter} will not capture any proxy receptor
-	 * requets.
+	 * requests.
 	 * @param proxyReceptorMatcher the {@link RequestMatcher} to use
 	 * @since 6.5
 	 */
@@ -383,7 +383,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	}
 
 	/**
-	 * Indicates if the request is elgible to process a service ticket. This method exists
+	 * Indicates if the request is eligible to process a service ticket. This method exists
 	 * for readability.
 	 * @param request
 	 * @param response
@@ -396,7 +396,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	}
 
 	/**
-	 * Indicates if the request is elgible to process a proxy ticket.
+	 * Indicates if the request is eligible to process a proxy ticket.
 	 * @param request
 	 * @return
 	 */
@@ -419,7 +419,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	}
 
 	/**
-	 * Indicates if the request is elgible to be processed as the proxy receptor.
+	 * Indicates if the request is eligible to be processed as the proxy receptor.
 	 * @param request
 	 * @return
 	 */

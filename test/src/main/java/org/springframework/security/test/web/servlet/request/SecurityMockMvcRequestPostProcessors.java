@@ -148,7 +148,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 	/**
 	 * Populates the provided X509Certificate instances on the request.
-	 * @param certificates the X509Certificate instances to pouplate
+	 * @param certificates the X509Certificate instances to populate
 	 * @return the
 	 * {@link org.springframework.test.web.servlet.request.RequestPostProcessor} to use.
 	 */
@@ -157,7 +157,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	}
 
 	/**
-	 * Finds an X509Cetificate using a resoureName and populates it on the request.
+	 * Finds an X509Certificate using a resourceName and populates it on the request.
 	 * @param resourceName the name of the X509Certificate resource
 	 * @return the
 	 * {@link org.springframework.test.web.servlet.request.RequestPostProcessor} to use.

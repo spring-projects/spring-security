@@ -31,7 +31,7 @@ public interface KerberosTicketValidator {
 
 	/**
 	 * Validates a Kerberos/SPNEGO ticket.
-	 * @param token Kerbeos/SPNEGO ticket
+	 * @param token Kerberos/SPNEGO ticket
 	 * @return authenticated kerberos principal
 	 * @throws BadCredentialsException if the ticket is not valid
 	 */

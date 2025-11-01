@@ -268,9 +268,9 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 		 * The following are valid patterns and their meaning
 		 * <ul>
 		 * <li>{@code /path} - match exactly and only `/path`</li>
-		 * <li>{@code /path/**} - match `/path` and any of its descendents</li>
+		 * <li>{@code /path/**} - match `/path` and any of its descendants</li>
 		 * <li>{@code /path/{value}/**} - match `/path/subdirectory` and any of its
-		 * descendents, capturing the value of the subdirectory in
+		 * descendants, capturing the value of the subdirectory in
 		 * {@link RequestAuthorizationContext#getVariables()}</li>
 		 * </ul>
 		 *
@@ -303,9 +303,9 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 		 * The following are valid patterns and their meaning
 		 * <ul>
 		 * <li>{@code /path} - match exactly and only `/path`</li>
-		 * <li>{@code /path/**} - match `/path` and any of its descendents</li>
+		 * <li>{@code /path/**} - match `/path` and any of its descendants</li>
 		 * <li>{@code /path/{value}/**} - match `/path/subdirectory` and any of its
-		 * descendents, capturing the value of the subdirectory in
+		 * descendants, capturing the value of the subdirectory in
 		 * {@link RequestAuthorizationContext#getVariables()}</li>
 		 * </ul>
 		 *
