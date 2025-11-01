@@ -105,6 +105,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  *
  * @author Josh Cummings
  * @author Ngoc Nhan
+ * @author Andrey Litvitski
  * @since 5.6
  * @see Saml2LogoutConfigurer
  */
@@ -126,6 +127,8 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	private LogoutRequestConfigurer logoutRequestConfigurer;
 
 	private LogoutResponseConfigurer logoutResponseConfigurer;
+
+	private RequestMatcher logoutRequestMatcher;
 
 	/**
 	 * Creates a new instance
@@ -192,6 +195,16 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	public Saml2LogoutConfigurer<H> logoutResponse(
 			Customizer<LogoutResponseConfigurer> logoutResponseConfigurerCustomizer) {
 		logoutResponseConfigurerCustomizer.customize(this.logoutResponseConfigurer);
+		return this;
+	}
+
+	/**
+	 * Sets a custom {@link RequestMatcher} to use for SAML logout requests.
+	 * @param logoutRequestMatcher the matcher to use
+	 * @return the {@link Saml2LogoutConfigurer} for further customization
+	 */
+	public Saml2LogoutConfigurer<H> logoutRequestMatcher(RequestMatcher logoutRequestMatcher) {
+		this.logoutRequestMatcher = logoutRequestMatcher;
 		return this;
 	}
 
@@ -271,6 +284,9 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	private RequestMatcher createLogoutMatcher() {
+		if (this.logoutRequestMatcher != null) {
+			return this.logoutRequestMatcher;
+		}
 		RequestMatcher logout = getRequestMatcherBuilder().matcher(HttpMethod.POST, this.logoutUrl);
 		RequestMatcher saml2 = new Saml2RequestMatcher(getSecurityContextHolderStrategy());
 		return new AndRequestMatcher(logout, saml2);
