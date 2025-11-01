@@ -50,7 +50,7 @@ import org.springframework.util.Assert;
  * The default settings are for HSQLDB. If you are using a different database you will
  * probably need to set the {@link #setSidIdentityQuery(String) sidIdentityQuery} and
  * {@link #setClassIdentityQuery(String) classIdentityQuery} properties appropriately. The
- * other queries, SQL inserts and updates can also be customized to accomodate schema
+ * other queries, SQL inserts and updates can also be customized to accommodate schema
  * variations, but must produce results consistent with those expected by the defaults.
  * <p>
  * See the appendix of the Spring Security reference manual for more information on the
@@ -471,7 +471,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 				this.insertClass = DEFAULT_INSERT_INTO_ACL_CLASS_WITH_ID;
 			}
 			else {
-				log.debug("Insert class statement has already been overridden, so not overridding the default");
+				log.debug("Insert class statement has already been overridden, so not overriding the default");
 			}
 		}
 	}

@@ -95,7 +95,7 @@ public class Saml2MetadataConfigurer<H extends HttpSecurityBuilder<H>>
 	 * If there is no {@code registrationId} and your
 	 * {@link RelyingPartyRegistrationRepository} is {code Iterable}, the metadata
 	 * endpoint will try and show all relying parties' metadata in a single
-	 * {@code <md:EntitiesDecriptor} element.
+	 * {@code <md:EntitiesDescriptor} element.
 	 *
 	 * <p>
 	 * If you need a more sophisticated lookup strategy than these, use

@@ -133,7 +133,7 @@ final class FilterOrderRegistration {
 	/**
 	 * Register a {@link Filter} with its specific position. If the {@link Filter} was
 	 * already registered before, the position previously defined is not going to be
-	 * overriden
+	 * overridden
 	 * @param filter the {@link Filter} to register
 	 * @param position the position to associate with the {@link Filter}
 	 */

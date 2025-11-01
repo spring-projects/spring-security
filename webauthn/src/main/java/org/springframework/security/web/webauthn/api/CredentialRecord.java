@@ -71,7 +71,7 @@ public interface CredentialRecord {
 
 	/**
 	 * The <a href=
-	 * "https://www.w3.org/TR/webauthn-3/#abstract-opdef-credential-record-transports">transpots</a>
+	 * "https://www.w3.org/TR/webauthn-3/#abstract-opdef-credential-record-transports">transports</a>
 	 * is the value returned from {@code response.getTransports()}.
 	 * @return
 	 */

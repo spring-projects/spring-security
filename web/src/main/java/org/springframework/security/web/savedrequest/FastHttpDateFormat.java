@@ -141,7 +141,7 @@ public final class FastHttpDateFormat {
 	 * Parses date with given formatters.
 	 * @param value The string to parse
 	 * @param formats Array of formats to use
-	 * @return Parsed date (or <code>null</code> if no formatter mached)
+	 * @return Parsed date (or <code>null</code> if no formatter matched)
 	 */
 	private static @Nullable Long internalParseDate(String value, DateFormat[] formats) {
 		Date date = null;

@@ -160,7 +160,7 @@ public class JdbcAclService implements AclService {
 				this.findChildrenSql = DEFAULT_SELECT_ACL_WITH_PARENT_SQL_WITH_CLASS_ID_TYPE;
 			}
 			else {
-				log.debug("Find children statement has already been overridden, so not overridding the default");
+				log.debug("Find children statement has already been overridden, so not overriding the default");
 			}
 		}
 	}

@@ -100,7 +100,7 @@ public interface SecurityExpressionOperations {
 	boolean isAnonymous();
 
 	/**
-	 * Determines ifthe {@link #getAuthentication()} is authenticated
+	 * Determines if the {@link #getAuthentication()} is authenticated
 	 * @return true if the {@link #getAuthentication()} is authenticated, else false
 	 */
 	boolean isAuthenticated();

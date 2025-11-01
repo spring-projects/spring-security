@@ -203,7 +203,7 @@ public final class PublicKeyCredential<R extends AuthenticatorResponse> implemen
 
 		/**
 		 * Sets the {@link #getAuthenticatorAttachment()} property.
-		 * @param authenticatorAttachment the authenticator attachement
+		 * @param authenticatorAttachment the authenticator attachment
 		 * @return the PublicKeyCredentialBuilder
 		 */
 		public PublicKeyCredentialBuilder authenticatorAttachment(AuthenticatorAttachment authenticatorAttachment) {
