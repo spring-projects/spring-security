@@ -87,8 +87,8 @@ public final class UrlUtils {
 	 * (SEC-1255). This method is typically used to return a URL for matching against
 	 * secured paths, hence the decoded form is used in preference to the requestURI for
 	 * building the returned value. But this method may also be called using dummy request
-	 * objects which just have the requestURI and contextPath set, for example, so it
-	 * will fall back to using those.
+	 * objects which just have the requestURI and contextPath set, for example, so it will
+	 * fall back to using those.
 	 * @return the decoded URL, excluding any server name, context path or servlet path
 	 *
 	 */

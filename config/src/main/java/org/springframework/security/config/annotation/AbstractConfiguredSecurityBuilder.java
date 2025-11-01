@@ -419,8 +419,8 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 		UNBUILT(0),
 
 		/**
-		 * The state from when {@link SecurityBuilder#build()} is first invoked until all the
-		 * {@link SecurityConfigurer#init(SecurityBuilder)} methods have been invoked.
+		 * The state from when {@link SecurityBuilder#build()} is first invoked until all
+		 * the {@link SecurityConfigurer#init(SecurityBuilder)} methods have been invoked.
 		 */
 		INITIALIZING(1),
 
