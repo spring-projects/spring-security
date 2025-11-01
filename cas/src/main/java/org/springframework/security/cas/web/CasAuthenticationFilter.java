@@ -383,8 +383,8 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	}
 
 	/**
-	 * Indicates if the request is eligible to process a service ticket. This method exists
-	 * for readability.
+	 * Indicates if the request is eligible to process a service ticket. This method
+	 * exists for readability.
 	 * @param request
 	 * @param response
 	 * @return
