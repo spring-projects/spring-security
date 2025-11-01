@@ -799,17 +799,17 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 		@Override
 		public Enumeration<String> getParameterNames() {
-			Enumeration<String> paramaterNames = super.getParameterNames();
+			Enumeration<String> parameterNames = super.getParameterNames();
 			return new Enumeration<>() {
 
 				@Override
 				public boolean hasMoreElements() {
-					return paramaterNames.hasMoreElements();
+					return parameterNames.hasMoreElements();
 				}
 
 				@Override
 				public String nextElement() {
-					String name = paramaterNames.nextElement();
+					String name = parameterNames.nextElement();
 					validateAllowedParameterName(name);
 					return name;
 				}
