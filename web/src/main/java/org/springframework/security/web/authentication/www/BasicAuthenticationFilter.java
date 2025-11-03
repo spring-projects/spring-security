@@ -29,6 +29,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
+import org.springframework.lang.Contract;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -191,7 +192,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 			if (authenticationIsRequired(username)) {
 				Authentication authResult = this.authenticationManager.authenticate(authRequest);
 				Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
-				if (current != null && current.isAuthenticated() && declaresToBuilder(authResult)) {
+				if (shouldPerformMfa(current, authResult)) {
 					authResult = authResult.toBuilder()
 					// @formatter:off
 						.authorities((a) -> {
@@ -233,6 +234,17 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 		}
 
 		chain.doFilter(request, response);
+	}
+
+	@Contract("null, _ -> false")
+	private boolean shouldPerformMfa(@Nullable Authentication current, Authentication authenticationResult) {
+		if (current == null || !current.isAuthenticated()) {
+			return false;
+		}
+		if (!declaresToBuilder(authenticationResult)) {
+			return false;
+		}
+		return current.getName().equals(authenticationResult.getName());
 	}
 
 	private static boolean declaresToBuilder(Authentication authentication) {

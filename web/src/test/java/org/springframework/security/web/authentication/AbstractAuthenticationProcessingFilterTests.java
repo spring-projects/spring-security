@@ -454,11 +454,30 @@ public class AbstractAuthenticationProcessingFilterTests {
 		SecurityContextHolder.setContext(new SecurityContextImpl(existingAuthn));
 		MockHttpServletRequest request = createMockAuthenticationRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		MockAuthenticationFilter filter = new MockAuthenticationFilter(true);
+		Authentication newAuthn = UsernamePasswordAuthenticationToken.authenticated(existingAuthn.getName(), "test",
+				AuthorityUtils.createAuthorityList("TEST"));
+		MockAuthenticationFilter filter = new MockAuthenticationFilter(newAuthn);
 		filter.doFilter(request, response, new MockFilterChain(false));
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		assertThat(authentication.getAuthorities()).extracting(GrantedAuthority::getAuthority)
 			.containsExactlyInAnyOrder(ROLE_EXISTING, "TEST");
+	}
+
+	// gh-18112
+	@Test
+	void doFilterWhenDifferentPrincipalThenDoesNotCombine() throws Exception {
+		String ROLE_EXISTING = "ROLE_EXISTING";
+		TestingAuthenticationToken existingAuthn = new TestingAuthenticationToken("username", "password",
+				ROLE_EXISTING);
+		SecurityContextHolder.setContext(new SecurityContextImpl(existingAuthn));
+		MockHttpServletRequest request = createMockAuthenticationRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		Authentication newAuthn = UsernamePasswordAuthenticationToken
+			.authenticated(existingAuthn.getName() + "different", "test", AuthorityUtils.createAuthorityList("TEST"));
+		MockAuthenticationFilter filter = new MockAuthenticationFilter(newAuthn);
+		filter.doFilter(request, response, new MockFilterChain(false));
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		assertThat(authentication).isEqualTo(newAuthn);
 	}
 
 	/**

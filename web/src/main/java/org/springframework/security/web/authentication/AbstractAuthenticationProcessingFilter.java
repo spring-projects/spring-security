@@ -35,6 +35,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.core.log.LogMessage;
+import org.springframework.lang.Contract;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -253,7 +254,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 				return;
 			}
 			Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
-			if (current != null && current.isAuthenticated() && declaresToBuilder(authenticationResult)) {
+			if (shouldPerformMfa(current, authenticationResult)) {
 				authenticationResult = authenticationResult.toBuilder()
 				// @formatter:off
 					.authorities((a) -> {
@@ -284,6 +285,17 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 			// Authentication failed
 			unsuccessfulAuthentication(request, response, ex);
 		}
+	}
+
+	@Contract("null, _ -> false")
+	private boolean shouldPerformMfa(@Nullable Authentication current, Authentication authenticationResult) {
+		if (current == null || !current.isAuthenticated()) {
+			return false;
+		}
+		if (!declaresToBuilder(authenticationResult)) {
+			return false;
+		}
+		return current.getName().equals(authenticationResult.getName());
 	}
 
 	private static boolean declaresToBuilder(Authentication authentication) {

@@ -30,6 +30,7 @@ import jakarta.servlet.http.HttpSession;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.Contract;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.core.Authentication;
@@ -189,7 +190,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 				return;
 			}
 			Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
-			if (current != null && current.isAuthenticated() && declaresToBuilder(authenticationResult)) {
+			if (shouldPerformMfa(current, authenticationResult)) {
 				authenticationResult = authenticationResult.toBuilder()
 				// @formatter:off
 					.authorities((a) -> {
@@ -214,6 +215,17 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 		catch (AuthenticationException ex) {
 			unsuccessfulAuthentication(request, response, ex);
 		}
+	}
+
+	@Contract("null, _ -> false")
+	private boolean shouldPerformMfa(@Nullable Authentication current, Authentication authenticationResult) {
+		if (current == null || !current.isAuthenticated()) {
+			return false;
+		}
+		if (!declaresToBuilder(authenticationResult)) {
+			return false;
+		}
+		return current.getName().equals(authenticationResult.getName());
 	}
 
 	private static boolean declaresToBuilder(Authentication authentication) {

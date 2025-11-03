@@ -33,6 +33,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.core.log.LogMessage;
+import org.springframework.lang.Contract;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
@@ -209,7 +210,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 			authenticationRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
 			Authentication authenticationResult = this.authenticationManager.authenticate(authenticationRequest);
 			Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
-			if (current != null && current.isAuthenticated() && declaresToBuilder(authenticationResult)) {
+			if (shouldPerformMfa(current, authenticationResult)) {
 				authenticationResult = authenticationResult.toBuilder()
 				// @formatter:off
 					.authorities((a) -> {
@@ -233,6 +234,17 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 				throw ex;
 			}
 		}
+	}
+
+	@Contract("null, _ -> false")
+	private boolean shouldPerformMfa(@Nullable Authentication current, Authentication authenticationResult) {
+		if (current == null || !current.isAuthenticated()) {
+			return false;
+		}
+		if (!declaresToBuilder(authenticationResult)) {
+			return false;
+		}
+		return current.getName().equals(authenticationResult.getName());
 	}
 
 	private static boolean declaresToBuilder(Authentication authentication) {

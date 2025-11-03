@@ -517,6 +517,26 @@ public class BasicAuthenticationFilterTests {
 			.containsExactlyInAnyOrder(ROLE_EXISTING, "TEST");
 	}
 
+	// gh-18112
+	@Test
+	void doFilterWhenDifferentPrincipalThenDoesNotCombine() throws Exception {
+		String ROLE_EXISTING = "ROLE_EXISTING";
+		TestingAuthenticationToken existingAuthn = new TestingAuthenticationToken("username", "password",
+				ROLE_EXISTING);
+		SecurityContextHolder.setContext(new SecurityContextImpl(existingAuthn));
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader(HttpHeaders.AUTHORIZATION, "Basic " + CodecTestUtils.encodeBase64("a:b"));
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		AuthenticationManager manager = mock(AuthenticationManager.class);
+		TestingAuthenticationToken newAuthn = new TestingAuthenticationToken(existingAuthn.getName() + "different",
+				"password", "TEST");
+		given(manager.authenticate(any())).willReturn(newAuthn);
+		BasicAuthenticationFilter filter = new BasicAuthenticationFilter(manager);
+		filter.doFilter(request, response, new MockFilterChain());
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		assertThat(authentication).isEqualTo(newAuthn);
+	}
+
 	/**
 	 * This is critical to avoid adding duplicate GrantedAuthority instances with the
 	 * same' authority when the issuedAt is too old and a new instance is requested.
