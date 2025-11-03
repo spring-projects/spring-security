@@ -406,6 +406,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		this.filter = createFilterAuthenticatesWith(new TestingAuthenticationToken("username", "password", "TEST"));
+		this.filter.setMfaEnabled(true);
 		this.filter.doFilter(request, response, new MockFilterChain());
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		// @formatter:off
@@ -413,6 +414,21 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 				.extracting(GrantedAuthority::getAuthority)
 				.containsExactlyInAnyOrder(ROLE_EXISTING, "TEST");
 		// @formatter:on
+	}
+
+	@Test
+	void doFilterWhenDefaultThenMfaDisabled() throws Exception {
+		String ROLE_EXISTING = "ROLE_EXISTING";
+		TestingAuthenticationToken existingAuthn = new TestingAuthenticationToken("username", "password",
+				ROLE_EXISTING);
+		SecurityContextHolder.setContext(new SecurityContextImpl(existingAuthn));
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		TestingAuthenticationToken newAuthn = new TestingAuthenticationToken("username", "password", "TEST");
+		this.filter = createFilterAuthenticatesWith(newAuthn);
+		this.filter.doFilter(request, response, new MockFilterChain());
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		assertThat(authentication).isEqualTo(newAuthn);
 	}
 
 	// gh-18112
@@ -427,6 +443,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		TestingAuthenticationToken newAuthn = new TestingAuthenticationToken(existingAuthn.getName() + "different",
 				"password", "TEST");
 		this.filter = createFilterAuthenticatesWith(newAuthn);
+		this.filter.setMfaEnabled(true);
 		this.filter.doFilter(request, response, new MockFilterChain());
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		assertThat(authentication).isEqualTo(newAuthn);
@@ -446,6 +463,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		this.filter = createFilterAuthenticatesWith(
 				new TestingAuthenticationToken("username", "password", new DefaultEqualsGrantedAuthority()));
+		this.filter.setMfaEnabled(true);
 		this.filter.doFilter(request, response, new MockFilterChain());
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		// @formatter:off
@@ -463,6 +481,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		this.filter = createFilterAuthenticatesWith(
 				new NonBuildableAuthenticationToken("username", "password", "FACTORTWO"));
+		this.filter.setMfaEnabled(true);
 		this.filter.doFilter(request, response, new MockFilterChain());
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		SecurityAssertions.assertThat(authentication)

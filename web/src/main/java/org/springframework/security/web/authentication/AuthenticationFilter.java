@@ -91,6 +91,8 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
 	private AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver;
 
+	private boolean mfaEnabled;
+
 	public AuthenticationFilter(AuthenticationManager authenticationManager,
 			AuthenticationConverter authenticationConverter) {
 		this((AuthenticationManagerResolver<HttpServletRequest>) (r) -> authenticationManager, authenticationConverter);
@@ -115,6 +117,15 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
 	public AuthenticationConverter getAuthenticationConverter() {
 		return this.authenticationConverter;
+	}
+
+	/**
+	 * Enables Multi-Factor Authentication (MFA) support.
+	 * @param mfaEnabled true to enable MFA support, false to disable it. Default is
+	 * false.
+	 */
+	public void setMfaEnabled(boolean mfaEnabled) {
+		this.mfaEnabled = mfaEnabled;
 	}
 
 	public void setAuthenticationConverter(AuthenticationConverter authenticationConverter) {
@@ -219,6 +230,9 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
 	@Contract("null, _ -> false")
 	private boolean shouldPerformMfa(@Nullable Authentication current, Authentication authenticationResult) {
+		if (!this.mfaEnabled) {
+			return false;
+		}
 		if (current == null || !current.isAuthenticated()) {
 			return false;
 		}

@@ -511,10 +511,29 @@ public class BasicAuthenticationFilterTests {
 		AuthenticationManager manager = mock(AuthenticationManager.class);
 		given(manager.authenticate(any())).willReturn(new TestingAuthenticationToken("username", "password", "TEST"));
 		BasicAuthenticationFilter filter = new BasicAuthenticationFilter(manager);
+		filter.setMfaEnabled(true);
 		filter.doFilter(request, response, new MockFilterChain());
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		assertThat(authentication.getAuthorities()).extracting(GrantedAuthority::getAuthority)
 			.containsExactlyInAnyOrder(ROLE_EXISTING, "TEST");
+	}
+
+	@Test
+	void doFilterWhenDefaultThenMfaDisabled() throws Exception {
+		String ROLE_EXISTING = "ROLE_EXISTING";
+		TestingAuthenticationToken existingAuthn = new TestingAuthenticationToken("username", "password",
+				ROLE_EXISTING);
+		SecurityContextHolder.setContext(new SecurityContextImpl(existingAuthn));
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader(HttpHeaders.AUTHORIZATION, "Basic " + CodecTestUtils.encodeBase64("a:b"));
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		AuthenticationManager manager = mock(AuthenticationManager.class);
+		TestingAuthenticationToken newAuthn = new TestingAuthenticationToken("username", "password", "TEST");
+		given(manager.authenticate(any())).willReturn(newAuthn);
+		BasicAuthenticationFilter filter = new BasicAuthenticationFilter(manager);
+		filter.doFilter(request, response, new MockFilterChain());
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		assertThat(authentication).isEqualTo(newAuthn);
 	}
 
 	// gh-18112
@@ -532,6 +551,7 @@ public class BasicAuthenticationFilterTests {
 				"password", "TEST");
 		given(manager.authenticate(any())).willReturn(newAuthn);
 		BasicAuthenticationFilter filter = new BasicAuthenticationFilter(manager);
+		filter.setMfaEnabled(true);
 		filter.doFilter(request, response, new MockFilterChain());
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		assertThat(authentication).isEqualTo(newAuthn);

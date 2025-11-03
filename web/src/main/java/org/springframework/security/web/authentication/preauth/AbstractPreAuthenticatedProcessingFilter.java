@@ -123,6 +123,8 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 
 	private SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
 
+	private boolean mfaEnabled;
+
 	/**
 	 * Check whether all required properties have been set.
 	 */
@@ -238,6 +240,9 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 
 	@Contract("null, _ -> false")
 	private boolean shouldPerformMfa(@Nullable Authentication current, Authentication authenticationResult) {
+		if (!this.mfaEnabled) {
+			return false;
+		}
 		if (current == null || !current.isAuthenticated()) {
 			return false;
 		}
@@ -297,6 +302,15 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	@Override
 	public void setApplicationEventPublisher(ApplicationEventPublisher anApplicationEventPublisher) {
 		this.eventPublisher = anApplicationEventPublisher;
+	}
+
+	/**
+	 * Enables Multi-Factor Authentication (MFA) support.
+	 * @param mfaEnabled true to enable MFA support, false to disable it. Default is
+	 * false.
+	 */
+	public void setMfaEnabled(boolean mfaEnabled) {
+		this.mfaEnabled = mfaEnabled;
 	}
 
 	/**

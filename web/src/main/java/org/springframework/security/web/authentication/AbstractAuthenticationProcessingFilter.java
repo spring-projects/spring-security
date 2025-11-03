@@ -158,6 +158,8 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 
 	private SecurityContextRepository securityContextRepository = new RequestAttributeSecurityContextRepository();
 
+	private boolean mfaEnabled;
+
 	/**
 	 * @param defaultFilterProcessesUrl the default value for <tt>filterProcessesUrl</tt>.
 	 */
@@ -289,6 +291,9 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 
 	@Contract("null, _ -> false")
 	private boolean shouldPerformMfa(@Nullable Authentication current, Authentication authenticationResult) {
+		if (!this.mfaEnabled) {
+			return false;
+		}
 		if (current == null || !current.isAuthenticated()) {
 			return false;
 		}
@@ -489,6 +494,15 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 
 	public void setAllowSessionCreation(boolean allowSessionCreation) {
 		this.allowSessionCreation = allowSessionCreation;
+	}
+
+	/**
+	 * Enables Multi-Factor Authentication (MFA) support.
+	 * @param mfaEnabled true to enable MFA support, false to disable it. Default is
+	 * false.
+	 */
+	public void setMfaEnabled(boolean mfaEnabled) {
+		this.mfaEnabled = mfaEnabled;
 	}
 
 	/**

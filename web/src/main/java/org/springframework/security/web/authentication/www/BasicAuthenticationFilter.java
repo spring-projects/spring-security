@@ -116,6 +116,8 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 
 	private SecurityContextRepository securityContextRepository = new RequestAttributeSecurityContextRepository();
 
+	private boolean mfaEnabled;
+
 	/**
 	 * Creates an instance which will authenticate against the supplied
 	 * {@code AuthenticationManager} and which will ignore failed authentication attempts,
@@ -154,6 +156,15 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 	public void setSecurityContextRepository(SecurityContextRepository securityContextRepository) {
 		Assert.notNull(securityContextRepository, "securityContextRepository cannot be null");
 		this.securityContextRepository = securityContextRepository;
+	}
+
+	/**
+	 * Enables Multi-Factor Authentication (MFA) support.
+	 * @param mfaEnabled true to enable MFA support, false to disable it. Default is
+	 * false.
+	 */
+	public void setMfaEnabled(boolean mfaEnabled) {
+		this.mfaEnabled = mfaEnabled;
 	}
 
 	/**
@@ -238,6 +249,9 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 
 	@Contract("null, _ -> false")
 	private boolean shouldPerformMfa(@Nullable Authentication current, Authentication authenticationResult) {
+		if (!this.mfaEnabled) {
+			return false;
+		}
 		if (current == null || !current.isAuthenticated()) {
 			return false;
 		}

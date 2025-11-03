@@ -34,7 +34,7 @@ import org.springframework.security.authorization.DefaultAuthorizationManagerFac
  * @since 7.0
  * @see EnableGlobalMultiFactorAuthentication
  */
-class GlobalMultiFactorAuthenticationConfiguration implements ImportAware {
+class AuthorizationManagerFactoryConfiguration implements ImportAware {
 
 	private String[] authorities;
 
@@ -51,7 +51,7 @@ class GlobalMultiFactorAuthenticationConfiguration implements ImportAware {
 		Map<String, Object> multiFactorAuthenticationAttrs = importMetadata
 			.getAnnotationAttributes(EnableGlobalMultiFactorAuthentication.class.getName());
 
-		this.authorities = (String[]) multiFactorAuthenticationAttrs.get("authorities");
+		this.authorities = (String[]) multiFactorAuthenticationAttrs.getOrDefault("authorities", new String[0]);
 	}
 
 }

@@ -51,13 +51,15 @@ import org.springframework.security.authorization.DefaultAuthorizationManagerFac
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import(GlobalMultiFactorAuthenticationConfiguration.class)
+@Import(GlobalMultiFactorAuthenticationSelector.class)
 public @interface EnableGlobalMultiFactorAuthentication {
 
 	/**
 	 * The additional authorities that are required.
 	 * @return the additional authorities that are required (e.g. {
-	 * FactorGrantedAuthority.FACTOR_OTT, FactorGrantedAuthority.FACTOR_PASSWORD })
+	 * FactorGrantedAuthority.FACTOR_OTT, FactorGrantedAuthority.FACTOR_PASSWORD }). Can
+	 * be null or an empty array if no additional authorities are required (if
+	 * authorization rules are not globally requiring MFA).
 	 * @see org.springframework.security.core.authority.FactorGrantedAuthority
 	 */
 	String[] authorities();
