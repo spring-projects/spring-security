@@ -16,10 +16,7 @@
 
 package org.springframework.security.web.server.authentication;
 
-import java.lang.reflect.Method;
-import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,7 +27,6 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.server.WebFilterExchange;
@@ -126,49 +122,10 @@ public class AuthenticationWebFilter implements WebFilter {
 			.flatMap((authenticationManager) -> authenticationManager.authenticate(token))
 			.switchIfEmpty(Mono
 				.defer(() -> Mono.error(new IllegalStateException("No provider found for " + token.getClass()))))
-			.flatMap(this::applyCurrentAuthenication)
 			.flatMap(
 					(authentication) -> onAuthenticationSuccess(authentication, new WebFilterExchange(exchange, chain)))
 			.doOnError(AuthenticationException.class,
 					(ex) -> logger.debug(LogMessage.format("Authentication failed: %s", ex.getMessage()), ex));
-	}
-
-	private Mono<Authentication> applyCurrentAuthenication(Authentication result) {
-		return ReactiveSecurityContextHolder.getContext().map((context) -> {
-			Authentication current = context.getAuthentication();
-			if (current == null) {
-				return result;
-			}
-			if (!current.isAuthenticated()) {
-				return result;
-			}
-			if (!declaresToBuilder(result)) {
-				return result;
-			}
-			return result.toBuilder()
-			// @formatter:off
-				.authorities((a) -> {
-					Set<String> newAuthorities = a.stream()
-						.map(GrantedAuthority::getAuthority)
-						.collect(Collectors.toUnmodifiableSet());
-					for (GrantedAuthority currentAuthority : current.getAuthorities()) {
-						if (!newAuthorities.contains(currentAuthority.getAuthority())) {
-							a.add(currentAuthority);
-						}
-					}
-				})
-				.build();
-				// @formatter:on
-		}).switchIfEmpty(Mono.just(result));
-	}
-
-	private static boolean declaresToBuilder(Authentication authentication) {
-		for (Method method : authentication.getClass().getDeclaredMethods()) {
-			if (method.getName().equals("toBuilder") && method.getParameterTypes().length == 0) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	protected Mono<Void> onAuthenticationSuccess(Authentication authentication, WebFilterExchange webFilterExchange) {
