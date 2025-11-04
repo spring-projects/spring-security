@@ -1,0 +1,41 @@
+name: Finalize Release
+
+on:
+  workflow_dispatch: # Manual trigger
+
+env:
+  DEVELOCITY_ACCESS_KEY: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
+
+permissions:
+  contents: read
+
+jobs:
+  project-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.project-version.outputs.version }}
+    steps:
+      - id: project-version
+        run: echo "version=$(grep '^version=' gradle.properties | cut -d'=' -f2)" >> $GITHUB_OUTPUT
+  perform-release:
+    name: Perform Release
+    needs: [ project-version ]
+    uses: spring-io/spring-security-release-tools/.github/workflows/perform-release.yml@v1
+    with:
+      should-perform-release: true
+      project-version: ${{ needs.project-version.outputs.version }}
+      milestone-repo-url: https://repo1.maven.org/maven2
+      release-repo-url: https://repo1.maven.org/maven2
+      artifact-path: org/springframework/security/spring-security-core
+      slack-announcing-id: spring-security-announcing
+    secrets: inherit
+  send-notification:
+    name: Send Notification
+    needs: [ perform-release ]
+    if: ${{ !success() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Notification
+        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@v1
+        with:
+          webhook-url: ${{ secrets.SPRING_SECURITY_CI_GCHAT_WEBHOOK_URL }}
