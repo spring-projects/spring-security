@@ -2052,7 +2052,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 		http
 	 * 			// ...
 	 * 			.webAuthn((webAuthn) -&gt; webAuthn
-	 * 				.rpName("Spring Security Relying Party")
 	 * 				.rpId("example.com")
 	 * 				.allowedOrigins("https://example.com")
 	 * 			);

@@ -19,6 +19,8 @@ package org.springframework.security.config.annotation.web.configurers;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -54,6 +56,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.mock;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -135,6 +139,42 @@ public class WebAuthnConfigurerTests {
 		assertThat(defaultResourcesFilters).map(DefaultResourcesFilter::toString)
 			.filteredOn((filterDescription) -> filterDescription.contains("default-ui.css"))
 			.hasSize(1);
+	}
+
+	@Test
+	void webauthnWhenConfiguredDefaultsRpNameToRpId() throws Exception {
+		ObjectMapper mapper = new ObjectMapper();
+		this.spring.register(DefaultWebauthnConfiguration.class).autowire();
+		String response = this.mvc
+			.perform(post("/webauthn/register/options").with(csrf())
+				.with(authentication(new TestingAuthenticationToken("test", "ignored", "ROLE_user"))))
+			.andExpect(status().is2xxSuccessful())
+			.andReturn()
+			.getResponse()
+			.getContentAsString();
+
+		JsonNode parsedResponse = mapper.readTree(response);
+
+		assertThat(parsedResponse.get("rp").get("id").asText()).isEqualTo("example.com");
+		assertThat(parsedResponse.get("rp").get("name").asText()).isEqualTo("example.com");
+	}
+
+	@Test
+	void webauthnWhenRpNameConfiguredUsesRpName() throws Exception {
+		ObjectMapper mapper = new ObjectMapper();
+		this.spring.register(CustomRpNameWebauthnConfiguration.class).autowire();
+		String response = this.mvc
+			.perform(post("/webauthn/register/options").with(csrf())
+				.with(authentication(new TestingAuthenticationToken("test", "ignored", "ROLE_user"))))
+			.andExpect(status().is2xxSuccessful())
+			.andReturn()
+			.getResponse()
+			.getContentAsString();
+
+		JsonNode parsedResponse = mapper.readTree(response);
+
+		assertThat(parsedResponse.get("rp").get("id").asText()).isEqualTo("example.com");
+		assertThat(parsedResponse.get("rp").get("name").asText()).isEqualTo("Test RP Name");
 	}
 
 	@Test
@@ -334,11 +374,28 @@ public class WebAuthnConfigurerTests {
 			http
 				.formLogin(Customizer.withDefaults())
 				.webAuthn((authn) -> authn
-					.rpId("spring.io")
-					.rpName("spring")
+					.rpId("example.com")
 				);
 			// @formatter:on
 			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class CustomRpNameWebauthnConfiguration {
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager();
+		}
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			return http.formLogin(Customizer.withDefaults())
+				.webAuthn((webauthn) -> webauthn.rpId("example.com").rpName("Test RP Name"))
+				.build();
 		}
 
 	}

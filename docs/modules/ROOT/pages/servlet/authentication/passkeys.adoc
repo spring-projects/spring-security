@@ -65,7 +65,6 @@ SecurityFilterChain filterChain(HttpSecurity http) {
 		// ...
 		.formLogin(withDefaults())
 		.webAuthn((webAuthn) -> webAuthn
-			.rpName("Spring Security Relying Party")
 			.rpId("example.com")
 			.allowedOrigins("https://example.com")
 			// optional properties
@@ -96,7 +95,6 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 	// ...
 	http {
 		webAuthn {
-			rpName = "Spring Security Relying Party"
 			rpId = "example.com"
 			allowedOrigins = setOf("https://example.com")
 			// optional properties
