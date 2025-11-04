@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.kt.docs.servlet.authentication.egmfa
+package org.springframework.security.kt.docs.servlet.authentication.emfa
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -39,7 +39,7 @@ import org.springframework.web.bind.annotation.RestController
  */
 @ExtendWith(SpringExtension::class, SpringTestContextExtension::class)
 @TestExecutionListeners(WithSecurityContextTestExecutionListener::class)
-class EnableGlobalMultiFactorAuthenticationConfigurationTests {
+class EnableMultiFactorAuthenticationConfigurationTests {
     @JvmField
     val spring: SpringTestContext = SpringTestContext(this)
 
@@ -50,7 +50,7 @@ class EnableGlobalMultiFactorAuthenticationConfigurationTests {
     @WithMockUser(authorities = [FactorGrantedAuthority.PASSWORD_AUTHORITY, FactorGrantedAuthority.OTT_AUTHORITY, "ROLE_ADMIN"])
     @Throws(Exception::class)
     fun getWhenAuthenticatedWithPasswordAndOttThenPermits() {
-        this.spring.register(EnableGlobalMultiFactorAuthenticationConfiguration::class.java, Http200Controller::class.java).autowire()
+        this.spring.register(EnableMultiFactorAuthenticationConfiguration::class.java, Http200Controller::class.java).autowire()
         // @formatter:off
         this.mockMvc!!.perform(MockMvcRequestBuilders.get("/"))
         .andExpect(MockMvcResultMatchers.status().isOk())
@@ -62,7 +62,7 @@ class EnableGlobalMultiFactorAuthenticationConfigurationTests {
     @WithMockUser(authorities = [FactorGrantedAuthority.PASSWORD_AUTHORITY])
     @Throws(Exception::class)
     fun getWhenAuthenticatedWithPasswordThenRedirectsToOtt() {
-        this.spring.register(EnableGlobalMultiFactorAuthenticationConfiguration::class.java, Http200Controller::class.java).autowire()
+        this.spring.register(EnableMultiFactorAuthenticationConfiguration::class.java, Http200Controller::class.java).autowire()
         // @formatter:off
         this.mockMvc!!.perform(MockMvcRequestBuilders.get("/"))
         .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
@@ -74,7 +74,7 @@ class EnableGlobalMultiFactorAuthenticationConfigurationTests {
     @WithMockUser(authorities = [FactorGrantedAuthority.OTT_AUTHORITY])
     @Throws(Exception::class)
     fun getWhenAuthenticatedWithOttThenRedirectsToPassword() {
-        this.spring.register(EnableGlobalMultiFactorAuthenticationConfiguration::class.java, Http200Controller::class.java).autowire()
+        this.spring.register(EnableMultiFactorAuthenticationConfiguration::class.java, Http200Controller::class.java).autowire()
         // @formatter:off
         this.mockMvc!!.perform(MockMvcRequestBuilders.get("/"))
         .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
@@ -86,7 +86,7 @@ class EnableGlobalMultiFactorAuthenticationConfigurationTests {
     @WithMockUser
     @Throws(Exception::class)
     fun getWhenAuthenticatedThenRedirectsToPassword() {
-        this.spring.register(EnableGlobalMultiFactorAuthenticationConfiguration::class.java, Http200Controller::class.java).autowire()
+        this.spring.register(EnableMultiFactorAuthenticationConfiguration::class.java, Http200Controller::class.java).autowire()
         // @formatter:off
         this.mockMvc!!.perform(MockMvcRequestBuilders.get("/"))
         .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
@@ -97,7 +97,7 @@ class EnableGlobalMultiFactorAuthenticationConfigurationTests {
     @Test
     @Throws(Exception::class)
     fun getWhenUnauthenticatedThenRedirectsToBoth() {
-        this.spring.register(EnableGlobalMultiFactorAuthenticationConfiguration::class.java, Http200Controller::class.java).autowire()
+        this.spring.register(EnableMultiFactorAuthenticationConfiguration::class.java, Http200Controller::class.java).autowire()
         // @formatter:off
         this.mockMvc!!.perform(MockMvcRequestBuilders.get("/"))
         .andExpect(MockMvcResultMatchers.status().is3xxRedirection())

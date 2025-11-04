@@ -53,14 +53,14 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests for {@link EnableGlobalMultiFactorAuthentication}.
+ * Tests for {@link EnableMultiFactorAuthentication}.
  *
  * @author Rob Winch
  */
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @WithMockUser(authorities = FactorGrantedAuthority.PASSWORD_AUTHORITY)
-public class EnableGlobalMultiFactorAuthenticationFiltersSetTests {
+public class EnableMultiFactorAuthenticationFiltersSetTests {
 
 	@Autowired
 	private AuthenticationManager manager;
@@ -105,7 +105,7 @@ public class EnableGlobalMultiFactorAuthenticationFiltersSetTests {
 
 	@EnableWebSecurity
 	@Configuration
-	@EnableGlobalMultiFactorAuthentication(
+	@EnableMultiFactorAuthentication(
 			authorities = { FactorGrantedAuthority.OTT_AUTHORITY, FactorGrantedAuthority.PASSWORD_AUTHORITY })
 	static class Config {
 

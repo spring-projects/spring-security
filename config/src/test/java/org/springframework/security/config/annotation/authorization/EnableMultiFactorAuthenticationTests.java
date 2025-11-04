@@ -59,13 +59,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Tests for {@link EnableGlobalMultiFactorAuthentication}.
+ * Tests for {@link EnableMultiFactorAuthentication}.
  *
  * @author Rob Winch
  */
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
-public class EnableGlobalMultiFactorAuthenticationTests {
+public class EnableMultiFactorAuthenticationTests {
 
 	private static final String ATTR_NAME = "org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors$SecurityContextRequestPostProcessorSupport$TestSecurityContextRepository.REPO";
 
@@ -111,7 +111,7 @@ public class EnableGlobalMultiFactorAuthenticationTests {
 	@EnableWebSecurity
 	@EnableMethodSecurity
 	@Configuration
-	@EnableGlobalMultiFactorAuthentication(
+	@EnableMultiFactorAuthentication(
 			authorities = { FactorGrantedAuthority.OTT_AUTHORITY, FactorGrantedAuthority.PASSWORD_AUTHORITY })
 	static class Config {
 

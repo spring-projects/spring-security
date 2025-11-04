@@ -25,19 +25,19 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.authorization.DefaultAuthorizationManagerFactory;
 
 /**
- * Uses {@link EnableGlobalMultiFactorAuthentication} to configure a
+ * Uses {@link EnableMultiFactorAuthentication} to configure a
  * {@link DefaultAuthorizationManagerFactory}.
  *
  * @author Rob Winch
  * @since 7.0
- * @see EnableGlobalMultiFactorAuthentication
+ * @see EnableMultiFactorAuthentication
  */
-class GlobalMultiFactorAuthenticationSelector implements ImportSelector {
+class MultiFactorAuthenticationSelector implements ImportSelector {
 
 	@Override
 	public String[] selectImports(AnnotationMetadata metadata) {
 		Map<String, Object> multiFactorAuthenticationAttrs = metadata
-			.getAnnotationAttributes(EnableGlobalMultiFactorAuthentication.class.getName());
+			.getAnnotationAttributes(EnableMultiFactorAuthentication.class.getName());
 		String[] authorities = (String[]) multiFactorAuthenticationAttrs.getOrDefault("authorities", new String[0]);
 		List<String> imports = new ArrayList<>(2);
 		if (authorities.length > 0) {

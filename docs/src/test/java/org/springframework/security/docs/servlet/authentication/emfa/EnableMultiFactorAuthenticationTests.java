@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.docs.servlet.authentication.egmfa;
+package org.springframework.security.docs.servlet.authentication.emfa;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,7 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @ExtendWith({ SpringExtension.class, SpringTestContextExtension.class })
 @TestExecutionListeners(WithSecurityContextTestExecutionListener.class)
-public class EnableGlobalMultiFactorAuthenticationTests {
+public class EnableMultiFactorAuthenticationTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);
 
@@ -54,7 +54,7 @@ public class EnableGlobalMultiFactorAuthenticationTests {
 	@Test
 	@WithMockUser(authorities = { FactorGrantedAuthority.PASSWORD_AUTHORITY, FactorGrantedAuthority.OTT_AUTHORITY, "ROLE_USER" })
 	void getWhenAuthenticatedWithPasswordAndOttThenPermits() throws Exception {
-		this.spring.register(EnableGlobalMultiFactorAuthenticationConfiguration.class, Http200Controller.class).autowire();
+		this.spring.register(EnableMultiFactorAuthenticationConfiguration.class, Http200Controller.class).autowire();
 		// @formatter:off
 		this.mockMvc.perform(get("/"))
 			.andExpect(status().isOk())
@@ -65,7 +65,7 @@ public class EnableGlobalMultiFactorAuthenticationTests {
 	@Test
 	@WithMockUser(authorities = FactorGrantedAuthority.PASSWORD_AUTHORITY)
 	void getWhenAuthenticatedWithPasswordThenRedirectsToOtt() throws Exception {
-		this.spring.register(EnableGlobalMultiFactorAuthenticationConfiguration.class, Http200Controller.class).autowire();
+		this.spring.register(EnableMultiFactorAuthenticationConfiguration.class, Http200Controller.class).autowire();
 		// @formatter:off
 		this.mockMvc.perform(get("/"))
 			.andExpect(status().is3xxRedirection())
@@ -76,7 +76,7 @@ public class EnableGlobalMultiFactorAuthenticationTests {
 	@Test
 	@WithMockUser(authorities = FactorGrantedAuthority.OTT_AUTHORITY)
 	void getWhenAuthenticatedWithOttThenRedirectsToPassword() throws Exception {
-		this.spring.register(EnableGlobalMultiFactorAuthenticationConfiguration.class, Http200Controller.class).autowire();
+		this.spring.register(EnableMultiFactorAuthenticationConfiguration.class, Http200Controller.class).autowire();
 		// @formatter:off
 		this.mockMvc.perform(get("/"))
 			.andExpect(status().is3xxRedirection())
@@ -87,7 +87,7 @@ public class EnableGlobalMultiFactorAuthenticationTests {
 	@Test
 	@WithMockUser
 	void getWhenAuthenticatedThenRedirectsToPassword() throws Exception {
-		this.spring.register(EnableGlobalMultiFactorAuthenticationConfiguration.class, Http200Controller.class).autowire();
+		this.spring.register(EnableMultiFactorAuthenticationConfiguration.class, Http200Controller.class).autowire();
 		// @formatter:off
 		this.mockMvc.perform(get("/"))
 			.andExpect(status().is3xxRedirection())
@@ -97,7 +97,7 @@ public class EnableGlobalMultiFactorAuthenticationTests {
 
 	@Test
 	void getWhenUnauthenticatedThenRedirectsToBoth() throws Exception {
-		this.spring.register(EnableGlobalMultiFactorAuthenticationConfiguration.class, Http200Controller.class).autowire();
+		this.spring.register(EnableMultiFactorAuthenticationConfiguration.class, Http200Controller.class).autowire();
 		// @formatter:off
 		this.mockMvc.perform(get("/"))
 			.andExpect(status().is3xxRedirection())
