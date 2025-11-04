@@ -28,8 +28,8 @@ class RequiredAuthoritiesAuthorizationManagerConfiguration {
 		// @formatter:off
 		http
 			.authorizeHttpRequests((authorize) -> authorize
-				.requestMatchers("/admin/**").hasRole("ADMIN")
-				.anyRequest().authenticated()
+				.requestMatchers("/admin/**").hasRole("ADMIN") // <1>
+				.anyRequest().authenticated() // <2>
 			)
 			.formLogin(Customizer.withDefaults())
 			.oneTimeTokenLogin(Customizer.withDefaults());

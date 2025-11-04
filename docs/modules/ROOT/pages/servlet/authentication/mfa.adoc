@@ -44,14 +44,14 @@ The `@EnableMultiFactorAuthentication` `authorities` property is just a shortcut
 When an `AuthorizationManagerFactory` Bean is available, it is used by Spring Security to create authorization rules, like `hasAnyRole(String)`, that are defined on the `AuthorizationManagerFactory` Bean interface.
 The implementation published by `@EnableMultiFactorAuthentication` will ensure that each authorization is combined with the requirement of having the specified factors.
 
-The `AuthorizationManagerFactory` Bean below is what is published in the previously discussed xref:./mfa.adoc#emfa[`@EnableMultiFactorAuthentication` example].
+The `AuthorizationManagerFactory` Bean below is what is published in the previously discussed <<emfa, `@EnableMultiFactorAuthentication` example>>.
 
 include-code::./UseAuthorizationManagerFactoryConfiguration[tag=authorizationManagerFactoryBean,indent=0]
 
 [[selective-mfa]]
 == Selectively Requiring MFA
 
-We have demonstrated how to configure an entire application to require MFA by using xref:./mfa.adoc#emfa[`@EnableMultiFactorAuthentication`]s `authorities` property.
+We have demonstrated how to configure an entire application to require MFA by using <<emfa, ``@EnableMultiFactorAuthentication``s>> `authorities` property.
 However, there are times that an application only wants parts of the application to require MFA.
 Consider the following requirements:
 
@@ -61,7 +61,7 @@ Consider the following requirements:
 
 In this case, some URLs require MFA while others do not.
 This means that the global approach that we saw before does not work.
-Fortunately, we can use what we learned in xref:./mfa.adoc#authorization-manager-factory[] to solve this in a concise manner.
+Fortunately, we can use what we learned in <<authorization-manager-factory>> to solve this in a concise manner.
 
 Start by specifying `@EnableMultiFactorAuthentication` without any authorities.
 By doing so we enable MFA support, but no `AuthorizationManagerFactory` Bean is published.
@@ -118,10 +118,10 @@ To enable the MFA rules globally, we can publish an `AuthorizationManagerFactory
 
 include-code::./AdminMfaAuthorizationManagerConfiguration[tag=authorizationManagerFactory,indent=0]
 <1> Inject the custom `AuthorizationManager` as the javadoc:org.springframework.security.authorization.DefaultAuthorizationManagerFactory#setAdditionalAuthorization(org.springframework.security.authorization.AuthorizationManager)[DefaultAuthorization.additionalAuthorization].
-This instructs `DefaultAuthorizationManagerFactory` that any authorization rule should apply our custom `AuthorizationManager` along with any authorization requirements defined by the application (e.g. `hasRole("ADMIN")).
+This instructs `DefaultAuthorizationManagerFactory` that any authorization rule should apply our custom `AuthorizationManager` along with any authorization requirements defined by the application (e.g. `hasRole("ADMIN")`).
 <2> Publish `DefaultAuthorizationManagerFactory` as a Bean, so it is used globally
 
-This should feel very similar to our previous example in xref:./mfa.adoc#authorization-manager-factory[].
+This should feel very similar to our previous example in <<authorization-manager-factory>>.
 The difference is that in the previous example, the `AuthorizationManagerFactories` is setting `DefaultAuthorization.additionalAuthorization` with a built in `AuthorizationManager` that always requires the same authorities.
 
 We can now define our authorization rules which are combined with `AdminMfaAuthorizationManager`.
@@ -138,10 +138,10 @@ If we preferred, we could change our logic to enable MFA based upon the roles ra
 [[raam-mfa]]
 == RequiredAuthoritiesAuthorizationManager
 
-We've demonstrated how we can dynamically determine the authorities for a particular user in xref:./mfa.adoc#programmatic-mfa[] using a custom `AuthorizationManager`.
+We've demonstrated how we can dynamically determine the authorities for a particular user in <<programmatic-mfa>> using a custom `AuthorizationManager`.
 However, this is such a common scenario that Spring Security provides built in support using javadoc:org.springframework.security.authorization.RequiredAuthoritiesAuthorizationManager[] and javadoc:org.springframework.security.authorization.RequiredAuthoritiesRepository[].
 
-Let's implement the same requirement that we did in xref:./mfa.adoc#programmatic-mfa[] using the built-in support.
+Let's implement the same requirement that we did in <<programmatic-mfa>> using the built-in support.
 
 We start by creating the `RequiredAuthoritiesAuthorizationManager` Bean to use.
 
@@ -153,10 +153,11 @@ Next we can define an `AuthorizationManagerFactory` that uses the `RequiredAutho
 
 include-code::./RequiredAuthoritiesAuthorizationManagerConfiguration[tag=authorizationManagerFactory,indent=0]
 <1> Inject the `RequiredAuthoritiesAuthorizationManager` as the javadoc:org.springframework.security.authorization.DefaultAuthorizationManagerFactory#setAdditionalAuthorization(org.springframework.security.authorization.AuthorizationManager)[DefaultAuthorization.additionalAuthorization].
-This instructs `DefaultAuthorizationManagerFactory` that any authorization rule should apply `RequiredAuthoritiesAuthorizationManager` along with any authorization requirements defined by the application (e.g. `hasRole("ADMIN")).
+This instructs `DefaultAuthorizationManagerFactory` that any authorization rule should apply `RequiredAuthoritiesAuthorizationManager` along with any authorization requirements defined by the application (e.g. `hasRole("ADMIN")`).
 <2> Publish `DefaultAuthorizationManagerFactory` as a Bean, so it is used globally
 
 We can now define our authorization rules which are combined with `RequiredAuthoritiesAuthorizationManager`.
+
 include-code::./RequiredAuthoritiesAuthorizationManagerConfiguration[tag=httpSecurity,indent=0]
 <1> URLs that begin with `/admin/**` require `ROLE_ADMIN`.
 If the username is `admin`, then `FACTOR_OTT` and `FACTOR_PASSWORD` are also required.
@@ -167,7 +168,7 @@ Our example uses an in memory mapping of usernames to the additional required au
 For more dynamic use cases that can be determined by the username, a custom implementation of javadoc:org.springframework.security.authorization.RequiredAuthoritiesRepository[] can be created.
 Possible examples would be looking up if a user has enabled MFA in an explicit setting, determining if a user has registered a passkey, etc.
 
-For cases that need to determine MFA based upon the `Authentication`, a custom `AuthorizationManger` can be used as demonstrated in xref:./mfa.adoc#programmatic-mfa[]
+For cases that need to determine MFA based upon the `Authentication`, a custom `AuthorizationManger` can be used as demonstrated in <<programmatic-mfa>>.
 
 
 [[hasallauthorities]]
@@ -196,7 +197,7 @@ Can you imagine what it would be like to declare hundreds of rules like this?
 What's more that it becomes difficult to express more complicated authorization rules.
 For example, how would you require two factors and either `ROLE_ADMIN` or `ROLE_USER`?
 
-The answer to these questions, as we have already seen, is to use xref:./mfa.adoc#egmfa[]
+The answer to these questions, as we have already seen, is to use <<emfa>>
 
 [[re-authentication]]
 == Re-authentication
@@ -211,7 +212,7 @@ By default, this application has two authentication mechanisms that it allows, m
 If there is a set of endpoints that require a specific factor, we can specify that in `authorizeHttpRequests` as follows:
 
 include-code::./RequireOttConfiguration[tag=httpSecurity,indent=0]
-<1> - States that all `/profile/**` endpoints require one-time-token login to be authorized
+<1> States that all `/profile/**` endpoints require one-time-token login to be authorized
 
 Given the above configuration, users can log in with any mechanism that you support.
 And, if they want to visit the profile page, then Spring Security will redirect them to the One-Time-Token Login page to obtain it.
