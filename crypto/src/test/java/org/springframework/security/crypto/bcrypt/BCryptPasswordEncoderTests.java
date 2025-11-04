@@ -16,6 +16,7 @@
 
 package org.springframework.security.crypto.bcrypt;
 
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +26,7 @@ import org.springframework.security.crypto.password.AbstractPasswordEncoderValid
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 /**
  * @author Dave Syer
@@ -234,6 +236,25 @@ public class BCryptPasswordEncoderTests extends AbstractPasswordEncoderValidatio
 		String password73chars = password72chars + "3";
 		String encodedPassword73chars = "$2a$10$1l9.kvQTsqNLiCYFqmKtQOHkp.BrgIrwsnTzWo9jdbQRbuBYQ/AVK";
 		assertThat(getEncoder().matches(password73chars, encodedPassword73chars)).isTrue();
+	}
+
+	/**
+	 * Fixes gh-18133
+	 * @author StringManolo
+	 */
+	@Test
+	void passwordLargerThan72BytesShouldThrowIllegalArgumentException() {
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		String singleByteChars = "a".repeat(68);
+		String password72Bytes = singleByteChars + "😀";
+		assertThat(password72Bytes.length()).isEqualTo(70);
+		assertThat(password72Bytes.getBytes(StandardCharsets.UTF_8).length).isEqualTo(72);
+		assertThatNoException().isThrownBy(() -> encoder.encode(password72Bytes));
+		String singleByteCharsTooLong = "a".repeat(69);
+		String password73Bytes = singleByteCharsTooLong + "😀";
+		assertThat(password73Bytes.getBytes(StandardCharsets.UTF_8).length).isEqualTo(73);
+		assertThatIllegalArgumentException().isThrownBy(() -> encoder.encode(password73Bytes))
+			.withMessageContaining("password cannot be more than 72 bytes");
 	}
 
 }
