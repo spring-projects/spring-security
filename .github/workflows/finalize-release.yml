@@ -1,0 +1,28 @@
+name: Finalize Release
+
+on:
+  workflow_dispatch: # Manual trigger
+    inputs:
+      version:
+        description: The Spring Security release to finalize (e.g. 7.0.0-RC2)
+        required: true
+
+env:
+  DEVELOCITY_ACCESS_KEY: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
+
+permissions:
+  contents: read
+
+jobs:
+  perform-release:
+    name: Perform Release
+    needs: [ project-version ]
+    uses: spring-io/spring-security-release-tools/.github/workflows/perform-release.yml@v1
+    with:
+      should-perform-release: true
+      project-version: ${{ inputs.version }}
+      milestone-repo-url: https://repo1.maven.org/maven2
+      release-repo-url: https://repo1.maven.org/maven2
+      artifact-path: org/springframework/security/spring-security-core
+      slack-announcing-id: spring-security-announcing
+    secrets: inherit
