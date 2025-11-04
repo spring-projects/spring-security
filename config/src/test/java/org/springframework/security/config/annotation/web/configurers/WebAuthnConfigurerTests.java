@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpOutputMessage;
@@ -42,6 +43,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.ui.DefaultResourcesFilter;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialCreationOptions;
+import org.springframework.security.web.webauthn.authentication.WebAuthnAuthenticationFilter;
 import org.springframework.security.web.webauthn.management.WebAuthnRelyingPartyOperations;
 import org.springframework.security.web.webauthn.registration.HttpSessionPublicKeyCredentialCreationOptionsRepository;
 import org.springframework.test.web.servlet.MockMvc;
@@ -86,6 +88,14 @@ public class WebAuthnConfigurerTests {
 			.andExpect(status().isOk())
 			.andExpect(header().string("content-type", "text/css;charset=UTF-8"))
 			.andExpect(content().string(containsString("body {")));
+	}
+
+	// gh-18128
+	@Test
+	public void webAuthnAuthenticationFilterIsPostProcessed() throws Exception {
+		this.spring.register(DefaultWebauthnConfiguration.class, PostProcessorConfiguration.class).autowire();
+		PostProcessorConfiguration postProcess = this.spring.getContext().getBean(PostProcessorConfiguration.class);
+		assertThat(postProcess.webauthnFilter).isNotNull();
 	}
 
 	@Test
@@ -285,6 +295,26 @@ public class WebAuthnConfigurerTests {
 		@Bean
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			return http.csrf(AbstractHttpConfigurer::disable).webAuthn((c) -> c.messageConverter(converter)).build();
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class PostProcessorConfiguration {
+
+		WebAuthnAuthenticationFilter webauthnFilter;
+
+		@Bean
+		BeanPostProcessor beanPostProcessor() {
+			return new BeanPostProcessor() {
+				@Override
+				public Object postProcessAfterInitialization(Object bean, String beanName) {
+					if (bean instanceof WebAuthnAuthenticationFilter filter) {
+						PostProcessorConfiguration.this.webauthnFilter = filter;
+					}
+					return bean;
+				}
+			};
 		}
 
 	}
