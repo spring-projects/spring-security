@@ -90,6 +90,7 @@
 **** xref:servlet/oauth2/resource-server/multitenancy.adoc[Multitenancy]
 **** xref:servlet/oauth2/resource-server/bearer-tokens.adoc[Bearer Tokens]
 **** xref:servlet/oauth2/resource-server/dpop-tokens.adoc[DPoP-bound Access Tokens]
+**** xref:servlet/oauth2/resource-server/protected-resource-metadata.adoc[Protected Resource Metadata]
 *** xref:servlet/oauth2/authorization-server/index.adoc[OAuth2 Authorization Server]
 **** xref:servlet/oauth2/authorization-server/getting-started.adoc[Getting Started]
 **** xref:servlet/oauth2/authorization-server/configuration-model.adoc[Configuration Model]
