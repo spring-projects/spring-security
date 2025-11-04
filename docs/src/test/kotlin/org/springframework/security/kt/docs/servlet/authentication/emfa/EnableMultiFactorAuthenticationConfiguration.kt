@@ -1,8 +1,8 @@
-package org.springframework.security.kt.docs.servlet.authentication.egmfa
+package org.springframework.security.kt.docs.servlet.authentication.emfa
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.config.annotation.authorization.EnableGlobalMultiFactorAuthentication
+import org.springframework.security.config.annotation.authorization.EnableMultiFactorAuthentication
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
@@ -17,12 +17,12 @@ import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenG
 @EnableWebSecurity
 @Configuration(proxyBeanMethods = false)
 
-// tag::enable-global-mfa[]
-@EnableGlobalMultiFactorAuthentication( authorities = [
+// tag::enable-mfa[]
+@EnableMultiFactorAuthentication( authorities = [
     FactorGrantedAuthority.PASSWORD_AUTHORITY,
     FactorGrantedAuthority.OTT_AUTHORITY])
-// end::enable-global-mfa[]
-internal class EnableGlobalMultiFactorAuthenticationConfiguration {
+// end::enable-mfa[]
+internal class EnableMultiFactorAuthenticationConfiguration {
 
     // tag::httpSecurity[]
     @Bean

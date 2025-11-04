@@ -29,6 +29,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
+import org.springframework.lang.Contract;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -115,6 +116,8 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 
 	private SecurityContextRepository securityContextRepository = new RequestAttributeSecurityContextRepository();
 
+	private boolean mfaEnabled;
+
 	/**
 	 * Creates an instance which will authenticate against the supplied
 	 * {@code AuthenticationManager} and which will ignore failed authentication attempts,
@@ -156,6 +159,15 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 	}
 
 	/**
+	 * Enables Multi-Factor Authentication (MFA) support.
+	 * @param mfaEnabled true to enable MFA support, false to disable it. Default is
+	 * false.
+	 */
+	public void setMfaEnabled(boolean mfaEnabled) {
+		this.mfaEnabled = mfaEnabled;
+	}
+
+	/**
 	 * Sets the
 	 * {@link org.springframework.security.web.authentication.AuthenticationConverter} to
 	 * use. Defaults to {@link BasicAuthenticationConverter}
@@ -191,7 +203,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 			if (authenticationIsRequired(username)) {
 				Authentication authResult = this.authenticationManager.authenticate(authRequest);
 				Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
-				if (current != null && current.isAuthenticated() && declaresToBuilder(authResult)) {
+				if (shouldPerformMfa(current, authResult)) {
 					authResult = authResult.toBuilder()
 					// @formatter:off
 						.authorities((a) -> {
@@ -233,6 +245,20 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 		}
 
 		chain.doFilter(request, response);
+	}
+
+	@Contract("null, _ -> false")
+	private boolean shouldPerformMfa(@Nullable Authentication current, Authentication authenticationResult) {
+		if (!this.mfaEnabled) {
+			return false;
+		}
+		if (current == null || !current.isAuthenticated()) {
+			return false;
+		}
+		if (!declaresToBuilder(authenticationResult)) {
+			return false;
+		}
+		return current.getName().equals(authenticationResult.getName());
 	}
 
 	private static boolean declaresToBuilder(Authentication authentication) {

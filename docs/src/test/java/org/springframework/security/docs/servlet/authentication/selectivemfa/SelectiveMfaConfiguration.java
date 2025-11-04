@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authorization.AuthorizationManagerFactories;
 import org.springframework.security.authorization.AuthorizationManagerFactory;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authorization.EnableMultiFactorAuthentication;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
@@ -16,6 +17,9 @@ import org.springframework.security.web.authentication.ott.OneTimeTokenGeneratio
 import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenGenerationSuccessHandler;
 
 @EnableWebSecurity
+// tag::enable-mfa[]
+@EnableMultiFactorAuthentication(authorities = {})
+// end::enable-mfa[]
 @Configuration(proxyBeanMethods = false)
 class SelectiveMfaConfiguration {
 

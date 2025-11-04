@@ -18,17 +18,17 @@ In order to require MFA with Spring Security you must:
 - Specify an authorization rule that requires multiple factors
 - Setup authentication for each of those factors
 
-[[egmfa]]
-== @EnableGlobalMultiFactorAuthentication
+[[emfa]]
+== @EnableMultiFactorAuthentication
 
-javadoc:org.springframework.security.config.annotation.authorization.EnableGlobalMultiFactorAuthentication[format=annotation] simplifies Global MFA (the entire application requires MFA).
+javadoc:org.springframework.security.config.annotation.authorization.EnableMultiFactorAuthentication[format=annotation] makes it easy to enable multifactor authentication.
 Below you can find a configuration that adds the requirement for both passwords and OTT to every authorization rule.
 
-include-code::./EnableGlobalMultiFactorAuthenticationConfiguration[tag=enable-global-mfa,indent=0]
+include-code::./EnableMultiFactorAuthenticationConfiguration[tag=enable-mfa,indent=0]
 
 We are now able to concisely create a configuration that always requires multiple factors.
 
-include-code::./EnableGlobalMultiFactorAuthenticationConfiguration[tag=httpSecurity,indent=0]
+include-code::./EnableMultiFactorAuthenticationConfiguration[tag=httpSecurity,indent=0]
 <1> URLs that begin with `/admin/**` require the authorities `FACTOR_OTT`, `FACTOR_PASSWORD`, `ROLE_ADMIN`.
 <2> Every other URL requires the authorities `FACTOR_OTT`, `FACTOR_PASSWORD`
 <3> Set up the authentication mechanisms that can provide the required factors.
@@ -40,18 +40,18 @@ If the user logged in initially with a token, then Spring Security redirects to 
 [[authorization-manager-factory]]
 == AuthorizationManagerFactory
 
-The `@EnableGlobalMultiFactorAuthentication` annotation is just a shortcut for publishing an javadoc:org.springframework.security.authorization.AuthorizationManagerFactory[] Bean.
+The `@EnableMultiFactorAuthentication` `authorities` property is just a shortcut for publishing an javadoc:org.springframework.security.authorization.AuthorizationManagerFactory[] Bean.
 When an `AuthorizationManagerFactory` Bean is available, it is used by Spring Security to create authorization rules, like `hasAnyRole(String)`, that are defined on the `AuthorizationManagerFactory` Bean interface.
-The implementation published by `@EnableGlobalMultiFactorAuthentication` will ensure that each authorization is combined with the requirement of having the specified factors.
+The implementation published by `@EnableMultiFactorAuthentication` will ensure that each authorization is combined with the requirement of having the specified factors.
 
-The `AuthorizationManagerFactory` Bean below is what is published in the previously discussed xref:./mfa.adoc#using-egmfa[`@EnableGlobalMultiFactorAuthentication` example].
+The `AuthorizationManagerFactory` Bean below is what is published in the previously discussed xref:./mfa.adoc#emfa[`@EnableMultiFactorAuthentication` example].
 
 include-code::./UseAuthorizationManagerFactoryConfiguration[tag=authorizationManagerFactoryBean,indent=0]
 
 [[selective-mfa]]
 == Selectively Requiring MFA
 
-We have demonstrated how to configure an entire application to require MFA (Global MFA) by using xref:./mfa.adoc#egmfa[`@EnableGlobalMultiFactorAuthentication`].
+We have demonstrated how to configure an entire application to require MFA by using xref:./mfa.adoc#emfa[`@EnableMultiFactorAuthentication`]s `authorities` property.
 However, there are times that an application only wants parts of the application to require MFA.
 Consider the following requirements:
 
@@ -62,6 +62,13 @@ Consider the following requirements:
 In this case, some URLs require MFA while others do not.
 This means that the global approach that we saw before does not work.
 Fortunately, we can use what we learned in xref:./mfa.adoc#authorization-manager-factory[] to solve this in a concise manner.
+
+Start by specifying `@EnableMultiFactorAuthentication` without any authorities.
+By doing so we enable MFA support, but no `AuthorizationManagerFactory` Bean is published.
+
+include-code::./SelectiveMfaConfiguration[tag=enable-mfa,indent=0]
+
+Next create an `AuthorizationManagerFactory` instance, but do not publish it as a Bean.
 
 include-code::./SelectiveMfaConfiguration[tag=httpSecurity,indent=0]
 <1> Create a `DefaultAuthorizationManagerFactory` as we did previously, but do not publish it as a Bean.

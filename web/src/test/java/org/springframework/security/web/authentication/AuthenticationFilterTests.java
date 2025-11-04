@@ -314,7 +314,29 @@ public class AuthenticationFilterTests {
 		SecurityContextHolder.setContext(new SecurityContextImpl(existingAuthn));
 		given(this.authenticationConverter.convert(any())).willReturn(existingAuthn);
 		given(this.authenticationManager.authenticate(any()))
-			.willReturn(new TestingAuthenticationToken("user", "password", "TEST"));
+			.willReturn(new TestingAuthenticationToken(existingAuthn.getName(), "password", "TEST"));
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain chain = new MockFilterChain();
+		AuthenticationFilter filter = new AuthenticationFilter(this.authenticationManager,
+				this.authenticationConverter);
+		filter.setMfaEnabled(true);
+		filter.doFilter(request, response, chain);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		assertThat(authentication.getAuthorities()).extracting(GrantedAuthority::getAuthority)
+			.containsExactlyInAnyOrder(ROLE_EXISTING, "TEST");
+	}
+
+	@Test
+	public void doFilterWhenDefaultThenMfaDisabled() throws Exception {
+		String ROLE_EXISTING = "ROLE_EXISTING";
+		TestingAuthenticationToken existingAuthn = new TestingAuthenticationToken("username", "password",
+				ROLE_EXISTING);
+		SecurityContextHolder.setContext(new SecurityContextImpl(existingAuthn));
+		given(this.authenticationConverter.convert(any())).willReturn(existingAuthn);
+		TestingAuthenticationToken newAuthn = new TestingAuthenticationToken(existingAuthn.getName(), "password",
+				"TEST");
+		given(this.authenticationManager.authenticate(any())).willReturn(newAuthn);
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain chain = new MockFilterChain();
@@ -322,8 +344,29 @@ public class AuthenticationFilterTests {
 				this.authenticationConverter);
 		filter.doFilter(request, response, chain);
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		assertThat(authentication.getAuthorities()).extracting(GrantedAuthority::getAuthority)
-			.containsExactlyInAnyOrder(ROLE_EXISTING, "TEST");
+		assertThat(authentication).isEqualTo(newAuthn);
+	}
+
+	// gh-18112
+	@Test
+	public void doFilterWhenDifferentPrincipalThenDoesNotCombine() throws Exception {
+		String ROLE_EXISTING = "ROLE_EXISTING";
+		TestingAuthenticationToken existingAuthn = new TestingAuthenticationToken("username", "password",
+				ROLE_EXISTING);
+		SecurityContextHolder.setContext(new SecurityContextImpl(existingAuthn));
+		given(this.authenticationConverter.convert(any())).willReturn(existingAuthn);
+		TestingAuthenticationToken expected = new TestingAuthenticationToken(existingAuthn.getName() + "different",
+				"password", "TEST");
+		given(this.authenticationManager.authenticate(any())).willReturn(expected);
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain chain = new MockFilterChain();
+		AuthenticationFilter filter = new AuthenticationFilter(this.authenticationManager,
+				this.authenticationConverter);
+		filter.setMfaEnabled(true);
+		filter.doFilter(request, response, chain);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		assertThat(authentication).isEqualTo(expected);
 	}
 
 	/**
@@ -344,6 +387,7 @@ public class AuthenticationFilterTests {
 		FilterChain chain = new MockFilterChain();
 		AuthenticationFilter filter = new AuthenticationFilter(this.authenticationManager,
 				this.authenticationConverter);
+		filter.setMfaEnabled(true);
 		filter.doFilter(request, response, chain);
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		assertThat(authentication.getAuthorities()).extracting(GrantedAuthority::getAuthority)
@@ -362,6 +406,7 @@ public class AuthenticationFilterTests {
 		FilterChain chain = new MockFilterChain();
 		AuthenticationFilter filter = new AuthenticationFilter(this.authenticationManager,
 				this.authenticationConverter);
+		filter.setMfaEnabled(true);
 		filter.doFilter(request, response, chain);
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		SecurityAssertions.assertThat(authentication)

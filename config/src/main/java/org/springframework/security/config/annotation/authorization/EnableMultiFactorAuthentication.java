@@ -26,9 +26,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.authorization.DefaultAuthorizationManagerFactory;
 
 /**
- * Exposes a {@link DefaultAuthorizationManagerFactory} as a Bean with the
- * {@link #authorities()} specified as additional required authorities. The configuration
- * will be picked up by both
+ * Enables Multi-Factor Authentication (MFA) support within Spring Security.
+ *
+ * When {@link #authorities()} is specified creates a
+ * {@link DefaultAuthorizationManagerFactory} as a Bean with the {@link #authorities()}
+ * specified as additional required authorities. The configuration will be picked up by
+ * both
  * {@link org.springframework.security.config.annotation.web.configuration.EnableWebSecurity}
  * and
  * {@link org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity}.
@@ -36,7 +39,7 @@ import org.springframework.security.authorization.DefaultAuthorizationManagerFac
  * <pre>
 
  * &#64;Configuration
- * &#64;EnableGlobalMultiFactorAuthentication(authorities = { GrantedAuthorities.FACTOR_OTT, GrantedAuthorities.FACTOR_PASSWORD })
+ * &#64;EnableMultiFactorAuthentication(authorities = { GrantedAuthorities.FACTOR_OTT, GrantedAuthorities.FACTOR_PASSWORD })
  * public class MyConfiguration {
  *     // ...
  * }
@@ -51,13 +54,15 @@ import org.springframework.security.authorization.DefaultAuthorizationManagerFac
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import(GlobalMultiFactorAuthenticationConfiguration.class)
-public @interface EnableGlobalMultiFactorAuthentication {
+@Import(MultiFactorAuthenticationSelector.class)
+public @interface EnableMultiFactorAuthentication {
 
 	/**
 	 * The additional authorities that are required.
 	 * @return the additional authorities that are required (e.g. {
-	 * FactorGrantedAuthority.FACTOR_OTT, FactorGrantedAuthority.FACTOR_PASSWORD })
+	 * FactorGrantedAuthority.FACTOR_OTT, FactorGrantedAuthority.FACTOR_PASSWORD }). Can
+	 * be null or an empty array if no additional authorities are required (if
+	 * authorization rules are not globally requiring MFA).
 	 * @see org.springframework.security.core.authority.FactorGrantedAuthority
 	 */
 	String[] authorities();

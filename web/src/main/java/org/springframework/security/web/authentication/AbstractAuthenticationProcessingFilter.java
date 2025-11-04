@@ -35,6 +35,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.core.log.LogMessage;
+import org.springframework.lang.Contract;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -157,6 +158,8 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 
 	private SecurityContextRepository securityContextRepository = new RequestAttributeSecurityContextRepository();
 
+	private boolean mfaEnabled;
+
 	/**
 	 * @param defaultFilterProcessesUrl the default value for <tt>filterProcessesUrl</tt>.
 	 */
@@ -253,7 +256,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 				return;
 			}
 			Authentication current = this.securityContextHolderStrategy.getContext().getAuthentication();
-			if (current != null && current.isAuthenticated() && declaresToBuilder(authenticationResult)) {
+			if (shouldPerformMfa(current, authenticationResult)) {
 				authenticationResult = authenticationResult.toBuilder()
 				// @formatter:off
 					.authorities((a) -> {
@@ -284,6 +287,20 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 			// Authentication failed
 			unsuccessfulAuthentication(request, response, ex);
 		}
+	}
+
+	@Contract("null, _ -> false")
+	private boolean shouldPerformMfa(@Nullable Authentication current, Authentication authenticationResult) {
+		if (!this.mfaEnabled) {
+			return false;
+		}
+		if (current == null || !current.isAuthenticated()) {
+			return false;
+		}
+		if (!declaresToBuilder(authenticationResult)) {
+			return false;
+		}
+		return current.getName().equals(authenticationResult.getName());
 	}
 
 	private static boolean declaresToBuilder(Authentication authentication) {
@@ -477,6 +494,15 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 
 	public void setAllowSessionCreation(boolean allowSessionCreation) {
 		this.allowSessionCreation = allowSessionCreation;
+	}
+
+	/**
+	 * Enables Multi-Factor Authentication (MFA) support.
+	 * @param mfaEnabled true to enable MFA support, false to disable it. Default is
+	 * false.
+	 */
+	public void setMfaEnabled(boolean mfaEnabled) {
+		this.mfaEnabled = mfaEnabled;
 	}
 
 	/**
