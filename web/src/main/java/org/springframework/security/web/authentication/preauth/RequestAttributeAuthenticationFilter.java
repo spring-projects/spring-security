@@ -58,7 +58,7 @@ public class RequestAttributeAuthenticationFilter extends AbstractPreAuthenticat
 	 * missing and {@code exceptionIfVariableMissing} is set to {@code true}.
 	 */
 	@Override
-	protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
+	protected @Nullable Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
 		String principal = (String) request.getAttribute(this.principalEnvironmentVariable);
 		if (principal == null && this.exceptionIfVariableMissing) {
 			throw new PreAuthenticatedCredentialsNotFoundException(
@@ -73,7 +73,7 @@ public class RequestAttributeAuthenticationFilter extends AbstractPreAuthenticat
 	 * credentials value. Otherwise a dummy value will be used.
 	 */
 	@Override
-	protected Object getPreAuthenticatedCredentials(HttpServletRequest request) {
+	protected @Nullable Object getPreAuthenticatedCredentials(HttpServletRequest request) {
 		if (this.credentialsEnvironmentVariable != null) {
 			return request.getAttribute(this.credentialsEnvironmentVariable);
 		}
