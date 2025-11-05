@@ -28,19 +28,23 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JacksonModule;
+import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.context.annotation.ImportRuntimeHints;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
+import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -134,8 +138,8 @@ public class JdbcRegisteredClientRepository implements RegisteredClientRepositor
 	public JdbcRegisteredClientRepository(JdbcOperations jdbcOperations) {
 		Assert.notNull(jdbcOperations, "jdbcOperations cannot be null");
 		this.jdbcOperations = jdbcOperations;
-		this.registeredClientRowMapper = new RegisteredClientRowMapper();
-		this.registeredClientParametersMapper = new RegisteredClientParametersMapper();
+		this.registeredClientRowMapper = new JsonMapperRegisteredClientRowMapper();
+		this.registeredClientParametersMapper = new JsonMapperRegisteredClientParametersMapper();
 	}
 
 	@Override
@@ -206,7 +210,7 @@ public class JdbcRegisteredClientRepository implements RegisteredClientRepositor
 	/**
 	 * Sets the {@link RowMapper} used for mapping the current row in
 	 * {@code java.sql.ResultSet} to {@link RegisteredClient}. The default is
-	 * {@link RegisteredClientRowMapper}.
+	 * {@link JsonMapperRegisteredClientRowMapper}.
 	 * @param registeredClientRowMapper the {@link RowMapper} used for mapping the current
 	 * row in {@code ResultSet} to {@link RegisteredClient}
 	 */
@@ -218,7 +222,7 @@ public class JdbcRegisteredClientRepository implements RegisteredClientRepositor
 	/**
 	 * Sets the {@code Function} used for mapping {@link RegisteredClient} to a
 	 * {@code List} of {@link SqlParameterValue}. The default is
-	 * {@link RegisteredClientParametersMapper}.
+	 * {@link JsonMapperRegisteredClientParametersMapper}.
 	 * @param registeredClientParametersMapper the {@code Function} used for mapping
 	 * {@link RegisteredClient} to a {@code List} of {@link SqlParameterValue}
 	 */
@@ -242,17 +246,76 @@ public class JdbcRegisteredClientRepository implements RegisteredClientRepositor
 
 	/**
 	 * The default {@link RowMapper} that maps the current row in
-	 * {@code java.sql.ResultSet} to {@link RegisteredClient}.
+	 * {@code java.sql.ResultSet} to {@link RegisteredClient} using Jackson 3's
+	 * {@link JsonMapper}.
+	 *
+	 * @author Joe Grandja
+	 * @since 7.0
 	 */
-	public static class RegisteredClientRowMapper implements RowMapper<RegisteredClient> {
+	public static class JsonMapperRegisteredClientRowMapper extends AbstractRegisteredClientRowMapper {
 
-		private ObjectMapper objectMapper = new ObjectMapper();
+		private final JsonMapper jsonMapper;
 
-		public RegisteredClientRowMapper() {
-			ClassLoader classLoader = JdbcRegisteredClientRepository.class.getClassLoader();
-			List<Module> securityModules = SecurityJackson2Modules.getModules(classLoader);
-			this.objectMapper.registerModules(securityModules);
-			this.objectMapper.registerModule(new OAuth2AuthorizationServerJackson2Module());
+		public JsonMapperRegisteredClientRowMapper() {
+			this(Jackson3.createJsonMapper());
+		}
+
+		public JsonMapperRegisteredClientRowMapper(JsonMapper jsonMapper) {
+			Assert.notNull(jsonMapper, "jsonMapper cannot be null");
+			this.jsonMapper = jsonMapper;
+		}
+
+		@Override
+		Map<String, Object> readValue(String data) {
+			final ParameterizedTypeReference<Map<String, Object>> typeReference = new ParameterizedTypeReference<>() {
+			};
+			tools.jackson.databind.JavaType javaType = this.jsonMapper.getTypeFactory()
+				.constructType(typeReference.getType());
+			return this.jsonMapper.readValue(data, javaType);
+		}
+
+	}
+
+	/**
+	 * A {@link RowMapper} that maps the current row in {@code java.sql.ResultSet} to
+	 * {@link RegisteredClient} using Jackson 2's {@link ObjectMapper}.
+	 *
+	 * @deprecated Use {@link JsonMapperRegisteredClientRowMapper} to switch to Jackson 3.
+	 */
+	@Deprecated(forRemoval = true, since = "7.0")
+	public static class RegisteredClientRowMapper extends AbstractRegisteredClientRowMapper {
+
+		private ObjectMapper objectMapper = Jackson2.createObjectMapper();
+
+		public final void setObjectMapper(ObjectMapper objectMapper) {
+			Assert.notNull(objectMapper, "objectMapper cannot be null");
+			this.objectMapper = objectMapper;
+		}
+
+		protected final ObjectMapper getObjectMapper() {
+			return this.objectMapper;
+		}
+
+		@Override
+		Map<String, Object> readValue(String data) throws JsonProcessingException {
+			final ParameterizedTypeReference<Map<String, Object>> typeReference = new ParameterizedTypeReference<>() {
+			};
+			com.fasterxml.jackson.databind.JavaType javaType = this.objectMapper.getTypeFactory()
+				.constructType(typeReference.getType());
+			return this.objectMapper.readValue(data, javaType);
+		}
+
+	}
+
+	/**
+	 * The base {@link RowMapper} that maps the current row in {@code java.sql.ResultSet}
+	 * to {@link RegisteredClient}. This is extracted to a distinct class so that
+	 * {@link RegisteredClientRowMapper} can be deprecated in favor of
+	 * {@link JsonMapperRegisteredClientRowMapper}.
+	 */
+	private abstract static class AbstractRegisteredClientRowMapper implements RowMapper<RegisteredClient> {
+
+		private AbstractRegisteredClientRowMapper() {
 		}
 
 		@Override
@@ -299,24 +362,16 @@ public class JdbcRegisteredClientRepository implements RegisteredClientRepositor
 			return builder.build();
 		}
 
-		public final void setObjectMapper(ObjectMapper objectMapper) {
-			Assert.notNull(objectMapper, "objectMapper cannot be null");
-			this.objectMapper = objectMapper;
-		}
-
-		protected final ObjectMapper getObjectMapper() {
-			return this.objectMapper;
-		}
-
 		private Map<String, Object> parseMap(String data) {
 			try {
-				return this.objectMapper.readValue(data, new TypeReference<>() {
-				});
+				return readValue(data);
 			}
 			catch (Exception ex) {
 				throw new IllegalArgumentException(ex.getMessage(), ex);
 			}
 		}
+
+		abstract Map<String, Object> readValue(String data) throws Exception;
 
 		private static AuthorizationGrantType resolveAuthorizationGrantType(String authorizationGrantType) {
 			if (AuthorizationGrantType.AUTHORIZATION_CODE.getValue().equals(authorizationGrantType)) {
@@ -350,18 +405,64 @@ public class JdbcRegisteredClientRepository implements RegisteredClientRepositor
 
 	/**
 	 * The default {@code Function} that maps {@link RegisteredClient} to a {@code List}
-	 * of {@link SqlParameterValue}.
+	 * of {@link SqlParameterValue} using an instance of Jackson 3's {@link JsonMapper}.
 	 */
-	public static class RegisteredClientParametersMapper
+	public static class JsonMapperRegisteredClientParametersMapper extends AbstractRegisteredClientParametersMapper {
+
+		private final JsonMapper jsonMapper;
+
+		public JsonMapperRegisteredClientParametersMapper() {
+			this(Jackson3.createJsonMapper());
+		}
+
+		public JsonMapperRegisteredClientParametersMapper(JsonMapper jsonMapper) {
+			Assert.notNull(jsonMapper, "jsonMapper cannot be null");
+			this.jsonMapper = jsonMapper;
+		}
+
+		@Override
+		String writeValueAsString(Map<String, Object> data) throws Exception {
+			return this.jsonMapper.writeValueAsString(data);
+		}
+
+	}
+
+	/**
+	 * A {@code Function} that maps {@link RegisteredClient} to a {@code List} of
+	 * {@link SqlParameterValue} using an instance of Jackson 2's {@link ObjectMapper}.
+	 *
+	 * @deprecated Use {@link JsonMapperRegisteredClientParametersMapper} to switch to
+	 * Jackson 3.
+	 */
+	@Deprecated(forRemoval = true, since = "7.0")
+	public static class RegisteredClientParametersMapper extends AbstractRegisteredClientParametersMapper {
+
+		private ObjectMapper objectMapper = Jackson2.createObjectMapper();
+
+		public final void setObjectMapper(ObjectMapper objectMapper) {
+			Assert.notNull(objectMapper, "objectMapper cannot be null");
+			this.objectMapper = objectMapper;
+		}
+
+		protected final ObjectMapper getObjectMapper() {
+			return this.objectMapper;
+		}
+
+		@Override
+		String writeValueAsString(Map<String, Object> data) throws JsonProcessingException {
+			return this.objectMapper.writeValueAsString(data);
+		}
+
+	}
+
+	/**
+	 * The base {@code Function} that maps {@link RegisteredClient} to a {@code List} of
+	 * {@link SqlParameterValue}.
+	 */
+	private abstract static class AbstractRegisteredClientParametersMapper
 			implements Function<RegisteredClient, List<SqlParameterValue>> {
 
-		private ObjectMapper objectMapper = new ObjectMapper();
-
-		public RegisteredClientParametersMapper() {
-			ClassLoader classLoader = JdbcRegisteredClientRepository.class.getClassLoader();
-			List<Module> securityModules = SecurityJackson2Modules.getModules(classLoader);
-			this.objectMapper.registerModules(securityModules);
-			this.objectMapper.registerModule(new OAuth2AuthorizationServerJackson2Module());
+		private AbstractRegisteredClientParametersMapper() {
 		}
 
 		@Override
@@ -403,22 +504,50 @@ public class JdbcRegisteredClientRepository implements RegisteredClientRepositor
 					new SqlParameterValue(Types.VARCHAR, writeMap(registeredClient.getTokenSettings().getSettings())));
 		}
 
-		public final void setObjectMapper(ObjectMapper objectMapper) {
-			Assert.notNull(objectMapper, "objectMapper cannot be null");
-			this.objectMapper = objectMapper;
-		}
-
-		protected final ObjectMapper getObjectMapper() {
-			return this.objectMapper;
-		}
-
 		private String writeMap(Map<String, Object> data) {
 			try {
-				return this.objectMapper.writeValueAsString(data);
+				return writeValueAsString(data);
 			}
 			catch (Exception ex) {
 				throw new IllegalArgumentException(ex.getMessage(), ex);
 			}
+		}
+
+		abstract String writeValueAsString(Map<String, Object> data) throws Exception;
+
+	}
+
+	/**
+	 * Nested class to protect from getting {@link NoClassDefFoundError} when Jackson 2 is
+	 * not on the classpath.
+	 *
+	 * @deprecated This is used to allow transition to Jackson 3. Use {@link Jackson3}
+	 * instead.
+	 */
+	@Deprecated(forRemoval = true, since = "7.0")
+	private static final class Jackson2 {
+
+		private static ObjectMapper createObjectMapper() {
+			ObjectMapper objectMapper = new ObjectMapper();
+			ClassLoader classLoader = Jackson2.class.getClassLoader();
+			List<Module> securityModules = SecurityJackson2Modules.getModules(classLoader);
+			objectMapper.registerModules(securityModules);
+			objectMapper.registerModule(new OAuth2AuthorizationServerJackson2Module());
+			return objectMapper;
+		}
+
+	}
+
+	/**
+	 * Nested class used to get a common default instance of {@link JsonMapper}. It is in
+	 * a nested class to protect from getting {@link NoClassDefFoundError} when Jackson 3
+	 * is not on the classpath.
+	 */
+	private static final class Jackson3 {
+
+		private static JsonMapper createJsonMapper() {
+			List<JacksonModule> modules = SecurityJacksonModules.getModules(Jackson3.class.getClassLoader());
+			return JsonMapper.builder().addModules(modules).build();
 		}
 
 	}

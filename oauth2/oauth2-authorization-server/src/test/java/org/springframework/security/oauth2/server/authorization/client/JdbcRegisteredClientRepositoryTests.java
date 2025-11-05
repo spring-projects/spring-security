@@ -25,13 +25,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JacksonModule;
+import tools.jackson.databind.json.JsonMapper;
 
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -41,13 +41,12 @@ import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import org.springframework.security.jackson2.SecurityJackson2Modules;
+import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository.RegisteredClientParametersMapper;
-import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository.RegisteredClientRowMapper;
-import org.springframework.security.oauth2.server.authorization.jackson2.OAuth2AuthorizationServerJackson2Module;
+import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository.JsonMapperRegisteredClientParametersMapper;
+import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository.JsonMapperRegisteredClientRowMapper;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.util.StringUtils;
@@ -222,9 +221,9 @@ public class JdbcRegisteredClientRepositoryTests {
 
 	@Test
 	public void saveLoadRegisteredClientWhenCustomStrategiesSetThenCalled() throws Exception {
-		RowMapper<RegisteredClient> registeredClientRowMapper = spy(new RegisteredClientRowMapper());
+		RowMapper<RegisteredClient> registeredClientRowMapper = spy(new JsonMapperRegisteredClientRowMapper());
 		this.registeredClientRepository.setRegisteredClientRowMapper(registeredClientRowMapper);
-		RegisteredClientParametersMapper clientParametersMapper = new RegisteredClientParametersMapper();
+		JsonMapperRegisteredClientParametersMapper clientParametersMapper = new JsonMapperRegisteredClientParametersMapper();
 		Function<RegisteredClient, List<SqlParameterValue>> registeredClientParametersMapper = spy(
 				clientParametersMapper);
 		this.registeredClientRepository.setRegisteredClientParametersMapper(registeredClientParametersMapper);
@@ -365,16 +364,14 @@ public class JdbcRegisteredClientRepositoryTests {
 			return !result.isEmpty() ? result.get(0) : null;
 		}
 
-		@SuppressWarnings("removal")
 		private static final class CustomRegisteredClientRowMapper implements RowMapper<RegisteredClient> {
 
-			private final ObjectMapper objectMapper = new ObjectMapper();
+			private final JsonMapper jsonMapper;
 
 			private CustomRegisteredClientRowMapper() {
-				ClassLoader classLoader = CustomJdbcRegisteredClientRepository.class.getClassLoader();
-				List<Module> securityModules = SecurityJackson2Modules.getModules(classLoader);
-				this.objectMapper.registerModules(securityModules);
-				this.objectMapper.registerModule(new OAuth2AuthorizationServerJackson2Module());
+				List<JacksonModule> modules = SecurityJacksonModules
+					.getModules(CustomRegisteredClientRowMapper.class.getClassLoader());
+				this.jsonMapper = JsonMapper.builder().addModules(modules).build();
 			}
 
 			@Override
@@ -418,9 +415,12 @@ public class JdbcRegisteredClientRepositoryTests {
 			}
 
 			private Map<String, Object> parseMap(String data) {
+				final ParameterizedTypeReference<Map<String, Object>> typeReference = new ParameterizedTypeReference<>() {
+				};
 				try {
-					return this.objectMapper.readValue(data, new TypeReference<>() {
-					});
+					tools.jackson.databind.JavaType javaType = this.jsonMapper.getTypeFactory()
+						.constructType(typeReference.getType());
+					return this.jsonMapper.readValue(data, javaType);
 				}
 				catch (Exception ex) {
 					throw new IllegalArgumentException(ex.getMessage(), ex);
