@@ -466,7 +466,7 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 	/**
 	 * The default {@link RowMapper} that maps the current row in
 	 * {@code java.sql.ResultSet} to {@link OAuth2Authorization} using Jackson 3's
-	 * {@link JsonMapper} to read all {@code Map<String,Object>} within the result.
+	 * {@link JsonMapper}.
 	 *
 	 * @author Rob Winch
 	 * @since 7.0
@@ -482,6 +482,7 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 		public JsonMapperOAuth2AuthorizationRowMapper(RegisteredClientRepository registeredClientRepository,
 				JsonMapper jsonMapper) {
 			super(registeredClientRepository);
+			Assert.notNull(jsonMapper, "jsonMapper cannot be null");
 			this.jsonMapper = jsonMapper;
 		}
 
@@ -544,7 +545,7 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 
 		private LobHandler lobHandler = new DefaultLobHandler();
 
-		AbstractOAuth2AuthorizationRowMapper(RegisteredClientRepository registeredClientRepository) {
+		private AbstractOAuth2AuthorizationRowMapper(RegisteredClientRepository registeredClientRepository) {
 			Assert.notNull(registeredClientRepository, "registeredClientRepository cannot be null");
 			this.registeredClientRepository = registeredClientRepository;
 		}
@@ -713,42 +714,36 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 	}
 
 	/**
-	 * Nested class to protect from getting {@link NoClassDefFoundError} when Jackson 2 is
-	 * not on the classpath.
+	 * The default {@code Function} that maps {@link OAuth2Authorization} to a
+	 * {@code List} of {@link SqlParameterValue} using an instance of Jackson 3's
+	 * {@link JsonMapper}.
+	 */
+	public static class JsonMapperOAuth2AuthorizationParametersMapper
+			extends AbstractOAuth2AuthorizationParametersMapper {
+
+		private final JsonMapper jsonMapper;
+
+		public JsonMapperOAuth2AuthorizationParametersMapper() {
+			this(Jackson3.createJsonMapper());
+		}
+
+		public JsonMapperOAuth2AuthorizationParametersMapper(JsonMapper jsonMapper) {
+			Assert.notNull(jsonMapper, "jsonMapper cannot be null");
+			this.jsonMapper = jsonMapper;
+		}
+
+		@Override
+		String writeValueAsString(Map<String, Object> data) throws Exception {
+			return this.jsonMapper.writeValueAsString(data);
+		}
+
+	}
+
+	/**
+	 * A {@code Function} that maps {@link OAuth2Authorization} to a {@code List} of
+	 * {@link SqlParameterValue} using an instance of Jackson 2's {@link ObjectMapper}.
 	 *
-	 * @deprecated This is used to allow transition to Jackson 3. Use {@link Jackson3}
-	 * instead.
-	 */
-	@Deprecated(forRemoval = true, since = "7.0")
-	private static final class Jackson2 {
-
-		static ObjectMapper createObjectMapper() {
-			ObjectMapper objectMapper = new ObjectMapper();
-			ClassLoader classLoader = Jackson2.class.getClassLoader();
-			List<Module> securityModules = SecurityJackson2Modules.getModules(classLoader);
-			objectMapper.registerModules(securityModules);
-			objectMapper.registerModule(new OAuth2AuthorizationServerJackson2Module());
-			return objectMapper;
-		}
-
-	}
-
-	/**
-	 * Nested class used to get a common default instance of {@link JsonMapper}. It is in
-	 * a nested class to protect from getting {@link NoClassDefFoundError} when Jackson 3
-	 * is not on the classpath.
-	 */
-	private static final class Jackson3 {
-
-		static JsonMapper createJsonMapper() {
-			List<JacksonModule> modules = SecurityJacksonModules.getModules(Jackson3.class.getClassLoader());
-			return JsonMapper.builder().addModules(modules).build();
-		}
-
-	}
-
-	/**
-	 * @deprecated Use {@link JsonMapperOAuth2AuthorizationParametersMapper} to migrate to
+	 * @deprecated Use {@link JsonMapperOAuth2AuthorizationParametersMapper} to switch to
 	 * Jackson 3.
 	 */
 	@Deprecated(forRemoval = true, since = "7.0")
@@ -773,39 +768,13 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 	}
 
 	/**
-	 * The default {@code Function} that maps {@link OAuth2Authorization} to a
-	 * {@code List} of {@link SqlParameterValue} using an instance of Jackson 3's
-	 * {@link JsonMapper}.
-	 */
-	public static final class JsonMapperOAuth2AuthorizationParametersMapper
-			extends AbstractOAuth2AuthorizationParametersMapper {
-
-		private final JsonMapper mapper;
-
-		public JsonMapperOAuth2AuthorizationParametersMapper() {
-			this(Jackson3.createJsonMapper());
-		}
-
-		public JsonMapperOAuth2AuthorizationParametersMapper(JsonMapper mapper) {
-			Assert.notNull(mapper, "mapper cannot be null");
-			this.mapper = mapper;
-		}
-
-		@Override
-		String writeValueAsString(Map<String, Object> data) throws Exception {
-			return this.mapper.writeValueAsString(data);
-		}
-
-	}
-
-	/**
 	 * The base {@code Function} that maps {@link OAuth2Authorization} to a {@code List}
 	 * of {@link SqlParameterValue}.
 	 */
 	private abstract static class AbstractOAuth2AuthorizationParametersMapper
 			implements Function<OAuth2Authorization, List<SqlParameterValue>> {
 
-		protected AbstractOAuth2AuthorizationParametersMapper() {
+		private AbstractOAuth2AuthorizationParametersMapper() {
 		}
 
 		@Override
@@ -913,6 +882,41 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 		}
 
 		abstract String writeValueAsString(Map<String, Object> data) throws Exception;
+
+	}
+
+	/**
+	 * Nested class to protect from getting {@link NoClassDefFoundError} when Jackson 2 is
+	 * not on the classpath.
+	 *
+	 * @deprecated This is used to allow transition to Jackson 3. Use {@link Jackson3}
+	 * instead.
+	 */
+	@Deprecated(forRemoval = true, since = "7.0")
+	private static final class Jackson2 {
+
+		private static ObjectMapper createObjectMapper() {
+			ObjectMapper objectMapper = new ObjectMapper();
+			ClassLoader classLoader = Jackson2.class.getClassLoader();
+			List<Module> securityModules = SecurityJackson2Modules.getModules(classLoader);
+			objectMapper.registerModules(securityModules);
+			objectMapper.registerModule(new OAuth2AuthorizationServerJackson2Module());
+			return objectMapper;
+		}
+
+	}
+
+	/**
+	 * Nested class used to get a common default instance of {@link JsonMapper}. It is in
+	 * a nested class to protect from getting {@link NoClassDefFoundError} when Jackson 3
+	 * is not on the classpath.
+	 */
+	private static final class Jackson3 {
+
+		private static JsonMapper createJsonMapper() {
+			List<JacksonModule> modules = SecurityJacksonModules.getModules(Jackson3.class.getClassLoader());
+			return JsonMapper.builder().addModules(modules).build();
+		}
 
 	}
 
