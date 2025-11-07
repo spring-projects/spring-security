@@ -1060,6 +1060,39 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
     }
 
     /**
+     * Configures OAuth 2.1 Authorization Server support.
+     *
+     * Example:
+     *
+     * ```
+     * @Configuration
+     * @EnableWebSecurity
+     * class SecurityConfig {
+     *
+     *     @Bean
+     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *         http {
+     *             oauth2AuthorizationServer {
+     *                 oidc {
+     *                     userInfoEndpoint { }
+     *                 }
+     *             }
+     *         }
+     *         return http.build()
+     *     }
+     * }
+     * ```
+     *
+     * @param oauth2AuthorizationServerConfiguration custom configuration to configure the
+     * OAuth 2.1 Authorization Server support
+     * @see [OAuth2AuthorizationServerDsl]
+     */
+    fun oauth2AuthorizationServer(oauth2AuthorizationServerConfiguration: OAuth2AuthorizationServerDsl.() -> Unit) {
+        val oauth2AuthorizationServerCustomizer = OAuth2AuthorizationServerDsl().apply(oauth2AuthorizationServerConfiguration).get()
+        this.http.oauth2AuthorizationServer(oauth2AuthorizationServerCustomizer)
+    }
+
+    /**
      * Configures OIDC 1.0 logout support.
      *
      * Example:
