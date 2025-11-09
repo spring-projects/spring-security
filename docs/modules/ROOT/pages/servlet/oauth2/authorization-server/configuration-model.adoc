@@ -95,6 +95,24 @@ public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
 
 The main intent of `OAuth2AuthorizationServerConfiguration` is to provide a convenient method to apply the minimal default configuration for an OAuth2 authorization server. However, in most cases, customizing the configuration will be required.
 
+The following example shows how you can wire an authorization server with nothing more than an `HttpSecurity` builder while still re-using Spring Boot’s defaults for users and static resources:
+
+[source,java]
+----
+@Bean
+SecurityFilterChain springSecurity(HttpSecurity http) {
+    http
+        .authorizeHttpRequests(requests -> requests
+            .anyRequest().authenticated()
+        )
+        .authorizationServer(auth -> auth
+            .oidc(Customizer.withDefaults())
+        )
+        .formLogin(Customizer.withDefaults());
+    return http.build();
+}
+----
+
 [[oauth2AuthorizationServer-customizing-the-configuration]]
 == Customizing the configuration
 
