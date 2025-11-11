@@ -108,6 +108,34 @@ spring:
             require-authorization-consent: true
 ----
 
+If you want to customize the default `HttpSecurity` configuration, you may override Spring Boot's auto-configuration with the following example:
+
+[[oauth2AuthorizationServer-minimal-sample-gettingstarted]]
+.SecurityConfig.java
+[source,java]
+----
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) {
+		http
+			.authorizeHttpRequests((authorize) ->
+				authorize
+					.anyRequest().authenticated()
+			)
+			.formLogin(Customizer.withDefaults())
+			.oauth2AuthorizationServer((authorizationServer) ->
+				authorizationServer
+					.oidc(Customizer.withDefaults())	// Enable OpenID Connect 1.0
+			);
+		return http.build();
+	}
+
+}
+----
+
 TIP: Beyond the Getting Started experience, most users will want to customize the default configuration. The xref:servlet/oauth2/authorization-server/getting-started.adoc#oauth2AuthorizationServer-defining-required-components[next section] demonstrates providing all of the necessary beans yourself.
 
 [[oauth2AuthorizationServer-defining-required-components]]
