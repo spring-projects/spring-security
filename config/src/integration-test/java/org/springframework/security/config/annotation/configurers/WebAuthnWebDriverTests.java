@@ -31,6 +31,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriverException;
@@ -55,6 +56,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -67,7 +69,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Daniel Garnier-Moiroux
  */
-@org.junit.jupiter.api.Disabled
+@Disabled
 class WebAuthnWebDriverTests {
 
 	private String baseUrl;
@@ -81,6 +83,8 @@ class WebAuthnWebDriverTests {
 	private static final String USERNAME = "user";
 
 	private static final String PASSWORD = "password";
+
+	private String authenticatorId = null;
 
 	@BeforeAll
 	static void startChromeDriverService() throws Exception {
@@ -144,7 +148,7 @@ class WebAuthnWebDriverTests {
 	@Test
 	void loginWhenNoValidAuthenticatorCredentialsThenRejects() {
 		createVirtualAuthenticator(true);
-		this.driver.get(this.baseUrl);
+		this.getAndWait("/", "/login");
 		this.driver.findElement(signinWithPasskeyButton()).click();
 		await(() -> assertThat(this.driver.getCurrentUrl()).endsWith("/login?error"));
 	}
@@ -153,7 +157,7 @@ class WebAuthnWebDriverTests {
 	void registerWhenNoLabelThenRejects() {
 		login();
 
-		this.driver.get(this.baseUrl + "/webauthn/register");
+		this.getAndWait("/webauthn/register");
 
 		this.driver.findElement(registerPasskeyButton()).click();
 		assertHasAlertStartingWith("error", "Error: Passkey Label is required");
@@ -163,7 +167,7 @@ class WebAuthnWebDriverTests {
 	void registerWhenAuthenticatorNoUserVerificationThenRejects() {
 		createVirtualAuthenticator(false);
 		login();
-		this.driver.get(this.baseUrl + "/webauthn/register");
+		this.getAndWait("/webauthn/register");
 		this.driver.findElement(passkeyLabel()).sendKeys("Virtual authenticator");
 		this.driver.findElement(registerPasskeyButton()).click();
 
@@ -178,7 +182,8 @@ class WebAuthnWebDriverTests {
 	 * <li>Step 1: Log in with username / password</li>
 	 * <li>Step 2: Register a credential from the virtual authenticator</li>
 	 * <li>Step 3: Log out</li>
-	 * <li>Step 4: Log in with the authenticator</li>
+	 * <li>Step 4: Log in with the authenticator (no allowCredentials)</li>
+	 * <li>Step 5: Log in again with the same authenticator (with allowCredentials)</li>
 	 * </ul>
 	 */
 	@Test
@@ -190,7 +195,7 @@ class WebAuthnWebDriverTests {
 		login();
 
 		// Step 2: register a credential from the virtual authenticator
-		this.driver.get(this.baseUrl + "/webauthn/register");
+		this.getAndWait("/webauthn/register");
 		this.driver.findElement(passkeyLabel()).sendKeys("Virtual authenticator");
 		this.driver.findElement(registerPasskeyButton()).click();
 
@@ -212,9 +217,58 @@ class WebAuthnWebDriverTests {
 		logout();
 
 		// Step 4: log in with the virtual authenticator
-		this.driver.get(this.baseUrl + "/webauthn/register");
+		this.getAndWait("/webauthn/register", "/login");
 		this.driver.findElement(signinWithPasskeyButton()).click();
 		await(() -> assertThat(this.driver.getCurrentUrl()).endsWith("/webauthn/register?continue"));
+
+		// Step 5: authenticate while being already logged in
+		// This simulates some use-cases with MFA. Since the user is already logged in,
+		// the "allowCredentials" property is populated
+		this.getAndWait("/login");
+		this.driver.findElement(signinWithPasskeyButton()).click();
+		await(() -> assertThat(this.driver.getCurrentUrl()).endsWith("/"));
+	}
+
+	@Test
+	void registerWhenAuthenticatorAlreadyRegisteredThenRejects() {
+		createVirtualAuthenticator(true);
+		login();
+		registerAuthenticator("Virtual authenticator");
+
+		// Cannot re-register the same authenticator because excludeCredentials
+		// is not empty and contains the given authenticator
+		this.driver.findElement(passkeyLabel()).sendKeys("Same authenticator");
+		this.driver.findElement(registerPasskeyButton()).click();
+
+		await(() -> assertHasAlertStartingWith("error", "Registration failed"));
+	}
+
+	@Test
+	void registerSecondAuthenticatorThenSucceeds() {
+		createVirtualAuthenticator(true);
+		login();
+
+		registerAuthenticator("Virtual authenticator");
+		this.getAndWait("/webauthn/register");
+		List<WebElement> passkeyRows = this.driver.findElements(passkeyTableRows());
+		assertThat(passkeyRows).hasSize(1)
+			.first()
+			.extracting((row) -> row.findElement(firstCell()))
+			.extracting(WebElement::getText)
+			.isEqualTo("Virtual authenticator");
+
+		// Create second authenticator and register
+		removeAuthenticator();
+		createVirtualAuthenticator(true);
+		registerAuthenticator("Second virtual authenticator");
+
+		this.getAndWait("/webauthn/register");
+
+		passkeyRows = this.driver.findElements(passkeyTableRows());
+		assertThat(passkeyRows).hasSize(2)
+			.extracting((row) -> row.findElement(firstCell()))
+			.extracting(WebElement::getText)
+			.contains("Second virtual authenticator");
 	}
 
 	/**
@@ -231,11 +285,14 @@ class WebAuthnWebDriverTests {
 	 * "https://chromedevtools.github.io/devtools-protocol/tot/WebAuthn/">https://chromedevtools.github.io/devtools-protocol/tot/WebAuthn/</a>
 	 */
 	private void createVirtualAuthenticator(boolean userIsVerified) {
+		if (StringUtils.hasText(this.authenticatorId)) {
+			throw new IllegalStateException("Authenticator already exists, please remove it before re-creating one");
+		}
 		HasCdp cdpDriver = (HasCdp) this.driver;
 		cdpDriver.executeCdpCommand("WebAuthn.enable", Map.of("enableUI", false));
 		// this.driver.addVirtualAuthenticator(createVirtualAuthenticatorOptions());
 		//@formatter:off
-		cdpDriver.executeCdpCommand("WebAuthn.addVirtualAuthenticator",
+		Map<String, Object> cmdResponse = cdpDriver.executeCdpCommand("WebAuthn.addVirtualAuthenticator",
 				Map.of(
 						"options",
 						Map.of(
@@ -248,19 +305,36 @@ class WebAuthnWebDriverTests {
 						)
 				));
 		//@formatter:on
+		this.authenticatorId = cmdResponse.get("authenticatorId").toString();
+	}
+
+	private void removeAuthenticator() {
+		HasCdp cdpDriver = (HasCdp) this.driver;
+		cdpDriver.executeCdpCommand("WebAuthn.removeVirtualAuthenticator",
+				Map.of("authenticatorId", this.authenticatorId));
+		this.authenticatorId = null;
 	}
 
 	private void login() {
-		this.driver.get(this.baseUrl);
+		this.getAndWait("/", "/login");
 		this.driver.findElement(usernameField()).sendKeys(USERNAME);
 		this.driver.findElement(passwordField()).sendKeys(PASSWORD);
 		this.driver.findElement(signinWithUsernamePasswordButton()).click();
+		// Ensure login has completed
+		await(() -> assertThat(this.driver.getCurrentUrl()).doesNotContain("/login"));
 	}
 
 	private void logout() {
-		this.driver.get(this.baseUrl + "/logout");
+		this.getAndWait("/logout");
 		this.driver.findElement(logoutButton()).click();
 		await(() -> assertThat(this.driver.getCurrentUrl()).endsWith("/login?logout"));
+	}
+
+	private void registerAuthenticator(String passkeyName) {
+		this.getAndWait("/webauthn/register");
+		this.driver.findElement(passkeyLabel()).sendKeys(passkeyName);
+		this.driver.findElement(registerPasskeyButton()).click();
+		await(() -> assertThat(this.driver.getCurrentUrl()).endsWith("/webauthn/register?success"));
 	}
 
 	private AbstractStringAssert<?> assertHasAlertStartingWith(String alertType, String alertMessage) {
@@ -287,6 +361,15 @@ class WebAuthnWebDriverTests {
 				assertion.get();
 				return true;
 			});
+	}
+
+	private void getAndWait(String endpoint) {
+		this.getAndWait(endpoint, endpoint);
+	}
+
+	private void getAndWait(String endpoint, String redirectUrl) {
+		this.driver.get(this.baseUrl + endpoint);
+		this.await(() -> assertThat(this.driver.getCurrentUrl()).endsWith(redirectUrl));
 	}
 
 	private static By.ById passkeyLabel() {
@@ -323,6 +406,10 @@ class WebAuthnWebDriverTests {
 
 	private static By.ByCssSelector logoutButton() {
 		return new By.ByCssSelector("button");
+	}
+
+	private static By.ByCssSelector deletePasskeyButton() {
+		return new By.ByCssSelector("table > tbody > tr > button");
 	}
 
 	/**
