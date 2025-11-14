@@ -95,7 +95,7 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 
 	private final PublicKeyCredentialRpEntity rp;
 
-	private final ObjectConverter objectConverter = new ObjectConverter();
+	private ObjectConverter objectConverter = new ObjectConverter();
 
 	private final AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
@@ -135,6 +135,15 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 	public void setWebAuthnManager(WebAuthnManager webAuthnManager) {
 		Assert.notNull(webAuthnManager, "webAuthnManager cannot be null");
 		this.webAuthnManager = webAuthnManager;
+	}
+
+	/**
+	 * Sets the {@link ObjectConverter} to use.
+	 * @param objectConverter the {@link ObjectConverter} to use. Cannot be null.
+	 */
+	void setObjectConverter(ObjectConverter objectConverter) {
+		Assert.notNull(objectConverter, "objectConverter cannot be null");
+		this.objectConverter = objectConverter;
 	}
 
 	/**
