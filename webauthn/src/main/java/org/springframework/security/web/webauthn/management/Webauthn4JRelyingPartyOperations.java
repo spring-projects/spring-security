@@ -399,7 +399,7 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 			.getUserVerification() == UserVerificationRequirement.REQUIRED;
 
 		com.webauthn4j.data.AuthenticationRequest authenticationRequest = new com.webauthn4j.data.AuthenticationRequest(
-				request.getPublicKey().getId().getBytes(), assertionResponse.getAuthenticatorData().getBytes(),
+				request.getPublicKey().getRawId().getBytes(), assertionResponse.getAuthenticatorData().getBytes(),
 				assertionResponse.getClientDataJSON().getBytes(), assertionResponse.getSignature().getBytes());
 
 		// CollectedClientData and ExtensionsClientOutputs is registration data, and can
