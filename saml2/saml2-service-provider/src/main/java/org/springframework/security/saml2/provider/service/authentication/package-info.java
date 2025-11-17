@@ -17,6 +17,6 @@
  * Core Spring Security SAML 2.0 abstractions.
  */
 @NullMarked
-package org.springframework.security.saml2.authentication;
+package org.springframework.security.saml2.provider.service.authentication;
 
 import org.jspecify.annotations.NullMarked;
