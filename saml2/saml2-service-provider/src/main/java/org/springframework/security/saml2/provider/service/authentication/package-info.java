@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
- * Jackson 2 serialization support for SAML2.
+ * Core Spring Security SAML 2.0 abstractions.
  */
 @NullMarked
-package org.springframework.security.saml2.jackson2;
+package org.springframework.security.saml2.authentication;
 
 import org.jspecify.annotations.NullMarked;
