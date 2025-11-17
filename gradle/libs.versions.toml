@@ -12,7 +12,7 @@ org-jetbrains-kotlin = "2.2.21"
 org-jetbrains-kotlinx = "1.10.2"
 org-mockito = "5.17.0"
 org-opensaml5 = "5.1.6"
-org-springframework = "7.0.0-RC1"
+org-springframework = "7.0.0"
 com-password4j = "1.8.4"
 
 [libraries]
