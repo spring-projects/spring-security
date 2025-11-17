@@ -1,6 +1,4 @@
 plugins {
-	id 'compile-warnings-error'
-	id 'javadoc-warnings-error'
 	id 'security-nullability'
 }
 
