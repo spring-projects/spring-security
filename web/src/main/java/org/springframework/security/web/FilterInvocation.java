@@ -178,6 +178,8 @@ public class FilterInvocation {
 
 		private final Map<String, String[]> parameters = new LinkedHashMap<>();
 
+		private final Map<String, Object> attributes = new LinkedHashMap<>();
+
 		DummyRequest() {
 			super(UNSUPPORTED_REQUEST);
 		}
@@ -189,7 +191,7 @@ public class FilterInvocation {
 
 		@Override
 		public Object getAttribute(String attributeName) {
-			return null;
+			return this.attributes.get(attributeName);
 		}
 
 		void setRequestURI(String requestURI) {
@@ -315,6 +317,11 @@ public class FilterInvocation {
 
 		void setServletContext(ServletContext servletContext) {
 			this.servletContext = servletContext;
+		}
+
+		@Override
+		public void setAttribute(String name, Object value) {
+			this.attributes.put(name, value);
 		}
 
 	}
