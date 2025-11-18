@@ -42,6 +42,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -358,6 +359,19 @@ public class AbstractRequestMatcherRegistryTests {
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> requestMatcher.matcher(request));
 	}
 
+	@Test
+	public void requestMatchersWhenServletContextCanBeNullThenDisallow() {
+		TestDeferredRequestMatcherRegistry deferredRequestMatcherRegistry = new TestDeferredRequestMatcherRegistry();
+		deferredRequestMatcherRegistry.setApplicationContext(this.context);
+		List<RequestMatcher> requestMatchers = deferredRequestMatcherRegistry.requestMatchers("/**");
+		MockHttpServletRequest request = new MockHttpServletRequest(HttpMethod.GET.name(), "/endpoint");
+
+		ReflectionTestUtils.setField(request, "servletContext", null);
+
+		assertThat(requestMatchers).isNotEmpty().hasSize(1);
+		assertThat(requestMatchers.get(0).matches(request)).isFalse();
+	}
+
 	private void mockMvcIntrospector(boolean isPresent) {
 		ApplicationContext context = this.matcherRegistry.getApplicationContext();
 		given(context.containsBean("mvcHandlerMappingIntrospector")).willReturn(isPresent);
@@ -387,6 +401,16 @@ public class AbstractRequestMatcherRegistryTests {
 					requestMatchers.add(requestMatcher);
 				}
 			}
+			return requestMatchers;
+		}
+
+	}
+
+	private static class TestDeferredRequestMatcherRegistry
+			extends AbstractRequestMatcherRegistry<List<RequestMatcher>> {
+
+		@Override
+		protected List<RequestMatcher> chainRequestMatchers(List<RequestMatcher> requestMatchers) {
 			return requestMatchers;
 		}
 

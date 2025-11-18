@@ -427,12 +427,20 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 
 		@Override
 		public boolean matches(HttpServletRequest request) {
-			return this.requestMatcherFactory.apply(request.getServletContext()).matches(request);
+			ServletContext servletContext = request.getServletContext();
+			if (servletContext == null) {
+				return false;
+			}
+			return this.requestMatcherFactory.apply(servletContext).matches(request);
 		}
 
 		@Override
 		public MatchResult matcher(HttpServletRequest request) {
-			return this.requestMatcherFactory.apply(request.getServletContext()).matcher(request);
+			ServletContext servletContext = request.getServletContext();
+			if (servletContext == null) {
+				return MatchResult.notMatch();
+			}
+			return this.requestMatcherFactory.apply(servletContext).matcher(request);
 		}
 
 		@Override
