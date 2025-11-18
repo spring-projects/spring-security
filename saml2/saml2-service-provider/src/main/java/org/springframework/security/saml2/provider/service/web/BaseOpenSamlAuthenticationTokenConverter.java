@@ -16,10 +16,10 @@
 
 package org.springframework.security.saml2.provider.service.web;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.opensaml.saml.saml2.core.Response;
-
 import org.springframework.http.HttpMethod;
+
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
@@ -30,11 +30,12 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers.UriResolver;
 import org.springframework.security.web.authentication.AuthenticationConverter;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
-import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
+import jakarta.servlet.http.HttpServletRequest;
 
 final class BaseOpenSamlAuthenticationTokenConverter implements AuthenticationConverter {
 
@@ -91,7 +92,9 @@ final class BaseOpenSamlAuthenticationTokenConverter implements AuthenticationCo
 	 * @throws Saml2AuthenticationException if the {@link RequestMatcher} specifies a
 	 * non-existent {@code registrationId}
 	 */
+	
 	@Override
+	@Nullable
 	public Saml2AuthenticationToken convert(HttpServletRequest request) {
 		String serialized = request.getParameter(Saml2ParameterNames.SAML_RESPONSE);
 		if (serialized == null) {
@@ -110,7 +113,8 @@ final class BaseOpenSamlAuthenticationTokenConverter implements AuthenticationCo
 		}
 		return token;
 	}
-
+	
+	@Nullable
 	private Saml2AuthenticationToken tokenByAuthenticationRequest(HttpServletRequest request) {
 		AbstractSaml2AuthenticationRequest authenticationRequest = this.authenticationRequests
 			.loadAuthenticationRequest(request);
@@ -121,7 +125,8 @@ final class BaseOpenSamlAuthenticationTokenConverter implements AuthenticationCo
 		RelyingPartyRegistration registration = this.registrations.findByRegistrationId(registrationId);
 		return tokenByRegistration(request, registration, authenticationRequest);
 	}
-
+	
+	@Nullable
 	private Saml2AuthenticationToken tokenByRegistrationId(HttpServletRequest request,
 			RequestMatcher.MatchResult result) {
 		String registrationId = result.getVariables().get("registrationId");
@@ -132,6 +137,7 @@ final class BaseOpenSamlAuthenticationTokenConverter implements AuthenticationCo
 		return tokenByRegistration(request, registration, null);
 	}
 
+	@Nullable
 	private Saml2AuthenticationToken tokenByEntityId(HttpServletRequest request) {
 		Response response = this.saml.deserialize(decode(request));
 		String issuer = response.getIssuer().getValue();
@@ -139,8 +145,10 @@ final class BaseOpenSamlAuthenticationTokenConverter implements AuthenticationCo
 		return tokenByRegistration(request, registration, null);
 	}
 
-	private Saml2AuthenticationToken tokenByRegistration(HttpServletRequest request,
-			RelyingPartyRegistration registration, AbstractSaml2AuthenticationRequest authenticationRequest) {
+	@Nullable
+	private Saml2AuthenticationToken tokenByRegistration(HttpServletRequest request, 
+			@Nullable RelyingPartyRegistration registration, 
+			@Nulable AbstractSaml2AuthenticationRequest authenticationRequest) {
 		if (registration == null) {
 			return null;
 		}
@@ -178,6 +186,7 @@ final class BaseOpenSamlAuthenticationTokenConverter implements AuthenticationCo
 		this.shouldConvertGetRequests = shouldConvertGetRequests;
 	}
 
+	@Nullable
 	private String decode(HttpServletRequest request) {
 		String encoded = request.getParameter(Saml2ParameterNames.SAML_RESPONSE);
 		boolean isGet = HttpMethod.GET.matches(request.getMethod());
