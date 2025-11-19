@@ -39,7 +39,7 @@ Gradle::
 +
 [source,groovy,role="secondary",subs="verbatim,attributes"]
 ----
-depenendencies {
+dependencies {
     implementation "org.springframework.security:spring-security-web"
     implementation "com.webauthn4j:webauthn4j-core:{webauthn4j-core-version}"
 }
