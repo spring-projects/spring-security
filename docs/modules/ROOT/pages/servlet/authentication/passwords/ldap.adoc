@@ -38,7 +38,7 @@ Gradle::
 +
 [source,groovy,role="secondary"]
 ----
-depenendencies {
+dependencies {
     implementation "org.springframework.boot:spring-boot-starter-data-ldap"
     implementation "org.springframework.security:spring-security-ldap"
 }
@@ -150,7 +150,7 @@ Gradle::
 +
 [source,groovy,role="secondary",subs="verbatim,attributes"]
 ----
-depenendencies {
+dependencies {
 	runtimeOnly "com.unboundid:unboundid-ldapsdk:{unboundid-ldapsdk-version}"
 }
 ----
