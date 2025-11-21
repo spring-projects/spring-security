@@ -33,7 +33,6 @@ import org.springframework.security.web.util.UrlUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -167,8 +166,12 @@ public class FilterInvocationTests {
 	@Test
 	public void testDummyRequestGetAttribute() {
 		DummyRequest request = new DummyRequest();
-		assertThatNoException().isThrownBy(() -> request.setAttribute("name", "value"));
-		assertThat(request.getAttribute("name")).isEqualTo("value");
+		request.setAttribute("name", "value");
+		request.setAttribute("removeName", "removeValue");
+		request.removeAttribute("remove");
+		Enumeration<String> attributeNames = request.getAttributeNames();
+		assertThat(attributeNames.nextElement()).isEqualTo("name");
+		assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(attributeNames::nextElement);
 	}
 
 }

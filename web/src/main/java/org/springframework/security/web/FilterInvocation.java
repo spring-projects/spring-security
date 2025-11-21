@@ -26,6 +26,7 @@ import java.lang.reflect.Proxy;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -321,7 +322,19 @@ public class FilterInvocation {
 
 		@Override
 		public void setAttribute(String name, Object value) {
+			Assert.notNull(name, "name can not be null");
 			this.attributes.put(name, value);
+		}
+
+		@Override
+		public void removeAttribute(String name) {
+			Assert.notNull(name, "name can not be null");
+			this.attributes.remove(name);
+		}
+
+		@Override
+		public Enumeration<String> getAttributeNames() {
+			return Collections.enumeration(new LinkedHashSet<>(this.attributes.keySet()));
 		}
 
 	}
