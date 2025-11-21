@@ -168,7 +168,7 @@ public class FilterInvocationTests {
 		DummyRequest request = new DummyRequest();
 		request.setAttribute("name", "value");
 		request.setAttribute("removeName", "removeValue");
-		request.removeAttribute("remove");
+		request.removeAttribute("removeName");
 		Enumeration<String> attributeNames = request.getAttributeNames();
 		assertThat(attributeNames.nextElement()).isEqualTo("name");
 		assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(attributeNames::nextElement);
