@@ -239,19 +239,20 @@ public class OidcAuthorizedClientRefreshedEventListenerTests {
 	}
 
 	@Test
-	public void onApplicationEventWhenAuthenticationIsCustomThenOidcUserRefreshedEventNotPublished() {
+	public void onApplicationEventWhenAuthenticationIsSubclassedThenOidcUserRefreshedEventPublished() {
 		OAuth2AuthenticationToken authentication = new CustomOAuth2AuthenticationToken(this.oidcUser,
 				this.oidcUser.getAuthorities(), this.clientRegistration.getRegistrationId());
 		SecurityContextImpl securityContext = new SecurityContextImpl(authentication);
 		given(this.securityContextHolderStrategy.getContext()).willReturn(securityContext);
+		given(this.jwtDecoder.decode(anyString())).willReturn(this.jwt);
+		given(this.userService.loadUser(any(OidcUserRequest.class))).willReturn(this.oidcUser);
 
 		OAuth2AuthorizedClientRefreshedEvent authorizedClientRefreshedEvent = new OAuth2AuthorizedClientRefreshedEvent(
 				this.accessTokenResponse, this.authorizedClient);
 		this.eventListener.onApplicationEvent(authorizedClientRefreshedEvent);
 
-		verify(this.securityContextHolderStrategy).getContext();
-		verifyNoMoreInteractions(this.securityContextHolderStrategy);
-		verifyNoInteractions(this.jwtDecoder, this.userService, this.applicationEventPublisher);
+		verify(this.applicationEventPublisher).publishEvent(any(OidcUserRefreshedEvent.class));
+		verifyNoMoreInteractions(this.applicationEventPublisher);
 	}
 
 	@Test

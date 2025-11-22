@@ -232,16 +232,19 @@ public class OidcUserRefreshedEventListenerConfigurationTests {
 	}
 
 	@Test
-	public void authorizeWhenAuthenticationIsCustomThenOidcUserNotRefreshed() {
+	public void authorizeWhenAuthenticationIsCustomThenOidcUserRefreshed() {
 		this.spring.register(OAuth2LoginWithOAuth2ClientConfig.class).autowire();
 
 		OAuth2AuthorizedClient authorizedClient = createAuthorizedClient();
 		OAuth2AccessTokenResponse accessTokenResponse = createAccessTokenResponse(OidcScopes.OPENID);
+		Jwt jwt = createJwt().build();
 		given(this.authorizedClientRepository.loadAuthorizedClient(anyString(), any(Authentication.class),
 				any(HttpServletRequest.class)))
 			.willReturn(authorizedClient);
 		given(this.refreshTokenAccessTokenResponseClient.getTokenResponse(any(OAuth2RefreshTokenGrantRequest.class)))
 			.willReturn(accessTokenResponse);
+		given(this.jwtDecoder.decode(anyString())).willReturn(jwt);
+		given(this.oidcUserService.loadUser(any(OidcUserRequest.class))).willReturn(createOidcUser());
 
 		OidcUser oidcUser = createOidcUser();
 		OAuth2AuthenticationToken authentication = new CustomOAuth2AuthenticationToken(oidcUser,
@@ -255,7 +258,10 @@ public class OidcUserRefreshedEventListenerConfigurationTests {
 			.build();
 		OAuth2AuthorizedClient refreshedAuthorizedClient = this.authorizedClientManager.authorize(authorizeRequest);
 		assertThat(refreshedAuthorizedClient).isNotNull();
-		verifyNoInteractions(this.securityContextRepository, this.jwtDecoder, this.oidcUserService);
+		assertThat(refreshedAuthorizedClient).isNotSameAs(authorizedClient);
+		assertThat(refreshedAuthorizedClient.getClientRegistration()).isEqualTo(GOOGLE_CLIENT_REGISTRATION);
+		assertThat(refreshedAuthorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
+		assertThat(refreshedAuthorizedClient.getRefreshToken()).isEqualTo(accessTokenResponse.getRefreshToken());
 	}
 
 	@Test

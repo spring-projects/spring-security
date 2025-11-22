@@ -106,11 +106,10 @@ public final class OidcAuthorizedClientRefreshedEventListener
 
 		// The current authentication must be an OAuth2AuthenticationToken
 		Authentication authentication = this.securityContextHolderStrategy.getContext().getAuthentication();
-		if (!(authentication instanceof OAuth2AuthenticationToken authenticationToken)
-				|| authenticationToken.getClass() != OAuth2AuthenticationToken.class) {
+		if (!(authentication instanceof OAuth2AuthenticationToken authenticationToken)) {
 			// This event listener only handles the default authentication result. If the
-			// application customizes the authentication result, then a custom event
-			// handler should be provided.
+			// application customizes the authentication result by not subclassing
+			// OAuth2AuthenticationToken, then a custom event handler should be provided.
 			return;
 		}
 
