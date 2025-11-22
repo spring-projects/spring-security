@@ -27,6 +27,7 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository
 import org.springframework.security.web.DefaultSecurityFilterChain
 import org.springframework.security.web.util.matcher.RequestMatcher
@@ -108,11 +109,13 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * }
      * ```
      */
-    private fun applyFunction1HttpSecurityDslBeans(context: ApplicationContext, http: HttpSecurityDsl) : Unit {
-        val httpSecurityDslFnType = ResolvableType.forClassWithGenerics(Function1::class.java,
-            HttpSecurityDsl::class.java, Unit::class.java)
+    private fun applyFunction1HttpSecurityDslBeans(context: ApplicationContext, http: HttpSecurityDsl) {
+        val httpSecurityDslFnType = ResolvableType.forClassWithGenerics(
+            Function1::class.java,
+            HttpSecurityDsl::class.java, Unit::class.java
+        )
         val httpSecurityDslFnProvider = context
-            .getBeanProvider<Function1<HttpSecurityDsl,Unit>>(httpSecurityDslFnType)
+            .getBeanProvider<Function1<HttpSecurityDsl, Unit>>(httpSecurityDslFnType)
 
         // @formatter:off
         httpSecurityDslFnProvider.orderedStream().forEach { fn -> fn.invoke(http) }
@@ -160,7 +163,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
             return@MethodFilter extractDslType(method) != null
         }
         val invokeWithEachDslBean = ReflectionUtils.MethodCallback { dslMethod: Method ->
-            val dslFunctionType = firstMethodResolvableType(dslMethod)!!
+            val dslFunctionType = firstMethodResolvableType(dslMethod)
             val dslFunctionProvider: ObjectProvider<*> = context.getBeanProvider<Any>(dslFunctionType)
 
             // @formatter:off
