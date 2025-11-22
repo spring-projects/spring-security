@@ -146,6 +146,14 @@ public class PathPatternRequestMatcherTests {
 		assertThat(matcher.matches(mock)).isTrue();
 	}
 
+	@Test
+	void matcherWhenRequestMethodIsNullThenNoNullPointerException() {
+		RequestMatcher matcher = pathPattern(HttpMethod.GET, "/");
+		MockHttpServletRequest mock = new MockHttpServletRequest(null, "/");
+		ServletRequestPathUtils.parseAndCache(mock);
+		assertThat(matcher.matches(mock)).isFalse();
+	}
+
 	MockHttpServletRequest request(String uri) {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
 		ServletRequestPathUtils.parseAndCache(request);
