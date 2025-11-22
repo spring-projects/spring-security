@@ -16,21 +16,20 @@
 
 package org.springframework.security.web.servlet.util.matcher;
 
-import jakarta.servlet.Servlet;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletRegistration;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.servlet.MockServletContext;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import org.springframework.web.util.ServletRequestPathUtils;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletRegistration;
 
 /**
  * Tests for {@link PathPatternRequestMatcher}
@@ -146,6 +145,14 @@ public class PathPatternRequestMatcherTests {
 		assertThat(matcher.matches(mock)).isTrue();
 	}
 
+	@Test
+	void matcherWhenRequestMethodIsNullThenNoNullPointerException() {
+		RequestMatcher matcher = pathPattern(HttpMethod.GET, "/");
+		MockHttpServletRequest mock = new MockHttpServletRequest(null, "/");
+		ServletRequestPathUtils.parseAndCache(mock);
+		assertThat(matcher.matches(mock)).isFalse();
+	}
+	
 	MockHttpServletRequest request(String uri) {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
 		ServletRequestPathUtils.parseAndCache(request);
