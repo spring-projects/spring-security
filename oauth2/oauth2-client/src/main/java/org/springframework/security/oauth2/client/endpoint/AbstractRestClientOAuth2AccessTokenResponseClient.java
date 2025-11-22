@@ -20,7 +20,9 @@ import java.util.function.Consumer;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.FormHttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -66,6 +68,7 @@ public abstract class AbstractRestClientOAuth2AccessTokenResponseClient<T extend
 			.messageConverters((messageConverters) -> {
 				messageConverters.clear();
 				messageConverters.add(new FormHttpMessageConverter());
+				messageConverters.add(new StringHttpMessageConverter());
 				messageConverters.add(new OAuth2AccessTokenResponseHttpMessageConverter());
 			})
 			.defaultStatusHandler(new OAuth2ErrorResponseErrorHandler())
@@ -133,6 +136,22 @@ public abstract class AbstractRestClientOAuth2AccessTokenResponseClient<T extend
 			parameters = new LinkedMultiValueMap<>();
 		}
 		this.parametersCustomizer.accept(parameters);
+
+		// Special handling for CLIENT_SECRET_POST to preserve Base64 padding
+		ClientRegistration clientRegistration = grantRequest.getClientRegistration();
+		if (ClientAuthenticationMethod.CLIENT_SECRET_POST.equals(clientRegistration.getClientAuthenticationMethod())) {
+			String formData = OAuth2ClientCredentialsGrantRequestEntityUtils.encodeFormData(parameters);
+			return this.restClient.post()
+				.uri(clientRegistration.getProviderDetails().getTokenUri())
+				.headers((headers) -> {
+					HttpHeaders headersToAdd = this.headersConverter.convert(grantRequest);
+					if (headersToAdd != null) {
+						headers.addAll(headersToAdd);
+					}
+					headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+				})
+				.body(formData);
+		}
 
 		return this.restClient.post()
 			.uri(grantRequest.getClientRegistration().getProviderDetails().getTokenUri())
