@@ -105,7 +105,7 @@ public final class PublicKeyCredentialCreationOptions {
 	/**
 	 * The <a href=
 	 * "https://www.w3.org/TR/webauthn-3/#dom-publickeycredentialcreationoptions-pubkeycredparams">publicKeyCredParams</a>
-	 * params lisst the key types and signature algorithms the Relying Party Supports,
+	 * params list the key types and signature algorithms the Relying Party Supports,
 	 * ordered from most preferred to least preferred.
 	 * @return the public key credential parameters
 	 */

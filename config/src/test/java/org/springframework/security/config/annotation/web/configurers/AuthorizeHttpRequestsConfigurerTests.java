@@ -1340,7 +1340,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	static class ServletPathConfig {
 
 		@Bean
-		PathPatternRequestMatcherBuilderFactoryBean requesMatcherBuilder() {
+		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder() {
 			PathPatternRequestMatcherBuilderFactoryBean bean = new PathPatternRequestMatcherBuilderFactoryBean();
 			bean.setBasePath("/spring");
 			return bean;
