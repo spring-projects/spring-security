@@ -16,11 +16,18 @@
 
 package org.springframework.security.core.context;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.core.task.support.ContextPropagatingTaskDecorator;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -29,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * Tests for {@link SecurityContextHolderThreadLocalAccessor}.
  *
  * @author Steve Riesenberg
+ * @author Tadaya Tsuyukubo
  */
 public class SecurityContextHolderThreadLocalAccessorTests {
 
@@ -65,9 +73,11 @@ public class SecurityContextHolderThreadLocalAccessorTests {
 	@Test
 	public void setValueWhenSecurityContextThenSetsSecurityContextHolder() {
 		SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-		securityContext.setAuthentication(new TestingAuthenticationToken("user", "password"));
+		Authentication authentication = new TestingAuthenticationToken("user", "password");
+		securityContext.setAuthentication(authentication);
 		this.threadLocalAccessor.setValue(securityContext);
-		assertThat(SecurityContextHolder.getContext()).isSameAs(securityContext);
+		assertThat(SecurityContextHolder.getContext()).isNotSameAs(securityContext);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(authentication);
 	}
 
 	@Test
@@ -88,6 +98,43 @@ public class SecurityContextHolderThreadLocalAccessorTests {
 
 		SecurityContext emptyContext = SecurityContextHolder.createEmptyContext();
 		assertThat(SecurityContextHolder.getContext()).isEqualTo(emptyContext);
+	}
+
+	@Test
+	public void newSecurityContextInDifferentThread() throws Exception {
+		Authentication authA = new TestingAuthenticationToken("foo", "password");
+		Authentication authB = new TestingAuthenticationToken("bar", "password");
+
+		SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+		securityContext.setAuthentication(authA);
+		SecurityContextHolder.setContext(securityContext);
+
+		CountDownLatch latch = new CountDownLatch(1);
+		AtomicReference<SecurityContext> contextHolder = new AtomicReference<>();
+		AtomicReference<Authentication> authHolder = new AtomicReference<>();
+		Runnable runnable = () -> {
+			SecurityContext context = SecurityContextHolder.getContext();
+			contextHolder.set(context);
+			authHolder.set(context.getAuthentication());
+			context.setAuthentication(authB);
+			latch.countDown();
+		};
+
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setTaskDecorator(new ContextPropagatingTaskDecorator());
+		executor.afterPropertiesSet();
+
+		executor.execute(runnable);
+
+		boolean finished = latch.await(10, TimeUnit.SECONDS);
+		assertThat(finished).isTrue();
+
+		assertThat(contextHolder.get()).isNotSameAs(securityContext);
+		assertThat(authHolder.get()).isSameAs(authA);
+
+		SecurityContext current = SecurityContextHolder.getContext();
+		assertThat(current).isSameAs(securityContext);
+		assertThat(current.getAuthentication()).isSameAs(authA);
 	}
 
 }
