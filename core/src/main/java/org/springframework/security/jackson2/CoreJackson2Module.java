@@ -25,6 +25,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.ott.OneTimeTokenAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
@@ -70,6 +71,7 @@ public class CoreJackson2Module extends SimpleModule {
 		context.setMixInAnnotations(UsernamePasswordAuthenticationToken.class,
 				UsernamePasswordAuthenticationTokenMixin.class);
 		context.setMixInAnnotations(BadCredentialsException.class, BadCredentialsExceptionMixin.class);
+		context.setMixInAnnotations(OneTimeTokenAuthenticationToken.class, OneTimeTokenAuthenticationTokenMixin.class);
 	}
 
 }
