@@ -41,7 +41,7 @@ See xref:servlet/oauth2/resource-server/index.adoc[OAuth 2.0 Resource Server] fo
 To get started, add the `spring-security-oauth2-resource-server` dependency to your project.
 When using Spring Boot, add the following starter:
 
-.OAuth2 Client with Spring Boot
+.OAuth2 Resource Server with Spring Boot
 [tabs]
 ======
 Gradle::
