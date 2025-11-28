@@ -3,7 +3,6 @@ package org.springframework.security.kt.docs.features.authentication.password4jb
 import com.password4j.BcryptFunction
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.crypto.password4j.BcryptPassword4jPasswordEncoder
 
@@ -14,7 +13,7 @@ class BcryptUsageTests {
     @Test
     fun defaultParams() {
         // tag::default-params[]
-        val encoder: PasswordEncoder = BCryptPasswordEncoder()
+        val encoder: PasswordEncoder = BcryptPassword4jPasswordEncoder()
         val result = encoder.encode("myPassword")
         Assertions.assertThat(encoder.matches("myPassword", result)).isTrue()
         // end::default-params[]

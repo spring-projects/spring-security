@@ -19,7 +19,6 @@ package org.springframework.security.docs.features.authentication.password4jbcry
 import com.password4j.BcryptFunction;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password4j.BcryptPassword4jPasswordEncoder;
 
@@ -33,7 +32,7 @@ public class BcryptUsageTests {
 	@Test
 	void defaultParams() {
 		// tag::default-params[]
-		PasswordEncoder encoder = new BCryptPasswordEncoder();
+		PasswordEncoder encoder = new BcryptPassword4jPasswordEncoder();
 		String result = encoder.encode("myPassword");
 		assertThat(encoder.matches("myPassword", result)).isTrue();
 		// end::default-params[]
