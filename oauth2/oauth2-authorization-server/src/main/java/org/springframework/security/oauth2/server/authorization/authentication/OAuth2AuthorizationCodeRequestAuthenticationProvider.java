@@ -190,33 +190,31 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 		OAuth2AuthorizationCodeRequestAuthenticationContext.Builder authenticationContextBuilder = OAuth2AuthorizationCodeRequestAuthenticationContext
 			.with(authorizationCodeRequestAuthentication)
 			.registeredClient(registeredClient);
-		OAuth2AuthorizationCodeRequestAuthenticationContext authenticationContext = authenticationContextBuilder
-			.build();
 
-		// grant_type
-		OAuth2AuthorizationCodeRequestAuthenticationValidator.DEFAULT_AUTHORIZATION_GRANT_TYPE_VALIDATOR
-			.accept(authenticationContext);
+		if (!authorizationCodeRequestAuthentication.isValidated()) {
+			OAuth2AuthorizationCodeRequestAuthenticationContext authenticationContext = authenticationContextBuilder
+				.build();
 
-		// redirect_uri and scope
-		this.authenticationValidator.accept(authenticationContext);
+			// grant_type
+			OAuth2AuthorizationCodeRequestAuthenticationValidator.DEFAULT_AUTHORIZATION_GRANT_TYPE_VALIDATOR
+				.accept(authenticationContext);
 
-		// code_challenge (REQUIRED for public clients) - RFC 7636 (PKCE)
-		OAuth2AuthorizationCodeRequestAuthenticationValidator.DEFAULT_CODE_CHALLENGE_VALIDATOR
-			.accept(authenticationContext);
+			// redirect_uri and scope
+			this.authenticationValidator.accept(authenticationContext);
 
-		// prompt (OPTIONAL for OpenID Connect 1.0 Authentication Request)
-		Set<String> promptValues = Collections.emptySet();
-		if (authorizationCodeRequestAuthentication.getScopes().contains(OidcScopes.OPENID)) {
-			String prompt = (String) authorizationCodeRequestAuthentication.getAdditionalParameters().get("prompt");
-			if (StringUtils.hasText(prompt)) {
-				OAuth2AuthorizationCodeRequestAuthenticationValidator.DEFAULT_PROMPT_VALIDATOR
-					.accept(authenticationContext);
-				promptValues = new HashSet<>(Arrays.asList(StringUtils.delimitedListToStringArray(prompt, " ")));
+			// code_challenge (REQUIRED for public clients) - RFC 7636 (PKCE)
+			OAuth2AuthorizationCodeRequestAuthenticationValidator.DEFAULT_CODE_CHALLENGE_VALIDATOR
+				.accept(authenticationContext);
+
+			// prompt (OPTIONAL for OpenID Connect 1.0 Authentication Request)
+			OAuth2AuthorizationCodeRequestAuthenticationValidator.DEFAULT_PROMPT_VALIDATOR
+				.accept(authenticationContext);
+
+			authorizationCodeRequestAuthentication.setValidated(true);
+
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace("Validated authorization code request parameters");
 			}
-		}
-
-		if (this.logger.isTraceEnabled()) {
-			this.logger.trace("Validated authorization code request parameters");
 		}
 
 		// ---------------
@@ -224,17 +222,23 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 		// ---------------
 
 		Authentication principal = (Authentication) authorizationCodeRequestAuthentication.getPrincipal();
+
+		Set<String> promptValues = Collections.emptySet();
+		if (authorizationCodeRequestAuthentication.getScopes().contains(OidcScopes.OPENID)) {
+			String prompt = (String) authorizationCodeRequestAuthentication.getAdditionalParameters().get("prompt");
+			if (StringUtils.hasText(prompt)) {
+				promptValues = new HashSet<>(Arrays.asList(StringUtils.delimitedListToStringArray(prompt, " ")));
+			}
+		}
+
 		if (!isPrincipalAuthenticated(principal)) {
 			if (promptValues.contains(OidcPrompt.NONE)) {
-				// Return an error instead of displaying the login page (via the
-				// configured AuthenticationEntryPoint)
 				throwError("login_required", "prompt", authorizationCodeRequestAuthentication, registeredClient);
 			}
-			if (this.logger.isTraceEnabled()) {
-				this.logger.trace("Did not authenticate authorization code request since principal not authenticated");
+			else {
+				throwError(OAuth2ErrorCodes.INVALID_REQUEST, "principal", authorizationCodeRequestAuthentication,
+						registeredClient);
 			}
-			// Return the authorization request as-is where isAuthenticated() is false
-			return authorizationCodeRequestAuthentication;
 		}
 
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
@@ -398,6 +402,13 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 			Predicate<OAuth2AuthorizationCodeRequestAuthenticationContext> authorizationConsentRequired) {
 		Assert.notNull(authorizationConsentRequired, "authorizationConsentRequired cannot be null");
 		this.authorizationConsentRequired = authorizationConsentRequired;
+	}
+
+	Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> getAuthenticationValidatorComposite() {
+		return OAuth2AuthorizationCodeRequestAuthenticationValidator.DEFAULT_AUTHORIZATION_GRANT_TYPE_VALIDATOR
+			.andThen(this.authenticationValidator)
+			.andThen(OAuth2AuthorizationCodeRequestAuthenticationValidator.DEFAULT_CODE_CHALLENGE_VALIDATOR)
+			.andThen(OAuth2AuthorizationCodeRequestAuthenticationValidator.DEFAULT_PROMPT_VALIDATOR);
 	}
 
 	private static boolean isAuthorizationConsentRequired(

@@ -307,8 +307,8 @@ public class OAuth2AuthorizationCodeGrantTests {
 		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
 
 		this.mvc
-			.perform(
-					get(DEFAULT_AUTHORIZATION_ENDPOINT_URI).params(getAuthorizationRequestParameters(registeredClient)))
+			.perform(get(DEFAULT_AUTHORIZATION_ENDPOINT_URI)
+				.queryParams(getAuthorizationRequestParameters(registeredClient)))
 			.andExpect(status().isBadRequest())
 			.andReturn();
 	}
@@ -851,21 +851,31 @@ public class OAuth2AuthorizationCodeGrantTests {
 		this.spring.register(AuthorizationServerConfigurationCustomAuthorizationEndpoint.class).autowire();
 
 		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
+		this.registeredClientRepository.save(registeredClient);
+
 		TestingAuthenticationToken principal = new TestingAuthenticationToken("principalName", "password");
+		Map<String, Object> additionalParameters = new HashMap<>();
+		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE, S256_CODE_CHALLENGE);
+		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE_METHOD, "S256");
+		OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication = new OAuth2AuthorizationCodeRequestAuthenticationToken(
+				"https://provider.com/oauth2/authorize", registeredClient.getClientId(), principal,
+				registeredClient.getRedirectUris().iterator().next(), STATE_URL_UNENCODED, registeredClient.getScopes(),
+				additionalParameters);
 		OAuth2AuthorizationCode authorizationCode = new OAuth2AuthorizationCode("code", Instant.now(),
 				Instant.now().plus(5, ChronoUnit.MINUTES));
 		OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthenticationResult = new OAuth2AuthorizationCodeRequestAuthenticationToken(
 				"https://provider.com/oauth2/authorize", registeredClient.getClientId(), principal, authorizationCode,
 				registeredClient.getRedirectUris().iterator().next(), STATE_URL_UNENCODED,
 				registeredClient.getScopes());
-		given(authorizationRequestConverter.convert(any())).willReturn(authorizationCodeRequestAuthenticationResult);
+		given(authorizationRequestConverter.convert(any())).willReturn(authorizationCodeRequestAuthentication);
 		given(authorizationRequestAuthenticationProvider
 			.supports(eq(OAuth2AuthorizationCodeRequestAuthenticationToken.class))).willReturn(true);
 		given(authorizationRequestAuthenticationProvider.authenticate(any()))
 			.willReturn(authorizationCodeRequestAuthenticationResult);
 
 		this.mvc
-			.perform(get(DEFAULT_AUTHORIZATION_ENDPOINT_URI).params(getAuthorizationRequestParameters(registeredClient))
+			.perform(get(DEFAULT_AUTHORIZATION_ENDPOINT_URI)
+				.queryParams(getAuthorizationRequestParameters(registeredClient))
 				.with(user("user")))
 			.andExpect(status().isOk());
 
@@ -880,8 +890,7 @@ public class OAuth2AuthorizationCodeGrantTests {
 				|| converter instanceof OAuth2AuthorizationCodeRequestAuthenticationConverter
 				|| converter instanceof OAuth2AuthorizationConsentAuthenticationConverter);
 
-		verify(authorizationRequestAuthenticationProvider)
-			.authenticate(eq(authorizationCodeRequestAuthenticationResult));
+		verify(authorizationRequestAuthenticationProvider).authenticate(eq(authorizationCodeRequestAuthentication));
 
 		@SuppressWarnings("unchecked")
 		ArgumentCaptor<List<AuthenticationProvider>> authenticationProvidersCaptor = ArgumentCaptor

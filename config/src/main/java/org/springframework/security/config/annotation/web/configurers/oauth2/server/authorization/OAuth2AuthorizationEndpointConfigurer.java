@@ -16,10 +16,12 @@
 
 package org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import jakarta.servlet.Filter;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpMethod;
@@ -36,10 +38,12 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationValidator;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationConsentAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationConsentAuthenticationToken;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.web.OAuth2AuthorizationEndpointFilter;
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2AuthorizationCodeRequestAuthenticationConverter;
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2AuthorizationConsentAuthenticationConverter;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -50,6 +54,7 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -82,6 +87,8 @@ public final class OAuth2AuthorizationEndpointConfigurer extends AbstractOAuth2C
 	private String consentPage;
 
 	private Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> authorizationCodeRequestAuthenticationValidator;
+
+	private Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> authorizationCodeRequestAuthenticationValidatorComposite;
 
 	private SessionAuthenticationStrategy sessionAuthenticationStrategy;
 
@@ -248,8 +255,16 @@ public final class OAuth2AuthorizationEndpointConfigurer extends AbstractOAuth2C
 			authenticationProviders.addAll(0, this.authenticationProviders);
 		}
 		this.authenticationProvidersConsumer.accept(authenticationProviders);
-		authenticationProviders.forEach(
-				(authenticationProvider) -> httpSecurity.authenticationProvider(postProcess(authenticationProvider)));
+		authenticationProviders.forEach((authenticationProvider) -> {
+			httpSecurity.authenticationProvider(postProcess(authenticationProvider));
+			if (authenticationProvider instanceof OAuth2AuthorizationCodeRequestAuthenticationProvider) {
+				Method method = ReflectionUtils.findMethod(OAuth2AuthorizationCodeRequestAuthenticationProvider.class,
+						"getAuthenticationValidatorComposite");
+				ReflectionUtils.makeAccessible(method);
+				this.authorizationCodeRequestAuthenticationValidatorComposite = (Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext>) ReflectionUtils
+					.invokeMethod(method, authenticationProvider);
+			}
+		});
 	}
 
 	@Override
@@ -282,7 +297,18 @@ public final class OAuth2AuthorizationEndpointConfigurer extends AbstractOAuth2C
 		if (this.sessionAuthenticationStrategy != null) {
 			authorizationEndpointFilter.setSessionAuthenticationStrategy(this.sessionAuthenticationStrategy);
 		}
-		httpSecurity.addFilterBefore(postProcess(authorizationEndpointFilter),
+		httpSecurity.addFilterAfter(postProcess(authorizationEndpointFilter), AuthorizationFilter.class);
+		// Create and add
+		// OAuth2AuthorizationEndpointFilter.OAuth2AuthorizationCodeRequestValidatingFilter
+		Method method = ReflectionUtils.findMethod(OAuth2AuthorizationEndpointFilter.class,
+				"createAuthorizationCodeRequestValidatingFilter", RegisteredClientRepository.class, Consumer.class);
+		ReflectionUtils.makeAccessible(method);
+		RegisteredClientRepository registeredClientRepository = OAuth2ConfigurerUtils
+			.getRegisteredClientRepository(httpSecurity);
+		Filter authorizationCodeRequestValidatingFilter = (Filter) ReflectionUtils.invokeMethod(method,
+				authorizationEndpointFilter, registeredClientRepository,
+				this.authorizationCodeRequestAuthenticationValidatorComposite);
+		httpSecurity.addFilterBefore(postProcess(authorizationCodeRequestValidatingFilter),
 				AbstractPreAuthenticatedProcessingFilter.class);
 	}
 
