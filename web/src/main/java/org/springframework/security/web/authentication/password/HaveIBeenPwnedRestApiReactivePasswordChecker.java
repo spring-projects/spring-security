@@ -54,12 +54,6 @@ public class HaveIBeenPwnedRestApiReactivePasswordChecker implements ReactiveCom
 
 	private WebClient webClient = WebClient.builder().baseUrl(API_URL).build();
 
-	private final MessageDigest sha1Digest;
-
-	public HaveIBeenPwnedRestApiReactivePasswordChecker() {
-		this.sha1Digest = getSha1Digest();
-	}
-
 	@Override
 	public Mono<CompromisedPasswordDecision> check(String password) {
 		return getHash(password).map((hash) -> new String(Hex.encode(hash)))
@@ -95,7 +89,7 @@ public class HaveIBeenPwnedRestApiReactivePasswordChecker implements ReactiveCom
 	}
 
 	private Mono<byte[]> getHash(String password) {
-		return Mono.fromSupplier(() -> this.sha1Digest.digest(password.getBytes(StandardCharsets.UTF_8)))
+		return Mono.fromSupplier(() -> getSha1Digest().digest(password.getBytes(StandardCharsets.UTF_8)))
 			.subscribeOn(Schedulers.boundedElastic())
 			.publishOn(Schedulers.parallel());
 	}

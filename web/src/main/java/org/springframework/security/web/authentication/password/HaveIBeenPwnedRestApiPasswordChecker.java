@@ -52,18 +52,12 @@ public final class HaveIBeenPwnedRestApiPasswordChecker implements CompromisedPa
 
 	private final Log logger = LogFactory.getLog(getClass());
 
-	private final MessageDigest sha1Digest;
-
 	private RestClient restClient = RestClient.builder().baseUrl(API_URL).build();
-
-	public HaveIBeenPwnedRestApiPasswordChecker() {
-		this.sha1Digest = getSha1Digest();
-	}
 
 	@Override
 	@NonNull
 	public CompromisedPasswordDecision check(String password) {
-		byte[] hash = this.sha1Digest.digest(password.getBytes(StandardCharsets.UTF_8));
+		byte[] hash = getSha1Digest().digest(password.getBytes(StandardCharsets.UTF_8));
 		String encoded = new String(Hex.encode(hash)).toUpperCase(Locale.ROOT);
 		String prefix = encoded.substring(0, PREFIX_LENGTH);
 		String suffix = encoded.substring(PREFIX_LENGTH);
