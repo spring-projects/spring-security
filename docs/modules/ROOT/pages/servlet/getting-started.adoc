@@ -118,7 +118,7 @@ The default arrangement of Spring Boot and Spring Security affords the following
 * Publishes xref:servlet/authentication/events.adoc[authentication success and failure events]
 
 It can be helpful to understand how Spring Boot is coordinating with Spring Security to achieve this.
-Taking a look at {spring-boot-api-url}org/springframework/boot/autoconfigure/security/servlet/SecurityAutoConfiguration.html[Boot's security auto configuration], it does the following (simplified for illustration):
+Taking a look at {spring-boot-api-url}org/springframework/boot/security/autoconfigure/SecurityAutoConfiguration.html[Boot's security auto configuration], it does the following (simplified for illustration):
 
 .Spring Boot Security Auto Configuration
 [source,java]
