@@ -639,7 +639,7 @@ This is because Spring Security requires all URIs to be absolute (minus the cont
 
 [TIP]
 =====
-There are several other components that create request matchers for you like {spring-boot-api-url}org/springframework/boot/autoconfigure/security/servlet/PathRequest.html[`PathRequest#toStaticResources#atCommonLocations`]
+There are several other components that create request matchers for you like {spring-boot-api-url}org/springframework/boot/security/autoconfigure/web/servlet/PathRequest.html[`PathRequest#toStaticResources#atCommonLocations`]
 =====
 
 [[match-by-custom]]
