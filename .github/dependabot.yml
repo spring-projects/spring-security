@@ -111,11 +111,3 @@ updates:
     labels:
       - 'type: task'
       - 'in: build'
-  - package-ecosystem: npm
-    target-branch: 6.3.x
-    directory: /docs
-    schedule:
-      interval: weekly
-    labels:
-      - 'type: task'
-      - 'in: build'
