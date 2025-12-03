@@ -48,7 +48,6 @@ dependencies {
 		api libs.jakarta.websocket.jakarta.websocket.api
 		api libs.jakarta.websocket.jakarta.websocket.client.api
 		api libs.ldapsdk
-		api libs.net.sourceforge.htmlunit
 		api libs.org.htmlunit.htmlunit
 		api libs.org.apache.httpcomponents.httpclient
 		api libs.org.aspectj.aspectjrt
