@@ -254,6 +254,11 @@ public class FilterChainProxy extends GenericFilterBean {
 
 	/**
 	 * Convenience method, mainly for testing.
+	 * <p>
+	 * Attempt to find the matching filter chain based on the given {@code url}. Note that
+	 * the URI is often not enough information and this method should be used with
+	 * caution. Instead, consider using Spring Security's testing support that mocks a
+	 * full HTTP request.
 	 * @param url the URL
 	 * @return matching filter list
 	 */
