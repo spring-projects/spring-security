@@ -17,4 +17,7 @@
 /**
  * Jackson 3+ serialization support for SAML2.
  */
+@NullMarked
 package org.springframework.security.saml2.jackson;
+
+import org.jspecify.annotations.NullMarked;
