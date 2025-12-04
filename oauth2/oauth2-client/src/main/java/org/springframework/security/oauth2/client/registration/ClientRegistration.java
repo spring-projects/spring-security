@@ -46,6 +46,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Joe Grandja
  * @author Michael Sosa
+ * @author Andrey Litvitski
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-2">Section 2
  * Client Registration</a>
@@ -705,9 +706,6 @@ public final class ClientRegistration implements Serializable {
 			if (!AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType)
 					&& this.clientSettings.isRequireProofKey()) {
 				this.clientSettings = ClientSettings.builder().requireProofKey(false).build();
-				logger.warn(LogMessage.format(
-						"clientSettings.isRequireProofKey=true is only valid with authorizationGrantType=%s. Got authorizationGrantType=%s. Resetting to clientSettings.isRequireProofKey=false",
-						AuthorizationGrantType.AUTHORIZATION_CODE, this.authorizationGrantType));
 			}
 		}
 
