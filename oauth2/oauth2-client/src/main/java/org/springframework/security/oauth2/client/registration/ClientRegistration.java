@@ -705,9 +705,6 @@ public final class ClientRegistration implements Serializable {
 			if (!AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType)
 					&& this.clientSettings.isRequireProofKey()) {
 				this.clientSettings = ClientSettings.builder().requireProofKey(false).build();
-				logger.warn(LogMessage.format(
-						"clientSettings.isRequireProofKey=true is only valid with authorizationGrantType=%s. Got authorizationGrantType=%s. Resetting to clientSettings.isRequireProofKey=false",
-						AuthorizationGrantType.AUTHORIZATION_CODE, this.authorizationGrantType));
 			}
 		}
 
