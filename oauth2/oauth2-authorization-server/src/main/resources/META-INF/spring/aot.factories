@@ -1,2 +1,5 @@
 org.springframework.beans.factory.aot.BeanRegistrationAotProcessor=\
  org.springframework.security.oauth2.server.authorization.aot.hint.OAuth2AuthorizationServerBeanRegistrationAotProcessor
+
+org.springframework.aot.hint.RuntimeHintsRegistrar=\
+org.springframework.security.oauth2.server.authorization.aot.hint.OAuth2AuthorizationServerRuntimeHints
