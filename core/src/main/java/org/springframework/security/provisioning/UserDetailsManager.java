@@ -16,6 +16,8 @@
 
 package org.springframework.security.provisioning;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -49,7 +51,7 @@ public interface UserDetailsManager extends UserDetailsService {
 	 * @param oldPassword current password (for re-authentication if required)
 	 * @param newPassword the password to change to
 	 */
-	void changePassword(String oldPassword, String newPassword);
+	void changePassword(@Nullable String oldPassword, @Nullable String newPassword);
 
 	/**
 	 * Check if a user with the supplied login name exists in the system.

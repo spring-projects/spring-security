@@ -69,6 +69,7 @@ import org.springframework.util.Assert;
  *
  * @author Luke Taylor
  * @author Junhyeok Lee
+ * @author Andrey Litvitski
  * @since 2.0
  */
 public class JdbcUserDetailsManager extends JdbcDaoImpl
@@ -310,7 +311,8 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl
 	}
 
 	@Override
-	public void changePassword(String oldPassword, String newPassword) throws AuthenticationException {
+	public void changePassword(@Nullable String oldPassword, @Nullable String newPassword)
+			throws AuthenticationException {
 		Authentication currentUser = this.securityContextHolderStrategy.getContext().getAuthentication();
 		if (currentUser == null) {
 			// This would indicate bad coding somewhere
@@ -337,7 +339,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl
 		this.userCache.removeUserFromCache(username);
 	}
 
-	protected Authentication createNewAuthentication(Authentication currentAuth, String newPassword) {
+	protected Authentication createNewAuthentication(Authentication currentAuth, @Nullable String newPassword) {
 		UserDetails user = loadUserByUsername(currentAuth.getName());
 		UsernamePasswordAuthenticationToken newAuthentication = UsernamePasswordAuthenticationToken.authenticated(user,
 				null, user.getAuthorities());
