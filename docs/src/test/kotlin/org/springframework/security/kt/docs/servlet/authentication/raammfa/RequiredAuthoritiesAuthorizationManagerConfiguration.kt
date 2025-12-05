@@ -27,8 +27,8 @@ internal class RequiredAuthoritiesAuthorizationManagerConfiguration {
         // @formatter:off
         http {
             authorizeHttpRequests {
-                authorize("/admin/**", hasRole("ADMIN"))
-                authorize(anyRequest, authenticated)
+                authorize("/admin/**", hasRole("ADMIN")) // <1>
+                authorize(anyRequest, authenticated) // <2>
             }
             formLogin { }
             oneTimeTokenLogin { }
