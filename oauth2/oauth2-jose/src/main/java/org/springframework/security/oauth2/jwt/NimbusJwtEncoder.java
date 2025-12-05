@@ -136,7 +136,7 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 			algorithm = MacAlgorithm.from(jwk.getAlgorithm().getName());
 		}
 		Assert.notNull(algorithm, "Failed to derive supported algorithm from " + jwk.getAlgorithm());
-		JwsHeader.Builder builder = JwsHeader.with(algorithm).type(jwk.getKeyType().getValue()).keyId(jwk.getKeyID());
+		JwsHeader.Builder builder = JwsHeader.with(algorithm).type("JWT").keyId(jwk.getKeyID());
 		URI x509Url = jwk.getX509CertURL();
 		if (x509Url != null) {
 			builder.x509Url(jwk.getX509CertURL().toASCIIString());
