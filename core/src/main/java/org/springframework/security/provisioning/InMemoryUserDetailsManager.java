@@ -51,6 +51,7 @@ import org.springframework.util.Assert;
  * system isn't required.
  *
  * @author Luke Taylor
+ * @author Andrey Litvitski
  * @since 3.1
  */
 public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetailsPasswordService {
@@ -130,7 +131,7 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 	}
 
 	@Override
-	public void changePassword(String oldPassword, String newPassword) {
+	public void changePassword(@Nullable String oldPassword, @Nullable String newPassword) {
 		Authentication currentUser = this.securityContextHolderStrategy.getContext().getAuthentication();
 		if (currentUser == null) {
 			// This would indicate bad coding somewhere
