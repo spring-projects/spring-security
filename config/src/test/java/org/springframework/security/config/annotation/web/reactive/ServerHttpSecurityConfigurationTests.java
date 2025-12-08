@@ -107,9 +107,19 @@ public class ServerHttpSecurityConfigurationTests {
 	}
 
 	@Test
-	public void loadConfigWhenReactiveUserDetailsServiceConfiguredThenServerHttpSecurityExists() {
+	public void loadConfigWhenReactiveUserAuthenticationServiceConfiguredThenServerHttpSecurityExists() {
 		this.spring
 			.register(ServerHttpSecurityConfiguration.class, ReactiveAuthenticationTestConfiguration.class,
+					WebFluxSecurityConfiguration.class)
+			.autowire();
+		ServerHttpSecurity serverHttpSecurity = this.spring.getContext().getBean(ServerHttpSecurity.class);
+		assertThat(serverHttpSecurity).isNotNull();
+	}
+
+	@Test
+	public void loadConfigWhenOnlyReactiveUserDetailsServiceConfiguredThenServerHttpSecurityExists() {
+		this.spring
+			.register(ServerHttpSecurityConfiguration.class, ReactiveUserDetailsServiceOnlyTestConfiguration.class,
 					WebFluxSecurityConfiguration.class)
 			.autowire();
 		ServerHttpSecurity serverHttpSecurity = this.spring.getContext().getBean(ServerHttpSecurity.class);
@@ -577,6 +587,16 @@ public class ServerHttpSecurityConfigurationTests {
 		@Order(Ordered.HIGHEST_PRECEDENCE)
 		static Customizer<ServerHttpSecurity> httpSecurityCustomizer0() {
 			return mock(Customizer.class);
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class ReactiveUserDetailsServiceOnlyTestConfiguration {
+
+		@Bean
+		static ReactiveUserDetailsService userDetailsService() {
+			return (username) -> Mono.just(PasswordEncodedUser.user());
 		}
 
 	}
