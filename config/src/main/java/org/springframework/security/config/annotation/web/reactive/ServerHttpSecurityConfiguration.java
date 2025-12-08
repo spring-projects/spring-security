@@ -255,7 +255,9 @@ class ServerHttpSecurityConfiguration {
 			if (this.passwordEncoder != null) {
 				manager.setPasswordEncoder(this.passwordEncoder);
 			}
-			manager.setUserDetailsPasswordService(this.userDetailsPasswordService);
+			if (this.userDetailsPasswordService != null) {
+				manager.setUserDetailsPasswordService(this.userDetailsPasswordService);
+			}
 			manager.setCompromisedPasswordChecker(this.compromisedPasswordChecker);
 			return this.postProcessor.postProcess(manager);
 		}
