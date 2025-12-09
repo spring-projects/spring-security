@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-present the original author or authors.
+ * Copyright 2025-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,17 @@
 
 package org.springframework.security.oauth2.core.authorization;
 
-import org.springframework.security.authorization.AllAuthoritiesAuthorizationManager;
-import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
-import org.springframework.util.Assert;
 
 /**
- * A convenience class for creating OAuth 2.0-specific {@link AuthorizationManager}s.
+ * A factory for creating different kinds of {@link AuthorizationManager} instances.
  *
- * @author Mario Petrovski
- * @author Josh Cummings
- * @since 6.2
- * @see AuthorityAuthorizationManager
- * @see AllAuthoritiesAuthorizationManager
+ * @param <T> the type of object that the authorization check is being done on
+ * @author Ngoc Nhan
+ * @since 7.1
  */
-public final class OAuth2AuthorizationManagers {
-
-	private OAuth2AuthorizationManagers() {
-	}
+public interface OAuth2AuthorizationManagerFactory<T> {
 
 	/**
 	 * Create an {@link AuthorizationManager} that requires an {@link Authentication} to
@@ -49,13 +41,11 @@ public final class OAuth2AuthorizationManagers {
 	 * This would equivalent to calling
 	 * {@code AuthorityAuthorizationManager#hasAuthority("SCOPE_read")}.
 	 * @param scope the scope value to require
-	 * @param <T> the secure object
 	 * @return an {@link AuthorizationManager} that requires a {@code "SCOPE_scope"}
 	 * authority
 	 */
-	public static <T> AuthorizationManager<T> hasScope(String scope) {
-		assertScope(scope);
-		return AuthorityAuthorizationManager.hasAuthority("SCOPE_" + scope);
+	default AuthorizationManager<T> hasScope(String scope) {
+		return OAuth2AuthorizationManagers.hasScope(scope);
 	}
 
 	/**
@@ -73,18 +63,11 @@ public final class OAuth2AuthorizationManagers {
 	 * This would equivalent to calling
 	 * {@code AuthorityAuthorizationManager#hasAnyAuthority("SCOPE_read", "SCOPE_write")}.
 	 * @param scopes the scope values to allow
-	 * @param <T> the secure object
 	 * @return an {@link AuthorizationManager} that requires at least one authority among
 	 * {@code "SCOPE_scope1"}, {@code SCOPE_scope2}, ... {@code SCOPE_scopeN}.
-	 *
 	 */
-	public static <T> AuthorizationManager<T> hasAnyScope(String... scopes) {
-		String[] mappedScopes = new String[scopes.length];
-		for (int i = 0; i < scopes.length; i++) {
-			assertScope(scopes[i]);
-			mappedScopes[i] = "SCOPE_" + scopes[i];
-		}
-		return AuthorityAuthorizationManager.hasAnyAuthority(mappedScopes);
+	default AuthorizationManager<T> hasAnyScope(String... scopes) {
+		return OAuth2AuthorizationManagers.hasAnyScope(scopes);
 	}
 
 	/**
@@ -104,22 +87,9 @@ public final class OAuth2AuthorizationManagers {
 	 * @param scopes the scope values to require
 	 * @return an {@link AuthorizationManager} that requires all authorities
 	 * {@code SCOPE_scope1}, {@code SCOPE_scope2}, ... {@code SCOPE_scopeN}.
-	 * @since 7.1
 	 */
-	public static <T> AuthorizationManager<T> hasAllScopes(String... scopes) {
-		String[] mappedScopes = new String[scopes.length];
-		for (int i = 0; i < scopes.length; i++) {
-			assertScope(scopes[i]);
-			mappedScopes[i] = "SCOPE_" + scopes[i];
-		}
-		return AllAuthoritiesAuthorizationManager.hasAllAuthorities(mappedScopes);
-	}
-
-	private static void assertScope(String scope) {
-		Assert.isTrue(!scope.startsWith("SCOPE_"),
-				() -> scope + " should not start with SCOPE_ since SCOPE_"
-						+ " is automatically prepended when using hasScope and hasAnyScope. Consider using "
-						+ " AuthorityAuthorizationManager#hasAuthority or #hasAnyAuthority instead.");
+	default AuthorizationManager<T> hasAllScopes(String... scopes) {
+		return OAuth2AuthorizationManagers.hasAllScopes(scopes);
 	}
 
 }
