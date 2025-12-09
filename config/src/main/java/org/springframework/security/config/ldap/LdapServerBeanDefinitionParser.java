@@ -165,20 +165,20 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private RootBeanDefinition getRootBeanDefinition(String mode) {
-		if (isUnboundidEnabled(mode)) {
+		if (isUnboundIdEnabled(mode)) {
 			return new RootBeanDefinition(UNBOUNDID_CONTAINER_CLASSNAME, null, null);
 		}
 		throw new IllegalStateException("Embedded LDAP server is not provided");
 	}
 
 	private String resolveBeanId(String mode) {
-		if (isUnboundidEnabled(mode)) {
+		if (isUnboundIdEnabled(mode)) {
 			return BeanIds.EMBEDDED_UNBOUNDID;
 		}
 		return null;
 	}
 
-	private boolean isUnboundidEnabled(String mode) {
+	private boolean isUnboundIdEnabled(String mode) {
 		return "unboundid".equals(mode) || unboundIdPresent;
 	}
 

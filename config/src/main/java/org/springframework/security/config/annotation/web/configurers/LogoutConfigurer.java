@@ -305,7 +305,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Gets the logoutSuccesUrl or null if a
+	 * Gets the logoutSuccessUrl or null if a
 	 * {@link #logoutSuccessHandler(LogoutSuccessHandler)} was configured.
 	 * @return the logoutSuccessUrl
 	 */

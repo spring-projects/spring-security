@@ -76,7 +76,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * &lt;/sec:authentication-manager&gt;
  *
  * &lt;bean id=&quot;kerberosServiceAuthenticationProvider&quot;
- * 	class=&quot;org.springframework.security.kerberos.authenitcation.KerberosServiceAuthenticationProvider&quot;&gt;
+ * 	class=&quot;org.springframework.security.kerberos.authentication.KerberosServiceAuthenticationProvider&quot;&gt;
  * 	&lt;property name=&quot;ticketValidator&quot;&gt;
  * 		&lt;bean class=&quot;org.springframework.security.kerberos.authentication.sun.SunJaasKerberosTicketValidator&quot;&gt;
  * 			&lt;property name=&quot;servicePrincipal&quot; value=&quot;HTTP/web.springsource.com&quot; /&gt;
@@ -103,7 +103,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * <a href="https://bugs.sun.com/view_bug.do?bug_id=6851973">bug</a>.
  * </p>
  * <p>
- * A workaround unti this is fixed in the JVM is to change
+ * A workaround until this is fixed in the JVM is to change
  * </p>
  * HKEY_LOCAL_MACHINE\System \CurrentControlSet\Control\LSA\SuppressExtendedProtection to
  * 0x02
