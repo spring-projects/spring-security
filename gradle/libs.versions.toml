@@ -30,7 +30,7 @@ commons-collections = "commons-collections:commons-collections:3.2.2"
 io-micrometer-context-propagation = "io.micrometer:context-propagation:1.1.3"
 io-micrometer-micrometer-observation = "io.micrometer:micrometer-observation:1.14.13"
 io-mockk = "io.mockk:mockk:1.14.6"
-io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2025.0.0"
+io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2025.0.1"
 io-rsocket-rsocket-bom = { module = "io.rsocket:rsocket-bom", version.ref = "io-rsocket" }
 io-spring-javaformat-spring-javaformat-checkstyle = { module = "io.spring.javaformat:spring-javaformat-checkstyle", version.ref = "io-spring-javaformat" }
 io-spring-javaformat-spring-javaformat-gradle-plugin = { module = "io.spring.javaformat:spring-javaformat-gradle-plugin", version.ref = "io-spring-javaformat" }
