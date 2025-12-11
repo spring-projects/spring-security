@@ -34,7 +34,9 @@ class AdminMfaAuthorizationManagerConfiguration {
 		// @formatter:off
 		http
 			.authorizeHttpRequests((authorize) -> authorize
+				// <1>
 				.requestMatchers("/admin/**").hasRole("ADMIN")
+				// <2>
 				.anyRequest().authenticated()
 			)
 			.formLogin(Customizer.withDefaults())
