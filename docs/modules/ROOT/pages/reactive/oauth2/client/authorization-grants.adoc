@@ -77,7 +77,7 @@ Public Clients are supported using https://tools.ietf.org/html/rfc7636[Proof Key
 If the client is running in an untrusted environment (eg. native application or web browser-based application) and therefore incapable of maintaining the confidentiality of it's credentials, PKCE will automatically be used when the following conditions are true:
 
 . `client-secret` is omitted (or empty)
-. `client-authentication-method` is set to "none" (`ClientAuthenticationMethod.NONE`)
+. `client-authentication-method` is set to `none` (`ClientAuthenticationMethod.NONE`)
 
 or
 
@@ -85,7 +85,7 @@ or
 
 [TIP]
 ====
-If the OAuth 2.0 Provider supports PKCE for https://tools.ietf.org/html/rfc6749#section-2.1[Confidential Clients], you may (optionally) configure it using `DefaultServerOAuth2AuthorizationRequestResolver.setAuthorizationRequestCustomizer(OAuth2AuthorizationRequestCustomizers.withPkce())`.
+If the OAuth 2.0 Provider doesn't support PKCE for https://tools.ietf.org/html/rfc6749#section-2.1[Confidential Clients], you need to disable it by setting `ClientRegistration.clientSettings.requireProofKey` to `false`.
 ====
 
 [[oauth2-client-authorization-code-redirect-uri]]
