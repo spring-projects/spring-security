@@ -21,6 +21,8 @@ import java.util.Collection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.jspecify.annotations.NonNull;
+
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -83,7 +85,7 @@ public final class JwtAuthenticationProvider implements AuthenticationProvider {
 	 * @throws AuthenticationException if authentication failed for some reason
 	 */
 	@Override
-	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+	public @NonNull Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		BearerTokenAuthenticationToken bearer = (BearerTokenAuthenticationToken) authentication;
 		Jwt jwt = getJwt(bearer);
 		AbstractAuthenticationToken token = this.jwtAuthenticationConverter.convert(jwt);
