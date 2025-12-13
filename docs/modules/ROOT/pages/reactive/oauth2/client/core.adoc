@@ -68,7 +68,7 @@ The name may be used in certain scenarios, such as when displaying the name of t
 <15> `(userInfoEndpoint)authenticationMethod`: The authentication method used when sending the access token to the UserInfo Endpoint.
 The supported values are *header*, *form* and *query*.
 <16> `userNameAttributeName`: The name of the attribute returned in the UserInfo Response that references the Name or Identifier of the end-user.
-<17> [[oauth2Client-client-registration-requireProofKey]]`requireProofKey`: If `true` or if `authorizationGrantType` is `none`, then PKCE will be enabled by default.
+<17> [[oauth2Client-client-registration-requireProofKey]]`requireProofKey`: If `true` or if `clientAuthenticationMethod` is `none`, then PKCE will be enabled. Defaults to `true` for `authorization_code` grant type and `false` for other grant types.
 
 A `ClientRegistration` can be initially configured using discovery of an OpenID Connect Provider's https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[Configuration endpoint] or an Authorization Server's https://tools.ietf.org/html/rfc8414#section-3[Metadata endpoint].
 
