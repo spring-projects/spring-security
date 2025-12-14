@@ -200,17 +200,20 @@ public class AuthenticationManagerBuilder
 	}
 
 	/**
-	 * Add authentication based upon the custom {@link AuthenticationProvider} that is
-	 * passed in. Since the {@link AuthenticationProvider} implementation is unknown, all
+	 * Adds the custom {@link AuthenticationProvider} to the list of providers. This
+	 * method does not replace existing providers. it appends the new provider to the
+	 * internal collection.
+	 * <p>
+	 * Since the {@link AuthenticationProvider} implementation is unknown, all
 	 * customizations must be done externally and the {@link AuthenticationManagerBuilder}
 	 * is returned immediately.
-	 *
 	 * <p>
 	 * This method <b>does NOT</b> ensure that the {@link UserDetailsService} is available
 	 * for the {@link #getDefaultUserDetailsService()} method.
-	 *
+	 * <p>
 	 * Note that an {@link Exception} might be thrown if an error occurs when adding the
 	 * {@link AuthenticationProvider}.
+	 * @param authenticationProvider the {@link AuthenticationProvider} to add
 	 * @return a {@link AuthenticationManagerBuilder} to allow further authentication to
 	 * be provided to the {@link AuthenticationManagerBuilder}
 	 */
