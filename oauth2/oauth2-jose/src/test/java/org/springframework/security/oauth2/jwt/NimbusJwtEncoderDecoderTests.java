@@ -50,10 +50,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Ziqin Wang
  */
-public class NimbusJwtEncoderDecoderTests {
+class NimbusJwtEncoderDecoderTests {
 
 	@Test
-	public void encodeAndDecodeHS256() throws GeneralSecurityException {
+	void encodeAndDecodeHS256() throws GeneralSecurityException {
 		KeyGenerator keyGenerator = KeyGenerator.getInstance("HmacSHA256");
 		SecretKey secretKey = keyGenerator.generateKey();
 
@@ -68,7 +68,7 @@ public class NimbusJwtEncoderDecoderTests {
 	}
 
 	@Test
-	public void encodeAndDecodeRS256() throws GeneralSecurityException {
+	void encodeAndDecodeRS256() throws GeneralSecurityException {
 		KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
 		keyPairGenerator.initialize(2048);
 		KeyPair keyPair = keyPairGenerator.generateKeyPair();
@@ -86,7 +86,7 @@ public class NimbusJwtEncoderDecoderTests {
 	}
 
 	@Test
-	public void encodeAndDecodeES256() throws GeneralSecurityException, JOSEException {
+	void encodeAndDecodeES256() throws GeneralSecurityException, JOSEException {
 		KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC");
 		keyPairGenerator.initialize(new ECGenParameterSpec("secp256r1"));
 		KeyPair keyPair = keyPairGenerator.generateKeyPair();
