@@ -186,6 +186,19 @@ Xml::
 This will tell the Spring Security DSL to use `PathPatternRequestMatcher` for all request matchers that it constructs.
 
 In the event that you are directly constructing an object (as opposed to having the DSL construct it) that has a `setRequestMatcher` method. you should also proactively specify a `PathPatternRequestMatcher` there as well.
+In XML, you do this by using `request-matcher="path"` instead of `request-matcher="ant"` or `request-matcher="mvc"` like so:
+
+[tabs]
+======
+Xml::
++
+[source,xml,role="secondary"]
+----
+<http auto-config="true">
+  <intercept-url pattern="/my/login/**" access="authenticated" request-matcher="path"/>
+</http>
+----
+======
 
 === Migrate `exitUserUrl` and `switchUserUrl` Request Matchers in `SwitchUserFilter`
 
