@@ -582,6 +582,39 @@ public class ClientRegistrationsTests {
 	}
 
 	@Test
+	public void issuerWhenOidcHtmlThenFallbackToOAuth2ThenSuccess() throws Exception {
+		ClientRegistration registration = registrationOAuth2WithOidcHtml("issuer1", null).build();
+		ClientRegistration.ProviderDetails provider = registration.getProviderDetails();
+		assertThat(provider.getAuthorizationUri()).isEqualTo("https://example.com/o/oauth2/v2/auth");
+		assertThat(provider.getTokenUri()).isEqualTo("https://example.com/oauth2/v4/token");
+		assertThat(provider.getIssuerUri()).isEqualTo(this.issuer);
+
+		// order: OIDC(issuer-prefixed) -> OIDC(host-prefixed) -> OAuth
+		RecordedRequest request1 = this.server.takeRequest();
+		assertThat(request1.getPath()).isEqualTo("/issuer1/.well-known/openid-configuration");
+		RecordedRequest request2 = this.server.takeRequest();
+		assertThat(request2.getPath()).isEqualTo("/.well-known/openid-configuration/issuer1");
+		RecordedRequest request3 = this.server.takeRequest();
+		assertThat(request3.getPath()).isEqualTo("/.well-known/oauth-authorization-server/issuer1");
+	}
+
+	@Test
+	public void issuerWhenFirstEndpoint5xxThenThrowsIllegalArgumentException() throws Exception {
+		this.issuer = createIssuerFromServer("issuer1");
+		this.server.setDispatcher(new Dispatcher() {
+			@Override
+			public MockResponse dispatch(RecordedRequest req) {
+				return switch (req.getPath()) {
+					case "/issuer1/.well-known/openid-configuration" -> new MockResponse().setResponseCode(500);
+					default -> new MockResponse().setResponseCode(404);
+				};
+			}
+		});
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> ClientRegistrations.fromIssuerLocation(this.issuer).build());
+	}
+
+	@Test
 	public void issuerWhenAllEndpointsFailedThenExceptionIncludesFailureInformation() {
 		this.issuer = createIssuerFromServer("issuer1");
 		this.server.setDispatcher(new Dispatcher() {
@@ -664,6 +697,41 @@ public class ClientRegistrationsTests {
 			public MockResponse dispatch(RecordedRequest request) {
 				return switch (request.getPath()) {
 					case "/issuer1/.well-known/openid-configuration", "/.well-known/openid-configuration/" ->
+						buildSuccessMockResponse(responseBody);
+					default -> new MockResponse().setResponseCode(404);
+				};
+			}
+		};
+		this.server.setDispatcher(dispatcher);
+		return ClientRegistrations.fromIssuerLocation(this.issuer).clientId("client-id").clientSecret("client-secret");
+	}
+
+	/**
+	 * Simulates a situation when the OIDC discovery endpoints
+	 * "/issuer1/.well-known/openid-configuration" and
+	 * "/.well-known/openid-configuration/issuer1" respond with HTTP 200 and text/html
+	 * (non-JSON), so discovery falls back to
+	 * "/.well-known/oauth-authorization-server/issuer1", which responds with HTTP 200 and
+	 * JSON.
+	 *
+	 * @see <a href="https://tools.ietf.org/html/rfc8414#section-3.1">Section 3.1</a>
+	 * @see <a href="https://tools.ietf.org/html/rfc8414#section-5">Section 5</a>
+	 */
+	private ClientRegistration.Builder registrationOAuth2WithOidcHtml(String path, String body) throws Exception {
+		this.issuer = createIssuerFromServer(path);
+		this.response.put("issuer", this.issuer);
+		String responseBody = (body != null) ? body : this.mapper.writeValueAsString(this.response);
+		final Dispatcher dispatcher = new Dispatcher() {
+			@Override
+			public MockResponse dispatch(RecordedRequest request) {
+				return switch (request.getPath()) {
+					case "/issuer1/.well-known/openid-configuration", "/.well-known/openid-configuration/issuer1",
+							"/.well-known/openid-configuration/" ->
+						new MockResponse().setResponseCode(200)
+							.setBody("<html>not json</html>")
+							.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE);
+					case "/.well-known/oauth-authorization-server/issuer1",
+							"/.well-known/oauth-authorization-server/" ->
 						buildSuccessMockResponse(responseBody);
 					default -> new MockResponse().setResponseCode(404);
 				};
