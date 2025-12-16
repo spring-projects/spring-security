@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -39,6 +40,7 @@ import static org.mockito.Mockito.verify;
 /**
  * @author Luke Taylor
  * @author Eddú Meléndez
+ * @author Andrey Litvitski
  * @since 3.0
  */
 public class HttpSessionRequestCacheTests {
@@ -164,6 +166,18 @@ public class HttpSessionRequestCacheTests {
 		verify(request, never()).getParameterValues(anyString());
 		verify(request, never()).getParameterNames();
 		verify(request, never()).getParameterMap();
+	}
+
+	// gh-17686
+	@Test
+	public void saveRequestShouldNotSaveRequestWhenErrorDispatcherAndNonDocumentRequest() {
+		HttpSessionRequestCache cache = new HttpSessionRequestCache();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/destination");
+		request.setDispatcherType(DispatcherType.ERROR);
+		request.addHeader("Sec-Fetch-Dest", "image");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		cache.saveRequest(request, response);
+		assertThat(request.getSession().getAttribute(HttpSessionRequestCache.SAVED_REQUEST)).isNull();
 	}
 
 	private static final class CustomSavedRequest implements SavedRequest {
