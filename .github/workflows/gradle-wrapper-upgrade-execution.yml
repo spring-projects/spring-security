@@ -9,6 +9,7 @@ permissions:
 jobs:
   upgrade_wrapper:
     name: Execution
+    if: ${{ github.repository == 'spring-projects/spring-security' }}
     runs-on: ubuntu-latest
     steps:
       - name: Set up Git configuration
