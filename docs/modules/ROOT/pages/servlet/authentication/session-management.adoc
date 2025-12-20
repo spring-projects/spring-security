@@ -3,7 +3,7 @@
 
 Once you have got an application that is xref:servlet/authentication/index.adoc[authenticating requests], it is important to consider how that resulting authentication will be persisted and restored on future requests.
 
-This is done automatically by default, so no additional code is necessary, though it is important to know what `requireExplicitSave` means in `HttpSecurity`.
+Starting from Spring Security 6 security context is not persisted automatically by default, thus it is important to know what `requireExplicitSave` means in `HttpSecurity`.
 
 If you like, <<how-it-works-requireexplicitsave,you can read more about what requireExplicitSave is doing>> or <<requireexplicitsave,why it's important>>. Otherwise, in most cases you are done with this section.
 
