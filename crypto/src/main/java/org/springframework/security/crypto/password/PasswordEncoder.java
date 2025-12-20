@@ -17,6 +17,7 @@
 package org.springframework.security.crypto.password;
 
 import org.jspecify.annotations.Nullable;
+import org.springframework.lang.Contract;
 
 /**
  * Service interface for encoding passwords.
@@ -36,6 +37,7 @@ public interface PasswordEncoder {
 	 * @return A non-null encoded password, unless the rawPassword was null in which case
 	 * the result must be null.
 	 */
+	@Contract("null -> null; !null -> !null")
 	@Nullable String encode(@Nullable CharSequence rawPassword);
 
 	/**
