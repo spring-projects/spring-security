@@ -12,8 +12,9 @@ permissions:
 
 jobs:
   update-antora-ui-spring:
-    runs-on: ubuntu-latest
     name: Update on Supported Branches
+    if: ${{ github.repository == 'spring-projects/spring-security' }}
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         branch: [ '6.5.x', '7.0.x', 'main' ]
@@ -25,8 +26,9 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           antora-file-path: 'docs/antora-playbook.yml'
   update-antora-ui-spring-docs-build:
-    runs-on: ubuntu-latest
     name: Update on docs-build
+    if: ${{ github.repository == 'spring-projects/spring-security' }}
+    runs-on: ubuntu-latest
     steps:
       - uses: spring-io/spring-doc-actions/update-antora-spring-ui@415e2b11a766ba64799fffb5c97a4f7e17f677cf
         name: Update
