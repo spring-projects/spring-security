@@ -343,4 +343,40 @@ class CsrfDslTests {
             return http.build()
         }
     }
+
+    @Test
+    fun `POST when CSRF for SPA enabled and no CSRF token then forbidden`() {
+        this.spring.register(CsrfSPAConfig::class.java).autowire()
+
+        this.mockMvc.post("/test1")
+            .andExpect {
+                status { isForbidden() }
+            }
+    }
+
+    @Test
+    fun `POST when CSRF for SPA enabled and CSRF token then status OK`() {
+        this.spring.register(CsrfSPAConfig::class.java, BasicController::class.java).autowire()
+
+        this.mockMvc.post("/test1") {
+            with(csrf())
+        }.andExpect {
+            status { isOk() }
+        }
+
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    open class CsrfSPAConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                csrf {
+                    spa()
+                }
+            }
+            return http.build()
+        }
+    }
 }
