@@ -16,6 +16,9 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -33,7 +36,10 @@ import org.jspecify.annotations.Nullable;
  * @since 6.4
  * @see PublicKeyCredentialCreationOptions#getAuthenticatorSelection()
  */
-public final class AuthenticatorSelectionCriteria {
+public final class AuthenticatorSelectionCriteria implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = -5923595063546985635L;
 
 	private final @Nullable AuthenticatorAttachment authenticatorAttachment;
 
