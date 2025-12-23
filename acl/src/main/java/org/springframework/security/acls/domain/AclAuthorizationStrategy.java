@@ -20,7 +20,7 @@ import org.springframework.security.acls.model.Acl;
 
 /**
  * Strategy used by {@link AclImpl} to determine whether a principal is permitted to call
- * adminstrative methods on the <code>AclImpl</code>.
+ * administrative methods on the <code>AclImpl</code>.
  *
  * @author Ben Alex
  */

@@ -19,7 +19,7 @@ package org.springframework.security.web.webauthn.api;
 /**
  * The <a href=
  * "https://www.w3.org/TR/webauthn-3/#enumdef-residentkeyrequirement">ResidentKeyRequirement</a>
- * describes the Relying Partys requirements for client-side discoverable credentials.
+ * describes the Relying Party requirements for client-side discoverable credentials.
  *
  * @author Rob Winch
  * @since 6.4
