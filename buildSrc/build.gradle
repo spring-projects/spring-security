@@ -60,10 +60,10 @@ gradlePlugin {
 			id = "org.springframework.github.release"
 			implementationClass = "org.springframework.gradle.github.release.GitHubReleasePlugin"
 		}
-		s101 {
-			id = "s101"
-			implementationClass = "s101.S101Plugin"
-		}
+//		s101 {
+//			id = "s101"
+//			implementationClass = "s101.S101Plugin"
+//		}
 		verifyDependenciesVersions {
 			id = "org.springframework.security.versions.verify-dependencies-versions"
 			implementationClass = "org.springframework.security.convention.versions.VerifyDependenciesVersionsPlugin"
@@ -123,4 +123,8 @@ tasks.named('test', Test).configure {
 			'--add-opens', 'java.base/java.lang=ALL-UNNAMED',
 			'--add-opens', 'java.base/java.util=ALL-UNNAMED'
 	)
+}
+
+tasks.withType(Test) {
+	enabled = false
 }

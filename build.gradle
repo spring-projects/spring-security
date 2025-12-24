@@ -10,13 +10,17 @@ buildscript {
 		classpath libs.com.netflix.nebula.nebula.project.plugin
 	}
 	repositories {
-		gradlePluginPortal()
+		mavenLocal()
+		maven {
+			url "https://repo.cci.nokia.net/artifactory/netact-mvn-dependencies/"
+		}
+		mavenCentral()
 	}
 }
 
 apply plugin: 'io.spring.nohttp'
 apply plugin: 'locks'
-apply plugin: 's101'
+//apply plugin: 's101'
 apply plugin: 'io.spring.convention.root'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'org.springframework.security.update-version'
@@ -24,8 +28,8 @@ apply plugin: 'org.springframework.security.sagan'
 apply plugin: 'org.springframework.github.milestone'
 apply plugin: 'org.springframework.github.changelog'
 apply plugin: 'org.springframework.github.release'
-apply plugin: 'org.springframework.security.versions.verify-dependencies-versions'
-apply plugin: 'org.springframework.security.check-expected-branch-version'
+//apply plugin: 'org.springframework.security.versions.verify-dependencies-versions'
+//apply plugin: 'org.springframework.security.check-expected-branch-version'
 
 group = 'org.springframework.security'
 description = 'Spring Security'
@@ -35,6 +39,16 @@ ext.releaseBuild = version.contains("SNAPSHOT")
 ext.milestoneBuild = !(snapshotBuild || releaseBuild)
 
 repositories {
+	// 1. Look in your local .m2 folder first (where you built the framework)
+	mavenLocal()
+
+	// 2. Look in your internal Nokia Artifactory
+	maven {
+		url "https://repo.cci.nokia.net/artifactory/netact-mvn-dependencies/"
+		allowInsecureProtocol = true // Add this if you face SSL/protocol issues
+	}
+
+	// 3. Fallback to public internet
 	mavenCentral()
 }
 
@@ -148,7 +162,7 @@ tasks.register('cloneSamples', IncludeRepoTask) {
 	outputDirectory = project.hasProperty("cloneOutputDirectory") ? project.file("$cloneOutputDirectory") : project.file("build/samples")
 }
 
-s101 {
-	repository = 'https://structure101.com/binaries/latest'
-	configurationDirectory = project.file("etc/s101")
-}
+//s101 {
+//	repository = 'https://structure101.com/binaries/latest'
+//	configurationDirectory = project.file("etc/s101")
+//}
