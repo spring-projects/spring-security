@@ -15,7 +15,7 @@ org-mockito = "4.8.1"
 org-opensaml4 = "4.1.0"
 org-opensaml3 = "3.4.6"
 org-slf4j = "1.7.36"
-org-springframework = "5.3.39.nokia.4"
+org-springframework = "5.3.39"
 
 [libraries]
 ch-qos-logback-logback-classic = "ch.qos.logback:logback-classic:1.2.13"

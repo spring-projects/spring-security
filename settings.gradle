@@ -1,7 +1,5 @@
 pluginManagement {
 	repositories {
-		mavenLocal() // Add this
-		maven { url "https://repo.cci.nokia.net/artifactory/netact-mvn-dependencies/" } // Add this
 		gradlePluginPortal()
 	}
 }
@@ -16,10 +14,7 @@ if (System.getenv("DEVELOCITY_ACCESS_KEY")) {
 }
 
 dependencyResolutionManagement {
-	repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
 	repositories {
-		mavenLocal()
-		maven { url "https://repo.cci.nokia.net/artifactory/netact-mvn-dependencies/" }
 		mavenCentral()
 	}
 }
