@@ -610,7 +610,10 @@ public class BCrypt {
 		char minor = (char) 0;
 		int rounds, off;
 		StringBuilder rs = new StringBuilder();
-
+		// FIX for CVE-2025-22228 (The Bypass) AND CVE-2025-22234 (The Timing Mitigation)
+		if (!for_check && passwordb.length > 72) {
+			throw new IllegalArgumentException("password cannot be more than 72 bytes");
+		}
 		if (salt == null) {
 			throw new IllegalArgumentException("salt cannot be null");
 		}

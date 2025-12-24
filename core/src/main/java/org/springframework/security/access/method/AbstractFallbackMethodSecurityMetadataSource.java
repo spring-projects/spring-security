@@ -21,8 +21,10 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.springframework.aop.support.AopUtils;
+import org.springframework.core.BridgeMethodResolver;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.util.ClassUtils;
 
 /**
  * Abstract implementation of {@link MethodSecurityMetadataSource} that supports both
@@ -53,10 +55,16 @@ public abstract class AbstractFallbackMethodSecurityMetadataSource extends Abstr
 
 	@Override
 	public Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
-		// The method may be on an interface, but we need attributes from the target
-		// class.
-		// If the target class is null, the method will be unchanged.
-		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
+		// 1. Resolve Bridge Method first (Standard Spring AOP step)
+		Method specificMethod = BridgeMethodResolver
+			.findBridgedMethod(AopUtils.getMostSpecificMethod(method, targetClass));
+
+		// 2. NEW FIX for CVE-2025-41248: Resolve Generic Parameters
+		// This ensures that if the method is generic (e.g. save(T)), we map it
+		// to the concrete implementation (e.g. save(String)) to find annotations
+		// correctly.
+		specificMethod = ClassUtils.getMostSpecificMethod(specificMethod, targetClass);
+
 		// First try is the method in the target class.
 		Collection<ConfigAttribute> attr = findAttributes(specificMethod, targetClass);
 		if (attr != null) {
