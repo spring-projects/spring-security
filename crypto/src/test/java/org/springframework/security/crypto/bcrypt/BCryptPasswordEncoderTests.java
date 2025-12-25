@@ -222,4 +222,36 @@ public class BCryptPasswordEncoderTests {
 		assertThat(encoder.matches("wrong", "$2a$00$9N8N35BVs5TLqGL3pspAte5OWWA2a2aZIs.EGp7At7txYakFERMue")).isFalse();
 	}
 
+	// FIX for CVE-2025-22228 (The Bypass) AND CVE-2025-22234 (The Timing Mitigation)
+	@Test
+	public void encodeWhenPasswordOverMaxLengthThenThrowIllegalArgumentException() {
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+		String password72chars = "123456789012345678901234567890123456789012345678901234567890123456789012";
+		encoder.encode(password72chars);
+
+		String password73chars = password72chars + "3";
+		assertThatIllegalArgumentException().isThrownBy(() -> encoder.encode(password73chars));
+	}
+
+	@Test
+	public void matchesWhenPasswordOverMaxLengthThenAllowToMatch() {
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+		String password71chars = "12345678901234567890123456789012345678901234567890123456789012345678901";
+		String encodedPassword71chars = "$2a$10$jx3x2FaF.iX5QZ9i3O424Os2Ou5P5JrnedmWYHuDyX8JKA4Unp4xq";
+		assertThat(encoder.matches(password71chars, encodedPassword71chars)).isTrue();
+
+		String password72chars = password71chars + "2";
+		String encodedPassword72chars = "$2a$10$oXYO6/UvbsH5rQEraBkl6uheccBqdB3n.RaWbrimog9hS2GX4lo/O";
+		assertThat(encoder.matches(password72chars, encodedPassword72chars)).isTrue();
+
+		// Max length is 72 bytes, however, we need to ensure backwards compatibility
+		// for previously encoded passwords that are greater than 72 bytes and allow the
+		// match to be performed.
+		String password73chars = password72chars + "3";
+		String encodedPassword73chars = "$2a$10$1l9.kvQTsqNLiCYFqmKtQOHkp.BrgIrwsnTzWo9jdbQRbuBYQ/AVK";
+		assertThat(encoder.matches(password73chars, encodedPassword73chars)).isTrue();
+	}
+
 }
