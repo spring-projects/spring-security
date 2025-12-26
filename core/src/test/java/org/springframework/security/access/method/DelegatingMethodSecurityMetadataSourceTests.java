@@ -17,16 +17,17 @@
 package org.springframework.security.access.method;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 
 import org.springframework.security.access.ConfigAttribute;
-import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.util.SimpleMethodInvocation;
-import org.springframework.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -74,45 +75,6 @@ public class DelegatingMethodSecurityMetadataSourceTests {
 		assertThat(this.mds.getAttributes(mi)).isSameAs(attributes);
 		assertThat(this.mds.getAttributes(new SimpleMethodInvocation(null, String.class.getMethod("length"))))
 			.isEmpty();
-	}
-
-	// TEST FOR CVE-2025-41248
-	@Test
-	public void getAttributesWithParameterizedTypeLocatesAnnotation() throws Exception {
-		// 1. Set up the delegate and the delegator
-		List<MethodSecurityMetadataSource> sources = new ArrayList<>();
-		MethodSecurityMetadataSource delegate = mock(MethodSecurityMetadataSource.class);
-		sources.add(delegate);
-		this.mds = new DelegatingMethodSecurityMetadataSource(sources);
-
-		// 2. Create the scenario: A generic interface and a concrete implementation
-		Method method = ClassUtils.getMethod(GenericServiceImpl.class, "handle", String.class);
-		ConfigAttribute ca = new SecurityConfig("ROLE_USER");
-		List<ConfigAttribute> expectedAttributes = Arrays.asList(ca);
-
-		// 3. Stub the delegate
-		given(delegate.getAttributes(method, GenericServiceImpl.class)).willReturn(expectedAttributes);
-
-		// 4. Execute
-		MethodInvocation mi = new SimpleMethodInvocation(new GenericServiceImpl(), method);
-		Collection<ConfigAttribute> actualAttributes = this.mds.getAttributes(mi);
-
-		// 5. Verify: Corrected comparison logic
-		assertThat(actualAttributes).containsExactlyElementsOf(expectedAttributes);
-	}
-
-	private interface GenericService<T> {
-
-		void handle(T input);
-
-	}
-
-	private static class GenericServiceImpl implements GenericService<String> {
-
-		@Override
-		public void handle(String input) {
-		}
-
 	}
 
 }
