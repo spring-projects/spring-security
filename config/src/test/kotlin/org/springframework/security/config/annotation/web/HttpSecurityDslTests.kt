@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.TestingAuthenticationProvider
@@ -55,6 +56,8 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
 
 /**
@@ -657,4 +660,57 @@ class HttpSecurityDslTests {
         }
     }
 
+    @Test
+    fun `HTTP security when disabled Csrf Bean`() {
+        this.spring.register(DisabledCsrfBeanConfig::class.java, BasicController::class.java).autowire()
+
+        this.mockMvc.post("/test1")
+            .andExpect {
+                status { isOk() }
+            }
+
+        this.mockMvc.post("/")
+            .andExpect {
+                status { isForbidden() }
+            }
+    }
+
+    @RestController
+    internal class BasicController {
+
+        @PostMapping("/")
+        fun post():String {
+            return "ok"
+        }
+
+        @PostMapping("/test1")
+        fun test1():String {
+            return "ok"
+        }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    open class DisabledCsrfBeanConfig {
+
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                authorizeHttpRequests {
+                    authorize(HttpMethod.POST, "/test1", permitAll)
+                    authorize(anyRequest, authenticated)
+                }
+            }
+            return http.build()
+        }
+
+        @Bean
+        open fun headersDsl(): HttpSecurityDsl.() -> Unit {
+            return {
+                csrf {
+                    disable()
+                }
+            }
+        }
+    }
 }
