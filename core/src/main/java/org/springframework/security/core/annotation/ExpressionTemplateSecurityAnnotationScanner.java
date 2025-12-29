@@ -99,26 +99,15 @@ final class ExpressionTemplateSecurityAnnotationScanner<A extends Annotation>
 	@Override
 	@Nullable MergedAnnotation<A> merge(AnnotatedElement element, @Nullable Class<?> targetClass) {
 		if (element instanceof Parameter parameter) {
-			MergedAnnotation<A> annotation = this.unique.merge(parameter, targetClass);
-			if (annotation == null) {
-				return null;
-			}
-			return resolvePlaceholders(annotation);
+			return resolvePlaceholders(this.unique.merge(parameter, targetClass));
 		}
 		if (element instanceof Method method) {
-			MergedAnnotation<A> annotation = this.unique.merge(method, targetClass);
-			if (annotation == null) {
-				return null;
-			}
-			return resolvePlaceholders(annotation);
+			return resolvePlaceholders(this.unique.merge(method, targetClass));
 		}
 		throw new IllegalArgumentException("Unsupported element of type " + element.getClass());
 	}
 
 	private MergedAnnotation<A> resolvePlaceholders(MergedAnnotation<A> mergedAnnotation) {
-		if (this.templateDefaults == null) {
-			return mergedAnnotation;
-		}
 		if (mergedAnnotation.getMetaSource() == null) {
 			return mergedAnnotation;
 		}

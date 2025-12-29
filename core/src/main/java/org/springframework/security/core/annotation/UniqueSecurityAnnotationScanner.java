@@ -163,7 +163,7 @@ final class UniqueSecurityAnnotationScanner<A extends Annotation> extends Abstra
 
 	private List<MergedAnnotation<A>> findClosestParameterAnnotations(Method method, Class<?> clazz, Parameter current,
 			Set<Class<?>> visited) {
-		if (clazz == null || clazz == Object.class || !visited.add(clazz)) {
+		if (clazz == Object.class || !visited.add(clazz)) {
 			return Collections.emptyList();
 		}
 		List<MergedAnnotation<A>> directAnnotations = findDirectParameterAnnotations(method, clazz, current);
@@ -224,7 +224,7 @@ final class UniqueSecurityAnnotationScanner<A extends Annotation> extends Abstra
 
 	private List<MergedAnnotation<A>> findClosestMethodAnnotations(Method method, Class<?> targetClass,
 			Set<Class<?>> classesToSkip) {
-		if (targetClass == null || classesToSkip.contains(targetClass) || targetClass == Object.class) {
+		if (classesToSkip.contains(targetClass) || targetClass == Object.class) {
 			return Collections.emptyList();
 		}
 		classesToSkip.add(targetClass);
@@ -244,7 +244,7 @@ final class UniqueSecurityAnnotationScanner<A extends Annotation> extends Abstra
 	}
 
 	private List<MergedAnnotation<A>> findClosestClassAnnotations(Class<?> targetClass, Set<Class<?>> classesToSkip) {
-		if (targetClass == null || classesToSkip.contains(targetClass) || targetClass == Object.class) {
+		if (classesToSkip.contains(targetClass) || targetClass == Object.class) {
 			return Collections.emptyList();
 		}
 		classesToSkip.add(targetClass);
