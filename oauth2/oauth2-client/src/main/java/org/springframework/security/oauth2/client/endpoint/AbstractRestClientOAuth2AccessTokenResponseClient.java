@@ -63,10 +63,9 @@ public abstract class AbstractRestClientOAuth2AccessTokenResponseClient<T extend
 
 	// @formatter:off
 	private RestClient restClient = RestClient.builder()
-			.messageConverters((messageConverters) -> {
-				messageConverters.clear();
-				messageConverters.add(new FormHttpMessageConverter());
-				messageConverters.add(new OAuth2AccessTokenResponseHttpMessageConverter());
+			.configureMessageConverters((messageConverters) -> {
+				messageConverters.addCustomConverter(new FormHttpMessageConverter());
+				messageConverters.addCustomConverter(new OAuth2AccessTokenResponseHttpMessageConverter());
 			})
 			.defaultStatusHandler(new OAuth2ErrorResponseErrorHandler())
 			.build();
