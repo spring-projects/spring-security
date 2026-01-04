@@ -42,7 +42,8 @@ final class MethodSecuritySelector implements ImportSelector {
 		.isPresent("org.springframework.security.data.aot.hint.AuthorizeReturnObjectDataHintsRegistrar", null);
 
 	private static final boolean isWebPresent = ClassUtils
-		.isPresent("org.springframework.web.servlet.DispatcherServlet", null);
+		.isPresent("org.springframework.web.servlet.DispatcherServlet", null)
+			&& ClassUtils.isPresent("org.springframework.security.web.util.ThrowableAnalyzer", null);
 
 	private static final boolean isObservabilityPresent = ClassUtils
 		.isPresent("io.micrometer.observation.ObservationRegistry", null);

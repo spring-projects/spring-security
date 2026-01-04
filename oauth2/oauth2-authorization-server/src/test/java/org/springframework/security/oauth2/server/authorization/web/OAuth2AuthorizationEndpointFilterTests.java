@@ -372,7 +372,11 @@ public class OAuth2AuthorizationEndpointFilterTests {
 		given(authenticationConverter.convert(any())).willReturn(authorizationCodeRequestAuthentication);
 		this.filter.setAuthenticationConverter(authenticationConverter);
 
-		given(this.authenticationManager.authenticate(any())).willReturn(authorizationCodeRequestAuthentication);
+		OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthenticationResult = new OAuth2AuthorizationCodeRequestAuthenticationToken(
+				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, this.authorizationCode,
+				registeredClient.getRedirectUris().iterator().next(), STATE, registeredClient.getScopes());
+		authorizationCodeRequestAuthenticationResult.setAuthenticated(true);
+		given(this.authenticationManager.authenticate(any())).willReturn(authorizationCodeRequestAuthenticationResult);
 
 		MockHttpServletRequest request = createAuthorizationRequest(registeredClient);
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -382,7 +386,7 @@ public class OAuth2AuthorizationEndpointFilterTests {
 
 		verify(authenticationConverter).convert(any());
 		verify(this.authenticationManager).authenticate(any());
-		verify(filterChain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+		verifyNoInteractions(filterChain);
 	}
 
 	@Test
@@ -461,9 +465,6 @@ public class OAuth2AuthorizationEndpointFilterTests {
 	@Test
 	public void doFilterWhenCustomAuthenticationDetailsSourceThenUsed() throws Exception {
 		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
-		OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication = new OAuth2AuthorizationCodeRequestAuthenticationToken(
-				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal,
-				registeredClient.getRedirectUris().iterator().next(), STATE, registeredClient.getScopes(), null);
 		MockHttpServletRequest request = createAuthorizationRequest(registeredClient);
 
 		AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> authenticationDetailsSource = mock(
@@ -472,7 +473,11 @@ public class OAuth2AuthorizationEndpointFilterTests {
 		given(authenticationDetailsSource.buildDetails(request)).willReturn(webAuthenticationDetails);
 		this.filter.setAuthenticationDetailsSource(authenticationDetailsSource);
 
-		given(this.authenticationManager.authenticate(any())).willReturn(authorizationCodeRequestAuthentication);
+		OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthenticationResult = new OAuth2AuthorizationCodeRequestAuthenticationToken(
+				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, this.authorizationCode,
+				registeredClient.getRedirectUris().iterator().next(), STATE, registeredClient.getScopes());
+		authorizationCodeRequestAuthenticationResult.setAuthenticated(true);
+		given(this.authenticationManager.authenticate(any())).willReturn(authorizationCodeRequestAuthenticationResult);
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
@@ -481,27 +486,7 @@ public class OAuth2AuthorizationEndpointFilterTests {
 
 		verify(authenticationDetailsSource).buildDetails(any());
 		verify(this.authenticationManager).authenticate(any());
-		verify(filterChain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-	}
-
-	@Test
-	public void doFilterWhenAuthorizationRequestPrincipalNotAuthenticatedThenCommenceAuthentication() throws Exception {
-		this.principal.setAuthenticated(false);
-		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
-		OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthenticationResult = new OAuth2AuthorizationCodeRequestAuthenticationToken(
-				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal,
-				registeredClient.getRedirectUris().iterator().next(), STATE, registeredClient.getScopes(), null);
-		authorizationCodeRequestAuthenticationResult.setAuthenticated(false);
-		given(this.authenticationManager.authenticate(any())).willReturn(authorizationCodeRequestAuthenticationResult);
-
-		MockHttpServletRequest request = createAuthorizationRequest(registeredClient);
-		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterChain filterChain = mock(FilterChain.class);
-
-		this.filter.doFilter(request, response, filterChain);
-
-		verify(this.authenticationManager).authenticate(any());
-		verify(filterChain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+		verifyNoInteractions(filterChain);
 	}
 
 	@Test

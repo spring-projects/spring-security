@@ -27,15 +27,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
+import com.webauthn4j.WebAuthnManager;
 import com.webauthn4j.converter.AttestationObjectConverter;
 import com.webauthn4j.converter.util.ObjectConverter;
+import com.webauthn4j.data.AuthenticationData;
+import com.webauthn4j.data.AuthenticationRequest;
 import com.webauthn4j.data.attestation.AttestationObject;
+import com.webauthn4j.data.attestation.authenticator.AttestedCredentialData;
 import com.webauthn4j.data.attestation.authenticator.AuthenticatorData;
 import com.webauthn4j.data.extension.authenticator.RegistrationExtensionAuthenticatorOutput;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -44,12 +49,14 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.webauthn.api.AuthenticatorAssertionResponse;
 import org.springframework.security.web.webauthn.api.AuthenticatorAttestationResponse;
 import org.springframework.security.web.webauthn.api.AuthenticatorAttestationResponse.AuthenticatorAttestationResponseBuilder;
 import org.springframework.security.web.webauthn.api.AuthenticatorSelectionCriteria;
 import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
 import org.springframework.security.web.webauthn.api.Bytes;
 import org.springframework.security.web.webauthn.api.CredentialRecord;
+import org.springframework.security.web.webauthn.api.ImmutableCredentialRecord;
 import org.springframework.security.web.webauthn.api.PublicKeyCredential;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialDescriptor;
@@ -57,9 +64,11 @@ import org.springframework.security.web.webauthn.api.PublicKeyCredentialParamete
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestOptions;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialRpEntity;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
+import org.springframework.security.web.webauthn.api.TestAuthenticationAssertionResponses;
 import org.springframework.security.web.webauthn.api.TestAuthenticatorAttestationResponses;
 import org.springframework.security.web.webauthn.api.TestCredentialRecords;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialCreationOptions;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialRequestOptions;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntities;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentials;
 import org.springframework.security.web.webauthn.api.UserVerificationRequirement;
@@ -67,7 +76,9 @@ import org.springframework.security.web.webauthn.api.UserVerificationRequirement
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatRuntimeException;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
@@ -585,6 +596,50 @@ class Webauthn4jRelyingPartyOperationsTests {
 
 		assertThat(credentialRequestOptions.getAllowCredentials()).extracting(PublicKeyCredentialDescriptor::getId)
 			.containsExactly(credentialRecord.getCredentialId());
+	}
+
+	// gh-18158
+	@Test
+	void authenticateThenWa4jRequestCredentialIdIsRawIdBytes() throws Exception {
+		PublicKeyCredentialRequestOptions options = TestPublicKeyCredentialRequestOptions.create().build();
+		AuthenticatorAssertionResponse response = TestAuthenticationAssertionResponses
+			.createAuthenticatorAssertionResponse()
+			.build();
+		PublicKeyCredential<AuthenticatorAssertionResponse> credentials = TestPublicKeyCredentials
+			.createPublicKeyCredential(response)
+			.build();
+		RelyingPartyAuthenticationRequest request = new RelyingPartyAuthenticationRequest(options, credentials);
+		PublicKeyCredential<AuthenticatorAssertionResponse> publicKey = request.getPublicKey();
+
+		ImmutableCredentialRecord credentialRecord = TestCredentialRecords.fullUserCredential().build();
+		given(this.userCredentials.findByCredentialId(publicKey.getRawId())).willReturn(credentialRecord);
+		ObjectMapper json = mock(ObjectMapper.class);
+		ObjectMapper cbor = mock(ObjectMapper.class);
+		given(cbor.getFactory()).willReturn(mock(CBORFactory.class));
+		AttestationObject attestationObject = mock(AttestationObject.class);
+		AuthenticatorData wa4jAuthData = mock(AuthenticatorData.class);
+		given(attestationObject.getAuthenticatorData()).willReturn(wa4jAuthData);
+		given(wa4jAuthData.getAttestedCredentialData()).willReturn(mock(AttestedCredentialData.class));
+		given(cbor.readValue(credentialRecord.getAttestationObject().getBytes(), AttestationObject.class))
+			.willReturn(attestationObject);
+		this.rpOperations.setObjectConverter(new ObjectConverter(json, cbor));
+
+		WebAuthnManager manager = mock(WebAuthnManager.class);
+		ArgumentCaptor<AuthenticationRequest> wa4jRequest = ArgumentCaptor.forClass(AuthenticationRequest.class);
+		AuthenticationData wa4jData = mock(AuthenticationData.class);
+		given(wa4jData.getAuthenticatorData()).willReturn(mock(AuthenticatorData.class));
+		given(manager.verify(wa4jRequest.capture(), any())).willReturn(wa4jData);
+		given(this.userEntities.findById(any())).willReturn(TestPublicKeyCredentialUserEntities.userEntity().build());
+		this.rpOperations.setWebAuthnManager(manager);
+
+		this.rpOperations.authenticate(request);
+
+		// this ensures that our next assertion is valid (we want the rawId bytes, not the
+		// id bytes to be used)
+		assertThat(publicKey.getRawId().getBytes()).isNotEqualTo(publicKey.getId().getBytes());
+		// ensure that the raw id bytes are passed into webauthn4j (not the id bytes which
+		// are base64 encoded)
+		assertThat(wa4jRequest.getValue().getCredentialId()).isEqualTo(publicKey.getRawId().getBytes());
 	}
 
 	private static AuthenticatorAttestationResponse setFlag(byte... flags) throws Exception {

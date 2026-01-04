@@ -370,7 +370,7 @@ Java::
 ----
 @Bean
 public AnnotationTemplateExpressionDefaults templateDefaults() {
-	return new AnnotationTemplateExpressionDeafults();
+	return new AnnotationTemplateExpressionDefaults();
 }
 ----
 
@@ -380,7 +380,7 @@ Kotlin::
 ----
 @Bean
 fun templateDefaults(): AnnotationTemplateExpressionDefaults {
-	return AnnotationTemplateExpressionDeafults()
+	return AnnotationTemplateExpressionDefaults()
 }
 ----
 

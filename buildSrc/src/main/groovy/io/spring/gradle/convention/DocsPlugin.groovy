@@ -17,7 +17,6 @@ public class DocsPlugin implements Plugin<Project> {
 
 		PluginManager pluginManager = project.getPluginManager();
 		pluginManager.apply(BasePlugin);
-		pluginManager.apply(DeployDocsPlugin);
 		pluginManager.apply(JavadocApiPlugin);
 
 		Task docsZip = project.tasks.create('docsZip', Zip) {

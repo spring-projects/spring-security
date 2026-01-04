@@ -428,7 +428,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 	}
 
 	@Test
-	public void authenticateWhenPrincipalNotAuthenticatedThenReturnAuthorizationCodeRequest() {
+	public void authenticateWhenPrincipalNotAuthenticatedThenThrowOAuth2AuthorizationCodeRequestAuthenticationException() {
 		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
 		given(this.registeredClientRepository.findByClientId(eq(registeredClient.getClientId())))
 			.willReturn(registeredClient);
@@ -438,12 +438,10 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 		OAuth2AuthorizationCodeRequestAuthenticationToken authentication = new OAuth2AuthorizationCodeRequestAuthenticationToken(
 				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, redirectUri, STATE,
 				registeredClient.getScopes(), createPkceParameters());
-
-		OAuth2AuthorizationCodeRequestAuthenticationToken authenticationResult = (OAuth2AuthorizationCodeRequestAuthenticationToken) this.authenticationProvider
-			.authenticate(authentication);
-
-		assertThat(authenticationResult).isSameAs(authentication);
-		assertThat(authenticationResult.isAuthenticated()).isFalse();
+		assertThatExceptionOfType(OAuth2AuthorizationCodeRequestAuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.satisfies((ex) -> assertAuthenticationException(ex, OAuth2ErrorCodes.INVALID_REQUEST, "principal",
+					authentication.getRedirectUri()));
 	}
 
 	@Test

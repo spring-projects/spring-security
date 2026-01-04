@@ -175,6 +175,12 @@ public class WebAuthnAuthenticationFilter extends AbstractAuthenticationProcessi
 		}
 
 		@Override
+		public boolean canRead(ResolvableType type, @Nullable MediaType mediaType) {
+			Class<?> clazz = type.resolve();
+			return (clazz != null) ? canRead(clazz, mediaType) : canRead(mediaType);
+		}
+
+		@Override
 		public boolean canRead(Class<?> clazz, @Nullable MediaType mediaType) {
 			return this.delegate.canRead(clazz, mediaType);
 		}
@@ -204,6 +210,11 @@ public class WebAuthnAuthenticationFilter extends AbstractAuthenticationProcessi
 		public T read(ResolvableType type, HttpInputMessage inputMessage, @Nullable Map<String, Object> hints)
 				throws IOException, HttpMessageNotReadableException {
 			return this.delegate.read(type.getType(), null, inputMessage);
+		}
+
+		@Override
+		public boolean canWrite(ResolvableType targetType, Class<?> valueClass, @Nullable MediaType mediaType) {
+			return this.delegate.canWrite(targetType.getType(), valueClass, mediaType);
 		}
 
 	}

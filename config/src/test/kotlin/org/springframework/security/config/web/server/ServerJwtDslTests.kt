@@ -275,7 +275,7 @@ class ServerJwtDslTests {
     }
 
     class NullConverter: Converter<Jwt, Mono<AbstractAuthenticationToken>> {
-        override fun convert(source: Jwt): Mono<AbstractAuthenticationToken>? {
+        override fun convert(source: Jwt): Mono<AbstractAuthenticationToken> {
             return Mono.empty()
         }
 

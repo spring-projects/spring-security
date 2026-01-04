@@ -42,6 +42,8 @@ public class OAuth2AuthorizationCodeRequestAuthenticationToken
 
 	private final OAuth2AuthorizationCode authorizationCode;
 
+	private boolean validated;
+
 	/**
 	 * Constructs an {@code OAuth2AuthorizationCodeRequestAuthenticationToken} using the
 	 * provided parameters.
@@ -87,6 +89,14 @@ public class OAuth2AuthorizationCodeRequestAuthenticationToken
 	@Nullable
 	public OAuth2AuthorizationCode getAuthorizationCode() {
 		return this.authorizationCode;
+	}
+
+	final boolean isValidated() {
+		return this.validated;
+	}
+
+	final void setValidated(boolean validated) {
+		this.validated = validated;
 	}
 
 }

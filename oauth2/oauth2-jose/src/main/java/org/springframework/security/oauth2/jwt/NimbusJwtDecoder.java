@@ -319,21 +319,17 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		}
 
 		/**
-		 * Whether to use Nimbus's typ header verification. This is {@code true} by
-		 * default, however it may change to {@code false} in a future major release.
+		 * Whether to use Nimbus's {@code typ} header verification. This is {@code false}
+		 * by default.
 		 *
 		 * <p>
-		 * By turning off this feature, {@link NimbusJwtDecoder} expects applications to
-		 * check the {@code typ} header themselves in order to determine what kind of
-		 * validation is needed
+		 * By turning on this feature, {@link NimbusJwtDecoder} will delegate checking the
+		 * {@code typ} header to Nimbus by using Nimbus's default
+		 * {@link JOSEObjectTypeVerifier}.
 		 * </p>
 		 *
 		 * <p>
-		 * This is done for you when you use {@link JwtValidators} to construct a
-		 * validator.
-		 *
-		 * <p>
-		 * That means that this: <code>
+		 * When this is set to {@code false}, this: <code>
 		 *     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).build();
 		 *     jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer);
 		 * </code>
@@ -600,21 +596,17 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		}
 
 		/**
-		 * Whether to use Nimbus's typ header verification. This is {@code true} by
-		 * default, however it may change to {@code false} in a future major release.
+		 * Whether to use Nimbus's {@code typ} header verification. This is {@code false}
+		 * by default.
 		 *
 		 * <p>
-		 * By turning off this feature, {@link NimbusJwtDecoder} expects applications to
-		 * check the {@code typ} header themselves in order to determine what kind of
-		 * validation is needed
+		 * By turning on this feature, {@link NimbusJwtDecoder} will delegate checking the
+		 * {@code typ} header to Nimbus by using Nimbus's default
+		 * {@link JOSEObjectTypeVerifier}.
 		 * </p>
 		 *
 		 * <p>
-		 * This is done for you when you use {@link JwtValidators} to construct a
-		 * validator.
-		 *
-		 * <p>
-		 * That means that this: <code>
+		 * When this is set to {@code false}, this: <code>
 		 *     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).build();
 		 *     jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer);
 		 * </code>
@@ -729,21 +721,17 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		}
 
 		/**
-		 * Whether to use Nimbus's typ header verification. This is {@code true} by
-		 * default, however it may change to {@code false} in a future major release.
+		 * Whether to use Nimbus's {@code typ} header verification. This is {@code false}
+		 * by default.
 		 *
 		 * <p>
-		 * By turning off this feature, {@link NimbusJwtDecoder} expects applications to
-		 * check the {@code typ} header themselves in order to determine what kind of
-		 * validation is needed
+		 * By turning on this feature, {@link NimbusJwtDecoder} will delegate checking the
+		 * {@code typ} header to Nimbus by using Nimbus's default
+		 * {@link JOSEObjectTypeVerifier}.
 		 * </p>
 		 *
 		 * <p>
-		 * This is done for you when you use {@link JwtValidators} to construct a
-		 * validator.
-		 *
-		 * <p>
-		 * That means that this: <code>
+		 * When this is set to {@code false}, this: <code>
 		 *     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).build();
 		 *     jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer);
 		 * </code>
