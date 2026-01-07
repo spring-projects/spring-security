@@ -107,7 +107,7 @@ default void verify(Supplier<Authentication> authentication, Object secureObject
 }
 ----
 
-The ``AuthorizationManager``'s `check` method is passed all the relevant information it needs in order to make an authorization decision.
+The ``AuthorizationManager``'s `authorize` method is passed all the relevant information it needs in order to make an authorization decision.
 In particular, passing the secure `Object` enables those arguments contained in the actual secure object invocation to be inspected.
 For example, let's assume the secure object was a `MethodInvocation`.
 It would be easy to query the `MethodInvocation` for any `Customer` argument, and then implement some sort of security logic in the `AuthorizationManager` to ensure the principal is permitted to operate on that customer.
