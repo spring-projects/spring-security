@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.util.CollectionUtils;
@@ -76,6 +76,7 @@ public interface Saml2AuthenticatedPrincipal extends AuthenticatedPrincipal {
 	 * @return the {@link RelyingPartyRegistration} identifier
 	 * @since 5.6
 	 */
+	@Nullable	
 	default String getRelyingPartyRegistrationId() {
 		return null;
 	}

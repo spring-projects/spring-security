@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.function.Consumer;
 
-import net.shibboleth.shared.resolver.CriteriaSet;
+import org.jspecify.annotations.Nullable;
 import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.saml.criterion.EntityRoleCriterion;
@@ -41,16 +41,16 @@ import org.opensaml.security.credential.impl.CollectionCredentialResolver;
 import org.opensaml.xmlsec.config.impl.DefaultSecurityConfigurationBootstrap;
 import org.opensaml.xmlsec.signature.support.SignatureTrustEngine;
 import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngine;
-
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.provider.service.registration.BaseOpenSamlAssertingPartyMetadataRepository.MetadataResolverAdapter;
 import org.springframework.util.Assert;
+
+import net.shibboleth.shared.resolver.CriteriaSet;
 
 /**
  * An implementation of {@link AssertingPartyMetadataRepository} that uses a
