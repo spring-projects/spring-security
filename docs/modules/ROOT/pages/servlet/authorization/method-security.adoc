@@ -118,7 +118,7 @@ A given invocation to `MyCustomerService#readCustomer` may look something like t
 image::{figures}/methodsecurity.png[]
 
 1. Spring AOP invokes its proxy method for `readCustomer`. Among the proxy's other advisors, it invokes an javadoc:org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor[] that matches <<annotation-method-pointcuts,the `@PreAuthorize` pointcut>>
-2. The interceptor invokes javadoc:org.springframework.security.authorization.method.PreAuthorizeAuthorizationManager[`PreAuthorizeAuthorizationManager#check`]
+2. The interceptor invokes javadoc:org.springframework.security.authorization.method.PreAuthorizeAuthorizationManager[`PreAuthorizeAuthorizationManager#authorize`]
 3. The authorization manager uses a `MethodSecurityExpressionHandler` to parse the annotation's <<authorization-expressions,SpEL expression>> and constructs a corresponding `EvaluationContext` from a `MethodSecurityExpressionRoot` containing xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[a `Supplier<Authentication>`] and `MethodInvocation`.
 4. The interceptor uses this context to evaluate the expression; specifically, it reads xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[the `Authentication`] from the `Supplier` and checks whether it has `permission:read` in its collection of xref:servlet/authorization/architecture.adoc#authz-authorities[authorities]
 5. If the evaluation passes, then Spring AOP proceeds to invoke the method.
