@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.security.Principal;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
@@ -245,32 +246,11 @@ import org.springframework.security.web.savedrequest.SimpleSavedRequest;
 import org.springframework.security.web.server.firewall.ServerExchangeRejectedException;
 import org.springframework.security.web.session.HttpSessionCreatedEvent;
 import org.springframework.security.web.session.HttpSessionIdChangedEvent;
-import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientInputs;
-import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientOutputs;
-import org.springframework.security.web.webauthn.api.AuthenticatorAssertionResponse;
-import org.springframework.security.web.webauthn.api.AuthenticatorAttachment;
-import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
-import org.springframework.security.web.webauthn.api.Bytes;
-import org.springframework.security.web.webauthn.api.CredProtectAuthenticationExtensionsClientInput;
-import org.springframework.security.web.webauthn.api.CredentialPropertiesOutput;
-import org.springframework.security.web.webauthn.api.ImmutableAuthenticationExtensionsClientInput;
-import org.springframework.security.web.webauthn.api.ImmutableAuthenticationExtensionsClientInputs;
-import org.springframework.security.web.webauthn.api.ImmutableAuthenticationExtensionsClientOutputs;
-import org.springframework.security.web.webauthn.api.ImmutablePublicKeyCredentialUserEntity;
-import org.springframework.security.web.webauthn.api.PublicKeyCredential;
-import org.springframework.security.web.webauthn.api.PublicKeyCredentialDescriptor;
-import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestOptions;
-import org.springframework.security.web.webauthn.api.PublicKeyCredentialType;
-import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
-import org.springframework.security.web.webauthn.api.TestAuthenticationAssertionResponses;
-import org.springframework.security.web.webauthn.api.TestBytes;
-import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialRequestOptions;
-import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntities;
-import org.springframework.security.web.webauthn.api.TestPublicKeyCredentials;
-import org.springframework.security.web.webauthn.api.UserVerificationRequirement;
+import org.springframework.security.web.webauthn.api.*;
 import org.springframework.security.web.webauthn.authentication.WebAuthnAuthentication;
 import org.springframework.security.web.webauthn.authentication.WebAuthnAuthenticationRequestToken;
 import org.springframework.security.web.webauthn.management.RelyingPartyAuthenticationRequest;
+import org.springframework.security.web.webauthn.management.TestPublicKeyCredentialRpEntities;
 import org.springframework.util.ReflectionUtils;
 
 final class SerializationSamples {
@@ -878,6 +858,37 @@ final class SerializationSamples {
 
 		generatorByClassName.put(CredentialPropertiesOutput.ExtensionOutput.class,
 				(r) -> new CredentialPropertiesOutput(true).getOutput());
+
+		AttestationConveyancePreference attestationConveyancePreference = AttestationConveyancePreference.DIRECT;
+		ResidentKeyRequirement residentKeyRequirement = ResidentKeyRequirement.REQUIRED;
+		AuthenticatorSelectionCriteria authenticatorSelectionCriteria = AuthenticatorSelectionCriteria.builder()
+				.authenticatorAttachment(AuthenticatorAttachment.PLATFORM)
+				.residentKey(residentKeyRequirement)
+				.userVerification(UserVerificationRequirement.REQUIRED)
+				.build();
+		PublicKeyCredentialParameters publicKeyCredentialParameters = PublicKeyCredentialParameters.RS256;
+		PublicKeyCredentialRpEntity publicKeyCredentialRpEntity = TestPublicKeyCredentialRpEntities.createRpEntity().build();
+
+		generatorByClassName.put(AttestationConveyancePreference.class, (r) -> attestationConveyancePreference);
+		generatorByClassName.put(ResidentKeyRequirement.class, (r) -> residentKeyRequirement);
+		generatorByClassName.put(AuthenticatorSelectionCriteria.class, (r) -> authenticatorSelectionCriteria);
+		generatorByClassName.put(COSEAlgorithmIdentifier.class, (r -> COSEAlgorithmIdentifier.RS256));
+		generatorByClassName.put(PublicKeyCredentialParameters.class, (r) -> publicKeyCredentialParameters);
+		generatorByClassName.put(PublicKeyCredentialRpEntity.class, (r) -> publicKeyCredentialRpEntity);
+		generatorByClassName.put(PublicKeyCredentialCreationOptions.class, (o) -> TestPublicKeyCredentialCreationOptions.createPublicKeyCredentialCreationOptions()
+				.extensions(inputs)
+				.attestation(attestationConveyancePreference)
+				.authenticatorSelection(authenticatorSelectionCriteria)
+				.challenge(TestBytes.get())
+				.excludeCredentials(List.of(descriptor))
+				.rp(publicKeyCredentialRpEntity)
+				.pubKeyCredParams(publicKeyCredentialParameters)
+				.timeout(Duration.ofMinutes(5))
+				.user(TestPublicKeyCredentialUserEntities.userEntity()
+						.id(TestBytes.get())
+						.build())
+				.build()
+		);
 
 		// One-Time Token
 		DefaultOneTimeToken oneTimeToken = new DefaultOneTimeToken(UUID.randomUUID().toString(), "user",

@@ -318,7 +318,8 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 
 	private com.webauthn4j.data.PublicKeyCredentialParameters convertParamToWebauthn4j(
 			PublicKeyCredentialParameters parameter) {
-		if (parameter.getType() != PublicKeyCredentialType.PUBLIC_KEY) {
+		PublicKeyCredentialType credentialType = PublicKeyCredentialType.valueOf(parameter.getType().getValue());
+		if (credentialType != PublicKeyCredentialType.PUBLIC_KEY) {
 			throw new IllegalArgumentException(
 					"Cannot convert unknown credential type " + parameter.getType() + " to webauthn4j");
 		}
