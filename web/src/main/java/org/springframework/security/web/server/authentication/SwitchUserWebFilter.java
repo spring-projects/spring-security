@@ -80,7 +80,7 @@ import org.springframework.web.server.WebFilterChain;
  * To configure the Switch User Processing Filter, create a bean definition for the Switch
  * User processing filter and add to the filterChainProxy. Note that the filter must come
  * <b>after</b> the
- * {@link org.springframework.security.config.web.server.SecurityWebFiltersOrder#AUTHORIZATION}
+ * <code>org.springframework.security.config.web.server.SecurityWebFiltersOrder#AUTHORIZATION</code>
  * in the chain, in order to apply the correct constraints to the <tt>switchUserUrl</tt>.
  * Example: <pre>
  * SwitchUserWebFilter filter = new SwitchUserWebFilter(userDetailsService, loginSuccessHandler, failureHandler);
