@@ -101,7 +101,7 @@ org-jfrog-buildinfo-build-info-extractor-gradle = "org.jfrog.buildinfo:build-inf
 org-sonarsource-scanner-gradle-sonarqube-gradle-plugin = "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8.0.1969"
 org-instancio-instancio-junit = "org.instancio:instancio-junit:3.7.1"
 
-spring-nullability = 'io.spring.nullability:io.spring.nullability.gradle.plugin:0.0.6'
+spring-nullability = 'io.spring.nullability:io.spring.nullability.gradle.plugin:0.0.9'
 webauthn4j-core = 'com.webauthn4j:webauthn4j-core:0.29.7.RELEASE'
 com-password4j-password4j = { module = "com.password4j:password4j", version.ref = "com-password4j" }
 
