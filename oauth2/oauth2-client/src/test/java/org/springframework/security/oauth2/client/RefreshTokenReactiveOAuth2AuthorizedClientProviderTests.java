@@ -49,6 +49,7 @@ import static org.mockito.Mockito.verify;
  * Tests for {@link RefreshTokenReactiveOAuth2AuthorizedClientProvider}.
  *
  * @author Joe Grandja
+ * @author Evgeniy Cheban
  */
 public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 
@@ -82,6 +83,15 @@ public class RefreshTokenReactiveOAuth2AuthorizedClientProviderTests {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> this.authorizedClientProvider.setAccessTokenResponseClient(null))
 			.withMessage("accessTokenResponseClient cannot be null");
+	}
+
+	@Test
+	public void setRefreshTokenSuccessHandlerWhenHandlerIsNullThenThrowIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientProvider.setRefreshTokenSuccessHandler(null))
+				.withMessage("refreshTokenSuccessHandler cannot be null");
+		// @formatter:on
 	}
 
 	@Test
