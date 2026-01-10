@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -208,8 +209,8 @@ class SpringSecurityCoreVersionSerializableTests {
 				.map(Field::getName)
 				.anyMatch((n) -> n.equals("serialVersionUID"));
 			SuppressWarnings suppressWarnings = clazz.getAnnotation(SuppressWarnings.class);
-			boolean hasSerialIgnore = suppressWarnings == null
-					|| Arrays.asList(suppressWarnings.value()).contains("Serial");
+			boolean hasSerialIgnore = Objects.nonNull(suppressWarnings)
+					&& Arrays.asList(suppressWarnings.value()).contains("serial");
 			if (!hasSerialVersion && !hasSerialIgnore) {
 				classes.add(clazz);
 				continue;
