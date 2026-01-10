@@ -1,0 +1,6 @@
+import org.gradle.api.tasks.javadoc.Javadoc
+
+project.tasks.withType(Javadoc).configureEach {
+	options.addBooleanOption('Xdoclint:all', true)
+	options.addBooleanOption('Werror', true)
+}
