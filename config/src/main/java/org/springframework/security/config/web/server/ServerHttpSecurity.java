@@ -2845,21 +2845,21 @@ public class ServerHttpSecurity {
 			 * in the response. Otherwise, defaults to the {@code Content-Security-Policy}
 			 * header.
 			 * @param reportOnly whether to only report policy violations
-			 * @return the {@link HeaderSpec} to continue configuring
+			 * @return the {@link ContentSecurityPolicySpec} to continue configuring
 			 */
-			public HeaderSpec reportOnly(boolean reportOnly) {
+			public ContentSecurityPolicySpec reportOnly(boolean reportOnly) {
 				HeaderSpec.this.contentSecurityPolicy.setReportOnly(reportOnly);
-				return HeaderSpec.this;
+				return this;
 			}
 
 			/**
 			 * Sets the security policy directive(s) to be used in the response header.
 			 * @param policyDirectives the security policy directive(s)
-			 * @return the {@link HeaderSpec} to continue configuring
+			 * @return the {@link ContentSecurityPolicySpec} to continue configuring
 			 */
-			public HeaderSpec policyDirectives(String policyDirectives) {
+			public ContentSecurityPolicySpec policyDirectives(String policyDirectives) {
 				HeaderSpec.this.contentSecurityPolicy.setPolicyDirectives(policyDirectives);
-				return HeaderSpec.this;
+				return this;
 			}
 
 			private ContentSecurityPolicySpec(String policyDirectives) {
