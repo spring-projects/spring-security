@@ -75,7 +75,7 @@ public class DefaultSecurityParameterNameDiscoverer extends PrioritizedParameter
 			annotationClassesToUse.add(DATA_PARAM_CLASSNAME);
 		}
 		addDiscoverer(new AnnotationParameterNameDiscoverer(annotationClassesToUse));
-		addDiscoverer(new DefaultParameterNameDiscoverer());
+		addDiscoverer(DefaultParameterNameDiscoverer.getSharedInstance());
 	}
 
 }

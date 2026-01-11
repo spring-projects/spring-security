@@ -40,10 +40,8 @@ import org.springframework.cglib.proxy.Callback;
 import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.cglib.proxy.Factory;
 import org.springframework.cglib.proxy.MethodProxy;
-import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.MethodIntrospector;
 import org.springframework.core.MethodParameter;
-import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -131,8 +129,6 @@ public final class ResolvableMethod {
 	private static final Log logger = LogFactory.getLog(ResolvableMethod.class);
 
 	private static final SpringObjenesis objenesis = new SpringObjenesis();
-
-	private static final ParameterNameDiscoverer nameDiscoverer = new DefaultParameterNameDiscoverer();
 
 	// Matches ValueConstants.DEFAULT_NONE (spring-web and spring-messaging)
 	private static final String DEFAULT_VALUE_NONE = "\n\t\t\n\t\t\n\uE000\uE001\uE002\n\t\t\t\t\n";
@@ -634,7 +630,6 @@ public final class ResolvableMethod {
 			List<MethodParameter> matches = new ArrayList<>();
 			for (int i = 0; i < ResolvableMethod.this.method.getParameterCount(); i++) {
 				MethodParameter param = new SynthesizingMethodParameter(ResolvableMethod.this.method, i);
-				param.initParameterNameDiscovery(nameDiscoverer);
 				if (this.filters.stream().allMatch((p) -> p.test(param))) {
 					matches.add(param);
 				}
