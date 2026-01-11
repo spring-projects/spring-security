@@ -40,7 +40,7 @@ public class SchemaZipPlugin implements Plugin<Project> {
 						throw new IllegalStateException("Could not find schema file for resource name " + schemaResourceName + " in src/main/resources")
 					}
 					schemaZip.into (shortName) {
-						duplicatesStrategy 'exclude'
+						duplicatesStrategy = 'exclude'
 						from xsdFile.path
 					}
 					versionlessXsd.getInputFiles().from(xsdFile.path)
