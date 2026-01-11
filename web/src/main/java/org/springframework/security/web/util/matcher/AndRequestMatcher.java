@@ -35,13 +35,13 @@ import org.springframework.util.Assert;
  */
 public final class AndRequestMatcher implements RequestMatcher {
 
-	private final List<RequestMatcher> requestMatchers;
+	private final List<? extends RequestMatcher> requestMatchers;
 
 	/**
 	 * Creates a new instance
 	 * @param requestMatchers the {@link RequestMatcher} instances to try
 	 */
-	public AndRequestMatcher(List<RequestMatcher> requestMatchers) {
+	public AndRequestMatcher(List<? extends RequestMatcher> requestMatchers) {
 		Assert.notEmpty(requestMatchers, "requestMatchers must contain a value");
 		Assert.noNullElements(requestMatchers, "requestMatchers cannot contain null values");
 		this.requestMatchers = requestMatchers;
