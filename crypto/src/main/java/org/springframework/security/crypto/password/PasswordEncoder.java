@@ -17,6 +17,7 @@
 package org.springframework.security.crypto.password;
 
 import org.jspecify.annotations.Nullable;
+
 import org.springframework.lang.Contract;
 
 /**
