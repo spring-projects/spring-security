@@ -63,38 +63,6 @@ updates:
           - version-update:semver-minor
 
   - package-ecosystem: gradle
-    target-branch: 7.0.x
-    directory: /
-    schedule:
-      interval: daily
-      time: '03:00'
-      timezone: Etc/UTC
-    labels:
-      - 'type: dependency-upgrade'
-    registries:
-      - spring-milestones
-      - shibboleth
-    ignore:
-      - dependency-name: com.nimbusds:nimbus-jose-jwt
-      - dependency-name: org.python:jython
-      - dependency-name: org.apache.directory.server:*
-      - dependency-name: org.apache.directory.shared:*
-      - dependency-name: org.junit:junit-bom
-        update-types:
-          - version-update:semver-major
-      - dependency-name: org.mockito:mockito-bom
-        update-types:
-          - version-update:semver-major
-      - dependency-name: com.gradle.enterprise
-        update-types:
-          - version-update:semver-major
-          - version-update:semver-minor
-      - dependency-name: '*'
-        update-types:
-          - version-update:semver-major
-          - version-update:semver-minor
-
-  - package-ecosystem: gradle
     target-branch: main
     directory: /
     schedule:
@@ -124,6 +92,7 @@ updates:
       - dependency-name: '*'
         update-types:
           - version-update:semver-major
+          - version-update:semver-minor
 
   - package-ecosystem: npm
     target-branch: docs-build
@@ -135,33 +104,6 @@ updates:
       - 'in: build'
 
   - package-ecosystem: npm
-    target-branch: main
-    directory: /docs
-    schedule:
-      interval: weekly
-    labels:
-      - 'type: task'
-      - 'in: build'
-
-  - package-ecosystem: 7.0.x
-    target-branch: main
-    directory: /docs
-    schedule:
-      interval: weekly
-    labels:
-      - 'type: task'
-      - 'in: build'
-
-  - package-ecosystem: 6.5.x
-    target-branch: main
-    directory: /docs
-    schedule:
-      interval: weekly
-    labels:
-      - 'type: task'
-      - 'in: build'
-
-  - package-ecosystem: 6.4.x
     target-branch: main
     directory: /docs
     schedule:

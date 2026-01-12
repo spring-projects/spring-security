@@ -14,8 +14,6 @@
 # limitations under the License.
 #
 
-http\://www.springframework.org/schema/security/spring-security.xsd=org/springframework/security/config/spring-security-7.1.xsd
-http\://www.springframework.org/schema/security/spring-security-7.0.xsd=org/springframework/security/config/spring-security-7.1.xsd
 http\://www.springframework.org/schema/security/spring-security.xsd=org/springframework/security/config/spring-security-7.0.xsd
 http\://www.springframework.org/schema/security/spring-security-7.0.xsd=org/springframework/security/config/spring-security-7.0.xsd
 http\://www.springframework.org/schema/security/spring-security-6.5.xsd=org/springframework/security/config/spring-security-6.5.xsd
@@ -44,8 +42,7 @@ http\://www.springframework.org/schema/security/spring-security-2.0.xsd=org/spri
 http\://www.springframework.org/schema/security/spring-security-2.0.1.xsd=org/springframework/security/config/spring-security-2.0.1.xsd
 http\://www.springframework.org/schema/security/spring-security-2.0.2.xsd=org/springframework/security/config/spring-security-2.0.2.xsd
 http\://www.springframework.org/schema/security/spring-security-2.0.4.xsd=org/springframework/security/config/spring-security-2.0.4.xsd
-https\://www.springframework.org/schema/security/spring-security.xsd=org/springframework/security/config/spring-security-7.1.xsd
-https\://www.springframework.org/schema/security/spring-security-7.1.xsd=org/springframework/security/config/spring-security-7.1.xsd
+https\://www.springframework.org/schema/security/spring-security.xsd=org/springframework/security/config/spring-security-7.0.xsd
 https\://www.springframework.org/schema/security/spring-security-7.0.xsd=org/springframework/security/config/spring-security-7.0.xsd
 https\://www.springframework.org/schema/security/spring-security-6.5.xsd=org/springframework/security/config/spring-security-6.5.xsd
 https\://www.springframework.org/schema/security/spring-security-6.4.xsd=org/springframework/security/config/spring-security-6.4.xsd

@@ -114,7 +114,7 @@ public class SecurityNamespaceHandlerTests {
 					"<user-service id='us'><user name='bob' password='bobspassword' authorities='ROLE_A' /></user-service>",
 					"3.0.3", null))
 			.withMessageContaining(
-					"You cannot use any XSD older than spring-security-7.1.xsd. Either change to spring-security.xsd or spring-security-7.1.xsd");
+					"You cannot use any XSD older than spring-security-7.0.xsd. Either change to spring-security.xsd or spring-security-7.0.xsd");
 	}
 
 	// SEC-1868

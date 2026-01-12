@@ -16,7 +16,7 @@ jobs:
     name: Update on Supported Branches
     strategy:
       matrix:
-        branch: [ '6.4.x', '6.5.x', '7.0.x' 'main' ]
+        branch: [ '6.4.x', '6.5.x', 'main' ]
     steps:
       - uses: spring-io/spring-doc-actions/update-antora-spring-ui@e28269199d1d27975cf7f65e16d6095c555b3cd0
         name: Update

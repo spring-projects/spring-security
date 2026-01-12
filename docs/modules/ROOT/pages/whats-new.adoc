@@ -1,4 +1,88 @@
 [[new]]
-= What's New in Spring Security 7.1
+= What's New in Spring Security 7.0
 
-This is a placeholder for updates to Spring Security 7.1
+Spring Security 7.0 provides a number of new features.
+Below are the highlights of the release, or you can view https://github.com/spring-projects/spring-security/releases[the release notes] for a detailed listing of each feature and bug fix.
+
+== Removals
+
+Being a major release, there are a number of deprecated APIs that are removed in Spring Security 7.
+Each section that follows will indicate the more notable removals as well as the new features in that module
+
+== Modules
+
+* The https://github.com/spring-projects/spring-security-kerberos[Spring Security Kerberos Extension] is now part of Spring Security. See the xref:servlet/authentication/kerberos/index.adoc[Kerberos] section of the reference for details.
+* https://github.com/spring-projects/spring-authorization-server[Spring Authorization Server] is now part of Spring Security. See the xref:servlet/oauth2/authorization-server/index.adoc[OAuth 2.0 Authorization Server] section of the reference for details.
+
+== Core
+
+* Added Support for xref:servlet/authentication/mfa.adoc[Multi-Factor Authentication]
+* Removed `AuthorizationManager#check` in favor of `AuthorizationManager#authorize`
+* Added javadoc:org.springframework.security.authorization.AllAuthoritiesAuthorizationManager[] and javadoc:org.springframework.security.authorization.AllAuthoritiesReactiveAuthorizationManager[] along with corresponding methods for xref:servlet/authorization/authorize-http-requests.adoc#authorize-requests[Authorizing `HttpServletRequests`] and xref:servlet/authorization/method-security.adoc#using-authorization-expression-fields-and-methods[method security expressions].
+* Added xref:servlet/authorization/architecture.adoc#authz-authorization-manager-factory[`AuthorizationManagerFactory`] for creating `AuthorizationManager` instances in xref:servlet/authorization/authorize-http-requests.adoc#customizing-authorization-managers[request-based] and xref:servlet/authorization/method-security.adoc#customizing-authorization-managers[method-based] authorization components
+* Added javadoc:org.springframework.security.core.Authentication$Builder[`Authentication.Builder`] for mutating and merging `Authentication` instances
+* Moved Access API (`AccessDecisionManager`, `AccessDecisionVoter`, etc.) to a new module, `spring-security-access`
+
+== Config
+
+* Support modular configuration in xref::servlet/configuration/java.adoc#modular-httpsecurity-configuration[Servlets] and xref::reactive/configuration/webflux.adoc#modular-serverhttpsecurity-configuration[WebFlux]
+* Removed `and()` from the `HttpSecurity` DSL in favor of using the lambda methods
+* Removed `authorizeRequests` in favor of `authorizeHttpRequests`
+* Simplified expression migration for `authorizeRequests`
+* Added support for SPA-based CSRF configuration
+* Added support for javadoc:org.springframework.security.web.access.DelegatingMissingAuthorityAccessDeniedHandler[binding missing authorities to authentication mechanisms].
+
+Java::
++
+[source,java,role="primary"]
+----
+http.csrf((csrf) -> csrf.spa());
+----
+
+== Crypto
+
+* Added Password4j-based password encoders providing alternative implementations for popular hashing algorithms:
+** `Argon2Password4jPasswordEncoder` - xref:features/authentication/password-storage.adoc#password4j-argon2[Argon2]
+** `BcryptPassword4jPasswordEncoder` - xref:features/authentication/password-storage.adoc#password4j-bcrypt[BCrypt]
+** `ScryptPassword4jPasswordEncoder` - xref:features/authentication/password-storage.adoc#password4j-scrypt[SCrypt]
+** `Pbkdf2Password4jPasswordEncoder` - xref:features/authentication/password-storage.adoc#password4j-pbkdf2[PBKDF2]
+** `BalloonHashingPassword4jPasswordEncoder` - xref:features/authentication/password-storage.adoc#password4j-balloon[Balloon Hashing]
+
+== Data
+
+* Added support to Authorized objects for Spring Data types
+
+== LDAP
+
+* Removed `ApacheDsContainer` and related Apache DS support in favor of UnboundID
+
+== OAuth 2.0
+
+* Removed support for password grant
+* Added OAuth2 Support for xref:features/integrations/rest/http-service-client.adoc[HTTP Service Clients]
+* Added support for custom `JwkSource` in `NimbusJwtDecoder`, allowing usage of Nimbus's `JwkSourceBuilder` API
+* Added builder for `NimbusJwtEncoder`, supports specifying an EC or RSA key pair or a secret key
+* Added support for `@ClientRegistrationId` at the xref:features/integrations/rest/http-service-client.adoc#type[type level], eliminating the need for method level repetition
+* Added support for https://github.com/spring-projects/spring-security/issues/17964[OAuth 2.0 Dynamic Registration Protocol]
+* Enabled https://github.com/spring-projects/spring-security/issues/18020[PKCE by default] in OAuth 2.0 Authorization Server
+
+== SAML 2.0
+
+* Removed API methods based on `AssertingPartyDetails` class in favor of `AssertingPartyMetadata` interface
+* Removed GET request support from `Saml2AuthenticationTokenConverter`
+* Added JDBC-based `AssertingPartyMetadataRepository`
+* Made so that SLO still returns `<saml2:LogoutResponse>` even when validation fails
+* Removed Open SAML 4 support; applications should migrate to Open SAML 5
+
+== Test
+
+* https://github.com/spring-projects/spring-security/issues/17974[Add SecurityMockMvcResultMatchers.withAuthorities(String...)]
+
+== Web
+
+* Removed `MvcRequestMatcher` and `AntPathRequestMatcher` in favor of `PathPatternRequestMatcher`
+* Added javadoc:org.springframework.security.web.authentication.preauth.x509.SubjectX500PrincipalExtractor[]
+* Added support for propagating exceptions in Authorized proxies through Spring MVC controllers
+* Added support to Authorized objects for Spring MVC types
+* Added support to Default Login Page to show factors based on `factor.type` and `factor.reason` parameters
+* Changed LoginUrlAuthenticationEntryPoint to favor relative redirects by default
