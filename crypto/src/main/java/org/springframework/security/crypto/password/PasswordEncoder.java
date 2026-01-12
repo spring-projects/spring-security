@@ -18,7 +18,7 @@ package org.springframework.security.crypto.password;
 
 import org.jspecify.annotations.Nullable;
 
-/**`
+/**
  * Service interface for encoding passwords.
  *
  * The preferred implementation is {@code BCryptPasswordEncoder}.

@@ -81,8 +81,8 @@ class ArtifactoryPlugin implements Plugin<Project> {
 				repository {
 					repoKey = isSnapshot ? snapshotRepository : isMilestone ? milestoneRepository : releaseRepository
 					if(project.hasProperty('artifactoryUsername')) {
-						username = artifactoryUsername
-						password = artifactoryPassword
+						username = project.artifactoryUsername
+						password = project.artifactoryPassword
 					}
 				}
 			}
