@@ -17,7 +17,6 @@
 package org.springframework.security.oauth2.core.web.reactive.function;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,15 +26,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
-import org.springframework.core.codec.ByteBufferDecoder;
-import org.springframework.core.codec.StringDecoder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ReactiveHttpInputMessage;
-import org.springframework.http.codec.DecoderHttpMessageReader;
-import org.springframework.http.codec.FormHttpMessageReader;
+import org.springframework.http.codec.ClientCodecConfigurer;
 import org.springframework.http.codec.HttpMessageReader;
-import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.mock.http.client.reactive.MockClientHttpResponse;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -58,11 +53,7 @@ public class OAuth2BodyExtractorsTests {
 
 	@BeforeEach
 	public void createContext() {
-		final List<HttpMessageReader<?>> messageReaders = new ArrayList<>();
-		messageReaders.add(new DecoderHttpMessageReader<>(new ByteBufferDecoder()));
-		messageReaders.add(new DecoderHttpMessageReader<>(StringDecoder.allMimeTypes()));
-		messageReaders.add(new DecoderHttpMessageReader<>(new Jackson2JsonDecoder()));
-		messageReaders.add(new FormHttpMessageReader());
+		List<HttpMessageReader<?>> messageReaders = ClientCodecConfigurer.create().getReaders();
 		this.hints = new HashMap<>();
 		this.context = new BodyExtractor.Context() {
 			@Override
