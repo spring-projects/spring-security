@@ -52,6 +52,10 @@ gradlePlugin {
 			id = "org.springframework.security.check-expected-branch-version"
 			implementationClass = "org.springframework.security.CheckExpectedBranchVersionPlugin"
 		}
+		compileWarningsError {
+			id = "compile-warnings-error"
+			implementationClass = "CompileWarningsErrorPlugin"
+ 		}
 	}
 }
 
