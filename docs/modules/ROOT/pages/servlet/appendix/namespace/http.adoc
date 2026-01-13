@@ -248,7 +248,7 @@ Optional attribute that specifies the bean name of a `CorsConfigurationSource` t
 
 [[nsa-headers]]
 == <headers>
-This element allows for configuring additional (security) headers to be send with the response.
+This element allows for configuring additional (security) headers to be sent with the response.
 It enables easy configuration for several headers and also allows for setting custom headers through the <<nsa-header,header>> element.
 Additional information, can be found in the xref:features/exploits/headers.adoc#headers[Security Headers] section of the reference.
 

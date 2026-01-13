@@ -675,7 +675,7 @@ The ID Token is represented as a https://tools.ietf.org/html/rfc7519[JSON Web To
 The `ReactiveOidcIdTokenDecoderFactory` provides a `ReactiveJwtDecoder` used for `OidcIdToken` signature verification. The default algorithm is `RS256` but may be different when assigned during client registration.
 For these cases, a resolver may be configured to return the expected JWS algorithm assigned for a specific client.
 
-The JWS algorithm resolver is a `Function` that accepts a `ClientRegistration` and returns the expected `JwsAlgorithm` for the client, eg. `SignatureAlgorithm.RS256` or `MacAlgorithm.HS256`
+The JWS algorithm resolver is a `Function` that accepts a `ClientRegistration` and returns the expected `JwsAlgorithm` for the client, e.g. `SignatureAlgorithm.RS256` or `MacAlgorithm.HS256`
 
 The following code shows how to configure the `OidcIdTokenDecoderFactory` `@Bean` to default to `MacAlgorithm.HS256` for all `ClientRegistration`:
 
