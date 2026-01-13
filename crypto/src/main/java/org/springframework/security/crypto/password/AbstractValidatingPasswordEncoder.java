@@ -18,9 +18,12 @@ package org.springframework.security.crypto.password;
 
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.lang.Contract;
+
 public abstract class AbstractValidatingPasswordEncoder implements PasswordEncoder {
 
 	@Override
+	@Contract("!null -> !null; null -> null")
 	public final @Nullable String encode(@Nullable CharSequence rawPassword) {
 		if (rawPassword == null) {
 			return null;
