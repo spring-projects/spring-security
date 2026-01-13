@@ -20,14 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.jspecify.annotations.Nullable;
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
-import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebFilter;
-import org.springframework.web.server.WebFilterChain;
-import org.springframework.web.server.WebHandler;
-
 import io.micrometer.common.KeyValue;
 import io.micrometer.common.KeyValues;
 import io.micrometer.observation.Observation;
@@ -35,6 +27,14 @@ import io.micrometer.observation.ObservationConvention;
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.observation.contextpropagation.ObservationThreadLocalAccessor;
 import reactor.core.publisher.Mono;
+
+import org.jspecify.annotations.Nullable;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
+import org.springframework.web.server.WebHandler;
 
 /**
  * A
