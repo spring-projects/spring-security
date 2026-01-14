@@ -24,14 +24,18 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * @author Joe Grandja
  * @author Ankur Pathak
+ * @author Ziqin Wang
  */
 public class ContentSecurityPolicyHeaderWriterTests {
 
 	private static final String DEFAULT_POLICY_DIRECTIVES = "default-src 'self'";
+
+	private static final String DEFAULT_NONCE_ATTRIBUTE_NAME = "_csp_nonce";
 
 	private MockHttpServletRequest request;
 
@@ -124,6 +128,51 @@ public class ContentSecurityPolicyHeaderWriterTests {
 		this.writer.setReportOnly(true);
 		this.writer.writeHeaders(this.request, this.response);
 		assertThat(this.response.getHeader(CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER)).isSameAs(value);
+	}
+
+	/** @since 7.1 */
+	@Test
+	public void whenPolicyDirectivesContainNoncePlaceholderThenWriterIsNonceBased() {
+		this.writer.setPolicyDirectives("script-src 'self' 'nonce-{nonce}'");
+		assertThat(this.writer.isNonceBased()).isTrue();
+		this.writer.setPolicyDirectives("script-src 'nonce-{nonce}'; style-src 'nonce-{nonce}'");
+		assertThat(this.writer.isNonceBased()).isTrue();
+		this.writer.setPolicyDirectives(DEFAULT_POLICY_DIRECTIVES);
+		assertThat(this.writer.isNonceBased()).isFalse();
+		this.writer.setPolicyDirectives("script-src 'self' 'sha256-A/nonce/without/braces/is/not/a/placeholder='");
+		assertThat(this.writer.isNonceBased()).isFalse();
+	}
+
+	/** @since 7.1 */
+	@Test
+	public void writeNonceBasedCspWhenNonceAttributeNameUnsetThenUseDefault() {
+		this.writer.setPolicyDirectives("script-src 'nonce-{nonce}'; style-src 'nonce-{nonce}'");
+		this.request.setAttribute(DEFAULT_NONCE_ATTRIBUTE_NAME, "Test+Nonce+Value");
+		this.writer.writeHeaders(this.request, this.response);
+		assertThat(this.response.getHeader(CONTENT_SECURITY_POLICY_HEADER))
+			.isEqualTo("script-src 'nonce-Test+Nonce+Value'; style-src 'nonce-Test+Nonce+Value'");
+	}
+
+	/** @since 7.1 */
+	@Test
+	public void writeNonceBasedCspWhenNonceAttributeNameSetThenUseCustomAttribute() {
+		String customAttributeName = "custom-attribute-name";
+		this.writer.setPolicyDirectives("script-src 'nonce-{nonce}'");
+		this.writer.setNonceAttributeName(customAttributeName);
+		this.request.setAttribute(DEFAULT_NONCE_ATTRIBUTE_NAME, "SHOULD+NOT+USE");
+		this.request.setAttribute(customAttributeName, "For/Custom/Nonce/Attribute/Name");
+		this.writer.writeHeaders(this.request, this.response);
+		assertThat(this.response.getHeader(CONTENT_SECURITY_POLICY_HEADER))
+			.isEqualTo("script-src 'nonce-For/Custom/Nonce/Attribute/Name'");
+	}
+
+	/** @since 7.1 */
+	@Test
+	public void writeNonceBasedCspWhenNonceUnsetThenThrows() {
+		this.writer.setPolicyDirectives("script-src 'nonce-{nonce}'");
+		this.writer.setNonceAttributeName(DEFAULT_NONCE_ATTRIBUTE_NAME);
+		assertThatIllegalStateException().isThrownBy(() -> this.writer.writeHeaders(this.request, this.response))
+			.withMessage("Nonce is unset");
 	}
 
 }
