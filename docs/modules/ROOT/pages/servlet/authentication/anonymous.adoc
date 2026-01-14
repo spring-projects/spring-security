@@ -137,7 +137,8 @@ fun method(authentication: Authentication?): String {
 will always return "not anonymous", even for anonymous requests.
 The reason is that Spring MVC resolves the parameter using `HttpServletRequest#getPrincipal`, which is `null` when the request is anonymous.
 
-If you'd like to obtain the `Authentication` in anonymous requests, use `@CurrentSecurityContext` instead:
+If you'd like to obtain the `Authentication` in anonymous requests, use
+xref:servlet/integrations/mvc.adoc#mvc-current-security-context[`@CurrentSecurityContext`] instead:
 
 .Use CurrentSecurityContext for Anonymous requests
 [tabs]
