@@ -40,17 +40,34 @@ And that's it!
 
 When this property and these dependencies are used, Resource Server will automatically configure itself to validate JWT-encoded Bearer Tokens.
 
-It achieves this through a deterministic startup process:
+It achieves this through a deterministic discovery process when the `JwtDecoder` is initialized from the issuer location:
 
 1. Query the Provider Configuration or Authorization Server Metadata endpoint for the `jwks_url` property
 2. Query the `jwks_url` endpoint for supported algorithms
 3. Configure the validation strategy to query `jwks_url` for valid public keys of the algorithms found
 4. Configure the validation strategy to validate each JWTs `iss` claim against `https://idp.example.com`.
 
-A consequence of this process is that the authorization server must be up and receiving requests in order for Resource Server to successfully start up.
+In Spring Security, constructing a decoder via `JwtDecoders.fromIssuerLocation` or `NimbusJwtDecoder.withIssuerLocation(...).build()` performs this discovery immediately.
+However, in Spring Boot 2.6+, the auto-configured decoder is lazy and defers discovery until the first request that contains a JWT.
+This means that, by default, Resource Server startup is not coupled to the authorization server's availability.
 
 [NOTE]
-If the authorization server is down when Resource Server queries it (given appropriate timeouts), then startup will fail.
+====
+If you want the application to fail startup when the authorization server is not available,
+explicitly configure a `JwtDecoder` so that discovery happens at startup:
+
+.Eager Validation Configuration
+[source,java]
+----
+@Bean
+JwtDecoder jwtDecoder() {
+    return JwtDecoders.fromIssuerLocation(issuerUri);
+}
+----
+
+Otherwise, if discovery is deferred (the default in Spring Boot 2.6+),
+the first request bearing a JWT will fail if the authorization server is unavailable.
+====
 
 === Runtime Expectations
 
@@ -66,7 +83,7 @@ So long as this scheme is indicated, Resource Server will attempt to process the
 
 Given a well-formed JWT, Resource Server will:
 
-1. Validate its signature against a public key obtained from the `jwks_url` endpoint during startup and matched against the JWT
+1. Validate its signature against a public key obtained from the `jwks_url` endpoint during startup or on first request, depending on configuration, and matched against the JWT
 2. Validate the JWT's `exp` and `nbf` timestamps and the JWT's `iss` claim, and
 3. Map each scope to an authority with the prefix `SCOPE_`.
 
