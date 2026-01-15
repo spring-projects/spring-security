@@ -36,6 +36,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
@@ -100,7 +101,7 @@ public class DefaultSavedRequest implements SavedRequest {
 	private final @Nullable String matchingRequestParameterName;
 
 	public DefaultSavedRequest(HttpServletRequest request) {
-		this(request, (String) null);
+		this(request, null);
 	}
 
 	public DefaultSavedRequest(HttpServletRequest request, @Nullable String matchingRequestParameterName) {
@@ -193,21 +194,17 @@ public class DefaultSavedRequest implements SavedRequest {
 	 * @since 4.2
 	 */
 	private void addParameters(Map<String, String[]> parameters) {
-		if (!ObjectUtils.isEmpty(parameters)) {
-			for (String paramName : parameters.keySet()) {
-				Object paramValues = parameters.get(paramName);
-				if (paramValues instanceof String[]) {
-					this.addParameter(paramName, (String[]) paramValues);
-				}
-				else {
-					logger.warn("ServletRequest.getParameterMap() returned non-String array");
-				}
+		if (ObjectUtils.isEmpty(parameters)) {
+			return;
+		}
+
+		for (Map.Entry<String, String[]> entry : parameters.entrySet()) {
+			String name = entry.getKey();
+			String[] values = entry.getValue();
+			if (values != null) {
+				this.parameters.put(name, values);
 			}
 		}
-	}
-
-	private void addParameter(String name, String[] values) {
-		this.parameters.put(name, values);
 	}
 
 	public @Nullable String getContextPath() {
@@ -301,16 +298,6 @@ public class DefaultSavedRequest implements SavedRequest {
 		return this.servletPath;
 	}
 
-	private boolean propertyEquals(@Nullable Object arg1, Object arg2) {
-		if ((arg1 == null) && (arg2 == null)) {
-			return true;
-		}
-		if (arg1 == null || arg2 == null) {
-			return false;
-		}
-		return arg1.equals(arg2);
-	}
-
 	@Override
 	public String toString() {
 		return "DefaultSavedRequest [" + getRedirectUrl() + "]";
@@ -321,7 +308,7 @@ public class DefaultSavedRequest implements SavedRequest {
 		if (matchingRequestParameterName == null) {
 			return queryString;
 		}
-		if (queryString == null || queryString.length() == 0) {
+		if (!StringUtils.hasLength(queryString)) {
 			return matchingRequestParameterName;
 		}
 		return UriComponentsBuilder.newInstance()
