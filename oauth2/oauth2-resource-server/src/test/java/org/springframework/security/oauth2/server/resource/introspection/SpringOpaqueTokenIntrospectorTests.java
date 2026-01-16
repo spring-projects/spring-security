@@ -131,8 +131,11 @@ public class SpringOpaqueTokenIntrospectorTests {
 		try (MockWebServer server = new MockWebServer()) {
 			server.setDispatcher(requiresAuth(CLIENT_ID, CLIENT_SECRET, ACTIVE_RESPONSE));
 			String introspectUri = server.url("/introspect").toString();
-			OpaqueTokenIntrospector introspectionClient = new SpringOpaqueTokenIntrospector(introspectUri, CLIENT_ID,
-					CLIENT_SECRET);
+			OpaqueTokenIntrospector introspectionClient = SpringOpaqueTokenIntrospector
+				.withIntrospectionUri(introspectUri)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.build();
 			OAuth2AuthenticatedPrincipal authority = introspectionClient.introspect("token");
 			// @formatter:off
 			assertThat(authority.getAttributes())
@@ -156,8 +159,11 @@ public class SpringOpaqueTokenIntrospectorTests {
 		try (MockWebServer server = new MockWebServer()) {
 			server.setDispatcher(requiresAuth(CLIENT_ID, CLIENT_SECRET, ACTIVE_RESPONSE));
 			String introspectUri = server.url("/introspect").toString();
-			OpaqueTokenIntrospector introspectionClient = new SpringOpaqueTokenIntrospector(introspectUri, CLIENT_ID,
-					"wrong");
+			OpaqueTokenIntrospector introspectionClient = SpringOpaqueTokenIntrospector
+				.withIntrospectionUri(introspectUri)
+				.clientId(CLIENT_ID)
+				.clientSecret("wrong")
+				.build();
 			assertThatExceptionOfType(OAuth2IntrospectionException.class)
 				.isThrownBy(() -> introspectionClient.introspect("token"));
 		}
@@ -263,20 +269,29 @@ public class SpringOpaqueTokenIntrospectorTests {
 
 	@Test
 	public void constructorWhenIntrospectionUriIsNullThenIllegalArgumentException() {
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> new SpringOpaqueTokenIntrospector(null, CLIENT_ID, CLIENT_SECRET));
+		assertThatIllegalArgumentException().isThrownBy(() -> SpringOpaqueTokenIntrospector.withIntrospectionUri(null)
+			.clientId(CLIENT_ID)
+			.clientSecret(CLIENT_SECRET)
+			.build());
+
 	}
 
 	@Test
 	public void constructorWhenClientIdIsNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-			.isThrownBy(() -> new SpringOpaqueTokenIntrospector(INTROSPECTION_URL, null, CLIENT_SECRET));
+			.isThrownBy(() -> SpringOpaqueTokenIntrospector.withIntrospectionUri(INTROSPECTION_URL)
+				.clientId(null)
+				.clientSecret(CLIENT_SECRET)
+				.build());
 	}
 
 	@Test
 	public void constructorWhenClientSecretIsNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-			.isThrownBy(() -> new SpringOpaqueTokenIntrospector(INTROSPECTION_URL, CLIENT_ID, null));
+			.isThrownBy(() -> SpringOpaqueTokenIntrospector.withIntrospectionUri(INTROSPECTION_URL)
+				.clientId(CLIENT_ID)
+				.clientSecret(null)
+				.build());
 	}
 
 	@Test
@@ -337,24 +352,6 @@ public class SpringOpaqueTokenIntrospectorTests {
 		introspectionClient.setAuthenticationConverter(authenticationConverter);
 		introspectionClient.introspect(tokenToIntrospect);
 		verify(authenticationConverter).convert(any());
-	}
-
-	@Test
-	public void introspectWithoutEncodeClientCredentialsThenExceptionIsThrown() throws Exception {
-		try (MockWebServer server = new MockWebServer()) {
-			String response = """
-					{
-						"active": true,
-						"username": "client%&1"
-					}
-					""";
-			server.setDispatcher(requiresAuth("client%25%261", "secret%40%242", response));
-			String introspectUri = server.url("/introspect").toString();
-			OpaqueTokenIntrospector introspectionClient = new SpringOpaqueTokenIntrospector(introspectUri, "client%&1",
-					"secret@$2");
-			assertThatExceptionOfType(OAuth2IntrospectionException.class)
-				.isThrownBy(() -> introspectionClient.introspect("token"));
-		}
 	}
 
 	@Test
