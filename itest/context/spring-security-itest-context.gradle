@@ -1,4 +1,5 @@
 apply plugin: 'io.spring.convention.spring-test'
+apply plugin: 'java-toolchain'
 
 dependencies {
 	implementation platform(project(":spring-security-dependencies"))

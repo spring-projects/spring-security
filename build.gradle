@@ -46,31 +46,6 @@ springRelease {
 	replaceSnapshotVersionInReferenceDocUrl = true
 }
 
-def toolchainVersion() {
-	if (project.hasProperty('testToolchain')) {
-		return project.property('testToolchain').toString().toInteger()
-	}
-	return 17
-}
-
-subprojects {
-	java {
-		toolchain {
-			languageVersion = JavaLanguageVersion.of(toolchainVersion())
-		}
-	}
-	kotlin {
-		jvmToolchain {
-			languageVersion = JavaLanguageVersion.of(17)
-		}
-	}
-	tasks.withType(JavaCompile).configureEach {
-		options.encoding = "UTF-8"
-		options.compilerArgs.add("-parameters")
-		options.release.set(17)
-	}
-}
-
 allprojects {
 	if (!['spring-security-bom', 'spring-security-docs'].contains(project.name)) {
 		apply plugin: 'io.spring.javaformat'

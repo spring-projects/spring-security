@@ -1,0 +1,36 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+def toolchainVersion() {
+	if (project.hasProperty('testToolchain')) {
+		return project.property('testToolchain').toString().toInteger()
+	}
+	return 17
+}
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(toolchainVersion())
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = "UTF-8"
+	options.compilerArgs.add("-parameters")
+	options.release = 17
+}
+
+pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
+	kotlin {
+		jvmToolchain {
+			languageVersion = JavaLanguageVersion.of(toolchainVersion())
+		}
+	}
+
+	tasks.withType(KotlinCompile).configureEach {
+		compilerOptions {
+			javaParameters = true
+			jvmTarget.set(JvmTarget.JVM_17)
+		}
+	}
+}
