@@ -961,7 +961,7 @@ By default, Spring Security will wire the `JwtAuthenticationProvider` with a def
 
 As part of configuring a `JwtAuthenticationConverter`, you can supply a subsidiary converter to go from `Jwt` to a `Collection` of granted authorities.
 
-Let's say that that your authorization server communicates authorities in a custom claim called `authorities`.
+Let's say that your authorization server communicates authorities in a custom claim called `authorities`.
 In that case, you can configure the claim that <<oauth2resourceserver-jwt-architecture-jwtauthenticationconverter,`JwtAuthenticationConverter`>> should inspect, like so:
 
 .Authorities Claim Configuration
