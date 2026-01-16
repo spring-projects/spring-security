@@ -755,7 +755,7 @@ public OpaqueTokenIntrospector introspector(RestTemplateBuilder builder, OAuth2R
             .setReadTimeout(Duration.ofSeconds(60))
             .build();
 
-    return SpringOpaqueTokenIntrospector(introspectionUri, rest);
+    return new SpringOpaqueTokenIntrospector(introspectionUri, rest);
 }
 ----
 
