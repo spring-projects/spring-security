@@ -10,7 +10,7 @@ buildscript {
 		classpath libs.com.netflix.nebula.nebula.project.plugin
 	}
 	repositories {
-		maven { url 'https://plugins.gradle.org/m2/' }
+		maven { url='https://plugins.gradle.org/m2/' }
 	}
 }
 
@@ -35,7 +35,7 @@ ext.milestoneBuild = !(snapshotBuild || releaseBuild)
 
 repositories {
 	mavenCentral()
-	maven { url "https://repo.spring.io/milestone" }
+	maven { url = "https://repo.spring.io/milestone" }
 }
 
 springRelease {
@@ -76,16 +76,14 @@ allprojects {
 		apply plugin: 'io.spring.javaformat'
 		apply plugin: 'checkstyle'
 
-		pluginManager.withPlugin("io.spring.convention.checkstyle", { plugin ->
-			configure(plugin) {
-				dependencies {
-					checkstyle libs.io.spring.javaformat.spring.javaformat.checkstyle
-				}
-				checkstyle {
-					toolVersion = '8.34'
-				}
+		pluginManager.withPlugin("io.spring.convention.checkstyle") {
+			dependencies {
+				checkstyle libs.io.spring.javaformat.spring.javaformat.checkstyle
 			}
-		})
+			checkstyle {
+				toolVersion = '8.34'
+			}
+		}
 
 		if (project.name.contains('sample')) {
 			tasks.whenTaskAdded { task ->

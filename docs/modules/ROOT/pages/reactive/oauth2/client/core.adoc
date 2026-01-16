@@ -250,7 +250,7 @@ The primary responsibilities include:
 * Delegating to a `ReactiveOAuth2AuthorizationFailureHandler` when an OAuth 2.0 Client fails to authorize (or re-authorize).
 
 A `ReactiveOAuth2AuthorizedClientProvider` implements a strategy for authorizing (or re-authorizing) an OAuth 2.0 Client.
-Implementations will typically implement an authorization grant type, eg. `authorization_code`, `client_credentials`, etc.
+Implementations will typically implement an authorization grant type, e.g. `authorization_code`, `client_credentials`, etc.
 
 The default implementation of `ReactiveOAuth2AuthorizedClientManager` is `DefaultReactiveOAuth2AuthorizedClientManager`, which is associated with a `ReactiveOAuth2AuthorizedClientProvider` that may support multiple authorization grant types using a delegation-based composite.
 The `ReactiveOAuth2AuthorizedClientProviderBuilder` may be used to configure and build the delegation-based composite.
@@ -306,7 +306,7 @@ fun authorizedClientManager(
 ======
 
 When an authorization attempt succeeds, the `DefaultReactiveOAuth2AuthorizedClientManager` will delegate to the `ReactiveOAuth2AuthorizationSuccessHandler`, which (by default) will save the `OAuth2AuthorizedClient` via the `ServerOAuth2AuthorizedClientRepository`.
-In the case of a re-authorization failure, eg. a refresh token is no longer valid, the previously saved `OAuth2AuthorizedClient` will be removed from the `ServerOAuth2AuthorizedClientRepository` via the `RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler`.
+In the case of a re-authorization failure, e.g. a refresh token is no longer valid, the previously saved `OAuth2AuthorizedClient` will be removed from the `ServerOAuth2AuthorizedClientRepository` via the `RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler`.
 The default behaviour may be customized via `setAuthorizationSuccessHandler(ReactiveOAuth2AuthorizationSuccessHandler)` and `setAuthorizationFailureHandler(ReactiveOAuth2AuthorizationFailureHandler)`.
 
 The `DefaultReactiveOAuth2AuthorizedClientManager` is also associated with a `contextAttributesMapper` of type `Function<OAuth2AuthorizeRequest, Mono<Map<String, Object>>>`, which is responsible for mapping attribute(s) from the `OAuth2AuthorizeRequest` to a `Map` of attributes to be associated to the `OAuth2AuthorizationContext`.

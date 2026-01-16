@@ -101,7 +101,7 @@ public final class ClientRegistrations {
 	 *     .clientSecret("client-secret")
 	 *     .build();
 	 * </pre>
-	 * @param the OpenID Provider configuration map
+	 * @param configuration the OpenID Provider configuration map
 	 * @return the {@link ClientRegistration} built from the configuration
 	 */
 	public static ClientRegistration.Builder fromOidcConfiguration(Map<String, Object> configuration) {

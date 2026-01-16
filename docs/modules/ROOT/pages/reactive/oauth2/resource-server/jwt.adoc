@@ -1017,7 +1017,7 @@ class AudienceValidator : OAuth2TokenValidator<Jwt> {
 ----
 ======
 
-Then, to add into a resource server, you can specifying the `ReactiveJwtDecoder` instance:
+Then, to add into a resource server, you can specify the `ReactiveJwtDecoder` instance:
 
 [tabs]
 ======

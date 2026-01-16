@@ -31,12 +31,12 @@ public class DocsPlugin implements Plugin<Project> {
 				into 'api'
 			}
 			into 'docs'
-			duplicatesStrategy 'exclude'
+			duplicatesStrategy = 'exclude'
 		}
 
 		Task docs = project.tasks.create("docs") {
 			group = 'Documentation'
-			description 'An aggregator task to generate all the documentation'
+			description = 'An aggregator task to generate all the documentation'
 			dependsOn docsZip
 		}
 		project.tasks.assemble.dependsOn docs
