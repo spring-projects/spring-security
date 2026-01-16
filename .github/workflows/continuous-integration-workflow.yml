@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest ]
-        jdk: [ 17 ]
+        jdk: [ 25 ]
     with:
       runs-on: ${{ matrix.os }}
       java-version: ${{ matrix.jdk }}

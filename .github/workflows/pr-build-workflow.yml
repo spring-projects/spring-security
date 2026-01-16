@@ -15,7 +15,7 @@ jobs:
       - name: Set up gradle
         uses: spring-io/spring-gradle-build-action@v2
         with:
-          java-version: '17'
+          java-version: '25'
           distribution: 'temurin'
       - name: Build with Gradle
         run: ./gradlew clean build -PskipCheckExpectedBranchVersion --continue --scan
@@ -28,7 +28,7 @@ jobs:
       - name: Set up gradle
         uses: spring-io/spring-gradle-build-action@v2
         with:
-          java-version: '17'
+          java-version: '25'
           distribution: 'temurin'
       - name: Run Antora
         run: ./gradlew -PbuildSrc.skipTests=true :spring-security-docs:antora

@@ -1,5 +1,7 @@
 import io.spring.gradle.IncludeRepoTask
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import trang.RncToXsd
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
 	dependencies {
@@ -50,7 +52,7 @@ def toolchainVersion() {
 	if (project.hasProperty('testToolchain')) {
 		return project.property('testToolchain').toString().toInteger()
 	}
-	return 17
+	return 25
 }
 
 subprojects {
@@ -61,13 +63,19 @@ subprojects {
 	}
 	kotlin {
 		jvmToolchain {
-			languageVersion = JavaLanguageVersion.of(17)
+			languageVersion = JavaLanguageVersion.of(toolchainVersion())
 		}
 	}
 	tasks.withType(JavaCompile).configureEach {
 		options.encoding = "UTF-8"
 		options.compilerArgs.add("-parameters")
 		options.release.set(17)
+	}
+	tasks.withType(KotlinCompile).configureEach {
+		compilerOptions {
+			javaParameters = true
+			jvmTarget.set(JvmTarget.JVM_17)
+		}
 	}
 }
 
