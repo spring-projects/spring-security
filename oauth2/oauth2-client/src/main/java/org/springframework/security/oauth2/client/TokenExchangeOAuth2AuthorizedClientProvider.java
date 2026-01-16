@@ -21,7 +21,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.function.Function;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.RestClientTokenExchangeTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.TokenExchangeGrantRequest;
@@ -66,8 +67,7 @@ public final class TokenExchangeOAuth2AuthorizedClientProvider implements OAuth2
 	 * supported
 	 */
 	@Override
-	@Nullable
-	public OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
+	@Nullable public OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
 		ClientRegistration clientRegistration = context.getClientRegistration();
 		if (!AuthorizationGrantType.TOKEN_EXCHANGE.equals(clientRegistration.getAuthorizationGrantType())) {
@@ -111,7 +111,8 @@ public final class TokenExchangeOAuth2AuthorizedClientProvider implements OAuth2
 	}
 
 	private boolean hasTokenExpired(OAuth2Token token) {
-		return this.clock.instant().isAfter(token.getExpiresAt().minus(this.clockSkew));
+		Instant expiresAt = token.getExpiresAt();
+		return expiresAt != null && this.clock.instant().isAfter(expiresAt.minus(this.clockSkew));
 	}
 
 	/**

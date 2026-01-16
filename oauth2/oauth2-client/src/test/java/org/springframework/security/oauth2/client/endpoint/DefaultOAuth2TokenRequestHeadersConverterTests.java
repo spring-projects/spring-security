@@ -16,8 +16,6 @@
 
 package org.springframework.security.oauth2.client.endpoint;
 
-import java.nio.charset.StandardCharsets;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,9 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Steve Riesenberg
  */
 public class DefaultOAuth2TokenRequestHeadersConverterTests {
-
-	private static final MediaType APPLICATION_FORM_URLENCODED_UTF8 = new MediaType(
-			MediaType.APPLICATION_FORM_URLENCODED, StandardCharsets.UTF_8);
 
 	private DefaultOAuth2TokenRequestHeadersConverter<OAuth2ClientCredentialsGrantRequest> converter;
 

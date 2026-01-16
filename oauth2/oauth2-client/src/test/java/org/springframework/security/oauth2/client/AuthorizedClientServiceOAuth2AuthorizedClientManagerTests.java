@@ -59,7 +59,7 @@ public class AuthorizedClientServiceOAuth2AuthorizedClientManagerTests {
 
 	private OAuth2AuthorizedClientProvider authorizedClientProvider;
 
-	private Function contextAttributesMapper;
+	private Function<OAuth2AuthorizeRequest, Map<String, Object>> contextAttributesMapper;
 
 	private OAuth2AuthorizationSuccessHandler authorizationSuccessHandler;
 
@@ -182,7 +182,6 @@ public class AuthorizedClientServiceOAuth2AuthorizedClientManagerTests {
 		// @formatter:on
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void authorizeWhenNotAuthorizedAndUnsupportedProviderThenNotAuthorized() {
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(this.clientRegistration.getRegistrationId())))
@@ -203,7 +202,6 @@ public class AuthorizedClientServiceOAuth2AuthorizedClientManagerTests {
 		verify(this.authorizedClientService, never()).saveAuthorizedClient(any(), any());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void authorizeWhenNotAuthorizedAndSupportedProviderThenAuthorized() {
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(this.clientRegistration.getRegistrationId())))
@@ -229,7 +227,6 @@ public class AuthorizedClientServiceOAuth2AuthorizedClientManagerTests {
 		verify(this.authorizedClientService).saveAuthorizedClient(eq(this.authorizedClient), eq(this.principal));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void authorizeWhenAuthorizedAndSupportedProviderThenReauthorized() {
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(this.clientRegistration.getRegistrationId())))
@@ -260,7 +257,6 @@ public class AuthorizedClientServiceOAuth2AuthorizedClientManagerTests {
 		verify(this.authorizedClientService).saveAuthorizedClient(eq(reauthorizedClient), eq(this.principal));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void reauthorizeWhenUnsupportedProviderThenNotReauthorized() {
 		OAuth2AuthorizeRequest reauthorizeRequest = OAuth2AuthorizeRequest.withAuthorizedClient(this.authorizedClient)
@@ -278,7 +274,6 @@ public class AuthorizedClientServiceOAuth2AuthorizedClientManagerTests {
 		verify(this.authorizedClientService, never()).saveAuthorizedClient(any(), any());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void reauthorizeWhenSupportedProviderThenReauthorized() {
 		OAuth2AuthorizedClient reauthorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
@@ -301,7 +296,6 @@ public class AuthorizedClientServiceOAuth2AuthorizedClientManagerTests {
 		verify(this.authorizedClientService).saveAuthorizedClient(eq(reauthorizedClient), eq(this.principal));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void reauthorizeWhenRequestAttributeScopeThenMappedToContext() {
 		OAuth2AuthorizedClient reauthorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,

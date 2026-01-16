@@ -113,7 +113,12 @@ public final class JwtBearerReactiveOAuth2AuthorizedClientProvider implements Re
 	}
 
 	private boolean hasTokenExpired(OAuth2Token token) {
-		return this.clock.instant().isAfter(token.getExpiresAt().minus(this.clockSkew));
+		// Capture the expiration time in a local variable to ensure:
+		// 1. Thread safety: The value cannot change between the null check and its use.
+		// 2. Static analysis: Prevents IDEs (like VS Code/Eclipse) from reporting a
+		// potential NullPointerException on the second call.
+		Instant expiresAt = token.getExpiresAt();
+		return expiresAt != null && this.clock.instant().isAfter(expiresAt.minus(this.clockSkew));
 	}
 
 	/**

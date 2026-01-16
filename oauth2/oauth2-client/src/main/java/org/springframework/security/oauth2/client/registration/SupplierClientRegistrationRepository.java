@@ -58,7 +58,10 @@ public final class SupplierClientRegistrationRepository
 	 * @return an {@code Iterator<ClientRegistration>}
 	 */
 	@Override
+	@SuppressWarnings("unchecked")
 	public Iterator<ClientRegistration> iterator() {
+		// The constructor signature ensures that the ClientRegistrationRepository is an
+		// Iterable<ClientRegistration>
 		return ((Iterable<ClientRegistration>) this.repositorySupplier.get()).iterator();
 	}
 

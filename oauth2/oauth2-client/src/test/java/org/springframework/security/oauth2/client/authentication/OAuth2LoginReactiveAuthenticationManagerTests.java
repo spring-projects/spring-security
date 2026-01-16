@@ -162,7 +162,7 @@ public class OAuth2LoginReactiveAuthenticationManagerTests {
 		OAuth2LoginAuthenticationToken result = (OAuth2LoginAuthenticationToken) this.manager.authenticate(loginToken())
 			.block();
 		assertThat(result.getPrincipal()).isEqualTo(user);
-		assertThat(result.getAuthorities()).containsOnlyElementsOf(user.getAuthorities());
+		assertThat(result.getAuthorities()).isSubsetOf(user.getAuthorities());
 		assertThat(result.isAuthenticated()).isTrue();
 	}
 

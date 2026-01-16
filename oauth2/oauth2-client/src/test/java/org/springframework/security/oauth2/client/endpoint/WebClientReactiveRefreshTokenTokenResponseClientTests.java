@@ -131,7 +131,10 @@ public class WebClientReactiveRefreshTokenTokenResponseClientTests {
 		assertThat(accessTokenResponse.getAccessToken().getExpiresAt()).isBetween(expiresAtBefore, expiresAtAfter);
 		assertThat(accessTokenResponse.getAccessToken().getScopes())
 			.containsExactly(this.accessToken.getScopes().toArray(new String[0]));
-		assertThat(accessTokenResponse.getRefreshToken().getTokenValue()).isEqualTo(this.refreshToken.getTokenValue());
+		OAuth2RefreshToken token = accessTokenResponse.getRefreshToken();
+		assertThat(token).isNotNull()
+			.extracting(OAuth2RefreshToken::getTokenValue)
+			.isEqualTo(this.refreshToken.getTokenValue());
 	}
 
 	@Test

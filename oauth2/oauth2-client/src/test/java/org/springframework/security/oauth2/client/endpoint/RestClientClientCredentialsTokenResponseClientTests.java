@@ -455,9 +455,10 @@ public class RestClientClientCredentialsTokenResponseClientTests {
 	@Test
 	public void getTokenResponseWhenRestClientSetThenCalled() {
 		this.server.enqueue(MockResponses.json("access-token-response.json"));
-		RestClient restClient = RestClient.builder().messageConverters((messageConverters) -> {
-			messageConverters.add(0, new FormHttpMessageConverter());
-			messageConverters.add(1, new OAuth2AccessTokenResponseHttpMessageConverter());
+		RestClient restClient = RestClient.builder().configureMessageConverters((messageConverters) -> {
+			// These are added to the front of the list, ahead of defaults
+			messageConverters.addCustomConverter(new FormHttpMessageConverter());
+			messageConverters.addCustomConverter(new OAuth2AccessTokenResponseHttpMessageConverter());
 		}).build();
 		RestClient customClient = spy(restClient);
 		this.tokenResponseClient.setRestClient(customClient);

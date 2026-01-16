@@ -67,10 +67,10 @@ public class OAuth2AuthorizedClientProviderBuilderTests {
 
 	@BeforeEach
 	public void setup() {
-		RestClient.Builder restClientBuilder = RestClient.builder().messageConverters((messageConverters) -> {
-			messageConverters.clear();
-			messageConverters.add(new FormHttpMessageConverter());
-			messageConverters.add(new OAuth2AccessTokenResponseHttpMessageConverter());
+		RestClient.Builder restClientBuilder = RestClient.builder().configureMessageConverters((messageConverters) -> {
+			// These are added to the front of the list, ahead of defaults
+			messageConverters.addCustomConverter(new FormHttpMessageConverter());
+			messageConverters.addCustomConverter(new OAuth2AccessTokenResponseHttpMessageConverter());
 		});
 		this.server = MockRestServiceServer.bindTo(restClientBuilder).build();
 		RestClient restClient = restClientBuilder.build();

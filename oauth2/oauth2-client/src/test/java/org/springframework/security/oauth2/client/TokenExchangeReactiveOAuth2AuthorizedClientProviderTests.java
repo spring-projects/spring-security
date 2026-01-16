@@ -74,7 +74,10 @@ public class TokenExchangeReactiveOAuth2AuthorizedClientProviderTests {
 	@BeforeEach
 	public void setUp() {
 		this.authorizedClientProvider = new TokenExchangeReactiveOAuth2AuthorizedClientProvider();
-		this.accessTokenResponseClient = mock(ReactiveOAuth2AccessTokenResponseClient.class);
+		@SuppressWarnings("unchecked")
+		ReactiveOAuth2AccessTokenResponseClient<TokenExchangeGrantRequest> mockClient = mock(
+				ReactiveOAuth2AccessTokenResponseClient.class);
+		this.accessTokenResponseClient = mockClient;
 		this.authorizedClientProvider.setAccessTokenResponseClient(this.accessTokenResponseClient);
 		// @formatter:off
 		this.clientRegistration = ClientRegistration.withRegistrationId("token-exchange")
@@ -322,6 +325,7 @@ public class TokenExchangeReactiveOAuth2AuthorizedClientProviderTests {
 
 	@Test
 	public void authorizeWhenCustomSubjectTokenResolverSetThenCalled() {
+		@SuppressWarnings("unchecked")
 		Function<OAuth2AuthorizationContext, Mono<OAuth2Token>> subjectTokenResolver = mock(Function.class);
 		given(subjectTokenResolver.apply(any(OAuth2AuthorizationContext.class)))
 			.willReturn(Mono.just(this.subjectToken));
@@ -355,6 +359,7 @@ public class TokenExchangeReactiveOAuth2AuthorizedClientProviderTests {
 
 	@Test
 	public void authorizeWhenCustomActorTokenResolverSetThenCalled() {
+		@SuppressWarnings("unchecked")
 		Function<OAuth2AuthorizationContext, Mono<OAuth2Token>> actorTokenResolver = mock(Function.class);
 		given(actorTokenResolver.apply(any(OAuth2AuthorizationContext.class))).willReturn(Mono.just(this.actorToken));
 		this.authorizedClientProvider.setActorTokenResolver(actorTokenResolver);

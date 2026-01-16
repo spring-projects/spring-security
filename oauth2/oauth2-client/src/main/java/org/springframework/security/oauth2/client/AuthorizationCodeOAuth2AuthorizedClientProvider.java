@@ -16,7 +16,8 @@
 
 package org.springframework.security.oauth2.client;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -47,8 +48,7 @@ public final class AuthorizationCodeOAuth2AuthorizedClientProvider implements OA
 	 * the authorization request
 	 */
 	@Override
-	@Nullable
-	public OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
+	@Nullable public OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(
 				context.getClientRegistration().getAuthorizationGrantType()) && context.getAuthorizedClient() == null) {

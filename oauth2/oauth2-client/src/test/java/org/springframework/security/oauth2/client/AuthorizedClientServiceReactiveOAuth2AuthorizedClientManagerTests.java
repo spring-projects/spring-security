@@ -164,7 +164,6 @@ public class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManagerTests {
 			.verifyError(IllegalArgumentException.class);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void authorizeWhenNotAuthorizedAndUnsupportedProviderThenNotAuthorized() {
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(this.clientRegistration.getRegistrationId())))
@@ -189,7 +188,6 @@ public class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManagerTests {
 				eq(this.principal));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void authorizeWhenNotAuthorizedAndSupportedProviderThenAuthorized() {
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(this.clientRegistration.getRegistrationId())))
@@ -214,7 +212,6 @@ public class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManagerTests {
 		verify(this.authorizedClientService, never()).removeAuthorizedClient(any(), any());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void authorizeWhenNotAuthorizedAndSupportedProviderAndCustomSuccessHandlerThenInvokeCustomSuccessHandler() {
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(this.clientRegistration.getRegistrationId())))
@@ -395,7 +392,6 @@ public class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManagerTests {
 		verify(this.authorizedClientService, never()).saveAuthorizedClient(any(), any());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void authorizeWhenAuthorizedAndSupportedProviderThenReauthorized() {
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(this.clientRegistration.getRegistrationId())))
@@ -428,7 +424,6 @@ public class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManagerTests {
 		verify(this.authorizedClientService, never()).removeAuthorizedClient(any(), any());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void reauthorizeWhenUnsupportedProviderThenNotReauthorized() {
 		given(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class))).willReturn(Mono.empty());
@@ -449,7 +444,6 @@ public class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManagerTests {
 				eq(this.principal));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void reauthorizeWhenSupportedProviderThenReauthorized() {
 		OAuth2AuthorizedClient reauthorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
@@ -474,7 +468,6 @@ public class AuthorizedClientServiceReactiveOAuth2AuthorizedClientManagerTests {
 		verify(this.authorizedClientService, never()).removeAuthorizedClient(any(), any());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void reauthorizeWhenRequestAttributeScopeThenMappedToContext() {
 		OAuth2AuthorizedClient reauthorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,

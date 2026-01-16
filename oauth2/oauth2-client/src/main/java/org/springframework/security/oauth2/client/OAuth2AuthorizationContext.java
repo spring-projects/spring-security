@@ -22,7 +22,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.util.Assert;
@@ -74,8 +75,7 @@ public final class OAuth2AuthorizationContext {
 	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if the client
 	 * registration was supplied
 	 */
-	@Nullable
-	public OAuth2AuthorizedClient getAuthorizedClient() {
+	@Nullable public OAuth2AuthorizedClient getAuthorizedClient() {
 		return this.authorizedClient;
 	}
 

@@ -21,7 +21,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.function.Function;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.client.endpoint.JwtBearerGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.RestClientJwtBearerTokenResponseClient;
@@ -65,8 +66,7 @@ public final class JwtBearerOAuth2AuthorizedClientProvider implements OAuth2Auth
 	 * supported
 	 */
 	@Override
-	@Nullable
-	public OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
+	@Nullable public OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
 		ClientRegistration clientRegistration = context.getClientRegistration();
 		if (!AuthorizationGrantType.JWT_BEARER.equals(clientRegistration.getAuthorizationGrantType())) {
@@ -118,7 +118,12 @@ public final class JwtBearerOAuth2AuthorizedClientProvider implements OAuth2Auth
 	}
 
 	private boolean hasTokenExpired(OAuth2Token token) {
-		return this.clock.instant().isAfter(token.getExpiresAt().minus(this.clockSkew));
+		// Capture the expiration time in a local variable to ensure:
+		// 1. Thread safety: The value cannot change between the null check and its use.
+		// 2. Static analysis: Prevents IDEs (like VS Code/Eclipse) from reporting a
+		// potential NullPointerException on the second call.
+		Instant expiresAt = token.getExpiresAt();
+		return expiresAt != null && this.clock.instant().isAfter(expiresAt.minus(this.clockSkew));
 	}
 
 	/**

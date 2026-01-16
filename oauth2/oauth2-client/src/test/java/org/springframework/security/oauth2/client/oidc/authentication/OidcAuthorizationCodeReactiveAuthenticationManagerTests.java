@@ -50,6 +50,7 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.client.userinfo.ReactiveOAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -262,7 +263,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 			.authenticate(authorizationCodeAuthentication)
 			.block();
 		assertThat(result.getPrincipal()).isEqualTo(user);
-		assertThat(result.getAuthorities()).containsOnlyElementsOf(user.getAuthorities());
+		assertThat(result.getAuthorities()).isSubsetOf(user.getAuthorities());
 		assertThat(result.isAuthenticated()).isTrue();
 	}
 
@@ -293,9 +294,9 @@ public class OidcAuthorizationCodeReactiveAuthenticationManagerTests {
 			.authenticate(authorizationCodeAuthentication)
 			.block();
 		assertThat(result.getPrincipal()).isEqualTo(user);
-		assertThat(result.getAuthorities()).containsOnlyElementsOf(user.getAuthorities());
+		assertThat(result.getAuthorities()).isSubsetOf(user.getAuthorities());
 		assertThat(result.isAuthenticated()).isTrue();
-		assertThat(result.getRefreshToken().getTokenValue()).isNotNull();
+		assertThat(result.getRefreshToken()).isNotNull().extracting(OAuth2RefreshToken::getTokenValue).isNotNull();
 	}
 
 	// gh-5368

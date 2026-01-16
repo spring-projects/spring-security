@@ -44,7 +44,6 @@ public class OAuth2UserRequestEntityConverterTests {
 
 	private OAuth2UserRequestEntityConverter converter = new OAuth2UserRequestEntityConverter();
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void convertWhenAuthenticationMethodHeaderThenGetRequest() {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();

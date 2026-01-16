@@ -48,6 +48,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatReflectiveOperationException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willAnswer;
@@ -89,7 +90,8 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
 		Constructor<OAuth2AuthorizationRequestRedirectFilter> constructor = ClassUtils.getConstructorIfAvailable(
 				OAuth2AuthorizationRequestRedirectFilter.class, ClientRegistrationRepository.class);
-		assertThatIllegalArgumentException().isThrownBy(() -> constructor.newInstance(null));
+		assertThatReflectiveOperationException().isThrownBy(() -> constructor.newInstance((Object) null))
+			.withCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -102,7 +104,8 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 	public void constructorWhenAuthorizationRequestResolverIsNullThenThrowIllegalArgumentException() {
 		Constructor<OAuth2AuthorizationRequestRedirectFilter> constructor = ClassUtils.getConstructorIfAvailable(
 				OAuth2AuthorizationRequestRedirectFilter.class, OAuth2AuthorizationRequestResolver.class);
-		assertThatIllegalArgumentException().isThrownBy(() -> constructor.newInstance(null));
+		assertThatReflectiveOperationException().isThrownBy(() -> constructor.newInstance((Object) null))
+			.withCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -193,6 +196,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		MockHttpServletRequest request = get(requestUri).build();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
+		@SuppressWarnings("unchecked")
 		AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = mock(
 				AuthorizationRequestRepository.class);
 		this.filter.setAuthorizationRequestRepository(authorizationRequestRepository);

@@ -101,7 +101,8 @@ public final class RefreshTokenReactiveOAuth2AuthorizedClientProvider
 	}
 
 	private boolean hasTokenExpired(OAuth2Token token) {
-		return this.clock.instant().isAfter(token.getExpiresAt().minus(this.clockSkew));
+		Instant expiresAt = token.getExpiresAt();
+		return expiresAt != null && this.clock.instant().isAfter(expiresAt.minus(this.clockSkew));
 	}
 
 	/**

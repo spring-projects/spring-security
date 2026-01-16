@@ -53,7 +53,7 @@ import org.springframework.http.codec.FormHttpMessageWriter;
 import org.springframework.http.codec.HttpMessageWriter;
 import org.springframework.http.codec.ResourceHttpMessageWriter;
 import org.springframework.http.codec.ServerSentEventHttpMessageWriter;
-import org.springframework.http.codec.json.Jackson2JsonEncoder;
+import org.springframework.http.codec.json.JacksonJsonEncoder;
 import org.springframework.http.codec.multipart.MultipartHttpMessageWriter;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -354,10 +354,10 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 			.expiresIn(3600)
 			// .refreshToken(xxx) // No refreshToken in response
 			.build();
-		RestClient.Builder builder = RestClient.builder().messageConverters((messageConverters) -> {
-			messageConverters.clear();
-			messageConverters.add(new FormHttpMessageConverter());
-			messageConverters.add(new OAuth2AccessTokenResponseHttpMessageConverter());
+		RestClient.Builder builder = RestClient.builder().configureMessageConverters((messageConverters) -> {
+			// These are added to the front of the list, ahead of defaults
+			messageConverters.addCustomConverter(new FormHttpMessageConverter());
+			messageConverters.addCustomConverter(new OAuth2AccessTokenResponseHttpMessageConverter());
 		});
 		MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
 		RestClient refreshTokenClient = builder.build();
@@ -807,7 +807,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		messageWriters.add(new EncoderHttpMessageWriter<>(new ByteBufferEncoder()));
 		messageWriters.add(new EncoderHttpMessageWriter<>(CharSequenceEncoder.textPlainOnly()));
 		messageWriters.add(new ResourceHttpMessageWriter());
-		Jackson2JsonEncoder jsonEncoder = new Jackson2JsonEncoder();
+		JacksonJsonEncoder jsonEncoder = new JacksonJsonEncoder();
 		messageWriters.add(new EncoderHttpMessageWriter<>(jsonEncoder));
 		messageWriters.add(new ServerSentEventHttpMessageWriter(jsonEncoder));
 		messageWriters.add(new FormHttpMessageWriter());

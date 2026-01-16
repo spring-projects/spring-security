@@ -24,9 +24,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.RestClientRefreshTokenTokenResponseClient;
@@ -78,8 +79,7 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider
 	 * not supported
 	 */
 	@Override
-	@Nullable
-	public OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
+	@Nullable public OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
 		OAuth2AuthorizedClient authorizedClient = context.getAuthorizedClient();
 		if (authorizedClient == null || authorizedClient.getRefreshToken() == null
@@ -123,7 +123,8 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider
 	}
 
 	private boolean hasTokenExpired(OAuth2Token token) {
-		return this.clock.instant().isAfter(token.getExpiresAt().minus(this.clockSkew));
+		Instant expiresAt = token.getExpiresAt();
+		return expiresAt != null && this.clock.instant().isAfter(expiresAt.minus(this.clockSkew));
 	}
 
 	/**

@@ -26,6 +26,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -96,7 +98,8 @@ public class OAuth2LoginAuthenticationFilterTests {
 
 	private AuthenticationManager authenticationManager;
 
-	private AuthenticationDetailsSource authenticationDetailsSource;
+	@Mock
+	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
 
 	private OAuth2LoginAuthenticationToken loginAuthentication;
 
@@ -104,6 +107,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 
 	@BeforeEach
 	public void setUp() {
+		MockitoAnnotations.openMocks(this);
 		this.registration1 = TestClientRegistrations.clientRegistration().build();
 		this.registration2 = TestClientRegistrations.clientRegistration2().build();
 		this.clientRegistrationRepository = new InMemoryClientRegistrationRepository(this.registration1,
@@ -114,7 +118,6 @@ public class OAuth2LoginAuthenticationFilterTests {
 		this.authorizationRequestRepository = new HttpSessionOAuth2AuthorizationRequestRepository();
 		this.failureHandler = mock(AuthenticationFailureHandler.class);
 		this.authenticationManager = mock(AuthenticationManager.class);
-		this.authenticationDetailsSource = mock(AuthenticationDetailsSource.class);
 		this.filter = spy(new OAuth2LoginAuthenticationFilter(this.clientRegistrationRepository,
 				this.authorizedClientRepository, OAuth2LoginAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI));
 		this.filter.setAuthorizationRequestRepository(this.authorizationRequestRepository);
@@ -398,8 +401,11 @@ public class OAuth2LoginAuthenticationFilterTests {
 		MockHttpServletRequest request = get(requestUri).param(OAuth2ParameterNames.CODE, "code")
 			.param(OAuth2ParameterNames.STATE, state)
 			.build();
+		@SuppressWarnings("unchecked")
+		AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> detailsSource = (AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails>) this.authenticationDetailsSource;
+
 		WebAuthenticationDetails webAuthenticationDetails = mock(WebAuthenticationDetails.class);
-		given(this.authenticationDetailsSource.buildDetails(any())).willReturn(webAuthenticationDetails);
+		given(detailsSource.buildDetails(any())).willReturn(webAuthenticationDetails);
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		this.setUpAuthorizationRequest(request, response, this.registration2, state);
 		this.setUpAuthenticationResult(this.registration2);

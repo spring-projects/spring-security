@@ -66,7 +66,9 @@ public class NimbusJwtClientAuthenticationParametersConverterTests {
 
 	@BeforeEach
 	public void setup() {
-		this.jwkResolver = mock(Function.class);
+		@SuppressWarnings("unchecked")
+		Function<ClientRegistration, JWK> jwkResolverMock = mock(Function.class);
+		this.jwkResolver = jwkResolverMock;
 		this.converter = new NimbusJwtClientAuthenticationParametersConverter<>(this.jwkResolver);
 	}
 
