@@ -376,14 +376,14 @@ Java::
 @WithMockUser(authorities="USER")
 @Test
 void endpointWhenUserAuthorityThenAuthorized() {
-    this.mvc.perform(get("/endpoint/jon"))
+    this.mvc.perform(get("/resource/jon"))
         .andExpect(status().isOk());
 }
 
 @WithMockUser
 @Test
 void endpointWhenNotUserAuthorityThenForbidden() {
-    this.mvc.perform(get("/endpoint/jon"))
+    this.mvc.perform(get("/resource/jon"))
         .andExpect(status().isForbidden());
 }
 
@@ -530,7 +530,7 @@ void postWhenWriteAuthorityThenAuthorized() {
 @WithMockUser(authorities="read")
 @Test
 void postWhenNoWriteAuthorityThenForbidden() {
-    this.mvc.perform(get("/any").with(csrf()))
+    this.mvc.perform(post("/any").with(csrf()))
         .andExpect(status().isForbidden());
 }
 ----
