@@ -758,7 +758,7 @@ fun readAccountsWhenOwnedThenReturns() {
 
 `@PostFilter` supports arrays, collections, maps, and streams (so long as the stream is still open).
 
-For example, the above `readAccounts` declaration will function the same way as the following other three:
+For example, the above `readAccounts` declaration will function the same way as the following other four:
 
 [tabs]
 ======
@@ -3020,7 +3020,7 @@ void fooWhenDeniedThenReturnStars() {
 
 @Test
 void barWhenDeniedThenReturnQuestionMarks() {
-    String value = this.myService.foo();
+    String value = this.myService.bar();
     assertThat(value).isEqualTo("???");
 }
 ----
@@ -3040,7 +3040,7 @@ fun fooWhenDeniedThenReturnStars() {
 
 @Test
 fun barWhenDeniedThenReturnQuestionMarks() {
-    val value: String = myService.foo()
+    val value: String = myService.bar()
     assertThat(value).isEqualTo("???")
 }
 ----
@@ -3338,5 +3338,5 @@ class MyExpressionHandler: DefaultMethodSecurityExpressionHandler {
 
 == Further Reading
 
-Now that you have secured your application's requests, please xref:servlet/authorization/authorize-http-requests.adoc[secure its requests] if you haven't already.
+Now that you have secured your application's methods, please xref:servlet/authorization/authorize-http-requests.adoc[secure its requests] if you haven't already.
 You can also read further on xref:servlet/test/index.adoc[testing your application] or on integrating Spring Security with other aspects of you application like xref:servlet/integrations/data.adoc[the data layer] or xref:servlet/integrations/observability.adoc[tracing and metrics].

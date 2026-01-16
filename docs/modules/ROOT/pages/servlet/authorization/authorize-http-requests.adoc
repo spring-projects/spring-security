@@ -720,7 +720,7 @@ As a quick summary, here are the authorization rules built into the DSL:
 * `hasAuthority` - The request requires that the `Authentication` have xref:servlet/authorization/architecture.adoc#authz-authorities[a `GrantedAuthority`] that matches the given value
 * `hasRole` - A shortcut for `hasAuthority` that prefixes `ROLE_` or whatever is configured as the default prefix
 * `hasAnyAuthority` - The request requires that the `Authentication` have a `GrantedAuthority` that matches any of the given values
-* `hasAnyRole` - A shortcut for `hasAnyAuthority` that prefixes `ROLE_` or whatever is configured as the default prefix* `hasAnyAuthority` - The request requires that the `Authentication` have a `GrantedAuthority` that matches any of the given values
+* `hasAnyRole` - A shortcut for `hasAnyAuthority` that prefixes `ROLE_` or whatever is configured as the default prefix
 * `hasAllRoles` - A shortcut for `hasAllAuthorities` that prefixes `ROLE_` or whatever is configured as the default prefix
 * `hasAllAuthorities` - The request requires that the `Authentication` have a `GrantedAuthority` that matches all of the given values
 * `access` - The request uses this custom `AuthorizationManager` to determine access
@@ -1233,4 +1233,4 @@ open class SecurityConfig {
 == Further Reading
 
 Now that you have secured your application's requests, consider xref:servlet/authorization/method-security.adoc[securing its methods].
-You can also read further on xref:servlet/test/index.adoc[testing your application] or on integrating Spring Security with other aspects of you application like xref:servlet/integrations/data.adoc[the data layer] or xref:servlet/integrations/observability.adoc[tracing and metrics].
+You can also read further on xref:servlet/test/index.adoc[testing your application] or on integrating Spring Security with other aspects of your application like xref:servlet/integrations/data.adoc[the data layer] or xref:servlet/integrations/observability.adoc[tracing and metrics].
