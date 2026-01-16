@@ -76,7 +76,7 @@ public class NettyHttpClientFilteringAddressSelector implements ResolvedAddressS
 				.toList();
 
 		return socketAddresses.stream()
-				.filter(sa -> !(sa instanceof InetSocketAddress) || filteredIn.contains(sa))
+				.filter(sa -> !(sa instanceof InetSocketAddress isa) || filteredIn.contains(isa.getAddress()))
 				.collect(Collectors.toList());
 	}
 
