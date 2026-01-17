@@ -77,7 +77,7 @@ public interface AuthenticationTrustResolver {
 	 * Checks if the {@link Authentication} is not null, authenticated, and not anonymous.
 	 * @param authentication the {@link Authentication} to check.
 	 * @return true if the {@link Authentication} is not null,
-	 * {@link #isAnonymous(Authentication)} returns false, &
+	 * {@link #isAnonymous(Authentication)} returns false, and
 	 * {@link Authentication#isAuthenticated()} is true.
 	 * @since 6.1.7
 	 */
