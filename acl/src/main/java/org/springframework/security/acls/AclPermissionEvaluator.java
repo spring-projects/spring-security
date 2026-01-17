@@ -44,7 +44,7 @@ import org.springframework.security.core.Authentication;
 /**
  * Used by Spring Security's expression-based access control implementation to evaluate
  * permissions for a particular object using the ACL module. Similar in behaviour to
- * {@link org.springframework.security.acls.AclEntryVoter AclEntryVoter}.
+ * <code> org.springframework.security.acls.AclEntryVoter AclEntryVoter </code>
  *
  * @author Luke Taylor
  * @since 3.0
