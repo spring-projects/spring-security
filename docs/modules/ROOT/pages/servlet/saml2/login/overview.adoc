@@ -215,7 +215,7 @@ If any signature is invalid, authentication fails.
 Also, if neither the response nor the assertions have signatures, authentication fails.
 Either the response or all the assertions must have signatures.
 
-image:{icondir}/number_7.png[] Then, the provider xref:servlet/saml2/login/authentication.adoc#servlet-saml2login-opensamlauthenticationprovider-decryption[,]decrypts any `EncryptedID` or `EncryptedAttribute` elements].
+image:{icondir}/number_7.png[] Then, the provider xref:servlet/saml2/login/authentication.adoc#servlet-saml2login-opensamlauthenticationprovider-decryption[decrypts any `EncryptedID` or `EncryptedAttribute` elements].
 If any decryptions fail, authentication fails.
 
 image:{icondir}/number_8.png[] Next, the provider validates each assertion's `ExpiresAt` and `NotBefore` timestamps, the `<Subject>` and any `<AudienceRestriction>` conditions.
@@ -1039,4 +1039,4 @@ You can see a completed example of this in {gh-samples-url}/servlet/spring-boot/
 
 In the event that you are migrating from the Spring Security SAML Extension, there may be some benefit to configuring your application to use the SAML Extension URI defaults.
 
-For more information on this, please see {gh-samples-url}/servlet/spring-boot/java/saml2/custom-urls[our `custom-urls` sample] and {gh-samples-url}/servlet/spring-boot/java/saml2/saml-extension-federation[our `saml-extension-federation` sample].
+For more information on this, please see {gh-samples-url}/servlet/spring-boot/java/saml2/saml-extension-urls[our `saml-extension-urls` sample] and {gh-samples-url}/servlet/spring-boot/java/saml2/saml-extension-federation[our `saml-extension-federation` sample].
