@@ -26,7 +26,7 @@ import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationConvention;
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.observation.contextpropagation.ObservationThreadLocalAccessor;
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
@@ -45,7 +45,6 @@ import org.springframework.web.server.WebHandler;
  * @author Josh Cummings
  * @since 6.0
  */
-@NullUnmarked // https://github.com/spring-projects/spring-security/issues/17815
 public final class ObservationWebFilterChainDecorator implements WebFilterChainProxy.WebFilterChainDecorator {
 
 	private static final String ATTRIBUTE = ObservationWebFilterChainDecorator.class + ".observation";
@@ -70,8 +69,9 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 		return new ObservationWebFilterChain(wrapSecured(original)::filter, wrap(filters));
 	}
 
-	private static @Nullable AroundWebFilterObservation observation(ServerWebExchange exchange) {
-		return exchange.getAttribute(ATTRIBUTE);
+	private static AroundWebFilterObservation observation(ServerWebExchange exchange) {
+		AroundWebFilterObservation observation = exchange.getAttribute(ATTRIBUTE);
+		return (observation != null) ? observation : AroundWebFilterObservation.NOOP;
 	}
 
 	private WebFilterChain wrapSecured(WebFilterChain original) {
@@ -218,7 +218,7 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 			});
 		}
 
-		private AroundWebFilterObservation parent(ServerWebExchange exchange, Observation parentObservation) {
+		private AroundWebFilterObservation parent(ServerWebExchange exchange, @Nullable Observation parentObservation) {
 			WebFilterChainObservationContext beforeContext = WebFilterChainObservationContext.before();
 			WebFilterChainObservationContext afterContext = WebFilterChainObservationContext.after();
 			Observation before = Observation.createNotStarted(this.convention, () -> beforeContext, this.registry)
@@ -575,7 +575,7 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 
 		private final String filterSection;
 
-		private @Nullable String filterName;
+		@Nullable private String filterName;
 
 		private int chainPosition;
 
