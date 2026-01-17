@@ -1,5 +1,7 @@
 import io.spring.gradle.IncludeRepoTask
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import trang.RncToXsd
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
 	dependencies {
@@ -44,31 +46,6 @@ springRelease {
 	referenceDocUrl = "https://docs.spring.io/spring-security/reference/{version}/index.html"
 	apiDocUrl = "https://docs.spring.io/spring-security/reference/{version}/api/java/index.html"
 	replaceSnapshotVersionInReferenceDocUrl = true
-}
-
-def toolchainVersion() {
-	if (project.hasProperty('testToolchain')) {
-		return project.property('testToolchain').toString().toInteger()
-	}
-	return 17
-}
-
-subprojects {
-	java {
-		toolchain {
-			languageVersion = JavaLanguageVersion.of(toolchainVersion())
-		}
-	}
-	kotlin {
-		jvmToolchain {
-			languageVersion = JavaLanguageVersion.of(17)
-		}
-	}
-	tasks.withType(JavaCompile).configureEach {
-		options.encoding = "UTF-8"
-		options.compilerArgs.add("-parameters")
-		options.release.set(17)
-	}
 }
 
 allprojects {

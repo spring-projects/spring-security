@@ -448,6 +448,72 @@ open fun findMessagesForUser(@CurrentUser("user_id") userId: String?): ModelAndV
 ----
 ======
 
+[[mvc-current-security-context]]
+== @CurrentSecurityContext
+
+Spring Security provides `CurrentSecurityContextArgumentResolver`, which can automatically resolve the current `SecurityContext` for Spring MVC arguments.
+By using `@EnableWebSecurity`, you automatically have this added to your Spring MVC configuration.
+If you use XML-based configuration, you must add this yourself:
+
+[source,xml]
+----
+<mvc:annotation-driven>
+		<mvc:argument-resolvers>
+				<bean class="org.springframework.security.web.method.annotation.CurrentSecurityContextArgumentResolver" />
+		</mvc:argument-resolvers>
+</mvc:annotation-driven>
+----
+
+Once `CurrentSecurityContextArgumentResolver` is configured, you can access the `SecurityContext` directly:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@GetMapping("/me")
+public String me(@CurrentSecurityContext SecurityContext context) {
+	return context.getAuthentication().getName();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/me")
+fun me(@CurrentSecurityContext context: SecurityContext): String {
+    return context.authentication.name
+}
+----
+======
+
+You can also use a SpEL expression that is rooted at the `SecurityContext`:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@GetMapping("/me")
+public String me(@CurrentSecurityContext(expression = "authentication") Authentication authentication) {
+	return authentication.getName();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/me")
+fun me(@CurrentSecurityContext(expression = "authentication") authentication: Authentication): String {
+    return authentication.name
+}
+----
+======
+
 [[mvc-async]]
 == Spring MVC Async Integration
 

@@ -4,6 +4,7 @@ import trang.RncToXsd
 apply plugin: 'io.spring.convention.spring-module'
 apply plugin: 'trang'
 apply plugin: 'security-kotlin'
+apply plugin: 'test-compile-target-jdk25'
 
 configurations {
 	opensaml5 {

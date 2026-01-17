@@ -18,10 +18,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - java-version: 21-ea
-            toolchain: 21
-          - java-version: 17
-            toolchain: 17
+          - java-version: 25
+            toolchain: 25
     with:
       java-version: ${{ matrix.java-version }}
       test-args: --refresh-dependencies -PforceMavenRepositories=snapshot,https://oss.sonatype.org/content/repositories/snapshots -PisOverrideVersionCatalog -PtestToolchain=${{ matrix.toolchain }} -PspringFrameworkVersion=7.+ -PreactorVersion=2025.+ -PspringDataVersion=2025.+ --stacktrace

@@ -74,7 +74,7 @@ spring:
 ----
 
 Public Clients are supported using https://tools.ietf.org/html/rfc7636[Proof Key for Code Exchange] (PKCE).
-If the client is running in an untrusted environment (eg. native application or web browser-based application) and therefore incapable of maintaining the confidentiality of it's credentials, PKCE will automatically be used when the following conditions are true:
+If the client is running in an untrusted environment (e.g. native application or web browser-based application) and therefore incapable of maintaining the confidentiality of its credentials, PKCE will automatically be used when the following conditions are true:
 
 . `client-secret` is omitted (or empty)
 . `client-authentication-method` is set to "none" (`ClientAuthenticationMethod.NONE`)

@@ -28,6 +28,7 @@ import jakarta.servlet.http.HttpServletRequest;
  * @author Eddú Meléndez
  * @since 3.0.2
  */
+@FunctionalInterface
 public interface RequestMatcher {
 
 	/**

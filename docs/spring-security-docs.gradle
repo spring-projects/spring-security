@@ -3,6 +3,8 @@ plugins {
 	id 'io.spring.antora.generate-antora-yml' version '0.0.1'
 	id 'io.spring.convention.repository'
 	id 'security-kotlin'
+	id 'java-toolchain'
+	id 'test-compile-target-jdk25'
 }
 
 apply plugin: 'io.spring.convention.docs'

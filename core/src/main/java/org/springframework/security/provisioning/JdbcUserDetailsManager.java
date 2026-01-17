@@ -20,6 +20,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -356,13 +358,23 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl
 
 	@Override
 	public List<String> findAllGroups() {
-		return requireJdbcTemplate().queryForList(this.findAllGroupsSql, String.class);
+		// @formatter:off
+		return requireJdbcTemplate().queryForList(this.findAllGroupsSql, String.class)
+			.stream()
+			.filter(Objects::nonNull)
+			.collect(Collectors.toList());
+		// @formatter:on
 	}
 
 	@Override
 	public List<String> findUsersInGroup(String groupName) {
 		Assert.hasText(groupName, "groupName should have text");
-		return requireJdbcTemplate().queryForList(this.findUsersInGroupSql, String.class, groupName);
+		// @formatter:off
+		return requireJdbcTemplate().queryForList(this.findUsersInGroupSql, String.class, groupName)
+			.stream()
+			.filter(Objects::nonNull)
+			.collect(Collectors.toList());
+		// @formatter:on
 	}
 
 	@Override

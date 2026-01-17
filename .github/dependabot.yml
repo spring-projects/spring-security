@@ -1,8 +1,5 @@
 version: 2
 registries:
-  spring-milestones:
-    type: maven-repository
-    url: https://repo.spring.io/milestone
   shibboleth:
     type: maven-repository
     url: https://build.shibboleth.net/maven/releases
@@ -17,34 +14,6 @@ updates:
     labels:
       - 'type: dependency-upgrade'
     registries:
-      - spring-milestones
-      - shibboleth
-    ignore:
-      - dependency-name: com.nimbusds:nimbus-jose-jwt
-      - dependency-name: org.python:jython
-      - dependency-name: org.apache.directory.server:*
-      - dependency-name: org.apache.directory.shared:*
-      - dependency-name: org.junit:junit-bom
-        update-types:
-          - version-update:semver-major
-      - dependency-name: org.mockito:mockito-bom
-        update-types:
-          - version-update:semver-major
-      - dependency-name: '*'
-        update-types:
-          - version-update:semver-major
-          - version-update:semver-minor
-  - package-ecosystem: gradle
-    target-branch: 6.4.x
-    directory: /
-    schedule:
-      interval: daily
-      time: '03:00'
-      timezone: Etc/UTC
-    labels:
-      - 'type: dependency-upgrade'
-    registries:
-      - spring-milestones
       - shibboleth
     ignore:
       - dependency-name: com.nimbusds:nimbus-jose-jwt
@@ -72,7 +41,6 @@ updates:
     labels:
       - 'type: dependency-upgrade'
     registries:
-      - spring-milestones
       - shibboleth
     ignore:
       - dependency-name: com.nimbusds:nimbus-jose-jwt
@@ -104,7 +72,6 @@ updates:
     labels:
       - 'type: dependency-upgrade'
     registries:
-      - spring-milestones
       - shibboleth
     ignore:
       - dependency-name: com.nimbusds:nimbus-jose-jwt
@@ -153,15 +120,6 @@ updates:
       - 'in: build'
 
   - package-ecosystem: 6.5.x
-    target-branch: main
-    directory: /docs
-    schedule:
-      interval: weekly
-    labels:
-      - 'type: task'
-      - 'in: build'
-
-  - package-ecosystem: 6.4.x
     target-branch: main
     directory: /docs
     schedule:
