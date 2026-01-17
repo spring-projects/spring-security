@@ -58,6 +58,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.oauth2.core.ReactiveOAuth2TokenValidator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -84,6 +85,7 @@ import static org.mockito.Mockito.verify;
 /**
  * @author Rob Winch
  * @author Joe Grandja
+ * @author Iain Henderson
  * @since 5.1
  */
 public class NimbusReactiveJwtDecoderTests {
@@ -293,7 +295,7 @@ public class NimbusReactiveJwtDecoderTests {
 	public void setJwtValidatorWhenGivenNullThrowsIllegalArgumentException() {
 		// @formatter:off
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.decoder.setJwtValidator(null));
+				.isThrownBy(() -> this.decoder.setJwtValidator((ReactiveOAuth2TokenValidator<Jwt>) null));
 		// @formatter:on
 	}
 
@@ -667,7 +669,7 @@ public class NimbusReactiveJwtDecoderTests {
 		NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withPublicKey(TestKeys.DEFAULT_PUBLIC_KEY)
 			.validateType(false)
 			.build();
-		jwtDecoder.setJwtValidator((jwt) -> OAuth2TokenValidatorResult.success());
+		jwtDecoder.setJwtValidator((OAuth2TokenValidator<Jwt>) (jwt) -> OAuth2TokenValidatorResult.success());
 		RSAPrivateKey privateKey = TestKeys.DEFAULT_PRIVATE_KEY;
 		SignedJWT jwt = signedJwt(privateKey,
 				new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JOSE).build(),
@@ -680,7 +682,7 @@ public class NimbusReactiveJwtDecoderTests {
 		NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withSecretKey(TestKeys.DEFAULT_SECRET_KEY)
 			.validateType(false)
 			.build();
-		jwtDecoder.setJwtValidator((jwt) -> OAuth2TokenValidatorResult.success());
+		jwtDecoder.setJwtValidator((OAuth2TokenValidator<Jwt>) (jwt) -> OAuth2TokenValidatorResult.success());
 		SignedJWT jwt = signedJwt(TestKeys.DEFAULT_SECRET_KEY,
 				new JWSHeader.Builder(JWSAlgorithm.HS256).type(JOSEObjectType.JOSE).build(),
 				new JWTClaimsSet.Builder().subject("subject").build());
@@ -695,7 +697,7 @@ public class NimbusReactiveJwtDecoderTests {
 		NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withJwkSource((jwt) -> Flux.just(jwk))
 			.validateType(false)
 			.build();
-		jwtDecoder.setJwtValidator((jwt) -> OAuth2TokenValidatorResult.success());
+		jwtDecoder.setJwtValidator((OAuth2TokenValidator<Jwt>) (jwt) -> OAuth2TokenValidatorResult.success());
 		SignedJWT jwt = signedJwt(TestKeys.DEFAULT_PRIVATE_KEY,
 				new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JOSE).build(),
 				new JWTClaimsSet.Builder().subject("subject").build());
