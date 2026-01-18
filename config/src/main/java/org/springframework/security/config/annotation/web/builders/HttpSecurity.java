@@ -1881,7 +1881,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *
 	 * <p>
 	 * Invoking {@link #securityMatchers(Customizer)} will not override previous
-	 * invocations of {@link #securityMatchers()}, {@link #securityMatchers(Customizer)}
+	 * invocations of {@link #securityMatchers(Customizer)}
 	 * {@link #securityMatcher(String...)} and {@link #securityMatcher(RequestMatcher)}
 	 * </p>
 	 *
@@ -2004,8 +2004,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <p>
 	 * Invoking {@link #securityMatcher(RequestMatcher)} will override previous
 	 * invocations of {@link #securityMatcher(RequestMatcher)},
-	 * {@link #securityMatcher(String...)}, {@link #securityMatchers(Customizer)} and
-	 * {@link #securityMatchers()}
+	 * {@link #securityMatcher(String...)} and {@link #securityMatchers(Customizer)}
 	 * </p>
 	 * @param requestMatcher the {@link RequestMatcher} to use, for example,
 	 * {@code PathPatternRequestMatcher.pathPattern(HttpMethod.GET, "/admin/**")}
@@ -2024,9 +2023,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *
 	 * <p>
 	 * Invoking {@link #securityMatcher(String...)} will override previous invocations of
-	 * {@link #securityMatcher(String...)} (String)}},
-	 * {@link #securityMatcher(RequestMatcher)} ()}, {@link #securityMatchers(Customizer)}
-	 * (String)} and {@link #securityMatchers()} (String)}.
+	 * {@link #securityMatcher(String...)}, {@link #securityMatcher(RequestMatcher)} and
+	 * {@link #securityMatchers(Customizer)}.
 	 * </p>
 	 * @param patterns the pattern to match on (i.e. "/admin/**")
 	 * @return the {@link HttpSecurity} for further customizations
