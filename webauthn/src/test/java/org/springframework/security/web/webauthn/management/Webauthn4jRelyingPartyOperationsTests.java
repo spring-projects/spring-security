@@ -16,6 +16,11 @@
 
 package org.springframework.security.web.webauthn.management;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
@@ -75,6 +80,7 @@ import org.springframework.security.web.webauthn.api.UserVerificationRequirement
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatRuntimeException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -256,6 +262,33 @@ class Webauthn4jRelyingPartyOperationsTests {
 		assertThat(credentialRecord.getCredentialId()).isNotNull();
 		assertThat(credentialRecord.getTransports()).containsExactlyInAnyOrder(AuthenticatorTransport.INTERNAL,
 				AuthenticatorTransport.HYBRID);
+	}
+
+	@Test
+	void registerCredentialWhenCreationOptionsAreJavaDeserializedThenDoesNotThrow()
+			throws IOException, ClassNotFoundException {
+		PublicKeyCredentialCreationOptions creationOptions = TestPublicKeyCredentialCreationOptions
+			.createPublicKeyCredentialCreationOptions()
+			.build();
+		PublicKeyCredential<AuthenticatorAttestationResponse> publicKeyCredential = TestPublicKeyCredentials
+			.createPublicKeyCredential()
+			.build();
+		RelyingPartyPublicKey rpPublicKey = new RelyingPartyPublicKey(publicKeyCredential, this.label);
+
+		try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+				ObjectOutputStream objectOutputStream = new ObjectOutputStream(out)) {
+			objectOutputStream.writeObject(creationOptions);
+			objectOutputStream.flush();
+
+			try (ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+					ObjectInputStream objectInputStream = new ObjectInputStream(in)) {
+				PublicKeyCredentialCreationOptions deserialized = (PublicKeyCredentialCreationOptions) objectInputStream
+					.readObject();
+				ImmutableRelyingPartyRegistrationRequest rpRegistrationRequest = new ImmutableRelyingPartyRegistrationRequest(
+						deserialized, rpPublicKey);
+				assertThatNoException().isThrownBy(() -> this.rpOperations.registerCredential(rpRegistrationRequest));
+			}
+		}
 	}
 
 	@Test
