@@ -86,7 +86,7 @@ public class Argon2PasswordEncoder extends AbstractValidatingPasswordEncoder {
 
 	/**
 	 * Constructs an Argon2 password encoder with a salt length of 16 bytes, a hash length
-	 * of 32 bytes, parallelism of 1, memory cost of 1 << 12 and 3 iterations.
+	 * of 32 bytes, parallelism of 1, memory cost of {@code 1 << 12} and 3 iterations.
 	 * @return the {@link Argon2PasswordEncoder}
 	 * @since 5.8
 	 * @deprecated Use {@link #defaultsForSpringSecurity_v5_8()} instead
@@ -98,7 +98,7 @@ public class Argon2PasswordEncoder extends AbstractValidatingPasswordEncoder {
 
 	/**
 	 * Constructs an Argon2 password encoder with a salt length of 16 bytes, a hash length
-	 * of 32 bytes, parallelism of 1, memory cost of 1 << 14 and 2 iterations.
+	 * of 32 bytes, parallelism of 1, memory cost of {@code 1 << 14} and 2 iterations.
 	 * @return the {@link Argon2PasswordEncoder}
 	 * @since 5.8
 	 */
