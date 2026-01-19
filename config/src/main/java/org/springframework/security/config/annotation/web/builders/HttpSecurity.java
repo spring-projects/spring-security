@@ -1881,7 +1881,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *
 	 * <p>
 	 * Invoking {@link #securityMatchers(Customizer)} will not override previous
-	 * invocations of {@link #securityMatchers()}}, {@link #securityMatchers(Customizer)}
+	 * invocations of {@link #securityMatchers()}, {@link #securityMatchers(Customizer)}
 	 * {@link #securityMatcher(String...)} and {@link #securityMatcher(RequestMatcher)}
 	 * </p>
 	 *
