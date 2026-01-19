@@ -124,6 +124,11 @@ class AuthorizationFilterParser implements BeanDefinitionParser {
 		List<Element> interceptMessages = DomUtils.getChildElementsByTagName(element, Elements.INTERCEPT_URL);
 		for (Element interceptMessage : interceptMessages) {
 			String accessExpression = interceptMessage.getAttribute(ATT_ACCESS);
+			if (!StringUtils.hasText(accessExpression)) {
+				parserContext.getReaderContext()
+						.error("access attribute cannot be empty or null", interceptMessage);
+				continue;
+			}
 			BeanDefinitionBuilder authorizationManager = BeanDefinitionBuilder
 				.rootBeanDefinition(WebExpressionAuthorizationManager.class);
 			authorizationManager.addPropertyReference("expressionHandler", expressionHandlerRef);
