@@ -66,6 +66,18 @@ public class BearerTokenAuthenticationEntryPointTests {
 	}
 
 	@Test
+	void commenceWhenNoBearerTokenErrorAndContextPathSetThenStatus401AndAuthHeaderWithContextPath() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setContextPath("/ctx");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		this.authenticationEntryPoint.commence(request, response, new BadCredentialsException("test"));
+		assertThat(response.getStatus()).isEqualTo(401);
+		assertThat(response.getHeader("WWW-Authenticate"))
+			.isEqualTo("Bearer resource_metadata=\"http://localhost/ctx/.well-known/oauth-protected-resource\"");
+
+	}
+
+	@Test
 	public void commenceWhenInvalidRequestErrorThenStatus400AndHeaderWithError() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
