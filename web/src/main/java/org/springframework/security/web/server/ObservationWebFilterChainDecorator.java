@@ -26,7 +26,6 @@ import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationConvention;
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.observation.contextpropagation.ObservationThreadLocalAccessor;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
@@ -69,14 +68,14 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 		return new ObservationWebFilterChain(wrapSecured(original)::filter, wrap(filters));
 	}
 
-	private static AroundWebFilterObservation observation(ServerWebExchange exchange) {
-		AroundWebFilterObservation observation = exchange.getAttribute(ATTRIBUTE);
-		return (observation != null) ? observation : AroundWebFilterObservation.NOOP;
+	private static @Nullable AroundWebFilterObservation observation(ServerWebExchange exchange) {
+		return exchange.getAttribute(ATTRIBUTE);
 	}
 
 	private WebFilterChain wrapSecured(WebFilterChain original) {
 		return (exchange) -> Mono.deferContextual((contextView) -> {
 			AroundWebFilterObservation parent = observation(exchange);
+			Assert.notNull(parent, "AroundWebFilterObservation parent cannot be null");
 			Observation parentObservation = contextView.getOrDefault(ObservationThreadLocalAccessor.KEY, null);
 			Observation observation = Observation.createNotStarted(SECURED_OBSERVATION_NAME, this.registry)
 				.contextualName("secured request")
@@ -203,6 +202,7 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 
 		private Mono<Void> wrapFilter(ServerWebExchange exchange, WebFilterChain chain) {
 			AroundWebFilterObservation parent = observation(exchange);
+			Assert.notNull(parent, "ObservationWebFilter parent is required");
 			if (parent.before().getContext() instanceof WebFilterChainObservationContext parentBefore) {
 				parentBefore.setChainSize(this.size);
 				parentBefore.setFilterName(this.name);
@@ -575,7 +575,7 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 
 		private final String filterSection;
 
-		@Nullable private String filterName;
+		private @Nullable String filterName;
 
 		private int chainPosition;
 
