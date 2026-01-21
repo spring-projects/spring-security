@@ -148,7 +148,7 @@ public class SunJaasKerberosTicketValidator implements KerberosTicketValidator, 
 
 	/**
 	 * <p>
-	 * The location of the keytab. You can use the normale Spring Resource prefixes like
+	 * The location of the keytab. You can use the normal Spring Resource prefixes like
 	 * <code>file:</code> or <code>classpath:</code>, but as the file is later on read by
 	 * JAAS, we cannot guarantee that <code>classpath</code> works in every environment,
 	 * esp. not in Java EE application servers. You should use <code>file:</code> there.
