@@ -93,8 +93,8 @@ public class SpnegoEntryPoint implements AuthenticationEntryPoint {
 
 	/**
 	 * Instantiates a new spnego entry point. This constructor enables security
-	 * configuration to use SPNEGO in combination a fallback page (login form, custom 401
-	 * page ...). The forward URL will be accessed via provided HTTP method.
+	 * configuration to use SPNEGO in combination with a fallback page (login form, custom
+	 * 401 page ...). The forward URL will be accessed via provided HTTP method.
 	 * @param forwardUrl URL where the login page can be found. Should be relative to the
 	 * web-app context path (include a leading {@code /}) and can't be absolute URL.
 	 * @param forwardMethod HTTP method to use when accessing the forward URL
