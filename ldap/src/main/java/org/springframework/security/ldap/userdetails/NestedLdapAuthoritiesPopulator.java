@@ -16,23 +16,28 @@
 
 package org.springframework.security.ldap.userdetails;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.core.log.LogMessage;
 import org.springframework.ldap.core.ContextSource;
+import org.springframework.ldap.query.LdapQuery;
+import org.springframework.ldap.query.LdapQueryBuilder;
+import org.springframework.ldap.support.LdapUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.util.StringUtils;
 
+import javax.naming.InvalidNameException;
+import javax.naming.Name;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.ldap.LdapName;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
- * A LDAP authority populator that can recursively search static nested groups.
+ * An LDAP authority populator that can recursively search static nested groups.
  * <p>
  * An example of nested groups can be
  *
@@ -135,6 +140,8 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 	 */
 	private int maxSearchDepth = 10;
 
+	private ContextSource contextSource;
+
 	/**
 	 * Constructor for group search scenarios. <tt>userRoleAttributes</tt> may still be
 	 * set as a property.
@@ -144,6 +151,7 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 	 */
 	public NestedLdapAuthoritiesPopulator(ContextSource contextSource, String groupSearchBase) {
 		super(contextSource, groupSearchBase);
+		this.contextSource = contextSource;
 	}
 
 	@Override
@@ -152,7 +160,12 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 			return new HashSet<>();
 		}
 		Set<GrantedAuthority> authorities = new HashSet<>();
-		performNestedSearch(userDn, username, authorities, getMaxSearchDepth());
+		try {
+			performNestedSearch(new LdapName(userDn), username, authorities, getMaxSearchDepth());
+		}
+		catch (InvalidNameException e) {
+			throw LdapUtils.convertLdapException(e);
+		}
 		return authorities;
 	}
 
@@ -162,9 +175,9 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 	 * searches
 	 * @param username - the username of the user
 	 * @param authorities - the authorities set that will be populated, must not be null
-	 * @param depth - the depth remaining, when 0 recursion will end
+	 * @param depth - the depth remaining, when 0 recursions will end
 	 */
-	private void performNestedSearch(String userDn, String username, Set<GrantedAuthority> authorities, int depth) {
+	private void performNestedSearch(Name userDn, String username, Set<GrantedAuthority> authorities, int depth) {
 		if (depth == 0) {
 			// back out of recursion
 			logger.debug(LogMessage.of(() -> "Aborted search since max depth reached," + " for roles for user '"
@@ -180,18 +193,24 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 		if (StringUtils.hasText(getGroupRoleAttribute())) {
 			getAttributeNames().add(getGroupRoleAttribute());
 		}
-		Set<Map<String, List<String>>> userRoles = getLdapTemplate().searchForMultipleAttributeValues(
-				getGroupSearchBase(), getGroupSearchFilter(), new String[] { userDn, username },
-				getAttributeNames().toArray(new String[0]));
-		logger.debug(LogMessage.format("Found roles from search %s", userRoles));
-		for (Map<String, List<String>> record : userRoles) {
-			boolean circular = false;
-			String dn = record.get(SpringSecurityLdapTemplate.DN_KEY).get(0);
-			List<String> roleValues = record.get(getGroupRoleAttribute());
-			Set<String> roles = new HashSet<>();
-			if (roleValues != null) {
-				roles.addAll(roleValues);
-			}
+		LdapQuery query = LdapQueryBuilder.query()
+			.base(getGroupSearchBase())
+			// .attributes(getGroupRoleAttribute()) // TODO the original implementation
+			// does not use it??
+			.filter(getGroupSearchFilter(), userDn, username);
+
+		AtomicBoolean circular = new AtomicBoolean(false);
+		Set<String> roles = new HashSet<>();
+		getLdapClient().search().query(query).toEntryStream().forEach(entry -> {
+			logger.debug(LogMessage.of(() -> "Found roles from search " + entry));
+			Attributes attributes = entry.getAttributes();
+
+			Name dn = entry.getDn();
+			String[] userRoles = entry.getStringAttributes(getGroupRoleAttribute());
+
+			if (userRoles != null)
+				roles.addAll(Arrays.asList(userRoles));
+
 			for (String role : roles) {
 				if (isConvertToUpperCase()) {
 					role = role.toUpperCase(Locale.ROOT);
@@ -199,13 +218,13 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 				role = getRolePrefix() + role;
 				// if the group already exist, we will not search for it's parents again.
 				// this prevents a forever loop for a misconfigured ldap directory
-				circular = circular | (!authorities.add(new LdapAuthority(role, dn, record)));
+				circular.set(circular.get() | (!authorities.add(new LdapAuthority(role, dn, attributes))));
 			}
-			String roleName = (!roles.isEmpty()) ? roles.iterator().next() : dn;
-			if (!circular) {
+			String roleName = (!roles.isEmpty()) ? roles.iterator().next() : dn.toString();
+			if (!circular.get()) {
 				performNestedSearch(dn, roleName, authorities, (depth - 1));
 			}
-		}
+		});
 	}
 
 	/**
