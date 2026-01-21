@@ -41,8 +41,8 @@ public final class SpringSecurityCoreVersion {
 
 	/**
 	 * Global Serialization value for Spring Security classes.
-	 * @deprecated Please have each class use its own serialization version
-	 * For more details, refer to the {@code SpringSecurityCoreVersionSerializableTests} class.
+	 * @deprecated Please have each class use its own serialization version For more
+	 * details, refer to the {@code SpringSecurityCoreVersionSerializableTests} class.
 	 */
 	@Deprecated(forRemoval = true)
 	public static final long SERIAL_VERSION_UID = 620L;
