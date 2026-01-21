@@ -24,7 +24,6 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import org.jspecify.annotations.NullUnmarked;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.context.ApplicationContext;
@@ -180,7 +179,6 @@ public abstract class AbstractAuthorizeTag {
 		return this.method;
 	}
 
-	@NullUnmarked
 	public void setMethod(String method) {
 		this.method = (method != null) ? method.toUpperCase(Locale.ENGLISH) : null;
 	}

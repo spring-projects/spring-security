@@ -37,7 +37,6 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jspecify.annotations.NullUnmarked;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
@@ -51,7 +50,6 @@ import org.springframework.util.StringUtils;
  * @author Nikita Konev
  * @since 6.0
  */
-@NullUnmarked // https://github.com/spring-projects/spring-security/issues/17815
 public final class ObservationFilterChainDecorator implements FilterChainProxy.FilterChainDecorator {
 
 	private static final Log logger = LogFactory.getLog(FilterChainProxy.class);
@@ -107,7 +105,8 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 	}
 
 	static AroundFilterObservation observation(HttpServletRequest request) {
-		return (AroundFilterObservation) request.getAttribute(ATTRIBUTE);
+		AroundFilterObservation observation = (AroundFilterObservation) request.getAttribute(ATTRIBUTE);
+		return (observation != null) ? observation : AroundFilterObservation.NOOP;
 	}
 
 	private static final class VirtualFilterChain implements FilterChain {
@@ -377,11 +376,10 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 
 				private final Observation observation;
 
-				private volatile Observation.Scope scope;
+				private volatile Observation.Scope scope = Observation.Scope.NOOP;
 
 				private ObservationReference(Observation observation) {
 					this.observation = observation;
-					this.scope = Observation.Scope.NOOP;
 				}
 
 				private void start() {
@@ -510,7 +508,7 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 
 		private final String filterSection;
 
-		private @Nullable String filterName;
+		@Nullable private String filterName;
 
 		private int chainPosition;
 
