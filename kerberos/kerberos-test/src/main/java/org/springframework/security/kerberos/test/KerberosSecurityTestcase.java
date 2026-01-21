@@ -19,6 +19,7 @@ package org.springframework.security.kerberos.test;
 import java.io.File;
 import java.util.Properties;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -35,17 +36,23 @@ import org.junit.jupiter.api.BeforeEach;
  */
 public class KerberosSecurityTestcase {
 
-	private MiniKdc kdc;
+	private @Nullable MiniKdc kdc;
 
-	private File workDir;
+	private @Nullable File workDir;
 
-	private Properties conf;
+	private @Nullable Properties conf;
 
 	@BeforeEach
 	public void startMiniKdc() throws Exception {
 		createTestDir();
 		createMiniKdcConf();
 
+		if (this.conf == null) {
+			throw new IllegalStateException("conf must be initialized");
+		}
+		if (this.workDir == null) {
+			throw new IllegalStateException("workDir must be initialized");
+		}
 		this.kdc = new MiniKdc(this.conf, this.workDir);
 		this.kdc.start();
 	}
@@ -73,15 +80,15 @@ public class KerberosSecurityTestcase {
 		}
 	}
 
-	public MiniKdc getKdc() {
+	public @Nullable MiniKdc getKdc() {
 		return this.kdc;
 	}
 
-	public File getWorkDir() {
+	public @Nullable File getWorkDir() {
 		return this.workDir;
 	}
 
-	public Properties getConf() {
+	public @Nullable Properties getConf() {
 		return this.conf;
 	}
 
