@@ -182,7 +182,7 @@ public class KerberosRestTemplate extends RestTemplate {
 
 	/**
 	 * Builds the default instance of {@link HttpClient} having kerberos support.
-	 * @return the http client with spneno auth scheme
+	 * @return the http client with SPNEGO auth scheme
 	 */
 	private static HttpClient buildHttpClient() {
 		HttpClientBuilder builder = HttpClientBuilder.create();
