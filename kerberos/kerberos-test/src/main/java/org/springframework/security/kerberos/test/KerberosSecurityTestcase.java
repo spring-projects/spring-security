@@ -24,9 +24,9 @@ import org.junit.jupiter.api.BeforeEach;
 
 /**
  * KerberosSecurityTestcase provides a base class for using MiniKdc with other testcases.
- * KerberosSecurityTestcase starts the MiniKdc (@Before) before running tests, and stop
- * the MiniKdc (@After) after the testcases, using default settings (working dir and kdc
- * configurations).
+ * KerberosSecurityTestcase starts the MiniKdc (@BeforeEach) before running tests, and
+ * stop the MiniKdc (@AfterEach) after the testcases, using default settings (working dir
+ * and kdc configurations).
  * <p>
  * Users can directly inherit this class and implement their own test functions using the
  * default settings, or override functions getTestDir() and createMiniKdcConf() to provide
