@@ -36,6 +36,7 @@ import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSManager;
 import org.ietf.jgss.GSSName;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.ClassPathResource;
@@ -58,13 +59,13 @@ import org.springframework.util.Assert;
  */
 public class SunJaasKerberosTicketValidator implements KerberosTicketValidator, InitializingBean {
 
-	private String servicePrincipal;
+	private @Nullable String servicePrincipal;
 
-	private String realmName;
+	private @Nullable String realmName;
 
-	private Resource keyTabLocation;
+	private @Nullable Resource keyTabLocation;
 
-	private Subject serviceSubject;
+	private @Nullable Subject serviceSubject;
 
 	private boolean holdOnToGSSContext;
 
@@ -79,6 +80,9 @@ public class SunJaasKerberosTicketValidator implements KerberosTicketValidator, 
 	@Override
 	public KerberosTicketValidation validateTicket(byte[] token) {
 		try {
+			if (this.serviceSubject == null) {
+				throw new IllegalStateException("serviceSubject must be initialized");
+			}
 			if (!this.multiTier) {
 				return Subject.doAs(this.serviceSubject, new KerberosValidateAction(token));
 			}
@@ -89,7 +93,7 @@ public class SunJaasKerberosTicketValidator implements KerberosTicketValidator, 
 			return Subject.doAs(subjectHolder.getJaasSubject(), new KerberosMultitierValidateAction(token));
 
 		}
-		catch (PrivilegedActionException ex) {
+		catch (IllegalStateException | PrivilegedActionException ex) {
 			throw new BadCredentialsException("Kerberos validation not successful", ex);
 		}
 	}
@@ -98,6 +102,9 @@ public class SunJaasKerberosTicketValidator implements KerberosTicketValidator, 
 	public void afterPropertiesSet() throws Exception {
 		Assert.notNull(this.servicePrincipal, "servicePrincipal must be specified");
 		Assert.notNull(this.keyTabLocation, "keyTab must be specified");
+		if (this.servicePrincipal == null || this.keyTabLocation == null) {
+			throw new IllegalStateException("servicePrincipal and keyTabLocation must be set");
+		}
 		if (this.keyTabLocation instanceof ClassPathResource) {
 			this.LOG.warn(
 					"Your keytab is in the classpath. This file needs special protection and shouldn't be in the classpath. JAAS may also not be able to load this file from classpath.");
@@ -263,8 +270,15 @@ public class SunJaasKerberosTicketValidator implements KerberosTicketValidator, 
 			if (!SunJaasKerberosTicketValidator.this.holdOnToGSSContext) {
 				context.dispose();
 			}
-			return new KerberosTicketValidation(gssName.toString(),
-					SunJaasKerberosTicketValidator.this.servicePrincipal, responseToken, context, delegationCredential);
+			if (gssName == null) {
+				throw new BadCredentialsException("GSSContext name of the context initiator is null");
+			}
+			String servicePrincipal = SunJaasKerberosTicketValidator.this.servicePrincipal;
+			if (servicePrincipal == null) {
+				throw new IllegalStateException("servicePrincipal must be set");
+			}
+			return new KerberosTicketValidation(gssName.toString(), servicePrincipal, responseToken, context,
+					delegationCredential);
 		}
 
 	}
@@ -280,7 +294,7 @@ public class SunJaasKerberosTicketValidator implements KerberosTicketValidator, 
 
 		private String servicePrincipalName;
 
-		private String realmName;
+		private @Nullable String realmName;
 
 		private boolean multiTier;
 
@@ -288,8 +302,8 @@ public class SunJaasKerberosTicketValidator implements KerberosTicketValidator, 
 
 		private boolean refreshKrb5Config;
 
-		private LoginConfig(String keyTabLocation, String servicePrincipalName, String realmName, boolean multiTier,
-				boolean debug, boolean refreshKrb5Config) {
+		private LoginConfig(String keyTabLocation, String servicePrincipalName, @Nullable String realmName,
+				boolean multiTier, boolean debug, boolean refreshKrb5Config) {
 			this.keyTabLocation = keyTabLocation;
 			this.servicePrincipalName = servicePrincipalName;
 			this.realmName = realmName;
