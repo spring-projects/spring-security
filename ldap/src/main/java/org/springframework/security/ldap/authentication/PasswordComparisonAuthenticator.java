@@ -20,9 +20,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.log.LogMessage;
-import org.springframework.ldap.NameNotFoundException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.ldap.core.AttributesMapper;
+import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.core.LdapClient;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
+import org.springframework.ldap.query.LdapQueryBuilder;
+import org.springframework.ldap.query.SearchScope;
+import org.springframework.ldap.support.LdapUtils;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -31,7 +37,6 @@ import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.util.Assert;
 
 /**
@@ -58,8 +63,11 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 
 	private boolean usePasswordAttrCompare = false;
 
+	LdapClient ldapClient;
+
 	public PasswordComparisonAuthenticator(BaseLdapPathContextSource contextSource) {
 		super(contextSource);
+		ldapClient = LdapClient.builder().contextSource(contextSource).build();
 	}
 
 	@Override
@@ -70,12 +78,19 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 		DirContextOperations user = null;
 		String username = authentication.getName();
 		String password = (String) authentication.getCredentials();
-		SpringSecurityLdapTemplate ldapTemplate = new SpringSecurityLdapTemplate(getContextSource());
 		for (String userDn : getUserDns(username)) {
 			try {
-				user = ldapTemplate.retrieveEntry(userDn, getUserAttributes());
+				user = this.ldapClient.search()
+					.query(LdapQueryBuilder.query()
+						.base(userDn)
+						.searchScope(SearchScope.OBJECT)
+						.attributes(getUserAttributes()))
+					.toObject((AttributesMapper<DirContextOperations>) attrs -> {
+						BaseLdapPathContextSource source = (BaseLdapPathContextSource) getContextSource();
+						return new DirContextAdapter(attrs, LdapUtils.newLdapName(userDn), source.getBaseLdapName());
+					});
 			}
-			catch (NameNotFoundException ignore) {
+			catch (EmptyResultDataAccessException ignore) {
 				logger.trace(LogMessage.format("Failed to retrieve user with %s", userDn), ignore);
 			}
 			if (user != null) {
@@ -104,7 +119,7 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 					this.passwordAttributeName, user.getDn()));
 			return user;
 		}
-		if (isLdapPasswordCompare(user, ldapTemplate, password)) {
+		if (isLdapPasswordCompare(user, password)) {
 			logger.debug(LogMessage.format("LDAP-matched password attribute '%s' for user '%s'",
 					this.passwordAttributeName, user.getDn()));
 			return user;
@@ -129,11 +144,18 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 		return String.valueOf(passwordAttrValue);
 	}
 
-	private boolean isLdapPasswordCompare(DirContextOperations user, SpringSecurityLdapTemplate ldapTemplate,
-			String password) {
+	private boolean isLdapPasswordCompare(DirContextOperations user, String password) {
 		String encodedPassword = this.passwordEncoder.encode(password);
 		byte[] passwordBytes = Utf8.encode(encodedPassword);
-		return ldapTemplate.compare(user.getDn().toString(), this.passwordAttributeName, passwordBytes);
+		return !this.ldapClient.search()
+			.query(LdapQueryBuilder.query()
+				.base(user.getDn().toString())
+				.searchScope(SearchScope.OBJECT)
+				.countLimit(1)
+				.attributes(this.passwordAttributeName)
+				.filter("({0}={1})", this.passwordAttributeName, passwordBytes))
+			.toList((AttributesMapper<String>) attrs -> this.passwordAttributeName)
+			.isEmpty();
 	}
 
 	public void setPasswordAttributeName(String passwordAttribute) {
