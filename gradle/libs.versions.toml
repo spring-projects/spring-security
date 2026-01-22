@@ -85,7 +85,7 @@ org-springframework-data-spring-data-bom = "org.springframework.data:spring-data
 org-springframework-ldap-spring-ldap-core = "org.springframework.ldap:spring-ldap-core:4.0.1"
 org-springframework-spring-framework-bom = { module = "org.springframework:spring-framework-bom", version.ref = "org-springframework" }
 org-synchronoss-cloud-nio-multipart-parser = "org.synchronoss.cloud:nio-multipart-parser:1.1.0"
-tools-jackson-jackson-bom = "tools.jackson:jackson-bom:3.0.3"
+tools-jackson-jackson-bom = "tools.jackson:jackson-bom:3.0.4"
 
 com-google-code-gson-gson = "com.google.code.gson:gson:2.13.2"
 com-thaiopensource-trag = "com.thaiopensource:trang:20091111"
