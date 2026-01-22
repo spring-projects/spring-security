@@ -24,4 +24,7 @@
  * older and more verbose attribute/voter/after-invocation approach from versions before
  * Spring Security 3.0.
  */
+@NullMarked
 package org.springframework.security.acls;
+
+import org.jspecify.annotations.NullMarked;

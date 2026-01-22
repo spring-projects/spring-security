@@ -18,4 +18,7 @@
  * Interfaces and shared classes to manage access control lists (ACLs) for domain object
  * instances.
  */
+@NullMarked
 package org.springframework.security.acls.model;
+
+import org.jspecify.annotations.NullMarked;

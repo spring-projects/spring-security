@@ -99,7 +99,8 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 		Authentication authentication = context.getAuthentication();
 		// Check if authorized by virtue of ACL ownership
 		Sid currentUser = createCurrentUser(authentication);
-		if (currentUser.equals(acl.getOwner())
+		Sid owner = acl.getOwner();
+		if (owner != null && currentUser.equals(owner)
 				&& ((changeType == CHANGE_GENERAL) || (changeType == CHANGE_OWNERSHIP))) {
 			return;
 		}
@@ -108,8 +109,8 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 		Collection<? extends GrantedAuthority> reachableGrantedAuthorities = this.roleHierarchy
 			.getReachableGrantedAuthorities(authentication.getAuthorities());
 		Set<String> authorities = AuthorityUtils.authorityListToSet(reachableGrantedAuthorities);
-		if (acl.getOwner() instanceof GrantedAuthoritySid
-				&& authorities.contains(((GrantedAuthoritySid) acl.getOwner()).getGrantedAuthority())) {
+		if (owner instanceof GrantedAuthoritySid
+				&& authorities.contains(((GrantedAuthoritySid) owner).getGrantedAuthority())) {
 			return;
 		}
 

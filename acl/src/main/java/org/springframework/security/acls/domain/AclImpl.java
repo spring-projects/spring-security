@@ -20,6 +20,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.AuditableAcl;
@@ -41,7 +43,7 @@ import org.springframework.util.ObjectUtils;
  */
 public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 
-	private Acl parentAcl;
+	private @Nullable Acl parentAcl;
 
 	private transient AclAuthorizationStrategy aclAuthorizationStrategy;
 
@@ -54,10 +56,10 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 	private Serializable id;
 
 	// OwnershipAcl
-	private Sid owner;
+	private @Nullable Sid owner;
 
 	// includes all SIDs the WHERE clause covered, even if there was no ACE for a SID
-	private List<Sid> loadedSids = null;
+	private @Nullable List<Sid> loadedSids = null;
 
 	private boolean entriesInheriting = true;
 
@@ -97,8 +99,8 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 	 * @param owner the owner (required)
 	 */
 	public AclImpl(ObjectIdentity objectIdentity, Serializable id, AclAuthorizationStrategy aclAuthorizationStrategy,
-			PermissionGrantingStrategy grantingStrategy, Acl parentAcl, List<Sid> loadedSids, boolean entriesInheriting,
-			Sid owner) {
+			PermissionGrantingStrategy grantingStrategy, @Nullable Acl parentAcl, @Nullable List<Sid> loadedSids,
+			boolean entriesInheriting, Sid owner) {
 		Assert.notNull(objectIdentity, "Object Identity required");
 		Assert.notNull(id, "Id required");
 		Assert.notNull(aclAuthorizationStrategy, "AclAuthorizationStrategy required");
@@ -117,7 +119,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 	 * Private no-argument constructor for use by reflection-based persistence tools along
 	 * with field-level access.
 	 */
-	@SuppressWarnings("unused")
+	@SuppressWarnings({ "unused", "NullAway.Init" })
 	private AclImpl() {
 	}
 
@@ -199,7 +201,7 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 	}
 
 	@Override
-	public boolean isSidLoaded(List<Sid> sids) {
+	public boolean isSidLoaded(@Nullable List<Sid> sids) {
 		// If loadedSides is null, this indicates all SIDs were loaded
 		// Also return true if the caller didn't specify a SID to find
 		if ((this.loadedSids == null) || (sids == null) || sids.isEmpty()) {
@@ -238,19 +240,19 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 	}
 
 	@Override
-	public Sid getOwner() {
+	public @Nullable Sid getOwner() {
 		return this.owner;
 	}
 
 	@Override
-	public void setParent(Acl newParent) {
+	public void setParent(@Nullable Acl newParent) {
 		this.aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
 		Assert.isTrue(newParent == null || !newParent.equals(this), "Cannot be the parent of yourself");
 		this.parentAcl = newParent;
 	}
 
 	@Override
-	public Acl getParentAcl() {
+	public @Nullable Acl getParentAcl() {
 		return this.parentAcl;
 	}
 

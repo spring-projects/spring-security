@@ -23,6 +23,7 @@ import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.core.convert.ConversionService;
@@ -67,10 +68,10 @@ class AclClassIdUtils {
 	 * @return The identifier in the appropriate target Java type. Typically Long or UUID.
 	 * @throws SQLException
 	 */
-	Serializable identifierFrom(Serializable identifier, ResultSet resultSet) throws SQLException {
-		if (isString(identifier) && hasValidClassIdType(resultSet)
-				&& canConvertFromStringTo(classIdTypeFrom(resultSet))) {
-			return convertFromStringTo((String) identifier, classIdTypeFrom(resultSet));
+	@Nullable Serializable identifierFrom(Serializable identifier, ResultSet resultSet) throws SQLException {
+		Class<? extends Serializable> classIdType = classIdTypeFrom(resultSet);
+		if (isString(identifier) && classIdType != null && canConvertFromStringTo(classIdType)) {
+			return convertFromStringTo((String) identifier, classIdType);
 		}
 		// Assume it should be a Long type
 		return convertToLong(identifier);
@@ -86,11 +87,17 @@ class AclClassIdUtils {
 		}
 	}
 
-	private <T extends Serializable> Class<T> classIdTypeFrom(ResultSet resultSet) throws SQLException {
-		return classIdTypeFrom(resultSet.getString(DEFAULT_CLASS_ID_TYPE_COLUMN_NAME));
+	private <T extends Serializable> @Nullable Class<T> classIdTypeFrom(ResultSet resultSet) throws SQLException {
+		try {
+			return classIdTypeFrom(resultSet.getString(DEFAULT_CLASS_ID_TYPE_COLUMN_NAME));
+		}
+		catch (SQLException ex) {
+			log.debug("Unable to obtain the class id type", ex);
+			return null;
+		}
 	}
 
-	private <T extends Serializable> Class<T> classIdTypeFrom(String className) {
+	private <T extends Serializable> @Nullable Class<T> classIdTypeFrom(String className) {
 		if (className == null) {
 			return null;
 		}
@@ -107,7 +114,7 @@ class AclClassIdUtils {
 		return this.conversionService.canConvert(String.class, targetType);
 	}
 
-	private <T extends Serializable> T convertFromStringTo(String identifier, Class<T> targetType) {
+	private <T extends Serializable> @Nullable T convertFromStringTo(String identifier, Class<T> targetType) {
 		return this.conversionService.convert(identifier, targetType);
 	}
 
@@ -121,7 +128,7 @@ class AclClassIdUtils {
 	 * exception occurred
 	 * @throws IllegalArgumentException if targetType is null
 	 */
-	private Long convertToLong(Serializable identifier) {
+	private @Nullable Long convertToLong(Serializable identifier) {
 		if (this.conversionService.canConvert(identifier.getClass(), Long.class)) {
 			return this.conversionService.convert(identifier, Long.class);
 		}
@@ -140,10 +147,10 @@ class AclClassIdUtils {
 	private static class StringToLongConverter implements Converter<String, Long> {
 
 		@Override
-		public Long convert(String identifierAsString) {
+		public Long convert(@Nullable String identifierAsString) {
 			if (identifierAsString == null) {
 				throw new ConversionFailedException(TypeDescriptor.valueOf(String.class),
-						TypeDescriptor.valueOf(Long.class), null, null);
+						TypeDescriptor.valueOf(Long.class), identifierAsString, new NullPointerException());
 
 			}
 			return Long.parseLong(identifierAsString);
@@ -154,10 +161,10 @@ class AclClassIdUtils {
 	private static class StringToUUIDConverter implements Converter<String, UUID> {
 
 		@Override
-		public UUID convert(String identifierAsString) {
+		public UUID convert(@Nullable String identifierAsString) {
 			if (identifierAsString == null) {
 				throw new ConversionFailedException(TypeDescriptor.valueOf(String.class),
-						TypeDescriptor.valueOf(UUID.class), null, null);
+						TypeDescriptor.valueOf(UUID.class), identifierAsString, new NullPointerException());
 
 			}
 			return UUID.fromString(identifierAsString);

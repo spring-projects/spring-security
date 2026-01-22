@@ -18,6 +18,8 @@ package org.springframework.security.acls.model;
 
 import java.io.Serializable;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Represents an individual permission assignment within an {@link Acl}.
  *
@@ -36,7 +38,7 @@ public interface AccessControlEntry extends Serializable {
 	 * Obtains an identifier that represents this ACE.
 	 * @return the identifier, or <code>null</code> if unsaved
 	 */
-	Serializable getId();
+	@Nullable Serializable getId();
 
 	Permission getPermission();
 

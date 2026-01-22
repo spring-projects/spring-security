@@ -17,4 +17,7 @@
 /**
  * JDBC-based persistence of ACL information
  */
+@NullMarked
 package org.springframework.security.acls.jdbc;
+
+import org.jspecify.annotations.NullMarked;

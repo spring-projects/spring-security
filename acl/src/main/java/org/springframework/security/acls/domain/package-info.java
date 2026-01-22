@@ -17,4 +17,7 @@
 /**
  * Basic implementation of access control lists (ACLs) interfaces.
  */
+@NullMarked
 package org.springframework.security.acls.domain;
+
+import org.jspecify.annotations.NullMarked;

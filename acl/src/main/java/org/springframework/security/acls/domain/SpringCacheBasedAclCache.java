@@ -18,6 +18,8 @@ package org.springframework.security.acls.domain;
 
 import java.io.Serializable;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.cache.Cache;
 import org.springframework.security.acls.model.AclCache;
 import org.springframework.security.acls.model.MutableAcl;
@@ -78,13 +80,13 @@ public class SpringCacheBasedAclCache implements AclCache {
 	}
 
 	@Override
-	public MutableAcl getFromCache(ObjectIdentity objectIdentity) {
+	public @Nullable MutableAcl getFromCache(ObjectIdentity objectIdentity) {
 		Assert.notNull(objectIdentity, "ObjectIdentity required");
 		return getFromCache((Object) objectIdentity);
 	}
 
 	@Override
-	public MutableAcl getFromCache(Serializable pk) {
+	public @Nullable MutableAcl getFromCache(Serializable pk) {
 		Assert.notNull(pk, "Primary key (identifier) required");
 		return getFromCache((Object) pk);
 	}
@@ -101,12 +103,16 @@ public class SpringCacheBasedAclCache implements AclCache {
 		this.cache.put(acl.getId(), acl);
 	}
 
-	private MutableAcl getFromCache(Object key) {
+	private @Nullable MutableAcl getFromCache(Object key) {
 		Cache.ValueWrapper element = this.cache.get(key);
 		if (element == null) {
 			return null;
 		}
-		return initializeTransientFields((MutableAcl) element.get());
+		Object value = element.get();
+		if (value == null) {
+			return null;
+		}
+		return initializeTransientFields((MutableAcl) value);
 	}
 
 	private MutableAcl initializeTransientFields(MutableAcl value) {
