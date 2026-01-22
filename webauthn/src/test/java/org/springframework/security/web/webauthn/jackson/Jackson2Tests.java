@@ -44,6 +44,7 @@ import org.springframework.security.web.webauthn.api.UserVerificationRequirement
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SuppressWarnings("removal")
 class Jackson2Tests {
 
 	private ObjectMapper mapper;

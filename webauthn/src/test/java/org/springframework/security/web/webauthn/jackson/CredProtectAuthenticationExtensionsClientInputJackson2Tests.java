@@ -29,6 +29,7 @@ import org.springframework.security.web.webauthn.api.ImmutableAuthenticationExte
  *
  * @author Rob Winch
  */
+@SuppressWarnings("removal")
 class CredProtectAuthenticationExtensionsClientInputJackson2Tests {
 
 	private ObjectMapper mapper;
