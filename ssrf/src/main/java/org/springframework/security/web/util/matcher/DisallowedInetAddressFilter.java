@@ -23,7 +23,7 @@ final class DisallowedInetAddressFilter implements InetAddressFilter {
 
 	@Override
 	public String toString() {
-		return "DisallowedInetAddressVerifier[\"" + this.disallowList + "\"]";
+		return "DisallowedInetAddressFilter[\"" + this.disallowList + "\"]";
 	}
 
 }

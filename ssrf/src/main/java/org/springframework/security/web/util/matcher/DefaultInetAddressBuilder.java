@@ -4,7 +4,6 @@ package org.springframework.security.web.util.matcher;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -12,11 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 
-final class DefaultInetAddressVerifierBuilder implements InetAddressFilter.Builder {
-
-	private static final String ALLOWED_DISALLOWED_MESSAGE = "allowed and disallowed are mutually exclusive";
-
-	private static final String INTERNAL_EXTERNAL_ONLY_MESSAGE = "internalOnly and externalOnly are mutually exclusive";
+final class DefaultInetAddressBuilder implements InetAddressFilter.Builder {
 
 	private final List<InetAddressFilter> filters = new ArrayList<>();
 
@@ -24,40 +19,37 @@ final class DefaultInetAddressVerifierBuilder implements InetAddressFilter.Build
 
 	@Override
 	public InetAddressFilter.Builder allowList(List<String> addresses) {
-		assertNoneMatch(filter -> filter instanceof DisallowedInetAddressFilter, ALLOWED_DISALLOWED_MESSAGE);
 		this.filters.add(new AllowedInetAddressFilter(addresses));
 		return this;
 	}
 
 	@Override
 	public InetAddressFilter.Builder denyList(List<String> addresses) {
-		assertNoneMatch(filter -> filter instanceof AllowedInetAddressFilter, ALLOWED_DISALLOWED_MESSAGE);
 		this.filters.add(new DisallowedInetAddressFilter(addresses));
 		return this;
 	}
 
 	@Override
 	public InetAddressFilter.Builder blockExternal() {
-		return addInternalOrExternalFilter(true);
+		return addInternalExternalFilter(true);
 	}
 
 	@Override
 	public InetAddressFilter.Builder blockInternal() {
-		return addInternalOrExternalFilter(false);
+		return addInternalExternalFilter(false);
 	}
 
-	private InetAddressFilter.Builder addInternalOrExternalFilter(boolean blockExternal) {
-
-		assertNoneMatch(
-				f -> f instanceof InternalExternalInetAddressFilter ief && blockExternal != ief.shouldBlockExternal(),
-				INTERNAL_EXTERNAL_ONLY_MESSAGE);
+	private InetAddressFilter.Builder addInternalExternalFilter(boolean blockExternal) {
+		Assert.isTrue(this.filters.stream().noneMatch(f ->
+				f instanceof InternalExternalInetAddressFilter ief && blockExternal != ief.shouldBlockExternal()),
+				"blockExternal and blockInternal are mutually exclusive options");
 
 		this.filters.add(new InternalExternalInetAddressFilter(blockExternal));
 		return this;
 	}
 
 	@Override
-	public InetAddressFilter.Builder addCustomFilter(InetAddressFilter filter) {
+	public InetAddressFilter.Builder customFilter(InetAddressFilter filter) {
 		this.filters.add(filter);
 		return this;
 	}
@@ -71,10 +63,6 @@ final class DefaultInetAddressVerifierBuilder implements InetAddressFilter.Build
 	@Override
 	public InetAddressFilter build() {
 		return new CompositeInetAddressFilter(this.filters, this.reportOnly);
-	}
-
-	private void assertNoneMatch(Predicate<InetAddressFilter> predicate, String message) {
-		Assert.state(this.filters.stream().noneMatch(predicate), message);
 	}
 
 

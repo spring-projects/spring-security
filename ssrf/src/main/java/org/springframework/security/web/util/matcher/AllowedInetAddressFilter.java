@@ -26,7 +26,7 @@ final class AllowedInetAddressFilter implements InetAddressFilter {
 
 	@Override
 	public String toString() {
-		return "AllowedInetAddressVerifier[\"" + this.allowList + "\"]";
+		return "AllowedInetAddressFilter[\"" + this.allowList + "\"]";
 	}
 
 }

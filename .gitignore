@@ -13,6 +13,7 @@ ssrf/bin
 out
 test-output
 atlassian-ide-plugin.xml
+build/
 
 # VS Code
 .vscode/
