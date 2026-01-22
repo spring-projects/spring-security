@@ -18,8 +18,9 @@ package org.springframework.security.messaging.util.matcher;
 
 import java.util.Collections;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.http.server.PathContainer;
-import org.springframework.lang.Nullable;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;

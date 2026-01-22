@@ -109,9 +109,9 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 
 		private final WebHandler handler;
 
-		@Nullable private final ObservationWebFilter currentFilter;
+		private final @Nullable ObservationWebFilter currentFilter;
 
-		@Nullable private final ObservationWebFilterChain chain;
+		private final @Nullable ObservationWebFilterChain chain;
 
 		/**
 		 * Public constructor with the list of filters and the target handler to use.

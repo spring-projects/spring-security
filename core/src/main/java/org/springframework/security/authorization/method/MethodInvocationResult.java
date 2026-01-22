@@ -32,7 +32,7 @@ public class MethodInvocationResult {
 
 	private final MethodInvocation methodInvocation;
 
-	private @Nullable final Object result;
+	private final @Nullable Object result;
 
 	/**
 	 * Construct a {@link MethodInvocationResult} with the provided parameters

@@ -25,7 +25,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import org.springframework.aop.Pointcut;
-import org.springframework.lang.NonNull;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.TestAuthentication;
@@ -193,7 +192,7 @@ public class ReactiveAuthorizationAdvisorProxyFactoryTests {
 		}
 
 		@Override
-		public int compareTo(@NonNull User that) {
+		public int compareTo(User that) {
 			return this.id.compareTo(that.getId());
 		}
 
@@ -207,7 +206,6 @@ public class ReactiveAuthorizationAdvisorProxyFactoryTests {
 			return Flux.fromIterable(this.users);
 		}
 
-		@NonNull
 		@Override
 		public Iterator<User> iterator() {
 			return this.users.iterator();

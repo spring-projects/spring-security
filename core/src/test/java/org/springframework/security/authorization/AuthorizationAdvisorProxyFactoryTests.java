@@ -40,7 +40,6 @@ import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.aop.Pointcut;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
-import org.springframework.lang.NonNull;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.TestAuthentication;
@@ -445,7 +444,7 @@ public class AuthorizationAdvisorProxyFactoryTests {
 		}
 
 		@Override
-		public int compareTo(@NonNull User that) {
+		public int compareTo(User that) {
 			return this.id.compareTo(that.getId());
 		}
 
@@ -455,7 +454,6 @@ public class AuthorizationAdvisorProxyFactoryTests {
 
 		List<User> users = List.of(new User("1", "first", "last"));
 
-		@NonNull
 		@Override
 		public Iterator<User> iterator() {
 			return this.users.iterator();

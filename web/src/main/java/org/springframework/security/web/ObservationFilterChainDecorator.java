@@ -508,7 +508,7 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 
 		private final String filterSection;
 
-		@Nullable private String filterName;
+		private @Nullable String filterName;
 
 		private int chainPosition;
 
