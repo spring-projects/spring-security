@@ -21,10 +21,10 @@ import java.io.IOException;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
-import org.jspecify.annotations.NullUnmarked;
 
 import org.springframework.security.config.BeanIds;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -67,7 +67,6 @@ final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
 		builder.addFilters(this.delegateFilter);
 	}
 
-	@NullUnmarked
 	@Override
 	public RequestPostProcessor beforeMockMvcCreated(ConfigurableMockMvcBuilder<?> builder,
 			WebApplicationContext context) {
@@ -79,7 +78,9 @@ final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
 				() -> "springSecurityFilterChain cannot be null. Ensure a Bean with the name " + securityBeanId
 						+ " implementing Filter is present or inject the Filter to be used.");
 		// This is used by other test support to obtain the FilterChainProxy
-		context.getServletContext().setAttribute(BeanIds.SPRING_SECURITY_FILTER_CHAIN, getSpringSecurityFilterChain());
+		ServletContext servletContext = context.getServletContext();
+		Assert.notNull(servletContext, "ServletContext must not be null");
+		servletContext.setAttribute(BeanIds.SPRING_SECURITY_FILTER_CHAIN, getSpringSecurityFilterChain());
 		return testSecurityContext();
 	}
 

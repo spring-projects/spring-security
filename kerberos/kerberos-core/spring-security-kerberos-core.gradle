@@ -1,5 +1,7 @@
 plugins {
+	id 'security-nullability'
 	id 'io.spring.convention.spring-module'
+	id 'javadoc-warnings-error'
 }
 
 description = 'Spring Security Kerberos Core'

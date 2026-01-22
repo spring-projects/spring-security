@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * Core access-control related code, including security metadata related classes,
- * interception code, access control annotations, EL support, and implementations of the
- * central {@link org.springframework.security.authorization.AuthorizationManager
- * AuthorizationManager} interface.
- */
 @NullMarked
-package org.springframework.security.access;
+package org.springframework.security.kerberos.authentication;
 
 import org.jspecify.annotations.NullMarked;

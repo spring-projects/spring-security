@@ -23,6 +23,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Result of ticket validation
@@ -35,17 +36,17 @@ public final class KerberosTicketValidation {
 
 	private final byte[] responseToken;
 
-	private final GSSContext gssContext;
+	private final @Nullable GSSContext gssContext;
 
-	private final GSSCredential delegationCredential;
+	private final @Nullable GSSCredential delegationCredential;
 
 	public KerberosTicketValidation(String username, String servicePrincipal, byte[] responseToken,
-			GSSContext gssContext) {
+			@Nullable GSSContext gssContext) {
 		this(username, servicePrincipal, responseToken, gssContext, null);
 	}
 
 	public KerberosTicketValidation(String username, String servicePrincipal, byte[] responseToken,
-			GSSContext gssContext, GSSCredential delegationCredential) {
+			@Nullable GSSContext gssContext, @Nullable GSSCredential delegationCredential) {
 		final HashSet<KerberosPrincipal> princs = new HashSet<KerberosPrincipal>();
 		princs.add(new KerberosPrincipal(servicePrincipal));
 
@@ -56,12 +57,13 @@ public final class KerberosTicketValidation {
 		this.delegationCredential = delegationCredential;
 	}
 
-	public KerberosTicketValidation(String username, Subject subject, byte[] responseToken, GSSContext gssContext) {
+	public KerberosTicketValidation(String username, Subject subject, byte[] responseToken,
+			@Nullable GSSContext gssContext) {
 		this(username, subject, responseToken, gssContext, null);
 	}
 
-	public KerberosTicketValidation(String username, Subject subject, byte[] responseToken, GSSContext gssContext,
-			GSSCredential delegationCredential) {
+	public KerberosTicketValidation(String username, Subject subject, byte[] responseToken,
+			@Nullable GSSContext gssContext, @Nullable GSSCredential delegationCredential) {
 		this.username = username;
 		this.subject = subject;
 		this.responseToken = responseToken;
@@ -77,7 +79,7 @@ public final class KerberosTicketValidation {
 		return this.responseToken;
 	}
 
-	public GSSContext getGssContext() {
+	public @Nullable GSSContext getGssContext() {
 		return this.gssContext;
 	}
 
@@ -85,7 +87,7 @@ public final class KerberosTicketValidation {
 		return this.subject;
 	}
 
-	public GSSCredential getDelegationCredential() {
+	public @Nullable GSSCredential getDelegationCredential() {
 		return this.delegationCredential;
 	}
 
