@@ -38,6 +38,7 @@ import static org.mockito.Mockito.mock;
 public class PasswordComparisonAuthenticatorMockTests {
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void ldapCompareOperationIsUsedWhenPasswordIsNotRetrieved() throws Exception {
 		final DirContext dirCtx = mock(DirContext.class);
 		final BaseLdapPathContextSource source = mock(BaseLdapPathContextSource.class);

@@ -369,6 +369,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 		this.groupSearchFilter = "(" + groupMemberAttributeName + "={0})";
 	}
 
+	@SuppressWarnings("unchecked")
 	public void setRoleMapper(AttributesMapper roleMapper) {
 		this.roleMapper = roleMapper;
 	}

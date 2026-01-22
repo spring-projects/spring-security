@@ -68,6 +68,7 @@ public class DefaultSpringSecurityContextSourceTests {
 	}
 
 	@Test
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void poolingFlagIsSetWhenAuthenticationDnMatchesManagerUserDn() {
 		EnvExposingDefaultSpringSecurityContextSource ctxSrc = new EnvExposingDefaultSpringSecurityContextSource(
 				"ldap://blah:789/dc=springframework,dc=org");
@@ -79,6 +80,7 @@ public class DefaultSpringSecurityContextSourceTests {
 	}
 
 	@Test
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void poolingFlagIsNotSetWhenAuthenticationDnIsNotManagerUserDn() {
 		EnvExposingDefaultSpringSecurityContextSource ctxSrc = new EnvExposingDefaultSpringSecurityContextSource(
 				"ldap://blah:789/dc=springframework,dc=org");
@@ -170,13 +172,13 @@ public class DefaultSpringSecurityContextSourceTests {
 			.isThrownBy(() -> new DefaultSpringSecurityContextSource(serverUrls, "dc=springframework,dc=org"));
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	static class EnvExposingDefaultSpringSecurityContextSource extends DefaultSpringSecurityContextSource {
 
 		EnvExposingDefaultSpringSecurityContextSource(String providerUrl) {
 			super(providerUrl);
 		}
 
-		@SuppressWarnings("unchecked")
 		Hashtable getAuthenticatedEnvForTest(String userDn, String password) {
 			return getAuthenticatedEnv(userDn, password);
 		}
