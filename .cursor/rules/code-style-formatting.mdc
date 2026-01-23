@@ -1,0 +1,525 @@
+---
+description: Comprehensive code style and formatting conventions for the Spring Security codebase, including indentation, naming, documentation, build tools, and best practices
+alwaysApply: false
+---
+
+# Spring Security Code Style & Formatting
+
+## Build Tool & Formatting Infrastructure
+
+### Spring Java Format Plugin
+
+The codebase uses **Spring Java Format** (`io.spring.javaformat`) for automated code formatting:
+
+- **Version**: `0.0.47` (from `gradle/libs.versions.toml`)
+- **Plugin**: Applied to all projects except BOM and docs (`build.gradle` line 53)
+- **Gradle Command**: `./gradlew format && ./gradlew check`
+
+**Key Components**:
+- **Formatter**: `spring-javaformat-gradle-plugin` - Auto-formats code
+- **Checkstyle Integration**: `spring-javaformat-checkstyle` - Enforces style rules
+- **Checkstyle Version**: 8.34
+
+### Checkstyle Configuration
+
+Primary configuration file: `etc/checkstyle/checkstyle.xml`
+
+**Key Modules**:
+
+```xml
+<module name="io.spring.javaformat.checkstyle.SpringChecks">
+    <!-- Enforces Spring-specific code style -->
+</module>
+```
+
+**Custom Checks**:
+1. **Header Check**: Apache License 2.0 (see `etc/checkstyle/header.txt`)
+2. **Package Info Check**: Requires `package-info.java` for all packages
+3. **NullMarked Check**: All packages must have `@NullMarked` annotation
+4. **Static Import Restrictions**: Avoid static imports (with specific exceptions)
+5. **AssertJ Restrictions**: Prefer `assertThatExceptionOfType` over other exception assertions
+6. **Locale Requirements**: `String.toLowerCase()` must specify locale
+7. **Nullability Import Bans**: Only JSpecify annotations allowed
+
+Suppressions: `etc/checkstyle/checkstyle-suppressions.xml`
+
+## Indentation & Whitespace
+
+### Tab-Based Indentation
+
+From `.editorconfig`:
+
+```ini
+[*.{java,xml}]
+indent_style = tab
+indent_size = 4
+continuation_indent_size = 8
+```
+
+**Rules**:
+- **Primary indent**: Tabs (displayed as 4 spaces)
+- **Continuation indent**: 8 spaces (for line wraps)
+- **Max line length**: 120 characters
+- **End of line**: LF (Unix style)
+- **Final newline**: Required
+- **Trailing whitespace**: Trimmed
+- **Smart tabs**: Disabled
+- **Multiline parameter alignment**: Disabled
+
+### Example Indentation
+
+```java
+public class Example {
+	// Tab for class-level indentation
+	
+	private String field;
+	
+	public void method(String param1,
+			String param2) {  // 8-space continuation indent
+		if (condition) {
+			// Tab for each level
+		}
+	}
+}
+```
+
+## File Structure & Headers
+
+### Copyright Header
+
+Every Java file must start with Apache License 2.0 header:
+
+```java
+/*
+ * Copyright 2004-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+```
+
+**Variations**:
+- Acegi Technology files: `Copyright 2004, 2005, 2006 Acegi Technology Pty Limited`
+- Standard files: `Copyright 2004-present the original author or authors.`
+
+### Package Structure
+
+**Order**:
+1. Copyright header
+2. Package declaration
+3. Import statements (grouped, no wildcards except for static imports)
+4. Class/interface declaration
+
+**Example**: `core/src/main/java/org/springframework/security/core/Authentication.java`
+
+```java
+/*
+ * Copyright header...
+ */
+
+package org.springframework.security.core;
+
+import java.io.Serializable;
+import java.security.Principal;
+import java.util.Collection;
+import java.util.function.Consumer;
+
+import org.jspecify.annotations.Nullable;
+
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+/**
+ * Javadoc...
+ */
+public interface Authentication extends Principal, Serializable {
+```
+
+### Package-Info Files
+
+**Required**: Every package must have `package-info.java`
+
+**Structure**:
+```java
+/*
+ * Copyright header...
+ */
+
+/**
+ * Package description.
+ */
+@NullMarked
+package org.springframework.security.authentication;
+
+import org.jspecify.annotations.NullMarked;
+```
+
+**Example**: `core/src/main/java/org/springframework/security/access/package-info.java`
+
+## Naming Conventions
+
+### Classes & Interfaces
+
+- **Classes**: PascalCase (e.g., `AuthenticationManager`, `AbstractAuthenticationToken`)
+- **Interfaces**: PascalCase, no "I" prefix (e.g., `Authentication`, `SecurityFilterChain`)
+- **Test Classes**: Suffix with `Tests` (e.g., `AbstractAuthenticationTokenTests`)
+- **Abstract Classes**: Prefix with `Abstract` (e.g., `AbstractAuthenticationToken`)
+
+### Methods & Fields
+
+- **Methods**: camelCase (e.g., `getAuthentication()`, `attemptAuthentication()`)
+- **Fields**: camelCase (e.g., `authenticated`, `details`)
+- **Constants**: UPPER_SNAKE_CASE (e.g., `NO_AUTHORITIES`, `serialVersionUID`)
+- **Boolean methods**: Prefix with `is`/`has`/`should` (e.g., `isAuthenticated()`)
+
+### Variables
+
+- **Local variables**: camelCase
+- **Parameters**: camelCase
+- **Type parameters**: Single uppercase letter (e.g., `T`, `B`) or PascalCase (e.g., `Builder`)
+
+## Javadoc Conventions
+
+### Class-Level Documentation
+
+```java
+/**
+ * Brief description on first line.
+ * <p>
+ * Additional details in separate paragraphs.
+ * </p>
+ *
+ * @author Ben Alex
+ * @author Luke Taylor
+ * @since 3.1
+ */
+```
+
+**Rules**:
+- First sentence is summary
+- Use `<p>` tags for paragraphs
+- `@author` tags for contributors
+- `@since` tags for version introduced (on main branch only)
+- Use HTML tags (`<tt>`, `<code>`) for inline code
+- Use `{@link}` for cross-references
+
+### Method-Level Documentation
+
+```java
+/**
+ * Short description of what method does.
+ * <p>
+ * Additional details about behavior.
+ * </p>
+ * @param parameter description of parameter (may note if null allowed)
+ * @return description of return value
+ * @throws ExceptionType when this exception is thrown
+ */
+```
+
+**Note**: Checkstyle suppressions disable most Javadoc method checks, but documentation is still encouraged.
+
+## Null Safety with JSpecify
+
+### Core Principle
+
+**Package-Level Default**: All types are non-null by default via `@NullMarked`
+
+```java
+@NullMarked
+package org.springframework.security.authentication;
+
+import org.jspecify.annotations.NullMarked;
+```
+
+### @Nullable Annotation Patterns
+
+**Type-Use Annotation**: Place `@Nullable` **before the type**
+
+```java
+// Method return types
+public @Nullable Object getPrincipal() { ... }
+
+// Method parameters
+public void setDetails(@Nullable Object details) { ... }
+
+// Fields
+private @Nullable Object details;
+
+// With modifiers (modifiers come first)
+private volatile @Nullable String cache;
+private static final @Nullable String CONFIG = null;
+```
+
+### Array Annotations
+
+**Syntax**: `Type @Nullable []` means nullable array of non-null elements
+
+```java
+// Nullable array of non-null strings
+public String @Nullable [] getParameterNames(Method method) { ... }
+
+// Nullable array of nullable strings
+@Nullable String @Nullable [] result = parser.split(input);
+```
+
+### Generic Type Arguments
+
+```java
+// Nullable type argument
+public void process(BasicPolymorphicTypeValidator.@Nullable Builder builder) { ... }
+```
+
+### Banned Annotations
+
+**Only JSpecify allowed**. These are **banned**:
+- `javax.annotation.*` (JSR-305)
+- `org.jetbrains.annotations.*` (JetBrains)
+- `reactor.util.annotation.*` (Reactor)
+- Any other `@Nullable`, `@NonNull`, `@Nonnull` not from `org.jspecify.annotations`
+
+### Annotation Placement Rules
+
+**Correct Order**:
+```java
+private final @Nullable Object field;
+```
+
+**Incorrect** (will fail checkstyle):
+```java
+private @Nullable final Object field;
+```
+
+Rule: `@Nullable` must appear **immediately before the type**, after all other modifiers.
+
+## Code Organization
+
+### Class Member Order
+
+Typical order (Spring convention):
+1. Static constants
+2. Instance fields (with `@Serial` for serialVersionUID)
+3. Constructors
+4. Static factory methods
+5. Interface methods (with `@Override`)
+6. Public methods
+7. Protected methods
+8. Private methods
+9. Inner classes/interfaces (especially builders)
+
+**Example**: `core/src/main/java/org/springframework/security/authentication/AbstractAuthenticationToken.java`
+
+### Import Organization
+
+1. Java/Jakarta imports
+2. Third-party imports (JSpecify, etc.)
+3. Spring imports
+4. Static imports (minimal, with exceptions)
+
+**Static Import Exceptions** (allowed):
+- AssertJ: `org.assertj.core.api.Assertions.*`
+- Test utilities: `org.springframework.security.test.web.*`
+- Specific matchers and test helpers
+
+## Testing Conventions
+
+### Test Class Structure
+
+```java
+/**
+ * Tests {@link ClassUnderTest}.
+ *
+ * @author Author Name
+ */
+public class ClassUnderTestTests {  // Note: "Tests" suffix
+	
+	private FieldType field;
+	
+	@BeforeEach
+	public void setUp() {
+		// Setup
+	}
+	
+	@Test
+	public void testMethodName() {  // Or: methodName_condition_expectedBehavior()
+		// Test
+	}
+}
+```
+
+**Assertions**: Prefer AssertJ
+```java
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
+assertThat(result).isNotNull();
+assertThatExceptionOfType(IllegalArgumentException.class)
+    .isThrownBy(() -> method());
+```
+
+**Banned**: `catchThrowable`, `assertThatThrownBy` (use `assertThatExceptionOfType` instead)
+
+## Code Style Guidelines
+
+### Prefer For Loops Over Streams
+
+From `CONTRIBUTING.adoc`:
+> Since Streams are much slower than `for` loops, please use them judiciously. The team may ask you to change to a `for` loop if the given code is along a hot path.
+
+### String Case Conversions
+
+**Must specify locale**:
+```java
+// Correct
+string.toLowerCase(Locale.ROOT)
+string.toUpperCase(Locale.ENGLISH)
+
+// Incorrect (will fail checkstyle)
+string.toLowerCase()
+string.toUpperCase()
+```
+
+**Exception**: Test files are exempt from this rule.
+
+### Modern Java Features
+
+**Pattern Matching** (used throughout):
+```java
+if (this.getPrincipal() instanceof UserDetails userDetails) {
+    return userDetails.getUsername();
+}
+```
+
+**Records**: Used for DTOs and value objects
+
+**Sealed Classes**: Used where appropriate
+
+## Git & Commit Conventions
+
+### Commit Message Format
+
+From `CONTRIBUTING.adoc`:
+
+**Format**:
+- **Subject line**: 55 characters max, imperative tense
+- **Body**: 72 characters per line
+- **Footer**: `Closes gh-ISSUE_NUMBER`
+
+**Example**:
+```
+Address NullPointerException
+
+Closes gh-22276
+```
+
+**Tense**: Use imperative (e.g., "Fix", "Add", "Update") not present/past tense
+
+### Copyright Headers
+
+**Update copyright year** if editing existing files:
+```java
+// If file has:
+// Copyright 2002-2023 the original author...
+
+// And current year is 2024, change to:
+// Copyright 2002-2024 the original author...
+```
+
+### Developer Certificate of Origin
+
+All commits must include `Signed-off-by` trailer
+
+## Reactive Code Patterns
+
+### Mono/Flux Instead of @Nullable
+
+**Reactive return types**: Don't use `@Nullable` for `Mono`/`Flux` returns
+
+```java
+// Correct
+Mono<OneTimeToken> generate(GenerateOneTimeTokenRequest request);
+
+// Incorrect
+@Nullable Mono<OneTimeToken> generate(GenerateOneTimeTokenRequest request);
+```
+
+**Reasoning**: `Mono.empty()` represents absence in reactive streams
+
+## Module-Specific Notes
+
+### Core Module
+- 40+ packages with `@NullMarked`
+- 600+ `@Nullable` annotations
+- Plugin: `security-nullability` in `core/spring-security-core.gradle`
+
+### Web Module
+- 55+ packages with `@NullMarked`
+- 737+ `@Nullable` annotations
+- Extensive servlet and reactive (WebFlux) support
+- Plugin: `security-nullability` in `web/spring-security-web.gradle`
+
+### Modules Without JSpecify (Suppressed)
+Per `etc/checkstyle/checkstyle-suppressions.xml`:
+- `access/` - Legacy module
+- `aspects/` - AOP module
+- `config/` - Configuration module
+- `oauth2-*` - OAuth2 modules (partial migration)
+- `saml2-service-provider/` - SAML2 module
+- `ldap/` - LDAP module
+
+## Formatting Commands
+
+### Format Code
+```bash
+./gradlew format
+```
+
+### Check Style
+```bash
+./gradlew check
+```
+
+### Combined (Recommended)
+```bash
+./gradlew format && ./gradlew check
+```
+
+## Key References
+
+### Primary Configuration Files
+- `.editorconfig` - IDE settings (indentation, line endings)
+- `build.gradle` - Build configuration with formatter plugin
+- `etc/checkstyle/checkstyle.xml` - Checkstyle rules
+- `etc/checkstyle/checkstyle-suppressions.xml` - Rule exceptions
+- `CONTRIBUTING.adoc` - Contributing guidelines
+
+### Documentation Resources
+- Spring Framework Code Style: https://github.com/spring-projects/spring-framework/wiki/Code-Style
+- Spring Framework IntelliJ Settings: https://github.com/spring-projects/spring-framework/wiki/IntelliJ-IDEA-Editor-Settings
+
+### Null Safety Documentation
+- `.cursor/rules/null-safety/jspecify-core-module.mdc` - Core module patterns
+- `.cursor/rules/null-safety/jspecify-web-module.mdc` - Web module patterns
+
+## Summary
+
+The Spring Security codebase follows a **rigorous, automated code style** enforced through:
+
+1. **Spring Java Format** plugin for consistent formatting
+2. **Tab-based indentation** (4-space display width)
+3. **Checkstyle** with custom Spring rules
+4. **JSpecify null safety** with package-level `@NullMarked`
+5. **Comprehensive Javadoc** with specific tag conventions
+6. **Apache License 2.0** headers on all files
+7. **EditorConfig** for IDE consistency
+
+The style prioritizes **readability, maintainability, and type safety** while maintaining compatibility across the extensive Spring Security codebase.
