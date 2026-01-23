@@ -46,7 +46,8 @@ class OAuth2AuthorizationServerRuntimeHints implements RuntimeHintsRegistrar {
 				.of("org.springframework.security.oauth2.server.authorization.web.OAuth2AuthorizationEndpointFilter$OAuth2AuthorizationCodeRequestValidatingFilter"),
 					MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
 		hints.reflection()
-			.registerType(OAuth2AuthorizationCodeRequestAuthenticationToken.class, MemberCategory.DECLARED_FIELDS);
+			.registerType(OAuth2AuthorizationCodeRequestAuthenticationToken.class,
+					MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.INVOKE_DECLARED_METHODS);
 
 	}
 

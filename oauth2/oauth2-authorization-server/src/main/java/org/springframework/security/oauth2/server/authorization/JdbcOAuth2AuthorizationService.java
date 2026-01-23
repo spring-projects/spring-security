@@ -505,6 +505,7 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 	 * 3.
 	 */
 	@Deprecated(forRemoval = true, since = "7.0")
+	@SuppressWarnings("removal")
 	public static class OAuth2AuthorizationRowMapper extends AbstractOAuth2AuthorizationRowMapper {
 
 		private ObjectMapper objectMapper = Jackson2.createObjectMapper();
@@ -747,6 +748,7 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 	 * Jackson 3.
 	 */
 	@Deprecated(forRemoval = true, since = "7.0")
+	@SuppressWarnings("removal")
 	public static class OAuth2AuthorizationParametersMapper extends AbstractOAuth2AuthorizationParametersMapper {
 
 		private ObjectMapper objectMapper = Jackson2.createObjectMapper();
@@ -895,6 +897,7 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 	@Deprecated(forRemoval = true, since = "7.0")
 	private static final class Jackson2 {
 
+		@SuppressWarnings("removal")
 		private static ObjectMapper createObjectMapper() {
 			ObjectMapper objectMapper = new ObjectMapper();
 			ClassLoader classLoader = Jackson2.class.getClassLoader();
