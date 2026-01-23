@@ -34,7 +34,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.jackson.CoreJacksonModule;
-import org.springframework.security.jackson2.CoreJackson2Module;
 import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -50,11 +49,9 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2TokenExchangeCompositeAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.jackson.OAuth2AuthorizationServerJacksonModule;
-import org.springframework.security.oauth2.server.authorization.jackson2.OAuth2AuthorizationServerJackson2Module;
 import org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.jackson.WebServletJacksonModule;
-import org.springframework.security.web.jackson2.WebServletJackson2Module;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import org.springframework.util.ClassUtils;
 
@@ -116,12 +113,14 @@ class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegis
 		private void registerHints(RuntimeHints hints) {
 			// Collections -> UnmodifiableSet, UnmodifiableList, UnmodifiableMap,
 			// UnmodifiableRandomAccessList, etc.
-			hints.reflection().registerType(Collections.class, MemberCategory.DECLARED_CLASSES);
+			hints.reflection()
+				.registerType(Collections.class, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+						MemberCategory.INVOKE_DECLARED_METHODS);
 
 			// HashSet
 			hints.reflection()
-				.registerType(HashSet.class, MemberCategory.DECLARED_FIELDS,
-						MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.INVOKE_DECLARED_METHODS);
+				.registerType(HashSet.class, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+						MemberCategory.INVOKE_DECLARED_METHODS);
 
 			hints.reflection()
 				.registerTypes(Arrays.asList(TypeReference.of(AbstractAuthenticationToken.class),
@@ -138,18 +137,17 @@ class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegis
 						TypeReference.of(AuthorizationGrantType.class),
 						TypeReference.of(OAuth2AuthorizationResponseType.class),
 						TypeReference.of(OAuth2TokenFormat.class)),
-						(builder) -> builder.withMembers(MemberCategory.DECLARED_FIELDS,
-								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.INVOKE_DECLARED_METHODS));
+						(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+								MemberCategory.INVOKE_DECLARED_METHODS));
 
 			// Jackson Modules
 			if (jackson2Present) {
 				hints.reflection()
 					.registerTypes(
-							Arrays.asList(TypeReference.of(CoreJackson2Module.class),
-									TypeReference.of(WebServletJackson2Module.class),
-									TypeReference.of(OAuth2AuthorizationServerJackson2Module.class)),
-							(builder) -> builder.withMembers(MemberCategory.DECLARED_FIELDS,
-									MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+							Arrays.asList(TypeReference.of(CoreJacksonModule.class),
+									TypeReference.of(WebServletJacksonModule.class),
+									TypeReference.of(OAuth2AuthorizationServerJacksonModule.class)),
+							(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
 									MemberCategory.INVOKE_DECLARED_METHODS));
 			}
 			if (jackson3Present) {
@@ -158,8 +156,7 @@ class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegis
 							Arrays.asList(TypeReference.of(CoreJacksonModule.class),
 									TypeReference.of(WebServletJacksonModule.class),
 									TypeReference.of(OAuth2AuthorizationServerJacksonModule.class)),
-							(builder) -> builder.withMembers(MemberCategory.DECLARED_FIELDS,
-									MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+							(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
 									MemberCategory.INVOKE_DECLARED_METHODS));
 			}
 
@@ -222,8 +219,7 @@ class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegis
 				hints.reflection()
 					.registerType(TypeReference
 						.of("org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken"),
-							(builder) -> builder.withMembers(MemberCategory.DECLARED_FIELDS,
-									MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+							(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
 									MemberCategory.INVOKE_DECLARED_METHODS));
 
 				// Jackson Module
@@ -231,8 +227,7 @@ class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegis
 					hints.reflection()
 						.registerType(TypeReference
 							.of("org.springframework.security.oauth2.client.jackson2.OAuth2ClientJackson2Module"),
-								(builder) -> builder.withMembers(MemberCategory.DECLARED_FIELDS,
-										MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+								(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
 										MemberCategory.INVOKE_DECLARED_METHODS));
 				}
 				if (jackson3Present) {
@@ -240,8 +235,7 @@ class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegis
 						.registerType(
 								TypeReference
 									.of("org.springframework.security.oauth2.client.jackson.OAuth2ClientJacksonModule"),
-								(builder) -> builder.withMembers(MemberCategory.DECLARED_FIELDS,
-										MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+								(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
 										MemberCategory.INVOKE_DECLARED_METHODS));
 				}
 
