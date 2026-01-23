@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.server.resource.web;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,6 +32,7 @@ import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.util.UrlUtils;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -50,6 +52,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 public final class BearerTokenAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
 	private String realmName;
+
+	private Function<HttpServletRequest, String> resourceMetadataParameterResolver = BearerTokenAuthenticationEntryPoint::getResourceMetadataParameter;
 
 	/**
 	 * Collect error details from the provided parameters and format according to RFC
@@ -83,7 +87,7 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 				status = bearerTokenError.getHttpStatus();
 			}
 		}
-		parameters.put("resource_metadata", getResourceMetadataParameter(request));
+		parameters.put("resource_metadata", this.resourceMetadataParameterResolver.apply(request));
 		String wwwAuthenticate = computeWWWAuthenticateHeaderValue(parameters);
 		response.addHeader(HttpHeaders.WWW_AUTHENTICATE, wwwAuthenticate);
 		response.setStatus(status.value());
@@ -95,6 +99,17 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 	 */
 	public void setRealmName(String realmName) {
 		this.realmName = realmName;
+	}
+
+	/**
+	 * Set the resolver to compute the {@code resource_metadata} parameter from the
+	 * request.
+	 * @param resourceMetadataParameterResolver
+	 */
+	public void setResourceMetadataParameterResolver(
+			Function<HttpServletRequest, String> resourceMetadataParameterResolver) {
+		Assert.notNull(resourceMetadataParameterResolver, "resourceMetadataParameterResolver cannot be null");
+		this.resourceMetadataParameterResolver = resourceMetadataParameterResolver;
 	}
 
 	private static String getResourceMetadataParameter(HttpServletRequest request) {
