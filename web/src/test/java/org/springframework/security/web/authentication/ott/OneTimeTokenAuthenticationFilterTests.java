@@ -31,7 +31,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.ott.OneTimeTokenAuthenticationToken;
+import org.springframework.security.authentication.ott.OneTimeTokenAuthentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.servlet.MockServletContext;
 
@@ -120,7 +120,7 @@ class OneTimeTokenAuthenticationFilterTests {
 	@SuppressWarnings("removal")
 	void doFilterWhenValidThenRedirectsToSavedRequest() throws ServletException, IOException {
 		given(this.authenticationManager.authenticate(any()))
-			.willReturn(OneTimeTokenAuthenticationToken.authenticated("username", AuthorityUtils.NO_AUTHORITIES));
+			.willReturn(new OneTimeTokenAuthentication("username", AuthorityUtils.NO_AUTHORITIES));
 		this.filter.doFilter(
 				post("/login/ott").param("token", "some-token-value").buildRequest(new MockServletContext()),
 				this.response, this.chain);

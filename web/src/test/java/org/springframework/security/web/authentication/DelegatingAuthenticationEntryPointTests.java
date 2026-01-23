@@ -18,7 +18,6 @@ package org.springframework.security.web.authentication;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import jakarta.servlet.ServletException;
@@ -52,8 +51,6 @@ public class DelegatingAuthenticationEntryPointTests {
 
 	private DelegatingAuthenticationEntryPoint daep;
 
-	private LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints;
-
 	private AuthenticationEntryPoint defaultEntryPoint;
 
 	private HttpServletRequest request = new MockHttpServletRequest();
@@ -61,7 +58,6 @@ public class DelegatingAuthenticationEntryPointTests {
 	@BeforeEach
 	public void before() {
 		this.defaultEntryPoint = mock(AuthenticationEntryPoint.class);
-		this.entryPoints = new LinkedHashMap<>();
 	}
 
 	@Test
@@ -70,9 +66,8 @@ public class DelegatingAuthenticationEntryPointTests {
 		AuthenticationEntryPoint firstAEP = mock(AuthenticationEntryPoint.class);
 		RequestMatcher firstRM = mock(RequestMatcher.class);
 		given(firstRM.matches(this.request)).willReturn(false);
-		this.entryPoints.put(firstRM, firstAEP);
-		this.daep = new DelegatingAuthenticationEntryPoint(this.entryPoints);
-		this.daep.setDefaultEntryPoint(this.defaultEntryPoint);
+		this.daep = new DelegatingAuthenticationEntryPoint(this.defaultEntryPoint,
+				new RequestMatcherEntry<>(firstRM, firstAEP));
 		this.daep.commence(this.request, null, null);
 		verify(this.defaultEntryPoint).commence(this.request, null, null);
 		verify(firstAEP, never()).commence(this.request, null, null);
@@ -86,10 +81,8 @@ public class DelegatingAuthenticationEntryPointTests {
 		AuthenticationEntryPoint secondAEP = mock(AuthenticationEntryPoint.class);
 		RequestMatcher secondRM = mock(RequestMatcher.class);
 		given(firstRM.matches(this.request)).willReturn(true);
-		this.entryPoints.put(firstRM, firstAEP);
-		this.entryPoints.put(secondRM, secondAEP);
-		this.daep = new DelegatingAuthenticationEntryPoint(this.entryPoints);
-		this.daep.setDefaultEntryPoint(this.defaultEntryPoint);
+		this.daep = new DelegatingAuthenticationEntryPoint(this.defaultEntryPoint,
+				new RequestMatcherEntry<>(firstRM, firstAEP), new RequestMatcherEntry<>(secondRM, secondAEP));
 		this.daep.commence(this.request, null, null);
 		verify(firstAEP).commence(this.request, null, null);
 		verify(secondAEP, never()).commence(this.request, null, null);
@@ -106,10 +99,8 @@ public class DelegatingAuthenticationEntryPointTests {
 		RequestMatcher secondRM = mock(RequestMatcher.class);
 		given(firstRM.matches(this.request)).willReturn(false);
 		given(secondRM.matches(this.request)).willReturn(true);
-		this.entryPoints.put(firstRM, firstAEP);
-		this.entryPoints.put(secondRM, secondAEP);
-		this.daep = new DelegatingAuthenticationEntryPoint(this.entryPoints);
-		this.daep.setDefaultEntryPoint(this.defaultEntryPoint);
+		this.daep = new DelegatingAuthenticationEntryPoint(this.defaultEntryPoint,
+				new RequestMatcherEntry<>(firstRM, firstAEP), new RequestMatcherEntry<>(secondRM, secondAEP));
 		this.daep.commence(this.request, null, null);
 		verify(secondAEP).commence(this.request, null, null);
 		verify(firstAEP, never()).commence(this.request, null, null);

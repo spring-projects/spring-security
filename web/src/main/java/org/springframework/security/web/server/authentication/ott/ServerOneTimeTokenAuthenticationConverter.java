@@ -51,13 +51,13 @@ public final class ServerOneTimeTokenAuthenticationConverter implements ServerAu
 		if (isFormEncodedRequest(exchange.getRequest())) {
 			return exchange.getFormData()
 				.flatMap((data) -> Mono.justOrEmpty(data.getFirst(TOKEN)))
-				.map((data) -> OneTimeTokenAuthenticationToken.unauthenticated(data));
+				.map(OneTimeTokenAuthenticationToken::new);
 		}
 		String token = resolveTokenFromRequest(exchange.getRequest());
 		if (!StringUtils.hasText(token)) {
 			return Mono.empty();
 		}
-		return Mono.just(OneTimeTokenAuthenticationToken.unauthenticated(token));
+		return Mono.just(new OneTimeTokenAuthenticationToken(token));
 	}
 
 	private @Nullable String resolveTokenFromRequest(ServerHttpRequest request) {
