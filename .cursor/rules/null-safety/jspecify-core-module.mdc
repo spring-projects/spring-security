@@ -1,0 +1,361 @@
+---
+description: JSpecify null safety implementation patterns and best practices for the Spring Security @core module
+alwaysApply: false
+---
+
+# JSpecify Null Safety Implementation - @core Module
+
+## Overview
+
+The Spring Security @core module has adopted **JSpecify** for null safety annotations, providing compile-time null safety guarantees across the codebase. This implementation leverages JSpecify's type-use annotations for precise nullability declarations.
+
+## Build Configuration
+
+### Gradle Plugin Setup
+
+**Plugin Declaration**: `core/spring-security-core.gradle`
+
+```gradle
+plugins {
+    id 'security-nullability'
+}
+```
+
+The `security-nullability` plugin is defined in `buildSrc/src/main/groovy/security-nullability.gradle`:
+
+```gradle
+plugins {
+    id 'io.spring.nullability'
+}
+```
+
+**Dependency**: `gradle/libs.versions.toml`
+
+```toml
+spring-nullability = 'io.spring.nullability:io.spring.nullability.gradle.plugin:0.0.10'
+```
+
+### Checkstyle Enforcement
+
+**Configuration**: `etc/checkstyle/checkstyle.xml`
+
+```xml
+<!-- Rejects all NonNull, Nonnull, and Nullable types that are NOT in the org.jspecify.annotations package. -->
+<property name="illegalClasses" value="^(?!org\.jspecify\.annotations).*(Non[Nn]ull|Nullable)$"/>
+```
+
+This ensures **only JSpecify annotations** are used throughout the codebase, preventing mixing with other nullability frameworks (JSR-305, JetBrains, etc.).
+
+## Implementation Patterns
+
+### 1. Package-Level `@NullMarked`
+
+**Default Non-Null Context**: All packages use `@NullMarked` to establish a non-null default for all types.
+
+**Example**: `core/src/main/java/org/springframework/security/authentication/package-info.java`
+
+```java
+@NullMarked
+package org.springframework.security.authentication;
+
+import org.jspecify.annotations.NullMarked;
+```
+
+**Packages with `@NullMarked`** (40+ packages in core):
+- `org.springframework.security.access`
+- `org.springframework.security.authentication`
+- `org.springframework.security.authorization`
+- `org.springframework.security.core`
+- `org.springframework.security.jackson`
+- `org.springframework.security.aot.hint`
+- And many subpackages...
+
+**Benefit**: Within a `@NullMarked` package, all types are non-null by default unless explicitly annotated with `@Nullable`.
+
+### 2. Method Return Types with `@Nullable`
+
+**Pattern**: When methods can return null, annotate the return type with `@Nullable`.
+
+**Example**: `core/src/main/java/org/springframework/security/authorization/method/MethodInvocationResult.java`
+
+```java
+private final @Nullable Object result;
+
+public @Nullable Object getResult() {
+    return this.result;
+}
+```
+
+**Example**: `core/src/main/java/org/springframework/security/authentication/AuthenticationTrustResolver.java`
+
+```java
+boolean isAnonymous(@Nullable Authentication authentication);
+boolean isRememberMe(@Nullable Authentication authentication);
+```
+
+**Key Insight**: The `@Nullable` annotation is placed **before the type**, using JSpecify's type-use annotation style.
+
+### 3. Method Parameters with `@Nullable`
+
+**Pattern**: Parameters that accept null values are annotated with `@Nullable`.
+
+**Example**: `core/src/main/java/org/springframework/security/authentication/UsernamePasswordAuthenticationToken.java`
+
+```java
+public UsernamePasswordAuthenticationToken(@Nullable Object principal, @Nullable Object credentials) {
+    super((Collection<? extends GrantedAuthority>) null);
+    this.principal = principal;
+    this.credentials = credentials;
+    setAuthenticated(false);
+}
+
+public static UsernamePasswordAuthenticationToken authenticated(Object principal, @Nullable Object credentials,
+        Collection<? extends GrantedAuthority> authorities) {
+    return new UsernamePasswordAuthenticationToken(principal, credentials, authorities);
+}
+```
+
+**Note**: `principal` in the authenticated factory method is **not nullable** (no annotation), while `credentials` is nullable.
+
+### 4. Field Declarations with `@Nullable`
+
+**Pattern**: Fields that may hold null values use `@Nullable` **before the type**.
+
+**Example**: `core/src/main/java/org/springframework/security/authentication/AbstractAuthenticationToken.java`
+
+```java
+private @Nullable Object details;
+
+public @Nullable Object getDetails() {
+    return this.details;
+}
+
+public void setDetails(@Nullable Object details) {
+    this.details = details;
+}
+```
+
+**Example - volatile fields**: `core/src/main/java/org/springframework/security/authentication/dao/DaoAuthenticationProvider.java`
+
+```java
+private volatile @Nullable String userNotFoundEncodedPassword;
+```
+
+**Pattern**: Modifiers (`private`, `protected`, `volatile`) come **before** `@Nullable`, which comes **before** the type.
+
+### 5. Array Type Annotations
+
+**Critical Pattern**: JSpecify supports type-use annotations on array components.
+
+**Example**: `core/src/main/java/org/springframework/security/authentication/jaas/memory/InMemoryConfiguration.java`
+
+```java
+private final AppConfigurationEntry @Nullable [] defaultConfiguration;
+
+public InMemoryConfiguration(Map<String, AppConfigurationEntry[]> mappedConfigurations,
+        AppConfigurationEntry @Nullable [] defaultConfiguration) {
+    this.mappedConfigurations = mappedConfigurations;
+    this.defaultConfiguration = defaultConfiguration;
+}
+
+public AppConfigurationEntry @Nullable [] getAppConfigurationEntry(String name) {
+    AppConfigurationEntry[] mappedResult = this.mappedConfigurations.get(name);
+    return (mappedResult != null) ? mappedResult : this.defaultConfiguration;
+}
+```
+
+**Syntax**: `Type @Nullable []` means "a nullable array of non-null Type elements"
+- The array reference itself can be null
+- Array elements are non-null (unless explicitly annotated)
+
+**More Examples**: `core/src/main/java/org/springframework/security/core/parameters/AnnotationParameterNameDiscoverer.java`
+
+```java
+public String @Nullable [] getParameterNames(Method method) { ... }
+public String @Nullable [] getParameterNames(Constructor<?> constructor) { ... }
+private <T extends AccessibleObject> String @Nullable [] lookupParameterNames(...) { ... }
+```
+
+**Complex Example**: `core/src/main/java/org/springframework/security/authorization/method/PreFilterAuthorizationReactiveMethodInterceptor.java`
+
+```java
+@Nullable String @Nullable [] parameterNames = this.parameterNameDiscoverer.getParameterNames(specificMethod);
+```
+
+This means:
+- The array reference itself may be null (outer `@Nullable`)
+- Each element in the array may also be null (inner `@Nullable`)
+
+### 6. Generic Types with `@Nullable`
+
+**Pattern**: Generic type arguments can be annotated for nullability.
+
+**Example**: `core/src/main/java/org/springframework/security/jackson/SecurityJacksonModules.java`
+
+```java
+public static List<JacksonModule> getModules(ClassLoader loader,
+        BasicPolymorphicTypeValidator.@Nullable Builder typeValidatorBuilder) {
+    // ...
+}
+```
+
+**Pattern**: The type argument (`Builder`) is nullable, but the containing type (`BasicPolymorphicTypeValidator`) is not.
+
+### 7. Builder Pattern Support
+
+**Pattern**: Builders commonly have nullable parameters for optional configuration.
+
+**Example**: `core/src/main/java/org/springframework/security/authentication/AbstractAuthenticationToken.java`
+
+```java
+public abstract static class AbstractAuthenticationBuilder<B extends AbstractAuthenticationBuilder<B>> {
+    
+    private boolean authenticated;
+    private @Nullable Object details;
+    private final Collection<GrantedAuthority> authorities;
+    
+    @Override
+    public B details(@Nullable Object details) {
+        this.details = details;
+        return (B) this;
+    }
+}
+```
+
+**All Authentication builders** follow this pattern:
+- `UsernamePasswordAuthenticationToken.Builder`
+- `TestingAuthenticationToken.Builder`
+- `RememberMeAuthenticationToken.Builder`
+
+### 8. Interface Method Declarations
+
+**Pattern**: Interfaces declare nullability contracts that implementations must follow.
+
+**Example**: `core/src/main/java/org/springframework/security/authentication/AuthenticationProvider.java`
+
+```java
+@Nullable Authentication authenticate(Authentication authentication) throws AuthenticationException;
+```
+
+**Example**: `core/src/main/java/org/springframework/security/core/annotation/SecurityAnnotationScanner.java`
+
+```java
+public interface SecurityAnnotationScanner<A extends Annotation> {
+    @Nullable A scan(Method method, Class<?> targetClass);
+    @Nullable A scan(Parameter parameter);
+}
+```
+
+### 9. Static Final Fields with `@Nullable`
+
+**Pattern**: Constants that may be null are explicitly annotated.
+
+**Example**: `core/src/main/java/org/springframework/security/core/SpringSecurityCoreVersion.java`
+
+```java
+static final @Nullable String MIN_SPRING_VERSION = getSpringVersion();
+
+private static @Nullable String getSpringVersion() {
+    // May return null
+}
+```
+
+### 10. Contract Annotations
+
+**Pattern**: Use Spring's `@Contract` annotation alongside `@Nullable` for richer contracts.
+
+**Example**: `core/src/main/java/org/springframework/security/authentication/AuthenticationTrustResolver.java`
+
+```java
+@Contract("null -> false")
+default boolean isAuthenticated(@Nullable Authentication authentication) {
+    return authentication != null && authentication.isAuthenticated() && !isAnonymous(authentication);
+}
+```
+
+**Benefit**: `@Contract` specifies behavior ("null input returns false"), complementing null safety.
+
+### 11. Reactive Types (Mono/Flux)
+
+**Pattern**: Reactive types typically don't need `@Nullable` for return values since they encapsulate absence.
+
+**Example**: `core/src/main/java/org/springframework/security/authentication/ott/reactive/ReactiveOneTimeTokenService.java`
+
+```java
+Mono<OneTimeToken> generate(GenerateOneTimeTokenRequest request);
+Mono<OneTimeToken> consume(OneTimeTokenAuthenticationToken authenticationToken);
+```
+
+**Key Insight**: `Mono` can be empty, so the return type doesn't need `@Nullable`. The value **inside** the Mono is what matters.
+
+### 12. Javadoc Integration
+
+**Pattern**: Update Javadoc to reflect null safety contracts.
+
+**Examples**:
+
+```java
+/**
+ * @return the consumed {@link OneTimeToken} or {@code null} if the token is invalid
+ */
+@Nullable OneTimeToken consume(OneTimeTokenAuthenticationToken authenticationToken);
+```
+
+```java
+/**
+ * @param authentication to test (may be <code>null</code> in which case the method
+ * will always return <code>false</code>)
+ */
+boolean isAnonymous(@Nullable Authentication authentication);
+```
+
+## Best Practices Summary
+
+### ✅ DO
+
+1. **Apply `@NullMarked` at package level** via `package-info.java`
+2. **Place `@Nullable` before the type** for fields, parameters, and return types
+3. **Use type-use syntax** for arrays: `Type @Nullable []`
+4. **Annotate nullable generic type arguments**: `Container.@Nullable TypeArg`
+5. **Maintain Javadoc** that describes null behavior
+6. **Keep modifiers before annotations**: `private @Nullable Type field;`
+7. **Use `@Contract` for complex contracts** alongside `@Nullable`
+8. **Make nullable explicit** - if something can be null, annotate it
+9. **Use Reactive types** (`Mono`/`Flux`) to represent absence instead of `@Nullable` where appropriate
+
+### ❌ DON'T
+
+1. **Don't mix nullability frameworks** - use only `org.jspecify.annotations`
+2. **Don't annotate types that can't be null** within `@NullMarked` packages (redundant)
+3. **Don't use `@NonNull`** explicitly in `@NullMarked` contexts (it's the default)
+4. **Don't forget constructor parameters** - they need `@Nullable` too
+5. **Don't rely solely on Javadoc** - annotations provide compile-time checking
+
+## Coverage Statistics
+
+In the **@core module**:
+- **40+ packages** are `@NullMarked`
+- **600+ usages** of `@Nullable` annotations
+- **100% consistency** with JSpecify (enforced by Checkstyle)
+
+## Related Modules
+
+Similar patterns are applied across:
+- **oauth2-core** (limited usage, not fully migrated)
+- **web** module
+- **config** module
+- **acl** module
+- **kerberos** modules
+- **test** module
+
+## Key Files Reference
+
+- **Build Config**: `core/spring-security-core.gradle`
+- **Plugin Definition**: `buildSrc/src/main/groovy/security-nullability.gradle`
+- **Dependency Version**: `gradle/libs.versions.toml` (line 104)
+- **Checkstyle Rules**: `etc/checkstyle/checkstyle.xml`
+- **Example Package**: `core/src/main/java/org/springframework/security/authentication/package-info.java`
+- **Array Examples**: `core/src/main/java/org/springframework/security/authentication/jaas/memory/InMemoryConfiguration.java`
+- **Builder Examples**: `core/src/main/java/org/springframework/security/authentication/AbstractAuthenticationToken.java`
+
+This implementation demonstrates **production-grade null safety** using modern type-use annotations with comprehensive build-time enforcement.
