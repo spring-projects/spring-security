@@ -25,7 +25,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.GenericHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -49,13 +49,13 @@ import org.springframework.util.Assert;
  */
 public final class HttpMessageConverterAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
-	private HttpMessageConverter<Object> converter = new MappingJackson2HttpMessageConverter();
+	private HttpMessageConverter<Object> converter = new JacksonJsonHttpMessageConverter();
 
 	private RequestCache requestCache = new HttpSessionRequestCache();
 
 	/**
 	 * Sets the {@link GenericHttpMessageConverter} to write to the response. The default
-	 * is {@link MappingJackson2HttpMessageConverter}.
+	 * is {@link JacksonJsonHttpMessageConverter}.
 	 * @param converter the {@link GenericHttpMessageConverter} to use. Cannot be null.
 	 */
 	public void setConverter(HttpMessageConverter<Object> converter) {
