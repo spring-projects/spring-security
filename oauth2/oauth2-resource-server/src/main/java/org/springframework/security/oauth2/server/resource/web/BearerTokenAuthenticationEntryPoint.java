@@ -98,9 +98,11 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 	}
 
 	private static String getResourceMetadataParameter(HttpServletRequest request) {
+		String path = request.getContextPath()
+				+ OAuth2ProtectedResourceMetadataFilter.DEFAULT_OAUTH2_PROTECTED_RESOURCE_METADATA_ENDPOINT_URI;
 		// @formatter:off
 		return UriComponentsBuilder.fromUriString(UrlUtils.buildFullRequestUrl(request))
-				.replacePath(OAuth2ProtectedResourceMetadataFilter.DEFAULT_OAUTH2_PROTECTED_RESOURCE_METADATA_ENDPOINT_URI)
+				.replacePath(path)
 				.replaceQuery(null)
 				.fragment(null)
 				.build()
