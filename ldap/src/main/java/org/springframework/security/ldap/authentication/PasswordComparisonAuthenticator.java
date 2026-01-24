@@ -52,14 +52,27 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 
 	private static final Log logger = LogFactory.getLog(PasswordComparisonAuthenticator.class);
 
-	private PasswordEncoder passwordEncoder = new LdapShaPasswordEncoder(KeyGenerators.shared(0));
+	private PasswordEncoder passwordEncoder;
 
 	private String passwordAttributeName = "userPassword";
 
 	private boolean usePasswordAttrCompare = false;
 
+	/**
+	 * @deprecated Use
+	 * {@link #PasswordComparisonAuthenticator(BaseLdapPathContextSource, PasswordEncoder)}
+	 * instead
+	 */
+	@Deprecated(since = "7.1")
+	@SuppressWarnings("deprecation")
 	public PasswordComparisonAuthenticator(BaseLdapPathContextSource contextSource) {
+		this(contextSource, new LdapShaPasswordEncoder(KeyGenerators.shared(0)));
+	}
+
+	public PasswordComparisonAuthenticator(BaseLdapPathContextSource contextSource, PasswordEncoder passwordEncoder) {
 		super(contextSource);
+		Assert.notNull(passwordEncoder, "passwordEncoder must not be null");
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	@Override

@@ -35,6 +35,7 @@ import static org.mockito.Mockito.mock;
 /**
  * @author Luke Taylor
  */
+@SuppressWarnings("deprecation")
 public class PasswordComparisonAuthenticatorMockTests {
 
 	@Test
