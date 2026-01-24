@@ -16,7 +16,7 @@
 
 package org.springframework.security.saml2.provider.service.registration;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A repository for retrieving SAML 2.0 Asserting Party Metadata
