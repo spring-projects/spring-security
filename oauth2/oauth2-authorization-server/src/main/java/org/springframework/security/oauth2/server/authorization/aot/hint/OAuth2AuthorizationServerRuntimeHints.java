@@ -47,7 +47,7 @@ class OAuth2AuthorizationServerRuntimeHints implements RuntimeHintsRegistrar {
 					MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
 		hints.reflection()
 			.registerType(OAuth2AuthorizationCodeRequestAuthenticationToken.class,
-					MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.INVOKE_DECLARED_METHODS);
+					MemberCategory.ACCESS_DECLARED_FIELDS);
 
 	}
 

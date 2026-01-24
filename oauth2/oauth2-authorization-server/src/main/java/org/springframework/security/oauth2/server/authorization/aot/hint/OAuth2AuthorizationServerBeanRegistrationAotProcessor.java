@@ -116,14 +116,12 @@ class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegis
 		private void registerHints(RuntimeHints hints) {
 			// Collections -> UnmodifiableSet, UnmodifiableList, UnmodifiableMap,
 			// UnmodifiableRandomAccessList, etc.
-			hints.reflection()
-				.registerType(Collections.class, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
-						MemberCategory.INVOKE_DECLARED_METHODS);
+			hints.reflection().registerType(Collections.class);
 
 			// HashSet
 			hints.reflection()
-				.registerType(HashSet.class, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
-						MemberCategory.INVOKE_DECLARED_METHODS);
+				.registerType(HashSet.class, MemberCategory.ACCESS_DECLARED_FIELDS,
+						MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.INVOKE_DECLARED_METHODS);
 
 			hints.reflection()
 				.registerTypes(Arrays.asList(TypeReference.of(AbstractAuthenticationToken.class),
@@ -140,7 +138,8 @@ class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegis
 						TypeReference.of(AuthorizationGrantType.class),
 						TypeReference.of(OAuth2AuthorizationResponseType.class),
 						TypeReference.of(OAuth2TokenFormat.class)),
-						(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+						(builder) -> builder.withMembers(MemberCategory.ACCESS_DECLARED_FIELDS,
+								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
 								MemberCategory.INVOKE_DECLARED_METHODS));
 
 			// Jackson Modules
@@ -153,7 +152,8 @@ class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegis
 							Arrays.asList(TypeReference.of(CoreJacksonModule.class),
 									TypeReference.of(WebServletJacksonModule.class),
 									TypeReference.of(OAuth2AuthorizationServerJacksonModule.class)),
-							(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+							(builder) -> builder.withMembers(MemberCategory.ACCESS_DECLARED_FIELDS,
+									MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
 									MemberCategory.INVOKE_DECLARED_METHODS));
 			}
 
@@ -216,7 +216,8 @@ class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegis
 				hints.reflection()
 					.registerType(TypeReference
 						.of("org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken"),
-							(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+							(builder) -> builder.withMembers(MemberCategory.ACCESS_DECLARED_FIELDS,
+									MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
 									MemberCategory.INVOKE_DECLARED_METHODS));
 
 				// Jackson Module
@@ -224,7 +225,8 @@ class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegis
 					hints.reflection()
 						.registerType(TypeReference
 							.of("org.springframework.security.oauth2.client.jackson2.OAuth2ClientJackson2Module"),
-								(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+								(builder) -> builder.withMembers(MemberCategory.ACCESS_DECLARED_FIELDS,
+										MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
 										MemberCategory.INVOKE_DECLARED_METHODS));
 				}
 				if (jackson3Present) {
@@ -232,7 +234,8 @@ class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegis
 						.registerType(
 								TypeReference
 									.of("org.springframework.security.oauth2.client.jackson.OAuth2ClientJacksonModule"),
-								(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+								(builder) -> builder.withMembers(MemberCategory.ACCESS_DECLARED_FIELDS,
+										MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
 										MemberCategory.INVOKE_DECLARED_METHODS));
 				}
 
@@ -279,7 +282,8 @@ class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegis
 						Arrays.asList(TypeReference.of(CoreJackson2Module.class),
 								TypeReference.of(WebServletJackson2Module.class),
 								TypeReference.of(OAuth2AuthorizationServerJackson2Module.class)),
-						(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+						(builder) -> builder.withMembers(MemberCategory.ACCESS_DECLARED_FIELDS,
+								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
 								MemberCategory.INVOKE_DECLARED_METHODS));
 		}
 
