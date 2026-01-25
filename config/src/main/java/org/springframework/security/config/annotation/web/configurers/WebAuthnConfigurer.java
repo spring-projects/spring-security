@@ -169,9 +169,9 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 			.orElseThrow(() -> new IllegalStateException("Missing UserDetailsService Bean"));
 		PublicKeyCredentialUserEntityRepository userEntities = getSharedOrBean(http,
 				PublicKeyCredentialUserEntityRepository.class)
-			.orElse(userEntityRepository());
+			.orElseGet(this::userEntityRepository);
 		UserCredentialRepository userCredentials = getSharedOrBean(http, UserCredentialRepository.class)
-			.orElse(userCredentialRepository());
+			.orElseGet(this::userCredentialRepository);
 		WebAuthnRelyingPartyOperations rpOperations = webAuthnRelyingPartyOperations(userEntities, userCredentials);
 		PublicKeyCredentialCreationOptionsRepository creationOptionsRepository = creationOptionsRepository();
 		WebAuthnAuthenticationFilter webAuthnAuthnFilter = new WebAuthnAuthenticationFilter();
