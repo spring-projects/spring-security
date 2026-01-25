@@ -29,6 +29,7 @@ import org.springframework.web.server.ServerWebExchange;
  * made available to the application through exchange attributes.
  *
  * @author Steve Riesenberg
+ * @author Andrey Litvitski
  * @since 5.8
  * @see ServerCsrfTokenRequestAttributeHandler
  */
@@ -40,8 +41,22 @@ public interface ServerCsrfTokenRequestHandler extends ServerCsrfTokenRequestRes
 	 * @param exchange the {@code ServerWebExchange} with the request being handled
 	 * @param csrfToken the {@code Mono<CsrfToken>} created by the
 	 * {@link ServerCsrfTokenRepository}
+	 * @deprecated since 7.0 in favor of {@link #handleAsync(ServerWebExchange, Mono)}
 	 */
+	@Deprecated(since = "7.0", forRemoval = true)
 	void handle(ServerWebExchange exchange, Mono<CsrfToken> csrfToken);
+
+	/**
+	 * Handles a request using a {@link CsrfToken}.
+	 * @param exchange the {@code ServerWebExchange} with the request being handled
+	 * @param csrfToken the {@code Mono<CsrfToken>} created by the
+	 * {@link ServerCsrfTokenRepository}
+	 * @return a {@code Mono} that completes when handling is finished
+	 */
+	default Mono<Void> handleAsync(ServerWebExchange exchange, Mono<CsrfToken> csrfToken) {
+		handle(exchange, csrfToken);
+		return Mono.empty();
+	}
 
 	@Override
 	default Mono<String> resolveCsrfTokenValue(ServerWebExchange exchange, CsrfToken csrfToken) {
