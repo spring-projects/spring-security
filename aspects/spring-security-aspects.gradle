@@ -1,13 +1,16 @@
 apply plugin: 'io.spring.convention.spring-module'
 apply plugin: 'io.freefair.aspectj'
+apply plugin: 'compile-warnings-error'
 
 compileAspectj {
 	sourceCompatibility = "17"
 	targetCompatibility = "17"
+	ajcOptions.compilerArgs += ['-Xlint:ignore']
 }
 compileTestAspectj {
 	sourceCompatibility = "17"
 	targetCompatibility = "17"
+	ajcOptions.compilerArgs += ['-Xlint:ignore']
 }
 
 dependencies {
