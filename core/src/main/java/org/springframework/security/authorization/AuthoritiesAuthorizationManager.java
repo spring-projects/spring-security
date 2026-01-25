@@ -69,11 +69,7 @@ public final class AuthoritiesAuthorizationManager implements AuthorizationManag
 
 	private boolean isAuthorized(Authentication authentication, Collection<String> authorities) {
 		for (GrantedAuthority grantedAuthority : getGrantedAuthorities(authentication)) {
-			String authority = grantedAuthority.getAuthority();
-			if (authority == null) {
-				continue;
-			}
-			if (authorities.contains(authority)) {
+			if (authorities.contains(grantedAuthority.getAuthority())) {
 				return true;
 			}
 		}
