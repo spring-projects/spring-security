@@ -134,10 +134,6 @@ public class SecurityEvaluationContextExtension implements EvaluationContextExte
 		};
 		root.setAuthorizationManagerFactory(this.authorizationManagerFactory);
 		root.setPermissionEvaluator(this.permissionEvaluator);
-		if (!DEFAULT_ROLE_PREFIX.equals(this.defaultRolePrefix)) {
-			// Ensure SecurityExpressionRoot can strip the custom role prefix
-			root.setDefaultRolePrefix(this.defaultRolePrefix);
-		}
 		return root;
 	}
 

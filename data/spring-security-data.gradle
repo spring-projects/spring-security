@@ -4,6 +4,7 @@ plugins {
 }
 
 apply plugin: 'io.spring.convention.spring-module'
+apply plugin: 'compile-warnings-error'
 
 dependencies {
 	management platform(project(":spring-security-dependencies"))
