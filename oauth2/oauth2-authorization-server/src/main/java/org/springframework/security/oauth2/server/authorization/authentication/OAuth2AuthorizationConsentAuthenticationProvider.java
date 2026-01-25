@@ -203,7 +203,9 @@ public final class OAuth2AuthorizationConsentAuthenticationProvider implements A
 		Set<GrantedAuthority> authorities = new HashSet<>();
 		authorizationConsentBuilder.authorities(authorities::addAll);
 
-		if (authorities.isEmpty()) {
+		// 1. Only treat as 'denied' if there were actually scopes requested.
+		// If requestedScopes is empty, it's not an error. (gh-18565)
+		if (authorities.isEmpty() && !requestedScopes.isEmpty()) {
 			// Authorization consent denied (or revoked)
 			if (currentAuthorizationConsent != null) {
 				this.authorizationConsentService.remove(currentAuthorizationConsent);
@@ -219,11 +221,19 @@ public final class OAuth2AuthorizationConsentAuthenticationProvider implements A
 					authorizationConsentAuthentication, registeredClient, authorizationRequest);
 		}
 
-		OAuth2AuthorizationConsent authorizationConsent = authorizationConsentBuilder.build();
-		if (!authorizationConsent.equals(currentAuthorizationConsent)) {
-			this.authorizationConsentService.save(authorizationConsent);
+		if (!authorities.isEmpty()) {
+			OAuth2AuthorizationConsent authorizationConsent = authorizationConsentBuilder.build();
+			if (!authorizationConsent.equals(currentAuthorizationConsent)) {
+				this.authorizationConsentService.save(authorizationConsent);
+				if (this.logger.isTraceEnabled()) {
+					this.logger.trace("Saved authorization consent");
+				}
+			}
+		}
+		else if (currentAuthorizationConsent != null) {
+			this.authorizationConsentService.remove(currentAuthorizationConsent);
 			if (this.logger.isTraceEnabled()) {
-				this.logger.trace("Saved authorization consent");
+				this.logger.trace("Removed authorization consent since authorities are empty");
 			}
 		}
 
