@@ -91,7 +91,8 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
 	 */
 	protected String createServiceUrl(HttpServletRequest request, HttpServletResponse response) {
 		return WebUtils.constructServiceUrl(null, response, this.serviceProperties.getService(), null,
-				this.serviceProperties.getArtifactParameter(), this.encodeServiceUrlWithSessionId);
+				this.serviceProperties.getServiceParameter(), this.serviceProperties.getArtifactParameter(),
+				this.encodeServiceUrlWithSessionId);
 	}
 
 	/**
