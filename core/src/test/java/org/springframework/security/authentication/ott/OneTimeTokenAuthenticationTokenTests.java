@@ -31,6 +31,7 @@ class OneTimeTokenAuthenticationTokenTests {
 
 	// gh-18095
 	@Test
+	@SuppressWarnings("removal")
 	void shouldBeAbleToDeserializeFromJsonWithDefaultTypingActivated() throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.registerModules(SecurityJackson2Modules.getModules(getClass().getClassLoader()));
