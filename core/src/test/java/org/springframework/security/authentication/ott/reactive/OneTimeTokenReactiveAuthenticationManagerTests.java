@@ -59,6 +59,7 @@ public class OneTimeTokenReactiveAuthenticationManagerTests {
 	private static final String TOKEN = "token";
 
 	@Test
+	@SuppressWarnings("removal")
 	public void constructorWhenOneTimeTokenServiceNullThenIllegalArgumentException() {
 		ReactiveUserDetailsService userDetailsService = mock(ReactiveUserDetailsService.class);
 		// @formatter:off
@@ -68,6 +69,7 @@ public class OneTimeTokenReactiveAuthenticationManagerTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void constructorWhenUserDetailsServiceNullThenIllegalArgumentException() {
 		ReactiveOneTimeTokenService oneTimeTokenService = mock(ReactiveOneTimeTokenService.class);
 		// @formatter:off
@@ -77,6 +79,7 @@ public class OneTimeTokenReactiveAuthenticationManagerTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	void authenticateWhenOneTimeTokenAuthenticationTokenIsPresentThenSuccess() {
 		ReactiveOneTimeTokenService oneTimeTokenService = mock(ReactiveOneTimeTokenService.class);
 		given(oneTimeTokenService.consume(ArgumentMatchers.any(OneTimeTokenAuthenticationToken.class)))
@@ -103,6 +106,7 @@ public class OneTimeTokenReactiveAuthenticationManagerTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	void authenticateWhenInvalidOneTimeTokenAuthenticationTokenIsPresentThenFail() {
 		ReactiveOneTimeTokenService oneTimeTokenService = mock(ReactiveOneTimeTokenService.class);
 		given(oneTimeTokenService.consume(ArgumentMatchers.any(OneTimeTokenAuthenticationToken.class)))
@@ -120,6 +124,7 @@ public class OneTimeTokenReactiveAuthenticationManagerTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	void authenticateWhenIncorrectTypeOfAuthenticationIsPresentThenFail() {
 		ReactiveOneTimeTokenService oneTimeTokenService = mock(ReactiveOneTimeTokenService.class);
 		given(oneTimeTokenService.consume(ArgumentMatchers.any(OneTimeTokenAuthenticationToken.class)))
