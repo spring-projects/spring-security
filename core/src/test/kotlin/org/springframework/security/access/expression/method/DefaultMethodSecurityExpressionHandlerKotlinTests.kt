@@ -73,7 +73,8 @@ class DefaultMethodSecurityExpressionHandlerKotlinTests {
         )
 
         assertThat(filtered).isInstanceOf(Map::class.java)
-        val result = (filtered as Map<String, String>)
+        @Suppress("UNCHECKED_CAST")
+        val result = filtered as Map<String, String>
         assertThat(result).hasSize(1)
         assertThat(result).containsKey("key2")
         assertThat(result).containsValue("value2")
@@ -95,7 +96,8 @@ class DefaultMethodSecurityExpressionHandlerKotlinTests {
         )
 
         assertThat(filtered).isInstanceOf(Map::class.java)
-        val result = (filtered as Map<String, String>)
+        @Suppress("UNCHECKED_CAST")
+        val result = filtered as Map<String, String>
         assertThat(result).hasSize(0)
     }
 
@@ -119,7 +121,8 @@ class DefaultMethodSecurityExpressionHandlerKotlinTests {
         )
 
         assertThat(filtered).isInstanceOf(Collection::class.java)
-        val result = (filtered as Collection<String>)
+        @Suppress("UNCHECKED_CAST")
+        val result = filtered as Collection<String>
         assertThat(result).hasSize(1)
         assertThat(result).contains("string2")
     }
@@ -140,7 +143,8 @@ class DefaultMethodSecurityExpressionHandlerKotlinTests {
         )
 
         assertThat(filtered).isInstanceOf(Collection::class.java)
-        val result = (filtered as Collection<String>)
+        @Suppress("UNCHECKED_CAST")
+        val result = filtered as Collection<String>
         assertThat(result).hasSize(0)
     }
 
@@ -164,7 +168,8 @@ class DefaultMethodSecurityExpressionHandlerKotlinTests {
         )
 
         assertThat(filtered).isInstanceOf(Array<String>::class.java)
-        val result = (filtered as Array<String>)
+        @Suppress("UNCHECKED_CAST")
+        val result = filtered as Array<String>
         assertThat(result).hasSize(1)
         assertThat(result).contains("string2")
     }
@@ -185,7 +190,8 @@ class DefaultMethodSecurityExpressionHandlerKotlinTests {
         )
 
         assertThat(filtered).isInstanceOf(Array<String>::class.java)
-        val result = (filtered as Array<String>)
+        @Suppress("UNCHECKED_CAST")
+        val result = filtered as Array<String>
         assertThat(result).hasSize(0)
     }
 
@@ -209,6 +215,7 @@ class DefaultMethodSecurityExpressionHandlerKotlinTests {
         )
 
         assertThat(filtered).isInstanceOf(Stream::class.java)
+        @Suppress("UNCHECKED_CAST")
         val result = (filtered as Stream<String>).toList()
         assertThat(result).hasSize(1)
         assertThat(result).contains("string2")
@@ -230,6 +237,7 @@ class DefaultMethodSecurityExpressionHandlerKotlinTests {
         )
 
         assertThat(filtered).isInstanceOf(Stream::class.java)
+        @Suppress("UNCHECKED_CAST")
         val result = (filtered as Stream<String>).toList()
         assertThat(result).hasSize(0)
     }
