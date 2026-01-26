@@ -1,0 +1,348 @@
+---
+description: JSpecify null safety implementation patterns and best practices from Spring Framework's spring-core module
+alwaysApply: false
+---
+
+# JSpecify Null Safety Implementation in Spring Framework's spring-core Module
+
+Based on analysis of the Spring Framework's spring-core module, this document provides comprehensive patterns and best practices for JSpecify null safety implementation.
+
+## Overview
+
+Spring Framework 7.0+ has adopted JSpecify annotations for null safety throughout the spring-core module. This implementation provides build-time null safety checking while maintaining runtime compatibility with Kotlin's null safety features and supporting various annotation styles.
+
+---
+
+## Key Implementation Patterns
+
+### 1. Package-Level `@NullMarked` Annotation
+
+Spring Framework applies `@NullMarked` at the **package level** via `package-info.java` files, establishing that all types within the package are non-null by default:
+
+```java
+@NullMarked
+package org.springframework.core;
+
+import org.jspecify.annotations.NullMarked;
+```
+
+This is applied consistently across all sub-packages:
+
+```java
+@NullMarked
+package org.springframework.core.io;
+
+import org.jspecify.annotations.NullMarked;
+```
+
+**Best Practice:** Package-level `@NullMarked` reduces annotation noise by making non-null the default, requiring explicit marking only for nullable types.
+
+---
+
+### 2. Explicit `@Nullable` for Nullable Types
+
+When a return type, parameter, or field can be null, Spring explicitly marks it with `@Nullable`:
+
+```java
+public interface AttributeAccessor {
+    @Nullable Object getAttribute(String name);
+    
+    void setAttribute(String name, @Nullable Object value);
+    
+    @Nullable Object removeAttribute(String name);
+}
+```
+
+**Pattern:** `@Nullable` is used for:
+- Return types that may return null
+- Parameters that accept null values
+- Fields that may be null
+
+---
+
+### 3. Type Use Annotations
+
+Spring Framework applies nullability annotations at the **type use** level, including on generics and array components:
+
+```java
+public class ResolvableType {
+    private volatile ResolvableType @Nullable [] interfaces;
+    
+    private volatile @Nullable Class<?> resolved;
+    
+    public @Nullable Class<?> [] resolveGenerics() {
+        // Returns array where elements can be null
+    }
+    
+    private @Nullable ResolvableType componentType;
+}
+```
+
+**Advanced Pattern:** Annotations can be placed on:
+- Array components: `Type @Nullable []` (nullable array elements)
+- Array itself: `@Nullable Type[]` (nullable array reference)
+- Generic type arguments: `Map<String, @Nullable Value>`
+
+---
+
+### 4. Contract Annotations for Validation
+
+Spring combines JSpecify with custom `@Contract` annotations for flow-sensitive type checking:
+
+```java
+public abstract class Assert {
+    @Contract("null, _ -> fail")
+    public static void notNull(@Nullable Object object, String message) {
+        if (object == null) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+    
+    @Contract("false, _ -> fail")
+    public static void isTrue(boolean expression, String message) {
+        if (!expression) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+}
+```
+
+**Best Practice:** The `@Contract` annotation helps static analyzers understand that certain code paths never return normally (fail), enabling better null safety analysis.
+
+---
+
+### 5. Runtime Nullness Utility
+
+Spring provides a comprehensive `Nullness` enum and utility class for **runtime nullness detection**:
+
+```java
+public enum Nullness {
+    UNSPECIFIED,  // Java default for non-primitive types
+    NULLABLE,     // Can include null (@Nullable)
+    NON_NULL      // Will not include null (@NullMarked)
+}
+```
+
+This utility:
+- Detects JSpecify annotations (`@NullMarked`, `@Nullable`, `@NonNull`, `@NullUnmarked`)
+- Supports Kotlin null safety introspection
+- Handles package/class/element-level annotation hierarchy
+- Recognizes any `@Nullable` annotation regardless of package
+
+**Implementation Example:**
+
+```java
+public static Nullness forMethodReturnType(Method method) {
+    if (KOTLIN_REFLECT_PRESENT && KotlinDetector.isKotlinType(method.getDeclaringClass())) {
+        return KotlinDelegate.forMethodReturnType(method);
+    }
+    return (hasNullableAnnotation(method) ? Nullness.NULLABLE :
+        jSpecifyNullness(method, method.getDeclaringClass(), method.getAnnotatedReturnType()));
+}
+```
+
+---
+
+### 6. Hierarchical Annotation Resolution
+
+Spring implements a sophisticated hierarchy for nullness annotations:
+
+```java
+private static Nullness jSpecifyNullness(
+    AnnotatedElement annotatedElement, Class<?> declaringClass, AnnotatedType annotatedType) {
+    
+    // 1. Primitive types are always non-null (except void)
+    if (annotatedType.getType() instanceof Class<?> clazz && clazz.isPrimitive()) {
+        return (clazz != void.class ? Nullness.NON_NULL : Nullness.UNSPECIFIED);
+    }
+    
+    // 2. Type-level annotations
+    if (annotatedType.isAnnotationPresent(Nullable.class)) {
+        return Nullness.NULLABLE;
+    }
+    if (annotatedType.isAnnotationPresent(NonNull.class)) {
+        return Nullness.NON_NULL;
+    }
+    
+    Nullness nullness = Nullness.UNSPECIFIED;
+    
+    // 3. Package level
+    if (declaringPackage.isAnnotationPresent(NullMarked.class)) {
+        nullness = Nullness.NON_NULL;
+    }
+    
+    // 4. Class level
+    if (declaringClass.isAnnotationPresent(NullMarked.class)) {
+        nullness = Nullness.NON_NULL;
+    }
+    else if (declaringClass.isAnnotationPresent(NullUnmarked.class)) {
+        nullness = Nullness.UNSPECIFIED;
+    }
+    
+    // 5. Element level
+    if (annotatedElement.isAnnotationPresent(NullMarked.class)) {
+        nullness = Nullness.NON_NULL;
+    }
+    else if (annotatedElement.isAnnotationPresent(NullUnmarked.class)) {
+        nullness = Nullness.UNSPECIFIED;
+    }
+    
+    return nullness;
+}
+```
+
+**Resolution Order:**
+1. Type use annotations (highest priority)
+2. Element-level annotations
+3. Class-level annotations
+4. Package-level annotations (lowest priority)
+
+---
+
+### 7. Kotlin Interoperability
+
+Spring Framework provides first-class support for Kotlin null safety through dedicated delegation:
+
+```java
+private static class KotlinDelegate {
+    public static Nullness forMethodReturnType(Method method) {
+        KFunction<?> function = ReflectJvmMapping.getKotlinFunction(method);
+        if (function != null) {
+            KType type = function.getReturnType();
+            return (type.isMarkedNullable() ? Nullness.NULLABLE : Nullness.NON_NULL);
+        }
+        // Fallback to property getter detection
+        return Nullness.UNSPECIFIED;
+    }
+}
+```
+
+**Pattern:** Spring uses conditional compilation with Kotlin reflection to:
+- Detect Kotlin nullable types (`Type?`)
+- Support suspend functions
+- Handle property getters/setters
+- Respect Kotlin's optional parameters
+
+---
+
+### 8. Flexible `@Nullable` Detection
+
+Spring accepts **any** `@Nullable` annotation, regardless of package:
+
+```java
+private static boolean hasNullableAnnotation(AnnotatedElement element) {
+    for (Annotation annotation : element.getDeclaredAnnotations()) {
+        if ("Nullable".equals(annotation.annotationType().getSimpleName())) {
+            return true;
+        }
+    }
+    return false;
+}
+```
+
+**Compatibility:** This supports:
+- `org.jspecify.annotations.Nullable`
+- Spring's legacy `org.springframework.lang.Nullable`
+- JSR-305 `javax.annotation.Nullable`
+- Any other `@Nullable` annotation
+
+---
+
+### 9. Generic Type Handling
+
+Spring properly handles nullability in complex generic scenarios:
+
+```java
+public class MethodParameter {
+    public boolean isOptional() {
+        return (getParameterType() == Optional.class || 
+                Nullness.forMethodParameter(this) == Nullness.NULLABLE ||
+                (KOTLIN_REFLECT_PRESENT && 
+                 KotlinDetector.isKotlinType(getContainingClass()) &&
+                 KotlinDelegate.isOptional(this)));
+    }
+}
+```
+
+**Pattern:** Combines:
+- `Optional<T>` detection
+- JSpecify nullability
+- Kotlin nullable/optional parameter detection
+
+---
+
+### 10. Documentation and API Design
+
+Spring documents nullability expectations in Javadoc:
+
+```java
+/**
+ * Return the value of the attribute identified by {@code name}.
+ * Return {@code null} if the attribute doesn't exist.
+ * @param name the unique attribute key
+ * @return the current value of the attribute, if any
+ */
+@Nullable Object getAttribute(String name);
+```
+
+**Best Practice:** Javadoc explicitly states when null is returned and under what conditions.
+
+---
+
+## Best Practices from Spring Framework
+
+### 1. Default to Non-Null
+- Use `@NullMarked` at package level
+- Only annotate nullable types with `@Nullable`
+- Reduces visual noise in the codebase
+
+### 2. Consistent Annotation Placement
+- Return types: before the return type
+- Parameters: before the parameter type
+- Fields: before the field type
+- Type use: immediately before the specific type component
+
+### 3. Runtime Support
+- Provide runtime utilities (`Nullness` enum) for frameworks that need reflection
+- Support multiple annotation styles for compatibility
+- Bridge JSpecify and Kotlin null safety
+
+### 4. Build-Time Validation
+- Use NullAway or similar tools during build
+- Integrate with CI/CD pipelines
+- Fail builds on null safety violations
+
+### 5. Migration Strategy
+- Start with package-level `@NullMarked`
+- Add `@Nullable` incrementally
+- Use `@NullUnmarked` for legacy code sections during migration
+
+### 6. Interoperability
+- Support Kotlin null safety out of the box
+- Accept any `@Nullable` annotation for compatibility
+- Provide consistent runtime behavior across JVM languages
+
+---
+
+## Architecture Decisions
+
+1. **Package-level default:** Minimizes annotation overhead while providing safety
+2. **Runtime utilities:** Enables framework code to respect nullability at runtime
+3. **Kotlin integration:** First-class support for Kotlin's null safety model
+4. **Hierarchical resolution:** Clear precedence rules for annotation conflicts
+5. **Backward compatibility:** Gradual adoption without breaking existing code
+
+---
+
+## Summary
+
+Spring Framework's JSpecify implementation demonstrates enterprise-grade null safety patterns:
+
+- **Comprehensive coverage** across the entire spring-core module
+- **Runtime-aware** with the `Nullness` utility for reflection-heavy frameworks
+- **Kotlin-friendly** with dedicated interoperability support
+- **Flexible** accepting multiple annotation styles
+- **Well-documented** with clear Javadoc conventions
+- **Build-integrated** using NullAway for compile-time checks
+
+This implementation serves as an excellent reference for adopting JSpecify in large, complex Java codebases with diverse client requirements.
