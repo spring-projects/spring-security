@@ -614,6 +614,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * @see [RequiresChannelDsl]
      * @deprecated please use [redirectToHttps] instead
      */
+    @Suppress("DEPRECATION")
     @Deprecated(message="since 6.5 use redirectToHttps instead")
     fun requiresChannel(requiresChannelConfiguration: RequiresChannelDsl.() -> Unit) {
         val requiresChannelCustomizer = RequiresChannelDsl().apply(requiresChannelConfiguration).get()
