@@ -1,0 +1,750 @@
+---
+description: Comprehensive, actionable implementation plan for JSpecify null safety in Spring Security modules, consolidating patterns from @core, @web, and Spring Framework modules
+alwaysApply: false
+---
+
+# JSpecify Null Safety Implementation Plan for Spring Security Modules
+
+## Executive Summary
+
+This consolidated plan provides a complete, actionable guide for implementing JSpecify null safety in any Spring Security module. It synthesizes patterns from:
+- Spring Security's [@core module](.cursor/rules/null-safety/jspecify-core-module.mdc) (40+ packages, 600+ `@Nullable` usages)
+- Spring Security's [@web module](.cursor/rules/null-safety/jspecify-web-module.mdc) (55+ packages, 737+ `@Nullable` usages)
+- Spring Framework's [spring-core module](.cursor/rules/null-safety/jspecify-spring-core-module.mdc)
+- Spring Framework's [spring-web module](.cursor/rules/null-safety/jspecify-spring-web-module.mdc)
+
+Currently, **15 Spring Security modules** have the nullability plugin enabled: core, web, acl, cas, crypto, data, kerberos-client, kerberos-core, kerberos-test, kerberos-web, messaging, rsocket, taglibs, test, and webauthn.
+
+---
+
+## Phase 1: Build Configuration
+
+### 1.1 Gradle Plugin Setup
+
+Add the `security-nullability` plugin to your module's Gradle file (e.g., `config/spring-security-config.gradle`):
+
+```gradle
+plugins {
+    id 'io.spring.convention.spring-module'
+    id 'security-nullability'  // Add this line
+}
+```
+
+The plugin is defined in [`buildSrc/src/main/groovy/security-nullability.gradle`](buildSrc/src/main/groovy/security-nullability.gradle):
+
+```gradle
+plugins {
+    id 'io.spring.nullability'
+}
+```
+
+The dependency version is managed in [`gradle/libs.versions.toml`](gradle/libs.versions.toml) (line 104):
+
+```toml
+spring-nullability = 'io.spring.nullability:io.spring.nullability.gradle.plugin:0.0.10'
+```
+
+### 1.2 Checkstyle Enforcement
+
+No additional configuration needed - [`etc/checkstyle/checkstyle.xml`](etc/checkstyle/checkstyle.xml) already enforces:
+
+```xml
+<property name="illegalClasses" value="^(?!org\.jspecify\.annotations).*(Non[Nn]ull|Nullable)$"/>
+```
+
+This ensures **only** `org.jspecify.annotations` are used, preventing mixing with JSR-305, JetBrains, Spring Legacy, or other nullability frameworks.
+
+---
+
+## Phase 2: Package-Level Annotation
+
+### 2.1 Create `package-info.java` Files
+
+For **every package** in your module, create a `package-info.java` file with `@NullMarked`:
+
+```java
+@NullMarked
+package org.springframework.security.config;
+
+import org.jspecify.annotations.NullMarked;
+```
+
+**Key principle:** `@NullMarked` establishes **non-null as the default** for all types, parameters, return values, and fields within the package. Only nullable types need explicit annotation.
+
+### 2.2 Package Coverage Strategy
+
+Apply systematically:
+- Root package: `org.springframework.security.{module}`
+- All subpackages: `org.springframework.security.{module}.{feature}`
+- All nested subpackages recursively
+
+**Example from @web module:**
+- `org.springframework.security.web`
+- `org.springframework.security.web.authentication`
+- `org.springframework.security.web.authentication.logout`
+- `org.springframework.security.web.authentication.rememberme`
+- `org.springframework.security.web.csrf`
+- ... (55+ packages total)
+
+---
+
+## Phase 3: Annotation Implementation Patterns
+
+### 3.1 Method Return Types
+
+**Pattern:** Annotate return types with `@Nullable` when they can legitimately return null.
+
+```java
+// Interface declaration
+public interface RequestCache {
+    @Nullable SavedRequest getRequest(HttpServletRequest request, HttpServletResponse response);
+    
+    @Nullable HttpServletRequest getMatchingRequest(HttpServletRequest request, 
+            HttpServletResponse response);
+}
+
+// Implementation
+public class HttpSessionRequestCache implements RequestCache {
+    @Override
+    public @Nullable SavedRequest getRequest(HttpServletRequest request, 
+            HttpServletResponse response) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            return null;
+        }
+        return (SavedRequest) session.getAttribute(SAVED_REQUEST);
+    }
+}
+```
+
+**From Spring Framework - AttributeAccessor pattern:**
+
+```java
+public interface AttributeAccessor {
+    @Nullable Object getAttribute(String name);
+    
+    @Nullable Object removeAttribute(String name);
+}
+```
+
+### 3.2 Method Parameters
+
+**Pattern:** Mark parameters with `@Nullable` when they accept null values.
+
+```java
+public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationToken {
+    
+    // Constructor accepting nullable credentials
+    public UsernamePasswordAuthenticationToken(@Nullable Object principal, 
+            @Nullable Object credentials) {
+        super((Collection<? extends GrantedAuthority>) null);
+        this.principal = principal;
+        this.credentials = credentials;
+        setAuthenticated(false);
+    }
+    
+    // Factory method with non-null principal, nullable credentials
+    public static UsernamePasswordAuthenticationToken authenticated(Object principal, 
+            @Nullable Object credentials,
+            Collection<? extends GrantedAuthority> authorities) {
+        return new UsernamePasswordAuthenticationToken(principal, credentials, authorities);
+    }
+}
+```
+
+**Web module - setter pattern:**
+
+```java
+public interface CsrfTokenRepository {
+    // Passing null removes the token
+    void saveToken(@Nullable CsrfToken token, HttpServletRequest request, 
+            HttpServletResponse response);
+    
+    @Nullable CsrfToken loadToken(HttpServletRequest request);
+}
+```
+
+### 3.3 Field Declarations
+
+**Pattern:** Place `@Nullable` before the type, after access modifiers.
+
+```java
+public class AbstractAuthenticationToken implements Authentication {
+    
+    private @Nullable Object details;
+    
+    public @Nullable Object getDetails() {
+        return this.details;
+    }
+    
+    public void setDetails(@Nullable Object details) {
+        this.details = details;
+    }
+}
+```
+
+**With volatile modifier:**
+
+```java
+public class DaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
+    
+    private volatile @Nullable String userNotFoundEncodedPassword;
+}
+```
+
+**Order:** `access_modifier` `volatile/static/final` `@Nullable` `Type` `fieldName`
+
+### 3.4 Array Type Annotations
+
+**Critical distinction:**
+
+```java
+// Nullable array reference, non-null elements
+AppConfigurationEntry @Nullable [] defaultConfiguration;
+
+// Non-null array reference, nullable elements  
+String @Nullable [] getParameterNames(Method method);
+
+// Both nullable (rare)
+@Nullable String @Nullable [] parameterNames;
+```
+
+**Example from @core:**
+
+```java
+public class InMemoryConfiguration extends Configuration {
+    
+    private final AppConfigurationEntry @Nullable [] defaultConfiguration;
+    
+    public InMemoryConfiguration(Map<String, AppConfigurationEntry[]> mappedConfigurations,
+            AppConfigurationEntry @Nullable [] defaultConfiguration) {
+        this.mappedConfigurations = mappedConfigurations;
+        this.defaultConfiguration = defaultConfiguration;
+    }
+    
+    public AppConfigurationEntry @Nullable [] getAppConfigurationEntry(String name) {
+        AppConfigurationEntry[] mappedResult = this.mappedConfigurations.get(name);
+        return (mappedResult != null) ? mappedResult : this.defaultConfiguration;
+    }
+}
+```
+
+### 3.5 Generic Type Arguments
+
+**Pattern:** Annotate type arguments, not the container type.
+
+```java
+// From @core - nullable type argument
+public static List<JacksonModule> getModules(ClassLoader loader,
+        BasicPolymorphicTypeValidator.@Nullable Builder typeValidatorBuilder) {
+    // Implementation
+}
+
+// From Spring Framework - nullable map values
+public interface ErrorResponse {
+    default Object @Nullable [] getDetailMessageArguments() {
+        return null;
+    }
+}
+```
+
+### 3.6 Builder Pattern
+
+**Pattern:** Builders accept `@Nullable` for optional configuration, always return non-null builder.
+
+```java
+public abstract static class AbstractAuthenticationBuilder<B extends AbstractAuthenticationBuilder<B>> {
+    
+    private boolean authenticated;
+    private @Nullable Object details;
+    private final Collection<GrantedAuthority> authorities;
+    
+    public B details(@Nullable Object details) {
+        this.details = details;
+        return (B) this;  // Non-null return
+    }
+    
+    public B authenticated(boolean authenticated) {
+        this.authenticated = authenticated;
+        return (B) this;  // Non-null return
+    }
+}
+```
+
+**Web module - URI builder:**
+
+```java
+public class UriComponentsBuilder implements UriBuilder, Cloneable {
+    
+    private @Nullable String scheme;
+    private @Nullable String userInfo;
+    private @Nullable String host;
+    private @Nullable String port;
+    private @Nullable String fragment;
+    
+    public UriComponentsBuilder scheme(@Nullable String scheme) {
+        this.scheme = scheme;
+        return this;
+    }
+    
+    public UriComponentsBuilder fragment(@Nullable String fragment) {
+        this.fragment = fragment;
+        return this;
+    }
+}
+```
+
+### 3.7 Interface Contracts
+
+**Pattern:** Interfaces declare nullability that implementations must respect.
+
+```java
+@FunctionalInterface
+public interface AuthenticationConverter {
+    // May return null if request doesn't contain authentication
+    @Nullable Authentication convert(HttpServletRequest request);
+}
+
+public interface AuthenticationProvider {
+    // May return null if provider doesn't support the authentication
+    @Nullable Authentication authenticate(Authentication authentication) 
+            throws AuthenticationException;
+}
+
+public interface SecurityAnnotationScanner<A extends Annotation> {
+    @Nullable A scan(Method method, Class<?> targetClass);
+    @Nullable A scan(Parameter parameter);
+}
+```
+
+### 3.8 Static Final Fields
+
+**Pattern:** Constants that may be null are explicitly annotated.
+
+```java
+public final class SpringSecurityCoreVersion {
+    
+    static final @Nullable String MIN_SPRING_VERSION = getSpringVersion();
+    
+    private static @Nullable String getSpringVersion() {
+        Package pkg = SpringVersion.class.getPackage();
+        return (pkg != null) ? pkg.getImplementationVersion() : null;
+    }
+}
+```
+
+---
+
+## Phase 4: Advanced Patterns
+
+### 4.1 Contract Annotations
+
+**Pattern:** Combine `@Contract` with `@Nullable` for flow-sensitive analysis.
+
+```java
+public abstract class Assert {
+    
+    @Contract("null, _ -> fail")
+    public static void notNull(@Nullable Object object, String message) {
+        if (object == null) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+    
+    @Contract("false, _ -> fail")
+    public static void isTrue(boolean expression, String message) {
+        if (!expression) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+}
+```
+
+**Web module - authentication checks:**
+
+```java
+@Contract("null, _ -> false")
+private boolean authenticationIsRequired(@Nullable Authentication existingAuth, 
+        UsernamePasswordAuthenticationToken newAuth) {
+    if (existingAuth == null || !existingAuth.isAuthenticated()) {
+        return true;
+    }
+    return !existingAuth.getName().equals(newAuth.getName());
+}
+```
+
+### 4.2 Reactive Types (Mono/Flux)
+
+**Critical rule:** Use `Mono.empty()` instead of `@Nullable` for reactive return types.
+
+```java
+// ✅ CORRECT - Reactive types handle absence
+@FunctionalInterface
+public interface ServerAuthenticationConverter {
+    Mono<Authentication> convert(ServerWebExchange exchange);
+}
+
+public interface ServerRequestCache {
+    Mono<Void> saveRequest(ServerWebExchange exchange);
+    Mono<URI> getRedirectUri(ServerWebExchange exchange);
+    Mono<ServerHttpRequest> removeMatchingRequest(ServerWebExchange exchange);
+}
+
+// ❌ INCORRECT - Don't use @Nullable with Mono
+@Nullable Mono<Authentication> convert(ServerWebExchange exchange);  // Wrong!
+```
+
+**However:** Synchronous parameters in reactive code still use `@Nullable`:
+
+```java
+public Mono<Object> resolveArgument(MethodParameter parameter, 
+        BindingContext bindingContext, 
+        ServerWebExchange exchange) {
+    return ReactiveSecurityContextHolder.getContext()
+        .mapNotNull(SecurityContext::getAuthentication)
+        .flatMap((authentication) -> resolvePrincipal(parameter, authentication.getPrincipal()));
+}
+```
+
+### 4.3 HTTP-Specific Patterns (Web Modules)
+
+#### HTTP Headers
+
+```java
+public class HttpHeaders implements Serializable {
+    
+    // Single-valued headers return @Nullable
+    public @Nullable String getFirst(String headerName) {
+        return this.headers.getFirst(headerName);
+    }
+    
+    public @Nullable MediaType getContentType() {
+        String value = getFirst(CONTENT_TYPE);
+        return (StringUtils.hasLength(value) ? MediaType.parseMediaType(value) : null);
+    }
+    
+    public @Nullable URI getLocation() {
+        String value = getFirst(LOCATION);
+        return (value != null ? URI.create(value) : null);
+    }
+}
+```
+
+**Convention:**
+- Single-valued headers → `@Nullable T`
+- Multi-valued headers → non-null `List<T>` (empty if absent)
+
+#### Client-Provided Metadata
+
+```java
+public interface MultipartFile extends InputStreamSource {
+    
+    String getName();  // Always present - form parameter name
+    
+    @Nullable String getOriginalFilename();  // Browser-dependent
+    
+    @Nullable String getContentType();  // Optional
+}
+```
+
+**Rule:** All client-provided metadata (filenames, content types, headers) should be `@Nullable`.
+
+#### Setter with Removal Semantics
+
+```java
+public void setContentType(@Nullable MediaType mediaType) {
+    if (mediaType != null) {
+        set(CONTENT_TYPE, mediaType.toString());
+    }
+    else {
+        remove(CONTENT_TYPE);  // null = remove
+    }
+}
+
+private void setOrRemove(String headerName, @Nullable String headerValue) {
+    if (headerValue != null) {
+        set(headerName, headerValue);
+    }
+    else {
+        remove(headerName);
+    }
+}
+```
+
+### 4.4 Dual API Design (Required Variants)
+
+**Pattern:** Provide both nullable and required variants for optional values.
+
+```java
+interface ResponseSpec {
+    
+    // Returns null if no body
+    @Nullable T body(Class<T> bodyType);
+    
+    // Throws IllegalStateException if no body
+    T requiredBody(Class<T> bodyType);
+    
+    // Returns null if no body
+    @Nullable T body(ParameterizedTypeReference<T> bodyType);
+    
+    // Throws if no body
+    T requiredBody(ParameterizedTypeReference<T> bodyType);
+}
+```
+
+**Naming convention:** Methods prefixed with `required*` must not return null and should throw exceptions.
+
+### 4.5 Generic Type Parameters with @NonNull
+
+**Pattern:** Use `@NonNull` on generic type parameters to guarantee non-null values.
+
+```java
+@FunctionalInterface
+interface RequiredValueExchangeFunction<@NonNull T> extends ExchangeFunction<@NonNull T> {
+    
+    @Override
+    T exchange(HttpRequest clientRequest, ConvertibleClientHttpResponse clientResponse) 
+            throws IOException;
+}
+```
+
+---
+
+## Phase 5: Strategic @SuppressWarnings
+
+### 5.1 When to Suppress
+
+Use `@SuppressWarnings("NullAway")` **only** for known tool limitations, always with explanation:
+
+#### Initialization Patterns
+
+```java
+public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFilterBean {
+
+    @SuppressWarnings("NullAway.Init")  // Initialized in afterPropertiesSet()
+    private AuthenticationManager authenticationManager;
+    
+    @Override
+    public void afterPropertiesSet() {
+        Assert.notNull(this.authenticationManager, 
+                "An AuthenticationManager must be set");
+    }
+}
+```
+
+#### Constructor Dataflow Limitations
+
+```java
+@SuppressWarnings("NullAway")  // Dataflow analysis limitation
+public LogoutFilter(LogoutSuccessHandler logoutSuccessHandler, 
+        LogoutHandler... handlers) {
+    this.handler = new CompositeLogoutHandler(handlers);
+    Assert.notNull(logoutSuccessHandler, "logoutSuccessHandler cannot be null");
+    this.logoutSuccessHandler = logoutSuccessHandler;
+    setFilterProcessesUrl("/logout");
+}
+```
+
+#### Reactive Operator Limitations
+
+```java
+@Override
+@SuppressWarnings("NullAway")  // https://github.com/uber/NullAway/issues/1290
+public Mono<Object> resolveArgument(MethodParameter parameter, 
+        BindingContext bindingContext, 
+        ServerWebExchange exchange) {
+    return ReactiveSecurityContextHolder.getContext()
+        .mapNotNull(SecurityContext::getAuthentication)  // NullAway doesn't understand mapNotNull
+        .flatMap((authentication) -> resolvePrincipal(parameter, authentication.getPrincipal()));
+}
+```
+
+### 5.2 What NOT to Suppress
+
+❌ Don't suppress to avoid fixing legitimate null safety issues  
+❌ Don't suppress without documenting the reason  
+❌ Don't suppress broadly at class level when method level suffices
+
+---
+
+## Phase 6: Documentation Standards
+
+### 6.1 Javadoc Requirements
+
+**Pattern:** Explicitly state when and why null is returned.
+
+```java
+/**
+ * Return the value of the attribute identified by {@code name}.
+ * Return {@code null} if the attribute doesn't exist.
+ * @param name the unique attribute key
+ * @return the current value of the attribute, if any
+ */
+@Nullable Object getAttribute(String name);
+
+/**
+ * Return the original filename in the client's filesystem.
+ * ...
+ * @return the original filename, or the empty String if no file has been chosen
+ * in the multipart form, or {@code null} if not defined or not available
+ */
+@Nullable String getOriginalFilename();
+
+/**
+ * Return the {@linkplain MediaType media type} of the body, as specified
+ * by the {@code Content-Type} header.
+ * Returns {@code null} when the {@code Content-Type} header is not set.
+ * @throws InvalidMediaTypeException if the media type value cannot be parsed
+ */
+public @Nullable MediaType getContentType() { ... }
+```
+
+### 6.2 Javadoc Best Practices
+
+✅ State when null is returned  
+✅ Describe conditions leading to null  
+✅ Clarify semantic distinctions (null vs empty vs not present)  
+✅ Update Javadoc when adding `@Nullable`  
+✅ Be specific about nullable vs non-null parameters
+
+---
+
+## Phase 7: Testing & Validation
+
+### 7.1 Build Validation
+
+Run Gradle build to check for null safety violations:
+
+```bash
+./gradlew :{module}:build
+```
+
+NullAway will report errors like:
+- Assigning nullable to non-null
+- Returning nullable from non-null method
+- Passing nullable to non-null parameter
+
+### 7.2 Coverage Metrics
+
+Track progress:
+- **Packages marked**: Count `@NullMarked` package-info.java files
+- **@Nullable usages**: Count annotations via `git grep "@Nullable"`
+- **Files covered**: Count files with at least one nullability annotation
+
+**Example metrics:**
+- @core: 40+ packages, 600+ `@Nullable` usages
+- @web: 55+ packages, 737+ `@Nullable` usages across 257 files
+
+---
+
+## Decision Tree: When to Use What
+
+```
+Is this a return type?
+├─ Can return null?
+│  ├─ Reactive (Mono/Flux)? → Use Mono.empty() / Flux.empty()
+│  └─ Synchronous? → Add @Nullable
+└─ Never returns null?
+   └─ No annotation needed (within @NullMarked)
+
+Is this a parameter?
+├─ Accepts null? → Add @Nullable
+└─ Requires non-null? → No annotation (within @NullMarked)
+
+Is this a field?
+├─ Can be null? → private @Nullable Type field;
+└─ Always non-null? → private Type field;
+
+Is this an array?
+├─ Array reference nullable? → Type @Nullable []
+├─ Array elements nullable? → @Nullable Type[]
+└─ Both? → @Nullable Type @Nullable []
+
+Is this a generic type argument?
+└─ Container.@Nullable TypeArg
+
+Is this for HTTP/web code?
+├─ Client-provided data? → Always @Nullable
+├─ HTTP header (single)? → @Nullable
+├─ HTTP header (multi)? → Non-null List (empty if absent)
+└─ Optional config? → @Nullable with null=remove semantics
+```
+
+---
+
+## Best Practices Summary
+
+### ✅ DO
+
+1. Apply `@NullMarked` at **every** package level
+2. Place `@Nullable` **before the type** for fields, parameters, return types
+3. Use type-use syntax for arrays: `Type @Nullable []`
+4. Annotate nullable generic type arguments: `Container.@Nullable TypeArg`
+5. Update Javadoc to describe null behavior
+6. Keep modifiers before annotations: `private @Nullable Type field;`
+7. Use `@Contract` for complex null contracts
+8. Make nullability explicit - if it can be null, annotate it
+9. Use Reactive types (`Mono`/`Flux`) for reactive absence
+10. Provide both `@Nullable` and `required*()` variants for optional values
+11. Return empty collections instead of null for multi-valued data
+12. Treat client-provided data as `@Nullable` in web code
+
+### ❌ DON'T
+
+1. Don't mix nullability frameworks - use **only** `org.jspecify.annotations`
+2. Don't annotate non-null types within `@NullMarked` packages (redundant)
+3. Don't use `@NonNull` explicitly in `@NullMarked` contexts (it's the default)
+4. Don't forget constructor parameters - they need `@Nullable` too
+5. Don't rely solely on Javadoc - annotations provide compile-time checking
+6. Don't use `@Nullable` with reactive return types - use `Mono.empty()`
+7. Don't suppress NullAway without documenting the reason
+8. Don't mix `@Nullable` with `Optional` - choose one pattern
+
+---
+
+## Module-Specific Considerations
+
+### For Configuration Modules
+- Configuration properties often have nullable optional values
+- Use builders with `@Nullable` setters
+- Provide sensible defaults for null values
+
+### For Web Modules
+- HTTP headers, parameters, cookies are often `@Nullable`
+- Use `@Contract` for authentication/authorization checks
+- Distinguish servlet (use `@Nullable`) vs reactive (use `Mono`)
+
+### For Core/Security Modules
+- Authentication details commonly `@Nullable`
+- Credentials commonly `@Nullable`
+- Use interface contracts to enforce nullability
+
+### For Integration Modules (LDAP, SAML, OAuth2)
+- External data sources may return null
+- Protocol fields often optional
+- Document protocol-specific null semantics
+
+---
+
+## References
+
+- **JSpecify Annotations**: `org.jspecify.annotations.@NullMarked`, `@Nullable`, `@NonNull`, `@NullUnmarked`
+- **Plugin**: `io.spring.nullability:io.spring.nullability.gradle.plugin:0.0.10`
+- **Gradle Config**: `buildSrc/src/main/groovy/security-nullability.gradle`
+- **Checkstyle**: `etc/checkstyle/checkstyle.xml`
+- **Example Modules**: core, web (most comprehensive implementations)
+
+---
+
+## Summary
+
+This plan provides a complete implementation guide synthesizing patterns from 4 major modules. The key to successful JSpecify adoption is:
+
+1. **Start with build config** - plugin + Checkstyle enforcement
+2. **Blanket package annotation** - `@NullMarked` everywhere establishes non-null default
+3. **Systematic annotation** - work through types methodically (interfaces → abstract classes → concrete classes)
+4. **Document thoroughly** - update Javadoc to reflect null contracts
+5. **Test incrementally** - build frequently to catch violations early
+6. **Leverage patterns** - follow established patterns for consistency
+
+The result is **compile-time null safety** with minimal runtime overhead, catching null pointer errors before production.
