@@ -5,6 +5,7 @@ apply plugin: 'io.spring.convention.spring-module'
 apply plugin: 'trang'
 apply plugin: 'security-kotlin'
 apply plugin: 'test-compile-target-jdk25'
+apply plugin: 'compile-warnings-error'
 apply plugin:  'javadoc-warnings-error'
 
 configurations {

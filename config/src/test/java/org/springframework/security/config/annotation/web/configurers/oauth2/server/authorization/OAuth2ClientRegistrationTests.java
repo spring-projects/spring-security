@@ -647,6 +647,7 @@ public class OAuth2ClientRegistrationTests {
 		// @formatter:on
 
 		@Bean
+		@SuppressWarnings("removal")
 		RegisteredClientRepository registeredClientRepository(JdbcOperations jdbcOperations) {
 			RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
 			RegisteredClientParametersMapper registeredClientParametersMapper = new RegisteredClientParametersMapper();
