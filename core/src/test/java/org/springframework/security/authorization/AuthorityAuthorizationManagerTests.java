@@ -97,7 +97,8 @@ public class AuthorityAuthorizationManagerTests {
 
 	@Test
 	public void hasAnyAuthorityWhenNullThenException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> AuthorityAuthorizationManager.hasAnyAuthority((String[]) null))
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> AuthorityAuthorizationManager.hasAnyAuthority((String[]) null))
 			.withMessage("authorities cannot be empty");
 	}
 
