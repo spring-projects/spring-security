@@ -1,4 +1,5 @@
 plugins {
+	id 'compile-warnings-error'
 	id 'security-nullability'
 }
 
@@ -8,6 +9,7 @@ dependencies {
 	management platform(project(":spring-security-dependencies"))
 	api project(':spring-security-core')
 	api 'io.rsocket:rsocket-core'
+	compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 	optional project(':spring-security-oauth2-resource-server')
 	optional 'org.springframework:spring-messaging'
 	testImplementation 'io.projectreactor:reactor-test'
