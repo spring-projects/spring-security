@@ -139,8 +139,7 @@ class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegis
 						TypeReference.of(OAuth2AuthorizationResponseType.class),
 						TypeReference.of(OAuth2TokenFormat.class)),
 						(builder) -> builder.withMembers(MemberCategory.ACCESS_DECLARED_FIELDS,
-								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
-								MemberCategory.INVOKE_DECLARED_METHODS));
+								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.INVOKE_DECLARED_METHODS));
 
 			// Jackson Modules
 			if (jackson2Present) {
@@ -283,8 +282,7 @@ class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegis
 								TypeReference.of(WebServletJackson2Module.class),
 								TypeReference.of(OAuth2AuthorizationServerJackson2Module.class)),
 						(builder) -> builder.withMembers(MemberCategory.ACCESS_DECLARED_FIELDS,
-								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
-								MemberCategory.INVOKE_DECLARED_METHODS));
+								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.INVOKE_DECLARED_METHODS));
 		}
 
 		private static Class<?> loadClass(String className) {
