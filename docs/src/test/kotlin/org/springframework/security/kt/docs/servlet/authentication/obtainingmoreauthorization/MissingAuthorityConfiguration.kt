@@ -53,8 +53,8 @@ internal class MissingAuthorityConfiguration {
 
     // tag::authorizationManagerFactoryBean[]
     @Bean
-    fun authz(): AuthorizationManagerFactory<Object> {
-        return AuthorizationManagerFactories.multiFactor<Object>()
+    fun authz(): AuthorizationManagerFactory<Any> {
+        return AuthorizationManagerFactories.multiFactor<Any>()
                 .requireFactors(
                     FactorGrantedAuthority.X509_AUTHORITY,
                     FactorGrantedAuthority.AUTHORIZATION_CODE_AUTHORITY

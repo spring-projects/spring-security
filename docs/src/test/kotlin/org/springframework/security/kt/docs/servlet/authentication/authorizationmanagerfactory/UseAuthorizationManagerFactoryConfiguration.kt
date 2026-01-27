@@ -37,8 +37,8 @@ internal class UseAuthorizationManagerFactoryConfiguration {
 
     // tag::authorizationManagerFactoryBean[]
     @Bean
-    fun authz(): AuthorizationManagerFactory<Object> {
-        return AuthorizationManagerFactories.multiFactor<Object>()
+    fun authz(): AuthorizationManagerFactory<Any> {
+        return AuthorizationManagerFactories.multiFactor<Any>()
             .requireFactors(
                 FactorGrantedAuthority.PASSWORD_AUTHORITY,
                 FactorGrantedAuthority.OTT_AUTHORITY
@@ -47,6 +47,7 @@ internal class UseAuthorizationManagerFactoryConfiguration {
     }
     // end::authorizationManagerFactoryBean[]
 
+    @Suppress("DEPRECATION")
     @Bean
     fun userDetailsService(): UserDetailsService {
         return InMemoryUserDetailsManager(

@@ -5,6 +5,7 @@ plugins {
 	id 'security-kotlin'
 	id 'java-toolchain'
 	id 'test-compile-target-jdk25'
+	id 'compile-warnings-error'
 }
 
 apply plugin: 'io.spring.convention.docs'
