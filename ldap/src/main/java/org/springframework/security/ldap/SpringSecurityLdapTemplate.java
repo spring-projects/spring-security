@@ -37,6 +37,7 @@ import javax.naming.ldap.LdapName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -110,7 +111,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	 * directory entry.
 	 * @return the object created by the mapper
 	 */
-	public DirContextOperations retrieveEntry(final String dn, final String[] attributesToRetrieve) {
+	public DirContextOperations retrieveEntry(final String dn, final String @Nullable [] attributesToRetrieve) {
 		return executeReadOnly((ctx) -> {
 			Attributes attrs = ctx.getAttributes(dn, attributesToRetrieve);
 			return new DirContextAdapter(attrs, LdapNameBuilder.newInstance(dn).build(),
@@ -153,13 +154,14 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	 * @param base the DN to search in
 	 * @param filter search filter to use
 	 * @param params the parameters to substitute in the search filter
-	 * @param attributeNames the attributes' values that are to be retrieved.
+	 * @param attributeNames the attributes' values that are to be retrieved; a
+	 * {@code null} array means retrieve all attributes
 	 * @return the set of String values for each attribute found in all the matching
 	 * entries. The attribute name is the key for each set of values. In addition each map
 	 * contains the DN as a String with the key predefined key {@link #DN_KEY}.
 	 */
 	public Set<Map<String, List<String>>> searchForMultipleAttributeValues(String base, String filter, Object[] params,
-			String[] attributeNames) {
+			String @Nullable [] attributeNames) {
 		// Escape the params acording to RFC2254
 		Object[] encodedParams = new String[params.length];
 		for (int i = 0; i < params.length; i++) {
@@ -190,7 +192,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 			}
 			record.put(DN_KEY, Collections.singletonList(getAdapterDN(adapter)));
 			result.add(record);
-			return null;
+			return void.class;
 		};
 		SearchControls ctls = new SearchControls();
 		ctls.setSearchScope(this.searchControls.getSearchScope());

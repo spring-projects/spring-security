@@ -19,6 +19,8 @@ package org.springframework.security.ldap.ppolicy;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.ControlFactory;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Transforms a control object to a PasswordPolicyResponseControl object, if appropriate.
  *
@@ -35,7 +37,7 @@ public class PasswordPolicyControlFactory extends ControlFactory {
 	 * @return a response control of type PasswordPolicyResponseControl, or null
 	 */
 	@Override
-	public Control getControlInstance(Control ctl) {
+	public @Nullable Control getControlInstance(Control ctl) {
 		if (ctl.getID().equals(PasswordPolicyControl.OID)) {
 			return new PasswordPolicyResponseControl(ctl.getEncodedValue());
 		}

@@ -18,6 +18,7 @@ package org.springframework.security.ldap.authentication;
 
 import java.util.Collection;
 
+import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.ldap.CommunicationException;
@@ -168,6 +169,7 @@ public class LdapAuthenticationProviderTests {
 		SecurityAssertions.assertThat(result).hasAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY);
 	}
 
+	@NullMarked
 	class MockAuthenticator implements LdapAuthenticator {
 
 		@Override

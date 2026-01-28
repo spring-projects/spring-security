@@ -1,6 +1,7 @@
 apply plugin: 'io.spring.convention.spring-module'
 apply plugin: 'javadoc-warnings-error'
 apply plugin: 'compile-warnings-error'
+apply plugin: 'security-nullability'
 
 dependencies {
 	management platform(project(":spring-security-dependencies"))

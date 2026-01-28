@@ -20,8 +20,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import javax.naming.Name;
+
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.GrantedAuthority;
@@ -50,11 +53,11 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 
 	private static final long serialVersionUID = 620L;
 
-	private String dn;
+	private @Nullable String dn;
 
-	private String password;
+	private @Nullable String password;
 
-	private String username;
+	private @Nullable String username;
 
 	private Collection<GrantedAuthority> authorities = AuthorityUtils.NO_AUTHORITIES;
 
@@ -81,17 +84,17 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 
 	@Override
 	public String getDn() {
-		return this.dn;
+		return Objects.requireNonNull(this.dn, "dn cannot be null");
 	}
 
 	@Override
-	public String getPassword() {
+	public @Nullable String getPassword() {
 		return this.password;
 	}
 
 	@Override
 	public String getUsername() {
-		return this.username;
+		return Objects.requireNonNull(this.username, "username cannot be null");
 	}
 
 	@Override
@@ -132,6 +135,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof LdapUserDetailsImpl) {
+			Assert.notNull(this.dn, "dn cannot be null");
 			return this.dn.equals(((LdapUserDetailsImpl) obj).dn);
 		}
 		return false;
@@ -139,6 +143,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 
 	@Override
 	public int hashCode() {
+		Assert.notNull(this.dn, "dn cannot be null");
 		return this.dn.hashCode();
 	}
 
@@ -163,7 +168,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 	 */
 	public static class Essence {
 
-		protected LdapUserDetailsImpl instance = createTarget();
+		protected @Nullable LdapUserDetailsImpl instance = createTarget();
 
 		private List<GrantedAuthority> mutableAuthorities = new ArrayList<>();
 
@@ -223,47 +228,58 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 		}
 
 		public void setAccountNonExpired(boolean accountNonExpired) {
+			Assert.notNull(this.instance, "Essence can only be used to create a single instance");
 			this.instance.accountNonExpired = accountNonExpired;
 		}
 
 		public void setAccountNonLocked(boolean accountNonLocked) {
+			Assert.notNull(this.instance, "Essence can only be used to create a single instance");
 			this.instance.accountNonLocked = accountNonLocked;
 		}
 
 		public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
+			Assert.notNull(this.instance, "Essence can only be used to create a single instance");
 			this.mutableAuthorities = new ArrayList<>();
 			this.mutableAuthorities.addAll(authorities);
 		}
 
 		public void setCredentialsNonExpired(boolean credentialsNonExpired) {
+			Assert.notNull(this.instance, "Essence can only be used to create a single instance");
 			this.instance.credentialsNonExpired = credentialsNonExpired;
 		}
 
 		public void setDn(String dn) {
+			Assert.notNull(this.instance, "Essence can only be used to create a single instance");
 			this.instance.dn = dn;
 		}
 
 		public void setDn(Name dn) {
+			Assert.notNull(this.instance, "Essence can only be used to create a single instance");
 			this.instance.dn = dn.toString();
 		}
 
 		public void setEnabled(boolean enabled) {
+			Assert.notNull(this.instance, "Essence can only be used to create a single instance");
 			this.instance.enabled = enabled;
 		}
 
-		public void setPassword(String password) {
+		public void setPassword(@Nullable String password) {
+			Assert.notNull(this.instance, "Essence can only be used to create a single instance");
 			this.instance.password = password;
 		}
 
 		public void setUsername(String username) {
+			Assert.notNull(this.instance, "Essence can only be used to create a single instance");
 			this.instance.username = username;
 		}
 
 		public void setTimeBeforeExpiration(int timeBeforeExpiration) {
+			Assert.notNull(this.instance, "Essence can only be used to create a single instance");
 			this.instance.timeBeforeExpiration = timeBeforeExpiration;
 		}
 
 		public void setGraceLoginsRemaining(int graceLoginsRemaining) {
+			Assert.notNull(this.instance, "Essence can only be used to create a single instance");
 			this.instance.graceLoginsRemaining = graceLoginsRemaining;
 		}
 

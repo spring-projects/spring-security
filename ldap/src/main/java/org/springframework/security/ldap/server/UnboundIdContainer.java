@@ -24,8 +24,9 @@ import com.unboundid.ldap.listener.InMemoryListenerConfig;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.RDN;
 import com.unboundid.ldif.LDIFReader;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
@@ -35,6 +36,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.Lifecycle;
 import org.springframework.core.io.Resource;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
@@ -43,7 +45,7 @@ import org.springframework.util.StringUtils;
 public class UnboundIdContainer
 		implements EmbeddedLdapServerContainer, InitializingBean, DisposableBean, Lifecycle, ApplicationContextAware {
 
-	private InMemoryDirectoryServer directoryServer;
+	private @Nullable InMemoryDirectoryServer directoryServer;
 
 	private final String defaultPartitionSuffix;
 
@@ -51,13 +53,13 @@ public class UnboundIdContainer
 
 	private boolean isEphemeral;
 
-	private ConfigurableApplicationContext context;
+	private @Nullable ConfigurableApplicationContext context;
 
 	private boolean running;
 
-	private final String ldif;
+	private final @Nullable String ldif;
 
-	public UnboundIdContainer(String defaultPartitionSuffix, String ldif) {
+	public UnboundIdContainer(String defaultPartitionSuffix, @Nullable String ldif) {
 		this.defaultPartitionSuffix = defaultPartitionSuffix;
 		this.ldif = ldif;
 	}
@@ -84,7 +86,7 @@ public class UnboundIdContainer
 	}
 
 	@Override
-	public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.context = (ConfigurableApplicationContext) applicationContext;
 	}
 
@@ -100,9 +102,11 @@ public class UnboundIdContainer
 			config.setEnforceSingleStructuralObjectClass(false);
 			config.setEnforceAttributeSyntaxCompliance(true);
 			DN dn = new DN(this.defaultPartitionSuffix);
+			RDN rdn = dn.getRDN();
+			Assert.notNull(rdn, "defaultPartitionSuffix cannot be the empty DN");
 			Entry entry = new Entry(dn);
 			entry.addAttribute("objectClass", "top", "domain", "extensibleObject");
-			entry.addAttribute("dc", dn.getRDN().getAttributeValues()[0]);
+			entry.addAttribute("dc", rdn.getAttributeValues()[0]);
 			InMemoryDirectoryServer directoryServer = new InMemoryDirectoryServer(config);
 			directoryServer.add(entry);
 			importLdif(directoryServer);
@@ -118,6 +122,7 @@ public class UnboundIdContainer
 
 	private void importLdif(InMemoryDirectoryServer directoryServer) {
 		if (StringUtils.hasText(this.ldif)) {
+			Assert.notNull(this.context, "context cannot be null if ldif has a value");
 			try {
 				Resource[] resources = this.context.getResources(this.ldif);
 				if (resources.length > 0) {
@@ -140,7 +145,9 @@ public class UnboundIdContainer
 		if (this.isEphemeral && this.context != null && !this.context.isClosed()) {
 			return;
 		}
-		this.directoryServer.shutDown(true);
+		if (this.directoryServer != null) {
+			this.directoryServer.shutDown(true);
+		}
 		this.running = false;
 	}
 

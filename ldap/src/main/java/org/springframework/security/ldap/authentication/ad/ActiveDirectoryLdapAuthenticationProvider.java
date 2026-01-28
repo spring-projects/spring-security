@@ -33,6 +33,8 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.ldap.InitialLdapContext;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.log.LogMessage;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.CommunicationException;
@@ -117,9 +119,9 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 
 	private static final int ACCOUNT_LOCKED = 0x775;
 
-	private final String domain;
+	private final @Nullable String domain;
 
-	private final String rootDn;
+	private final @Nullable String rootDn;
 
 	private final String url;
 
@@ -163,6 +165,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 	protected DirContextOperations doAuthentication(UsernamePasswordAuthenticationToken auth) {
 		String username = auth.getName();
 		String password = (String) auth.getCredentials();
+		Assert.notNull(password, "password cannot be null");
 		DirContext ctx = null;
 		try {
 			ctx = bindAsUser(username, password);
@@ -236,7 +239,10 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 		}
 	}
 
-	private int parseSubErrorCode(String message) {
+	private int parseSubErrorCode(@Nullable String message) {
+		if (message == null) {
+			return -1;
+		}
 		Matcher matcher = SUB_ERROR_CODE.matcher(message);
 		if (matcher.matches()) {
 			return Integer.parseInt(matcher.group(1), 16);

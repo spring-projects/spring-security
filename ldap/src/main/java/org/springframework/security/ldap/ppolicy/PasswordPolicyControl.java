@@ -20,6 +20,8 @@ import java.io.Serial;
 
 import javax.naming.ldap.Control;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  *
  * A Password Policy request control.
@@ -65,7 +67,7 @@ public class PasswordPolicyControl implements Control {
 	 * @return always null
 	 */
 	@Override
-	public byte[] getEncodedValue() {
+	public byte @Nullable [] getEncodedValue() {
 		return null;
 	}
 

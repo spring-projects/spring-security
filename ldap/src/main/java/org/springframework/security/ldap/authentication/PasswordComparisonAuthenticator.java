@@ -18,6 +18,7 @@ package org.springframework.security.ldap.authentication;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.ldap.NameNotFoundException;
@@ -101,9 +102,6 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 		if (user == null && getUserSearch() != null) {
 			logger.trace("Searching for user using " + getUserSearch());
 			user = getUserSearch().searchForUser(username);
-			if (user == null) {
-				logger.debug("Failed to find user using " + getUserSearch());
-			}
 		}
 		if (user == null) {
 			throw UsernameNotFoundException.fromUsername(username);
@@ -117,6 +115,7 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 					this.passwordAttributeName, user.getDn()));
 			return user;
 		}
+		Assert.notNull(password, "LDAP password cannot be null");
 		if (isLdapPasswordCompare(user, ldapTemplate, password)) {
 			logger.debug(LogMessage.format("LDAP-matched password attribute '%s' for user '%s'",
 					this.passwordAttributeName, user.getDn()));
@@ -126,12 +125,12 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 				this.messages.getMessage("PasswordComparisonAuthenticator.badCredentials", "Bad credentials"));
 	}
 
-	private boolean isPasswordAttrCompare(DirContextOperations user, String password) {
+	private boolean isPasswordAttrCompare(DirContextOperations user, @Nullable String password) {
 		String passwordAttrValue = getPassword(user);
 		return this.passwordEncoder.matches(password, passwordAttrValue);
 	}
 
-	private String getPassword(DirContextOperations user) {
+	private @Nullable String getPassword(DirContextOperations user) {
 		Object passwordAttrValue = user.getObjectAttribute(this.passwordAttributeName);
 		if (passwordAttrValue == null) {
 			return null;

@@ -16,15 +16,20 @@
 
 package org.springframework.security.ldap.authentication;
 
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.search.LdapUserSearch;
 
 /**
  * @author Luke Taylor
  */
+@NullMarked
 public class MockUserSearch implements LdapUserSearch {
 
-	DirContextOperations user;
+	@Nullable DirContextOperations user;
 
 	public MockUserSearch() {
 	}
@@ -35,6 +40,9 @@ public class MockUserSearch implements LdapUserSearch {
 
 	@Override
 	public DirContextOperations searchForUser(String username) {
+		if (this.user == null) {
+			throw UsernameNotFoundException.fromUsername(username);
+		}
 		return this.user;
 	}
 

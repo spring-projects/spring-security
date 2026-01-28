@@ -42,6 +42,7 @@ import javax.naming.ldap.LdapName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.ldap.core.AttributesMapper;
@@ -129,7 +130,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 		return new SimpleGrantedAuthority(this.rolePrefix + role.toUpperCase(Locale.ROOT));
 	};
 
-	private String[] attributesToRetrieve;
+	private String @Nullable [] attributesToRetrieve;
 
 	private boolean usePasswordModifyExtensionOperation = false;
 
@@ -186,7 +187,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	 * @param newPassword the new value of the password.
 	 */
 	@Override
-	public void changePassword(final String oldPassword, final String newPassword) {
+	public void changePassword(final @Nullable String oldPassword, final @Nullable String newPassword) {
 		Authentication authentication = this.securityContextHolderStrategy.getContext().getAuthentication();
 		Assert.notNull(authentication,
 				"No authentication object found in security context. Can't change current user's password!");
@@ -312,17 +313,23 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 		this.template.executeReadWrite((ctx) -> {
 			for (GrantedAuthority authority : authorities) {
 				String group = convertAuthorityToGroup(authority);
+				if (group == null) {
+					continue;
+				}
 				LdapName fullDn = LdapUtils.getFullDn(userDn, ctx);
 				ModificationItem addGroup = new ModificationItem(modType,
 						new BasicAttribute(this.groupMemberAttributeName, fullDn.toString()));
 				ctx.modifyAttributes(buildGroupDn(group), new ModificationItem[] { addGroup });
 			}
-			return null;
+			return void.class;
 		});
 	}
 
-	private String convertAuthorityToGroup(GrantedAuthority authority) {
+	private @Nullable String convertAuthorityToGroup(GrantedAuthority authority) {
 		String group = authority.getAuthority();
+		if (group == null) {
+			return null;
+		}
 		if (group.startsWith(this.rolePrefix)) {
 			group = group.substring(this.rolePrefix.length());
 		}
@@ -424,7 +431,8 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 		this.rolePrefix = rolePrefix;
 	}
 
-	private void changePasswordUsingAttributeModification(LdapName userDn, String oldPassword, String newPassword) {
+	private void changePasswordUsingAttributeModification(LdapName userDn, @Nullable String oldPassword,
+			@Nullable String newPassword) {
 		ModificationItem[] passwordChange = new ModificationItem[] { new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
 				new BasicAttribute(this.passwordAttributeName, newPassword)) };
 		if (oldPassword == null) {
@@ -444,11 +452,12 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 				throw new BadCredentialsException("Authentication for password change failed.");
 			}
 			ctx.modifyAttributes(userDn, passwordChange);
-			return null;
+			return void.class;
 		});
 	}
 
-	private void changePasswordUsingExtensionOperation(LdapName userDn, String oldPassword, String newPassword) {
+	private void changePasswordUsingExtensionOperation(LdapName userDn, @Nullable String oldPassword,
+			@Nullable String newPassword) {
 		this.template.executeReadWrite((dirCtx) -> {
 			LdapContext ctx = (LdapContext) dirCtx;
 			String userIdentity = LdapUtils.getFullDn(userDn, ctx).toString();
@@ -491,7 +500,8 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
 		private final ByteArrayOutputStream value = new ByteArrayOutputStream();
 
-		PasswordModifyRequest(String userIdentity, String oldPassword, String newPassword) {
+		PasswordModifyRequest(@Nullable String userIdentity, @Nullable String oldPassword,
+				@Nullable String newPassword) {
 			ByteArrayOutputStream elements = new ByteArrayOutputStream();
 			if (userIdentity != null) {
 				berEncode(USER_IDENTITY_OCTET_TYPE, userIdentity.getBytes(), elements);
@@ -516,7 +526,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 		}
 
 		@Override
-		public ExtendedResponse createExtendedResponse(String id, byte[] berValue, int offset, int length) {
+		public @Nullable ExtendedResponse createExtendedResponse(String id, byte[] berValue, int offset, int length) {
 			return null;
 		}
 
