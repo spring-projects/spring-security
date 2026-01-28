@@ -283,6 +283,7 @@ public class JdbcRegisteredClientRepository implements RegisteredClientRepositor
 	 * @deprecated Use {@link JsonMapperRegisteredClientRowMapper} to switch to Jackson 3.
 	 */
 	@Deprecated(forRemoval = true, since = "7.0")
+	@SuppressWarnings("removal")
 	public static class RegisteredClientRowMapper extends AbstractRegisteredClientRowMapper {
 
 		private ObjectMapper objectMapper = Jackson2.createObjectMapper();
@@ -435,6 +436,7 @@ public class JdbcRegisteredClientRepository implements RegisteredClientRepositor
 	 * Jackson 3.
 	 */
 	@Deprecated(forRemoval = true, since = "7.0")
+	@SuppressWarnings("removal")
 	public static class RegisteredClientParametersMapper extends AbstractRegisteredClientParametersMapper {
 
 		private ObjectMapper objectMapper = Jackson2.createObjectMapper();
@@ -527,6 +529,7 @@ public class JdbcRegisteredClientRepository implements RegisteredClientRepositor
 	@Deprecated(forRemoval = true, since = "7.0")
 	private static final class Jackson2 {
 
+		@SuppressWarnings("removal")
 		private static ObjectMapper createObjectMapper() {
 			ObjectMapper objectMapper = new ObjectMapper();
 			ClassLoader classLoader = Jackson2.class.getClassLoader();
