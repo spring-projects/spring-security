@@ -6,6 +6,7 @@ plugins {
 	id 'java-toolchain'
 	id 'test-compile-target-jdk25'
 	id 'compile-warnings-error'
+	id 'javadoc-warnings-error'
 }
 
 apply plugin: 'io.spring.convention.docs'
