@@ -38,6 +38,7 @@ internal class ListAuthoritiesConfiguration {
     }
     // end::httpSecurity[]
 
+    @Suppress("DEPRECATION")
     @Bean
     fun userDetailsService(): UserDetailsService {
         return InMemoryUserDetailsManager(

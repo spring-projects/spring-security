@@ -15,7 +15,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import org.springframework.security.web.authentication.password.HaveIBeenPwnedRestApiPasswordChecker
 
 
-class CompromisedPasswordCheckerUsage {
+open class CompromisedPasswordCheckerUsage {
     // tag::configuration[]
     @Bean
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {

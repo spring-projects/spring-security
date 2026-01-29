@@ -31,6 +31,7 @@ class SimpleConfiguration {
     }
     // end::httpSecurity[]
 
+    @Suppress("DEPRECATION")
     @Bean
     fun userDetailsService(): UserDetailsService {
         return InMemoryUserDetailsManager(

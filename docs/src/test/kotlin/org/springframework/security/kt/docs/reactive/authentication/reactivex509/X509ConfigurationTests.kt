@@ -19,8 +19,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.ClassPathResource
-import org.springframework.http.client.reactive.ClientHttpConnector
-import org.springframework.http.server.reactive.SslInfo
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers
@@ -28,17 +26,10 @@ import org.springframework.security.test.web.reactive.server.WebTestClientBuilde
 import org.springframework.security.web.authentication.preauth.x509.X509TestUtils
 import org.springframework.test.web.reactive.server.UserWebTestClientConfigurer.x509
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.test.web.reactive.server.WebTestClientConfigurer
-import org.springframework.util.Assert
-import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.WebFilter
-import org.springframework.web.server.WebFilterChain
-import org.springframework.web.server.adapter.WebHttpHandlerBuilder
-import reactor.core.publisher.Mono
 import java.security.cert.Certificate
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
-import java.util.function.Consumer
 
 /**
  * Tests [CustomX509Configuration].
@@ -88,9 +79,10 @@ class X509ConfigurationTests {
         // @formatter:on
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun <T : Certificate?> loadCert(location: String): T {
         try {
-            ClassPathResource(location).getInputStream().use { `is` ->
+            ClassPathResource(location).inputStream.use { `is` ->
                 val certFactory = CertificateFactory.getInstance("X.509")
                 return certFactory.generateCertificate(`is`) as T
             }

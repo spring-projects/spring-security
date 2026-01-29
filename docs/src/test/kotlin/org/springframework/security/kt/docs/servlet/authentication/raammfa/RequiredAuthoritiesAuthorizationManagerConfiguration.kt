@@ -16,7 +16,6 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.ott.OneTimeTokenGenerationSuccessHandler
 import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenGenerationSuccessHandler
-import java.util.List
 
 @EnableWebSecurity
 @Configuration(proxyBeanMethods = false)
@@ -40,10 +39,10 @@ internal class RequiredAuthoritiesAuthorizationManagerConfiguration {
 
     // tag::authorizationManager[]
     @Bean
-    fun adminAuthorization(): RequiredAuthoritiesAuthorizationManager<Object> {
+    fun adminAuthorization(): RequiredAuthoritiesAuthorizationManager<Any> {
         // <1>
         val authorities = MapRequiredAuthoritiesRepository()
-        authorities.saveRequiredAuthorities("admin", List.of(
+        authorities.saveRequiredAuthorities("admin", listOf(
             FactorGrantedAuthority.PASSWORD_AUTHORITY,
             FactorGrantedAuthority.OTT_AUTHORITY)
         )
@@ -55,8 +54,8 @@ internal class RequiredAuthoritiesAuthorizationManagerConfiguration {
 
     // tag::authorizationManagerFactory[]
     @Bean
-    fun authorizationManagerFactory(admins: RequiredAuthoritiesAuthorizationManager<Object>): AuthorizationManagerFactory<Object> {
-        val defaults = DefaultAuthorizationManagerFactory<Object>()
+    fun authorizationManagerFactory(admins: RequiredAuthoritiesAuthorizationManager<Any>): AuthorizationManagerFactory<Any> {
+        val defaults = DefaultAuthorizationManagerFactory<Any>()
         // <1>
         defaults.setAdditionalAuthorization(admins)
         // <2>

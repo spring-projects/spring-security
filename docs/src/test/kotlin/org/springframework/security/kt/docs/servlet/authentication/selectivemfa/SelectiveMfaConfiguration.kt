@@ -3,7 +3,6 @@ package org.springframework.security.kt.docs.servlet.authentication.selectivemfa
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authorization.AuthorizationManagerFactories
-import org.springframework.security.authorization.AuthorizationManagerFactory
 import org.springframework.security.config.annotation.authorization.EnableMultiFactorAuthentication
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -52,6 +51,7 @@ internal class SelectiveMfaConfiguration {
     }
 
     // end::httpSecurity[]
+    @Suppress("DEPRECATION")
     @Bean
     fun userDetailsService(): UserDetailsService {
         return InMemoryUserDetailsManager(

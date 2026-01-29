@@ -4,6 +4,8 @@ import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
 
 class WithDefaultPasswordEncoderUsage {
+
+    @Suppress("DEPRECATION")
     fun createSingleUser(): UserDetails {
         // tag::createSingleUser[]
         val user = User.withDefaultPasswordEncoder()
@@ -17,6 +19,7 @@ class WithDefaultPasswordEncoderUsage {
         return user
     }
 
+    @Suppress("DEPRECATION")
     fun createMultipleUsers(): List<UserDetails> {
         // tag::createMultipleUsers[]
         val users = User.withDefaultPasswordEncoder()

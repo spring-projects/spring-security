@@ -34,6 +34,7 @@ class RequireOttConfiguration {
     }
     // end::httpSecurity[]
 
+    @Suppress("DEPRECATION")
     @Bean
     fun userDetailsService(): UserDetailsService {
         return InMemoryUserDetailsManager(

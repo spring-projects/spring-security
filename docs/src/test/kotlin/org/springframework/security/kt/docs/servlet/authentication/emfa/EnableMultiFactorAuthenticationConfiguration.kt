@@ -44,6 +44,7 @@ internal class EnableMultiFactorAuthenticationConfiguration {
     }
     // end::httpSecurity[]
 
+    @Suppress("DEPRECATION")
     @Bean
     fun userDetailsService(): UserDetailsService {
         return InMemoryUserDetailsManager(
