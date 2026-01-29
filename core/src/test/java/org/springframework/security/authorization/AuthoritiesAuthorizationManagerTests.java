@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+
 package org.springframework.security.authorization;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.function.Supplier;
 
@@ -35,6 +37,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * Tests for {@link AuthoritiesAuthorizationManager}.
  *
  * @author Evgeniy Cheban
+ * @author Khyojae
  */
 class AuthoritiesAuthorizationManagerTests {
 
@@ -42,7 +45,7 @@ class AuthoritiesAuthorizationManagerTests {
 	void setRoleHierarchyWhenNullThenIllegalArgumentException() {
 		AuthoritiesAuthorizationManager manager = new AuthoritiesAuthorizationManager();
 		assertThatIllegalArgumentException().isThrownBy(() -> manager.setRoleHierarchy(null))
-			.withMessage("roleHierarchy cannot be null");
+				.withMessage("roleHierarchy cannot be null");
 	}
 
 	@Test
@@ -83,4 +86,15 @@ class AuthoritiesAuthorizationManagerTests {
 		assertThat(manager.authorize(authentication, Collections.singleton("ROLE_USER")).isGranted()).isTrue();
 	}
 
+	@Test
+	void authorizeWhenAuthorityIsNullThenDoesNotThrowNullPointerException() {
+		AuthoritiesAuthorizationManager manager = new AuthoritiesAuthorizationManager();
+
+		Authentication authentication = new TestingAuthenticationToken("user", "password",
+				Collections.singletonList(() -> null));
+
+		Collection<String> authorities = Collections.singleton("ROLE_USER");
+
+		assertThat(manager.authorize(() -> authentication, authorities).isGranted()).isFalse();
+	}
 }
