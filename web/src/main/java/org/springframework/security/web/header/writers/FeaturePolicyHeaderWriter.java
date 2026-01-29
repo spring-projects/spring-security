@@ -43,6 +43,12 @@ public final class FeaturePolicyHeaderWriter implements HeaderWriter {
 	private String policyDirectives;
 
 	/**
+	 * Create a new instance of {@link FeaturePolicyHeaderWriter}
+	 */
+	public FeaturePolicyHeaderWriter() {
+	}
+
+	/**
 	 * Create a new instance of {@link FeaturePolicyHeaderWriter} with supplied security
 	 * policy directive(s).
 	 * @param policyDirectives the security policy directive(s)
