@@ -18,6 +18,8 @@ package org.springframework.security.oauth2.core;
 
 import java.io.Serializable;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -41,9 +43,9 @@ public class OAuth2Error implements Serializable {
 
 	private final String errorCode;
 
-	private final String description;
+	private final @Nullable String description;
 
-	private final String uri;
+	private final @Nullable String uri;
 
 	/**
 	 * Constructs an {@code OAuth2Error} using the provided parameters.
@@ -56,10 +58,10 @@ public class OAuth2Error implements Serializable {
 	/**
 	 * Constructs an {@code OAuth2Error} using the provided parameters.
 	 * @param errorCode the error code
-	 * @param description the error description
-	 * @param uri the error uri
+	 * @param description the error description, may be {@code null}
+	 * @param uri the error uri, may be {@code null}
 	 */
-	public OAuth2Error(String errorCode, String description, String uri) {
+	public OAuth2Error(String errorCode, @Nullable String description, @Nullable String uri) {
 		Assert.hasText(errorCode, "errorCode cannot be empty");
 		this.errorCode = errorCode;
 		this.description = description;
@@ -76,17 +78,17 @@ public class OAuth2Error implements Serializable {
 
 	/**
 	 * Returns the error description.
-	 * @return the error description
+	 * @return the error description, or {@code null} if not available
 	 */
-	public final String getDescription() {
+	public final @Nullable String getDescription() {
 		return this.description;
 	}
 
 	/**
 	 * Returns the error uri.
-	 * @return the error uri
+	 * @return the error uri, or {@code null} if not available
 	 */
-	public final String getUri() {
+	public final @Nullable String getUri() {
 		return this.uri;
 	}
 

@@ -23,6 +23,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.util.StringUtils;
@@ -44,6 +46,9 @@ public final class DefaultMapOAuth2AccessTokenResponseConverter
 	@Override
 	public OAuth2AccessTokenResponse convert(Map<String, Object> source) {
 		String accessToken = getParameterValue(source, OAuth2ParameterNames.ACCESS_TOKEN);
+		if (accessToken == null) {
+			throw new IllegalArgumentException("Missing required parameter: " + OAuth2ParameterNames.ACCESS_TOKEN);
+		}
 		OAuth2AccessToken.TokenType accessTokenType = getAccessTokenType(source);
 		long expiresIn = getExpiresIn(source);
 		Set<String> scopes = getScopes(source);
@@ -65,7 +70,8 @@ public final class DefaultMapOAuth2AccessTokenResponseConverter
 		// @formatter:on
 	}
 
-	private static OAuth2AccessToken.TokenType getAccessTokenType(Map<String, Object> tokenResponseParameters) {
+	private static OAuth2AccessToken.@Nullable TokenType getAccessTokenType(
+			Map<String, Object> tokenResponseParameters) {
 		if (OAuth2AccessToken.TokenType.BEARER.getValue()
 			.equalsIgnoreCase(getParameterValue(tokenResponseParameters, OAuth2ParameterNames.TOKEN_TYPE))) {
 			return OAuth2AccessToken.TokenType.BEARER;
@@ -89,7 +95,8 @@ public final class DefaultMapOAuth2AccessTokenResponseConverter
 		return Collections.emptySet();
 	}
 
-	private static String getParameterValue(Map<String, Object> tokenResponseParameters, String parameterName) {
+	private static @Nullable String getParameterValue(Map<String, Object> tokenResponseParameters,
+			String parameterName) {
 		Object obj = tokenResponseParameters.get(parameterName);
 		return (obj != null) ? obj.toString() : null;
 	}

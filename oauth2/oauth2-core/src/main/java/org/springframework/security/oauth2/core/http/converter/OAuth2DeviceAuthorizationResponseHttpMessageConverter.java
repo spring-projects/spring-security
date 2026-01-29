@@ -25,6 +25,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpInputMessage;
@@ -56,12 +58,17 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverter
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<>() {
 	};
 
-	private final GenericHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters
-		.getJsonMessageConverter();
+	private final GenericHttpMessageConverter<Object> jsonMessageConverter;
 
 	private Converter<Map<String, Object>, OAuth2DeviceAuthorizationResponse> deviceAuthorizationResponseConverter = new DefaultMapOAuth2DeviceAuthorizationResponseConverter();
 
 	private Converter<OAuth2DeviceAuthorizationResponse, Map<String, Object>> deviceAuthorizationResponseParametersConverter = new DefaultOAuth2DeviceAuthorizationResponseMapConverter();
+
+	public OAuth2DeviceAuthorizationResponseHttpMessageConverter() {
+		GenericHttpMessageConverter<Object> converter = HttpMessageConverters.getJsonMessageConverter();
+		Assert.notNull(converter, "Unable to locate a supported JSON message converter");
+		this.jsonMessageConverter = converter;
+	}
 
 	@Override
 	protected boolean supports(Class<?> clazz) {
@@ -139,8 +146,18 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverter
 		@Override
 		public OAuth2DeviceAuthorizationResponse convert(Map<String, Object> parameters) {
 			String deviceCode = getParameterValue(parameters, OAuth2ParameterNames.DEVICE_CODE);
+			if (deviceCode == null) {
+				throw new IllegalArgumentException("Missing required parameter: " + OAuth2ParameterNames.DEVICE_CODE);
+			}
 			String userCode = getParameterValue(parameters, OAuth2ParameterNames.USER_CODE);
+			if (userCode == null) {
+				throw new IllegalArgumentException("Missing required parameter: " + OAuth2ParameterNames.USER_CODE);
+			}
 			String verificationUri = getParameterValue(parameters, OAuth2ParameterNames.VERIFICATION_URI);
+			if (verificationUri == null) {
+				throw new IllegalArgumentException(
+						"Missing required parameter: " + OAuth2ParameterNames.VERIFICATION_URI);
+			}
 			String verificationUriComplete = getParameterValue(parameters,
 					OAuth2ParameterNames.VERIFICATION_URI_COMPLETE);
 			long expiresIn = getParameterValue(parameters, OAuth2ParameterNames.EXPIRES_IN, 0L);
@@ -162,7 +179,7 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverter
 			// @formatter:on
 		}
 
-		private static String getParameterValue(Map<String, Object> parameters, String parameterName) {
+		private static @Nullable String getParameterValue(Map<String, Object> parameters, String parameterName) {
 			Object obj = parameters.get(parameterName);
 			return (obj != null) ? obj.toString() : null;
 		}

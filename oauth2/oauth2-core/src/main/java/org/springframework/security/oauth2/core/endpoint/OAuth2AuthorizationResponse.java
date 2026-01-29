@@ -19,6 +19,8 @@ package org.springframework.security.oauth2.core.endpoint;
 import java.io.Serial;
 import java.io.Serializable;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -39,13 +41,13 @@ public final class OAuth2AuthorizationResponse implements Serializable {
 	@Serial
 	private static final long serialVersionUID = 620L;
 
-	private String redirectUri;
+	private @Nullable String redirectUri;
 
-	private String state;
+	private @Nullable String state;
 
-	private String code;
+	private @Nullable String code;
 
-	private OAuth2Error error;
+	private @Nullable OAuth2Error error;
 
 	private OAuth2AuthorizationResponse() {
 	}
@@ -55,22 +57,24 @@ public final class OAuth2AuthorizationResponse implements Serializable {
 	 * @return the uri where the response was redirected to
 	 */
 	public String getRedirectUri() {
+		Assert.notNull(this.redirectUri, "redirectUri cannot be null");
 		return this.redirectUri;
 	}
 
 	/**
-	 * Returns the state.
-	 * @return the state
+	 * Returns the state, or {@code null} if not present.
+	 * @return the state, or {@code null}
 	 */
-	public String getState() {
+	public @Nullable String getState() {
 		return this.state;
 	}
 
 	/**
-	 * Returns the authorization code.
-	 * @return the authorization code
+	 * Returns the authorization code, or {@code null} if the response is an error
+	 * response.
+	 * @return the authorization code, or {@code null}
 	 */
-	public String getCode() {
+	public @Nullable String getCode() {
 		return this.code;
 	}
 
@@ -80,7 +84,7 @@ public final class OAuth2AuthorizationResponse implements Serializable {
 	 * @return the {@link OAuth2Error} if the Authorization Request failed, otherwise
 	 * {@code null}
 	 */
-	public OAuth2Error getError() {
+	public @Nullable OAuth2Error getError() {
 		return this.error;
 	}
 
@@ -127,17 +131,17 @@ public final class OAuth2AuthorizationResponse implements Serializable {
 	 */
 	public static final class Builder {
 
-		private String redirectUri;
+		private @Nullable String redirectUri;
 
-		private String state;
+		private @Nullable String state;
 
-		private String code;
+		private @Nullable String code;
 
-		private String errorCode;
+		private @Nullable String errorCode;
 
-		private String errorDescription;
+		private @Nullable String errorDescription;
 
-		private String errorUri;
+		private @Nullable String errorUri;
 
 		private Builder() {
 		}
@@ -218,6 +222,7 @@ public final class OAuth2AuthorizationResponse implements Serializable {
 				authorizationResponse.code = this.code;
 			}
 			else {
+				Assert.hasText(this.errorCode, "errorCode cannot be empty when code is not present");
 				authorizationResponse.error = new OAuth2Error(this.errorCode, this.errorDescription, this.errorUri);
 			}
 			return authorizationResponse;

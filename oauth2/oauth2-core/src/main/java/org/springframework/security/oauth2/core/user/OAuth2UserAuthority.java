@@ -22,7 +22,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
@@ -41,7 +42,7 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 
 	private final Map<String, Object> attributes;
 
-	private final String userNameAttributeName;
+	private final @Nullable String userNameAttributeName;
 
 	/**
 	 * Constructs a {@code OAuth2UserAuthority} using the provided parameters and defaults
@@ -78,10 +79,11 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 	 * @param authority the authority granted to the user
 	 * @param attributes the attributes about the user
 	 * @param userNameAttributeName the attribute name used to access the user's name from
-	 * the attributes
+	 * the attributes, may be {@code null}
 	 * @since 6.4
 	 */
-	public OAuth2UserAuthority(String authority, Map<String, Object> attributes, String userNameAttributeName) {
+	public OAuth2UserAuthority(String authority, Map<String, Object> attributes,
+			@Nullable String userNameAttributeName) {
 		Assert.hasText(authority, "authority cannot be empty");
 		Assert.notEmpty(attributes, "attributes cannot be empty");
 		this.authority = authority;
@@ -104,11 +106,11 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 
 	/**
 	 * Returns the attribute name used to access the user's name from the attributes.
-	 * @return the attribute name used to access the user's name from the attributes
+	 * @return the attribute name used to access the user's name from the attributes, or
+	 * {@code null} if not available
 	 * @since 6.4
 	 */
-	@Nullable
-	public String getUserNameAttributeName() {
+	public @Nullable String getUserNameAttributeName() {
 		return this.userNameAttributeName;
 	}
 
@@ -137,8 +139,9 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 				}
 			}
 			else {
-				Object thatValue = convertURLIfNecessary(thatAttributes.get(key));
-				if (!value.equals(thatValue)) {
+				Object thatValue = thatAttributes.get(key);
+				Object convertedThatValue = convertURLIfNecessary(thatValue);
+				if (!value.equals(convertedThatValue)) {
 					return false;
 				}
 			}
@@ -165,9 +168,10 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 
 	/**
 	 * @return {@code URL} converted to a string since {@code URL} shouldn't be used for
-	 * equality/hashCode. For other instances the value is returned as is.
+	 * equality/hashCode. For other instances the value is returned as is (including
+	 * null).
 	 */
-	private static Object convertURLIfNecessary(Object value) {
+	private static @Nullable Object convertURLIfNecessary(@Nullable Object value) {
 		return (value instanceof URL) ? ((URL) value).toExternalForm() : value;
 	}
 

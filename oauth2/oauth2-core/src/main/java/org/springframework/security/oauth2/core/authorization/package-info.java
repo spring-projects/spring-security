@@ -15,10 +15,9 @@
  */
 
 /**
- * Provides a model for an OpenID Connect Core 1.0 representation of a user
- * {@code Principal}.
+ * Support classes that provide OAuth 2.0 authorization managers.
  */
 @NullMarked
-package org.springframework.security.oauth2.core.oidc.user;
+package org.springframework.security.oauth2.core.authorization;
 
 import org.jspecify.annotations.NullMarked;

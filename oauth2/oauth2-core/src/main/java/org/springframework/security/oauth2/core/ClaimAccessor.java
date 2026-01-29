@@ -21,6 +21,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.security.oauth2.core.converter.ClaimConversionService;
 import org.springframework.util.Assert;
@@ -44,11 +46,11 @@ public interface ClaimAccessor {
 	 * type {@code T}.
 	 * @param claim the name of the claim
 	 * @param <T> the type of the claim value
-	 * @return the claim value
+	 * @return the claim value, or {@code null} if the claim does not exist
 	 * @since 5.2
 	 */
 	@SuppressWarnings("unchecked")
-	default <T> T getClaim(String claim) {
+	default <T> @Nullable T getClaim(String claim) {
 		return !hasClaim(claim) ? null : (T) getClaims().get(claim);
 	}
 
@@ -71,7 +73,7 @@ public interface ClaimAccessor {
 	 * @return the claim value or {@code null} if it does not exist or is equal to
 	 * {@code null}
 	 */
-	default String getClaimAsString(String claim) {
+	default @Nullable String getClaimAsString(String claim) {
 		return !hasClaim(claim) ? null
 				: ClaimConversionService.getSharedInstance().convert(getClaims().get(claim), String.class);
 	}
@@ -85,7 +87,8 @@ public interface ClaimAccessor {
 	 * {@code Boolean}
 	 * @throws NullPointerException if the claim value is {@code null}
 	 */
-	default Boolean getClaimAsBoolean(String claim) {
+	@SuppressWarnings("NullAway")
+	default @Nullable Boolean getClaimAsBoolean(String claim) {
 		if (!hasClaim(claim)) {
 			return null;
 		}
@@ -100,8 +103,12 @@ public interface ClaimAccessor {
 	 * Returns the claim value as an {@code Instant} or {@code null} if it does not exist.
 	 * @param claim the name of the claim
 	 * @return the claim value or {@code null} if it does not exist
+	 * @throws IllegalArgumentException if the claim value cannot be converted to an
+	 * {@code Instant}
+	 * @throws NullPointerException if the claim value is {@code null}
 	 */
-	default Instant getClaimAsInstant(String claim) {
+	@SuppressWarnings("NullAway")
+	default @Nullable Instant getClaimAsInstant(String claim) {
 		if (!hasClaim(claim)) {
 			return null;
 		}
@@ -116,8 +123,12 @@ public interface ClaimAccessor {
 	 * Returns the claim value as an {@code URL} or {@code null} if it does not exist.
 	 * @param claim the name of the claim
 	 * @return the claim value or {@code null} if it does not exist
+	 * @throws IllegalArgumentException if the claim value cannot be converted to a
+	 * {@code URL}
+	 * @throws NullPointerException if the claim value is {@code null}
 	 */
-	default URL getClaimAsURL(String claim) {
+	@SuppressWarnings("NullAway")
+	default @Nullable URL getClaimAsURL(String claim) {
 		if (!hasClaim(claim)) {
 			return null;
 		}
@@ -137,8 +148,8 @@ public interface ClaimAccessor {
 	 * {@code Map}
 	 * @throws NullPointerException if the claim value is {@code null}
 	 */
-	@SuppressWarnings("unchecked")
-	default Map<String, Object> getClaimAsMap(String claim) {
+	@SuppressWarnings({ "unchecked", "NullAway" })
+	default @Nullable Map<String, Object> getClaimAsMap(String claim) {
 		if (!hasClaim(claim)) {
 			return null;
 		}
@@ -162,8 +173,8 @@ public interface ClaimAccessor {
 	 * {@code List}
 	 * @throws NullPointerException if the claim value is {@code null}
 	 */
-	@SuppressWarnings("unchecked")
-	default List<String> getClaimAsStringList(String claim) {
+	@SuppressWarnings({ "unchecked", "NullAway" })
+	default @Nullable List<String> getClaimAsStringList(String claim) {
 		if (!hasClaim(claim)) {
 			return null;
 		}

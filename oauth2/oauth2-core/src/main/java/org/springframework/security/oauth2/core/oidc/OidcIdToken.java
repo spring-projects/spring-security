@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.util.Assert;
 
@@ -57,12 +59,14 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 	/**
 	 * Constructs a {@code OidcIdToken} using the provided parameters.
 	 * @param tokenValue the ID Token value
-	 * @param issuedAt the time at which the ID Token was issued {@code (iat)}
+	 * @param issuedAt the time at which the ID Token was issued {@code (iat)}, may be
+	 * {@code null}
 	 * @param expiresAt the expiration time {@code (exp)} on or after which the ID Token
-	 * MUST NOT be accepted
+	 * MUST NOT be accepted, may be {@code null}
 	 * @param claims the claims about the authentication of the End-User
 	 */
-	public OidcIdToken(String tokenValue, Instant issuedAt, Instant expiresAt, Map<String, Object> claims) {
+	public OidcIdToken(String tokenValue, @Nullable Instant issuedAt, @Nullable Instant expiresAt,
+			Map<String, Object> claims) {
 		super(tokenValue, issuedAt, expiresAt);
 		Assert.notEmpty(claims, "claims cannot be empty");
 		this.claims = Collections.unmodifiableMap(new LinkedHashMap<>(claims));
@@ -246,12 +250,14 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		 * @return The constructed {@link OidcIdToken}
 		 */
 		public OidcIdToken build() {
-			Instant iat = toInstant(this.claims.get(IdTokenClaimNames.IAT));
-			Instant exp = toInstant(this.claims.get(IdTokenClaimNames.EXP));
+			Object iatObj = this.claims.get(IdTokenClaimNames.IAT);
+			Object expObj = this.claims.get(IdTokenClaimNames.EXP);
+			Instant iat = toInstant(iatObj);
+			Instant exp = toInstant(expObj);
 			return new OidcIdToken(this.tokenValue, iat, exp, this.claims);
 		}
 
-		private Instant toInstant(Object timestamp) {
+		private @Nullable Instant toInstant(@Nullable Object timestamp) {
 			if (timestamp != null) {
 				Assert.isInstanceOf(Instant.class, timestamp, "timestamps must be of type Instant");
 			}
