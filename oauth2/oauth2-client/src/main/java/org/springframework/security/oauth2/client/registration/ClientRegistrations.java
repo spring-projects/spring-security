@@ -37,6 +37,7 @@ import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.util.Assert;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.UnknownContentTypeException;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -278,6 +279,9 @@ public final class ClientRegistrations {
 				}
 				errors.add(ex.getMessage());
 				// else try another endpoint
+			}
+			catch (UnknownContentTypeException ex) {
+				errors.add(ex.getMessage());
 			}
 			catch (IllegalArgumentException | IllegalStateException ex) {
 				throw ex;
