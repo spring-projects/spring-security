@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.core.oidc;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * The Address Claim represents a physical mailing address defined by the OpenID Connect
  * Core 1.0 specification that can be returned either in the UserInfo Response or the ID
@@ -34,40 +36,43 @@ package org.springframework.security.oauth2.core.oidc;
 public interface AddressStandardClaim {
 
 	/**
-	 * Returns the full mailing address, formatted for display.
-	 * @return the full mailing address
+	 * Returns the full mailing address, formatted for display, or {@code null} if it does
+	 * not exist.
+	 * @return the full mailing address, or {@code null} if it does not exist
 	 */
-	String getFormatted();
+	@Nullable String getFormatted();
 
 	/**
 	 * Returns the full street address, which may include house number, street name, P.O.
-	 * Box, etc.
-	 * @return the full street address
+	 * Box, etc., or {@code null} if it does not exist.
+	 * @return the full street address, or {@code null} if it does not exist
 	 */
-	String getStreetAddress();
+	@Nullable String getStreetAddress();
 
 	/**
-	 * Returns the city or locality.
-	 * @return the city or locality
+	 * Returns the city or locality, or {@code null} if it does not exist.
+	 * @return the city or locality, or {@code null} if it does not exist
 	 */
-	String getLocality();
+	@Nullable String getLocality();
 
 	/**
-	 * Returns the state, province, prefecture, or region.
-	 * @return the state, province, prefecture, or region
+	 * Returns the state, province, prefecture, or region, or {@code null} if it does not
+	 * exist.
+	 * @return the state, province, prefecture, or region, or {@code null} if it does not
+	 * exist
 	 */
-	String getRegion();
+	@Nullable String getRegion();
 
 	/**
-	 * Returns the zip code or postal code.
-	 * @return the zip code or postal code
+	 * Returns the zip code or postal code, or {@code null} if it does not exist.
+	 * @return the zip code or postal code, or {@code null} if it does not exist
 	 */
-	String getPostalCode();
+	@Nullable String getPostalCode();
 
 	/**
-	 * Returns the country.
-	 * @return the country
+	 * Returns the country, or {@code null} if it does not exist.
+	 * @return the country, or {@code null} if it does not exist
 	 */
-	String getCountry();
+	@Nullable String getCountry();
 
 }

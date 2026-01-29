@@ -30,6 +30,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -65,11 +67,11 @@ public class OAuth2AuthorizationRequest implements Serializable {
 
 	private final String clientId;
 
-	private final String redirectUri;
+	private final @Nullable String redirectUri;
 
 	private final Set<String> scopes;
 
-	private final String state;
+	private final @Nullable String state;
 
 	private final Map<String, Object> additionalParameters;
 
@@ -80,6 +82,8 @@ public class OAuth2AuthorizationRequest implements Serializable {
 	protected OAuth2AuthorizationRequest(AbstractBuilder<?, ?> builder) {
 		Assert.hasText(builder.authorizationUri, "authorizationUri cannot be empty");
 		Assert.hasText(builder.clientId, "clientId cannot be empty");
+		Assert.notNull(builder.authorizationUri, "authorizationUri cannot be null");
+		Assert.notNull(builder.clientId, "clientId cannot be null");
 		this.authorizationUri = builder.authorizationUri;
 		this.authorizationGrantType = builder.authorizationGrantType;
 		this.responseType = builder.responseType;
@@ -89,8 +93,9 @@ public class OAuth2AuthorizationRequest implements Serializable {
 				CollectionUtils.isEmpty(builder.scopes) ? Collections.emptySet() : new LinkedHashSet<>(builder.scopes));
 		this.state = builder.state;
 		this.additionalParameters = Collections.unmodifiableMap(builder.additionalParameters);
-		this.authorizationRequestUri = StringUtils.hasText(builder.authorizationRequestUri)
-				? builder.authorizationRequestUri : builder.buildAuthorizationRequestUri();
+		String builderUri = builder.authorizationRequestUri;
+		this.authorizationRequestUri = StringUtils.hasText(builderUri) ? builderUri
+				: builder.buildAuthorizationRequestUri();
 		this.attributes = Collections.unmodifiableMap(builder.attributes);
 	}
 
@@ -127,10 +132,10 @@ public class OAuth2AuthorizationRequest implements Serializable {
 	}
 
 	/**
-	 * Returns the uri for the redirection endpoint.
-	 * @return the uri for the redirection endpoint
+	 * Returns the uri for the redirection endpoint, or {@code null} if not present.
+	 * @return the uri for the redirection endpoint, or {@code null}
 	 */
-	public String getRedirectUri() {
+	public @Nullable String getRedirectUri() {
 		return this.redirectUri;
 	}
 
@@ -143,10 +148,10 @@ public class OAuth2AuthorizationRequest implements Serializable {
 	}
 
 	/**
-	 * Returns the state.
-	 * @return the state
+	 * Returns the state, or {@code null} if not present.
+	 * @return the state, or {@code null}
 	 */
-	public String getState() {
+	public @Nullable String getState() {
 		return this.state;
 	}
 
@@ -177,7 +182,7 @@ public class OAuth2AuthorizationRequest implements Serializable {
 	 * @since 5.2
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T getAttribute(String name) {
+	public <T> @Nullable T getAttribute(String name) {
 		return (T) this.getAttributes().get(name);
 	}
 
@@ -277,19 +282,19 @@ public class OAuth2AuthorizationRequest implements Serializable {
 	 */
 	protected abstract static class AbstractBuilder<T extends OAuth2AuthorizationRequest, B extends AbstractBuilder<T, B>> {
 
-		private String authorizationUri;
+		private @Nullable String authorizationUri;
 
 		private final AuthorizationGrantType authorizationGrantType = AuthorizationGrantType.AUTHORIZATION_CODE;
 
 		private final OAuth2AuthorizationResponseType responseType = OAuth2AuthorizationResponseType.CODE;
 
-		private String clientId;
+		private @Nullable String clientId;
 
-		private String redirectUri;
+		private @Nullable String redirectUri;
 
-		private Set<String> scopes;
+		private @Nullable Set<String> scopes;
 
-		private String state;
+		private @Nullable String state;
 
 		private Map<String, Object> additionalParameters = new LinkedHashMap<>();
 
@@ -298,7 +303,7 @@ public class OAuth2AuthorizationRequest implements Serializable {
 
 		private Map<String, Object> attributes = new LinkedHashMap<>();
 
-		private String authorizationRequestUri;
+		private @Nullable String authorizationRequestUri;
 
 		private Function<UriBuilder, URI> authorizationRequestUriFunction = (builder) -> builder.build();
 
@@ -341,20 +346,20 @@ public class OAuth2AuthorizationRequest implements Serializable {
 
 		/**
 		 * Sets the uri for the redirection endpoint.
-		 * @param redirectUri the uri for the redirection endpoint
+		 * @param redirectUri the uri for the redirection endpoint, may be {@code null}
 		 * @return the {@link AbstractBuilder}
 		 */
-		public B redirectUri(String redirectUri) {
+		public B redirectUri(@Nullable String redirectUri) {
 			this.redirectUri = redirectUri;
 			return getThis();
 		}
 
 		/**
 		 * Sets the scope(s).
-		 * @param scope the scope(s)
+		 * @param scope the scope(s), may be {@code null}
 		 * @return the {@link AbstractBuilder}
 		 */
-		public B scope(String... scope) {
+		public B scope(@Nullable String... scope) {
 			if (scope != null && scope.length > 0) {
 				return scopes(new LinkedHashSet<>(Arrays.asList(scope)));
 			}
@@ -363,20 +368,20 @@ public class OAuth2AuthorizationRequest implements Serializable {
 
 		/**
 		 * Sets the scope(s).
-		 * @param scopes the scope(s)
+		 * @param scopes the scope(s), may be {@code null}
 		 * @return the {@link AbstractBuilder}
 		 */
-		public B scopes(Set<String> scopes) {
+		public B scopes(@Nullable Set<String> scopes) {
 			this.scopes = scopes;
 			return getThis();
 		}
 
 		/**
 		 * Sets the state.
-		 * @param state the state
+		 * @param state the state, may be {@code null}
 		 * @return the {@link AbstractBuilder}
 		 */
-		public B state(String state) {
+		public B state(@Nullable String state) {
 			this.state = state;
 			return getThis();
 		}
@@ -502,7 +507,9 @@ public class OAuth2AuthorizationRequest implements Serializable {
 					queryParams.set(key, encodeQueryParam(String.valueOf(v)));
 				}
 			});
-			UriBuilder uriBuilder = this.uriBuilderFactory.uriString(this.authorizationUri).queryParams(queryParams);
+			String uri = this.authorizationUri;
+			Assert.notNull(uri, "authorizationUri cannot be null");
+			UriBuilder uriBuilder = this.uriBuilderFactory.uriString(uri).queryParams(queryParams);
 			return this.authorizationRequestUriFunction.apply(uriBuilder).toString();
 		}
 

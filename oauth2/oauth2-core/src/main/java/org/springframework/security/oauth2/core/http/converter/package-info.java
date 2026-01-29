@@ -15,10 +15,9 @@
  */
 
 /**
- * Provides a model for an OpenID Connect Core 1.0 representation of a user
- * {@code Principal}.
+ * HTTP message converters for OAuth 2.0 and OpenID Connect protocol messages.
  */
 @NullMarked
-package org.springframework.security.oauth2.core.oidc.user;
+package org.springframework.security.oauth2.core.http.converter;
 
 import org.jspecify.annotations.NullMarked;

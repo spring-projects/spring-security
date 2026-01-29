@@ -18,4 +18,7 @@
  * Core classes and interfaces providing support for the OAuth 2.0 Authorization
  * Framework.
  */
+@NullMarked
 package org.springframework.security.oauth2.core;
+
+import org.jspecify.annotations.NullMarked;

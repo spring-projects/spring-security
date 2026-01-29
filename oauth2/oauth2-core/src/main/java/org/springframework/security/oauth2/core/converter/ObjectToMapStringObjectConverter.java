@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.ConditionalGenericConverter;
 
@@ -37,12 +39,13 @@ final class ObjectToMapStringObjectConverter implements ConditionalGenericConver
 
 	@Override
 	public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+		TypeDescriptor mapKeyTypeDescriptor = targetType.getMapKeyTypeDescriptor();
 		return targetType.getElementTypeDescriptor() == null
-				|| targetType.getMapKeyTypeDescriptor().getType().equals(String.class);
+				|| (mapKeyTypeDescriptor != null && mapKeyTypeDescriptor.getType().equals(String.class));
 	}
 
 	@Override
-	public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+	public @Nullable Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
 		if (source == null) {
 			return null;
 		}

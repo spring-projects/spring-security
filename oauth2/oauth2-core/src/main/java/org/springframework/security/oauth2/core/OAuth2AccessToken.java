@@ -22,6 +22,8 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -52,11 +54,12 @@ public class OAuth2AccessToken extends AbstractOAuth2Token {
 	 * Constructs an {@code OAuth2AccessToken} using the provided parameters.
 	 * @param tokenType the token type
 	 * @param tokenValue the token value
-	 * @param issuedAt the time at which the token was issued
+	 * @param issuedAt the time at which the token was issued, may be {@code null}
 	 * @param expiresAt the expiration time on or after which the token MUST NOT be
-	 * accepted
+	 * accepted, may be {@code null}
 	 */
-	public OAuth2AccessToken(TokenType tokenType, String tokenValue, Instant issuedAt, Instant expiresAt) {
+	public OAuth2AccessToken(TokenType tokenType, String tokenValue, @Nullable Instant issuedAt,
+			@Nullable Instant expiresAt) {
 		this(tokenType, tokenValue, issuedAt, expiresAt, Collections.emptySet());
 	}
 
@@ -64,13 +67,13 @@ public class OAuth2AccessToken extends AbstractOAuth2Token {
 	 * Constructs an {@code OAuth2AccessToken} using the provided parameters.
 	 * @param tokenType the token type
 	 * @param tokenValue the token value
-	 * @param issuedAt the time at which the token was issued
+	 * @param issuedAt the time at which the token was issued, may be {@code null}
 	 * @param expiresAt the expiration time on or after which the token MUST NOT be
-	 * accepted
+	 * accepted, may be {@code null}
 	 * @param scopes the scope(s) associated to the token
 	 */
-	public OAuth2AccessToken(TokenType tokenType, String tokenValue, Instant issuedAt, Instant expiresAt,
-			Set<String> scopes) {
+	public OAuth2AccessToken(TokenType tokenType, String tokenValue, @Nullable Instant issuedAt,
+			@Nullable Instant expiresAt, Set<String> scopes) {
 		super(tokenValue, issuedAt, expiresAt);
 		Assert.notNull(tokenType, "tokenType cannot be null");
 		this.tokenType = tokenType;

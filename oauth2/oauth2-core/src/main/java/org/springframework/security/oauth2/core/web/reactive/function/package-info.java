@@ -15,10 +15,9 @@
  */
 
 /**
- * Provides a model for an OpenID Connect Core 1.0 representation of a user
- * {@code Principal}.
+ * Reactive functional web support classes for OAuth 2.0 and OpenID Connect.
  */
 @NullMarked
-package org.springframework.security.oauth2.core.oidc.user;
+package org.springframework.security.oauth2.core.web.reactive.function;
 
 import org.jspecify.annotations.NullMarked;

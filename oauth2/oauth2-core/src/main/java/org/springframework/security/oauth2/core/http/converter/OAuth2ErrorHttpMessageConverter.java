@@ -52,8 +52,7 @@ public class OAuth2ErrorHttpMessageConverter extends AbstractHttpMessageConverte
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<>() {
 	};
 
-	private final GenericHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters
-		.getJsonMessageConverter();
+	private final GenericHttpMessageConverter<Object> jsonMessageConverter;
 
 	protected Converter<Map<String, String>, OAuth2Error> errorConverter = new OAuth2ErrorConverter();
 
@@ -61,6 +60,9 @@ public class OAuth2ErrorHttpMessageConverter extends AbstractHttpMessageConverte
 
 	public OAuth2ErrorHttpMessageConverter() {
 		super(DEFAULT_CHARSET, MediaType.APPLICATION_JSON, new MediaType("application", "*+json"));
+		GenericHttpMessageConverter<Object> converter = HttpMessageConverters.getJsonMessageConverter();
+		Assert.notNull(converter, "Unable to locate a supported JSON message converter");
+		this.jsonMessageConverter = converter;
 	}
 
 	@Override
@@ -133,6 +135,7 @@ public class OAuth2ErrorHttpMessageConverter extends AbstractHttpMessageConverte
 		@Override
 		public OAuth2Error convert(Map<String, String> parameters) {
 			String errorCode = parameters.get(OAuth2ParameterNames.ERROR);
+			Assert.hasText(errorCode, "errorCode cannot be empty");
 			String errorDescription = parameters.get(OAuth2ParameterNames.ERROR_DESCRIPTION);
 			String errorUri = parameters.get(OAuth2ParameterNames.ERROR_URI);
 			return new OAuth2Error(errorCode, errorDescription, errorUri);

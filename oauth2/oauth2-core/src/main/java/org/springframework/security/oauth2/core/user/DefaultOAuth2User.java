@@ -27,6 +27,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.Assert;
@@ -59,17 +61,17 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 
 	/**
 	 * Constructs a {@code DefaultOAuth2User} using the provided parameters.
-	 * @param authorities the authorities granted to the user
+	 * @param authorities the authorities granted to the user, may be {@code null}
 	 * @param attributes the attributes about the user
 	 * @param nameAttributeKey the key used to access the user's &quot;name&quot; from
 	 * {@link #getAttributes()}
 	 */
-	public DefaultOAuth2User(Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes,
-			String nameAttributeKey) {
+	public DefaultOAuth2User(@Nullable Collection<? extends GrantedAuthority> authorities,
+			Map<String, Object> attributes, String nameAttributeKey) {
 		Assert.notEmpty(attributes, "attributes cannot be empty");
 		Assert.hasText(nameAttributeKey, "nameAttributeKey cannot be empty");
-		Assert.notNull(attributes.get(nameAttributeKey),
-				"Attribute value for '" + nameAttributeKey + "' cannot be null");
+		Object nameAttributeValue = attributes.get(nameAttributeKey);
+		Assert.notNull(nameAttributeValue, "Attribute value for '" + nameAttributeKey + "' cannot be null");
 
 		this.authorities = (authorities != null)
 				? Collections.unmodifiableSet(new LinkedHashSet<>(this.sortAuthorities(authorities)))
@@ -80,7 +82,9 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 
 	@Override
 	public String getName() {
-		return this.getAttribute(this.nameAttributeKey).toString();
+		Object nameAttributeValue = this.getAttribute(this.nameAttributeKey);
+		Assert.notNull(nameAttributeValue, "Name attribute value cannot be null");
+		return nameAttributeValue.toString();
 	}
 
 	@Override
