@@ -79,9 +79,7 @@ dependencies {
 	implementation libs.io.spring.javaformat.spring.javaformat.gradle.plugin
 	implementation libs.io.spring.nohttp.nohttp.gradle
 	implementation libs.org.jetbrains.kotlin.kotlin.gradle.plugin
-	implementation (libs.net.sourceforge.htmlunit) {
-		exclude group: 'org.eclipse.jetty.websocket', module: 'websocket-client'
-	}
+	implementation libs.org.htmlunit.htmlunit
 	implementation libs.org.hidetake.gradle.ssh.plugin
 	implementation libs.org.jfrog.buildinfo.build.info.extractor.gradle
 	implementation libs.org.sonarsource.scanner.gradle.sonarqube.gradle.plugin
