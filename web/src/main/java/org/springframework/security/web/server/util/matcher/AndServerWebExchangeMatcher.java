@@ -42,9 +42,9 @@ public class AndServerWebExchangeMatcher implements ServerWebExchangeMatcher {
 
 	private static final Log logger = LogFactory.getLog(AndServerWebExchangeMatcher.class);
 
-	private final List<ServerWebExchangeMatcher> matchers;
+	private final List<? extends ServerWebExchangeMatcher> matchers;
 
-	public AndServerWebExchangeMatcher(List<ServerWebExchangeMatcher> matchers) {
+	public AndServerWebExchangeMatcher(List<? extends ServerWebExchangeMatcher> matchers) {
 		Assert.notEmpty(matchers, "matchers cannot be empty");
 		this.matchers = matchers;
 	}
