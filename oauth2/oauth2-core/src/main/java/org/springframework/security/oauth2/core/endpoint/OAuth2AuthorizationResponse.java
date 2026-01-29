@@ -222,6 +222,7 @@ public final class OAuth2AuthorizationResponse implements Serializable {
 				authorizationResponse.code = this.code;
 			}
 			else {
+				Assert.notNull(this.errorCode, "errorCode cannot be null when code is not present");
 				Assert.hasText(this.errorCode, "errorCode cannot be empty when code is not present");
 				authorizationResponse.error = new OAuth2Error(this.errorCode, this.errorDescription, this.errorUri);
 			}

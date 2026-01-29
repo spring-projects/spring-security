@@ -250,10 +250,8 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		 * @return The constructed {@link OidcIdToken}
 		 */
 		public OidcIdToken build() {
-			Object iatObj = this.claims.get(IdTokenClaimNames.IAT);
-			Object expObj = this.claims.get(IdTokenClaimNames.EXP);
-			Instant iat = toInstant(iatObj);
-			Instant exp = toInstant(expObj);
+			Instant iat = toInstant(this.claims.get(IdTokenClaimNames.IAT));
+			Instant exp = toInstant(this.claims.get(IdTokenClaimNames.EXP));
 			return new OidcIdToken(this.tokenValue, iat, exp, this.claims);
 		}
 

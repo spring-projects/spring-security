@@ -80,10 +80,10 @@ public class OAuth2AuthorizationRequest implements Serializable {
 	private final Map<String, Object> attributes;
 
 	protected OAuth2AuthorizationRequest(AbstractBuilder<?, ?> builder) {
-		Assert.hasText(builder.authorizationUri, "authorizationUri cannot be empty");
-		Assert.hasText(builder.clientId, "clientId cannot be empty");
 		Assert.notNull(builder.authorizationUri, "authorizationUri cannot be null");
 		Assert.notNull(builder.clientId, "clientId cannot be null");
+		Assert.hasText(builder.authorizationUri, "authorizationUri cannot be empty");
+		Assert.hasText(builder.clientId, "clientId cannot be empty");
 		this.authorizationUri = builder.authorizationUri;
 		this.authorizationGrantType = builder.authorizationGrantType;
 		this.responseType = builder.responseType;
@@ -93,9 +93,9 @@ public class OAuth2AuthorizationRequest implements Serializable {
 				CollectionUtils.isEmpty(builder.scopes) ? Collections.emptySet() : new LinkedHashSet<>(builder.scopes));
 		this.state = builder.state;
 		this.additionalParameters = Collections.unmodifiableMap(builder.additionalParameters);
-		String builderUri = builder.authorizationRequestUri;
-		this.authorizationRequestUri = StringUtils.hasText(builderUri) ? builderUri
-				: builder.buildAuthorizationRequestUri();
+		String builderAuthorizationRequestUri = builder.authorizationRequestUri;
+		this.authorizationRequestUri = StringUtils.hasText(builderAuthorizationRequestUri)
+				? builderAuthorizationRequestUri : builder.buildAuthorizationRequestUri();
 		this.attributes = Collections.unmodifiableMap(builder.attributes);
 	}
 
@@ -507,9 +507,8 @@ public class OAuth2AuthorizationRequest implements Serializable {
 					queryParams.set(key, encodeQueryParam(String.valueOf(v)));
 				}
 			});
-			String uri = this.authorizationUri;
-			Assert.notNull(uri, "authorizationUri cannot be null");
-			UriBuilder uriBuilder = this.uriBuilderFactory.uriString(uri).queryParams(queryParams);
+			Assert.notNull(this.authorizationUri, "authorizationUri cannot be null");
+			UriBuilder uriBuilder = this.uriBuilderFactory.uriString(this.authorizationUri).queryParams(queryParams);
 			return this.authorizationRequestUriFunction.apply(uriBuilder).toString();
 		}
 
