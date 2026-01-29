@@ -179,7 +179,7 @@ public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCr
 		 * @param displayName the display name
 		 * @return the {@link PublicKeyCredentialUserEntityBuilder}
 		 */
-		public PublicKeyCredentialUserEntityBuilder displayName(String displayName) {
+		public PublicKeyCredentialUserEntityBuilder displayName(@Nullable String displayName) {
 			this.displayName = displayName;
 			return this;
 		}

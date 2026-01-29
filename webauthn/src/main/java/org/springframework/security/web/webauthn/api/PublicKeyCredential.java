@@ -176,7 +176,7 @@ public final class PublicKeyCredential<R extends AuthenticatorResponse> implemen
 		 * @param type the type
 		 * @return the PublicKeyCredentialBuilder
 		 */
-		public PublicKeyCredentialBuilder type(PublicKeyCredentialType type) {
+		public PublicKeyCredentialBuilder type(@Nullable PublicKeyCredentialType type) {
 			this.type = type;
 			return this;
 		}
@@ -206,7 +206,8 @@ public final class PublicKeyCredential<R extends AuthenticatorResponse> implemen
 		 * @param authenticatorAttachment the authenticator attachment
 		 * @return the PublicKeyCredentialBuilder
 		 */
-		public PublicKeyCredentialBuilder authenticatorAttachment(AuthenticatorAttachment authenticatorAttachment) {
+		public PublicKeyCredentialBuilder authenticatorAttachment(
+				@Nullable AuthenticatorAttachment authenticatorAttachment) {
 			this.authenticatorAttachment = authenticatorAttachment;
 			return this;
 		}
@@ -217,7 +218,7 @@ public final class PublicKeyCredential<R extends AuthenticatorResponse> implemen
 		 * @return the PublicKeyCredentialBuilder
 		 */
 		public PublicKeyCredentialBuilder clientExtensionResults(
-				AuthenticationExtensionsClientOutputs clientExtensionResults) {
+				@Nullable AuthenticationExtensionsClientOutputs clientExtensionResults) {
 			this.clientExtensionResults = clientExtensionResults;
 			return this;
 		}

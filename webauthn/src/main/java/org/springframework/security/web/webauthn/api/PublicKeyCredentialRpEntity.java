@@ -91,7 +91,7 @@ public final class PublicKeyCredentialRpEntity {
 		 * @param name the name property
 		 * @return the {@link PublicKeyCredentialRpEntityBuilder}
 		 */
-		public PublicKeyCredentialRpEntityBuilder name(String name) {
+		public PublicKeyCredentialRpEntityBuilder name(@Nullable String name) {
 			this.name = name;
 			return this;
 		}
@@ -101,7 +101,7 @@ public final class PublicKeyCredentialRpEntity {
 		 * @param id the id
 		 * @return the {@link PublicKeyCredentialRpEntityBuilder}
 		 */
-		public PublicKeyCredentialRpEntityBuilder id(String id) {
+		public PublicKeyCredentialRpEntityBuilder id(@Nullable String id) {
 			this.id = id;
 			return this;
 		}

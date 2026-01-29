@@ -133,7 +133,7 @@ public final class AuthenticatorSelectionCriteria {
 		 * @return the {@link AuthenticatorSelectionCriteriaBuilder}
 		 */
 		public AuthenticatorSelectionCriteriaBuilder authenticatorAttachment(
-				AuthenticatorAttachment authenticatorAttachment) {
+				@Nullable AuthenticatorAttachment authenticatorAttachment) {
 			this.authenticatorAttachment = authenticatorAttachment;
 			return this;
 		}
@@ -143,7 +143,7 @@ public final class AuthenticatorSelectionCriteria {
 		 * @param residentKey the resident key
 		 * @return the {@link AuthenticatorSelectionCriteriaBuilder}
 		 */
-		public AuthenticatorSelectionCriteriaBuilder residentKey(ResidentKeyRequirement residentKey) {
+		public AuthenticatorSelectionCriteriaBuilder residentKey(@Nullable ResidentKeyRequirement residentKey) {
 			this.residentKey = residentKey;
 			return this;
 		}
@@ -153,7 +153,8 @@ public final class AuthenticatorSelectionCriteria {
 		 * @param userVerification the user verification requirement
 		 * @return the {@link AuthenticatorSelectionCriteriaBuilder}
 		 */
-		public AuthenticatorSelectionCriteriaBuilder userVerification(UserVerificationRequirement userVerification) {
+		public AuthenticatorSelectionCriteriaBuilder userVerification(
+				@Nullable UserVerificationRequirement userVerification) {
 			this.userVerification = userVerification;
 			return this;
 		}

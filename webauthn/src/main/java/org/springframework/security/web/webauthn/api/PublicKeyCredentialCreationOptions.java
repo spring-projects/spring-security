@@ -265,7 +265,7 @@ public final class PublicKeyCredentialCreationOptions {
 		 * @param timeout the timeout
 		 * @return the PublicKeyCredentialCreationOptionsBuilder
 		 */
-		public PublicKeyCredentialCreationOptionsBuilder timeout(Duration timeout) {
+		public PublicKeyCredentialCreationOptionsBuilder timeout(@Nullable Duration timeout) {
 			this.timeout = timeout;
 			return this;
 		}
@@ -297,7 +297,8 @@ public final class PublicKeyCredentialCreationOptions {
 		 * @param attestation the attestation
 		 * @return the PublicKeyCredentialCreationOptionsBuilder
 		 */
-		public PublicKeyCredentialCreationOptionsBuilder attestation(AttestationConveyancePreference attestation) {
+		public PublicKeyCredentialCreationOptionsBuilder attestation(
+				@Nullable AttestationConveyancePreference attestation) {
 			this.attestation = attestation;
 			return this;
 		}
@@ -307,7 +308,8 @@ public final class PublicKeyCredentialCreationOptions {
 		 * @param extensions the extensions
 		 * @return the PublicKeyCredentialCreationOptionsBuilder
 		 */
-		public PublicKeyCredentialCreationOptionsBuilder extensions(AuthenticationExtensionsClientInputs extensions) {
+		public PublicKeyCredentialCreationOptionsBuilder extensions(
+				@Nullable AuthenticationExtensionsClientInputs extensions) {
 			this.extensions = extensions;
 			return this;
 		}

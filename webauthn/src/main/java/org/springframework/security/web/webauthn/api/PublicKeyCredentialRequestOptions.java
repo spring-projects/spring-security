@@ -169,7 +169,7 @@ public final class PublicKeyCredentialRequestOptions implements Serializable {
 		 * @param challenge the challenge
 		 * @return the {@link PublicKeyCredentialRequestOptionsBuilder}
 		 */
-		public PublicKeyCredentialRequestOptionsBuilder challenge(Bytes challenge) {
+		public PublicKeyCredentialRequestOptionsBuilder challenge(@Nullable Bytes challenge) {
 			this.challenge = challenge;
 			return this;
 		}
@@ -190,7 +190,7 @@ public final class PublicKeyCredentialRequestOptions implements Serializable {
 		 * @param rpId the rpId property
 		 * @return the {@link PublicKeyCredentialRequestOptionsBuilder}
 		 */
-		public PublicKeyCredentialRequestOptionsBuilder rpId(String rpId) {
+		public PublicKeyCredentialRequestOptionsBuilder rpId(@Nullable String rpId) {
 			this.rpId = rpId;
 			return this;
 		}
@@ -212,7 +212,8 @@ public final class PublicKeyCredentialRequestOptions implements Serializable {
 		 * @param userVerification the user verification
 		 * @return the {@link PublicKeyCredentialRequestOptionsBuilder}
 		 */
-		public PublicKeyCredentialRequestOptionsBuilder userVerification(UserVerificationRequirement userVerification) {
+		public PublicKeyCredentialRequestOptionsBuilder userVerification(
+				@Nullable UserVerificationRequirement userVerification) {
 			this.userVerification = userVerification;
 			return this;
 		}
