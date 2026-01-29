@@ -70,9 +70,8 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 			Map<String, Object> attributes, String nameAttributeKey) {
 		Assert.notEmpty(attributes, "attributes cannot be empty");
 		Assert.hasText(nameAttributeKey, "nameAttributeKey cannot be empty");
-		Object nameAttributeValue = attributes.get(nameAttributeKey);
-		Assert.notNull(nameAttributeValue, "Attribute value for '" + nameAttributeKey + "' cannot be null");
-
+		Assert.notNull(attributes.get(nameAttributeKey),
+				"Attribute value for '" + nameAttributeKey + "' cannot be null");
 		this.authorities = (authorities != null)
 				? Collections.unmodifiableSet(new LinkedHashSet<>(this.sortAuthorities(authorities)))
 				: Collections.unmodifiableSet(new LinkedHashSet<>(AuthorityUtils.NO_AUTHORITIES));
@@ -83,7 +82,7 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 	@Override
 	public String getName() {
 		Object nameAttributeValue = this.getAttribute(this.nameAttributeKey);
-		Assert.notNull(nameAttributeValue, "Name attribute value cannot be null");
+		Assert.notNull(nameAttributeValue, "name attribute value cannot be null");
 		return nameAttributeValue.toString();
 	}
 

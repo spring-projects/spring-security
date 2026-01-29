@@ -146,18 +146,11 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverter
 		@Override
 		public OAuth2DeviceAuthorizationResponse convert(Map<String, Object> parameters) {
 			String deviceCode = getParameterValue(parameters, OAuth2ParameterNames.DEVICE_CODE);
-			if (deviceCode == null) {
-				throw new IllegalArgumentException("Missing required parameter: " + OAuth2ParameterNames.DEVICE_CODE);
-			}
+			Assert.notNull(deviceCode, "Missing required parameter: " + OAuth2ParameterNames.DEVICE_CODE);
 			String userCode = getParameterValue(parameters, OAuth2ParameterNames.USER_CODE);
-			if (userCode == null) {
-				throw new IllegalArgumentException("Missing required parameter: " + OAuth2ParameterNames.USER_CODE);
-			}
+			Assert.notNull(userCode, "Missing required parameter: " + OAuth2ParameterNames.USER_CODE);
 			String verificationUri = getParameterValue(parameters, OAuth2ParameterNames.VERIFICATION_URI);
-			if (verificationUri == null) {
-				throw new IllegalArgumentException(
-						"Missing required parameter: " + OAuth2ParameterNames.VERIFICATION_URI);
-			}
+			Assert.notNull(verificationUri, "Missing required parameter: " + OAuth2ParameterNames.VERIFICATION_URI);
 			String verificationUriComplete = getParameterValue(parameters,
 					OAuth2ParameterNames.VERIFICATION_URI_COMPLETE);
 			long expiresIn = getParameterValue(parameters, OAuth2ParameterNames.EXPIRES_IN, 0L);
