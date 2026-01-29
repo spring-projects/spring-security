@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.util.Assert;
@@ -33,13 +34,14 @@ import org.springframework.util.Assert;
  *
  * @author Steve Riesenberg
  * @author Yoobin Yoon
+ * @author Andrey Litvitski
  * @since 5.8
  */
 public class CsrfTokenRequestAttributeHandler implements CsrfTokenRequestHandler {
 
 	private static final Log logger = LogFactory.getLog(CsrfTokenRequestAttributeHandler.class);
 
-	private String csrfRequestAttributeName = "_csrf";
+	@Nullable private String csrfRequestAttributeName = "_csrf";
 
 	/**
 	 * The {@link CsrfToken} is available as a request attribute named
@@ -49,7 +51,7 @@ public class CsrfTokenRequestAttributeHandler implements CsrfTokenRequestHandler
 	 * @param csrfRequestAttributeName the name of an additional request attribute with
 	 * the value of the CsrfToken. Default is {@link CsrfToken#getParameterName()}
 	 */
-	public final void setCsrfRequestAttributeName(String csrfRequestAttributeName) {
+	public final void setCsrfRequestAttributeName(@Nullable String csrfRequestAttributeName) {
 		this.csrfRequestAttributeName = csrfRequestAttributeName;
 	}
 
