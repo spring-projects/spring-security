@@ -320,7 +320,7 @@ If you have trouble working out where a session is being created, you can add so
 [[appendix-faq-forbidden-csrf]]
 === I get a 403 Forbidden when performing a POST. What is wrong?
 
-If an HTTP 403 Forbidden error is returned for HTTP POST, but it works for HTTP GET, the issue is most likely related to https://docs.spring.io/spring-security/site/docs/3.2.x/reference/htmlsingle/#csrf[CSRF]. Either provide the CSRF Token or disable CSRF protection (the latter is not recommended).
+If an HTTP 403 Forbidden error is returned for HTTP POST, but it works for HTTP GET, the issue is most likely related to xref:features/exploits/csrf.adoc#csrf[CSRF]. Either provide the CSRF Token or disable CSRF protection (the latter is not recommended).
 
 [[appendix-faq-no-security-on-forward]]
 === I am forwarding a request to another URL by using the RequestDispatcher, but my security constraints are not being applied.
