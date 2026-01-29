@@ -38,30 +38,30 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 
 	private static final long serialVersionUID = 1L;
 
-	private final Object credentials;
+	private final @Nullable Object credentials;
 
 	private final Object principal;
 
-	public TestingAuthenticationToken(Object principal, Object credentials) {
+	public TestingAuthenticationToken(Object principal, @Nullable Object credentials) {
 		super((Collection<? extends GrantedAuthority>) null);
 		this.principal = principal;
 		this.credentials = credentials;
 	}
 
-	public TestingAuthenticationToken(Object principal, Object credentials, String... authorities) {
+	public TestingAuthenticationToken(Object principal, @Nullable Object credentials, String... authorities) {
 		this(principal, credentials, AuthorityUtils.createAuthorityList(authorities));
 	}
 
-	public TestingAuthenticationToken(Object principal, Object credentials, GrantedAuthority... authorities) {
+	public TestingAuthenticationToken(Object principal, @Nullable Object credentials, GrantedAuthority... authorities) {
 		this(principal, credentials, Arrays.asList(authorities));
 	}
 
-	public TestingAuthenticationToken(Object principal, Object credentials,
+	public TestingAuthenticationToken(Object principal, @Nullable Object credentials,
 			List<? extends GrantedAuthority> authorities) {
 		this(principal, credentials, (Collection<? extends GrantedAuthority>) authorities);
 	}
 
-	public TestingAuthenticationToken(Object principal, Object credentials,
+	public TestingAuthenticationToken(Object principal, @Nullable Object credentials,
 			Collection<? extends GrantedAuthority> authorities) {
 		super(authorities);
 		this.principal = principal;
@@ -76,7 +76,7 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	@Override
-	public Object getCredentials() {
+	public @Nullable Object getCredentials() {
 		return this.credentials;
 	}
 
@@ -99,7 +99,7 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 
 		private Object principal;
 
-		private Object credentials;
+		private @Nullable Object credentials;
 
 		protected Builder(TestingAuthenticationToken token) {
 			super(token);
@@ -116,7 +116,6 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 
 		@Override
 		public B credentials(@Nullable Object credentials) {
-			Assert.notNull(credentials, "credentials cannot be null");
 			this.credentials = credentials;
 			return (B) this;
 		}
