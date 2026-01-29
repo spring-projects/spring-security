@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.server.resource.web;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -51,6 +52,8 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 
 	private String realmName;
 
+	private Function<HttpServletRequest, String> resourceMetadataParameterResolver = BearerTokenAuthenticationEntryPoint::getResourceMetadataParameter;
+
 	/**
 	 * Collect error details from the provided parameters and format according to RFC
 	 * 6750, specifically {@code error}, {@code error_description}, {@code error_uri}, and
@@ -83,7 +86,7 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 				status = bearerTokenError.getHttpStatus();
 			}
 		}
-		parameters.put("resource_metadata", getResourceMetadataParameter(request));
+		parameters.put("resource_metadata", this.resourceMetadataParameterResolver.apply(request));
 		String wwwAuthenticate = computeWWWAuthenticateHeaderValue(parameters);
 		response.addHeader(HttpHeaders.WWW_AUTHENTICATE, wwwAuthenticate);
 		response.setStatus(status.value());
@@ -95,6 +98,16 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 	 */
 	public void setRealmName(String realmName) {
 		this.realmName = realmName;
+	}
+
+	/**
+	 * Set the resolver to compute the {@code resource_metadata} parameter from the
+	 * request.
+	 * @param resourceMetadataParameterResolver
+	 */
+	public void setResourceMetadataParameterResolver(
+			Function<HttpServletRequest, String> resourceMetadataParameterResolver) {
+		this.resourceMetadataParameterResolver = resourceMetadataParameterResolver;
 	}
 
 	private static String getResourceMetadataParameter(HttpServletRequest request) {
