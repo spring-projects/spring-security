@@ -32,6 +32,7 @@ import org.jspecify.annotations.Nullable;
 
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.log.LogMessage;
+import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
 /**
@@ -69,6 +70,13 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 		this.sessionIds = sessionIds;
 	}
 
+	private Object getPrincipalKey(Object principal) {
+		if (principal instanceof Authentication authentication) {
+			return authentication.getName();
+		}
+		return principal;
+	}
+
 	@Override
 	public List<Object> getAllPrincipals() {
 		return new ArrayList<>(this.principals.keySet());
@@ -76,7 +84,8 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 
 	@Override
 	public List<SessionInformation> getAllSessions(Object principal, boolean includeExpiredSessions) {
-		Set<String> sessionsUsedByPrincipal = this.principals.get(principal);
+		Object key = getPrincipalKey(principal);
+		Set<String> sessionsUsedByPrincipal = this.principals.get(key);
 		if (sessionsUsedByPrincipal == null) {
 			return Collections.emptyList();
 		}
@@ -135,7 +144,8 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 			this.logger.debug(LogMessage.format("Registering session %s, for principal %s", sessionId, principal));
 		}
 		this.sessionIds.put(sessionId, new SessionInformation(principal, sessionId, new Date()));
-		this.principals.compute(principal, (key, sessionsUsedByPrincipal) -> {
+		Object key = getPrincipalKey(principal);
+		this.principals.compute(key, (k, sessionsUsedByPrincipal) -> {
 			if (sessionsUsedByPrincipal == null) {
 				sessionsUsedByPrincipal = new CopyOnWriteArraySet<>();
 			}
@@ -156,7 +166,8 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 			this.logger.debug("Removing session " + sessionId + " from set of registered sessions");
 		}
 		this.sessionIds.remove(sessionId);
-		this.principals.computeIfPresent(info.getPrincipal(), (key, sessionsUsedByPrincipal) -> {
+		Object key = getPrincipalKey(info.getPrincipal());
+		this.principals.computeIfPresent(key, (k, sessionsUsedByPrincipal) -> {
 			this.logger
 				.debug(LogMessage.format("Removing session %s from principal's set of registered sessions", sessionId));
 			sessionsUsedByPrincipal.remove(sessionId);
