@@ -17,7 +17,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import org.springframework.security.web.util.matcher.InetAddressFilter;
+import org.springframework.security.web.util.matcher.InetAddressMatcher;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -37,7 +37,7 @@ class JettyHttpClientFilteringDnsResolverTest {
 	private SocketAddressResolver mockDelegateResolver;
 
 	@Mock
-	private InetAddressFilter mockFilter;
+	private InetAddressMatcher mockFilter;
 
 	@Mock
 	private Promise<List<InetSocketAddress>> mockResultPromise;
@@ -76,7 +76,7 @@ class JettyHttpClientFilteringDnsResolverTest {
 		// 1. Configure mock SecurityDnsHandler
 		// When handleInetSocketAddresses is called with the initial list, return the filtered list
 		for (InetSocketAddress address : initialAddresses) {
-			when(mockFilter.filter(address.getAddress()))
+			when(mockFilter.matches(address.getAddress()))
 					.thenReturn(filteredAddresses.contains(address));
 		}
 
@@ -93,7 +93,7 @@ class JettyHttpClientFilteringDnsResolverTest {
 		capturedPromiseForDelegate.succeeded(initialAddresses);
 		// 5. Verify that SecurityDnsHandler.handleInetSocketAddresses was called
 		for (InetSocketAddress address : initialAddresses) {
-			verify(mockFilter).filter(address.getAddress());
+			verify(mockFilter).matches(address.getAddress());
 		}
 		// 6. Verify that the original mockResultPromise.succeeded was called with the filtered list
 		verify(mockResultPromise).succeeded(resultListCaptor.capture());

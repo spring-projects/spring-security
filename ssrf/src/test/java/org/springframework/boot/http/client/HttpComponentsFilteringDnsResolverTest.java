@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.web.util.matcher.InetAddressFilter;
+import org.springframework.security.web.util.matcher.InetAddressMatcher;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -27,13 +27,13 @@ class HttpComponentsFilteringDnsResolverTest {
 	private DnsResolver delegateDnsResolver;
 
 	@Mock
-	private InetAddressFilter inetAddressFilter;
+	private InetAddressMatcher InetAddressMatcher;
 
 	private HttpComponentsFilteringDnsResolver dnsResolver;
 
 	@BeforeEach
 	void setUp() {
-		dnsResolver = new HttpComponentsFilteringDnsResolver(this.delegateDnsResolver, this.inetAddressFilter);
+		dnsResolver = new HttpComponentsFilteringDnsResolver(this.delegateDnsResolver, this.InetAddressMatcher);
 	}
 
 	@Test
@@ -47,17 +47,17 @@ class HttpComponentsFilteringDnsResolverTest {
 		List<InetAddress> expectedFilteredAddresses = Arrays.asList(address1, address3);
 
 		when(this.delegateDnsResolver.resolve(host)).thenReturn(resolvedAddresses);
-		when(this.inetAddressFilter.filter(address1)).thenReturn(true);
-		when(this.inetAddressFilter.filter(address2)).thenReturn(false);
-		when(this.inetAddressFilter.filter(address3)).thenReturn(true);
+		when(this.InetAddressMatcher.matches(address1)).thenReturn(true);
+		when(this.InetAddressMatcher.matches(address2)).thenReturn(false);
+		when(this.InetAddressMatcher.matches(address3)).thenReturn(true);
 
 		InetAddress[] result = this.dnsResolver.resolve(host);
 
 		assertArrayEquals(expectedFilteredAddresses.toArray(), result);
 		verify(this.delegateDnsResolver, times(1)).resolve(host);
-		verify(this.inetAddressFilter, times(1)).filter(address1);
-		verify(this.inetAddressFilter, times(1)).filter(address2);
-		verify(this.inetAddressFilter, times(1)).filter(address3);
+		verify(this.InetAddressMatcher, times(1)).matches(address1);
+		verify(this.InetAddressMatcher, times(1)).matches(address2);
+		verify(this.InetAddressMatcher, times(1)).matches(address3);
 	}
 
 	@Test
@@ -66,7 +66,7 @@ class HttpComponentsFilteringDnsResolverTest {
 		when(this.delegateDnsResolver.resolve(host)).thenThrow(new UnknownHostException("Host not found"));
 
 		assertThrows(UnknownHostException.class, () -> this.dnsResolver.resolve(host));
-		verify(this.inetAddressFilter, times(0)).filter(any()); // Filter should not be called
+		verify(this.InetAddressMatcher, times(0)).matches(any(InetAddress.class)); // Filter should not be called
 	}
 
 	@Test
@@ -78,15 +78,15 @@ class HttpComponentsFilteringDnsResolverTest {
 		InetAddress[] resolvedAddresses = new InetAddress[]{address1, address2};
 
 		when(this.delegateDnsResolver.resolve(host)).thenReturn(resolvedAddresses);
-		when(this.inetAddressFilter.filter(address1)).thenReturn(false);
-		when(this.inetAddressFilter.filter(address2)).thenReturn(false);
+		when(this.InetAddressMatcher.matches(address1)).thenReturn(false);
+		when(this.InetAddressMatcher.matches(address2)).thenReturn(false);
 
 		InetAddress[] result = this.dnsResolver.resolve(host);
 
 		assertEquals(0, result.length);
 		verify(this.delegateDnsResolver, times(1)).resolve(host);
-		verify(this.inetAddressFilter, times(1)).filter(address1);
-		verify(this.inetAddressFilter, times(1)).filter(address2);
+		verify(this.InetAddressMatcher, times(1)).matches(address1);
+		verify(this.InetAddressMatcher, times(1)).matches(address2);
 	}
 
 	@Test
@@ -99,7 +99,7 @@ class HttpComponentsFilteringDnsResolverTest {
 
 		assertEquals(canonicalHost, result);
 		verify(this.delegateDnsResolver, times(1)).resolveCanonicalHostname(host);
-		verify(this.inetAddressFilter, times(0)).filter(any()); // Filter should not be called
+		verify(this.InetAddressMatcher, times(0)).matches(any(InetAddress.class)); // Filter should not be called
 	}
 
 	@Test
@@ -108,7 +108,7 @@ class HttpComponentsFilteringDnsResolverTest {
 		when(this.delegateDnsResolver.resolveCanonicalHostname(host)).thenThrow(new UnknownHostException("Host not found"));
 
 		assertThrows(UnknownHostException.class, () -> this.dnsResolver.resolveCanonicalHostname(host));
-		verify(this.inetAddressFilter, times(0)).filter(any()); // Filter should not be called
+		verify(this.InetAddressMatcher, times(0)).matches(any(InetAddress.class)); // Filter should not be called
 	}
 
 }

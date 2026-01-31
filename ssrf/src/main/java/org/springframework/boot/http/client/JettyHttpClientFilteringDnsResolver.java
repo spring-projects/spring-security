@@ -23,16 +23,16 @@ import java.util.List;
 import org.eclipse.jetty.util.Promise;
 import org.eclipse.jetty.util.SocketAddressResolver;
 
-import org.springframework.security.web.util.matcher.InetAddressFilter;
+import org.springframework.security.web.util.matcher.InetAddressMatcher;
 
 public class JettyHttpClientFilteringDnsResolver implements SocketAddressResolver {
 
 	private final SocketAddressResolver delegate;
 
-	private final InetAddressFilter filter;
+	private final InetAddressMatcher filter;
 
 
-	public JettyHttpClientFilteringDnsResolver(SocketAddressResolver delegate, InetAddressFilter filter) {
+	public JettyHttpClientFilteringDnsResolver(SocketAddressResolver delegate, InetAddressMatcher filter) {
 		this.delegate = delegate;
 		this.filter = filter;
 	}
@@ -42,7 +42,7 @@ public class JettyHttpClientFilteringDnsResolver implements SocketAddressResolve
 	 * as the delegate resolver.
 	 * @param filter the filter to apply security rules to the resolved addresses.
 	 */
-	public JettyHttpClientFilteringDnsResolver(InetAddressFilter filter) {
+	public JettyHttpClientFilteringDnsResolver(InetAddressMatcher filter) {
 		// Call the primary constructor, using the fully qualified name for the nested static class
 		SocketAddressResolver resolver = new Sync();
 		this.delegate = resolver;
@@ -58,7 +58,7 @@ public class JettyHttpClientFilteringDnsResolver implements SocketAddressResolve
 			public void succeeded(List<InetSocketAddress> candidates) {
 				outerPromise.succeeded(candidates.stream()
 						.map(InetSocketAddress::getAddress)
-						.filter(filter::filter)
+						.filter(filter::matches)
 						.map(address -> new InetSocketAddress(address, port))
 						.toList());
 			}

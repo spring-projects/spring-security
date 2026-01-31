@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.web.util.matcher.InetAddressFilter;
+import org.springframework.security.web.util.matcher.InetAddressMatcher;
 import reactor.netty.transport.ClientTransportConfig;
 
 import java.net.InetAddress;
@@ -47,7 +47,7 @@ class NettyHttpClientFilteringAddressSelectorTest {
 	private ClientTransportConfig<?> mockConfig;
 
 	@Mock
-	private InetAddressFilter inetAddressFilter;
+	private InetAddressMatcher inetAddressFilter;
 
 	private NettyHttpClientFilteringAddressSelector selector;
 
@@ -69,14 +69,14 @@ class NettyHttpClientFilteringAddressSelectorTest {
 	void selectWhenEmptyListShouldReturnEmptyList() {
 		List<SocketAddress> result = selector.select(mockConfig, Collections::emptyList);
 		assertTrue(result.isEmpty());
-		verify(this.inetAddressFilter, never()).filter(any());
+		verify(this.inetAddressFilter, never()).matches(any(InetAddress.class));
 	}
 
 	@Test
 	void selectWhenNullListShouldReturnNull() {
 		List<SocketAddress> result = selector.select(mockConfig, () -> null);
 		assertNull(result);
-		verify(this.inetAddressFilter, never()).filter(any());
+		verify(this.inetAddressFilter, never()).matches(any(InetAddress.class));
 	}
 
 	@Test
@@ -85,8 +85,8 @@ class NettyHttpClientFilteringAddressSelectorTest {
 		InetSocketAddress address2 = createInetSocketAddress("8.8.8.8", 80);
 		List<SocketAddress> addresses = List.of(address1, address2);
 
-		when(this.inetAddressFilter.filter(address1.getAddress())).thenReturn(true);
-		when(this.inetAddressFilter.filter(address2.getAddress())).thenReturn(true);
+		when(this.inetAddressFilter.matches(address1.getAddress())).thenReturn(true);
+		when(this.inetAddressFilter.matches(address2.getAddress())).thenReturn(true);
 
 		List<SocketAddress> result = selector.select(mockConfig, () -> addresses);
 		List<String> resultStrings = result.stream()
@@ -96,8 +96,8 @@ class NettyHttpClientFilteringAddressSelectorTest {
 				.map(sa -> ((InetSocketAddress) sa).getAddress().getHostAddress() + ":" + ((InetSocketAddress) sa).getPort())
 				.collect(java.util.stream.Collectors.toList());
 		assertEquals(expectedStrings, resultStrings);
-		verify(this.inetAddressFilter, times(1)).filter(address1.getAddress());
-		verify(this.inetAddressFilter, times(1)).filter(address2.getAddress());
+		verify(this.inetAddressFilter, times(1)).matches(address1.getAddress());
+		verify(this.inetAddressFilter, times(1)).matches(address2.getAddress());
 	}
 
 	@Test
@@ -107,9 +107,9 @@ class NettyHttpClientFilteringAddressSelectorTest {
 		InetSocketAddress anotherAllowedAddress = createInetSocketAddress("1.0.0.1", 80);
 		List<SocketAddress> addresses = List.of(allowedAddress, deniedAddress, anotherAllowedAddress);
 
-		when(this.inetAddressFilter.filter(allowedAddress.getAddress())).thenReturn(true);
-		when(this.inetAddressFilter.filter(deniedAddress.getAddress())).thenReturn(false);
-		when(this.inetAddressFilter.filter(anotherAllowedAddress.getAddress())).thenReturn(true);
+		when(this.inetAddressFilter.matches(allowedAddress.getAddress())).thenReturn(true);
+		when(this.inetAddressFilter.matches(deniedAddress.getAddress())).thenReturn(false);
+		when(this.inetAddressFilter.matches(anotherAllowedAddress.getAddress())).thenReturn(true);
 
 		List<SocketAddress> result = selector.select(mockConfig, () -> addresses);
 		List<String> resultStrings = result.stream()
@@ -119,9 +119,9 @@ class NettyHttpClientFilteringAddressSelectorTest {
 				.map(sa -> ((InetSocketAddress) sa).getAddress().getHostAddress() + ":" + ((InetSocketAddress) sa).getPort())
 				.collect(java.util.stream.Collectors.toList());
 		assertEquals(expectedStrings, resultStrings);
-		verify(this.inetAddressFilter, times(1)).filter(allowedAddress.getAddress());
-		verify(this.inetAddressFilter, times(1)).filter(deniedAddress.getAddress());
-		verify(this.inetAddressFilter, times(1)).filter(anotherAllowedAddress.getAddress());
+		verify(this.inetAddressFilter, times(1)).matches(allowedAddress.getAddress());
+		verify(this.inetAddressFilter, times(1)).matches(deniedAddress.getAddress());
+		verify(this.inetAddressFilter, times(1)).matches(anotherAllowedAddress.getAddress());
 	}
 
 	@Test
@@ -130,8 +130,8 @@ class NettyHttpClientFilteringAddressSelectorTest {
 		InetSocketAddress deniedAddress2 = createInetSocketAddress("8.8.8.8", 80);
 		List<SocketAddress> addresses = List.of(deniedAddress1, deniedAddress2);
 
-		when(this.inetAddressFilter.filter(deniedAddress1.getAddress())).thenReturn(false);
-		when(this.inetAddressFilter.filter(deniedAddress2.getAddress())).thenReturn(false);
+		when(this.inetAddressFilter.matches(deniedAddress1.getAddress())).thenReturn(false);
+		when(this.inetAddressFilter.matches(deniedAddress2.getAddress())).thenReturn(false);
 
 		List<SocketAddress> result = selector.select(mockConfig, () -> addresses);
 		List<String> resultStrings = result.stream()
@@ -139,8 +139,8 @@ class NettyHttpClientFilteringAddressSelectorTest {
 				.collect(java.util.stream.Collectors.toList());
 		List<String> expectedStrings = Collections.emptyList(); // All denied, so expected is empty
 		assertEquals(expectedStrings, resultStrings);
-		verify(this.inetAddressFilter, times(1)).filter(deniedAddress1.getAddress());
-		verify(this.inetAddressFilter, times(1)).filter(deniedAddress2.getAddress());
+		verify(this.inetAddressFilter, times(1)).matches(deniedAddress1.getAddress());
+		verify(this.inetAddressFilter, times(1)).matches(deniedAddress2.getAddress());
 	}
 
 
@@ -150,14 +150,14 @@ class NettyHttpClientFilteringAddressSelectorTest {
 		InetSocketAddress allowedAddress = createInetSocketAddress("1.1.1.1", 80);
 		List<SocketAddress> addresses = List.of(nonInetAddress, allowedAddress);
 
-		when(this.inetAddressFilter.filter(allowedAddress.getAddress())).thenReturn(true);
+		when(this.inetAddressFilter.matches(allowedAddress.getAddress())).thenReturn(true);
 
 		List<SocketAddress> result = selector.select(mockConfig, () -> addresses);
 
 		assertEquals(2, result.size());
 		assertTrue(result.contains(nonInetAddress));
 		assertTrue(result.contains(allowedAddress));
-		verify(this.inetAddressFilter, times(1)).filter(allowedAddress.getAddress());
+		verify(this.inetAddressFilter, times(1)).matches(allowedAddress.getAddress());
 	}
 
 	@Test
@@ -168,16 +168,16 @@ class NettyHttpClientFilteringAddressSelectorTest {
 
 		List<SocketAddress> addresses = List.of(allowedAddress, deniedAddress, nonInetAddress);
 
-		when(this.inetAddressFilter.filter(allowedAddress.getAddress())).thenReturn(true);
-		when(this.inetAddressFilter.filter(deniedAddress.getAddress())).thenReturn(false);
+		when(this.inetAddressFilter.matches(allowedAddress.getAddress())).thenReturn(true);
+		when(this.inetAddressFilter.matches(deniedAddress.getAddress())).thenReturn(false);
 
 		List<SocketAddress> result = selector.select(mockConfig, () -> addresses);
 
 		assertEquals(2, result.size());
 		assertTrue(result.contains(nonInetAddress));
 		assertTrue(result.contains(allowedAddress));
-		verify(this.inetAddressFilter, times(1)).filter(allowedAddress.getAddress());
-		verify(this.inetAddressFilter, times(1)).filter(deniedAddress.getAddress());
+		verify(this.inetAddressFilter, times(1)).matches(allowedAddress.getAddress());
+		verify(this.inetAddressFilter, times(1)).matches(deniedAddress.getAddress());
 	}
 
 }

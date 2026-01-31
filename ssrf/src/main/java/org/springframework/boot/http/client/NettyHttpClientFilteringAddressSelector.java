@@ -28,24 +28,25 @@ import org.jspecify.annotations.Nullable;
 import reactor.netty.transport.ClientTransport.ResolvedAddressSelector;
 import reactor.netty.transport.ClientTransportConfig;
 
-import org.springframework.security.web.util.matcher.InetAddressFilter;
+import org.springframework.security.web.util.matcher.InetAddressMatcher;
+import org.springframework.security.web.util.matcher.InetAddressMatcher;
 
 /**
- * A {@link ResolvedAddressSelector} that uses a {@link InetAddressFilter} to filter a list of
+ * A {@link ResolvedAddressSelector} that uses a {@link InetAddressMatcher} to filter a list of
  * resolved {@link SocketAddress}es for a Reactor Netty client.
  *
  * @see reactor.netty.http.client.HttpClient#resolvedAddressesSelector(ResolvedAddressSelector)
  */
 public class NettyHttpClientFilteringAddressSelector implements ResolvedAddressSelector<ClientTransportConfig<?>> {
 
-	private final InetAddressFilter filter;
+	private final InetAddressMatcher filter;
 
 	/**
 	 * Creates a new instance.
 	 * @param filter The filter to apply security rules to the resolved addresses.
 	 */
-	public NettyHttpClientFilteringAddressSelector(InetAddressFilter filter) {
-		Objects.requireNonNull(filter, "InetAddressFilter must not be null");
+	public NettyHttpClientFilteringAddressSelector(InetAddressMatcher filter) {
+		Objects.requireNonNull(filter, "InetAddressMatcher must not be null");
 		this.filter = filter;
 	}
 
@@ -72,7 +73,7 @@ public class NettyHttpClientFilteringAddressSelector implements ResolvedAddressS
 				.filter(InetSocketAddress.class::isInstance)
 				.map(InetSocketAddress.class::cast)
 				.map(InetSocketAddress::getAddress)
-				.filter(this.filter::filter)
+				.filter(this.filter::matches)
 				.toList();
 
 		return socketAddresses.stream()

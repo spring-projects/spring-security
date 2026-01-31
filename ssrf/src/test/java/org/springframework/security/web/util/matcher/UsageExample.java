@@ -28,7 +28,7 @@ public class UsageExample {
 	public static void exampleApache() {
 		System.out.println("Example Apache - Apache HttpClient with HttpComponentsDnsResolver");
 
-		InetAddressFilter filter = InetAddressFilter.builder().blockExternal().build();
+		InetAddressMatcher filter = InetAddressMatchers.matchExternal().build();
 		HttpComponentsFilteringDnsResolver dnsResolver = new HttpComponentsFilteringDnsResolver(filter);
 
 		Registry<ConnectionSocketFactory> factoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
@@ -63,9 +63,8 @@ public class UsageExample {
 	public static void exampleJetty() {
 		System.out.println("\nExample Jetty - Jetty HttpClient with JettyHttpClientDnsResolver");
 
-		InetAddressFilter filter = InetAddressFilter.builder()
-				.denyList(List.of("192.168.1.100")) // Example: deny a specific private IP
-				.blockInternal()    // Example: block all internal IPs (like 127.0.0.1)
+		InetAddressMatcher filter = InetAddressMatchers.matchInternal() // Example: block all internal IPs (like 127.0.0.1)
+				.denyAddresses(List.of("192.168.1.100")) // Example: deny a specific private IP
 				.build();
 
 		JettyHttpClientFilteringDnsResolver dnsResolver = new JettyHttpClientFilteringDnsResolver(filter);
@@ -111,9 +110,8 @@ public class UsageExample {
 		System.out.println("\nExample Netty - Reactor Netty HttpClient with NettyHttpClientAddressSelector\n");
 
 		// 1. Create SecurityDnsHandler with custom logic
-		InetAddressFilter filter = InetAddressFilter.builder()
-		.blockExternal()
-		.allowList(List.of("1.1.1.1", "8.8.4.4","google.com")) // Example: only allow specific public IPs
+		InetAddressMatcher filter = InetAddressMatchers.matchExternal()
+		.allowAddresses(List.of("1.1.1.1", "8.8.4.4","google.com")) // Example: only allow specific public IPs
 		.build();
 
 		// 2. Create NettyHttpClientAddressSelector with the custom SecurityDnsHandler

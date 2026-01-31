@@ -23,20 +23,20 @@ import java.util.Arrays;
 import org.apache.hc.client5.http.DnsResolver;
 import org.apache.hc.client5.http.SystemDefaultDnsResolver;
 
-import org.springframework.security.web.util.matcher.InetAddressFilter;
+import org.springframework.security.web.util.matcher.InetAddressMatcher;
 
 public class HttpComponentsFilteringDnsResolver implements DnsResolver {
 
 	private final DnsResolver delegate;
 
-	private final InetAddressFilter filter;
+	private final InetAddressMatcher filter;
 
 
-	public HttpComponentsFilteringDnsResolver(InetAddressFilter filter) {
+	public HttpComponentsFilteringDnsResolver(InetAddressMatcher filter) {
 		this(SystemDefaultDnsResolver.INSTANCE, filter);
 	}
 
-	public HttpComponentsFilteringDnsResolver(DnsResolver delegate, InetAddressFilter filter) {
+	public HttpComponentsFilteringDnsResolver(DnsResolver delegate, InetAddressMatcher filter) {
 		this.delegate = delegate;
 		this.filter = filter;
 	}
@@ -45,7 +45,7 @@ public class HttpComponentsFilteringDnsResolver implements DnsResolver {
 	@Override
 	public InetAddress[] resolve(String host) throws UnknownHostException {
 		return Arrays.stream(this.delegate.resolve(host))
-				.filter(this.filter::filter).toArray(InetAddress[]::new);
+				.filter(this.filter::matches).toArray(InetAddress[]::new);
 	}
 
 	@Override
