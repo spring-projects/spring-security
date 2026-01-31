@@ -87,7 +87,7 @@ class AclClassIdUtils {
 		}
 	}
 
-	private <T extends Serializable> @Nullable Class<T> classIdTypeFrom(ResultSet resultSet) throws SQLException {
+	private @Nullable Class<? extends Serializable> classIdTypeFrom(ResultSet resultSet) throws SQLException {
 		try {
 			return classIdTypeFrom(resultSet.getString(DEFAULT_CLASS_ID_TYPE_COLUMN_NAME));
 		}
@@ -97,15 +97,19 @@ class AclClassIdUtils {
 		}
 	}
 
-	private <T extends Serializable> @Nullable Class<T> classIdTypeFrom(String className) {
+	private @Nullable Class<? extends Serializable> classIdTypeFrom(String className) {
 		if (className == null) {
 			return null;
 		}
 		try {
-			return (Class) Class.forName(className);
+			return Class.forName(className).asSubclass(Serializable.class);
 		}
 		catch (ClassNotFoundException ex) {
 			log.debug("Unable to find class id type on classpath", ex);
+			return null;
+		}
+		catch (ClassCastException ex) {
+			log.debug("Class id type is not a Serializable type", ex);
 			return null;
 		}
 	}

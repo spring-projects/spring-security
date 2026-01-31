@@ -29,6 +29,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -46,7 +47,6 @@ import org.springframework.security.acls.model.Sid;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -109,7 +109,8 @@ public class JdbcAclServiceTests {
 		List<ObjectIdentity> result = new ArrayList<>();
 		result.add(new ObjectIdentityImpl(Object.class, "5577"));
 		Object[] args = { "1", "org.springframework.security.acls.jdbc.JdbcAclServiceTests$MockLongIdDomainObject" };
-		given(this.jdbcOperations.query(anyString(), any(RowMapper.class), eq(args))).willReturn(result);
+		given(this.jdbcOperations.query(anyString(), ArgumentMatchers.<RowMapper<ObjectIdentity>>any(), eq(args)))
+			.willReturn(result);
 		ObjectIdentity objectIdentity = new ObjectIdentityImpl(MockLongIdDomainObject.class, 1L);
 		List<ObjectIdentity> objectIdentities = this.aclService.findChildren(objectIdentity);
 		assertThat(objectIdentities).hasSize(1);
