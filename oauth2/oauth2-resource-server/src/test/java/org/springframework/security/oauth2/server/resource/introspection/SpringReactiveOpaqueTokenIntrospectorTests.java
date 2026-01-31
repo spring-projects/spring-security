@@ -308,6 +308,26 @@ public class SpringReactiveOpaqueTokenIntrospectorTests {
 		}
 	}
 
+	@Test
+	public void builderWhenPostProcessorSetThenApplied() throws Exception {
+		try (MockWebServer server = new MockWebServer()) {
+			server.setDispatcher(requiresAuth(CLIENT_ID, CLIENT_SECRET, ACTIVE_RESPONSE));
+			String introspectUri = server.url("/introspect").toString();
+			Converter<OAuth2TokenIntrospectionClaimAccessor, Mono<? extends OAuth2AuthenticatedPrincipal>> authenticationConverter = mock(
+					Converter.class);
+			OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
+			given(authenticationConverter.convert(any())).willReturn((Mono) Mono.just(principal));
+			ReactiveOpaqueTokenIntrospector introspector = SpringReactiveOpaqueTokenIntrospector
+				.withIntrospectionUri(introspectUri)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.postProcessor((i) -> i.setAuthenticationConverter(authenticationConverter))
+				.build();
+			OAuth2AuthenticatedPrincipal result = introspector.introspect("token").block();
+			assertThat(result).isSameAs(principal);
+		}
+	}
+
 	private WebClient mockResponse(String response) {
 		return mockResponse(toMap(response));
 	}
