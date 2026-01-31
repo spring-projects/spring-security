@@ -383,6 +383,25 @@ public class SpringOpaqueTokenIntrospectorTests {
 		}
 	}
 
+	@Test
+	public void builderWhenPostProcessorSetThenApplied() throws Exception {
+		try (MockWebServer server = new MockWebServer()) {
+			server.setDispatcher(requiresAuth(CLIENT_ID, CLIENT_SECRET, ACTIVE_RESPONSE));
+			String introspectUri = server.url("/introspect").toString();
+			Converter<OAuth2TokenIntrospectionClaimAccessor, OAuth2AuthenticatedPrincipal> authenticationConverter = mock(
+					Converter.class);
+			OAuth2AuthenticatedPrincipal principal = mock(OAuth2AuthenticatedPrincipal.class);
+			given(authenticationConverter.convert(any())).willReturn(principal);
+			OpaqueTokenIntrospector introspector = SpringOpaqueTokenIntrospector.withIntrospectionUri(introspectUri)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.postProcessor((i) -> i.setAuthenticationConverter(authenticationConverter))
+				.build();
+			OAuth2AuthenticatedPrincipal result = introspector.introspect("token");
+			assertThat(result).isSameAs(principal);
+		}
+	}
+
 	private static ResponseEntity<Map<String, Object>> response(String content) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
