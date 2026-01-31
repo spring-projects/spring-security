@@ -278,6 +278,8 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 
 		private String clientSecret;
 
+		private Converter<OAuth2TokenIntrospectionClaimAccessor, Mono<? extends OAuth2AuthenticatedPrincipal>> authenticationConverter;
+
 		private Builder(String introspectionUri) {
 			this.introspectionUri = introspectionUri;
 		}
@@ -309,6 +311,22 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		}
 
 		/**
+		 * Sets the {@link Converter} used for converting the
+		 * {@link OAuth2TokenIntrospectionClaimAccessor} to an
+		 * {@link OAuth2AuthenticatedPrincipal}.
+		 * @param authenticationConverter the {@link Converter} used for converting to an
+		 * {@link OAuth2AuthenticatedPrincipal}
+		 * @return the {@link SpringReactiveOpaqueTokenIntrospector.Builder}
+		 * @since 6.5
+		 */
+		public Builder authenticationConverter(
+				Converter<OAuth2TokenIntrospectionClaimAccessor, Mono<? extends OAuth2AuthenticatedPrincipal>> authenticationConverter) {
+			Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
+			this.authenticationConverter = authenticationConverter;
+			return this;
+		}
+
+		/**
 		 * Creates a {@code SpringReactiveOpaqueTokenIntrospector}
 		 * @return the {@link SpringReactiveOpaqueTokenIntrospector}
 		 * @since 6.5
@@ -317,7 +335,12 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 			WebClient webClient = WebClient.builder()
 				.defaultHeaders((h) -> h.setBasicAuth(this.clientId, this.clientSecret))
 				.build();
-			return new SpringReactiveOpaqueTokenIntrospector(this.introspectionUri, webClient);
+			SpringReactiveOpaqueTokenIntrospector introspector = new SpringReactiveOpaqueTokenIntrospector(
+					this.introspectionUri, webClient);
+			if (this.authenticationConverter != null) {
+				introspector.setAuthenticationConverter(this.authenticationConverter);
+			}
+			return introspector;
 		}
 
 	}

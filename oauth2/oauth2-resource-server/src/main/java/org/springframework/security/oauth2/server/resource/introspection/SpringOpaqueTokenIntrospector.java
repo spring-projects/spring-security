@@ -325,6 +325,8 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 
 		private String clientSecret;
 
+		private Converter<OAuth2TokenIntrospectionClaimAccessor, ? extends OAuth2AuthenticatedPrincipal> authenticationConverter;
+
 		private Builder(String introspectionUri) {
 			this.introspectionUri = introspectionUri;
 		}
@@ -356,6 +358,22 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		}
 
 		/**
+		 * Sets the {@link Converter} used for converting the
+		 * {@link OAuth2TokenIntrospectionClaimAccessor} to an
+		 * {@link OAuth2AuthenticatedPrincipal}.
+		 * @param authenticationConverter the {@link Converter} used for converting to an
+		 * {@link OAuth2AuthenticatedPrincipal}
+		 * @return the {@link SpringOpaqueTokenIntrospector.Builder}
+		 * @since 7.0.2
+		 */
+		public Builder authenticationConverter(
+				Converter<OAuth2TokenIntrospectionClaimAccessor, ? extends OAuth2AuthenticatedPrincipal> authenticationConverter) {
+			Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
+			this.authenticationConverter = authenticationConverter;
+			return this;
+		}
+
+		/**
 		 * Creates a {@code SpringOpaqueTokenIntrospector}
 		 * @return the {@link SpringOpaqueTokenIntrospector}
 		 * @since 6.5
@@ -363,7 +381,12 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		public SpringOpaqueTokenIntrospector build() {
 			RestTemplate restTemplate = new RestTemplate();
 			restTemplate.getInterceptors().add(new BasicAuthenticationInterceptor(this.clientId, this.clientSecret));
-			return new SpringOpaqueTokenIntrospector(this.introspectionUri, restTemplate);
+			SpringOpaqueTokenIntrospector introspector = new SpringOpaqueTokenIntrospector(this.introspectionUri,
+					restTemplate);
+			if (this.authenticationConverter != null) {
+				introspector.setAuthenticationConverter(this.authenticationConverter);
+			}
+			return introspector;
 		}
 
 	}
