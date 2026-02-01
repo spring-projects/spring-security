@@ -364,7 +364,7 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		 * @param authenticationConverter the {@link Converter} used for converting to an
 		 * {@link OAuth2AuthenticatedPrincipal}
 		 * @return the {@link SpringOpaqueTokenIntrospector.Builder}
-		 * @since 7.0.2
+		 * @since 7.x.x
 		 */
 		public Builder authenticationConverter(
 				Converter<OAuth2TokenIntrospectionClaimAccessor, ? extends OAuth2AuthenticatedPrincipal> authenticationConverter) {

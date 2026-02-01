@@ -317,7 +317,7 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		 * @param authenticationConverter the {@link Converter} used for converting to an
 		 * {@link OAuth2AuthenticatedPrincipal}
 		 * @return the {@link SpringReactiveOpaqueTokenIntrospector.Builder}
-		 * @since 6.5
+		 * @since 7.x.x
 		 */
 		public Builder authenticationConverter(
 				Converter<OAuth2TokenIntrospectionClaimAccessor, Mono<? extends OAuth2AuthenticatedPrincipal>> authenticationConverter) {
