@@ -47,7 +47,6 @@ jakarta-websocket-jakarta-websocket-api = { module = "jakarta.websocket:jakarta.
 jakarta-websocket-jakarta-websocket-client-api = { module = "jakarta.websocket:jakarta.websocket-client-api", version.ref = "jakarta-websocket" }
 jakarta-xml-bind-jakarta-xml-bind-api = "jakarta.xml.bind:jakarta.xml.bind-api:4.0.4"
 ldapsdk = "ldapsdk:ldapsdk:4.1"
-net-sourceforge-htmlunit = "net.sourceforge.htmlunit:htmlunit:2.70.0"
 org-htmlunit-htmlunit = "org.htmlunit:htmlunit:4.11.1"
 org-apache-httpcomponents-httpclient = "org.apache.httpcomponents.client5:httpclient5:5.5.2"
 org-apache-kerby-simplekdc='org.apache.kerby:kerb-simplekdc:2.1.1'
