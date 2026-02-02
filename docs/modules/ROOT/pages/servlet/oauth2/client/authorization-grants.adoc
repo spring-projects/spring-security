@@ -77,7 +77,7 @@ spring:
 Public Clients are supported by using https://tools.ietf.org/html/rfc7636[Proof Key for Code Exchange] (PKCE).
 If the client is running in an untrusted environment (such as a native application or web browser-based application) and is therefore incapable of maintaining the confidentiality of its credentials, PKCE is automatically used when the following conditions are true:
 
-. `client-secret` is omitted (or empty) and
+. `client-secret` is omitted (or empty)
 . `client-authentication-method` is set to `none` (`ClientAuthenticationMethod.NONE`)
 
 or
@@ -87,7 +87,7 @@ or
 
 [TIP]
 ====
-If the OAuth 2.0 Provider supports PKCE for https://tools.ietf.org/html/rfc6749#section-2.1[Confidential Clients], you may (optionally) configure it using `DefaultOAuth2AuthorizationRequestResolver.setAuthorizationRequestCustomizer(OAuth2AuthorizationRequestCustomizers.withPkce())`.
+If the OAuth 2.0 Provider doesn't support PKCE for https://tools.ietf.org/html/rfc6749#section-2.1[Confidential Clients], you need to disable it by setting `ClientRegistration.clientSettings.requireProofKey` to `false`.
 ====
 
 [[oauth2-client-authorization-code-redirect-uri]]
