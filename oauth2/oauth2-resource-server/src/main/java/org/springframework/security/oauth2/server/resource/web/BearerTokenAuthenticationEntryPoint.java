@@ -105,6 +105,7 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 	 * Set the resolver to compute the {@code resource_metadata} parameter from the
 	 * request.
 	 * @param resourceMetadataParameterResolver
+	 * @since 7.1
 	 */
 	public void setResourceMetadataParameterResolver(
 			Function<HttpServletRequest, String> resourceMetadataParameterResolver) {
