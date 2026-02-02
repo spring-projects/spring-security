@@ -1,4 +1,4 @@
 [[new]]
 = What's New in Spring Security 7.1
 
-This is a placeholder for updates to Spring Security 7.1
+* https://github.com/spring-projects/spring-security/pull/18634[gh-18634] - Added javadoc:org.springframework.security.web.util.matcher.InetAddressMatcher[]
