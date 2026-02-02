@@ -15,9 +15,9 @@
  */
 
 /**
- * Jackson 2 serialization support for SAML2.
+ * Internal utilities for SAML2 support (not for public use).
  */
 @NullMarked
-package org.springframework.security.saml2.jackson2;
+package org.springframework.security.saml2.internal;
 
 import org.jspecify.annotations.NullMarked;

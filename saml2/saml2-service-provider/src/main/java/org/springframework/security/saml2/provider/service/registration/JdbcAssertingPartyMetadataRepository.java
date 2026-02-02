@@ -27,6 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.serializer.DefaultDeserializer;
 import org.springframework.core.serializer.DefaultSerializer;
 import org.springframework.core.serializer.Deserializer;
@@ -105,7 +107,7 @@ public final class JdbcAssertingPartyMetadataRepository implements AssertingPart
 	}
 
 	@Override
-	public AssertingPartyMetadata findByEntityId(String entityId) {
+	public @Nullable AssertingPartyMetadata findByEntityId(String entityId) {
 		Assert.hasText(entityId, "entityId cannot be empty");
 		SqlParameterValue[] parameters = new SqlParameterValue[] { new SqlParameterValue(Types.VARCHAR, entityId) };
 		PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters);
@@ -158,6 +160,7 @@ public final class JdbcAssertingPartyMetadataRepository implements AssertingPart
 			String entityId = rs.getString(COLUMN_NAMES[0]);
 			String singleSignOnUrl = rs.getString(COLUMN_NAMES[1]);
 			Saml2MessageBinding singleSignOnBinding = Saml2MessageBinding.from(rs.getString(COLUMN_NAMES[2]));
+			Assert.notNull(singleSignOnBinding, "retrieved an unsupported binding " + rs.getString(COLUMN_NAMES[2]));
 			boolean singleSignOnSignRequest = rs.getBoolean(COLUMN_NAMES[3]);
 			List<String> algorithms = List.of(rs.getString(COLUMN_NAMES[4]).split(","));
 			byte[] verificationCredentialsBytes = rs.getBytes(COLUMN_NAMES[5]);
@@ -171,6 +174,7 @@ public final class JdbcAssertingPartyMetadataRepository implements AssertingPart
 			String singleLogoutUrl = rs.getString(COLUMN_NAMES[7]);
 			String singleLogoutResponseUrl = rs.getString(COLUMN_NAMES[8]);
 			Saml2MessageBinding singleLogoutBinding = Saml2MessageBinding.from(rs.getString(COLUMN_NAMES[9]));
+			Assert.notNull(singleLogoutBinding, "retrieved an unsupported binding " + rs.getString(COLUMN_NAMES[9]));
 
 			builder.entityId(entityId)
 				.wantAuthnRequestsSigned(singleSignOnSignRequest)

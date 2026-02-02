@@ -21,6 +21,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.saml2.core.Saml2X509Credential;
 
 /**
@@ -119,7 +121,7 @@ public interface AssertingPartyMetadata extends Serializable {
 	 * @return the SingleLogoutService Location
 	 * @since 5.6
 	 */
-	String getSingleLogoutServiceLocation();
+	@Nullable String getSingleLogoutServiceLocation();
 
 	/**
 	 * Get the <a href=
@@ -132,7 +134,7 @@ public interface AssertingPartyMetadata extends Serializable {
 	 * @return the SingleLogoutService Response Location
 	 * @since 5.6
 	 */
-	String getSingleLogoutServiceResponseLocation();
+	@Nullable String getSingleLogoutServiceResponseLocation();
 
 	/**
 	 * Get the <a href=

@@ -18,6 +18,8 @@ package org.springframework.security.saml2.provider.service.authentication;
 
 import java.util.Collections;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.web.authentication.Saml2WebSsoAuthenticationFilter;
@@ -37,7 +39,7 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 
 	private final String saml2Response;
 
-	private final AbstractSaml2AuthenticationRequest authenticationRequest;
+	private final @Nullable AbstractSaml2AuthenticationRequest authenticationRequest;
 
 	/**
 	 * Creates a {@link Saml2AuthenticationToken} with the provided parameters.
@@ -53,7 +55,7 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 	 * @since 5.6
 	 */
 	public Saml2AuthenticationToken(RelyingPartyRegistration relyingPartyRegistration, String saml2Response,
-			AbstractSaml2AuthenticationRequest authenticationRequest) {
+			@Nullable AbstractSaml2AuthenticationRequest authenticationRequest) {
 		super(Collections.emptyList());
 		Assert.notNull(relyingPartyRegistration, "relyingPartyRegistration cannot be null");
 		Assert.notNull(saml2Response, "saml2Response cannot be null");
@@ -92,7 +94,7 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 	 * @return null
 	 */
 	@Override
-	public Object getPrincipal() {
+	public @Nullable Object getPrincipal() {
 		return null;
 	}
 
@@ -136,7 +138,7 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 	 * @return the authentication request sent to the assertion party
 	 * @since 5.6
 	 */
-	public AbstractSaml2AuthenticationRequest getAuthenticationRequest() {
+	public @Nullable AbstractSaml2AuthenticationRequest getAuthenticationRequest() {
 		return this.authenticationRequest;
 	}
 

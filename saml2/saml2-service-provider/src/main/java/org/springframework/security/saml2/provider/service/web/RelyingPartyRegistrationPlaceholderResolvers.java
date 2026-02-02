@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.web.util.UrlUtils;
@@ -122,7 +123,7 @@ public final class RelyingPartyRegistrationPlaceholderResolvers {
 			this.uriVariables = uriVariables;
 		}
 
-		public String resolve(String uri) {
+		public @Nullable String resolve(@Nullable String uri) {
 			if (uri == null) {
 				return null;
 			}

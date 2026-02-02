@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -33,6 +34,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.schema.XSBoolean;
@@ -58,15 +60,17 @@ import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.opensaml.saml.saml2.core.AuthnStatement;
 import org.opensaml.saml.saml2.core.Condition;
+import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.OneTimeUse;
 import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
+import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.log.LogMessage;
-import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
@@ -189,7 +193,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 		};
 	}
 
-	private static String issuer(Response response) {
+	private static @Nullable String issuer(Response response) {
 		if (response.getIssuer() == null) {
 			return null;
 		}
@@ -197,18 +201,20 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 	}
 
 	static List<String> getStatusCodes(Response response) {
-		if (response.getStatus() == null) {
+		Status status = response.getStatus();
+		if (status == null) {
 			return List.of(StatusCode.SUCCESS);
 		}
-		if (response.getStatus().getStatusCode() == null) {
+		StatusCode statusCode = status.getStatusCode();
+		if (statusCode == null) {
 			return List.of(StatusCode.SUCCESS);
 		}
-		StatusCode parentStatusCode = response.getStatus().getStatusCode();
-		String parentStatusCodeValue = parentStatusCode.getValue();
+		String parentStatusCodeValue = statusCode.getValue();
+		Assert.notNull(parentStatusCodeValue, "Response#Status#StatusCode has not value");
 		if (!includeChildStatusCodes.contains(parentStatusCodeValue)) {
 			return List.of(parentStatusCodeValue);
 		}
-		StatusCode childStatusCode = parentStatusCode.getStatusCode();
+		StatusCode childStatusCode = statusCode.getStatusCode();
 		if (childStatusCode == null) {
 			return List.of(parentStatusCodeValue);
 		}
@@ -228,8 +234,8 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 		return StatusCode.SUCCESS.equals(statusCode);
 	}
 
-	static Saml2ResponseValidatorResult validateInResponseTo(AbstractSaml2AuthenticationRequest storedRequest,
-			String inResponseTo) {
+	static Saml2ResponseValidatorResult validateInResponseTo(@Nullable AbstractSaml2AuthenticationRequest storedRequest,
+			@Nullable String inResponseTo) {
 		if (!StringUtils.hasText(inResponseTo)) {
 			return Saml2ResponseValidatorResult.success();
 		}
@@ -265,7 +271,13 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 			Response response = responseToken.response;
 			Saml2AuthenticationToken token = responseToken.token;
 			Assertion assertion = CollectionUtils.firstElement(response.getAssertions());
-			String username = assertion.getSubject().getNameID().getValue();
+			Assert.notNull(assertion, "response must have at least one assertion");
+			Subject subject = assertion.getSubject();
+			Assert.notNull(subject, "response assertion must have a subject");
+			NameID nameId = subject.getNameID();
+			Assert.notNull(nameId, "response assertion subject must have a nameId");
+			String username = nameId.getValue();
+			Assert.notNull(username, "required elements must have a value");
 			Map<String, List<Object>> attributes = getAssertionAttributes(assertion);
 			List<String> sessionIndexes = getSessionIndexes(assertion);
 			DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal(username, attributes,
@@ -301,7 +313,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 
 	@Override
 	public boolean supports(Class<?> authentication) {
-		return authentication != null && Saml2AuthenticationToken.class.isAssignableFrom(authentication);
+		return Saml2AuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
 	private Response parseResponse(String response) throws Saml2Exception, Saml2AuthenticationException {
@@ -435,7 +447,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 		};
 	}
 
-	static boolean hasName(Assertion assertion) {
+	static boolean hasName(@Nullable Assertion assertion) {
 		if (assertion == null) {
 			return false;
 		}
@@ -459,7 +471,9 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 						attributeValues.add(attributeValue);
 					}
 				}
-				attributeMap.addAll(attribute.getName(), attributeValues);
+				String name = attribute.getName();
+				Assert.notNull(name, "all attributes must have a name");
+				attributeMap.addAll(name, attributeValues);
 			}
 		}
 		return new LinkedHashMap<>(attributeMap); // gh-11785
@@ -468,12 +482,15 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 	static List<String> getSessionIndexes(Assertion assertion) {
 		List<String> sessionIndexes = new ArrayList<>();
 		for (AuthnStatement statement : assertion.getAuthnStatements()) {
-			sessionIndexes.add(statement.getSessionIndex());
+			String sessionIndex = statement.getSessionIndex();
+			if (sessionIndex != null) {
+				sessionIndexes.add(sessionIndex);
+			}
 		}
 		return sessionIndexes;
 	}
 
-	private static Object getXmlObjectValue(XMLObject xmlObject) {
+	private static @Nullable Object getXmlObjectValue(XMLObject xmlObject) {
 		if (xmlObject instanceof XSAny) {
 			return ((XSAny) xmlObject).getTextContent();
 		}
@@ -504,6 +521,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 			Assertion assertion = assertionToken.assertion;
 			SAML20AssertionValidator validator = validatorConverter.convert(assertionToken);
 			ValidationContext context = contextConverter.convert(assertionToken);
+			Response response = (Response) Objects.requireNonNull(assertion.getParent());
 			try {
 				ValidationResult result = validator.validate(assertion, context);
 				if (result == ValidationResult.VALID) {
@@ -512,11 +530,11 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 			}
 			catch (Exception ex) {
 				String message = String.format("Invalid assertion [%s] for SAML response [%s]: %s", assertion.getID(),
-						((Response) assertion.getParent()).getID(), ex.getMessage());
+						response.getID(), ex.getMessage());
 				return Saml2ResponseValidatorResult.failure(new Saml2Error(errorCode, message));
 			}
 			String message = String.format("Invalid assertion [%s] for SAML response [%s]: %s", assertion.getID(),
-					((Response) assertion.getParent()).getID(), context.getValidationFailureMessages());
+					response.getID(), context.getValidationFailureMessages());
 			return Saml2ResponseValidatorResult.failure(new Saml2Error(errorCode, message));
 		};
 	}
@@ -557,7 +575,7 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 		return false;
 	}
 
-	private static String getAuthnRequestId(AbstractSaml2AuthenticationRequest serialized) {
+	private static @Nullable String getAuthnRequestId(@Nullable AbstractSaml2AuthenticationRequest serialized) {
 		return (serialized != null) ? serialized.getId() : null;
 	}
 
@@ -573,13 +591,11 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 			conditions.add(new AudienceRestrictionConditionValidator());
 			conditions.add(new DelegationRestrictionConditionValidator());
 			conditions.add(new ConditionValidator() {
-				@NonNull
 				@Override
 				public QName getServicedCondition() {
 					return OneTimeUse.DEFAULT_ELEMENT_NAME;
 				}
 
-				@NonNull
 				@Override
 				public ValidationResult validate(Condition condition, Assertion assertion, ValidationContext context) {
 					// applications should validate their own OneTimeUse conditions
@@ -588,16 +604,13 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 			});
 			conditions.add(new ProxyRestrictionConditionValidator());
 			subjects.add(new BearerSubjectConfirmationValidator() {
-				@NonNull
-				protected ValidationResult validateAddress(@NonNull SubjectConfirmation confirmation,
-						@NonNull Assertion assertion, @NonNull ValidationContext context, boolean required)
-						throws AssertionValidationException {
+				protected ValidationResult validateAddress(SubjectConfirmation confirmation, Assertion assertion,
+						ValidationContext context, boolean required) throws AssertionValidationException {
 					return ValidationResult.VALID;
 				}
 
-				@NonNull
-				protected ValidationResult validateAddress(@NonNull SubjectConfirmationData confirmationData,
-						@NonNull Assertion assertion, @NonNull ValidationContext context, boolean required)
+				protected ValidationResult validateAddress(SubjectConfirmationData confirmationData,
+						Assertion assertion, ValidationContext context, boolean required)
 						throws AssertionValidationException {
 					// applications should validate their own addresses - gh-7514
 					return ValidationResult.VALID;
@@ -607,7 +620,6 @@ class BaseOpenSamlAuthenticationProvider implements AuthenticationProvider {
 
 		static final SAML20AssertionValidator attributeValidator = new SAML20AssertionValidator(conditions, subjects,
 				statements, null, null, null) {
-			@NonNull
 			@Override
 			protected ValidationResult validateSignature(Assertion token, ValidationContext context) {
 				return ValidationResult.VALID;

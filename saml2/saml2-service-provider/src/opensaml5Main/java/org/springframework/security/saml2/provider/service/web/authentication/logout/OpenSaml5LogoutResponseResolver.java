@@ -21,6 +21,7 @@ import java.time.Instant;
 import java.util.function.Consumer;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 
 import org.springframework.security.core.Authentication;
@@ -63,7 +64,7 @@ public final class OpenSaml5LogoutResponseResolver implements Saml2LogoutRespons
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication) {
+	public @Nullable Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication) {
 		return this.delegate.resolve(request, authentication);
 	}
 
@@ -71,7 +72,7 @@ public final class OpenSaml5LogoutResponseResolver implements Saml2LogoutRespons
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication,
+	public @Nullable Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication,
 			Saml2AuthenticationException exception) {
 		return this.delegate.resolve(request, authentication, exception);
 	}

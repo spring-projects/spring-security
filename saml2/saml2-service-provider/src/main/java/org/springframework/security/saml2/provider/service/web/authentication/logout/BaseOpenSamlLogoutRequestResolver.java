@@ -20,21 +20,26 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 import org.opensaml.core.config.ConfigurationService;
+import org.opensaml.core.xml.XMLObjectBuilder;
+import org.opensaml.core.xml.XMLObjectBuilderFactory;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
+import org.opensaml.saml.common.AbstractSAMLObjectBuilder;
+import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.SessionIndex;
 import org.opensaml.saml.saml2.core.impl.IssuerBuilder;
 import org.opensaml.saml.saml2.core.impl.LogoutRequestBuilder;
-import org.opensaml.saml.saml2.core.impl.LogoutRequestMarshaller;
 import org.opensaml.saml.saml2.core.impl.NameIDBuilder;
 import org.opensaml.saml.saml2.core.impl.SessionIndexBuilder;
 
@@ -69,8 +74,6 @@ final class BaseOpenSamlLogoutRequestResolver implements Saml2LogoutRequestResol
 
 	private Clock clock = Clock.systemUTC();
 
-	private final LogoutRequestMarshaller marshaller;
-
 	private final IssuerBuilder issuerBuilder;
 
 	private final NameIDBuilder nameIdBuilder;
@@ -94,19 +97,17 @@ final class BaseOpenSamlLogoutRequestResolver implements Saml2LogoutRequestResol
 		this.relyingPartyRegistrationResolver = relyingPartyRegistrationResolver;
 		this.saml = saml;
 		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
-		this.marshaller = (LogoutRequestMarshaller) registry.getMarshallerFactory()
-			.getMarshaller(LogoutRequest.DEFAULT_ELEMENT_NAME);
-		Assert.notNull(this.marshaller, "logoutRequestMarshaller must be configured in OpenSAML");
-		this.logoutRequestBuilder = (LogoutRequestBuilder) registry.getBuilderFactory()
-			.getBuilder(LogoutRequest.DEFAULT_ELEMENT_NAME);
-		Assert.notNull(this.logoutRequestBuilder, "logoutRequestBuilder must be configured in OpenSAML");
-		this.issuerBuilder = (IssuerBuilder) registry.getBuilderFactory().getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
-		Assert.notNull(this.issuerBuilder, "issuerBuilder must be configured in OpenSAML");
-		this.nameIdBuilder = (NameIDBuilder) registry.getBuilderFactory().getBuilder(NameID.DEFAULT_ELEMENT_NAME);
-		Assert.notNull(this.nameIdBuilder, "nameIdBuilder must be configured in OpenSAML");
-		this.sessionIndexBuilder = (SessionIndexBuilder) registry.getBuilderFactory()
-			.getBuilder(SessionIndex.DEFAULT_ELEMENT_NAME);
-		Assert.notNull(this.sessionIndexBuilder, "sessionIndexBuilder must be configured in OpenSAML");
+		Assert.notNull(registry, "XMLObjectProviderRegistry must be configured");
+		XMLObjectBuilderFactory builderFactory = registry.getBuilderFactory();
+		this.logoutRequestBuilder = builder(builderFactory.ensureBuilder(LogoutRequest.DEFAULT_ELEMENT_NAME));
+		this.issuerBuilder = builder(builderFactory.ensureBuilder(Issuer.DEFAULT_ELEMENT_NAME));
+		this.nameIdBuilder = builder(builderFactory.ensureBuilder(NameID.DEFAULT_ELEMENT_NAME));
+		this.sessionIndexBuilder = builder(builderFactory.ensureBuilder(SessionIndex.DEFAULT_ELEMENT_NAME));
+	}
+
+	private static <T extends SAMLObject, B extends AbstractSAMLObjectBuilder<T>> B builder(
+			XMLObjectBuilder<T> builder) {
+		return (B) builder;
 	}
 
 	void setClock(Clock clock) {
@@ -132,7 +133,7 @@ final class BaseOpenSamlLogoutRequestResolver implements Saml2LogoutRequestResol
 	 * @return a signed and serialized SAML 2.0 Logout Request
 	 */
 	@Override
-	public Saml2LogoutRequest resolve(HttpServletRequest request, Authentication authentication) {
+	public @Nullable Saml2LogoutRequest resolve(HttpServletRequest request, Authentication authentication) {
 		String registrationId = getRegistrationId(authentication);
 		RelyingPartyRegistration registration = this.relyingPartyRegistrationResolver.resolve(request, registrationId);
 		if (registration == null) {
@@ -178,7 +179,7 @@ final class BaseOpenSamlLogoutRequestResolver implements Saml2LogoutRequestResol
 		}
 		String relayState = this.relayStateResolver.convert(request);
 		Saml2LogoutRequest.Builder result = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
-			.id(logoutRequest.getID());
+			.id(Objects.requireNonNull(logoutRequest.getID()));
 		if (registration.getAssertingPartyMetadata().getSingleLogoutServiceBinding() == Saml2MessageBinding.POST) {
 			String xml = serialize(this.saml.withSigningKeys(registration.getSigningX509Credentials())
 				.algorithms(registration.getAssertingPartyMetadata().getSigningAlgorithms())
@@ -200,12 +201,9 @@ final class BaseOpenSamlLogoutRequestResolver implements Saml2LogoutRequestResol
 		}
 	}
 
-	private String getRegistrationId(Authentication authentication) {
+	private @Nullable String getRegistrationId(Authentication authentication) {
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace("Attempting to resolve registrationId from " + authentication);
-		}
-		if (authentication == null) {
-			return null;
 		}
 		if (authentication instanceof Saml2AssertionAuthentication response) {
 			return response.getRelyingPartyRegistrationId();

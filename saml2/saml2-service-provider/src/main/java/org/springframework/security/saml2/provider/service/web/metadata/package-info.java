@@ -15,9 +15,9 @@
  */
 
 /**
- * Jackson 2 serialization support for SAML2.
+ * Web metadata endpoint support for SAML2 relying party.
  */
 @NullMarked
-package org.springframework.security.saml2.jackson2;
+package org.springframework.security.saml2.provider.service.web.metadata;
 
 import org.jspecify.annotations.NullMarked;

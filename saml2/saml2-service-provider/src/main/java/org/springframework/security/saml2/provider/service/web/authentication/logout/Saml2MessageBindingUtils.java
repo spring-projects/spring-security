@@ -50,11 +50,11 @@ final class Saml2MessageBindingUtils {
 	}
 
 	static boolean isHttpRedirectBinding(HttpServletRequest request) {
-		return request != null && "GET".equalsIgnoreCase(request.getMethod()) && isSamlRequestResponse(request);
+		return "GET".equalsIgnoreCase(request.getMethod()) && isSamlRequestResponse(request);
 	}
 
 	static boolean isHttpPostBinding(HttpServletRequest request) {
-		return request != null && "POST".equalsIgnoreCase(request.getMethod()) && isSamlRequestResponse(request);
+		return "POST".equalsIgnoreCase(request.getMethod()) && isSamlRequestResponse(request);
 	}
 
 }

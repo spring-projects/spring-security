@@ -15,9 +15,9 @@
  */
 
 /**
- * Jackson 2 serialization support for SAML2.
+ * Core SAML2 types and utilities.
  */
 @NullMarked
-package org.springframework.security.saml2.jackson2;
+package org.springframework.security.saml2.core;
 
 import org.jspecify.annotations.NullMarked;

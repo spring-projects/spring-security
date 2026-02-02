@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
@@ -63,12 +65,12 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverter
 	}
 
 	@Override
-	public boolean canRead(Class<?> clazz, MediaType mediaType) {
+	public boolean canRead(Class<?> clazz, @Nullable MediaType mediaType) {
 		return RelyingPartyRegistration.Builder.class.isAssignableFrom(clazz);
 	}
 
 	@Override
-	public boolean canWrite(Class<?> clazz, MediaType mediaType) {
+	public boolean canWrite(Class<?> clazz, @Nullable MediaType mediaType) {
 		return false;
 	}
 
@@ -84,8 +86,8 @@ public class OpenSamlRelyingPartyRegistrationBuilderHttpMessageConverter
 	}
 
 	@Override
-	public void write(RelyingPartyRegistration.Builder builder, MediaType contentType, HttpOutputMessage outputMessage)
-			throws HttpMessageNotWritableException {
+	public void write(RelyingPartyRegistration.Builder builder, @Nullable MediaType contentType,
+			HttpOutputMessage outputMessage) throws HttpMessageNotWritableException {
 		throw new HttpMessageNotWritableException("This converter cannot write a RelyingPartyRegistration.Builder");
 	}
 

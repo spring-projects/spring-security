@@ -16,6 +16,8 @@
 
 package org.springframework.security.saml2.provider.service.registration;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * The type of bindings that messages are exchanged using Supported bindings are
  * {@code urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST} and
@@ -50,7 +52,7 @@ public enum Saml2MessageBinding {
 	 * @return the resolved {@code Saml2MessageBinding}, or {@code null} if not found
 	 * @since 5.5
 	 */
-	public static Saml2MessageBinding from(String name) {
+	public static @Nullable Saml2MessageBinding from(String name) {
 		for (Saml2MessageBinding value : values()) {
 			if (value.getUrn().equals(name)) {
 				return value;

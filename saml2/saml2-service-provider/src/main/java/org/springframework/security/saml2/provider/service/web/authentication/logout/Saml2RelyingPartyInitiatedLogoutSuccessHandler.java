@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -69,8 +70,13 @@ public final class Saml2RelyingPartyInitiatedLogoutSuccessHandler implements Log
 	 * @throws IOException when failing to write to the response
 	 */
 	@Override
-	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
-			throws IOException {
+	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
+			@Nullable Authentication authentication) throws IOException {
+		if (authentication == null) {
+			this.logger.trace("Returning 401 since no logout request generated");
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
+		}
 		Saml2LogoutRequest logoutRequest = this.logoutRequestResolver.resolve(request, authentication);
 		if (logoutRequest == null) {
 			this.logger.trace("Returning 401 since no logout request generated");
@@ -99,8 +105,9 @@ public final class Saml2RelyingPartyInitiatedLogoutSuccessHandler implements Log
 	private void doRedirect(HttpServletRequest request, HttpServletResponse response, Saml2LogoutRequest logoutRequest)
 			throws IOException {
 		String location = logoutRequest.getLocation();
-		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(location)
-			.query(logoutRequest.getParametersQuery());
+		String query = logoutRequest.getParametersQuery();
+		Assert.notNull(query, "logout request must have a parameters query when using redirect binding");
+		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(location).query(query);
 		this.redirectStrategy.sendRedirect(request, response, uriBuilder.build(true).toUriString());
 	}
 
@@ -113,7 +120,7 @@ public final class Saml2RelyingPartyInitiatedLogoutSuccessHandler implements Log
 		response.getWriter().write(html);
 	}
 
-	private String createSamlPostRequestFormData(String location, String saml, String relayState) {
+	private String createSamlPostRequestFormData(String location, String saml, @Nullable String relayState) {
 		StringBuilder html = new StringBuilder();
 		html.append("<!DOCTYPE html>\n");
 		html.append("<html>\n").append("    <head>\n");

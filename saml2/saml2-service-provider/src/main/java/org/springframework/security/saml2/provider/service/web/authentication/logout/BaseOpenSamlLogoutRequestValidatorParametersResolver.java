@@ -16,7 +16,12 @@
 
 package org.springframework.security.saml2.provider.service.web.authentication.logout;
 
+import java.util.Objects;
+
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
+import org.opensaml.core.xml.schema.XSString;
+import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 
 import org.springframework.http.HttpMethod;
@@ -95,7 +100,8 @@ final class BaseOpenSamlLogoutRequestValidatorParametersResolver
 	 * non-existent {@code registrationId}
 	 */
 	@Override
-	public Saml2LogoutRequestValidatorParameters resolve(HttpServletRequest request, Authentication authentication) {
+	public @Nullable Saml2LogoutRequestValidatorParameters resolve(HttpServletRequest request,
+			@Nullable Authentication authentication) {
 		if (request.getParameter(Saml2ParameterNames.SAML_REQUEST) == null) {
 			return null;
 		}
@@ -126,7 +132,8 @@ final class BaseOpenSamlLogoutRequestValidatorParametersResolver
 		this.requestMatcher = requestMatcher;
 	}
 
-	private String getRegistrationId(RequestMatcher.MatchResult result, Authentication authentication) {
+	private @Nullable String getRegistrationId(RequestMatcher.MatchResult result,
+			@Nullable Authentication authentication) {
 		String registrationId = result.getVariables().get("registrationId");
 		if (registrationId != null) {
 			return registrationId;
@@ -143,8 +150,8 @@ final class BaseOpenSamlLogoutRequestValidatorParametersResolver
 		return null;
 	}
 
-	private Saml2LogoutRequestValidatorParameters logoutRequestById(HttpServletRequest request,
-			Authentication authentication, String registrationId) {
+	private @Nullable Saml2LogoutRequestValidatorParameters logoutRequestById(HttpServletRequest request,
+			@Nullable Authentication authentication, String registrationId) {
 		RelyingPartyRegistration registration = this.registrations.findByRegistrationId(registrationId);
 		if (registration == null) {
 			throw new Saml2AuthenticationException(
@@ -153,29 +160,32 @@ final class BaseOpenSamlLogoutRequestValidatorParametersResolver
 		return logoutRequestByRegistration(request, registration, authentication);
 	}
 
-	private Saml2LogoutRequestValidatorParameters logoutRequestByEntityId(HttpServletRequest request,
-			Authentication authentication) {
+	private @Nullable Saml2LogoutRequestValidatorParameters logoutRequestByEntityId(HttpServletRequest request,
+			@Nullable Authentication authentication) {
 		String serialized = request.getParameter(Saml2ParameterNames.SAML_REQUEST);
 		LogoutRequest logoutRequest = this.saml.deserialize(
 				Saml2Utils.withEncoded(serialized).inflate(HttpMethod.GET.matches(request.getMethod())).decode());
-		String issuer = logoutRequest.getIssuer().getValue();
-		RelyingPartyRegistration registration = this.registrations.findUniqueByAssertingPartyEntityId(issuer);
+		Issuer issuer = logoutRequest.getIssuer();
+		Assert.notNull(issuer, "LogoutRequest#Issuer cannot be null");
+		RelyingPartyRegistration registration = this.registrations.findUniqueByAssertingPartyEntityId(getValue(issuer));
 		return logoutRequestByRegistration(request, registration, authentication);
 	}
 
-	private Saml2LogoutRequestValidatorParameters logoutRequestByRegistration(HttpServletRequest request,
-			RelyingPartyRegistration registration, Authentication authentication) {
+	private @Nullable Saml2LogoutRequestValidatorParameters logoutRequestByRegistration(HttpServletRequest request,
+			@Nullable RelyingPartyRegistration registration, @Nullable Authentication authentication) {
 		if (registration == null) {
 			return null;
 		}
 		Saml2MessageBinding saml2MessageBinding = Saml2MessageBindingUtils.resolveBinding(request);
 		registration = fromRequest(request, registration);
 		String serialized = request.getParameter(Saml2ParameterNames.SAML_REQUEST);
+		String location = registration.getSingleLogoutServiceLocation();
+		Assert.notNull(location, "logoutServiceLocation must be configured");
 		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
 			.samlRequest(serialized)
 			.relayState(request.getParameter(Saml2ParameterNames.RELAY_STATE))
 			.binding(saml2MessageBinding)
-			.location(registration.getSingleLogoutServiceLocation())
+			.location(location)
 			.parameters((params) -> params.put(Saml2ParameterNames.SIG_ALG,
 					request.getParameter(Saml2ParameterNames.SIG_ALG)))
 			.parameters((params) -> params.put(Saml2ParameterNames.SIGNATURE,
@@ -188,7 +198,7 @@ final class BaseOpenSamlLogoutRequestValidatorParametersResolver
 	private RelyingPartyRegistration fromRequest(HttpServletRequest request, RelyingPartyRegistration registration) {
 		RelyingPartyRegistrationPlaceholderResolvers.UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers
 			.uriResolver(request, registration);
-		String entityId = uriResolver.resolve(registration.getEntityId());
+		String entityId = Objects.requireNonNull(uriResolver.resolve(registration.getEntityId()));
 		String logoutLocation = uriResolver.resolve(registration.getSingleLogoutServiceLocation());
 		String logoutResponseLocation = uriResolver.resolve(registration.getSingleLogoutServiceResponseLocation());
 		return registration.mutate()
@@ -196,6 +206,12 @@ final class BaseOpenSamlLogoutRequestValidatorParametersResolver
 			.singleLogoutServiceLocation(logoutLocation)
 			.singleLogoutServiceResponseLocation(logoutResponseLocation)
 			.build();
+	}
+
+	private String getValue(XSString element) {
+		String value = element.getValue();
+		Assert.notNull(value, "required elements must have a value");
+		return value;
 	}
 
 }

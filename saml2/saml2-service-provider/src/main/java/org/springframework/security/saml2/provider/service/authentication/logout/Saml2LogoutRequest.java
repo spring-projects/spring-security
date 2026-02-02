@@ -25,10 +25,13 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestResolver;
+import org.springframework.util.Assert;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
 
@@ -43,7 +46,7 @@ public final class Saml2LogoutRequest implements Serializable {
 	@Serial
 	private static final long serialVersionUID = -3588981995674761337L;
 
-	private static final Function<Map<String, String>, String> DEFAULT_ENCODER = (params) -> {
+	private static final Function<Map<String, String>, @Nullable String> DEFAULT_ENCODER = (params) -> {
 		if (params.isEmpty()) {
 			return null;
 		}
@@ -60,19 +63,20 @@ public final class Saml2LogoutRequest implements Serializable {
 
 	private final Map<String, String> parameters;
 
-	private final String id;
+	private final @Nullable String id;
 
 	private final String relyingPartyRegistrationId;
 
-	private transient Function<Map<String, String>, String> encoder;
+	private transient Function<Map<String, String>, @Nullable String> encoder;
 
 	private Saml2LogoutRequest(String location, Saml2MessageBinding binding, Map<String, String> parameters, String id,
 			String relyingPartyRegistrationId) {
 		this(location, binding, parameters, id, relyingPartyRegistrationId, DEFAULT_ENCODER);
 	}
 
-	private Saml2LogoutRequest(String location, Saml2MessageBinding binding, Map<String, String> parameters, String id,
-			String relyingPartyRegistrationId, Function<Map<String, String>, String> encoder) {
+	private Saml2LogoutRequest(String location, Saml2MessageBinding binding, Map<String, String> parameters,
+			@Nullable String id, String relyingPartyRegistrationId,
+			Function<Map<String, String>, @Nullable String> encoder) {
 		this.location = location;
 		this.binding = binding;
 		this.parameters = Collections.unmodifiableMap(new LinkedHashMap<>(parameters));
@@ -85,7 +89,7 @@ public final class Saml2LogoutRequest implements Serializable {
 	 * The unique identifier for this Logout Request
 	 * @return the Logout Request identifier
 	 */
-	public String getId() {
+	public @Nullable String getId() {
 		return this.id;
 	}
 
@@ -112,14 +116,16 @@ public final class Saml2LogoutRequest implements Serializable {
 	 * @return the signed and serialized &lt;saml2:LogoutRequest&gt; payload
 	 */
 	public String getSamlRequest() {
-		return this.parameters.get(Saml2ParameterNames.SAML_REQUEST);
+		String samlRequest = this.parameters.get(Saml2ParameterNames.SAML_REQUEST);
+		Assert.notNull(samlRequest, "samlRequest cannot be null");
+		return samlRequest;
 	}
 
 	/**
 	 * The relay state associated with this Logout Request
 	 * @return the relay state
 	 */
-	public String getRelayState() {
+	public @Nullable String getRelayState() {
 		return this.parameters.get(Saml2ParameterNames.RELAY_STATE);
 	}
 
@@ -132,7 +138,7 @@ public final class Saml2LogoutRequest implements Serializable {
 	 * @param name the parameter's name
 	 * @return the parameter's value
 	 */
-	public String getParameter(String name) {
+	public @Nullable String getParameter(String name) {
 		return this.parameters.get(name);
 	}
 
@@ -152,7 +158,7 @@ public final class Saml2LogoutRequest implements Serializable {
 	 * @return an encoded string of all parameters
 	 * @since 5.8
 	 */
-	public String getParametersQuery() {
+	public @Nullable String getParametersQuery() {
 		return this.encoder.apply(this.parameters);
 	}
 
@@ -182,15 +188,15 @@ public final class Saml2LogoutRequest implements Serializable {
 
 		private final RelyingPartyRegistration registration;
 
-		private String location;
+		private @Nullable String location;
 
 		private Saml2MessageBinding binding;
 
 		private Map<String, String> parameters = new LinkedHashMap<>();
 
-		private Function<Map<String, String>, String> encoder = DEFAULT_ENCODER;
+		private Function<Map<String, String>, @Nullable String> encoder = DEFAULT_ENCODER;
 
-		private String id;
+		private @Nullable String id;
 
 		private Builder(RelyingPartyRegistration registration) {
 			this.registration = registration;
@@ -284,7 +290,7 @@ public final class Saml2LogoutRequest implements Serializable {
 		 * @return the {@link Builder} for further configurations
 		 * @since 5.8
 		 */
-		public Builder parametersQuery(Function<Map<String, String>, String> encoder) {
+		public Builder parametersQuery(Function<Map<String, String>, @Nullable String> encoder) {
 			this.encoder = encoder;
 			return this;
 		}
@@ -294,6 +300,8 @@ public final class Saml2LogoutRequest implements Serializable {
 		 * @return a constructed {@link Saml2LogoutRequest}
 		 */
 		public Saml2LogoutRequest build() {
+			Assert.notNull(this.location, "singleLocationServiceLocation cannot be null");
+			Assert.notNull(this.parameters.get(Saml2ParameterNames.SAML_REQUEST), "samlRequest cannot be null");
 			return new Saml2LogoutRequest(this.location, this.binding, this.parameters, this.id,
 					this.registration.getRegistrationId(), this.encoder);
 		}

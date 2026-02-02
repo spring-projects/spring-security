@@ -18,6 +18,8 @@ package org.springframework.security.saml2.core;
 
 import java.io.Serializable;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -37,14 +39,14 @@ public class Saml2Error implements Serializable {
 
 	private final String errorCode;
 
-	private final String description;
+	private final @Nullable String description;
 
 	/**
 	 * Constructs a {@code Saml2Error} using the provided parameters.
 	 * @param errorCode the error code
 	 * @param description the error description
 	 */
-	public Saml2Error(String errorCode, String description) {
+	public Saml2Error(String errorCode, @Nullable String description) {
 		Assert.hasText(errorCode, "errorCode cannot be empty");
 		this.errorCode = errorCode;
 		this.description = description;
@@ -56,7 +58,7 @@ public class Saml2Error implements Serializable {
 	 * @return the resulting {@link Saml2Error}
 	 * @since 7.0
 	 */
-	public static Saml2Error invalidResponse(String description) {
+	public static Saml2Error invalidResponse(@Nullable String description) {
 		return new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE, description);
 	}
 
@@ -66,7 +68,7 @@ public class Saml2Error implements Serializable {
 	 * @return the resulting {@link Saml2Error}
 	 * @since 7.0
 	 */
-	public static Saml2Error internalValidationError(String description) {
+	public static Saml2Error internalValidationError(@Nullable String description) {
 		return new Saml2Error(Saml2ErrorCodes.INTERNAL_VALIDATION_ERROR, description);
 	}
 
@@ -76,7 +78,7 @@ public class Saml2Error implements Serializable {
 	 * @return the resulting {@link Saml2Error}
 	 * @since 7.0
 	 */
-	public static Saml2Error malformedResponseData(String description) {
+	public static Saml2Error malformedResponseData(@Nullable String description) {
 		return new Saml2Error(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA, description);
 	}
 
@@ -86,7 +88,7 @@ public class Saml2Error implements Serializable {
 	 * @return the resulting {@link Saml2Error}
 	 * @since 7.0
 	 */
-	public static Saml2Error decryptionError(String description) {
+	public static Saml2Error decryptionError(@Nullable String description) {
 		return new Saml2Error(Saml2ErrorCodes.DECRYPTION_ERROR, description);
 	}
 
@@ -96,7 +98,7 @@ public class Saml2Error implements Serializable {
 	 * @return the resulting {@link Saml2Error}
 	 * @since 7.0
 	 */
-	public static Saml2Error relyingPartyRegistrationNotFound(String description) {
+	public static Saml2Error relyingPartyRegistrationNotFound(@Nullable String description) {
 		return new Saml2Error(Saml2ErrorCodes.RELYING_PARTY_REGISTRATION_NOT_FOUND, description);
 	}
 
@@ -106,7 +108,7 @@ public class Saml2Error implements Serializable {
 	 * @return the resulting {@link Saml2Error}
 	 * @since 7.0
 	 */
-	public static Saml2Error subjectNotFound(String description) {
+	public static Saml2Error subjectNotFound(@Nullable String description) {
 		return new Saml2Error(Saml2ErrorCodes.SUBJECT_NOT_FOUND, description);
 	}
 
@@ -122,7 +124,7 @@ public class Saml2Error implements Serializable {
 	 * Returns the error description.
 	 * @return the error description
 	 */
-	public final String getDescription() {
+	public final @Nullable String getDescription() {
 		return this.description;
 	}
 

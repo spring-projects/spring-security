@@ -18,6 +18,7 @@ package org.springframework.security.saml2.provider.service.web;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.cache.Cache;
 import org.springframework.cache.concurrent.ConcurrentMapCache;
@@ -43,14 +44,14 @@ public final class CacheSaml2AuthenticationRequestRepository
 	private Cache cache = new ConcurrentMapCache("authentication-requests");
 
 	@Override
-	public AbstractSaml2AuthenticationRequest loadAuthenticationRequest(HttpServletRequest request) {
+	public @Nullable AbstractSaml2AuthenticationRequest loadAuthenticationRequest(HttpServletRequest request) {
 		String relayState = request.getParameter(Saml2ParameterNames.RELAY_STATE);
 		Assert.notNull(relayState, "relayState must not be null");
 		return this.cache.get(relayState, AbstractSaml2AuthenticationRequest.class);
 	}
 
 	@Override
-	public void saveAuthenticationRequest(AbstractSaml2AuthenticationRequest authenticationRequest,
+	public void saveAuthenticationRequest(@Nullable AbstractSaml2AuthenticationRequest authenticationRequest,
 			HttpServletRequest request, HttpServletResponse response) {
 		String relayState = request.getParameter(Saml2ParameterNames.RELAY_STATE);
 		Assert.notNull(relayState, "relayState must not be null");
@@ -58,7 +59,7 @@ public final class CacheSaml2AuthenticationRequestRepository
 	}
 
 	@Override
-	public AbstractSaml2AuthenticationRequest removeAuthenticationRequest(HttpServletRequest request,
+	public @Nullable AbstractSaml2AuthenticationRequest removeAuthenticationRequest(HttpServletRequest request,
 			HttpServletResponse response) {
 		String relayState = request.getParameter(Saml2ParameterNames.RELAY_STATE);
 		Assert.notNull(relayState, "relayState must not be null");

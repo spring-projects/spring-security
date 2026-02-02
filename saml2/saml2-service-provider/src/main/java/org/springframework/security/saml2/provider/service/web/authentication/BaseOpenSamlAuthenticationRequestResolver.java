@@ -22,19 +22,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 import org.opensaml.core.config.ConfigurationService;
+import org.opensaml.core.xml.XMLObjectBuilder;
+import org.opensaml.core.xml.XMLObjectBuilderFactory;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
+import org.opensaml.saml.common.AbstractSAMLObjectBuilder;
+import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.NameIDPolicy;
 import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder;
-import org.opensaml.saml.saml2.core.impl.AuthnRequestMarshaller;
 import org.opensaml.saml.saml2.core.impl.IssuerBuilder;
 import org.opensaml.saml.saml2.core.impl.NameIDBuilder;
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder;
@@ -75,8 +80,6 @@ class BaseOpenSamlAuthenticationRequestResolver implements Saml2AuthenticationRe
 
 	private final AuthnRequestBuilder authnRequestBuilder;
 
-	private final AuthnRequestMarshaller marshaller;
-
 	private final IssuerBuilder issuerBuilder;
 
 	private final NameIDBuilder nameIdBuilder;
@@ -90,7 +93,8 @@ class BaseOpenSamlAuthenticationRequestResolver implements Saml2AuthenticationRe
 
 	private Clock clock = Clock.systemUTC();
 
-	private Converter<HttpServletRequest, String> relayStateResolver = (request) -> UUID.randomUUID().toString();
+	private Converter<HttpServletRequest, @Nullable String> relayStateResolver = (request) -> UUID.randomUUID()
+		.toString();
 
 	private Consumer<AuthnRequestParameters> parametersConsumer = (parameters) -> {
 	};
@@ -107,26 +111,25 @@ class BaseOpenSamlAuthenticationRequestResolver implements Saml2AuthenticationRe
 		Assert.notNull(relyingPartyRegistrationResolver, "relyingPartyRegistrationResolver cannot be null");
 		this.relyingPartyRegistrationResolver = relyingPartyRegistrationResolver;
 		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
-		this.marshaller = (AuthnRequestMarshaller) registry.getMarshallerFactory()
-			.getMarshaller(AuthnRequest.DEFAULT_ELEMENT_NAME);
-		Assert.notNull(this.marshaller, "authnRequestMarshaller must be configured in OpenSAML");
-		this.authnRequestBuilder = (AuthnRequestBuilder) XMLObjectProviderRegistrySupport.getBuilderFactory()
-			.getBuilder(AuthnRequest.DEFAULT_ELEMENT_NAME);
-		Assert.notNull(this.authnRequestBuilder, "authnRequestBuilder must be configured in OpenSAML");
-		this.issuerBuilder = (IssuerBuilder) registry.getBuilderFactory().getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
-		Assert.notNull(this.issuerBuilder, "issuerBuilder must be configured in OpenSAML");
-		this.nameIdBuilder = (NameIDBuilder) registry.getBuilderFactory().getBuilder(NameID.DEFAULT_ELEMENT_NAME);
-		Assert.notNull(this.nameIdBuilder, "nameIdBuilder must be configured in OpenSAML");
-		this.nameIdPolicyBuilder = (NameIDPolicyBuilder) registry.getBuilderFactory()
-			.getBuilder(NameIDPolicy.DEFAULT_ELEMENT_NAME);
-		Assert.notNull(this.nameIdPolicyBuilder, "nameIdPolicyBuilder must be configured in OpenSAML");
+		Assert.notNull(registry, "XMLObjectProviderRegistry must be configured");
+		XMLObjectBuilderFactory builderFactory = XMLObjectProviderRegistrySupport.getBuilderFactory();
+		Assert.notNull(builderFactory, "XMLObjectBuilderFactory must be configured");
+		this.authnRequestBuilder = builder(builderFactory.ensureBuilder(AuthnRequest.DEFAULT_ELEMENT_NAME));
+		this.issuerBuilder = builder(builderFactory.ensureBuilder(Issuer.DEFAULT_ELEMENT_NAME));
+		this.nameIdBuilder = builder(builderFactory.ensureBuilder(NameID.DEFAULT_ELEMENT_NAME));
+		this.nameIdPolicyBuilder = builder(builderFactory.ensureBuilder(NameIDPolicy.DEFAULT_ELEMENT_NAME));
+	}
+
+	private static <T extends SAMLObject, B extends AbstractSAMLObjectBuilder<T>> B builder(
+			XMLObjectBuilder<T> builder) {
+		return (B) builder;
 	}
 
 	void setClock(Clock clock) {
 		this.clock = clock;
 	}
 
-	void setRelayStateResolver(Converter<HttpServletRequest, String> relayStateResolver) {
+	void setRelayStateResolver(Converter<HttpServletRequest, @Nullable String> relayStateResolver) {
 		this.relayStateResolver = relayStateResolver;
 	}
 
@@ -139,7 +142,7 @@ class BaseOpenSamlAuthenticationRequestResolver implements Saml2AuthenticationRe
 	}
 
 	@Override
-	public <T extends AbstractSaml2AuthenticationRequest> T resolve(HttpServletRequest request) {
+	public <T extends AbstractSaml2AuthenticationRequest> @Nullable T resolve(HttpServletRequest request) {
 		RequestMatcher.MatchResult result = this.requestMatcher.matcher(request);
 		if (!result.isMatch()) {
 			return null;
@@ -186,7 +189,7 @@ class BaseOpenSamlAuthenticationRequestResolver implements Saml2AuthenticationRe
 			return (T) Saml2PostAuthenticationRequest.withRelyingPartyRegistration(registration)
 				.samlRequest(encoded)
 				.relayState(relayState)
-				.id(authnRequest.getID())
+				.id(Objects.requireNonNull(authnRequest.getID()))
 				.build();
 		}
 		else {
@@ -196,7 +199,7 @@ class BaseOpenSamlAuthenticationRequestResolver implements Saml2AuthenticationRe
 				.withRelyingPartyRegistration(registration)
 				.samlRequest(deflatedAndEncoded)
 				.relayState(relayState)
-				.id(authnRequest.getID());
+				.id(Objects.requireNonNull(authnRequest.getID()));
 			if (registration.getAssertingPartyMetadata().getWantAuthnRequestsSigned()
 					|| registration.isAuthnRequestsSigned()) {
 				Map<String, String> signingParameters = new HashMap<>();

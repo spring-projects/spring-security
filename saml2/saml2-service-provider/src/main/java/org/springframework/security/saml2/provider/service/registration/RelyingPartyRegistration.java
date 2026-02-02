@@ -25,6 +25,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -79,13 +81,13 @@ public class RelyingPartyRegistration implements Serializable {
 
 	private final Saml2MessageBinding assertionConsumerServiceBinding;
 
-	private final String singleLogoutServiceLocation;
+	private final @Nullable String singleLogoutServiceLocation;
 
-	private final String singleLogoutServiceResponseLocation;
+	private final @Nullable String singleLogoutServiceResponseLocation;
 
 	private final Collection<Saml2MessageBinding> singleLogoutServiceBindings;
 
-	private final String nameIdFormat;
+	private final @Nullable String nameIdFormat;
 
 	private final boolean authnRequestsSigned;
 
@@ -96,9 +98,10 @@ public class RelyingPartyRegistration implements Serializable {
 	private final Collection<Saml2X509Credential> signingX509Credentials;
 
 	protected RelyingPartyRegistration(String registrationId, String entityId, String assertionConsumerServiceLocation,
-			Saml2MessageBinding assertionConsumerServiceBinding, String singleLogoutServiceLocation,
-			String singleLogoutServiceResponseLocation, Collection<Saml2MessageBinding> singleLogoutServiceBindings,
-			AssertingPartyDetails assertingPartyDetails, String nameIdFormat, boolean authnRequestsSigned,
+			Saml2MessageBinding assertionConsumerServiceBinding, @Nullable String singleLogoutServiceLocation,
+			@Nullable String singleLogoutServiceResponseLocation,
+			Collection<Saml2MessageBinding> singleLogoutServiceBindings, AssertingPartyDetails assertingPartyDetails,
+			@Nullable String nameIdFormat, boolean authnRequestsSigned,
 			Collection<Saml2X509Credential> decryptionX509Credentials,
 			Collection<Saml2X509Credential> signingX509Credentials) {
 		Assert.hasText(registrationId, "registrationId cannot be empty");
@@ -134,9 +137,10 @@ public class RelyingPartyRegistration implements Serializable {
 	}
 
 	private RelyingPartyRegistration(String registrationId, String entityId, String assertionConsumerServiceLocation,
-			Saml2MessageBinding assertionConsumerServiceBinding, String singleLogoutServiceLocation,
-			String singleLogoutServiceResponseLocation, Collection<Saml2MessageBinding> singleLogoutServiceBindings,
-			AssertingPartyMetadata assertingPartyMetadata, String nameIdFormat, boolean authnRequestsSigned,
+			Saml2MessageBinding assertionConsumerServiceBinding, @Nullable String singleLogoutServiceLocation,
+			@Nullable String singleLogoutServiceResponseLocation,
+			Collection<Saml2MessageBinding> singleLogoutServiceBindings, AssertingPartyMetadata assertingPartyMetadata,
+			@Nullable String nameIdFormat, boolean authnRequestsSigned,
 			Collection<Saml2X509Credential> decryptionX509Credentials,
 			Collection<Saml2X509Credential> signingX509Credentials) {
 		Assert.hasText(registrationId, "registrationId cannot be empty");
@@ -285,7 +289,7 @@ public class RelyingPartyRegistration implements Serializable {
 	 * @return the SingleLogoutService Location
 	 * @since 5.6
 	 */
-	public String getSingleLogoutServiceLocation() {
+	public @Nullable String getSingleLogoutServiceLocation() {
 		return this.singleLogoutServiceLocation;
 	}
 
@@ -300,7 +304,7 @@ public class RelyingPartyRegistration implements Serializable {
 	 * @return the SingleLogoutService Response Location
 	 * @since 5.6
 	 */
-	public String getSingleLogoutServiceResponseLocation() {
+	public @Nullable String getSingleLogoutServiceResponseLocation() {
 		return this.singleLogoutServiceResponseLocation;
 	}
 
@@ -309,7 +313,7 @@ public class RelyingPartyRegistration implements Serializable {
 	 * @return the NameID format
 	 * @since 5.7
 	 */
-	public String getNameIdFormat() {
+	public @Nullable String getNameIdFormat() {
 		return this.nameIdFormat;
 	}
 
@@ -409,17 +413,17 @@ public class RelyingPartyRegistration implements Serializable {
 
 		private final Saml2MessageBinding singleSignOnServiceBinding;
 
-		private final String singleLogoutServiceLocation;
+		private final @Nullable String singleLogoutServiceLocation;
 
-		private final String singleLogoutServiceResponseLocation;
+		private final @Nullable String singleLogoutServiceResponseLocation;
 
 		private final Saml2MessageBinding singleLogoutServiceBinding;
 
 		AssertingPartyDetails(String entityId, boolean wantAuthnRequestsSigned, List<String> signingAlgorithms,
 				Collection<Saml2X509Credential> verificationX509Credentials,
 				Collection<Saml2X509Credential> encryptionX509Credentials, String singleSignOnServiceLocation,
-				Saml2MessageBinding singleSignOnServiceBinding, String singleLogoutServiceLocation,
-				String singleLogoutServiceResponseLocation, Saml2MessageBinding singleLogoutServiceBinding) {
+				Saml2MessageBinding singleSignOnServiceBinding, @Nullable String singleLogoutServiceLocation,
+				@Nullable String singleLogoutServiceResponseLocation, Saml2MessageBinding singleLogoutServiceBinding) {
 			Assert.hasText(entityId, "entityId cannot be null or empty");
 			Assert.notEmpty(signingAlgorithms, "signingAlgorithms cannot be empty");
 			Assert.notNull(verificationX509Credentials, "verificationX509Credentials cannot be null");
@@ -550,7 +554,7 @@ public class RelyingPartyRegistration implements Serializable {
 		 * @return the SingleLogoutService Location
 		 * @since 5.6
 		 */
-		public String getSingleLogoutServiceLocation() {
+		public @Nullable String getSingleLogoutServiceLocation() {
 			return this.singleLogoutServiceLocation;
 		}
 
@@ -565,7 +569,7 @@ public class RelyingPartyRegistration implements Serializable {
 		 * @return the SingleLogoutService Response Location
 		 * @since 5.6
 		 */
-		public String getSingleLogoutServiceResponseLocation() {
+		public @Nullable String getSingleLogoutServiceResponseLocation() {
 			return this.singleLogoutServiceResponseLocation;
 		}
 
@@ -599,7 +603,7 @@ public class RelyingPartyRegistration implements Serializable {
 
 		public static class Builder implements AssertingPartyMetadata.Builder<Builder> {
 
-			private String entityId;
+			private @Nullable String entityId;
 
 			private boolean wantAuthnRequestsSigned = true;
 
@@ -609,13 +613,13 @@ public class RelyingPartyRegistration implements Serializable {
 
 			private Collection<Saml2X509Credential> encryptionX509Credentials = new LinkedHashSet<>();
 
-			private String singleSignOnServiceLocation;
+			private @Nullable String singleSignOnServiceLocation;
 
 			private Saml2MessageBinding singleSignOnServiceBinding = Saml2MessageBinding.REDIRECT;
 
-			private String singleLogoutServiceLocation;
+			private @Nullable String singleLogoutServiceLocation;
 
-			private String singleLogoutServiceResponseLocation;
+			private @Nullable String singleLogoutServiceResponseLocation;
 
 			private Saml2MessageBinding singleLogoutServiceBinding = Saml2MessageBinding.REDIRECT;
 
@@ -727,7 +731,7 @@ public class RelyingPartyRegistration implements Serializable {
 			 * @return the {@link AssertingPartyDetails.Builder} for further configuration
 			 * @since 5.6
 			 */
-			public Builder singleLogoutServiceLocation(String singleLogoutServiceLocation) {
+			public Builder singleLogoutServiceLocation(@Nullable String singleLogoutServiceLocation) {
 				this.singleLogoutServiceLocation = singleLogoutServiceLocation;
 				return this;
 			}
@@ -746,7 +750,7 @@ public class RelyingPartyRegistration implements Serializable {
 			 * @return the {@link AssertingPartyDetails.Builder} for further configuration
 			 * @since 5.6
 			 */
-			public Builder singleLogoutServiceResponseLocation(String singleLogoutServiceResponseLocation) {
+			public Builder singleLogoutServiceResponseLocation(@Nullable String singleLogoutServiceResponseLocation) {
 				this.singleLogoutServiceResponseLocation = singleLogoutServiceResponseLocation;
 				return this;
 			}
@@ -777,7 +781,8 @@ public class RelyingPartyRegistration implements Serializable {
 				List<String> signingAlgorithms = this.signingAlgorithms.isEmpty()
 						? Collections.singletonList("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256")
 						: Collections.unmodifiableList(this.signingAlgorithms);
-
+				Assert.notNull(this.entityId, "entityId cannot be null");
+				Assert.notNull(this.singleSignOnServiceLocation, "singleSignOnServiceLocation cannot be null");
 				return new AssertingPartyDetails(this.entityId, this.wantAuthnRequestsSigned, signingAlgorithms,
 						this.verificationX509Credentials, this.encryptionX509Credentials,
 						this.singleSignOnServiceLocation, this.singleSignOnServiceBinding,
@@ -803,13 +808,13 @@ public class RelyingPartyRegistration implements Serializable {
 
 		private Saml2MessageBinding assertionConsumerServiceBinding = Saml2MessageBinding.POST;
 
-		private String singleLogoutServiceLocation;
+		private @Nullable String singleLogoutServiceLocation;
 
-		private String singleLogoutServiceResponseLocation;
+		private @Nullable String singleLogoutServiceResponseLocation;
 
 		private Collection<Saml2MessageBinding> singleLogoutServiceBindings = new LinkedHashSet<>();
 
-		private String nameIdFormat = null;
+		private @Nullable String nameIdFormat = null;
 
 		private boolean authnRequestsSigned = false;
 
@@ -965,7 +970,7 @@ public class RelyingPartyRegistration implements Serializable {
 		 * @return the {@link Builder} for further configuration
 		 * @since 5.6
 		 */
-		public Builder singleLogoutServiceLocation(String singleLogoutServiceLocation) {
+		public Builder singleLogoutServiceLocation(@Nullable String singleLogoutServiceLocation) {
 			this.singleLogoutServiceLocation = singleLogoutServiceLocation;
 			return this;
 		}
@@ -983,7 +988,7 @@ public class RelyingPartyRegistration implements Serializable {
 		 * @return the {@link Builder} for further configuration
 		 * @since 5.6
 		 */
-		public Builder singleLogoutServiceResponseLocation(String singleLogoutServiceResponseLocation) {
+		public Builder singleLogoutServiceResponseLocation(@Nullable String singleLogoutServiceResponseLocation) {
 			this.singleLogoutServiceResponseLocation = singleLogoutServiceResponseLocation;
 			return this;
 		}
@@ -994,7 +999,7 @@ public class RelyingPartyRegistration implements Serializable {
 		 * @return the {@link Builder} for further configuration
 		 * @since 5.7
 		 */
-		public Builder nameIdFormat(String nameIdFormat) {
+		public Builder nameIdFormat(@Nullable String nameIdFormat) {
 			this.nameIdFormat = nameIdFormat;
 			return this;
 		}

@@ -17,6 +17,7 @@
 package org.springframework.security.saml2.provider.service.web;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 
@@ -32,9 +33,10 @@ public interface RelyingPartyRegistrationResolver {
 	 * Resolve a {@link RelyingPartyRegistration} from the HTTP request, using the
 	 * {@code relyingPartyRegistrationId}, if it is provided
 	 * @param request the HTTP request
-	 * @param relyingPartyRegistrationId the {@link RelyingPartyRegistration} identifier
+	 * @param relyingPartyRegistrationId the {@link RelyingPartyRegistration} identifier;
+	 * when {@code null}, may attempt to resolve from the request
 	 * @return the resolved {@link RelyingPartyRegistration}
 	 */
-	RelyingPartyRegistration resolve(HttpServletRequest request, String relyingPartyRegistrationId);
+	@Nullable RelyingPartyRegistration resolve(HttpServletRequest request, @Nullable String relyingPartyRegistrationId);
 
 }

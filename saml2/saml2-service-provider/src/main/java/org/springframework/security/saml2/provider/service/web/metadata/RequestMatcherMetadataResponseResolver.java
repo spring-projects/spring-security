@@ -22,9 +22,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.provider.service.metadata.Saml2MetadataResolver;
@@ -95,7 +97,7 @@ public class RequestMatcherMetadataResponseResolver implements Saml2MetadataResp
 	 * {@code registrationId}
 	 */
 	@Override
-	public Saml2MetadataResponse resolve(HttpServletRequest request) {
+	public @Nullable Saml2MetadataResponse resolve(HttpServletRequest request) {
 		RequestMatcher.MatchResult result = this.matcher.matcher(request);
 		if (!result.isMatch()) {
 			return null;
@@ -115,7 +117,8 @@ public class RequestMatcherMetadataResponseResolver implements Saml2MetadataResp
 		return null;
 	}
 
-	private Saml2MetadataResponse responseByRegistrationId(HttpServletRequest request, String registrationId) {
+	private @Nullable Saml2MetadataResponse responseByRegistrationId(HttpServletRequest request,
+			@Nullable String registrationId) {
 		if (registrationId == null) {
 			return null;
 		}
@@ -132,9 +135,10 @@ public class RequestMatcherMetadataResponseResolver implements Saml2MetadataResp
 		for (RelyingPartyRegistration registration : registrations) {
 			RelyingPartyRegistrationPlaceholderResolvers.UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers
 				.uriResolver(request, registration);
-			String entityId = uriResolver.resolve(registration.getEntityId());
+			String entityId = Objects.requireNonNull(uriResolver.resolve(registration.getEntityId()));
 			results.computeIfAbsent(entityId, (e) -> {
 				String ssoLocation = uriResolver.resolve(registration.getAssertionConsumerServiceLocation());
+				ssoLocation = Objects.requireNonNull(ssoLocation);
 				String sloLocation = uriResolver.resolve(registration.getSingleLogoutServiceLocation());
 				String sloResponseLocation = uriResolver.resolve(registration.getSingleLogoutServiceResponseLocation());
 				return registration.mutate()
