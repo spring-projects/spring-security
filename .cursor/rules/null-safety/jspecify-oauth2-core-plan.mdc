@@ -1,0 +1,1099 @@
+---
+description: Comprehensive implementation plan for JSpecify null safety in the Spring Security oauth2-core module, covering 12 packages and ~70 Java files with detailed guidance on claim accessors, token types, converters, and HTTP message handling patterns specific to OAuth 2.0 and OpenID Connect
+alwaysApply: false
+---
+
+# JSpecify Null Safety Implementation Plan for oauth2-core Module
+
+## Module Overview
+
+The [`oauth2/oauth2-core`](oauth2/oauth2-core) module is a foundational OAuth 2.0 and OpenID Connect module containing:
+
+- **70 Java files** across **12 packages**
+- **13 package-info.java files** - Need `@NullMarked` annotation
+- **Plugin status** - Enable `security-nullability` plugin in Gradle config
+- **Minimal @SuppressWarnings policy** - Only 5 suppressions allowed in ClaimAccessor for intentional NPE behavior (see Critical Rule section)
+
+### Key Package Structure
+
+```
+org.springframework.security.oauth2.core
+├── authorization/          (2 files - AuthorizationManagers)
+├── converter/              (8 files - Claim converters)
+├── endpoint/               (10 files - OAuth2 protocol endpoints)
+├── http/converter/         (5 files - HTTP message converters)
+├── oidc/                   (8 files - OpenID Connect)
+│   ├── endpoint/           (2 files)
+│   └── user/               (4 files)
+├── user/                   (4 files - OAuth2 user)
+└── web/reactive/function/  (2 files - Reactive support)
+```
+
+## Current State Analysis
+
+### Already Using `@Nullable` (Spring Framework's)
+
+The module currently uses `org.springframework.lang.Nullable` in 8 files that need migration:
+
+1. [`OAuth2Token.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/OAuth2Token.java) - `getIssuedAt()`, `getExpiresAt()` return types
+2. [`OAuth2AuthenticatedPrincipal.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/OAuth2AuthenticatedPrincipal.java) - `getAttribute()` return type
+3. [`AbstractOAuth2Token.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/AbstractOAuth2Token.java) - constructor parameters, field declarations, return types
+4. [`OAuth2AccessTokenResponse.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/endpoint/OAuth2AccessTokenResponse.java) - `getRefreshToken()` return type
+5. [`OAuth2UserAuthority.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/user/OAuth2UserAuthority.java) - constructor parameters
+6. [`OidcUserAuthority.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/oidc/user/OidcUserAuthority.java) - constructor parameters
+7. [`OAuth2TokenIntrospectionClaimAccessor.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/OAuth2TokenIntrospectionClaimAccessor.java) - 11 return types
+8. [`GenericHttpMessageConverterAdapter.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/http/converter/GenericHttpMessageConverterAdapter.java) - 7 usages
+
+## Phase 1: Build Configuration
+
+### Step 1.1: Enable security-nullability Plugin
+
+**File:** [`oauth2/oauth2-core/spring-security-oauth2-core.gradle`](oauth2/oauth2-core/spring-security-oauth2-core.gradle)
+
+Add the plugin:
+
+```gradle
+plugins {
+    id 'compile-warnings-error'
+    id 'security-nullability'  // Add this line
+}
+```
+
+This will enable NullAway static analysis for compile-time null safety checks.
+
+## Phase 2: Package-Level Annotations
+
+### Step 2.1: Add @NullMarked to All Packages
+
+Create or update all 13 `package-info.java` files with `@NullMarked`:
+
+#### Root Package
+- `org.springframework.security.oauth2.core` - Add/verify @NullMarked
+
+#### Subpackages (create if missing)
+- `org.springframework.security.oauth2.core.authorization`
+- `org.springframework.security.oauth2.core.converter`
+- `org.springframework.security.oauth2.core.endpoint`
+- `org.springframework.security.oauth2.core.http`
+- `org.springframework.security.oauth2.core.http.converter`
+- `org.springframework.security.oauth2.core.oidc`
+- `org.springframework.security.oauth2.core.oidc.endpoint`
+- `org.springframework.security.oauth2.core.oidc.user`
+- `org.springframework.security.oauth2.core.user`
+- `org.springframework.security.oauth2.core.web`
+- `org.springframework.security.oauth2.core.web.reactive`
+- `org.springframework.security.oauth2.core.web.reactive.function`
+
+**Template for package-info.java:**
+
+```java
+@NullMarked
+package org.springframework.security.oauth2.core.PACKAGE_NAME;
+
+import org.jspecify.annotations.NullMarked;
+```
+
+## Phase 3: Core Interface Annotations
+
+### 3.1: Claim Accessor Interfaces
+
+#### [`ClaimAccessor.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/ClaimAccessor.java)
+
+Add `@Nullable` to all 7 claim getter methods (claims can be missing):
+
+```java
+<T> @Nullable T getClaim(String claim);
+@Nullable String getClaimAsString(String claim);
+@Nullable Boolean getClaimAsBoolean(String claim);
+@Nullable Instant getClaimAsInstant(String claim);
+@Nullable URL getClaimAsURL(String claim);
+@Nullable Map<String, Object> getClaimAsMap(String claim);
+@Nullable List<String> getClaimAsStringList(String claim);
+```
+
+#### [`StandardClaimAccessor.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/oidc/StandardClaimAccessor.java)
+
+Add `@Nullable` to all 20+ standard claim methods (all delegate to nullable getters):
+
+```java
+@Nullable default String getSubject() { ... }
+@Nullable default String getFullName() { ... }
+@Nullable default String getGivenName() { ... }
+@Nullable default String getFamilyName() { ... }
+// ... all other claim methods
+```
+
+**Rationale:** These delegate to `getClaimAsString()` which returns `@Nullable`, so all must also return `@Nullable`.
+
+#### [`IdTokenClaimAccessor.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/oidc/IdTokenClaimAccessor.java)
+
+Add `@Nullable` to all 12 ID token claim methods:
+
+```java
+@Nullable default URL getIssuer() { ... }
+@Nullable default String getSubject() { ... }
+@Nullable default List<String> getAudience() { ... }
+@Nullable default Instant getExpiresAt() { ... }
+// ... all other claim methods
+```
+
+#### [`AddressStandardClaim.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/oidc/AddressStandardClaim.java)
+
+Add `@Nullable` to all 6 address fields:
+
+```java
+@Nullable String getFormatted();
+@Nullable String getStreetAddress();
+@Nullable String getLocality();
+@Nullable String getRegion();
+@Nullable String getPostalCode();
+@Nullable String getCountry();
+```
+
+### 3.2: Token Interfaces
+
+#### [`OAuth2Token.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/OAuth2Token.java)
+
+Migrate to JSpecify:
+- Change import from `org.springframework.lang.Nullable` to `org.jspecify.annotations.Nullable`
+- Keep `@Nullable` on `getIssuedAt()` and `getExpiresAt()`
+
+#### [`AbstractOAuth2Token.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/AbstractOAuth2Token.java)
+
+Migrate to JSpecify:
+- Change import
+- Keep all existing `@Nullable` annotations on:
+  - Constructor parameters: `@Nullable Instant issuedAt`, `@Nullable Instant expiresAt`
+  - Fields: `private final @Nullable Instant issuedAt`, `private final @Nullable Instant expiresAt`
+  - Getter return types
+
+#### [`OAuth2RefreshToken.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/OAuth2RefreshToken.java)
+
+Add `@Nullable` to constructor parameters (inherits from AbstractOAuth2Token):
+
+```java
+public OAuth2RefreshToken(String tokenValue, @Nullable Instant issuedAt, @Nullable Instant expiresAt) {
+    super(tokenValue, issuedAt, expiresAt);
+}
+```
+
+#### [`OAuth2AccessToken.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/OAuth2AccessToken.java)
+
+Add JSpecify import and `@Nullable` to constructor parameters (inherits from AbstractOAuth2Token):
+
+```java
+import org.jspecify.annotations.Nullable;
+
+public OAuth2AccessToken(TokenType tokenType, String tokenValue, @Nullable Instant issuedAt,
+        @Nullable Instant expiresAt) {
+    this(tokenType, tokenValue, issuedAt, expiresAt, Collections.emptySet());
+}
+
+public OAuth2AccessToken(TokenType tokenType, String tokenValue, @Nullable Instant issuedAt,
+        @Nullable Instant expiresAt, Set<String> scopes) {
+    super(tokenValue, issuedAt, expiresAt);
+    Assert.notNull(tokenType, "tokenType cannot be null");
+    this.tokenType = tokenType;
+    this.scopes = Collections.unmodifiableSet((scopes != null) ? scopes : Collections.emptySet());
+}
+```
+
+**Rationale:** Test utilities and production code commonly pass `null` for optional timestamps. Without `@Nullable` annotations, dependent modules (e.g., spring-security-test) will have NullAway violations.
+
+### 3.3: Principal Interfaces
+
+#### [`OAuth2AuthenticatedPrincipal.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/OAuth2AuthenticatedPrincipal.java)
+
+Migrate to JSpecify:
+- Change import
+- Keep `<A> @Nullable A getAttribute(String name)`
+
+#### [`DefaultOAuth2AuthenticatedPrincipal.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/DefaultOAuth2AuthenticatedPrincipal.java)
+
+Add `@Nullable` to constructor parameter and implement fallback logic with empty string:
+
+```java
+public DefaultOAuth2AuthenticatedPrincipal(@Nullable String name, Map<String, Object> attributes,
+        Collection<GrantedAuthority> authorities) {
+    Assert.notEmpty(attributes, "attributes cannot be empty");
+    this.attributes = Collections.unmodifiableMap(attributes);
+    this.authorities = (authorities != null) ? Collections.unmodifiableCollection(authorities)
+            : AuthorityUtils.NO_AUTHORITIES;
+    // Ensure name is never null - use 'sub' attribute as fallback, then empty string
+    // This satisfies AuthenticatedPrincipal.getName() contract which never returns null
+    String resolvedName = (name != null) ? name : (String) this.attributes.get("sub");
+    this.name = (resolvedName != null) ? resolvedName : "";
+}
+```
+
+**Rationale:** The `name` field must be non-null to satisfy the `AuthenticatedPrincipal.getName()` contract which states it should "Never return null". The empty string fallback is required to support OAuth 2.0 Token Introspection responses (RFC 7662), where the "sub" claim is optional. This class is used by `OAuth2IntrospectionAuthenticatedPrincipal` which may receive introspection responses without a "sub" claim.
+
+## Phase 4: Endpoint and Response Types
+
+### 4.1: OAuth2AccessTokenResponse
+
+#### [`OAuth2AccessTokenResponse.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/endpoint/OAuth2AccessTokenResponse.java)
+
+Migrate existing `@Nullable` to JSpecify:
+- `getRefreshToken()` - refresh tokens are optional
+
+Mark builder fields as nullable and implement proper null handling in `build()`:
+
+```java
+public static final class Builder {
+    private String tokenValue;
+    private @Nullable OAuth2AccessToken.TokenType tokenType;
+    private @Nullable Instant issuedAt;
+    private @Nullable Instant expiresAt;
+    private @Nullable Set<String> scopes;
+    private @Nullable String refreshToken;
+    private @Nullable Map<String, Object> additionalParameters;
+    
+    public OAuth2AccessTokenResponse build() {
+        Assert.notNull(this.tokenType, "tokenType cannot be null");
+        // Convert nullable scopes to non-null for constructor
+        Set<String> scopesToUse = (this.scopes != null) ? this.scopes : Collections.emptySet();
+        // ... build logic
+    }
+}
+```
+
+### 4.2: OAuth2AuthorizationRequest
+
+#### [`OAuth2AuthorizationRequest.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/endpoint/OAuth2AuthorizationRequest.java)
+
+Add `@Nullable` to optional fields per OAuth2 spec:
+- `redirectUri` - optional per OAuth2 spec
+- `state` - optional but recommended
+- Builder setter parameters
+
+Add `@Nullable` to `getAttribute()` method:
+
+```java
+public <T> @Nullable T getAttribute(String name) {
+    return (T) this.getAttributes().get(name);
+}
+```
+
+### 4.3: OAuth2AuthorizationResponse
+
+#### [`OAuth2AuthorizationResponse.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/endpoint/OAuth2AuthorizationResponse.java)
+
+Add `@Nullable` to optional fields:
+- `state`
+- `code` (optional - only present in success response)
+- `error` (optional - only present in error response)
+
+### 4.4: OAuth2DeviceAuthorizationResponse
+
+#### [`OAuth2DeviceAuthorizationResponse.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/endpoint/OAuth2DeviceAuthorizationResponse.java)
+
+Add `@Nullable` to optional field:
+- `verificationUriComplete` - optional per device flow spec
+
+## Phase 5: Converter Implementations
+
+### 5.1: Claim Converters
+
+All 6 converters need `@Nullable` on convert method:
+
+- [`ObjectToBooleanConverter.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/converter/ObjectToBooleanConverter.java)
+- [`ObjectToInstantConverter.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/converter/ObjectToInstantConverter.java)
+- [`ObjectToListStringConverter.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/converter/ObjectToListStringConverter.java)
+- [`ObjectToMapStringObjectConverter.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/converter/ObjectToMapStringObjectConverter.java)
+- [`ObjectToStringConverter.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/converter/ObjectToStringConverter.java)
+- [`ObjectToURLConverter.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/converter/ObjectToURLConverter.java)
+
+**Pattern:**
+
+```java
+@Nullable Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType)
+```
+
+**Additional fixes:**
+
+- [`ClaimConversionService.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/converter/ClaimConversionService.java) - Mark static field as nullable:
+
+```java
+private static volatile @Nullable ClaimConversionService sharedInstance;
+```
+
+- [`ObjectToMapStringObjectConverter.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/converter/ObjectToMapStringObjectConverter.java) - Maintain original logic while handling nullable descriptor:
+
+```java
+@Override
+public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+    TypeDescriptor mapKeyTypeDescriptor = targetType.getMapKeyTypeDescriptor();
+    return targetType.getElementTypeDescriptor() == null
+            || (mapKeyTypeDescriptor != null && mapKeyTypeDescriptor.getType().equals(String.class));
+}
+```
+
+**Important:** Don't change the original boolean logic - just extract the nullable descriptor to a variable and null-check it. The original logic was `|| keyType.getType()...` which needs to become `|| (keyType != null && keyType.getType()...)`.
+
+## Phase 6: HTTP Message Converters
+
+### 6.1: GenericHttpMessageConverterAdapter
+
+#### [`GenericHttpMessageConverterAdapter.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/http/converter/GenericHttpMessageConverterAdapter.java)
+
+Migrate 7 existing `@Nullable` usages to JSpecify.
+
+### 6.2: OAuth2 Protocol Converters
+
+- [`OAuth2AccessTokenResponseHttpMessageConverter.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/http/converter/OAuth2AccessTokenResponseHttpMessageConverter.java)
+- [`OAuth2DeviceAuthorizationResponseHttpMessageConverter.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/http/converter/OAuth2DeviceAuthorizationResponseHttpMessageConverter.java)
+- [`OAuth2ErrorHttpMessageConverter.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/http/converter/OAuth2ErrorHttpMessageConverter.java)
+
+Review all methods for proper nullable handling. Add assertions to validate non-null JSON message converter:
+
+```java
+public OAuth2AccessTokenResponseHttpMessageConverter() {
+    super(DEFAULT_CHARSET, MediaType.APPLICATION_JSON, new MediaType("application", "*+json"));
+    GenericHttpMessageConverter<Object> converter = HttpMessageConverters.getJsonMessageConverter();
+    Assert.notNull(converter, "Unable to locate a supported JSON message converter");
+    this.jsonMessageConverter = converter;
+}
+```
+
+### 6.3: HttpMessageConverters
+
+Mark static method return as nullable:
+
+```java
+static @Nullable GenericHttpMessageConverter<Object> getJsonMessageConverter() {
+    // ... returns null if no JSON converter found
+}
+```
+
+## Phase 7: Error Types
+
+### 7.1: OAuth2Error
+
+#### [`OAuth2Error.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/OAuth2Error.java)
+
+Add `@Nullable` to optional fields:
+
+```java
+private final String errorCode;
+private final @Nullable String description;
+private final @Nullable String uri;
+
+public OAuth2Error(String errorCode, @Nullable String description, @Nullable String uri) {
+    Assert.hasText(errorCode, "errorCode cannot be empty");
+    this.errorCode = errorCode;
+    this.description = description;
+    this.uri = uri;
+}
+
+public @Nullable String getDescription() {
+    return this.description;
+}
+
+public @Nullable String getUri() {
+    return this.uri;
+}
+```
+
+### 7.2: OAuth2AuthenticationException
+
+#### [`OAuth2AuthenticationException.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/OAuth2AuthenticationException.java)
+
+Update constructor to handle nullable parameters properly:
+
+```java
+public OAuth2AuthenticationException(OAuth2Error error, @Nullable String message) {
+    super(message);
+    Assert.notNull(error, "error cannot be null");
+    this.error = error;
+}
+
+public OAuth2AuthenticationException(OAuth2Error error, @Nullable String message, @Nullable Throwable cause) {
+    super(message);
+    Assert.notNull(error, "error cannot be null");
+    this.error = error;
+    if (cause != null) {
+        initCause(cause);
+    }
+}
+```
+
+## Phase 8: User Types
+
+### 8.1: OAuth2User Implementations
+
+#### [`DefaultOAuth2User.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/user/DefaultOAuth2User.java)
+
+Add `@Nullable` to authorities parameter and cache name value:
+
+```java
+private final String nameAttributeKey;
+private final String name;  // Cached value
+
+public DefaultOAuth2User(@Nullable Collection<? extends GrantedAuthority> authorities,
+        Map<String, Object> attributes, String nameAttributeKey) {
+    Assert.notEmpty(attributes, "attributes cannot be empty");
+    Assert.hasText(nameAttributeKey, "nameAttributeKey cannot be empty");
+    Object nameAttributeValue = attributes.get(nameAttributeKey);
+    Assert.notNull(nameAttributeValue, "Attribute value for '" + nameAttributeKey + "' cannot be null");
+    
+    this.authorities = (authorities != null)
+            ? Collections.unmodifiableSet(new LinkedHashSet<>(this.sortAuthorities(authorities)))
+            : Collections.unmodifiableSet(new LinkedHashSet<>(AuthorityUtils.NO_AUTHORITIES));
+    this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(attributes));
+    this.nameAttributeKey = nameAttributeKey;
+    this.name = nameAttributeValue.toString();  // Cache non-null value
+}
+
+@Override
+public String getName() {
+    return this.name;  // Return cached value
+}
+```
+
+#### [`OAuth2UserAuthority.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/user/OAuth2UserAuthority.java)
+
+Migrate to JSpecify and add `@Nullable` to userNameAttributeName field:
+
+```java
+private final @Nullable String userNameAttributeName;
+
+public @Nullable String getUserNameAttributeName() {
+    return this.userNameAttributeName;
+}
+```
+
+### 8.2: OIDC User Implementations
+
+#### [`OidcUser.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/oidc/user/OidcUser.java)
+
+Add `@Nullable` to getUserInfo() (UserInfo is optional in OIDC):
+
+```java
+@Nullable OidcUserInfo getUserInfo();
+```
+
+#### [`DefaultOidcUser.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/oidc/user/DefaultOidcUser.java)
+
+Add `@Nullable` to constructor parameters and field:
+
+```java
+private final @Nullable OidcUserInfo userInfo;
+
+public DefaultOidcUser(@Nullable Collection<? extends GrantedAuthority> authorities, 
+        OidcIdToken idToken, @Nullable OidcUserInfo userInfo) {
+    // ...
+}
+
+@Override
+public @Nullable OidcUserInfo getUserInfo() {
+    return this.userInfo;
+}
+```
+
+#### [`OidcUserAuthority.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/oidc/user/OidcUserAuthority.java)
+
+Migrate to JSpecify and update all constructors to accept nullable userInfo:
+
+```java
+private final @Nullable OidcUserInfo userInfo;
+
+public OidcUserAuthority(OidcIdToken idToken, @Nullable OidcUserInfo userInfo) {
+    this("OIDC_USER", idToken, userInfo, null);
+}
+
+public OidcUserAuthority(OidcIdToken idToken, @Nullable OidcUserInfo userInfo, 
+        @Nullable String userNameAttributeName) {
+    this("OIDC_USER", idToken, userInfo, userNameAttributeName);
+}
+
+public OidcUserAuthority(String authority, OidcIdToken idToken, @Nullable OidcUserInfo userInfo,
+        @Nullable String userNameAttributeName) {
+    super(authority, collectClaims(idToken, userInfo), userNameAttributeName);
+    this.idToken = idToken;
+    this.userInfo = userInfo;
+}
+
+@Override
+public @Nullable OidcUserInfo getUserInfo() {
+    return this.userInfo;
+}
+
+@Override
+public boolean equals(Object obj) {
+    if (!super.equals(obj)) {
+        return false;
+    }
+    OidcUserAuthority that = (OidcUserAuthority) obj;
+    return Objects.equals(this.getUserInfo(), that.getUserInfo());
+}
+```
+
+#### [`OidcIdToken.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/oidc/OidcIdToken.java)
+
+Add `@Nullable` to constructor parameters (timestamps are optional):
+
+```java
+public OidcIdToken(String tokenValue, @Nullable Instant issuedAt, @Nullable Instant expiresAt,
+        Map<String, Object> claims) {
+    super(tokenValue, issuedAt, expiresAt);
+    Assert.notEmpty(claims, "claims cannot be empty");
+    this.claims = Collections.unmodifiableMap(new LinkedHashMap<>(claims));
+}
+```
+
+Update Builder.toInstant() to return nullable:
+
+```java
+private @Nullable Instant toInstant(@Nullable Object timestamp) {
+    if (timestamp != null) {
+        Assert.isInstanceOf(Instant.class, timestamp, "timestamps must be of type Instant");
+    }
+    return (Instant) timestamp;
+}
+```
+
+#### [`DefaultAddressStandardClaim.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/oidc/DefaultAddressStandardClaim.java)
+
+Add `@Nullable` to all fields and builder methods:
+
+```java
+private @Nullable String formatted;
+private @Nullable String streetAddress;
+private @Nullable String locality;
+private @Nullable String region;
+private @Nullable String postalCode;
+private @Nullable String country;
+
+public static class Builder {
+    private @Nullable String formatted;
+    private @Nullable String streetAddress;
+    // ... all fields @Nullable
+    
+    public Builder formatted(@Nullable String formatted) { ... }
+    public Builder streetAddress(@Nullable String streetAddress) { ... }
+    // ... all methods accept @Nullable
+}
+```
+
+## Phase 9: Reactive Support
+
+### 9.1: OAuth2BodyExtractors
+
+#### [`OAuth2BodyExtractors.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/web/reactive/function/OAuth2BodyExtractors.java)
+
+**Critical Rule:** Do NOT use `@Nullable` with reactive return types (`Mono`/`Flux`). Use `Mono.empty()` for absence.
+
+Verify no `@Nullable` on reactive types.
+
+#### [`OAuth2AccessTokenResponseBodyExtractor.java`](oauth2/oauth2-core/src/main/java/org/springframework/security/oauth2/core/web/reactive/function/OAuth2AccessTokenResponseBodyExtractor.java)
+
+Add `@Nullable` to local variables that receive nullable values:
+
+```java
+private @Nullable String getParameterValue(Map<String, Object> parameters, String name) {
+    Object obj = parameters.get(name);
+    return (obj != null) ? obj.toString() : null;
+}
+```
+
+## Phase 10: Documentation Updates
+
+### 10.1: Javadoc Standards
+
+Update Javadoc for all nullable returns to explicitly state:
+- When null is returned
+- Conditions leading to null
+- Alternative values (e.g., empty collections)
+
+**Example Pattern:**
+
+```java
+/**
+ * Returns the refresh token.
+ * @return the refresh token, or {@code null} if not present in the response
+ */
+@Nullable OAuth2RefreshToken getRefreshToken();
+```
+
+### 10.2: Files Requiring Javadoc Updates
+
+- All `ClaimAccessor` method documentation
+- All `StandardClaimAccessor` method documentation
+- Token getter methods
+- Converter methods
+- Principal attribute getters
+
+## Phase 11: Validation & Testing
+
+### 11.1: Build Validation
+
+```bash
+# Clean build to catch all violations
+./gradlew :spring-security-oauth2-core:clean :spring-security-oauth2-core:compileJava
+```
+
+### 11.2: Expected NullAway Checks
+
+NullAway will enforce:
+- No passing nullable to non-null parameters
+- No returning nullable from non-null methods
+- No dereferencing potentially null values
+- Proper initialization of non-null fields
+
+### 11.3: Fix All Violations
+
+When violations are found, use the solution patterns documented below. **DO NOT use @SuppressWarnings**.
+
+## Implementation Strategy
+
+### Recommended Order
+
+1. **Phase 1:** Enable plugin in Gradle (5 min)
+2. **Phase 2:** Add all package-info.java files (20 min)
+3. **Phase 3:** Annotate core interfaces (ClaimAccessor, OAuth2Token) (30 min)
+4. **Phase 4:** Migrate existing `@Nullable` from Spring to JSpecify (15 min)
+5. **Phase 5:** Annotate endpoint types (OAuth2AuthorizationRequest, responses) (45 min)
+6. **Phase 6:** Annotate converters (30 min)
+7. **Phase 7:** Annotate error types (30 min)
+8. **Phase 8:** Annotate user types (30 min)
+9. **Phase 9:** Verify reactive types (no @Nullable on Mono/Flux) (15 min)
+10. **Phase 10:** Update Javadoc (45 min)
+11. **Phase 11:** Build validation and fix NullAway violations (2-4 hours)
+12. **Phase 12:** Fix dependent module tests if needed (30-60 min)
+
+**Total Estimated Effort:** 10-15 hours
+
+**Note:** Phase 11 typically reveals 20-30 NullAway violations that require careful fixes following the solution patterns. The build must be run iteratively to catch all violations.
+
+## Key Decision Points
+
+### 1. Optional Claims
+
+**Decision:** All claim accessor methods return `@Nullable` types.
+
+**Rationale:** OAuth2 and OIDC claims are optional by specification. Returning null for missing claims is the established pattern.
+
+### 2. Reactive Types
+
+**Decision:** No `@Nullable` on `Mono<T>` or `Flux<T>` return types.
+
+**Rationale:** Reactive types have built-in absence semantics (`Mono.empty()`). Adding `@Nullable` would be redundant and confusing.
+
+### 3. Constructor Parameters
+
+**Decision:** Mark constructor parameters as `@Nullable` only when:
+- Parameter is explicitly optional
+- Constructor handles null with fallback logic
+- Null has semantic meaning (e.g., "use default")
+
+**Rationale:** Prefer non-null by default for constructor parameters unless null is a valid design choice.
+
+### 4. Builder Patterns
+
+**Decision:** Builder methods accept `@Nullable` for optional properties, always return non-null builder.
+
+**Rationale:** Builders are fluent APIs - setters should accept optional values, but the builder chain must never break.
+
+## Solution Patterns for Common Issues
+
+### Critical Rule: No @SuppressWarnings for NullAway
+
+**Policy:** `@SuppressWarnings("NullAway")` should be avoided for nullability errors in this module, with **one documented exception**.
+
+**Exception:** The ClaimAccessor interface methods (`getClaimAsBoolean`, `getClaimAsInstant`, `getClaimAsURL`, `getClaimAsMap`, `getClaimAsStringList`) intentionally allow NPE when claim values are null per their documented API contract. These 5 methods use `@SuppressWarnings("NullAway")` to permit dereferencing nullable claim values in assertion error messages.
+
+```java
+@SuppressWarnings("NullAway")
+default @Nullable Boolean getClaimAsBoolean(String claim) {
+    if (!hasClaim(claim)) {
+        return null;
+    }
+    Object claimValue = getClaims().get(claim);
+    Boolean convertedValue = ClaimConversionService.getSharedInstance().convert(claimValue, Boolean.class);
+    // claimValue.getClass() may throw NPE if claimValue is null - this is intentional per @throws NullPointerException
+    Assert.notNull(convertedValue,
+            () -> "Unable to convert claim '" + claim + "' of type '" + claimValue.getClass() + "' to Boolean.");
+    return convertedValue;
+}
+```
+
+**Rationale:** All other nullability issues must be fixed properly rather than suppressed, ensuring compile-time null safety is enforced throughout the module.
+
+### Issue 1: Private Constructor Field Initialization
+
+**Problem:** Builder pattern with private constructor and uninitialized fields.
+
+**Solution:** Mark fields as `@Nullable` and add assertions in getters:
+
+```java
+public final class OAuth2AccessTokenResponse {
+    private @Nullable OAuth2AccessToken accessToken;
+    private @Nullable Map<String, Object> additionalParameters;
+    
+    private OAuth2AccessTokenResponse() {
+        // No @SuppressWarnings needed
+    }
+    
+    public OAuth2AccessToken getAccessToken() {
+        Assert.notNull(this.accessToken, "accessToken cannot be null");
+        return this.accessToken;
+    }
+    
+    public Map<String, Object> getAdditionalParameters() {
+        Assert.notNull(this.additionalParameters, "additionalParameters cannot be null");
+        return this.additionalParameters;
+    }
+}
+```
+
+### Issue 2: Constructor Dataflow Analysis
+
+**Problem:** NullAway doesn't understand Assert.notNull() contracts, and non-null fields must be initialized from potentially nullable sources.
+
+**Solution:** Use chained ternary operators with empty string fallback for nullable parameters that must result in non-null fields:
+
+```java
+public DefaultOAuth2AuthenticatedPrincipal(@Nullable String name, Map<String, Object> attributes,
+        Collection<GrantedAuthority> authorities) {
+    Assert.notEmpty(attributes, "attributes cannot be empty");
+    this.attributes = Collections.unmodifiableMap(attributes);
+    this.authorities = (authorities != null) ? Collections.unmodifiableCollection(authorities)
+            : AuthorityUtils.NO_AUTHORITIES;
+    // Ensure name is never null - use 'sub' attribute as fallback, then empty string
+    // This satisfies AuthenticatedPrincipal.getName() contract which never returns null
+    String resolvedName = (name != null) ? name : (String) this.attributes.get("sub");
+    this.name = (resolvedName != null) ? resolvedName : "";
+}
+```
+
+**Rationale:** When a contract requires a non-null field (e.g., to satisfy `AuthenticatedPrincipal.getName()`), use a safe default value (like empty string) rather than throwing an exception. This pattern is required for OAuth 2.0 Token Introspection (RFC 7662), where the "sub" claim is optional. Alternative approaches using `Assert.notNull()` would break legitimate use cases.
+
+### Issue 3: Cached Field Values
+
+**Problem:** Getter calls nullable method repeatedly.
+
+**Solution:** Cache the value as a non-null field:
+
+```java
+public class DefaultOAuth2User implements OAuth2User {
+    private final String nameAttributeKey;
+    private final String name;  // Cached value
+    
+    public DefaultOAuth2User(@Nullable Collection<? extends GrantedAuthority> authorities,
+            Map<String, Object> attributes, String nameAttributeKey) {
+        Assert.notEmpty(attributes, "attributes cannot be empty");
+        Assert.hasText(nameAttributeKey, "nameAttributeKey cannot be empty");
+        Object nameAttributeValue = attributes.get(nameAttributeKey);
+        Assert.notNull(nameAttributeValue, "Attribute value for '" + nameAttributeKey + "' cannot be null");
+        
+        this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(attributes));
+        this.nameAttributeKey = nameAttributeKey;
+        this.name = nameAttributeValue.toString();  // Cache non-null value
+    }
+    
+    @Override
+    public String getName() {
+        return this.name;  // Return cached value
+    }
+}
+```
+
+### Issue 4: Parent Constructor Nullable Parameters
+
+**Problem:** Calling parent constructor that doesn't accept `@Nullable Throwable cause`.
+
+**Solution:** Accept nullable cause parameter and use `initCause()` when not null:
+
+```java
+public OAuth2AuthenticationException(OAuth2Error error, @Nullable String message, @Nullable Throwable cause) {
+    super(message);  // Call single-parameter constructor
+    Assert.notNull(error, "error cannot be null");
+    this.error = error;
+    if (cause != null) {
+        initCause(cause);  // Set cause only if not null
+    }
+}
+```
+
+### Issue 4a: Inner Class Type Annotations
+
+**Problem:** Annotating nullable inner class types with incorrect syntax.
+
+**Solution:** For inner/nested classes, place `@Nullable` after the outer class name:
+
+```java
+// ❌ INCORRECT - annotation in wrong position
+private @Nullable OAuth2AccessToken.TokenType tokenType;
+
+// ✅ CORRECT - annotation after outer class name
+private OAuth2AccessToken.@Nullable TokenType tokenType;
+```
+
+**Rationale:** Type-use annotations for nested types must follow the syntax `OuterClass.@Nullable InnerClass` to properly annotate the inner type reference.
+
+### Issue 5: Nullable to Non-Null Parameter Conversion
+
+**Problem:** Passing nullable value to method requiring non-null.
+
+**Solution:** Convert null to non-null value explicitly:
+
+```java
+// Builder method accepts nullable
+public Builder scopes(@Nullable Set<String> scopes) {
+    this.scopes = scopes;
+    return this;
+}
+
+// build() converts nullable to non-null
+public OAuth2AccessTokenResponse build() {
+    Set<String> scopesToUse = (this.scopes != null) ? this.scopes : Collections.emptySet();
+    accessTokenResponse.accessToken = new OAuth2AccessToken(this.tokenType, this.tokenValue, 
+        issuedAt, expiresAt, scopesToUse);  // Pass non-null
+    return accessTokenResponse;
+}
+```
+
+### Issue 6: Nullable Comparison in equals()
+
+**Problem:** Calling equals() on potentially null object.
+
+**Solution:** Use `Objects.equals()` which handles null:
+
+```java
+@Override
+public boolean equals(Object obj) {
+    if (!super.equals(obj)) {
+        return false;
+    }
+    OidcUserAuthority that = (OidcUserAuthority) obj;
+    return Objects.equals(this.getUserInfo(), that.getUserInfo());
+}
+```
+
+### Issue 7: Generic Type Arguments
+
+**Problem:** Complex generic types like `Map<String, @Nullable Object>`.
+
+**Solution:** Use type-use syntax carefully:
+
+```java
+// Nullable map values
+Map<String, @Nullable Object> attributes;
+
+// Nullable type argument
+Converter<@Nullable Object, String> converter;
+```
+
+### Issue 8: Required Fields from External Data
+
+**Problem:** Converter receives external data (e.g., HTTP response) where a field should be required by protocol but is nullable from parsing.
+
+**Solution:** Validate required fields rather than defaulting to empty/null values. The codebase uses two styles:
+
+**Style A - Explicit if-throw (preferred for converters with multiple required fields):**
+```java
+public OAuth2DeviceAuthorizationResponse convert(Map<String, Object> parameters) {
+    String deviceCode = getParameterValue(parameters, OAuth2ParameterNames.DEVICE_CODE);
+    if (deviceCode == null) {
+        throw new IllegalArgumentException("Missing required parameter: " + OAuth2ParameterNames.DEVICE_CODE);
+    }
+    String userCode = getParameterValue(parameters, OAuth2ParameterNames.USER_CODE);
+    if (userCode == null) {
+        throw new IllegalArgumentException("Missing required parameter: " + OAuth2ParameterNames.USER_CODE);
+    }
+    // ... use validated values
+}
+```
+
+**Style B - Assert utilities (preferred for simple validation):**
+```java
+public OAuth2Error convert(Map<String, String> parameters) {
+    String errorCode = parameters.get(OAuth2ParameterNames.ERROR);
+    Assert.hasText(errorCode, "errorCode cannot be empty");
+    return new OAuth2Error(errorCode, ...);
+}
+```
+
+**Anti-pattern - never do this:**
+```java
+// ❌ INCORRECT - silently defaults to invalid value
+public OAuth2Error convert(Map<String, String> parameters) {
+    String errorCode = parameters.get(OAuth2ParameterNames.ERROR);
+    if (errorCode == null) {
+        errorCode = "";  // Creates invalid OAuth2Error
+    }
+    return new OAuth2Error(errorCode, ...);
+}
+```
+
+**Guidelines:**
+- **Use Style A** when converting complex responses with multiple required parameters (e.g., `OAuth2AccessTokenResponse`, `OAuth2DeviceAuthorizationResponse`)
+- **Use Style B** when validating single required fields or for simpler conversions (e.g., `OAuth2Error`)
+- **Both styles** throw `IllegalArgumentException` on validation failure (Assert utilities wrap explicit throws)
+- **Never** silently default to empty/null values—protocol violations should fail fast with clear error messages
+
+**Rationale:** 
+- Protocol specifications (OAuth 2.0, OIDC) require certain fields to be present
+- Silently defaulting creates invalid objects that fail later with unclear errors
+- Explicit validation provides immediate feedback when external data violates protocol requirements
+- Style A provides more specific error messages for complex conversions
+- Style B is more concise for simple cases
+
+## Module-Specific Patterns
+
+### OAuth2/OIDC Claim Handling
+
+All claim-related methods follow this pattern:
+
+```java
+// Interface declares nullable
+@Nullable String getClaimAsString(String claim);
+
+// Implementation checks existence
+default String getClaimAsString(String claim) {
+    return !hasClaim(claim) ? null : convert(getClaims().get(claim), String.class);
+}
+```
+
+### Token Lifecycle
+
+Tokens have optional timestamps:
+
+```java
+// Interface
+@Nullable Instant getIssuedAt();
+@Nullable Instant getExpiresAt();
+
+// Abstract base class
+private final @Nullable Instant issuedAt;
+private final @Nullable Instant expiresAt;
+
+protected AbstractOAuth2Token(String tokenValue, @Nullable Instant issuedAt, @Nullable Instant expiresAt) {
+    this.issuedAt = issuedAt;
+    this.expiresAt = expiresAt;
+}
+```
+
+### HTTP Protocol Patterns
+
+OAuth2 responses have optional fields:
+
+```java
+// Access token is required
+OAuth2AccessToken getAccessToken();
+
+// Refresh token is optional
+@Nullable OAuth2RefreshToken getRefreshToken();
+
+// Additional parameters may be empty but never null
+Map<String, Object> getAdditionalParameters();  // Empty map if none
+```
+
+## Cross-Module Impact & Test Fixes
+
+The null safety changes in `oauth2-core` module affect dependent modules due to stricter nullability contracts:
+
+### oauth2-resource-server Module
+
+**File:** `BearerTokenAuthenticationTests.java`
+
+**Issue:** Test `getNameWhenHasNoSubjectThenReturnsNull()` expected `null` from `getName()`, but the implementation returns `""` (empty string).
+
+**Fix:** Update test assertion to expect empty string:
+
+```java
+@Test
+public void getNameWhenHasNoSubjectThenReturnsNull() {
+    OAuth2AuthenticatedPrincipal principal = new DefaultOAuth2AuthenticatedPrincipal(
+            Collections.singletonMap("claim", "value"), null);
+    BearerTokenAuthentication authenticated = new BearerTokenAuthentication(principal, this.token, null);
+    assertThat(authenticated.getName()).isEqualTo("");  // Changed from isNull()
+}
+```
+
+**Rationale:** 
+- The `AuthenticatedPrincipal` interface contract states `getName()` should "Never return null"
+- `DefaultOAuth2AuthenticatedPrincipal` falls back to empty string when both the provided name and "sub" attribute are null
+- This design is required to support OAuth 2.0 Token Introspection (RFC 7662), where "sub" is optional
+
+### Verification Steps
+
+After completing oauth2-core implementation:
+
+1. **Build oauth2-core module:**
+   ```bash
+   ./gradlew :spring-security-oauth2-core:build
+   ```
+
+2. **Build dependent modules:**
+   ```bash
+   ./gradlew :spring-security-oauth2-client:build
+   ./gradlew :spring-security-oauth2-resource-server:build
+   ```
+
+3. **Verify all tests pass:**
+   - oauth2-core: All tests pass
+   - oauth2-client: All 1365 tests pass
+   - oauth2-resource-server: All 327 tests pass
+
+## Success Criteria
+
+1. **Gradle build runs with `security-nullability` plugin enabled**
+   - Enable plugin for oauth2-core module
+   - Verify NullAway runs during compilation
+   - First build will reveal ~29 violations to fix
+
+2. **All package-info.java files have `@NullMarked`**
+   - Verify all 13 package-info.java files exist
+   - Add missing @NullMarked annotations (7 needed)
+   - Verify no compilation errors
+
+3. **All Spring Framework `@Nullable` migrated to JSpecify**
+   - Migrate 8 files currently using org.springframework.lang.Nullable
+   - Update import statements
+   - Verify no compilation warnings
+
+4. **Zero NullAway violations after migration**
+   - Fix all violations discovered during build (~29 violations expected)
+   - Common violations include:
+     - Builder initialization patterns
+     - Nullable dereferencing in equals/hashCode methods
+     - Return type mismatches in converters
+     - Null checks needed before dereferencing
+   - Verify build passes with zero errors
+   - **Only 5 @SuppressWarnings("NullAway") allowed in ClaimAccessor for intentional NPE behavior**
+
+5. **All public API methods have proper nullability documentation**
+   - Add/update Javadoc for nullable return types (completed inline with annotations)
+   - Add/update Javadoc for nullable parameters
+   - Verify Javadoc accuracy
+
+6. **All tests pass**
+   - Run oauth2-core module tests: `./gradlew :spring-security-oauth2-core:test`
+   - Run dependent module tests (oauth2-client, oauth2-resource-server)
+   - Fix any test failures related to null safety changes
+   - Verify DefaultOAuth2AuthenticatedPrincipal empty string fallback works correctly
+
+7. **Checkstyle and formatting validation**
+   - Run checkstyle: `./gradlew :spring-security-oauth2-core:checkstyleMain :spring-security-oauth2-core:checkstyleTest`
+   - Common issues to watch for:
+     - Remove any remaining Spring `@Nullable` imports (banned by checkstyle)
+     - Remove unused JSpecify `@Nullable` imports
+     - Remove redundant `@NonNull` annotations (not needed in `@NullMarked` packages)
+   - Run formatter: `./gradlew :spring-security-oauth2-core:format`
+   - Verify full build: `./gradlew :spring-security-oauth2-core:build`
+
+8. **Code review & validation**
+   - Review all changes for correctness
+   - Run full test suite across all oauth2 modules
+   - Validate no behavioral changes
+
+## References
+
+- **Implementation Plan:** [`.cursor/rules/null-safety/jspecify-implementation-plan.mdc`](.cursor/rules/null-safety/jspecify-implementation-plan.mdc)
+- **Core Module Patterns:** [`.cursor/rules/null-safety/jspecify-core-module.mdc`](.cursor/rules/null-safety/jspecify-core-module.mdc)
+- **Web Module Patterns:** [`.cursor/rules/null-safety/jspecify-web-module.mdc`](.cursor/rules/null-safety/jspecify-web-module.mdc)
+- **OAuth 2.0 Spec:** https://tools.ietf.org/html/rfc6749
+- **OIDC Spec:** https://openid.net/specs/openid-connect-core-1_0.html
+- **JSpecify Docs:** https://jspecify.dev/

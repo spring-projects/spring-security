@@ -1,0 +1,499 @@
+---
+description: JSpecify null safety implementation patterns and best practices from Spring Framework's spring-web module
+alwaysApply: false
+---
+
+# JSpecify Null Safety Implementation in Spring Framework's spring-web Module
+
+Based on comprehensive analysis of the Spring Framework's spring-web module source code, this document details the implementation patterns and best practices for JSpecify null safety in web-layer components.
+
+---
+
+## Overview
+
+Spring Framework's spring-web module has adopted JSpecify annotations (`org.jspecify.annotations`) for null safety throughout its codebase, providing build-time null safety checking while maintaining runtime compatibility with Kotlin and supporting various HTTP client/server abstractions.
+
+The spring-web module extends the patterns established in spring-core with web-specific conventions for HTTP requests, responses, headers, and reactive web handling.
+
+---
+
+## Key Implementation Patterns
+
+### 1. Consistent Package-Level `@NullMarked` Annotation
+
+**Pattern:** Every package in spring-web uses `@NullMarked` at the package level via `package-info.java` files.
+
+```java
+@NullMarked
+package org.springframework.web;
+
+import org.jspecify.annotations.NullMarked;
+```
+
+**Coverage across packages:**
+- `org.springframework.web` - Core web interfaces
+- `org.springframework.web.bind` - Data binding functionality
+- `org.springframework.web.bind.annotation` - Controller annotations
+- `org.springframework.web.client` - HTTP client support (RestClient, RestTemplate)
+- `org.springframework.web.context` - Web application contexts
+- `org.springframework.web.filter` - Filter implementations
+- `org.springframework.web.method` - Handler method infrastructure
+- `org.springframework.web.multipart` - Multipart file upload support
+- `org.springframework.web.server` - Reactive web server support
+- `org.springframework.web.util` - Web utilities
+
+**Best Practice:** This establishes non-null as the default for all types, parameters, return values, and fields within each package.
+
+---
+
+### 2. Explicit `@Nullable` for Optional Values
+
+**Pattern:** Methods returning optional values are explicitly marked with `@Nullable`.
+
+**Example from `RequestAttributes`:**
+
+```java
+public interface RequestAttributes {
+    @Nullable Object getAttribute(String name, int scope);
+    
+    @Nullable Object resolveReference(String key);
+}
+```
+
+**Example from `MultipartFile`:**
+
+```java
+public interface MultipartFile extends InputStreamSource {
+    @Nullable String getOriginalFilename();
+    
+    @Nullable String getContentType();
+}
+```
+
+**Convention:** `@Nullable` is used for:
+- Return types that may legitimately return null
+- Parameters that accept null values
+- Fields that may be null during the lifecycle of the object
+
+---
+
+### 3. Type Use Annotations on Generics
+
+**Pattern:** Nullability annotations are applied at the type-use level, including within generic type parameters.
+
+**Example from `ErrorResponse`:**
+
+```java
+public interface ErrorResponse {
+    default Object @Nullable [] getDetailMessageArguments() {
+        return null;
+    }
+    
+    default Object @Nullable [] getDetailMessageArguments(
+            MessageSource messageSource, Locale locale) {
+        return getDetailMessageArguments();
+    }
+}
+```
+
+**Example from `UriComponentsBuilder`:**
+
+```java
+public class UriComponentsBuilder implements UriBuilder, Cloneable {
+    private @Nullable String scheme;
+    private @Nullable String ssp;
+    private @Nullable String userInfo;
+    private @Nullable String host;
+    private @Nullable String port;
+    private @Nullable String fragment;
+}
+```
+
+**Advanced Pattern:** Annotations on:
+- Generic type arguments: `Object @Nullable []`
+- Field declarations: `private @Nullable String host`
+- Method return types: `public @Nullable String getFirst(String headerName)`
+
+---
+
+### 4. HTTP Headers Nullability Pattern
+
+**Pattern:** HTTP header accessors consistently return `@Nullable` for optional header values and empty collections for missing multi-valued headers.
+
+**From `HttpHeaders` class:**
+
+```java
+public class HttpHeaders implements Serializable {
+    public @Nullable String getFirst(String headerName) {
+        return this.headers.getFirst(headerName);
+    }
+    
+    public @Nullable MediaType getContentType() {
+        String value = getFirst(CONTENT_TYPE);
+        return (StringUtils.hasLength(value) ? MediaType.parseMediaType(value) : null);
+    }
+    
+    public @Nullable URI getLocation() {
+        String value = getFirst(LOCATION);
+        return (value != null ? URI.create(value) : null);
+    }
+    
+    public @Nullable String getOrigin() {
+        return getFirst(ORIGIN);
+    }
+    
+    public @Nullable String getCacheControl() {
+        return getFieldValues(CACHE_CONTROL);
+    }
+}
+```
+
+**Convention:**
+- Single-valued header getters return `@Nullable String` or `@Nullable T`
+- Multi-valued header getters return **empty collections** (never null)
+- Setters accept `@Nullable` parameters and remove headers when null is passed
+
+---
+
+### 5. Builder Pattern with Nullability
+
+**Pattern:** Fluent builders use `@Nullable` parameters for optional configuration and return non-null builder instances.
+
+**From `RestClient.Builder`:**
+
+```java
+interface Builder {
+    Builder scheme(@Nullable String scheme);
+    
+    Builder userInfo(@Nullable String userInfo);
+    
+    Builder host(@Nullable String host);
+    
+    Builder port(@Nullable String port);
+    
+    Builder replacePath(@Nullable String path);
+    
+    Builder fragment(@Nullable String fragment);
+    
+    Builder queryParam(String name, @Nullable Object... values);
+    
+    // Always returns non-null
+    RestClient build();
+}
+```
+
+**Pattern:** Builders mark optional configuration parameters as `@Nullable` but always return non-null builder instances for method chaining.
+
+---
+
+### 6. Functional Interface Nullability
+
+**Pattern:** Functional interfaces explicitly declare nullability for parameters and return types.
+
+**From `RestClient.ResponseSpec`:**
+
+```java
+interface ResponseSpec {
+    @Nullable T body(Class<T> bodyType);
+    
+    T requiredBody(Class<T> bodyType);
+    
+    @Nullable T body(ParameterizedTypeReference<T> bodyType);
+    
+    T requiredBody(ParameterizedTypeReference<T> bodyType);
+}
+```
+
+**Pattern Distinction:**
+- Methods with `@Nullable` return types can return null (e.g., when no body exists)
+- Methods named with `required*` prefix **never return null** and throw `IllegalStateException` instead
+
+---
+
+### 7. Generic Type Parameters with `@NonNull`
+
+**Pattern:** Use `@NonNull` on generic type parameters to indicate that a generic method/interface guarantees non-null values.
+
+**From `RestClient`:**
+
+```java
+@FunctionalInterface
+interface RequiredValueExchangeFunction<@NonNull T> extends ExchangeFunction<@NonNull T> {
+    @Override
+    T exchange(HttpRequest clientRequest, ConvertibleClientHttpResponse clientResponse) 
+            throws IOException;
+}
+```
+
+**Best Practice:** When a functional interface or generic type is specifically designed to never return null, use `@NonNull` on the type parameter itself to communicate this contract.
+
+---
+
+### 8. Array Type Nullability
+
+**Pattern:** Distinguish between nullable array references and nullable array elements.
+
+**From `UriComponentsBuilder`:**
+
+```java
+private static final Object[] EMPTY_VALUES = new Object[0];
+
+public UriComponentsBuilder queryParam(String name, @Nullable Object... values) {
+    // varargs parameter that accepts null values
+}
+```
+
+**Pattern clarification:**
+- `@Nullable Object[]` - The array reference can be null
+- `Object @Nullable []` - Array elements can be null
+- `@Nullable Object @Nullable []` - Both array and elements can be null
+
+---
+
+### 9. Setter/Remover Pattern for Optional Values
+
+**Pattern:** Setters for optional configuration accept `@Nullable` and remove the value when null is passed.
+
+**From `HttpHeaders`:**
+
+```java
+public void setContentType(@Nullable MediaType mediaType) {
+    if (mediaType != null) {
+        Assert.isTrue(!mediaType.isWildcardType(), 
+            "Content-Type cannot contain wildcard type '*'");
+        Assert.isTrue(!mediaType.isWildcardSubtype(), 
+            "Content-Type cannot contain wildcard subtype '*'");
+        set(CONTENT_TYPE, mediaType.toString());
+    }
+    else {
+        remove(CONTENT_TYPE);
+    }
+}
+
+private void setOrRemove(String headerName, @Nullable String headerValue) {
+    if (headerValue != null) {
+        set(headerName, headerValue);
+    }
+    else {
+        remove(headerName);
+    }
+}
+```
+
+**Best Practice:** When a setter accepts `@Nullable`, it should either:
+- Set the value if non-null
+- Remove/clear the value if null
+
+This provides a convenient API for optional configuration.
+
+---
+
+### 10. Documentation Alignment
+
+**Pattern:** Javadoc explicitly documents when and why null is returned.
+
+**From `MultipartFile`:**
+
+```java
+/**
+ * Return the original filename in the client's filesystem.
+ * ...
+ * @return the original filename, or the empty String if no file has been chosen
+ * in the multipart form, or {@code null} if not defined or not available
+ */
+@Nullable String getOriginalFilename();
+```
+
+**From `HttpHeaders`:**
+
+```java
+/**
+ * Return the {@linkplain MediaType media type} of the body, as specified
+ * by the {@code Content-Type} header.
+ * Returns {@code null} when the {@code Content-Type} header is not set.
+ * @throws InvalidMediaTypeException if the media type value cannot be parsed
+ */
+public @Nullable MediaType getContentType() {
+    // implementation
+}
+```
+
+**Best Practice:** Javadoc should:
+- State when null is returned
+- Describe the conditions that lead to null
+- Clarify semantic differences (e.g., empty string vs null vs not present)
+
+---
+
+## Web-Specific Nullability Patterns
+
+### 11. Request/Response Attribute Handling
+
+**Pattern:** Attributes may not exist, so getters return `@Nullable`.
+
+```java
+public interface RequestAttributes {
+    @Nullable Object getAttribute(String name, int scope);
+    
+    void setAttribute(String name, Object value, int scope);
+    
+    @Nullable Object resolveReference(String key);
+}
+```
+
+**Convention:**
+- Getters: `@Nullable` (attribute may not exist)
+- Setters: Non-null value parameter (cannot set to null, use remove instead)
+
+---
+
+### 12. Multipart File Upload Nullability
+
+**Pattern:** File metadata may be absent or browser-dependent.
+
+```java
+public interface MultipartFile extends InputStreamSource {
+    // Always present - the form parameter name
+    String getName();
+    
+    // May be null - browser-dependent
+    @Nullable String getOriginalFilename();
+    
+    // May be null - if not specified
+    @Nullable String getContentType();
+}
+```
+
+**Web-specific consideration:** Client-provided metadata (filename, content type) can be absent and should always be treated as `@Nullable`.
+
+---
+
+### 13. URI Component Nullability
+
+**Pattern:** URI components are optional and modeled as `@Nullable` fields.
+
+```java
+public class UriComponentsBuilder implements UriBuilder, Cloneable {
+    private @Nullable String scheme;
+    private @Nullable String ssp;
+    private @Nullable String userInfo;
+    private @Nullable String host;
+    private @Nullable String port;
+    private @Nullable String fragment;
+}
+```
+
+**Convention:** Each URI component can be absent, so all fields are `@Nullable`.
+
+---
+
+### 14. HTTP Client Response Handling
+
+**Pattern:** Response bodies may be absent, requiring explicit nullability or "required" variants.
+
+```java
+interface ResponseSpec {
+    // May return null if no body
+    @Nullable T body(Class<T> bodyType);
+    
+    // Throws if no body (non-null guarantee)
+    T requiredBody(Class<T> bodyType);
+    
+    // Entity always present (has status/headers even without body)
+    ResponseEntity<T> toEntity(Class<T> bodyType);
+    
+    // Body-less entity (no generic type)
+    ResponseEntity<Void> toBodilessEntity();
+}
+```
+
+**Best Practice:** Provide both nullable and required variants:
+- `@Nullable T method()` - returns null if absent
+- `T requiredMethod()` - throws exception if absent
+
+---
+
+## Best Practices from Spring Web
+
+### 1. Default to Non-Null at Package Level
+
+✅ Use `@NullMarked` in every `package-info.java`
+✅ Only mark nullable types explicitly with `@Nullable`
+✅ Reduces annotation noise throughout the codebase
+
+### 2. Consistent Getter/Setter Patterns
+
+✅ **Getters:** `@Nullable` when value may not exist
+✅ **Setters:** Accept `@Nullable` to support removal semantics
+✅ **Collections:** Return empty collections (never null) from getters
+
+### 3. HTTP-Specific Conventions
+
+✅ **Headers:** Single-valued headers return `@Nullable`, multi-valued return empty list
+✅ **Metadata:** Client-provided data (filenames, content types) is always `@Nullable`
+✅ **Optional Bodies:** Provide both `@Nullable` and `required` variants
+
+### 4. Builder API Safety
+
+✅ **Optional config:** Accept `@Nullable` parameters
+✅ **Chaining:** Always return non-null builder instance
+✅ **Terminal operations:** Clearly document whether result can be null
+
+### 5. Functional Interface Clarity
+
+✅ Mark return types `@Nullable` if implementations may return null
+✅ Use `@NonNull` on generic parameters for guaranteed non-null returns
+✅ Name methods with `required` prefix when null is not permitted
+
+### 6. Array Type Precision
+
+✅ Use `Type @Nullable []` for nullable array elements
+✅ Use `@Nullable Type[]` for nullable array reference
+✅ Document which dimension is nullable in complex scenarios
+
+### 7. Documentation Standards
+
+✅ Javadoc must state when null is returned
+✅ Describe conditions leading to null
+✅ Clarify semantic distinctions (null vs empty vs not present)
+
+---
+
+## Architecture Decisions
+
+1. **Package-level default:** Minimizes boilerplate while providing safety
+2. **HTTP conventions:** Aligns with HTTP semantics (optional headers, bodies, metadata)
+3. **Builder pattern:** Supports fluent configuration with nullable options
+4. **Required variants:** Provides choice between null-safe and exception-throwing APIs
+5. **Collection semantics:** Empty collections preferred over null for multi-valued data
+6. **Client-provided data:** Always treated as potentially absent (`@Nullable`)
+
+---
+
+## Comparison with Spring Core
+
+| Aspect | spring-core | spring-web |
+|--------|-------------|------------|
+| **Package annotation** | `@NullMarked` everywhere | `@NullMarked` everywhere |
+| **Runtime support** | `Nullness` enum + utilities | Inherits from spring-core |
+| **Kotlin support** | First-class integration | Inherits from spring-core |
+| **Domain specifics** | General-purpose utilities | HTTP headers, requests, responses |
+| **Collection handling** | Mixed patterns | **Consistent: empty > null** |
+| **Optional values** | `@Nullable` | **`@Nullable` + `required*()` variants** |
+| **Metadata handling** | Framework-controlled | **Client-provided = `@Nullable`** |
+
+---
+
+## Summary
+
+Spring Framework's spring-web module demonstrates enterprise-grade null safety patterns tailored for web applications:
+
+- **Comprehensive coverage** with `@NullMarked` across all packages
+- **HTTP-aware conventions** for headers, bodies, and client-provided metadata
+- **Dual API design** offering both `@Nullable` and `required` variants
+- **Collection consistency** preferring empty collections over null
+- **Builder safety** supporting optional configuration with null removal semantics
+- **Well-documented** with clear Javadoc about nullability expectations
+- **Framework-aligned** extending patterns from spring-core
+
+This implementation serves as an excellent reference for adopting JSpecify in web-layer code, providing patterns specifically suited for HTTP clients, servers, and web application contexts.
