@@ -302,8 +302,8 @@ public class AuthenticationConfiguration {
 			this.applicationContext = applicationContext;
 		}
 
-		@Contract("!null -> !null; null -> null")
 		@Override
+		@Contract("!null -> !null; null -> null")
 		public String encode(CharSequence rawPassword) {
 			return getPasswordEncoder().encode(rawPassword);
 		}
