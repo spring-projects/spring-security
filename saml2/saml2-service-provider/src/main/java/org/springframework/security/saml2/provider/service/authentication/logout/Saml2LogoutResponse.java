@@ -156,7 +156,7 @@ public final class Saml2LogoutResponse {
 
 		private Saml2MessageBinding binding;
 
-		private Map<String, String> parameters = new LinkedHashMap<>();
+		private final Map<String, String> parameters = new LinkedHashMap<>();
 
 		private Function<Map<String, String>, @Nullable String> encoder = DEFAULT_ENCODER;
 
