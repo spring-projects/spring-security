@@ -31,7 +31,7 @@ If you have a question, check Stack Overflow using
 https://stackoverflow.com/questions/tagged/spring-security+or+spring-ldap+or+spring-authorization-server+or+spring-session?tab=Newest[this list of tags].
 Find an existing discussion, or start a new one if necessary.
 
-If you believe there is an issue, search through https://github.com/spring-projects/spring-security/issues[existing issues] trying a  few different ways to find discussions, past or current, that are related to the issue.
+If you believe there is an issue, search through https://github.com/spring-projects/spring-security/issues[existing issues] trying a few different ways to find discussions, past or current, that are related to the issue.
 Reading those discussions helps you to learn about the issue, and helps us to make a decision.
 
 [[find-an-issue]]
@@ -94,7 +94,7 @@ Don't worry if you don't get them all correct the first time, we will help you.
 
 1. [[sign-cla]] All commits must include a __Signed-off-by__ trailer at the end of each commit message to indicate that the contributor agrees to the Developer Certificate of Origin.
 For additional details, please refer to the blog post https://spring.io/blog/2025/01/06/hello-dco-goodbye-cla-simplifying-contributions-to-spring[Hello DCO, Goodbye CLA: Simplifying Contributions to Spring].
-2. [[create-an-issue-list]] Must you https://github.com/spring-projects/spring-security/issues/new/choose[create an issue] first? No, but it is recommended for features and larger bug fixes. It's easier discuss with the team first to determine the right fix or enhancement.
+2. [[create-an-issue-list]] Must you https://github.com/spring-projects/spring-security/issues/new/choose[create an issue] first? No, but it is recommended for features and larger bug fixes. It's easier to discuss with the team first to determine the right fix or enhancement.
 For typos and straightforward bug fixes, starting with a pull request is encouraged.
 Please include a description for context and motivation.
 Note that the team may close your pull request if it's not a fit for the project.
