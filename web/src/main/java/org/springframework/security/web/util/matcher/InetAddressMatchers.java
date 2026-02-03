@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.util.Assert;
 
@@ -166,7 +167,7 @@ public final class InetAddressMatchers {
 		}
 
 		@Override
-		public boolean matches(InetAddress address) {
+		public boolean matches(@Nullable InetAddress address) {
 			for (InetAddressMatcher matcher : this.includeList) {
 				if (matcher.matches(address)) {
 					return true;
@@ -199,7 +200,7 @@ public final class InetAddressMatchers {
 		}
 
 		@Override
-		public boolean matches(InetAddress address) {
+		public boolean matches(@Nullable InetAddress address) {
 			for (InetAddressMatcher matcher : this.excludeList) {
 				if (matcher.matches(address)) {
 					return false;
@@ -239,7 +240,10 @@ public final class InetAddressMatchers {
 		}
 
 		@Override
-		public boolean matches(InetAddress address) {
+		public boolean matches(@Nullable InetAddress address) {
+			if (address == null) {
+				return false;
+			}
 			if (address.isLoopbackAddress()) {
 				return true;
 			}
@@ -313,7 +317,7 @@ public final class InetAddressMatchers {
 		}
 
 		@Override
-		public boolean matches(InetAddress address) {
+		public boolean matches(@Nullable InetAddress address) {
 			return !this.internalMatcher.matches(address);
 		}
 
@@ -348,12 +352,12 @@ public final class InetAddressMatchers {
 		}
 
 		@Override
-		public boolean matches(InetAddress address) {
+		public boolean matches(@Nullable InetAddress address) {
 			boolean result = doMatch(address);
 			return (this.reportOnly || result);
 		}
 
-		private boolean doMatch(InetAddress address) {
+		private boolean doMatch(@Nullable InetAddress address) {
 			for (InetAddressMatcher matcher : this.matchers) {
 				if (!matcher.matches(address)) {
 					if (logger.isDebugEnabled()) {

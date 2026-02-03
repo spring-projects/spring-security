@@ -269,6 +269,12 @@ class InetAddressMatchersTests {
 	@Nested
 	class InternalInetAddressMatcherTests {
 
+		@Test
+		void matchesWhenInetAddressNullThenReturnsFalse() {
+			InetAddressMatcher matcher = InetAddressMatchers.matchInternal().build();
+			assertThat(matcher.matches((InetAddress) null)).isFalse();
+		}
+
 		@ParameterizedTest
 		@ValueSource(strings = { "127.0.0.1", "127.0.0.255" })
 		void matchesWhenIpv4LoopbackThenReturnsTrue(String address) throws Exception {

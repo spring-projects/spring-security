@@ -32,16 +32,15 @@ public interface InetAddressMatcher {
 
 	/**
 	 * Whether the given address matches.
-	 * @param address the {@link InetAddress} to check
+	 * @param address the {@link InetAddress} to check (may be {@code null})
 	 * @return {@code true} if the address matches, {@code false} otherwise
 	 */
-	boolean matches(InetAddress address);
+	boolean matches(@Nullable InetAddress address);
 
 	/**
 	 * Whether the given address string matches.
 	 * @param address the IP address string to check (may be {@code null})
-	 * @return {@code true} if the address matches, {@code false} otherwise or if
-	 * {@code null}
+	 * @return {@code true} if the address matches, {@code false} otherwise
 	 */
 	default boolean matches(@Nullable String address) {
 		return (address != null) ? matches(InetAddressParser.parseAddress(address)) : false;

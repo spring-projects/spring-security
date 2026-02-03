@@ -22,6 +22,7 @@ import java.util.Objects;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -84,7 +85,10 @@ final class IpInetAddressMatcher implements InetAddressMatcher {
 	}
 
 	@Override
-	public boolean matches(InetAddress toCheck) {
+	public boolean matches(@Nullable InetAddress toCheck) {
+		if (toCheck == null) {
+			return false;
+		}
 		if (this.nMaskBits < 0) {
 			return toCheck.equals(this.requiredAddress);
 		}

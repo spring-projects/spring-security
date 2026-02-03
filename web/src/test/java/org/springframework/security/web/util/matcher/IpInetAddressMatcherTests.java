@@ -129,4 +129,10 @@ class IpInetAddressMatcherTests {
 		assertThat(matcher.matches((String) null)).isFalse();
 	}
 
+	@Test
+	void matchesWhenInetAddressNullThenReturnsFalse() {
+		IpInetAddressMatcher matcher = new IpInetAddressMatcher("192.168.1.1");
+		assertThat(matcher.matches((InetAddress) null)).isFalse();
+	}
+
 }
