@@ -50,7 +50,7 @@ public final class InetAddressMatchers {
 	 * @return a {@link Builder} configured to match external addresses
 	 */
 	public static Builder matchExternal() {
-		return builder().allowList(ExternalInetAddressMatcher.getInstance());
+		return builder().matchAll(ExternalInetAddressMatcher.getInstance());
 	}
 
 	/**
@@ -62,7 +62,7 @@ public final class InetAddressMatchers {
 	 * @return a {@link Builder} configured to match internal addresses
 	 */
 	public static Builder matchInternal() {
-		return builder().allowList(InternalInetAddressMatcher.getInstance());
+		return builder().matchAll(InternalInetAddressMatcher.getInstance());
 	}
 
 	/**
@@ -81,45 +81,46 @@ public final class InetAddressMatchers {
 		private boolean reportOnly;
 
 		/**
-		 * Adds an allow list matcher that permits only the specified addresses.
-		 * @param addresses the list of IP address patterns to allow (cannot be null or
+		 * Adds an include list matcher that permits only the specified addresses.
+		 * @param addresses the list of IP address patterns to include (cannot be null or
 		 * empty)
 		 * @return this builder for method chaining
 		 * @throws IllegalArgumentException if addresses is null or empty
 		 */
-		public Builder allowAddresses(List<String> addresses) {
+		public Builder includeAddresses(List<String> addresses) {
 			Assert.notEmpty(addresses, "addresses cannot be empty");
 			List<InetAddressMatcher> matchers = addresses.stream()
 				.<InetAddressMatcher>map(IpInetAddressMatcher::new)
 				.toList();
-			this.matchers.add(new AllowListInetAddressMatcher(matchers));
+			this.matchers.add(new IncludeListInetAddressMatcher(matchers));
 			return this;
 		}
 
 		/**
-		 * Adds a deny list matcher that blocks the specified addresses.
-		 * @param addresses the list of IP address patterns to deny (cannot be null or
+		 * Adds an exclude list matcher that blocks the specified addresses.
+		 * @param addresses the list of IP address patterns to exclude (cannot be null or
 		 * empty)
 		 * @return this builder for method chaining
 		 * @throws IllegalArgumentException if addresses is null or empty
 		 */
-		public Builder denyAddresses(List<String> addresses) {
+		public Builder excludeAddresses(List<String> addresses) {
 			Assert.notEmpty(addresses, "addresses cannot be empty");
 			List<InetAddressMatcher> matchers = addresses.stream()
 				.<InetAddressMatcher>map(IpInetAddressMatcher::new)
 				.toList();
-			this.matchers.add(new DenyListInetAddressMatcher(matchers));
+			this.matchers.add(new ExcludeListInetAddressMatcher(matchers));
 			return this;
 		}
 
 		/**
-		 * Adds custom matchers to the matcher chain.
+		 * Adds custom matchers to the matcher chain. All matchers must match for an
+		 * address to be permitted.
 		 * @param matchers the custom {@link InetAddressMatcher} instances to add (cannot
 		 * be null or empty)
 		 * @return this builder for method chaining
 		 * @throws IllegalArgumentException if matchers is null or empty
 		 */
-		public Builder allowList(InetAddressMatcher... matchers) {
+		public Builder matchAll(InetAddressMatcher... matchers) {
 			Assert.notEmpty(matchers, "matchers cannot be empty");
 			for (InetAddressMatcher matcher : matchers) {
 				this.matchers.add(matcher);
@@ -149,24 +150,24 @@ public final class InetAddressMatchers {
 	}
 
 	/**
-	 * An {@link InetAddressMatcher} that matches addresses against an allow list. Only
-	 * addresses that match an entry in the allow list are permitted.
+	 * An {@link InetAddressMatcher} that matches addresses against an include list. Only
+	 * addresses that match an entry in the include list are permitted.
 	 *
 	 * @author Rossen Stoyanchev
 	 * @author Rob Winch
 	 */
-	static final class AllowListInetAddressMatcher implements InetAddressMatcher {
+	static final class IncludeListInetAddressMatcher implements InetAddressMatcher {
 
-		private final List<InetAddressMatcher> allowList;
+		private final List<InetAddressMatcher> includeList;
 
-		AllowListInetAddressMatcher(List<InetAddressMatcher> allowList) {
-			Assert.notEmpty(allowList, "allowList cannot be null or empty");
-			this.allowList = new ArrayList<>(allowList);
+		IncludeListInetAddressMatcher(List<InetAddressMatcher> includeList) {
+			Assert.notEmpty(includeList, "includeList cannot be null or empty");
+			this.includeList = new ArrayList<>(includeList);
 		}
 
 		@Override
 		public boolean matches(InetAddress address) {
-			for (InetAddressMatcher matcher : this.allowList) {
+			for (InetAddressMatcher matcher : this.includeList) {
 				if (matcher.matches(address)) {
 					return true;
 				}
@@ -176,30 +177,30 @@ public final class InetAddressMatchers {
 
 		@Override
 		public String toString() {
-			return "AllowListInetAddressMatcher[\"" + this.allowList + "\"]";
+			return "IncludeListInetAddressMatcher[\"" + this.includeList + "\"]";
 		}
 
 	}
 
 	/**
-	 * An {@link InetAddressMatcher} that matches addresses against a deny list. Addresses
-	 * that match an entry in the deny list are rejected.
+	 * An {@link InetAddressMatcher} that matches addresses against an exclude list.
+	 * Addresses that match an entry in the exclude list are rejected.
 	 *
 	 * @author Rossen Stoyanchev
 	 * @author Rob Winch
 	 */
-	static final class DenyListInetAddressMatcher implements InetAddressMatcher {
+	static final class ExcludeListInetAddressMatcher implements InetAddressMatcher {
 
-		private final List<InetAddressMatcher> disallowList;
+		private final List<InetAddressMatcher> excludeList;
 
-		DenyListInetAddressMatcher(List<InetAddressMatcher> disallowList) {
-			Assert.notEmpty(disallowList, "disallowList cannot be null or empty");
-			this.disallowList = new ArrayList<>(disallowList);
+		ExcludeListInetAddressMatcher(List<InetAddressMatcher> excludeList) {
+			Assert.notEmpty(excludeList, "excludeList cannot be null or empty");
+			this.excludeList = new ArrayList<>(excludeList);
 		}
 
 		@Override
 		public boolean matches(InetAddress address) {
-			for (InetAddressMatcher matcher : this.disallowList) {
+			for (InetAddressMatcher matcher : this.excludeList) {
 				if (matcher.matches(address)) {
 					return false;
 				}
@@ -209,7 +210,7 @@ public final class InetAddressMatchers {
 
 		@Override
 		public String toString() {
-			return "DenyListInetAddressMatcher[\"" + this.disallowList + "\"]";
+			return "ExcludeListInetAddressMatcher[\"" + this.excludeList + "\"]";
 		}
 
 	}
