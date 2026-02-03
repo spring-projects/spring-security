@@ -32,12 +32,15 @@ import org.springframework.util.StringUtils;
  * <p>
  * Both IPv4 and IPv6 addresses are supported. The matcher can be configured with either a
  * specific IP address or a subnet using CIDR notation.
+ * <p>
+ * The logic from this class was migrated from {@link IpAddressMatcher} to provide a more
+ * general API that did not depend on the servlet APIs (e.g. HttpServletRequest).
  *
- * @author Rossen Stoyanchev
- * @author Gábor Vaspöri
- * @author Kian Jamali
- * @author Rob Winch
+ * @author Luke Taylor
+ * @author Steve Riesenberg
+ * @author Andrey Litvitski
  * @since 7.1
+ * @see IpAddressMatcher
  */
 final class IpInetAddressMatcher implements InetAddressMatcher {
 
