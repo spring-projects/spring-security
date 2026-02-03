@@ -469,6 +469,7 @@ public class OAuth2RefreshTokenGrantTests {
 		}
 
 		@Bean
+		@SuppressWarnings("removal")
 		RegisteredClientRepository registeredClientRepository(JdbcOperations jdbcOperations) {
 			JdbcRegisteredClientRepository jdbcRegisteredClientRepository = new JdbcRegisteredClientRepository(
 					jdbcOperations);

@@ -598,7 +598,7 @@ final class SerializationSamples {
 			return token;
 		});
 		generatorByClassName.put(OneTimeTokenAuthenticationToken.class,
-				(r) -> applyDetails(new OneTimeTokenAuthenticationToken("username", "token")));
+				(r) -> applyDetails(new OneTimeTokenAuthenticationToken("token")));
 		generatorByClassName.put(OneTimeTokenAuthentication.class,
 				(r) -> applyDetails(new OneTimeTokenAuthentication("username", authentication.getAuthorities())));
 		generatorByClassName.put(AccessDeniedException.class,
