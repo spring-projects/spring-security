@@ -42,7 +42,6 @@ public interface InetAddressMatcher {
 	 * @param address the IP address string to check (may be {@code null})
 	 * @return {@code true} if the address matches, {@code false} otherwise or if
 	 * {@code null}
-	 * @since 7.1
 	 */
 	default boolean matches(@Nullable String address) {
 		return (address != null) ? matches(InetAddressParser.parseAddress(address)) : false;
