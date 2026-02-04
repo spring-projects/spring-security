@@ -19,8 +19,6 @@ package org.springframework.security.config.annotation.web.configurers.oauth2.se
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ResolvableType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -203,20 +201,7 @@ final class OAuth2ConfigurerUtils {
 	}
 
 	static <T> T getBean(HttpSecurity httpSecurity, Class<T> type) {
-		return httpSecurity.getSharedObject(ApplicationContext.class).getBean(type);
-	}
-
-	@SuppressWarnings("unchecked")
-	static <T> T getBean(HttpSecurity httpSecurity, ResolvableType type) {
-		ApplicationContext context = httpSecurity.getSharedObject(ApplicationContext.class);
-		String[] names = context.getBeanNamesForType(type);
-		if (names.length == 1) {
-			return (T) context.getBean(names[0]);
-		}
-		if (names.length > 1) {
-			throw new NoUniqueBeanDefinitionException(type, names);
-		}
-		throw new NoSuchBeanDefinitionException(type);
+		return httpSecurity.getSharedObject(ApplicationContext.class).getBeanProvider(type).getObject();
 	}
 
 	static <T> T getOptionalBean(HttpSecurity httpSecurity, Class<T> type) {
