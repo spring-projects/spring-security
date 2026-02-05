@@ -95,37 +95,36 @@ public class RegisteredClient implements Serializable {
 [[oauth2AuthorizationServer-client-settings]]
 == ClientSettings
 
-`ClientSettings` contains configuration for the `RegisteredClient`. The following example shows the available settings:
+`ClientSettings` contains the configuration settings associated to a `RegisteredClient`.
+
+`ClientSettings` provides the following accessors:
 
 [source,java]
 ----
 public final class ClientSettings extends AbstractSettings {
 
+    public boolean isRequireProofKey() ...  <1>
+
+    public boolean isRequireAuthorizationConsent() ...  <2>
+
+    public String getJwkSetUrl() ...    <3>
+
+    public JwsAlgorithm getTokenEndpointAuthenticationSigningAlgorithm() ...    <4>
+
+    public String getX509CertificateSubjectDN() ... <5>
+
 	...
 
-	public static Builder builder() {
-		return new Builder()
-			.requireProofKey(true)  <1>
-			.requireAuthorizationConsent(false)  <2>
-			.jwkSetUrl("https://client.example.com/jwks")  <3>
-			.tokenEndpointAuthenticationSigningAlgorithm(MacAlgorithm.HS256)  <4>
-			.x509CertificateSubjectDN("CN=demo-client-sample, OU=Spring Samples, O=Spring, C=US");  <5>
-	}
-
-	...
-
-}	
+}
 ----
-<1> `requireProofKey`: If `true`, the client is required to provide a proof key challenge and verifier when performing the Authorization Code Grant flow (PKCE). The default is `true`.
-<2> `requireAuthorizationConsent`: If `true`, authorization consent is required when the client requests access. The default is `false`.
-<3> `jwkSetUrl`: Sets the the URL for the client's JSON Web Key Set. Used for `client_secret_jwt` and `private_key_jwt` client authentication methods, as well as for Self-Signed Certificate Mutual-TLS.
-<4> `tokenEndpointAuthenticationSigningAlgorithm`: The `JwsAlgorithm` that must be used for signing the JWT used to authenticate the client at the Token Endpoint for `private_key_jwt` and `client_secret_jwt` authentication methods.
-<5> `x509CertificateSubjectDN`: The expected subject distinguished name in the client X509Certificate received during client authentication when using the `tls_client_auth` method.
+<1> `isRequireProofKey()`: If `true`, the client is required to provide a proof key challenge and verifier when performing the Authorization Code Grant flow (PKCE). The default is `true`.
+<2> `isRequireAuthorizationConsent()`: If `true`, authorization consent is required when the client requests access. The default is `false`.
+<3> `getJwkSetUrl()`: The `URL` for the client's JSON Web Key Set. Used for `private_key_jwt`, `self_signed_tls_client_auth` and `client_secret_jwt` client authentication methods.
+<4> `getTokenEndpointAuthenticationSigningAlgorithm()`: The `JwsAlgorithm` that must be used for signing the JWT used to authenticate the client at the Token Endpoint for `private_key_jwt` and `client_secret_jwt` authentication methods.
+<5> `getX509CertificateSubjectDN()`: The expected subject distinguished name associated to the client `X509Certificate` received during client authentication when using the `tls_client_auth` method.
 
 [NOTE]
-====
-https://datatracker.ietf.org/doc/html/rfc7636[Proof Key for Code Exchange (PKCE)] is enabled by default for all clients using the Authorization Code grant. To disable PKCE, set `requireProofKey` to `false`
-====
+https://datatracker.ietf.org/doc/html/rfc7636[Proof Key for Code Exchange (PKCE)] is enabled by default for all clients using the Authorization Code grant. To disable PKCE, set `requireProofKey` to `false`.
 
 [[oauth2AuthorizationServer-registered-client-repository]]
 == RegisteredClientRepository
