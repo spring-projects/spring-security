@@ -124,6 +124,47 @@ class Jackson2Tests {
 	}
 
 	@Test
+	void readAuthenticationExtensionsClientOutputsWhenAppId() throws Exception {
+		String json = """
+				{
+				  "appid": false,
+				  "credProps": {
+				    "rk": false
+				  }
+				}
+				""";
+		CredentialPropertiesOutput credProps = new CredentialPropertiesOutput(false);
+
+		AuthenticationExtensionsClientOutputs outputs = this.mapper.readValue(json,
+				AuthenticationExtensionsClientOutputs.class);
+		assertThat(outputs.getOutputs()).usingRecursiveFieldByFieldElementComparator().contains(credProps);
+	}
+
+	@Test
+	void readAuthenticationExtensionsClientOutputsWhenUnknownExtension() throws Exception {
+		String json = """
+				{
+				  "unknownObject1": {
+				    "key": "value"
+				  },
+				  "unknownArray": [
+				    { "key": "value1" },
+				    { "key": "value2" }
+				  ],
+				  "credProps": {
+				    "rk": false
+				  },
+				  "unknownObject2": {}
+				}
+				""";
+		CredentialPropertiesOutput credProps = new CredentialPropertiesOutput(false);
+
+		AuthenticationExtensionsClientOutputs outputs = this.mapper.readValue(json,
+				AuthenticationExtensionsClientOutputs.class);
+		assertThat(outputs.getOutputs()).usingRecursiveFieldByFieldElementComparator().contains(credProps);
+	}
+
+	@Test
 	void readAuthenticationExtensionsClientOutputsWhenFieldAfter() throws Exception {
 		String json = """
 				{
