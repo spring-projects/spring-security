@@ -17,7 +17,7 @@ permissions:
 jobs:
   build:
     name: Build
-    uses: spring-io/spring-security-release-tools/.github/workflows/build.yml@v1
+    uses: spring-io/spring-security-release-tools/.github/workflows/build.yml@7d42d82298553f123a9dad622e0eac725aaf52ef # v1.0.13
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest ]
@@ -67,21 +67,21 @@ jobs:
   deploy-artifacts:
     name: Deploy Artifacts
     needs: [ build, test, check-samples ]
-    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@v1
+    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@7d42d82298553f123a9dad622e0eac725aaf52ef # v1.0.13
     with:
       should-deploy-artifacts: ${{ needs.build.outputs.should-deploy-artifacts }}
     secrets: inherit
   deploy-schema:
     name: Deploy Schema
     needs: [ build, test, check-samples ]
-    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-schema.yml@v1
+    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-schema.yml@7d42d82298553f123a9dad622e0eac725aaf52ef # v1.0.13
     with:
       should-deploy-schema: ${{ needs.build.outputs.should-deploy-artifacts }}
     secrets: inherit
   perform-release:
     name: Perform Release
     needs: [ deploy-artifacts, deploy-schema ]
-    uses: spring-io/spring-security-release-tools/.github/workflows/perform-release.yml@v1
+    uses: spring-io/spring-security-release-tools/.github/workflows/perform-release.yml@7d42d82298553f123a9dad622e0eac725aaf52ef # v1.0.13
     with:
       should-perform-release: ${{ needs.deploy-artifacts.outputs.artifacts-deployed }}
       project-version: ${{ needs.deploy-artifacts.outputs.project-version }}
@@ -97,6 +97,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send Notification
-        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@v1
+        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@7d42d82298553f123a9dad622e0eac725aaf52ef # v1.0.13
         with:
           webhook-url: ${{ secrets.SPRING_SECURITY_CI_GCHAT_WEBHOOK_URL }}
