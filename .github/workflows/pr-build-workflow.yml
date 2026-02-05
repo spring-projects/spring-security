@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.repository == 'spring-projects/spring-security' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Set up gradle
-        uses: spring-io/spring-gradle-build-action@v2
+        uses: spring-io/spring-gradle-build-action@efc55f07f4dfa22f2afd97f9ea1be4212eeed737 # v2.0.5
         with:
           java-version: '25'
           distribution: 'temurin'
@@ -24,9 +24,9 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.repository == 'spring-projects/spring-security' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Set up gradle
-        uses: spring-io/spring-gradle-build-action@v2
+        uses: spring-io/spring-gradle-build-action@efc55f07f4dfa22f2afd97f9ea1be4212eeed737 # v2.0.5
         with:
           java-version: '25'
           distribution: 'temurin'
@@ -34,7 +34,7 @@ jobs:
         run: ./gradlew -PbuildSrc.skipTests=true :spring-security-docs:antora
       - name: Upload Docs
         id: upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: docs
           path: docs/build/site
@@ -46,6 +46,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send Notification
-        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@v1
+        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@7d42d82298553f123a9dad622e0eac725aaf52ef # v1.0.13
         with:
           webhook-url: ${{ secrets.SPRING_SECURITY_CI_GCHAT_WEBHOOK_URL }}
