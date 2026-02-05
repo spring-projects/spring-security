@@ -118,7 +118,7 @@ class BaseOpenSamlAssertingPartyMetadataRepository implements AssertingPartyMeta
 		return OpenSamlAssertingPartyDetails.withEntityDescriptor(descriptor).build();
 	}
 
-	private EntityDescriptor resolveSingle(EntityIdCriterion criterion) {
+	private @Nullable EntityDescriptor resolveSingle(EntityIdCriterion criterion) {
 		try {
 			return this.metadataResolver.resolveSingle(criterion);
 		}
@@ -147,7 +147,7 @@ class BaseOpenSamlAssertingPartyMetadataRepository implements AssertingPartyMeta
 			this.metadataResolver = metadataResolver;
 		}
 
-		abstract EntityDescriptor resolveSingle(EntityIdCriterion entityId) throws Exception;
+		abstract @Nullable EntityDescriptor resolveSingle(EntityIdCriterion entityId) throws Exception;
 
 		abstract Iterable<EntityDescriptor> resolve(EntityRoleCriterion role) throws Exception;
 

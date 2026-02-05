@@ -22,6 +22,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import net.shibboleth.shared.xml.ElementSupport;
+import org.jspecify.annotations.Nullable;
 import org.opensaml.core.xml.AbstractXMLObject;
 import org.opensaml.core.xml.AbstractXMLObjectBuilder;
 import org.opensaml.core.xml.ElementExtensibleXMLObject;
@@ -38,8 +39,6 @@ import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.AttributeValue;
 import org.w3c.dom.Element;
 
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 
 public final class TestCustomOpenSaml5Objects {
@@ -103,7 +102,6 @@ public final class TestCustomOpenSaml5Objects {
 
 	public static class CustomOpenSamlObjectImpl extends AbstractXMLObject implements CustomOpenSamlObject {
 
-		@NonNull
 		private IndexedXMLObjectChildrenList<XMLObject> unknownXMLObjects;
 
 		/**
@@ -113,28 +111,25 @@ public final class TestCustomOpenSaml5Objects {
 		 * represents
 		 * @param namespacePrefix the prefix for the given namespace
 		 */
-		protected CustomOpenSamlObjectImpl(@Nullable String namespaceURI, @NonNull String elementLocalName,
+		protected CustomOpenSamlObjectImpl(@Nullable String namespaceURI, String elementLocalName,
 				@Nullable String namespacePrefix) {
 			super(namespaceURI, elementLocalName, namespacePrefix);
 			super.getNamespaceManager().registerNamespaceDeclaration(new Namespace(CUSTOM_NS, TYPE_CUSTOM_PREFIX));
 			this.unknownXMLObjects = new IndexedXMLObjectChildrenList<>(this);
 		}
 
-		@NonNull
 		@Override
 		public List<XMLObject> getUnknownXMLObjects() {
 			return this.unknownXMLObjects;
 		}
 
-		@NonNull
 		@Override
-		public List<XMLObject> getUnknownXMLObjects(@NonNull QName typeOrName) {
+		public List<XMLObject> getUnknownXMLObjects(QName typeOrName) {
 			return (List<XMLObject>) this.unknownXMLObjects.subList(typeOrName);
 		}
 
-		@Nullable
 		@Override
-		public List<XMLObject> getOrderedChildren() {
+		public @Nullable List<XMLObject> getOrderedChildren() {
 			return Collections.unmodifiableList(this.unknownXMLObjects);
 		}
 
@@ -162,9 +157,8 @@ public final class TestCustomOpenSaml5Objects {
 
 	public static class CustomSamlObjectBuilder extends AbstractXMLObjectBuilder<CustomOpenSamlObject> {
 
-		@NonNull
 		@Override
-		public CustomOpenSamlObject buildObject(@Nullable String namespaceURI, @NonNull String localName,
+		public CustomOpenSamlObject buildObject(@Nullable String namespaceURI, String localName,
 				@Nullable String namespacePrefix) {
 			return new CustomOpenSamlObjectImpl(namespaceURI, localName, namespacePrefix);
 		}
@@ -178,7 +172,7 @@ public final class TestCustomOpenSaml5Objects {
 		}
 
 		@Override
-		protected void marshallElementContent(@NonNull XMLObject xmlObject, @NonNull Element domElement) {
+		protected void marshallElementContent(XMLObject xmlObject, Element domElement) {
 			final CustomOpenSamlObject customSamlObject = (CustomOpenSamlObject) xmlObject;
 
 			for (XMLObject object : customSamlObject.getOrderedChildren()) {
@@ -195,15 +189,14 @@ public final class TestCustomOpenSaml5Objects {
 		}
 
 		@Override
-		protected void processChildElement(@NonNull XMLObject parentXMLObject, @NonNull XMLObject childXMLObject)
+		protected void processChildElement(XMLObject parentXMLObject, XMLObject childXMLObject)
 				throws UnmarshallingException {
 			final CustomOpenSamlObject customSamlObject = (CustomOpenSamlObject) parentXMLObject;
 			customSamlObject.getUnknownXMLObjects().add(childXMLObject);
 		}
 
-		@NonNull
 		@Override
-		protected XMLObject buildXMLObject(@NonNull Element domElement) {
+		protected XMLObject buildXMLObject(Element domElement) {
 			return new CustomOpenSamlObjectImpl(SAMLConstants.SAML20_NS, AttributeValue.DEFAULT_ELEMENT_LOCAL_NAME,
 					CustomOpenSamlObject.TYPE_CUSTOM_PREFIX);
 		}

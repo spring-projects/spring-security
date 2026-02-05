@@ -27,6 +27,9 @@ import java.util.Iterator;
 import java.util.function.Consumer;
 
 import net.shibboleth.shared.resolver.CriteriaSet;
+import net.shibboleth.shared.xml.ParserPool;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.saml.criterion.EntityRoleCriterion;
@@ -45,8 +48,6 @@ import org.opensaml.xmlsec.signature.support.impl.ExplicitKeySignatureTrustEngin
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.provider.service.registration.BaseOpenSamlAssertingPartyMetadataRepository.MetadataResolverAdapter;
@@ -65,6 +66,7 @@ import org.springframework.util.Assert;
  * @see AssertingPartyMetadataRepository
  * @see RelyingPartyRegistrations
  */
+@NullMarked
 public final class OpenSaml5AssertingPartyMetadataRepository implements AssertingPartyMetadataRepository {
 
 	static {
@@ -93,7 +95,6 @@ public final class OpenSaml5AssertingPartyMetadataRepository implements Assertin
 	 * {@inheritDoc}
 	 */
 	@Override
-	@NonNull
 	public Iterator<AssertingPartyMetadata> iterator() {
 		return this.delegate.iterator();
 	}
@@ -101,9 +102,8 @@ public final class OpenSaml5AssertingPartyMetadataRepository implements Assertin
 	/**
 	 * {@inheritDoc}
 	 */
-	@Nullable
 	@Override
-	public AssertingPartyMetadata findByEntityId(String entityId) {
+	public @Nullable AssertingPartyMetadata findByEntityId(String entityId) {
 		return this.delegate.findByEntityId(entityId);
 	}
 
@@ -222,7 +222,9 @@ public final class OpenSaml5AssertingPartyMetadataRepository implements Assertin
 		}
 
 		private MetadataResolver initialize(ResourceBackedMetadataResolver metadataResolver) {
-			metadataResolver.setParserPool(XMLObjectProviderRegistrySupport.getParserPool());
+			ParserPool pool = XMLObjectProviderRegistrySupport.getParserPool();
+			Assert.notNull(pool, "ParserPool must be configured");
+			metadataResolver.setParserPool(pool);
 			return BaseOpenSamlAssertingPartyMetadataRepository.initialize(metadataResolver);
 		}
 
@@ -264,7 +266,6 @@ public final class OpenSaml5AssertingPartyMetadataRepository implements Assertin
 				return this.resource.getFile();
 			}
 
-			@NonNull
 			@Override
 			public InputStream getInputStream() throws IOException {
 				return this.resource.getInputStream();
@@ -287,7 +288,7 @@ public final class OpenSaml5AssertingPartyMetadataRepository implements Assertin
 			}
 
 			@Override
-			public String getFilename() {
+			public @Nullable String getFilename() {
 				return this.resource.getFilename();
 			}
 
@@ -307,7 +308,7 @@ public final class OpenSaml5AssertingPartyMetadataRepository implements Assertin
 		}
 
 		@Override
-		EntityDescriptor resolveSingle(EntityIdCriterion entityId) throws Exception {
+		@Nullable EntityDescriptor resolveSingle(EntityIdCriterion entityId) throws Exception {
 			return super.metadataResolver.resolveSingle(new CriteriaSet(entityId));
 		}
 

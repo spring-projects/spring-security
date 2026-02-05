@@ -21,6 +21,7 @@ import java.time.Instant;
 import java.util.function.Consumer;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 
@@ -39,6 +40,7 @@ import org.springframework.util.Assert;
  * @author Josh Cummings
  * @since 5.6
  */
+@NullMarked
 public final class OpenSaml5LogoutResponseResolver implements Saml2LogoutResponseResolver {
 
 	private final BaseOpenSamlLogoutResponseResolver delegate;
@@ -64,7 +66,7 @@ public final class OpenSaml5LogoutResponseResolver implements Saml2LogoutRespons
 	 * {@inheritDoc}
 	 */
 	@Override
-	public @Nullable Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication) {
+	public @Nullable Saml2LogoutResponse resolve(HttpServletRequest request, @Nullable Authentication authentication) {
 		return this.delegate.resolve(request, authentication);
 	}
 
@@ -72,7 +74,7 @@ public final class OpenSaml5LogoutResponseResolver implements Saml2LogoutRespons
 	 * {@inheritDoc}
 	 */
 	@Override
-	public @Nullable Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication,
+	public @Nullable Saml2LogoutResponse resolve(HttpServletRequest request, @Nullable Authentication authentication,
 			Saml2AuthenticationException exception) {
 		return this.delegate.resolve(request, authentication, exception);
 	}
@@ -103,12 +105,12 @@ public final class OpenSaml5LogoutResponseResolver implements Saml2LogoutRespons
 
 		private final RelyingPartyRegistration registration;
 
-		private final Authentication authentication;
+		private final @Nullable Authentication authentication;
 
 		private final LogoutRequest logoutRequest;
 
 		public LogoutResponseParameters(HttpServletRequest request, RelyingPartyRegistration registration,
-				Authentication authentication, LogoutRequest logoutRequest) {
+				@Nullable Authentication authentication, LogoutRequest logoutRequest) {
 			this.request = request;
 			this.registration = registration;
 			this.authentication = authentication;
@@ -128,7 +130,7 @@ public final class OpenSaml5LogoutResponseResolver implements Saml2LogoutRespons
 			return this.registration;
 		}
 
-		public Authentication getAuthentication() {
+		public @Nullable Authentication getAuthentication() {
 			return this.authentication;
 		}
 

@@ -138,6 +138,10 @@ javadoc {
 	source = sourceSets.main.allJava + sourceSets.opensaml5Main.allJava
 }
 
+tasks.named("compileOpensaml5MainJava") {
+	options.nullability.checking = "main"
+}
+
 tasks.register("opensaml5Test", Test) {
 	useJUnitPlatform()
 	testClassesDirs = sourceSets.opensaml5Test.output.classesDirs

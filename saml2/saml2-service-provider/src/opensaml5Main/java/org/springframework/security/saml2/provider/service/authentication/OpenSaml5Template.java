@@ -34,9 +34,12 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import net.shibboleth.shared.resolver.CriteriaSet;
+import net.shibboleth.shared.xml.ParserPool;
 import net.shibboleth.shared.xml.SerializeSupport;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.XMLObjectBuilder;
@@ -117,6 +120,7 @@ import org.springframework.web.util.UriUtils;
 /**
  * For internal use only. Subject to breaking changes at any time.
  */
+@NullMarked
 final class OpenSaml5Template implements OpenSamlOperations {
 
 	private static final Log logger = LogFactory.getLog(OpenSaml5Template.class);
@@ -138,7 +142,9 @@ final class OpenSaml5Template implements OpenSamlOperations {
 	@Override
 	public <T extends XMLObject> T deserialize(InputStream serialized) {
 		try {
-			Document document = XMLObjectProviderRegistrySupport.getParserPool().parse(serialized);
+			ParserPool pool = XMLObjectProviderRegistrySupport.getParserPool();
+			Assert.notNull(pool, "ParserPool must be configured");
+			Document document = pool.parse(serialized);
 			Element element = document.getDocumentElement();
 			UnmarshallerFactory factory = XMLObjectProviderRegistrySupport.getUnmarshallerFactory();
 			Unmarshaller unmarshaller = factory.getUnmarshaller(element);
@@ -158,6 +164,7 @@ final class OpenSaml5Template implements OpenSamlOperations {
 	@Override
 	public OpenSaml5SerializationConfigurer serialize(XMLObject object) {
 		Marshaller marshaller = XMLObjectProviderRegistrySupport.getMarshallerFactory().getMarshaller(object);
+		Assert.notNull(marshaller, "Marshaller for " + object.getElementQName() + " must be configured");
 		try {
 			return serialize(marshaller.marshall(object));
 		}
@@ -252,7 +259,9 @@ final class OpenSaml5Template implements OpenSamlOperations {
 			SignatureSigningParameters parameters = resolveSigningParameters();
 			this.components.putAll(params);
 			Credential credential = parameters.getSigningCredential();
+			Assert.notNull(credential, "credential cannot be null when signing a SAML payload");
 			String algorithmUri = parameters.getSignatureAlgorithm();
+			Assert.notNull(algorithmUri, "algorithmUri cannot be null when signing a SAML payload");
 			this.components.put(Saml2ParameterNames.SIG_ALG, algorithmUri);
 			UriComponentsBuilder builder = UriComponentsBuilder.newInstance();
 			for (Map.Entry<String, String> component : this.components.entrySet()) {
@@ -328,14 +337,14 @@ final class OpenSaml5Template implements OpenSamlOperations {
 
 		private final Collection<Saml2X509Credential> credentials;
 
-		private String entityId;
+		private @Nullable String entityId;
 
 		OpenSaml5VerificationConfigurer(Collection<Saml2X509Credential> credentials) {
 			this.credentials = credentials;
 		}
 
 		@Override
-		public VerificationConfigurer entityId(String entityId) {
+		public VerificationConfigurer entityId(@Nullable String entityId) {
 			this.entityId = entityId;
 			return this;
 		}
@@ -354,6 +363,7 @@ final class OpenSaml5Template implements OpenSamlOperations {
 		}
 
 		private CriteriaSet verificationCriteria(Issuer issuer) {
+			Assert.notNull(issuer.getValue(), "required elements must have a value");
 			return new CriteriaSet(new EvaluableEntityIDCredentialCriterion(new EntityIdCriterion(issuer.getValue())),
 					new EvaluableProtocolRoleDescriptorCriterion(new ProtocolCriterion(SAMLConstants.SAML20P_NS)),
 					new EvaluableUsageCredentialCriterion(new UsageCriterion(UsageType.SIGNING)));
@@ -362,12 +372,21 @@ final class OpenSaml5Template implements OpenSamlOperations {
 		@Override
 		public Collection<Saml2Error> verify(SignableXMLObject signable) {
 			if (signable instanceof StatusResponseType response) {
+				Assert.notNull(response.getID(), "Response#ID cannot be null");
+				Assert.notNull(response.getIssuer(), "Response#Issuer cannot be null");
+				Assert.notNull(response.getSignature(), "Response#Signature cannot be null");
 				return verifySignature(response.getID(), response.getIssuer(), response.getSignature());
 			}
 			if (signable instanceof RequestAbstractType request) {
+				Assert.notNull(request.getID(), "Request#ID cannot be null");
+				Assert.notNull(request.getIssuer(), "Request#Issuer cannot be null");
+				Assert.notNull(request.getSignature(), "Request#Signature cannot be null");
 				return verifySignature(request.getID(), request.getIssuer(), request.getSignature());
 			}
 			if (signable instanceof Assertion assertion) {
+				Assert.notNull(assertion.getID(), "Assertion#ID cannot be null");
+				Assert.notNull(assertion.getIssuer(), "Assertion#Issuer cannot be null");
+				Assert.notNull(assertion.getSignature(), "Assertion#Signature cannot be null");
 				return verifySignature(assertion.getID(), assertion.getIssuer(), assertion.getSignature());
 			}
 			throw new Saml2Exception("Unsupported object of type: " + signable.getClass().getName());
@@ -408,15 +427,15 @@ final class OpenSaml5Template implements OpenSamlOperations {
 				return Collections.singletonList(new Saml2Error(Saml2ErrorCodes.INVALID_SIGNATURE,
 						"Missing signature algorithm for object [" + parameters.getId() + "]"));
 			}
-			if (!parameters.hasSignature()) {
+			byte[] signature = parameters.getSignature();
+			if (signature == null) {
 				return Collections.singletonList(new Saml2Error(Saml2ErrorCodes.INVALID_SIGNATURE,
 						"Missing signature for object [" + parameters.getId() + "]"));
 			}
 			Collection<Saml2Error> errors = new ArrayList<>();
 			String algorithmUri = parameters.getAlgorithm();
 			try {
-				if (!trustEngine.validate(parameters.getSignature(), parameters.getContent(), algorithmUri, criteria,
-						null)) {
+				if (!trustEngine.validate(signature, parameters.getContent(), algorithmUri, criteria, null)) {
 					errors.add(new Saml2Error(Saml2ErrorCodes.INVALID_SIGNATURE,
 							"Invalid signature for object [" + parameters.getId() + "]"));
 				}
@@ -558,7 +577,7 @@ final class OpenSaml5Template implements OpenSamlOperations {
 			statement.getAttributes().addAll(decrypteds);
 		}
 
-		private void decryptSubject(Subject subject) {
+		private void decryptSubject(@Nullable Subject subject) {
 			if (subject != null) {
 				if (subject.getEncryptedID() != null) {
 					try {

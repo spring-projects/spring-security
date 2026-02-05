@@ -21,6 +21,8 @@ import java.time.Instant;
 import java.util.function.Consumer;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 
 import org.springframework.core.convert.converter.Converter;
@@ -38,6 +40,7 @@ import org.springframework.util.Assert;
  * @author Josh Cummings
  * @since 5.7
  */
+@NullMarked
 public final class OpenSaml5AuthenticationRequestResolver implements Saml2AuthenticationRequestResolver {
 
 	private final BaseOpenSamlAuthenticationRequestResolver delegate;
@@ -65,7 +68,7 @@ public final class OpenSaml5AuthenticationRequestResolver implements Saml2Authen
 	}
 
 	@Override
-	public <T extends AbstractSaml2AuthenticationRequest> T resolve(HttpServletRequest request) {
+	public <T extends AbstractSaml2AuthenticationRequest> @Nullable T resolve(HttpServletRequest request) {
 		return this.delegate.resolve(request);
 	}
 
@@ -107,7 +110,7 @@ public final class OpenSaml5AuthenticationRequestResolver implements Saml2Authen
 	 * @param relayStateResolver the {@link Converter} to use
 	 * @since 5.8
 	 */
-	public void setRelayStateResolver(Converter<HttpServletRequest, String> relayStateResolver) {
+	public void setRelayStateResolver(Converter<HttpServletRequest, @Nullable String> relayStateResolver) {
 		Assert.notNull(relayStateResolver, "relayStateResolver cannot be null");
 		this.delegate.setRelayStateResolver(relayStateResolver);
 	}
