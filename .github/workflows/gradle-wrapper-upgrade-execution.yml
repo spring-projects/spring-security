@@ -26,7 +26,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/setup-gradle@f29f5a9d7b09a7c6b29859002d29d24e1674c884 # v5.0.1
       - name: Upgrade Wrappers
         run: ./gradlew clean upgradeGradleWrapperAll --continue -Porg.gradle.java.installations.auto-download=false
         env:
