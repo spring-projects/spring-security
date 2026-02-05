@@ -112,6 +112,7 @@ updates:
 
   - package-ecosystem: github-actions
     target-branch: main
+    directory: /
     schedule:
       interval: weekly
     labels:
@@ -120,6 +121,7 @@ updates:
 
   - package-ecosystem: github-actions
     target-branch: 7.0.x
+    directory: /
     schedule:
       interval: weekly
     labels:
@@ -128,6 +130,7 @@ updates:
 
   - package-ecosystem: github-actions
     target-branch: 6.5.x
+    directory: /
     schedule:
       interval: weekly
     labels:
