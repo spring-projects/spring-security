@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.repository_owner == 'spring-projects' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Set up gradle
         uses: spring-io/spring-gradle-build-action@v2
         with:
