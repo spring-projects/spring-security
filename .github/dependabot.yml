@@ -4,6 +4,7 @@ registries:
     type: maven-repository
     url: https://build.shibboleth.net/maven/releases
 updates:
+  # 6.5.x
   - package-ecosystem: gradle
     target-branch: 6.5.x
     directory: /
@@ -30,7 +31,26 @@ updates:
         update-types:
           - version-update:semver-major
           - version-update:semver-minor
+  - package-ecosystem: npm
+    target-branch: 6.5.x
+    directory: /docs
+    schedule:
+      interval: weekly
+    labels:
+      - 'type: task'
+      - 'type: dependency-upgrade'
+      - 'in: build'
+  - package-ecosystem: github-actions
+    target-branch: 6.5.x
+    directory: /
+    schedule:
+      interval: weekly
+    labels:
+      - 'type: task'
+      - 'type: dependency-upgrade'
+      - 'in: build'
 
+  # 7.0.x
   - package-ecosystem: gradle
     target-branch: 7.0.x
     directory: /
@@ -61,7 +81,26 @@ updates:
         update-types:
           - version-update:semver-major
           - version-update:semver-minor
+  - package-ecosystem: npm
+    target-branch: 7.0.x
+    directory: /docs
+    schedule:
+      interval: weekly
+    labels:
+      - 'type: task'
+      - 'type: dependency-upgrade'
+      - 'in: build'
+  - package-ecosystem: github-actions
+    target-branch: 7.0.x
+    directory: /
+    schedule:
+      interval: weekly
+    labels:
+      - 'type: task'
+      - 'type: dependency-upgrade'
+      - 'in: build'
 
+  # main
   - package-ecosystem: gradle
     target-branch: main
     directory: /
@@ -91,16 +130,6 @@ updates:
       - dependency-name: '*'
         update-types:
           - version-update:semver-major
-
-  - package-ecosystem: npm
-    target-branch: docs-build
-    directory: /
-    schedule:
-      interval: weekly
-    labels:
-      - 'type: task'
-      - 'in: build'
-
   - package-ecosystem: npm
     target-branch: main
     directory: /docs
@@ -108,8 +137,8 @@ updates:
       interval: weekly
     labels:
       - 'type: task'
+      - 'type: dependency-upgrade'
       - 'in: build'
-
   - package-ecosystem: github-actions
     target-branch: main
     directory: /
@@ -117,23 +146,54 @@ updates:
       interval: weekly
     labels:
       - 'type: task'
+      - 'type: dependency-upgrade'
       - 'in: build'
 
-  - package-ecosystem: github-actions
-    target-branch: 7.0.x
+  # docs-build
+  - package-ecosystem: gradle
+    target-branch: docs-build
+    directory: /
+    schedule:
+      interval: daily
+      time: '03:00'
+      timezone: Etc/UTC
+    labels:
+      - 'type: dependency-upgrade'
+    registries:
+      - shibboleth
+    ignore:
+      - dependency-name: com.nimbusds:nimbus-jose-jwt
+      - dependency-name: org.python:jython
+      - dependency-name: org.apache.directory.server:*
+      - dependency-name: org.apache.directory.shared:*
+      - dependency-name: org.junit:junit-bom
+        update-types:
+          - version-update:semver-major
+      - dependency-name: org.mockito:mockito-bom
+        update-types:
+          - version-update:semver-major
+      - dependency-name: com.gradle.enterprise
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-major
+  - package-ecosystem: npm
+    target-branch: docs-build
     directory: /
     schedule:
       interval: weekly
     labels:
       - 'type: task'
+      - 'type: dependency-upgrade'
       - 'in: build'
-
   - package-ecosystem: github-actions
-    target-branch: 6.5.x
+    target-branch: docs-build
     directory: /
     schedule:
       interval: weekly
     labels:
       - 'type: task'
+      - 'type: dependency-upgrade'
       - 'in: build'
-
