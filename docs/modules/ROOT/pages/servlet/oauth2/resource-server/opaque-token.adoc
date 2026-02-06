@@ -638,6 +638,21 @@ fun getMessages(): List<Message?> {}
 ----
 ======
 
+[[method-security-has-scope]]
+=== Using `hasScope` in Method Security
+
+Because method security expressions can evaluation `AuthorizationManager` instances, you can also use the `hasScope` API by publishing a `DefaultOAuth2AuthorizationManagerFactory` `@Bean`:
+
+include-code::./MethodSecurityHasScopeConfiguration[tag=declare-factory,indent=0]
+
+and then doing:
+
+include-code::./MessageService[tag=protected-method,indent=0]
+
+If you are using xref:servlet/authentication/mfa.adoc[Spring Security's MFA feature], then you can supply its `AuthorizationManagerFactory` instance to ensure that your authentication factors are automatically checked as well by including it in your `DefaultOAuth2AuthorizationManagerFactory` constructor as follows:
+
+include-code::./MethodSecurityHasScopeMfaConfiguration[tag=declare-factory,indent=0]
+
 [[oauth2resourceserver-opaque-authorization-extraction]]
 === Extracting Authorities Manually
 
