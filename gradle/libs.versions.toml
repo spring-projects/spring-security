@@ -25,7 +25,7 @@ com-nimbusds-oauth2-oidc-sdk = "com.nimbusds:oauth2-oidc-sdk:11.26.1"
 com-squareup-okhttp3-mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "com-squareup-okhttp3" }
 com-squareup-okhttp3-okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "com-squareup-okhttp3" }
 com-unboundid-unboundid-ldapsdk = "com.unboundid:unboundid-ldapsdk:7.0.4"
-com-jayway-jsonpath-json-path = "com.jayway.jsonpath:json-path:2.9.0"
+com-jayway-jsonpath-json-path = "com.jayway.jsonpath:json-path:2.10.0"
 commons-collections = "commons-collections:commons-collections:3.2.2"
 io-micrometer-context-propagation = "io.micrometer:context-propagation:1.2.0"
 io-micrometer-micrometer-observation = "io.micrometer:micrometer-observation:1.14.14"
