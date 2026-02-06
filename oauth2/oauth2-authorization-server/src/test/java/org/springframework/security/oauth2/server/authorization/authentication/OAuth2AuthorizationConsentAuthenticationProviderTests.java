@@ -45,6 +45,7 @@ import org.springframework.security.oauth2.server.authorization.client.TestRegis
 import org.springframework.security.oauth2.server.authorization.context.AuthorizationServerContextHolder;
 import org.springframework.security.oauth2.server.authorization.context.TestAuthorizationServerContext;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
+import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -517,6 +518,35 @@ public class OAuth2AuthorizationConsentAuthenticationProviderTests {
 
 		verify(this.authorizationConsentService, never()).save(any());
 		assertThat(authenticationResult.getScopes()).isEqualTo(Collections.singleton(previouslyApprovedScope));
+	}
+
+	@Test
+	public void authenticateWhenNoScopesAndConsentRequiredThenReturnAuthorizationCode() {
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient()
+				.scopes(Set::clear)
+				.clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
+				.build();
+		given(this.registeredClientRepository.findByClientId(eq(registeredClient.getClientId())))
+				.willReturn(registeredClient);
+
+		OAuth2Authorization authorization = TestOAuth2Authorizations.authorization(registeredClient)
+				.principalName(this.principal.getName())
+				.build();
+		given(this.authorizationService.findByToken(eq(STATE), eq(STATE_TOKEN_TYPE)))
+				.willReturn(authorization);
+
+		OAuth2AuthorizationConsentAuthenticationToken authentication =
+				new OAuth2AuthorizationConsentAuthenticationToken(
+						AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, STATE, Collections.emptySet(), null);
+
+		Authentication result = this.authenticationProvider.authenticate(authentication);
+
+		assertThat(result).isInstanceOf(OAuth2AuthorizationCodeRequestAuthenticationToken.class);
+		OAuth2AuthorizationCodeRequestAuthenticationToken authResult = (OAuth2AuthorizationCodeRequestAuthenticationToken) result;
+		assertThat(authResult.isAuthenticated()).isTrue();
+		assertThat(authResult.getScopes()).isEmpty();
+
+		verify(this.authorizationConsentService, never()).save(any());
 	}
 
 	private static void assertAuthenticationException(
