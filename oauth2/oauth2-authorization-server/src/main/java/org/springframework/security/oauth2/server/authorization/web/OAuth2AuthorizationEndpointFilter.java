@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -34,6 +35,7 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -45,6 +47,7 @@ import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationContext;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationException;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationProvider;
@@ -487,6 +490,22 @@ public final class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilte
 
 				this.authenticationValidator.accept(authenticationContext);
 
+				Authentication principal = (Authentication) authorizationCodeRequestAuthentication.getPrincipal();
+				if (shouldHandlePromptNone(authorizationCodeRequestAuthentication, principal)) {
+					String redirectUri = resolveRedirectUri(authorizationCodeRequestAuthentication, registeredClient);
+					OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthenticationResult = new OAuth2AuthorizationCodeRequestAuthenticationToken(
+							authorizationCodeRequestAuthentication.getAuthorizationUri(),
+							authorizationCodeRequestAuthentication.getClientId(), principal, redirectUri,
+							authorizationCodeRequestAuthentication.getState(),
+							authorizationCodeRequestAuthentication.getScopes(),
+							authorizationCodeRequestAuthentication.getAdditionalParameters());
+
+					OAuth2Error error = new OAuth2Error("login_required", "OAuth 2.0 Parameter: prompt",
+							"https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.2.1");
+					throw new OAuth2AuthorizationCodeRequestAuthenticationException(error,
+							authorizationCodeRequestAuthenticationResult);
+				}
+
 				ReflectionUtils.setField(this.setValidatedField, authorizationCodeRequestAuthentication, true);
 
 				// Set the validated authorization code request as a request
@@ -507,6 +526,43 @@ public final class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilte
 			finally {
 				request.removeAttribute(OAuth2AuthorizationCodeRequestAuthenticationToken.class.getName());
 			}
+		}
+
+		private static boolean shouldHandlePromptNone(
+				OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication,
+				Authentication principal) {
+
+			if (!authorizationCodeRequestAuthentication.getScopes().contains(OidcScopes.OPENID)) {
+				return false;
+			}
+
+			String prompt = (String) authorizationCodeRequestAuthentication.getAdditionalParameters().get("prompt");
+			if (!StringUtils.hasText(prompt)) {
+				return false;
+			}
+
+			Set<String> promptValues = new HashSet<>(
+					Arrays.asList(StringUtils.delimitedListToStringArray(prompt, " ")));
+
+			return promptValues.contains("none") && !isPrincipalAuthenticated(principal);
+		}
+
+		private static boolean isPrincipalAuthenticated(Authentication principal) {
+			return principal != null && !AnonymousAuthenticationToken.class.isAssignableFrom(principal.getClass())
+					&& principal.isAuthenticated();
+		}
+
+		private static String resolveRedirectUri(
+				OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication,
+				RegisteredClient registeredClient) {
+
+			if (StringUtils.hasText(authorizationCodeRequestAuthentication.getRedirectUri())) {
+				return authorizationCodeRequestAuthentication.getRedirectUri();
+			}
+			if (registeredClient != null) {
+				return registeredClient.getRedirectUris().iterator().next();
+			}
+			return null;
 		}
 
 	}
