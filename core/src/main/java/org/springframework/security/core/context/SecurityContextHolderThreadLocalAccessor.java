@@ -31,6 +31,7 @@ import org.springframework.util.Assert;
  * {@link java.util.ServiceLoader} mechanism when context-propagation is on the classpath.
  *
  * @author Steve Riesenberg
+ * @author Tadaya Tsuyukubo
  * @since 6.5
  * @see io.micrometer.context.ContextRegistry
  */
@@ -52,7 +53,9 @@ public final class SecurityContextHolderThreadLocalAccessor implements ThreadLoc
 	@Override
 	public void setValue(SecurityContext securityContext) {
 		Assert.notNull(securityContext, "securityContext cannot be null");
-		SecurityContextHolder.setContext(securityContext);
+		SecurityContext newContext = SecurityContextHolder.createEmptyContext();
+		newContext.setAuthentication(securityContext.getAuthentication());
+		SecurityContextHolder.setContext(newContext);
 	}
 
 	@Override
