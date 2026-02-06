@@ -1,0 +1,95 @@
+/*
+ * Copyright 2025-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.springframework.security.oauth2.core;
+
+import org.springframework.util.Assert;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+
+import static java.util.Collections.emptyList;
+
+/**
+ * A reactive composite validator
+ *
+ * @param <T> the type of {@link OAuth2Token} this validator validates
+ * @author Josh Cummings
+ * @author Iain Henderson
+ */
+public final class ReactiveDelegatingOAuth2TokenValidator<T extends OAuth2Token> implements ReactiveOAuth2TokenValidator<T> {
+
+	private final Collection<OAuth2TokenValidator<T>> tokenValidators;
+	private final Collection<ReactiveOAuth2TokenValidator<T>> reactiveTokenValidators;
+
+	/**
+	 * Constructs a {@code ReactiveDelegatingOAuth2TokenValidator} using the provided validators.
+	 * @param tokenValidators the {@link Collection} of {@link OAuth2TokenValidator}s to
+	 * use
+	 * @param reactiveTokenValidators the {@link Collection} of {@link ReactiveOAuth2TokenValidator}s to
+	 * use
+	 */
+	public ReactiveDelegatingOAuth2TokenValidator(Collection<OAuth2TokenValidator<T>> tokenValidators,
+			Collection<ReactiveOAuth2TokenValidator<T>> reactiveTokenValidators) {
+		Assert.notNull(tokenValidators, "tokenValidators cannot be null");
+		Assert.notNull(reactiveTokenValidators, "reactiveTokenValidators cannot be null");
+		this.tokenValidators = new ArrayList<>(tokenValidators);
+		this.reactiveTokenValidators = new ArrayList<>(reactiveTokenValidators);
+	}
+
+	/**
+	 * Constructs a {@code ReactiveDelegatingOAuth2TokenValidator} using the provided validators.
+	 * @param reactiveTokenValidators the {@link Collection} of {@link ReactiveOAuth2TokenValidator}s to
+	 * use
+	 */
+	public ReactiveDelegatingOAuth2TokenValidator(Collection<ReactiveOAuth2TokenValidator<T>> reactiveTokenValidators) {
+		this(emptyList(), reactiveTokenValidators);
+	}
+
+	/**
+	 * Constructs a {@code ReactiveDelegatingOAuth2TokenValidator} using the provided validators.
+	 * @param tokenValidators the collection of {@link OAuth2TokenValidator}s to use
+	 */
+	@SafeVarargs
+	public ReactiveDelegatingOAuth2TokenValidator(OAuth2TokenValidator<T>... tokenValidators) {
+		this(Arrays.asList(tokenValidators), emptyList());
+	}
+
+	/**
+	 * Constructs a {@code ReactiveDelegatingOAuth2TokenValidator} using the provided validators.
+	 * @param reactiveTokenValidators the collection of {@link ReactiveOAuth2TokenValidator}s to use
+	 */
+	@SafeVarargs
+	public ReactiveDelegatingOAuth2TokenValidator(ReactiveOAuth2TokenValidator<T>... reactiveTokenValidators) {
+		this(Arrays.asList(reactiveTokenValidators));
+	}
+
+	@Override
+	public Mono<OAuth2TokenValidatorResult> validate(T token) {
+		return Flux.fromIterable(this.tokenValidators)
+				.map(validator -> validator.validate(token))
+				.mergeWith(Flux.fromIterable(reactiveTokenValidators)
+						.flatMap(validator -> validator.validate(token)))
+				.map(OAuth2TokenValidatorResult::getErrors)
+				.flatMap(Flux::fromIterable)
+				.collectList()
+				.map(OAuth2TokenValidatorResult::failure);
+	}
+
+}

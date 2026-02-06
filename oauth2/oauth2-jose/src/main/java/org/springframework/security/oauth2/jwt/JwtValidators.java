@@ -24,11 +24,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
-import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+import org.springframework.security.oauth2.core.*;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -37,6 +33,7 @@ import org.springframework.util.CollectionUtils;
  *
  * @author Josh Cummings
  * @author Rob Winch
+ * @author Iain Henderson
  * @since 5.1
  */
 public final class JwtValidators {
@@ -71,13 +68,29 @@ public final class JwtValidators {
 	 * result of this method to {@code DelegatingOAuth2TokenValidator} along with the
 	 * additional validators.
 	 * </p>
-	 * @return - a delegating validator containing all standard validators as well as any
-	 * supplied
+	 * @return - a delegating validator containing all standard validators
 	 */
 	public static OAuth2TokenValidator<Jwt> createDefault() {
 		return new DelegatingOAuth2TokenValidator<>(Arrays.asList(JwtTypeValidator.jwt(), new JwtTimestampValidator(),
 				new X509CertificateThumbprintValidator(
 						X509CertificateThumbprintValidator.DEFAULT_X509_CERTIFICATE_SUPPLIER)));
+	}
+
+	/**
+	 * <p>
+	 * Create a reactive {@link Jwt} Validator that contains all standard validators.
+	 * </p>
+	 * <p>
+	 * User's wanting to leverage the defaults plus additional validation can add the
+	 * result of this method to {@code ReactiveDelegatingOAuth2TokenValidator} along with the
+	 * additional validators.
+	 * </p>
+	 * @return - a reactive delegating validator containing all standard validators
+	 */
+	public static ReactiveOAuth2TokenValidator<Jwt> createReactiveDefault() {
+		return new ReactiveDelegatingOAuth2TokenValidator<>(JwtTypeValidator.jwt(), new JwtTimestampValidator(),
+				new X509CertificateThumbprintValidator(
+						X509CertificateThumbprintValidator.DEFAULT_X509_CERTIFICATE_SUPPLIER));
 	}
 
 	/**
