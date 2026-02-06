@@ -45,7 +45,7 @@ jakarta-servlet-jsp-jakarta-servlet-jsp-api = "jakarta.servlet.jsp:jakarta.servl
 jakarta-servlet-jsp-jstl-jakarta-servlet-jsp-jstl-api = "jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.2"
 jakarta-websocket-jakarta-websocket-api = { module = "jakarta.websocket:jakarta.websocket-api", version.ref = "jakarta-websocket" }
 jakarta-websocket-jakarta-websocket-client-api = { module = "jakarta.websocket:jakarta.websocket-client-api", version.ref = "jakarta-websocket" }
-jakarta-xml-bind-jakarta-xml-bind-api = "jakarta.xml.bind:jakarta.xml.bind-api:4.0.4"
+jakarta-xml-bind-jakarta-xml-bind-api = "jakarta.xml.bind:jakarta.xml.bind-api:4.0.5"
 ldapsdk = "ldapsdk:ldapsdk:4.1"
 net-sourceforge-htmlunit = "net.sourceforge.htmlunit:htmlunit:2.70.0"
 org-htmlunit-htmlunit = "org.htmlunit:htmlunit:4.21.0"
