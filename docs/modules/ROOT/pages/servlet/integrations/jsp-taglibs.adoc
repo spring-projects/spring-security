@@ -65,6 +65,18 @@ This is an instance of `DefaultWebInvocationPrivilegeEvaluator`, which creates a
 This lets you delegate to the access-control setup you defined by using `intercept-url` declarations within the `<http>` namespace configuration and saves having to duplicate the information (such as the required roles) within your JSPs.
 You can also combine this approach with a `method` attribute (supplying the HTTP method, such as `POST`) for a more specific match.
 
+[NOTE]
+====
+If the underlying authorization configuration uses a `RequestMatcher` that is constrained to an HTTP method
+(for example, an `AntPathRequestMatcher` or `MvcRequestMatcher` configured with a method),
+specify the same `method` on the `<sec:authorize>` tag so that it can be evaluated against the intended rule.
+
+When access rules are method-specific, omitting `method` may cause the tag to be evaluated without an HTTP method,
+which can lead to unexpected results.
+
+For example, if access is configured for `POST /admin`, then use `<sec:authorize url="/admin" method="POST">`.
+====
+
 You can store the Boolean result of evaluating the tag (whether it grants or denies access) in a page context scope variable by setting the `var` attribute to the variable name, avoiding the need for duplicating and re-evaluating the condition at other points in the page.
 
 
