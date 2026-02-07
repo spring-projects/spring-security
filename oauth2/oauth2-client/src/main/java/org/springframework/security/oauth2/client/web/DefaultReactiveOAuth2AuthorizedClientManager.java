@@ -32,6 +32,7 @@ import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizationSuc
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder;
+import org.springframework.security.oauth2.client.RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler;
 import org.springframework.security.oauth2.client.RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
@@ -85,6 +86,7 @@ import org.springframework.web.server.ServerWebExchange;
  *
  * @author Joe Grandja
  * @author Phil Clay
+ * @author Evgeniy Cheban
  * @since 5.2
  * @see ReactiveOAuth2AuthorizedClientManager
  * @see ReactiveOAuth2AuthorizedClientProvider
@@ -132,13 +134,22 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
 		this.clientRegistrationRepository = clientRegistrationRepository;
 		this.authorizedClientRepository = authorizedClientRepository;
-		this.authorizationSuccessHandler = (authorizedClient, principal, attributes) -> authorizedClientRepository
-			.saveAuthorizedClient(authorizedClient, principal,
-					(ServerWebExchange) attributes.get(ServerWebExchange.class.getName()));
+		this.authorizationSuccessHandler = getDefaultAuthorizationSuccessHandler(authorizedClientRepository);
 		this.authorizationFailureHandler = new RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler(
 				(clientRegistrationId, principal, attributes) -> authorizedClientRepository.removeAuthorizedClient(
 						clientRegistrationId, principal,
 						(ServerWebExchange) attributes.get(ServerWebExchange.class.getName())));
+	}
+
+	private ReactiveOAuth2AuthorizationSuccessHandler getDefaultAuthorizationSuccessHandler(
+			ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
+		return (authorizedClient, principal, attributes) -> {
+			Mono<Void> saveAuthorizedClient = authorizedClientRepository.saveAuthorizedClient(authorizedClient,
+					principal, (ServerWebExchange) attributes.get(ServerWebExchange.class.getName()));
+			return saveAuthorizedClient
+				.then(Mono.defer(() -> new RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler()
+					.onAuthorizationSuccess(authorizedClient, principal, attributes)));
+		};
 	}
 
 	@Override
@@ -318,10 +329,10 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 			return Mono.justOrEmpty(serverWebExchange)
 					.switchIfEmpty(currentServerWebExchangeMono)
 					.flatMap((exchange) -> {
-						Map<String, Object> contextAttributes = Collections.emptyMap();
+						Map<String, Object> contextAttributes = new HashMap<>();
+						contextAttributes.put(ServerWebExchange.class.getName(), serverWebExchange);
 						String scope = exchange.getRequest().getQueryParams().getFirst(OAuth2ParameterNames.SCOPE);
 						if (StringUtils.hasText(scope)) {
-							contextAttributes = new HashMap<>();
 							contextAttributes.put(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME,
 									StringUtils.delimitedListToStringArray(scope, " "));
 						}

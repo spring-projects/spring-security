@@ -69,6 +69,7 @@ import static org.mockito.Mockito.verify;
  * Tests for {@link DefaultReactiveOAuth2AuthorizedClientManager}.
  *
  * @author Joe Grandja
+ * @author Evgeniy Cheban
  */
 public class DefaultReactiveOAuth2AuthorizedClientManagerTests {
 

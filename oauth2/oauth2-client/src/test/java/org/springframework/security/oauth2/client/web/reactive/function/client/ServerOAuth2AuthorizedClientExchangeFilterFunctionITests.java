@@ -19,8 +19,15 @@ package org.springframework.security.oauth2.client.web.reactive.function.client;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
@@ -38,23 +45,42 @@ import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.client.InMemoryReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.web.server.AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
+import org.springframework.web.reactive.function.client.ClientRequest;
+import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
+import org.springframework.web.reactive.function.client.ExchangeFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -67,8 +93,11 @@ import static org.mockito.Mockito.verify;
 
 /**
  * @author Phil Clay
+ * @author Evgeniy Cheban
  */
 public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
+
+	private final AuthenticationCapturingExchangeFilterFunction authenticationCapturingFilter = new AuthenticationCapturingExchangeFilterFunction();
 
 	private ReactiveClientRegistrationRepository clientRegistrationRepository;
 
@@ -118,6 +147,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 		// @formatter:off
 		this.webClient = WebClient.builder()
 				.filter(this.authorizedClientFilter)
+				.filter(this.authenticationCapturingFilter)
 				.build();
 		// @formatter:on
 		this.authentication = new TestingAuthenticationToken("principal", "password");
@@ -216,6 +246,116 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 		OAuth2AuthorizedClient refreshedAuthorizedClient = authorizedClientCaptor.getValue();
 		assertThat(refreshedAuthorizedClient.getClientRegistration()).isSameAs(clientRegistration);
 		assertThat(refreshedAuthorizedClient.getAccessToken().getTokenValue()).isEqualTo("refreshed-access-token");
+	}
+
+	@Test
+	public void requestWhenAuthorizedButExpiredThenRefreshSecurityContext() throws Exception {
+		// Current OIDC user in the SecurityContext.
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration()
+			.issuerUri(this.serverUrl)
+			.tokenUri(this.serverUrl)
+			.jwkSetUri(this.serverUrl + "oauth2/jwk")
+			.userInfoUri(this.serverUrl + "user")
+			.userNameAttributeName("username")
+			.build();
+		Instant issuedAt = Instant.now().minus(Duration.ofDays(1));
+		Instant expiresAt = issuedAt.plus(Duration.ofHours(1));
+		OidcIdToken existingIdToken = OidcIdToken.withTokenValue("id-token-1234")
+			.issuer(this.serverUrl)
+			.subject("subject-1234")
+			.audience(List.of(clientRegistration.getClientId()))
+			.issuedAt(issuedAt)
+			.expiresAt(expiresAt)
+			.build();
+		OidcUser existingOidcUser = new DefaultOidcUser(Collections.emptyList(), existingIdToken);
+		this.authentication = new OAuth2AuthenticationToken(existingOidcUser, Collections.emptyList(),
+				clientRegistration.getRegistrationId());
+		// Generate new OIDC ID token with refreshed user information.
+		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256).type("JWT").build();
+		JwtClaimsSet jwtClaimsSet = JwtClaimsSet.builder()
+			.subject("subject-1234")
+			.audience(List.of(clientRegistration.getClientId()))
+			.issuer(this.serverUrl)
+			.issuedAt(Instant.now())
+			.expiresAt(Instant.now().plusSeconds(3600))
+			.build();
+		RSAKey key = new RSAKeyGenerator(2048).generate();
+		JWKSet jwkSet = new JWKSet(key);
+		JwtEncoder jwtEncoder = new NimbusJwtEncoder(new ImmutableJWKSet<>(jwkSet));
+		String idToken = jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, jwtClaimsSet)).getTokenValue();
+		// @formatter:off
+		String accessTokenResponse = """
+			{
+				"access_token": "refreshed-access-token",
+				"id_token": "%s",
+				"token_type": "bearer",
+				"expires_in": "3600"
+			}
+			""".formatted(idToken);
+		String userInfoResponse = """
+			{
+				"sub": "subject-1234",
+				"username": "refreshed-username"
+			}
+			""";
+		String clientResponse = """
+			{
+				"attribute1": "value1",
+				"attribute2": "value2"
+			}
+			""";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(accessTokenResponse));
+		this.server.enqueue(jsonResponse(jwkSet.toString()));
+		this.server.enqueue(jsonResponse(userInfoResponse));
+		this.server.enqueue(jsonResponse(clientResponse));
+		given(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration.getRegistrationId())))
+			.willReturn(Mono.just(clientRegistration));
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
+				"expired-access-token", issuedAt, expiresAt,
+				new HashSet<>(Arrays.asList("read", "write", OidcScopes.OPENID)));
+		OAuth2RefreshToken refreshToken = TestOAuth2RefreshTokens.refreshToken();
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(clientRegistration,
+				this.authentication.getName(), accessToken, refreshToken);
+		doReturn(Mono.just(authorizedClient)).when(this.authorizedClientRepository)
+			.loadAuthorizedClient(eq(clientRegistration.getRegistrationId()), eq(this.authentication),
+					eq(this.exchange));
+		this.webClient.get()
+			.uri(this.serverUrl)
+			.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction
+				.clientRegistrationId(clientRegistration.getRegistrationId()))
+			.retrieve()
+			.bodyToMono(String.class)
+			.contextWrite(Context.of(ServerWebExchange.class, this.exchange))
+			.contextWrite(ReactiveSecurityContextHolder.withAuthentication(this.authentication))
+			.block();
+		assertThat(this.server.getRequestCount()).isEqualTo(4);
+		ArgumentCaptor<OAuth2AuthorizedClient> authorizedClientCaptor = ArgumentCaptor
+			.forClass(OAuth2AuthorizedClient.class);
+		verify(this.authorizedClientRepository).saveAuthorizedClient(authorizedClientCaptor.capture(),
+				eq(this.authentication), eq(this.exchange));
+		OAuth2AuthorizedClient refreshedAuthorizedClient = authorizedClientCaptor.getValue();
+		assertThat(refreshedAuthorizedClient.getClientRegistration()).isSameAs(clientRegistration);
+		assertThat(refreshedAuthorizedClient.getAccessToken().getTokenValue()).isEqualTo("refreshed-access-token");
+		WebSessionServerSecurityContextRepository securityContextRepository = new WebSessionServerSecurityContextRepository();
+		// Capture and verify that the refreshed Authentication object was propagated to
+		// the next ExchangeFilterFunction's context.
+		Authentication capturedAuthentication = this.authenticationCapturingFilter.getCapturedAuthentication();
+		assertThat(capturedAuthentication).isNotNull();
+		Authentication refreshedAuthentication = securityContextRepository.load(this.exchange)
+			.mapNotNull(SecurityContext::getAuthentication)
+			.block();
+		assertThat(refreshedAuthentication).isNotNull();
+		assertThat(refreshedAuthentication).isSameAs(capturedAuthentication);
+		assertThat(refreshedAuthentication).asInstanceOf(type(OAuth2AuthenticationToken.class))
+			.extracting(OAuth2AuthenticationToken::getPrincipal)
+			.asInstanceOf(type(OidcUser.class))
+			.satisfies((oidcUser) -> {
+				// Verify that the OidcUser's attributes match the id_token's claims.
+				assertThat(oidcUser.getIdToken()).extracting(AbstractOAuth2Token::getTokenValue).isEqualTo(idToken);
+				assertThat(oidcUser.getSubject()).isEqualTo("subject-1234");
+				assertThat(oidcUser.getName()).isEqualTo("refreshed-username");
+			});
 	}
 
 	@Test
@@ -347,6 +487,24 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 				.setBody(json);
 		// @formatter:on
+	}
+
+	private static final class AuthenticationCapturingExchangeFilterFunction implements ExchangeFilterFunction {
+
+		private final AtomicReference<Authentication> authenticationCaptor = new AtomicReference<>();
+
+		@Override
+		public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
+			return ReactiveSecurityContextHolder.getContext().flatMap((ctx) -> {
+				this.authenticationCaptor.set(ctx.getAuthentication());
+				return next.exchange(request);
+			});
+		}
+
+		private Authentication getCapturedAuthentication() {
+			return this.authenticationCaptor.get();
+		}
+
 	}
 
 }
