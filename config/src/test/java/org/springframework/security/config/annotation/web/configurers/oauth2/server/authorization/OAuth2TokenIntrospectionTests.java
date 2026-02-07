@@ -515,6 +515,7 @@ public class OAuth2TokenIntrospectionTests {
 		}
 
 		@Bean
+		@SuppressWarnings("removal")
 		RegisteredClientRepository registeredClientRepository(JdbcOperations jdbcOperations) {
 			JdbcRegisteredClientRepository jdbcRegisteredClientRepository = new JdbcRegisteredClientRepository(
 					jdbcOperations);

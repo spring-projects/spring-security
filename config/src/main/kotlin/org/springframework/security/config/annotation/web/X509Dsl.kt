@@ -62,6 +62,7 @@ class X509Dsl {
             authenticationDetailsSource?.also { x509.authenticationDetailsSource(authenticationDetailsSource) }
             userDetailsService?.also { x509.userDetailsService(userDetailsService) }
             authenticationUserDetailsService?.also { x509.authenticationUserDetailsService(authenticationUserDetailsService) }
+            @Suppress("DEPRECATION")
             subjectPrincipalRegex?.also { x509.subjectPrincipalRegex(subjectPrincipalRegex) }
         }
     }

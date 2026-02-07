@@ -318,6 +318,7 @@ public class OAuth2TokenRevocationTests {
 		}
 
 		@Bean
+		@SuppressWarnings("removal")
 		RegisteredClientRepository registeredClientRepository(JdbcOperations jdbcOperations) {
 			JdbcRegisteredClientRepository jdbcRegisteredClientRepository = new JdbcRegisteredClientRepository(
 					jdbcOperations);

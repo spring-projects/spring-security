@@ -1257,6 +1257,7 @@ public class OAuth2AuthorizationCodeGrantTests {
 		}
 
 		@Bean
+		@SuppressWarnings("removal")
 		RegisteredClientRepository registeredClientRepository(JdbcOperations jdbcOperations) {
 			JdbcRegisteredClientRepository jdbcRegisteredClientRepository = new JdbcRegisteredClientRepository(
 					jdbcOperations);

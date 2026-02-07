@@ -167,6 +167,7 @@ public class OidcLogoutSpecTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	void logoutWhenInvalidLogoutTokenThenBadRequest() {
 		this.spring.register(WebServerConfig.class, OidcProviderConfig.class, DefaultConfig.class).autowire();
 		this.test.get().uri("/token/logout").exchange().expectStatus().isUnauthorized();
@@ -209,6 +210,7 @@ public class OidcLogoutSpecTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	void logoutWhenLogoutTokenSpecifiesOneSessionThenRemotelyInvalidatesOnlyThatSession() throws Exception {
 		this.spring.register(WebServerConfig.class, OidcProviderConfig.class, DefaultConfig.class).autowire();
 		String registrationId = this.clientRegistration.getRegistrationId();
@@ -252,6 +254,7 @@ public class OidcLogoutSpecTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	void logoutWhenRemoteLogoutUriThenUses() {
 		this.spring.register(WebServerConfig.class, OidcProviderConfig.class, LogoutUriConfig.class).autowire();
 		String registrationId = this.clientRegistration.getRegistrationId();
@@ -302,6 +305,7 @@ public class OidcLogoutSpecTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	void logoutWhenDifferentCookieNameThenUses() {
 		this.spring.register(OidcProviderConfig.class, CookieConfig.class).autowire();
 		String registrationId = this.clientRegistration.getRegistrationId();
@@ -325,6 +329,7 @@ public class OidcLogoutSpecTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	void logoutWhenRemoteLogoutFailsThenReportsPartialLogout() {
 		this.spring.register(WebServerConfig.class, OidcProviderConfig.class, WithBrokenLogoutConfig.class).autowire();
 		ServerLogoutHandler logoutHandler = this.spring.getContext().getBean(ServerLogoutHandler.class);

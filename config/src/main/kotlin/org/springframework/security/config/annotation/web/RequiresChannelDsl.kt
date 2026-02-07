@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package org.springframework.security.config.annotation.web
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
