@@ -97,6 +97,7 @@ This design allows any number of remember-me implementation strategies.
 We have seen earlier that Spring Security provides two implementations.
 We look at each of these in turn.
 
+[[token-based-remember-me-services]]
 === TokenBasedRememberMeServices
 This implementation supports the simpler approach described in <<remember-me-hash-token>>.
 `TokenBasedRememberMeServices` generates a `RememberMeAuthenticationToken`, which is processed by `RememberMeAuthenticationProvider`.
@@ -110,105 +111,11 @@ If no `algorithmName` is present, the default matching algorithm will be used, w
 You can specify different algorithms for signature encoding and for signature matching, this allows users to safely upgrade to a different encoding algorithm while still able to verify old ones if there is no `algorithmName` present.
 To do that you can specify your customized `TokenBasedRememberMeServices` as a Bean and use it in the configuration.
 
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Bean
-SecurityFilterChain securityFilterChain(HttpSecurity http, RememberMeServices rememberMeServices) throws Exception {
-	http
-			.authorizeHttpRequests((authorize) -> authorize
-					.anyRequest().authenticated()
-			)
-			.rememberMe((remember) -> remember
-				.rememberMeServices(rememberMeServices)
-			);
-	return http.build();
-}
-
-@Bean
-RememberMeServices rememberMeServices(UserDetailsService userDetailsService) {
-	RememberMeTokenAlgorithm encodingAlgorithm = RememberMeTokenAlgorithm.SHA256;
-	TokenBasedRememberMeServices rememberMe = new TokenBasedRememberMeServices(myKey, userDetailsService, encodingAlgorithm);
-	rememberMe.setMatchingAlgorithm(RememberMeTokenAlgorithm.MD5);
-	return rememberMe;
-}
-----
-
-XML::
-+
-[source,xml,role="secondary"]
-----
-<http>
-  <remember-me services-ref="rememberMeServices"/>
-</http>
-
-<bean id="rememberMeServices" class=
-"org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
-    <property name="userDetailsService" ref="myUserDetailsService"/>
-    <property name="key" value="springRocks"/>
-    <property name="matchingAlgorithm" value="MD5"/>
-    <property name="encodingAlgorithm" value="SHA256"/>
-</bean>
-----
-======
+include-code::./CustomAlgorithmRememberMeServicesConfiguration[tag=snippet,indent=0]
 
 The following beans are required in an application context to enable remember-me services:
 
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Bean
-RememberMeAuthenticationFilter rememberMeFilter() {
-    RememberMeAuthenticationFilter rememberMeFilter = new RememberMeAuthenticationFilter();
-    rememberMeFilter.setRememberMeServices(rememberMeServices());
-    rememberMeFilter.setAuthenticationManager(theAuthenticationManager);
-    return rememberMeFilter;
-}
-
-@Bean
-TokenBasedRememberMeServices rememberMeServices() {
-    TokenBasedRememberMeServices rememberMeServices = new TokenBasedRememberMeServices();
-    rememberMeServices.setUserDetailsService(myUserDetailsService);
-    rememberMeServices.setKey("springRocks");
-    return rememberMeServices;
-}
-
-@Bean
-RememberMeAuthenticationProvider rememberMeAuthenticationProvider() {
-    RememberMeAuthenticationProvider rememberMeAuthenticationProvider = new RememberMeAuthenticationProvider();
-    rememberMeAuthenticationProvider.setKey("springRocks");
-    return rememberMeAuthenticationProvider;
-}
-----
-
-XML::
-+
-[source,xml,role="secondary"]
-----
-<bean id="rememberMeFilter" class=
-"org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter">
-<property name="rememberMeServices" ref="rememberMeServices"/>
-<property name="authenticationManager" ref="theAuthenticationManager" />
-</bean>
-
-<bean id="rememberMeServices" class=
-"org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
-<property name="userDetailsService" ref="myUserDetailsService"/>
-<property name="key" value="springRocks"/>
-</bean>
-
-<bean id="rememberMeAuthenticationProvider" class=
-"org.springframework.security.authentication.RememberMeAuthenticationProvider">
-<property name="key" value="springRocks"/>
-</bean>
-----
-======
+include-code::./DefaultAlgorithmRememberMeServicesConfiguration[tag=snippet,indent=0]
 
 Remember to add your `RememberMeServices` implementation to your `UsernamePasswordAuthenticationFilter.setRememberMeServices()` property, include the `RememberMeAuthenticationProvider` in your `AuthenticationManager.setProviders()` list, and add `RememberMeAuthenticationFilter` into your `FilterChainProxy` (typically immediately after your `UsernamePasswordAuthenticationFilter`).
 
