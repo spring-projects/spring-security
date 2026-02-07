@@ -879,7 +879,7 @@ public class OAuth2AuthorizationCodeGrantTests {
 				.with(user("user")))
 			.andExpect(status().isOk());
 
-		verify(authorizationRequestConverter).convert(any());
+		verify(authorizationRequestConverter, times(2)).convert(any());
 
 		@SuppressWarnings("unchecked")
 		ArgumentCaptor<List<AuthenticationConverter>> authenticationConvertersCaptor = ArgumentCaptor

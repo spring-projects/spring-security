@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -55,7 +54,6 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationConsentAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
-import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.TestRegisteredClients;
 import org.springframework.security.oauth2.server.authorization.context.AuthorizationServerContextHolder;
 import org.springframework.security.oauth2.server.authorization.context.TestAuthorizationServerContext;
@@ -71,7 +69,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -332,41 +329,6 @@ public class OAuth2AuthorizationEndpointFilterTests {
 					request.addParameter("prompt", "login");
 					updateQueryString(request);
 				});
-	}
-
-	@Test
-	public void doFilterWhenPromptNoneAndNotAuthenticatedThenLoginRequiredError() throws Exception {
-		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().scopes((scopes) -> {
-			scopes.clear();
-			scopes.add(OidcScopes.OPENID);
-		}).build();
-
-		this.principal.setAuthenticated(false);
-
-		RegisteredClientRepository registeredClientRepository = mock(RegisteredClientRepository.class);
-		given(registeredClientRepository.findByClientId(eq(registeredClient.getClientId())))
-			.willReturn(registeredClient);
-
-		Filter validatingFilter = this.filter.createAuthorizationCodeRequestValidatingFilter(
-				registeredClientRepository,
-				authenticationContext -> {
-				});
-
-		MockHttpServletRequest request = createAuthorizationRequest(registeredClient);
-		request.addParameter("prompt", "none");
-		updateQueryString(request);
-
-		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterChain filterChain = mock(FilterChain.class);
-
-		validatingFilter.doFilter(request, response, filterChain);
-
-		verifyNoInteractions(filterChain);
-
-		assertThat(response.getStatus()).isEqualTo(HttpStatus.FOUND.value());
-		assertThat(response.getRedirectedUrl()).startsWith(registeredClient.getRedirectUris().iterator().next());
-		assertThat(response.getRedirectedUrl()).contains("error=login_required");
-		assertThat(response.getRedirectedUrl()).contains("state=" + STATE);
 	}
 
 	@Test

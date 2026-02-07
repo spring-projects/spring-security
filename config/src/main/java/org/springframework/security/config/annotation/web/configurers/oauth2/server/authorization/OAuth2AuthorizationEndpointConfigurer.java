@@ -41,7 +41,9 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.web.OAuth2AuthorizationEndpointFilter;
+import org.springframework.security.oauth2.server.authorization.web.OidcPromptNoneExceptionHandlingFilter;
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2AuthorizationCodeRequestAuthenticationConverter;
+import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2AuthorizationCodeRequestAuthenticationFailureHandler;
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2AuthorizationConsentAuthenticationConverter;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AuthenticationConverter;
@@ -297,6 +299,16 @@ public final class OAuth2AuthorizationEndpointConfigurer extends AbstractOAuth2C
 		if (this.sessionAuthenticationStrategy != null) {
 			authorizationEndpointFilter.setSessionAuthenticationStrategy(this.sessionAuthenticationStrategy);
 		}
+
+		// Create and add OidcPromptNoneExceptionHandlingFilter
+		AuthenticationFailureHandler failureHandler = (this.errorResponseHandler != null) ? this.errorResponseHandler
+				: new OAuth2AuthorizationCodeRequestAuthenticationFailureHandler();
+
+		OidcPromptNoneExceptionHandlingFilter promptNoneFilter = new OidcPromptNoneExceptionHandlingFilter(
+				this.requestMatcher, new DelegatingAuthenticationConverter(authenticationConverters), failureHandler);
+
+		httpSecurity.addFilterBefore(postProcess(promptNoneFilter), AuthorizationFilter.class);
+
 		httpSecurity.addFilterAfter(postProcess(authorizationEndpointFilter), AuthorizationFilter.class);
 		// Create and add
 		// OAuth2AuthorizationEndpointFilter.OAuth2AuthorizationCodeRequestValidatingFilter
