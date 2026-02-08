@@ -42,7 +42,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Ben Alex
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({ "unchecked", "deprecation" })
 public class ChannelDecisionManagerImplTests {
 
 	@Test

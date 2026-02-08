@@ -29,6 +29,7 @@ import org.springframework.security.access.intercept.aspectj.MethodInvocationAda
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("deprecation")
 public class PostInvocationAdviceProviderTests {
 
 	@Mock

@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Ben Alex
  */
+@SuppressWarnings("deprecation")
 public class InterceptorStatusTokenTests {
 
 	@Test
