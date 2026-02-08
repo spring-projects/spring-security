@@ -337,6 +337,55 @@ public class InterceptUrlConfigTests {
 		assertThat(this.spring.getContext().getBean(AuthorizationManager.class)).isNotNull();
 	}
 
+	/**
+	 * gh-18503
+	 */
+	@Test
+	public void configWhenInterceptUrlMissingAccessThenException() {
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> this.spring.configLocations(this.xml("MissingAccess")).autowire())
+				.withMessageContaining("access attribute cannot be empty or null");
+	}
+
+	/**
+	 * gh-18503
+	 */
+	@Test
+	public void configWhenInterceptUrlEmptyAccessThenException() {
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> this.spring.configLocations(this.xml("EmptyAccess")).autowire())
+				.withMessageContaining("access attribute cannot be empty or null");
+	}
+
+	/**
+	 * gh-18503
+	 */
+	@Test
+	public void configWhenInterceptUrlValidAccessThenLoads() {
+		assertThatNoException()
+				.isThrownBy(() -> this.spring.configLocations(this.xml("ValidAccess")).autowire());
+	}
+
+	/**
+	 * gh-18503
+	 */
+	@Test
+	public void configWhenUseAuthorizationManagerFalseAndMissingAccessThenException() {
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> this.spring.configLocations(this.xml("MissingAccessLegacy")).autowire())
+				.withMessageContaining("access attribute cannot be empty or null");
+	}
+
+	/**
+	 * gh-18503
+	 */
+	@Test
+	public void configWhenUseAuthorizationManagerFalseAndEmptyAccessThenException() {
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> this.spring.configLocations(this.xml("EmptyAccessLegacy")).autowire())
+				.withMessageContaining("access attribute cannot be empty or null");
+	}
+
 	private static RequestPostProcessor adminCredentials() {
 		return httpBasic("admin", "password");
 	}
