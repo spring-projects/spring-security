@@ -25,6 +25,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SuppressWarnings("deprecation")
 public class RoleHierarchyVoterTests {
 
 	@Test
