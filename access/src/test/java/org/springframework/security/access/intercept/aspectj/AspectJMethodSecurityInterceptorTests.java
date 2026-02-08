@@ -62,6 +62,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  * @author Luke Taylor
  * @author Rob Winch
  */
+@SuppressWarnings("deprecation")
 public class AspectJMethodSecurityInterceptorTests {
 
 	private TestingAuthenticationToken token;

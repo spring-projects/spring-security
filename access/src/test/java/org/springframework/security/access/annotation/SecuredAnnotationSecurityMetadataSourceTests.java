@@ -46,6 +46,7 @@ import static org.assertj.core.api.Assertions.fail;
  * @author Ben Alex
  * @author Luke Taylor
  */
+@SuppressWarnings("deprecation")
 public class SecuredAnnotationSecurityMetadataSourceTests {
 
 	private SecuredAnnotationSecurityMetadataSource mds = new SecuredAnnotationSecurityMetadataSource();

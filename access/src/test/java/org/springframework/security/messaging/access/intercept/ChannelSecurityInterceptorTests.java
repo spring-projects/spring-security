@@ -47,6 +47,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("deprecation")
 public class ChannelSecurityInterceptorTests {
 
 	@Mock

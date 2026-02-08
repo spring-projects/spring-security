@@ -31,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Luke Taylor
  */
+@SuppressWarnings("deprecation")
 public class Jsr250VoterTests {
 
 	// SEC-1443

@@ -33,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 /**
  * @author Luke Taylor
  */
+@SuppressWarnings("deprecation")
 public class ExpressionBasedFilterInvocationSecurityMetadataSourceTests {
 
 	@Test
