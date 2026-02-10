@@ -105,7 +105,7 @@ public final class ClientRegistrations {
 	 * @return the {@link ClientRegistration} built from the configuration
 	 */
 	public static ClientRegistration.Builder fromOidcConfiguration(Map<String, Object> configuration) {
-		OIDCProviderMetadata metadata = parse(configuration, OIDCProviderMetadata::parse);
+		OIDCProviderMetadata metadata = parseInput(configuration, OIDCProviderMetadata::parse);
 		ClientRegistration.Builder builder = withProviderConfiguration(metadata, metadata.getIssuer().getValue());
 		builder.jwkSetUri(metadata.getJWKSetURI().toASCIIString());
 		if (metadata.getUserInfoEndpointURI() != null) {
@@ -290,6 +290,15 @@ public final class ClientRegistrations {
 			throw new IllegalArgumentException(errorMessage + ", errors: " + errors);
 		}
 		throw new IllegalArgumentException(errorMessage);
+	}
+
+	private static <T> T parseInput(Map<String, Object> body, ThrowingFunction<JSONObject, T, ParseException> parser) {
+		try {
+			return parse(body, parser);
+		}
+		catch (RuntimeException ex) {
+			throw new IllegalArgumentException(ex);
+		}
 	}
 
 	private static <T> T parse(Map<String, Object> body, ThrowingFunction<JSONObject, T, ParseException> parser) {
