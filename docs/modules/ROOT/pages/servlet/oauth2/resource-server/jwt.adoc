@@ -961,7 +961,11 @@ By default, Spring Security will wire the `JwtAuthenticationProvider` with a def
 
 As part of configuring a `JwtAuthenticationConverter`, you can supply a subsidiary converter to go from `Jwt` to a `Collection` of granted authorities.
 
+[[jwt-granted-authorities-custom-claim-name]]
+==== Using a Custom Claim Name
+
 Let's say that your authorization server communicates authorities in a custom claim called `authorities`.
+
 In that case, you can configure the claim that <<oauth2resourceserver-jwt-architecture-jwtauthenticationconverter,`JwtAuthenticationConverter`>> should inspect, like so:
 
 .Authorities Claim Configuration
@@ -1021,6 +1025,9 @@ Xml::
 </bean>
 ----
 ======
+
+[[jwt-granted-authorities-custom-scope-prefix]]
+==== Using a Custom Scope Prefix
 
 You can also configure the authority prefix to be different as well.
 Instead of prefixing each authority with `SCOPE_`, you can change it to `ROLE_` like so:
@@ -1152,6 +1159,17 @@ class CustomAuthenticationConverterConfig {
 }
 ----
 ======
+
+[[jwt-granted-authorities-spel-expression]]
+==== Using a SpEL Expression
+
+In circumstances where the location of scopes is nested or complex in some other way, you can use `ExpressionJwtGrantedAuthoritiesConverter` with a SpEL expression to extract the scopes.
+
+For example, if your JWT has a claim called `nested` and, inside of that, it has a claim called `scopes`, you can do:
+
+include-code::./ExpressionJwtGrantedAuthoritiesConverterTests[tag=spel-expression,indent=0]
+
+The SpEL expression result should be a `Collection`.
 
 [[oauth2resourceserver-jwt-validation]]
 == Configuring Validation
