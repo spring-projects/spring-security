@@ -28,7 +28,7 @@ com-unboundid-unboundid-ldapsdk = "com.unboundid:unboundid-ldapsdk:7.0.4"
 com-jayway-jsonpath-json-path = "com.jayway.jsonpath:json-path:2.10.0"
 commons-collections = "commons-collections:commons-collections:3.2.2"
 io-micrometer-context-propagation = "io.micrometer:context-propagation:1.2.1"
-io-micrometer-micrometer-observation = "io.micrometer:micrometer-observation:1.16.2"
+io-micrometer-micrometer-observation = "io.micrometer:micrometer-observation:1.16.3"
 io-mockk = "io.mockk:mockk:1.14.9"
 io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2025.0.2"
 io-rsocket-rsocket-bom = { module = "io.rsocket:rsocket-bom", version.ref = "io-rsocket" }
