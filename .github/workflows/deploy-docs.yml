@@ -23,7 +23,7 @@ jobs:
     - name: Set Up Gradle
       uses: spring-io/spring-gradle-build-action@v2
       with:
-        java-version: '17'
+        java-version: '25'
         distribution: temurin
     - name: Set up refname build
       if: github.event.inputs.build-refname
