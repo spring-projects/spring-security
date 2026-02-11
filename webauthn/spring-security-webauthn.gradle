@@ -16,10 +16,12 @@ dependencies {
 	optional 'org.springframework:spring-jdbc'
 	optional 'org.springframework:spring-tx'
 	optional 'tools.jackson.core:jackson-databind'
+	optional 'com.fasterxml.jackson.core:jackson-databind'
 
 	provided 'jakarta.servlet:jakarta.servlet-api'
 
 	testImplementation project(path: ':spring-security-core', configuration: 'tests')
+	testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-cbor'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'jakarta.xml.bind:jakarta.xml.bind-api'
 	testImplementation 'jakarta.websocket:jakarta.websocket-api'
