@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -327,6 +328,8 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 
 		private Converter<OAuth2TokenIntrospectionClaimAccessor, ? extends OAuth2AuthenticatedPrincipal> authenticationConverter;
 
+		private final List<Consumer<SpringOpaqueTokenIntrospector>> postProcessors = new ArrayList<>();
+
 		private Builder(String introspectionUri) {
 			this.introspectionUri = introspectionUri;
 		}
@@ -374,6 +377,20 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		}
 
 		/**
+		 * Adds a {@link Consumer} to customize the {@link SpringOpaqueTokenIntrospector}
+		 * after it is built. This allows for additional configuration that cannot be
+		 * expressed through the builder methods.
+		 * @param customizer the {@link Consumer} to customize the introspector
+		 * @return the {@link SpringOpaqueTokenIntrospector.Builder}
+		 * @since 7.x.x
+		 */
+		public Builder postProcessor(Consumer<SpringOpaqueTokenIntrospector> customizer) {
+			Assert.notNull(customizer, "customizer cannot be null");
+			this.postProcessors.add(customizer);
+			return this;
+		}
+
+		/**
 		 * Creates a {@code SpringOpaqueTokenIntrospector}
 		 * @return the {@link SpringOpaqueTokenIntrospector}
 		 * @since 6.5
@@ -386,6 +403,7 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 			if (this.authenticationConverter != null) {
 				introspector.setAuthenticationConverter(this.authenticationConverter);
 			}
+			this.postProcessors.forEach((postProcessor) -> postProcessor.accept(introspector));
 			return introspector;
 		}
 
