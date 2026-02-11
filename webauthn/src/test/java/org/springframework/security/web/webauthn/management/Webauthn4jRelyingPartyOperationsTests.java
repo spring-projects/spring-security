@@ -43,6 +43,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.dataformat.cbor.CBORMapper;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -78,6 +80,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.assertj.core.api.Assertions.assertThatRuntimeException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.RETURNS_SELF;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -613,9 +616,11 @@ class Webauthn4jRelyingPartyOperationsTests {
 
 		ImmutableCredentialRecord credentialRecord = TestCredentialRecords.fullUserCredential().build();
 		given(this.userCredentials.findByCredentialId(publicKey.getRawId())).willReturn(credentialRecord);
-		ObjectMapper json = mock(ObjectMapper.class);
-		ObjectMapper cbor = mock(ObjectMapper.class);
-		given(cbor.getFactory()).willReturn(mock(CBORFactory.class));
+		JsonMapper json = new JsonMapper();
+		CBORMapper cbor = mock(CBORMapper.class);
+		CBORMapper.Builder builder = mock(CBORMapper.Builder.class, RETURNS_SELF);
+		given(builder.build()).willReturn(cbor);
+		given(cbor.rebuild()).willReturn(builder);
 		AttestationObject attestationObject = mock(AttestationObject.class);
 		AuthenticatorData wa4jAuthData = mock(AuthenticatorData.class);
 		given(attestationObject.getAuthenticatorData()).willReturn(wa4jAuthData);
