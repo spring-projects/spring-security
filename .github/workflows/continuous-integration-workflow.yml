@@ -34,6 +34,7 @@ jobs:
     with:
       should-deploy-artifacts: ${{ needs.build.outputs.should-deploy-artifacts }}
       default-publish-milestones-central: true
+      java-version: 25
     secrets: inherit
   deploy-schema:
     name: Deploy Schema
@@ -41,6 +42,7 @@ jobs:
     uses: spring-io/spring-security-release-tools/.github/workflows/deploy-schema.yml@releases/v1
     with:
       should-deploy-schema: ${{ needs.build.outputs.should-deploy-artifacts }}
+      java-version: 25
     secrets: inherit
   perform-release:
     name: Perform Release
@@ -53,6 +55,7 @@ jobs:
       release-repo-url: https://repo1.maven.org/maven2
       artifact-path: org/springframework/security/spring-security-core
       slack-announcing-id: spring-security-announcing
+      java-version: 25
     secrets: inherit
   send-notification:
     name: Send Notification
