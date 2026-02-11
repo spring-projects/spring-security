@@ -232,7 +232,9 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @since 7.0
 	 */
 	public CsrfConfigurer<H> spa() {
-		this.csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+		 if (this.csrfTokenRepository == null) {
+        	this.csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+    	}
 		this.requestHandler = new SpaCsrfTokenRequestHandler();
 		return this;
 	}
