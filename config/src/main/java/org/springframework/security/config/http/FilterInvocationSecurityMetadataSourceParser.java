@@ -142,10 +142,12 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 		ManagedMap<BeanMetadataElement, BeanDefinition> filterInvocationDefinitionMap = new ManagedMap<>();
 		for (Element urlElt : urlElts) {
 			String access = urlElt.getAttribute(ATT_ACCESS);
+			String path = urlElt.getAttribute(ATT_PATTERN);
 			if (!StringUtils.hasText(access)) {
+				parserContext.getReaderContext()
+						.error("access attribute cannot be empty or null", urlElt);
 				continue;
 			}
-			String path = urlElt.getAttribute(ATT_PATTERN);
 			String matcherRef = urlElt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_REQUEST_MATCHER_REF);
 			boolean hasMatcherRef = StringUtils.hasText(matcherRef);
 			if (!hasMatcherRef && !StringUtils.hasText(path)) {
