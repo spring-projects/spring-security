@@ -231,11 +231,13 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link CsrfConfigurer} for further customizations
 	 * @since 7.0
 	 */
-	public CsrfConfigurer<H> spa() {
-		this.csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-		this.requestHandler = new SpaCsrfTokenRequestHandler();
-		return this;
-	}
+    public CsrfConfigurer<H> spa() {
+        if(this.csrfTokenRepository == null) {
+            this.csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        }
+        this.requestHandler = new SpaCsrfTokenRequestHandler();
+        return this;
+    }
 
 	@SuppressWarnings("unchecked")
 	@Override
