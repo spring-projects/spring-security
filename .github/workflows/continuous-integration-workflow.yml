@@ -17,7 +17,7 @@ permissions:
 jobs:
   build:
     name: Build
-    uses: spring-io/spring-security-release-tools/.github/workflows/build.yml@7d42d82298553f123a9dad622e0eac725aaf52ef # v1.0.13
+    uses: spring-io/spring-security-release-tools/.github/workflows/build.yml@729fed56d42122f88583aff1be35c0800b7d77e9 # v1.0.14
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest ]
@@ -30,7 +30,7 @@ jobs:
   deploy-artifacts:
     name: Deploy Artifacts
     needs: [ build]
-    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@7d42d82298553f123a9dad622e0eac725aaf52ef # v1.0.13
+    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@729fed56d42122f88583aff1be35c0800b7d77e9 # v1.0.14
     with:
       should-deploy-artifacts: ${{ needs.build.outputs.should-deploy-artifacts }}
       default-publish-milestones-central: true
@@ -38,14 +38,14 @@ jobs:
   deploy-schema:
     name: Deploy Schema
     needs: [ build ]
-    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-schema.yml@7d42d82298553f123a9dad622e0eac725aaf52ef # v1.0.13
+    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-schema.yml@729fed56d42122f88583aff1be35c0800b7d77e9 # v1.0.14
     with:
       should-deploy-schema: ${{ needs.build.outputs.should-deploy-artifacts }}
     secrets: inherit
   perform-release:
     name: Perform Release
     needs: [ deploy-artifacts, deploy-schema ]
-    uses: spring-io/spring-security-release-tools/.github/workflows/perform-release.yml@7d42d82298553f123a9dad622e0eac725aaf52ef # v1.0.13
+    uses: spring-io/spring-security-release-tools/.github/workflows/perform-release.yml@729fed56d42122f88583aff1be35c0800b7d77e9 # v1.0.14
     with:
       should-perform-release: ${{ needs.deploy-artifacts.outputs.artifacts-deployed }}
       project-version: ${{ needs.deploy-artifacts.outputs.project-version }}
@@ -61,6 +61,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send Notification
-        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@7d42d82298553f123a9dad622e0eac725aaf52ef # v1.0.13
+        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@729fed56d42122f88583aff1be35c0800b7d77e9 # v1.0.14
         with:
           webhook-url: ${{ secrets.SPRING_SECURITY_CI_GCHAT_WEBHOOK_URL }}
