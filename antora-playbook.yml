@@ -11,8 +11,8 @@ git:
 content:
   sources:
   - url: https://github.com/spring-projects/spring-security
-    branches: [main, '6.{4..5}.x', '{7..99}.*.x']
-    tags: ['6.{4..5}.*','{7..99}.*']
+    branches: [main, '6.5.x', '{7..99}.*.x']
+    tags: ['6.5.*','{7..99}.*']
     start_path: docs
 asciidoc:
   attributes:
