@@ -30,7 +30,6 @@ import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.DefaultAuthorizationManagerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 import org.springframework.util.function.SingletonSupplier;
 
 /**
