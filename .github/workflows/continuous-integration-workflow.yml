@@ -55,7 +55,7 @@ jobs:
       release-repo-url: https://repo1.maven.org/maven2
       artifact-path: org/springframework/security/spring-security-core
       slack-announcing-id: spring-security-announcing
-      java-version: 25:q
+      java-version: 25
     secrets: inherit
   send-notification:
     name: Send Notification
