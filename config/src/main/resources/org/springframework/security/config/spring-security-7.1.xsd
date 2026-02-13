@@ -27,15 +27,14 @@
   <xs:attributeGroup name="request-matcher">
       <xs:attribute name="request-matcher" use="required">
          <xs:annotation>
-            <xs:documentation>Defines the strategy use for matching incoming requests. Currently the options are 'mvc'
-                (for Spring MVC matcher), 'ant' (for ant path patterns), 'regex' for regular expressions
-                and 'ciRegex' for case-insensitive regular expressions.
+            <xs:documentation>Defines the strategy use for matching incoming requests. Currently the options are 'path'
+                (for PathPatternRequestMatcher), 'ant' (for ant path patterns), 'regex' for regular
+                expressions and 'ciRegex' for case-insensitive regular expressions.
                 </xs:documentation>
          </xs:annotation>
          <xs:simpleType>
             <xs:restriction base="xs:token">
-               <xs:enumeration value="mvc"/>
-               <xs:enumeration value="ant"/>
+               <xs:enumeration value="path"/>
                <xs:enumeration value="regex"/>
                <xs:enumeration value="ciRegex"/>
             </xs:restriction>
@@ -1306,15 +1305,14 @@
       </xs:attribute>
       <xs:attribute name="request-matcher">
          <xs:annotation>
-            <xs:documentation>Defines the strategy use for matching incoming requests. Currently the options are 'mvc'
-                (for Spring MVC matcher), 'ant' (for ant path patterns), 'regex' for regular expressions
-                and 'ciRegex' for case-insensitive regular expressions.
+            <xs:documentation>Defines the strategy use for matching incoming requests. Currently the options are 'path'
+                (for PathPatternRequestMatcher), 'ant' (for ant path patterns), 'regex' for regular
+                expressions and 'ciRegex' for case-insensitive regular expressions.
                 </xs:documentation>
          </xs:annotation>
          <xs:simpleType>
             <xs:restriction base="xs:token">
-               <xs:enumeration value="mvc"/>
-               <xs:enumeration value="ant"/>
+               <xs:enumeration value="path"/>
                <xs:enumeration value="regex"/>
                <xs:enumeration value="ciRegex"/>
             </xs:restriction>
@@ -2474,15 +2472,14 @@
   <xs:attributeGroup name="filter-chain-map.attlist">
       <xs:attribute name="request-matcher">
          <xs:annotation>
-            <xs:documentation>Defines the strategy use for matching incoming requests. Currently the options are 'mvc'
-                (for Spring MVC matcher), 'ant' (for ant path patterns), 'regex' for regular expressions
-                and 'ciRegex' for case-insensitive regular expressions.
+            <xs:documentation>Defines the strategy use for matching incoming requests. Currently the options are 'path'
+                (for PathPatternRequestMatcher), 'ant' (for ant path patterns), 'regex' for regular
+                expressions and 'ciRegex' for case-insensitive regular expressions.
                 </xs:documentation>
          </xs:annotation>
          <xs:simpleType>
             <xs:restriction base="xs:token">
-               <xs:enumeration value="mvc"/>
-               <xs:enumeration value="ant"/>
+               <xs:enumeration value="path"/>
                <xs:enumeration value="regex"/>
                <xs:enumeration value="ciRegex"/>
             </xs:restriction>
@@ -2580,15 +2577,14 @@
       </xs:attribute>
       <xs:attribute name="request-matcher">
          <xs:annotation>
-            <xs:documentation>Defines the strategy use for matching incoming requests. Currently the options are 'mvc'
-                (for Spring MVC matcher), 'ant' (for ant path patterns), 'regex' for regular expressions
-                and 'ciRegex' for case-insensitive regular expressions.
+            <xs:documentation>Defines the strategy use for matching incoming requests. Currently the options are 'path'
+                (for PathPatternRequestMatcher), 'ant' (for ant path patterns), 'regex' for regular
+                expressions and 'ciRegex' for case-insensitive regular expressions.
                 </xs:documentation>
          </xs:annotation>
          <xs:simpleType>
             <xs:restriction base="xs:token">
-               <xs:enumeration value="mvc"/>
-               <xs:enumeration value="ant"/>
+               <xs:enumeration value="path"/>
                <xs:enumeration value="regex"/>
                <xs:enumeration value="ciRegex"/>
             </xs:restriction>
