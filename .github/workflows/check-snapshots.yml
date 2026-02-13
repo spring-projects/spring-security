@@ -14,7 +14,7 @@ permissions:
 jobs:
   snapshot-test:
     name: Test Against Snapshots
-    uses: spring-io/spring-security-release-tools/.github/workflows/test.yml@7d42d82298553f123a9dad622e0eac725aaf52ef # v1.0.13
+    uses: spring-io/spring-security-release-tools/.github/workflows/test.yml@729fed56d42122f88583aff1be35c0800b7d77e9 # v1.0.14
     strategy:
       matrix:
         include:
