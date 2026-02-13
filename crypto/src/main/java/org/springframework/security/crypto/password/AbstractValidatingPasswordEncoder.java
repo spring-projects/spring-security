@@ -44,10 +44,10 @@ public abstract class AbstractValidatingPasswordEncoder implements PasswordEncod
 
 	@Override
 	public final boolean matches(@Nullable CharSequence rawPassword, @Nullable String encodedPassword) {
-		if (StringUtils.hasLength(rawPassword) && StringUtils.hasLength(encodedPassword)) {
-			return matchesNonNull(rawPassword.toString(), encodedPassword);
+		if (!StringUtils.hasLength(rawPassword) || !StringUtils.hasLength(encodedPassword)) {
+			return false;
 		}
-		return false;
+		return matchesNonNull(rawPassword.toString(), encodedPassword);
 	}
 
 	protected abstract boolean matchesNonNull(String rawPassword, String encodedPassword);
