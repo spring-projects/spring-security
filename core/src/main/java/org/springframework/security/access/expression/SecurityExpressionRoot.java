@@ -38,6 +38,7 @@ import org.springframework.util.function.SingletonSupplier;
  * @author Luke Taylor
  * @author Evgeniy Cheban
  * @author Steve Riesenberg
+ * @author Ngoc Nhan
  * @since 3.0
  */
 public abstract class SecurityExpressionRoot<T extends @Nullable Object> implements SecurityExpressionOperations {
@@ -208,7 +209,8 @@ public abstract class SecurityExpressionRoot<T extends @Nullable Object> impleme
 	/**
 	 * Convenience method to access {@link Authentication#getPrincipal()} from
 	 * {@link #getAuthentication()}
-	 * @return
+	 * @return the {@code Principal} being authenticated or the authenticated principal
+	 * after authentication.
 	 */
 	public @Nullable Object getPrincipal() {
 		return getAuthentication().getPrincipal();
