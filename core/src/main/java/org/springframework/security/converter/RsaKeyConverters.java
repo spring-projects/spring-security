@@ -87,9 +87,17 @@ public final class RsaKeyConverters {
 					"Key is not in PEM-encoded PKCS#8 format, please check that the header begins with "
 							+ PKCS8_PEM_HEADER);
 			StringBuilder base64Encoded = new StringBuilder();
-			for (String line : lines) {
-				if (RsaKeyConverters.isNotPkcs8Wrapper(line)) {
-					base64Encoded.append(line);
+			if (lines.size() == 1) {
+				base64Encoded.append(lines.get(0)
+					.replace(PKCS8_PEM_HEADER, "")
+					.replace(PKCS8_PEM_FOOTER, "")
+					.replaceAll("\\s+", ""));
+			}
+			else {
+				for (String line : lines) {
+					if (RsaKeyConverters.isNotPkcs8Wrapper(line)) {
+						base64Encoded.append(line);
+					}
 				}
 			}
 			byte[] pkcs8 = Base64.getDecoder().decode(base64Encoded.toString());
@@ -165,9 +173,15 @@ public final class RsaKeyConverters {
 		@Override
 		public @NonNull RSAPublicKey convert(List<String> lines) {
 			StringBuilder base64Encoded = new StringBuilder();
-			for (String line : lines) {
-				if (isNotX509PemWrapper(line)) {
-					base64Encoded.append(line);
+			if (lines.size() == 1) {
+				base64Encoded.append(
+						lines.get(0).replace(X509_PEM_HEADER, "").replace(X509_PEM_FOOTER, "").replaceAll("\\s+", ""));
+			}
+			else {
+				for (String line : lines) {
+					if (isNotX509PemWrapper(line)) {
+						base64Encoded.append(line);
+					}
 				}
 			}
 			byte[] x509 = Base64.getDecoder().decode(base64Encoded.toString());
@@ -196,9 +210,17 @@ public final class RsaKeyConverters {
 		@Override
 		public @NonNull RSAPublicKey convert(List<String> lines) {
 			StringBuilder base64Encoded = new StringBuilder();
-			for (String line : lines) {
-				if (isNotX509CertificateWrapper(line)) {
-					base64Encoded.append(line);
+			if (lines.size() == 1) {
+				base64Encoded.append(lines.get(0)
+					.replace(X509_CERT_HEADER, "")
+					.replace(X509_CERT_FOOTER, "")
+					.replaceAll("\\s+", ""));
+			}
+			else {
+				for (String line : lines) {
+					if (isNotX509CertificateWrapper(line)) {
+						base64Encoded.append(line);
+					}
 				}
 			}
 			byte[] x509 = Base64.getDecoder().decode(base64Encoded.toString());
