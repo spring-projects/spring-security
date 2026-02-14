@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import reactor.core.publisher.Mono;
 
@@ -278,6 +279,10 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 
 		private String clientSecret;
 
+		private Converter<OAuth2TokenIntrospectionClaimAccessor, Mono<? extends OAuth2AuthenticatedPrincipal>> authenticationConverter;
+
+		private final List<Consumer<SpringReactiveOpaqueTokenIntrospector>> postProcessors = new ArrayList<>();
+
 		private Builder(String introspectionUri) {
 			this.introspectionUri = introspectionUri;
 		}
@@ -309,6 +314,37 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		}
 
 		/**
+		 * Sets the {@link Converter} used for converting the
+		 * {@link OAuth2TokenIntrospectionClaimAccessor} to an
+		 * {@link OAuth2AuthenticatedPrincipal}.
+		 * @param authenticationConverter the {@link Converter} used for converting to an
+		 * {@link OAuth2AuthenticatedPrincipal}
+		 * @return the {@link SpringReactiveOpaqueTokenIntrospector.Builder}
+		 * @since 7.x.x
+		 */
+		public Builder authenticationConverter(
+				Converter<OAuth2TokenIntrospectionClaimAccessor, Mono<? extends OAuth2AuthenticatedPrincipal>> authenticationConverter) {
+			Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
+			this.authenticationConverter = authenticationConverter;
+			return this;
+		}
+
+		/**
+		 * Adds a {@link Consumer} to customize the
+		 * {@link SpringReactiveOpaqueTokenIntrospector} after it is built. This allows
+		 * for additional configuration that cannot be expressed through the builder
+		 * methods.
+		 * @param customizer the {@link Consumer} to customize the introspector
+		 * @return the {@link SpringReactiveOpaqueTokenIntrospector.Builder}
+		 * @since 7.x.x
+		 */
+		public Builder postProcessor(Consumer<SpringReactiveOpaqueTokenIntrospector> customizer) {
+			Assert.notNull(customizer, "customizer cannot be null");
+			this.postProcessors.add(customizer);
+			return this;
+		}
+
+		/**
 		 * Creates a {@code SpringReactiveOpaqueTokenIntrospector}
 		 * @return the {@link SpringReactiveOpaqueTokenIntrospector}
 		 * @since 6.5
@@ -317,7 +353,13 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 			WebClient webClient = WebClient.builder()
 				.defaultHeaders((h) -> h.setBasicAuth(this.clientId, this.clientSecret))
 				.build();
-			return new SpringReactiveOpaqueTokenIntrospector(this.introspectionUri, webClient);
+			SpringReactiveOpaqueTokenIntrospector introspector = new SpringReactiveOpaqueTokenIntrospector(
+					this.introspectionUri, webClient);
+			if (this.authenticationConverter != null) {
+				introspector.setAuthenticationConverter(this.authenticationConverter);
+			}
+			this.postProcessors.forEach((postProcessor) -> postProcessor.accept(introspector));
+			return introspector;
 		}
 
 	}
