@@ -18,3 +18,4 @@ asciidoc:
     gh-url: "https://github.com/spring-projects/spring-security/tree/{gh-tag}"
     include-java: 'example$docs-src/test/java/org/springframework/security/docs'
     include-kotlin: 'example$docs-src/test/kotlin/org/springframework/security/kt/docs'
+    include-xml: 'example$docs-src/test/resources/org/springframework/security/docs'
