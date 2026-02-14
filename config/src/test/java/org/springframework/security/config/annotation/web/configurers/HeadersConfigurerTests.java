@@ -1201,6 +1201,7 @@ public class HeadersConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@SuppressWarnings("removal")
 	static class PermissionsPolicyConfig {
 
 		@Bean
@@ -1221,6 +1222,7 @@ public class HeadersConfigurerTests {
 	static class PermissionsPolicyStringConfig {
 
 		@Bean
+		@SuppressWarnings("removal")
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
@@ -1235,6 +1237,7 @@ public class HeadersConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@SuppressWarnings("removal")
 	static class PermissionsPolicyInvalidConfig {
 
 		@Bean
@@ -1252,6 +1255,7 @@ public class HeadersConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@SuppressWarnings("removal")
 	static class PermissionsPolicyInvalidStringConfig {
 
 		@Bean
