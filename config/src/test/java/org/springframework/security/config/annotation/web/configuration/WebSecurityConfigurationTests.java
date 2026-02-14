@@ -222,7 +222,8 @@ public class WebSecurityConfigurationTests {
 	// SEC-2773
 	@Test
 	public void getMethodDelegatingApplicationListenerWhenWebSecurityConfigurationThenIsStatic() {
-		Method method = ClassUtils.getMethod(WebSecurityConfiguration.class, "delegatingApplicationListener", null);
+		Method method = ClassUtils.getMethod(WebSecurityConfiguration.class, "delegatingApplicationListener",
+				(Class<?>[]) null);
 		assertThat(Modifier.isStatic(method.getModifiers())).isTrue();
 	}
 
