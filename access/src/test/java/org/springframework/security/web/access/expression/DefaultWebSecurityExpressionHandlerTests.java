@@ -64,6 +64,7 @@ public class DefaultWebSecurityExpressionHandlerTests {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void expressionPropertiesAreResolvedAgainstAppContextBeans() {
 		StaticApplicationContext appContext = new StaticApplicationContext();
 		RootBeanDefinition bean = new RootBeanDefinition(SecurityConfig.class);
