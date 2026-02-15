@@ -58,7 +58,7 @@ public class ExpressionBasedMessageSecurityMetadataSourceFactoryTests {
 
 	MessageSecurityMetadataSource source;
 
-	MessageSecurityExpressionRoot rootObject;
+	MessageSecurityExpressionRoot<Object> rootObject;
 
 	@BeforeEach
 	public void setup() {
@@ -69,7 +69,7 @@ public class ExpressionBasedMessageSecurityMetadataSourceFactoryTests {
 		this.matcherToExpression.put(this.matcher2, this.expression2);
 		this.source = ExpressionBasedMessageSecurityMetadataSourceFactory
 			.createExpressionMessageMetadataSource(this.matcherToExpression);
-		this.rootObject = new MessageSecurityExpressionRoot(this.authentication, this.message);
+		this.rootObject = new MessageSecurityExpressionRoot<>(this.authentication, this.message);
 	}
 
 	@Test
