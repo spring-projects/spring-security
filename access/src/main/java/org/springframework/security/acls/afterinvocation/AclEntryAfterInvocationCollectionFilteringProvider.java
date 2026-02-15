@@ -111,6 +111,7 @@ public class AclEntryAfterInvocationCollectionFilteringProvider extends Abstract
 		return returnedObject;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Filterer getFilterer(Object returnedObject) {
 		if (returnedObject instanceof Collection) {
 			return new CollectionFilterer((Collection) returnedObject);

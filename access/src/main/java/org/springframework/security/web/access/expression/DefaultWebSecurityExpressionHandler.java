@@ -41,6 +41,7 @@ public class DefaultWebSecurityExpressionHandler extends AbstractSecurityExpress
 	private String defaultRolePrefix = DEFAULT_ROLE_PREFIX;
 
 	@Override
+	@SuppressWarnings("deprecation")
 	protected SecurityExpressionOperations createSecurityExpressionRoot(@Nullable Authentication authentication,
 			FilterInvocation fi) {
 		FilterInvocationExpressionRoot root = new FilterInvocationExpressionRoot(() -> authentication, fi);

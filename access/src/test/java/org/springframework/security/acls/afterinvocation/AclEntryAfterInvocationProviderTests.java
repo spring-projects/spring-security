@@ -48,7 +48,7 @@ import static org.mockito.Mockito.verify;
 /**
  * @author Luke Taylor
  */
-@SuppressWarnings({ "unchecked" })
+@SuppressWarnings({ "unchecked", "deprecation" })
 public class AclEntryAfterInvocationProviderTests {
 
 	@Test

@@ -27,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  *
  * @author Ben Alex
  */
+@SuppressWarnings("deprecation")
 public class SecurityConfigTests {
 
 	@Test

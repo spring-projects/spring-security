@@ -79,11 +79,13 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void setTrustResolverNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setTrustResolver(null));
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void createEvaluationContextCustomTrustResolver() {
 		setupMocks();
 		this.handler.setTrustResolver(this.trustResolver);
@@ -175,7 +177,7 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 	@Test
 	public void createEvaluationContextSupplierAuthentication() {
 		setupMocks();
-		Supplier<Authentication> mockAuthenticationSupplier = mock(Supplier.class);
+		Supplier<Authentication> mockAuthenticationSupplier = mock();
 		given(mockAuthenticationSupplier.get()).willReturn(this.authentication);
 		EvaluationContext context = this.handler.createEvaluationContext(mockAuthenticationSupplier,
 				this.methodInvocation);

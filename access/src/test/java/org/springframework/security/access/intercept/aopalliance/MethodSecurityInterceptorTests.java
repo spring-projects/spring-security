@@ -65,7 +65,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  * @author Ben Alex
  * @author Rob Winch
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({ "unchecked", "deprecation" })
 public class MethodSecurityInterceptorTests {
 
 	private TestingAuthenticationToken token;

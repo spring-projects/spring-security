@@ -44,6 +44,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("deprecation")
 public class MessageExpressionVoterTests {
 
 	@Mock
@@ -76,6 +77,7 @@ public class MessageExpressionVoterTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void voteGranted() {
 		given(this.expression.getValue(any(EvaluationContext.class), eq(Boolean.class))).willReturn(true);
 		given(this.matcher.matcher(any())).willCallRealMethod();
@@ -84,6 +86,7 @@ public class MessageExpressionVoterTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void voteDenied() {
 		given(this.expression.getValue(any(EvaluationContext.class), eq(Boolean.class))).willReturn(false);
 		given(this.matcher.matcher(any())).willCallRealMethod();
@@ -92,6 +95,7 @@ public class MessageExpressionVoterTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void voteAbstain() {
 		this.attributes = Arrays.<ConfigAttribute>asList(new SecurityConfig("ROLE_USER"));
 		assertThat(this.voter.vote(this.authentication, this.message, this.attributes))
@@ -99,11 +103,13 @@ public class MessageExpressionVoterTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void supportsObjectClassFalse() {
 		assertThat(this.voter.supports(Object.class)).isFalse();
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void supportsMessageClassTrue() {
 		assertThat(this.voter.supports(Message.class)).isTrue();
 	}
@@ -119,11 +125,13 @@ public class MessageExpressionVoterTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void setExpressionHandlerNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.voter.setExpressionHandler(null));
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void customExpressionHandler() {
 		this.voter.setExpressionHandler(this.expressionHandler);
 		given(this.expressionHandler.createEvaluationContext(this.authentication, this.message))
@@ -136,6 +144,7 @@ public class MessageExpressionVoterTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void postProcessEvaluationContext() {
 		final MessageExpressionConfigAttribute configAttribute = mock(MessageExpressionConfigAttribute.class);
 		this.voter.setExpressionHandler(this.expressionHandler);

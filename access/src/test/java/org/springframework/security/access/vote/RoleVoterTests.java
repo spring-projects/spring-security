@@ -28,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Luke Taylor
  */
+@SuppressWarnings("deprecation")
 public class RoleVoterTests {
 
 	@Test

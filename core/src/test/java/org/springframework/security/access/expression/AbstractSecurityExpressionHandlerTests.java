@@ -18,12 +18,15 @@ package org.springframework.security.access.expression;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.security.authorization.AuthorizationManagerFactory;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,7 +36,11 @@ import static org.mockito.Mockito.mock;
 /**
  * @author Luke Taylor
  */
+@ExtendWith(MockitoExtension.class)
 public class AbstractSecurityExpressionHandlerTests {
+
+	@Mock
+	private AuthorizationManagerFactory<Object> authorizationManagerFactory;
 
 	private AbstractSecurityExpressionHandler<Object> handler;
 
@@ -68,6 +75,17 @@ public class AbstractSecurityExpressionHandlerTests {
 		SpelExpressionParser parser = new SpelExpressionParser();
 		this.handler.setExpressionParser(parser);
 		assertThat(parser == this.handler.getExpressionParser()).isTrue();
+	}
+
+	@Test
+	public void setAuthorizationManagerFactoryNull() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setAuthorizationManagerFactory(null));
+	}
+
+	@Test
+	public void setAuthorizationManagerFactory() {
+		this.handler.setAuthorizationManagerFactory(authorizationManagerFactory);
+		assertThat(this.handler.getAuthorizationManagerFactory()).isSameAs(authorizationManagerFactory);
 	}
 
 	@Configuration
