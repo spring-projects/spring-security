@@ -60,6 +60,7 @@ import org.springframework.web.server.ServerWebExchange;
  *
  * @author Evgeniy Cheban
  * @since 7.1
+ * @see RefreshTokenReactiveOAuth2AuthorizedClientProvider
  */
 public final class RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler
 		implements ReactiveOAuth2AuthorizationSuccessHandler {
@@ -159,16 +160,6 @@ public final class RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler
 	}
 
 	/**
-	 * Sets a {@link GrantedAuthoritiesMapper} to use for mapping
-	 * {@link GrantedAuthority}s, defaults to no-op implementation.
-	 * @param authoritiesMapper the {@link GrantedAuthoritiesMapper} to use
-	 */
-	public void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
-		Assert.notNull(authoritiesMapper, "authoritiesMapper cannot be null");
-		this.authoritiesMapper = authoritiesMapper;
-	}
-
-	/**
 	 * Sets a {@link ReactiveOAuth2UserService} to use for loading an {@link OidcUser}
 	 * from refreshed oidc id-token, defaults to {@link OidcReactiveOAuth2UserService}.
 	 * @param userService the {@link ReactiveOAuth2UserService} to use
@@ -176,6 +167,16 @@ public final class RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler
 	public void setUserService(ReactiveOAuth2UserService<OidcUserRequest, OidcUser> userService) {
 		Assert.notNull(userService, "userService cannot be null");
 		this.userService = userService;
+	}
+
+	/**
+	 * Sets a {@link GrantedAuthoritiesMapper} to use for mapping
+	 * {@link GrantedAuthority}s, defaults to no-op implementation.
+	 * @param authoritiesMapper the {@link GrantedAuthoritiesMapper} to use
+	 */
+	public void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {
+		Assert.notNull(authoritiesMapper, "authoritiesMapper cannot be null");
+		this.authoritiesMapper = authoritiesMapper;
 	}
 
 	/**
@@ -297,7 +298,7 @@ public final class RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler
 		OAuth2AuthenticationToken authenticationResult = new OAuth2AuthenticationToken(oidcUser, mappedAuthorities,
 				clientRegistration.getRegistrationId());
 		authenticationResult.setDetails(authenticationToken.getDetails());
-		SecurityContextImpl securityContext = new SecurityContextImpl(authenticationResult);
+		SecurityContext securityContext = new SecurityContextImpl(authenticationResult);
 		return this.serverSecurityContextRepository.save(exchange, securityContext);
 	}
 

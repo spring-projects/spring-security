@@ -61,6 +61,42 @@ import static org.mockito.Mockito.mock;
 class RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandlerTests {
 
 	@Test
+	void setServerSecurityContextRepositoryWhenNullThenException() {
+		assertThatException()
+			.isThrownBy(() -> new RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler()
+				.setServerSecurityContextRepository(null))
+			.withMessage("serverSecurityContextRepository cannot be null");
+	}
+
+	@Test
+	void setJwtDecoderFactoryWhenNullThenException() {
+		assertThatException()
+			.isThrownBy(() -> new RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler().setJwtDecoderFactory(null))
+			.withMessage("jwtDecoderFactory cannot be null");
+	}
+
+	@Test
+	void setAuthoritiesMapperWhenNullThenException() {
+		assertThatException()
+			.isThrownBy(() -> new RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler().setAuthoritiesMapper(null))
+			.withMessage("authoritiesMapper cannot be null");
+	}
+
+	@Test
+	void setUserServiceWhenNullThenException() {
+		assertThatException()
+			.isThrownBy(() -> new RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler().setUserService(null))
+			.withMessage("userService cannot be null");
+	}
+
+	@Test
+	void setClockSkewWhenNullThenException() {
+		assertThatException()
+			.isThrownBy(() -> new RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler().setClockSkew(null))
+			.withMessage("clockSkew cannot be null");
+	}
+
+	@Test
 	void onAuthorizationSuccessWhenIdTokenValidThenSecurityContextRefreshed() {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
 		DefaultOidcUser principal = TestOidcUsers.create();
@@ -350,42 +386,6 @@ class RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandlerTests {
 		handler.setServerSecurityContextRepository(serverSecurityContextRepository);
 		StepVerifier.create(handler.onAuthorizationSuccess(authorizedClient, authenticationToken, attributes))
 			.verifyErrorMessage("[invalid_nonce] Invalid nonce");
-	}
-
-	@Test
-	void setServerSecurityContextRepositoryWhenNullThenException() {
-		assertThatException()
-			.isThrownBy(() -> new RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler()
-				.setServerSecurityContextRepository(null))
-			.withMessage("serverSecurityContextRepository cannot be null");
-	}
-
-	@Test
-	void setJwtDecoderFactoryWhenNullThenException() {
-		assertThatException()
-			.isThrownBy(() -> new RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler().setJwtDecoderFactory(null))
-			.withMessage("jwtDecoderFactory cannot be null");
-	}
-
-	@Test
-	void setAuthoritiesMapperWhenNullThenException() {
-		assertThatException()
-			.isThrownBy(() -> new RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler().setAuthoritiesMapper(null))
-			.withMessage("authoritiesMapper cannot be null");
-	}
-
-	@Test
-	void setUserServiceWhenNullThenException() {
-		assertThatException()
-			.isThrownBy(() -> new RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler().setUserService(null))
-			.withMessage("userService cannot be null");
-	}
-
-	@Test
-	void setClockSkewWhenNullThenException() {
-		assertThatException()
-			.isThrownBy(() -> new RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler().setClockSkew(null))
-			.withMessage("clockSkew cannot be null");
 	}
 
 	private static OAuth2AccessToken createAccessToken() {
