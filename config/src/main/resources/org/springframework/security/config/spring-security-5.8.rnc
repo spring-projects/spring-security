@@ -66,6 +66,13 @@ use-expressions =
 	## Enables the use of expressions in the 'access' attributes in <intercept-url> elements rather than the traditional list of configuration attributes. Defaults to 'true'. If enabled, each attribute should contain a single boolean expression. If the expression evaluates to 'true', access will be granted.
 	attribute use-expressions {xsd:boolean}
 
+user-details-password-service =
+	## Defines a reference to a bean that implements UserDetailsPasswordService.
+	element user-details-password-service {user-details-password-service.attlist}
+user-details-password-service.attlist &=
+	## Defines a reference to a Spring bean that implements UserDetailsPasswordService.
+	ref
+
 ldap-server =
 	## Defines an LDAP server location or starts an embedded server. The url indicates the location of a remote server. If no url is given, an embedded server will be started, listening on the supplied port number. The port is optional and defaults to 33389. A Spring LDAP ContextSource bean will be registered for the server with the id supplied.
 	element ldap-server {ldap-server.attlist}
@@ -1088,7 +1095,7 @@ authman.attlist &=
 
 authentication-provider =
 	## Indicates that the contained user-service should be used as an authentication source.
-	element authentication-provider {ap.attlist & any-user-service & password-encoder?}
+	element authentication-provider {ap.attlist & any-user-service & password-encoder? & user-details-password-service?}
 ap.attlist &=
 	## Specifies a reference to a separately configured AuthenticationProvider instance which should be registered within the AuthenticationManager.
 	ref?

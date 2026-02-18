@@ -26,11 +26,16 @@ import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
 import org.springframework.security.crypto.password.MessageDigestPasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
@@ -75,6 +80,25 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 				+ "    </user-service>");
 		// @formatter:on
 		getProvider().authenticate(this.bob);
+	}
+
+	@Test
+	public void externalUserDetailsPasswordServiceRefWorks() {
+		// @formatter:off
+		this.appContext = new InMemoryXmlApplicationContext(
+				"    <authentication-manager>"
+				+ "        <authentication-provider user-service-ref='myUserService'>"
+				+ "            <user-details-password-service ref='myPasswordService'/>"
+				+ "        </authentication-provider>"
+				+ "    </authentication-manager>"
+				+ "    <user-service id='myUserService'>"
+				+ "       <user name='bob' password='{noop}bobspassword' authorities='ROLE_A' />"
+				+ "    </user-service>"
+				+ "    <b:bean id='myPasswordService' class='" + TestUserDetailsPasswordService.class.getName() + "'/>");
+		// @formatter:on
+		DaoAuthenticationProvider provider = (DaoAuthenticationProvider) getProvider();
+		Object actual = ReflectionTestUtils.getField(provider, "userDetailsPasswordService");
+		assertThat(actual).isSameAs(this.appContext.getBean("myPasswordService"));
 	}
 
 	@Test
@@ -168,6 +192,15 @@ public class AuthenticationProviderBeanDefinitionParserTests {
 	private void setContext(String context) {
 		this.appContext = new InMemoryXmlApplicationContext(
 				"<authentication-manager>" + context + "</authentication-manager>");
+	}
+
+	public static class TestUserDetailsPasswordService implements UserDetailsPasswordService {
+
+		@Override
+		public UserDetails updatePassword(UserDetails user, String newPassword) {
+			return user;
+		}
+
 	}
 
 }

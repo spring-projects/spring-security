@@ -40,6 +40,8 @@ public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitio
 
 	private static final String ATT_USER_DETAILS_REF = "user-service-ref";
 
+	private static final String ATT_REF = "ref";
+
 	@Override
 	public BeanDefinition parse(Element element, ParserContext pc) {
 		RootBeanDefinition authProvider = new RootBeanDefinition(DaoAuthenticationProvider.class);
@@ -49,6 +51,18 @@ public class AuthenticationProviderBeanDefinitionParser implements BeanDefinitio
 		BeanMetadataElement passwordEncoder = pep.getPasswordEncoder();
 		if (passwordEncoder != null) {
 			authProvider.getPropertyValues().addPropertyValue("passwordEncoder", passwordEncoder);
+		}
+		Element userDetailsPasswordServiceElt = DomUtils.getChildElementByTagName(element,
+				Elements.USER_DETAILS_PASSWORD_SERVICE);
+		if (userDetailsPasswordServiceElt != null) {
+			String userDetailsPasswordServiceRef = userDetailsPasswordServiceElt.getAttribute(ATT_REF);
+			if (!StringUtils.hasText(userDetailsPasswordServiceRef)) {
+				pc.getReaderContext().error(
+						"The '" + Elements.USER_DETAILS_PASSWORD_SERVICE + "' element requires a 'ref' attribute",
+						userDetailsPasswordServiceElt);
+			}
+			authProvider.getPropertyValues()
+				.addPropertyValue("userDetailsPasswordService", new RuntimeBeanReference(userDetailsPasswordServiceRef));
 		}
 		Element userServiceElt = DomUtils.getChildElementByTagName(element, Elements.USER_SERVICE);
 		if (userServiceElt == null) {

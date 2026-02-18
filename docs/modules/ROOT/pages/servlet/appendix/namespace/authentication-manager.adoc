@@ -97,6 +97,7 @@ A reference to a bean that implements UserDetailsService that may be created usi
 * <<nsa-jdbc-user-service,jdbc-user-service>>
 * xref:servlet/appendix/namespace/ldap.adoc#nsa-ldap-user-service[ldap-user-service]
 * <<nsa-password-encoder,password-encoder>>
+* <<nsa-user-details-password-service,user-details-password-service>>
 * <<nsa-user-service,user-service>>
 
 
@@ -208,6 +209,28 @@ We recommend strongly against using MD4, as it is a very weak hashing algorithm.
 [[nsa-password-encoder-ref]]
 * **ref**
 Defines a reference to a Spring bean that implements `PasswordEncoder`.
+
+
+[[nsa-user-details-password-service]]
+== <user-details-password-service>
+Authentication providers can optionally be configured with a `UserDetailsPasswordService`.
+This allows `DaoAuthenticationProvider` to persist upgraded password hashes after successful authentication when password encoding should be updated.
+
+
+[[nsa-user-details-password-service-parents]]
+=== Parent Elements of <user-details-password-service>
+
+
+* <<nsa-authentication-provider,authentication-provider>>
+
+
+[[nsa-user-details-password-service-attributes]]
+=== <user-details-password-service> Attributes
+
+
+[[nsa-user-details-password-service-ref]]
+* **ref**
+Defines a reference to a Spring bean that implements `UserDetailsPasswordService`.
 
 
 [[nsa-user-service]]

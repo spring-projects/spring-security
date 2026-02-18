@@ -3018,6 +3018,15 @@
                            <xs:attributeGroup ref="security:password-encoder.attlist"/>
                         </xs:complexType>
                      </xs:element>
+                     <xs:element name="user-details-password-service">
+                        <xs:annotation>
+                           <xs:documentation>Defines a reference to a bean that implements UserDetailsPasswordService.
+                </xs:documentation>
+                        </xs:annotation>
+                        <xs:complexType>
+                           <xs:attributeGroup ref="security:ref"/>
+                        </xs:complexType>
+                     </xs:element>
                   </xs:choice>
                   <xs:attributeGroup ref="security:ap.attlist"/>
                </xs:complexType>
