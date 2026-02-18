@@ -362,13 +362,13 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		 * Adds a {@link Consumer} to customize the {@link SpringOpaqueTokenIntrospector}
 		 * after it is built. This allows for additional configuration that cannot be
 		 * expressed through the builder methods.
-		 * @param customizer the {@link Consumer} to customize the introspector
+		 * @param postProcessor the {@link Consumer} to customize the introspector
 		 * @return the {@link SpringOpaqueTokenIntrospector.Builder}
-		 * @since 7.x.x
+		 * @since 7.1.0
 		 */
-		public Builder postProcessor(Consumer<SpringOpaqueTokenIntrospector> customizer) {
-			Assert.notNull(customizer, "customizer cannot be null");
-			this.postProcessors.add(customizer);
+		public Builder postProcessor(Consumer<SpringOpaqueTokenIntrospector> postProcessor) {
+			Assert.notNull(postProcessor, "postProcessor cannot be null");
+			this.postProcessors.add(postProcessor);
 			return this;
 		}
 
