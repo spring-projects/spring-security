@@ -74,6 +74,7 @@ import static org.springframework.security.web.servlet.util.matcher.PathPatternR
  * Tests {@link BasicAuthenticationFilter}.
  *
  * @author Ben Alex
+ * @author Andrey Litvitski
  */
 public class BasicAuthenticationFilterTests {
 
@@ -612,6 +613,15 @@ public class BasicAuthenticationFilterTests {
 		assertThat(response.getStatus()).isEqualTo(200);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("rod");
+	}
+
+	@Test
+	void setCredentialsCharsetSynchronizesWithEntryPoint() {
+		BasicAuthenticationEntryPoint entryPoint = new BasicAuthenticationEntryPoint();
+		entryPoint.setRealmName("Test");
+		BasicAuthenticationFilter filter = new BasicAuthenticationFilter(mock(AuthenticationManager.class), entryPoint);
+		filter.setCredentialsCharset("ISO-8859-1");
+		assertThat(entryPoint.getCharset()).isEqualTo(StandardCharsets.ISO_8859_1);
 	}
 
 	@Test

@@ -133,7 +133,7 @@ public class NamespaceHttpBasicTests {
 		// @formatter:on
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
-		assertThat(this.response.getHeader("WWW-Authenticate")).isEqualTo("Basic realm=\"Realm\"");
+		assertThat(this.response.getHeader("WWW-Authenticate")).isEqualTo("Basic realm=\"Realm\", charset=\"UTF-8\"");
 	}
 
 	private void loadContext(String context) {

@@ -71,7 +71,7 @@ public class NamespaceHttpBasicTests {
 		// @formatter:off
 		this.mvc.perform(requestWithInvalidPassword)
 				.andExpect(status().isUnauthorized())
-				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Realm\""));
+				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Realm\", charset=\"UTF-8\""));
 		// @formatter:on
 		MockHttpServletRequestBuilder requestWithValidPassword = get("/").with(httpBasic("user", "password"));
 		this.mvc.perform(requestWithValidPassword).andExpect(status().isNotFound());
@@ -85,7 +85,7 @@ public class NamespaceHttpBasicTests {
 		// @formatter:off
 		this.mvc.perform(requestWithInvalidPassword)
 				.andExpect(status().isUnauthorized())
-				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Realm\""));
+				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Realm\", charset=\"UTF-8\""));
 		// @formatter:on
 		MockHttpServletRequestBuilder requestWithValidPassword = get("/").with(httpBasic("user", "password"));
 		this.mvc.perform(requestWithValidPassword).andExpect(status().isNotFound());
@@ -101,7 +101,7 @@ public class NamespaceHttpBasicTests {
 		// @formatter:off
 		this.mvc.perform(requestWithInvalidPassword)
 				.andExpect(status().isUnauthorized())
-				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Custom Realm\""));
+				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Custom Realm\", charset=\"UTF-8\""));
 		// @formatter:on
 	}
 
@@ -112,7 +112,7 @@ public class NamespaceHttpBasicTests {
 		// @formatter:off
 		this.mvc.perform(requestWithInvalidPassword)
 				.andExpect(status().isUnauthorized())
-				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Custom Realm\""));
+				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Custom Realm\", charset=\"UTF-8\""));
 		// @formatter:on
 	}
 

@@ -96,6 +96,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * remember-me mechanism.
  *
  * @author Ben Alex
+ * @author Andrey Litvitski
  */
 public class BasicAuthenticationFilter extends OncePerRequestFilter {
 
@@ -353,7 +354,11 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 		Assert.hasText(credentialsCharset, "credentialsCharset cannot be null or empty");
 		this.credentialsCharset = credentialsCharset;
 		if (this.authenticationConverter instanceof BasicAuthenticationConverter basicAuthenticationConverter) {
-			basicAuthenticationConverter.setCredentialsCharset(Charset.forName(credentialsCharset));
+			Charset charset = Charset.forName(credentialsCharset);
+			basicAuthenticationConverter.setCredentialsCharset(charset);
+			if (this.authenticationEntryPoint instanceof BasicAuthenticationEntryPoint basicAuthenticationEntryPoint) {
+				basicAuthenticationEntryPoint.setCharset(charset);
+			}
 		}
 	}
 

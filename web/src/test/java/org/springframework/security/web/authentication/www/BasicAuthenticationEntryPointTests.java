@@ -25,6 +25,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,7 +63,7 @@ public class BasicAuthenticationEntryPointTests {
 		ep.commence(request, response, new DisabledException("These are the jokes kid"));
 		assertThat(response.getStatus()).isEqualTo(401);
 		assertThat(response.getErrorMessage()).isEqualTo(HttpStatus.UNAUTHORIZED.getReasonPhrase());
-		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Basic realm=\"hello\"");
+		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Basic realm=\"hello\", charset=\"UTF-8\"");
 	}
 
 	// gh-13737
@@ -77,7 +78,18 @@ public class BasicAuthenticationEntryPointTests {
 		ep.commence(request, response, new DisabledException("Disabled"));
 		List<String> headers = response.getHeaders("WWW-Authenticate");
 		assertThat(headers).hasSize(1);
-		assertThat(headers.get(0)).isEqualTo("Basic realm=\"hello\"");
+		assertThat(headers.get(0)).isEqualTo("Basic realm=\"hello\", charset=\"UTF-8\"");
+	}
+
+	@Test
+	void commenceWhenDefaultThenIncludesUtf8Charset() throws Exception {
+		BasicAuthenticationEntryPoint entryPoint = new BasicAuthenticationEntryPoint();
+		entryPoint.setRealmName("TestRealm");
+		entryPoint.afterPropertiesSet();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		entryPoint.commence(request, response, new BadCredentialsException("test"));
+		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Basic realm=\"TestRealm\", charset=\"UTF-8\"");
 	}
 
 }

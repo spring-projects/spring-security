@@ -103,7 +103,7 @@ public class HttpBasicConfigurerTests {
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().isUnauthorized())
-				.andExpect(header().string("WWW-Authenticate", "Basic realm=\"Realm\""));
+				.andExpect(header().string("WWW-Authenticate", "Basic realm=\"Realm\", charset=\"UTF-8\""));
 		// @formatter:on
 	}
 
@@ -114,7 +114,7 @@ public class HttpBasicConfigurerTests {
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().isUnauthorized())
-				.andExpect(header().string("WWW-Authenticate", "Basic realm=\"Realm\""));
+				.andExpect(header().string("WWW-Authenticate", "Basic realm=\"Realm\", charset=\"UTF-8\""));
 		// @formatter:on
 	}
 

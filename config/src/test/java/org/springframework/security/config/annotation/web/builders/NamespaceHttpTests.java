@@ -197,7 +197,7 @@ public class NamespaceHttpTests {
 		// @formatter:off
 		this.mockMvc.perform(get("/"))
 				.andExpect(status().isUnauthorized())
-				.andExpect(header().string("WWW-Authenticate", "Basic realm=\"RealmConfig\""));
+				.andExpect(header().string("WWW-Authenticate", "Basic realm=\"RealmConfig\", charset=\"UTF-8\""));
 		// @formatter:on
 	}
 
