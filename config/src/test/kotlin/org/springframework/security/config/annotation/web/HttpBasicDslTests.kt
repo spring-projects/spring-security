@@ -74,7 +74,7 @@ class HttpBasicDslTests {
 
         this.mockMvc.get("/")
                 .andExpect {
-                    header { string("WWW-Authenticate", "Basic realm=\"Realm\"") }
+                    header { string("WWW-Authenticate", "Basic realm=\"Realm\", charset=\"UTF-8\"") }
                 }
     }
 
@@ -110,7 +110,7 @@ class HttpBasicDslTests {
 
         this.mockMvc.get("/")
                 .andExpect {
-                    header { string("WWW-Authenticate", "Basic realm=\"Custom Realm\"") }
+                    header { string("WWW-Authenticate", "Basic realm=\"Custom Realm\", charset=\"UTF-8\"") }
                 }
     }
 
