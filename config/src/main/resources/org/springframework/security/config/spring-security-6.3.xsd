@@ -2678,6 +2678,14 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="authentication-failure-handler-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to an AuthenticationFailureHandler bean which should be used to handle a failed
+                authentication request. Use either this or session-authentication-error-url but not
+                both.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
   </xs:attributeGroup>
   
   <xs:attributeGroup name="concurrency-control.attlist">

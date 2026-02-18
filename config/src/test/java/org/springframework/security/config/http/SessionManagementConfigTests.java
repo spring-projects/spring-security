@@ -30,6 +30,7 @@ import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -38,9 +39,11 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.CompositeLogoutHandler;
@@ -61,6 +64,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -341,6 +345,21 @@ public class SessionManagementConfigTests {
 	}
 
 	@Test
+	public void requestWhenSessionAuthenticationFailureHandlerRefThenInvokesCustomFailureHandler() throws Exception {
+		this.spring.configLocations(xml("SessionAuthenticationFailureHandlerRef")).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/auth").with(httpBasic("user", "password")))
+				.andExpect(status().isIAmATeapot());
+		// @formatter:on
+	}
+
+	@Test
+	public void configureWhenSessionAuthenticationErrorUrlAndFailureHandlerRefThenException() {
+		assertThatExceptionOfType(BeanDefinitionParsingException.class).isThrownBy(
+				() -> this.spring.configLocations(xml("SessionAuthenticationErrorUrlAndFailureHandlerRef")).autowire());
+	}
+
+	@Test
 	public void autowireWhenSessionRegistryRefIsSetThenAvailableForWiring() {
 		this.spring.configLocations(xml("ConcurrencyControlSessionRegistryRef")).autowire();
 		this.sessionRegistryIsValid();
@@ -517,6 +536,26 @@ public class SessionManagementConfigTests {
 		@Override
 		public void onAuthentication(Authentication authentication, HttpServletRequest request,
 				HttpServletResponse response) throws SessionAuthenticationException {
+			response.setStatus(org.springframework.http.HttpStatus.I_AM_A_TEAPOT.value());
+		}
+
+	}
+
+	static class ThrowingSessionAuthenticationStrategy implements SessionAuthenticationStrategy {
+
+		@Override
+		public void onAuthentication(Authentication authentication, HttpServletRequest request,
+				HttpServletResponse response) throws SessionAuthenticationException {
+			throw new SessionAuthenticationException("Session authentication failed");
+		}
+
+	}
+
+	static class TeapotAuthenticationFailureHandler implements AuthenticationFailureHandler {
+
+		@Override
+		public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+				AuthenticationException exception) throws IOException, ServletException {
 			response.setStatus(org.springframework.http.HttpStatus.I_AM_A_TEAPOT.value());
 		}
 

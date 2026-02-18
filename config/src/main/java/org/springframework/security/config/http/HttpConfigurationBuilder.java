@@ -123,6 +123,8 @@ class HttpConfigurationBuilder {
 
 	private static final String ATT_SESSION_AUTH_ERROR_URL = "session-authentication-error-url";
 
+	private static final String ATT_AUTHENTICATION_FAILURE_HANDLER_REF = "authentication-failure-handler-ref";
+
 	private static final String ATT_SECURITY_CONTEXT_HOLDER_STRATEGY = "security-context-holder-strategy-ref";
 
 	private static final String ATT_SECURITY_CONTEXT_REPOSITORY = "security-context-repository-ref";
@@ -434,6 +436,7 @@ class HttpConfigurationBuilder {
 		String invalidSessionStrategyRef = null;
 		String sessionAuthStratRef = null;
 		String errorUrl = null;
+		String sessionAuthFailureHandlerRef = null;
 		boolean sessionControlEnabled = false;
 		if (sessionMgmtElt != null) {
 			if (this.sessionPolicy == SessionCreationPolicy.STATELESS) {
@@ -447,12 +450,18 @@ class HttpConfigurationBuilder {
 			invalidSessionStrategyRef = sessionMgmtElt.getAttribute(ATT_INVALID_SESSION_STRATEGY_REF);
 			sessionAuthStratRef = sessionMgmtElt.getAttribute(ATT_SESSION_AUTH_STRATEGY_REF);
 			errorUrl = sessionMgmtElt.getAttribute(ATT_SESSION_AUTH_ERROR_URL);
+			sessionAuthFailureHandlerRef = sessionMgmtElt.getAttribute(ATT_AUTHENTICATION_FAILURE_HANDLER_REF);
 			sessionCtrlElt = DomUtils.getChildElementByTagName(sessionMgmtElt, Elements.CONCURRENT_SESSIONS);
 			sessionControlEnabled = sessionCtrlElt != null;
 			if (StringUtils.hasText(invalidSessionUrl) && StringUtils.hasText(invalidSessionStrategyRef)) {
 				this.pc.getReaderContext()
 					.error(ATT_INVALID_SESSION_URL + " attribute cannot be used in combination with" + " the "
 							+ ATT_INVALID_SESSION_STRATEGY_REF + " attribute.", sessionMgmtElt);
+			}
+			if (StringUtils.hasText(errorUrl) && StringUtils.hasText(sessionAuthFailureHandlerRef)) {
+				this.pc.getReaderContext()
+					.error(ATT_SESSION_AUTH_ERROR_URL + " attribute cannot be used in combination with" + " the "
+							+ ATT_AUTHENTICATION_FAILURE_HANDLER_REF + " attribute.", sessionMgmtElt);
 			}
 			if (sessionControlEnabled) {
 				if (StringUtils.hasText(sessionAuthStratRef)) {
@@ -536,9 +545,17 @@ class HttpConfigurationBuilder {
 		}
 		BeanDefinitionBuilder sessionMgmtFilter = BeanDefinitionBuilder
 			.rootBeanDefinition(SessionManagementFilter.class);
-		RootBeanDefinition failureHandler = new RootBeanDefinition(SimpleUrlAuthenticationFailureHandler.class);
-		if (StringUtils.hasText(errorUrl)) {
-			failureHandler.getPropertyValues().addPropertyValue("defaultFailureUrl", errorUrl);
+		BeanMetadataElement failureHandler;
+		if (StringUtils.hasText(sessionAuthFailureHandlerRef)) {
+			failureHandler = new RuntimeBeanReference(sessionAuthFailureHandlerRef);
+		}
+		else {
+			RootBeanDefinition defaultFailureHandler = new RootBeanDefinition(
+					SimpleUrlAuthenticationFailureHandler.class);
+			if (StringUtils.hasText(errorUrl)) {
+				defaultFailureHandler.getPropertyValues().addPropertyValue("defaultFailureUrl", errorUrl);
+			}
+			failureHandler = defaultFailureHandler;
 		}
 		sessionMgmtFilter.addPropertyValue("securityContextHolderStrategy", this.holderStrategyRef);
 		sessionMgmtFilter.addPropertyValue("authenticationFailureHandler", failureHandler);
@@ -571,7 +588,8 @@ class HttpConfigurationBuilder {
 		boolean registerSessionMgmtFilter = (sessionMgmtElt != null
 				&& "false".equals(sessionMgmtElt.getAttribute(ATT_AUTHENTICATION_STRATEGY_EXPLICIT_INVOCATION)));
 		if (registerSessionMgmtFilter || StringUtils.hasText(errorUrl) || StringUtils.hasText(invalidSessionUrl)
-				|| StringUtils.hasText(invalidSessionStrategyRef)) {
+				|| StringUtils.hasText(invalidSessionStrategyRef)
+				|| StringUtils.hasText(sessionAuthFailureHandlerRef)) {
 			this.sfpf = (RootBeanDefinition) sessionMgmtFilter.getBeanDefinition();
 		}
 		this.sessionStrategyRef = new RuntimeBeanReference(sessionAuthStratRef);
