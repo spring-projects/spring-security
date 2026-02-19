@@ -36,6 +36,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.log.LogMessage;
+import org.springframework.lang.Contract;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
@@ -302,6 +303,7 @@ public class AuthenticationConfiguration {
 		}
 
 		@Override
+		@Contract("!null -> !null; null -> null")
 		public String encode(CharSequence rawPassword) {
 			return getPasswordEncoder().encode(rawPassword);
 		}
