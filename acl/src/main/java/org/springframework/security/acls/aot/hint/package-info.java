@@ -17,4 +17,7 @@
 /**
  * AOT and native image hint support for ACLs.
  */
+@NullMarked
 package org.springframework.security.acls.aot.hint;
+
+import org.jspecify.annotations.NullMarked;
