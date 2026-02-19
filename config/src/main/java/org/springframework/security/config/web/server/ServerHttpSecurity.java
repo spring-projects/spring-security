@@ -193,10 +193,12 @@ import org.springframework.security.web.server.header.CrossOriginResourcePolicyS
 import org.springframework.security.web.server.header.CrossOriginResourcePolicyServerHttpHeadersWriter.CrossOriginResourcePolicy;
 import org.springframework.security.web.server.header.FeaturePolicyServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.HttpHeaderWriterWebFilter;
+import org.springframework.security.web.server.header.NonceGeneratingWebFilter;
 import org.springframework.security.web.server.header.PermissionsPolicyServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.ReferrerPolicyServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.ReferrerPolicyServerHttpHeadersWriter.ReferrerPolicy;
 import org.springframework.security.web.server.header.ServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.ServerWebExchangeDelegatingServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.StrictTransportSecurityServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.XXssProtectionServerHttpHeadersWriter;
@@ -2452,6 +2454,7 @@ public class ServerHttpSecurity {
 	 * Configures HTTP Response Headers.
 	 *
 	 * @author Rob Winch
+	 * @author Ziqin Wang
 	 * @since 5.0
 	 * @see #headers(Customizer)
 	 */
@@ -2560,6 +2563,10 @@ public class ServerHttpSecurity {
 			ServerHttpHeadersWriter writer = new CompositeServerHttpHeadersWriter(this.writers);
 			HttpHeaderWriterWebFilter result = new HttpHeaderWriterWebFilter(writer);
 			http.addFilterAt(result, SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
+			if (this.contentSecurityPolicy.isNonceBased()) {
+				http.addFilterBefore(new NonceGeneratingWebFilter(this.contentSecurityPolicy.getNonceAttributeName()),
+						SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
+			}
 		}
 
 		/**
@@ -2845,21 +2852,81 @@ public class ServerHttpSecurity {
 			 * in the response. Otherwise, defaults to the {@code Content-Security-Policy}
 			 * header.
 			 * @param reportOnly whether to only report policy violations
-			 * @return the {@link HeaderSpec} to continue configuring
+			 * @return the {@link ContentSecurityPolicySpec} to continue configuring
 			 */
-			public HeaderSpec reportOnly(boolean reportOnly) {
+			public ContentSecurityPolicySpec reportOnly(boolean reportOnly) {
 				HeaderSpec.this.contentSecurityPolicy.setReportOnly(reportOnly);
-				return HeaderSpec.this;
+				return this;
 			}
 
 			/**
 			 * Sets the security policy directive(s) to be used in the response header.
+			 * The {@code policyDirectives} may contain {@code {nonce}} as placeholders
+			 * for a generated secure random nonce, e.g., {@code script-src 'self'
+			 * 'nonce-{nonce}'}.
 			 * @param policyDirectives the security policy directive(s)
-			 * @return the {@link HeaderSpec} to continue configuring
+			 * @return the {@link ContentSecurityPolicySpec} to continue configuring
 			 */
-			public HeaderSpec policyDirectives(String policyDirectives) {
+			public ContentSecurityPolicySpec policyDirectives(String policyDirectives) {
 				HeaderSpec.this.contentSecurityPolicy.setPolicyDirectives(policyDirectives);
-				return HeaderSpec.this;
+				return this;
+			}
+
+			/**
+			 * Sets the name of the {@link ServerWebExchange#getAttribute(String) request
+			 * attribute} for the generated nonce. Views can read this attribute to render
+			 * the nonce in HTML.
+			 * @param nonceAttributeName the name of the nonce attribute
+			 * @return the {@link ContentSecurityPolicySpec} to continue configuring
+			 * @throws IllegalArgumentException if {@code nonceAttributeName} is
+			 * {@code null} or empty
+			 * @since 7.1
+			 */
+			public ContentSecurityPolicySpec nonceAttributeName(String nonceAttributeName) {
+				HeaderSpec.this.contentSecurityPolicy.setNonceAttributeName(nonceAttributeName);
+				return this;
+			}
+
+			/**
+			 * Specifies the {@link ServerWebExchangeMatcher} to use for determining when
+			 * CSP should be applied. The default is to enable CSP in every response if
+			 * {@link HeaderSpec#contentSecurityPolicy(Customizer)} is configured.
+			 * @param matcher the {@link ServerWebExchangeMatcher} to use
+			 * @return the {@link ContentSecurityPolicySpec} to continue configuring
+			 * @throws IllegalArgumentException if {@code matcher} is {@code null}
+			 * @throws IllegalStateException if a {@link ServerWebExchangeMatcher} is
+			 * already configured by a previous call of this method or
+			 * {@link #requireCspMatchers(String...)}
+			 * @since 7.1
+			 * @see #requireCspMatchers(String...)
+			 */
+			public ContentSecurityPolicySpec requireCspMatcher(ServerWebExchangeMatcher matcher) {
+				Assert.notNull(matcher, "Matcher must not be null");
+				// Replace the CSP writer in the list with a matcher-decorated writer
+				int idx = HeaderSpec.this.writers.indexOf(HeaderSpec.this.contentSecurityPolicy);
+				Assert.state(idx >= 0, "RequireCspMatcher(s) is already configured");
+				HeaderSpec.this.writers.set(idx, new ServerWebExchangeDelegatingServerHttpHeadersWriter(matcher,
+						HeaderSpec.this.contentSecurityPolicy));
+				return this;
+			}
+
+			/**
+			 * Specifies the matching path patterns for determining when CSP should be
+			 * applied. The default is to enable CSP in every response if
+			 * {@link HeaderSpec#contentSecurityPolicy(Customizer)} is configured.
+			 * @param pathPatterns the path patterns to be matched with a
+			 * {@link PathPatternParserServerWebExchangeMatcher}
+			 * @return the {@link ContentSecurityPolicySpec} to continue configuring
+			 * @throws IllegalArgumentException if any path pattern is rejected by
+			 * {@link PathPatternParserServerWebExchangeMatcher}
+			 * @throws IllegalStateException if a {@link ServerWebExchangeMatcher} is
+			 * already configured by a previous call of this method or
+			 * {@link #requireCspMatcher(ServerWebExchangeMatcher)}
+			 * @since 7.1
+			 * @see #requireCspMatcher(ServerWebExchangeMatcher)
+			 */
+			public ContentSecurityPolicySpec requireCspMatchers(String... pathPatterns) {
+				return this.requireCspMatcher(ServerWebExchangeMatchers.pathMatchers(pathPatterns));
 			}
 
 			private ContentSecurityPolicySpec(String policyDirectives) {

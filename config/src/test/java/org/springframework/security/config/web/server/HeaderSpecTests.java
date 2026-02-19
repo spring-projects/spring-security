@@ -19,12 +19,14 @@ package org.springframework.security.config.web.server;
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.server.header.ContentSecurityPolicyServerHttpHeadersWriter;
@@ -38,10 +40,18 @@ import org.springframework.security.web.server.header.ReferrerPolicyServerHttpHe
 import org.springframework.security.web.server.header.StrictTransportSecurityServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.XXssProtectionServerHttpHeadersWriter;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
+import org.springframework.stereotype.Controller;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.reactive.server.assertj.WebTestClientResponse;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
@@ -51,6 +61,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
  * @author Vedran Pavic
  * @author Ankur Pathak
  * @author Marcus Da Coregio
+ * @author Ziqin Wang
  * @since 5.0
  */
 public class HeaderSpecTests {
@@ -390,6 +401,135 @@ public class HeaderSpecTests {
 		assertHeaders();
 	}
 
+	/** @since 7.1 */
+	@Test
+	public void headersWhenContentSecurityPolicyEnabledWithDefaultNonceThenHeaderMatchesContent() {
+		String headerName = ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY;
+		Pattern regex = Pattern.compile("^script-src 'self' 'nonce-([A-Za-z0-9+/]{22,}={0,2})'$");
+
+		// @formatter:off
+		this.http.headers((headers) -> headers
+			.contentSecurityPolicy((csp) -> csp
+				.policyDirectives("script-src 'self' 'nonce-{nonce}'")));
+		// @formatter:on
+		WebTestClient client = WebTestClientBuilder
+			.bindToControllerAndWebFilters(ReactiveTestCspNonceController.class, this.http.build())
+			.build();
+
+		WebTestClient.ResponseSpec spec = client.get().uri("https://example.com/").exchange();
+		WebTestClientResponse response = WebTestClientResponse.from(spec);
+
+		assertThat(response).hasContentTypeCompatibleWith(MediaType.TEXT_HTML);
+		assertThat(response).headers().hasHeaderSatisfying(headerName, (cspList) -> {
+			assertThat(cspList).singleElement().asString().matchesSatisfying(regex, (matcher) -> {
+				String nonce = matcher.group(1);
+				assertThat(nonce).isNotNull();
+				assertThat(response).bodyText().contains("nonce=\"" + nonce + "\"");
+			});
+		});
+	}
+
+	/** @since 7.1 */
+	@Test
+	public void headersWhenContentSecurityPolicyEnabledWithCustomNonceThenHeaderMatchesContent() {
+		String headerName = ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY;
+		Pattern regex = Pattern.compile("^script-src 'self' 'nonce-([A-Za-z0-9+/]{22,}={0,2})'$");
+
+		// @formatter:off
+		this.http.headers((headers) -> headers
+			.contentSecurityPolicy((csp) -> csp
+				.nonceAttributeName("CUSTOM_NONCE")
+				.policyDirectives("script-src 'self' 'nonce-{nonce}'")));
+		// @formatter:on
+		WebTestClient client = WebTestClientBuilder
+			.bindToControllerAndWebFilters(ReactiveTestCspNonceController.class, this.http.build())
+			.build();
+
+		WebTestClient.ResponseSpec spec = client.get().uri("https://example.com/custom").exchange();
+		WebTestClientResponse response = WebTestClientResponse.from(spec);
+
+		assertThat(response).hasContentTypeCompatibleWith(MediaType.TEXT_HTML);
+		assertThat(response).headers().hasHeaderSatisfying(headerName, (cspList) -> {
+			assertThat(cspList).singleElement().asString().matchesSatisfying(regex, (matcher) -> {
+				String nonce = matcher.group(1);
+				assertThat(nonce).isNotNull();
+				assertThat(response).bodyText().contains("nonce=\"" + nonce + "\"");
+			});
+		});
+	}
+
+	/** @since 7.1 */
+	@Test
+	public void headersWhenContentSecurityPolicyEnabledWithMatcherThenHeaderInResponseIfMatched() {
+		String headerName = ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY;
+		String policyDirectives = "default-src 'self'";
+		// @formatter:off
+		this.http.headers((headers) -> headers
+			.contentSecurityPolicy((csp) -> csp
+				.requireCspMatcher((exchange) ->
+					(MediaType.TEXT_HTML.isPresentIn(exchange.getRequest().getHeaders().getAccept()) ?
+						ServerWebExchangeMatcher.MatchResult.match() :
+						ServerWebExchangeMatcher.MatchResult.notMatch()))
+				.policyDirectives(policyDirectives)));
+		// @formatter:on
+		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.http.build()).build();
+		// @formatter:off
+		client.get()
+			.uri("https://example.com/")
+			.accept(MediaType.TEXT_HTML)
+			.exchange()
+			.expectHeader().valueEquals(headerName, policyDirectives);
+		client.get()
+			.uri("https://example.com/")
+			.accept(MediaType.TEXT_PLAIN)
+			.exchange()
+			.expectHeader().doesNotExist(headerName);
+		// @formatter:on
+	}
+
+	/** @since 7.1 */
+	@Test
+	public void headersWhenContentSecurityPolicyEnabledWithPathMatchersThenHeaderInResponseIfMatched() {
+		String headerName = ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY;
+		String policyDirectives = "default-src 'self'";
+		// @formatter:off
+		this.http.headers((headers) -> headers
+			.contentSecurityPolicy((csp) -> csp
+				.requireCspMatchers("/foo/**", "/bar/**")
+				.policyDirectives(policyDirectives)));
+		// @formatter:on
+		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.http.build()).build();
+		// @formatter:off
+		client.get()
+			.uri("https://example.com/foo/bar")
+			.exchange()
+			.expectHeader().valueEquals(headerName, policyDirectives);
+		client.get()
+			.uri("https://example.com/bar/foo")
+			.exchange()
+			.expectHeader().valueEquals(headerName, policyDirectives);
+		client.get()
+			.uri("https://example.com/foobar")
+			.exchange()
+			.expectHeader().doesNotExist(headerName);
+		// @formatter:on
+	}
+
+	/** @since 7.1 */
+	@Test
+	public void headersWhenContentSecurityPolicyWithOverriddenMatchersThenFailToConfigure() {
+		// @formatter:off
+		assertThatIllegalStateException()
+			.isThrownBy(() -> this.http
+				.headers((headers) -> headers
+					.contentSecurityPolicy((csp) -> csp
+						.requireCspMatcher(ServerWebExchangeMatchers.anyExchange())
+						.requireCspMatchers("/**")
+						.policyDirectives("default-src 'self'"))))
+			.withMessage("RequireCspMatcher(s) is already configured");
+		// @formatter:on
+	}
+
 	@Test
 	public void headersWhenReferrerPolicyEnabledThenFeaturePolicyWritten() {
 		this.expectedHeaders.add(ReferrerPolicyServerHttpHeadersWriter.REFERRER_POLICY,
@@ -523,6 +663,35 @@ public class HeaderSpecTests {
 
 	private WebTestClient buildClient() {
 		return WebTestClientBuilder.bindToWebFilters(this.http.build()).build();
+	}
+
+	@Controller
+	static class ReactiveTestCspNonceController {
+
+		@GetMapping(produces = MediaType.TEXT_HTML_VALUE)
+		@ResponseBody
+		Mono<String> defaultAttribute(@RequestAttribute("_csp_nonce") String cspNonce) {
+			return Mono.fromSupplier(() -> """
+					<!DOCTYPE html>
+					<html>
+					<head><script nonce="%s"></script></head>
+					<body>Default</body>
+					</html>
+					""".formatted(cspNonce));
+		}
+
+		@GetMapping(path = "/custom", produces = MediaType.TEXT_HTML_VALUE)
+		@ResponseBody
+		Mono<String> custom(@RequestAttribute("CUSTOM_NONCE") String cspNonce) {
+			return Mono.fromSupplier(() -> """
+					<!DOCTYPE html>
+					<html>
+					<head><script nonce="%s"></script></head>
+					<body>Custom</body>
+					</html>
+					""".formatted(cspNonce));
+		}
+
 	}
 
 }

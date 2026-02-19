@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.web.configurers;
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import com.google.common.net.HttpHeaders;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,7 @@ import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -40,14 +42,21 @@ import org.springframework.security.web.header.writers.CrossOriginResourcePolicy
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter.XFrameOptionsMode;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.stereotype.Controller;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatException;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 
 /**
@@ -61,6 +70,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Eleftheria Stein
  * @author Marcus Da Coregio
  * @author Daniel Garnier-Moiroux
+ * @author Ziqin Wang
  */
 @ExtendWith(SpringTestContextExtension.class)
 public class HeadersConfigurerTests {
@@ -413,6 +423,74 @@ public class HeadersConfigurerTests {
 				.andReturn();
 		// @formatter:on
 		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.CONTENT_SECURITY_POLICY);
+	}
+
+	/** @since 7.1 */
+	@Test
+	public void configureWhenContentSecurityPolicyWithDefaultNonceThenHeaderMatchesContent() throws Exception {
+		Pattern regex = Pattern.compile("^script-src 'self' 'nonce-([A-Za-z0-9+/]{22,}={0,2})'$");
+		this.spring.register(ContentSecurityPolicyDefaultNonceConfig.class, TestCspNonceController.class).autowire();
+		this.mvc.perform(get("/").secure(true))
+			.andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+			.andExpect((result) -> {
+				String header = result.getResponse().getHeader(HttpHeaders.CONTENT_SECURITY_POLICY);
+				String content = result.getResponse().getContentAsString();
+				assertThat(header).matchesSatisfying(regex, (matcher) -> {
+					String nonce = matcher.group(1);
+					assertThat(nonce).isNotNull();
+					assertThat(content).contains("nonce=\"" + nonce + "\"");
+				});
+			});
+	}
+
+	/** @since 7.1 */
+	@Test
+	public void configureWhenContentSecurityPolicyWithCustomNonceThenHeaderMatchesContent() throws Exception {
+		Pattern regex = Pattern.compile("^script-src 'self' 'nonce-([A-Za-z0-9+/]{22,}={0,2})'$");
+		this.spring.register(ContentSecurityPolicyCustomNonceConfig.class, TestCspNonceController.class).autowire();
+		this.mvc.perform(get("/custom").secure(true))
+			.andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+			.andExpect((result) -> {
+				String header = result.getResponse().getHeader(HttpHeaders.CONTENT_SECURITY_POLICY);
+				String content = result.getResponse().getContentAsString();
+				assertThat(header).matchesSatisfying(regex, (matcher) -> {
+					String nonce = matcher.group(1);
+					assertThat(nonce).isNotNull();
+					assertThat(content).contains("nonce=\"" + nonce + "\"");
+				});
+			});
+	}
+
+	/** @since 7.1 */
+	@Test
+	public void configureWhenContentSecurityPolicyWithMatcherThenHeaderInResponseIfMatched() throws Exception {
+		this.spring.register(ContentSecurityPolicyMatcherConfig.class).autowire();
+		this.mvc.perform(get("/").secure(true).accept(MediaType.TEXT_HTML))
+			.andExpect(header().string(HttpHeaders.CONTENT_SECURITY_POLICY, "default-src 'self'"));
+		this.mvc.perform(get("/").secure(true).accept(MediaType.TEXT_PLAIN))
+			.andExpect(header().doesNotExist(HttpHeaders.CONTENT_SECURITY_POLICY));
+	}
+
+	/** @since 7.1 */
+	@Test
+	public void configureWhenContentSecurityPolicyWithPathMatchersThenHeaderInResponseIfMatched() throws Exception {
+		this.spring.register(ContentSecurityPolicyPathMatchersConfig.class).autowire();
+		this.mvc.perform(get("/foo/bar").secure(true))
+			.andExpect(header().string(HttpHeaders.CONTENT_SECURITY_POLICY, "default-src 'self'"));
+		this.mvc.perform(get("/bar/foo").secure(true))
+			.andExpect(header().string(HttpHeaders.CONTENT_SECURITY_POLICY, "default-src 'self'"));
+		this.mvc.perform(get("/foobar").secure(true))
+			.andExpect(header().doesNotExist(HttpHeaders.CONTENT_SECURITY_POLICY));
+	}
+
+	/** @since 7.1 */
+	@Test
+	public void configureWhenContentSecurityPolicyWithOverriddenMatchersThenThrows() {
+		assertThatException()
+			.isThrownBy(() -> this.spring.register(ContentSecurityPolicyOverriddenMatchersConfig.class).autowire())
+			.havingRootCause()
+			.isInstanceOf(IllegalStateException.class)
+			.withMessage("RequireCspMatcher(s) is already configured");
 	}
 
 	@Test
@@ -1090,6 +1168,133 @@ public class HeadersConfigurerTests {
 				);
 			return http.build();
 			// @formatter:on
+		}
+
+	}
+
+	@Controller
+	static class TestCspNonceController {
+
+		@GetMapping(produces = MediaType.TEXT_HTML_VALUE)
+		@ResponseBody
+		String defaultAttribute(@RequestAttribute("_csp_nonce") String cspNonce) {
+			return """
+					<!DOCTYPE html>
+					<html>
+					<head><script nonce="%s"></script></head>
+					<body>Default</body>
+					</html>
+					""".formatted(cspNonce);
+		}
+
+		@GetMapping(path = "/custom", produces = MediaType.TEXT_HTML_VALUE)
+		@ResponseBody
+		String custom(@RequestAttribute("CUSTOM_NONCE") String cspNonce) {
+			return """
+					<!DOCTYPE html>
+					<html>
+					<head><script nonce="%s"></script></head>
+					<body>Custom</body>
+					</html>
+					""".formatted(cspNonce);
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class ContentSecurityPolicyDefaultNonceConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) {
+			// @formatter:off
+			http
+				.headers((headers) -> headers
+					.defaultsDisabled()
+					.contentSecurityPolicy((csp) -> csp
+						.policyDirectives("script-src 'self' 'nonce-{nonce}'")));
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class ContentSecurityPolicyCustomNonceConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) {
+			// @formatter:off
+			http
+				.headers((headers) -> headers
+					.defaultsDisabled()
+					.contentSecurityPolicy((csp) -> csp
+						.policyDirectives("script-src 'self' 'nonce-{nonce}'")
+						.nonceAttributeName("CUSTOM_NONCE")));
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class ContentSecurityPolicyMatcherConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) {
+			// @formatter:off
+			http
+				.headers((headers) -> headers
+					.defaultsDisabled()
+					.contentSecurityPolicy((csp) -> csp
+						.policyDirectives("default-src 'self'")
+						.requireCspMatcher((request) -> {
+							var accepted = MediaType.parseMediaTypes(request.getHeader(HttpHeaders.ACCEPT));
+							return MediaType.TEXT_HTML.isPresentIn(accepted);
+						})));
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class ContentSecurityPolicyPathMatchersConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) {
+			// @formatter:off
+			http
+				.headers((headers) -> headers
+					.defaultsDisabled()
+					.contentSecurityPolicy((csp) -> csp
+						.policyDirectives("default-src 'self'")
+						.requireCspMatchers("/foo/**", "/bar/**")));
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class ContentSecurityPolicyOverriddenMatchersConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) {
+			// @formatter:off
+			http
+				.headers((headers) -> headers
+					.defaultsDisabled()
+					.contentSecurityPolicy((csp) -> csp
+						.policyDirectives("default-src 'self'")
+						.requireCspMatcher(AnyRequestMatcher.INSTANCE)
+						.requireCspMatchers("/**")));
+			// @formatter:on
+			return http.build();
 		}
 
 	}
