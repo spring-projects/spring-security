@@ -42,6 +42,7 @@ import com.nimbusds.jose.jwk.source.JWKSetCacheRefreshEvaluator;
 import com.nimbusds.jose.jwk.source.JWKSetSource;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.jwk.source.JWKSourceBuilder;
+import com.nimbusds.jose.jwk.source.RemoteJWKSet;
 import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
 import com.nimbusds.jose.proc.JOSEObjectTypeVerifier;
 import com.nimbusds.jose.proc.JWSKeySelector;
@@ -561,8 +562,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		private RestTemplateWithNimbusDefaultTimeouts() {
 			SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-			requestFactory.setConnectTimeout(JWKSourceBuilder.DEFAULT_HTTP_CONNECT_TIMEOUT);
-			requestFactory.setReadTimeout(JWKSourceBuilder.DEFAULT_HTTP_READ_TIMEOUT);
+			requestFactory.setConnectTimeout(RemoteJWKSet.resolveDefaultHTTPConnectTimeout());
+			requestFactory.setReadTimeout(RemoteJWKSet.resolveDefaultHTTPReadTimeout());
 			setRequestFactory(requestFactory);
 		}
 
