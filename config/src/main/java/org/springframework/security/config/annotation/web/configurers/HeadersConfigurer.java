@@ -75,6 +75,7 @@ import org.springframework.util.Assert;
  * @author Vedran Pavic
  * @author Ankur Pathak
  * @author Daniel Garnier-Moiroux
+ * @author Andrey Litvitski
  * @since 3.2
  */
 public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
@@ -355,17 +356,38 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link FeaturePolicyConfig} for additional configuration
 	 * @throws IllegalArgumentException if policyDirectives is {@code null} or empty
 	 * @since 5.1
-	 * @deprecated For removal in 7.0. Use {@link #permissionsPolicy(Customizer)} or
-	 * {@code permissionsPolicy(Customizer.withDefaults())} to stick with defaults. See
-	 * the <a href=
-	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
-	 * for more details.
 	 * @see ObjectPostProcessorConfiguration FeaturePolicyHeaderWriter
 	 */
-	@Deprecated
 	public FeaturePolicyConfig featurePolicy(String policyDirectives) {
 		this.featurePolicy.writer = new FeaturePolicyHeaderWriter(policyDirectives);
 		return this.featurePolicy;
+	}
+
+	/**
+	 * Allows configuration for <a href="https://wicg.github.io/feature-policy/">Feature
+	 * Policy</a> using the lambda-based DSL.
+	 * <p>
+	 * Calling this method automatically enables (includes) the {@code Feature-Policy}
+	 * header in the response using the supplied policy directive(s).
+	 * <p>
+	 * Configuration is provided to the {@link FeaturePolicyHeaderWriter}, which is
+	 * responsible for writing the header.
+	 * <p>
+	 * Even though the Feature-Policy header has been deprecated in favor of the
+	 * Permissions-Policy header, many browsers still support Feature-Policy. As such,
+	 * this method allows applications to continue using Feature-Policy when necessary.
+	 * @param featurePolicyCustomizer the {@link Customizer} to provide feature policy
+	 * configuration
+	 * @return the {@link HeadersConfigurer} for additional configuration
+	 * @since 6.5
+	 * @see FeaturePolicyHeaderWriter
+	 * @see <a href="https://wicg.github.io/feature-policy/">Feature Policy
+	 * specification</a>
+	 */
+	public HeadersConfigurer<H> featurePolicy(Customizer<FeaturePolicyConfig> featurePolicyCustomizer) {
+		this.featurePolicy.writer = new FeaturePolicyHeaderWriter();
+		featurePolicyCustomizer.customize(this.featurePolicy);
+		return this;
 	}
 
 	/**
@@ -988,6 +1010,17 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		private FeaturePolicyHeaderWriter writer;
 
 		private FeaturePolicyConfig() {
+		}
+
+		/**
+		 * Sets the policy directives to be used in the response header.
+		 * @param policyDirectives a permissions policy directives
+		 * @return the {@link FeaturePolicyConfig} for additional configuration
+		 * @throws IllegalArgumentException if policy is null
+		 */
+		public FeaturePolicyConfig policyDirectives(String policyDirectives) {
+			this.writer.setPolicyDirectives(policyDirectives);
+			return this;
 		}
 
 		/**
