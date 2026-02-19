@@ -134,7 +134,9 @@ public class SessionRegistryImpl implements SessionRegistry, ApplicationListener
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug(LogMessage.format("Registering session %s, for principal %s", sessionId, principal));
 		}
-		this.sessionIds.put(sessionId, new SessionInformation(principal, sessionId, new Date()));
+		Date currentDate = new Date();
+		this.sessionIds.put(sessionId, new SessionInformation(principal, sessionId, new Date(currentDate.getTime()),
+				new Date(currentDate.getTime())));
 		this.principals.compute(principal, (key, sessionsUsedByPrincipal) -> {
 			if (sessionsUsedByPrincipal == null) {
 				sessionsUsedByPrincipal = new CopyOnWriteArraySet<>();

@@ -43,20 +43,22 @@ public class SessionInformationExpiredEventTests {
 	@Test
 	public void constructorWhenRequestNullThenThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new SessionInformationExpiredEvent(
-				new SessionInformation("fake", "sessionId", new Date()), null, new MockHttpServletResponse()));
+				new SessionInformation("fake", "sessionId", new Date(), new Date()), null,
+				new MockHttpServletResponse()));
 	}
 
 	@Test
 	public void constructorWhenResponseNullThenThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new SessionInformationExpiredEvent(
-				new SessionInformation("fake", "sessionId", new Date()), new MockHttpServletRequest(), null));
+				new SessionInformation("fake", "sessionId", new Date(), new Date()), new MockHttpServletRequest(),
+				null));
 	}
 
 	@Test
 	void constructorWhenFilterChainThenGetFilterChainReturnsNotNull() {
 		MockFilterChain filterChain = new MockFilterChain();
 		SessionInformationExpiredEvent event = new SessionInformationExpiredEvent(
-				new SessionInformation("fake", "sessionId", new Date()), new MockHttpServletRequest(),
+				new SessionInformation("fake", "sessionId", new Date(), new Date()), new MockHttpServletRequest(),
 				new MockHttpServletResponse(), filterChain);
 		assertThat(event.getFilterChain()).isSameAs(filterChain);
 	}
