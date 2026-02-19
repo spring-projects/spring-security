@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +36,10 @@ import org.jspecify.annotations.Nullable;
  * @author Rob Winch
  * @since 6.4
  */
-public final class PublicKeyCredentialCreationOptions {
+public final class PublicKeyCredentialCreationOptions implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = 800506727675279143L;
 
 	private final PublicKeyCredentialRpEntity rp;
 
