@@ -117,7 +117,7 @@ public abstract class SecurityExpressionRoot<T extends @Nullable Object> impleme
 
 	@Override
 	public final boolean hasAuthority(String authority) {
-		return isGranted(this.authorizationManagerFactory.hasAnyAuthority(authority));
+		return isGranted(this.authorizationManagerFactory.hasAuthority(authority));
 	}
 
 	@Override
