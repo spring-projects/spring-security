@@ -17,13 +17,19 @@
 package org.springframework.security.saml2.aot.hint;
 
 import org.jspecify.annotations.Nullable;
+
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.aot.hint.TypeReference;
 import org.springframework.security.saml2.core.Saml2Error;
-import org.springframework.security.saml2.jackson2.Saml2Jackson2Module;
-import org.springframework.security.saml2.provider.service.authentication.*;
+import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AssertionAuthentication;
+import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
+import org.springframework.security.saml2.provider.service.authentication.Saml2PostAuthenticationRequest;
+import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest;
+import org.springframework.security.saml2.provider.service.authentication.Saml2ResponseAssertion;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.util.ClassUtils;
 
@@ -54,46 +60,35 @@ class Saml2RuntimeHints implements RuntimeHintsRegistrar {
 
 	private void registerAuthenticationHints(RuntimeHints hints) {
 		hints.reflection()
-				.registerTypes(
-						java.util.List.of(TypeReference.of(Saml2Authentication.class),
-								TypeReference.of(Saml2AssertionAuthentication.class),
-								TypeReference.of(DefaultSaml2AuthenticatedPrincipal.class),
-								TypeReference.of(Saml2PostAuthenticationRequest.class),
-								TypeReference.of(Saml2RedirectAuthenticationRequest.class),
-								TypeReference.of(Saml2ResponseAssertion.class),
-								TypeReference.of(Saml2LogoutRequest.class), TypeReference.of(Saml2Error.class),
-								TypeReference.of(Saml2AuthenticationException.class)),
-						(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
-								MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.ACCESS_DECLARED_FIELDS));
+			.registerTypes(
+					java.util.List.of(TypeReference.of(Saml2Authentication.class),
+							TypeReference.of(Saml2AssertionAuthentication.class),
+							TypeReference.of(DefaultSaml2AuthenticatedPrincipal.class),
+							TypeReference.of(Saml2PostAuthenticationRequest.class),
+							TypeReference.of(Saml2RedirectAuthenticationRequest.class),
+							TypeReference.of(Saml2ResponseAssertion.class), TypeReference.of(Saml2LogoutRequest.class),
+							TypeReference.of(Saml2Error.class), TypeReference.of(Saml2AuthenticationException.class)),
+					(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+							MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.ACCESS_DECLARED_FIELDS));
 	}
 
 	private void registerJacksonHints(RuntimeHints hints) {
 		// Jackson 2 Module
 		if (jackson2Present) {
-			hints.reflection()
-					.registerType(Saml2Jackson2Module.class,
-							(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
-									MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.ACCESS_DECLARED_FIELDS));
-
 			// Register mixins for Jackson 2
 			registerJackson2Mixins(hints);
 		}
 
 		// Jackson 3 Module
 		if (jackson3Present) {
-			hints.reflection()
-					.registerType(
-							TypeReference.of("org.springframework.security.saml2.jackson.Saml2JacksonModule"),
-							(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
-									MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.ACCESS_DECLARED_FIELDS));
-
 			// Register mixins for Jackson 3
 			registerJackson3Mixins(hints);
 		}
 	}
 
 	private void registerJackson2Mixins(RuntimeHints hints) {
-		String[] mixinClasses = {"org.springframework.security.saml2.jackson2.Saml2AuthenticationMixin",
+		String[] mixinClasses = { "org.springframework.security.saml2.jackson2.Saml2AuthenticationMixin",
+				"org.springframework.security.saml2.jackson2.Saml2JacksonModule",
 				"org.springframework.security.saml2.jackson2.Saml2AssertionAuthenticationMixin",
 				"org.springframework.security.saml2.jackson2.SimpleSaml2ResponseAssertionAccessorMixin",
 				"org.springframework.security.saml2.jackson2.DefaultSaml2AuthenticatedPrincipalMixin",
@@ -101,40 +96,40 @@ class Saml2RuntimeHints implements RuntimeHintsRegistrar {
 				"org.springframework.security.saml2.jackson2.Saml2RedirectAuthenticationRequestMixin",
 				"org.springframework.security.saml2.jackson2.Saml2PostAuthenticationRequestMixin",
 				"org.springframework.security.saml2.jackson2.Saml2ErrorMixin",
-				"org.springframework.security.saml2.jackson2.Saml2AuthenticationExceptionMixin"};
+				"org.springframework.security.saml2.jackson2.Saml2AuthenticationExceptionMixin" };
 
 		for (String mixinClass : mixinClasses) {
 			hints.reflection()
-					.registerType(TypeReference.of(mixinClass),
-							(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
-									MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.ACCESS_DECLARED_FIELDS));
+				.registerType(TypeReference.of(mixinClass),
+						(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+								MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.ACCESS_DECLARED_FIELDS));
 		}
 	}
 
 	private void registerJackson3Mixins(RuntimeHints hints) {
-		String[] mixinClasses = {"org.springframework.security.saml2.jackson.Saml2AuthenticationMixin",
+		String[] mixinClasses = { "org.springframework.security.saml2.jackson.Saml2AuthenticationMixin",
 				"org.springframework.security.saml2.jackson.Saml2AssertionAuthenticationMixin",
+				"org.springframework.security.saml2.jackson.Saml2JacksonModule",
 				"org.springframework.security.saml2.jackson.SimpleSaml2ResponseAssertionAccessorMixin",
 				"org.springframework.security.saml2.jackson.DefaultSaml2AuthenticatedPrincipalMixin",
 				"org.springframework.security.saml2.jackson.Saml2LogoutRequestMixin",
 				"org.springframework.security.saml2.jackson.Saml2RedirectAuthenticationRequestMixin",
 				"org.springframework.security.saml2.jackson.Saml2PostAuthenticationRequestMixin",
 				"org.springframework.security.saml2.jackson.Saml2ErrorMixin",
-				"org.springframework.security.saml2.jackson.Saml2AuthenticationExceptionMixin"};
+				"org.springframework.security.saml2.jackson.Saml2AuthenticationExceptionMixin" };
 
 		for (String mixinClass : mixinClasses) {
 			hints.reflection()
-					.registerType(TypeReference.of(mixinClass),
-							(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
-									MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.ACCESS_DECLARED_FIELDS));
+				.registerType(TypeReference.of(mixinClass),
+						(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+								MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.ACCESS_DECLARED_FIELDS));
 		}
 	}
 
 	private void registerJdbcSchemaHints(RuntimeHints hints) {
 		hints.resources()
-				.registerPattern("org/springframework/security/saml2/saml2-asserting-party-metadata-schema.sql")
-				.registerPattern(
-						"org/springframework/security/saml2/saml2-asserting-party-metadata-schema-postgres.sql");
+			.registerPattern("org/springframework/security/saml2/saml2-asserting-party-metadata-schema.sql")
+			.registerPattern("org/springframework/security/saml2/saml2-asserting-party-metadata-schema-postgres.sql");
 	}
 
 }

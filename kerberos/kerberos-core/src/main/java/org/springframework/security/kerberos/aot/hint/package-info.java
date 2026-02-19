@@ -17,4 +17,7 @@
 /**
  * AOT and native image hint support for Kerberos authentication.
  */
+@NullMarked
 package org.springframework.security.kerberos.aot.hint;
+
+import org.jspecify.annotations.NullMarked;

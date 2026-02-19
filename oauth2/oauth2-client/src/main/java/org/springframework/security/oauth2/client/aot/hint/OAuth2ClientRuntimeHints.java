@@ -65,12 +65,10 @@ class OAuth2ClientRuntimeHints implements RuntimeHintsRegistrar {
 
 		// Register OAuth2 client types that may be serialized in R2DBC scenarios
 		hints.reflection()
-			.registerTypes(
-					java.util.List.of(
-							TypeReference
-								.of("org.springframework.security.oauth2.client.OAuth2AuthorizedClient"),
-							TypeReference
-								.of("org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken")),
+			.registerTypes(java.util.List.of(
+					TypeReference.of("org.springframework.security.oauth2.client.OAuth2AuthorizedClient"),
+					TypeReference
+						.of("org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken")),
 					(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
 							MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.ACCESS_DECLARED_FIELDS));
 	}

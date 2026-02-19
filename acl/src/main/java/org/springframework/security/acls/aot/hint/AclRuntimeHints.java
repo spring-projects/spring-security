@@ -16,17 +16,27 @@
 
 package org.springframework.security.acls.aot.hint;
 
+import java.util.stream.Stream;
+
 import org.jspecify.annotations.Nullable;
+
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.aot.hint.TypeReference;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.security.acls.domain.*;
-import org.springframework.security.acls.model.*;
-
-import java.util.stream.Stream;
+import org.springframework.security.acls.domain.AclImpl;
+import org.springframework.security.acls.domain.AuditLogger;
+import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.domain.GrantedAuthoritySid;
+import org.springframework.security.acls.domain.ObjectIdentityImpl;
+import org.springframework.security.acls.domain.PrincipalSid;
+import org.springframework.security.acls.model.AccessControlEntry;
+import org.springframework.security.acls.model.Acl;
+import org.springframework.security.acls.model.AuditableAccessControlEntry;
+import org.springframework.security.acls.model.ObjectIdentity;
+import org.springframework.security.acls.model.Sid;
 
 /**
  * {@link RuntimeHintsRegistrar} for ACL (Access Control List) classes.
@@ -43,26 +53,21 @@ class AclRuntimeHints implements RuntimeHintsRegistrar {
 
 	private void registerAclDomainHints(RuntimeHints hints) {
 		// Register core ACL domain types
-		Stream.of(Acl.class, AccessControlEntry.class, AuditableAccessControlEntry.class,
-						ObjectIdentity.class, Sid.class, AclImpl.class, AccessControlEntry.class,
-						AuditLogger.class, ObjectIdentityImpl.class, PrincipalSid.class, GrantedAuthoritySid.class, BasePermission.class)
-				.forEach(c -> hints.reflection().registerType(TypeReference.of(c), builder ->
-						builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+		Stream
+			.of(Acl.class, AccessControlEntry.class, AuditableAccessControlEntry.class, ObjectIdentity.class, Sid.class,
+					AclImpl.class, AccessControlEntry.class, AuditLogger.class, ObjectIdentityImpl.class,
+					PrincipalSid.class, GrantedAuthoritySid.class, BasePermission.class)
+			.forEach((c) -> hints.reflection()
+				.registerType(TypeReference.of(c),
+						(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
 								MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.ACCESS_DECLARED_FIELDS)));
-
 
 	}
 
 	private void registerJdbcSchemaHints(RuntimeHints hints) {
-		String[] sqlFiles = new String[]{
-				"createAclSchema.sql",
-				"createAclSchemaMySQL.sql",
-				"createAclSchemaOracle.sql",
-				"createAclSchemaPostgres.sql",
-				"createAclSchemaSqlServer.sql",
-				"createAclSchemaWithAclClassIdType.sql",
-				"select.sql"
-		};
+		String[] sqlFiles = new String[] { "createAclSchema.sql", "createAclSchemaMySQL.sql",
+				"createAclSchemaOracle.sql", "createAclSchemaPostgres.sql", "createAclSchemaSqlServer.sql",
+				"createAclSchemaWithAclClassIdType.sql", "select.sql" };
 		for (String sqlFile : sqlFiles) {
 			Resource sqlResource = new ClassPathResource(sqlFile);
 			if (sqlResource.exists()) {

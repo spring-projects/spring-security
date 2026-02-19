@@ -17,4 +17,7 @@
 /**
  * AOT and native image hint support for SAML2.
  */
+@NullMarked
 package org.springframework.security.saml2.aot.hint;
+
+import org.jspecify.annotations.NullMarked;
