@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -94,6 +95,11 @@ public class OAuth2DeviceVerificationAuthenticationProviderTests {
 		this.authenticationProvider = new OAuth2DeviceVerificationAuthenticationProvider(
 				this.registeredClientRepository, this.authorizationService, this.authorizationConsentService);
 		mockAuthorizationServerContext();
+	}
+
+	@AfterEach
+	public void tearDown() {
+		AuthorizationServerContextHolder.resetContext();
 	}
 
 	@Test
