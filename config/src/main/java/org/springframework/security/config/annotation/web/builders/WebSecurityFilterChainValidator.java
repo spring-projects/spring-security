@@ -103,7 +103,8 @@ final class WebSecurityFilterChainValidator implements FilterChainProxy.FilterCh
 			}
 			if (filterSecurityInterceptor != null) {
 				this.logger.warn(
-						"Usage of authorizeRequests is deprecated. Please use authorizeHttpRequests in the configuration");
+						"Usage of authorizeRequests is deprecated. Please use authorizeHttpRequests in the configuration. "
+								+ "If using XML, ensure use-authorization-manager=\"true\" is configured");
 			}
 			authorizationFilter = null;
 			filterSecurityInterceptor = null;
