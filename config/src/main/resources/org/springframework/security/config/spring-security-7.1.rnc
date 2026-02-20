@@ -12,8 +12,8 @@ base64 =
 	## Whether a string should be base64 encoded
 	attribute base64 {xsd:boolean}
 request-matcher =
-	## Defines the strategy use for matching incoming requests. Currently the options are 'mvc' (for Spring MVC matcher), 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for case-insensitive regular expressions.
-	attribute request-matcher {"mvc" | "ant" | "regex" | "ciRegex"}
+	## Defines the strategy use for matching incoming requests. Currently the options are 'path' (for PathPatternRequestMatcher), 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for case-insensitive regular expressions.
+	attribute request-matcher {"path" | "regex" | "ciRegex"}
 port =
 	## Specifies an IP port number. Used to configure an embedded LDAP server, for example.
 	attribute port { xsd:nonNegativeInteger }
