@@ -778,6 +778,7 @@ public class OidcClientRegistrationTests {
 		// @formatter:on
 
 		@Bean
+		@SuppressWarnings("removal")
 		RegisteredClientRepository registeredClientRepository(JdbcOperations jdbcOperations) {
 			RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
 			RegisteredClientParametersMapper registeredClientParametersMapper = new RegisteredClientParametersMapper();

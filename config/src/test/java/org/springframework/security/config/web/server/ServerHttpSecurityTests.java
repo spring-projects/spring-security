@@ -737,6 +737,7 @@ public class ServerHttpSecurityTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	void resourcesWhenLoginPageConfiguredThenServesCss() {
 		this.http.formLogin(withDefaults());
 		this.http.authenticationManager(this.authenticationManager);

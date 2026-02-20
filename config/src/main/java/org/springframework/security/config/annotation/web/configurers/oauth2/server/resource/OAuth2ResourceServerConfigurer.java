@@ -521,8 +521,10 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		public OpaqueTokenConfigurer introspectionUri(String introspectionUri) {
 			Assert.notNull(introspectionUri, "introspectionUri cannot be null");
 			this.introspectionUri = introspectionUri;
-			this.introspector = () -> new SpringOpaqueTokenIntrospector(this.introspectionUri, this.clientId,
-					this.clientSecret);
+			this.introspector = () -> SpringOpaqueTokenIntrospector.withIntrospectionUri(this.introspectionUri)
+				.clientId(this.clientId)
+				.clientSecret(this.clientSecret)
+				.build();
 			return this;
 		}
 
@@ -531,8 +533,10 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			Assert.notNull(clientSecret, "clientSecret cannot be null");
 			this.clientId = clientId;
 			this.clientSecret = clientSecret;
-			this.introspector = () -> new SpringOpaqueTokenIntrospector(this.introspectionUri, this.clientId,
-					this.clientSecret);
+			this.introspector = () -> SpringOpaqueTokenIntrospector.withIntrospectionUri(this.introspectionUri)
+				.clientId(this.clientId)
+				.clientSecret(this.clientSecret)
+				.build();
 			return this;
 		}
 

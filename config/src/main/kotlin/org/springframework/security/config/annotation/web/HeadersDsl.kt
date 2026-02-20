@@ -31,6 +31,7 @@ import org.springframework.security.web.header.writers.frameoptions.XFrameOption
  * @property defaultsDisabled whether all of the default headers should be included in the response
  */
 @SecurityMarker
+@Suppress("DEPRECATION")
 class HeadersDsl {
     private var contentTypeOptions: ((HeadersConfigurer<HttpSecurity>.ContentTypeOptionsConfig) -> Unit)? = null
     private var xssProtection: ((HeadersConfigurer<HttpSecurity>.XXssConfig) -> Unit)? = null

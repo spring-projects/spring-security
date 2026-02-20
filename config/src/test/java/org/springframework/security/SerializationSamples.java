@@ -284,6 +284,13 @@ final class SerializationSamples {
 		Authentication authentication = TestAuthentication.authenticated(user);
 		SecurityContext securityContext = new SecurityContextImpl(authentication);
 
+		instancioByClassName.put(OneTimeTokenAuthenticationToken.class, () -> {
+			InstancioOfClassApi<?> instancio = Instancio.of(OneTimeTokenAuthenticationToken.class);
+			instancio.supply(Select.all(OneTimeTokenAuthenticationToken.class),
+					(r) -> applyDetails(new OneTimeTokenAuthenticationToken("token")));
+			return instancio;
+		});
+
 		// oauth2-core
 		generatorByClassName.put(DefaultOAuth2User.class, (r) -> TestOAuth2Users.create());
 		generatorByClassName.put(OAuth2AuthorizationRequest.class,
@@ -597,8 +604,7 @@ final class SerializationSamples {
 			token.setDetails(details);
 			return token;
 		});
-		generatorByClassName.put(OneTimeTokenAuthenticationToken.class,
-				(r) -> applyDetails(new OneTimeTokenAuthenticationToken("username", "token")));
+
 		generatorByClassName.put(OneTimeTokenAuthentication.class,
 				(r) -> applyDetails(new OneTimeTokenAuthentication("username", authentication.getAuthorities())));
 		generatorByClassName.put(AccessDeniedException.class,
