@@ -43,6 +43,7 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
  *
  * @author Ben Alex
  */
+@SuppressWarnings("deprecation")
 public class DefaultWebInvocationPrivilegeEvaluatorTests {
 
 	private AccessDecisionManager adm;

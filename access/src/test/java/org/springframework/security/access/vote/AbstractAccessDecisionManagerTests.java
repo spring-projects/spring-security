@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  *
  * @author Ben Alex
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({ "unchecked", "deprecation" })
 public class AbstractAccessDecisionManagerTests {
 
 	@Test

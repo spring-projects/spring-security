@@ -29,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  *
  * @author Ben Alex
  */
+@SuppressWarnings("deprecation")
 public class RunAsUserTokenTests {
 
 	@Test

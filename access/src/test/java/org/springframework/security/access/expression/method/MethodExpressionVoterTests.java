@@ -34,7 +34,7 @@ import org.springframework.security.util.SimpleMethodInvocation;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({ "unchecked", "deprecation" })
 public class MethodExpressionVoterTests {
 
 	private TestingAuthenticationToken joe = new TestingAuthenticationToken("joe", "joespass", "ROLE_blah");

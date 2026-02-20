@@ -31,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 /**
  * Tests {@link RunAsImplAuthenticationProvider}.
  */
+@SuppressWarnings("deprecation")
 public class RunAsImplAuthenticationProviderTests {
 
 	@Test

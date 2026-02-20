@@ -34,6 +34,7 @@ import org.springframework.security.core.Authentication;
  *
  * @author Ben Alex
  */
+@SuppressWarnings("deprecation")
 public class DenyVoter implements AccessDecisionVoter<Object> {
 
 	@Override
