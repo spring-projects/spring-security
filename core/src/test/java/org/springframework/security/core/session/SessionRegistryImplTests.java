@@ -16,12 +16,16 @@
 
 package org.springframework.security.core.session;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,6 +64,63 @@ public class SessionRegistryImplTests {
 		});
 		// Check attempts to retrieve cleared session return null
 		assertThat(this.sessionRegistry.getSessionInformation(sessionId)).isNull();
+	}
+
+	private Authentication authentication(String name) {
+		return new Authentication() {
+
+			@Override
+			public String getName() {
+				return name;
+			}
+
+			@Override
+			public Object getPrincipal() {
+				return this;
+			}
+
+			@Override
+			public Object getCredentials() {
+				return null;
+			}
+
+			@Override
+			public Object getDetails() {
+				return null;
+			}
+
+			@Override
+			public Collection<? extends GrantedAuthority> getAuthorities() {
+				return Collections.emptyList();
+			}
+
+			@Override
+			public boolean isAuthenticated() {
+				return true;
+			}
+
+			@Override
+			public void setAuthenticated(boolean isAuthenticated) {
+			}
+		};
+	}
+
+	@Test
+	public void authenticationPrincipalUsesNameAsSessionKey() {
+		String sessionId = "session-1";
+
+		Authentication auth1 = authentication("user-123");
+		Authentication auth2 = authentication("user-123");
+
+		// Sanity check
+		assertThat(auth1).isNotSameAs(auth2);
+		this.sessionRegistry.registerNewSession(sessionId, auth1);
+		// Lookup using a different Authentication instance
+		List<SessionInformation> sessions =
+				this.sessionRegistry.getAllSessions(auth2, false);
+
+		assertThat(sessions).hasSize(1);
+		assertThat(sessions.get(0).getSessionId()).isEqualTo(sessionId);
 	}
 
 	@Test
