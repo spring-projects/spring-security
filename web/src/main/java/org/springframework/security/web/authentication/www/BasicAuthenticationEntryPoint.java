@@ -17,6 +17,8 @@
 package org.springframework.security.web.authentication.www;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,10 +42,13 @@ import org.springframework.util.Assert;
  * authorized, causing it to prompt the user to login again.
  *
  * @author Ben Alex
+ * @author Andrey Litvitski
  */
 public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint, InitializingBean {
 
 	private @Nullable String realmName;
+
+	private Charset charset = StandardCharsets.UTF_8;
 
 	@Override
 	public void afterPropertiesSet() {
@@ -53,7 +58,8 @@ public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint, 
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException {
-		response.setHeader("WWW-Authenticate", "Basic realm=\"" + this.realmName + "\"");
+		String header = "Basic realm=\"" + this.realmName + "\", charset=\"" + this.charset.name() + "\"";
+		response.setHeader("WWW-Authenticate", header);
 		response.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
 	}
 
@@ -63,6 +69,14 @@ public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint, 
 
 	public void setRealmName(String realmName) {
 		this.realmName = realmName;
+	}
+
+	public void setCharset(Charset charset) {
+		this.charset = charset;
+	}
+
+	public Charset getCharset() {
+		return this.charset;
 	}
 
 }
