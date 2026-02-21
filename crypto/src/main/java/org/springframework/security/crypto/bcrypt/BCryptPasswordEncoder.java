@@ -47,21 +47,21 @@ public class BCryptPasswordEncoder extends AbstractValidatingPasswordEncoder {
 	private final @Nullable SecureRandom random;
 
 	public BCryptPasswordEncoder() {
-		this(-1);
+		this(-1, new SecureRandom());
 	}
 
 	/**
 	 * @param strength the log rounds to use, between 4 and 31
 	 */
 	public BCryptPasswordEncoder(int strength) {
-		this(strength, null);
+		this(strength, new SecureRandom());
 	}
 
 	/**
 	 * @param version the version of bcrypt, can be 2a,2b,2y
 	 */
 	public BCryptPasswordEncoder(BCryptVersion version) {
-		this(version, null);
+		this(version, new SecureRandom());
 	}
 
 	/**
@@ -85,7 +85,7 @@ public class BCryptPasswordEncoder extends AbstractValidatingPasswordEncoder {
 	 * @param strength the log rounds to use, between 4 and 31
 	 */
 	public BCryptPasswordEncoder(BCryptVersion version, int strength) {
-		this(version, strength, null);
+		this(version, strength, new SecureRandom());
 	}
 
 	/**
