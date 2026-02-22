@@ -275,7 +275,7 @@ You can find more about this online and in the reference manual.
 It doesn't work - I just end up back at the login page after authenticating.
 
 This happens because sessions created under HTTPS, for which the session cookie is marked as "`secure`", cannot subsequently be used under HTTP. The browser does not send the cookie back to the server, and any session state (including the security context information) is lost. Starting a session in HTTP first should work, as the session cookie is not marked as secure.
-However, Spring Security's https://docs.spring.io/spring-security/site/docs/3.1.x/reference/springsecurity-single.html#ns-session-fixation[Session Fixation Protection] can interfere with this because it results in a new session ID cookie being sent back to the user's browser, usually with the secure flag.
+However, Spring Security's xref:servlet/authentication/session-management.adoc#ns-session-fixation[Session Fixation Protection] can interfere with this because it results in a new session ID cookie being sent back to the user's browser, usually with the secure flag.
 To get around this, you can disable session fixation protection. However, in newer Servlet containers, you can also configure session cookies to never use the secure flag.
 
 
@@ -703,7 +703,7 @@ You should also consult the {security-api-url}[Javadoc] for the relevant classes
 
 The namespace functionality is intentionally limited, so it does not cover everything that you can do with plain beans.
 If you want to do something simple, such as modifying a bean or injecting a different dependency, you can do so by adding a `BeanPostProcessor` to your configuration.
-You can find more information in the https://docs.spring.io/spring/docs/3.0.x/spring-framework-reference/htmlsingle/spring-framework-reference.html#beans-factory-extension-bpp[Spring Reference Manual]. To do so, you need to know a bit about which beans are created, so you should also read the blog article mentioned in the earlier question on <<appendix-faq-namespace-to-bean-mapping,how the namespace maps to Spring beans>>.
+You can find more information in the {spring-framework-reference-url}core/beans/factory-extension.html#beans-factory-extension-bpp[Spring Reference Manual]. To do so, you need to know a bit about which beans are created, so you should also read the blog article mentioned in the earlier question on <<appendix-faq-namespace-to-bean-mapping,how the namespace maps to Spring beans>>.
 
 Normally, you would add the functionality you require to the `postProcessBeforeInitialization` method of `BeanPostProcessor`. Suppose that you want to customize the `AuthenticationDetailsSource` used by the `UsernamePasswordAuthenticationFilter` (created by the `form-login` element). You want to extract a particular header called `CUSTOM_HEADER` from the request and use it while authenticating the user.
 The processor class would look like the following listing:
