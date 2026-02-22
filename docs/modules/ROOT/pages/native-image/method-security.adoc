@@ -44,7 +44,7 @@ public String hello() {
 Remember that you need to xref:servlet/authorization/method-security.adoc#jc-enable-method-security[add `@EnableMethodSecurity` annotation] to your configuration class to enable method security annotations.
 ====
 
-If you https://docs.spring.io/spring-boot/docs/current/reference/html/native-image.html#native-image.developing-your-first-application[run the native image] of your application with the above configuration, you will get an error similar to the following when trying to invoke the `hello()` method:
+If you {spring-boot-reference-url}how-to/native-image/developing-your-first-application.html[run the native image] of your application with the above configuration, you will get an error similar to the following when trying to invoke the `hello()` method:
 
 [source]
 ----
@@ -56,8 +56,8 @@ Which means that the `isAdmin()` method cannot be found on the `CustomUserDetail
 This is because Spring Security uses reflection to invoke the `isAdmin()` method and GraalVM Native Image does not support reflection by default.
 
 To fix this issue, you need to give hints to GraalVM Native Image to allow reflection on the `CustomUserDetails#isAdmin()` method.
-We can do that by providing a https://docs.spring.io/spring-boot/docs/current/reference/html/native-image.html#native-image.advanced.custom-hints[custom hint].
-In this example we are going to use {spring-framework-reference-url}core.html#core.aot.hints.register-reflection-for-binding[the `@RegisterReflectionForBinding` annotation].
+We can do that by providing a {spring-boot-reference-url}reference/packaging/native-image/advanced-topics.html#packaging.native-image.advanced.custom-hints[custom hint].
+In this example we are going to use {spring-framework-reference-url}core/aot.html#aot.hints.register-reflection[the `@RegisterReflectionForBinding` annotation].
 
 [NOTE]
 ====

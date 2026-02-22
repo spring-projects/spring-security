@@ -38,7 +38,7 @@ implementation "org.springframework.boot:spring-boot-starter-oauth2-authorizatio
 ----
 ======
 
-TIP: See https://docs.spring.io/spring-boot/docs/current/reference/html/getting-started.html#getting-started.installing[Installing Spring Boot] for more information on using Spring Boot with Maven or Gradle.
+TIP: See {spring-boot-reference-url}installing.html[Installing Spring Boot] for more information on using Spring Boot with Maven or Gradle.
 
 Alternatively, you can add Spring Security Authorization Server without Spring Boot using the following example:
 

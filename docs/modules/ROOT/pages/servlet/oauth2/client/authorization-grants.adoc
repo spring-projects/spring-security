@@ -1,6 +1,5 @@
 [[oauth2-client-authorization-grants]]
 = [[oauth2Client-auth-grant-support]]Authorization Grant Support
-:spring-security-reference-base-url: https://docs.spring.io/spring-security/reference
 
 This section describes Spring Security's support for authorization grants.
 

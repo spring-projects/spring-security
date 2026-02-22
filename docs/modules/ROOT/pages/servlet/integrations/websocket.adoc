@@ -1,14 +1,15 @@
 [[websocket]]
 = WebSocket Security
 
-Spring Security 4 added support for securing https://docs.spring.io/spring/docs/current/spring-framework-reference/html/websocket.html[Spring's WebSocket support].
+Spring Security 4 added support for securing {spring-framework-reference-url}web/websocket.html[Spring's WebSocket support].
 This section describes how to use Spring Security's WebSocket support.
 
 .Direct JSR-356 Support
 ****
 Spring Security does not provide direct JSR-356 support, because doing so would provide little value.
-This is because the format is unknown, and there is https://docs.spring.io/spring/docs/current/spring-framework-reference/html/websocket.html#websocket-intro-sub-protocol[little Spring can do to secure an unknown format].
 Additionally, JSR-356 does not provide a way to intercept messages, so security would be invasive.
+
+Spring Framework provides support for using STOMP — a simple, messaging protocol originally created for use in scripting languages with frames inspired by HTTP. STOMP is widely supported and well suited for use over WebSocket and over the web. For more details, see {spring-framework-reference-url}web/websocket/stomp.html[here].
 ****
 
 [[websocket-authentication]]
@@ -295,7 +296,7 @@ Consider a chat application:
 While we want clients to be able to `SUBSCRIBE` to `/topic/system/notifications`, we do not want to enable them to send a `MESSAGE` to that destination.
 If we allowed sending a `MESSAGE` to `/topic/system/notifications`, clients could send a message directly to that endpoint and impersonate the system.
 
-In general, it is common for applications to deny any `MESSAGE` sent to a destination that starts with the https://docs.spring.io/spring/docs/current/spring-framework-reference/html/websocket.html#websocket-stomp[broker prefix] (`/topic/` or `/queue/`).
+In general, it is common for applications to deny any `MESSAGE` sent to a destination that starts with the {spring-framework-reference-url}web/websocket/stomp.html[broker prefix] (`/topic/` or `/queue/`).
 
 [[websocket-authorization-notes-destinations]]
 ==== WebSocket Authorization on Destinations
@@ -312,14 +313,14 @@ Consider a chat application:
 With this chat application, we want to let our client to listen `/user/queue`, which is transformed into `/queue/user/messages-<sessionid>`.
 However, we do not want the client to be able to listen to `/queue/*`, because that would let the client see messages for every user.
 
-In general, it is common for applications to deny any `SUBSCRIBE` sent to a message that starts with the https://docs.spring.io/spring/docs/current/spring-framework-reference/html/websocket.html#websocket-stomp[broker prefix] (`/topic/` or `/queue/`).
+In general, it is common for applications to deny any `SUBSCRIBE` sent to a message that starts with the {spring-framework-reference-url}web/websocket/stomp.html[broker prefix] (`/topic/` or `/queue/`).
 We may provide exceptions to account for things like
 //FIXME: Like what?
 
 [[websocket-authorization-notes-outbound]]
 === Outbound Messages
 
-The Spring Framework reference documentation contains a section titled https://docs.spring.io/spring/docs/current/spring-framework-reference/html/websocket.html#websocket-stomp-message-flow["`Flow of Messages`"] that describes how messages flow through the system.
+The Spring Framework reference documentation contains a section titled {spring-framework-reference-url}web/websocket/stomp/message-flow.html["`Flow of Messages`"] that describes how messages flow through the system.
 Note that Spring Security secures only the `clientInboundChannel`.
 Spring Security does not attempt to secure the `clientOutboundChannel`.
 
@@ -351,7 +352,7 @@ This means that developers need to explicitly protect their applications from ex
 [[websocket-sameorigin-spring]]
 === Spring WebSocket Allowed Origin
 
-Fortunately, since Spring 4.1.5 Spring's WebSocket and SockJS support restricts access to the https://docs.spring.io/spring/docs/current/spring-framework-reference/html/websocket.html#websocket-server-allowed-origins[current domain].
+Fortunately, since Spring 4.1.5 Spring's WebSocket and SockJS support restricts access to the {spring-framework-reference-url}web/websocket/server.html#websocket-server-allowed-origins[current domain].
 Spring Security adds an additional layer of protection to provide https://en.wikipedia.org/wiki/Defence_in_depth_(non-military)#Information_security[defense in depth].
 
 [[websocket-sameorigin-csrf]]
@@ -529,7 +530,7 @@ If you are migrating from a legacy usage of `websocket-message-broker` that impl
 [[websocket-sockjs]]
 == Working with SockJS
 
-https://docs.spring.io/spring/docs/current/spring-framework-reference/html/websocket.html#websocket-fallback[SockJS] provides fallback transports to support older browsers.
+{spring-framework-reference-url}web/websocket/fallback.html[SockJS] provides fallback transports to support older browsers.
 When using the fallback options, we need to relax a few security constraints to allow SockJS to work with Spring Security.
 
 [[websocket-sockjs-sameorigin]]

@@ -1,7 +1,7 @@
 [[cors]]
 = CORS
 
-Spring Framework provides https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#mvc-cors[first class support for CORS].
+Spring Framework provides {spring-framework-reference-url}web/webmvc-cors.html[first class support for CORS].
 CORS must be processed before Spring Security, because the pre-flight request does not contain any cookies (that is, the `JSESSIONID`).
 If the request does not contain any cookies and Spring Security is first, the request determines that the user is not authenticated (since there are no cookies in the request) and rejects it.
 

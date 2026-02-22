@@ -707,8 +707,8 @@ include-code::./TopLevelCustomizerBeanConfiguration[tag=headersCustomizer,indent
 [[customizer-bean-ordering]]
 === Customizer Bean Ordering
 
-First each xref:#httpsecurity-customizer-bean[Customizer<HttpSecurity> Bean] is applied using https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/beans/factory/ObjectProvider.html#orderedStream()[ObjectProvider#orderedStream()].
-This means that if there are multiple `Customizer<HttpSecurity>` Beans, the https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/core/annotation/Order.html[@Order] annotation can be added to the Bean definitions to control the ordering.
+First each xref:#httpsecurity-customizer-bean[Customizer<HttpSecurity> Bean] is applied using {spring-framework-api-url}org/springframework/beans/factory/ObjectProvider.html#orderedStream()[ObjectProvider#orderedStream()].
+This means that if there are multiple `Customizer<HttpSecurity>` Beans, the {spring-framework-api-url}org/springframework/core/annotation/Order.html[@Order] annotation can be added to the Bean definitions to control the ordering.
 
 Next every xref:#top-level-customizer-bean[Top Level HttpSecurity Customizer Beans] type is looked up and each is applied using `ObjectProvider#orderedStream()`.
 If there is are two `Customizer<HeadersConfigurer<HttpSecurity>>` beans and two `Customizer<HttpsRedirectConfigurer<HttpSecurity>>` instances, the order that each `Customizer` type is invoked is undefined.
