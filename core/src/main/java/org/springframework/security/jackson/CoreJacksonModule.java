@@ -101,7 +101,6 @@ public class CoreJacksonModule extends SecurityJacksonModule {
 
 	@Override
 	public void setupModule(SetupContext context) {
-		((MapperBuilder<?, ?>) context.getOwner()).enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS);
 		context.setMixIn(AnonymousAuthenticationToken.class, AnonymousAuthenticationTokenMixin.class);
 		context.setMixIn(RememberMeAuthenticationToken.class, RememberMeAuthenticationTokenMixin.class);
 		context.setMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class);
