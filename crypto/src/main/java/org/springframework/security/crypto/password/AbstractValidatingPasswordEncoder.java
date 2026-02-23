@@ -46,7 +46,7 @@ public abstract class AbstractValidatingPasswordEncoder implements PasswordEncod
 
 	@Override
 	public final boolean matches(@Nullable CharSequence rawPassword, @Nullable String encodedPassword) {
-		if (!StringUtils.hasLength(rawPassword) || !StringUtils.hasLength(encodedPassword)) {
+		if (rawPassword == null || encodedPassword == null) {
 			return false;
 		}
 		return matchesNonNull(rawPassword.toString(), encodedPassword);

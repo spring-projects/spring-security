@@ -53,18 +53,8 @@ public abstract class AbstractPasswordEncoderValidationTests {
 	}
 
 	@Test
-	void matchesWhenEncodedPasswordEmptyThenFalse() {
-		assertThat(this.encoder.matches("raw", "")).isFalse();
-	}
-
-	@Test
 	void matchesWhenRawPasswordNullThenFalse() {
 		assertThat(this.encoder.matches(null, this.encoder.encode("password"))).isFalse();
-	}
-
-	@Test
-	void matchesWhenRawPasswordEmptyThenFalse() {
-		assertThat(this.encoder.matches("", this.encoder.encode("password"))).isFalse();
 	}
 
 }

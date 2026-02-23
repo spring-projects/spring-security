@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.security.crypto.password;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test {@link NoOpPasswordEncoder}.
@@ -28,6 +30,21 @@ class NoOpPasswordEncoderTests extends AbstractPasswordEncoderValidationTests {
 	@BeforeEach
 	void setup() {
 		setEncoder(NoOpPasswordEncoder.getInstance());
+	}
+
+	@Test
+	void matchesWhenBothPasswordsEmptyThenTrue() {
+		assertThat(NoOpPasswordEncoder.getInstance().matches("", "")).isTrue();
+	}
+
+	@Test
+	void matchesWhenRawPasswordEmptyAndEncodedPasswordNonEmptyThenFalse() {
+		assertThat(NoOpPasswordEncoder.getInstance().matches("", "password")).isFalse();
+	}
+
+	@Test
+	void matchesWhenRawPasswordNonEmptyAndEncodedPasswordEmptyThenFalse() {
+		assertThat(NoOpPasswordEncoder.getInstance().matches("password", "")).isFalse();
 	}
 
 }
