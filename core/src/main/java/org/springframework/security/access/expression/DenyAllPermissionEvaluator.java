@@ -20,7 +20,6 @@ import java.io.Serializable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.PermissionEvaluator;
@@ -41,7 +40,7 @@ public class DenyAllPermissionEvaluator implements PermissionEvaluator {
 	 * @return false always
 	 */
 	@Override
-	public boolean hasPermission(Authentication authentication, @Nullable Object target, Object permission) {
+	public boolean hasPermission(Authentication authentication, Object target, Object permission) {
 		this.logger.warn(LogMessage.format("Denying user %s permission '%s' on object %s", authentication.getName(),
 				permission, target));
 		return false;
