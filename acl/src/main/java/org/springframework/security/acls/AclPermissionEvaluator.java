@@ -23,6 +23,7 @@ import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.PermissionEvaluator;
@@ -73,7 +74,7 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
 	 * be overridden using a null check in the expression itself).
 	 */
 	@Override
-	public boolean hasPermission(Authentication authentication, Object domainObject, Object permission) {
+	public boolean hasPermission(Authentication authentication, @Nullable Object domainObject, Object permission) {
 		if (domainObject == null) {
 			return false;
 		}
