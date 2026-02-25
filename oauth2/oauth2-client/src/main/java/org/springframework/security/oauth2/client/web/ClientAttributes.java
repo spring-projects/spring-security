@@ -24,7 +24,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.util.Assert;
 
 /**
- * Used for accessing the attribute that stores the the
+ * Used for accessing the attribute that stores the
  * {@link ClientRegistration#getRegistrationId()}. This ensures that
  * {@link org.springframework.security.oauth2.client.web.client.ClientRegistrationIdProcessor}
  * aligns with all of ways of setting on both
@@ -44,7 +44,7 @@ public final class ClientAttributes {
 	/**
 	 * Resolves the {@link ClientRegistration#getRegistrationId() clientRegistrationId} to
 	 * be used to look up the {@link OAuth2AuthorizedClient}.
-	 * @param attributes the to search
+	 * @param attributes the attributes to search.
 	 * @return the registration id to use.
 	 */
 	public static String resolveClientRegistrationId(Map<String, Object> attributes) {
