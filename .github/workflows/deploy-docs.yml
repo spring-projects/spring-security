@@ -23,6 +23,7 @@ jobs:
     - name: Set Up Gradle
       uses: spring-io/spring-gradle-build-action@v2
       with:
+        # Use JDK 17 since 6.5.x Kotlin version does not support JDK 25 and thus will fail
         java-version: '17'
         distribution: temurin
     - name: Set up refname build
