@@ -1673,3 +1673,19 @@ NOTE: Spring isn't a cache provider, so you'll need to make sure to include the 
 
 NOTE: Whether it's socket or cache timeouts, you may instead want to work with Nimbus directly.
 To do so, remember that `NimbusJwtDecoder` ships with a constructor that takes Nimbus's `JWTProcessor`.
+
+[[custom-principal]]
+== Customizing the Principal
+
+Sometimes it can be helpful to look up a pre-existing user based on the JWTs subject or other identifier.
+
+[[custom-user-details-service]]
+=== Wiring a UserDetailsService
+
+For example, if your application has a `UserDetailsService` and you want the corresponding user in the resulting `Authentication`, you can create a class to adapt your `UserDetails` into an `OAuth2AuthenticatedPrincipal`:
+
+include-code::./UserDetailsJwtPrincipalConverter[tag=custom-converter,indent=0]
+
+And then apply your principal converter to a `JwtAuthenticationConverter` `@Bean` like so:
+
+include-code::./UserDetailsJwtPrincipalConverterConfiguration[tag=configure-converter,indent=0]
