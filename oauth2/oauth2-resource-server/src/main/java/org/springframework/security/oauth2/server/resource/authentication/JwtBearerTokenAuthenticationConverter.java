@@ -17,7 +17,6 @@
 package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.util.Collection;
-import java.util.Map;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -47,29 +46,33 @@ import org.springframework.util.Assert;
  */
 public final class JwtBearerTokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
-	private final JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+	private Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+
+	private Converter<Jwt, OAuth2AuthenticatedPrincipal> jwtPrincipalConverter = (
+			jwt) -> new DefaultOAuth2AuthenticatedPrincipal(jwt.getClaims(),
+					this.jwtGrantedAuthoritiesConverter.convert(jwt));
 
 	@Override
 	public AbstractAuthenticationToken convert(Jwt jwt) {
 		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, jwt.getTokenValue(),
 				jwt.getIssuedAt(), jwt.getExpiresAt());
-		Map<String, Object> attributes = jwt.getClaims();
-		AbstractAuthenticationToken token = this.jwtAuthenticationConverter.convert(jwt);
-		Collection<GrantedAuthority> authorities = token.getAuthorities();
-		OAuth2AuthenticatedPrincipal principal = new DefaultOAuth2AuthenticatedPrincipal(attributes, authorities);
+		Collection<GrantedAuthority> authorities = this.jwtGrantedAuthoritiesConverter.convert(jwt);
+		OAuth2AuthenticatedPrincipal principal = this.jwtPrincipalConverter.convert(jwt);
 		return new BearerTokenAuthentication(principal, accessToken, authorities);
 	}
 
 	/**
-	 * Sets the {@link Converter Converter&lt;Jwt, Collection&lt;OAuth2AuthenticatedPrincipal&gt;&gt;}
-	 * to use.
+	 * Sets the {@link Converter Converter&lt;Jwt, OAuth2AuthenticatedPrincipal&gt;} to
+	 * use.
+	 * <p>
+	 * By default, constructs a {@link DefaultOAuth2AuthenticatedPrincipal} based on the
+	 * claims and authorities derived from the {@link Jwt}.
 	 * @param jwtPrincipalConverter The converter
-	 * @since 6.5.0
+	 * @since 7.1
 	 */
-	public void setJwtPrincipalConverter(
-			Converter<Jwt, OAuth2AuthenticatedPrincipal> jwtPrincipalConverter) {
+	public void setJwtPrincipalConverter(Converter<Jwt, OAuth2AuthenticatedPrincipal> jwtPrincipalConverter) {
 		Assert.notNull(jwtPrincipalConverter, "jwtPrincipalConverter cannot be null");
-		this.jwtAuthenticationConverter.setJwtPrincipalConverter(jwtPrincipalConverter);
+		this.jwtPrincipalConverter = jwtPrincipalConverter;
 	}
 
 }
