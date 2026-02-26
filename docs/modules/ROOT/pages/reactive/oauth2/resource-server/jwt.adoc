@@ -39,17 +39,18 @@ This endpoint is referred to as a https://openid.net/specs/openid-connect-discov
 
 When this property and these dependencies are used, Resource Server automatically configures itself to validate JWT-encoded Bearer Tokens.
 
-It achieves this through a deterministic startup process:
+It achieves this through a deterministic discovery process it launches at the first request containing a JWT:
 
 . Hit the Provider Configuration or Authorization Server Metadata endpoint, processing the response for the `jwks_url` property.
 . Configure the validation strategy to query `jwks_url` for valid public keys.
 . Configure the validation strategy to validate each JWT's `iss` claim against `https://idp.example.com`.
 
-A consequence of this process is that the authorization server must be receiving requests in order for Resource Server to successfully start up.
+One benefit of deferring this process is that Resource Server startup is not coupled to the authorization server's availability.
 
 [NOTE]
 ====
-If the authorization server is down when Resource Server queries it (given appropriate timeouts), then startup fails.
+This deferral is managed by javadoc:org.springframework.security.oauth2.jwt.SupplierReactiveJwtDecoder[`SupplierReactiveJwtDecoder`].
+Consider wrapping any <<webflux-oauth2resourceserver-decoder-bean,`JwtDecoder` `@Bean`>> you declare in order to preserve this behavior.
 ====
 
 === Runtime Expectations
@@ -85,7 +86,7 @@ From here, consider jumping to:
 [[webflux-oauth2resourceserver-jwt-jwkseturi]]
 === Specifying the Authorization Server JWK Set Uri Directly
 
-If the authorization server does not support any configuration endpoints, or if Resource Server must be able to start up independently from the authorization server, you can supply `jwk-set-uri` as well:
+If the authorization server does not support any configuration endpoints, or if Resource Server must be able to initialize independently from the authorization server, you can supply `jwk-set-uri` as well:
 
 [source,yaml]
 ----
