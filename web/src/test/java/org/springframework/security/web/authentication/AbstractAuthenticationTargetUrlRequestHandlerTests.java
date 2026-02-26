@@ -114,4 +114,11 @@ public class AbstractAuthenticationTargetUrlRequestHandlerTests {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setRedirectStrategy(null));
 	}
 
+	@Test
+	void returnDefaultUrlIfUseRefererIsTrueAndRefererHeaderIsEmpty() {
+		this.handler.setUseReferer(true);
+		this.request.addHeader("Referer", "");
+		assertThat(this.handler.determineTargetUrl(this.request, this.response)).isEqualTo(DEFAULT_TARGET_URL);
+	}
+
 }
