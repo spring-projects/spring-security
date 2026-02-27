@@ -62,6 +62,8 @@ import org.springframework.util.StringUtils;
  */
 public abstract class AbstractAuthorizeTag {
 
+	private static final String DISPATCHER_SERVLET_CONTEXT_ATTRIBUTE = "org.springframework.web.servlet.DispatcherServlet.CONTEXT";
+
 	@SuppressWarnings("NullAway.Init")
 	private @Nullable String access;
 
@@ -184,8 +186,7 @@ public abstract class AbstractAuthorizeTag {
 	}
 
 	private SecurityContext getContext() {
-		ApplicationContext appContext = SecurityWebApplicationContextUtils
-			.findRequiredWebApplicationContext(getServletContext());
+		ApplicationContext appContext = getApplicationContext();
 		String[] names = appContext.getBeanNamesForType(SecurityContextHolderStrategy.class);
 		if (names.length == 1) {
 			SecurityContextHolderStrategy strategy = appContext.getBean(SecurityContextHolderStrategy.class);
@@ -196,8 +197,7 @@ public abstract class AbstractAuthorizeTag {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private SecurityExpressionHandler<FilterInvocation> getExpressionHandler() throws IOException {
-		ApplicationContext appContext = SecurityWebApplicationContextUtils
-			.findRequiredWebApplicationContext(getServletContext());
+		ApplicationContext appContext = getApplicationContext();
 		Map<String, SecurityExpressionHandler> handlers = appContext.getBeansOfType(SecurityExpressionHandler.class);
 		for (SecurityExpressionHandler handler : handlers.values()) {
 			if (FilterInvocation.class
@@ -215,8 +215,7 @@ public abstract class AbstractAuthorizeTag {
 		if (privEvaluatorFromRequest != null) {
 			return privEvaluatorFromRequest;
 		}
-		ApplicationContext ctx = SecurityWebApplicationContextUtils
-			.findRequiredWebApplicationContext(getServletContext());
+		ApplicationContext ctx = getApplicationContext();
 		Map<String, WebInvocationPrivilegeEvaluator> wipes = ctx.getBeansOfType(WebInvocationPrivilegeEvaluator.class);
 		if (wipes.isEmpty()) {
 			throw new IOException(
@@ -224,6 +223,14 @@ public abstract class AbstractAuthorizeTag {
 							+ "context. There must be at least one in order to support the use of URL access checks in 'authorize' tags.");
 		}
 		return (WebInvocationPrivilegeEvaluator) wipes.values().toArray()[0];
+	}
+
+	private ApplicationContext getApplicationContext() {
+		Object dispatcherContext = getRequest().getAttribute(DISPATCHER_SERVLET_CONTEXT_ATTRIBUTE);
+		if (dispatcherContext instanceof ApplicationContext applicationContext) {
+			return applicationContext;
+		}
+		return SecurityWebApplicationContextUtils.findRequiredWebApplicationContext(getServletContext());
 	}
 
 }
