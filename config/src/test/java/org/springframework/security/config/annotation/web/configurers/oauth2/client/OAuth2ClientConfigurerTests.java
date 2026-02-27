@@ -61,6 +61,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -106,6 +107,8 @@ public class OAuth2ClientConfigurerTests {
 
 	private static RequestCache requestCache;
 
+	private static AuthenticationSuccessHandler authenticationSuccessHandler;
+
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired
@@ -146,6 +149,7 @@ public class OAuth2ClientConfigurerTests {
 		given(accessTokenResponseClient.getTokenResponse(any(OAuth2AuthorizationCodeGrantRequest.class)))
 			.willReturn(accessTokenResponse);
 		requestCache = mock(RequestCache.class);
+		authenticationSuccessHandler = null;
 	}
 
 	@Test
@@ -345,6 +349,45 @@ public class OAuth2ClientConfigurerTests {
 		verifyNoInteractions(clientRegistrationRepository, authorizedClientRepository);
 	}
 
+	@Test
+	public void configureWhenCustomAuthenticationSuccessHandlerSetThenAuthenticationSuccessHandlerUsed()
+			throws Exception {
+		authenticationSuccessHandler = mock(AuthenticationSuccessHandler.class);
+		this.spring.register(OAuth2ClientConfig.class).autowire();
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, this.registration1.getRegistrationId());
+		// @formatter:off
+		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
+				.authorizationUri(this.registration1.getProviderDetails().getAuthorizationUri())
+				.clientId(this.registration1.getClientId())
+				.redirectUri("http://localhost/client-1")
+				.state("state")
+				.attributes(attributes)
+				.build();
+		// @formatter:on
+		AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = new HttpSessionOAuth2AuthorizationRequestRepository();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
+		MockHttpSession session = (MockHttpSession) request.getSession();
+		String principalName = "user1";
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken(principalName, "password");
+		// @formatter:off
+		MockHttpServletRequestBuilder clientRequest = get("/client-1")
+				.param(OAuth2ParameterNames.CODE, "code")
+				.param(OAuth2ParameterNames.STATE, "state")
+				.with(authentication(authentication))
+				.session(session);
+		this.mockMvc.perform(clientRequest)
+				.andExpect(status().isOk());
+		// @formatter:on
+		verify(authenticationSuccessHandler).onAuthenticationSuccess(any(HttpServletRequest.class),
+				any(HttpServletResponse.class), any());
+		OAuth2AuthorizedClient authorizedClient = authorizedClientRepository
+			.loadAuthorizedClient(this.registration1.getRegistrationId(), authentication, request);
+		assertThat(authorizedClient).isNotNull();
+	}
+
 	@EnableWebSecurity
 	@Configuration
 	@EnableWebMvc
@@ -359,10 +402,14 @@ public class OAuth2ClientConfigurerTests {
 				.requestCache((cache) -> cache
 					.requestCache(requestCache))
 				.oauth2Client((client) -> client
-					.authorizationCodeGrant((code) -> code
-						.authorizationRequestResolver(authorizationRequestResolver)
-						.authorizationRedirectStrategy(authorizationRedirectStrategy)
-						.accessTokenResponseClient(accessTokenResponseClient)));
+					.authorizationCodeGrant((code) -> {
+						code.authorizationRequestResolver(authorizationRequestResolver)
+							.authorizationRedirectStrategy(authorizationRedirectStrategy)
+							.accessTokenResponseClient(accessTokenResponseClient);
+						if (authenticationSuccessHandler != null) {
+							code.authenticationSuccessHandler(authenticationSuccessHandler);
+						}
+					}));
 			return http.build();
 			// @formatter:on
 		}
