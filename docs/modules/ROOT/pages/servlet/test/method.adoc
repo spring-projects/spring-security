@@ -184,6 +184,13 @@ You can change this to happen during the `TestExecutionListener.beforeTestExecut
 @WithSecurityContext(setupBefore = TestExecutionEvent.TEST_EXECUTION)
 ----
 
+[NOTE]
+====
+`@WithMockUser`, `@WithUserDetails`, and `@WithSecurityContext` populate the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[`SecurityContextHolder`] for the test thread.
+This works for method-security tests and for xref:servlet/test/mockmvc/index.adoc[`MockMvc`] (when using `testSecurityContext()`), but does not automatically apply to full HTTP requests made through external clients (for example, REST-assured against a running server), because those requests are handled on a different thread.
+For end-to-end HTTP tests, xref:servlet/authentication/index.adoc[authenticate] the request itself (for example, with HTTP Basic or a bearer token).
+====
+
 
 [[test-method-meta-annotations]]
 == Test Meta Annotations
