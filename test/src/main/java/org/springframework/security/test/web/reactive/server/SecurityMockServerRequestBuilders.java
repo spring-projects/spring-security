@@ -25,8 +25,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
 
 /**
- * Contains Spring Security related request builders for
- * {@link WebTestClient}.
+ * Contains Spring Security related request builders for {@link WebTestClient}.
  *
  * @author Rob Winch
  * @since 7.1
@@ -158,8 +157,8 @@ public final class SecurityMockServerRequestBuilders {
 				.uri(this.loginProcessingUrl)
 				.accept(this.acceptMediaType)
 				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-				.body(BodyInserters.fromFormData(this.usernameParam, this.username).with(this.passwordParam,
-						this.password))
+				.body(BodyInserters.fromFormData(this.usernameParam, this.username)
+					.with(this.passwordParam, this.password))
 				.exchange();
 		}
 

@@ -19,6 +19,7 @@ package org.springframework.security.test.web.reactive.server;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Mono;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -40,14 +41,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
-import static org.springframework.security.test.web.reactive.server.SecurityMockServerRequestBuilders.formLogin;
-import static org.springframework.security.test.web.reactive.server.SecurityMockServerRequestBuilders.logout;
 
 /**
  * Tests for {@link SecurityMockServerRequestBuilders}.
@@ -61,7 +59,8 @@ public class SecurityMockServerRequestBuildersTests {
 		try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
 				DefaultSecurityConfig.class)) {
 			WebTestClient client = webTestClient(context);
-			FluxExchangeResult<byte[]> loginResult = formLogin().exchange(client)
+			FluxExchangeResult<byte[]> loginResult = SecurityMockServerRequestBuilders.formLogin()
+				.exchange(client)
 				.expectStatus()
 				.is3xxRedirection()
 				.returnResult(byte[].class);
@@ -82,13 +81,14 @@ public class SecurityMockServerRequestBuildersTests {
 		try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
 				DefaultSecurityConfig.class)) {
 			WebTestClient client = webTestClient(context);
-			FluxExchangeResult<byte[]> loginResult = formLogin().exchange(client)
+			FluxExchangeResult<byte[]> loginResult = SecurityMockServerRequestBuilders.formLogin()
+				.exchange(client)
 				.expectStatus()
 				.is3xxRedirection()
 				.returnResult(byte[].class);
 			String session = sessionId(loginResult);
 			WebTestClient authenticatedClient = client.mutate().defaultCookie("SESSION", session).build();
-			logout().exchange(authenticatedClient).expectStatus().is3xxRedirection();
+			SecurityMockServerRequestBuilders.logout().exchange(authenticatedClient).expectStatus().is3xxRedirection();
 			client.get().uri("/resource").cookie("SESSION", session).exchange().expectStatus().is3xxRedirection();
 		}
 	}
@@ -98,7 +98,8 @@ public class SecurityMockServerRequestBuildersTests {
 		try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
 				CustomLoginLogoutSecurityConfig.class)) {
 			WebTestClient client = webTestClient(context);
-			FluxExchangeResult<byte[]> loginResult = formLogin().loginProcessingUrl("/custom-{segment}", "login")
+			FluxExchangeResult<byte[]> loginResult = SecurityMockServerRequestBuilders.formLogin()
+				.loginProcessingUrl("/custom-{segment}", "login")
 				.exchange(client)
 				.expectStatus()
 				.is3xxRedirection()
@@ -120,14 +121,15 @@ public class SecurityMockServerRequestBuildersTests {
 		try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
 				CustomLoginLogoutSecurityConfig.class)) {
 			WebTestClient client = webTestClient(context);
-			FluxExchangeResult<byte[]> loginResult = formLogin("/custom-login")
+			FluxExchangeResult<byte[]> loginResult = SecurityMockServerRequestBuilders.formLogin("/custom-login")
 				.exchange(client)
 				.expectStatus()
 				.is3xxRedirection()
 				.returnResult(byte[].class);
 			String session = sessionId(loginResult);
 			WebTestClient authenticatedClient = client.mutate().defaultCookie("SESSION", session).build();
-			logout().logoutUrl("/custom-{segment}", "logout")
+			SecurityMockServerRequestBuilders.logout()
+				.logoutUrl("/custom-{segment}", "logout")
 				.exchange(authenticatedClient)
 				.expectStatus()
 				.is3xxRedirection();
@@ -139,7 +141,8 @@ public class SecurityMockServerRequestBuildersTests {
 	public void formLoginWhenCustomThenUsesParametersAndAccept() {
 		RequestCaptureController controller = new RequestCaptureController();
 		WebTestClient client = WebTestClient.bindToController(controller).configureClient().build();
-		formLogin().loginProcessingUrl("/uri-login/{var1}/{var2}", "val1", "val2")
+		SecurityMockServerRequestBuilders.formLogin()
+			.loginProcessingUrl("/uri-login/{var1}/{var2}", "val1", "val2")
 			.user("username", "admin")
 			.password("password", "secret")
 			.acceptMediaType(MediaType.APPLICATION_JSON)
@@ -154,19 +157,18 @@ public class SecurityMockServerRequestBuildersTests {
 
 	@Test
 	public void formLoginWhenWebTestClientIsNullThenIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> formLogin().exchange(null));
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> SecurityMockServerRequestBuilders.formLogin().exchange(null));
 	}
 
 	@Test
 	public void logoutWhenWebTestClientIsNullThenIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> logout().exchange(null));
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> SecurityMockServerRequestBuilders.logout().exchange(null));
 	}
 
 	private static WebTestClient webTestClient(AnnotationConfigApplicationContext context) {
-		return WebTestClient.bindToApplicationContext(context)
-			.apply(springSecurity())
-			.configureClient()
-			.build();
+		return WebTestClient.bindToApplicationContext(context).apply(springSecurity()).configureClient().build();
 	}
 
 	private static String sessionId(FluxExchangeResult<?> result) {
@@ -182,15 +184,18 @@ public class SecurityMockServerRequestBuildersTests {
 
 		@Bean
 		SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-			return http.authorizeExchange((authorize) -> authorize.pathMatchers("/resource").authenticated()
-				.anyExchange()
-				.permitAll()).formLogin(withDefaults()).logout(withDefaults()).build();
+			return http
+				.authorizeExchange(
+						(authorize) -> authorize.pathMatchers("/resource").authenticated().anyExchange().permitAll())
+				.formLogin(withDefaults())
+				.logout(withDefaults())
+				.build();
 		}
 
 		@Bean
 		ReactiveUserDetailsService userDetailsService() {
-			return new MapReactiveUserDetailsService(User.withUsername("user").password("{noop}password").roles("USER")
-				.build());
+			return new MapReactiveUserDetailsService(
+					User.withUsername("user").password("{noop}password").roles("USER").build());
 		}
 
 		@Bean
@@ -207,9 +212,9 @@ public class SecurityMockServerRequestBuildersTests {
 
 		@Bean
 		SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-			return http.authorizeExchange((authorize) -> authorize.pathMatchers("/resource").authenticated()
-				.anyExchange()
-				.permitAll())
+			return http
+				.authorizeExchange(
+						(authorize) -> authorize.pathMatchers("/resource").authenticated().anyExchange().permitAll())
 				.formLogin((formLogin) -> formLogin.loginPage("/custom-login"))
 				.logout((logout) -> logout.logoutUrl("/custom-logout"))
 				.build();
@@ -217,8 +222,8 @@ public class SecurityMockServerRequestBuildersTests {
 
 		@Bean
 		ReactiveUserDetailsService userDetailsService() {
-			return new MapReactiveUserDetailsService(User.withUsername("user").password("{noop}password").roles("USER")
-				.build());
+			return new MapReactiveUserDetailsService(
+					User.withUsername("user").password("{noop}password").roles("USER").build());
 		}
 
 		@Bean
