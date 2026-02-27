@@ -16,6 +16,7 @@
 
 package org.springframework.security.ldap.authentication.ad;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Hashtable;
 
@@ -45,15 +46,18 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider.ContextFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -66,6 +70,8 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	public static final String EXISTING_LDAP_PROVIDER = "ldap://192.168.1.200/";
 
 	public static final String NON_EXISTING_LDAP_PROVIDER = "ldap://192.168.1.201/";
+
+	private static final String NESTED_GROUP_FILTER = "(&(objectClass=group)(member:1.2.840.113556.1.4.1941:={0}))";
 
 	ActiveDirectoryLdapAuthenticationProvider provider;
 
@@ -89,6 +95,36 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	@Test
 	public void successfulAuthenticationProducesExpectedAuthorities() throws Exception {
 		checkAuthentication("dc=mydomain,dc=eu", this.provider);
+	}
+
+	@Test
+	public void nestedGroupsAreNotLoadedByDefault() throws Exception {
+		DirContextAdapter userData = new DirContextAdapter("CN=Joe Jannsen,CN=Users,DC=mydomain,DC=eu");
+		userData.addAttributeValue("memberOf", "CN=DomainAdmins,CN=Users,DC=mydomain,DC=eu");
+		Collection<? extends GrantedAuthority> authorities = this.provider.loadUserAuthorities(userData, "joe",
+				"password");
+		assertThat(authorities).extracting(GrantedAuthority::getAuthority).containsExactly("DomainAdmins");
+		verify(this.ctx, never()).search(anyString(), eq(NESTED_GROUP_FILTER), any(Object[].class),
+				any(SearchControls.class));
+	}
+
+	@Test
+	public void nestedGroupsAreLoadedWhenEnabled() throws Exception {
+		this.provider.setSearchNestedGroups(true);
+		DirContextAdapter userData = new DirContextAdapter("CN=Joe Jannsen,CN=Users,DC=mydomain,DC=eu");
+		userData.addAttributeValue("memberOf", "CN=DomainAdmins,CN=Users,DC=mydomain,DC=eu");
+		DirContextAdapter nestedGroup = new DirContextAdapter();
+		nestedGroup.addAttributeValue("cn", "MyApplicationAdmins");
+		SearchResult nestedGroupSearchResult = new SearchResult("CN=MyApplicationAdmins,CN=Users", nestedGroup,
+				nestedGroup.getAttributes());
+		given(this.ctx.search(eq("dc=mydomain,dc=eu"), eq(NESTED_GROUP_FILTER), any(Object[].class),
+				any(SearchControls.class)))
+			.willReturn(new MockNamingEnumeration(nestedGroupSearchResult));
+		this.provider.contextFactory = createContextFactoryReturning(this.ctx);
+		Collection<? extends GrantedAuthority> authorities = this.provider.loadUserAuthorities(userData, "joe",
+				"password");
+		assertThat(authorities).extracting(GrantedAuthority::getAuthority)
+			.containsExactlyInAnyOrder("DomainAdmins", "MyApplicationAdmins");
 	}
 
 	// SEC-1915
