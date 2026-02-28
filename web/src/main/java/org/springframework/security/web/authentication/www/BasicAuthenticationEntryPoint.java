@@ -48,7 +48,7 @@ public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint, 
 
 	private @Nullable String realmName;
 
-	private Charset charset = StandardCharsets.UTF_8;
+	private @Nullable Charset charset = StandardCharsets.UTF_8;
 
 	@Override
 	public void afterPropertiesSet() {
@@ -58,7 +58,10 @@ public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint, 
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException {
-		String header = "Basic realm=\"" + this.realmName + "\", charset=\"" + this.charset.name() + "\"";
+		String header = "Basic realm=\"" + this.realmName;
+		if (this.charset != null) {
+			header += "\", charset=\"" + this.charset.name() + "\"";
+		}
 		response.setHeader("WWW-Authenticate", header);
 		response.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
 	}
@@ -71,12 +74,14 @@ public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint, 
 		this.realmName = realmName;
 	}
 
-	public void setCharset(Charset charset) {
+	/**
+	 * Sets the charset to include in the {@code WWW-Authenticate} response header. By
+	 * default, it is set to {@link StandardCharsets#UTF_8}. Set to {@code null} to omit
+	 * the charset attribute from the header.
+	 * @param charset the charset to use, or {@code null} to remove the charset attribute
+	 */
+	public void setCharset(@Nullable Charset charset) {
 		this.charset = charset;
-	}
-
-	public Charset getCharset() {
-		return this.charset;
 	}
 
 }

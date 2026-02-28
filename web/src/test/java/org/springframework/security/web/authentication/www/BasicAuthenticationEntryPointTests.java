@@ -35,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * Tests {@link BasicAuthenticationEntryPoint}.
  *
  * @author Ben Alex
+ * @author Andrey Litvitski
  */
 public class BasicAuthenticationEntryPointTests {
 
