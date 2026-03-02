@@ -751,8 +751,8 @@ Java::
 public OpaqueTokenIntrospector introspector(RestTemplateBuilder builder, OAuth2ResourceServerProperties properties) {
     RestOperations rest = builder
             .basicAuthentication(properties.getOpaquetoken().getClientId(), properties.getOpaquetoken().getClientSecret())
-            .setConnectTimeout(Duration.ofSeconds(60))
-            .setReadTimeout(Duration.ofSeconds(60))
+            .connectTimeout(Duration.ofSeconds(60))
+            .readTimeout(Duration.ofSeconds(60))
             .build();
 
     return SpringOpaqueTokenIntrospector(introspectionUri, rest);
@@ -767,8 +767,8 @@ Kotlin::
 fun introspector(builder: RestTemplateBuilder, properties: OAuth2ResourceServerProperties): OpaqueTokenIntrospector? {
     val rest: RestOperations = builder
             .basicAuthentication(properties.opaquetoken.clientId, properties.opaquetoken.clientSecret)
-            .setConnectTimeout(Duration.ofSeconds(60))
-            .setReadTimeout(Duration.ofSeconds(60))
+            .connectTimeout(Duration.ofSeconds(60))
+            .readTimeout(Duration.ofSeconds(60))
             .build()
     return SpringOpaqueTokenIntrospector(introspectionUri, rest)
 }
