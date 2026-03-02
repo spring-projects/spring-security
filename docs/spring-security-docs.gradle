@@ -42,6 +42,7 @@ dependencies {
 	testImplementation project(path : ':spring-security-config', configuration : 'tests')
 	testImplementation project(':spring-security-test')
 	testImplementation project(':spring-security-oauth2-client')
+	testImplementation project(':spring-security-oauth2-resource-server')
 	testImplementation 'com.squareup.okhttp3:mockwebserver'
 	testImplementation libs.com.password4j.password4j
 	testImplementation 'com.unboundid:unboundid-ldapsdk'
