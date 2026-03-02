@@ -17,9 +17,12 @@
 package org.springframework.security.ldap.authentication.ad;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -27,11 +30,17 @@ import java.util.regex.Pattern;
 
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.OperationNotSupportedException;
+import javax.naming.PartialResultException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapName;
 
 import org.jspecify.annotations.Nullable;
 
@@ -40,6 +49,7 @@ import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.CommunicationException;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.support.DefaultDirObjectFactory;
+import org.springframework.ldap.support.LdapNameBuilder;
 import org.springframework.ldap.support.LdapUtils;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -49,6 +59,7 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.ldap.authentication.AbstractLdapAuthenticationProvider;
@@ -119,6 +130,10 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 
 	private static final int ACCOUNT_LOCKED = 0x775;
 
+	private static final String NESTED_GROUP_SEARCH_FILTER = "(&(objectClass=group)(member:1.2.840.113556.1.4.1941:={0}))";
+
+	private static final String GROUP_NAME_ATTRIBUTE = "cn";
+
 	private final @Nullable String domain;
 
 	private final @Nullable String rootDn;
@@ -135,6 +150,8 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 	ContextFactory contextFactory = new ContextFactory();
 
 	private LdapAuthoritiesPopulator authoritiesPopulator = new DefaultActiveDirectoryAuthoritiesPopulator();
+
+	private boolean searchNestedGroups;
 
 	/**
 	 * @param domain the domain name (can be null or empty)
@@ -190,7 +207,64 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 	@Override
 	protected Collection<? extends GrantedAuthority> loadUserAuthorities(DirContextOperations userData, String username,
 			String password) {
-		return this.authoritiesPopulator.getGrantedAuthorities(userData, username);
+		Collection<? extends GrantedAuthority> authorities = this.authoritiesPopulator.getGrantedAuthorities(userData,
+				username);
+		if (!this.searchNestedGroups) {
+			return authorities;
+		}
+		Collection<? extends GrantedAuthority> nestedAuthorities = loadNestedAuthorities(userData, username, password);
+		LinkedHashSet<GrantedAuthority> mergedAuthorities = new LinkedHashSet<>(authorities);
+		mergedAuthorities.addAll(nestedAuthorities);
+		return mergedAuthorities;
+	}
+
+	private Collection<? extends GrantedAuthority> loadNestedAuthorities(DirContextOperations userData, String username,
+			String password) {
+		SearchControls searchControls = new SearchControls();
+		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+		searchControls.setReturningAttributes(new String[] { GROUP_NAME_ATTRIBUTE });
+		String bindPrincipal = createBindPrincipal(username);
+		String searchRoot = (this.rootDn != null) ? this.rootDn : searchRootFromPrincipal(bindPrincipal);
+		DirContext context = null;
+		NamingEnumeration<SearchResult> results = null;
+		List<GrantedAuthority> authorities = new ArrayList<>();
+		try {
+			context = bindAsUser(username, password);
+			results = context.search(searchRoot, NESTED_GROUP_SEARCH_FILTER, new Object[] { userData.getDn() },
+					searchControls);
+			while (results.hasMore()) {
+				String authority = authorityName(results.next());
+				if (StringUtils.hasText(authority)) {
+					authorities.add(new SimpleGrantedAuthority(authority));
+				}
+			}
+		}
+		catch (PartialResultException ex) {
+			this.logger.debug("Ignoring PartialResultException while retrieving nested AD groups", ex);
+		}
+		catch (NamingException ex) {
+			throw new InternalAuthenticationServiceException("Failed to retrieve nested Active Directory groups", ex);
+		}
+		finally {
+			org.springframework.security.ldap.LdapUtils.closeEnumeration(results);
+			LdapUtils.closeContext(context);
+		}
+		return authorities;
+	}
+
+	private String authorityName(SearchResult searchResult) throws NamingException {
+		Attributes attributes = searchResult.getAttributes();
+		if (attributes != null) {
+			Attribute cn = attributes.get(GROUP_NAME_ATTRIBUTE);
+			if (cn != null) {
+				Object value = cn.get();
+				if (value != null) {
+					return value.toString();
+				}
+			}
+		}
+		LdapName name = LdapNameBuilder.newInstance(searchResult.getName()).build();
+		return name.getRdn(name.size() - 1).getValue().toString();
 	}
 
 	private DirContext bindAsUser(String username, String password) {
@@ -400,6 +474,18 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 	public void setAuthoritiesPopulator(LdapAuthoritiesPopulator authoritiesPopulator) {
 		Assert.notNull(authoritiesPopulator, "authoritiesPopulator must not be null");
 		this.authoritiesPopulator = authoritiesPopulator;
+	}
+
+	/**
+	 * Set to {@code true} to resolve nested Active Directory groups when building user
+	 * authorities.
+	 * <p>
+	 * This performs an additional LDAP search using AD's LDAP_MATCHING_RULE_IN_CHAIN
+	 * matching rule.
+	 * @param searchNestedGroups whether nested groups should be resolved
+	 */
+	public void setSearchNestedGroups(boolean searchNestedGroups) {
+		this.searchNestedGroups = searchNestedGroups;
 	}
 
 	static class ContextFactory {
