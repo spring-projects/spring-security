@@ -533,7 +533,7 @@ Or, exposing a <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTo
 ----
 @Bean
 public OpaqueTokenIntrospector introspector() {
-    return return SpringOpaqueTokenIntrospector.withIntrospectionUri(introspectionUri)
+    return SpringOpaqueTokenIntrospector.withIntrospectionUri(introspectionUri)
             .clientId(clientId).clientSecret(clientSecret).build();
 }
 ----
@@ -754,82 +754,28 @@ By default, Resource Server uses connection and socket timeouts of 30 seconds ea
 This may be too short in some scenarios.
 Further, it doesn't take into account more sophisticated patterns like back-off and discovery.
 
-To adjust the way in which Resource Server connects to the authorization server, `SpringOpaqueTokenIntrospector` accepts an instance of `RestOperations`:
-
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Bean
-public OpaqueTokenIntrospector introspector(RestTemplateBuilder builder, OAuth2ResourceServerProperties properties) {
-    RestOperations rest = builder
-            .basicAuthentication(properties.getOpaquetoken().getClientId(), properties.getOpaquetoken().getClientSecret())
-            .setConnectTimeout(Duration.ofSeconds(60))
-            .setReadTimeout(Duration.ofSeconds(60))
-            .build();
-
-    return new SpringOpaqueTokenIntrospector(introspectionUri, rest);
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Bean
-fun introspector(builder: RestTemplateBuilder, properties: OAuth2ResourceServerProperties): OpaqueTokenIntrospector? {
-    val rest: RestOperations = builder
-            .basicAuthentication(properties.opaquetoken.clientId, properties.opaquetoken.clientSecret)
-            .setConnectTimeout(Duration.ofSeconds(60))
-            .setReadTimeout(Duration.ofSeconds(60))
-            .build()
-    return SpringOpaqueTokenIntrospector(introspectionUri, rest)
-}
-----
-======
-
-[[oauth2resourceserver-opaque-restclient]]
+[[opaque-token-timeouts-rest-client]]
 === Using `RestClientOpaqueTokenIntrospector`
 
-Alternatively, you can use `RestClientOpaqueTokenIntrospector`, which uses `RestClient` instead of `RestTemplate`.
-This allows using the same configuration while benefiting from the newer `RestClient` API.
+You can use `RestClientOpaqueTokenIntrospector`, which uses `RestClient` to communicate with the introspection endpoint.
 
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Bean
-public OpaqueTokenIntrospector introspector(RestTemplateBuilder builder, OAuth2ResourceServerProperties properties) {
-    RestTemplate restTemplate = builder
-            .basicAuthentication(properties.getOpaquetoken().getClientId(), properties.getOpaquetoken().getClientSecret())
-            .connectTimeout(Duration.ofSeconds(60))
-            .readTimeout(Duration.ofSeconds(60))
-            .build();
-    RestClient restClient = RestClient.create(restTemplate);
-    return new RestClientOpaqueTokenIntrospector(introspectionUri, restClient);
-}
-----
+[TIP]
+====
+When using Spring Boot, you can inject `OAuth2ResourceServerProperties` to obtain the introspection URI and client credentials.
+====
 
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Bean
-fun introspector(builder: RestTemplateBuilder, properties: OAuth2ResourceServerProperties): OpaqueTokenIntrospector {
-    val restTemplate = builder
-            .basicAuthentication(properties.opaquetoken.clientId, properties.opaquetoken.clientSecret)
-            .connectTimeout(Duration.ofSeconds(60))
-            .readTimeout(Duration.ofSeconds(60))
-            .build()
-    val restClient = RestClient.create(restTemplate)
-    return RestClientOpaqueTokenIntrospector(introspectionUri, restClient)
-}
-----
-======
+.Minimal configuration using the builder
+include-code::./RestClientOpaqueTokenIntrospectorConfiguration[tag=restclient-simple,indent=0]
+
+To customize timeouts, build a `RestClient` with a custom `RequestFactory` and pass it to the introspector:
+
+.Custom timeouts
+include-code::./RestClientOpaqueTokenIntrospectorConfiguration[tag=restclient-timeouts,indent=0]
+
+[TIP]
+====
+If you prefer to use `RestTemplate`, you can use `SpringOpaqueTokenIntrospector` instead, which accepts an instance of `RestOperations`.
+====
 
 [[oauth2resourceserver-opaque-jwt-introspector]]
 == Using Introspection with JWTs
