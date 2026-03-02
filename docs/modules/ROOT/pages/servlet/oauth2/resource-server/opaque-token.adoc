@@ -790,6 +790,47 @@ fun introspector(builder: RestTemplateBuilder, properties: OAuth2ResourceServerP
 ----
 ======
 
+[[oauth2resourceserver-opaque-restclient]]
+=== Using `RestClientOpaqueTokenIntrospector`
+
+Alternatively, you can use `RestClientOpaqueTokenIntrospector`, which uses `RestClient` instead of `RestTemplate`.
+This allows using the same configuration while benefiting from the newer `RestClient` API.
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public OpaqueTokenIntrospector introspector(RestTemplateBuilder builder, OAuth2ResourceServerProperties properties) {
+    RestTemplate restTemplate = builder
+            .basicAuthentication(properties.getOpaquetoken().getClientId(), properties.getOpaquetoken().getClientSecret())
+            .connectTimeout(Duration.ofSeconds(60))
+            .readTimeout(Duration.ofSeconds(60))
+            .build();
+    RestClient restClient = RestClient.create(restTemplate);
+    return new RestClientOpaqueTokenIntrospector(introspectionUri, restClient);
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun introspector(builder: RestTemplateBuilder, properties: OAuth2ResourceServerProperties): OpaqueTokenIntrospector {
+    val restTemplate = builder
+            .basicAuthentication(properties.opaquetoken.clientId, properties.opaquetoken.clientSecret)
+            .connectTimeout(Duration.ofSeconds(60))
+            .readTimeout(Duration.ofSeconds(60))
+            .build()
+    val restClient = RestClient.create(restTemplate)
+    return RestClientOpaqueTokenIntrospector(introspectionUri, restClient)
+}
+----
+======
+
 [[oauth2resourceserver-opaque-jwt-introspector]]
 == Using Introspection with JWTs
 
