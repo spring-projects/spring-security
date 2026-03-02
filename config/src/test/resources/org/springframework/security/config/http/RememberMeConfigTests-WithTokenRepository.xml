@@ -29,18 +29,14 @@
 		<remember-me token-repository-ref="tokenRepository"/>
 	</http>
 
-	<b:bean name="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-		<b:constructor-arg>
-			<b:bean name="dataSource" class="org.springframework.security.TestDataSource">
-				<b:constructor-arg value="tokendb"/>
-			</b:bean>
-		</b:constructor-arg>
+	<b:bean name="dataSource" class="org.springframework.security.TestDataSource">
+		<b:constructor-arg value="tokendb"/>
 	</b:bean>
 
 	<b:bean name="tokenRepository"
 			class="org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl">
 		<b:property name="createTableOnStartup" value="true"/>
-		<b:property name="jdbcTemplate" ref="jdbcTemplate"/>
+		<b:constructor-arg ref="dataSource"/>
 	</b:bean>
 
 	<b:bean

@@ -17,6 +17,7 @@
 package org.springframework.security.web.server.authentication.ott;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
@@ -50,13 +51,14 @@ public final class ServerOneTimeTokenAuthenticationConverter implements ServerAu
 		Assert.notNull(exchange, "exchange cannot be null");
 		if (isFormEncodedRequest(exchange.getRequest())) {
 			return exchange.getFormData()
-				.map((data) -> OneTimeTokenAuthenticationToken.unauthenticated(data.getFirst(TOKEN)));
+				.map((data) -> new OneTimeTokenAuthenticationToken(
+						Optional.ofNullable(data.getFirst(TOKEN)).orElse("")));
 		}
 		String token = resolveTokenFromRequest(exchange.getRequest());
 		if (!StringUtils.hasText(token)) {
 			return Mono.empty();
 		}
-		return Mono.just(OneTimeTokenAuthenticationToken.unauthenticated(token));
+		return Mono.just(new OneTimeTokenAuthenticationToken(token));
 	}
 
 	private @Nullable String resolveTokenFromRequest(ServerHttpRequest request) {

@@ -81,7 +81,8 @@ public class RememberMeConfigTests {
 		this.mvc.perform(get("/authenticated").cookie(cookie))
 				.andExpect(status().isOk());
 		// @formatter:on
-		JdbcTemplate template = this.spring.getContext().getBean(JdbcTemplate.class);
+		TestDataSource dataSource = this.spring.getContext().getBean(TestDataSource.class);
+		JdbcTemplate template = new JdbcTemplate(dataSource);
 		int count = template.queryForObject("select count(*) from persistent_logins", int.class);
 		assertThat(count).isEqualTo(1);
 	}

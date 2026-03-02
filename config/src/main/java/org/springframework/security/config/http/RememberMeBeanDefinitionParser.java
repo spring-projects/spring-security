@@ -127,8 +127,8 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 			}
 			else {
 				tokenRepo = new RootBeanDefinition(JdbcTokenRepositoryImpl.class);
-				((BeanDefinition) tokenRepo).getPropertyValues()
-					.addPropertyValue("dataSource", new RuntimeBeanReference(dataSource));
+				((BeanDefinition) tokenRepo).getConstructorArgumentValues()
+					.addIndexedArgumentValue(0, new RuntimeBeanReference(dataSource));
 			}
 			services.getConstructorArgumentValues().addIndexedArgumentValue(2, tokenRepo);
 		}

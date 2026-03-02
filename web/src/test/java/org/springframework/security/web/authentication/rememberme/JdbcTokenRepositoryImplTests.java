@@ -75,11 +75,10 @@ public class JdbcTokenRepositoryImplTests {
 
 	@BeforeEach
 	public void populateDatabase() {
-		this.repo = new JdbcTokenRepositoryImpl();
+		this.repo = new JdbcTokenRepositoryImpl(dataSource);
 		ReflectionTestUtils.setField(this.repo, "logger", this.logger);
-		this.repo.setDataSource(dataSource);
 		this.repo.initDao();
-		this.template = this.repo.getJdbcTemplate();
+		this.template = new JdbcTemplate(dataSource);
 		this.template.execute("create table persistent_logins (username varchar(100) not null, "
 				+ "series varchar(100) not null, token varchar(500) not null, last_used timestamp not null)");
 	}
@@ -167,8 +166,7 @@ public class JdbcTokenRepositoryImplTests {
 	@Test
 	public void createTableOnStartupCreatesCorrectTable() {
 		this.template.execute("drop table persistent_logins");
-		this.repo = new JdbcTokenRepositoryImpl();
-		this.repo.setDataSource(dataSource);
+		this.repo = new JdbcTokenRepositoryImpl(dataSource);
 		this.repo.setCreateTableOnStartup(true);
 		this.repo.initDao();
 		this.template.queryForList("select username,series,token,last_used from persistent_logins");
@@ -179,8 +177,8 @@ public class JdbcTokenRepositoryImplTests {
 	public void updateUsesLastUsed() {
 		JdbcTemplate template = mock(JdbcTemplate.class);
 		Date lastUsed = new Date(1424841314059L);
-		JdbcTokenRepositoryImpl repository = new JdbcTokenRepositoryImpl();
-		repository.setJdbcTemplate(template);
+		JdbcTokenRepositoryImpl repository = new JdbcTokenRepositoryImpl(dataSource);
+		ReflectionTestUtils.setField(repository, "jdbcTemplate", template);
 		repository.updateToken("series", "token", lastUsed);
 		verify(template).update(anyString(), anyString(), eq(lastUsed), anyString());
 	}

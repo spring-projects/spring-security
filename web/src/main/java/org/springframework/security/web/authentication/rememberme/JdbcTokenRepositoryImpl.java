@@ -20,14 +20,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 
+import javax.sql.DataSource;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.log.LogMessage;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
+import org.springframework.util.Assert;
 
 /**
  * JDBC based persistent login token repository implementation.
@@ -35,7 +40,9 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
  * @author Luke Taylor
  * @since 2.0
  */
-public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements PersistentTokenRepository {
+public class JdbcTokenRepositoryImpl implements PersistentTokenRepository, InitializingBean {
+
+	protected final Log logger = LogFactory.getLog(getClass());
 
 	/** Default SQL for creating the database table to store the tokens */
 	public static final String CREATE_TABLE_SQL = "create table persistent_logins (username varchar(64) not null, series varchar(64) primary key, "
@@ -63,7 +70,18 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
 
 	private boolean createTableOnStartup;
 
+	private final JdbcTemplate jdbcTemplate;
+
+	public JdbcTokenRepositoryImpl(DataSource dataSource) {
+		Assert.notNull(dataSource, "DataSource required");
+		this.jdbcTemplate = new JdbcTemplate(dataSource);
+	}
+
 	@Override
+	public void afterPropertiesSet() {
+		initDao();
+	}
+
 	protected void initDao() {
 		if (this.createTableOnStartup) {
 			getTemplate().execute(CREATE_TABLE_SQL);
@@ -128,7 +146,7 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
 	}
 
 	private JdbcTemplate getTemplate() {
-		@Nullable JdbcTemplate result = super.getJdbcTemplate();
+		@Nullable JdbcTemplate result = this.jdbcTemplate;
 		if (result == null) {
 			throw new IllegalStateException("JdbcTemplate was removed");
 		}
