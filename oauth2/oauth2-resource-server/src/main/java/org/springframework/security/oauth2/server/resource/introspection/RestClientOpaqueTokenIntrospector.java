@@ -60,7 +60,7 @@ import org.springframework.web.client.RestClient;
  * @author Andrey Litvitski
  * @since 7.1
  */
-public class RestClientOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
+public final class RestClientOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 
 	private static final String AUTHORITY_PREFIX = "SCOPE_";
 
