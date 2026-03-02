@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,7 +60,7 @@ import org.springframework.web.client.RestClient;
  * @author Andrey Litvitski
  * @since 7.1
  */
-public class RestClientSpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
+public class RestClientOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 
 	private static final String AUTHORITY_PREFIX = "SCOPE_";
 
@@ -81,7 +82,7 @@ public class RestClientSpringOpaqueTokenIntrospector implements OpaqueTokenIntro
 	 * @param introspectionUri The introspection endpoint uri
 	 * @param restClient The client for performing the introspection request
 	 */
-	public RestClientSpringOpaqueTokenIntrospector(String introspectionUri, RestClient restClient) {
+	public RestClientOpaqueTokenIntrospector(String introspectionUri, RestClient restClient) {
 		Assert.notNull(introspectionUri, "introspectionUri cannot be null");
 		Assert.notNull(restClient, "restClient cannot be null");
 		this.requestEntityConverter = this.defaultRequestEntityConverter(URI.create(introspectionUri));
@@ -214,14 +215,13 @@ public class RestClientSpringOpaqueTokenIntrospector implements OpaqueTokenIntro
 	 * <p>
 	 * Sets the {@link Converter Converter&lt;OAuth2TokenIntrospectionClaimAccessor,
 	 * OAuth2AuthenticatedPrincipal&gt;} to use. Defaults to
-	 * {@link RestClientSpringOpaqueTokenIntrospector#defaultAuthenticationConverter}.
+	 * {@link RestClientOpaqueTokenIntrospector#defaultAuthenticationConverter}.
 	 * </p>
 	 * <p>
 	 * Use if you need a custom mapping of OAuth 2.0 token claims to the authenticated
 	 * principal.
 	 * </p>
 	 * @param authenticationConverter the converter
-	 * @since 7.1
 	 */
 	public void setAuthenticationConverter(
 			Converter<OAuth2TokenIntrospectionClaimAccessor, ? extends OAuth2AuthenticatedPrincipal> authenticationConverter) {
@@ -230,14 +230,13 @@ public class RestClientSpringOpaqueTokenIntrospector implements OpaqueTokenIntro
 	}
 
 	/**
-	 * If {@link RestClientSpringOpaqueTokenIntrospector#authenticationConverter} is not
+	 * If {@link RestClientOpaqueTokenIntrospector#authenticationConverter} is not
 	 * explicitly set, this default converter will be used. transforms an
 	 * {@link OAuth2TokenIntrospectionClaimAccessor} into an
 	 * {@link OAuth2AuthenticatedPrincipal} by extracting claims, mapping scopes to
 	 * authorities, and creating a principal.
 	 * @return {@link Converter Converter&lt;OAuth2TokenIntrospectionClaimAccessor,
 	 * OAuth2AuthenticatedPrincipal&gt;}
-	 * @since 7.1
 	 */
 	private OAuth2IntrospectionAuthenticatedPrincipal defaultAuthenticationConverter(
 			OAuth2TokenIntrospectionClaimAccessor accessor) {
@@ -257,15 +256,14 @@ public class RestClientSpringOpaqueTokenIntrospector implements OpaqueTokenIntro
 	}
 
 	/**
-	 * Creates a {@code RestClientSpringOpaqueTokenIntrospector.Builder} with the given
+	 * Creates a {@code RestClientOpaqueTokenIntrospector.Builder} with the given
 	 * introspection endpoint uri
 	 * @param introspectionUri The introspection endpoint uri
-	 * @return the {@link RestClientSpringOpaqueTokenIntrospector.Builder}
-	 * @since 7.1
+	 * @return the {@link RestClientOpaqueTokenIntrospector.Builder}
 	 */
-	public static RestClientSpringOpaqueTokenIntrospector.Builder withIntrospectionUri(String introspectionUri) {
+	public static RestClientOpaqueTokenIntrospector.Builder withIntrospectionUri(String introspectionUri) {
 		Assert.notNull(introspectionUri, "introspectionUri cannot be null");
-		return new RestClientSpringOpaqueTokenIntrospector.Builder(introspectionUri);
+		return new RestClientOpaqueTokenIntrospector.Builder(introspectionUri);
 	}
 
 	// gh-7563
@@ -295,7 +293,7 @@ public class RestClientSpringOpaqueTokenIntrospector implements OpaqueTokenIntro
 	}
 
 	/**
-	 * Used to build {@link RestClientSpringOpaqueTokenIntrospector}.
+	 * Used to build {@link RestClientOpaqueTokenIntrospector}.
 	 *
 	 * @author Andrey Litvitski
 	 * @since 7.1
@@ -308,6 +306,8 @@ public class RestClientSpringOpaqueTokenIntrospector implements OpaqueTokenIntro
 
 		private String clientSecret;
 
+		private final List<Consumer<RestClientOpaqueTokenIntrospector>> postProcessors = new ArrayList<>();
+
 		private Builder(String introspectionUri) {
 			this.introspectionUri = introspectionUri;
 		}
@@ -316,10 +316,9 @@ public class RestClientSpringOpaqueTokenIntrospector implements OpaqueTokenIntro
 		 * The builder will {@link URLEncoder encode} the client id that you provide, so
 		 * please give the unencoded value.
 		 * @param clientId The unencoded client id
-		 * @return the {@link RestClientSpringOpaqueTokenIntrospector.Builder}
-		 * @since 7.1
+		 * @return the {@link RestClientOpaqueTokenIntrospector.Builder}
 		 */
-		public RestClientSpringOpaqueTokenIntrospector.Builder clientId(String clientId) {
+		public RestClientOpaqueTokenIntrospector.Builder clientId(String clientId) {
 			Assert.notNull(clientId, "clientId cannot be null");
 			this.clientId = URLEncoder.encode(clientId, StandardCharsets.UTF_8);
 			return this;
@@ -329,25 +328,39 @@ public class RestClientSpringOpaqueTokenIntrospector implements OpaqueTokenIntro
 		 * The builder will {@link URLEncoder encode} the client secret that you provide,
 		 * so please give the unencoded value.
 		 * @param clientSecret The unencoded client secret
-		 * @return the {@link RestClientSpringOpaqueTokenIntrospector.Builder}
-		 * @since 7.1
+		 * @return the {@link RestClientOpaqueTokenIntrospector.Builder}
 		 */
-		public RestClientSpringOpaqueTokenIntrospector.Builder clientSecret(String clientSecret) {
+		public RestClientOpaqueTokenIntrospector.Builder clientSecret(String clientSecret) {
 			Assert.notNull(clientSecret, "clientSecret cannot be null");
 			this.clientSecret = URLEncoder.encode(clientSecret, StandardCharsets.UTF_8);
 			return this;
 		}
 
 		/**
-		 * Creates a {@code RestClientSpringOpaqueTokenIntrospector}
-		 * @return the {@link RestClientSpringOpaqueTokenIntrospector}
-		 * @since 7.1
+		 * Adds a {@link Consumer} to customize the
+		 * {@link RestClientOpaqueTokenIntrospector} after it is built. This allows for
+		 * additional configuration that cannot be expressed through the builder methods.
+		 * @param postProcessor the {@link Consumer} to customize the introspector
+		 * @return the {@link RestClientOpaqueTokenIntrospector.Builder}
 		 */
-		public RestClientSpringOpaqueTokenIntrospector build() {
+		public Builder postProcessor(Consumer<RestClientOpaqueTokenIntrospector> postProcessor) {
+			Assert.notNull(postProcessor, "postProcessor cannot be null");
+			this.postProcessors.add(postProcessor);
+			return this;
+		}
+
+		/**
+		 * Creates a {@code RestClientOpaqueTokenIntrospector}
+		 * @return the {@link RestClientOpaqueTokenIntrospector}
+		 */
+		public RestClientOpaqueTokenIntrospector build() {
 			RestClient restClient = RestClient.builder()
 				.defaultHeaders((headers) -> headers.setBasicAuth(this.clientId, this.clientSecret))
 				.build();
-			return new RestClientSpringOpaqueTokenIntrospector(this.introspectionUri, restClient);
+			RestClientOpaqueTokenIntrospector introspector = new RestClientOpaqueTokenIntrospector(
+					this.introspectionUri, restClient);
+			this.postProcessors.forEach((postProcessor) -> postProcessor.accept(introspector));
+			return introspector;
 		}
 
 	}

@@ -45,11 +45,11 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests for {@link RestClientSpringOpaqueTokenIntrospector}
+ * Tests for {@link RestClientOpaqueTokenIntrospector}
  *
  * @author Andrey Litvitski
  */
-public class RestClientSpringOpaqueTokenIntrospectorTests {
+public class RestClientOpaqueTokenIntrospectorTests {
 
 	private static final String INTROSPECTION_URL = "https://server.example.com";
 
@@ -112,7 +112,7 @@ public class RestClientSpringOpaqueTokenIntrospectorTests {
 		try (MockWebServer server = new MockWebServer()) {
 			server.setDispatcher(requiresAuth(CLIENT_ID, CLIENT_SECRET, ACTIVE_RESPONSE));
 			String introspectUri = server.url("/introspect").toString();
-			OpaqueTokenIntrospector introspectionClient = RestClientSpringOpaqueTokenIntrospector
+			OpaqueTokenIntrospector introspectionClient = RestClientOpaqueTokenIntrospector
 				.withIntrospectionUri(introspectUri)
 				.clientId(CLIENT_ID)
 				.clientSecret(CLIENT_SECRET)
@@ -140,7 +140,7 @@ public class RestClientSpringOpaqueTokenIntrospectorTests {
 		try (MockWebServer server = new MockWebServer()) {
 			server.setDispatcher(requiresAuth(CLIENT_ID, CLIENT_SECRET, ACTIVE_RESPONSE));
 			String introspectUri = server.url("/introspect").toString();
-			OpaqueTokenIntrospector introspectionClient = RestClientSpringOpaqueTokenIntrospector
+			OpaqueTokenIntrospector introspectionClient = RestClientOpaqueTokenIntrospector
 				.withIntrospectionUri(introspectUri)
 				.clientId(CLIENT_ID)
 				.clientSecret("wrong")
@@ -155,7 +155,7 @@ public class RestClientSpringOpaqueTokenIntrospectorTests {
 		try (MockWebServer server = new MockWebServer()) {
 			server.setDispatcher(requiresAuth(CLIENT_ID, CLIENT_SECRET, INACTIVE_RESPONSE));
 			String introspectUri = server.url("/introspect").toString();
-			OpaqueTokenIntrospector introspectionClient = RestClientSpringOpaqueTokenIntrospector
+			OpaqueTokenIntrospector introspectionClient = RestClientOpaqueTokenIntrospector
 				.withIntrospectionUri(introspectUri)
 				.clientId(CLIENT_ID)
 				.clientSecret(CLIENT_SECRET)
@@ -179,7 +179,7 @@ public class RestClientSpringOpaqueTokenIntrospectorTests {
 					""";
 			server.setDispatcher(requiresAuth(CLIENT_ID, CLIENT_SECRET, response));
 			String introspectUri = server.url("/introspect").toString();
-			OpaqueTokenIntrospector introspectionClient = RestClientSpringOpaqueTokenIntrospector
+			OpaqueTokenIntrospector introspectionClient = RestClientOpaqueTokenIntrospector
 				.withIntrospectionUri(introspectUri)
 				.clientId(CLIENT_ID)
 				.clientSecret(CLIENT_SECRET)
@@ -201,7 +201,7 @@ public class RestClientSpringOpaqueTokenIntrospectorTests {
 			server.start();
 			String introspectUri = server.url("/introspect").toString();
 			server.shutdown();
-			OpaqueTokenIntrospector introspectionClient = RestClientSpringOpaqueTokenIntrospector
+			OpaqueTokenIntrospector introspectionClient = RestClientOpaqueTokenIntrospector
 				.withIntrospectionUri(introspectUri)
 				.clientId(CLIENT_ID)
 				.clientSecret(CLIENT_SECRET)
@@ -216,7 +216,7 @@ public class RestClientSpringOpaqueTokenIntrospectorTests {
 		try (MockWebServer server = new MockWebServer()) {
 			server.setDispatcher(requiresAuth(CLIENT_ID, CLIENT_SECRET, "{}"));
 			String introspectUri = server.url("/introspect").toString();
-			OpaqueTokenIntrospector introspectionClient = RestClientSpringOpaqueTokenIntrospector
+			OpaqueTokenIntrospector introspectionClient = RestClientOpaqueTokenIntrospector
 				.withIntrospectionUri(introspectUri)
 				.clientId(CLIENT_ID)
 				.clientSecret(CLIENT_SECRET)
@@ -231,7 +231,7 @@ public class RestClientSpringOpaqueTokenIntrospectorTests {
 		try (MockWebServer server = new MockWebServer()) {
 			server.setDispatcher(requiresAuth(CLIENT_ID, CLIENT_SECRET, INVALID_RESPONSE));
 			String introspectUri = server.url("/introspect").toString();
-			OpaqueTokenIntrospector introspectionClient = RestClientSpringOpaqueTokenIntrospector
+			OpaqueTokenIntrospector introspectionClient = RestClientOpaqueTokenIntrospector
 				.withIntrospectionUri(introspectUri)
 				.clientId(CLIENT_ID)
 				.clientSecret(CLIENT_SECRET)
@@ -247,7 +247,7 @@ public class RestClientSpringOpaqueTokenIntrospectorTests {
 		try (MockWebServer server = new MockWebServer()) {
 			server.setDispatcher(requiresAuth(CLIENT_ID, CLIENT_SECRET, MALFORMED_SCOPE_RESPONSE));
 			String introspectUri = server.url("/introspect").toString();
-			OpaqueTokenIntrospector introspectionClient = RestClientSpringOpaqueTokenIntrospector
+			OpaqueTokenIntrospector introspectionClient = RestClientOpaqueTokenIntrospector
 				.withIntrospectionUri(introspectUri)
 				.clientId(CLIENT_ID)
 				.clientSecret(CLIENT_SECRET)
@@ -265,7 +265,7 @@ public class RestClientSpringOpaqueTokenIntrospectorTests {
 		try (MockWebServer server = new MockWebServer()) {
 			server.setDispatcher(requiresAuth(CLIENT_ID, CLIENT_SECRET, ACTIVE_RESPONSE));
 			String introspectUri = server.url("/introspect").toString();
-			OpaqueTokenIntrospector introspectionClient = RestClientSpringOpaqueTokenIntrospector
+			OpaqueTokenIntrospector introspectionClient = RestClientOpaqueTokenIntrospector
 				.withIntrospectionUri(introspectUri)
 				.clientId(CLIENT_ID)
 				.clientSecret(CLIENT_SECRET)
@@ -282,8 +282,8 @@ public class RestClientSpringOpaqueTokenIntrospectorTests {
 	@Test
 	public void setRequestEntityConverterWhenConverterIsNullThenExceptionIsThrown() {
 		RestClient restClient = mock(RestClient.class);
-		RestClientSpringOpaqueTokenIntrospector introspectionClient = new RestClientSpringOpaqueTokenIntrospector(
-				INTROSPECTION_URL, restClient);
+		RestClientOpaqueTokenIntrospector introspectionClient = new RestClientOpaqueTokenIntrospector(INTROSPECTION_URL,
+				restClient);
 		assertThatExceptionOfType(IllegalArgumentException.class)
 			.isThrownBy(() -> introspectionClient.setRequestEntityConverter(null));
 	}
@@ -291,8 +291,8 @@ public class RestClientSpringOpaqueTokenIntrospectorTests {
 	@Test
 	public void setAuthenticationConverterWhenConverterIsNullThenExceptionIsThrown() {
 		RestClient restClient = mock(RestClient.class);
-		RestClientSpringOpaqueTokenIntrospector introspectionClient = new RestClientSpringOpaqueTokenIntrospector(
-				INTROSPECTION_URL, restClient);
+		RestClientOpaqueTokenIntrospector introspectionClient = new RestClientOpaqueTokenIntrospector(INTROSPECTION_URL,
+				restClient);
 		assertThatExceptionOfType(IllegalArgumentException.class)
 			.isThrownBy(() -> introspectionClient.setAuthenticationConverter(null));
 	}
@@ -311,7 +311,7 @@ public class RestClientSpringOpaqueTokenIntrospectorTests {
 			RestClient restClient = RestClient.builder()
 				.defaultHeaders((h) -> h.setBasicAuth("client%&1", "secret@$2"))
 				.build();
-			OpaqueTokenIntrospector introspectionClient = new RestClientSpringOpaqueTokenIntrospector(introspectUri,
+			OpaqueTokenIntrospector introspectionClient = new RestClientOpaqueTokenIntrospector(introspectUri,
 					restClient);
 			assertThatExceptionOfType(OAuth2IntrospectionException.class)
 				.isThrownBy(() -> introspectionClient.introspect("token"));
