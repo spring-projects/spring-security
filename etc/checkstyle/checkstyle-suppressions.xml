@@ -60,6 +60,10 @@
 	<suppress files="[\\/]src[\\/]test[\\/]" checks="JavadocPackage"/>
 	<suppress files="[\\/]src[\\/]test[\\/].*package-info\.java$" checks="RegexpMultiline" id="requireNullMarkedInPackageInfo"/>
 
+	<!-- Suppress package-info.java and @NullMarked checks for test fixture sources -->
+	<suppress files="[\\/]src[\\/]testFixtures[\\/]" checks="JavadocPackage"/>
+	<suppress files="[\\/]src[\\/]testFixtures[\\/].*package-info\.java$" checks="RegexpMultiline" id="requireNullMarkedInPackageInfo"/>
+
 	<!-- Suppress nullability checks for modules that don't have JSpecify nullability applied yet -->
 	<suppress files="access[\\/]" checks="IllegalImport" id="bannedNullabilityImports"/>
 	<suppress files="access[\\/]" checks="JavadocPackage"/>
