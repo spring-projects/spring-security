@@ -1355,7 +1355,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * (i.e. known) with Spring Security.
      */
     @Suppress("DEPRECATION")
-    inline fun <reified T : Filter> addFilterBefore(filter: Filter) {
+    inline fun <reified T : Filter> addFilterBefore(filter: T) {
         this.addFilterBefore(filter, T::class.java)
     }
 
