@@ -67,3 +67,4 @@ class CsrfShowcaseTests {
 ======
 <1> `SecurityMockMvcConfigurers.springSecurity()` will perform all of the initial setup we need to integrate Spring Security with Spring MVC Test
 
+Now that you have configured MockMvc with `springSecurity()`, you can use Security's xref:servlet/test/mockmvc/request-post-processors.adoc[RequestPostProcessors] and other MockMvc test support.
