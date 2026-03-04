@@ -64,6 +64,7 @@ updates:
       - shibboleth
     ignore:
       - dependency-name: com.nimbusds:nimbus-jose-jwt
+      - dependency-name: io.spring.nullability:*
       - dependency-name: org.python:jython
       - dependency-name: org.apache.directory.server:*
       - dependency-name: org.apache.directory.shared:*
