@@ -26,6 +26,7 @@ import org.springframework.security.authentication.AuthenticationTrustResolverIm
 import org.springframework.security.authorization.AuthorizationManagerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.util.Assert;
 
 /**
  * @author Luke Taylor
@@ -77,17 +78,15 @@ public class DefaultWebSecurityExpressionHandler extends AbstractSecurityExpress
 	 * </p>
 	 *
 	 * <p>
-	 * If null or empty, then no default role prefix is used.
+	 * If empty, then no default role prefix is used.
 	 * </p>
 	 * @param defaultRolePrefix the default prefix to add to roles. Default "ROLE_".
 	 * @deprecated Use
 	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
 	 */
 	@Deprecated(since = "7.0")
-	public void setDefaultRolePrefix(@Nullable String defaultRolePrefix) {
-		if (defaultRolePrefix == null) {
-			defaultRolePrefix = "";
-		}
+	public void setDefaultRolePrefix(String defaultRolePrefix) {
+		Assert.notNull(defaultRolePrefix, "defaultRolePrefix cannot be null");
 		getDefaultAuthorizationManagerFactory().setRolePrefix(defaultRolePrefix);
 		this.defaultRolePrefix = defaultRolePrefix;
 	}

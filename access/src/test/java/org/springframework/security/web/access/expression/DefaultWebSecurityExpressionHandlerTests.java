@@ -83,6 +83,12 @@ public class DefaultWebSecurityExpressionHandlerTests {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
+	public void setDefaultRolePrefixWhenNullThenIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setDefaultRolePrefix(null));
+	}
+
+	@Test
 	public void createEvaluationContextCustomTrustResolver() {
 		this.handler.setTrustResolver(this.trustResolver);
 		Expression expression = this.handler.getExpressionParser().parseExpression("anonymous");

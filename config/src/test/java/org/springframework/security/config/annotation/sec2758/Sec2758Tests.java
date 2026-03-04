@@ -146,13 +146,13 @@ public class Sec2758Tests {
 		@Override
 		public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 			if (bean instanceof Jsr250MethodSecurityMetadataSource) {
-				((Jsr250MethodSecurityMetadataSource) bean).setDefaultRolePrefix(null);
+				((Jsr250MethodSecurityMetadataSource) bean).setDefaultRolePrefix("");
 			}
 			if (bean instanceof DefaultMethodSecurityExpressionHandler) {
-				((DefaultMethodSecurityExpressionHandler) bean).setDefaultRolePrefix(null);
+				((DefaultMethodSecurityExpressionHandler) bean).setDefaultRolePrefix("");
 			}
 			if (bean instanceof DefaultWebSecurityExpressionHandler) {
-				((DefaultWebSecurityExpressionHandler) bean).setDefaultRolePrefix(null);
+				((DefaultWebSecurityExpressionHandler) bean).setDefaultRolePrefix("");
 			}
 			if (bean instanceof DefaultHttpSecurityExpressionHandler http) {
 				http.setDefaultRolePrefix("");

@@ -187,6 +187,12 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 		verify(mockAuthenticationSupplier).get();
 	}
 
+	@Test
+	@SuppressWarnings("deprecation")
+	public void setDefaultRolePrefixWhenNullThenIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setDefaultRolePrefix(null));
+	}
+
 	static class Foo {
 
 		void bar() {

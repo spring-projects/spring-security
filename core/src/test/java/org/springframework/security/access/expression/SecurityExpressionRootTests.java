@@ -92,10 +92,8 @@ public class SecurityExpressionRootTests {
 	}
 
 	@Test
-	public void hasRoleNullPrefixDoesNotAddsDefaultPrefix() {
-		this.root.setDefaultRolePrefix(null);
-		assertThat(this.root.hasRole("A")).isFalse();
-		assertThat(this.root.hasRole("ROLE_A")).isTrue();
+	public void hasRoleNullPrefixThrowsIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.root.setDefaultRolePrefix(null));
 	}
 
 	@Test
@@ -126,10 +124,8 @@ public class SecurityExpressionRootTests {
 	}
 
 	@Test
-	public void hasAnyRoleNullPrefixDoesNotAddsDefaultPrefix() {
-		this.root.setDefaultRolePrefix(null);
-		assertThat(this.root.hasAnyRole("A")).isFalse();
-		assertThat(this.root.hasAnyRole("ROLE_A")).isTrue();
+	public void hasAnyRoleNullPrefixThrowsIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.root.setDefaultRolePrefix(null));
 	}
 
 	@Test
