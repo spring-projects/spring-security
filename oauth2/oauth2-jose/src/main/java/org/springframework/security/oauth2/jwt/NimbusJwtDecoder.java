@@ -65,7 +65,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -74,6 +73,7 @@ import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
@@ -301,6 +301,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		private Consumer<ConfigurableJWTProcessor<SecurityContext>> jwtProcessorCustomizer;
 
+		private JwkSetRetriever jwkSetRetriever = this::defaultRestOperationsRetriever;
+
 		private JwkSetUriJwtDecoderBuilder(String jwkSetUri) {
 			Assert.hasText(jwkSetUri, "jwkSetUri cannot be empty");
 			this.jwkSetUri = (rest) -> jwkSetUri;
@@ -330,26 +332,26 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		 *
 		 * <p>
 		 * When this is set to {@code false}, this: <code>
-		 *     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).build();
-		 *     jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer);
+		 * NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).build();
+		 * jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer);
 		 * </code>
 		 *
 		 * <p>
 		 * Is equivalent to this: <code>
-		 *     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer)
-		 *         .validateType(false)
-		 *         .build();
-		 *     jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithValidators(
-		 *     		new JwtIssuerValidator(issuer), JwtTypeValidator.jwt());
+		 * NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer)
+		 * .validateType(false)
+		 * .build();
+		 * jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithValidators(
+		 * new JwtIssuerValidator(issuer), JwtTypeValidator.jwt());
 		 * </code>
 		 *
 		 * <p>
 		 * The difference is that by setting this to {@code false}, it allows you to
 		 * provide validation by type, like for {@code at+jwt}: <code>
-		 *     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer)
-		 *         .validateType(false)
-		 *         .build();
-		 *     jwtDecoder.setJwtValidator(new MyAtJwtValidator());
+		 * NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer)
+		 * .validateType(false)
+		 * .build();
+		 * jwtDecoder.setJwtValidator(new MyAtJwtValidator());
 		 * </code>
 		 * @param shouldValidateTypHeader whether Nimbus should validate the typ header or
 		 * not
@@ -400,7 +402,34 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		public JwkSetUriJwtDecoderBuilder restOperations(RestOperations restOperations) {
 			Assert.notNull(restOperations, "restOperations cannot be null");
 			this.restOperations = restOperations;
+			this.jwkSetRetriever = this::defaultRestOperationsRetriever;
 			return this;
+		}
+
+		/**
+		 * Use the given {@link RestClient} to coordinate with the authorization servers
+		 * indicated in the <a href="https://tools.ietf.org/html/rfc7517#section-5">JWK
+		 * Set</a> uri as well as the <a href=
+		 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>.
+		 * @param restClient the {@link RestClient} instance to use
+		 * @return a {@link JwkSetUriJwtDecoderBuilder} for further configurations
+		 * @since 7.0.0
+		 */
+		public JwkSetUriJwtDecoderBuilder restClient(RestClient restClient) {
+			Assert.notNull(restClient, "restClient cannot be null");
+			this.jwkSetRetriever = (uri) -> restClient.get()
+				.uri(uri)
+				.accept(MediaType.APPLICATION_JSON, new MediaType("application", "jwk-set+json"))
+				.retrieve()
+				.body(String.class);
+			return this;
+		}
+
+		private String defaultRestOperationsRetriever(String uri) {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON, new MediaType("application", "jwk-set+json")));
+			RequestEntity<Void> request = new RequestEntity<>(headers, HttpMethod.GET, URI.create(uri));
+			return this.restOperations.exchange(request, String.class).getBody();
 		}
 
 		/**
@@ -454,8 +483,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		}
 
 		JWKSource<SecurityContext> jwkSource() {
-			String jwkSetUri = this.jwkSetUri.apply(this.restOperations);
-			return JWKSourceBuilder.create(new SpringJWKSource<>(this.restOperations, this.cache, jwkSetUri))
+			String resolvedJwkSetUri = this.jwkSetUri.apply(this.restOperations);
+			return JWKSourceBuilder.create(new SpringJWKSource<>(this.jwkSetRetriever, this.cache, resolvedJwkSetUri))
 				.refreshAheadCache(false)
 				.rateLimited(false)
 				.cache(this.cache instanceof NoOpCache)
@@ -482,13 +511,20 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			return new NimbusJwtDecoder(processor());
 		}
 
+		@FunctionalInterface
+		private interface JwkSetRetriever {
+
+			String fetch(String jwkSetUri);
+
+		}
+
 		private static final class SpringJWKSource<C extends SecurityContext> implements JWKSetSource<C> {
 
 			private static final MediaType APPLICATION_JWK_SET_JSON = new MediaType("application", "jwk-set+json");
 
 			private final ReentrantLock reentrantLock = new ReentrantLock();
 
-			private final RestOperations restOperations;
+			private final JwkSetRetriever jwkSetRetriever;
 
 			private final Cache cache;
 
@@ -496,9 +532,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 			private JWKSet jwkSet;
 
-			private SpringJWKSource(RestOperations restOperations, Cache cache, String jwkSetUri) {
-				Assert.notNull(restOperations, "restOperations cannot be null");
-				this.restOperations = restOperations;
+			private SpringJWKSource(JwkSetRetriever jwkSetRetriever, Cache cache, String jwkSetUri) {
+				this.jwkSetRetriever = jwkSetRetriever;
 				this.cache = cache;
 				this.jwkSetUri = jwkSetUri;
 				String jwks = this.cache.get(this.jwkSetUri, String.class);
@@ -513,11 +548,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			}
 
 			private String fetchJwks() throws Exception {
-				HttpHeaders headers = new HttpHeaders();
-				headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON, APPLICATION_JWK_SET_JSON));
-				RequestEntity<Void> request = new RequestEntity<>(headers, HttpMethod.GET, URI.create(this.jwkSetUri));
-				ResponseEntity<String> response = this.restOperations.exchange(request, String.class);
-				String jwks = response.getBody();
+				String jwks = this.jwkSetRetriever.fetch(this.jwkSetUri);
 				this.jwkSet = JWKSet.parse(jwks);
 				return jwks;
 			}
@@ -607,26 +638,26 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		 *
 		 * <p>
 		 * When this is set to {@code false}, this: <code>
-		 *     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).build();
-		 *     jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer);
+		 * NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).build();
+		 * jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer);
 		 * </code>
 		 *
 		 * <p>
 		 * Is equivalent to this: <code>
-		 *     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer)
-		 *         .validateType(false)
-		 *         .build();
-		 *     jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithValidators(
-		 *     		new JwtIssuerValidator(issuer), JwtTypeValidator.jwt());
+		 * NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer)
+		 * .validateType(false)
+		 * .build();
+		 * jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithValidators(
+		 * new JwtIssuerValidator(issuer), JwtTypeValidator.jwt());
 		 * </code>
 		 *
 		 * <p>
 		 * The difference is that by setting this to {@code false}, it allows you to
 		 * provide validation by type, like for {@code at+jwt}: <code>
-		 *     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer)
-		 *         .validateType(false)
-		 *         .build();
-		 *     jwtDecoder.setJwtValidator(new MyAtJwtValidator());
+		 * NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer)
+		 * .validateType(false)
+		 * .build();
+		 * jwtDecoder.setJwtValidator(new MyAtJwtValidator());
 		 * </code>
 		 * @param shouldValidateTypHeader whether Nimbus should validate the typ header or
 		 * not
@@ -732,26 +763,26 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		 *
 		 * <p>
 		 * When this is set to {@code false}, this: <code>
-		 *     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).build();
-		 *     jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer);
+		 * NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).build();
+		 * jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer);
 		 * </code>
 		 *
 		 * <p>
 		 * Is equivalent to this: <code>
-		 *     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer)
-		 *         .validateType(false)
-		 *         .build();
-		 *     jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithValidators(
-		 *     		new JwtIssuerValidator(issuer), JwtTypeValidator.jwt());
+		 * NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer)
+		 * .validateType(false)
+		 * .build();
+		 * jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithValidators(
+		 * new JwtIssuerValidator(issuer), JwtTypeValidator.jwt());
 		 * </code>
 		 *
 		 * <p>
 		 * The difference is that by setting this to {@code false}, it allows you to
 		 * provide validation by type, like for {@code at+jwt}: <code>
-		 *     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer)
-		 *         .validateType(false)
-		 *         .build();
-		 *     jwtDecoder.setJwtValidator(new MyAtJwtValidator());
+		 * NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer)
+		 * .validateType(false)
+		 * .build();
+		 * jwtDecoder.setJwtValidator(new MyAtJwtValidator());
 		 * </code>
 		 * @param shouldValidateTypHeader whether Nimbus should validate the typ header or
 		 * not

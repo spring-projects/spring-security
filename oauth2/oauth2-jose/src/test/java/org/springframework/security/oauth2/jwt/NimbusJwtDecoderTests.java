@@ -54,7 +54,9 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.BadJWTException;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
+import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -73,6 +75,7 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.TestKeys;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
 
@@ -877,6 +880,41 @@ public class NimbusJwtDecoderTests {
 				new JWSHeader.Builder(JWSAlgorithm.HS256).type(JOSEObjectType.JOSE).build(),
 				new JWTClaimsSet.Builder().subject("subject").build());
 		jwtDecoder.decode(jwt.serialize());
+	}
+
+	@Test
+	void buildWhenUsingRestClientThenFetchesJwkSet() throws Exception {
+		try (MockWebServer server = new MockWebServer()) {
+			String jwkSetJson = "{\"keys\":[{\"kty\":\"RSA\",\"kid\":\"1\",\"n\":\"vGByo16S49YPs0zS06pM\",\"e\":\"AQAB\"}]}";
+			server.enqueue(new MockResponse().setBody(jwkSetJson).setHeader("Content-Type", "application/json"));
+			server.start();
+
+			// 1. Add a timeout to prevent the hang
+			org.springframework.http.client.JdkClientHttpRequestFactory requestFactory = new org.springframework.http.client.JdkClientHttpRequestFactory();
+			requestFactory.setReadTimeout(java.time.Duration.ofSeconds(1));
+
+			RestClient restClient = RestClient.builder().requestFactory(requestFactory).build();
+
+			NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(server.url("/jwks").toString())
+				.restClient(restClient)
+				.build();
+
+			// 2. Use a structurally valid (3-part) JWT string to ensure the decoder tries
+			// to fetch keys
+			String minimalJwt = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+
+			try {
+				decoder.decode(minimalJwt);
+			}
+			catch (Exception ignored) {
+				// Expected to fail signature, but we only care about the fetch
+			}
+
+			RecordedRequest request = server.takeRequest(5, java.util.concurrent.TimeUnit.SECONDS);
+			assertThat(request).isNotNull();
+			assertThat(request.getMethod()).isEqualTo("GET");
+			assertThat(request.getHeader("Accept")).contains("application/jwk-set+json");
+		}
 	}
 
 	private RSAPublicKey key() throws InvalidKeySpecException {
