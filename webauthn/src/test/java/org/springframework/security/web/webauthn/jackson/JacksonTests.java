@@ -122,6 +122,23 @@ class JacksonTests {
 	}
 
 	@Test
+	void readAuthenticationExtensionsClientOutputsWhenAppId() {
+		String json = """
+				{
+				  "appid": false,
+				  "credProps": {
+				    "rk": false
+				  }
+				}
+				""";
+		CredentialPropertiesOutput credProps = new CredentialPropertiesOutput(false);
+
+		AuthenticationExtensionsClientOutputs outputs = this.mapper.readValue(json,
+				AuthenticationExtensionsClientOutputs.class);
+		assertThat(outputs.getOutputs()).usingRecursiveFieldByFieldElementComparator().contains(credProps);
+	}
+
+	@Test
 	void readAuthenticationExtensionsClientOutputsWhenUnknownExtension() {
 		String json = """
 				{
