@@ -300,7 +300,7 @@ public final class OidcAuthorizedClientRefreshedEventListener
 			return;
 		}
 
-		if (!idToken.getAuthenticatedAt().equals(existingOidcUser.getIdToken().getAuthenticatedAt())) {
+		if (idToken.getAuthenticatedAt().isAfter(idToken.getIssuedAt().plus(this.clockSkew))) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, "Invalid authenticated at time",
 					REFRESH_TOKEN_RESPONSE_ERROR_URI);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
