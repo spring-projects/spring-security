@@ -1,5 +1,6 @@
 apply plugin: 'io.spring.convention.spring-module'
 apply plugin: 'io.freefair.aspectj'
+apply plugin: 'javadoc-warnings-error'
 apply plugin: 'compile-warnings-error'
 
 compileAspectj {
