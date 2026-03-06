@@ -16,6 +16,7 @@
 
 package org.springframework.security.core.session;
 
+import java.security.Principal;
 import java.util.Date;
 import java.util.List;
 
@@ -191,6 +192,42 @@ public class SessionRegistryImplTests {
 		assertThat(this.sessionRegistry.getSessionInformation(oldSessionId)).isNull();
 		assertThat(this.sessionRegistry.getSessionInformation(newSessionId)).isNull();
 	}
+
+	@Test
+	public void principalsWithSameNameButDifferentInstancesAreTreatedAsDifferent() {
+		SessionRegistryImpl registry = new SessionRegistryImpl();
+
+		Principal principal1 = () -> "user";
+		Principal principal2 = () -> "user"; // Different instance, same name
+
+		String sessionId = "session-1";
+
+		registry.registerNewSession(sessionId, principal1);
+
+		// Default behavior: should NOT find session for different instance
+		assertThat(registry.getAllSessions(principal2, false)).isEmpty();
+	}
+
+	@Test
+	public void customPrincipalIdentifierStrategyMatchesPrincipalsByName() {
+		PrincipalIdentifierStrategy strategy =
+				(existing, incoming) ->
+						existing instanceof Principal e &&
+								incoming instanceof Principal i &&
+								e.getName().equals(i.getName());
+
+		SessionRegistryImpl registry = new SessionRegistryImpl(strategy);
+
+		Principal principal1 = () -> "user";
+		Principal principal2 = () -> "user"; // Different instance
+
+		String sessionId = "session-1";
+
+		registry.registerNewSession(sessionId, principal1);
+
+		assertThat(registry.getAllSessions(principal2, false)).hasSize(1);
+	}
+
 
 	private boolean contains(String sessionId, Object principal) {
 		List<SessionInformation> info = this.sessionRegistry.getAllSessions(principal, false);
