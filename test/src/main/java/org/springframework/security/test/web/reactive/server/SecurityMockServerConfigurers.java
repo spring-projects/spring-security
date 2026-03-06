@@ -410,7 +410,12 @@ public final class SecurityMockServerConfigurers {
 		}
 
 		private Consumer<List<WebFilter>> addSetupMutatorFilter() {
-			return (filters) -> filters.add(0, new SetupMutatorFilter(this.context));
+			return (filters) -> {
+				if (filters.stream().noneMatch(MutatorFilter.class::isInstance)) {
+					filters.add(0, new MutatorFilter());
+				}
+				filters.add(0, new SetupMutatorFilter(this.context));
+			};
 		}
 
 	}

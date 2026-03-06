@@ -88,6 +88,26 @@ public class SecurityMockServerConfigurersOAuth2LoginTests extends AbstractMockS
 	}
 
 	@Test
+	public void oauth2LoginWhenSpringSecurityConfigurerMissingThenStillProducesDefaultAuthentication() {
+		WebTestClient client = WebTestClient.bindToController(this.controller)
+			.argumentResolvers((c) -> c.addCustomResolver(new OAuth2AuthorizedClientArgumentResolver(
+					this.clientRegistrationRepository, this.authorizedClientRepository)))
+			.webFilter(new SecurityContextServerWebExchangeWebFilter())
+			.configureClient()
+			.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+			.build();
+		client.mutateWith(SecurityMockServerConfigurers.mockOAuth2Login())
+			.get()
+			.uri("/token")
+			.exchange()
+			.expectStatus()
+			.isOk();
+		OAuth2AuthenticationToken token = this.controller.token;
+		assertThat(token).isNotNull();
+		assertThat(token.getAuthorizedClientRegistrationId()).isEqualTo("test");
+	}
+
+	@Test
 	public void oauth2LoginWhenUsingDefaultsThenProducesDefaultAuthorizedClient() {
 		this.client.mutateWith(SecurityMockServerConfigurers.mockOAuth2Login())
 			.get()
