@@ -604,7 +604,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			          {{usernameInput}}
 			        </p>
 			{{hiddenInputs}}
-			        <button class="primary" type="submit" form="ott-form">Send Token</button>
+			        <button class="primary" type="submit">Send Token</button>
 			      </form>
 			""";
 
