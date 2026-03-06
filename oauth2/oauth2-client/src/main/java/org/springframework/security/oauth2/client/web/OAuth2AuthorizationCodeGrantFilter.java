@@ -46,6 +46,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResp
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
@@ -121,6 +122,8 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 
 	private RequestCache requestCache = new HttpSessionRequestCache();
 
+	private AuthenticationSuccessHandler authenticationSuccessHandler;
+
 	/**
 	 * Constructs an {@code OAuth2AuthorizationCodeGrantFilter} using the provided
 	 * parameters.
@@ -160,6 +163,18 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 	public final void setRequestCache(RequestCache requestCache) {
 		Assert.notNull(requestCache, "requestCache cannot be null");
 		this.requestCache = requestCache;
+	}
+
+	/**
+	 * Sets the {@link AuthenticationSuccessHandler} used for handling a successful
+	 * authorization response.
+	 * @param authenticationSuccessHandler the handler used for handling a successful
+	 * authorization response
+	 * @since 7.1
+	 */
+	public final void setAuthenticationSuccessHandler(AuthenticationSuccessHandler authenticationSuccessHandler) {
+		Assert.notNull(authenticationSuccessHandler, "authenticationSuccessHandler cannot be null");
+		this.authenticationSuccessHandler = authenticationSuccessHandler;
 	}
 
 	/**
@@ -217,7 +232,7 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 	}
 
 	private void processAuthorizationResponse(HttpServletRequest request, HttpServletResponse response)
-			throws IOException {
+			throws IOException, ServletException {
 		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestRepository
 			.removeAuthorizationRequest(request, response);
 		String registrationId = authorizationRequest.getAttribute(OAuth2ParameterNames.REGISTRATION_ID);
@@ -254,6 +269,10 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 				authenticationResult.getRefreshToken());
 		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, currentAuthentication, request,
 				response);
+		if (this.authenticationSuccessHandler != null) {
+			this.authenticationSuccessHandler.onAuthenticationSuccess(request, response, authenticationResult);
+			return;
+		}
 		String redirectUrl = authorizationRequest.getRedirectUri();
 		SavedRequest savedRequest = this.requestCache.getRequest(request, response);
 		if (savedRequest != null) {
