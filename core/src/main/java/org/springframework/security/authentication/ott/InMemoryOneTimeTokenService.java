@@ -33,6 +33,7 @@ import org.springframework.util.Assert;
  * there is more or equal than 100 tokens stored in the map.
  *
  * @author Marcus da Coregio
+ * @author Max Batischev
  * @since 6.4
  */
 public final class InMemoryOneTimeTokenService implements OneTimeTokenService {
@@ -43,10 +44,9 @@ public final class InMemoryOneTimeTokenService implements OneTimeTokenService {
 
 	@Override
 	public OneTimeToken generate(GenerateOneTimeTokenRequest request) {
-		String token = UUID.randomUUID().toString();
 		Instant expiresAt = this.clock.instant().plus(request.getExpiresIn());
-		OneTimeToken ott = new DefaultOneTimeToken(token, request.getUsername(), expiresAt);
-		this.oneTimeTokenByToken.put(token, ott);
+		OneTimeToken ott = new DefaultOneTimeToken(request.getTokenValue(), request.getUsername(), expiresAt);
+		this.oneTimeTokenByToken.put(request.getTokenValue(), ott);
 		cleanExpiredTokensIfNeeded();
 		return ott;
 	}
