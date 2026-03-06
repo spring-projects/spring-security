@@ -18,7 +18,7 @@ package org.springframework.security.config.annotation.web
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.HttpsRedirectConfigurer
-import org.springframework.security.web.PortMapper
+import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.util.matcher.RequestMatcher
 
 /**
@@ -27,7 +27,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher
  *
  * @author Eleftheria Stein
  * @since 5.4
- * @property portMapper the [PortMapper] that specifies a custom HTTPS port to redirect to.
+ * @property requestMatchers the [RequestMatcher] that specifies a custom HTTPS port to redirect to.
  */
 @SecurityMarker
 class HttpsRedirectDsl {
