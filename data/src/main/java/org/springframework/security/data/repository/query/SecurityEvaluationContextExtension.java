@@ -229,20 +229,26 @@ public class SecurityEvaluationContextExtension implements EvaluationContextExte
 	}
 
 	/**
+	 * <p>
 	 * Sets the default prefix to be added to
 	 * {@link org.springframework.security.access.expression.SecurityExpressionRoot#hasAnyRole(String...)}
 	 * or
 	 * {@link org.springframework.security.access.expression.SecurityExpressionRoot#hasRole(String)}.
 	 * For example, if hasRole("ADMIN") or hasRole("ROLE_ADMIN") is passed in, then the
 	 * role ROLE_ADMIN will be used when the defaultRolePrefix is "ROLE_" (default).
-	 * @param defaultRolePrefix the default prefix to add to roles. The default is
-	 * "ROLE_".
+	 * </p>
+	 *
+	 * <p>
+	 * If empty, then no default role prefix is used.
+	 * </p>
+	 * @param defaultRolePrefix the default prefix to add to roles. Default "ROLE_".
 	 * @since 5.8
 	 * @deprecated Use
 	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
 	 */
 	@Deprecated(since = "7.0")
 	public void setDefaultRolePrefix(String defaultRolePrefix) {
+		Assert.notNull(defaultRolePrefix, "defaultRolePrefix cannot be null");
 		getDefaultAuthorizationManagerFactory().setRolePrefix(defaultRolePrefix);
 		this.defaultRolePrefix = defaultRolePrefix;
 	}

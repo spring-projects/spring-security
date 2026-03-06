@@ -158,6 +158,12 @@ public class SecurityEvaluationContextExtensionTests {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
+	public void setDefaultRolePrefixWhenNullThenIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.securityExtension.setDefaultRolePrefix(null));
+	}
+
+	@Test
 	public void setAuthorizationManagerFactoryWithTrustResolverThenVerifyRootObject() {
 		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
 		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
