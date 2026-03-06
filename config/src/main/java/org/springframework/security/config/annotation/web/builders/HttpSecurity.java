@@ -177,6 +177,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		}
 		ApplicationContext context = (ApplicationContext) sharedObjects.get(ApplicationContext.class);
 		this.requestMatcherConfigurer = new RequestMatcherConfigurer(context);
+		setSharedObject(RequestMatcher.class, this.requestMatcher);
 	}
 
 	private ApplicationContext getContext() {
@@ -2013,6 +2014,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 */
 	public HttpSecurity securityMatcher(RequestMatcher requestMatcher) {
 		this.requestMatcher = requestMatcher;
+		setSharedObject(RequestMatcher.class, this.requestMatcher);
 		return this;
 	}
 
@@ -2038,6 +2040,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 			matchers.add(builder.matcher(pattern));
 		}
 		this.requestMatcher = new OrRequestMatcher(matchers);
+		setSharedObject(RequestMatcher.class, this.requestMatcher);
 		return this;
 	}
 
