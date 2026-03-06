@@ -93,4 +93,16 @@ public class BasicAuthenticationEntryPointTests {
 		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Basic realm=\"TestRealm\", charset=\"UTF-8\"");
 	}
 
+	@Test
+	void commenceWhenCharsetIsNullThenOmitsCharset() throws Exception {
+		BasicAuthenticationEntryPoint entryPoint = new BasicAuthenticationEntryPoint();
+		entryPoint.setRealmName("TestRealm");
+		entryPoint.setCharset(null);
+		entryPoint.afterPropertiesSet();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		entryPoint.commence(request, response, new BadCredentialsException("test"));
+		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Basic realm=\"TestRealm\"");
+	}
+
 }

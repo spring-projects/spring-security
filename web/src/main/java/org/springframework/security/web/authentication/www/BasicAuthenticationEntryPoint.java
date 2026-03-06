@@ -58,9 +58,9 @@ public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint, 
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException {
-		String header = "Basic realm=\"" + this.realmName;
+		String header = "Basic realm=\"" + this.realmName + "\"";
 		if (this.charset != null) {
-			header += "\", charset=\"" + this.charset.name() + "\"";
+			header += ", charset=\"" + this.charset.name() + "\"";
 		}
 		response.setHeader("WWW-Authenticate", header);
 		response.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
@@ -77,10 +77,13 @@ public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint, 
 	/**
 	 * Sets the charset to include in the {@code WWW-Authenticate} response header. By
 	 * default, it is set to {@link StandardCharsets#UTF_8}. Set to {@code null} to omit
-	 * the charset attribute from the header.
-	 * @param charset the charset to use, or {@code null} to remove the charset attribute
+	 * the charset attribute from the header. As per RFC 7617, only UTF-8 is permitted.
+	 * @param charset the charset to use ({@link StandardCharsets#UTF_8} is the only
+	 * accepted value), or {@code null} to remove the charset attribute
 	 */
 	public void setCharset(@Nullable Charset charset) {
+		Assert.isTrue(charset == null || StandardCharsets.UTF_8.equals(charset),
+				"RFC 7617 only permits UTF-8 as the charset for Basic authentication");
 		this.charset = charset;
 	}
 
