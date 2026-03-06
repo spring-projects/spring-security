@@ -134,6 +134,24 @@ public class AbstractAuthorizeTagTests {
 		assertThat(this.tag.authorize()).isTrue();
 	}
 
+	@Test
+	@SuppressWarnings("rawtypes")
+	public void expressionFromDispatcherContextWhenRootContextPresent() throws IOException {
+		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "pass", "USER"));
+		WebApplicationContext root = mock(WebApplicationContext.class);
+		given(root.getBeansOfType(SecurityExpressionHandler.class)).willReturn(Collections.emptyMap());
+		given(root.getBeanNamesForType(SecurityContextHolderStrategy.class)).willReturn(new String[0]);
+		this.servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, root);
+		DefaultWebSecurityExpressionHandler expected = new DefaultWebSecurityExpressionHandler();
+		WebApplicationContext dispatcher = mock(WebApplicationContext.class);
+		given(dispatcher.getBeansOfType(SecurityExpressionHandler.class))
+			.willReturn(Collections.<String, SecurityExpressionHandler>singletonMap("wipe", expected));
+		given(dispatcher.getBeanNamesForType(SecurityContextHolderStrategy.class)).willReturn(new String[0]);
+		this.request.setAttribute("org.springframework.web.servlet.DispatcherServlet.CONTEXT", dispatcher);
+		this.tag.setAccess("permitAll");
+		assertThat(this.tag.authorize()).isTrue();
+	}
+
 	private class AuthzTag extends AbstractAuthorizeTag {
 
 		@Override
