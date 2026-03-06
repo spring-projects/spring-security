@@ -75,6 +75,7 @@ import org.springframework.util.Assert;
  * @author Vedran Pavic
  * @author Ankur Pathak
  * @author Daniel Garnier-Moiroux
+ * @author Andrey Litvitski
  * @since 3.2
  */
 public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
@@ -948,6 +949,17 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 */
 		public ContentSecurityPolicyConfig policyDirectives(String policyDirectives) {
 			this.writer.setPolicyDirectives(policyDirectives);
+			return this;
+		}
+
+		/**
+		 * Sets the reporting endpoints to be used in the response header.
+		 * @param reportingEndpoints the reporting endpoints
+		 * @return the {@link ContentSecurityPolicyConfig} for additional configuration
+		 * @throws IllegalArgumentException if reportingEndpoints is null or empty
+		 */
+		public ContentSecurityPolicyConfig reportingEndpoints(String reportingEndpoints) {
+			this.writer.setReportingEndpoints(reportingEndpoints);
 			return this;
 		}
 
