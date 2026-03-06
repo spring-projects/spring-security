@@ -47,6 +47,7 @@ class CsrfDsl {
     private var ignoringRequestMatchers: Array<out RequestMatcher>? = null
     private var ignoringRequestMatchersPatterns: Array<out String>? = null
     private var disabled = false
+    private var spaMode = false
 
     /**
      * Allows specifying [HttpServletRequest]s that should not use CSRF Protection
@@ -76,6 +77,17 @@ class CsrfDsl {
         disabled = true
     }
 
+    /**
+     * Sensible CSRF defaults when used in combination with a single page application.
+     * Creates a cookie-based token repository and a custom request handler to resolve the
+     * actual token value instead of the encoded token.
+     *
+     * @since 7.1
+     */
+    fun spa() {
+        spaMode = true
+    }
+
     internal fun get(): (CsrfConfigurer<HttpSecurity>) -> Unit {
         return { csrf ->
             csrfTokenRepository?.also { csrf.csrfTokenRepository(csrfTokenRepository) }
@@ -84,6 +96,9 @@ class CsrfDsl {
             csrfTokenRequestHandler?.also { csrf.csrfTokenRequestHandler(csrfTokenRequestHandler) }
             ignoringRequestMatchers?.also { csrf.ignoringRequestMatchers(*ignoringRequestMatchers!!) }
             ignoringRequestMatchersPatterns?.also { csrf.ignoringRequestMatchers(*ignoringRequestMatchersPatterns!!) }
+            if (spaMode) {
+                csrf.spa()
+            }
             if (disabled) {
                 csrf.disable()
             }
