@@ -316,7 +316,7 @@ class RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandlerTests {
 	}
 
 	@Test
-	void onAuthorizationSuccessWhenIdTokenAuthTimeNotSameThenException() {
+	void onAuthorizationSuccessWhenIdTokenAuthTimeAfterIssuedAtThenException() {
 		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
 		DefaultOidcUser principal = TestOidcUsers.create();
 		OAuth2AuthenticationToken authenticationToken = new OAuth2AuthenticationToken(principal,
@@ -331,7 +331,7 @@ class RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandlerTests {
 		claims.put("iss", principal.getIssuer());
 		claims.put("sub", principal.getSubject());
 		claims.put("aud", principal.getAudience());
-		claims.put("auth_time", principal.getIssuedAt());
+		claims.put("auth_time", principal.getIssuedAt().plus(Duration.ofMinutes(2)));
 		claims.put("nonce", principal.getNonce());
 		Jwt jwt = mock(Jwt.class);
 		given(jwt.getTokenValue()).willReturn("id-token-1234");
@@ -350,6 +350,46 @@ class RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandlerTests {
 		handler.setServerSecurityContextRepository(serverSecurityContextRepository);
 		StepVerifier.create(handler.onAuthorizationSuccess(authorizedClient, authenticationToken, attributes))
 			.verifyErrorMessage("[invalid_id_token] Invalid authenticated at time");
+	}
+
+	@Test
+	void onAuthorizationSuccessWhenIdTokenAuthTimeBeforeIssuedAtThenSecurityContextRefreshed() {
+		ClientRegistration clientRegistration = TestClientRegistrations.clientRegistration().build();
+		DefaultOidcUser principal = TestOidcUsers.create();
+		OAuth2AuthenticationToken authenticationToken = new OAuth2AuthenticationToken(principal,
+				principal.getAuthorities(), clientRegistration.getRegistrationId());
+		OAuth2AccessToken accessToken = createAccessToken();
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(clientRegistration, principal.getName(),
+				accessToken, null);
+		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
+		Map<String, Object> attributes = Map.of(ServerWebExchange.class.getName(), exchange,
+				OidcParameterNames.ID_TOKEN, "id-token-1234");
+		Map<String, Object> claims = new HashMap<>();
+		claims.put("iss", principal.getIssuer());
+		claims.put("sub", principal.getSubject());
+		claims.put("aud", principal.getAudience());
+		claims.put("auth_time", principal.getIssuedAt());
+		claims.put("nonce", principal.getNonce());
+		Jwt jwt = mock(Jwt.class);
+		given(jwt.getTokenValue()).willReturn("id-token-1234");
+		given(jwt.getIssuedAt()).willReturn(principal.getIssuedAt().plus(Duration.ofMinutes(1)));
+		given(jwt.getClaims()).willReturn(claims);
+		ReactiveJwtDecoder jwtDecoder = mock(ReactiveJwtDecoder.class);
+		given(jwtDecoder.decode(any())).willReturn(Mono.just(jwt));
+		ReactiveJwtDecoderFactory<ClientRegistration> reactiveJwtDecoderFactory = mock(ReactiveJwtDecoderFactory.class);
+		given(reactiveJwtDecoderFactory.createDecoder(any())).willReturn(jwtDecoder);
+		ReactiveOAuth2UserService<OidcUserRequest, OidcUser> userService = mock(ReactiveOAuth2UserService.class);
+		given(userService.loadUser(any())).willReturn(Mono.just(principal));
+		WebSessionServerSecurityContextRepository serverSecurityContextRepository = new WebSessionServerSecurityContextRepository();
+		RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler handler = new RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler();
+		handler.setJwtDecoderFactory(reactiveJwtDecoderFactory);
+		handler.setUserService(userService);
+		handler.setServerSecurityContextRepository(serverSecurityContextRepository);
+		StepVerifier.create(handler.onAuthorizationSuccess(authorizedClient, authenticationToken, attributes))
+			.verifyComplete();
+		StepVerifier.create(serverSecurityContextRepository.load(exchange).map(SecurityContext::getAuthentication))
+			.expectNext(authenticationToken)
+			.verifyComplete();
 	}
 
 	@Test

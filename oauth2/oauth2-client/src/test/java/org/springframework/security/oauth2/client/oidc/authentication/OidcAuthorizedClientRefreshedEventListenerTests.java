@@ -419,9 +419,10 @@ public class OidcAuthorizedClientRefreshedEventListenerTests {
 	}
 
 	@Test
-	public void onApplicationEventWhenIdTokenAuthenticatedAtDoesNotMatchThenThrowsOAuth2AuthenticationException() {
-		Instant authTime = this.oidcUser.getAuthenticatedAt().plus(5, ChronoUnit.SECONDS);
-		Jwt jwt = createJwt().claim(IdTokenClaimNames.AUTH_TIME, authTime).build();
+	public void onApplicationEventWhenIdTokenAuthenticatedAtAfterIssuedAtThenThrowsOAuth2AuthenticationException() {
+		Instant issuedAt = Instant.now();
+		Instant authTime = issuedAt.plus(2, ChronoUnit.MINUTES);
+		Jwt jwt = createJwt().issuedAt(issuedAt).claim(IdTokenClaimNames.AUTH_TIME, authTime).build();
 		SecurityContextImpl securityContext = new SecurityContextImpl(this.authentication);
 		given(this.securityContextHolderStrategy.getContext()).willReturn(securityContext);
 		given(this.jwtDecoder.decode(anyString())).willReturn(jwt);
@@ -438,6 +439,23 @@ public class OidcAuthorizedClientRefreshedEventListenerTests {
 		verify(this.jwtDecoder).decode(this.jwt.getTokenValue());
 		verifyNoMoreInteractions(this.securityContextHolderStrategy, this.jwtDecoder);
 		verifyNoInteractions(this.userService, this.applicationEventPublisher);
+	}
+
+	@Test
+	public void onApplicationEventWhenIdTokenAuthenticatedAtBeforeIssuedAtThenOidcUserRefreshedEventPublished() {
+		Instant authTime = this.oidcUser.getAuthenticatedAt().plus(5, ChronoUnit.SECONDS);
+		Jwt jwt = createJwt().claim(IdTokenClaimNames.AUTH_TIME, authTime).build();
+		SecurityContextImpl securityContext = new SecurityContextImpl(this.authentication);
+		given(this.securityContextHolderStrategy.getContext()).willReturn(securityContext);
+		given(this.jwtDecoder.decode(anyString())).willReturn(jwt);
+		given(this.userService.loadUser(any(OidcUserRequest.class))).willReturn(this.oidcUser);
+
+		OAuth2AuthorizedClientRefreshedEvent authorizedClientRefreshedEvent = new OAuth2AuthorizedClientRefreshedEvent(
+				this.accessTokenResponse, this.authorizedClient);
+		this.eventListener.onApplicationEvent(authorizedClientRefreshedEvent);
+
+		verify(this.applicationEventPublisher).publishEvent(any(OidcUserRefreshedEvent.class));
+		verifyNoMoreInteractions(this.applicationEventPublisher);
 	}
 
 	@Test
