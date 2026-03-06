@@ -33,13 +33,13 @@ import org.springframework.util.Assert;
  */
 public final class OrRequestMatcher implements RequestMatcher {
 
-	private final List<RequestMatcher> requestMatchers;
+	private final List<? extends RequestMatcher> requestMatchers;
 
 	/**
 	 * Creates a new instance
 	 * @param requestMatchers the {@link RequestMatcher} instances to try
 	 */
-	public OrRequestMatcher(List<RequestMatcher> requestMatchers) {
+	public OrRequestMatcher(List<? extends RequestMatcher> requestMatchers) {
 		Assert.notEmpty(requestMatchers, "requestMatchers must contain a value");
 		Assert.noNullElements(requestMatchers, "requestMatchers cannot contain null values");
 		this.requestMatchers = requestMatchers;
