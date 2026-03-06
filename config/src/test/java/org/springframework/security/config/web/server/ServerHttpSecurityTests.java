@@ -552,6 +552,7 @@ public class ServerHttpSecurityTests {
 		given(this.csrfTokenRepository.loadToken(any(ServerWebExchange.class))).willReturn(Mono.just(csrfToken));
 		given(this.csrfTokenRepository.generateToken(any(ServerWebExchange.class))).willReturn(Mono.empty());
 		ServerCsrfTokenRequestHandler requestHandler = mock(ServerCsrfTokenRequestHandler.class);
+		given(requestHandler.handleAsync(any(ServerWebExchange.class), any())).willReturn(Mono.empty());
 		given(requestHandler.resolveCsrfTokenValue(any(ServerWebExchange.class), any(CsrfToken.class)))
 			.willReturn(Mono.just(csrfToken.getToken()));
 		// @formatter:off
@@ -564,7 +565,7 @@ public class ServerHttpSecurityTests {
 		client.post().uri("/").exchange().expectStatus().isOk();
 		verify(this.csrfTokenRepository, times(2)).loadToken(any(ServerWebExchange.class));
 		verify(this.csrfTokenRepository).generateToken(any(ServerWebExchange.class));
-		verify(requestHandler).handle(any(ServerWebExchange.class), any());
+		verify(requestHandler).handleAsync(any(ServerWebExchange.class), any());
 		verify(requestHandler).resolveCsrfTokenValue(any(ServerWebExchange.class), any());
 	}
 
