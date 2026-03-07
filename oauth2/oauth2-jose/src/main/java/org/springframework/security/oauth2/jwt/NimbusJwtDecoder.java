@@ -16,12 +16,17 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.security.interfaces.RSAPublicKey;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -63,9 +68,13 @@ import org.springframework.cache.support.NoOpCache;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequest;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -74,6 +83,7 @@ import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
@@ -297,9 +307,17 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		private RestOperations restOperations = new RestTemplateWithNimbusDefaultTimeouts();
 
+		private static final MediaType APPLICATION_JWK_SET_JSON = new MediaType("application", "jwk-set+json");
+
 		private Cache cache = new NoOpCache("default");
 
 		private Consumer<ConfigurableJWTProcessor<SecurityContext>> jwtProcessorCustomizer;
+
+		private RestClient restClient = RestClient.builder()
+			.requestFactory(new RestTemplateWithNimbusDefaultTimeouts().getRequestFactory())
+			.defaultHeaders(
+					(headers) -> headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON, APPLICATION_JWK_SET_JSON)))
+			.build();
 
 		private JwkSetUriJwtDecoderBuilder(String jwkSetUri) {
 			Assert.hasText(jwkSetUri, "jwkSetUri cannot be empty");
@@ -330,8 +348,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		 *
 		 * <p>
 		 * When this is set to {@code false}, this: <code>
-		 *     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).build();
-		 *     jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer);
+		 * NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).build();
+		 * jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer);
 		 * </code>
 		 *
 		 * <p>
@@ -400,6 +418,26 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		public JwkSetUriJwtDecoderBuilder restOperations(RestOperations restOperations) {
 			Assert.notNull(restOperations, "restOperations cannot be null");
 			this.restOperations = restOperations;
+			this.restClient = RestClient.builder()
+				.requestFactory(new RestOperationsClientHttpRequestFactory(restOperations))
+				.defaultHeaders((headers) -> headers
+					.setAccept(Arrays.asList(MediaType.APPLICATION_JSON, APPLICATION_JWK_SET_JSON)))
+				.build();
+			return this;
+		}
+
+		/**
+		 * Use the given {@link RestClient} to coordinate with the authorization servers
+		 * indicated in the <a href="https://tools.ietf.org/html/rfc7517#section-5">JWK
+		 * Set</a> uri as well as the <a href=
+		 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>.
+		 * @param restClient the {@link RestClient} instance to use
+		 * @return a {@link JwkSetUriJwtDecoderBuilder} for further configurations
+		 * @since 7.0.0
+		 */
+		public JwkSetUriJwtDecoderBuilder restClient(RestClient restClient) {
+			Assert.notNull(restClient, "restClient cannot be null");
+			this.restClient = restClient;
 			return this;
 		}
 
@@ -454,8 +492,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		}
 
 		JWKSource<SecurityContext> jwkSource() {
-			String jwkSetUri = this.jwkSetUri.apply(this.restOperations);
-			return JWKSourceBuilder.create(new SpringJWKSource<>(this.restOperations, this.cache, jwkSetUri))
+			String resolvedJwkSetUri = this.jwkSetUri.apply(this.restOperations);
+			return JWKSourceBuilder.create(new SpringJWKSource<>(this.restClient, this.cache, resolvedJwkSetUri))
 				.refreshAheadCache(false)
 				.rateLimited(false)
 				.cache(this.cache instanceof NoOpCache)
@@ -467,7 +505,6 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
 			jwtProcessor.setJWSTypeVerifier(this.typeVerifier);
 			jwtProcessor.setJWSKeySelector(jwsKeySelector(jwkSource));
-			// Spring Security validates the claim set independent from Nimbus
 			jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> {
 			});
 			this.jwtProcessorCustomizer.accept(jwtProcessor);
@@ -482,13 +519,114 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			return new NimbusJwtDecoder(processor());
 		}
 
-		private static final class SpringJWKSource<C extends SecurityContext> implements JWKSetSource<C> {
+		private static final class RestOperationsClientHttpRequestFactory implements ClientHttpRequestFactory {
 
-			private static final MediaType APPLICATION_JWK_SET_JSON = new MediaType("application", "jwk-set+json");
+			private final RestOperations restOperations;
+
+			private RestOperationsClientHttpRequestFactory(RestOperations restOperations) {
+				this.restOperations = restOperations;
+			}
+
+			@Override
+			public ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) {
+				return new RestOperationsClientHttpRequest(this.restOperations, uri, httpMethod);
+			}
+
+		}
+
+		private static final class RestOperationsClientHttpRequest implements ClientHttpRequest {
+
+			private final RestOperations restOperations;
+
+			private final URI uri;
+
+			private final HttpMethod httpMethod;
+
+			private final HttpHeaders headers = new HttpHeaders();
+
+			private RestOperationsClientHttpRequest(RestOperations restOperations, URI uri, HttpMethod httpMethod) {
+				this.restOperations = restOperations;
+				this.uri = uri;
+				this.httpMethod = httpMethod;
+			}
+
+			@Override
+			public HttpMethod getMethod() {
+				return this.httpMethod;
+			}
+
+			@Override
+			public URI getURI() {
+				return this.uri;
+			}
+
+			@Override
+			public Map<String, Object> getAttributes() {
+				return new HashMap<>();
+			}
+
+			@Override
+			public HttpHeaders getHeaders() {
+				return this.headers;
+			}
+
+			@Override
+			public OutputStream getBody() {
+				return OutputStream.nullOutputStream();
+			}
+
+			@Override
+			public ClientHttpResponse execute() {
+				RequestEntity<Void> request = new RequestEntity<>(this.headers, this.httpMethod, this.uri);
+				ResponseEntity<String> response = this.restOperations.exchange(request, String.class);
+				return new RestOperationsClientHttpResponse(response);
+			}
+
+		}
+
+		private static final class RestOperationsClientHttpResponse implements ClientHttpResponse {
+
+			private final ResponseEntity<String> responseEntity;
+
+			private RestOperationsClientHttpResponse(ResponseEntity<String> responseEntity) {
+				this.responseEntity = responseEntity;
+			}
+
+			@Override
+			public HttpStatusCode getStatusCode() {
+				return this.responseEntity.getStatusCode();
+			}
+
+			@Override
+			public String getStatusText() {
+				return this.responseEntity.getStatusCode().toString();
+			}
+
+			@Override
+			public HttpHeaders getHeaders() {
+				return this.responseEntity.getHeaders();
+			}
+
+			@Override
+			public InputStream getBody() {
+				String body = this.responseEntity.getBody();
+				if (body == null) {
+					return InputStream.nullInputStream();
+				}
+				return new ByteArrayInputStream(body.getBytes(StandardCharsets.UTF_8));
+			}
+
+			@Override
+			public void close() {
+			}
+
+		}
+
+		private static final class SpringJWKSource<C extends SecurityContext> implements JWKSetSource<C> {
 
 			private final ReentrantLock reentrantLock = new ReentrantLock();
 
-			private final RestOperations restOperations;
+			private final RestClient restClient;
 
 			private final Cache cache;
 
@@ -496,9 +634,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 			private JWKSet jwkSet;
 
-			private SpringJWKSource(RestOperations restOperations, Cache cache, String jwkSetUri) {
-				Assert.notNull(restOperations, "restOperations cannot be null");
-				this.restOperations = restOperations;
+			private SpringJWKSource(RestClient restClient, Cache cache, String jwkSetUri) {
+				this.restClient = restClient;
 				this.cache = cache;
 				this.jwkSetUri = jwkSetUri;
 				String jwks = this.cache.get(this.jwkSetUri, String.class);
@@ -513,11 +650,11 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			}
 
 			private String fetchJwks() throws Exception {
-				HttpHeaders headers = new HttpHeaders();
-				headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON, APPLICATION_JWK_SET_JSON));
-				RequestEntity<Void> request = new RequestEntity<>(headers, HttpMethod.GET, URI.create(this.jwkSetUri));
-				ResponseEntity<String> response = this.restOperations.exchange(request, String.class);
-				String jwks = response.getBody();
+				String jwks = this.restClient.get()
+					.uri(this.jwkSetUri)
+					.accept(MediaType.APPLICATION_JSON, APPLICATION_JWK_SET_JSON)
+					.retrieve()
+					.body(String.class);
 				this.jwkSet = JWKSet.parse(jwks);
 				return jwks;
 			}
@@ -607,8 +744,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		 *
 		 * <p>
 		 * When this is set to {@code false}, this: <code>
-		 *     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).build();
-		 *     jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer);
+		 *      NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).build();
+		 *      jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer);
 		 * </code>
 		 *
 		 * <p>
@@ -676,7 +813,6 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			DefaultJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
 			jwtProcessor.setJWSTypeVerifier(this.typeVerifier);
 			jwtProcessor.setJWSKeySelector(jwsKeySelector);
-			// Spring Security validates the claim set independent from Nimbus
 			jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> {
 			});
 			this.jwtProcessorCustomizer.accept(jwtProcessor);
@@ -807,7 +943,6 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			DefaultJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
 			jwtProcessor.setJWSKeySelector(jwsKeySelector);
 			jwtProcessor.setJWSTypeVerifier(this.typeVerifier);
-			// Spring Security validates the claim set independent from Nimbus
 			jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> {
 			});
 			this.jwtProcessorCustomizer.accept(jwtProcessor);
@@ -903,7 +1038,6 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
 			jwtProcessor.setJWSTypeVerifier(this.typeVerifier);
 			jwtProcessor.setJWSKeySelector(jwsKeySelector(this.jwkSource));
-			// Spring Security validates the claim set independent from Nimbus
 			jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> {
 			});
 			this.jwtProcessorCustomizer.accept(jwtProcessor);

@@ -296,7 +296,8 @@ public class JwtDecodersTests {
 	}
 
 	private void prepareConfigurationResponse() {
-		String body = String.format(DEFAULT_RESPONSE_TEMPLATE, this.issuer, this.issuer);
+		String normalizedIssuer = this.issuer.replaceAll("/+$", "");
+		String body = String.format(DEFAULT_RESPONSE_TEMPLATE, this.issuer, normalizedIssuer);
 		prepareConfigurationResponse(body);
 	}
 
@@ -306,7 +307,8 @@ public class JwtDecodersTests {
 	}
 
 	private void prepareConfigurationResponseOidc() {
-		String body = String.format(DEFAULT_RESPONSE_TEMPLATE, this.issuer, this.issuer);
+		String normalizedIssuer = this.issuer.replaceAll("/+$", "");
+		String body = String.format(DEFAULT_RESPONSE_TEMPLATE, this.issuer, normalizedIssuer);
 		prepareConfigurationResponseOidc(body);
 	}
 
@@ -318,7 +320,8 @@ public class JwtDecodersTests {
 	}
 
 	private void prepareConfigurationResponseOAuth2() {
-		String body = String.format(DEFAULT_RESPONSE_TEMPLATE, this.issuer, this.issuer);
+		String normalizedIssuer = this.issuer.replaceAll("/+$", "");
+		String body = String.format(DEFAULT_RESPONSE_TEMPLATE, this.issuer, normalizedIssuer);
 		prepareConfigurationResponseOAuth2(body);
 	}
 
@@ -368,7 +371,7 @@ public class JwtDecodersTests {
 	}
 
 	private String jwks() {
-		return this.issuer + "/.well-known/jwks.json";
+		return this.issuer.replaceAll("/+$", "") + "/.well-known/jwks.json";
 	}
 
 	private MockResponse response(String body) {

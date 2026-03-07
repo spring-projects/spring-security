@@ -16,6 +16,9 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.io.ByteArrayInputStream;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -63,16 +66,22 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.concurrent.ConcurrentMapCache;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequest;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.TestKeys;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
 
@@ -877,6 +886,28 @@ public class NimbusJwtDecoderTests {
 				new JWSHeader.Builder(JWSAlgorithm.HS256).type(JOSEObjectType.JOSE).build(),
 				new JWTClaimsSet.Builder().subject("subject").build());
 		jwtDecoder.decode(jwt.serialize());
+	}
+
+	@Test
+	void buildWhenUsingRestClientThenFetchesJwkSet() throws Exception {
+		RestClient.Builder builder = RestClient.builder();
+		ClientHttpRequestFactory requestFactory = mock(ClientHttpRequestFactory.class);
+		ClientHttpRequest request = mock(ClientHttpRequest.class);
+		ClientHttpResponse response = mock(ClientHttpResponse.class);
+
+		given(requestFactory.createRequest(any(URI.class), eq(HttpMethod.GET))).willReturn(request);
+		given(request.getHeaders()).willReturn(new HttpHeaders());
+		given(request.execute()).willReturn(response);
+		given(response.getStatusCode()).willReturn(HttpStatus.OK);
+		given(response.getBody()).willReturn(new ByteArrayInputStream(JWK_SET.getBytes(StandardCharsets.UTF_8)));
+		given(response.getHeaders()).willReturn(new HttpHeaders());
+
+		RestClient restClient = builder.requestFactory(requestFactory).build();
+		NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI).restClient(restClient).build();
+
+		decoder.decode(SIGNED_JWT);
+
+		verify(requestFactory).createRequest(any(URI.class), eq(HttpMethod.GET));
 	}
 
 	private RSAPublicKey key() throws InvalidKeySpecException {
