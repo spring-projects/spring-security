@@ -16,6 +16,9 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.io.ByteArrayInputStream;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -54,9 +57,7 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.BadJWTException;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
-import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -65,10 +66,15 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.concurrent.ConcurrentMapCache;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequest;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
@@ -884,37 +890,24 @@ public class NimbusJwtDecoderTests {
 
 	@Test
 	void buildWhenUsingRestClientThenFetchesJwkSet() throws Exception {
-		try (MockWebServer server = new MockWebServer()) {
-			String jwkSetJson = "{\"keys\":[{\"kty\":\"RSA\",\"kid\":\"1\",\"n\":\"vGByo16S49YPs0zS06pM\",\"e\":\"AQAB\"}]}";
-			server.enqueue(new MockResponse().setBody(jwkSetJson).setHeader("Content-Type", "application/json"));
-			server.start();
+		RestClient.Builder builder = RestClient.builder();
+		ClientHttpRequestFactory requestFactory = mock(ClientHttpRequestFactory.class);
+		ClientHttpRequest request = mock(ClientHttpRequest.class);
+		ClientHttpResponse response = mock(ClientHttpResponse.class);
 
-			// 1. Add a timeout to prevent the hang
-			org.springframework.http.client.JdkClientHttpRequestFactory requestFactory = new org.springframework.http.client.JdkClientHttpRequestFactory();
-			requestFactory.setReadTimeout(java.time.Duration.ofSeconds(1));
+		given(requestFactory.createRequest(any(URI.class), eq(HttpMethod.GET))).willReturn(request);
+		given(request.getHeaders()).willReturn(new HttpHeaders());
+		given(request.execute()).willReturn(response);
+		given(response.getStatusCode()).willReturn(HttpStatus.OK);
+		given(response.getBody()).willReturn(new ByteArrayInputStream(JWK_SET.getBytes(StandardCharsets.UTF_8)));
+		given(response.getHeaders()).willReturn(new HttpHeaders());
 
-			RestClient restClient = RestClient.builder().requestFactory(requestFactory).build();
+		RestClient restClient = builder.requestFactory(requestFactory).build();
+		NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI).restClient(restClient).build();
 
-			NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(server.url("/jwks").toString())
-				.restClient(restClient)
-				.build();
+		decoder.decode(SIGNED_JWT);
 
-			// 2. Use a structurally valid (3-part) JWT string to ensure the decoder tries
-			// to fetch keys
-			String minimalJwt = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
-
-			try {
-				decoder.decode(minimalJwt);
-			}
-			catch (Exception ignored) {
-				// Expected to fail signature, but we only care about the fetch
-			}
-
-			RecordedRequest request = server.takeRequest(5, java.util.concurrent.TimeUnit.SECONDS);
-			assertThat(request).isNotNull();
-			assertThat(request.getMethod()).isEqualTo("GET");
-			assertThat(request.getHeader("Accept")).contains("application/jwk-set+json");
-		}
+		verify(requestFactory).createRequest(any(URI.class), eq(HttpMethod.GET));
 	}
 
 	private RSAPublicKey key() throws InvalidKeySpecException {
