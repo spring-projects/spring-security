@@ -43,6 +43,7 @@ dependencies {
 	testImplementation project(':spring-security-test')
 	testImplementation project(':spring-security-oauth2-client')
 	testImplementation project(':spring-security-oauth2-resource-server')
+	testImplementation project(':spring-security-messaging')
 	testImplementation 'com.squareup.okhttp3:mockwebserver'
 	testImplementation libs.com.password4j.password4j
 	testImplementation 'com.unboundid:unboundid-ldapsdk'
@@ -51,6 +52,7 @@ dependencies {
 	testImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 	testImplementation 'org.springframework:spring-core'
 	testImplementation 'org.springframework:spring-test'
+	testImplementation 'org.springframework:spring-websocket'
 
 	testImplementation 'org.springframework:spring-webmvc'
 	testImplementation 'jakarta.servlet:jakarta.servlet-api'
