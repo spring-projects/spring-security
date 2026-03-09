@@ -109,6 +109,21 @@ public class CookieRequestCacheTests {
 	}
 
 	@Test
+	public void getRequestWhenRequestContainsSavedRequestCookieThenSavedRequestContainsRequestParameters() {
+		CookieRequestCache cookieRequestCache = new CookieRequestCache();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie("https://abc.com/destination")));
+		request.setParameter("single", "first");
+		request.addParameter("multi", "second");
+		request.addParameter("multi", "third");
+		SavedRequest savedRequest = cookieRequestCache.getRequest(request, new MockHttpServletResponse());
+		assertThat(savedRequest).isNotNull();
+		assertThat(savedRequest.getParameterValues("single")).containsExactly("first");
+		assertThat(savedRequest.getParameterValues("multi")).containsExactly("second", "third");
+		assertThat(savedRequest.getParameterMap()).containsKeys("single", "multi");
+	}
+
+	@Test
 	public void matchingRequestWhenRequestDoesNotContainSavedRequestCookieThenReturnsNull() {
 		CookieRequestCache cookieRequestCache = new CookieRequestCache();
 		MockHttpServletResponse response = new MockHttpServletResponse();
