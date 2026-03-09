@@ -91,6 +91,7 @@ public class CookieRequestCache implements RequestCache {
 			.setServerPort(port)
 			.setMethod(request.getMethod())
 			.setLocales(Collections.list(request.getLocales()))
+			.setParameters(request.getParameterMap())
 			.build();
 	}
 
