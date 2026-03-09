@@ -36,6 +36,7 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 
 /**
  * An implementation of a {@link ReactiveOAuth2AuthorizedClientProvider} for the
@@ -50,13 +51,24 @@ import org.springframework.util.Assert;
 public final class RefreshTokenReactiveOAuth2AuthorizedClientProvider
 		implements ReactiveOAuth2AuthorizedClientProvider {
 
+	private static final boolean josePresent = ClassUtils.isPresent(
+			"org.springframework.security.oauth2.jwt.ReactiveJwtDecoder",
+			RefreshTokenReactiveOAuth2AuthorizedClientProvider.class.getClassLoader());
+
 	private ReactiveOAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient = new WebClientReactiveRefreshTokenTokenResponseClient();
 
-	private ReactiveOAuth2AuthorizationSuccessHandler authorizationSuccessHandler = new RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler();
+	private ReactiveOAuth2AuthorizationSuccessHandler authorizationSuccessHandler = (authorizedClient, principal,
+			attributes) -> Mono.empty();
 
 	private Duration clockSkew = Duration.ofSeconds(60);
 
 	private Clock clock = Clock.systemUTC();
+
+	public RefreshTokenReactiveOAuth2AuthorizedClientProvider() {
+		if (josePresent) {
+			this.authorizationSuccessHandler = new RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler();
+		}
+	}
 
 	/**
 	 * Attempt to re-authorize the
@@ -128,8 +140,9 @@ public final class RefreshTokenReactiveOAuth2AuthorizedClientProvider
 
 	/**
 	 * Sets a {@link ReactiveOAuth2AuthorizationSuccessHandler} to use for handling
-	 * successful refresh token response, defaults to
-	 * {@link RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler}.
+	 * successful refresh token response. Defaults to
+	 * {@link RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler}, when
+	 * {@code spring-security-oauth2-jose} is available on the classpath.
 	 * @param authorizationSuccessHandler the
 	 * {@link ReactiveOAuth2AuthorizationSuccessHandler} to use
 	 * @since 7.1

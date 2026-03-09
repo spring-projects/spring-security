@@ -278,7 +278,7 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 
 		/**
 		 * Sets a {@link ReactiveOAuth2AuthorizationSuccessHandler} to use for handling
-		 * successful refresh token response, defaults to
+		 * successful refresh token response, see
 		 * {@link RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler}.
 		 * @param authorizationSuccessHandler the
 		 * {@link ReactiveOAuth2AuthorizationSuccessHandler} to use
