@@ -167,21 +167,6 @@ public class OAuth2DeviceVerificationEndpointFilterTests {
 	}
 
 	@Test
-	public void doFilterWhenUnauthenticatedThenPassThrough() throws Exception {
-		TestingAuthenticationToken unauthenticatedResult = new TestingAuthenticationToken("user", null);
-		given(this.authenticationManager.authenticate(any(Authentication.class))).willReturn(unauthenticatedResult);
-
-		MockHttpServletRequest request = createRequest();
-		request.addParameter(OAuth2ParameterNames.USER_CODE, USER_CODE);
-		updateQueryString(request);
-		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterChain filterChain = mock(FilterChain.class);
-		this.filter.doFilter(request, response, filterChain);
-		verify(this.authenticationManager).authenticate(any(Authentication.class));
-		verify(filterChain).doFilter(request, response);
-	}
-
-	@Test
 	public void doFilterWhenDeviceAuthorizationConsentRequestThenSuccess() throws Exception {
 		Authentication authenticationResult = createDeviceVerificationAuthentication();
 		given(this.authenticationManager.authenticate(any(Authentication.class))).willReturn(authenticationResult);

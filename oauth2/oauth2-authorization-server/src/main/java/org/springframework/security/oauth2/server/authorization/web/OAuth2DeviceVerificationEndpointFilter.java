@@ -161,15 +161,6 @@ public final class OAuth2DeviceVerificationEndpointFilter extends OncePerRequest
 			}
 
 			Authentication authenticationResult = this.authenticationManager.authenticate(authentication);
-			if (!authenticationResult.isAuthenticated()) {
-				// If the Principal (Resource Owner) is not authenticated then pass
-				// through the chain
-				// with the expectation that the authentication process will commence via
-				// AuthenticationEntryPoint
-				filterChain.doFilter(request, response);
-				return;
-			}
-
 			if (authenticationResult instanceof OAuth2DeviceAuthorizationConsentAuthenticationToken) {
 				if (this.logger.isTraceEnabled()) {
 					this.logger.trace("Device authorization consent is required");

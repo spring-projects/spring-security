@@ -132,9 +132,7 @@ public final class OAuth2DeviceVerificationAuthenticationProvider implements Aut
 			if (this.logger.isTraceEnabled()) {
 				this.logger.trace("Did not authenticate device verification request since principal not authenticated");
 			}
-			// Return the device verification request as-is where isAuthenticated() is
-			// false
-			return deviceVerificationAuthentication;
+			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_REQUEST);
 		}
 
 		RegisteredClient registeredClient = this.registeredClientRepository

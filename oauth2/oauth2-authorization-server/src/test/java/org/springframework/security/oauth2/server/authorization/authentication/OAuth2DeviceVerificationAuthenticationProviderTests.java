@@ -227,7 +227,7 @@ public class OAuth2DeviceVerificationAuthenticationProviderTests {
 	}
 
 	@Test
-	public void authenticateWhenPrincipalNotAuthenticatedThenReturnUnauthenticated() {
+	public void authenticateWhenPrincipalNotAuthenticatedThenThrowOAuth2AuthenticationException() {
 		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
 		// @formatter:off
 		OAuth2Authorization authorization = TestOAuth2Authorizations
@@ -237,15 +237,21 @@ public class OAuth2DeviceVerificationAuthenticationProviderTests {
 				.attribute(OAuth2ParameterNames.SCOPE, registeredClient.getScopes())
 				.build();
 		// @formatter:on
-		TestingAuthenticationToken principal = new TestingAuthenticationToken("user", null);
+		TestingAuthenticationToken principal = new TestingAuthenticationToken("anonymous", null);
+		principal.setAuthenticated(false);
 		Authentication authentication = new OAuth2DeviceVerificationAuthenticationToken(principal, USER_CODE,
 				Collections.emptyMap());
-		given(this.authorizationService.findByToken(anyString(), any(OAuth2TokenType.class))).willReturn(authorization);
+		given(this.authorizationService.findByToken(eq(USER_CODE),
+				eq(OAuth2DeviceVerificationAuthenticationProvider.USER_CODE_TOKEN_TYPE)))
+			.willReturn(authorization);
 
-		OAuth2DeviceVerificationAuthenticationToken authenticationResult = (OAuth2DeviceVerificationAuthenticationToken) this.authenticationProvider
-			.authenticate(authentication);
-		assertThat(authenticationResult).isEqualTo(authentication);
-		assertThat(authenticationResult.isAuthenticated()).isFalse();
+		// @formatter:off
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+				.extracting(OAuth2AuthenticationException::getError)
+				.extracting(OAuth2Error::getErrorCode)
+				.isEqualTo(OAuth2ErrorCodes.INVALID_REQUEST);
+		// @formatter:on
 
 		verify(this.authorizationService).findByToken(USER_CODE,
 				OAuth2DeviceVerificationAuthenticationProvider.USER_CODE_TOKEN_TYPE);
