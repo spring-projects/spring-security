@@ -80,6 +80,7 @@ public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint, 
 	 * the charset attribute from the header. As per RFC 7617, only UTF-8 is permitted.
 	 * @param charset the charset to use ({@link StandardCharsets#UTF_8} is the only
 	 * accepted value), or {@code null} to remove the charset attribute
+	 * @since 7.1
 	 */
 	public void setCharset(@Nullable Charset charset) {
 		Assert.isTrue(charset == null || StandardCharsets.UTF_8.equals(charset),
