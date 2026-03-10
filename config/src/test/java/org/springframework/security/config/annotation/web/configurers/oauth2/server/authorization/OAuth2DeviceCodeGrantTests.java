@@ -359,7 +359,7 @@ public class OAuth2DeviceCodeGrantTests {
 	}
 
 	@Test
-	public void requestWhenDeviceAuthorizationConsentRequestUnauthenticatedThenBadRequest() throws Exception {
+	public void requestWhenDeviceAuthorizationConsentRequestUnauthenticatedThenUnauthorized() throws Exception {
 		this.spring.register(AuthorizationServerConfiguration.class).autowire();
 
 		// @formatter:off
@@ -392,7 +392,7 @@ public class OAuth2DeviceCodeGrantTests {
 		// @formatter:off
 		this.mvc.perform(post(DEFAULT_DEVICE_VERIFICATION_ENDPOINT_URI)
 				.params(parameters))
-				.andExpect(status().isBadRequest());
+				.andExpect(status().isUnauthorized());
 		// @formatter:on
 	}
 
