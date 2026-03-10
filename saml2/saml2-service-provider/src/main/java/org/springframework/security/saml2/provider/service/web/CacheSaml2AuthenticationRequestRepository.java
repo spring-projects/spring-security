@@ -35,6 +35,7 @@ import org.springframework.util.Assert;
  * that it was for the user trying to log in. Please see the reference for details.
  *
  * @author Josh Cummings
+ * @author Andrey Litvitski
  * @since 6.5
  */
 public final class CacheSaml2AuthenticationRequestRepository
@@ -53,7 +54,7 @@ public final class CacheSaml2AuthenticationRequestRepository
 	public void saveAuthenticationRequest(AbstractSaml2AuthenticationRequest authenticationRequest,
 			HttpServletRequest request, HttpServletResponse response) {
 		Assert.notNull(authenticationRequest, "authenticationRequest must not be null");
-		String relayState = request.getParameter(Saml2ParameterNames.RELAY_STATE);
+		String relayState = authenticationRequest.getRelayState();
 		Assert.notNull(relayState, "relayState must not be null");
 		this.cache.put(relayState, authenticationRequest);
 	}

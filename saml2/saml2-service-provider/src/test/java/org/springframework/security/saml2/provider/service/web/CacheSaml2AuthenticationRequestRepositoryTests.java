@@ -42,9 +42,10 @@ class CacheSaml2AuthenticationRequestRepositoryTests {
 
 	@Test
 	void loadAuthenticationRequestWhenCachedThenReturns() {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setParameter(Saml2ParameterNames.RELAY_STATE, "test");
 		Saml2PostAuthenticationRequest authenticationRequest = TestSaml2PostAuthenticationRequests.create();
+		String relayState = authenticationRequest.getRelayState();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setParameter(Saml2ParameterNames.RELAY_STATE, relayState);
 		this.repository.saveAuthenticationRequest(authenticationRequest, request, null);
 		assertThat(this.repository.loadAuthenticationRequest(request)).isEqualTo(authenticationRequest);
 		this.repository.removeAuthenticationRequest(request, null);
@@ -77,15 +78,16 @@ class CacheSaml2AuthenticationRequestRepositoryTests {
 		CacheSaml2AuthenticationRequestRepository repository = new CacheSaml2AuthenticationRequestRepository();
 		Cache cache = spy(new ConcurrentMapCache("requests"));
 		repository.setCache(cache);
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setParameter(Saml2ParameterNames.RELAY_STATE, "test");
 		Saml2PostAuthenticationRequest authenticationRequest = TestSaml2PostAuthenticationRequests.create();
+		String relayState = authenticationRequest.getRelayState();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setParameter(Saml2ParameterNames.RELAY_STATE, relayState);
 		repository.saveAuthenticationRequest(authenticationRequest, request, null);
-		verify(cache).put(eq("test"), any());
+		verify(cache).put(eq(relayState), any());
 		repository.loadAuthenticationRequest(request);
-		verify(cache).get("test", AbstractSaml2AuthenticationRequest.class);
+		verify(cache).get(relayState, AbstractSaml2AuthenticationRequest.class);
 		repository.removeAuthenticationRequest(request, null);
-		verify(cache).evict("test");
+		verify(cache).evict(relayState);
 	}
 
 }
