@@ -86,9 +86,6 @@
 	<suppress files="oauth2[\\/]oauth2-client[\\/]" checks="IllegalImport" id="bannedNullabilityImports"/>
 	<suppress files="oauth2[\\/]oauth2-client[\\/]" checks="JavadocPackage"/>
 	<suppress files="oauth2[\\/]oauth2-client[\\/].*package-info\.java" checks="RegexpMultiline" id="requireNullMarkedInPackageInfo"/>
-	<suppress files="oauth2[\\/]oauth2-jose[\\/]" checks="IllegalImport" id="bannedNullabilityImports"/>
-	<suppress files="oauth2[\\/]oauth2-jose[\\/]" checks="JavadocPackage"/>
-	<suppress files="oauth2[\\/]oauth2-jose[\\/].*package-info\.java" checks="RegexpMultiline" id="requireNullMarkedInPackageInfo"/>
 	<suppress files="oauth2[\\/]oauth2-resource-server[\\/]" checks="IllegalImport" id="bannedNullabilityImports"/>
 	<suppress files="oauth2[\\/]oauth2-resource-server[\\/]" checks="JavadocPackage"/>
 	<suppress files="oauth2[\\/]oauth2-resource-server[\\/].*package-info\.java" checks="RegexpMultiline" id="requireNullMarkedInPackageInfo"/>
