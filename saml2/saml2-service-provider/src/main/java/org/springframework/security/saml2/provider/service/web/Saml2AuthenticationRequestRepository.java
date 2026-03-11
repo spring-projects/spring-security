@@ -42,13 +42,11 @@ public interface Saml2AuthenticationRequestRepository<T extends AbstractSaml2Aut
 	/**
 	 * Saves the current authentication request using the {@link HttpServletRequest} and
 	 * {@link HttpServletResponse}
-	 * @param authenticationRequest the {@link AbstractSaml2AuthenticationRequest}, if
-	 * {@code null}, then remove
+	 * @param authenticationRequest the {@link AbstractSaml2AuthenticationRequest}
 	 * @param request the current request
 	 * @param response the current response
 	 */
-	void saveAuthenticationRequest(@Nullable T authenticationRequest, HttpServletRequest request,
-			HttpServletResponse response);
+	void saveAuthenticationRequest(T authenticationRequest, HttpServletRequest request, HttpServletResponse response);
 
 	/**
 	 * Removes the authentication request using the {@link HttpServletRequest} and

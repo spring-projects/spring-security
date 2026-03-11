@@ -50,7 +50,7 @@ public class HttpSessionSaml2AuthenticationRequestRepository
 	}
 
 	@Override
-	public void saveAuthenticationRequest(@Nullable AbstractSaml2AuthenticationRequest authenticationRequest,
+	public void saveAuthenticationRequest(AbstractSaml2AuthenticationRequest authenticationRequest,
 			HttpServletRequest request, HttpServletResponse response) {
 		if (authenticationRequest == null) {
 			removeAuthenticationRequest(request, response);
