@@ -28,7 +28,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 /**
  * Tests for {@link OAuth2TokenIntrospectionClaimAccessor}.
@@ -52,9 +51,9 @@ public class OAuth2TokenIntrospectionClaimAccessorTests {
 	}
 
 	@Test
-	public void isActiveWhenActiveClaimValueIsNullThenThrowsNullPointerException() {
+	public void isActiveWhenActiveClaimValueIsNullThenReturnFalse() {
 		this.claims.put(OAuth2TokenIntrospectionClaimNames.ACTIVE, null);
-		assertThatNullPointerException().isThrownBy(this.claimAccessor::isActive);
+		assertThat(this.claimAccessor.isActive()).isFalse();
 	}
 
 	@Test
