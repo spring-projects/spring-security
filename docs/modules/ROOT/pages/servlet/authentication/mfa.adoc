@@ -108,23 +108,20 @@ include-code::./ValidDurationConfiguration[tag=httpSecurity,indent=0]
 
 In our previous examples, MFA is a static decision per request.
 There are times when we might want to require MFA for some users, but not others.
-Determining if MFA is enabled per user can be achieved by creating a custom `AuthorizationManager` that conditionally requires factors based upon the `Authentication`.
+Determining if MFA is enabled per user can be achieved by using `AuthorizationManagerFactories.multiFactor().when` to conditionally require factors based upon the `Authentication`.
+This is implemented using xref:servlet/authorization/architecture.adoc#authz-conditional-authorization-manager[`ConditionalAuthorizationManager`].
 
-include-code::./AdminMfaAuthorizationManagerConfiguration[tag=authorizationManager,indent=0]
-<1> MFA is required for the user with the username `admin`
-<2> Otherwise, MFA is not required
-
-To enable the MFA rules globally, we can publish an `AuthorizationManagerFactory` Bean.
+To enable the conditional MFA rules globally, we can publish an `AuthorizationManagerFactory` Bean.
 
 include-code::./AdminMfaAuthorizationManagerConfiguration[tag=authorizationManagerFactory,indent=0]
-<1> Inject the custom `AuthorizationManager` as the javadoc:org.springframework.security.authorization.DefaultAuthorizationManagerFactory#setAdditionalAuthorization(org.springframework.security.authorization.AuthorizationManager)[DefaultAuthorization.additionalAuthorization].
-This instructs `DefaultAuthorizationManagerFactory` that any authorization rule should apply our custom `AuthorizationManager` along with any authorization requirements defined by the application (e.g. `hasRole("ADMIN")`).
-<2> Publish `DefaultAuthorizationManagerFactory` as a Bean, so it is used globally
+<1> Require `FACTOR_OTT` and `FACTOR_PASSWORD`
+<2> Only apply the requirement if the username is `admin`. Otherwise, MFA is not required.
+<3> Return the `AuthorizationManagerFactory` using `.build()`. Since it is published as a Bean, it is used globally.
 
 This should feel very similar to our previous example in xref:./mfa.adoc#authorization-manager-factory[].
-The difference is that in the previous example, the `AuthorizationManagerFactories` is setting `DefaultAuthorization.additionalAuthorization` with a built in `AuthorizationManager` that always requires the same authorities.
+The difference is that in the previous example, the `AuthorizationManagerFactories` creates an `AuthorizationManager` that always requires the same authorities.
 
-We can now define our authorization rules which are combined with `AdminMfaAuthorizationManager`.
+We can now define our authorization rules which are combined with `AuthorizationManagerFactory`.
 
 include-code::./AdminMfaAuthorizationManagerConfiguration[tag=httpSecurity,indent=0]
 <1> URLs that begin with `/admin/**` require `ROLE_ADMIN`.
@@ -138,7 +135,7 @@ If we preferred, we could change our logic to enable MFA based upon the roles ra
 [[raam-mfa]]
 == RequiredAuthoritiesAuthorizationManager
 
-We've demonstrated how we can dynamically determine the authorities for a particular user in xref:./mfa.adoc#programmatic-mfa[] using a custom `AuthorizationManager`.
+We've demonstrated how we can dynamically determine the authorities for a particular user in xref:./mfa.adoc#programmatic-mfa[] using `AuthorizationManagerFactories.multiFactor().when`.
 However, this is such a common scenario that Spring Security provides built in support using javadoc:org.springframework.security.authorization.RequiredAuthoritiesAuthorizationManager[] and javadoc:org.springframework.security.authorization.RequiredAuthoritiesRepository[].
 
 Let's implement the same requirement that we did in xref:./mfa.adoc#programmatic-mfa[] using the built-in support.
@@ -168,7 +165,7 @@ Our example uses an in memory mapping of usernames to the additional required au
 For more dynamic use cases that can be determined by the username, a custom implementation of javadoc:org.springframework.security.authorization.RequiredAuthoritiesRepository[] can be created.
 Possible examples would be looking up if a user has enabled MFA in an explicit setting, determining if a user has registered a passkey, etc.
 
-For cases that need to determine MFA based upon the `Authentication`, a custom `AuthorizationManger` can be used as demonstrated in xref:./mfa.adoc#programmatic-mfa[].
+For cases that need to determine MFA based upon the `Authentication`, `AuthorizationManagerFactories.multiFactor().when` can be used as demonstrated in xref:./mfa.adoc#programmatic-mfa[].
 
 
 [[hasallauthorities]]

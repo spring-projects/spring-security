@@ -17,6 +17,13 @@
 package org.springframework.security.authorization;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+import org.jspecify.annotations.Nullable;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.util.Assert;
 
 /**
  * Creates common {@link AuthorizationManagerFactory} instances.
@@ -56,6 +63,38 @@ public final class AuthorizationManagerFactories {
 		private final AllRequiredFactorsAuthorizationManager.Builder<T> factors = AllRequiredFactorsAuthorizationManager
 			.builder();
 
+		private @Nullable Predicate<Authentication> whenCondition;
+
+		/**
+		 * Apply the required factors only when the given condition is true for the
+		 * current {@link Authentication}. When the condition is false, no additional
+		 * factors are required (equivalent to permit-all for the additional
+		 * authorization). Implemented using
+		 * {@link ConditionalAuthorizationManager#when(java.util.function.Predicate)}.
+		 * @param condition the condition to evaluate (must not be null)
+		 * @return the {@link AdditionalRequiredFactorsBuilder} to further customize
+		 * @since 7.1
+		 */
+		public AdditionalRequiredFactorsBuilder<T> when(Predicate<Authentication> condition) {
+			Assert.notNull(condition, "condition cannot be null");
+			this.whenCondition = condition;
+			return this;
+		}
+
+		/**
+		 * Customize the condition that determines if the required factors are evaluated.
+		 * @param condition a function that takes the current condition and returns the
+		 * new condition
+		 * @return the {@link AdditionalRequiredFactorsBuilder} to further customize
+		 * @since 7.1
+		 */
+		public AdditionalRequiredFactorsBuilder<T> withWhen(
+				Function<@Nullable Predicate<Authentication>, @Nullable Predicate<Authentication>> condition) {
+			Assert.notNull(condition, "condition cannot be null");
+			this.whenCondition = condition.apply(this.whenCondition);
+			return this;
+		}
+
 		/**
 		 * Add additional authorities that will be required.
 		 * @param additionalAuthorities the additional authorities.
@@ -89,7 +128,12 @@ public final class AuthorizationManagerFactories {
 		 */
 		public DefaultAuthorizationManagerFactory<T> build() {
 			DefaultAuthorizationManagerFactory<T> result = new DefaultAuthorizationManagerFactory<>();
-			AllRequiredFactorsAuthorizationManager<T> additionalChecks = this.factors.build();
+			AuthorizationManager<T> additionalChecks = this.factors.build();
+			if (this.whenCondition != null) {
+				additionalChecks = ConditionalAuthorizationManager.<T>when(this.whenCondition)
+					.whenTrue(additionalChecks)
+					.build();
+			}
 			result.setAdditionalAuthorization(additionalChecks);
 			return result;
 		}
