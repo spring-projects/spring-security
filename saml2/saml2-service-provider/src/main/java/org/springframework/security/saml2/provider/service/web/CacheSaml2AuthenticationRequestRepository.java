@@ -53,6 +53,7 @@ public final class CacheSaml2AuthenticationRequestRepository
 	@Override
 	public void saveAuthenticationRequest(@Nullable AbstractSaml2AuthenticationRequest authenticationRequest,
 			HttpServletRequest request, HttpServletResponse response) {
+		Assert.notNull(authenticationRequest, "authenticationRequest must not be null");
 		String relayState = request.getParameter(Saml2ParameterNames.RELAY_STATE);
 		Assert.notNull(relayState, "relayState must not be null");
 		this.cache.put(relayState, authenticationRequest);
