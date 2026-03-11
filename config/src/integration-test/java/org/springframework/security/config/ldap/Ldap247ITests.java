@@ -121,6 +121,7 @@ public class Ldap247ITests {
 		public Name getBasePath() {
 			return this.basePath;
 		}
+
 	}
 
 }
