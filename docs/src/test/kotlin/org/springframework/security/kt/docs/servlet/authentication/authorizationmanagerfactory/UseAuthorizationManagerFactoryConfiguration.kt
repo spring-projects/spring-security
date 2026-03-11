@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authorization.AuthorizationManagerFactories
 import org.springframework.security.authorization.AuthorizationManagerFactory
+import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
@@ -46,6 +47,13 @@ internal class UseAuthorizationManagerFactoryConfiguration {
             .build()
     }
     // end::authorizationManagerFactoryBean[]
+
+    // tag::customizer[]
+    @Bean
+    fun additionalRequiredFactorsCustomizer(): Customizer<AuthorizationManagerFactories.AdditionalRequiredFactorsBuilder<Any>> {
+        return Customizer { builder -> builder.`when` { auth -> "admin" == auth.name } }
+    }
+    // end::customizer[]
 
     @Suppress("DEPRECATION")
     @Bean

@@ -47,6 +47,13 @@ class UseAuthorizationManagerFactoryConfiguration {
 	}
 	// end::authorizationManagerFactoryBean[]
 
+	// tag::customizer[]
+	@Bean
+	Customizer<AuthorizationManagerFactories.AdditionalRequiredFactorsBuilder<Object>> additionalRequiredFactorsCustomizer() {
+		return (builder) -> builder.when((auth) -> "admin".equals(auth.getName()));
+	}
+	// end::customizer[]
+
 	@Bean
 	UserDetailsService userDetailsService() {
 		return new InMemoryUserDetailsManager(

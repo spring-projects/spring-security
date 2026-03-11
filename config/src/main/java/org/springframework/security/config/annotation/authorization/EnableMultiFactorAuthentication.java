@@ -45,6 +45,19 @@ import org.springframework.security.authorization.DefaultAuthorizationManagerFac
  * }
  * </pre>
  *
+ * <p>
+ * You can also publish one or more
+ * {@code Customizer<AdditionalRequiredFactorsBuilder<Object>>} beans to further customize
+ * the {@link DefaultAuthorizationManagerFactory}. For example, conditionally applying MFA
+ * for specific users:
+ *
+ * <pre>
+ * &#64;Bean
+ * Customizer&lt;AuthorizationManagerFactories.AdditionalRequiredFactorsBuilder&lt;Object&gt;&gt; additionalRequiredFactorsCustomizer() {
+ *     return (builder) -&gt; builder.when((auth) -&gt; "admin".equals(auth.getName()));
+ * }
+ * </pre>
+ *
  * NOTE: At this time reactive applications do not support MFA and thus are not impacted.
  * This will likely be enhanced in the future.
  *

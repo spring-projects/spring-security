@@ -37,6 +37,14 @@ Spring Security behind the scenes knows which endpoint to go to depending on whi
 If the user logged in initially with their username and password, then Spring Security redirects to the One-Time-Token Login page.
 If the user logged in initially with a token, then Spring Security redirects to the Username/Password Login page.
 
+[[mfa-when-custom-conditions]]
+=== Custom MFA Conditions
+
+You can also publish one or more `Customizer<AdditionalRequiredFactorsBuilder<Object>>` beans to customize the factory created by `@EnableMultiFactorAuthentication`.
+For example, you can conditionally apply MFA for specific users:
+
+include-code::./CustomizerAuthorizationManagerFactoryConfiguration[tag=customizer,indent=0]
+
 [[authorization-manager-factory]]
 == AuthorizationManagerFactory
 
@@ -47,6 +55,7 @@ The implementation published by `@EnableMultiFactorAuthentication` will ensure t
 The `AuthorizationManagerFactory` Bean below is what is published in the previously discussed xref:./mfa.adoc#emfa[`@EnableMultiFactorAuthentication` example].
 
 include-code::./UseAuthorizationManagerFactoryConfiguration[tag=authorizationManagerFactoryBean,indent=0]
+
 
 [[selective-mfa]]
 == Selectively Requiring MFA
