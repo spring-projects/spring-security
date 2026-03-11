@@ -144,6 +144,16 @@ Another manager is the `AuthenticatedAuthorizationManager`.
 It can be used to differentiate between anonymous, fully-authenticated and remember-me authenticated users.
 Many sites allow certain limited access under remember-me authentication, but require a user to confirm their identity by logging in for full access.
 
+[[authz-conditional-authorization-manager]]
+==== ConditionalAuthorizationManager
+javadoc:org.springframework.security.authorization.ConditionalAuthorizationManager[] delegates to one of two ``AuthorizationManager``s based on a condition evaluated against the current ``Authentication``.
+When the condition returns true (and the authentication is non-null), the ``whenTrue`` manager is used; otherwise the ``whenFalse`` manager is used.
+Create an instance using the builder returned by `ConditionalAuthorizationManager.when(Predicate<Authentication>)`: set `whenTrue` (required) and optionally `whenFalse` (defaults to permit-all).
+This is useful for scenarios such as requiring multi-factor authentication only when the user has registered a second factor.
+
+.ConditionalAuthorizationManager example
+include-code::./ConditionalAuthorizationManagerExample[tag=conditionalAuthorizationManager,indent=0]
+
 [[authz-authorization-manager-factory]]
 === Creating AuthorizationManager instances
 

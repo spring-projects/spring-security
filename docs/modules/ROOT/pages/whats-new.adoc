@@ -5,6 +5,7 @@
 
 * https://github.com/spring-projects/spring-security/pull/18634[gh-18634] - Added javadoc:org.springframework.security.web.util.matcher.InetAddressMatcher[]
 * https://github.com/spring-projects/spring-security/issues/18755[gh-18755] - Include `charset` in `WWW-Authenticate` header
+* Added xref:servlet/authorization/architecture.adoc#authz-conditional-authorization-manager[ConditionalAuthorizationManager]
 
 == OAuth 2.0
 
