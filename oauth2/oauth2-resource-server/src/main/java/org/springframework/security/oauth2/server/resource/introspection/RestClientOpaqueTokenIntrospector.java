@@ -17,7 +17,6 @@
 package org.springframework.security.oauth2.server.resource.introspection;
 
 import java.io.Serial;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -35,11 +34,8 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -71,7 +67,7 @@ public final class RestClientOpaqueTokenIntrospector implements OpaqueTokenIntro
 
 	private final RestClient restClient;
 
-	private Converter<String, RequestEntity<?>> requestEntityConverter;
+	private final String introspectionUri;
 
 	private Converter<OAuth2TokenIntrospectionClaimAccessor, ? extends OAuth2AuthenticatedPrincipal> authenticationConverter = this::defaultAuthenticationConverter;
 
@@ -85,22 +81,8 @@ public final class RestClientOpaqueTokenIntrospector implements OpaqueTokenIntro
 	public RestClientOpaqueTokenIntrospector(String introspectionUri, RestClient restClient) {
 		Assert.notNull(introspectionUri, "introspectionUri cannot be null");
 		Assert.notNull(restClient, "restClient cannot be null");
-		this.requestEntityConverter = this.defaultRequestEntityConverter(URI.create(introspectionUri));
+		this.introspectionUri = introspectionUri;
 		this.restClient = restClient;
-	}
-
-	private Converter<String, RequestEntity<?>> defaultRequestEntityConverter(URI introspectionUri) {
-		return (token) -> {
-			HttpHeaders headers = requestHeaders();
-			MultiValueMap<String, String> body = requestBody(token);
-			return new RequestEntity<>(body, headers, HttpMethod.POST, introspectionUri);
-		};
-	}
-
-	private HttpHeaders requestHeaders() {
-		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-		return headers;
 	}
 
 	private MultiValueMap<String, String> requestBody(String token) {
@@ -111,33 +93,19 @@ public final class RestClientOpaqueTokenIntrospector implements OpaqueTokenIntro
 
 	@Override
 	public OAuth2AuthenticatedPrincipal introspect(String token) {
-		RequestEntity<?> requestEntity = this.requestEntityConverter.convert(token);
-		if (requestEntity == null) {
-			throw new OAuth2IntrospectionException("requestEntityConverter returned a null entity");
-		}
-		ResponseEntity<Map<String, Object>> responseEntity = makeRequest(requestEntity);
+		ResponseEntity<Map<String, Object>> responseEntity = makeRequest(token);
 		Map<String, Object> claims = adaptToNimbusResponse(responseEntity);
 		OAuth2TokenIntrospectionClaimAccessor accessor = convertClaimsSet(claims);
 		return this.authenticationConverter.convert(accessor);
 	}
 
-	/**
-	 * Sets the {@link Converter} used for converting the OAuth 2.0 access token to a
-	 * {@link RequestEntity} representation of the OAuth 2.0 token introspection request.
-	 * @param requestEntityConverter the {@link Converter} used for converting to a
-	 * {@link RequestEntity} representation of the token introspection request
-	 */
-	public void setRequestEntityConverter(Converter<String, RequestEntity<?>> requestEntityConverter) {
-		Assert.notNull(requestEntityConverter, "requestEntityConverter cannot be null");
-		this.requestEntityConverter = requestEntityConverter;
-	}
-
-	private ResponseEntity<Map<String, Object>> makeRequest(RequestEntity<?> requestEntity) {
+	private ResponseEntity<Map<String, Object>> makeRequest(String token) {
 		try {
-			RestClient.RequestBodySpec spec = this.restClient.method(requestEntity.getMethod())
-				.uri(requestEntity.getUrl())
-				.headers((headers) -> headers.addAll(requestEntity.getHeaders()));
-			return spec.body(requestEntity.getBody()).retrieve().toEntity(STRING_OBJECT_MAP);
+			RestClient.RequestBodySpec spec = this.restClient.post()
+				.uri(this.introspectionUri)
+				.headers((h) -> h.setAccept(List.of(MediaType.APPLICATION_JSON)))
+				.body(requestBody(token));
+			return spec.retrieve().toEntity(STRING_OBJECT_MAP);
 		}
 		catch (Exception ex) {
 			throw new OAuth2IntrospectionException(ex.getMessage(), ex);

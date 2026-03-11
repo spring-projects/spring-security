@@ -280,15 +280,6 @@ public class RestClientOpaqueTokenIntrospectorTests {
 	}
 
 	@Test
-	public void setRequestEntityConverterWhenConverterIsNullThenExceptionIsThrown() {
-		RestClient restClient = mock(RestClient.class);
-		RestClientOpaqueTokenIntrospector introspectionClient = new RestClientOpaqueTokenIntrospector(INTROSPECTION_URL,
-				restClient);
-		assertThatExceptionOfType(IllegalArgumentException.class)
-			.isThrownBy(() -> introspectionClient.setRequestEntityConverter(null));
-	}
-
-	@Test
 	public void setAuthenticationConverterWhenConverterIsNullThenExceptionIsThrown() {
 		RestClient restClient = mock(RestClient.class);
 		RestClientOpaqueTokenIntrospector introspectionClient = new RestClientOpaqueTokenIntrospector(INTROSPECTION_URL,
