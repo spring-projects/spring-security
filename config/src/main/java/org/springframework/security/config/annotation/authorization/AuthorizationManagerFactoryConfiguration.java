@@ -18,11 +18,9 @@ package org.springframework.security.config.annotation.authorization;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authorization.AuthorizationManagerFactories;
 import org.springframework.security.authorization.DefaultAuthorizationManagerFactory;
 
@@ -39,7 +37,7 @@ class AuthorizationManagerFactoryConfiguration implements ImportAware {
 	private String[] authorities;
 
 	@Bean
-	DefaultAuthorizationManagerFactory authorizationManagerFactory(ObjectProvider<RoleHierarchy> roleHierarchy) {
+	DefaultAuthorizationManagerFactory authorizationManagerFactory() {
 		AuthorizationManagerFactories.AdditionalRequiredFactorsBuilder<Object> builder = AuthorizationManagerFactories
 			.multiFactor()
 			.requireFactors(this.authorities);
