@@ -17,6 +17,7 @@
 package org.springframework.security.web.webauthn.api;
 
 import java.io.Serial;
+import java.util.Objects;
 
 import org.jspecify.annotations.Nullable;
 
@@ -133,6 +134,22 @@ public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCr
 	 */
 	public static PublicKeyCredentialUserEntityBuilder builder() {
 		return new PublicKeyCredentialUserEntityBuilder();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof ImmutablePublicKeyCredentialUserEntity that)) {
+			return false;
+		}
+		return Objects.equals(this.name, that.name) && Objects.equals(this.id, that.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.name, this.id);
 	}
 
 	/**
