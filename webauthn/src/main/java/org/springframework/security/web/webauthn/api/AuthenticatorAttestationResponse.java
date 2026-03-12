@@ -120,7 +120,7 @@ public final class AuthenticatorAttestationResponse extends AuthenticatorRespons
 		 * @param transports the transports
 		 * @return the {@link AuthenticatorAttestationResponseBuilder}
 		 */
-		public AuthenticatorAttestationResponseBuilder transports(List<AuthenticatorTransport> transports) {
+		public AuthenticatorAttestationResponseBuilder transports(@Nullable List<AuthenticatorTransport> transports) {
 			this.transports = transports;
 			return this;
 		}

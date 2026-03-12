@@ -25,6 +25,7 @@ import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.security.core.AuthenticationException;
@@ -64,9 +65,9 @@ public class SpnegoEntryPoint implements AuthenticationEntryPoint {
 
 	private static final Log LOG = LogFactory.getLog(SpnegoEntryPoint.class);
 
-	private final String forwardUrl;
+	private final @Nullable String forwardUrl;
 
-	private final HttpMethod forwardMethod;
+	private final @Nullable HttpMethod forwardMethod;
 
 	private final boolean forward;
 
@@ -87,19 +88,19 @@ public class SpnegoEntryPoint implements AuthenticationEntryPoint {
 	 * @param forwardUrl URL where the login page can be found. Should be relative to the
 	 * web-app context path (include a leading {@code /}) and can't be absolute URL.
 	 */
-	public SpnegoEntryPoint(String forwardUrl) {
+	public SpnegoEntryPoint(@Nullable String forwardUrl) {
 		this(forwardUrl, null);
 	}
 
 	/**
 	 * Instantiates a new spnego entry point. This constructor enables security
-	 * configuration to use SPNEGO in combination a fallback page (login form, custom 401
-	 * page ...). The forward URL will be accessed via provided HTTP method.
+	 * configuration to use SPNEGO in combination with a fallback page (login form, custom
+	 * 401 page ...). The forward URL will be accessed via provided HTTP method.
 	 * @param forwardUrl URL where the login page can be found. Should be relative to the
 	 * web-app context path (include a leading {@code /}) and can't be absolute URL.
 	 * @param forwardMethod HTTP method to use when accessing the forward URL
 	 */
-	public SpnegoEntryPoint(String forwardUrl, HttpMethod forwardMethod) {
+	public SpnegoEntryPoint(@Nullable String forwardUrl, @Nullable HttpMethod forwardMethod) {
 		if (StringUtils.hasText(forwardUrl)) {
 			Assert.isTrue(UrlUtils.isValidRedirectUrl(forwardUrl), "Forward url specified must be a valid forward URL");
 			Assert.isTrue(!UrlUtils.isAbsoluteUrl(forwardUrl), "Forward url specified must not be absolute");
@@ -126,10 +127,11 @@ public class SpnegoEntryPoint implements AuthenticationEntryPoint {
 
 		if (this.forward) {
 			RequestDispatcher dispatcher = request.getRequestDispatcher(this.forwardUrl);
-			HttpServletRequest fwdRequest = (this.forwardMethod != null) ? new HttpServletRequestWrapper(request) {
+			HttpMethod method = this.forwardMethod;
+			HttpServletRequest fwdRequest = (method != null) ? new HttpServletRequestWrapper(request) {
 				@Override
 				public String getMethod() {
-					return SpnegoEntryPoint.this.forwardMethod.name();
+					return method.name();
 				}
 			} : request;
 			dispatcher.forward(fwdRequest, response);

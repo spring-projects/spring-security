@@ -23,10 +23,13 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutResponseResolver;
+import org.springframework.util.Assert;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
 
@@ -38,7 +41,7 @@ import org.springframework.web.util.UriUtils;
  */
 public final class Saml2LogoutResponse {
 
-	private static final Function<Map<String, String>, String> DEFAULT_ENCODER = (params) -> {
+	private static final Function<Map<String, String>, @Nullable String> DEFAULT_ENCODER = (params) -> {
 		if (params.isEmpty()) {
 			return null;
 		}
@@ -55,10 +58,10 @@ public final class Saml2LogoutResponse {
 
 	private final Map<String, String> parameters;
 
-	private final Function<Map<String, String>, String> encoder;
+	private final Function<Map<String, String>, @Nullable String> encoder;
 
 	private Saml2LogoutResponse(String location, Saml2MessageBinding binding, Map<String, String> parameters,
-			Function<Map<String, String>, String> encoder) {
+			Function<Map<String, String>, @Nullable String> encoder) {
 		this.location = location;
 		this.binding = binding;
 		this.parameters = Collections.unmodifiableMap(new LinkedHashMap<>(parameters));
@@ -88,14 +91,16 @@ public final class Saml2LogoutResponse {
 	 * @return the signed and serialized &lt;saml2:LogoutResponse&gt; payload
 	 */
 	public String getSamlResponse() {
-		return this.parameters.get(Saml2ParameterNames.SAML_RESPONSE);
+		String samlResponse = this.parameters.get(Saml2ParameterNames.SAML_RESPONSE);
+		Assert.notNull(samlResponse, "samlResponse cannot be null");
+		return samlResponse;
 	}
 
 	/**
 	 * The relay state associated with this Logout Request
 	 * @return the relay state
 	 */
-	public String getRelayState() {
+	public @Nullable String getRelayState() {
 		return this.parameters.get(Saml2ParameterNames.RELAY_STATE);
 	}
 
@@ -108,7 +113,7 @@ public final class Saml2LogoutResponse {
 	 * @param name the parameter's name
 	 * @return the parameter's value
 	 */
-	public String getParameter(String name) {
+	public @Nullable String getParameter(String name) {
 		return this.parameters.get(name);
 	}
 
@@ -128,7 +133,7 @@ public final class Saml2LogoutResponse {
 	 * @return an encoded string of all parameters
 	 * @since 5.8
 	 */
-	public String getParametersQuery() {
+	public @Nullable String getParametersQuery() {
 		return this.encoder.apply(this.parameters);
 	}
 
@@ -147,13 +152,13 @@ public final class Saml2LogoutResponse {
 
 	public static final class Builder {
 
-		private String location;
+		private @Nullable String location;
 
 		private Saml2MessageBinding binding;
 
 		private Map<String, String> parameters = new LinkedHashMap<>();
 
-		private Function<Map<String, String>, String> encoder = DEFAULT_ENCODER;
+		private Function<Map<String, String>, @Nullable String> encoder = DEFAULT_ENCODER;
 
 		private Builder(RelyingPartyRegistration registration) {
 			this.location = registration.getAssertingPartyMetadata().getSingleLogoutServiceResponseLocation();
@@ -236,7 +241,7 @@ public final class Saml2LogoutResponse {
 		 * @return the {@link Saml2LogoutRequest.Builder} for further configurations
 		 * @since 5.8
 		 */
-		public Builder parametersQuery(Function<Map<String, String>, String> encoder) {
+		public Builder parametersQuery(Function<Map<String, String>, @Nullable String> encoder) {
 			this.encoder = encoder;
 			return this;
 		}
@@ -246,6 +251,8 @@ public final class Saml2LogoutResponse {
 		 * @return a constructed {@link Saml2LogoutResponse}
 		 */
 		public Saml2LogoutResponse build() {
+			Assert.notNull(this.location, "singleLogoutResponseLocation cannot be null");
+			Assert.notNull(this.parameters.get(Saml2ParameterNames.SAML_RESPONSE), "samlResponse cannot be null");
 			return new Saml2LogoutResponse(this.location, this.binding, this.parameters, this.encoder);
 		}
 

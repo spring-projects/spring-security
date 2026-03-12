@@ -12,7 +12,7 @@ OWASP places factors into the following categories:
 == `FactorGrantedAuthority`
 
 At the time of authentication, Spring Security's authentication mechanisms add a javadoc:org.springframework.security.core.authority.FactorGrantedAuthority[].
-For example, when a user authenticates using a password a `FactorGrantedAuthority` with the `authority` of `FactorGrantedAuthority.PASSWORD_AUTHORITY` is automatically added to the `Authentiation`.
+For example, when a user authenticates using a password a `FactorGrantedAuthority` with the `authority` of `FactorGrantedAuthority.PASSWORD_AUTHORITY` is automatically added to the `Authentication`.
 In order to require MFA with Spring Security you must:
 
 - Specify an authorization rule that requires multiple factors

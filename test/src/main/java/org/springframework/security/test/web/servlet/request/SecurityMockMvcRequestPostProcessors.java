@@ -40,7 +40,6 @@ import java.util.stream.Collectors;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.jspecify.annotations.NullUnmarked;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.convert.converter.Converter;
@@ -399,7 +398,6 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * @return the {@link OidcLoginRequestPostProcessor} for additional customization
 	 * @since 5.3
 	 */
-	@NullUnmarked
 	public static OAuth2LoginRequestPostProcessor oauth2Login() {
 		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token", null,
 				null, Collections.singleton("read"));
@@ -428,7 +426,6 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * @return the {@link OidcLoginRequestPostProcessor} for additional customization
 	 * @since 5.3
 	 */
-	@NullUnmarked
 	public static OidcLoginRequestPostProcessor oidcLogin() {
 		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token", null,
 				null, Collections.singleton("read"));
@@ -517,11 +514,11 @@ public final class SecurityMockMvcRequestPostProcessors {
 		private CsrfRequestPostProcessor() {
 		}
 
-		@NullUnmarked
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 			CsrfTokenRepository repository = WebTestUtils.getCsrfTokenRepository(request);
 			CsrfTokenRequestHandler handler = WebTestUtils.getCsrfTokenRequestHandler(request);
+			Assert.isTrue(handler != null, "No CsrfTokenRequestHandler found");
 			if (!(repository instanceof TestCsrfTokenRepository)) {
 				repository = new TestCsrfTokenRepository(new HttpSessionCsrfTokenRepository());
 				WebTestUtils.setCsrfTokenRepository(request, repository);
@@ -531,6 +528,9 @@ public final class SecurityMockMvcRequestPostProcessors {
 			DeferredCsrfToken deferredCsrfToken = repository.loadDeferredToken(request, response);
 			handler.handle(request, response, deferredCsrfToken);
 			CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+			if (token == null) {
+				return request;
+			}
 			String tokenValue = this.useInvalidToken ? INVALID_TOKEN_VALUE : token.getToken();
 			if (this.asHeader) {
 				request.addHeader(token.getHeaderName(), tokenValue);
@@ -1135,7 +1135,6 @@ public final class SecurityMockMvcRequestPostProcessors {
 			return this;
 		}
 
-		@NullUnmarked
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 			CsrfFilter.skipRequest(request);
@@ -1262,8 +1261,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 			return new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "token", issuedAt, expiresAt);
 		}
 
-		@NullUnmarked
-		private Instant getInstant(Map<String, Object> attributes, String name) {
+		private @Nullable Instant getInstant(Map<String, Object> attributes, String name) {
 			Object value = attributes.get(name);
 			if (value == null) {
 				return null;
@@ -1534,7 +1532,6 @@ public final class SecurityMockMvcRequestPostProcessors {
 			return authorities;
 		}
 
-		@NullUnmarked
 		private OidcIdToken getOidcIdToken() {
 			if (this.idToken != null) {
 				return this.idToken;
@@ -1556,7 +1553,6 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * @author Josh Cummings
 	 * @since 5.3
 	 */
-	@NullUnmarked
 	public static final class OAuth2ClientRequestPostProcessor implements RequestPostProcessor {
 
 		private String registrationId = "test";
@@ -1621,7 +1617,6 @@ public final class SecurityMockMvcRequestPostProcessors {
 			return this;
 		}
 
-		@NullUnmarked
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 			if (this.clientRegistration == null) {
@@ -1632,6 +1627,8 @@ public final class SecurityMockMvcRequestPostProcessors {
 					this.accessToken);
 			OAuth2AuthorizedClientRepository authorizedClientRepository = OAuth2ClientServletTestUtils
 				.getAuthorizedClientRepository(request);
+			Assert.isTrue(authorizedClientRepository != null,
+					"Could not find OAuth2AuthorizedClientRepository on the request");
 			if (!(authorizedClientRepository instanceof TestOAuth2AuthorizedClientRepository)) {
 				authorizedClientRepository = new TestOAuth2AuthorizedClientRepository(authorizedClientRepository);
 				OAuth2ClientServletTestUtils.setAuthorizedClientRepository(request, authorizedClientRepository);
@@ -1668,11 +1665,10 @@ public final class SecurityMockMvcRequestPostProcessors {
 				this.delegate = delegate;
 			}
 
-			@NullUnmarked
 			@Override
 			public @Nullable OAuth2AuthorizedClient authorize(OAuth2AuthorizeRequest authorizeRequest) {
 				HttpServletRequest request = authorizeRequest.getAttribute(HttpServletRequest.class.getName());
-				if (isEnabled(request)) {
+				if (this.authorizedClientRepository != null && isEnabled(request)) {
 					return this.authorizedClientRepository.loadAuthorizedClient(
 							authorizeRequest.getClientRegistrationId(), authorizeRequest.getPrincipal(), request);
 				}
@@ -1683,9 +1679,8 @@ public final class SecurityMockMvcRequestPostProcessors {
 				request.setAttribute(ENABLED_ATTR_NAME, Boolean.TRUE);
 			}
 
-			@NullUnmarked
 			boolean isEnabled(@Nullable HttpServletRequest request) {
-				return Boolean.TRUE.equals(request.getAttribute(ENABLED_ATTR_NAME));
+				return request != null && Boolean.TRUE.equals(request.getAttribute(ENABLED_ATTR_NAME));
 			}
 
 		}
@@ -1703,8 +1698,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 			private final OAuth2AuthorizedClientRepository delegate;
 
-			@NullUnmarked
-			TestOAuth2AuthorizedClientRepository(@Nullable OAuth2AuthorizedClientRepository delegate) {
+			TestOAuth2AuthorizedClientRepository(OAuth2AuthorizedClientRepository delegate) {
 				this.delegate = delegate;
 			}
 

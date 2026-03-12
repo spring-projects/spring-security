@@ -22,6 +22,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.ResolvableType;
@@ -33,6 +35,7 @@ import org.springframework.security.authorization.AuthorizationProxyFactory;
 import org.springframework.security.authorization.method.AuthorizeReturnObject;
 import org.springframework.security.core.annotation.SecurityAnnotationScanner;
 import org.springframework.security.core.annotation.SecurityAnnotationScanners;
+import org.springframework.util.Assert;
 
 /**
  * A {@link SecurityHintsRegistrar} that scans all beans for implementations of
@@ -82,14 +85,15 @@ public final class AuthorizeReturnObjectDataHintsRegistrar implements SecurityHi
 			if (!RepositoryFactoryBeanSupport.class.isAssignableFrom(type.toClass())) {
 				continue;
 			}
-			Class<?>[] generics = type.resolveGenerics();
-			Class<?> entity = generics[1];
+			@Nullable Class<?>[] generics = type.resolveGenerics();
+			@Nullable Class<?> entity = generics[1];
 			AuthorizeReturnObject authorize = beanFactory.findAnnotationOnBean(name, AuthorizeReturnObject.class);
 			if (authorize != null) {
 				toProxy.add(entity);
 				continue;
 			}
-			Class<?> repository = generics[0];
+			@Nullable Class<?> repository = generics[0];
+			Assert.state(repository != null, "Repository resolved from " + type + " cannot be null");
 			for (Method method : repository.getDeclaredMethods()) {
 				AuthorizeReturnObject returnObject = this.scanner.scan(method, repository);
 				if (returnObject == null) {

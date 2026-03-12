@@ -18,6 +18,8 @@ package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -28,6 +30,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.TestJwts;
 
@@ -117,6 +121,23 @@ public class JwtAuthenticationConverterTests {
 		Jwt jwt = TestJwts.jwt().build();
 		Authentication result = this.jwtAuthenticationConverter.convert(jwt);
 		SecurityAssertions.assertThat(result).hasAuthority(FactorGrantedAuthority.BEARER_AUTHORITY);
+	}
+
+	@Test
+	public void whenSettingNullJwtPrincipalConverter() {
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> this.jwtAuthenticationConverter.setJwtPrincipalConverter(null))
+			.withMessage("jwtPrincipalConverter cannot be null");
+	}
+
+	@Test
+	public void convertWhenJwtPrincipalConverterSetThenCustomPrincipalUsed() {
+		OAuth2AuthenticatedPrincipal customPrincipal = new DefaultOAuth2AuthenticatedPrincipal("custom-name",
+				Map.of("sub", "custom-name"), List.of());
+		this.jwtAuthenticationConverter.setJwtPrincipalConverter((jwt) -> customPrincipal);
+		Jwt jwt = TestJwts.jwt().build();
+		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt);
+		assertThat(authentication.getName()).isEqualTo("custom-name");
 	}
 
 }

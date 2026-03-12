@@ -42,9 +42,9 @@ internal class AdminMfaAuthorizationManagerConfiguration {
 
     // tag::authorizationManager[]
     @Component
-    internal open class AdminMfaAuthorizationManager : AuthorizationManager<Object> {
+    internal open class AdminMfaAuthorizationManager : AuthorizationManager<Any> {
         override fun authorize(
-            authentication: Supplier<out Authentication?>, context: Object): AuthorizationResult {
+            authentication: Supplier<out Authentication?>, context: Any): AuthorizationResult {
             return if ("admin" == authentication.get().name) {
                 var admins =
                     AllAuthoritiesAuthorizationManager.hasAllAuthorities<Any>(
@@ -62,8 +62,8 @@ internal class AdminMfaAuthorizationManagerConfiguration {
 
     // tag::authorizationManagerFactory[]
     @Bean
-    fun authorizationManagerFactory(admins: AdminMfaAuthorizationManager): AuthorizationManagerFactory<Object> {
-        val defaults = DefaultAuthorizationManagerFactory<Object>()
+    fun authorizationManagerFactory(admins: AdminMfaAuthorizationManager): AuthorizationManagerFactory<Any> {
+        val defaults = DefaultAuthorizationManagerFactory<Any>()
         // <1>
         defaults.setAdditionalAuthorization(admins)
         // <2>

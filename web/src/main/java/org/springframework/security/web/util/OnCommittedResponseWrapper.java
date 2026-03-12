@@ -58,10 +58,38 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 
 	@Override
 	public void addHeader(String name, String value) {
+		checkContentLengthHeader(name, value);
+		super.addHeader(name, value);
+	}
+
+	@Override
+	public void addIntHeader(String name, int value) {
+		checkContentLengthHeader(name, value);
+		super.addIntHeader(name, value);
+	}
+
+	@Override
+	public void setHeader(String name, String value) {
+		checkContentLengthHeader(name, value);
+		super.setHeader(name, value);
+	}
+
+	@Override
+	public void setIntHeader(String name, int value) {
+		checkContentLengthHeader(name, value);
+		super.setIntHeader(name, value);
+	}
+
+	private void checkContentLengthHeader(String name, int value) {
+		if ("Content-Length".equalsIgnoreCase(name)) {
+			setContentLength(value);
+		}
+	}
+
+	private void checkContentLengthHeader(String name, String value) {
 		if ("Content-Length".equalsIgnoreCase(name)) {
 			setContentLength(Long.parseLong(value));
 		}
-		super.addHeader(name, value);
 	}
 
 	@Override

@@ -16,6 +16,8 @@
 
 package org.springframework.security.ldap.authentication.ad;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.AuthenticationException;
 
 /**
@@ -45,7 +47,7 @@ public final class ActiveDirectoryAuthenticationException extends Authentication
 
 	private final String dataCode;
 
-	ActiveDirectoryAuthenticationException(String dataCode, String message, Throwable cause) {
+	ActiveDirectoryAuthenticationException(String dataCode, @Nullable String message, Throwable cause) {
 		super(message, cause);
 		this.dataCode = dataCode;
 	}

@@ -21,6 +21,7 @@ import java.util.Locale;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.ldap.core.DirContextAdapter;
@@ -47,7 +48,7 @@ public class LdapUserDetailsMapper implements UserDetailsContextMapper {
 
 	private String rolePrefix = "ROLE_";
 
-	private String[] roleAttributes = null;
+	private String @Nullable [] roleAttributes = null;
 
 	private boolean convertToUpperCase = true;
 
@@ -125,7 +126,7 @@ public class LdapUserDetailsMapper implements UserDetailsContextMapper {
 	 * @return the authority to be added to the list of authorities for the user, or null
 	 * if this attribute should be ignored.
 	 */
-	protected GrantedAuthority createAuthority(Object role) {
+	protected @Nullable GrantedAuthority createAuthority(Object role) {
 		if (role instanceof String) {
 			if (this.convertToUpperCase) {
 				role = ((String) role).toUpperCase(Locale.ROOT);

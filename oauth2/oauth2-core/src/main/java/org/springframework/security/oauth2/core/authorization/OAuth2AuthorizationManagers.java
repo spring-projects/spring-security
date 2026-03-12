@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.core.authorization;
 
+import org.springframework.security.authorization.AllAuthoritiesAuthorizationManager;
 import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
@@ -28,6 +29,7 @@ import org.springframework.util.Assert;
  * @author Josh Cummings
  * @since 6.2
  * @see AuthorityAuthorizationManager
+ * @see AllAuthoritiesAuthorizationManager
  */
 public final class OAuth2AuthorizationManagers {
 
@@ -83,6 +85,34 @@ public final class OAuth2AuthorizationManagers {
 			mappedScopes[i] = "SCOPE_" + scopes[i];
 		}
 		return AuthorityAuthorizationManager.hasAnyAuthority(mappedScopes);
+	}
+
+	/**
+	 * Create an {@link AuthorizationManager} that requires an {@link Authentication} to
+	 * have all authorities {@code SCOPE_scope1}, {@code SCOPE_scope2}, ...
+	 * {@code SCOPE_scopeN}.
+	 *
+	 * <p>
+	 * For example, if you call {@code hasAllScopes("read", "write")}, then each
+	 * {@link org.springframework.security.core.Authentication} must have all
+	 * {@link org.springframework.security.core.GrantedAuthority} values of
+	 * {@code SCOPE_read} and {@code SCOPE_write}.
+	 *
+	 * <p>
+	 * This would be equivalent to calling
+	 * {@code AllAuthoritiesAuthorizationManager#hasAllAuthorities("SCOPE_read", "SCOPE_write")}.
+	 * @param scopes the scope values to require
+	 * @return an {@link AuthorizationManager} that requires all authorities
+	 * {@code SCOPE_scope1}, {@code SCOPE_scope2}, ... {@code SCOPE_scopeN}.
+	 * @since 7.1
+	 */
+	public static <T> AuthorizationManager<T> hasAllScopes(String... scopes) {
+		String[] mappedScopes = new String[scopes.length];
+		for (int i = 0; i < scopes.length; i++) {
+			assertScope(scopes[i]);
+			mappedScopes[i] = "SCOPE_" + scopes[i];
+		}
+		return AllAuthoritiesAuthorizationManager.hasAllAuthorities(mappedScopes);
 	}
 
 	private static void assertScope(String scope) {

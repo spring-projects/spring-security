@@ -21,6 +21,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
@@ -39,7 +41,7 @@ public class LdapAuthority implements GrantedAuthority {
 
 	private final String role;
 
-	private final Map<String, List<String>> attributes;
+	private final @Nullable Map<String, List<String>> attributes;
 
 	/**
 	 * Constructs an LdapAuthority that has a role and a DN but no other attributes
@@ -56,7 +58,7 @@ public class LdapAuthority implements GrantedAuthority {
 	 * @param dn the distinguished name
 	 * @param attributes additional LDAP attributes
 	 */
-	public LdapAuthority(String role, String dn, Map<String, List<String>> attributes) {
+	public LdapAuthority(String role, String dn, @Nullable Map<String, List<String>> attributes) {
 		Assert.notNull(role, "role can not be null");
 		Assert.notNull(dn, "dn can not be null");
 		this.role = role;
@@ -68,7 +70,7 @@ public class LdapAuthority implements GrantedAuthority {
 	 * Returns the LDAP attributes
 	 * @return the LDAP attributes, map can be null
 	 */
-	public Map<String, List<String>> getAttributes() {
+	public @Nullable Map<String, List<String>> getAttributes() {
 		return this.attributes;
 	}
 
@@ -98,7 +100,7 @@ public class LdapAuthority implements GrantedAuthority {
 	 * @param name the attribute name
 	 * @return the first attribute value for a specified attribute, may be null
 	 */
-	public String getFirstAttributeValue(String name) {
+	public @Nullable String getFirstAttributeValue(String name) {
 		List<String> result = getAttributeValues(name);
 		return (!result.isEmpty()) ? result.get(0) : null;
 	}

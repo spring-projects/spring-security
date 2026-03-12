@@ -65,7 +65,7 @@ public class PasswordPolicyAwareContextSource extends DefaultSpringSecurityConte
 				this.logger.debug(LogMessage.format("Failed to bind with %s", ctrl), ex);
 			}
 			LdapUtils.closeContext(ctx);
-			if (ctrl != null && ctrl.isLocked()) {
+			if (ctrl != null && ctrl.isLocked() && ctrl.getErrorStatus() != null) {
 				throw new PasswordPolicyException(ctrl.getErrorStatus());
 			}
 			throw LdapUtils.convertLdapException(ex);

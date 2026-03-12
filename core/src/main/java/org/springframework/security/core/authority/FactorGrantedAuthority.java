@@ -88,7 +88,6 @@ public final class FactorGrantedAuthority implements GrantedAuthority {
 
 	private final Instant issuedAt;
 
-	@SuppressWarnings("NullAway")
 	private FactorGrantedAuthority(String authority, Instant issuedAt) {
 		Assert.notNull(authority, "authority cannot be null");
 		Assert.notNull(issuedAt, "issuedAt cannot be null");

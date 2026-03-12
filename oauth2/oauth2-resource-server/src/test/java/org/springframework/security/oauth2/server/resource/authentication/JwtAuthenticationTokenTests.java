@@ -111,7 +111,7 @@ public class JwtAuthenticationTokenTests {
 	public void getNameWhenConstructedWithNoSubjectThenReturnsNull() {
 		Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("test");
 		Jwt jwt = builder().claim("claim", "value").build();
-		assertThat(new JwtAuthenticationToken(jwt, authorities, null).getName()).isNull();
+		assertThat(new JwtAuthenticationToken(jwt, authorities, (String) null).getName()).isNull();
 		assertThat(new JwtAuthenticationToken(jwt, authorities).getName()).isNull();
 		assertThat(new JwtAuthenticationToken(jwt).getName()).isNull();
 	}

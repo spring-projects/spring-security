@@ -19,6 +19,7 @@ package org.springframework.security.saml2.provider.service.authentication.logou
 import java.util.Collection;
 import java.util.function.Consumer;
 
+import org.jspecify.annotations.Nullable;
 import org.opensaml.saml.saml2.core.LogoutResponse;
 import org.opensaml.saml.saml2.core.StatusCode;
 
@@ -31,6 +32,7 @@ import org.springframework.security.saml2.provider.service.authentication.logout
 import org.springframework.security.saml2.provider.service.registration.AssertingPartyMetadata;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
+import org.springframework.util.Assert;
 
 class BaseOpenSamlLogoutResponseValidator implements Saml2LogoutResponseValidator {
 
@@ -71,8 +73,10 @@ class BaseOpenSamlLogoutResponseValidator implements Saml2LogoutResponseValidato
 				errors.addAll(verify.verify(logoutResponse));
 			}
 			else {
-				RedirectParameters params = new RedirectParameters(response.getParameters(),
-						response.getParametersQuery(), logoutResponse);
+				String parametersQuery = response.getParametersQuery();
+				Assert.notNull(parametersQuery, "parametersQuery cannot be null for redirect binding");
+				RedirectParameters params = new RedirectParameters(response.getParameters(), parametersQuery,
+						logoutResponse);
 				errors.addAll(verify.verify(params));
 			}
 		};
@@ -95,7 +99,7 @@ class BaseOpenSamlLogoutResponseValidator implements Saml2LogoutResponseValidato
 				return;
 			}
 			String issuer = response.getIssuer().getValue();
-			if (!issuer.equals(registration.getAssertingPartyMetadata().getEntityId())) {
+			if (!registration.getAssertingPartyMetadata().getEntityId().equals(issuer)) {
 				errors
 					.add(new Saml2Error(Saml2ErrorCodes.INVALID_ISSUER, "Failed to match issuer to configured issuer"));
 			}
@@ -136,7 +140,7 @@ class BaseOpenSamlLogoutResponseValidator implements Saml2LogoutResponseValidato
 		};
 	}
 
-	private Consumer<Collection<Saml2Error>> validateLogoutRequest(LogoutResponse response, String id) {
+	private Consumer<Collection<Saml2Error>> validateLogoutRequest(LogoutResponse response, @Nullable String id) {
 		return (errors) -> {
 			if (response.getInResponseTo() == null) {
 				return;

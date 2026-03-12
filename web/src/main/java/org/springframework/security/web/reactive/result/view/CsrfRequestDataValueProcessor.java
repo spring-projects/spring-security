@@ -20,7 +20,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
+
 import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.web.reactive.result.view.RequestDataValueProcessor;
 import org.springframework.web.server.ServerWebExchange;

@@ -18,7 +18,6 @@ package org.springframework.security.oauth2.core;
 
 import java.io.Serializable;
 
-import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
 /**
@@ -105,7 +104,6 @@ public final class ClientAuthenticationMethod implements Serializable {
 	 * constant, if any
 	 * @since 6.5
 	 */
-	@NonNull
 	public static ClientAuthenticationMethod valueOf(String method) {
 		for (ClientAuthenticationMethod m : methods()) {
 			if (m.getValue().equals(method)) {

@@ -29,6 +29,8 @@ import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.security.kerberos.client.config.SunJaasKrb5LoginConfig;
@@ -65,7 +67,7 @@ import org.springframework.util.Assert;
  */
 public class KerberosLdapContextSource extends DefaultSpringSecurityContextSource implements InitializingBean {
 
-	private Configuration loginConfig;
+	private @Nullable Configuration loginConfig;
 
 	/**
 	 * Instantiates a new kerberos ldap context source.
@@ -108,10 +110,10 @@ public class KerberosLdapContextSource extends DefaultSpringSecurityContextSourc
 		Subject serviceSubject = login();
 
 		final NamingException[] suppressedException = new NamingException[] { null };
-		DirContext dirContext = Subject.doAs(serviceSubject, new PrivilegedAction<>() {
+		DirContext dirContext = Subject.doAs(serviceSubject, new PrivilegedAction<@Nullable DirContext>() {
 
 			@Override
-			public DirContext run() {
+			public @Nullable DirContext run() {
 				try {
 					return KerberosLdapContextSource.super.getDirContextInstance(environment);
 				}
@@ -124,6 +126,9 @@ public class KerberosLdapContextSource extends DefaultSpringSecurityContextSourc
 
 		if (suppressedException[0] != null) {
 			throw suppressedException[0];
+		}
+		if (dirContext == null) {
+			throw new NamingException("Failed to obtain DirContext");
 		}
 
 		return dirContext;

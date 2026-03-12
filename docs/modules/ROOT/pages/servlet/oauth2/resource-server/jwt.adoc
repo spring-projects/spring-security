@@ -40,17 +40,20 @@ And that's it!
 
 When this property and these dependencies are used, Resource Server will automatically configure itself to validate JWT-encoded Bearer Tokens.
 
-It achieves this through a deterministic startup process:
+It achieves this through a deterministic discovery process it launches at the first request containing a JWT:
 
 1. Query the Provider Configuration or Authorization Server Metadata endpoint for the `jwks_url` property
 2. Query the `jwks_url` endpoint for supported algorithms
 3. Configure the validation strategy to query `jwks_url` for valid public keys of the algorithms found
 4. Configure the validation strategy to validate each JWTs `iss` claim against `https://idp.example.com`.
 
-A consequence of this process is that the authorization server must be up and receiving requests in order for Resource Server to successfully start up.
+One benefit of deferring this process is that Resource Server startup is not coupled to the authorization server's availability.
 
 [NOTE]
-If the authorization server is down when Resource Server queries it (given appropriate timeouts), then startup will fail.
+====
+This deferral is managed by javadoc:org.springframework.security.oauth2.jwt.SupplierJwtDecoder[`SupplierJwtDecoder`].
+Consider wrapping any <<oauth2resourceserver-jwt-decoder,`JwtDecoder` `@Bean`>> you declare in order to preserve this behavior.
+====
 
 === Runtime Expectations
 
@@ -66,7 +69,7 @@ So long as this scheme is indicated, Resource Server will attempt to process the
 
 Given a well-formed JWT, Resource Server will:
 
-1. Validate its signature against a public key obtained from the `jwks_url` endpoint during startup and matched against the JWT
+1. Validate its signature against a public key obtained from the `jwks_url` endpoint during startup or on first request, depending on configuration, and matched against the JWT
 2. Validate the JWT's `exp` and `nbf` timestamps and the JWT's `iss` claim, and
 3. Map each scope to an authority with the prefix `SCOPE_`.
 
@@ -111,7 +114,7 @@ Ultimately, the returned `JwtAuthenticationToken` will be set on the xref:servle
 [[oauth2resourceserver-jwt-jwkseturi]]
 == Specifying the Authorization Server JWK Set Uri Directly
 
-If the authorization server doesn't support any configuration endpoints, or if Resource Server must be able to start up independently from the authorization server, then the `jwk-set-uri` can be supplied as well:
+If the authorization server doesn't support any configuration endpoints, or if Resource Server must be able to initialize independently from the authorization server, then the `jwk-set-uri` can be supplied as well:
 
 [source,yaml]
 ----
@@ -949,6 +952,21 @@ fun getMessages(): List<Message> { }
 ----
 ======
 
+[[method-security-has-scope]]
+=== Using `hasScope` in Method Security
+
+Because method security expressions can evaluation `AuthorizationManager` instances, you can also use the `hasScope` API by publishing a `DefaultOAuth2AuthorizationManagerFactory` `@Bean`:
+
+include-code::./MethodSecurityHasScopeConfiguration[tag=declare-factory,indent=0]
+
+and then doing:
+
+include-code::./MessageService[tag=protected-method,indent=0]
+
+If you are using xref:servlet/authentication/mfa.adoc[Spring Security's MFA feature], then you can supply its `AuthorizationManagerFactory` instance to ensure that your authentication factors are automatically checked as well by including it in your `DefaultOAuth2AuthorizationManagerFactory` constructor as follows:
+
+include-code::./MethodSecurityHasScopeMfaConfiguration[tag=declare-factory,indent=0]
+
 [[oauth2resourceserver-jwt-authorization-extraction]]
 === Extracting Authorities Manually
 
@@ -961,7 +979,11 @@ By default, Spring Security will wire the `JwtAuthenticationProvider` with a def
 
 As part of configuring a `JwtAuthenticationConverter`, you can supply a subsidiary converter to go from `Jwt` to a `Collection` of granted authorities.
 
-Let's say that that your authorization server communicates authorities in a custom claim called `authorities`.
+[[jwt-granted-authorities-custom-claim-name]]
+==== Using a Custom Claim Name
+
+Let's say that your authorization server communicates authorities in a custom claim called `authorities`.
+
 In that case, you can configure the claim that <<oauth2resourceserver-jwt-architecture-jwtauthenticationconverter,`JwtAuthenticationConverter`>> should inspect, like so:
 
 .Authorities Claim Configuration
@@ -1021,6 +1043,9 @@ Xml::
 </bean>
 ----
 ======
+
+[[jwt-granted-authorities-custom-scope-prefix]]
+==== Using a Custom Scope Prefix
 
 You can also configure the authority prefix to be different as well.
 Instead of prefixing each authority with `SCOPE_`, you can change it to `ROLE_` like so:
@@ -1152,6 +1177,17 @@ class CustomAuthenticationConverterConfig {
 }
 ----
 ======
+
+[[jwt-granted-authorities-spel-expression]]
+==== Using a SpEL Expression
+
+In circumstances where the location of scopes is nested or complex in some other way, you can use `ExpressionJwtGrantedAuthoritiesConverter` with a SpEL expression to extract the scopes.
+
+For example, if your JWT has a claim called `nested` and, inside of that, it has a claim called `scopes`, you can do:
+
+include-code::./ExpressionJwtGrantedAuthoritiesConverterTests[tag=spel-expression,indent=0]
+
+The SpEL expression result should be a `Collection`.
 
 [[oauth2resourceserver-jwt-validation]]
 == Configuring Validation
@@ -1640,3 +1676,19 @@ NOTE: Spring isn't a cache provider, so you'll need to make sure to include the 
 
 NOTE: Whether it's socket or cache timeouts, you may instead want to work with Nimbus directly.
 To do so, remember that `NimbusJwtDecoder` ships with a constructor that takes Nimbus's `JWTProcessor`.
+
+[[custom-principal]]
+== Customizing the Principal
+
+Sometimes it can be helpful to look up a pre-existing user based on the JWTs subject or other identifier.
+
+[[custom-user-details-service]]
+=== Wiring a UserDetailsService
+
+For example, if your application has a `UserDetailsService` and you want the corresponding user in the resulting `Authentication`, you can create a class to adapt your `UserDetails` into an `OAuth2AuthenticatedPrincipal`:
+
+include-code::./UserDetailsJwtPrincipalConverter[tag=custom-converter,indent=0]
+
+And then apply your principal converter to a `JwtAuthenticationConverter` `@Bean` like so:
+
+include-code::./UserDetailsJwtPrincipalConverterConfiguration[tag=configure-converter,indent=0]

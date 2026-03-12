@@ -1,0 +1,336 @@
+/*
+ * Copyright 2004-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.springframework.security.oauth2.server.resource.introspection;
+
+import java.io.Serial;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimAccessor;
+import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
+import org.springframework.util.Assert;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClient;
+
+/**
+ * A Spring implementation of {@link OpaqueTokenIntrospector} that verifies and
+ * introspects a token using the configured
+ * <a href="https://tools.ietf.org/html/rfc7662" target="_blank">OAuth 2.0 Introspection
+ * Endpoint</a>, using {@link RestClient} for HTTP communication.
+ *
+ * @author Andrey Litvitski
+ * @since 7.1
+ */
+public final class RestClientOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
+
+	private static final String AUTHORITY_PREFIX = "SCOPE_";
+
+	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<>() {
+	};
+
+	private final Log logger = LogFactory.getLog(getClass());
+
+	private final RestClient restClient;
+
+	private final String introspectionUri;
+
+	private Converter<OAuth2TokenIntrospectionClaimAccessor, ? extends OAuth2AuthenticatedPrincipal> authenticationConverter = this::defaultAuthenticationConverter;
+
+	/**
+	 * Creates a {@code OpaqueTokenAuthenticationProvider} with the provided parameters
+	 * The given {@link RestClient} should perform its own client authentication against
+	 * the introspection endpoint.
+	 * @param introspectionUri The introspection endpoint uri
+	 * @param restClient The client for performing the introspection request
+	 */
+	public RestClientOpaqueTokenIntrospector(String introspectionUri, RestClient restClient) {
+		Assert.notNull(introspectionUri, "introspectionUri cannot be null");
+		Assert.notNull(restClient, "restClient cannot be null");
+		this.introspectionUri = introspectionUri;
+		this.restClient = restClient;
+	}
+
+	private MultiValueMap<String, String> requestBody(String token) {
+		MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+		body.add("token", token);
+		return body;
+	}
+
+	@Override
+	public OAuth2AuthenticatedPrincipal introspect(String token) {
+		ResponseEntity<Map<String, Object>> responseEntity = makeRequest(token);
+		Map<String, Object> claims = adaptToNimbusResponse(responseEntity);
+		OAuth2TokenIntrospectionClaimAccessor accessor = convertClaimsSet(claims);
+		return this.authenticationConverter.convert(accessor);
+	}
+
+	private ResponseEntity<Map<String, Object>> makeRequest(String token) {
+		try {
+			RestClient.RequestBodySpec spec = this.restClient.post()
+				.uri(this.introspectionUri)
+				.headers((h) -> h.setAccept(List.of(MediaType.APPLICATION_JSON)))
+				.body(requestBody(token));
+			return spec.retrieve().toEntity(STRING_OBJECT_MAP);
+		}
+		catch (Exception ex) {
+			throw new OAuth2IntrospectionException(ex.getMessage(), ex);
+		}
+	}
+
+	private Map<String, Object> adaptToNimbusResponse(ResponseEntity<Map<String, Object>> responseEntity) {
+		if (responseEntity.getStatusCode() != HttpStatus.OK) {
+			throw new OAuth2IntrospectionException(
+					"Introspection endpoint responded with " + responseEntity.getStatusCode());
+		}
+		Map<String, Object> claims = responseEntity.getBody();
+		// relying solely on the authorization server to validate this token (not checking
+		// 'exp', for example)
+		if (claims == null) {
+			return Collections.emptyMap();
+		}
+
+		boolean active = (boolean) claims.compute(OAuth2TokenIntrospectionClaimNames.ACTIVE, (k, v) -> {
+			if (v instanceof String) {
+				return Boolean.parseBoolean((String) v);
+			}
+			if (v instanceof Boolean) {
+				return v;
+			}
+			return false;
+		});
+		if (!active) {
+			this.logger.trace("Did not validate token since it is inactive");
+			throw new BadOpaqueTokenException("Provided token isn't active");
+		}
+		return claims;
+	}
+
+	private ArrayListFromStringClaimAccessor convertClaimsSet(Map<String, Object> claims) {
+		Map<String, Object> converted = new LinkedHashMap<>(claims);
+		converted.computeIfPresent(OAuth2TokenIntrospectionClaimNames.AUD, (k, v) -> {
+			if (v instanceof String) {
+				return Collections.singletonList(v);
+			}
+			return v;
+		});
+		converted.computeIfPresent(OAuth2TokenIntrospectionClaimNames.CLIENT_ID, (k, v) -> v.toString());
+		converted.computeIfPresent(OAuth2TokenIntrospectionClaimNames.EXP,
+				(k, v) -> Instant.ofEpochSecond(((Number) v).longValue()));
+		converted.computeIfPresent(OAuth2TokenIntrospectionClaimNames.IAT,
+				(k, v) -> Instant.ofEpochSecond(((Number) v).longValue()));
+		// RFC-7662 page 7 directs users to RFC-7519 for defining the values of these
+		// issuer fields.
+		// https://datatracker.ietf.org/doc/html/rfc7662#page-7
+		//
+		// RFC-7519 page 9 defines issuer fields as being 'case-sensitive' strings
+		// containing
+		// a 'StringOrURI', which is defined on page 5 as being any string, but strings
+		// containing ':'
+		// should be treated as valid URIs.
+		// https://datatracker.ietf.org/doc/html/rfc7519#section-2
+		//
+		// It is not defined however as to whether-or-not normalized URIs should be
+		// treated as the same literal
+		// value. It only defines validation itself, so to avoid potential ambiguity or
+		// unwanted side effects that
+		// may be awkward to debug, we do not want to manipulate this value. Previous
+		// versions of Spring Security
+		// would *only* allow valid URLs, which is not what we wish to achieve here.
+		converted.computeIfPresent(OAuth2TokenIntrospectionClaimNames.ISS, (k, v) -> v.toString());
+		converted.computeIfPresent(OAuth2TokenIntrospectionClaimNames.NBF,
+				(k, v) -> Instant.ofEpochSecond(((Number) v).longValue()));
+		converted.computeIfPresent(OAuth2TokenIntrospectionClaimNames.SCOPE,
+				(k, v) -> (v instanceof String s) ? new ArrayListFromString(s.split(" ")) : v);
+		return () -> converted;
+	}
+
+	/**
+	 * <p>
+	 * Sets the {@link Converter Converter&lt;OAuth2TokenIntrospectionClaimAccessor,
+	 * OAuth2AuthenticatedPrincipal&gt;} to use. Defaults to
+	 * {@link RestClientOpaqueTokenIntrospector#defaultAuthenticationConverter}.
+	 * </p>
+	 * <p>
+	 * Use if you need a custom mapping of OAuth 2.0 token claims to the authenticated
+	 * principal.
+	 * </p>
+	 * @param authenticationConverter the converter
+	 */
+	public void setAuthenticationConverter(
+			Converter<OAuth2TokenIntrospectionClaimAccessor, ? extends OAuth2AuthenticatedPrincipal> authenticationConverter) {
+		Assert.notNull(authenticationConverter, "converter cannot be null");
+		this.authenticationConverter = authenticationConverter;
+	}
+
+	/**
+	 * If {@link RestClientOpaqueTokenIntrospector#authenticationConverter} is not
+	 * explicitly set, this default converter will be used. transforms an
+	 * {@link OAuth2TokenIntrospectionClaimAccessor} into an
+	 * {@link OAuth2AuthenticatedPrincipal} by extracting claims, mapping scopes to
+	 * authorities, and creating a principal.
+	 * @return {@link Converter Converter&lt;OAuth2TokenIntrospectionClaimAccessor,
+	 * OAuth2AuthenticatedPrincipal&gt;}
+	 */
+	private OAuth2IntrospectionAuthenticatedPrincipal defaultAuthenticationConverter(
+			OAuth2TokenIntrospectionClaimAccessor accessor) {
+		Collection<GrantedAuthority> authorities = authorities(accessor.getScopes());
+		return new OAuth2IntrospectionAuthenticatedPrincipal(accessor.getClaims(), authorities);
+	}
+
+	private Collection<GrantedAuthority> authorities(List<String> scopes) {
+		if (!(scopes instanceof ArrayListFromString)) {
+			return Collections.emptyList();
+		}
+		Collection<GrantedAuthority> authorities = new ArrayList<>();
+		for (String scope : scopes) {
+			authorities.add(new SimpleGrantedAuthority(AUTHORITY_PREFIX + scope));
+		}
+		return authorities;
+	}
+
+	/**
+	 * Creates a {@code RestClientOpaqueTokenIntrospector.Builder} with the given
+	 * introspection endpoint uri
+	 * @param introspectionUri The introspection endpoint uri
+	 * @return the {@link RestClientOpaqueTokenIntrospector.Builder}
+	 */
+	public static RestClientOpaqueTokenIntrospector.Builder withIntrospectionUri(String introspectionUri) {
+		Assert.notNull(introspectionUri, "introspectionUri cannot be null");
+		return new RestClientOpaqueTokenIntrospector.Builder(introspectionUri);
+	}
+
+	// gh-7563
+	private static final class ArrayListFromString extends ArrayList<String> {
+
+		@Serial
+		private static final long serialVersionUID = -1804103555781637109L;
+
+		ArrayListFromString(String... elements) {
+			super(Arrays.asList(elements));
+		}
+
+	}
+
+	// gh-15165
+	private interface ArrayListFromStringClaimAccessor extends OAuth2TokenIntrospectionClaimAccessor {
+
+		@Override
+		default List<String> getScopes() {
+			Object value = getClaims().get(OAuth2TokenIntrospectionClaimNames.SCOPE);
+			if (value instanceof ArrayListFromString list) {
+				return list;
+			}
+			return OAuth2TokenIntrospectionClaimAccessor.super.getScopes();
+		}
+
+	}
+
+	/**
+	 * Used to build {@link RestClientOpaqueTokenIntrospector}.
+	 *
+	 * @author Andrey Litvitski
+	 * @since 7.1
+	 */
+	public static final class Builder {
+
+		private final String introspectionUri;
+
+		private String clientId;
+
+		private String clientSecret;
+
+		private final List<Consumer<RestClientOpaqueTokenIntrospector>> postProcessors = new ArrayList<>();
+
+		private Builder(String introspectionUri) {
+			this.introspectionUri = introspectionUri;
+		}
+
+		/**
+		 * The builder will {@link URLEncoder encode} the client id that you provide, so
+		 * please give the unencoded value.
+		 * @param clientId The unencoded client id
+		 * @return the {@link RestClientOpaqueTokenIntrospector.Builder}
+		 */
+		public RestClientOpaqueTokenIntrospector.Builder clientId(String clientId) {
+			Assert.notNull(clientId, "clientId cannot be null");
+			this.clientId = URLEncoder.encode(clientId, StandardCharsets.UTF_8);
+			return this;
+		}
+
+		/**
+		 * The builder will {@link URLEncoder encode} the client secret that you provide,
+		 * so please give the unencoded value.
+		 * @param clientSecret The unencoded client secret
+		 * @return the {@link RestClientOpaqueTokenIntrospector.Builder}
+		 */
+		public RestClientOpaqueTokenIntrospector.Builder clientSecret(String clientSecret) {
+			Assert.notNull(clientSecret, "clientSecret cannot be null");
+			this.clientSecret = URLEncoder.encode(clientSecret, StandardCharsets.UTF_8);
+			return this;
+		}
+
+		/**
+		 * Adds a {@link Consumer} to customize the
+		 * {@link RestClientOpaqueTokenIntrospector} after it is built. This allows for
+		 * additional configuration that cannot be expressed through the builder methods.
+		 * @param postProcessor the {@link Consumer} to customize the introspector
+		 * @return the {@link RestClientOpaqueTokenIntrospector.Builder}
+		 */
+		public Builder postProcessor(Consumer<RestClientOpaqueTokenIntrospector> postProcessor) {
+			Assert.notNull(postProcessor, "postProcessor cannot be null");
+			this.postProcessors.add(postProcessor);
+			return this;
+		}
+
+		/**
+		 * Creates a {@code RestClientOpaqueTokenIntrospector}
+		 * @return the {@link RestClientOpaqueTokenIntrospector}
+		 */
+		public RestClientOpaqueTokenIntrospector build() {
+			RestClient restClient = RestClient.builder()
+				.defaultHeaders((headers) -> headers.setBasicAuth(this.clientId, this.clientSecret))
+				.build();
+			RestClientOpaqueTokenIntrospector introspector = new RestClientOpaqueTokenIntrospector(
+					this.introspectionUri, restClient);
+			this.postProcessors.forEach((postProcessor) -> postProcessor.accept(introspector));
+			return introspector;
+		}
+
+	}
+
+}

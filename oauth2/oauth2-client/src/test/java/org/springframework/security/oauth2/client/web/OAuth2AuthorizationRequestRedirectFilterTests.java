@@ -16,7 +16,6 @@
 
 package org.springframework.security.oauth2.client.web;
 
-import java.lang.reflect.Constructor;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,7 +42,6 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.savedrequest.RequestCache;
-import org.springframework.util.ClassUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -87,9 +85,8 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 	@Test
 	public void constructorWhenClientRegistrationRepositoryIsNullThenThrowIllegalArgumentException() {
-		Constructor<OAuth2AuthorizationRequestRedirectFilter> constructor = ClassUtils.getConstructorIfAvailable(
-				OAuth2AuthorizationRequestRedirectFilter.class, ClientRegistrationRepository.class);
-		assertThatIllegalArgumentException().isThrownBy(() -> constructor.newInstance(null));
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> new OAuth2AuthorizationRequestRedirectFilter((ClientRegistrationRepository) null));
 	}
 
 	@Test
@@ -100,9 +97,8 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 
 	@Test
 	public void constructorWhenAuthorizationRequestResolverIsNullThenThrowIllegalArgumentException() {
-		Constructor<OAuth2AuthorizationRequestRedirectFilter> constructor = ClassUtils.getConstructorIfAvailable(
-				OAuth2AuthorizationRequestRedirectFilter.class, OAuth2AuthorizationRequestResolver.class);
-		assertThatIllegalArgumentException().isThrownBy(() -> constructor.newInstance(null));
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> new OAuth2AuthorizationRequestRedirectFilter((OAuth2AuthorizationRequestResolver) null));
 	}
 
 	@Test

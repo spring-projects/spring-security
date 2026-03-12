@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.core.http.converter;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.http.converter.GenericHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.GsonHttpMessageConverter;
@@ -54,7 +56,7 @@ final class HttpMessageConverters {
 	}
 
 	@SuppressWarnings("removal")
-	static GenericHttpMessageConverter<Object> getJsonMessageConverter() {
+	static @Nullable GenericHttpMessageConverter<Object> getJsonMessageConverter() {
 		if (jacksonPresent) {
 			return new GenericHttpMessageConverterAdapter<>(new JacksonJsonHttpMessageConverter());
 		}

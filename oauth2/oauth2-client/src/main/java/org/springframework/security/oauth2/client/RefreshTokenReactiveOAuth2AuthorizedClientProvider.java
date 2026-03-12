@@ -21,7 +21,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import reactor.core.publisher.Mono;
@@ -34,12 +36,14 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 
 /**
  * An implementation of a {@link ReactiveOAuth2AuthorizedClientProvider} for the
  * {@link AuthorizationGrantType#REFRESH_TOKEN refresh_token} grant.
  *
  * @author Joe Grandja
+ * @author Evgeniy Cheban
  * @since 5.2
  * @see ReactiveOAuth2AuthorizedClientProvider
  * @see WebClientReactiveRefreshTokenTokenResponseClient
@@ -47,11 +51,24 @@ import org.springframework.util.Assert;
 public final class RefreshTokenReactiveOAuth2AuthorizedClientProvider
 		implements ReactiveOAuth2AuthorizedClientProvider {
 
+	private static final boolean josePresent = ClassUtils.isPresent(
+			"org.springframework.security.oauth2.jwt.ReactiveJwtDecoder",
+			RefreshTokenReactiveOAuth2AuthorizedClientProvider.class.getClassLoader());
+
 	private ReactiveOAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient = new WebClientReactiveRefreshTokenTokenResponseClient();
+
+	private ReactiveOAuth2AuthorizationSuccessHandler authorizationSuccessHandler = (authorizedClient, principal,
+			attributes) -> Mono.empty();
 
 	private Duration clockSkew = Duration.ofSeconds(60);
 
 	private Clock clock = Clock.systemUTC();
+
+	public RefreshTokenReactiveOAuth2AuthorizedClientProvider() {
+		if (josePresent) {
+			this.authorizationSuccessHandler = new RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler();
+		}
+	}
 
 	/**
 	 * Attempt to re-authorize the
@@ -96,12 +113,17 @@ public final class RefreshTokenReactiveOAuth2AuthorizedClientProvider
 			.flatMap(this.accessTokenResponseClient::getTokenResponse)
 			.onErrorMap(OAuth2AuthorizationException.class,
 					(e) -> new ClientAuthorizationException(e.getError(), clientRegistration.getRegistrationId(), e))
-			.map((tokenResponse) -> new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
-					tokenResponse.getAccessToken(), tokenResponse.getRefreshToken()));
-	}
-
-	private boolean hasTokenExpired(OAuth2Token token) {
-		return this.clock.instant().isAfter(token.getExpiresAt().minus(this.clockSkew));
+			.flatMap((tokenResponse) -> {
+				OAuth2AuthorizedClient refreshedClient = new OAuth2AuthorizedClient(clientRegistration,
+						context.getPrincipal().getName(), tokenResponse.getAccessToken(),
+						tokenResponse.getRefreshToken());
+				Map<String, Object> attributes = new HashMap<>(context.getAttributes());
+				attributes.putAll(tokenResponse.getAdditionalParameters());
+				return this.authorizationSuccessHandler
+					.onAuthorizationSuccess(refreshedClient, context.getPrincipal(),
+							Collections.unmodifiableMap(attributes))
+					.thenReturn(refreshedClient);
+			});
 	}
 
 	/**
@@ -114,6 +136,20 @@ public final class RefreshTokenReactiveOAuth2AuthorizedClientProvider
 			ReactiveOAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient) {
 		Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 		this.accessTokenResponseClient = accessTokenResponseClient;
+	}
+
+	/**
+	 * Sets a {@link ReactiveOAuth2AuthorizationSuccessHandler} to use for handling
+	 * successful refresh token response. Defaults to
+	 * {@link RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler}, when
+	 * {@code spring-security-oauth2-jose} is available on the classpath.
+	 * @param authorizationSuccessHandler the
+	 * {@link ReactiveOAuth2AuthorizationSuccessHandler} to use
+	 * @since 7.1
+	 */
+	public void setAuthorizationSuccessHandler(ReactiveOAuth2AuthorizationSuccessHandler authorizationSuccessHandler) {
+		Assert.notNull(authorizationSuccessHandler, "authorizationSuccessHandler cannot be null");
+		this.authorizationSuccessHandler = authorizationSuccessHandler;
 	}
 
 	/**
@@ -141,6 +177,10 @@ public final class RefreshTokenReactiveOAuth2AuthorizedClientProvider
 	public void setClock(Clock clock) {
 		Assert.notNull(clock, "clock cannot be null");
 		this.clock = clock;
+	}
+
+	private boolean hasTokenExpired(OAuth2Token token) {
+		return this.clock.instant().isAfter(token.getExpiresAt().minus(this.clockSkew));
 	}
 
 }

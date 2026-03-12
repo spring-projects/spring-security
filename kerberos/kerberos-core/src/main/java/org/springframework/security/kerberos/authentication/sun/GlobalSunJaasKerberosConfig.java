@@ -16,6 +16,8 @@
 
 package org.springframework.security.kerberos.authentication.sun;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -30,7 +32,7 @@ public class GlobalSunJaasKerberosConfig implements BeanPostProcessor, Initializ
 
 	private boolean debug = false;
 
-	private String krbConfLocation;
+	private @Nullable String krbConfLocation;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {

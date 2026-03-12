@@ -270,12 +270,13 @@ class MyUserDetailsResponseAuthenticationConverter implements Converter<Response
 	@Override
     public Saml2Authentication convert(ResponseToken responseToken) {
 	    Saml2Authentication authentication = this.delegate.convert(responseToken); <1>
-		UserDetails principal = this.userDetailsService.loadByUsername(username); <2>
+        String username = authentication.getName();
+		UserDetails user  = this.userDetailsService.loadUserByUsername(username); <2>
 		String saml2Response = authentication.getSaml2Response();
 		Saml2ResponseAssertionAccessor assertion = new OpenSamlResponseAssertionAccessor(
-				saml2Response, CollectionUtils.getFirst(response.getAssertions()));
-		Collection<GrantedAuthority> authorities = principal.getAuthorities();
-		return new Saml2AssertionAuthentication(userDetails, assertion, authorities); <3>
+				saml2Response, CollectionUtils.getFirst(responseToken.getResponse().getAssertions()));
+		Collection<GrantedAuthority> authorities = user.getAuthorities();
+		return new Saml2AssertionAuthentication(user, assertion, authorities); <3>
     }
 
 }
@@ -286,18 +287,19 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 @Component
-open class MyUserDetailsResponseAuthenticationConverter(val delegate: ResponseAuthenticationConverter,
-        UserDetailsService userDetailsService): Converter<ResponseToken, Saml2Authentication> {
+open class MyUserDetailsResponseAuthenticationConverter(private val userDetailsService: UserDetailsService) : Converter<ResponseToken, Saml2Authentication> {
 
-	@Override
-    open fun convert(responseToken: ResponseToken): Saml2Authentication {
+    private val delegate = ResponseAuthenticationConverter()
+
+    override fun convert(responseToken: ResponseToken): Saml2Authentication {
 	    val authentication = this.delegate.convert(responseToken) <1>
-		val principal = this.userDetailsService.loadByUsername(username) <2>
-		val saml2Response = authentication.getSaml2Response()
+        val username = authentication.name
+		val userDetails = this.userDetailsService.loadUserByUsername(username) <2>
+		val saml2Response = authentication.saml2Response
 		val assertion = OpenSamlResponseAssertionAccessor(
-				saml2Response, CollectionUtils.getFirst(response.getAssertions()))
+				saml2Response, responseToken.response.assertions.firstOrNull())
 		val authorities = principal.getAuthorities()
-		return Saml2AssertionAuthentication(userDetails, assertion, authorities) <3>
+		return Saml2AssertionAuthentication(userDetails, assertion, userDetails.authorities) <3>
     }
 
 }

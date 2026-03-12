@@ -121,6 +121,13 @@ public class RsaKeyConvertersTests {
 	}
 
 	@Test
+	public void pkcs8WhenConvertingSingleLinePkcs8PrivateKeyThenOk() {
+		RSAPrivateKey key = this.pkcs8.convert(toInputStream(PKCS8_PRIVATE_KEY.replace("\n", "")));
+		Assertions.assertThat(key).isInstanceOf(RSAPrivateCrtKey.class);
+		Assertions.assertThat(key.getModulus().bitLength()).isEqualTo(2048);
+	}
+
+	@Test
 	public void pkcs8WhenConvertingPkcs1PrivateKeyThenIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.pkcs8.convert(toInputStream(PKCS1_PRIVATE_KEY)));
 	}
@@ -132,8 +139,20 @@ public class RsaKeyConvertersTests {
 	}
 
 	@Test
+	public void x509WhenConvertingSingleLineX509PublicKeyThenOk() {
+		RSAPublicKey key = this.x509.convert(toInputStream(X509_PUBLIC_KEY.replace("\n", "")));
+		Assertions.assertThat(key.getModulus().bitLength()).isEqualTo(1024);
+	}
+
+	@Test
 	public void x509WhenConvertingX509CertificateThenOk() {
 		RSAPublicKey key = this.x509.convert(toInputStream(X509_CERTIFICATE));
+		Assertions.assertThat(key.getModulus().bitLength()).isEqualTo(1024);
+	}
+
+	@Test
+	public void x509WhenConvertingX509SingleLineCertificateThenOk() {
+		RSAPublicKey key = this.x509.convert(toInputStream(X509_CERTIFICATE.replace("\n", "")));
 		Assertions.assertThat(key.getModulus().bitLength()).isEqualTo(1024);
 	}
 

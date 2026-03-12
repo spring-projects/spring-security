@@ -144,7 +144,8 @@ public class SecurityEvaluationContextExtension implements EvaluationContextExte
 	/**
 	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
 	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
-	 *
+	 * @param securityContextHolderStrategy the {@link SecurityContextHolderStrategy} to
+	 * use. Cannot be null.
 	 * @since 5.8
 	 */
 	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {

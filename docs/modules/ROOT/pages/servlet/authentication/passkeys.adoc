@@ -10,7 +10,7 @@ After the credential is registered, it can be used to authenticate by xref:servl
 [[passkeys-dependencies]]
 == Required Dependencies
 
-To get started, add the `webauthn4j-core` dependency to your project.
+To get started, add the `spring-security-webauthn` dependency to your project.
 
 [NOTE]
 ====
@@ -26,12 +26,7 @@ Maven::
 ----
 <dependency>
     <groupId>org.springframework.security</groupId>
-    <artifactId>spring-security-web</artifactId>
-</dependency>
-<dependency>
-    <groupId>com.webauthn4j</groupId>
-    <artifactId>webauthn4j-core</artifactId>
-    <version>{webauthn4j-core-version}</version>
+    <artifactId>spring-security-webauthn</artifactId>
 </dependency>
 ----
 
@@ -40,8 +35,7 @@ Gradle::
 [source,groovy,role="secondary",subs="verbatim,attributes"]
 ----
 dependencies {
-    implementation "org.springframework.security:spring-security-web"
-    implementation "com.webauthn4j:webauthn4j-core:{webauthn4j-core-version}"
+    implementation "org.springframework.security:spring-security-webauthn"
 }
 ----
 ======

@@ -24,6 +24,8 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -40,7 +42,7 @@ public final class Saml2X509Credential implements Serializable {
 
 	private static final long serialVersionUID = -1015853414272603517L;
 
-	private final PrivateKey privateKey;
+	private final @Nullable PrivateKey privateKey;
 
 	private final X509Certificate certificate;
 
@@ -77,7 +79,8 @@ public final class Saml2X509Credential implements Serializable {
 	 * @param certificate the credential's public certificate
 	 * @param types the credential's intended usages
 	 */
-	public Saml2X509Credential(PrivateKey privateKey, X509Certificate certificate, Set<Saml2X509CredentialType> types) {
+	public Saml2X509Credential(@Nullable PrivateKey privateKey, X509Certificate certificate,
+			Set<Saml2X509CredentialType> types) {
 		Assert.notNull(certificate, "certificate cannot be null");
 		Assert.notNull(types, "credentialTypes cannot be null");
 		this.privateKey = privateKey;
@@ -123,7 +126,7 @@ public final class Saml2X509Credential implements Serializable {
 		return new Saml2X509Credential(privateKey, certificate, Saml2X509Credential.Saml2X509CredentialType.SIGNING);
 	}
 
-	private Saml2X509Credential(PrivateKey privateKey, boolean keyRequired, X509Certificate certificate,
+	private Saml2X509Credential(@Nullable PrivateKey privateKey, boolean keyRequired, X509Certificate certificate,
 			Saml2X509CredentialType... types) {
 		Assert.notNull(certificate, "certificate cannot be null");
 		Assert.notEmpty(types, "credentials types cannot be empty");
@@ -140,7 +143,7 @@ public final class Saml2X509Credential implements Serializable {
 	 * @return the private key, may be null
 	 * @see #Saml2X509Credential(PrivateKey, X509Certificate, Saml2X509CredentialType...)
 	 */
-	public PrivateKey getPrivateKey() {
+	public @Nullable PrivateKey getPrivateKey() {
 		return this.privateKey;
 	}
 

@@ -303,6 +303,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 		// grant an additional authority that contains the original Authentication object
 		// which will be used to 'exit' from the current switched user.
 		Authentication currentAuthentication = getCurrentAuthentication(request);
+		Assert.notNull(currentAuthentication, "currentAuthentication cannot be null");
 		GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(this.switchAuthorityRole,
 				currentAuthentication);
 		// get the original authorities

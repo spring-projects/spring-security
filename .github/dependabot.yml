@@ -1,12 +1,10 @@
 version: 2
 registries:
-  spring-milestones:
-    type: maven-repository
-    url: https://repo.spring.io/milestone
   shibboleth:
     type: maven-repository
     url: https://build.shibboleth.net/maven/releases
 updates:
+  # 6.5.x
   - package-ecosystem: gradle
     target-branch: 6.5.x
     directory: /
@@ -17,7 +15,6 @@ updates:
     labels:
       - 'type: dependency-upgrade'
     registries:
-      - spring-milestones
       - shibboleth
     ignore:
       - dependency-name: com.nimbusds:nimbus-jose-jwt
@@ -34,34 +31,26 @@ updates:
         update-types:
           - version-update:semver-major
           - version-update:semver-minor
-  - package-ecosystem: gradle
-    target-branch: 6.4.x
+  - package-ecosystem: npm
+    target-branch: 6.5.x
+    directory: /docs
+    schedule:
+      interval: weekly
+    labels:
+      - 'type: task'
+      - 'type: dependency-upgrade'
+      - 'in: build'
+  - package-ecosystem: github-actions
+    target-branch: 6.5.x
     directory: /
     schedule:
-      interval: daily
-      time: '03:00'
-      timezone: Etc/UTC
+      interval: weekly
     labels:
+      - 'type: task'
       - 'type: dependency-upgrade'
-    registries:
-      - spring-milestones
-      - shibboleth
-    ignore:
-      - dependency-name: com.nimbusds:nimbus-jose-jwt
-      - dependency-name: org.python:jython
-      - dependency-name: org.apache.directory.server:*
-      - dependency-name: org.apache.directory.shared:*
-      - dependency-name: org.junit:junit-bom
-        update-types:
-          - version-update:semver-major
-      - dependency-name: org.mockito:mockito-bom
-        update-types:
-          - version-update:semver-major
-      - dependency-name: '*'
-        update-types:
-          - version-update:semver-major
-          - version-update:semver-minor
+      - 'in: build'
 
+  # 7.0.x
   - package-ecosystem: gradle
     target-branch: 7.0.x
     directory: /
@@ -72,10 +61,10 @@ updates:
     labels:
       - 'type: dependency-upgrade'
     registries:
-      - spring-milestones
       - shibboleth
     ignore:
       - dependency-name: com.nimbusds:nimbus-jose-jwt
+      - dependency-name: io.spring.nullability:*
       - dependency-name: org.python:jython
       - dependency-name: org.apache.directory.server:*
       - dependency-name: org.apache.directory.shared:*
@@ -93,7 +82,26 @@ updates:
         update-types:
           - version-update:semver-major
           - version-update:semver-minor
+  - package-ecosystem: npm
+    target-branch: 7.0.x
+    directory: /docs
+    schedule:
+      interval: weekly
+    labels:
+      - 'type: task'
+      - 'type: dependency-upgrade'
+      - 'in: build'
+  - package-ecosystem: github-actions
+    target-branch: 7.0.x
+    directory: /
+    schedule:
+      interval: weekly
+    labels:
+      - 'type: task'
+      - 'type: dependency-upgrade'
+      - 'in: build'
 
+  # main
   - package-ecosystem: gradle
     target-branch: main
     directory: /
@@ -104,7 +112,6 @@ updates:
     labels:
       - 'type: dependency-upgrade'
     registries:
-      - spring-milestones
       - shibboleth
     ignore:
       - dependency-name: com.nimbusds:nimbus-jose-jwt
@@ -124,7 +131,55 @@ updates:
       - dependency-name: '*'
         update-types:
           - version-update:semver-major
+  - package-ecosystem: npm
+    target-branch: main
+    directory: /docs
+    schedule:
+      interval: weekly
+    labels:
+      - 'type: task'
+      - 'type: dependency-upgrade'
+      - 'in: build'
+  - package-ecosystem: github-actions
+    target-branch: main
+    directory: /
+    schedule:
+      interval: weekly
+    labels:
+      - 'type: task'
+      - 'type: dependency-upgrade'
+      - 'in: build'
 
+  # docs-build
+  - package-ecosystem: gradle
+    target-branch: docs-build
+    directory: /
+    schedule:
+      interval: daily
+      time: '03:00'
+      timezone: Etc/UTC
+    labels:
+      - 'type: dependency-upgrade'
+    registries:
+      - shibboleth
+    ignore:
+      - dependency-name: com.nimbusds:nimbus-jose-jwt
+      - dependency-name: org.python:jython
+      - dependency-name: org.apache.directory.server:*
+      - dependency-name: org.apache.directory.shared:*
+      - dependency-name: org.junit:junit-bom
+        update-types:
+          - version-update:semver-major
+      - dependency-name: org.mockito:mockito-bom
+        update-types:
+          - version-update:semver-major
+      - dependency-name: com.gradle.enterprise
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-major
   - package-ecosystem: npm
     target-branch: docs-build
     directory: /
@@ -132,40 +187,14 @@ updates:
       interval: weekly
     labels:
       - 'type: task'
+      - 'type: dependency-upgrade'
       - 'in: build'
-
-  - package-ecosystem: npm
-    target-branch: main
-    directory: /docs
+  - package-ecosystem: github-actions
+    target-branch: docs-build
+    directory: /
     schedule:
       interval: weekly
     labels:
       - 'type: task'
-      - 'in: build'
-
-  - package-ecosystem: 7.0.x
-    target-branch: main
-    directory: /docs
-    schedule:
-      interval: weekly
-    labels:
-      - 'type: task'
-      - 'in: build'
-
-  - package-ecosystem: 6.5.x
-    target-branch: main
-    directory: /docs
-    schedule:
-      interval: weekly
-    labels:
-      - 'type: task'
-      - 'in: build'
-
-  - package-ecosystem: 6.4.x
-    target-branch: main
-    directory: /docs
-    schedule:
-      interval: weekly
-    labels:
-      - 'type: task'
+      - 'type: dependency-upgrade'
       - 'in: build'

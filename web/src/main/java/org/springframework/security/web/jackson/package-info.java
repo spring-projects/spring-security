@@ -17,4 +17,7 @@
 /**
  * Jackson 3+ serialization support for web.
  */
+@NullMarked
 package org.springframework.security.web.jackson;
+
+import org.jspecify.annotations.NullMarked;

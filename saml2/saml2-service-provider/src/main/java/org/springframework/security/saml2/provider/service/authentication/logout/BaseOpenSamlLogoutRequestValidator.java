@@ -19,6 +19,7 @@ package org.springframework.security.saml2.provider.service.authentication.logou
 import java.util.Collection;
 import java.util.function.Consumer;
 
+import org.jspecify.annotations.Nullable;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.saml.saml2.core.NameID;
 
@@ -33,6 +34,7 @@ import org.springframework.security.saml2.provider.service.authentication.logout
 import org.springframework.security.saml2.provider.service.registration.AssertingPartyMetadata;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
+import org.springframework.util.Assert;
 
 class BaseOpenSamlLogoutRequestValidator implements Saml2LogoutRequestValidator {
 
@@ -73,15 +75,17 @@ class BaseOpenSamlLogoutRequestValidator implements Saml2LogoutRequestValidator 
 				errors.addAll(verify.verify(logoutRequest));
 			}
 			else {
-				RedirectParameters params = new RedirectParameters(request.getParameters(),
-						request.getParametersQuery(), logoutRequest);
+				String parametersQuery = request.getParametersQuery();
+				Assert.notNull(parametersQuery, "parametersQuery cannot be null for redirect binding");
+				RedirectParameters params = new RedirectParameters(request.getParameters(), parametersQuery,
+						logoutRequest);
 				errors.addAll(verify.verify(params));
 			}
 		};
 	}
 
 	private Consumer<Collection<Saml2Error>> validateRequest(LogoutRequest request,
-			RelyingPartyRegistration registration, Authentication authentication) {
+			RelyingPartyRegistration registration, @Nullable Authentication authentication) {
 		return (errors) -> {
 			validateIssuer(request, registration).accept(errors);
 			validateDestination(request, registration).accept(errors);
@@ -97,7 +101,7 @@ class BaseOpenSamlLogoutRequestValidator implements Saml2LogoutRequestValidator 
 				return;
 			}
 			String issuer = request.getIssuer().getValue();
-			if (!issuer.equals(registration.getAssertingPartyMetadata().getEntityId())) {
+			if (!registration.getAssertingPartyMetadata().getEntityId().equals(issuer)) {
 				errors
 					.add(new Saml2Error(Saml2ErrorCodes.INVALID_ISSUER, "Failed to match issuer to configured issuer"));
 			}
@@ -121,7 +125,7 @@ class BaseOpenSamlLogoutRequestValidator implements Saml2LogoutRequestValidator 
 	}
 
 	private Consumer<Collection<Saml2Error>> validateSubject(LogoutRequest request,
-			RelyingPartyRegistration registration, Authentication authentication) {
+			RelyingPartyRegistration registration, @Nullable Authentication authentication) {
 		return (errors) -> {
 			if (authentication == null) {
 				return;
@@ -137,7 +141,7 @@ class BaseOpenSamlLogoutRequestValidator implements Saml2LogoutRequestValidator 
 		};
 	}
 
-	private NameID getNameId(LogoutRequest request, RelyingPartyRegistration registration) {
+	private @Nullable NameID getNameId(LogoutRequest request, RelyingPartyRegistration registration) {
 		this.saml.withDecryptionKeys(registration.getDecryptionX509Credentials()).decrypt(request);
 		return request.getNameID();
 	}
@@ -145,7 +149,7 @@ class BaseOpenSamlLogoutRequestValidator implements Saml2LogoutRequestValidator 
 	private void validateNameId(NameID nameId, Authentication authentication, Collection<Saml2Error> errors) {
 		String name = (authentication.getCredentials() instanceof Saml2ResponseAssertionAccessor assertion)
 				? assertion.getNameId() : authentication.getName();
-		if (!nameId.getValue().equals(name)) {
+		if (!name.equals(nameId.getValue())) {
 			errors.add(new Saml2Error(Saml2ErrorCodes.INVALID_REQUEST,
 					"Failed to match subject in LogoutRequest with currently logged in user"));
 		}

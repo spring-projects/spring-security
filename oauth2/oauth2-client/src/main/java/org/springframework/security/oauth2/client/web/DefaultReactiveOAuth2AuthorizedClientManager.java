@@ -318,14 +318,14 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 			return Mono.justOrEmpty(serverWebExchange)
 					.switchIfEmpty(currentServerWebExchangeMono)
 					.flatMap((exchange) -> {
-						Map<String, Object> contextAttributes = Collections.emptyMap();
+						Map<String, Object> contextAttributes = new HashMap<>();
+						contextAttributes.put(ServerWebExchange.class.getName(), serverWebExchange);
 						String scope = exchange.getRequest().getQueryParams().getFirst(OAuth2ParameterNames.SCOPE);
 						if (StringUtils.hasText(scope)) {
-							contextAttributes = new HashMap<>();
 							contextAttributes.put(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME,
 									StringUtils.delimitedListToStringArray(scope, " "));
 						}
-						return Mono.just(contextAttributes);
+						return Mono.just(Collections.unmodifiableMap(contextAttributes));
 					})
 					.defaultIfEmpty(Collections.emptyMap());
 			// @formatter:on

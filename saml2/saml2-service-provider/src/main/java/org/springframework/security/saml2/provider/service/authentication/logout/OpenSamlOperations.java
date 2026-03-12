@@ -25,6 +25,7 @@ import java.util.Objects;
 
 import javax.xml.namespace.QName;
 
+import org.jspecify.annotations.Nullable;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.RequestAbstractType;
@@ -35,6 +36,7 @@ import org.w3c.dom.Element;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.core.Saml2X509Credential;
+import org.springframework.util.Assert;
 import org.springframework.web.util.UriComponentsBuilder;
 
 interface OpenSamlOperations {
@@ -89,14 +91,17 @@ interface OpenSamlOperations {
 
 			private final String algorithm;
 
-			private final byte[] signature;
+			private final byte @Nullable [] signature;
 
 			private final byte[] content;
 
 			RedirectParameters(Map<String, String> parameters, String parametersQuery, RequestAbstractType request) {
+				Assert.notNull(request.getID(), "SAML request's ID cannot be null");
+				Assert.notNull(request.getIssuer(), "SAML request's Issuer cannot be null");
 				this.id = request.getID();
 				this.issuer = request.getIssuer();
-				this.algorithm = parameters.get(Saml2ParameterNames.SIG_ALG);
+				this.algorithm = Objects.requireNonNull(parameters.get(Saml2ParameterNames.SIG_ALG),
+						"sigAlg parameter cannot be null");
 				if (parameters.get(Saml2ParameterNames.SIGNATURE) != null) {
 					this.signature = Saml2Utils.samlDecode(parameters.get(Saml2ParameterNames.SIGNATURE));
 				}
@@ -113,9 +118,12 @@ interface OpenSamlOperations {
 			}
 
 			RedirectParameters(Map<String, String> parameters, String parametersQuery, StatusResponseType response) {
+				Assert.notNull(response.getID(), "SAML response's ID cannot be null");
+				Assert.notNull(response.getIssuer(), "SAML response's Issuer cannot be null");
 				this.id = response.getID();
 				this.issuer = response.getIssuer();
-				this.algorithm = parameters.get(Saml2ParameterNames.SIG_ALG);
+				this.algorithm = Objects.requireNonNull(parameters.get(Saml2ParameterNames.SIG_ALG),
+						"sigAlg parameter cannot be null");
 				if (parameters.get(Saml2ParameterNames.SIGNATURE) != null) {
 					this.signature = Saml2Utils.samlDecode(parameters.get(Saml2ParameterNames.SIGNATURE));
 				}
@@ -131,7 +139,8 @@ interface OpenSamlOperations {
 				this.content = getContent(Saml2ParameterNames.SAML_RESPONSE, relayState, queryParams);
 			}
 
-			static byte[] getContent(String samlObject, String relayState, final Map<String, String> queryParams) {
+			static byte[] getContent(String samlObject, @Nullable String relayState,
+					final Map<String, String> queryParams) {
 				if (Objects.nonNull(relayState)) {
 					return String
 						.format("%s=%s&%s=%s&%s=%s", samlObject, queryParams.get(samlObject),
@@ -163,7 +172,7 @@ interface OpenSamlOperations {
 				return this.algorithm;
 			}
 
-			byte[] getSignature() {
+			byte @Nullable [] getSignature() {
 				return this.signature;
 			}
 

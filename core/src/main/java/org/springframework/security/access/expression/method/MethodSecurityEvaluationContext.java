@@ -19,7 +19,7 @@ package org.springframework.security.access.expression.method;
 import java.lang.reflect.Method;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.aop.support.AopUtils;
@@ -45,13 +45,11 @@ class MethodSecurityEvaluationContext extends MethodBasedEvaluationContext {
 	 * for each instance. Use the constructor which takes the resolver, as an argument
 	 * thus allowing for caching.
 	 */
-	MethodSecurityEvaluationContext(Authentication user, MethodInvocation mi) {
+	MethodSecurityEvaluationContext(@Nullable Authentication user, MethodInvocation mi) {
 		this(user, mi, new DefaultSecurityParameterNameDiscoverer());
 	}
 
-	@NullUnmarked // FIXME: rootObject in MethodBasedEvaluationContext is non-null
-					// (probably needs changed) but StandardEvaluationContext is Nullable
-	MethodSecurityEvaluationContext(Authentication user, MethodInvocation mi,
+	MethodSecurityEvaluationContext(@Nullable Authentication user, MethodInvocation mi,
 			ParameterNameDiscoverer parameterNameDiscoverer) {
 		super(mi.getThis(), getSpecificMethod(mi), mi.getArguments(), parameterNameDiscoverer);
 	}

@@ -478,6 +478,7 @@ public class AclImplTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void hashCodeWithoutStackOverFlow() throws Exception {
 		Sid sid = new PrincipalSid("pSid");
 		ObjectIdentity oid = new ObjectIdentityImpl("type", 1);

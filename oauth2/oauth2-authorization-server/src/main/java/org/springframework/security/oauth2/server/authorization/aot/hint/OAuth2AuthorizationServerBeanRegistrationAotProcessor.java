@@ -116,11 +116,11 @@ class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegis
 		private void registerHints(RuntimeHints hints) {
 			// Collections -> UnmodifiableSet, UnmodifiableList, UnmodifiableMap,
 			// UnmodifiableRandomAccessList, etc.
-			hints.reflection().registerType(Collections.class, MemberCategory.DECLARED_CLASSES);
+			hints.reflection().registerType(Collections.class);
 
 			// HashSet
 			hints.reflection()
-				.registerType(HashSet.class, MemberCategory.DECLARED_FIELDS,
+				.registerType(HashSet.class, MemberCategory.ACCESS_DECLARED_FIELDS,
 						MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.INVOKE_DECLARED_METHODS);
 
 			hints.reflection()
@@ -138,19 +138,12 @@ class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegis
 						TypeReference.of(AuthorizationGrantType.class),
 						TypeReference.of(OAuth2AuthorizationResponseType.class),
 						TypeReference.of(OAuth2TokenFormat.class)),
-						(builder) -> builder.withMembers(MemberCategory.DECLARED_FIELDS,
+						(builder) -> builder.withMembers(MemberCategory.ACCESS_DECLARED_FIELDS,
 								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.INVOKE_DECLARED_METHODS));
 
 			// Jackson Modules
 			if (jackson2Present) {
-				hints.reflection()
-					.registerTypes(
-							Arrays.asList(TypeReference.of(CoreJackson2Module.class),
-									TypeReference.of(WebServletJackson2Module.class),
-									TypeReference.of(OAuth2AuthorizationServerJackson2Module.class)),
-							(builder) -> builder.withMembers(MemberCategory.DECLARED_FIELDS,
-									MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
-									MemberCategory.INVOKE_DECLARED_METHODS));
+				registerJackson2Modules(hints);
 			}
 			if (jackson3Present) {
 				hints.reflection()
@@ -158,7 +151,7 @@ class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegis
 							Arrays.asList(TypeReference.of(CoreJacksonModule.class),
 									TypeReference.of(WebServletJacksonModule.class),
 									TypeReference.of(OAuth2AuthorizationServerJacksonModule.class)),
-							(builder) -> builder.withMembers(MemberCategory.DECLARED_FIELDS,
+							(builder) -> builder.withMembers(MemberCategory.ACCESS_DECLARED_FIELDS,
 									MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
 									MemberCategory.INVOKE_DECLARED_METHODS));
 			}
@@ -222,7 +215,7 @@ class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegis
 				hints.reflection()
 					.registerType(TypeReference
 						.of("org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken"),
-							(builder) -> builder.withMembers(MemberCategory.DECLARED_FIELDS,
+							(builder) -> builder.withMembers(MemberCategory.ACCESS_DECLARED_FIELDS,
 									MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
 									MemberCategory.INVOKE_DECLARED_METHODS));
 
@@ -231,7 +224,7 @@ class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegis
 					hints.reflection()
 						.registerType(TypeReference
 							.of("org.springframework.security.oauth2.client.jackson2.OAuth2ClientJackson2Module"),
-								(builder) -> builder.withMembers(MemberCategory.DECLARED_FIELDS,
+								(builder) -> builder.withMembers(MemberCategory.ACCESS_DECLARED_FIELDS,
 										MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
 										MemberCategory.INVOKE_DECLARED_METHODS));
 				}
@@ -240,7 +233,7 @@ class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegis
 						.registerType(
 								TypeReference
 									.of("org.springframework.security.oauth2.client.jackson.OAuth2ClientJacksonModule"),
-								(builder) -> builder.withMembers(MemberCategory.DECLARED_FIELDS,
+								(builder) -> builder.withMembers(MemberCategory.ACCESS_DECLARED_FIELDS,
 										MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
 										MemberCategory.INVOKE_DECLARED_METHODS));
 				}
@@ -279,6 +272,17 @@ class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegis
 							loadClass("org.springframework.security.oauth2.client.jackson.OidcUserInfoMixin"));
 				}
 			}
+		}
+
+		@SuppressWarnings("removal")
+		private void registerJackson2Modules(RuntimeHints hints) {
+			hints.reflection()
+				.registerTypes(
+						Arrays.asList(TypeReference.of(CoreJackson2Module.class),
+								TypeReference.of(WebServletJackson2Module.class),
+								TypeReference.of(OAuth2AuthorizationServerJackson2Module.class)),
+						(builder) -> builder.withMembers(MemberCategory.ACCESS_DECLARED_FIELDS,
+								MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.INVOKE_DECLARED_METHODS));
 		}
 
 		private static Class<?> loadClass(String className) {

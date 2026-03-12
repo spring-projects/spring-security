@@ -47,8 +47,8 @@ import org.springframework.util.Assert;
  * The following configuration options are available:
  *
  * <ul>
- * <li>{@link #authorizationCodeGrant()} - support for the OAuth 2.0 Authorization Code
- * Grant</li>
+ * <li>{@link #authorizationCodeGrant(Customizer)} - support for the OAuth 2.0
+ * Authorization Code Grant</li>
  * </ul>
  *
  * <p>
@@ -59,7 +59,8 @@ import org.springframework.util.Assert;
  *
  * <h2>Security Filters</h2>
  *
- * The following {@code Filter}'s are populated for {@link #authorizationCodeGrant()}:
+ * The following {@code Filter}'s are populated for
+ * {@link #authorizationCodeGrant(Customizer)}:
  *
  * <ul>
  * <li>{@link OAuth2AuthorizationRequestRedirectFilter}</li>

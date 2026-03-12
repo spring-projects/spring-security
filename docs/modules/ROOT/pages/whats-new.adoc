@@ -1,4 +1,11 @@
 [[new]]
 = What's New in Spring Security 7.1
 
-This is a placeholder for updates to Spring Security 7.1
+== Web
+
+* https://github.com/spring-projects/spring-security/pull/18634[gh-18634] - Added javadoc:org.springframework.security.web.util.matcher.InetAddressMatcher[]
+* https://github.com/spring-projects/spring-security/issues/18755[gh-18755] - Include `charset` in `WWW-Authenticate` header
+
+== OAuth 2.0
+
+* https://github.com/spring-projects/spring-security/issues/18745[gh-18745] - Add RestClientOpaqueTokenIntrospector

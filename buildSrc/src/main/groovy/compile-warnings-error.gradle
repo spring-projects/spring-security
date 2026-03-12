@@ -8,3 +8,4 @@ tasks.withType(JavaCompile) {
 tasks.withType(KotlinCompile) {
     kotlinOptions.allWarningsAsErrors = true
 }
+

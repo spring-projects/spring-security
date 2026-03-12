@@ -18,6 +18,8 @@ package org.springframework.security.oauth2.core.oidc;
 
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * The default implementation of an {@link AddressStandardClaim Address Claim}.
  *
@@ -27,48 +29,48 @@ import java.util.Map;
  */
 public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 
-	private String formatted;
+	private @Nullable String formatted;
 
-	private String streetAddress;
+	private @Nullable String streetAddress;
 
-	private String locality;
+	private @Nullable String locality;
 
-	private String region;
+	private @Nullable String region;
 
-	private String postalCode;
+	private @Nullable String postalCode;
 
-	private String country;
+	private @Nullable String country;
 
 	private DefaultAddressStandardClaim() {
 	}
 
 	@Override
-	public String getFormatted() {
+	public @Nullable String getFormatted() {
 		return this.formatted;
 	}
 
 	@Override
-	public String getStreetAddress() {
+	public @Nullable String getStreetAddress() {
 		return this.streetAddress;
 	}
 
 	@Override
-	public String getLocality() {
+	public @Nullable String getLocality() {
 		return this.locality;
 	}
 
 	@Override
-	public String getRegion() {
+	public @Nullable String getRegion() {
 		return this.region;
 	}
 
 	@Override
-	public String getPostalCode() {
+	public @Nullable String getPostalCode() {
 		return this.postalCode;
 	}
 
 	@Override
-	public String getCountry() {
+	public @Nullable String getCountry() {
 		return this.country;
 	}
 
@@ -131,17 +133,17 @@ public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 
 		private static final String COUNTRY_FIELD_NAME = "country";
 
-		private String formatted;
+		private @Nullable String formatted;
 
-		private String streetAddress;
+		private @Nullable String streetAddress;
 
-		private String locality;
+		private @Nullable String locality;
 
-		private String region;
+		private @Nullable String region;
 
-		private String postalCode;
+		private @Nullable String postalCode;
 
-		private String country;
+		private @Nullable String country;
 
 		/**
 		 * Default constructor.
@@ -165,10 +167,10 @@ public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 
 		/**
 		 * Sets the full mailing address, formatted for display.
-		 * @param formatted the full mailing address
+		 * @param formatted the full mailing address, may be {@code null}
 		 * @return the {@link Builder}
 		 */
-		public Builder formatted(String formatted) {
+		public Builder formatted(@Nullable String formatted) {
 			this.formatted = formatted;
 			return this;
 		}
@@ -176,50 +178,50 @@ public final class DefaultAddressStandardClaim implements AddressStandardClaim {
 		/**
 		 * Sets the full street address, which may include house number, street name, P.O.
 		 * Box, etc.
-		 * @param streetAddress the full street address
+		 * @param streetAddress the full street address, may be {@code null}
 		 * @return the {@link Builder}
 		 */
-		public Builder streetAddress(String streetAddress) {
+		public Builder streetAddress(@Nullable String streetAddress) {
 			this.streetAddress = streetAddress;
 			return this;
 		}
 
 		/**
 		 * Sets the city or locality.
-		 * @param locality the city or locality
+		 * @param locality the city or locality, may be {@code null}
 		 * @return the {@link Builder}
 		 */
-		public Builder locality(String locality) {
+		public Builder locality(@Nullable String locality) {
 			this.locality = locality;
 			return this;
 		}
 
 		/**
 		 * Sets the state, province, prefecture, or region.
-		 * @param region the state, province, prefecture, or region
+		 * @param region the state, province, prefecture, or region, may be {@code null}
 		 * @return the {@link Builder}
 		 */
-		public Builder region(String region) {
+		public Builder region(@Nullable String region) {
 			this.region = region;
 			return this;
 		}
 
 		/**
 		 * Sets the zip code or postal code.
-		 * @param postalCode the zip code or postal code
+		 * @param postalCode the zip code or postal code, may be {@code null}
 		 * @return the {@link Builder}
 		 */
-		public Builder postalCode(String postalCode) {
+		public Builder postalCode(@Nullable String postalCode) {
 			this.postalCode = postalCode;
 			return this;
 		}
 
 		/**
 		 * Sets the country.
-		 * @param country the country
+		 * @param country the country, may be {@code null}
 		 * @return the {@link Builder}
 		 */
-		public Builder country(String country) {
+		public Builder country(@Nullable String country) {
 			this.country = country;
 			return this;
 		}

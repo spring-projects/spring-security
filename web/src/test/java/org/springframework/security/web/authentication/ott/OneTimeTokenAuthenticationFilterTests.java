@@ -70,11 +70,13 @@ class OneTimeTokenAuthenticationFilterTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	void setAuthenticationConverterWhenNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setAuthenticationConverter(null));
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	void doFilterWhenUrlDoesNotMatchThenContinues() throws ServletException, IOException {
 		OneTimeTokenAuthenticationConverter converter = mock(OneTimeTokenAuthenticationConverter.class);
 		HttpServletResponse response = mock(HttpServletResponse.class);
@@ -85,6 +87,7 @@ class OneTimeTokenAuthenticationFilterTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	void doFilterWhenMethodDoesNotMatchThenContinues() throws ServletException, IOException {
 		OneTimeTokenAuthenticationConverter converter = mock(OneTimeTokenAuthenticationConverter.class);
 		HttpServletResponse response = mock(HttpServletResponse.class);
@@ -95,6 +98,7 @@ class OneTimeTokenAuthenticationFilterTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	void doFilterWhenMissingTokenThenPropagatesRequest() throws ServletException, IOException {
 		FilterChain chain = mock(FilterChain.class);
 		this.filter.doFilter(post("/login/ott").buildRequest(new MockServletContext()), this.response, chain);
@@ -102,6 +106,7 @@ class OneTimeTokenAuthenticationFilterTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	void doFilterWhenInvalidTokenThenUnauthorized() throws ServletException, IOException {
 		given(this.authenticationManager.authenticate(any())).willThrow(new BadCredentialsException("invalid token"));
 		this.filter.doFilter(
@@ -112,6 +117,7 @@ class OneTimeTokenAuthenticationFilterTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	void doFilterWhenValidThenRedirectsToSavedRequest() throws ServletException, IOException {
 		given(this.authenticationManager.authenticate(any()))
 			.willReturn(OneTimeTokenAuthenticationToken.authenticated("username", AuthorityUtils.NO_AUTHORITIES));

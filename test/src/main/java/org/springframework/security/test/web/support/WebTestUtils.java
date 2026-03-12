@@ -21,7 +21,6 @@ import java.util.List;
 import jakarta.servlet.Filter;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
-import org.jspecify.annotations.NullUnmarked;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -37,6 +36,7 @@ import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.util.Assert;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -66,15 +66,19 @@ public abstract class WebTestUtils {
 	 * @return the {@link SecurityContextRepository} for the specified
 	 * {@link HttpServletRequest}
 	 */
-	@NullUnmarked
 	public static SecurityContextRepository getSecurityContextRepository(HttpServletRequest request) {
 		SecurityContextPersistenceFilter filter = findFilter(request, SecurityContextPersistenceFilter.class);
 		if (filter != null) {
-			return (SecurityContextRepository) ReflectionTestUtils.getField(filter, "repo");
+			SecurityContextRepository repo = (SecurityContextRepository) ReflectionTestUtils.getField(filter, "repo");
+			Assert.notNull(repo, "SecurityContextRepository must not be null");
+			return repo;
 		}
 		SecurityContextHolderFilter holderFilter = findFilter(request, SecurityContextHolderFilter.class);
 		if (holderFilter != null) {
-			return (SecurityContextRepository) ReflectionTestUtils.getField(holderFilter, "securityContextRepository");
+			SecurityContextRepository securityContextRepository = (SecurityContextRepository) ReflectionTestUtils
+				.getField(holderFilter, "securityContextRepository");
+			Assert.notNull(securityContextRepository, "SecurityContextRepository must not be null");
+			return securityContextRepository;
 		}
 		return DEFAULT_CONTEXT_REPO;
 	}

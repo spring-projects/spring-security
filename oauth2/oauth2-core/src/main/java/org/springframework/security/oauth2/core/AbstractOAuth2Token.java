@@ -19,7 +19,8 @@ package org.springframework.security.oauth2.core;
 import java.io.Serializable;
 import java.time.Instant;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -37,9 +38,9 @@ public abstract class AbstractOAuth2Token implements OAuth2Token, Serializable {
 
 	private final String tokenValue;
 
-	private final Instant issuedAt;
+	private final @Nullable Instant issuedAt;
 
-	private final Instant expiresAt;
+	private final @Nullable Instant expiresAt;
 
 	/**
 	 * Sub-class constructor.
@@ -78,8 +79,7 @@ public abstract class AbstractOAuth2Token implements OAuth2Token, Serializable {
 	 * Returns the time at which the token was issued.
 	 * @return the time the token was issued or {@code null}
 	 */
-	@Nullable
-	public Instant getIssuedAt() {
+	public @Nullable Instant getIssuedAt() {
 		return this.issuedAt;
 	}
 
@@ -87,8 +87,7 @@ public abstract class AbstractOAuth2Token implements OAuth2Token, Serializable {
 	 * Returns the expiration time on or after which the token MUST NOT be accepted.
 	 * @return the token expiration time or {@code null}
 	 */
-	@Nullable
-	public Instant getExpiresAt() {
+	public @Nullable Instant getExpiresAt() {
 		return this.expiresAt;
 	}
 

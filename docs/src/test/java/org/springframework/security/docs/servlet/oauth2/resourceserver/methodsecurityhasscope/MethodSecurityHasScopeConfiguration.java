@@ -1,0 +1,18 @@
+package org.springframework.security.docs.servlet.oauth2.resourceserver.methodsecurityhasscope;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.oauth2.core.authorization.DefaultOAuth2AuthorizationManagerFactory;
+import org.springframework.security.oauth2.core.authorization.OAuth2AuthorizationManagerFactory;
+
+@Configuration
+@EnableMethodSecurity
+class MethodSecurityHasScopeConfiguration {
+	// tag::declare-factory[]
+	@Bean
+	OAuth2AuthorizationManagerFactory<?> oauth2() {
+		return new DefaultOAuth2AuthorizationManagerFactory<>();
+	}
+	// end::declare-factory[]
+}

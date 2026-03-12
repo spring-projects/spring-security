@@ -61,7 +61,7 @@ public class AuthorityAuthorizationManagerTests {
 
 	@Test
 	public void hasAnyRoleWhenNullThenException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> AuthorityAuthorizationManager.hasAnyRole(null))
+		assertThatIllegalArgumentException().isThrownBy(() -> AuthorityAuthorizationManager.hasAnyRole((String[]) null))
 			.withMessage("roles cannot be empty");
 	}
 
@@ -97,7 +97,8 @@ public class AuthorityAuthorizationManagerTests {
 
 	@Test
 	public void hasAnyAuthorityWhenNullThenException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> AuthorityAuthorizationManager.hasAnyAuthority(null))
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> AuthorityAuthorizationManager.hasAnyAuthority((String[]) null))
 			.withMessage("authorities cannot be empty");
 	}
 

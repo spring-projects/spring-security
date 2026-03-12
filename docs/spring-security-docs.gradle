@@ -3,6 +3,10 @@ plugins {
 	id 'io.spring.antora.generate-antora-yml' version '0.0.1'
 	id 'io.spring.convention.repository'
 	id 'security-kotlin'
+	id 'java-toolchain'
+	id 'test-compile-target-jdk25'
+	id 'compile-warnings-error'
+	id 'javadoc-warnings-error'
 }
 
 apply plugin: 'io.spring.convention.docs'
@@ -38,6 +42,8 @@ dependencies {
 	testImplementation project(path : ':spring-security-config', configuration : 'tests')
 	testImplementation project(':spring-security-test')
 	testImplementation project(':spring-security-oauth2-client')
+	testImplementation project(':spring-security-oauth2-resource-server')
+	testImplementation project(':spring-security-messaging')
 	testImplementation 'com.squareup.okhttp3:mockwebserver'
 	testImplementation libs.com.password4j.password4j
 	testImplementation 'com.unboundid:unboundid-ldapsdk'
@@ -46,6 +52,7 @@ dependencies {
 	testImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 	testImplementation 'org.springframework:spring-core'
 	testImplementation 'org.springframework:spring-test'
+	testImplementation 'org.springframework:spring-websocket'
 
 	testImplementation 'org.springframework:spring-webmvc'
 	testImplementation 'jakarta.servlet:jakarta.servlet-api'

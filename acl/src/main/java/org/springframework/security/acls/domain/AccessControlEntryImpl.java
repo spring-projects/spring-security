@@ -18,6 +18,8 @@ package org.springframework.security.acls.domain;
 
 import java.io.Serializable;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.AuditableAccessControlEntry;
@@ -36,7 +38,7 @@ public class AccessControlEntryImpl implements AccessControlEntry, AuditableAcce
 
 	private Permission permission;
 
-	private final Serializable id;
+	private final @Nullable Serializable id;
 
 	private final Sid sid;
 
@@ -46,7 +48,7 @@ public class AccessControlEntryImpl implements AccessControlEntry, AuditableAcce
 
 	private final boolean granting;
 
-	public AccessControlEntryImpl(Serializable id, Acl acl, Sid sid, Permission permission, boolean granting,
+	public AccessControlEntryImpl(@Nullable Serializable id, Acl acl, Sid sid, Permission permission, boolean granting,
 			boolean auditSuccess, boolean auditFailure) {
 		Assert.notNull(acl, "Acl required");
 		Assert.notNull(sid, "Sid required");
@@ -133,7 +135,7 @@ public class AccessControlEntryImpl implements AccessControlEntry, AuditableAcce
 	}
 
 	@Override
-	public Serializable getId() {
+	public @Nullable Serializable getId() {
 		return this.id;
 	}
 

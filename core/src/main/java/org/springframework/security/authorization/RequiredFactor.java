@@ -122,7 +122,7 @@ public final class RequiredFactor {
 		 * @param authority the authority.
 		 * @return the builder.
 		 */
-		public Builder authority(String authority) {
+		public Builder authority(@Nullable String authority) {
 			this.authority = authority;
 			return this;
 		}
@@ -205,7 +205,7 @@ public final class RequiredFactor {
 		 * @param validDuration the {@link Duration}.
 		 * @return
 		 */
-		public Builder validDuration(Duration validDuration) {
+		public Builder validDuration(@Nullable Duration validDuration) {
 			this.validDuration = validDuration;
 			return this;
 		}

@@ -26,6 +26,7 @@ import javax.security.auth.Subject;
 
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.MessageProp;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -56,11 +57,11 @@ public class KerberosServiceRequestToken extends AbstractAuthenticationToken imp
 
 	private final byte[] token;
 
-	private final Object principal;
+	private final @Nullable Object principal;
 
-	private final transient KerberosTicketValidation ticketValidation;
+	private final transient @Nullable KerberosTicketValidation ticketValidation;
 
-	private JaasSubjectHolder jaasSubjectHolder;
+	private @Nullable JaasSubjectHolder jaasSubjectHolder;
 
 	/**
 	 * Creates an authenticated token, normally used as an output of an authentication
@@ -127,12 +128,12 @@ public class KerberosServiceRequestToken extends AbstractAuthenticationToken imp
 	}
 
 	@Override
-	public Object getCredentials() {
+	public @Nullable Object getCredentials() {
 		return null;
 	}
 
 	@Override
-	public Object getPrincipal() {
+	public @Nullable Object getPrincipal() {
 		return this.principal;
 	}
 
@@ -148,7 +149,7 @@ public class KerberosServiceRequestToken extends AbstractAuthenticationToken imp
 	 * Gets the ticket validation
 	 * @return the ticket validation (which will be null if the token is unauthenticated)
 	 */
-	public KerberosTicketValidation getTicketValidation() {
+	public @Nullable KerberosTicketValidation getTicketValidation() {
 		return this.ticketValidation;
 	}
 
@@ -168,6 +169,9 @@ public class KerberosServiceRequestToken extends AbstractAuthenticationToken imp
 		if (!hasResponseToken()) {
 			throw new IllegalStateException("Unauthenticated or no response token");
 		}
+		if (this.ticketValidation == null) {
+			throw new IllegalStateException("Ticket validation is not available");
+		}
 		return Base64.getEncoder().encodeToString(this.ticketValidation.responseToken());
 	}
 
@@ -180,9 +184,16 @@ public class KerberosServiceRequestToken extends AbstractAuthenticationToken imp
 	 * @throws PrivilegedActionException if jaas throws and error
 	 */
 	public byte[] decrypt(final byte[] data, final int offset, final int length) throws PrivilegedActionException {
-		return Subject.doAs(getTicketValidation().subject(), new PrivilegedExceptionAction<byte[]>() {
+		KerberosTicketValidation validation = getTicketValidation();
+		if (validation == null) {
+			throw new IllegalStateException("Cannot decrypt without ticket validation");
+		}
+		return Subject.doAs(validation.subject(), new PrivilegedExceptionAction<byte[]>() {
 			public byte[] run() throws Exception {
-				final GSSContext context = getTicketValidation().getGssContext();
+				final GSSContext context = validation.getGssContext();
+				if (context == null) {
+					throw new IllegalStateException("GSSContext is not available");
+				}
 				return context.unwrap(data, offset, length, new MessageProp(true));
 			}
 		});
@@ -207,9 +218,16 @@ public class KerberosServiceRequestToken extends AbstractAuthenticationToken imp
 	 * @throws PrivilegedActionException if jaas throws and error
 	 */
 	public byte[] encrypt(final byte[] data, final int offset, final int length) throws PrivilegedActionException {
-		return Subject.doAs(getTicketValidation().subject(), new PrivilegedExceptionAction<byte[]>() {
+		KerberosTicketValidation validation = getTicketValidation();
+		if (validation == null) {
+			throw new IllegalStateException("Cannot encrypt without ticket validation");
+		}
+		return Subject.doAs(validation.subject(), new PrivilegedExceptionAction<byte[]>() {
 			public byte[] run() throws Exception {
-				final GSSContext context = getTicketValidation().getGssContext();
+				final GSSContext context = validation.getGssContext();
+				if (context == null) {
+					throw new IllegalStateException("GSSContext is not available");
+				}
 				return context.wrap(data, offset, length, new MessageProp(true));
 			}
 		});
@@ -227,6 +245,9 @@ public class KerberosServiceRequestToken extends AbstractAuthenticationToken imp
 
 	@Override
 	public JaasSubjectHolder getJaasSubjectHolder() {
+		if (this.jaasSubjectHolder == null) {
+			throw new IllegalStateException("JaasSubjectHolder is not available for unauthenticated token");
+		}
 		return this.jaasSubjectHolder;
 	}
 

@@ -19,8 +19,10 @@ package org.springframework.security.oauth2.core.oidc.user;
 import java.io.Serial;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
@@ -42,7 +44,7 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 
 	private final OidcIdToken idToken;
 
-	private final OidcUserInfo userInfo;
+	private final @Nullable OidcUserInfo userInfo;
 
 	/**
 	 * Constructs a {@code OidcUserAuthority} using the provided parameters.
@@ -59,7 +61,7 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user,
 	 * may be {@code null}
 	 */
-	public OidcUserAuthority(OidcIdToken idToken, OidcUserInfo userInfo) {
+	public OidcUserAuthority(OidcIdToken idToken, @Nullable OidcUserInfo userInfo) {
 		this("OIDC_USER", idToken, userInfo);
 	}
 
@@ -70,10 +72,11 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user,
 	 * may be {@code null}
 	 * @param userNameAttributeName the attribute name used to access the user's name from
-	 * the attributes
+	 * the attributes, may be {@code null}
 	 * @since 6.4
 	 */
-	public OidcUserAuthority(OidcIdToken idToken, OidcUserInfo userInfo, @Nullable String userNameAttributeName) {
+	public OidcUserAuthority(OidcIdToken idToken, @Nullable OidcUserInfo userInfo,
+			@Nullable String userNameAttributeName) {
 		this("OIDC_USER", idToken, userInfo, userNameAttributeName);
 	}
 
@@ -84,7 +87,7 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user,
 	 * may be {@code null}
 	 */
-	public OidcUserAuthority(String authority, OidcIdToken idToken, OidcUserInfo userInfo) {
+	public OidcUserAuthority(String authority, OidcIdToken idToken, @Nullable OidcUserInfo userInfo) {
 		this(authority, idToken, userInfo, IdTokenClaimNames.SUB);
 	}
 
@@ -95,10 +98,10 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user,
 	 * may be {@code null}
 	 * @param userNameAttributeName the attribute name used to access the user's name from
-	 * the attributes
+	 * the attributes, may be {@code null}
 	 * @since 6.4
 	 */
-	public OidcUserAuthority(String authority, OidcIdToken idToken, OidcUserInfo userInfo,
+	public OidcUserAuthority(String authority, OidcIdToken idToken, @Nullable OidcUserInfo userInfo,
 			@Nullable String userNameAttributeName) {
 		super(authority, collectClaims(idToken, userInfo), userNameAttributeName);
 		this.idToken = idToken;
@@ -118,7 +121,7 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 	 * {@code null}.
 	 * @return the {@link OidcUserInfo} containing claims about the user, or {@code null}
 	 */
-	public OidcUserInfo getUserInfo() {
+	public @Nullable OidcUserInfo getUserInfo() {
 		return this.userInfo;
 	}
 
@@ -137,8 +140,7 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 		if (!this.getIdToken().equals(that.getIdToken())) {
 			return false;
 		}
-		return (this.getUserInfo() != null) ? this.getUserInfo().equals(that.getUserInfo())
-				: that.getUserInfo() == null;
+		return Objects.equals(this.getUserInfo(), that.getUserInfo());
 	}
 
 	@Override
@@ -149,7 +151,7 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 		return result;
 	}
 
-	static Map<String, Object> collectClaims(OidcIdToken idToken, OidcUserInfo userInfo) {
+	static Map<String, Object> collectClaims(OidcIdToken idToken, @Nullable OidcUserInfo userInfo) {
 		Assert.notNull(idToken, "idToken cannot be null");
 		Map<String, Object> claims = new HashMap<>();
 		if (userInfo != null) {

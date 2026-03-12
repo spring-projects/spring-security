@@ -22,6 +22,7 @@ import javax.naming.directory.DirContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.ldap.NamingException;
@@ -98,11 +99,12 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 		return user;
 	}
 
-	private DirContextOperations bindWithDn(String userDnStr, String username, String password) {
+	private @Nullable DirContextOperations bindWithDn(String userDnStr, String username, String password) {
 		return bindWithDn(userDnStr, username, password, null);
 	}
 
-	private DirContextOperations bindWithDn(String userDnStr, String username, String password, Attributes attrs) {
+	private @Nullable DirContextOperations bindWithDn(String userDnStr, String username, String password,
+			@Nullable Attributes attrs) {
 		BaseLdapPathContextSource ctxSource = (BaseLdapPathContextSource) getContextSource();
 		Name userDn = LdapUtils.newLdapName(userDnStr);
 		Name fullDn = LdapUtils.prepend(userDn, ctxSource.getBaseLdapName());

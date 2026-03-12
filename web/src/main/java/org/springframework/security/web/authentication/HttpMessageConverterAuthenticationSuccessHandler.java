@@ -49,7 +49,7 @@ import org.springframework.util.Assert;
  */
 public final class HttpMessageConverterAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
-	private HttpMessageConverter<Object> converter = new MappingJackson2HttpMessageConverter();
+	private HttpMessageConverter<Object> converter = HttpMessageConverters.getJsonMessageConverter();
 
 	private RequestCache requestCache = new HttpSessionRequestCache();
 

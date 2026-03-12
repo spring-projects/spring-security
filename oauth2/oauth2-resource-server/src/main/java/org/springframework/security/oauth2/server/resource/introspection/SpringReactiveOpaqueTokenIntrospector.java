@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import reactor.core.publisher.Mono;
 
@@ -278,6 +279,8 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 
 		private String clientSecret;
 
+		private final List<Consumer<SpringReactiveOpaqueTokenIntrospector>> postProcessors = new ArrayList<>();
+
 		private Builder(String introspectionUri) {
 			this.introspectionUri = introspectionUri;
 		}
@@ -309,6 +312,21 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		}
 
 		/**
+		 * Adds a {@link Consumer} to customize the
+		 * {@link SpringReactiveOpaqueTokenIntrospector} after it is built. This allows
+		 * for additional configuration that cannot be expressed through the builder
+		 * methods.
+		 * @param postProcessor the {@link Consumer} to customize the introspector
+		 * @return the {@link SpringReactiveOpaqueTokenIntrospector.Builder}
+		 * @since 7.1.0
+		 */
+		public Builder postProcessor(Consumer<SpringReactiveOpaqueTokenIntrospector> postProcessor) {
+			Assert.notNull(postProcessor, "postProcessor cannot be null");
+			this.postProcessors.add(postProcessor);
+			return this;
+		}
+
+		/**
 		 * Creates a {@code SpringReactiveOpaqueTokenIntrospector}
 		 * @return the {@link SpringReactiveOpaqueTokenIntrospector}
 		 * @since 6.5
@@ -317,7 +335,10 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 			WebClient webClient = WebClient.builder()
 				.defaultHeaders((h) -> h.setBasicAuth(this.clientId, this.clientSecret))
 				.build();
-			return new SpringReactiveOpaqueTokenIntrospector(this.introspectionUri, webClient);
+			SpringReactiveOpaqueTokenIntrospector introspector = new SpringReactiveOpaqueTokenIntrospector(
+					this.introspectionUri, webClient);
+			this.postProcessors.forEach((postProcessor) -> postProcessor.accept(introspector));
+			return introspector;
 		}
 
 	}

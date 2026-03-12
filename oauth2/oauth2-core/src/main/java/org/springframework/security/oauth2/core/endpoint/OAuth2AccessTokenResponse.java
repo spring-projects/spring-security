@@ -21,9 +21,11 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -39,11 +41,11 @@ import org.springframework.util.StringUtils;
  */
 public final class OAuth2AccessTokenResponse {
 
-	private OAuth2AccessToken accessToken;
+	private @Nullable OAuth2AccessToken accessToken;
 
-	private OAuth2RefreshToken refreshToken;
+	private @Nullable OAuth2RefreshToken refreshToken;
 
-	private Map<String, Object> additionalParameters;
+	private @Nullable Map<String, Object> additionalParameters;
 
 	private OAuth2AccessTokenResponse() {
 	}
@@ -53,12 +55,14 @@ public final class OAuth2AccessTokenResponse {
 	 * @return the {@link OAuth2AccessToken}
 	 */
 	public OAuth2AccessToken getAccessToken() {
+		Assert.notNull(this.accessToken, "accessToken cannot be null");
 		return this.accessToken;
 	}
 
 	/**
 	 * Returns the {@link OAuth2RefreshToken Refresh Token}.
-	 * @return the {@link OAuth2RefreshToken}
+	 * @return the {@link OAuth2RefreshToken}, or {@code null} if not present in the
+	 * response
 	 * @since 5.1
 	 */
 	public @Nullable OAuth2RefreshToken getRefreshToken() {
@@ -71,6 +75,7 @@ public final class OAuth2AccessTokenResponse {
 	 * empty.
 	 */
 	public Map<String, Object> getAdditionalParameters() {
+		Assert.notNull(this.additionalParameters, "additionalParameters cannot be null");
 		return this.additionalParameters;
 	}
 
@@ -99,19 +104,19 @@ public final class OAuth2AccessTokenResponse {
 
 		private String tokenValue;
 
-		private OAuth2AccessToken.TokenType tokenType;
+		private OAuth2AccessToken.@Nullable TokenType tokenType;
 
-		private Instant issuedAt;
+		private @Nullable Instant issuedAt;
 
-		private Instant expiresAt;
+		private @Nullable Instant expiresAt;
 
 		private long expiresIn;
 
-		private Set<String> scopes;
+		private @Nullable Set<String> scopes;
 
-		private String refreshToken;
+		private @Nullable String refreshToken;
 
-		private Map<String, Object> additionalParameters;
+		private @Nullable Map<String, Object> additionalParameters;
 
 		private Builder(OAuth2AccessTokenResponse response) {
 			OAuth2AccessToken accessToken = response.getAccessToken();
@@ -131,10 +136,10 @@ public final class OAuth2AccessTokenResponse {
 
 		/**
 		 * Sets the {@link OAuth2AccessToken.TokenType token type}.
-		 * @param tokenType the type of token issued
+		 * @param tokenType the type of token issued, may be {@code null}
 		 * @return the {@link Builder}
 		 */
-		public Builder tokenType(OAuth2AccessToken.TokenType tokenType) {
+		public Builder tokenType(OAuth2AccessToken.@Nullable TokenType tokenType) {
 			this.tokenType = tokenType;
 			return this;
 		}
@@ -152,30 +157,32 @@ public final class OAuth2AccessTokenResponse {
 
 		/**
 		 * Sets the scope(s) associated to the access token.
-		 * @param scopes the scope(s) associated to the access token.
+		 * @param scopes the scope(s) associated to the access token, may be {@code null}
 		 * @return the {@link Builder}
 		 */
-		public Builder scopes(Set<String> scopes) {
+		public Builder scopes(@Nullable Set<String> scopes) {
 			this.scopes = scopes;
 			return this;
 		}
 
 		/**
 		 * Sets the refresh token associated to the access token.
-		 * @param refreshToken the refresh token associated to the access token.
+		 * @param refreshToken the refresh token associated to the access token, may be
+		 * {@code null}
 		 * @return the {@link Builder}
 		 */
-		public Builder refreshToken(String refreshToken) {
+		public Builder refreshToken(@Nullable String refreshToken) {
 			this.refreshToken = refreshToken;
 			return this;
 		}
 
 		/**
 		 * Sets the additional parameters returned in the response.
-		 * @param additionalParameters the additional parameters returned in the response
+		 * @param additionalParameters the additional parameters returned in the response,
+		 * may be {@code null}
 		 * @return the {@link Builder}
 		 */
-		public Builder additionalParameters(Map<String, Object> additionalParameters) {
+		public Builder additionalParameters(@Nullable Map<String, Object> additionalParameters) {
 			this.additionalParameters = additionalParameters;
 			return this;
 		}
@@ -185,11 +192,14 @@ public final class OAuth2AccessTokenResponse {
 		 * @return a {@link OAuth2AccessTokenResponse}
 		 */
 		public OAuth2AccessTokenResponse build() {
+			Assert.notNull(this.tokenType, "tokenType cannot be null");
 			Instant issuedAt = getIssuedAt();
 			Instant expiresAt = getExpiresAt();
+			// Convert nullable scopes to non-null for constructor
+			Set<String> scopesToUse = (this.scopes != null) ? this.scopes : Collections.emptySet();
 			OAuth2AccessTokenResponse accessTokenResponse = new OAuth2AccessTokenResponse();
 			accessTokenResponse.accessToken = new OAuth2AccessToken(this.tokenType, this.tokenValue, issuedAt,
-					expiresAt, this.scopes);
+					expiresAt, scopesToUse);
 			if (StringUtils.hasText(this.refreshToken)) {
 				accessTokenResponse.refreshToken = new OAuth2RefreshToken(this.refreshToken, issuedAt);
 			}

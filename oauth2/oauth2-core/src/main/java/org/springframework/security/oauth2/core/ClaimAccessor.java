@@ -21,6 +21,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.security.oauth2.core.converter.ClaimConversionService;
 import org.springframework.util.Assert;
@@ -44,11 +46,11 @@ public interface ClaimAccessor {
 	 * type {@code T}.
 	 * @param claim the name of the claim
 	 * @param <T> the type of the claim value
-	 * @return the claim value
+	 * @return the claim value, or {@code null} if the claim does not exist
 	 * @since 5.2
 	 */
 	@SuppressWarnings("unchecked")
-	default <T> T getClaim(String claim) {
+	default <T> @Nullable T getClaim(String claim) {
 		return !hasClaim(claim) ? null : (T) getClaims().get(claim);
 	}
 
@@ -71,7 +73,7 @@ public interface ClaimAccessor {
 	 * @return the claim value or {@code null} if it does not exist or is equal to
 	 * {@code null}
 	 */
-	default String getClaimAsString(String claim) {
+	default @Nullable String getClaimAsString(String claim) {
 		return !hasClaim(claim) ? null
 				: ClaimConversionService.getSharedInstance().convert(getClaims().get(claim), String.class);
 	}
@@ -83,13 +85,15 @@ public interface ClaimAccessor {
 	 * @return the claim value or {@code null} if the claim does not exist
 	 * @throws IllegalArgumentException if the claim value cannot be converted to a
 	 * {@code Boolean}
-	 * @throws NullPointerException if the claim value is {@code null}
 	 */
-	default Boolean getClaimAsBoolean(String claim) {
+	default @Nullable Boolean getClaimAsBoolean(String claim) {
 		if (!hasClaim(claim)) {
 			return null;
 		}
 		Object claimValue = getClaims().get(claim);
+		if (claimValue == null) {
+			return null;
+		}
 		Boolean convertedValue = ClaimConversionService.getSharedInstance().convert(claimValue, Boolean.class);
 		Assert.notNull(convertedValue,
 				() -> "Unable to convert claim '" + claim + "' of type '" + claimValue.getClass() + "' to Boolean.");
@@ -100,12 +104,17 @@ public interface ClaimAccessor {
 	 * Returns the claim value as an {@code Instant} or {@code null} if it does not exist.
 	 * @param claim the name of the claim
 	 * @return the claim value or {@code null} if it does not exist
+	 * @throws IllegalArgumentException if the claim value cannot be converted to an
+	 * {@code Instant}
 	 */
-	default Instant getClaimAsInstant(String claim) {
+	default @Nullable Instant getClaimAsInstant(String claim) {
 		if (!hasClaim(claim)) {
 			return null;
 		}
 		Object claimValue = getClaims().get(claim);
+		if (claimValue == null) {
+			return null;
+		}
 		Instant convertedValue = ClaimConversionService.getSharedInstance().convert(claimValue, Instant.class);
 		Assert.notNull(convertedValue,
 				() -> "Unable to convert claim '" + claim + "' of type '" + claimValue.getClass() + "' to Instant.");
@@ -116,12 +125,17 @@ public interface ClaimAccessor {
 	 * Returns the claim value as an {@code URL} or {@code null} if it does not exist.
 	 * @param claim the name of the claim
 	 * @return the claim value or {@code null} if it does not exist
+	 * @throws IllegalArgumentException if the claim value cannot be converted to a
+	 * {@code URL}
 	 */
-	default URL getClaimAsURL(String claim) {
+	default @Nullable URL getClaimAsURL(String claim) {
 		if (!hasClaim(claim)) {
 			return null;
 		}
 		Object claimValue = getClaims().get(claim);
+		if (claimValue == null) {
+			return null;
+		}
 		URL convertedValue = ClaimConversionService.getSharedInstance().convert(claimValue, URL.class);
 		Assert.notNull(convertedValue,
 				() -> "Unable to convert claim '" + claim + "' of type '" + claimValue.getClass() + "' to URL.");
@@ -135,17 +149,19 @@ public interface ClaimAccessor {
 	 * @return the claim value or {@code null} if the claim does not exist
 	 * @throws IllegalArgumentException if the claim value cannot be converted to a
 	 * {@code Map}
-	 * @throws NullPointerException if the claim value is {@code null}
 	 */
 	@SuppressWarnings("unchecked")
-	default Map<String, Object> getClaimAsMap(String claim) {
+	default @Nullable Map<String, Object> getClaimAsMap(String claim) {
 		if (!hasClaim(claim)) {
+			return null;
+		}
+		Object claimValue = getClaims().get(claim);
+		if (claimValue == null) {
 			return null;
 		}
 		final TypeDescriptor sourceDescriptor = TypeDescriptor.valueOf(Object.class);
 		final TypeDescriptor targetDescriptor = TypeDescriptor.map(Map.class, TypeDescriptor.valueOf(String.class),
 				TypeDescriptor.valueOf(Object.class));
-		Object claimValue = getClaims().get(claim);
 		Map<String, Object> convertedValue = (Map<String, Object>) ClaimConversionService.getSharedInstance()
 			.convert(claimValue, sourceDescriptor, targetDescriptor);
 		Assert.notNull(convertedValue,
@@ -160,17 +176,19 @@ public interface ClaimAccessor {
 	 * @return the claim value or {@code null} if the claim does not exist
 	 * @throws IllegalArgumentException if the claim value cannot be converted to a
 	 * {@code List}
-	 * @throws NullPointerException if the claim value is {@code null}
 	 */
 	@SuppressWarnings("unchecked")
-	default List<String> getClaimAsStringList(String claim) {
+	default @Nullable List<String> getClaimAsStringList(String claim) {
 		if (!hasClaim(claim)) {
+			return null;
+		}
+		Object claimValue = getClaims().get(claim);
+		if (claimValue == null) {
 			return null;
 		}
 		final TypeDescriptor sourceDescriptor = TypeDescriptor.valueOf(Object.class);
 		final TypeDescriptor targetDescriptor = TypeDescriptor.collection(List.class,
 				TypeDescriptor.valueOf(String.class));
-		Object claimValue = getClaims().get(claim);
 		List<String> convertedValue = (List<String>) ClaimConversionService.getSharedInstance()
 			.convert(claimValue, sourceDescriptor, targetDescriptor);
 		Assert.notNull(convertedValue,

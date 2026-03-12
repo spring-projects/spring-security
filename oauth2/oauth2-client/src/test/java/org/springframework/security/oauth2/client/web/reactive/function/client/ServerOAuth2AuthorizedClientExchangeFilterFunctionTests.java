@@ -59,6 +59,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.oauth2.client.AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.ClientAuthorizationException;
 import org.springframework.security.oauth2.client.ClientCredentialsReactiveOAuth2AuthorizedClientProvider;
@@ -66,6 +67,7 @@ import org.springframework.security.oauth2.client.InMemoryReactiveOAuth2Authoriz
 import org.springframework.security.oauth2.client.JwtBearerReactiveOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizationFailureHandler;
+import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizationSuccessHandler;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
@@ -89,8 +91,10 @@ import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.core.user.TestOAuth2Users;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.TestJwts;
+import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -113,6 +117,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Rob Winch
+ * @author Evgeniy Cheban
  * @since 5.1
  */
 @ExtendWith(MockitoExtension.class)
@@ -132,6 +137,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Mock
 	private ReactiveOAuth2AccessTokenResponseClient<JwtBearerGrantRequest> jwtBearerTokenResponseClient;
+
+	@Mock
+	private ReactiveOAuth2AuthorizationSuccessHandler authorizationSuccessHandler;
 
 	@Mock
 	private ReactiveOAuth2AuthorizationFailureHandler authorizationFailureHandler;
@@ -170,7 +178,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.builder()
 				.authorizationCode()
 				.refreshToken(
-						(configurer) -> configurer.accessTokenResponseClient(this.refreshTokenTokenResponseClient))
+						(configurer) -> configurer
+								.authorizationSuccessHandler(this.authorizationSuccessHandler)
+								.accessTokenResponseClient(this.refreshTokenTokenResponseClient))
 				.clientCredentials(
 						(configurer) -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))
 				.provider(jwtBearerAuthorizedClientProvider)
@@ -199,6 +209,13 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	public void constructorWhenAuthorizedClientManagerIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> new ServerOAuth2AuthorizedClientExchangeFilterFunction(null));
+	}
+
+	@Test
+	public void setServerSecurityContextRepositoryWhenHandlerIsNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientManager)
+				.setServerSecurityContextRepository(null));
 	}
 
 	@Test
@@ -312,6 +329,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 			.refreshToken("refresh-1")
 			.build();
 		given(this.refreshTokenTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(response));
+		given(this.authorizationSuccessHandler.onAuthorizationSuccess(any(), any(), any())).willReturn(Mono.empty());
 		Instant issuedAt = Instant.now().minus(Duration.ofDays(1));
 		Instant accessTokenExpiresAt = issuedAt.plus(Duration.ofHours(1));
 		this.accessToken = new OAuth2AccessToken(this.accessToken.getTokenType(), this.accessToken.getTokenValue(),
@@ -326,14 +344,23 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		// @formatter:on
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("test", "this");
 		// @formatter:off
+		DefaultOAuth2User refreshedUser = TestOAuth2Users.create();
+		OAuth2AuthenticationToken refreshedAuthentication = new OAuth2AuthenticationToken(refreshedUser, refreshedUser.getAuthorities(), this.registration.getRegistrationId());
+		SecurityContextImpl securityContext = new SecurityContextImpl(refreshedAuthentication);
+		ServerSecurityContextRepository securityContextRepository = mock(ServerSecurityContextRepository.class);
+		given(securityContextRepository.load(this.serverWebExchange)).willReturn(Mono.just(securityContext));
+		this.function.setServerSecurityContextRepository(securityContextRepository);
 		this.function.filter(request, this.exchange)
 				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
 				.contextWrite(serverWebExchange())
 				.block();
+		Authentication currentAuthentication = this.exchange.getCapturedAuthentication();
+		assertThat(currentAuthentication).isSameAs(refreshedAuthentication);
 		// @formatter:on
 		verify(this.refreshTokenTokenResponseClient).getTokenResponse(any());
 		verify(this.authorizedClientRepository).saveAuthorizedClient(this.authorizedClientCaptor.capture(),
 				eq(authentication), any());
+		verify(securityContextRepository).load(this.serverWebExchange);
 		OAuth2AuthorizedClient newAuthorizedClient = this.authorizedClientCaptor.getValue();
 		assertThat(newAuthorizedClient.getAccessToken()).isEqualTo(response.getAccessToken());
 		assertThat(newAuthorizedClient.getRefreshToken()).isEqualTo(response.getRefreshToken());
@@ -355,6 +382,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 			.refreshToken("refresh-1")
 			.build();
 		given(this.refreshTokenTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(response));
+		given(this.authorizationSuccessHandler.onAuthorizationSuccess(any(), any(), any())).willReturn(Mono.empty());
 		Instant issuedAt = Instant.now().minus(Duration.ofDays(1));
 		Instant accessTokenExpiresAt = issuedAt.plus(Duration.ofHours(1));
 		this.accessToken = new OAuth2AccessToken(this.accessToken.getTokenType(), this.accessToken.getTokenValue(),

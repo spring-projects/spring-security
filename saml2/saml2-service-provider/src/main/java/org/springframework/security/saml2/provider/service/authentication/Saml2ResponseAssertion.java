@@ -20,6 +20,8 @@ import java.io.Serial;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -81,7 +83,7 @@ public class Saml2ResponseAssertion implements Saml2ResponseAssertionAccessor {
 
 		private final String responseValue;
 
-		private String nameId;
+		private @Nullable String nameId;
 
 		private List<String> sessionIndexes = List.of();
 
@@ -107,6 +109,7 @@ public class Saml2ResponseAssertion implements Saml2ResponseAssertionAccessor {
 		}
 
 		public Saml2ResponseAssertion build() {
+			Assert.notNull(this.nameId, "nameId cannot be null");
 			return new Saml2ResponseAssertion(this.responseValue, this.nameId, this.sessionIndexes, this.attributes);
 		}
 

@@ -76,11 +76,11 @@ public class BearerTokenAuthenticationTests {
 	}
 
 	@Test
-	public void getNameWhenHasNoSubjectThenReturnsNull() {
+	public void getNameWhenHasNoSubjectThenReturnsEmptyString() {
 		OAuth2AuthenticatedPrincipal principal = new DefaultOAuth2AuthenticatedPrincipal(
 				Collections.singletonMap("claim", "value"), null);
 		BearerTokenAuthentication authenticated = new BearerTokenAuthentication(principal, this.token, null);
-		assertThat(authenticated.getName()).isNull();
+		assertThat(authenticated.getName()).isEmpty();
 	}
 
 	@Test

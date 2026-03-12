@@ -12,7 +12,7 @@ To enable Spring Security integration with Spring MVC, add the `@EnableWebSecuri
 
 [NOTE]
 ====
-Spring Security provides the configuration by using Spring MVC's https://docs.spring.io/spring/docs/5.0.0.RELEASE/spring-framework-reference/web.html#mvc-config-customize[`WebMvcConfigurer`].
+Spring Security provides the configuration by using Spring MVC's {spring-framework-reference-url}web/webmvc/mvc-config/customize.html[`WebMvcConfigurer`].
 This means that, if you use more advanced options, such as integrating with `WebMvcConfigurationSupport` directly, you need to manually provide the Spring Security configuration.
 ====
 
@@ -184,7 +184,7 @@ class CustomUserUserDetails(
 ----
 ======
 
-We could then access the `CustomUser` by using a https://docs.spring.io/spring/docs/current/spring-framework-reference/html/expressions.html[SpEL expression] that uses `Authentication.getPrincipal()` as the root object:
+We could then access the `CustomUser` by using a {spring-framework-reference-url}core/expressions.html[SpEL expression] that uses `Authentication.getPrincipal()` as the root object:
 
 [tabs]
 ======
@@ -517,7 +517,7 @@ fun me(@CurrentSecurityContext(expression = "authentication") authentication: Au
 [[mvc-async]]
 == Spring MVC Async Integration
 
-Spring Web MVC 3.2+ has excellent support for https://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-ann-async[Asynchronous Request Processing].
+Spring Web MVC 3.2+ has excellent support for {spring-framework-reference-url}web/webmvc/mvc-ann-async.html[Asynchronous Request Processing].
 With no additional configuration, Spring Security automatically sets up the `SecurityContext` to the `Thread` that invokes a `Callable` returned by your controllers.
 For example, the following method automatically has its `Callable` invoked with the `SecurityContext` that was available when the `Callable` was created:
 
@@ -572,7 +572,7 @@ Spring Security integrates with Spring MVC to add CSRF protection.
 
 === Automatic Token Inclusion
 
-Spring Security automatically xref:servlet/exploits/csrf.adoc#csrf-integration-form[include the CSRF Token] within forms that use the https://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/view.html#view-jsp-formtaglib-formtag[Spring MVC form tag].
+Spring Security automatically xref:servlet/exploits/csrf.adoc#csrf-integration-form[include the CSRF Token] within forms that use the {spring-framework-reference-url}web/webmvc-view/mvc-jsp.html#mvc-view-jsp-formtaglib-formtag[Spring MVC form tag].
 Consider the following JSP:
 
 [source,xml]

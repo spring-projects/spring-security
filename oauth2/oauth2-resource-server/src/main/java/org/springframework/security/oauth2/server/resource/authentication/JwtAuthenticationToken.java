@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.Transient;
@@ -32,6 +33,7 @@ import org.springframework.util.Assert;
  * {@link Jwt} {@code Authentication}.
  *
  * @author Joe Grandja
+ * @author Andrey Litvitski
  * @since 5.1
  * @see AbstractOAuth2TokenAuthenticationToken
  * @see Jwt
@@ -78,6 +80,24 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 	protected JwtAuthenticationToken(Builder<?> builder) {
 		super(builder);
 		this.name = builder.name;
+	}
+
+	/**
+	 * Constructs a {@code JwtAuthenticationToken} using the provided parameters.
+	 * @param jwt the JWT
+	 * @param principal the principal
+	 * @param authorities the authorities assigned to the JWT
+	 * @since 7.1
+	 */
+	public JwtAuthenticationToken(Jwt jwt, Object principal, Collection<? extends GrantedAuthority> authorities) {
+		super(jwt, principal, jwt, authorities);
+		this.setAuthenticated(true);
+		if (principal instanceof AuthenticatedPrincipal) {
+			this.name = ((AuthenticatedPrincipal) principal).getName();
+		}
+		else {
+			this.name = jwt.getSubject();
+		}
 	}
 
 	@Override

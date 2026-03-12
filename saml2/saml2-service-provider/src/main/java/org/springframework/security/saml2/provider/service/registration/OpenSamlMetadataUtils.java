@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Collections;
 
+import net.shibboleth.shared.xml.ParserPool;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Unmarshaller;
@@ -31,6 +32,7 @@ import org.w3c.dom.Element;
 
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
+import org.springframework.util.Assert;
 
 final class OpenSamlMetadataUtils {
 
@@ -71,7 +73,9 @@ final class OpenSamlMetadataUtils {
 		@Override
 		public XMLObject deserialize(InputStream serialized) {
 			try {
-				Document document = XMLObjectProviderRegistrySupport.getParserPool().parse(serialized);
+				ParserPool parserPool = XMLObjectProviderRegistrySupport.getParserPool();
+				Assert.notNull(parserPool, "A ParserPool must be configured");
+				Document document = parserPool.parse(serialized);
 				Element element = document.getDocumentElement();
 				UnmarshallerFactory factory = XMLObjectProviderRegistrySupport.getUnmarshallerFactory();
 				Unmarshaller unmarshaller = factory.getUnmarshaller(element);

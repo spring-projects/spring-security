@@ -27,6 +27,7 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authorization.DefaultAuthorizationManagerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContextImpl;
@@ -90,6 +91,7 @@ public class SecurityEvaluationContextExtensionTests {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void setTrustResolverWhenNullThenIllegalArgumentException() {
 		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
 		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
@@ -98,6 +100,7 @@ public class SecurityEvaluationContextExtensionTests {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void setTrustResolverWhenNotNullThenVerifyRootObject() {
 		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
 		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
@@ -109,6 +112,7 @@ public class SecurityEvaluationContextExtensionTests {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void setRoleHierarchyWhenNullThenIllegalArgumentException() {
 		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
 		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
@@ -117,6 +121,7 @@ public class SecurityEvaluationContextExtensionTests {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void setRoleHierarchyWhenNotNullThenVerifyRootObject() {
 		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_PARENT");
 		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
@@ -143,11 +148,47 @@ public class SecurityEvaluationContextExtensionTests {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void setDefaultRolePrefixWhenCustomThenVerifyRootObject() {
 		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "CUSTOM_EXPLICIT");
 		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
 		String defaultRolePrefix = "CUSTOM_";
 		this.securityExtension.setDefaultRolePrefix(defaultRolePrefix);
+		assertThat(getRoot().hasRole("EXPLICIT")).isTrue();
+	}
+
+	@Test
+	public void setAuthorizationManagerFactoryWithTrustResolverThenVerifyRootObject() {
+		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
+		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
+		AuthenticationTrustResolver trustResolver = mock(AuthenticationTrustResolver.class);
+		given(trustResolver.isAuthenticated(explicit)).willReturn(true);
+		DefaultAuthorizationManagerFactory<Object> factory = new DefaultAuthorizationManagerFactory<>();
+		factory.setTrustResolver(trustResolver);
+		this.securityExtension.setAuthorizationManagerFactory(factory);
+		assertThat(getRoot().isAuthenticated()).isTrue();
+		verify(trustResolver).isAuthenticated(explicit);
+	}
+
+	@Test
+	public void setAuthorizationManagerFactoryWithRoleHierarchyThenVerifyRootObject() {
+		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_PARENT");
+		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
+		RoleHierarchy roleHierarchy = RoleHierarchyImpl.fromHierarchy("ROLE_PARENT > ROLE_EXPLICIT");
+		DefaultAuthorizationManagerFactory<Object> factory = new DefaultAuthorizationManagerFactory<>();
+		factory.setRoleHierarchy(roleHierarchy);
+		this.securityExtension.setAuthorizationManagerFactory(factory);
+		assertThat(getRoot().hasRole("EXPLICIT")).isTrue();
+	}
+
+	@Test
+	public void setAuthorizationManagerFactoryWithRolePrefixThenVerifyRootObject() {
+		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "CUSTOM_EXPLICIT");
+		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
+		String customRolePrefix = "CUSTOM_";
+		DefaultAuthorizationManagerFactory<Object> factory = new DefaultAuthorizationManagerFactory<>();
+		factory.setRolePrefix(customRolePrefix);
+		this.securityExtension.setAuthorizationManagerFactory(factory);
 		assertThat(getRoot().hasRole("EXPLICIT")).isTrue();
 	}
 
