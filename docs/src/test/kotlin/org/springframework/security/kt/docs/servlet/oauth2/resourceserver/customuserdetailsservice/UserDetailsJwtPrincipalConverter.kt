@@ -29,7 +29,8 @@ import org.springframework.stereotype.Component
 class UserDetailsJwtPrincipalConverter(private val users: UserDetailsService) : Converter<Jwt, OAuth2AuthenticatedPrincipal> {
 
 	override fun convert(jwt: Jwt): OAuth2AuthenticatedPrincipal {
-		val user = users.loadUserByUsername(jwt.subject)
+		val subject = jwt.subject ?: throw IllegalArgumentException("JWT subject is required")
+		val user = users.loadUserByUsername(subject)
 		return JwtUser(jwt, user)
 	}
 
@@ -37,7 +38,7 @@ class UserDetailsJwtPrincipalConverter(private val users: UserDetailsService) : 
 		User(user.username, user.password, user.isEnabled, user.isAccountNonExpired, user.isCredentialsNonExpired, user.isAccountNonLocked, user.authorities),
 		OAuth2AuthenticatedPrincipal {
 
-		override fun getName(): String = jwt.subject
+		override fun getName(): String = jwt.subject ?: ""
 
 		override fun getAttributes(): Map<String, Any> = jwt.claims
 

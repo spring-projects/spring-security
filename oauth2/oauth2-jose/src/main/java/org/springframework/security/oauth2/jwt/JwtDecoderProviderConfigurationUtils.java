@@ -164,6 +164,7 @@ final class JwtDecoderProviderConfigurationUtils {
 				RequestEntity<Void> request = RequestEntity.get(uri.toUriString()).build();
 				ResponseEntity<Map<String, Object>> response = rest.exchange(request, STRING_OBJECT_MAP);
 				Map<String, Object> configuration = response.getBody();
+				Assert.notNull(configuration, "configuration must not be null");
 				Assert.isTrue(configuration.get("jwks_uri") != null, "The public JWK set URI must not be null");
 				return configuration;
 			}

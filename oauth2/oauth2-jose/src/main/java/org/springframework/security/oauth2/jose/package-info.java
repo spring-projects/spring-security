@@ -15,9 +15,10 @@
  */
 
 /**
- * Core classes and interfaces providing support for JSON Web Signature (JWS).
+ * Core classes and interfaces providing support for JavaScript Object Signing and
+ * Encryption (JOSE).
  */
 @NullMarked
-package org.springframework.security.oauth2.jose.jws;
+package org.springframework.security.oauth2.jose;
 
 import org.jspecify.annotations.NullMarked;

@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.jose.jws;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * An enumeration of the cryptographic algorithms defined by the JSON Web Algorithms (JWA)
  * specification and used by JSON Web Signature (JWS) to create a MAC of the contents of
@@ -69,7 +71,7 @@ public enum MacAlgorithm implements JwsAlgorithm {
 	 * @param name the algorithm name
 	 * @return the resolved {@code MacAlgorithm}, or {@code null} if not found
 	 */
-	public static MacAlgorithm from(String name) {
+	public static @Nullable MacAlgorithm from(String name) {
 		for (MacAlgorithm algorithm : values()) {
 			if (algorithm.getName().equals(name)) {
 				return algorithm;

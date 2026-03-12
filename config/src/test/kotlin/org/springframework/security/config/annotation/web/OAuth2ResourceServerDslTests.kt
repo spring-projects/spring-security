@@ -147,7 +147,7 @@ class OAuth2ResourceServerDslTests {
     }
 
     class MockJwtDecoder: JwtDecoder {
-        override fun decode(token: String?): Jwt {
+        override fun decode(token: String): Jwt {
             return Jwt.withTokenValue("token")
                 .header("alg", "none")
                 .claim(SUB, "user")

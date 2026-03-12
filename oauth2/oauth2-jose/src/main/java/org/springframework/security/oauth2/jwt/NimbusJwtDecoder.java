@@ -57,6 +57,7 @@ import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.cache.Cache;
 import org.springframework.cache.support.NoOpCache;
@@ -231,7 +232,9 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils
 				.getConfigurationForIssuerLocation(issuer, rest);
 			JwtDecoderProviderConfigurationUtils.validateIssuer(configuration, issuer);
-			return configuration.get("jwks_uri").toString();
+			Object jwksUri = configuration.get("jwks_uri");
+			Assert.notNull(jwksUri, "The public JWK Set URI must not be null");
+			return jwksUri.toString();
 		}, JwtDecoderProviderConfigurationUtils::getJWSAlgorithms);
 	}
 
@@ -494,7 +497,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 			private final String jwkSetUri;
 
-			private JWKSet jwkSet;
+			private @Nullable JWKSet jwkSet;
 
 			private SpringJWKSource(RestOperations restOperations, Cache cache, String jwkSetUri) {
 				Assert.notNull(restOperations, "restOperations cannot be null");
@@ -518,6 +521,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 				RequestEntity<Void> request = new RequestEntity<>(headers, HttpMethod.GET, URI.create(this.jwkSetUri));
 				ResponseEntity<String> response = this.restOperations.exchange(request, String.class);
 				String jwks = response.getBody();
+				Assert.notNull(jwks, "JWK Set response body must not be null");
 				this.jwkSet = JWKSet.parse(jwks);
 				return jwks;
 			}
@@ -531,13 +535,18 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 						this.cache.invalidate();
 					}
 					this.cache.get(this.jwkSetUri, this::fetchJwks);
+					Assert.notNull(this.jwkSet, "JWK Set must not be null");
 					return this.jwkSet;
 				}
 				catch (Cache.ValueRetrievalException ex) {
-					if (ex.getCause() instanceof RemoteKeySourceException keys) {
+					Throwable cause = ex.getCause();
+					if (cause instanceof RemoteKeySourceException keys) {
 						throw keys;
 					}
-					throw new RemoteKeySourceException(ex.getCause().getMessage(), ex.getCause());
+					if (cause != null) {
+						throw new RemoteKeySourceException(cause.getMessage(), cause);
+					}
+					throw new RemoteKeySourceException(ex.getMessage(), null);
 				}
 				finally {
 					this.reentrantLock.unlock();
