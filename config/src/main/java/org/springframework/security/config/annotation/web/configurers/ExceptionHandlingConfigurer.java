@@ -285,9 +285,6 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.defaultDeniedHandlerMappings.isEmpty()) {
 			return new AccessDeniedHandlerImpl();
 		}
-		if (this.defaultDeniedHandlerMappings.size() == 1) {
-			return this.defaultDeniedHandlerMappings.values().iterator().next();
-		}
 		return new RequestMatcherDelegatingAccessDeniedHandler(this.defaultDeniedHandlerMappings,
 				new AccessDeniedHandlerImpl());
 	}
