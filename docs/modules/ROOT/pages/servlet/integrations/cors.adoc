@@ -42,6 +42,42 @@ fun corsConfigurationSource(): UrlBasedCorsConfigurationSource {
 ----
 ======
 
+[[cors-multiple-beans]]
+===== Multiple CorsConfigurationSource Beans
+
+When using Spring Boot 3 or Spring Framework 6, you may encounter an error like:
+
+----
+Parameter X of constructor ... required a single bean, but 2 were found:
+- corsConfigurationSource
+- ...
+----
+
+This happens when more than one `CorsConfigurationSource` bean is present in the application context.
+
+Spring Security does not automatically choose one when multiple candidates are available.
+
+To resolve this, explicitly specify which `CorsConfigurationSource` should be used in your security configuration.
+
+[source,java]
+----
+@Configuration
+public class SecurityConfig {
+
+  public SecurityConfig(
+      @Qualifier("corsConfigurationSource")
+      CorsConfigurationSource corsConfigurationSource) {
+    ...
+  }
+
+}
+----
+
+Alternatively, you can mark one of the beans as `@Primary` so that it becomes the default candidate.
+
+Explicit configuration is the recommended approach when using a custom CORS setup.
+
+
 The following listing does the same thing in XML:
 
 [source,xml]
