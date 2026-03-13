@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.util.context.Context;
@@ -122,6 +123,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
  * @author Rob Winch
  * @author Joe Grandja
  * @author Roman Matiushchenko
+ * @author Evgeniy Cheban
  * @since 5.1
  * @see OAuth2AuthorizedClientManager
  * @see DefaultOAuth2AuthorizedClientManager
@@ -150,6 +152,13 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
+
+	/*
+	 * For consistency, the default implementation resolves a principal from request
+	 * attributes. Request attributes are populated from Reactor context which is enriched
+	 * in SecurityReactorContextConfiguration.SecurityReactorContextSubscriber
+	 */
+	private PrincipalResolver principalResolver = (request) -> getAuthentication(request.attributes());
 
 	private OAuth2AuthorizedClientManager authorizedClientManager;
 
@@ -372,6 +381,18 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		this.clientResponseHandler = new AuthorizationFailureForwarder(authorizationFailureHandler);
 	}
 
+	/**
+	 * Sets the strategy for resolving a {@link Authentication principal} from an
+	 * intercepted request.
+	 * @param principalResolver the strategy for resolving a {@link Authentication
+	 * principal}
+	 * @since 7.1
+	 */
+	public void setPrincipalResolver(PrincipalResolver principalResolver) {
+		Assert.notNull(principalResolver, "principalResolver cannot be null");
+		this.principalResolver = principalResolver;
+	}
+
 	@Override
 	public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
 		// @formatter:off
@@ -459,7 +480,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		if (clientRegistrationId == null) {
 			clientRegistrationId = this.defaultClientRegistrationId;
 		}
-		Authentication authentication = getAuthentication(attrs);
+		Authentication authentication = this.principalResolver.resolve(request);
 		if (clientRegistrationId == null && this.defaultOAuth2AuthorizedClient
 				&& authentication instanceof OAuth2AuthenticationToken) {
 			clientRegistrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
@@ -472,7 +493,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 			return Mono.empty();
 		}
 		Map<String, Object> attrs = request.attributes();
-		Authentication authentication = getAuthentication(attrs);
+		Authentication authentication = this.principalResolver.resolve(request);
 		if (authentication == null) {
 			authentication = ANONYMOUS_AUTHENTICATION;
 		}
@@ -495,7 +516,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 			return Mono.just(authorizedClient);
 		}
 		Map<String, Object> attrs = request.attributes();
-		Authentication authentication = getAuthentication(attrs);
+		Authentication authentication = this.principalResolver.resolve(request);
 		if (authentication == null) {
 			authentication = createAuthentication(authorizedClient.getPrincipalName());
 		}
@@ -565,6 +586,27 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 				return principalName;
 			}
 		};
+	}
+
+	/**
+	 * A strategy for resolving a {@link Authentication principal} from an intercepted
+	 * request.
+	 *
+	 * @since 7.1
+	 */
+	@FunctionalInterface
+	public interface PrincipalResolver {
+
+		/**
+		 * Resolve a {@link Authentication principal} from the current request, which is
+		 * used to obtain an {@link OAuth2AuthorizedClient}.
+		 * @param request the intercepted request, containing HTTP method, URI, headers,
+		 * and request attributes
+		 * @return the {@link Mono} of the {@link Authentication principal} to be used for
+		 * resolving an {@link OAuth2AuthorizedClient}
+		 */
+		@Nullable Authentication resolve(ClientRequest request);
+
 	}
 
 	@FunctionalInterface
