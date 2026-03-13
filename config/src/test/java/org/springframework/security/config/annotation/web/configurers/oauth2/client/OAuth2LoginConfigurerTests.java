@@ -24,12 +24,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
 import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
@@ -125,6 +131,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -703,6 +710,35 @@ public class OAuth2LoginConfigurerTests {
 		assertThatNoException().isThrownBy(() -> loadConfig(OAuth2LoginConfigSecurityContextRepository.class));
 	}
 
+	// gh-14096
+	@Test
+	public void oauth2LoginWhenSecurityMatcherMissesAuthorizationEndpointThenWarns() {
+		Appender<ILoggingEvent> appender = mockAppenderFor(OAuth2LoginConfigurer.class);
+		loadConfig(OAuth2LoginConfigWithMismatchedSecurityMatcher.class);
+		ArgumentCaptor<ILoggingEvent> captor = ArgumentCaptor.forClass(ILoggingEvent.class);
+		verify(appender, atLeastOnce()).doAppend(captor.capture());
+		assertThat(captor.getAllValues()).anySatisfy((event) -> {
+			assertThat(event.getLevel()).isEqualTo(Level.WARN);
+			assertThat(event.getFormattedMessage()).contains("securityMatcher")
+				.contains("/oauth2/authorization/{registrationId}");
+		});
+	}
+
+	@Test
+	public void oauth2LoginWhenSecurityMatcherMatchesEndpointsThenDoesNotWarn() {
+		Appender<ILoggingEvent> appender = mockAppenderFor(OAuth2LoginConfigurer.class);
+		loadConfig(OAuth2LoginConfigWithMatchingSecurityMatcher.class);
+		verify(appender, never()).doAppend(any(ILoggingEvent.class));
+	}
+
+	private Appender<ILoggingEvent> mockAppenderFor(Class<?> loggerType) {
+		Appender<ILoggingEvent> appender = mock(Appender.class);
+		Logger logger = (Logger) LoggerFactory.getLogger(loggerType);
+		logger.setLevel(Level.WARN);
+		logger.addAppender(appender);
+		return appender;
+	}
+
 	private void loadConfig(Class<?>... configs) {
 		AnnotationConfigWebApplicationContext applicationContext = new AnnotationConfigWebApplicationContext();
 		applicationContext.register(configs);
@@ -959,6 +995,42 @@ public class OAuth2LoginConfigurerTests {
 					.clientRegistrationRepository(
 							new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION))
 					.securityContextRepository(new NullSecurityContextRepository()));
+			// @formatter:on
+			return super.configureFilterChain(http);
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class OAuth2LoginConfigWithMismatchedSecurityMatcher extends CommonSecurityFilterChainConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.securityMatcher("/api/**", "/oauth/**", "/login/**")
+				.oauth2Login((login) -> login
+					.clientRegistrationRepository(
+						new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION)));
+			// @formatter:on
+			return super.configureFilterChain(http);
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class OAuth2LoginConfigWithMatchingSecurityMatcher extends CommonSecurityFilterChainConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.securityMatcher("/api/**", "/oauth2/**", "/login/**")
+				.oauth2Login((login) -> login
+					.clientRegistrationRepository(
+						new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION)));
 			// @formatter:on
 			return super.configureFilterChain(http);
 		}
