@@ -147,13 +147,14 @@ public final class JwtValidators {
 	 *
 	 * <p>
 	 * To comply with this spec, this builder needs you to specify at least the
-	 * {@link #audience}, {@link #issuer}, and {@link #clientId}.
+	 * {@link #audience} and {@link #issuer}.
 	 *
 	 * <p>
 	 * While building, the claims are keyed by claim name to allow for simplified lookup
 	 * and replacement in {@link #validators}.
 	 *
 	 * @author Josh Cummings
+	 * @author Giacomo Baso
 	 * @since 6.5
 	 */
 	public static final class AtJwtBuilder {
@@ -167,6 +168,7 @@ public final class JwtValidators {
 			this.validators.put(JwtClaimNames.SUB, require(JwtClaimNames.SUB));
 			this.validators.put(JwtClaimNames.IAT, require(JwtClaimNames.IAT).and(timestamps));
 			this.validators.put(JwtClaimNames.JTI, require(JwtClaimNames.JTI));
+			this.validators.put("client_id", require("client_id"));
 		}
 
 		/**
