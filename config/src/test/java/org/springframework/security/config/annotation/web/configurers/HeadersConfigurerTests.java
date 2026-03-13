@@ -61,6 +61,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Eleftheria Stein
  * @author Marcus Da Coregio
  * @author Daniel Garnier-Moiroux
+ * @author Andrey Litvitski
  */
 @ExtendWith(SpringTestContextExtension.class)
 public class HeadersConfigurerTests {
@@ -573,6 +574,105 @@ public class HeadersConfigurerTests {
 			.andReturn();
 		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.CROSS_ORIGIN_OPENER_POLICY,
 				HttpHeaders.CROSS_ORIGIN_EMBEDDER_POLICY, HttpHeaders.CROSS_ORIGIN_RESOURCE_POLICY);
+	}
+
+	@Test
+	public void getWhenContentSecurityPolicyWithReportingEndpointsThenBothHeadersInResponse() throws Exception {
+		this.spring.register(ContentSecurityPolicyWithReportingEndpointsConfig.class).autowire();
+		ResultMatcher csp = header().string(HttpHeaders.CONTENT_SECURITY_POLICY,
+				"default-src 'self'; report-to csp-endpoint");
+		ResultMatcher reportingEndpoints = header().string("Reporting-Endpoints",
+				"csp-endpoint=\"https://example.com/csp-reports\"");
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(csp)
+				.andExpect(reportingEndpoints)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames())
+			.containsExactlyInAnyOrder(HttpHeaders.CONTENT_SECURITY_POLICY, "Reporting-Endpoints");
+	}
+
+	@Test
+	public void getWhenContentSecurityPolicyReportOnlyWithReportingEndpointsThenBothHeadersInResponse()
+			throws Exception {
+		this.spring.register(ContentSecurityPolicyReportOnlyWithReportingEndpointsConfig.class).autowire();
+		ResultMatcher csp = header().string(HttpHeaders.CONTENT_SECURITY_POLICY_REPORT_ONLY,
+				"default-src 'self'; report-to csp-endpoint");
+		ResultMatcher reportingEndpoints = header().string("Reporting-Endpoints",
+				"csp-endpoint=\"https://example.com/csp-reports\"");
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(csp)
+				.andExpect(reportingEndpoints)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames())
+			.containsExactlyInAnyOrder(HttpHeaders.CONTENT_SECURITY_POLICY_REPORT_ONLY, "Reporting-Endpoints");
+	}
+
+	@Test
+	public void getWhenContentSecurityPolicyWithInvalidReportingEndpointsThenBeanCreationException() {
+		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(
+				() -> this.spring.register(ContentSecurityPolicyWithInvalidReportingEndpointsConfig.class).autowire());
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class ContentSecurityPolicyWithReportingEndpointsConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.headers((headers) -> headers
+							.defaultsDisabled()
+							.contentSecurityPolicy((csp) -> csp
+									.policyDirectives("default-src 'self'; report-to csp-endpoint")
+									.reportingEndpoints("csp-endpoint=\"https://example.com/csp-reports\"")));
+			return http.build();
+			// @formatter:on
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class ContentSecurityPolicyReportOnlyWithReportingEndpointsConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.headers((headers) -> headers
+							.defaultsDisabled()
+							.contentSecurityPolicy((csp) -> csp
+									.policyDirectives("default-src 'self'; report-to csp-endpoint")
+									.reportOnly()
+									.reportingEndpoints("csp-endpoint=\"https://example.com/csp-reports\"")));
+			return http.build();
+			// @formatter:on
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class ContentSecurityPolicyWithInvalidReportingEndpointsConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.headers((headers) -> headers
+							.defaultsDisabled()
+							.contentSecurityPolicy((csp) -> csp
+									.policyDirectives("default-src 'self'")
+									.reportingEndpoints("")));
+			return http.build();
+			// @formatter:on
+		}
+
 	}
 
 	@Configuration
