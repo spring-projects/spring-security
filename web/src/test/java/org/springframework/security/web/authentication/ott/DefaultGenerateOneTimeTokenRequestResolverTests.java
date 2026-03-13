@@ -64,4 +64,15 @@ public class DefaultGenerateOneTimeTokenRequestResolverTests {
 		assertThat(generateRequest.getExpiresIn()).isEqualTo(Duration.ofSeconds(600));
 	}
 
+	@Test
+	void resolveWhenTokenValueFactorySetThenResolvesGenerateRequest() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setParameter("username", "test");
+		this.requestResolver.setTokenValueFactory(() -> "tokenValue");
+
+		GenerateOneTimeTokenRequest generateRequest = this.requestResolver.resolve(request);
+
+		assertThat(generateRequest.getTokenValue()).isEqualTo("tokenValue");
+	}
+
 }
