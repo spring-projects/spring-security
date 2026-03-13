@@ -37,6 +37,7 @@ import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequest
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.util.Assert;
 
@@ -177,6 +178,8 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 
 		private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 
+		private AuthenticationSuccessHandler authenticationSuccessHandler;
+
 		private AuthorizationCodeGrantConfigurer() {
 		}
 
@@ -228,6 +231,20 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 				OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient) {
 			Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 			this.accessTokenResponseClient = accessTokenResponseClient;
+			return this;
+		}
+
+		/**
+		 * Sets the {@link AuthenticationSuccessHandler} used for handling a successful
+		 * authorization response.
+		 * @param authenticationSuccessHandler the handler used for handling a successful
+		 * authorization response
+		 * @return the {@link AuthorizationCodeGrantConfigurer} for further configuration
+		 */
+		public AuthorizationCodeGrantConfigurer authenticationSuccessHandler(
+				AuthenticationSuccessHandler authenticationSuccessHandler) {
+			Assert.notNull(authenticationSuccessHandler, "authenticationSuccessHandler cannot be null");
+			this.authenticationSuccessHandler = authenticationSuccessHandler;
 			return this;
 		}
 
@@ -287,6 +304,9 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 			RequestCache requestCache = builder.getSharedObject(RequestCache.class);
 			if (requestCache != null) {
 				authorizationCodeGrantFilter.setRequestCache(requestCache);
+			}
+			if (this.authenticationSuccessHandler != null) {
+				authorizationCodeGrantFilter.setAuthenticationSuccessHandler(this.authenticationSuccessHandler);
 			}
 			return authorizationCodeGrantFilter;
 		}
