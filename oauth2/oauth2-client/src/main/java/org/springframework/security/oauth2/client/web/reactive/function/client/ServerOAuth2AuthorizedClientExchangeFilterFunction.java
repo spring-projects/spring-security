@@ -118,8 +118,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 			"anonymous", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_USER"));
 
 	private final Mono<Authentication> currentAuthenticationMono = ReactiveSecurityContextHolder.getContext()
-		.map(SecurityContext::getAuthentication)
-		.defaultIfEmpty(ANONYMOUS_USER_TOKEN);
+		.mapNotNull(SecurityContext::getAuthentication);
 
 	// @formatter:off
 	private final Mono<String> clientRegistrationIdMono = this.currentAuthenticationMono
@@ -143,6 +142,8 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	private ClientResponseHandler clientResponseHandler;
 
 	private ServerSecurityContextRepository serverSecurityContextRepository = new WebSessionServerSecurityContextRepository();
+
+	private PrincipalResolver principalResolver = (request) -> this.currentAuthenticationMono;
 
 	/**
 	 * Constructs a {@code ServerOAuth2AuthorizedClientExchangeFilterFunction} using the
@@ -327,6 +328,15 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	@Override
 	public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
 		// @formatter:off
+		return this.principalResolver.resolve(request)
+			.defaultIfEmpty(ANONYMOUS_USER_TOKEN)
+			.flatMap((authentication) -> doFilter(request, next)
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication)));
+		// @formatter:on
+	}
+
+	private Mono<ClientResponse> doFilter(ClientRequest request, ExchangeFunction next) {
+		// @formatter:off
 		return authorizedClient(request)
 				.map((authorizedClient) -> bearer(request, authorizedClient))
 				.flatMap((requestWithBearer) -> exchangeAndHandleResponse(requestWithBearer, next))
@@ -477,10 +487,43 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		this.serverSecurityContextRepository = serverSecurityContextRepository;
 	}
 
+	/**
+	 * Sets the strategy for resolving a {@link Mono} of the {@link Authentication
+	 * principal} from an intercepted request.
+	 * @param principalResolver the strategy for resolving a {@link Mono} of the
+	 * {@link Authentication principal}
+	 * @since 7.1
+	 */
+	public void setPrincipalResolver(PrincipalResolver principalResolver) {
+		Assert.notNull(principalResolver, "principalResolver cannot be null");
+		this.principalResolver = principalResolver;
+	}
+
 	@FunctionalInterface
 	private interface ClientResponseHandler {
 
 		Mono<ClientResponse> handleResponse(ClientRequest request, Mono<ClientResponse> response);
+
+	}
+
+	/**
+	 * A strategy for resolving a {@link Mono} of the {@link Authentication principal}
+	 * from an intercepted request.
+	 *
+	 * @since 7.1
+	 */
+	@FunctionalInterface
+	public interface PrincipalResolver {
+
+		/**
+		 * Resolve a {@link Mono} of the {@link Authentication principal} from the current
+		 * request, which is used to obtain an {@link OAuth2AuthorizedClient}.
+		 * @param request the intercepted request, containing HTTP method, URI, headers,
+		 * and request attributes
+		 * @return the {@link Mono} of the {@link Authentication principal} to be used for
+		 * resolving an {@link OAuth2AuthorizedClient}
+		 */
+		Mono<Authentication> resolve(ClientRequest request);
 
 	}
 
