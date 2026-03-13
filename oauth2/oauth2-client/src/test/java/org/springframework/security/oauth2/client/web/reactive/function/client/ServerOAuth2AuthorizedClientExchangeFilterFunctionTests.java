@@ -219,6 +219,13 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	}
 
 	@Test
+	public void setPrincipalResolverWhenResolverIsNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientManager)
+				.setPrincipalResolver(null));
+	}
+
+	@Test
 	public void filterWhenAuthorizedClientNullThenAuthorizationHeaderNull() {
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
 		this.function.filter(request, this.exchange).block();
@@ -789,6 +796,38 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		assertThat(request0.url().toASCIIString()).isEqualTo("https://example.com");
 		assertThat(request0.method()).isEqualTo(HttpMethod.GET);
 		assertThat(getBody(request0)).isEmpty();
+	}
+
+	@Test
+	public void filterWhenClientRegistrationIdFromAuthenticationAndCustomPrincipalResolverThenAuthorizedClientResolved() {
+		this.function.setDefaultOAuth2AuthorizedClient(true);
+		OAuth2User user = new DefaultOAuth2User(AuthorityUtils.createAuthorityList("ROLE_USER"),
+				Collections.singletonMap("user", "rob"), "user");
+		OAuth2AuthenticationToken initialAuthentication = new OAuth2AuthenticationToken(user, user.getAuthorities(),
+				"initial-registration-id");
+		OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(user, user.getAuthorities(),
+				this.registration.getRegistrationId());
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
+				this.accessToken);
+		given(this.authorizedClientRepository.loadAuthorizedClient(this.registration.getRegistrationId(),
+				authentication, this.serverWebExchange))
+			.willReturn(Mono.just(authorizedClient));
+		final ClientRequest clientRequest = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+			.build();
+		this.function.setPrincipalResolver((request) -> Mono.just(authentication));
+		this.function.filter(clientRequest, this.exchange)
+			.contextWrite(ReactiveSecurityContextHolder.withAuthentication(initialAuthentication))
+			.contextWrite(serverWebExchange())
+			.block();
+		List<ClientRequest> requests = this.exchange.getRequests();
+		assertThat(requests).hasSize(1);
+		ClientRequest request0 = requests.get(0);
+		assertThat(request0.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer token-0");
+		assertThat(request0.url().toASCIIString()).isEqualTo("https://example.com");
+		assertThat(request0.method()).isEqualTo(HttpMethod.GET);
+		assertThat(getBody(request0)).isEmpty();
+		verify(this.authorizedClientRepository).loadAuthorizedClient(this.registration.getRegistrationId(),
+				authentication, this.serverWebExchange);
 	}
 
 	@Test
