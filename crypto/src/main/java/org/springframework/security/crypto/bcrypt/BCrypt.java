@@ -716,7 +716,12 @@ public class BCrypt {
 	 * factor therefore increases as 2**log_rounds.
 	 * @return an encoded salt value
 	 * @exception IllegalArgumentException if prefix or log_rounds is invalid
+	 * @deprecated since 6.4 in favor of {@link #gensalt(String, int, SecureRandom)}.
+	 * Creating a new {@code SecureRandom} instance on every invocation incurs significant
+	 * performance overhead. Use {@link #gensalt(String, int, SecureRandom)} with a reusable
+	 * {@code SecureRandom} instance instead.
 	 */
+	@Deprecated(since = "6.4", forRemoval = false)
 	public static String gensalt(String prefix, int log_rounds) throws IllegalArgumentException {
 		return gensalt(prefix, log_rounds, new SecureRandom());
 	}
@@ -739,7 +744,12 @@ public class BCrypt {
 	 * factor therefore increases as 2**log_rounds.
 	 * @return an encoded salt value
 	 * @exception IllegalArgumentException if log_rounds is invalid
+	 * @deprecated since 6.4 in favor of {@link #gensalt(int, SecureRandom)}.
+	 * Creating a new {@code SecureRandom} instance on every invocation incurs significant
+	 * performance overhead. Use {@link #gensalt(int, SecureRandom)} with a reusable
+	 * {@code SecureRandom} instance instead.
 	 */
+	@Deprecated(since = "6.4", forRemoval = false)
 	public static String gensalt(int log_rounds) throws IllegalArgumentException {
 		return gensalt(log_rounds, new SecureRandom());
 	}
