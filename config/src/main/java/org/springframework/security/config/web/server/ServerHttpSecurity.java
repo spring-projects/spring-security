@@ -4138,6 +4138,8 @@ public class ServerHttpSecurity {
 
 		private ServerAuthenticationFailureHandler authenticationFailureHandler;
 
+		private ServerAuthenticationSuccessHandler authenticationSuccessHandler;
+
 		private ServerAccessDeniedHandler accessDeniedHandler = new BearerTokenServerAccessDeniedHandler();
 
 		private ServerAuthenticationConverter bearerTokenConverter = new ServerBearerTokenAuthenticationConverter();
@@ -4183,6 +4185,12 @@ public class ServerHttpSecurity {
 		public OAuth2ResourceServerSpec authenticationFailureHandler(
 				ServerAuthenticationFailureHandler authenticationFailureHandler) {
 			this.authenticationFailureHandler = authenticationFailureHandler;
+			return this;
+		}
+
+		public OAuth2ResourceServerSpec authenticationSuccessHandler(
+				ServerAuthenticationSuccessHandler authenticationSuccessHandler) {
+			this.authenticationSuccessHandler = authenticationSuccessHandler;
 			return this;
 		}
 
@@ -4254,6 +4262,7 @@ public class ServerHttpSecurity {
 				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(this.authenticationManagerResolver);
 				oauth2.setServerAuthenticationConverter(this.bearerTokenConverter);
 				oauth2.setAuthenticationFailureHandler(authenticationFailureHandler());
+				oauth2.setAuthenticationSuccessHandler(authenticationSuccessHandler());
 				http.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
 			}
 			else if (this.jwt != null) {
@@ -4311,6 +4320,13 @@ public class ServerHttpSecurity {
 				return this.authenticationFailureHandler;
 			}
 			return new ServerAuthenticationEntryPointFailureHandler(this.entryPoint);
+		}
+
+		private ServerAuthenticationSuccessHandler authenticationSuccessHandler() {
+			if (this.authenticationSuccessHandler != null) {
+				return this.authenticationSuccessHandler;
+			}
+			return new WebFilterChainServerAuthenticationSuccessHandler();
 		}
 
 		/**
