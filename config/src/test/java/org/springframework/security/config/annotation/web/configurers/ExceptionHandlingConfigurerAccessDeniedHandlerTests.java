@@ -70,10 +70,11 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 
 	@Test
 	@WithMockUser(roles = "ANYTHING")
-	public void getWhenAccessDeniedOverriddenByOnlyOneHandlerThenAllRequestsUseThatHandler() throws Exception {
+	public void getWhenAccessDeniedOverriddenByOnlyOneHandlerThenFallbackHandlerHandlesNonMatchingRequests()
+			throws Exception {
 		this.spring.register(SingleRequestMatcherAccessDeniedHandlerConfig.class).autowire();
 		this.mvc.perform(get("/hello")).andExpect(status().isIAmATeapot());
-		this.mvc.perform(get("/goodbye")).andExpect(status().isIAmATeapot());
+		this.mvc.perform(get("/goodbye")).andExpect(status().isForbidden());
 	}
 
 	@Configuration
