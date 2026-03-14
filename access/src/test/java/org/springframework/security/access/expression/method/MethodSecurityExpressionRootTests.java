@@ -27,6 +27,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authorization.DefaultAuthorizationManagerFactory;
 import org.springframework.security.core.Authentication;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -58,7 +59,9 @@ public class MethodSecurityExpressionRootTests {
 		this.ctx = new StandardEvaluationContext();
 		this.ctx.setRootObject(this.root);
 		this.trustResolver = mock(AuthenticationTrustResolver.class);
-		this.root.setTrustResolver(this.trustResolver);
+		DefaultAuthorizationManagerFactory<MethodInvocation> authorizationManagerFactory = new DefaultAuthorizationManagerFactory<>();
+		authorizationManagerFactory.setTrustResolver(this.trustResolver);
+		this.root.setAuthorizationManagerFactory(authorizationManagerFactory);
 	}
 
 	@Test
