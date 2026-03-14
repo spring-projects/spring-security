@@ -37,6 +37,19 @@ Spring Security behind the scenes knows which endpoint to go to depending on whi
 If the user logged in initially with their username and password, then Spring Security redirects to the One-Time-Token Login page.
 If the user logged in initially with a token, then Spring Security redirects to the Username/Password Login page.
 
+[[mfa-when-webauthn-registered]]
+=== Conditionally Requiring MFA for WebAuthn Users
+
+At times, you may want to conditionally require MFA only for users who have registered a WebAuthn credential (passkey).
+You can achieve this by specifying javadoc:org.springframework.security.config.annotation.authorization.EnableMultiFactorAuthentication#when()[when = MultiFactorCondition.WEBAUTHN_REGISTERED].
+
+include-code::./WebAuthnConditionConfiguration[tag=enable-mfa-webauthn,indent=0]
+
+This configuration requires `FACTOR_WEBAUTHN` and `FACTOR_PASSWORD` only when the user has registered a passkey.
+It works by publishing a xref:./mfa.adoc#mfa-when-custom-conditions[`Customizer<AdditionalRequiredFactorsBuilder<Object>>`] that updates the xref:./mfa.adoc#programmatic-mfa[`withWhen`] method with the condition.
+
+NOTE: This condition requires both a javadoc:org.springframework.security.web.webauthn.management.PublicKeyCredentialUserEntityRepository[] bean and a javadoc:org.springframework.security.web.webauthn.management.UserCredentialRepository[] bean to be published in order to determine if the user has registered a WebAuthn credential.
+
 [[mfa-when-custom-conditions]]
 === Custom MFA Conditions
 
