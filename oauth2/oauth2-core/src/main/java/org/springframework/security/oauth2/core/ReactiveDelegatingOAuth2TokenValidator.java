@@ -16,15 +16,15 @@
 
 package org.springframework.security.oauth2.core;
 
-import org.springframework.util.Assert;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
-import static java.util.Collections.emptyList;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import org.springframework.util.Assert;
 
 /**
  * A reactive composite validator
@@ -59,7 +59,7 @@ public final class ReactiveDelegatingOAuth2TokenValidator<T extends OAuth2Token>
 	 * use
 	 */
 	public ReactiveDelegatingOAuth2TokenValidator(Collection<ReactiveOAuth2TokenValidator<T>> reactiveTokenValidators) {
-		this(emptyList(), reactiveTokenValidators);
+		this(Collections.emptyList(), reactiveTokenValidators);
 	}
 
 	/**
@@ -68,7 +68,7 @@ public final class ReactiveDelegatingOAuth2TokenValidator<T extends OAuth2Token>
 	 */
 	@SafeVarargs
 	public ReactiveDelegatingOAuth2TokenValidator(OAuth2TokenValidator<T>... tokenValidators) {
-		this(Arrays.asList(tokenValidators), emptyList());
+		this(Arrays.asList(tokenValidators), Collections.emptyList());
 	}
 
 	/**

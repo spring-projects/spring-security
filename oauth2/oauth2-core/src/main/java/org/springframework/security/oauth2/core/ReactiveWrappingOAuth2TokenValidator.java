@@ -16,8 +16,9 @@
 
 package org.springframework.security.oauth2.core;
 
-import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
+
+import org.springframework.util.Assert;
 
 /**
  * A reactive wrapper for synchronous validators
