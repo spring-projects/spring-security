@@ -199,7 +199,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 				          <input type="text" id="ott-username" name="username" placeholder="Username" required>
 				        </p>
 
-				        <button class="primary" type="submit" form="ott-form">Send Token</button>
+				        <button class="primary" type="submit">Send Token</button>
 				      </form>
 				""");
 	}
@@ -225,7 +225,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 				          <input type="text" id="ott-username" name="username" placeholder="Username" required>
 				        </p>
 
-				        <button class="primary" type="submit" form="ott-form">Send Token</button>
+				        <button class="primary" type="submit">Send Token</button>
 				      </form>
 				""");
 		assertThat(response.getContentAsString()).doesNotContain("Password");
@@ -254,7 +254,7 @@ public class DefaultLoginPageGeneratingFilterTests {
 				          <input type="text" id="ott-username" name="username" placeholder="Username" required>
 				        </p>
 
-				        <button class="primary" type="submit" form="ott-form">Send Token</button>
+				        <button class="primary" type="submit">Send Token</button>
 				      </form>
 				""");
 		assertThat(response.getContentAsString()).contains("Password");

@@ -177,7 +177,7 @@ public class OneTimeTokenLoginConfigurerTests {
 						          <input type="text" id="ott-username" name="username" placeholder="Username" required>
 						        </p>
 						<input name="_csrf" type="hidden" value="%s" />
-						        <button class="primary" type="submit" form="ott-form">Send Token</button>
+						        <button class="primary" type="submit">Send Token</button>
 						      </form>
 
 
