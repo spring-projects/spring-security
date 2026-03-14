@@ -340,7 +340,7 @@ class OAuth2ClientSecurityConfig {
 Please refer to the https://tools.ietf.org/html/rfc6749#section-4.1.3[Access Token Request/Response] protocol flow for the Authorization Code grant.
 ====
 
-The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the Authorization Code grant is `WebClientReactiveAuthorizationCodeTokenResponseClient`, which uses a `WebClient` for exchanging an authorization code for an access token at the Authorization Server’s Token Endpoint.
+The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the Authorization Code grant is `WebClientReactiveAuthorizationCodeTokenResponseClient`, which uses a `WebClient` for exchanging an authorization code for an access token at the Authorization Server's Token Endpoint.
 
 :section-id: authorization-code
 :grant-type: Authorization Code
@@ -432,7 +432,7 @@ Please refer to the OAuth 2.0 Authorization Framework for further details on the
 Please refer to the https://tools.ietf.org/html/rfc6749#section-6[Access Token Request/Response] protocol flow for the Refresh Token grant.
 ====
 
-The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the Refresh Token grant is `WebClientReactiveRefreshTokenTokenResponseClient`, which uses a `WebClient` when refreshing an access token at the Authorization Server’s Token Endpoint.
+The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the Refresh Token grant is `WebClientReactiveRefreshTokenTokenResponseClient`, which uses a `WebClient` when refreshing an access token at the Authorization Server's Token Endpoint.
 
 :section-id: refresh-token
 :grant-type: Refresh Token
@@ -512,7 +512,7 @@ Please refer to the OAuth 2.0 Authorization Framework for further details on the
 Please refer to the https://tools.ietf.org/html/rfc6749#section-4.4.2[Access Token Request/Response] protocol flow for the Client Credentials grant.
 ====
 
-The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the Client Credentials grant is `WebClientReactiveClientCredentialsTokenResponseClient`, which uses a `WebClient` when requesting an access token at the Authorization Server’s Token Endpoint.
+The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the Client Credentials grant is `WebClientReactiveClientCredentialsTokenResponseClient`, which uses a `WebClient` when requesting an access token at the Authorization Server's Token Endpoint.
 
 :section-id: client-credentials
 :grant-type: Client Credentials
@@ -698,6 +698,31 @@ class OAuth2ClientController {
 If not provided, it will be obtained from the https://projectreactor.io/docs/core/release/reference/#context[Reactor's Context] via the key `ServerWebExchange.class`.
 ====
 
+[[oauth2-client-client-credentials-application-scoped]]
+=== Use the Client Credentials Grant for Application-Scoped Access Tokens
+
+When making requests that are not associated with a specific user (e.g. background jobs, batch processes, or scheduled tasks), use `AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager` instead of `DefaultReactiveOAuth2AuthorizedClientManager`.
+Unlike `DefaultReactiveOAuth2AuthorizedClientManager`, `AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager` operates outside of a `ServerWebExchange` context, making it suitable for application-scoped access tokens.
+
+The following example shows how to configure a `WebClient` for application-scoped access tokens using the Client Credentials grant:
+
+.WebClient with Application-Scoped Access Tokens
+[tabs]
+======
+Java::
++
+[source,java,role="primary",indent=0]
+----
+include::{tests-dir}/reactive/oauth2/webclient/ApplicationScopedAccessTokenConfiguration.java[tag=webclient-client-credentials]
+----
+======
+
+[NOTE]
+====
+`AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager` uses a `ReactiveOAuth2AuthorizedClientService` to persist authorized clients, rather than a `ServerOAuth2AuthorizedClientRepository`.
+This makes it suitable for use cases where there is no active `ServerWebExchange`, such as background tasks or scheduled jobs.
+====
+
 [[oauth2-client-jwt-bearer]]
 == JWT Bearer
 
@@ -714,7 +739,7 @@ Please refer to JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication
 Please refer to the https://datatracker.ietf.org/doc/html/rfc7523#section-2.1[Access Token Request/Response] protocol flow for the JWT Bearer grant.
 ====
 
-The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the JWT Bearer grant is `WebClientReactiveJwtBearerTokenResponseClient`, which uses a `WebClient` when requesting an access token at the Authorization Server’s Token Endpoint.
+The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the JWT Bearer grant is `WebClientReactiveJwtBearerTokenResponseClient`, which uses a `WebClient` when requesting an access token at the Authorization Server's Token Endpoint.
 
 :section-id: jwt-bearer
 :grant-type: JWT Bearer
@@ -922,7 +947,7 @@ Please refer to OAuth 2.0 Token Exchange for further details on the https://data
 Please refer to the https://datatracker.ietf.org/doc/html/rfc8693#section-2[Token Exchange Request and Response] protocol flow for the Token Exchange grant.
 ====
 
-The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the Token Exchange grant is `WebClientReactiveTokenExchangeTokenResponseClient`, which uses a `WebClient` when requesting an access token at the Authorization Server’s Token Endpoint.
+The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the Token Exchange grant is `WebClientReactiveTokenExchangeTokenResponseClient`, which uses a `WebClient` when requesting an access token at the Authorization Server's Token Endpoint.
 
 :section-id: token-exchange
 :grant-type: Token Exchange
