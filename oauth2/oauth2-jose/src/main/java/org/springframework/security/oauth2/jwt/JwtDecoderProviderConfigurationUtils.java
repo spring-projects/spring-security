@@ -33,8 +33,14 @@ import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.retry.RetryException;
+import org.springframework.core.retry.RetryPolicy;
+import org.springframework.core.retry.RetryTemplate;
+import org.springframework.core.retry.Retryable;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -55,9 +61,12 @@ import org.springframework.web.util.UriComponentsBuilder;
  *
  * @author Thomas Vitale
  * @author Rafiullah Hamedy
+ * @author Evgeniy Cheban
  * @since 5.2
  */
 final class JwtDecoderProviderConfigurationUtils {
+
+	private static final Log LOG = LogFactory.getLog(JwtDecoderProviderConfigurationUtils.class);
 
 	private static final String OIDC_METADATA_PATH = "/.well-known/openid-configuration";
 
@@ -158,28 +167,26 @@ final class JwtDecoderProviderConfigurationUtils {
 	}
 
 	private static Map<String, Object> getConfiguration(String issuer, RestOperations rest, UriComponents... uris) {
-		String errorMessage = "Unable to resolve the Configuration with the provided Issuer of " + "\"" + issuer + "\"";
-		for (UriComponents uri : uris) {
-			try {
-				RequestEntity<Void> request = RequestEntity.get(uri.toUriString()).build();
-				ResponseEntity<Map<String, Object>> response = rest.exchange(request, STRING_OBJECT_MAP);
-				Map<String, Object> configuration = response.getBody();
-				Assert.notNull(configuration, "configuration must not be null");
-				Assert.isTrue(configuration.get("jwks_uri") != null, "The public JWK set URI must not be null");
-				return configuration;
-			}
-			catch (IllegalArgumentException ex) {
-				throw ex;
-			}
-			catch (RuntimeException ex) {
-				if (!(ex instanceof HttpClientErrorException
-						&& ((HttpClientErrorException) ex).getStatusCode().is4xxClientError())) {
-					throw new IllegalArgumentException(errorMessage, ex);
-				}
-				// else try another endpoint
-			}
+		// @formatter:off
+		RetryPolicy retryPolicy = RetryPolicy.builder()
+				.excludes(IllegalArgumentException.class)
+				.maxRetries(uris.length)
+				.build();
+		// @formatter:on
+		RetryTemplate retryTemplate = new RetryTemplate(retryPolicy);
+		try {
+			return retryTemplate.execute(new RetryableConfiguration(rest, issuer, uris));
 		}
-		throw new IllegalArgumentException(errorMessage);
+		catch (RetryException ex) {
+			Throwable lastException = ex.getLastException();
+			LOG.error("""
+					Unable to resolve the Configuration with the provided Issuer of "%s", after: %d attempts
+					""".formatted(issuer, ex.getRetryCount()), lastException);
+			if (lastException instanceof RuntimeException) {
+				throw (RuntimeException) lastException;
+			}
+			throw new RuntimeException(lastException.getMessage(), lastException);
+		}
 	}
 
 	static UriComponents oidc(String issuer) {
@@ -207,6 +214,56 @@ final class JwtDecoderProviderConfigurationUtils {
 				.replacePath(OAUTH_METADATA_PATH + uri.getPath())
 				.build();
 		// @formatter:on
+	}
+
+	private static final class RetryableConfiguration implements Retryable<Map<String, Object>> {
+
+		private int currentUriIndex = 0;
+
+		private final RestOperations rest;
+
+		private final String issuer;
+
+		private final UriComponents[] uris;
+
+		private RetryableConfiguration(RestOperations rest, String issuer, UriComponents[] uris) {
+			this.rest = rest;
+			this.issuer = issuer;
+			this.uris = uris;
+		}
+
+		@Override
+		public Map<String, Object> execute() {
+			if (this.currentUriIndex < this.uris.length) {
+				try {
+					UriComponents uri = this.uris[this.currentUriIndex++];
+					RequestEntity<Void> request = RequestEntity.get(uri.toUriString()).build();
+					ResponseEntity<Map<String, Object>> response = this.rest.exchange(request, STRING_OBJECT_MAP);
+					Map<String, Object> configuration = response.getBody();
+					Assert.notNull(configuration, "configuration must not be null");
+					Assert.isTrue(configuration.get("jwks_uri") != null, "The public JWK set URI must not be null");
+					return configuration;
+				}
+				catch (IllegalArgumentException ex) {
+					throw ex;
+				}
+				catch (RuntimeException ex) {
+					if (!(ex instanceof HttpClientErrorException err && err.getStatusCode().is4xxClientError())) {
+						throw new IllegalArgumentException(getErrorMessage(), ex);
+					}
+					// else try another endpoint
+					throw ex;
+				}
+			}
+			throw new IllegalArgumentException(getErrorMessage());
+		}
+
+		private String getErrorMessage() {
+			return """
+					Unable to resolve the Configuration with the provided Issuer of "%s"
+					""".formatted(this.issuer);
+		}
+
 	}
 
 }
