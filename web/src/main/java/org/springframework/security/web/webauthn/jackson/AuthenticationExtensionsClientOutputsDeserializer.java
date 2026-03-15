@@ -56,11 +56,8 @@ class AuthenticationExtensionsClientOutputsDeserializer extends StdDeserializer<
 			throws IOException, JacksonException {
 		List<AuthenticationExtensionsClientOutput<?>> outputs = new ArrayList<>();
 		for (String key = parser.nextFieldName(); key != null; key = parser.nextFieldName()) {
-			JsonToken startObject = parser.nextValue();
-			if (startObject != JsonToken.START_OBJECT) {
-				break;
-			}
-			if (CredentialPropertiesOutput.EXTENSION_ID.equals(key)) {
+			JsonToken next = parser.nextToken();
+			if (next == JsonToken.START_OBJECT && CredentialPropertiesOutput.EXTENSION_ID.equals(key)) {
 				CredentialPropertiesOutput output = parser.readValueAs(CredentialPropertiesOutput.class);
 				outputs.add(output);
 			}
@@ -68,7 +65,9 @@ class AuthenticationExtensionsClientOutputsDeserializer extends StdDeserializer<
 				if (logger.isDebugEnabled()) {
 					logger.debug("Skipping unknown extension with id " + key);
 				}
-				parser.nextValue();
+				if (next.isStructStart()) {
+					parser.skipChildren();
+				}
 			}
 		}
 
