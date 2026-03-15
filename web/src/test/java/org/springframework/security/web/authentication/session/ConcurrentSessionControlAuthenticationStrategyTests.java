@@ -70,7 +70,7 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
 		this.sessionInformation = new SessionInformation(this.authentication.getPrincipal(), "unique",
-				new Date(1374766134216L));
+				new Date(1374766134216L), new Date());
 		this.strategy = new ConcurrentSessionControlAuthenticationStrategy(this.sessionRegistry);
 	}
 
@@ -123,7 +123,7 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 	@Test
 	public void maxSessionsExpireLeastRecentExistingUser() {
 		SessionInformation moreRecentSessionInfo = new SessionInformation(this.authentication.getPrincipal(), "unique",
-				new Date(1374766999999L));
+				new Date(1374766999999L), new Date());
 		given(this.sessionRegistry.getAllSessions(any(), anyBoolean()))
 			.willReturn(Arrays.<SessionInformation>asList(moreRecentSessionInfo, this.sessionInformation));
 		this.strategy.setMaximumSessions(2);
@@ -134,9 +134,9 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 	@Test
 	public void onAuthenticationWhenMaxSessionsExceededByTwoThenTwoSessionsExpired() {
 		SessionInformation oldestSessionInfo = new SessionInformation(this.authentication.getPrincipal(), "unique1",
-				new Date(1374766134214L));
+				new Date(1374766134214L), new Date());
 		SessionInformation secondOldestSessionInfo = new SessionInformation(this.authentication.getPrincipal(),
-				"unique2", new Date(1374766134215L));
+				"unique2", new Date(1374766134215L), new Date());
 		given(this.sessionRegistry.getAllSessions(any(), anyBoolean())).willReturn(
 				Arrays.<SessionInformation>asList(oldestSessionInfo, secondOldestSessionInfo, this.sessionInformation));
 		this.strategy.setMaximumSessions(2);
@@ -196,7 +196,7 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 	@Test
 	public void maxSessionsExpireLeastRecentExistingUserUsingSessionLimit() {
 		SessionInformation moreRecentSessionInfo = new SessionInformation(this.authentication.getPrincipal(), "unique",
-				new Date(1374766999999L));
+				new Date(1374766999999L), new Date());
 		given(this.sessionRegistry.getAllSessions(any(), anyBoolean()))
 			.willReturn(Arrays.asList(moreRecentSessionInfo, this.sessionInformation));
 		this.strategy.setMaximumSessions(SessionLimit.of(2));
@@ -207,9 +207,9 @@ public class ConcurrentSessionControlAuthenticationStrategyTests {
 	@Test
 	public void onAuthenticationWhenMaxSessionsExceededByTwoThenTwoSessionsExpiredUsingSessionLimit() {
 		SessionInformation oldestSessionInfo = new SessionInformation(this.authentication.getPrincipal(), "unique1",
-				new Date(1374766134214L));
+				new Date(1374766134214L), new Date());
 		SessionInformation secondOldestSessionInfo = new SessionInformation(this.authentication.getPrincipal(),
-				"unique2", new Date(1374766134215L));
+				"unique2", new Date(1374766134215L), new Date());
 		given(this.sessionRegistry.getAllSessions(any(), anyBoolean()))
 			.willReturn(Arrays.asList(oldestSessionInfo, secondOldestSessionInfo, this.sessionInformation));
 		this.strategy.setMaximumSessions(SessionLimit.of(2));

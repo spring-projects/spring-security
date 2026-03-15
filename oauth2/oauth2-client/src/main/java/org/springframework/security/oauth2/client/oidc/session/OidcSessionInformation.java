@@ -46,7 +46,11 @@ public class OidcSessionInformation extends SessionInformation {
 	 * @param user the OIDC Provider's session and end user
 	 */
 	public OidcSessionInformation(String sessionId, Map<String, String> authorities, OidcUser user) {
-		super(user, sessionId, new Date());
+		this(sessionId, authorities, user, new Date());
+	}
+
+	private OidcSessionInformation(String sessionId, Map<String, String> authorities, OidcUser user, Date now) {
+		super(user, sessionId, new Date(now.getTime()), new Date(now.getTime()));
 		this.authorities = (authorities != null) ? new LinkedHashMap<>(authorities) : Collections.emptyMap();
 	}
 

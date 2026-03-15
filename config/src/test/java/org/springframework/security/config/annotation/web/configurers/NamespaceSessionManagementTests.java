@@ -111,7 +111,8 @@ public class NamespaceSessionManagementTests {
 	public void authenticateWhenUsingExpiredUrlThenMatchesNamespace() throws Exception {
 		this.spring.register(CustomSessionManagementConfig.class).autowire();
 		MockHttpSession session = new MockHttpSession();
-		SessionInformation sessionInformation = new SessionInformation(new Object(), session.getId(), new Date(0));
+		SessionInformation sessionInformation = new SessionInformation(new Object(), session.getId(), new Date(0),
+				new Date());
 		sessionInformation.expireNow();
 		SessionRegistry sessionRegistry = this.spring.getContext().getBean(SessionRegistry.class);
 		given(sessionRegistry.getSessionInformation(session.getId())).willReturn(sessionInformation);
