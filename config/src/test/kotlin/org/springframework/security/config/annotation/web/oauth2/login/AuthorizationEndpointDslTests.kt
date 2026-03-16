@@ -73,13 +73,11 @@ class AuthorizationEndpointDslTests {
 
         companion object {
             val RESOLVER: OAuth2AuthorizationRequestResolver = object : OAuth2AuthorizationRequestResolver {
-                override fun resolve(
-                    request: HttpServletRequest?
-                ) = OAuth2AuthorizationRequest.authorizationCode().build()
+                override fun resolve(request: HttpServletRequest) =
+                    OAuth2AuthorizationRequest.authorizationCode().build()
 
-                override fun resolve(
-                    request: HttpServletRequest?, clientRegistrationId: String?
-                ) = OAuth2AuthorizationRequest.authorizationCode().build()
+                override fun resolve(request: HttpServletRequest, clientRegistrationId: String) =
+                    OAuth2AuthorizationRequest.authorizationCode().build()
             }
         }
 

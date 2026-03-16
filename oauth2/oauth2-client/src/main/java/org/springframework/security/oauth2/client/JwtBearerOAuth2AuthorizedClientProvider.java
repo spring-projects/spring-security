@@ -21,7 +21,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.function.Function;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.client.endpoint.JwtBearerGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.RestClientJwtBearerTokenResponseClient;
@@ -46,7 +47,7 @@ public final class JwtBearerOAuth2AuthorizedClientProvider implements OAuth2Auth
 
 	private OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> accessTokenResponseClient = new RestClientJwtBearerTokenResponseClient();
 
-	private Function<OAuth2AuthorizationContext, Jwt> jwtAssertionResolver = this::resolveJwtAssertion;
+	private Function<OAuth2AuthorizationContext, @Nullable Jwt> jwtAssertionResolver = this::resolveJwtAssertion;
 
 	private Duration clockSkew = Duration.ofSeconds(60);
 
@@ -65,8 +66,7 @@ public final class JwtBearerOAuth2AuthorizedClientProvider implements OAuth2Auth
 	 * supported
 	 */
 	@Override
-	@Nullable
-	public OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
+	public @Nullable OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
 		ClientRegistration clientRegistration = context.getClientRegistration();
 		if (!AuthorizationGrantType.JWT_BEARER.equals(clientRegistration.getAuthorizationGrantType())) {
@@ -100,7 +100,7 @@ public final class JwtBearerOAuth2AuthorizedClientProvider implements OAuth2Auth
 				tokenResponse.getAccessToken());
 	}
 
-	private Jwt resolveJwtAssertion(OAuth2AuthorizationContext context) {
+	private @Nullable Jwt resolveJwtAssertion(OAuth2AuthorizationContext context) {
 		if (!(context.getPrincipal().getPrincipal() instanceof Jwt)) {
 			return null;
 		}
@@ -118,7 +118,8 @@ public final class JwtBearerOAuth2AuthorizedClientProvider implements OAuth2Auth
 	}
 
 	private boolean hasTokenExpired(OAuth2Token token) {
-		return this.clock.instant().isAfter(token.getExpiresAt().minus(this.clockSkew));
+		Instant expiresAt = token.getExpiresAt();
+		return expiresAt != null && this.clock.instant().isAfter(expiresAt.minus(this.clockSkew));
 	}
 
 	/**
@@ -139,7 +140,7 @@ public final class JwtBearerOAuth2AuthorizedClientProvider implements OAuth2Auth
 	 * assertion
 	 * @since 5.7
 	 */
-	public void setJwtAssertionResolver(Function<OAuth2AuthorizationContext, Jwt> jwtAssertionResolver) {
+	public void setJwtAssertionResolver(Function<OAuth2AuthorizationContext, @Nullable Jwt> jwtAssertionResolver) {
 		Assert.notNull(jwtAssertionResolver, "jwtAssertionResolver cannot be null");
 		this.jwtAssertionResolver = jwtAssertionResolver;
 	}

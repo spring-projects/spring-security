@@ -22,6 +22,7 @@ import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
@@ -30,7 +31,6 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -186,8 +186,10 @@ public final class OAuth2ClientHttpRequestInterceptor implements ClientHttpReque
 						.get(HttpServletRequest.class.getName());
 					HttpServletResponse response = (HttpServletResponse) attributes
 						.get(HttpServletResponse.class.getName());
-					authorizedClientRepository.removeAuthorizedClient(clientRegistrationId, principal, request,
-							response);
+					if (request != null && response != null) {
+						authorizedClientRepository.removeAuthorizedClient(clientRegistrationId, principal, request,
+								response);
+					}
 				});
 	}
 
@@ -256,7 +258,9 @@ public final class OAuth2ClientHttpRequestInterceptor implements ClientHttpReque
 			return response;
 		}
 		catch (RestClientResponseException ex) {
-			handleAuthorizationFailure(request, principal, ex.getResponseHeaders(), ex.getStatusCode());
+			HttpHeaders responseHeaders = ex.getResponseHeaders();
+			handleAuthorizationFailure(request, principal,
+					(responseHeaders != null) ? responseHeaders : new HttpHeaders(), ex.getStatusCode());
 			throw ex;
 		}
 		catch (OAuth2AuthorizationException ex) {
@@ -297,7 +301,7 @@ public final class OAuth2ClientHttpRequestInterceptor implements ClientHttpReque
 		handleAuthorizationFailure(authorizationException, principal);
 	}
 
-	private static OAuth2Error resolveOAuth2ErrorIfPossible(HttpHeaders headers, HttpStatusCode httpStatus) {
+	private static @Nullable OAuth2Error resolveOAuth2ErrorIfPossible(HttpHeaders headers, HttpStatusCode httpStatus) {
 		String wwwAuthenticateHeader = headers.getFirst(HttpHeaders.WWW_AUTHENTICATE);
 		if (wwwAuthenticateHeader != null) {
 			Map<String, String> parameters = parseWwwAuthenticateHeader(wwwAuthenticateHeader);
@@ -366,8 +370,7 @@ public final class OAuth2ClientHttpRequestInterceptor implements ClientHttpReque
 		 * @return the {@code clientRegistrationId} to be used for resolving an
 		 * {@link OAuth2AuthorizedClient}.
 		 */
-		@Nullable
-		String resolve(HttpRequest request);
+		@Nullable String resolve(HttpRequest request);
 
 	}
 
@@ -386,8 +389,7 @@ public final class OAuth2ClientHttpRequestInterceptor implements ClientHttpReque
 		 * @return the {@link Authentication principal} to be used for resolving an
 		 * {@link OAuth2AuthorizedClient}.
 		 */
-		@Nullable
-		Authentication resolve(HttpRequest request);
+		@Nullable Authentication resolve(HttpRequest request);
 
 	}
 

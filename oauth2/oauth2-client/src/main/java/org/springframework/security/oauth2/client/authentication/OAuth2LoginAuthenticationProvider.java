@@ -21,6 +21,8 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -95,7 +97,7 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 	}
 
 	@Override
-	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+	public @Nullable Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		OAuth2LoginAuthenticationToken loginAuthenticationToken = (OAuth2LoginAuthenticationToken) authentication;
 		// Section 3.1.2.1 Authentication Request -
 		// https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest scope
@@ -120,9 +122,11 @@ public class OAuth2LoginAuthenticationProvider implements AuthenticationProvider
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
 		}
 		OAuth2AccessToken accessToken = authorizationCodeAuthenticationToken.getAccessToken();
+		Assert.notNull(accessToken, "accessToken cannot be null");
 		Map<String, Object> additionalParameters = authorizationCodeAuthenticationToken.getAdditionalParameters();
 		OAuth2User oauth2User = this.userService.loadUser(new OAuth2UserRequest(
 				loginAuthenticationToken.getClientRegistration(), accessToken, additionalParameters));
+		Assert.notNull(oauth2User, "oauth2User cannot be null");
 		Collection<GrantedAuthority> authorities = new HashSet<>(oauth2User.getAuthorities());
 		Collection<GrantedAuthority> mappedAuthorities = new LinkedHashSet<>(
 				this.authoritiesMapper.mapAuthorities(authorities));

@@ -16,13 +16,15 @@
 
 package org.springframework.security.oauth2.client;
 
+import java.net.URL;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.Authentication;
@@ -191,7 +193,7 @@ public final class RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler
 		this.clockSkew = clockSkew;
 	}
 
-	private String extractIdToken(Map<String, Object> attributes) {
+	private @Nullable String extractIdToken(Map<String, Object> attributes) {
 		if (attributes.get(OidcParameterNames.ID_TOKEN) instanceof String idToken) {
 			return idToken;
 		}
@@ -224,7 +226,10 @@ public final class RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler
 	}
 
 	private void validateIssuer(OidcUser existingOidcUser, OidcIdToken idToken) {
-		if (!idToken.getIssuer().toString().equals(existingOidcUser.getIdToken().getIssuer().toString())) {
+		URL idTokenIssuer = idToken.getIssuer();
+		URL existingIdTokenIssuer = existingOidcUser.getIdToken().getIssuer();
+		if (idTokenIssuer == null || existingIdTokenIssuer == null
+				|| !idTokenIssuer.toString().equals(existingIdTokenIssuer.toString())) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, "Invalid issuer",
 					REFRESH_TOKEN_RESPONSE_ERROR_URI);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
@@ -232,7 +237,7 @@ public final class RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler
 	}
 
 	private void validateSubject(OidcUser existingOidcUser, OidcIdToken idToken) {
-		if (!idToken.getSubject().equals(existingOidcUser.getIdToken().getSubject())) {
+		if (!Objects.equals(idToken.getSubject(), existingOidcUser.getIdToken().getSubject())) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, "Invalid subject",
 					REFRESH_TOKEN_RESPONSE_ERROR_URI);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
@@ -240,7 +245,10 @@ public final class RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler
 	}
 
 	private void validateIssuedAt(OidcUser existingOidcUser, OidcIdToken idToken) {
-		if (!idToken.getIssuedAt().isAfter(existingOidcUser.getIdToken().getIssuedAt().minus(this.clockSkew))) {
+		Instant idTokenIssuedAt = idToken.getIssuedAt();
+		Instant existingIdTokenIssuedAt = existingOidcUser.getIdToken().getIssuedAt();
+		if (idTokenIssuedAt == null || existingIdTokenIssuedAt == null
+				|| !idTokenIssuedAt.isAfter(existingIdTokenIssuedAt.minus(this.clockSkew))) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, "Invalid issued at time",
 					REFRESH_TOKEN_RESPONSE_ERROR_URI);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
@@ -257,12 +265,13 @@ public final class RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler
 
 	private boolean isValidAudience(OidcUser existingOidcUser, OidcIdToken idToken) {
 		List<String> idTokenAudiences = idToken.getAudience();
-		Set<String> oidcUserAudiences = new HashSet<>(existingOidcUser.getIdToken().getAudience());
-		if (idTokenAudiences.size() != oidcUserAudiences.size()) {
+		List<String> existingIdTokenAudiences = existingOidcUser.getIdToken().getAudience();
+		if (idTokenAudiences == null || existingIdTokenAudiences == null
+				|| idTokenAudiences.size() != existingIdTokenAudiences.size()) {
 			return false;
 		}
 		for (String audience : idTokenAudiences) {
-			if (!oidcUserAudiences.contains(audience)) {
+			if (!existingIdTokenAudiences.contains(audience)) {
 				return false;
 			}
 		}

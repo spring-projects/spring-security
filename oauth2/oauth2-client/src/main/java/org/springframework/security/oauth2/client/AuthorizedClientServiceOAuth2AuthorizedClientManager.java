@@ -21,7 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -113,9 +114,8 @@ public final class AuthorizedClientServiceOAuth2AuthorizedClientManager implemen
 					.removeAuthorizedClient(clientRegistrationId, principal.getName()));
 	}
 
-	@Nullable
 	@Override
-	public OAuth2AuthorizedClient authorize(OAuth2AuthorizeRequest authorizeRequest) {
+	public @Nullable OAuth2AuthorizedClient authorize(OAuth2AuthorizeRequest authorizeRequest) {
 		Assert.notNull(authorizeRequest, "authorizeRequest cannot be null");
 		String clientRegistrationId = authorizeRequest.getClientRegistrationId();
 		OAuth2AuthorizedClient authorizedClient = authorizeRequest.getAuthorizedClient();

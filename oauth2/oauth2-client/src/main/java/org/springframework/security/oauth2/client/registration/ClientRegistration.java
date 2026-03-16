@@ -32,6 +32,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.oauth2.core.AuthenticationMethod;
@@ -54,25 +55,25 @@ public final class ClientRegistration implements Serializable {
 
 	private static final long serialVersionUID = 620L;
 
-	private String registrationId;
+	private @Nullable String registrationId;
 
-	private String clientId;
+	private @Nullable String clientId;
 
-	private String clientSecret;
+	private @Nullable String clientSecret;
 
-	private ClientAuthenticationMethod clientAuthenticationMethod;
+	private @Nullable ClientAuthenticationMethod clientAuthenticationMethod;
 
-	private AuthorizationGrantType authorizationGrantType;
+	private @Nullable AuthorizationGrantType authorizationGrantType;
 
-	private String redirectUri;
+	private @Nullable String redirectUri;
 
 	private Set<String> scopes = Collections.emptySet();
 
 	private ProviderDetails providerDetails = new ProviderDetails();
 
-	private String clientName;
+	private @Nullable String clientName;
 
-	private ClientSettings clientSettings;
+	private @Nullable ClientSettings clientSettings;
 
 	private ClientRegistration() {
 	}
@@ -82,6 +83,7 @@ public final class ClientRegistration implements Serializable {
 	 * @return the identifier for the registration
 	 */
 	public String getRegistrationId() {
+		Assert.notNull(this.registrationId, "registrationId cannot be null");
 		return this.registrationId;
 	}
 
@@ -90,6 +92,7 @@ public final class ClientRegistration implements Serializable {
 	 * @return the client identifier
 	 */
 	public String getClientId() {
+		Assert.notNull(this.clientId, "clientId cannot be null");
 		return this.clientId;
 	}
 
@@ -98,6 +101,7 @@ public final class ClientRegistration implements Serializable {
 	 * @return the client secret
 	 */
 	public String getClientSecret() {
+		Assert.notNull(this.clientSecret, "clientSecret cannot be null");
 		return this.clientSecret;
 	}
 
@@ -107,6 +111,7 @@ public final class ClientRegistration implements Serializable {
 	 * @return the {@link ClientAuthenticationMethod}
 	 */
 	public ClientAuthenticationMethod getClientAuthenticationMethod() {
+		Assert.notNull(this.clientAuthenticationMethod, "clientAuthenticationMethod cannot be null");
 		return this.clientAuthenticationMethod;
 	}
 
@@ -116,6 +121,7 @@ public final class ClientRegistration implements Serializable {
 	 * @return the {@link AuthorizationGrantType}
 	 */
 	public AuthorizationGrantType getAuthorizationGrantType() {
+		Assert.notNull(this.authorizationGrantType, "authorizationGrantType cannot be null");
 		return this.authorizationGrantType;
 	}
 
@@ -137,7 +143,7 @@ public final class ClientRegistration implements Serializable {
 	 * @return the uri (or uri template) for the redirection endpoint
 	 * @since 5.4
 	 */
-	public String getRedirectUri() {
+	public @Nullable String getRedirectUri() {
 		return this.redirectUri;
 	}
 
@@ -162,6 +168,7 @@ public final class ClientRegistration implements Serializable {
 	 * @return the client or registration name
 	 */
 	public String getClientName() {
+		Assert.notNull(this.clientName, "clientName cannot be null");
 		return this.clientName;
 	}
 
@@ -170,6 +177,7 @@ public final class ClientRegistration implements Serializable {
 	 * @return the {@link ClientSettings}
 	 */
 	public ClientSettings getClientSettings() {
+		Assert.notNull(this.clientSettings, "clientSettings cannot be null");
 		return this.clientSettings;
 	}
 
@@ -220,15 +228,15 @@ public final class ClientRegistration implements Serializable {
 
 		private static final long serialVersionUID = 620L;
 
-		private String authorizationUri;
+		private @Nullable String authorizationUri;
 
-		private String tokenUri;
+		private @Nullable String tokenUri;
 
 		private UserInfoEndpoint userInfoEndpoint = new UserInfoEndpoint();
 
-		private String jwkSetUri;
+		private @Nullable String jwkSetUri;
 
-		private String issuerUri;
+		private @Nullable String issuerUri;
 
 		private Map<String, Object> configurationMetadata = Collections.emptyMap();
 
@@ -237,9 +245,10 @@ public final class ClientRegistration implements Serializable {
 
 		/**
 		 * Returns the uri for the authorization endpoint.
-		 * @return the uri for the authorization endpoint
+		 * @return the uri for the authorization endpoint, or {@code null} if not set
+		 * (e.g. for grant types that do not use the authorization endpoint)
 		 */
-		public String getAuthorizationUri() {
+		public @Nullable String getAuthorizationUri() {
 			return this.authorizationUri;
 		}
 
@@ -248,6 +257,7 @@ public final class ClientRegistration implements Serializable {
 		 * @return the uri for the token endpoint
 		 */
 		public String getTokenUri() {
+			Assert.notNull(this.tokenUri, "tokenUri cannot be null");
 			return this.tokenUri;
 		}
 
@@ -261,9 +271,10 @@ public final class ClientRegistration implements Serializable {
 
 		/**
 		 * Returns the uri for the JSON Web Key (JWK) Set endpoint.
-		 * @return the uri for the JSON Web Key (JWK) Set endpoint
+		 * @return the uri for the JSON Web Key (JWK) Set endpoint, or {@code null} if not
+		 * set
 		 */
-		public String getJwkSetUri() {
+		public @Nullable String getJwkSetUri() {
 			return this.jwkSetUri;
 		}
 
@@ -271,10 +282,10 @@ public final class ClientRegistration implements Serializable {
 		 * Returns the issuer identifier uri for the OpenID Connect 1.0 provider or the
 		 * OAuth 2.0 Authorization Server.
 		 * @return the issuer identifier uri for the OpenID Connect 1.0 provider or the
-		 * OAuth 2.0 Authorization Server
+		 * OAuth 2.0 Authorization Server, or {@code null} if not set
 		 * @since 5.4
 		 */
-		public String getIssuerUri() {
+		public @Nullable String getIssuerUri() {
 			return this.issuerUri;
 		}
 
@@ -294,20 +305,20 @@ public final class ClientRegistration implements Serializable {
 
 			private static final long serialVersionUID = 620L;
 
-			private String uri;
+			private @Nullable String uri;
 
 			private AuthenticationMethod authenticationMethod = AuthenticationMethod.HEADER;
 
-			private String userNameAttributeName;
+			private @Nullable String userNameAttributeName;
 
 			UserInfoEndpoint() {
 			}
 
 			/**
 			 * Returns the uri for the user info endpoint.
-			 * @return the uri for the user info endpoint
+			 * @return the uri for the user info endpoint, or {@code null} if not set
 			 */
-			public String getUri() {
+			public @Nullable String getUri() {
 				return this.uri;
 			}
 
@@ -324,9 +335,9 @@ public final class ClientRegistration implements Serializable {
 			 * Returns the attribute name used to access the user's name from the user
 			 * info response.
 			 * @return the attribute name used to access the user's name from the user
-			 * info response
+			 * info response, or {@code null} if not set
 			 */
-			public String getUserNameAttributeName() {
+			public @Nullable String getUserNameAttributeName() {
 				return this.userNameAttributeName;
 			}
 
@@ -347,37 +358,37 @@ public final class ClientRegistration implements Serializable {
 				AuthorizationGrantType.AUTHORIZATION_CODE, AuthorizationGrantType.CLIENT_CREDENTIALS,
 				AuthorizationGrantType.REFRESH_TOKEN);
 
-		private String registrationId;
+		private @Nullable String registrationId;
 
-		private String clientId;
+		private @Nullable String clientId;
 
-		private String clientSecret;
+		private @Nullable String clientSecret;
 
-		private ClientAuthenticationMethod clientAuthenticationMethod;
+		private @Nullable ClientAuthenticationMethod clientAuthenticationMethod;
 
-		private AuthorizationGrantType authorizationGrantType;
+		private @Nullable AuthorizationGrantType authorizationGrantType;
 
-		private String redirectUri;
+		private @Nullable String redirectUri;
 
-		private Set<String> scopes;
+		private @Nullable Set<String> scopes;
 
-		private String authorizationUri;
+		private @Nullable String authorizationUri;
 
-		private String tokenUri;
+		private @Nullable String tokenUri;
 
-		private String userInfoUri;
+		private @Nullable String userInfoUri;
 
 		private AuthenticationMethod userInfoAuthenticationMethod = AuthenticationMethod.HEADER;
 
-		private String userNameAttributeName;
+		private @Nullable String userNameAttributeName;
 
-		private String jwkSetUri;
+		private @Nullable String jwkSetUri;
 
-		private String issuerUri;
+		private @Nullable String issuerUri;
 
 		private Map<String, Object> configurationMetadata = Collections.emptyMap();
 
-		private String clientName;
+		private @Nullable String clientName;
 
 		private ClientSettings clientSettings = ClientSettings.builder().build();
 
@@ -392,7 +403,7 @@ public final class ClientRegistration implements Serializable {
 			this.clientAuthenticationMethod = clientRegistration.clientAuthenticationMethod;
 			this.authorizationGrantType = clientRegistration.authorizationGrantType;
 			this.redirectUri = clientRegistration.redirectUri;
-			this.scopes = (clientRegistration.scopes != null) ? new HashSet<>(clientRegistration.scopes) : null;
+			this.scopes = new HashSet<>(clientRegistration.getScopes());
 			this.authorizationUri = clientRegistration.providerDetails.authorizationUri;
 			this.tokenUri = clientRegistration.providerDetails.tokenUri;
 			this.userInfoUri = clientRegistration.providerDetails.userInfoEndpoint.uri;
@@ -400,12 +411,11 @@ public final class ClientRegistration implements Serializable {
 			this.userNameAttributeName = clientRegistration.providerDetails.userInfoEndpoint.userNameAttributeName;
 			this.jwkSetUri = clientRegistration.providerDetails.jwkSetUri;
 			this.issuerUri = clientRegistration.providerDetails.issuerUri;
-			Map<String, Object> configurationMetadata = clientRegistration.providerDetails.configurationMetadata;
-			if (configurationMetadata != Collections.EMPTY_MAP) {
-				this.configurationMetadata = new HashMap<>(configurationMetadata);
-			}
+			this.configurationMetadata = new HashMap<>(clientRegistration.providerDetails.configurationMetadata);
 			this.clientName = clientRegistration.clientName;
-			this.clientSettings = clientRegistration.clientSettings;
+			if (clientRegistration.clientSettings != null) {
+				this.clientSettings = clientRegistration.clientSettings;
+			}
 		}
 
 		/**
@@ -433,7 +443,7 @@ public final class ClientRegistration implements Serializable {
 		 * @param clientSecret the client secret
 		 * @return the {@link Builder}
 		 */
-		public Builder clientSecret(String clientSecret) {
+		public Builder clientSecret(@Nullable String clientSecret) {
 			this.clientSecret = clientSecret;
 			return this;
 		}
@@ -479,7 +489,7 @@ public final class ClientRegistration implements Serializable {
 		 * @return the {@link Builder}
 		 * @since 5.4
 		 */
-		public Builder redirectUri(String redirectUri) {
+		public Builder redirectUri(@Nullable String redirectUri) {
 			this.redirectUri = redirectUri;
 			return this;
 		}
@@ -489,19 +499,21 @@ public final class ClientRegistration implements Serializable {
 		 * @param scope the scope(s) used for the client
 		 * @return the {@link Builder}
 		 */
-		public Builder scope(String... scope) {
+		// @formatter:off
+		public Builder scope(String @Nullable... scope) {
 			if (scope != null && scope.length > 0) {
 				this.scopes = Collections.unmodifiableSet(new LinkedHashSet<>(Arrays.asList(scope)));
 			}
 			return this;
 		}
+		// @formatter:on
 
 		/**
 		 * Sets the scope(s) used for the client.
 		 * @param scope the scope(s) used for the client
 		 * @return the {@link Builder}
 		 */
-		public Builder scope(Collection<String> scope) {
+		public Builder scope(@Nullable Collection<String> scope) {
 			if (scope != null && !scope.isEmpty()) {
 				this.scopes = Collections.unmodifiableSet(new LinkedHashSet<>(scope));
 			}
@@ -513,7 +525,7 @@ public final class ClientRegistration implements Serializable {
 		 * @param authorizationUri the uri for the authorization endpoint
 		 * @return the {@link Builder}
 		 */
-		public Builder authorizationUri(String authorizationUri) {
+		public Builder authorizationUri(@Nullable String authorizationUri) {
 			this.authorizationUri = authorizationUri;
 			return this;
 		}
@@ -533,7 +545,7 @@ public final class ClientRegistration implements Serializable {
 		 * @param userInfoUri the uri for the user info endpoint
 		 * @return the {@link Builder}
 		 */
-		public Builder userInfoUri(String userInfoUri) {
+		public Builder userInfoUri(@Nullable String userInfoUri) {
 			this.userInfoUri = userInfoUri;
 			return this;
 		}
@@ -557,7 +569,7 @@ public final class ClientRegistration implements Serializable {
 		 * from the user info response
 		 * @return the {@link Builder}
 		 */
-		public Builder userNameAttributeName(String userNameAttributeName) {
+		public Builder userNameAttributeName(@Nullable String userNameAttributeName) {
 			this.userNameAttributeName = userNameAttributeName;
 			return this;
 		}
@@ -567,7 +579,7 @@ public final class ClientRegistration implements Serializable {
 		 * @param jwkSetUri the uri for the JSON Web Key (JWK) Set endpoint
 		 * @return the {@link Builder}
 		 */
-		public Builder jwkSetUri(String jwkSetUri) {
+		public Builder jwkSetUri(@Nullable String jwkSetUri) {
 			this.jwkSetUri = jwkSetUri;
 			return this;
 		}
@@ -580,7 +592,7 @@ public final class ClientRegistration implements Serializable {
 		 * @return the {@link Builder}
 		 * @since 5.4
 		 */
-		public Builder issuerUri(String issuerUri) {
+		public Builder issuerUri(@Nullable String issuerUri) {
 			this.issuerUri = issuerUri;
 			return this;
 		}
@@ -592,7 +604,7 @@ public final class ClientRegistration implements Serializable {
 		 * @return the {@link Builder}
 		 * @since 5.1
 		 */
-		public Builder providerConfigurationMetadata(Map<String, Object> configurationMetadata) {
+		public Builder providerConfigurationMetadata(@Nullable Map<String, Object> configurationMetadata) {
 			if (configurationMetadata != null) {
 				this.configurationMetadata = new LinkedHashMap<>(configurationMetadata);
 			}
@@ -604,7 +616,7 @@ public final class ClientRegistration implements Serializable {
 		 * @param clientName the client or registration name
 		 * @return the {@link Builder}
 		 */
-		public Builder clientName(String clientName) {
+		public Builder clientName(@Nullable String clientName) {
 			this.clientName = clientName;
 			return this;
 		}
@@ -615,7 +627,6 @@ public final class ClientRegistration implements Serializable {
 		 * @return the {@link Builder}
 		 */
 		public Builder clientSettings(ClientSettings clientSettings) {
-			Assert.notNull(clientSettings, "clientSettings cannot be null");
 			this.clientSettings = clientSettings;
 			return this;
 		}
@@ -643,10 +654,10 @@ public final class ClientRegistration implements Serializable {
 			clientRegistration.clientId = this.clientId;
 			clientRegistration.clientSecret = StringUtils.hasText(this.clientSecret) ? this.clientSecret : "";
 			clientRegistration.clientAuthenticationMethod = (this.clientAuthenticationMethod != null)
-					? this.clientAuthenticationMethod : deduceClientAuthenticationMethod(clientRegistration);
+					? this.clientAuthenticationMethod : deduceClientAuthenticationMethod();
 			clientRegistration.authorizationGrantType = this.authorizationGrantType;
 			clientRegistration.redirectUri = this.redirectUri;
-			clientRegistration.scopes = this.scopes;
+			clientRegistration.scopes = (this.scopes != null) ? this.scopes : Collections.emptySet();
 			clientRegistration.providerDetails = createProviderDetails(clientRegistration);
 			clientRegistration.clientName = StringUtils.hasText(this.clientName) ? this.clientName
 					: this.registrationId;
@@ -654,7 +665,8 @@ public final class ClientRegistration implements Serializable {
 			return clientRegistration;
 		}
 
-		private ClientAuthenticationMethod deduceClientAuthenticationMethod(ClientRegistration clientRegistration) {
+		private ClientAuthenticationMethod deduceClientAuthenticationMethod() {
+			Assert.notNull(this.authorizationGrantType, "authorizationGrantType cannot be null");
 			if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType)
 					&& (!StringUtils.hasText(this.clientSecret))) {
 				return ClientAuthenticationMethod.NONE;
@@ -676,6 +688,7 @@ public final class ClientRegistration implements Serializable {
 		}
 
 		private void validateAuthorizationCodeGrantType() {
+			Assert.notNull(this.authorizationGrantType, "authorizationGrantType cannot be null");
 			Assert.isTrue(AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType),
 					() -> "authorizationGrantType must be " + AuthorizationGrantType.AUTHORIZATION_CODE.getValue());
 			Assert.hasText(this.registrationId, "registrationId cannot be empty");
@@ -686,6 +699,7 @@ public final class ClientRegistration implements Serializable {
 		}
 
 		private void validateClientCredentialsGrantType() {
+			Assert.notNull(this.authorizationGrantType, "authorizationGrantType cannot be null");
 			Assert.isTrue(AuthorizationGrantType.CLIENT_CREDENTIALS.equals(this.authorizationGrantType),
 					() -> "authorizationGrantType must be " + AuthorizationGrantType.CLIENT_CREDENTIALS.getValue());
 			Assert.hasText(this.registrationId, "registrationId cannot be empty");
@@ -694,6 +708,7 @@ public final class ClientRegistration implements Serializable {
 		}
 
 		private void validateAuthorizationGrantTypes() {
+			Assert.notNull(this.authorizationGrantType, "authorizationGrantType cannot be null");
 			for (AuthorizationGrantType authorizationGrantType : AUTHORIZATION_GRANT_TYPES) {
 				if (authorizationGrantType.getValue().equalsIgnoreCase(this.authorizationGrantType.getValue())
 						&& !authorizationGrantType.equals(this.authorizationGrantType)) {
@@ -718,7 +733,7 @@ public final class ClientRegistration implements Serializable {
 		}
 
 		private static boolean validateScope(String scope) {
-			return scope == null || scope.chars()
+			return scope.chars()
 				.allMatch((c) -> withinTheRangeOf(c, 0x21, 0x21) || withinTheRangeOf(c, 0x23, 0x5B)
 						|| withinTheRangeOf(c, 0x5D, 0x7E));
 		}

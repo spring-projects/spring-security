@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.client.endpoint;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -58,7 +60,7 @@ import org.springframework.util.MultiValueMap;
 public final class DefaultOAuth2TokenRequestParametersConverter<T extends AbstractOAuth2AuthorizationGrantRequest>
 		implements Converter<T, MultiValueMap<String, String>> {
 
-	private final Converter<T, MultiValueMap<String, String>> defaultParametersConverter = createDefaultParametersConverter();
+	private final Converter<T, @Nullable MultiValueMap<String, String>> defaultParametersConverter = createDefaultParametersConverter();
 
 	@Override
 	public MultiValueMap<String, String> convert(T grantRequest) {
@@ -81,7 +83,7 @@ public final class DefaultOAuth2TokenRequestParametersConverter<T extends Abstra
 		return parameters;
 	}
 
-	private static <T extends AbstractOAuth2AuthorizationGrantRequest> Converter<T, MultiValueMap<String, String>> createDefaultParametersConverter() {
+	private static <T extends AbstractOAuth2AuthorizationGrantRequest> Converter<T, @Nullable MultiValueMap<String, String>> createDefaultParametersConverter() {
 		return (grantRequest) -> {
 			if (grantRequest instanceof OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest) {
 				return OAuth2AuthorizationCodeGrantRequest.defaultParameters(authorizationCodeGrantRequest);

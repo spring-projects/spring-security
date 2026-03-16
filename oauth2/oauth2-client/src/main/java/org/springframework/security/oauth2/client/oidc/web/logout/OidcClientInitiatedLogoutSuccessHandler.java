@@ -23,6 +23,7 @@ import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -49,32 +50,35 @@ public class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogoutSucc
 
 	private final ClientRegistrationRepository clientRegistrationRepository;
 
-	private String postLogoutRedirectUri;
+	private @Nullable String postLogoutRedirectUri;
 
 	public OidcClientInitiatedLogoutSuccessHandler(ClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		this.clientRegistrationRepository = clientRegistrationRepository;
+		this.postLogoutRedirectUri = null;
 	}
 
 	@Override
 	protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication) {
+			@Nullable Authentication authentication) {
 		String targetUrl = null;
 		if (authentication instanceof OAuth2AuthenticationToken && authentication.getPrincipal() instanceof OidcUser) {
 			String registrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
 			ClientRegistration clientRegistration = this.clientRegistrationRepository
 				.findByRegistrationId(registrationId);
-			URI endSessionEndpoint = this.endSessionEndpoint(clientRegistration);
-			if (endSessionEndpoint != null) {
-				String idToken = idToken(authentication);
-				String postLogoutRedirectUri = postLogoutRedirectUri(request, clientRegistration);
-				targetUrl = endpointUri(endSessionEndpoint, idToken, postLogoutRedirectUri);
+			if (clientRegistration != null) {
+				URI endSessionEndpoint = this.endSessionEndpoint(clientRegistration);
+				if (endSessionEndpoint != null) {
+					String idToken = idToken(authentication);
+					String postLogoutRedirectUri = postLogoutRedirectUri(request, clientRegistration);
+					targetUrl = endpointUri(endSessionEndpoint, idToken, postLogoutRedirectUri);
+				}
 			}
 		}
-		return (targetUrl != null) ? targetUrl : super.determineTargetUrl(request, response);
+		return (targetUrl != null) ? targetUrl : super.determineTargetUrl(request, response, authentication);
 	}
 
-	private URI endSessionEndpoint(ClientRegistration clientRegistration) {
+	private @Nullable URI endSessionEndpoint(@Nullable ClientRegistration clientRegistration) {
 		if (clientRegistration != null) {
 			ProviderDetails providerDetails = clientRegistration.getProviderDetails();
 			Object endSessionEndpoint = providerDetails.getConfigurationMetadata().get("end_session_endpoint");
@@ -86,11 +90,15 @@ public class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogoutSucc
 	}
 
 	private String idToken(Authentication authentication) {
-		return ((OidcUser) authentication.getPrincipal()).getIdToken().getTokenValue();
+		Object principal = authentication.getPrincipal();
+		String idToken = (principal instanceof OidcUser oidcUser) ? oidcUser.getIdToken().getTokenValue() : null;
+		Assert.notNull(idToken, "idToken cannot be null");
+		return idToken;
 	}
 
-	private String postLogoutRedirectUri(HttpServletRequest request, ClientRegistration clientRegistration) {
-		if (this.postLogoutRedirectUri == null) {
+	private @Nullable String postLogoutRedirectUri(HttpServletRequest request,
+			@Nullable ClientRegistration clientRegistration) {
+		if (this.postLogoutRedirectUri == null || clientRegistration == null) {
 			return null;
 		}
 		// @formatter:off
@@ -123,7 +131,7 @@ public class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogoutSucc
 		// @formatter:on
 	}
 
-	private String endpointUri(URI endSessionEndpoint, String idToken, String postLogoutRedirectUri) {
+	private String endpointUri(URI endSessionEndpoint, String idToken, @Nullable String postLogoutRedirectUri) {
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(endSessionEndpoint);
 		builder.queryParam("id_token_hint", idToken);
 		if (postLogoutRedirectUri != null) {

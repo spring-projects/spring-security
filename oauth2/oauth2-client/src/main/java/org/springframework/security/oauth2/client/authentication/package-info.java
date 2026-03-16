@@ -18,4 +18,7 @@
  * Support classes and interfaces for authenticating and authorizing a client with an
  * OAuth 2.0 Authorization Server using a specific authorization grant flow.
  */
+@NullMarked
 package org.springframework.security.oauth2.client.authentication;
+
+import org.jspecify.annotations.NullMarked;

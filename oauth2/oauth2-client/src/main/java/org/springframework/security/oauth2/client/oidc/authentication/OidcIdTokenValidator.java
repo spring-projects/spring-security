@@ -76,8 +76,9 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 		// during Discovery)
 		// MUST exactly match the value of the iss (issuer) Claim.
 		String metadataIssuer = this.clientRegistration.getProviderDetails().getIssuerUri();
-		if (metadataIssuer != null && !Objects.equals(metadataIssuer, idToken.getIssuer().toExternalForm())) {
-			invalidClaims.put(IdTokenClaimNames.ISS, idToken.getIssuer());
+		URL issuer = idToken.getIssuer();
+		if (metadataIssuer != null && issuer != null && !Objects.equals(metadataIssuer, issuer.toExternalForm())) {
+			invalidClaims.put(IdTokenClaimNames.ISS, issuer);
 		}
 		// 3. The Client MUST validate that the aud (audience) Claim contains its
 		// client_id value
@@ -86,13 +87,14 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 		// The ID Token MUST be rejected if the ID Token does not list the Client as a
 		// valid audience,
 		// or if it contains additional audiences not trusted by the Client.
-		if (!idToken.getAudience().contains(this.clientRegistration.getClientId())) {
-			invalidClaims.put(IdTokenClaimNames.AUD, idToken.getAudience());
+		List<String> audience = idToken.getAudience();
+		if (audience == null || !audience.contains(this.clientRegistration.getClientId())) {
+			invalidClaims.put(IdTokenClaimNames.AUD, audience);
 		}
 		// 4. If the ID Token contains multiple audiences,
 		// the Client SHOULD verify that an azp Claim is present.
 		String authorizedParty = idToken.getClaimAsString(IdTokenClaimNames.AZP);
-		if (idToken.getAudience().size() > 1 && authorizedParty == null) {
+		if (audience != null && audience.size() > 1 && authorizedParty == null) {
 			invalidClaims.put(IdTokenClaimNames.AZP, authorizedParty);
 		}
 		// 5. If an azp (authorized party) Claim is present,
@@ -106,15 +108,17 @@ public final class OidcIdTokenValidator implements OAuth2TokenValidator<Jwt> {
 		// TODO Depends on gh-4413
 		// 9. The current time MUST be before the time represented by the exp Claim.
 		Instant now = Instant.now(this.clock);
-		if (now.minus(this.clockSkew).isAfter(idToken.getExpiresAt())) {
-			invalidClaims.put(IdTokenClaimNames.EXP, idToken.getExpiresAt());
+		Instant expiresAt = idToken.getExpiresAt();
+		if (expiresAt != null && now.minus(this.clockSkew).isAfter(expiresAt)) {
+			invalidClaims.put(IdTokenClaimNames.EXP, expiresAt);
 		}
 		// 10. The iat Claim can be used to reject tokens that were issued too far away
 		// from the current time,
 		// limiting the amount of time that nonces need to be stored to prevent attacks.
 		// The acceptable range is Client specific.
-		if (now.plus(this.clockSkew).isBefore(idToken.getIssuedAt())) {
-			invalidClaims.put(IdTokenClaimNames.IAT, idToken.getIssuedAt());
+		Instant issuedAt = idToken.getIssuedAt();
+		if (issuedAt != null && now.plus(this.clockSkew).isBefore(issuedAt)) {
+			invalidClaims.put(IdTokenClaimNames.IAT, issuedAt);
 		}
 		if (!invalidClaims.isEmpty()) {
 			return OAuth2TokenValidatorResult.failure(invalidIdToken(invalidClaims));

@@ -157,7 +157,7 @@ public class ClientRegistrationsBeanDefinitionParserTests {
 			.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 		assertThat(googleRegistration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(googleRegistration.getRedirectUri()).isEqualTo("{baseUrl}/{action}/oauth2/code/{registrationId}");
-		assertThat(googleRegistration.getScopes()).isNull();
+		assertThat(googleRegistration.getScopes()).isEmpty();
 		assertThat(googleRegistration.getClientName()).isEqualTo(serverUrl);
 		ProviderDetails googleProviderDetails = googleRegistration.getProviderDetails();
 		assertThat(googleProviderDetails).isNotNull();

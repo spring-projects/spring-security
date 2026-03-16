@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
@@ -178,11 +180,11 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 	 */
 	public final class ClientCredentialsGrantBuilder implements Builder {
 
-		private ReactiveOAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient;
+		private @Nullable ReactiveOAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient;
 
-		private Duration clockSkew;
+		private @Nullable Duration clockSkew;
 
-		private Clock clock;
+		private @Nullable Clock clock;
 
 		private ClientCredentialsGrantBuilder() {
 		}
@@ -252,13 +254,13 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 	 */
 	public final class RefreshTokenGrantBuilder implements Builder {
 
-		private ReactiveOAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient;
+		private @Nullable ReactiveOAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient;
 
-		private ReactiveOAuth2AuthorizationSuccessHandler authorizationSuccessHandler;
+		private @Nullable ReactiveOAuth2AuthorizationSuccessHandler authorizationSuccessHandler;
 
-		private Duration clockSkew;
+		private @Nullable Duration clockSkew;
 
-		private Clock clock;
+		private @Nullable Clock clock;
 
 		private RefreshTokenGrantBuilder() {
 		}

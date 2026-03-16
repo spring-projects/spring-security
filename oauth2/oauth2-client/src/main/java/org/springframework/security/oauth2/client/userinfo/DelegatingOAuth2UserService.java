@@ -21,6 +21,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
@@ -56,7 +58,7 @@ public class DelegatingOAuth2UserService<R extends OAuth2UserRequest, U extends 
 	}
 
 	@Override
-	public U loadUser(R userRequest) throws OAuth2AuthenticationException {
+	public @Nullable U loadUser(R userRequest) throws OAuth2AuthenticationException {
 		Assert.notNull(userRequest, "userRequest cannot be null");
 		// @formatter:off
 		return this.userServices.stream()

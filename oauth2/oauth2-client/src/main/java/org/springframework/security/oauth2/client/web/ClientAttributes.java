@@ -19,6 +19,8 @@ package org.springframework.security.oauth2.client.web;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.util.Assert;
@@ -47,7 +49,7 @@ public final class ClientAttributes {
 	 * @param attributes the attributes to search.
 	 * @return the registration id to use.
 	 */
-	public static String resolveClientRegistrationId(Map<String, Object> attributes) {
+	public static @Nullable String resolveClientRegistrationId(Map<String, Object> attributes) {
 		return (String) attributes.get(CLIENT_REGISTRATION_ID_ATTR_NAME);
 	}
 

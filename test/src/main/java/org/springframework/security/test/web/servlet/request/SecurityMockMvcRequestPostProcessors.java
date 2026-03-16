@@ -1634,7 +1634,10 @@ public final class SecurityMockMvcRequestPostProcessors {
 				OAuth2ClientServletTestUtils.setAuthorizedClientRepository(request, authorizedClientRepository);
 			}
 			TestOAuth2AuthorizedClientRepository.enable(request);
-			authorizedClientRepository.saveAuthorizedClient(client, null, request, new MockHttpServletResponse());
+			Authentication anonymousPrincipal = new AnonymousAuthenticationToken("anonymous", "anonymousUser",
+					AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+			authorizedClientRepository.saveAuthorizedClient(client, anonymousPrincipal, request,
+					new MockHttpServletResponse());
 			return request;
 		}
 
@@ -1668,7 +1671,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 			@Override
 			public @Nullable OAuth2AuthorizedClient authorize(OAuth2AuthorizeRequest authorizeRequest) {
 				HttpServletRequest request = authorizeRequest.getAttribute(HttpServletRequest.class.getName());
-				if (this.authorizedClientRepository != null && isEnabled(request)) {
+				if (request != null && isEnabled(request) && this.authorizedClientRepository != null) {
 					return this.authorizedClientRepository.loadAuthorizedClient(
 							authorizeRequest.getClientRegistrationId(), authorizeRequest.getPrincipal(), request);
 				}
@@ -1703,7 +1706,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 			}
 
 			@Override
-			public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId,
+			public <T extends OAuth2AuthorizedClient> @Nullable T loadAuthorizedClient(String clientRegistrationId,
 					Authentication principal, HttpServletRequest request) {
 				if (isEnabled(request)) {
 					return (T) request.getAttribute(TOKEN_ATTR_NAME);

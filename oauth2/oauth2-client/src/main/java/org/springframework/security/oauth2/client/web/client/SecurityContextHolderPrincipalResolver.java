@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.client.web.client;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.http.HttpRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -50,7 +52,7 @@ public class SecurityContextHolderPrincipalResolver implements OAuth2ClientHttpR
 	}
 
 	@Override
-	public Authentication resolve(HttpRequest request) {
+	public @Nullable Authentication resolve(HttpRequest request) {
 		return this.securityContextHolderStrategy.getContext().getAuthentication();
 	}
 

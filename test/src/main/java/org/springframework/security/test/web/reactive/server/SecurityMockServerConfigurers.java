@@ -35,9 +35,11 @@ import reactor.core.publisher.Mono;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.client.reactive.ClientHttpConnector;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
@@ -1154,7 +1156,9 @@ public final class SecurityMockServerConfigurers {
 					OAuth2ClientServerTestUtils.setAuthorizedClientRepository(exchange, authorizedClientRepository);
 				}
 				TestOAuth2AuthorizedClientRepository.enable(exchange);
-				return authorizedClientRepository.saveAuthorizedClient(client, null, exchange)
+				Authentication anonymousPrincipal = new AnonymousAuthenticationToken("anonymous", "anonymousUser",
+						AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+				return authorizedClientRepository.saveAuthorizedClient(client, anonymousPrincipal, exchange)
 					.then(chain.filter(exchange));
 			});
 		}
@@ -1195,9 +1199,7 @@ public final class SecurityMockServerConfigurers {
 			@Override
 			public Mono<OAuth2AuthorizedClient> authorize(OAuth2AuthorizeRequest authorizeRequest) {
 				ServerWebExchange exchange = authorizeRequest.getAttribute(ServerWebExchange.class.getName());
-				if (isEnabled(exchange)) {
-					Assert.isTrue(this.authorizedClientRepository != null,
-							"ServerOAuth2AuthorizedClientRepository not set");
+				if (exchange != null && isEnabled(exchange) && this.authorizedClientRepository != null) {
 					return this.authorizedClientRepository.loadAuthorizedClient(
 							authorizeRequest.getClientRegistrationId(), authorizeRequest.getPrincipal(), exchange);
 				}

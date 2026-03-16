@@ -20,6 +20,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -40,7 +42,7 @@ public class RequestAttributePrincipalResolver implements OAuth2ClientHttpReques
 		.concat(".principal");
 
 	@Override
-	public Authentication resolve(HttpRequest request) {
+	public @Nullable Authentication resolve(HttpRequest request) {
 		return (Authentication) request.getAttributes().get(PRINCIPAL_ATTR_NAME);
 	}
 
@@ -79,7 +81,7 @@ public class RequestAttributePrincipalResolver implements OAuth2ClientHttpReques
 			}
 
 			@Override
-			public Object getCredentials() {
+			public @Nullable Object getCredentials() {
 				return null;
 			}
 		};

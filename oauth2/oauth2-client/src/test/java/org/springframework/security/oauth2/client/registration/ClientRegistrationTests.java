@@ -662,12 +662,6 @@ public class ClientRegistrationTests {
 		assertThat(clientRegistration.getClientAuthenticationMethod()).isEqualTo(clientAuthenticationMethod);
 	}
 
-	@Test
-	void clientSettingsWhenNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> ClientRegistration.withRegistrationId(REGISTRATION_ID).clientSettings(null));
-	}
-
 	// gh-16382
 	@Test
 	void buildWhenDefaultClientSettingsThenDefaulted() {

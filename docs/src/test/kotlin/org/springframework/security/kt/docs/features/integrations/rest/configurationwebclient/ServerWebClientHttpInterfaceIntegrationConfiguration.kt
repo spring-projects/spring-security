@@ -43,7 +43,7 @@ class ServerWebClientHttpInterfaceIntegrationConfiguration {
     fun securityConfigurer(
         manager: ReactiveOAuth2AuthorizedClientManager?
     ): OAuth2WebClientHttpServiceGroupConfigurer {
-        return OAuth2WebClientHttpServiceGroupConfigurer.from(manager)
+        return OAuth2WebClientHttpServiceGroupConfigurer.from(requireNotNull(manager))
     }
 
     // end::config[]

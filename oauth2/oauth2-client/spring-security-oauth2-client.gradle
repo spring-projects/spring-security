@@ -1,5 +1,6 @@
 plugins {
 	id 'javadoc-warnings-error'
+	id 'security-nullability'
 }
 
 apply plugin: 'io.spring.convention.spring-module'

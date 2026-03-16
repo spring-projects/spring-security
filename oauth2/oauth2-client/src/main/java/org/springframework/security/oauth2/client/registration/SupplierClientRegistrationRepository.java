@@ -19,6 +19,8 @@ package org.springframework.security.oauth2.client.registration;
 import java.util.Iterator;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 import org.springframework.util.function.SingletonSupplier;
 
@@ -48,7 +50,7 @@ public final class SupplierClientRegistrationRepository
 	}
 
 	@Override
-	public ClientRegistration findByRegistrationId(String registrationId) {
+	public @Nullable ClientRegistration findByRegistrationId(String registrationId) {
 		Assert.hasText(registrationId, "registrationId cannot be empty");
 		return this.repositorySupplier.get().findByRegistrationId(registrationId);
 	}

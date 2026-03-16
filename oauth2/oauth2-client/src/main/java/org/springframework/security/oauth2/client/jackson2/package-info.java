@@ -17,4 +17,7 @@
 /**
  * Jackson 2 serialization support for OAuth2 client.
  */
+@NullMarked
 package org.springframework.security.oauth2.client.jackson2;
+
+import org.jspecify.annotations.NullMarked;

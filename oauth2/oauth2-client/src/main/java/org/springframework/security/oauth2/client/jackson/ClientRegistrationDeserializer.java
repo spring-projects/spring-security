@@ -16,6 +16,9 @@
 
 package org.springframework.security.oauth2.client.jackson;
 
+import java.util.Map;
+import java.util.Set;
+
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;
@@ -26,6 +29,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.util.Assert;
 
 /**
  * A {@code JsonDeserializer} for {@link ClientRegistration}.
@@ -49,28 +53,45 @@ final class ClientRegistrationDeserializer extends ValueDeserializer<ClientRegis
 		JsonNode clientRegistrationNode = context.readTree(parser);
 		JsonNode providerDetailsNode = JsonNodeUtils.findObjectNode(clientRegistrationNode, "providerDetails");
 		JsonNode userInfoEndpointNode = JsonNodeUtils.findObjectNode(providerDetailsNode, "userInfoEndpoint");
-		return ClientRegistration
-			.withRegistrationId(JsonNodeUtils.findStringValue(clientRegistrationNode, "registrationId"))
-			.clientId(JsonNodeUtils.findStringValue(clientRegistrationNode, "clientId"))
-			.clientSecret(JsonNodeUtils.findStringValue(clientRegistrationNode, "clientSecret"))
+		String registrationId = JsonNodeUtils.findStringValue(clientRegistrationNode, "registrationId");
+		Assert.hasText(registrationId, "registrationId cannot be null or empty");
+		String clientId = JsonNodeUtils.findStringValue(clientRegistrationNode, "clientId");
+		Assert.hasText(clientId, "clientId cannot be null or empty");
+		String clientSecret = JsonNodeUtils.findStringValue(clientRegistrationNode, "clientSecret");
+		String redirectUri = JsonNodeUtils.findStringValue(clientRegistrationNode, "redirectUri");
+		Set<String> scopes = JsonNodeUtils.findValue(clientRegistrationNode, "scopes", JsonNodeUtils.STRING_SET,
+				context);
+		String clientName = JsonNodeUtils.findStringValue(clientRegistrationNode, "clientName");
+		String authorizationUri = JsonNodeUtils.findStringValue(providerDetailsNode, "authorizationUri");
+		String tokenUri = JsonNodeUtils.findStringValue(providerDetailsNode, "tokenUri");
+		Assert.hasText(tokenUri, "tokenUri cannot be null or empty");
+		String userInfoUri = JsonNodeUtils.findStringValue(userInfoEndpointNode, "uri");
+		String userNameAttributeName = JsonNodeUtils.findStringValue(userInfoEndpointNode, "userNameAttributeName");
+		String jwkSetUri = JsonNodeUtils.findStringValue(providerDetailsNode, "jwkSetUri");
+		String issuerUri = JsonNodeUtils.findStringValue(providerDetailsNode, "issuerUri");
+		Map<String, Object> configurationMetadata = JsonNodeUtils.findValue(providerDetailsNode,
+				"configurationMetadata", JsonNodeUtils.STRING_OBJECT_MAP, context);
+		ClientRegistration.Builder builder = ClientRegistration.withRegistrationId(registrationId)
+			.clientId(clientId)
+			.clientSecret(clientSecret)
 			.clientAuthenticationMethod(CLIENT_AUTHENTICATION_METHOD_CONVERTER
 				.convert(JsonNodeUtils.findObjectNode(clientRegistrationNode, "clientAuthenticationMethod")))
 			.authorizationGrantType(AUTHORIZATION_GRANT_TYPE_CONVERTER
 				.convert(JsonNodeUtils.findObjectNode(clientRegistrationNode, "authorizationGrantType")))
-			.redirectUri(JsonNodeUtils.findStringValue(clientRegistrationNode, "redirectUri"))
-			.scope(JsonNodeUtils.findValue(clientRegistrationNode, "scopes", JsonNodeUtils.STRING_SET, context))
-			.clientName(JsonNodeUtils.findStringValue(clientRegistrationNode, "clientName"))
-			.authorizationUri(JsonNodeUtils.findStringValue(providerDetailsNode, "authorizationUri"))
-			.tokenUri(JsonNodeUtils.findStringValue(providerDetailsNode, "tokenUri"))
-			.userInfoUri(JsonNodeUtils.findStringValue(userInfoEndpointNode, "uri"))
+			.redirectUri(redirectUri)
+			.scope(scopes)
+			.clientName(clientName)
+			.authorizationUri(authorizationUri)
+			.tokenUri(tokenUri)
+			.userInfoUri(userInfoUri)
 			.userInfoAuthenticationMethod(AUTHENTICATION_METHOD_CONVERTER
 				.convert(JsonNodeUtils.findObjectNode(userInfoEndpointNode, "authenticationMethod")))
-			.userNameAttributeName(JsonNodeUtils.findStringValue(userInfoEndpointNode, "userNameAttributeName"))
-			.jwkSetUri(JsonNodeUtils.findStringValue(providerDetailsNode, "jwkSetUri"))
-			.issuerUri(JsonNodeUtils.findStringValue(providerDetailsNode, "issuerUri"))
-			.providerConfigurationMetadata(JsonNodeUtils.findValue(providerDetailsNode, "configurationMetadata",
-					JsonNodeUtils.STRING_OBJECT_MAP, context))
-			.build();
+			.userNameAttributeName(userNameAttributeName)
+			.jwkSetUri(jwkSetUri)
+			.issuerUri(issuerUri)
+			.providerConfigurationMetadata(
+					(configurationMetadata != null) ? configurationMetadata : java.util.Collections.emptyMap());
+		return builder.build();
 	}
 
 }

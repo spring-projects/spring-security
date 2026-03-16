@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
@@ -118,7 +119,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 			"anonymous", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_USER"));
 
 	private final Mono<Authentication> currentAuthenticationMono = ReactiveSecurityContextHolder.getContext()
-		.map(SecurityContext::getAuthentication)
+		.flatMap((ctx) -> Mono.justOrEmpty(ctx.getAuthentication()))
 		.defaultIfEmpty(ANONYMOUS_USER_TOKEN);
 
 	// @formatter:off
@@ -138,7 +139,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 
 	private boolean defaultOAuth2AuthorizedClient;
 
-	private String defaultClientRegistrationId;
+	private @Nullable String defaultClientRegistrationId;
 
 	private ClientResponseHandler clientResponseHandler;
 
@@ -197,9 +198,14 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 			ReactiveClientRegistrationRepository clientRegistrationRepository,
 			ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
 		ReactiveOAuth2AuthorizationFailureHandler authorizationFailureHandler = new RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler(
-				(clientRegistrationId, principal, attributes) -> authorizedClientRepository.removeAuthorizedClient(
-						clientRegistrationId, principal,
-						(ServerWebExchange) attributes.get(ServerWebExchange.class.getName())));
+				(clientRegistrationId, principal, attributes) -> {
+					ServerWebExchange exchange = (ServerWebExchange) attributes.get(ServerWebExchange.class.getName());
+					if (exchange != null) {
+						return authorizedClientRepository.removeAuthorizedClient(clientRegistrationId, principal,
+								exchange);
+					}
+					return Mono.empty();
+				});
 		this.authorizedClientManager = createDefaultAuthorizedClientManager(clientRegistrationRepository,
 				authorizedClientRepository, authorizationFailureHandler);
 		this.clientResponseHandler = new AuthorizationFailureForwarder(authorizationFailureHandler);
@@ -251,7 +257,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		return (attributes) -> attributes.put(OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME, authorizedClient);
 	}
 
-	private static OAuth2AuthorizedClient oauth2AuthorizedClient(ClientRequest request) {
+	private static @Nullable OAuth2AuthorizedClient oauth2AuthorizedClient(ClientRequest request) {
 		return (OAuth2AuthorizedClient) request.attributes().get(OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME);
 	}
 
@@ -278,7 +284,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		return (attributes) -> attributes.put(SERVER_WEB_EXCHANGE_ATTR_NAME, serverWebExchange);
 	}
 
-	private static ServerWebExchange serverWebExchange(ClientRequest request) {
+	private static @Nullable ServerWebExchange serverWebExchange(ClientRequest request) {
 		return (ServerWebExchange) request.attributes().get(SERVER_WEB_EXCHANGE_ATTR_NAME);
 	}
 
@@ -294,7 +300,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		return ClientAttributes.clientRegistrationId(clientRegistrationId);
 	}
 
-	private static String clientRegistrationId(ClientRequest request) {
+	private static @Nullable String clientRegistrationId(ClientRequest request) {
 		OAuth2AuthorizedClient authorizedClient = oauth2AuthorizedClient(request);
 		if (authorizedClient != null) {
 			return authorizedClient.getClientRegistration().getRegistrationId();
@@ -376,7 +382,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.flatMap(this.serverSecurityContextRepository::load)
-			.mapNotNull(SecurityContext::getAuthentication)
+			.flatMap((ctx) -> Mono.justOrEmpty(ctx.getAuthentication()))
 			.switchIfEmpty(this.currentAuthenticationMono);
 		// @formatter:on
 	}
@@ -541,7 +547,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 			// @formatter:on
 		}
 
-		private OAuth2Error resolveErrorIfPossible(ClientResponse response) {
+		private @Nullable OAuth2Error resolveErrorIfPossible(ClientResponse response) {
 			// Try to resolve from 'WWW-Authenticate' header
 			if (!response.headers().header(HttpHeaders.WWW_AUTHENTICATE).isEmpty()) {
 				String wwwAuthenticateHeader = response.headers().header(HttpHeaders.WWW_AUTHENTICATE).get(0);
@@ -555,7 +561,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 			return resolveErrorIfPossible(response.statusCode());
 		}
 
-		private OAuth2Error resolveErrorIfPossible(HttpStatusCode statusCode) {
+		private @Nullable OAuth2Error resolveErrorIfPossible(HttpStatusCode statusCode) {
 			if (this.httpStatusToOAuth2ErrorCodeMap.containsKey(statusCode)) {
 				return new OAuth2Error(this.httpStatusToOAuth2ErrorCodeMap.get(statusCode), null,
 						"https://tools.ietf.org/html/rfc6750#section-3.1");
@@ -631,7 +637,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 					createAttributes(exchange.orElse(null)));
 		}
 
-		private Map<String, Object> createAttributes(ServerWebExchange exchange) {
+		private Map<String, Object> createAttributes(@Nullable ServerWebExchange exchange) {
 			if (exchange == null) {
 				return Collections.emptyMap();
 			}

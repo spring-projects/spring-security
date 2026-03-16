@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.client.authentication;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 import reactor.core.publisher.Mono;
@@ -87,11 +88,13 @@ public class OAuth2AuthorizationCodeReactiveAuthenticationManager implements Rea
 			OAuth2AuthorizationResponse authorizationResponse = token.getAuthorizationExchange()
 				.getAuthorizationResponse();
 			if (authorizationResponse.statusError()) {
-				return Mono.error(new OAuth2AuthorizationException(authorizationResponse.getError()));
+				OAuth2Error error = authorizationResponse.getError();
+				Assert.notNull(error, "error cannot be null when status is error");
+				return Mono.error(new OAuth2AuthorizationException(error));
 			}
 			OAuth2AuthorizationRequest authorizationRequest = token.getAuthorizationExchange()
 				.getAuthorizationRequest();
-			if (!authorizationResponse.getState().equals(authorizationRequest.getState())) {
+			if (!Objects.equals(authorizationResponse.getState(), authorizationRequest.getState())) {
 				OAuth2Error oauth2Error = new OAuth2Error(INVALID_STATE_PARAMETER_ERROR_CODE);
 				return Mono.error(new OAuth2AuthorizationException(oauth2Error));
 			}

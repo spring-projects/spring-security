@@ -132,13 +132,22 @@ public final class DefaultReactiveOAuth2AuthorizedClientManager implements React
 		Assert.notNull(authorizedClientRepository, "authorizedClientRepository cannot be null");
 		this.clientRegistrationRepository = clientRegistrationRepository;
 		this.authorizedClientRepository = authorizedClientRepository;
-		this.authorizationSuccessHandler = (authorizedClient, principal, attributes) -> authorizedClientRepository
-			.saveAuthorizedClient(authorizedClient, principal,
-					(ServerWebExchange) attributes.get(ServerWebExchange.class.getName()));
+		this.authorizationSuccessHandler = (authorizedClient, principal, attributes) -> {
+			ServerWebExchange exchange = (ServerWebExchange) attributes.get(ServerWebExchange.class.getName());
+			if (exchange != null) {
+				return authorizedClientRepository.saveAuthorizedClient(authorizedClient, principal, exchange);
+			}
+			return Mono.empty();
+		};
 		this.authorizationFailureHandler = new RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler(
-				(clientRegistrationId, principal, attributes) -> authorizedClientRepository.removeAuthorizedClient(
-						clientRegistrationId, principal,
-						(ServerWebExchange) attributes.get(ServerWebExchange.class.getName())));
+				(clientRegistrationId, principal, attributes) -> {
+					ServerWebExchange exchange = (ServerWebExchange) attributes.get(ServerWebExchange.class.getName());
+					if (exchange != null) {
+						return authorizedClientRepository.removeAuthorizedClient(clientRegistrationId, principal,
+								exchange);
+					}
+					return Mono.empty();
+				});
 	}
 
 	@Override
