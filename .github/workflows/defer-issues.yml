@@ -1,0 +1,76 @@
+name: Defer Issues
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  defer-issues:
+    name: Defer Issues
+    runs-on: ubuntu-latest
+    if: github.repository_owner == 'spring-projects'
+    permissions:
+      issues: write
+    steps:
+    - name: Checkout
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+    - name: Compute Version
+      id: compute-version
+      uses: spring-io/spring-release-actions/compute-version@0.0.3
+    - name: Get Today's Release Version
+      id: todays-release
+      uses: spring-io/spring-release-actions/get-todays-release-version@0.0.3
+      with:
+        snapshot-version: ${{ steps.compute-version.outputs.version }}
+        milestone-repository: ${{ github.repository }}
+        milestone-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Compute Next Version
+      id: next-version
+      uses: spring-io/spring-release-actions/compute-next-version@0.0.3
+      with:
+        version: ${{ steps.todays-release.outputs.release-version }}
+    - name: Schedule Next Milestone
+      uses: spring-io/spring-release-actions/schedule-milestone@0.0.3
+      with:
+        version: ${{ steps.next-version.outputs.version }}
+        version-date: ${{ steps.next-version.outputs.version-date }}
+        repository: ${{ github.repository }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Move Open Issues to Next Milestone
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        CURRENT_MILESTONE: ${{ steps.todays-release.outputs.release-version }}
+        NEXT_MILESTONE: ${{ steps.next-version.outputs.version }}
+      run: |
+        current_milestone_number=$(gh api repos/${{ github.repository }}/milestones \
+          --jq ".[] | select(.title == \"$CURRENT_MILESTONE\") | .number")
+        if [ -z "$current_milestone_number" ]; then
+          echo "No milestone found for $CURRENT_MILESTONE"
+          exit 0
+        fi
+        next_milestone_number=$(gh api repos/${{ github.repository }}/milestones \
+          --jq ".[] | select(.title == \"$NEXT_MILESTONE\") | .number")
+        if [ -z "$next_milestone_number" ]; then
+          echo "No milestone found for $NEXT_MILESTONE"
+          exit 1
+        fi
+        echo "Moving open issues from milestone '$CURRENT_MILESTONE' (#$current_milestone_number) to '$NEXT_MILESTONE' (#$next_milestone_number)"
+        page=1
+        while true; do
+          issues=$(gh api "repos/${{ github.repository }}/issues?milestone=$current_milestone_number&state=open&per_page=100&page=$page" \
+            --jq '.[].number')
+          if [ -z "$issues" ]; then
+            break
+          fi
+          for issue in $issues; do
+            echo "Moving issue/PR #$issue to milestone $NEXT_MILESTONE"
+            gh api repos/${{ github.repository }}/issues/$issue \
+              --method PATCH \
+              --field milestone=$next_milestone_number \
+              --silent
+          done
+          page=$((page + 1))
+        done
+        echo "Done."
