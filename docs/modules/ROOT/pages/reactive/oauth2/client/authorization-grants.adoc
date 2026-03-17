@@ -704,7 +704,7 @@ If not provided, it will be obtained from the https://projectreactor.io/docs/cor
 When making requests that are not associated with a specific user (e.g. background jobs, batch processes, or scheduled tasks), use `AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager` instead of `DefaultReactiveOAuth2AuthorizedClientManager`.
 Unlike `DefaultReactiveOAuth2AuthorizedClientManager`, `AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager` operates outside of a `ServerWebExchange` context, making it suitable for application-scoped access tokens.
 
-The following example shows how to configure a `WebClient` for application-scoped access tokens using the Client Credentials grant:
+The following example shows how to configure a `WebClient` with a custom `ExchangeFilterFunction` backed by `AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager` for application-scoped access tokens:
 
 .WebClient with Application-Scoped Access Tokens
 [tabs]
@@ -721,6 +721,7 @@ include::{tests-dir}/reactive/oauth2/webclient/ApplicationScopedAccessTokenConfi
 ====
 `AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager` uses a `ReactiveOAuth2AuthorizedClientService` to persist authorized clients, rather than a `ServerOAuth2AuthorizedClientRepository`.
 This makes it suitable for use cases where there is no active `ServerWebExchange`, such as background tasks or scheduled jobs.
+Unlike `ServerOAuth2AuthorizedClientExchangeFilterFunction`, a custom `ExchangeFilterFunction` avoids resolving the principal from a `ServerWebExchange`, ensuring it works correctly in application-scoped contexts.
 ====
 
 [[oauth2-client-jwt-bearer]]

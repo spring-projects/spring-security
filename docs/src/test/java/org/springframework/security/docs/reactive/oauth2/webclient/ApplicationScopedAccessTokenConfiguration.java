@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2024 the original author or authors.
+ * Copyright 2002-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,13 @@ package org.springframework.security.docs.reactive.oauth2.webclient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction;
+import org.springframework.web.reactive.function.client.ClientRequest;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
@@ -48,11 +50,24 @@ public class ApplicationScopedAccessTokenConfiguration {
 
 	@Bean
 	WebClient webClient(ReactiveOAuth2AuthorizedClientManager authorizedClientManager) {
-		var oauth2Client = new ServerOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
-		oauth2Client.setDefaultClientRegistrationId("my-client");
+		ExchangeFilterFunction oauth2Filter = (request, next) -> {
+			OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
+					.withClientRegistrationId("my-client")
+					.principal("my-client")
+					.build();
+
+			return authorizedClientManager.authorize(authorizeRequest)
+					.map(authorizedClient -> authorizedClient.getAccessToken().getTokenValue())
+					.flatMap(token -> {
+						ClientRequest authorized = ClientRequest.from(request)
+								.headers(h -> h.setBearerAuth(token))
+								.build();
+						return next.exchange(authorized);
+					});
+		};
 
 		return WebClient.builder()
-				.filter(oauth2Client)
+				.filter(oauth2Filter)
 				.build();
 	}
 	// end::webclient-client-credentials[]
