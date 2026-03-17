@@ -57,6 +57,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationExchanges;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
@@ -150,6 +151,11 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 	@Test
 	public void setRequestCacheWhenRequestCacheIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setRequestCache(null));
+	}
+
+	@Test
+	public void setAuthenticationSuccessHandlerWhenAuthenticationSuccessHandlerIsNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setAuthenticationSuccessHandler(null));
 	}
 
 	@Test
@@ -306,6 +312,27 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		this.setUpAuthenticationResult(this.registration1);
 		this.filter.doFilter(authorizationResponse, response, filterChain);
 		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/callback/client-1");
+	}
+
+	@Test
+	public void doFilterWhenAuthorizationSucceedsAndAuthenticationSuccessHandlerConfiguredThenAuthenticationSuccessHandlerUsed()
+			throws Exception {
+		MockHttpServletRequest authorizationRequest = createAuthorizationRequest("/callback/client-1");
+		MockHttpServletRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain filterChain = mock(FilterChain.class);
+		this.setUpAuthorizationRequest(authorizationRequest, response, this.registration1);
+		this.setUpAuthenticationResult(this.registration1);
+		AuthenticationSuccessHandler authenticationSuccessHandler = mock(AuthenticationSuccessHandler.class);
+		this.filter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
+		this.filter.doFilter(authorizationResponse, response, filterChain);
+		verify(authenticationSuccessHandler).onAuthenticationSuccess(any(HttpServletRequest.class),
+				any(HttpServletResponse.class), any(Authentication.class));
+		verifyNoInteractions(filterChain);
+		OAuth2AuthorizedClient authorizedClient = this.authorizedClientService
+			.loadAuthorizedClient(this.registration1.getRegistrationId(), this.principalName1);
+		assertThat(authorizedClient).isNotNull();
+		assertThat(response.getRedirectedUrl()).isNull();
 	}
 
 	@Test
