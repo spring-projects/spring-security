@@ -83,8 +83,5 @@
 	<suppress files="oauth2[\\/]oauth2-authorization-server[\\/]" checks="IllegalImport" id="bannedNullabilityImports"/>
 	<suppress files="oauth2[\\/]oauth2-authorization-server[\\/]" checks="JavadocPackage"/>
 	<suppress files="oauth2[\\/]oauth2-authorization-server[\\/].*package-info\.java" checks="RegexpMultiline" id="requireNullMarkedInPackageInfo"/>
-	<suppress files="oauth2[\\/]oauth2-resource-server[\\/]" checks="IllegalImport" id="bannedNullabilityImports"/>
-	<suppress files="oauth2[\\/]oauth2-resource-server[\\/]" checks="JavadocPackage"/>
-	<suppress files="oauth2[\\/]oauth2-resource-server[\\/].*package-info\.java" checks="RegexpMultiline" id="requireNullMarkedInPackageInfo"/>
 	<suppress files="saml2[\\/]saml2-service-provider[\\/]" checks="JavadocPackage"/>
 </suppressions>
