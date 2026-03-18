@@ -18,6 +18,8 @@ package org.springframework.security.acls.model;
 
 import java.io.Serializable;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A security identity recognised by the ACL system.
  *
@@ -40,7 +42,7 @@ public interface Sid extends Serializable {
 	 * @return <code>true</code> if the objects are equal, <code>false</code> otherwise
 	 */
 	@Override
-	boolean equals(Object obj);
+	boolean equals(@Nullable Object obj);
 
 	/**
 	 * Refer to the <code>java.lang.Object</code> documentation for the interface

@@ -71,7 +71,7 @@ public final class RequiredFactor {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (!(o instanceof RequiredFactor that)) {
 			return false;
 		}

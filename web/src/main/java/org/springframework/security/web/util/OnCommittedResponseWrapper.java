@@ -24,6 +24,7 @@ import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.WriteListener;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Base class for response wrappers which encapsulate the logic for handling an event when
@@ -311,7 +312,7 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(@Nullable Object obj) {
 			return this.delegate.equals(obj);
 		}
 
@@ -678,7 +679,7 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(@Nullable Object obj) {
 			return this.delegate.equals(obj);
 		}
 

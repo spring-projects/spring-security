@@ -18,6 +18,8 @@ package org.springframework.security.core.token;
 
 import java.util.Date;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -58,7 +60,7 @@ public class DefaultToken implements Token {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (obj instanceof DefaultToken rhs) {
 			return this.key.equals(rhs.key) && this.keyCreationTime == rhs.keyCreationTime
 					&& this.extendedInformation.equals(rhs.extendedInformation);

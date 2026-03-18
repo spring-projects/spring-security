@@ -161,7 +161,7 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (!(o instanceof PathPatternRequestMatcher that)) {
 			return false;
 		}

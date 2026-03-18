@@ -63,7 +63,7 @@ public class AccessControlEntryImpl implements AccessControlEntry, AuditableAcce
 	}
 
 	@Override
-	public boolean equals(Object arg0) {
+	public boolean equals(@Nullable Object arg0) {
 		if (!(arg0 instanceof AccessControlEntryImpl)) {
 			return false;
 		}

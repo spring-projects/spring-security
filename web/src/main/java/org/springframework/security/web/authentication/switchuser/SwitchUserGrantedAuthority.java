@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.authentication.switchuser;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
@@ -59,7 +61,7 @@ public final class SwitchUserGrantedAuthority implements GrantedAuthority {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (this == obj) {
 			return true;
 		}

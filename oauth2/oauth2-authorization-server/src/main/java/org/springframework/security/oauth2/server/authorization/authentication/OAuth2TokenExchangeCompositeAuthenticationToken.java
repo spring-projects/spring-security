@@ -21,6 +21,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
@@ -69,7 +71,7 @@ public class OAuth2TokenExchangeCompositeAuthenticationToken extends AbstractAut
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (!(obj instanceof OAuth2TokenExchangeCompositeAuthenticationToken other)) {
 			return false;
 		}

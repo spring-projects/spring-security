@@ -99,11 +99,14 @@ public class KerberosServiceRequestToken extends AbstractAuthenticationToken imp
 	 * equals() is based only on the Kerberos token
 	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (this == obj) {
 			return true;
 		}
 		if (!super.equals(obj)) {
+			return false;
+		}
+		if (obj == null) {
 			return false;
 		}
 		if (getClass() != obj.getClass()) {

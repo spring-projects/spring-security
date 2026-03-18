@@ -18,6 +18,8 @@ package org.springframework.security.authorization;
 
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.util.Assert;
 
@@ -68,7 +70,7 @@ public class RequiredFactorError {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (o == null || getClass() != o.getClass()) {
 			return false;
 		}

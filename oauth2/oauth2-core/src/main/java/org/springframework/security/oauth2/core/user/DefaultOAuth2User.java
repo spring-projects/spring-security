@@ -104,7 +104,7 @@ public class DefaultOAuth2User implements OAuth2User, Serializable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (this == obj) {
 			return true;
 		}
