@@ -18,6 +18,8 @@ package org.springframework.security.acls.model;
 
 import java.io.Serializable;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Represents the identity of an individual domain object instance.
  *
@@ -40,7 +42,7 @@ public interface ObjectIdentity extends Serializable {
 	 * @see Object#equals(Object)
 	 */
 	@Override
-	boolean equals(Object obj);
+	boolean equals(@Nullable Object obj);
 
 	/**
 	 * Obtains the actual identifier. This identifier must not be reused to represent

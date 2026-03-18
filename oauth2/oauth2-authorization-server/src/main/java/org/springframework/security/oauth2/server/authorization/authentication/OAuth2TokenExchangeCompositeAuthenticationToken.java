@@ -71,7 +71,7 @@ public class OAuth2TokenExchangeCompositeAuthenticationToken extends AbstractAut
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (!(obj instanceof OAuth2TokenExchangeCompositeAuthenticationToken other)) {
 			return false;
 		}

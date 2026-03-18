@@ -132,7 +132,7 @@ public abstract class AbstractAuthenticationToken implements Authentication, Cre
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (!(obj instanceof AbstractAuthenticationToken test)) {
 			return false;
 		}

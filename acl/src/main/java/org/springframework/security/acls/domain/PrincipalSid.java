@@ -16,6 +16,8 @@
 
 package org.springframework.security.acls.domain;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
@@ -46,7 +48,7 @@ public class PrincipalSid implements Sid {
 	}
 
 	@Override
-	public boolean equals(Object object) {
+	public boolean equals(@Nullable Object object) {
 		if ((object == null) || !(object instanceof PrincipalSid)) {
 			return false;
 		}

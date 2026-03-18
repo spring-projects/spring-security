@@ -25,6 +25,7 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.config.BeanIds;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -142,7 +143,7 @@ final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(@Nullable Object obj) {
 			return getDelegate().equals(obj);
 		}
 

@@ -133,7 +133,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (obj instanceof LdapUserDetailsImpl) {
 			Assert.notNull(this.dn, "dn cannot be null");
 			return this.dn.equals(((LdapUserDetailsImpl) obj).dn);
