@@ -80,7 +80,7 @@ develocity {
 }
 
 nohttp {
-	source.exclude "buildSrc/build/**", "**/build/**", "javascript/.gradle/**", "javascript/package-lock.json", "javascript/node_modules/**", "javascript/build/**", "javascript/dist/**"
+	source.exclude "buildSrc/build/**", "**/build/**", "**/target/**", "javascript/.gradle/**", "javascript/package-lock.json", "javascript/node_modules/**", "javascript/build/**", "javascript/dist/**"
 	source.builtBy(project(':spring-security-config').tasks.withType(RncToXsd))
 }
 
