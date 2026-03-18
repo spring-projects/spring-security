@@ -47,10 +47,10 @@ public class JwtAuthenticationTokenTests {
 	}
 
 	@Test
-	public void getNameWhenJwtHasNoSubjectThenReturnsNull() {
+	public void getNameWhenJwtHasNoSubjectThenReturnsEmptyString() {
 		Jwt jwt = builder().claim("claim", "value").build();
 		JwtAuthenticationToken token = new JwtAuthenticationToken(jwt);
-		assertThat(token.getName()).isNull();
+		assertThat(token.getName()).isEmpty();
 	}
 
 	@Test
@@ -108,12 +108,12 @@ public class JwtAuthenticationTokenTests {
 	}
 
 	@Test
-	public void getNameWhenConstructedWithNoSubjectThenReturnsNull() {
+	public void getNameWhenConstructedWithNoSubjectThenReturnsEmptyString() {
 		Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("test");
 		Jwt jwt = builder().claim("claim", "value").build();
-		assertThat(new JwtAuthenticationToken(jwt, authorities, (String) null).getName()).isNull();
-		assertThat(new JwtAuthenticationToken(jwt, authorities).getName()).isNull();
-		assertThat(new JwtAuthenticationToken(jwt).getName()).isNull();
+		assertThat(new JwtAuthenticationToken(jwt, authorities, (String) null).getName()).isEmpty();
+		assertThat(new JwtAuthenticationToken(jwt, authorities).getName()).isEmpty();
+		assertThat(new JwtAuthenticationToken(jwt).getName()).isEmpty();
 	}
 
 	@Test

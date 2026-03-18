@@ -19,9 +19,13 @@ package org.springframework.security.oauth2.server.resource;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.ClaimAccessor;
+import org.springframework.util.Assert;
 
 /**
  * A {@link ClaimAccessor} for the claims a Resource Server describes about its
@@ -42,7 +46,9 @@ public interface OAuth2ProtectedResourceMetadataClaimAccessor extends ClaimAcces
 	 * @return the {@code URL} the protected resource asserts as its resource identifier
 	 */
 	default URL getResource() {
-		return getClaimAsURL(OAuth2ProtectedResourceMetadataClaimNames.RESOURCE);
+		URL resource = getClaimAsURL(OAuth2ProtectedResourceMetadataClaimNames.RESOURCE);
+		Assert.notNull(resource, "resource cannot be null");
+		return resource;
 	}
 
 	/**
@@ -50,11 +56,14 @@ public interface OAuth2ProtectedResourceMetadataClaimAccessor extends ClaimAcces
 	 * servers that can be used with this protected resource
 	 * {@code (authorization_servers)}.
 	 * @return a list of {@code issuer} identifier {@code URL}'s, for authorization
-	 * servers that can be used with this protected resource
+	 * servers that can be used with this protected resource, or an empty list if not set
 	 */
 	default List<URL> getAuthorizationServers() {
 		List<String> authorizationServers = getClaimAsStringList(
 				OAuth2ProtectedResourceMetadataClaimNames.AUTHORIZATION_SERVERS);
+		if (authorizationServers == null) {
+			return Collections.emptyList();
+		}
 		List<URL> urls = new ArrayList<>();
 		authorizationServers.forEach((authorizationServer) -> {
 			try {
@@ -70,11 +79,11 @@ public interface OAuth2ProtectedResourceMetadataClaimAccessor extends ClaimAcces
 	/**
 	 * Returns a list of {@code scope} values supported, that are used in authorization
 	 * requests to request access to this protected resource {@code (scopes_supported)}.
-	 * @return a list of {@code scope} values supported, that are used in authorization
-	 * requests to request access to this protected resource
+	 * @return a list of {@code scope} values supported, or an empty list if not set
 	 */
 	default List<String> getScopes() {
-		return getClaimAsStringList(OAuth2ProtectedResourceMetadataClaimNames.SCOPES_SUPPORTED);
+		List<String> scopes = getClaimAsStringList(OAuth2ProtectedResourceMetadataClaimNames.SCOPES_SUPPORTED);
+		return (scopes != null) ? scopes : Collections.emptyList();
 	}
 
 	/**
@@ -82,18 +91,20 @@ public interface OAuth2ProtectedResourceMetadataClaimAccessor extends ClaimAcces
 	 * the protected resource. Defined values are "header", "body" and "query".
 	 * {@code (bearer_methods_supported)}.
 	 * @return a list of the supported methods for sending an OAuth 2.0 bearer token to
-	 * the protected resource
+	 * the protected resource, or an empty list if not set
 	 */
 	default List<String> getBearerMethodsSupported() {
-		return getClaimAsStringList(OAuth2ProtectedResourceMetadataClaimNames.BEARER_METHODS_SUPPORTED);
+		List<String> methods = getClaimAsStringList(OAuth2ProtectedResourceMetadataClaimNames.BEARER_METHODS_SUPPORTED);
+		return (methods != null) ? methods : Collections.emptyList();
 	}
 
 	/**
 	 * Returns the name of the protected resource intended for display to the end user
 	 * {@code (resource_name)}.
-	 * @return the name of the protected resource intended for display to the end user
+	 * @return the name of the protected resource intended for display to the end user, or
+	 * {@code null} if not set
 	 */
-	default String getResourceName() {
+	default @Nullable String getResourceName() {
 		return getClaimAsString(OAuth2ProtectedResourceMetadataClaimNames.RESOURCE_NAME);
 	}
 

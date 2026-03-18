@@ -15,9 +15,9 @@
  */
 
 /**
- * OAuth 2.0 Resource Server {@code Filter}'s and supporting classes and interfaces.
+ * OAuth 2.0 Resource Server WebClient exchange filter functions.
  */
 @NullMarked
-package org.springframework.security.oauth2.server.resource.web;
+package org.springframework.security.oauth2.server.resource.web.reactive.function.client;
 
 import org.jspecify.annotations.NullMarked;

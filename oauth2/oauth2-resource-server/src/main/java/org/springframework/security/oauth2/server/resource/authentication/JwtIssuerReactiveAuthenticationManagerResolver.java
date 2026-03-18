@@ -31,7 +31,6 @@ import reactor.core.scheduler.Schedulers;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.log.LogMessage;
-import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
@@ -172,7 +171,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	private static class JwtClaimIssuerConverter implements Converter<BearerTokenAuthenticationToken, Mono<String>> {
 
 		@Override
-		public Mono<String> convert(@NonNull BearerTokenAuthenticationToken token) {
+		public Mono<String> convert(BearerTokenAuthenticationToken token) {
 			try {
 				String issuer = JWTParser.parse(token.getToken()).getJWTClaimsSet().getIssuer();
 				if (issuer == null) {
@@ -184,7 +183,8 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 			}
 			catch (Exception cause) {
 				return Mono.error(() -> {
-					AuthenticationException ex = new InvalidBearerTokenException(cause.getMessage(), cause);
+					AuthenticationException ex = new InvalidBearerTokenException(
+							(cause.getMessage() != null) ? cause.getMessage() : "Invalid token", cause);
 					ex.setAuthenticationRequest(token);
 					return ex;
 				});

@@ -15,9 +15,9 @@
  */
 
 /**
- * OAuth 2.0 Resource Server {@code Filter}'s and supporting classes and interfaces.
+ * OAuth 2.0 Resource Server web authentication converters and filters.
  */
 @NullMarked
-package org.springframework.security.oauth2.server.resource.web;
+package org.springframework.security.oauth2.server.resource.web.authentication;
 
 import org.jspecify.annotations.NullMarked;

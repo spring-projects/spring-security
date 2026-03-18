@@ -31,6 +31,7 @@ import java.util.function.Consumer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
@@ -108,7 +109,7 @@ public final class RestClientOpaqueTokenIntrospector implements OpaqueTokenIntro
 			return spec.retrieve().toEntity(STRING_OBJECT_MAP);
 		}
 		catch (Exception ex) {
-			throw new OAuth2IntrospectionException(ex.getMessage(), ex);
+			throw new OAuth2IntrospectionException((ex.getMessage() != null) ? ex.getMessage() : "Invalid token", ex);
 		}
 	}
 
@@ -208,7 +209,8 @@ public final class RestClientOpaqueTokenIntrospector implements OpaqueTokenIntro
 	 */
 	private OAuth2IntrospectionAuthenticatedPrincipal defaultAuthenticationConverter(
 			OAuth2TokenIntrospectionClaimAccessor accessor) {
-		Collection<GrantedAuthority> authorities = authorities(accessor.getScopes());
+		List<String> scopes = accessor.getScopes();
+		Collection<GrantedAuthority> authorities = authorities((scopes != null) ? scopes : Collections.emptyList());
 		return new OAuth2IntrospectionAuthenticatedPrincipal(accessor.getClaims(), authorities);
 	}
 
@@ -250,7 +252,7 @@ public final class RestClientOpaqueTokenIntrospector implements OpaqueTokenIntro
 	private interface ArrayListFromStringClaimAccessor extends OAuth2TokenIntrospectionClaimAccessor {
 
 		@Override
-		default List<String> getScopes() {
+		default @Nullable List<String> getScopes() {
 			Object value = getClaims().get(OAuth2TokenIntrospectionClaimNames.SCOPE);
 			if (value instanceof ArrayListFromString list) {
 				return list;
@@ -270,9 +272,9 @@ public final class RestClientOpaqueTokenIntrospector implements OpaqueTokenIntro
 
 		private final String introspectionUri;
 
-		private String clientId;
+		private @Nullable String clientId;
 
-		private String clientSecret;
+		private @Nullable String clientSecret;
 
 		private final List<Consumer<RestClientOpaqueTokenIntrospector>> postProcessors = new ArrayList<>();
 
@@ -322,9 +324,13 @@ public final class RestClientOpaqueTokenIntrospector implements OpaqueTokenIntro
 		 * @return the {@link RestClientOpaqueTokenIntrospector}
 		 */
 		public RestClientOpaqueTokenIntrospector build() {
-			RestClient restClient = RestClient.builder()
-				.defaultHeaders((headers) -> headers.setBasicAuth(this.clientId, this.clientSecret))
-				.build();
+			RestClient.Builder builder = RestClient.builder();
+			if (this.clientId != null && this.clientSecret != null) {
+				String clientId = this.clientId;
+				String clientSecret = this.clientSecret;
+				builder.defaultHeaders((headers) -> headers.setBasicAuth(clientId, clientSecret));
+			}
+			RestClient restClient = builder.build();
 			RestClientOpaqueTokenIntrospector introspector = new RestClientOpaqueTokenIntrospector(
 					this.introspectionUri, restClient);
 			this.postProcessors.forEach((postProcessor) -> postProcessor.accept(introspector));

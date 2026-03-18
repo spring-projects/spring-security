@@ -76,7 +76,7 @@ public final class JwtReactiveAuthenticationManager implements ReactiveAuthentic
 
 	private AuthenticationException onError(JwtException ex) {
 		if (ex instanceof BadJwtException) {
-			return new InvalidBearerTokenException(ex.getMessage(), ex);
+			return new InvalidBearerTokenException((ex.getMessage() != null) ? ex.getMessage() : "Invalid token", ex);
 		}
 		return new AuthenticationServiceException(ex.getMessage(), ex);
 	}

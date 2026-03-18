@@ -114,7 +114,8 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
 
 		@Override
 		public String getName() {
-			return getClaimAsString(this.principalClaimName);
+			String name = this.getClaimAsString(this.principalClaimName);
+			return (name != null) ? name : "";
 		}
 
 	}

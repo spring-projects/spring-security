@@ -15,9 +15,9 @@
  */
 
 /**
- * OAuth 2.0 Resource Server {@code Filter}'s and supporting classes and interfaces.
+ * OAuth 2.0 Resource Server WebFlux authentication converters.
  */
 @NullMarked
-package org.springframework.security.oauth2.server.resource.web;
+package org.springframework.security.oauth2.server.resource.web.server.authentication;
 
 import org.jspecify.annotations.NullMarked;

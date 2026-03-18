@@ -22,6 +22,7 @@ import java.util.function.Function;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -51,7 +52,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public final class BearerTokenAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-	private String realmName;
+	private @Nullable String realmName;
 
 	private Function<HttpServletRequest, String> resourceMetadataParameterResolver = BearerTokenAuthenticationEntryPoint::getResourceMetadataParameter;
 
@@ -95,9 +96,9 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 
 	/**
 	 * Set the default realm name to use in the bearer token error response
-	 * @param realmName
+	 * @param realmName the realm name, or {@code null}
 	 */
-	public void setRealmName(String realmName) {
+	public void setRealmName(@Nullable String realmName) {
 		this.realmName = realmName;
 	}
 

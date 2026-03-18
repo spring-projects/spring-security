@@ -21,6 +21,7 @@ import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -46,7 +47,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
  */
 public final class BearerTokenAccessDeniedHandler implements AccessDeniedHandler {
 
-	private String realmName;
+	private @Nullable String realmName;
 
 	/**
 	 * Collect error details from the provided parameters and format according to RFC
@@ -78,7 +79,7 @@ public final class BearerTokenAccessDeniedHandler implements AccessDeniedHandler
 	 * Set the default realm name to use in the bearer token error response
 	 * @param realmName
 	 */
-	public void setRealmName(String realmName) {
+	public void setRealmName(@Nullable String realmName) {
 		this.realmName = realmName;
 	}
 
