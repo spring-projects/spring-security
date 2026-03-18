@@ -751,4 +751,79 @@ public class ClientRegistrationTests {
 		}
 	}
 
+	@Test
+	void buildWhenScopesHaveInvalidCharactersThenThrowException() {
+		assertThatIllegalArgumentException().isThrownBy(() ->
+		// @formatter:off
+			ClientRegistration.withRegistrationId("test")
+					.clientId("client")
+					.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+					.redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
+					.authorizationUri("https://provider.com/auth")
+					.tokenUri("https://provider.com/token")
+					.scope("read", "invalid scope ^") // space is 0x20, which is outside the valid range
+					.build()
+		// @formatter:on
+		);
+	}
+
+	@Test
+	void buildWhenClientCredentialsMissingTokenUriThenThrowException() {
+		assertThatIllegalArgumentException().isThrownBy(() ->
+		// @formatter:off
+			ClientRegistration.withRegistrationId("test")
+					.clientId("client")
+					.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+					// Missing tokenUri
+					.build()
+		// @formatter:on
+		);
+	}
+
+	@Test
+	void buildWhenValidThenSettingsAreCorrect() {
+		// @formatter:off
+		ClientRegistration registration = ClientRegistration.withRegistrationId("google")
+				.clientId("my-client")
+				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+				.tokenUri("https://google.com/token")
+				.build();
+		// @formatter:on
+		assertThat(registration.getRegistrationId()).isEqualTo("google");
+		assertThat(registration.getClientId()).isEqualTo("my-client");
+		// ClientSettings assertions
+		assertThat(registration.getClientSettings()).isNotNull();
+	    assertThat(registration.getClientSettings().isRequireProofKey()).isTrue();
+	    assertThat(registration.getClientSettings().getSettings()).containsKey("settings.client.require-proof-key");
+	}
+
+	@Test
+	void clientSettingsWhenCustomSettingThenGetSettingReturnsValue() {
+	    ClientRegistration.ClientSettings clientSettings = ClientRegistration.ClientSettings.builder()
+	            .setting("custom.key", "customValue")
+	            .build();
+	    assertThat(clientSettings.<String>getSetting("custom.key")).isEqualTo("customValue");
+	}
+	
+	@Test
+	void clientSettingsWhenSettingsConsumerThenSettingsApplied() {
+	    ClientRegistration.ClientSettings clientSettings = ClientRegistration.ClientSettings.builder()
+	            .settings(s -> s.put("custom.key", "value"))
+	            .build();
+	    assertThat(clientSettings.<String>getSetting("custom.key")).isEqualTo("value");
+	}
+	
+	@Test
+	void clientSettingsGetSettingWhenNameEmptyThenThrowException() {
+	    ClientRegistration.ClientSettings clientSettings = ClientRegistration.ClientSettings.builder().build();
+	    assertThatIllegalArgumentException()
+	            .isThrownBy(() -> clientSettings.getSetting(""))
+	            .withMessageContaining("name cannot be empty");
+	}
+	
+	@Test
+	void clientSettingsSettingsConsumerWhenNullThenThrowException() {
+	    assertThatIllegalArgumentException()
+	            .isThrownBy(() -> ClientRegistration.ClientSettings.builder().settings(null));
+	}
 }

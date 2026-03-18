@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -755,14 +756,26 @@ public final class ClientRegistration implements Serializable {
 		@Serial
 		private static final long serialVersionUID = 7495627155437124692L;
 
-		private boolean requireProofKey;
+		private final Map<String, Object> settings;
 
-		private ClientSettings() {
-
+		private ClientSettings(Map<String, Object> settings) {
+			this.settings = Collections.unmodifiableMap(new LinkedHashMap<>(settings));
 		}
 
+		private static final String REQUIRE_PROOF_KEY = "settings.client.require-proof-key";
+		
 		public boolean isRequireProofKey() {
-			return this.requireProofKey;
+		    return Boolean.TRUE.equals(getSetting(REQUIRE_PROOF_KEY));
+		}
+
+		@SuppressWarnings("unchecked")
+		public <T> @Nullable T getSetting(String name) {
+			Assert.hasText(name, "name cannot be empty");
+			return (T) this.settings.get(name);
+		}
+
+		public Map<String, Object> getSettings() {
+			return this.settings;
 		}
 
 		@Override
@@ -773,17 +786,17 @@ public final class ClientRegistration implements Serializable {
 			if (!(o instanceof ClientSettings that)) {
 				return false;
 			}
-			return this.requireProofKey == that.requireProofKey;
+			return Objects.equals(this.settings, that.settings);
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hashCode(this.requireProofKey);
+			return Objects.hashCode(this.settings);
 		}
 
 		@Override
 		public String toString() {
-			return "ClientSettings{" + "requireProofKey=" + this.requireProofKey + '}';
+			return "ClientSettings{" + "settings=" + this.settings + '}';
 		}
 
 		public static Builder builder() {
@@ -792,11 +805,12 @@ public final class ClientRegistration implements Serializable {
 
 		public static final class Builder {
 
-			private boolean requireProofKey = true;
+			private final Map<String, Object> settings = new LinkedHashMap<>();
 
 			private Builder() {
+			    this.settings.put(REQUIRE_PROOF_KEY, true);
 			}
-
+			
 			/**
 			 * Set to {@code true} if the client is required to provide a proof key
 			 * challenge and verifier when performing the Authorization Code Grant flow.
@@ -805,14 +819,35 @@ public final class ClientRegistration implements Serializable {
 			 * @return the {@link Builder} for further configuration
 			 */
 			public Builder requireProofKey(boolean requireProofKey) {
-				this.requireProofKey = requireProofKey;
+				return setting(REQUIRE_PROOF_KEY, requireProofKey);
+			}
+
+			/**
+			 * Sets a configuration setting.
+			 * @param name the name of the setting
+			 * @param value the value of the setting
+			 * @return the {@link Builder} for further configuration
+			 */
+			public Builder setting(String name, Object value) {
+				Assert.hasText(name, "name cannot be empty");
+				Assert.notNull(value, "value cannot be null");
+				this.settings.put(name, value);
 				return this;
 			}
 
+			/**
+			 * Sets the configuration settings.
+			 * @param settings the configuration settings
+			 * @return the {@link Builder} for further configuration
+			 */
+			public Builder settings(Consumer<Map<String, Object>> settingsConsumer) {
+			    Assert.notNull(settingsConsumer, "settingsConsumer cannot be null");
+			    settingsConsumer.accept(this.settings);
+			    return this;
+			}
+
 			public ClientSettings build() {
-				ClientSettings clientSettings = new ClientSettings();
-				clientSettings.requireProofKey = this.requireProofKey;
-				return clientSettings;
+				return new ClientSettings(this.settings);
 			}
 
 		}
