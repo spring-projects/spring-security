@@ -109,6 +109,7 @@ public final class OidcLogoutEndpointFilter extends OncePerRequestFilter {
 
 		try {
 			Authentication oidcLogoutAuthentication = this.authenticationConverter.convert(request);
+			Assert.notNull(oidcLogoutAuthentication, "oidcLogoutAuthentication cannot be null");
 
 			Authentication oidcLogoutAuthenticationResult = this.authenticationManager
 				.authenticate(oidcLogoutAuthentication);

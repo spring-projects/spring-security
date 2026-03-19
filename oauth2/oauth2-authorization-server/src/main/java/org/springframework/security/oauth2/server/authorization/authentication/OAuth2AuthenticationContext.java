@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.authorization.context.Context;
@@ -42,7 +44,9 @@ public interface OAuth2AuthenticationContext extends Context {
 	 */
 	@SuppressWarnings("unchecked")
 	default <T extends Authentication> T getAuthentication() {
-		return (T) get(Authentication.class);
+		Authentication authentication = get(Authentication.class);
+		Assert.notNull(authentication, "authentication cannot be null");
+		return (T) authentication;
 	}
 
 	/**
@@ -85,7 +89,7 @@ public interface OAuth2AuthenticationContext extends Context {
 		}
 
 		@SuppressWarnings("unchecked")
-		protected <V> V get(Object key) {
+		protected <V> @Nullable V get(Object key) {
 			return (V) getContext().get(key);
 		}
 

@@ -19,8 +19,11 @@ package org.springframework.security.oauth2.server.authorization;
 import java.net.URL;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.ClaimAccessor;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
+import org.springframework.util.Assert;
 
 /**
  * A {@link ClaimAccessor} for the "claims" an Authorization Server describes about its
@@ -57,7 +60,9 @@ public interface OAuth2AuthorizationServerMetadataClaimAccessor extends ClaimAcc
 	 * @return the {@code URL} the Authorization Server asserts as its Issuer Identifier
 	 */
 	default URL getIssuer() {
-		return getClaimAsURL(OAuth2AuthorizationServerMetadataClaimNames.ISSUER);
+		URL issuer = getClaimAsURL(OAuth2AuthorizationServerMetadataClaimNames.ISSUER);
+		Assert.notNull(issuer, "issuer cannot be null");
+		return issuer;
 	}
 
 	/**
@@ -66,7 +71,9 @@ public interface OAuth2AuthorizationServerMetadataClaimAccessor extends ClaimAcc
 	 * @return the {@code URL} of the OAuth 2.0 Authorization Endpoint
 	 */
 	default URL getAuthorizationEndpoint() {
-		return getClaimAsURL(OAuth2AuthorizationServerMetadataClaimNames.AUTHORIZATION_ENDPOINT);
+		URL authorizationEndpoint = getClaimAsURL(OAuth2AuthorizationServerMetadataClaimNames.AUTHORIZATION_ENDPOINT);
+		Assert.notNull(authorizationEndpoint, "authorizationEndpoint cannot be null");
+		return authorizationEndpoint;
 	}
 
 	/**
@@ -74,7 +81,7 @@ public interface OAuth2AuthorizationServerMetadataClaimAccessor extends ClaimAcc
 	 * {@code (pushed_authorization_request_endpoint)}.
 	 * @return the {@code URL} of the OAuth 2.0 Pushed Authorization Request Endpoint
 	 */
-	default URL getPushedAuthorizationRequestEndpoint() {
+	default @Nullable URL getPushedAuthorizationRequestEndpoint() {
 		return getClaimAsURL(OAuth2AuthorizationServerMetadataClaimNames.PUSHED_AUTHORIZATION_REQUEST_ENDPOINT);
 	}
 
@@ -83,7 +90,7 @@ public interface OAuth2AuthorizationServerMetadataClaimAccessor extends ClaimAcc
 	 * {@code (device_authorization_endpoint)}.
 	 * @return the {@code URL} of the OAuth 2.0 Device Authorization Endpoint
 	 */
-	default URL getDeviceAuthorizationEndpoint() {
+	default @Nullable URL getDeviceAuthorizationEndpoint() {
 		return getClaimAsURL(OAuth2AuthorizationServerMetadataClaimNames.DEVICE_AUTHORIZATION_ENDPOINT);
 	}
 
@@ -92,7 +99,9 @@ public interface OAuth2AuthorizationServerMetadataClaimAccessor extends ClaimAcc
 	 * @return the {@code URL} of the OAuth 2.0 Token Endpoint
 	 */
 	default URL getTokenEndpoint() {
-		return getClaimAsURL(OAuth2AuthorizationServerMetadataClaimNames.TOKEN_ENDPOINT);
+		URL tokenEndpoint = getClaimAsURL(OAuth2AuthorizationServerMetadataClaimNames.TOKEN_ENDPOINT);
+		Assert.notNull(tokenEndpoint, "tokenEndpoint cannot be null");
+		return tokenEndpoint;
 	}
 
 	/**
@@ -100,7 +109,7 @@ public interface OAuth2AuthorizationServerMetadataClaimAccessor extends ClaimAcc
 	 * {@code (token_endpoint_auth_methods_supported)}.
 	 * @return the client authentication methods supported by the OAuth 2.0 Token Endpoint
 	 */
-	default List<String> getTokenEndpointAuthenticationMethods() {
+	default @Nullable List<String> getTokenEndpointAuthenticationMethods() {
 		return getClaimAsStringList(OAuth2AuthorizationServerMetadataClaimNames.TOKEN_ENDPOINT_AUTH_METHODS_SUPPORTED);
 	}
 
@@ -108,7 +117,7 @@ public interface OAuth2AuthorizationServerMetadataClaimAccessor extends ClaimAcc
 	 * Returns the {@code URL} of the JSON Web Key Set {@code (jwks_uri)}.
 	 * @return the {@code URL} of the JSON Web Key Set
 	 */
-	default URL getJwkSetUrl() {
+	default @Nullable URL getJwkSetUrl() {
 		return getClaimAsURL(OAuth2AuthorizationServerMetadataClaimNames.JWKS_URI);
 	}
 
@@ -116,7 +125,7 @@ public interface OAuth2AuthorizationServerMetadataClaimAccessor extends ClaimAcc
 	 * Returns the OAuth 2.0 {@code scope} values supported {@code (scopes_supported)}.
 	 * @return the OAuth 2.0 {@code scope} values supported
 	 */
-	default List<String> getScopes() {
+	default @Nullable List<String> getScopes() {
 		return getClaimAsStringList(OAuth2AuthorizationServerMetadataClaimNames.SCOPES_SUPPORTED);
 	}
 
@@ -126,7 +135,10 @@ public interface OAuth2AuthorizationServerMetadataClaimAccessor extends ClaimAcc
 	 * @return the OAuth 2.0 {@code response_type} values supported
 	 */
 	default List<String> getResponseTypes() {
-		return getClaimAsStringList(OAuth2AuthorizationServerMetadataClaimNames.RESPONSE_TYPES_SUPPORTED);
+		List<String> responseTypes = getClaimAsStringList(
+				OAuth2AuthorizationServerMetadataClaimNames.RESPONSE_TYPES_SUPPORTED);
+		Assert.notNull(responseTypes, "responseTypes cannot be null");
+		return responseTypes;
 	}
 
 	/**
@@ -134,7 +146,7 @@ public interface OAuth2AuthorizationServerMetadataClaimAccessor extends ClaimAcc
 	 * {@code (grant_types_supported)}.
 	 * @return the OAuth 2.0 {@code grant_type} values supported
 	 */
-	default List<String> getGrantTypes() {
+	default @Nullable List<String> getGrantTypes() {
 		return getClaimAsStringList(OAuth2AuthorizationServerMetadataClaimNames.GRANT_TYPES_SUPPORTED);
 	}
 
@@ -143,7 +155,7 @@ public interface OAuth2AuthorizationServerMetadataClaimAccessor extends ClaimAcc
 	 * {@code (revocation_endpoint)}.
 	 * @return the {@code URL} of the OAuth 2.0 Token Revocation Endpoint
 	 */
-	default URL getTokenRevocationEndpoint() {
+	default @Nullable URL getTokenRevocationEndpoint() {
 		return getClaimAsURL(OAuth2AuthorizationServerMetadataClaimNames.REVOCATION_ENDPOINT);
 	}
 
@@ -153,7 +165,7 @@ public interface OAuth2AuthorizationServerMetadataClaimAccessor extends ClaimAcc
 	 * @return the client authentication methods supported by the OAuth 2.0 Token
 	 * Revocation Endpoint
 	 */
-	default List<String> getTokenRevocationEndpointAuthenticationMethods() {
+	default @Nullable List<String> getTokenRevocationEndpointAuthenticationMethods() {
 		return getClaimAsStringList(
 				OAuth2AuthorizationServerMetadataClaimNames.REVOCATION_ENDPOINT_AUTH_METHODS_SUPPORTED);
 	}
@@ -163,7 +175,7 @@ public interface OAuth2AuthorizationServerMetadataClaimAccessor extends ClaimAcc
 	 * {@code (introspection_endpoint)}.
 	 * @return the {@code URL} of the OAuth 2.0 Token Introspection Endpoint
 	 */
-	default URL getTokenIntrospectionEndpoint() {
+	default @Nullable URL getTokenIntrospectionEndpoint() {
 		return getClaimAsURL(OAuth2AuthorizationServerMetadataClaimNames.INTROSPECTION_ENDPOINT);
 	}
 
@@ -173,7 +185,7 @@ public interface OAuth2AuthorizationServerMetadataClaimAccessor extends ClaimAcc
 	 * @return the client authentication methods supported by the OAuth 2.0 Token
 	 * Introspection Endpoint
 	 */
-	default List<String> getTokenIntrospectionEndpointAuthenticationMethods() {
+	default @Nullable List<String> getTokenIntrospectionEndpointAuthenticationMethods() {
 		return getClaimAsStringList(
 				OAuth2AuthorizationServerMetadataClaimNames.INTROSPECTION_ENDPOINT_AUTH_METHODS_SUPPORTED);
 	}
@@ -183,7 +195,7 @@ public interface OAuth2AuthorizationServerMetadataClaimAccessor extends ClaimAcc
 	 * {@code (registration_endpoint)}.
 	 * @return the {@code URL} of the OAuth 2.0 Dynamic Client Registration Endpoint
 	 */
-	default URL getClientRegistrationEndpoint() {
+	default @Nullable URL getClientRegistrationEndpoint() {
 		return getClaimAsURL(OAuth2AuthorizationServerMetadataClaimNames.REGISTRATION_ENDPOINT);
 	}
 
@@ -192,7 +204,7 @@ public interface OAuth2AuthorizationServerMetadataClaimAccessor extends ClaimAcc
 	 * supported {@code (code_challenge_methods_supported)}.
 	 * @return the {@code code_challenge_method} values supported
 	 */
-	default List<String> getCodeChallengeMethods() {
+	default @Nullable List<String> getCodeChallengeMethods() {
 		return getClaimAsStringList(OAuth2AuthorizationServerMetadataClaimNames.CODE_CHALLENGE_METHODS_SUPPORTED);
 	}
 
@@ -213,7 +225,7 @@ public interface OAuth2AuthorizationServerMetadataClaimAccessor extends ClaimAcc
 	 * @return the {@link JwsAlgorithms JSON Web Signature (JWS) algorithms} supported for
 	 * DPoP Proof JWTs
 	 */
-	default List<String> getDPoPSigningAlgorithms() {
+	default @Nullable List<String> getDPoPSigningAlgorithms() {
 		return getClaimAsStringList(OAuth2AuthorizationServerMetadataClaimNames.DPOP_SIGNING_ALG_VALUES_SUPPORTED);
 	}
 

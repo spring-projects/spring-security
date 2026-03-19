@@ -19,11 +19,14 @@ package org.springframework.security.oauth2.server.authorization.oidc;
 import java.net.URL;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.ClaimAccessor;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationServerMetadataClaimAccessor;
+import org.springframework.util.Assert;
 
 /**
  * A {@link ClaimAccessor} for the "claims" that can be returned in the OpenID Provider
@@ -47,7 +50,9 @@ public interface OidcProviderMetadataClaimAccessor extends OAuth2AuthorizationSe
 	 * @return the Subject Identifier types supported
 	 */
 	default List<String> getSubjectTypes() {
-		return getClaimAsStringList(OidcProviderMetadataClaimNames.SUBJECT_TYPES_SUPPORTED);
+		List<String> subjectTypes = getClaimAsStringList(OidcProviderMetadataClaimNames.SUBJECT_TYPES_SUPPORTED);
+		Assert.notNull(subjectTypes, "subjectTypes cannot be null");
+		return subjectTypes;
 	}
 
 	/**
@@ -58,7 +63,10 @@ public interface OidcProviderMetadataClaimAccessor extends OAuth2AuthorizationSe
 	 * {@link OidcIdToken ID Token}
 	 */
 	default List<String> getIdTokenSigningAlgorithms() {
-		return getClaimAsStringList(OidcProviderMetadataClaimNames.ID_TOKEN_SIGNING_ALG_VALUES_SUPPORTED);
+		List<String> idTokenSigningAlgorithms = getClaimAsStringList(
+				OidcProviderMetadataClaimNames.ID_TOKEN_SIGNING_ALG_VALUES_SUPPORTED);
+		Assert.notNull(idTokenSigningAlgorithms, "idTokenSigningAlgorithms cannot be null");
+		return idTokenSigningAlgorithms;
 	}
 
 	/**
@@ -66,7 +74,7 @@ public interface OidcProviderMetadataClaimAccessor extends OAuth2AuthorizationSe
 	 * {@code (userinfo_endpoint)}.
 	 * @return the {@code URL} of the OpenID Connect 1.0 UserInfo Endpoint
 	 */
-	default URL getUserInfoEndpoint() {
+	default @Nullable URL getUserInfoEndpoint() {
 		return getClaimAsURL(OidcProviderMetadataClaimNames.USER_INFO_ENDPOINT);
 	}
 
@@ -76,7 +84,9 @@ public interface OidcProviderMetadataClaimAccessor extends OAuth2AuthorizationSe
 	 * @return the {@code URL} of the OpenID Connect 1.0 End Session Endpoint
 	 */
 	default URL getEndSessionEndpoint() {
-		return getClaimAsURL(OidcProviderMetadataClaimNames.END_SESSION_ENDPOINT);
+		URL endSessionEndpoint = getClaimAsURL(OidcProviderMetadataClaimNames.END_SESSION_ENDPOINT);
+		Assert.notNull(endSessionEndpoint, "endSessionEndpoint cannot be null");
+		return endSessionEndpoint;
 	}
 
 }

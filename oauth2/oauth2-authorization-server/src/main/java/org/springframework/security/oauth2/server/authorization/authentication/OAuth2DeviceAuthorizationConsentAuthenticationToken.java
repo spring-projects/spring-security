@@ -22,7 +22,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
@@ -43,7 +44,7 @@ public class OAuth2DeviceAuthorizationConsentAuthenticationToken extends OAuth2A
 
 	private final String userCode;
 
-	private final Set<String> requestedScopes;
+	private final @Nullable Set<String> requestedScopes;
 
 	/**
 	 * Constructs an {@code OAuth2DeviceAuthorizationConsentAuthenticationToken} using the
@@ -98,9 +99,9 @@ public class OAuth2DeviceAuthorizationConsentAuthenticationToken extends OAuth2A
 
 	/**
 	 * Returns the requested scopes.
-	 * @return the requested scopes
+	 * @return the requested scopes, or {@code null} if not available
 	 */
-	public Set<String> getRequestedScopes() {
+	public @Nullable Set<String> getRequestedScopes() {
 		return this.requestedScopes;
 	}
 

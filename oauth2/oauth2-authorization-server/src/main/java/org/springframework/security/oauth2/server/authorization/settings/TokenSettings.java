@@ -46,7 +46,10 @@ public final class TokenSettings extends AbstractSettings {
 	 * @return the time-to-live for an authorization code
 	 */
 	public Duration getAuthorizationCodeTimeToLive() {
-		return getSetting(ConfigurationSettingNames.Token.AUTHORIZATION_CODE_TIME_TO_LIVE);
+		Duration authorizationCodeTimeToLive = getSetting(
+				ConfigurationSettingNames.Token.AUTHORIZATION_CODE_TIME_TO_LIVE);
+		Assert.notNull(authorizationCodeTimeToLive, "authorizationCodeTimeToLive cannot be null");
+		return authorizationCodeTimeToLive;
 	}
 
 	/**
@@ -54,7 +57,9 @@ public final class TokenSettings extends AbstractSettings {
 	 * @return the time-to-live for an access token
 	 */
 	public Duration getAccessTokenTimeToLive() {
-		return getSetting(ConfigurationSettingNames.Token.ACCESS_TOKEN_TIME_TO_LIVE);
+		Duration accessTokenTimeToLive = getSetting(ConfigurationSettingNames.Token.ACCESS_TOKEN_TIME_TO_LIVE);
+		Assert.notNull(accessTokenTimeToLive, "accessTokenTimeToLive cannot be null");
+		return accessTokenTimeToLive;
 	}
 
 	/**
@@ -63,7 +68,9 @@ public final class TokenSettings extends AbstractSettings {
 	 * @return the token format for an access token
 	 */
 	public OAuth2TokenFormat getAccessTokenFormat() {
-		return getSetting(ConfigurationSettingNames.Token.ACCESS_TOKEN_FORMAT);
+		OAuth2TokenFormat accessTokenFormat = getSetting(ConfigurationSettingNames.Token.ACCESS_TOKEN_FORMAT);
+		Assert.notNull(accessTokenFormat, "accessTokenFormat cannot be null");
+		return accessTokenFormat;
 	}
 
 	/**
@@ -71,7 +78,9 @@ public final class TokenSettings extends AbstractSettings {
 	 * @return the time-to-live for a device code
 	 */
 	public Duration getDeviceCodeTimeToLive() {
-		return getSetting(ConfigurationSettingNames.Token.DEVICE_CODE_TIME_TO_LIVE);
+		Duration deviceCodeTimeToLive = getSetting(ConfigurationSettingNames.Token.DEVICE_CODE_TIME_TO_LIVE);
+		Assert.notNull(deviceCodeTimeToLive, "deviceCodeTimeToLive cannot be null");
+		return deviceCodeTimeToLive;
 	}
 
 	/**
@@ -82,7 +91,7 @@ public final class TokenSettings extends AbstractSettings {
 	 * response, {@code false} otherwise
 	 */
 	public boolean isReuseRefreshTokens() {
-		return getSetting(ConfigurationSettingNames.Token.REUSE_REFRESH_TOKENS);
+		return Boolean.TRUE.equals(getSetting(ConfigurationSettingNames.Token.REUSE_REFRESH_TOKENS));
 	}
 
 	/**
@@ -90,7 +99,9 @@ public final class TokenSettings extends AbstractSettings {
 	 * @return the time-to-live for a refresh token
 	 */
 	public Duration getRefreshTokenTimeToLive() {
-		return getSetting(ConfigurationSettingNames.Token.REFRESH_TOKEN_TIME_TO_LIVE);
+		Duration refreshTokenTimeToLive = getSetting(ConfigurationSettingNames.Token.REFRESH_TOKEN_TIME_TO_LIVE);
+		Assert.notNull(refreshTokenTimeToLive, "refreshTokenTimeToLive cannot be null");
+		return refreshTokenTimeToLive;
 	}
 
 	/**
@@ -101,7 +112,10 @@ public final class TokenSettings extends AbstractSettings {
 	 * {@link OidcIdToken ID Token}
 	 */
 	public SignatureAlgorithm getIdTokenSignatureAlgorithm() {
-		return getSetting(ConfigurationSettingNames.Token.ID_TOKEN_SIGNATURE_ALGORITHM);
+		SignatureAlgorithm idTokenSignatureAlgorithm = getSetting(
+				ConfigurationSettingNames.Token.ID_TOKEN_SIGNATURE_ALGORITHM);
+		Assert.notNull(idTokenSignatureAlgorithm, "idTokenSignatureAlgorithm cannot be null");
+		return idTokenSignatureAlgorithm;
 	}
 
 	/**
@@ -113,7 +127,7 @@ public final class TokenSettings extends AbstractSettings {
 	 * {@code X509Certificate}, {@code false} otherwise
 	 */
 	public boolean isX509CertificateBoundAccessTokens() {
-		return getSetting(ConfigurationSettingNames.Token.X509_CERTIFICATE_BOUND_ACCESS_TOKENS);
+		return Boolean.TRUE.equals(getSetting(ConfigurationSettingNames.Token.X509_CERTIFICATE_BOUND_ACCESS_TOKENS));
 	}
 
 	/**

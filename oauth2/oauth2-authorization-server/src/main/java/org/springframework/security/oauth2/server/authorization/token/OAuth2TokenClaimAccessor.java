@@ -20,6 +20,8 @@ import java.net.URL;
 import java.time.Instant;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.ClaimAccessor;
 
 /**
@@ -37,27 +39,28 @@ public interface OAuth2TokenClaimAccessor extends ClaimAccessor {
 	/**
 	 * Returns the Issuer {@code (iss)} claim which identifies the principal that issued
 	 * the OAuth 2.0 Token.
-	 * @return the Issuer identifier
+	 * @return the Issuer identifier, or {@code null} if not present
 	 */
-	default URL getIssuer() {
+	default @Nullable URL getIssuer() {
 		return getClaimAsURL(OAuth2TokenClaimNames.ISS);
 	}
 
 	/**
 	 * Returns the Subject {@code (sub)} claim which identifies the principal that is the
 	 * subject of the OAuth 2.0 Token.
-	 * @return the Subject identifier
+	 * @return the Subject identifier, or {@code null} if not present
 	 */
-	default String getSubject() {
+	default @Nullable String getSubject() {
 		return getClaimAsString(OAuth2TokenClaimNames.SUB);
 	}
 
 	/**
 	 * Returns the Audience {@code (aud)} claim which identifies the recipient(s) that the
 	 * OAuth 2.0 Token is intended for.
-	 * @return the Audience(s) that this OAuth 2.0 Token is intended for
+	 * @return the Audience(s) that this OAuth 2.0 Token is intended for, or {@code null}
+	 * if not present
 	 */
-	default List<String> getAudience() {
+	default @Nullable List<String> getAudience() {
 		return getClaimAsStringList(OAuth2TokenClaimNames.AUD);
 	}
 
@@ -65,9 +68,9 @@ public interface OAuth2TokenClaimAccessor extends ClaimAccessor {
 	 * Returns the Expiration time {@code (exp)} claim which identifies the expiration
 	 * time on or after which the OAuth 2.0 Token MUST NOT be accepted for processing.
 	 * @return the Expiration time on or after which the OAuth 2.0 Token MUST NOT be
-	 * accepted for processing
+	 * accepted for processing, or {@code null} if not present
 	 */
-	default Instant getExpiresAt() {
+	default @Nullable Instant getExpiresAt() {
 		return getClaimAsInstant(OAuth2TokenClaimNames.EXP);
 	}
 
@@ -75,9 +78,9 @@ public interface OAuth2TokenClaimAccessor extends ClaimAccessor {
 	 * Returns the Not Before {@code (nbf)} claim which identifies the time before which
 	 * the OAuth 2.0 Token MUST NOT be accepted for processing.
 	 * @return the Not Before time before which the OAuth 2.0 Token MUST NOT be accepted
-	 * for processing
+	 * for processing, or {@code null} if not present
 	 */
-	default Instant getNotBefore() {
+	default @Nullable Instant getNotBefore() {
 		return getClaimAsInstant(OAuth2TokenClaimNames.NBF);
 	}
 
@@ -85,18 +88,19 @@ public interface OAuth2TokenClaimAccessor extends ClaimAccessor {
 	 * Returns the Issued at {@code (iat)} claim which identifies the time at which the
 	 * OAuth 2.0 Token was issued.
 	 * @return the Issued at claim which identifies the time at which the OAuth 2.0 Token
-	 * was issued
+	 * was issued, or {@code null} if not present
 	 */
-	default Instant getIssuedAt() {
+	default @Nullable Instant getIssuedAt() {
 		return getClaimAsInstant(OAuth2TokenClaimNames.IAT);
 	}
 
 	/**
 	 * Returns the ID {@code (jti)} claim which provides a unique identifier for the OAuth
 	 * 2.0 Token.
-	 * @return the ID claim which provides a unique identifier for the OAuth 2.0 Token
+	 * @return the ID claim which provides a unique identifier for the OAuth 2.0 Token, or
+	 * {@code null} if not present
 	 */
-	default String getId() {
+	default @Nullable String getId() {
 		return getClaimAsString(OAuth2TokenClaimNames.JTI);
 	}
 

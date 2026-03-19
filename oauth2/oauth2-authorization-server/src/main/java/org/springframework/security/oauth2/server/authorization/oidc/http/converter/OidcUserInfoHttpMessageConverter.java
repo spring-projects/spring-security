@@ -52,8 +52,7 @@ public class OidcUserInfoHttpMessageConverter extends AbstractHttpMessageConvert
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<>() {
 	};
 
-	private final GenericHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters
-		.getJsonMessageConverter();
+	private final GenericHttpMessageConverter<Object> jsonMessageConverter;
 
 	private Converter<Map<String, Object>, OidcUserInfo> userInfoConverter = new MapOidcUserInfoConverter();
 
@@ -61,6 +60,9 @@ public class OidcUserInfoHttpMessageConverter extends AbstractHttpMessageConvert
 
 	public OidcUserInfoHttpMessageConverter() {
 		super(MediaType.APPLICATION_JSON, new MediaType("application", "*+json"));
+		GenericHttpMessageConverter<Object> converter = HttpMessageConverters.getJsonMessageConverter();
+		Assert.notNull(converter, "Unable to locate a supported JSON message converter");
+		this.jsonMessageConverter = converter;
 	}
 
 	@Override

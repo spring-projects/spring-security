@@ -82,8 +82,13 @@ public final class OAuth2PushedAuthorizationRequestEndpointFilter extends OncePe
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<>() {
 	};
 
-	private static final GenericHttpMessageConverter<Object> JSON_MESSAGE_CONVERTER = HttpMessageConverters
-		.getJsonMessageConverter();
+	private static final GenericHttpMessageConverter<Object> JSON_MESSAGE_CONVERTER;
+
+	static {
+		GenericHttpMessageConverter<Object> converter = HttpMessageConverters.getJsonMessageConverter();
+		Assert.notNull(converter, "Unable to locate a supported JSON message converter");
+		JSON_MESSAGE_CONVERTER = converter;
+	}
 
 	private final AuthenticationManager authenticationManager;
 
@@ -134,6 +139,8 @@ public final class OAuth2PushedAuthorizationRequestEndpointFilter extends OncePe
 
 		try {
 			Authentication pushedAuthorizationRequestAuthentication = this.authenticationConverter.convert(request);
+			Assert.notNull(pushedAuthorizationRequestAuthentication,
+					"pushedAuthorizationRequestAuthentication cannot be null");
 			if (pushedAuthorizationRequestAuthentication instanceof AbstractAuthenticationToken) {
 				((AbstractAuthenticationToken) pushedAuthorizationRequestAuthentication)
 					.setDetails(this.authenticationDetailsSource.buildDetails(request));

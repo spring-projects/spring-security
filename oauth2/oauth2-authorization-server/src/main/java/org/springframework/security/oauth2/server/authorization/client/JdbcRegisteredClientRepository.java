@@ -31,6 +31,7 @@ import java.util.function.Function;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.JacksonModule;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -190,18 +191,18 @@ public class JdbcRegisteredClientRepository implements RegisteredClientRepositor
 	}
 
 	@Override
-	public RegisteredClient findById(String id) {
+	public @Nullable RegisteredClient findById(String id) {
 		Assert.hasText(id, "id cannot be empty");
 		return findBy("id = ?", id);
 	}
 
 	@Override
-	public RegisteredClient findByClientId(String clientId) {
+	public @Nullable RegisteredClient findByClientId(String clientId) {
 		Assert.hasText(clientId, "clientId cannot be empty");
 		return findBy("client_id = ?", clientId);
 	}
 
-	private RegisteredClient findBy(String filter, Object... args) {
+	private @Nullable RegisteredClient findBy(String filter, Object... args) {
 		List<RegisteredClient> result = this.jdbcOperations.query(LOAD_REGISTERED_CLIENT_SQL + filter,
 				this.registeredClientRowMapper, args);
 		return !result.isEmpty() ? result.get(0) : null;
@@ -334,10 +335,15 @@ public class JdbcRegisteredClientRepository implements RegisteredClientRepositor
 
 			// @formatter:off
 			RegisteredClient.Builder builder = RegisteredClient.withId(rs.getString("id"))
-					.clientId(rs.getString("client_id"))
-					.clientIdIssuedAt((clientIdIssuedAt != null) ? clientIdIssuedAt.toInstant() : null)
-					.clientSecret(rs.getString("client_secret"))
-					.clientSecretExpiresAt((clientSecretExpiresAt != null) ? clientSecretExpiresAt.toInstant() : null)
+					.clientId(rs.getString("client_id"));
+			if (clientIdIssuedAt != null) {
+				builder.clientIdIssuedAt(clientIdIssuedAt.toInstant());
+			}
+			builder.clientSecret(rs.getString("client_secret"));
+			if (clientSecretExpiresAt != null) {
+				builder.clientSecretExpiresAt(clientSecretExpiresAt.toInstant());
+			}
+			builder
 					.clientName(rs.getString("client_name"))
 					.clientAuthenticationMethods((authenticationMethods) ->
 							clientAuthenticationMethods.forEach((authenticationMethod) ->
@@ -558,7 +564,7 @@ public class JdbcRegisteredClientRepository implements RegisteredClientRepositor
 	static class JdbcRegisteredClientRepositoryRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
 
 		@Override
-		public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+		public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
 			hints.resources()
 				.registerResource(new ClassPathResource(
 						"org/springframework/security/oauth2/server/authorization/client/oauth2-registered-client-schema.sql"));

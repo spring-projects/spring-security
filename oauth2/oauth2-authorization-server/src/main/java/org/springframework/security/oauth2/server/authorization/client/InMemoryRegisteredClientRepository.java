@@ -21,7 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -83,16 +84,14 @@ public final class InMemoryRegisteredClientRepository implements RegisteredClien
 		this.clientIdRegistrationMap.put(registeredClient.getClientId(), registeredClient);
 	}
 
-	@Nullable
 	@Override
-	public RegisteredClient findById(String id) {
+	public @Nullable RegisteredClient findById(String id) {
 		Assert.hasText(id, "id cannot be empty");
 		return this.idRegistrationMap.get(id);
 	}
 
-	@Nullable
 	@Override
-	public RegisteredClient findByClientId(String clientId) {
+	public @Nullable RegisteredClient findByClientId(String clientId) {
 		Assert.hasText(clientId, "clientId cannot be empty");
 		return this.clientIdRegistrationMap.get(clientId);
 	}

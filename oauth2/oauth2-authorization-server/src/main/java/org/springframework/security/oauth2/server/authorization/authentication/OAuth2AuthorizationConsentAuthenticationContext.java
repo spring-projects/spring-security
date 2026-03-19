@@ -21,7 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
@@ -50,9 +51,8 @@ public final class OAuth2AuthorizationConsentAuthenticationContext implements OA
 	}
 
 	@SuppressWarnings("unchecked")
-	@Nullable
 	@Override
-	public <V> V get(Object key) {
+	public <V> @Nullable V get(Object key) {
 		return hasKey(key) ? (V) this.context.get(key) : null;
 	}
 
@@ -68,7 +68,9 @@ public final class OAuth2AuthorizationConsentAuthenticationContext implements OA
 	 * @return the {@link OAuth2AuthorizationConsent.Builder}
 	 */
 	public OAuth2AuthorizationConsent.Builder getAuthorizationConsent() {
-		return get(OAuth2AuthorizationConsent.Builder.class);
+		OAuth2AuthorizationConsent.Builder authorizationConsentBuilder = get(OAuth2AuthorizationConsent.Builder.class);
+		Assert.notNull(authorizationConsentBuilder, "authorizationConsentBuilder cannot be null");
+		return authorizationConsentBuilder;
 	}
 
 	/**
@@ -76,7 +78,9 @@ public final class OAuth2AuthorizationConsentAuthenticationContext implements OA
 	 * @return the {@link RegisteredClient}
 	 */
 	public RegisteredClient getRegisteredClient() {
-		return get(RegisteredClient.class);
+		RegisteredClient registeredClient = get(RegisteredClient.class);
+		Assert.notNull(registeredClient, "registeredClient cannot be null");
+		return registeredClient;
 	}
 
 	/**
@@ -84,14 +88,16 @@ public final class OAuth2AuthorizationConsentAuthenticationContext implements OA
 	 * @return the {@link OAuth2Authorization}
 	 */
 	public OAuth2Authorization getAuthorization() {
-		return get(OAuth2Authorization.class);
+		OAuth2Authorization authorization = get(OAuth2Authorization.class);
+		Assert.notNull(authorization, "authorization cannot be null");
+		return authorization;
 	}
 
 	/**
 	 * Returns the {@link OAuth2AuthorizationRequest authorization request}.
 	 * @return the {@link OAuth2AuthorizationRequest}
 	 */
-	public OAuth2AuthorizationRequest getAuthorizationRequest() {
+	public @Nullable OAuth2AuthorizationRequest getAuthorizationRequest() {
 		return get(OAuth2AuthorizationRequest.class);
 	}
 

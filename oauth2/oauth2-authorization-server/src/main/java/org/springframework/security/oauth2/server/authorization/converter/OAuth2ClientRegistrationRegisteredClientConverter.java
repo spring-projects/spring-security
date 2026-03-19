@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.server.authorization.converter;
 
 import java.time.Instant;
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -58,9 +59,11 @@ public final class OAuth2ClientRegistrationRegisteredClientConverter
 		// @formatter:off
 		RegisteredClient.Builder builder = RegisteredClient.withId(UUID.randomUUID().toString())
 				.clientId(CLIENT_ID_GENERATOR.generateKey())
-				.clientIdIssuedAt(Instant.now())
-				.clientName(clientRegistration.getClientName());
-
+				.clientIdIssuedAt(Instant.now());
+		String clientName = clientRegistration.getClientName();
+		if (clientName != null) {
+			builder.clientName(clientName);
+		}
 		if (ClientAuthenticationMethod.CLIENT_SECRET_POST.getValue().equals(clientRegistration.getTokenEndpointAuthenticationMethod())) {
 			builder
 					.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
@@ -80,9 +83,10 @@ public final class OAuth2ClientRegistrationRegisteredClientConverter
 					redirectUris.addAll(clientRegistration.getRedirectUris()));
 		}
 
-		if (!CollectionUtils.isEmpty(clientRegistration.getGrantTypes())) {
+		List<String> grantTypes = clientRegistration.getGrantTypes();
+		if (!CollectionUtils.isEmpty(grantTypes)) {
 			builder.authorizationGrantTypes((authorizationGrantTypes) ->
-					clientRegistration.getGrantTypes().forEach((grantType) ->
+					grantTypes.forEach((grantType) ->
 							authorizationGrantTypes.add(new AuthorizationGrantType(grantType))));
 		}
 		else {

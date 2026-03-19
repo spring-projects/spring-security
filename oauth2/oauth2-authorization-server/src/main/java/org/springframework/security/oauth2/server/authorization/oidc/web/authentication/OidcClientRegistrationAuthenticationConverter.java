@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.server.authorization.oidc.web.authentication;
 
+import java.util.List;
+
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.http.converter.HttpMessageConverter;
@@ -31,6 +33,7 @@ import org.springframework.security.oauth2.server.authorization.oidc.authenticat
 import org.springframework.security.oauth2.server.authorization.oidc.http.converter.OidcClientRegistrationHttpMessageConverter;
 import org.springframework.security.oauth2.server.authorization.oidc.web.OidcClientRegistrationEndpointFilter;
 import org.springframework.security.web.authentication.AuthenticationConverter;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
@@ -52,6 +55,7 @@ public final class OidcClientRegistrationAuthenticationConverter implements Auth
 	@Override
 	public Authentication convert(HttpServletRequest request) {
 		Authentication principal = SecurityContextHolder.getContext().getAuthentication();
+		Assert.notNull(principal, "current principal cannot be null");
 
 		if ("POST".equals(request.getMethod())) {
 			OidcClientRegistration clientRegistration;
@@ -72,7 +76,8 @@ public final class OidcClientRegistrationAuthenticationConverter implements Auth
 
 		// client_id (REQUIRED)
 		String clientId = parameters.getFirst(OAuth2ParameterNames.CLIENT_ID);
-		if (!StringUtils.hasText(clientId) || parameters.get(OAuth2ParameterNames.CLIENT_ID).size() != 1) {
+		List<String> clientIdParameters = parameters.get(OAuth2ParameterNames.CLIENT_ID);
+		if (!StringUtils.hasText(clientId) || clientIdParameters == null || clientIdParameters.size() != 1) {
 			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_REQUEST);
 		}
 

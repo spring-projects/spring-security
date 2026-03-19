@@ -23,6 +23,7 @@ import java.util.function.Consumer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.Authentication;
@@ -104,7 +105,7 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationValidator
 						"Invalid request: requested grant_type is not allowed for registered client '%s'",
 						registeredClient.getId()));
 			}
-			throwError(OAuth2ErrorCodes.UNAUTHORIZED_CLIENT, OAuth2ParameterNames.CLIENT_ID,
+			throw createException(OAuth2ErrorCodes.UNAUTHORIZED_CLIENT, OAuth2ParameterNames.CLIENT_ID,
 					authorizationCodeRequestAuthentication, registeredClient);
 		}
 	}
@@ -130,7 +131,7 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationValidator
 					LOGGER.debug(LogMessage.format("Invalid request: redirect_uri is missing or contains a fragment"
 							+ " for registered client '%s'", registeredClient.getId()));
 				}
-				throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.REDIRECT_URI,
+				throw createException(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.REDIRECT_URI,
 						authorizationCodeRequestAuthentication, registeredClient);
 			}
 
@@ -140,7 +141,7 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationValidator
 				// When comparing client redirect URIs against pre-registered URIs,
 				// authorization servers MUST utilize exact string matching.
 				if (!registeredClient.getRedirectUris().contains(requestedRedirectUri)) {
-					throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.REDIRECT_URI,
+					throw createException(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.REDIRECT_URI,
 							authorizationCodeRequestAuthentication, registeredClient);
 				}
 			}
@@ -166,7 +167,7 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationValidator
 								"Invalid request: redirect_uri does not match for registered client '%s'",
 								registeredClient.getId()));
 					}
-					throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.REDIRECT_URI,
+					throw createException(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.REDIRECT_URI,
 							authorizationCodeRequestAuthentication, registeredClient);
 				}
 			}
@@ -178,7 +179,7 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationValidator
 			if (authorizationCodeRequestAuthentication.getScopes().contains(OidcScopes.OPENID)
 					|| registeredClient.getRedirectUris().size() != 1) {
 				// redirect_uri is REQUIRED for OpenID Connect
-				throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.REDIRECT_URI,
+				throw createException(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.REDIRECT_URI,
 						authorizationCodeRequestAuthentication, registeredClient);
 			}
 		}
@@ -197,7 +198,7 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationValidator
 						LogMessage.format("Invalid request: requested scope is not allowed for registered client '%s'",
 								registeredClient.getId()));
 			}
-			throwError(OAuth2ErrorCodes.INVALID_SCOPE, OAuth2ParameterNames.SCOPE,
+			throw createException(OAuth2ErrorCodes.INVALID_SCOPE, OAuth2ParameterNames.SCOPE,
 					authorizationCodeRequestAuthentication, registeredClient);
 		}
 	}
@@ -215,12 +216,12 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationValidator
 			String codeChallengeMethod = (String) authorizationCodeRequestAuthentication.getAdditionalParameters()
 				.get(PkceParameterNames.CODE_CHALLENGE_METHOD);
 			if (!StringUtils.hasText(codeChallengeMethod) || !"S256".equals(codeChallengeMethod)) {
-				throwError(OAuth2ErrorCodes.INVALID_REQUEST, PkceParameterNames.CODE_CHALLENGE_METHOD, PKCE_ERROR_URI,
-						authorizationCodeRequestAuthentication, registeredClient);
+				throw createException(OAuth2ErrorCodes.INVALID_REQUEST, PkceParameterNames.CODE_CHALLENGE_METHOD,
+						PKCE_ERROR_URI, authorizationCodeRequestAuthentication, registeredClient);
 			}
 		}
 		else if (registeredClient.getClientSettings().isRequireProofKey()) {
-			throwError(OAuth2ErrorCodes.INVALID_REQUEST, PkceParameterNames.CODE_CHALLENGE, PKCE_ERROR_URI,
+			throw createException(OAuth2ErrorCodes.INVALID_REQUEST, PkceParameterNames.CODE_CHALLENGE, PKCE_ERROR_URI,
 					authorizationCodeRequestAuthentication, registeredClient);
 		}
 	}
@@ -239,15 +240,15 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationValidator
 				if (promptValues.contains(OidcPrompt.NONE)) {
 					if (promptValues.contains(OidcPrompt.LOGIN) || promptValues.contains(OidcPrompt.CONSENT)
 							|| promptValues.contains(OidcPrompt.SELECT_ACCOUNT)) {
-						throwError(OAuth2ErrorCodes.INVALID_REQUEST, "prompt", authorizationCodeRequestAuthentication,
-								registeredClient);
+						throw createException(OAuth2ErrorCodes.INVALID_REQUEST, "prompt",
+								authorizationCodeRequestAuthentication, registeredClient);
 					}
 				}
 			}
 		}
 	}
 
-	private static boolean isLoopbackAddress(String host) {
+	private static boolean isLoopbackAddress(@Nullable String host) {
 		if (!StringUtils.hasText(host)) {
 			return false;
 		}
@@ -273,20 +274,24 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationValidator
 		}
 	}
 
-	private static void throwError(String errorCode, String parameterName,
+	private static OAuth2AuthorizationCodeRequestAuthenticationException createException(String errorCode,
+			String parameterName,
 			OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication,
 			RegisteredClient registeredClient) {
-		throwError(errorCode, parameterName, ERROR_URI, authorizationCodeRequestAuthentication, registeredClient);
+		return createException(errorCode, parameterName, ERROR_URI, authorizationCodeRequestAuthentication,
+				registeredClient);
 	}
 
-	private static void throwError(String errorCode, String parameterName, String errorUri,
+	private static OAuth2AuthorizationCodeRequestAuthenticationException createException(String errorCode,
+			String parameterName, String errorUri,
 			OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication,
 			RegisteredClient registeredClient) {
 		OAuth2Error error = new OAuth2Error(errorCode, "OAuth 2.0 Parameter: " + parameterName, errorUri);
-		throwError(error, parameterName, authorizationCodeRequestAuthentication, registeredClient);
+		return createException(error, parameterName, authorizationCodeRequestAuthentication, registeredClient);
 	}
 
-	private static void throwError(OAuth2Error error, String parameterName,
+	private static OAuth2AuthorizationCodeRequestAuthenticationException createException(OAuth2Error error,
+			String parameterName,
 			OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication,
 			RegisteredClient registeredClient) {
 
@@ -306,7 +311,7 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationValidator
 				authorizationCodeRequestAuthentication.getAdditionalParameters());
 		authorizationCodeRequestAuthenticationResult.setAuthenticated(true);
 
-		throw new OAuth2AuthorizationCodeRequestAuthenticationException(error,
+		return new OAuth2AuthorizationCodeRequestAuthenticationException(error,
 				authorizationCodeRequestAuthenticationResult);
 	}
 

@@ -19,6 +19,8 @@ package org.springframework.security.oauth2.server.authorization.settings;
 import java.io.Serial;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -49,7 +51,7 @@ public final class ClientSettings extends AbstractSettings {
 	 * verifier, {@code false} otherwise
 	 */
 	public boolean isRequireProofKey() {
-		return getSetting(ConfigurationSettingNames.Client.REQUIRE_PROOF_KEY);
+		return Boolean.TRUE.equals(getSetting(ConfigurationSettingNames.Client.REQUIRE_PROOF_KEY));
 	}
 
 	/**
@@ -59,14 +61,15 @@ public final class ClientSettings extends AbstractSettings {
 	 * access, {@code false} otherwise
 	 */
 	public boolean isRequireAuthorizationConsent() {
-		return getSetting(ConfigurationSettingNames.Client.REQUIRE_AUTHORIZATION_CONSENT);
+		return Boolean.TRUE.equals(getSetting(ConfigurationSettingNames.Client.REQUIRE_AUTHORIZATION_CONSENT));
 	}
 
 	/**
 	 * Returns the {@code URL} for the Client's JSON Web Key Set.
-	 * @return the {@code URL} for the Client's JSON Web Key Set
+	 * @return the {@code URL} for the Client's JSON Web Key Set, or {@code null} if not
+	 * set
 	 */
-	public String getJwkSetUrl() {
+	public @Nullable String getJwkSetUrl() {
 		return getSetting(ConfigurationSettingNames.Client.JWK_SET_URL);
 	}
 
@@ -77,9 +80,10 @@ public final class ClientSettings extends AbstractSettings {
 	 * {@link ClientAuthenticationMethod#CLIENT_SECRET_JWT client_secret_jwt}
 	 * authentication methods.
 	 * @return the {@link JwsAlgorithm JWS} algorithm that must be used for signing the
-	 * {@link Jwt JWT} used to authenticate the Client at the Token Endpoint
+	 * {@link Jwt JWT} used to authenticate the Client at the Token Endpoint, or
+	 * {@code null} if not set
 	 */
-	public JwsAlgorithm getTokenEndpointAuthenticationSigningAlgorithm() {
+	public @Nullable JwsAlgorithm getTokenEndpointAuthenticationSigningAlgorithm() {
 		return getSetting(ConfigurationSettingNames.Client.TOKEN_ENDPOINT_AUTHENTICATION_SIGNING_ALGORITHM);
 	}
 
@@ -88,9 +92,10 @@ public final class ClientSettings extends AbstractSettings {
 	 * {@code X509Certificate} received during client authentication when using the
 	 * {@code tls_client_auth} method.
 	 * @return the expected subject distinguished name associated to the client
-	 * {@code X509Certificate} received during client authentication
+	 * {@code X509Certificate} received during client authentication, or {@code null} if
+	 * not set
 	 */
-	public String getX509CertificateSubjectDN() {
+	public @Nullable String getX509CertificateSubjectDN() {
 		return getSetting(ConfigurationSettingNames.Client.X509_CERTIFICATE_SUBJECT_DN);
 	}
 

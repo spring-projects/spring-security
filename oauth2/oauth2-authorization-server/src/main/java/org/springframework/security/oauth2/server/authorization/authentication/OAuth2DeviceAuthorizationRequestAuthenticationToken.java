@@ -23,7 +23,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2DeviceCode;
@@ -47,13 +48,13 @@ public class OAuth2DeviceAuthorizationRequestAuthenticationToken extends Abstrac
 
 	private final Authentication clientPrincipal;
 
-	private final String authorizationUri;
+	private final @Nullable String authorizationUri;
 
 	private final Set<String> scopes;
 
-	private final OAuth2DeviceCode deviceCode;
+	private final @Nullable OAuth2DeviceCode deviceCode;
 
-	private final OAuth2UserCode userCode;
+	private final @Nullable OAuth2UserCode userCode;
 
 	private final Map<String, Object> additionalParameters;
 
@@ -116,7 +117,7 @@ public class OAuth2DeviceAuthorizationRequestAuthenticationToken extends Abstrac
 	 * Returns the authorization {@code URI}.
 	 * @return the authorization {@code URI}
 	 */
-	public String getAuthorizationUri() {
+	public @Nullable String getAuthorizationUri() {
 		return this.authorizationUri;
 	}
 
@@ -132,7 +133,7 @@ public class OAuth2DeviceAuthorizationRequestAuthenticationToken extends Abstrac
 	 * Returns the device code.
 	 * @return the device code
 	 */
-	public OAuth2DeviceCode getDeviceCode() {
+	public @Nullable OAuth2DeviceCode getDeviceCode() {
 		return this.deviceCode;
 	}
 
@@ -140,7 +141,7 @@ public class OAuth2DeviceAuthorizationRequestAuthenticationToken extends Abstrac
 	 * Returns the user code.
 	 * @return the user code
 	 */
-	public OAuth2UserCode getUserCode() {
+	public @Nullable OAuth2UserCode getUserCode() {
 		return this.userCode;
 	}
 

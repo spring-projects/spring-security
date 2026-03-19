@@ -23,7 +23,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.UUID;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -39,6 +41,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat;
@@ -64,7 +67,7 @@ public final class JwtGenerator implements OAuth2TokenGenerator<Jwt> {
 
 	private final JwtEncoder jwtEncoder;
 
-	private OAuth2TokenCustomizer<JwtEncodingContext> jwtCustomizer;
+	private @Nullable OAuth2TokenCustomizer<JwtEncodingContext> jwtCustomizer;
 
 	private Clock clock = Clock.systemUTC();
 
@@ -77,13 +80,11 @@ public final class JwtGenerator implements OAuth2TokenGenerator<Jwt> {
 		this.jwtEncoder = jwtEncoder;
 	}
 
-	@Nullable
 	@Override
-	public Jwt generate(OAuth2TokenContext context) {
+	public @Nullable Jwt generate(OAuth2TokenContext context) {
 		// @formatter:off
-		if (context.getTokenType() == null ||
-				(!OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType()) &&
-						!OidcParameterNames.ID_TOKEN.equals(context.getTokenType().getValue()))) {
+		if (!OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType()) &&
+				!OidcParameterNames.ID_TOKEN.equals(context.getTokenType().getValue())) {
 			return null;
 		}
 		if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType()) &&
@@ -92,33 +93,30 @@ public final class JwtGenerator implements OAuth2TokenGenerator<Jwt> {
 		}
 		// @formatter:on
 
-		String issuer = null;
-		if (context.getAuthorizationServerContext() != null) {
-			issuer = context.getAuthorizationServerContext().getIssuer();
-		}
 		RegisteredClient registeredClient = context.getRegisteredClient();
-
+		String issuer = context.getAuthorizationServerContext().getIssuer();
 		Instant issuedAt = this.clock.instant();
 		Instant expiresAt;
 		JwsAlgorithm jwsAlgorithm = SignatureAlgorithm.RS256;
 		if (OidcParameterNames.ID_TOKEN.equals(context.getTokenType().getValue())) {
 			// TODO Allow configuration for ID Token time-to-live
 			expiresAt = issuedAt.plus(30, ChronoUnit.MINUTES);
-			if (registeredClient.getTokenSettings().getIdTokenSignatureAlgorithm() != null) {
-				jwsAlgorithm = registeredClient.getTokenSettings().getIdTokenSignatureAlgorithm();
-			}
+			jwsAlgorithm = registeredClient.getTokenSettings().getIdTokenSignatureAlgorithm();
 		}
 		else {
 			expiresAt = issuedAt.plus(registeredClient.getTokenSettings().getAccessTokenTimeToLive());
 		}
 
+		Authentication principal = context.getPrincipal();
+		Assert.notNull(principal, "principal cannot be null");
+
+		AuthorizationGrantType authorizationGrantType = context.getAuthorizationGrantType();
+		Assert.notNull(authorizationGrantType, "authorizationGrantType cannot be null");
+
 		// @formatter:off
-		JwtClaimsSet.Builder claimsBuilder = JwtClaimsSet.builder();
-		if (StringUtils.hasText(issuer)) {
-			claimsBuilder.issuer(issuer);
-		}
-		claimsBuilder
-				.subject(context.getPrincipal().getName())
+		JwtClaimsSet.Builder claimsBuilder = JwtClaimsSet.builder()
+				.issuer(issuer)
+				.subject(principal.getName())
 				.audience(Collections.singletonList(registeredClient.getClientId()))
 				.issuedAt(issuedAt)
 				.expiresAt(expiresAt)
@@ -131,9 +129,12 @@ public final class JwtGenerator implements OAuth2TokenGenerator<Jwt> {
 		}
 		else if (OidcParameterNames.ID_TOKEN.equals(context.getTokenType().getValue())) {
 			claimsBuilder.claim(IdTokenClaimNames.AZP, registeredClient.getClientId());
-			if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(context.getAuthorizationGrantType())) {
-				OAuth2AuthorizationRequest authorizationRequest = context.getAuthorization().getAttribute(
+			if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(authorizationGrantType)) {
+				OAuth2Authorization authorization = context.getAuthorization();
+				Assert.notNull(authorization, "authorization cannot be null");
+				OAuth2AuthorizationRequest authorizationRequest = authorization.getAttribute(
 						OAuth2AuthorizationRequest.class.getName());
+				Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
 				String nonce = (String) authorizationRequest.getAdditionalParameters().get(OidcParameterNames.NONCE);
 				if (StringUtils.hasText(nonce)) {
 					claimsBuilder.claim(IdTokenClaimNames.NONCE, nonce);
@@ -144,13 +145,19 @@ public final class JwtGenerator implements OAuth2TokenGenerator<Jwt> {
 					claimsBuilder.claim(IdTokenClaimNames.AUTH_TIME, sessionInformation.getLastRequest());
 				}
 			}
-			else if (AuthorizationGrantType.REFRESH_TOKEN.equals(context.getAuthorizationGrantType())) {
-				OidcIdToken currentIdToken = context.getAuthorization().getToken(OidcIdToken.class).getToken();
-				if (currentIdToken.hasClaim("sid")) {
-					claimsBuilder.claim("sid", currentIdToken.getClaim("sid"));
+			else if (AuthorizationGrantType.REFRESH_TOKEN.equals(authorizationGrantType)) {
+				OAuth2Authorization authorization = context.getAuthorization();
+				Assert.notNull(authorization, "authorization cannot be null");
+				OAuth2Authorization.Token<OidcIdToken> authorizedIdToken = authorization.getToken(OidcIdToken.class);
+				Assert.notNull(authorizedIdToken, "authorizedIdToken cannot be null");
+				OidcIdToken currentIdToken = authorizedIdToken.getToken();
+				String sidClaim = currentIdToken.getClaim("sid");
+				if (sidClaim != null) {
+					claimsBuilder.claim("sid", sidClaim);
 				}
-				if (currentIdToken.hasClaim(IdTokenClaimNames.AUTH_TIME)) {
-					claimsBuilder.claim(IdTokenClaimNames.AUTH_TIME, currentIdToken.<Date>getClaim(IdTokenClaimNames.AUTH_TIME));
+				Date authTimeClaim = currentIdToken.getClaim(IdTokenClaimNames.AUTH_TIME);
+				if (authTimeClaim != null) {
+					claimsBuilder.claim(IdTokenClaimNames.AUTH_TIME, authTimeClaim);
 				}
 			}
 		}
@@ -162,11 +169,11 @@ public final class JwtGenerator implements OAuth2TokenGenerator<Jwt> {
 			// @formatter:off
 			JwtEncodingContext.Builder jwtContextBuilder = JwtEncodingContext.with(jwsHeaderBuilder, claimsBuilder)
 					.registeredClient(context.getRegisteredClient())
-					.principal(context.getPrincipal())
+					.principal(principal)
 					.authorizationServerContext(context.getAuthorizationServerContext())
 					.authorizedScopes(context.getAuthorizedScopes())
 					.tokenType(context.getTokenType())
-					.authorizationGrantType(context.getAuthorizationGrantType());
+					.authorizationGrantType(authorizationGrantType);
 			if (context.getAuthorization() != null) {
 				jwtContextBuilder.authorization(context.getAuthorization());
 			}

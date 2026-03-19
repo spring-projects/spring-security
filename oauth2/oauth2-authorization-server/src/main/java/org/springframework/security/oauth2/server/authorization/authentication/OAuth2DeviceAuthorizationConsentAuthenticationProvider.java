@@ -23,6 +23,7 @@ import java.util.function.Consumer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -72,7 +73,7 @@ public final class OAuth2DeviceAuthorizationConsentAuthenticationProvider implem
 
 	private final OAuth2AuthorizationConsentService authorizationConsentService;
 
-	private Consumer<OAuth2AuthorizationConsentAuthenticationContext> authorizationConsentCustomizer;
+	private @Nullable Consumer<OAuth2AuthorizationConsentAuthenticationContext> authorizationConsentCustomizer;
 
 	/**
 	 * Constructs an {@code OAuth2DeviceAuthorizationConsentAuthenticationProvider} using
@@ -99,7 +100,7 @@ public final class OAuth2DeviceAuthorizationConsentAuthenticationProvider implem
 		OAuth2Authorization authorization = this.authorizationService
 			.findByToken(deviceAuthorizationConsentAuthentication.getState(), STATE_TOKEN_TYPE);
 		if (authorization == null) {
-			throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.STATE);
+			throw createException(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.STATE);
 		}
 
 		if (this.logger.isTraceEnabled()) {
@@ -109,13 +110,13 @@ public final class OAuth2DeviceAuthorizationConsentAuthenticationProvider implem
 		// The authorization must be associated to the current principal
 		Authentication principal = (Authentication) deviceAuthorizationConsentAuthentication.getPrincipal();
 		if (!isPrincipalAuthenticated(principal) || !principal.getName().equals(authorization.getPrincipalName())) {
-			throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.STATE);
+			throw createException(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.STATE);
 		}
 
 		RegisteredClient registeredClient = this.registeredClientRepository
 			.findByClientId(deviceAuthorizationConsentAuthentication.getClientId());
 		if (registeredClient == null || !registeredClient.getId().equals(authorization.getRegisteredClientId())) {
-			throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.CLIENT_ID);
+			throw createException(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.CLIENT_ID);
 		}
 
 		if (this.logger.isTraceEnabled()) {
@@ -123,9 +124,10 @@ public final class OAuth2DeviceAuthorizationConsentAuthenticationProvider implem
 		}
 
 		Set<String> requestedScopes = authorization.getAttribute(OAuth2ParameterNames.SCOPE);
+		Assert.notNull(requestedScopes, "requestedScopes cannot be null");
 		Set<String> authorizedScopes = new HashSet<>(deviceAuthorizationConsentAuthentication.getScopes());
 		if (!requestedScopes.containsAll(authorizedScopes)) {
-			throwError(OAuth2ErrorCodes.INVALID_SCOPE, OAuth2ParameterNames.SCOPE);
+			throw createException(OAuth2ErrorCodes.INVALID_SCOPE, OAuth2ParameterNames.SCOPE);
 		}
 
 		if (this.logger.isTraceEnabled()) {
@@ -177,7 +179,9 @@ public final class OAuth2DeviceAuthorizationConsentAuthenticationProvider implem
 		authorizationConsentBuilder.authorities(authorities::addAll);
 
 		OAuth2Authorization.Token<OAuth2DeviceCode> deviceCodeToken = authorization.getToken(OAuth2DeviceCode.class);
+		Assert.notNull(deviceCodeToken, "deviceCode cannot be null");
 		OAuth2Authorization.Token<OAuth2UserCode> userCodeToken = authorization.getToken(OAuth2UserCode.class);
+		Assert.notNull(userCodeToken, "userCode cannot be null");
 
 		if (authorities.isEmpty()) {
 			// Authorization consent denied (or revoked)
@@ -196,11 +200,11 @@ public final class OAuth2DeviceAuthorizationConsentAuthenticationProvider implem
 			if (this.logger.isTraceEnabled()) {
 				this.logger.trace("Invalidated device code and user code because authorization consent was denied");
 			}
-			throwError(OAuth2ErrorCodes.ACCESS_DENIED, OAuth2ParameterNames.CLIENT_ID);
+			throw createException(OAuth2ErrorCodes.ACCESS_DENIED, OAuth2ParameterNames.CLIENT_ID);
 		}
 
 		OAuth2AuthorizationConsent authorizationConsent = authorizationConsentBuilder.build();
-		if (!authorizationConsent.equals(currentAuthorizationConsent)) {
+		if (currentAuthorizationConsent == null || !authorizationConsent.equals(currentAuthorizationConsent)) {
 			this.authorizationConsentService.save(authorizationConsent);
 			if (this.logger.isTraceEnabled()) {
 				this.logger.trace("Saved authorization consent");
@@ -263,9 +267,9 @@ public final class OAuth2DeviceAuthorizationConsentAuthenticationProvider implem
 				&& principal.isAuthenticated();
 	}
 
-	private static void throwError(String errorCode, String parameterName) {
+	private static OAuth2AuthenticationException createException(String errorCode, String parameterName) {
 		OAuth2Error error = new OAuth2Error(errorCode, "OAuth 2.0 Parameter: " + parameterName, ERROR_URI);
-		throw new OAuth2AuthenticationException(error);
+		return new OAuth2AuthenticationException(error);
 	}
 
 }

@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
@@ -79,7 +80,7 @@ public final class X509ClientCertificateAuthenticationProvider implements Authen
 	}
 
 	@Override
-	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+	public @Nullable Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		OAuth2ClientAuthenticationToken clientAuthentication = (OAuth2ClientAuthenticationToken) authentication;
 
 		if (!ClientAuthenticationMethod.TLS_CLIENT_AUTH.equals(clientAuthentication.getClientAuthenticationMethod())
@@ -91,7 +92,7 @@ public final class X509ClientCertificateAuthenticationProvider implements Authen
 		String clientId = clientAuthentication.getPrincipal().toString();
 		RegisteredClient registeredClient = this.registeredClientRepository.findByClientId(clientId);
 		if (registeredClient == null) {
-			throwInvalidClient(OAuth2ParameterNames.CLIENT_ID);
+			throw invalidClient(OAuth2ParameterNames.CLIENT_ID);
 		}
 
 		if (this.logger.isTraceEnabled()) {
@@ -100,11 +101,11 @@ public final class X509ClientCertificateAuthenticationProvider implements Authen
 
 		if (!registeredClient.getClientAuthenticationMethods()
 			.contains(clientAuthentication.getClientAuthenticationMethod())) {
-			throwInvalidClient("authentication_method");
+			throw invalidClient("authentication_method");
 		}
 
 		if (!(clientAuthentication.getCredentials() instanceof X509Certificate[])) {
-			throwInvalidClient("credentials");
+			throw invalidClient("credentials");
 		}
 
 		OAuth2ClientAuthenticationContext authenticationContext = OAuth2ClientAuthenticationContext
@@ -170,22 +171,23 @@ public final class X509ClientCertificateAuthenticationProvider implements Authen
 		OAuth2ClientAuthenticationToken clientAuthentication = clientAuthenticationContext.getAuthentication();
 		RegisteredClient registeredClient = clientAuthenticationContext.getRegisteredClient();
 		X509Certificate[] clientCertificateChain = (X509Certificate[]) clientAuthentication.getCredentials();
+		Assert.notEmpty(clientCertificateChain, "clientCertificateChain cannot be empty");
 		X509Certificate clientCertificate = clientCertificateChain[0];
 		String expectedSubjectDN = registeredClient.getClientSettings().getX509CertificateSubjectDN();
 		if (!StringUtils.hasText(expectedSubjectDN)
 				|| !clientCertificate.getSubjectX500Principal().getName().equals(expectedSubjectDN)) {
-			throwInvalidClient("x509_certificate_subject_dn");
+			throw invalidClient("x509_certificate_subject_dn");
 		}
 	}
 
-	private static void throwInvalidClient(String parameterName) {
-		throwInvalidClient(parameterName, null);
+	private static OAuth2AuthenticationException invalidClient(String parameterName) {
+		return invalidClient(parameterName, null);
 	}
 
-	private static void throwInvalidClient(String parameterName, Throwable cause) {
+	private static OAuth2AuthenticationException invalidClient(String parameterName, @Nullable Throwable cause) {
 		OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT,
 				"Client authentication failed: " + parameterName, ERROR_URI);
-		throw new OAuth2AuthenticationException(error, error.toString(), cause);
+		return new OAuth2AuthenticationException(error, error.toString(), cause);
 	}
 
 }

@@ -16,7 +16,7 @@
 
 package org.springframework.security.oauth2.server.authorization.client;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A repository for OAuth 2.0 {@link RegisteredClient}(s).
@@ -45,8 +45,7 @@ public interface RegisteredClientRepository {
 	 * @param id the registration identifier
 	 * @return the {@link RegisteredClient} if found, otherwise {@code null}
 	 */
-	@Nullable
-	RegisteredClient findById(String id);
+	@Nullable RegisteredClient findById(String id);
 
 	/**
 	 * Returns the registered client identified by the provided {@code clientId}, or
@@ -54,7 +53,6 @@ public interface RegisteredClientRepository {
 	 * @param clientId the client identifier
 	 * @return the {@link RegisteredClient} if found, otherwise {@code null}
 	 */
-	@Nullable
-	RegisteredClient findByClientId(String clientId);
+	@Nullable RegisteredClient findByClientId(String clientId);
 
 }

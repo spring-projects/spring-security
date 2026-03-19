@@ -116,6 +116,7 @@ public final class OidcUserInfoEndpointFilter extends OncePerRequestFilter {
 
 		try {
 			Authentication userInfoAuthentication = this.authenticationConverter.convert(request);
+			Assert.notNull(userInfoAuthentication, "userInfoAuthentication cannot be null");
 
 			Authentication userInfoAuthenticationResult = this.authenticationManager
 				.authenticate(userInfoAuthentication);
@@ -181,14 +182,17 @@ public final class OidcUserInfoEndpointFilter extends OncePerRequestFilter {
 
 	private Authentication createAuthentication(HttpServletRequest request) {
 		Authentication principal = SecurityContextHolder.getContext().getAuthentication();
+		Assert.notNull(principal, "current principal cannot be null");
 		return new OidcUserInfoAuthenticationToken(principal);
 	}
 
 	private void sendUserInfoResponse(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException {
 		OidcUserInfoAuthenticationToken userInfoAuthenticationToken = (OidcUserInfoAuthenticationToken) authentication;
+		OidcUserInfo userInfo = userInfoAuthenticationToken.getUserInfo();
+		Assert.notNull(userInfo, "userInfo cannot be null");
 		ServletServerHttpResponse httpResponse = new ServletServerHttpResponse(response);
-		this.userInfoHttpMessageConverter.write(userInfoAuthenticationToken.getUserInfo(), null, httpResponse);
+		this.userInfoHttpMessageConverter.write(userInfo, null, httpResponse);
 	}
 
 	private void sendErrorResponse(HttpServletRequest request, HttpServletResponse response,

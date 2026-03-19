@@ -20,7 +20,8 @@ import java.io.Serial;
 import java.util.Collections;
 import java.util.Map;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.Transient;
@@ -49,11 +50,11 @@ public class OAuth2ClientAuthenticationToken extends AbstractAuthenticationToken
 
 	private final String clientId;
 
-	private final RegisteredClient registeredClient;
+	private final @Nullable RegisteredClient registeredClient;
 
 	private final ClientAuthenticationMethod clientAuthenticationMethod;
 
-	private final Object credentials;
+	private final @Nullable Object credentials;
 
 	private final Map<String, Object> additionalParameters;
 
@@ -103,9 +104,8 @@ public class OAuth2ClientAuthenticationToken extends AbstractAuthenticationToken
 		return this.clientId;
 	}
 
-	@Nullable
 	@Override
-	public Object getCredentials() {
+	public @Nullable Object getCredentials() {
 		return this.credentials;
 	}
 
@@ -115,8 +115,7 @@ public class OAuth2ClientAuthenticationToken extends AbstractAuthenticationToken
 	 * @return the authenticated {@link RegisteredClient}, or {@code null} if not
 	 * authenticated
 	 */
-	@Nullable
-	public RegisteredClient getRegisteredClient() {
+	public @Nullable RegisteredClient getRegisteredClient() {
 		return this.registeredClient;
 	}
 

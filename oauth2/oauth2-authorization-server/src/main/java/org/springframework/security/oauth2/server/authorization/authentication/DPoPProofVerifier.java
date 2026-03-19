@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.server.authorization.authentication;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
@@ -24,6 +26,7 @@ import org.springframework.security.oauth2.jwt.DPoPProofJwtDecoderFactory;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
@@ -42,14 +45,17 @@ final class DPoPProofVerifier {
 	private DPoPProofVerifier() {
 	}
 
-	static Jwt verifyIfAvailable(OAuth2AuthorizationGrantAuthenticationToken authorizationGrantAuthentication) {
+	static @Nullable Jwt verifyIfAvailable(
+			OAuth2AuthorizationGrantAuthenticationToken authorizationGrantAuthentication) {
 		String dPoPProof = (String) authorizationGrantAuthentication.getAdditionalParameters().get("dpop_proof");
 		if (!StringUtils.hasText(dPoPProof)) {
 			return null;
 		}
 
 		String method = (String) authorizationGrantAuthentication.getAdditionalParameters().get("dpop_method");
+		Assert.hasText(method, "dpop_method cannot be empty");
 		String targetUri = (String) authorizationGrantAuthentication.getAdditionalParameters().get("dpop_target_uri");
+		Assert.hasText(targetUri, "dpop_target_uri cannot be empty");
 
 		Jwt dPoPProofJwt;
 		try {

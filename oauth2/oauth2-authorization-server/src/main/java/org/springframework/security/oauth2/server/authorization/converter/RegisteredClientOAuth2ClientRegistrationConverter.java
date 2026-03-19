@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.server.authorization.converter;
 
+import java.time.Instant;
+
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponseType;
@@ -39,8 +41,11 @@ public final class RegisteredClientOAuth2ClientRegistrationConverter
 		// @formatter:off
 		OAuth2ClientRegistration.Builder builder = OAuth2ClientRegistration.builder()
 				.clientId(registeredClient.getClientId())
-				.clientIdIssuedAt(registeredClient.getClientIdIssuedAt())
 				.clientName(registeredClient.getClientName());
+		Instant clientIdIssuedAt = registeredClient.getClientIdIssuedAt();
+		if (clientIdIssuedAt != null) {
+			builder.clientIdIssuedAt(clientIdIssuedAt);
+		}
 
 		builder
 				.tokenEndpointAuthenticationMethod(registeredClient.getClientAuthenticationMethods().iterator().next().getValue());

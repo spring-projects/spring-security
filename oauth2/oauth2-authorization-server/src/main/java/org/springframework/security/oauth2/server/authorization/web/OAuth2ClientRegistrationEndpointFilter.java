@@ -117,6 +117,7 @@ public final class OAuth2ClientRegistrationEndpointFilter extends OncePerRequest
 
 		try {
 			Authentication clientRegistrationAuthentication = this.authenticationConverter.convert(request);
+			Assert.notNull(clientRegistrationAuthentication, "clientRegistrationAuthentication cannot be null");
 
 			Authentication clientRegistrationAuthenticationResult = this.authenticationManager
 				.authenticate(clientRegistrationAuthentication);

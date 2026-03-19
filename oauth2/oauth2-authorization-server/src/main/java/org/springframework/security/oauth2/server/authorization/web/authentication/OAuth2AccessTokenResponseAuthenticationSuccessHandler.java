@@ -26,6 +26,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpResponse;
@@ -59,7 +60,7 @@ public final class OAuth2AccessTokenResponseAuthenticationSuccessHandler impleme
 
 	private final HttpMessageConverter<OAuth2AccessTokenResponse> accessTokenResponseConverter = new OAuth2AccessTokenResponseHttpMessageConverter();
 
-	private Consumer<OAuth2AccessTokenAuthenticationContext> accessTokenResponseCustomizer;
+	private @Nullable Consumer<OAuth2AccessTokenAuthenticationContext> accessTokenResponseCustomizer;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,

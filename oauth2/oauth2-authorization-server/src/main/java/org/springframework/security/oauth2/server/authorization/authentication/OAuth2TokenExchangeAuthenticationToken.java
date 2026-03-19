@@ -22,7 +22,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.util.Assert;
@@ -43,9 +44,9 @@ public class OAuth2TokenExchangeAuthenticationToken extends OAuth2AuthorizationG
 
 	private final String subjectTokenType;
 
-	private final String actorToken;
+	private final @Nullable String actorToken;
 
-	private final String actorTokenType;
+	private final @Nullable String actorTokenType;
 
 	private final Set<String> resources;
 
@@ -113,17 +114,17 @@ public class OAuth2TokenExchangeAuthenticationToken extends OAuth2AuthorizationG
 
 	/**
 	 * Returns the actor token.
-	 * @return the actor token
+	 * @return the actor token, or {@code null} if not provided
 	 */
-	public String getActorToken() {
+	public @Nullable String getActorToken() {
 		return this.actorToken;
 	}
 
 	/**
 	 * Returns the actor token type.
-	 * @return the actor token type
+	 * @return the actor token type, or {@code null} if not provided
 	 */
-	public String getActorTokenType() {
+	public @Nullable String getActorTokenType() {
 		return this.actorTokenType;
 	}
 

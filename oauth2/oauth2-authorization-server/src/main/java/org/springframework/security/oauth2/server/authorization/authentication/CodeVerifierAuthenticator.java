@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -65,7 +66,7 @@ final class CodeVerifierAuthenticator {
 
 	void authenticateRequired(OAuth2ClientAuthenticationToken clientAuthentication, RegisteredClient registeredClient) {
 		if (!authenticate(clientAuthentication, registeredClient)) {
-			throwInvalidGrant(PkceParameterNames.CODE_VERIFIER);
+			throw invalidGrantException(PkceParameterNames.CODE_VERIFIER);
 		}
 	}
 
@@ -82,10 +83,11 @@ final class CodeVerifierAuthenticator {
 			return false;
 		}
 
-		OAuth2Authorization authorization = this.authorizationService
-			.findByToken((String) parameters.get(OAuth2ParameterNames.CODE), AUTHORIZATION_CODE_TOKEN_TYPE);
+		String code = (String) parameters.get(OAuth2ParameterNames.CODE);
+		Assert.hasText(code, "code cannot be empty");
+		OAuth2Authorization authorization = this.authorizationService.findByToken(code, AUTHORIZATION_CODE_TOKEN_TYPE);
 		if (authorization == null) {
-			throwInvalidGrant(OAuth2ParameterNames.CODE);
+			throw invalidGrantException(OAuth2ParameterNames.CODE);
 		}
 
 		if (this.logger.isTraceEnabled()) {
@@ -94,6 +96,7 @@ final class CodeVerifierAuthenticator {
 
 		OAuth2AuthorizationRequest authorizationRequest = authorization
 			.getAttribute(OAuth2AuthorizationRequest.class.getName());
+		Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
 
 		String codeChallenge = (String) authorizationRequest.getAdditionalParameters()
 			.get(PkceParameterNames.CODE_CHALLENGE);
@@ -105,7 +108,7 @@ final class CodeVerifierAuthenticator {
 							"Invalid request: code_challenge is required" + " for registered client '%s'",
 							registeredClient.getId()));
 				}
-				throwInvalidGrant(PkceParameterNames.CODE_CHALLENGE);
+				throw invalidGrantException(PkceParameterNames.CODE_CHALLENGE);
 			}
 			else {
 				if (this.logger.isTraceEnabled()) {
@@ -119,6 +122,7 @@ final class CodeVerifierAuthenticator {
 			this.logger.trace("Validated code verifier parameters");
 		}
 
+		Assert.hasText(codeChallenge, "codeChallenge cannot be empty");
 		String codeChallengeMethod = (String) authorizationRequest.getAdditionalParameters()
 			.get(PkceParameterNames.CODE_CHALLENGE_METHOD);
 		if (!codeVerifierValid(codeVerifier, codeChallenge, codeChallengeMethod)) {
@@ -127,7 +131,7 @@ final class CodeVerifierAuthenticator {
 						"Invalid request: code_verifier is missing or invalid" + " for registered client '%s'",
 						registeredClient.getId()));
 			}
-			throwInvalidGrant(PkceParameterNames.CODE_VERIFIER);
+			throw invalidGrantException(PkceParameterNames.CODE_VERIFIER);
 		}
 
 		if (this.logger.isTraceEnabled()) {
@@ -143,12 +147,13 @@ final class CodeVerifierAuthenticator {
 			return false;
 		}
 		if (!StringUtils.hasText((String) parameters.get(OAuth2ParameterNames.CODE))) {
-			throwInvalidGrant(OAuth2ParameterNames.CODE);
+			throw invalidGrantException(OAuth2ParameterNames.CODE);
 		}
 		return true;
 	}
 
-	private boolean codeVerifierValid(String codeVerifier, String codeChallenge, String codeChallengeMethod) {
+	private boolean codeVerifierValid(@Nullable String codeVerifier, String codeChallenge,
+			@Nullable String codeChallengeMethod) {
 		if (!StringUtils.hasText(codeVerifier)) {
 			return false;
 		}
@@ -169,10 +174,10 @@ final class CodeVerifierAuthenticator {
 		return false;
 	}
 
-	private static void throwInvalidGrant(String parameterName) {
+	private static OAuth2AuthenticationException invalidGrantException(String parameterName) {
 		OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT,
 				"Client authentication failed: " + parameterName, null);
-		throw new OAuth2AuthenticationException(error);
+		return new OAuth2AuthenticationException(error);
 	}
 
 }

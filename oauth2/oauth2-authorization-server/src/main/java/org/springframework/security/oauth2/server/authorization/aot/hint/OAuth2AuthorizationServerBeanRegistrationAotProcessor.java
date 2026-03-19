@@ -20,6 +20,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.aot.generate.GenerationContext;
 import org.springframework.aot.hint.BindingReflectionHintsRegistrar;
 import org.springframework.aot.hint.MemberCategory;
@@ -84,7 +86,7 @@ class OAuth2AuthorizationServerBeanRegistrationAotProcessor implements BeanRegis
 	private boolean jacksonContributed;
 
 	@Override
-	public BeanRegistrationAotContribution processAheadOfTime(RegisteredBean registeredBean) {
+	public @Nullable BeanRegistrationAotContribution processAheadOfTime(RegisteredBean registeredBean) {
 		boolean isJdbcBasedOAuth2AuthorizationService = JdbcOAuth2AuthorizationService.class
 			.isAssignableFrom(registeredBean.getBeanClass());
 

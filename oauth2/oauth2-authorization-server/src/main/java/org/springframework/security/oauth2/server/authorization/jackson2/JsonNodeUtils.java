@@ -22,6 +22,7 @@ import java.util.Set;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Utility class for {@code JsonNode}.
@@ -41,7 +42,7 @@ abstract class JsonNodeUtils {
 	static final TypeReference<Map<String, Object>> STRING_OBJECT_MAP = new TypeReference<>() {
 	};
 
-	static String findStringValue(JsonNode jsonNode, String fieldName) {
+	static @Nullable String findStringValue(@Nullable JsonNode jsonNode, String fieldName) {
 		if (jsonNode == null) {
 			return null;
 		}
@@ -49,7 +50,7 @@ abstract class JsonNodeUtils {
 		return (value != null && value.isTextual()) ? value.asText() : null;
 	}
 
-	static <T> T findValue(JsonNode jsonNode, String fieldName, TypeReference<T> valueTypeReference,
+	static <T> @Nullable T findValue(@Nullable JsonNode jsonNode, String fieldName, TypeReference<T> valueTypeReference,
 			ObjectMapper mapper) {
 		if (jsonNode == null) {
 			return null;
@@ -58,7 +59,7 @@ abstract class JsonNodeUtils {
 		return (value != null && value.isContainerNode()) ? mapper.convertValue(value, valueTypeReference) : null;
 	}
 
-	static JsonNode findObjectNode(JsonNode jsonNode, String fieldName) {
+	static @Nullable JsonNode findObjectNode(@Nullable JsonNode jsonNode, String fieldName) {
 		if (jsonNode == null) {
 			return null;
 		}

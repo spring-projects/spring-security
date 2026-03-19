@@ -18,7 +18,8 @@ package org.springframework.security.oauth2.server.authorization.authentication;
 
 import java.util.Map;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.util.Assert;
@@ -38,7 +39,7 @@ public class OAuth2AuthorizationCodeAuthenticationToken extends OAuth2Authorizat
 
 	private final String code;
 
-	private final String redirectUri;
+	private final @Nullable String redirectUri;
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizationCodeAuthenticationToken} using the provided
@@ -68,8 +69,7 @@ public class OAuth2AuthorizationCodeAuthenticationToken extends OAuth2Authorizat
 	 * Returns the redirect uri.
 	 * @return the redirect uri
 	 */
-	@Nullable
-	public String getRedirectUri() {
+	public @Nullable String getRedirectUri() {
 		return this.redirectUri;
 	}
 

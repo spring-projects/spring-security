@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.server.authorization.authentication;
 
 import java.security.Principal;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -115,6 +116,7 @@ public final class OAuth2DeviceVerificationAuthenticationProvider implements Aut
 		}
 
 		OAuth2Authorization.Token<OAuth2UserCode> userCode = authorization.getToken(OAuth2UserCode.class);
+		Assert.notNull(userCode, "userCode cannot be null");
 		if (!userCode.isActive()) {
 			if (!userCode.isInvalidated()) {
 				authorization = OAuth2Authorization.from(authorization).invalidate(userCode.getToken()).build();
@@ -137,12 +139,16 @@ public final class OAuth2DeviceVerificationAuthenticationProvider implements Aut
 
 		RegisteredClient registeredClient = this.registeredClientRepository
 			.findById(authorization.getRegisteredClientId());
+		Assert.notNull(registeredClient, "registeredClient cannot be null");
 
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace("Retrieved registered client");
 		}
 
 		Set<String> requestedScopes = authorization.getAttribute(OAuth2ParameterNames.SCOPE);
+		if (requestedScopes == null) {
+			requestedScopes = Collections.emptySet();
+		}
 
 		OAuth2DeviceVerificationAuthenticationContext.Builder authenticationContextBuilder = OAuth2DeviceVerificationAuthenticationContext
 			.with(deviceVerificationAuthentication)
@@ -174,7 +180,7 @@ public final class OAuth2DeviceVerificationAuthenticationProvider implements Aut
 			}
 
 			Set<String> currentAuthorizedScopes = (currentAuthorizationConsent != null)
-					? currentAuthorizationConsent.getScopes() : null;
+					? currentAuthorizationConsent.getScopes() : Collections.emptySet();
 
 			AuthorizationServerSettings authorizationServerSettings = AuthorizationServerContextHolder.getContext()
 				.getAuthorizationServerSettings();
