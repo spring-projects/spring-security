@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.web
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer
 import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.PreFlightRequestHandler
 
 /**
  * A Kotlin DSL to configure [HttpSecurity] CORS using idiomatic Kotlin code.
@@ -26,10 +27,13 @@ import org.springframework.web.cors.CorsConfigurationSource
  * @author Eleftheria Stein
  * @since 5.3
  * @property configurationSource the [CorsConfigurationSource] to use.
+ * @property preFlightRequestHandler the [PreFlightRequestHandler] to use instead of [CorsFilter].
  */
 @SecurityMarker
 class CorsDsl {
     var configurationSource: CorsConfigurationSource? = null
+
+    var preFlightRequestHandler: PreFlightRequestHandler? = null
 
     private var disabled = false
 
@@ -42,7 +46,8 @@ class CorsDsl {
 
     internal fun get(): (CorsConfigurer<HttpSecurity>) -> Unit {
         return { cors ->
-            configurationSource?.also { cors.configurationSource(configurationSource) }
+            configurationSource?.also { cors.configurationSource(it) }
+            preFlightRequestHandler?.also { cors.preFlightRequestHandler(it) }
             if (disabled) {
                 cors.disable()
             }

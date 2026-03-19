@@ -8,6 +8,7 @@
 * Added xref:servlet/authorization/architecture.adoc#authz-conditional-authorization-manager[ConditionalAuthorizationManager]
 * Added `when` and `withWhen` conditions to `AuthorizationManagerFactories.multiFactor()` for xref:servlet/authentication/mfa.adoc#programmatic-mfa[Programmatic MFA]
 * Added `MultiFactorCondition.WEBAUTHN_REGISTERED` to `@EnableMultiFactorAuthentication(when = ...)` for xref:servlet/authentication/mfa.adoc#mfa-when-webauthn-registered[conditionally requiring MFA for WebAuthn Users]
+* https://github.com/spring-projects/spring-security/issues/18926[gh-18926] - xref:servlet/integrations/cors.adoc[Add `PreFlightRequestFilter` Support]
 
 == OAuth 2.0
 
