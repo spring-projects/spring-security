@@ -16,7 +16,10 @@
 
 package org.springframework.security.config.annotation.web
 
+import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.assertj.core.api.Assertions.catchThrowable
+import org.assertj.core.util.Throwables
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.BeanCreationException
@@ -35,9 +38,14 @@ import org.springframework.test.web.servlet.get
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.PreFlightRequestHandler
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import org.springframework.web.filter.CorsFilter
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
 
 /**
@@ -153,7 +161,7 @@ class CorsDslTests {
 
     @Test
     fun `CORS when CORS configuration source dsl then responds with CORS header`() {
-        this.spring.register(CorsCrossOriginBeanConfig::class.java, HomeController::class.java).autowire()
+        this.spring.register(CorsCrossOriginSourceConfig::class.java, HomeController::class.java).autowire()
 
         this.mockMvc.get("/")
         {
@@ -182,6 +190,117 @@ class CorsDslTests {
                 }
             }
             return http.build()
+        }
+    }
+
+    @Test
+    fun `CORS when preFlight request handler dsl then OPTIONS uses handler`() {
+        this.spring.register(PreFlightRequestHandlerDslConfig::class.java).autowire()
+
+        this.mockMvc.perform(options("/")
+                .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, RequestMethod.POST.name)
+                .header(HttpHeaders.ORIGIN, "https://example.com"))
+                .andExpect(status().isOk)
+                .andExpect(header().exists("X-Pre-Flight"))
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    open class PreFlightRequestHandlerDslConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                authorizeHttpRequests {
+                    authorize(anyRequest, authenticated)
+                }
+                cors {
+                    preFlightRequestHandler = PreFlightRequestHandler { _, response ->
+                        response.addHeader("X-Pre-Flight", "Dsl")
+                    }
+                }
+            }
+            return http.build()
+        }
+    }
+
+    @Test
+    fun `CORS when configuration source and preFlight handler dsl then illegal state`() {
+        val thrown = catchThrowable {
+            this.spring.register(BothCorsDslMembersConfig::class.java).autowire()
+        }
+        assertThat(thrown).isInstanceOf(BeanCreationException::class.java)
+        assertThat(Throwables.getRootCause(thrown))
+                .isInstanceOf(IllegalStateException::class.java)
+                .hasMessageContaining("Cannot configure both")
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    open class BothCorsDslMembersConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            val source = UrlBasedCorsConfigurationSource()
+            val corsConfiguration = CorsConfiguration()
+            corsConfiguration.allowedOrigins = listOf("*")
+            corsConfiguration.allowedMethods = listOf(
+                    RequestMethod.GET.name,
+                    RequestMethod.POST.name)
+            source.registerCorsConfiguration("/**", corsConfiguration)
+            http {
+                authorizeHttpRequests {
+                    authorize(anyRequest, authenticated)
+                }
+                cors {
+                    configurationSource = source
+                    preFlightRequestHandler = PreFlightRequestHandler { _, response ->
+                        response.addHeader("X-Pre-Flight", "Dsl")
+                    }
+                }
+            }
+            return http.build()
+        }
+    }
+
+    @Test
+    fun `CORS when preFlight handler dsl then CorsFilter bean ignored on OPTIONS`() {
+        this.spring.register(PreFlightRequestHandlerDslWithCorsFilterBeanConfig::class.java).autowire()
+
+        this.mockMvc.perform(options("/")
+                .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, RequestMethod.POST.name)
+                .header(HttpHeaders.ORIGIN, "https://example.com"))
+                .andExpect(status().isOk)
+                .andExpect(header().exists("X-Pre-Flight"))
+                .andExpect(header().doesNotExist("Access-Control-Allow-Origin"))
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    open class PreFlightRequestHandlerDslWithCorsFilterBeanConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                authorizeHttpRequests {
+                    authorize(anyRequest, authenticated)
+                }
+                cors {
+                    preFlightRequestHandler = PreFlightRequestHandler { _, response ->
+                        response.addHeader("X-Pre-Flight", "Dsl")
+                    }
+                }
+            }
+            return http.build()
+        }
+
+        @Bean
+        open fun corsFilter(): CorsFilter {
+            val source = UrlBasedCorsConfigurationSource()
+            val corsConfiguration = CorsConfiguration()
+            corsConfiguration.allowedOrigins = listOf("*")
+            corsConfiguration.allowedMethods = listOf(
+                    RequestMethod.GET.name,
+                    RequestMethod.POST.name)
+            source.registerCorsConfiguration("/**", corsConfiguration)
+            return CorsFilter(source)
         }
     }
 

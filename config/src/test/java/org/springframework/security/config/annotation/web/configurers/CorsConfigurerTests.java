@@ -40,6 +40,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.PreFlightRequestHandler;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -194,6 +195,73 @@ public class CorsConfigurerTests {
 			.andExpect(status().isOk())
 			.andExpect(header().exists("Access-Control-Allow-Origin"))
 			.andExpect(header().exists("X-Content-Type-Options"));
+	}
+
+	@Test
+	public void optionsWhenPreFlightRequestHandlerBeanThenHandled() throws Exception {
+		this.spring.register(PreFlightRequestHandlerConfig.class).autowire();
+		this.mvc
+			.perform(options("/")
+				.header(org.springframework.http.HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST.name())
+				.header(HttpHeaders.ORIGIN, "https://example.com"))
+			.andExpect(status().isOk())
+			.andExpect(header().exists("X-Pre-Flight"));
+	}
+
+	@Test
+	public void optionsWhenNoPreFlightRequestHandlerBeanThenCorsFilterUsed() throws Exception {
+		this.spring.register(NoPreFlightRequestHandlerConfig.class).autowire();
+		this.mvc
+			.perform(options("/")
+				.header(org.springframework.http.HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST.name())
+				.header(HttpHeaders.ORIGIN, "https://example.com"))
+			.andExpect(status().isOk())
+			.andExpect(header().exists("Access-Control-Allow-Origin"))
+			.andExpect(header().doesNotExist("X-Pre-Flight"));
+	}
+
+	@Test
+	public void optionsWhenExplicitConfigurationSourceThenPreFlightRequestHandlerBeanIgnored() throws Exception {
+		this.spring.register(ExplicitConfigurationSourceWithPreFlightRequestHandlerBeanConfig.class).autowire();
+		this.mvc
+			.perform(options("/")
+				.header(org.springframework.http.HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST.name())
+				.header(HttpHeaders.ORIGIN, "https://example.com"))
+			.andExpect(status().isOk())
+			.andExpect(header().exists("Access-Control-Allow-Origin"))
+			.andExpect(header().doesNotExist("X-Pre-Flight"));
+	}
+
+	@Test
+	public void optionsWhenPreFlightRequestHandlerMemberThenHandled() throws Exception {
+		this.spring.register(PreFlightRequestHandlerMemberConfig.class).autowire();
+		this.mvc
+			.perform(options("/")
+				.header(org.springframework.http.HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST.name())
+				.header(HttpHeaders.ORIGIN, "https://example.com"))
+			.andExpect(status().isOk())
+			.andExpect(header().exists("X-Pre-Flight"));
+	}
+
+	@Test
+	public void configureWhenBothConfigurationSourceAndPreFlightRequestHandlerMemberThenIllegalState() {
+		assertThatExceptionOfType(BeanCreationException.class)
+			.isThrownBy(() -> this.spring.register(BothCorsConfigurerMembersConfig.class).autowire())
+			.havingRootCause()
+			.isInstanceOf(IllegalStateException.class)
+			.withMessageContaining("Cannot configure both");
+	}
+
+	@Test
+	public void optionsWhenPreFlightRequestHandlerMemberThenCorsFilterBeanIgnored() throws Exception {
+		this.spring.register(PreFlightRequestHandlerMemberWithCorsFilterBeanConfig.class).autowire();
+		this.mvc
+			.perform(options("/")
+				.header(org.springframework.http.HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, HttpMethod.POST.name())
+				.header(HttpHeaders.ORIGIN, "https://example.com"))
+			.andExpect(status().isOk())
+			.andExpect(header().exists("X-Pre-Flight"))
+			.andExpect(header().doesNotExist("Access-Control-Allow-Origin"));
 	}
 
 	@Configuration
@@ -366,6 +434,152 @@ public class CorsConfigurerTests {
 						.anyRequest().authenticated()
 				)
 				.cors(withDefaults());
+			return http.build();
+			// @formatter:on
+		}
+
+		@Bean
+		CorsFilter corsFilter() {
+			UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+			CorsConfiguration corsConfiguration = new CorsConfiguration();
+			corsConfiguration.setAllowedOrigins(Collections.singletonList("*"));
+			corsConfiguration.setAllowedMethods(Arrays.asList(RequestMethod.GET.name(), RequestMethod.POST.name()));
+			source.registerCorsConfiguration("/**", corsConfiguration);
+			return new CorsFilter(source);
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class PreFlightRequestHandlerConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.cors(withDefaults());
+			return http.build();
+			// @formatter:on
+		}
+
+		@Bean
+		PreFlightRequestHandler preFlightRequestHandler() {
+			return (request, response) -> response.addHeader("X-Pre-Flight", "Handled");
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class NoPreFlightRequestHandlerConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.cors(withDefaults());
+			return http.build();
+			// @formatter:on
+		}
+
+		@Bean
+		CorsConfigurationSource corsConfigurationSource() {
+			UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+			CorsConfiguration corsConfiguration = new CorsConfiguration();
+			corsConfiguration.setAllowedOrigins(Collections.singletonList("*"));
+			corsConfiguration.setAllowedMethods(Arrays.asList(RequestMethod.GET.name(), RequestMethod.POST.name()));
+			source.registerCorsConfiguration("/**", corsConfiguration);
+			return source;
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class ExplicitConfigurationSourceWithPreFlightRequestHandlerBeanConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+			CorsConfiguration corsConfiguration = new CorsConfiguration();
+			corsConfiguration.setAllowedOrigins(Collections.singletonList("*"));
+			corsConfiguration.setAllowedMethods(Arrays.asList(RequestMethod.GET.name(), RequestMethod.POST.name()));
+			source.registerCorsConfiguration("/**", corsConfiguration);
+			// @formatter:off
+			http
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.cors((cors) -> cors.configurationSource(source));
+			return http.build();
+			// @formatter:on
+		}
+
+		@Bean
+		PreFlightRequestHandler preFlightRequestHandler() {
+			return (request, response) -> response.addHeader("X-Pre-Flight", "Handled");
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class PreFlightRequestHandlerMemberConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.cors((cors) -> cors.preFlightRequestHandler(
+						(request, response) -> response.addHeader("X-Pre-Flight", "Member")));
+			return http.build();
+			// @formatter:on
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class BothCorsConfigurerMembersConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+			CorsConfiguration corsConfiguration = new CorsConfiguration();
+			corsConfiguration.setAllowedOrigins(Collections.singletonList("*"));
+			corsConfiguration.setAllowedMethods(Arrays.asList(RequestMethod.GET.name(), RequestMethod.POST.name()));
+			source.registerCorsConfiguration("/**", corsConfiguration);
+			// @formatter:off
+			http
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.cors((cors) -> cors
+					.configurationSource(source)
+					.preFlightRequestHandler((request, response) -> response.addHeader("X-Pre-Flight", "Handled")));
+			return http.build();
+			// @formatter:on
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class PreFlightRequestHandlerMemberWithCorsFilterBeanConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.cors((cors) -> cors.preFlightRequestHandler(
+						(request, response) -> response.addHeader("X-Pre-Flight", "Member")));
 			return http.build();
 			// @formatter:on
 		}
