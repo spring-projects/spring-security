@@ -116,9 +116,9 @@ public class JwtValidatorsTests {
 
 		OAuth2TokenValidatorResult result = validator.validate(builder.build());
 		assertThat(result.getErrors().toString()).contains("at+jwt")
-				.contains("aud")
-				.contains("client_id")
-				.contains("iss");
+			.contains("aud")
+			.contains("client_id")
+			.contains("iss");
 
 		result = validator.validate(builder.claim("client_id", "clientId").build());
 		assertThat(result.getErrors().toString()).doesNotContain("client_id");
