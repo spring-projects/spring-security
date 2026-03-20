@@ -16,7 +16,6 @@
 
 package org.springframework.security.oauth2.server.authorization.web.authentication;
 
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -94,8 +93,7 @@ public class ClientSecretBasicAuthenticationConverterTests {
 	}
 
 	@Test
-	public void convertWhenAuthorizationHeaderBasicWithValidCredentialsThenReturnClientAuthenticationToken()
-			throws Exception {
+	public void convertWhenAuthorizationHeaderBasicWithValidCredentialsThenReturnClientAuthenticationToken() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader(HttpHeaders.AUTHORIZATION, "Basic " + encodeBasicAuth("clientId", "secret"));
 		OAuth2ClientAuthenticationToken authentication = (OAuth2ClientAuthenticationToken) this.converter
@@ -107,7 +105,19 @@ public class ClientSecretBasicAuthenticationConverterTests {
 	}
 
 	@Test
-	public void convertWhenConfidentialClientWithPkceParametersThenAdditionalParametersIncluded() throws Exception {
+	public void convertWhenClientSecretContainsPlusThenPlusIsPreserved() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader(HttpHeaders.AUTHORIZATION, "Basic " + encodeBasicAuth("clientId", "secret+123"));
+		OAuth2ClientAuthenticationToken authentication = (OAuth2ClientAuthenticationToken) this.converter
+			.convert(request);
+		assertThat(authentication.getPrincipal()).isEqualTo("clientId");
+		assertThat(authentication.getCredentials()).isEqualTo("secret+123");
+		assertThat(authentication.getClientAuthenticationMethod())
+			.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+	}
+
+	@Test
+	public void convertWhenConfidentialClientWithPkceParametersThenAdditionalParametersIncluded() {
 		MockHttpServletRequest request = createPkceTokenRequest();
 		request.addParameter("custom-param", "custom-value-1", "custom-value-2");
 		request.addHeader(HttpHeaders.AUTHORIZATION, "Basic " + encodeBasicAuth("clientId", "secret"));
@@ -123,9 +133,7 @@ public class ClientSecretBasicAuthenticationConverterTests {
 				entry("custom-param", new String[] { "custom-value-1", "custom-value-2" }));
 	}
 
-	private static String encodeBasicAuth(String clientId, String secret) throws Exception {
-		clientId = URLEncoder.encode(clientId, StandardCharsets.UTF_8.name());
-		secret = URLEncoder.encode(secret, StandardCharsets.UTF_8.name());
+	private static String encodeBasicAuth(String clientId, String secret) {
 		String credentialsString = clientId + ":" + secret;
 		byte[] encodedBytes = Base64.getEncoder().encode(credentialsString.getBytes(StandardCharsets.UTF_8));
 		return new String(encodedBytes, StandardCharsets.UTF_8);
