@@ -38,6 +38,22 @@ public final class WebAttributes {
 	public static final String ACCESS_DENIED_403 = "SPRING_SECURITY_403_EXCEPTION";
 
 	/**
+	 * Set as a request attribute to provide an
+	 * {@link org.springframework.context.ApplicationContext} for use by JSP authorize
+	 * tags when resolving security beans.
+	 * <p>
+	 * When set, this attribute is preferred over the root web application context. The
+	 * value must be of type {@link org.springframework.context.ApplicationContext}.
+	 *
+	 * <p>
+	 * Used in {@code org.springframework.security.taglibs.authz.AbstractAuthorizeTag}.
+	 *
+	 * @since 7.1
+	 */
+	public static final String APPLICATION_CONTEXT_ATTRIBUTE = WebAttributes.class.getName()
+			+ ".APPLICATION_CONTEXT_ATTRIBUTE";
+
+	/**
 	 * Used to cache an authentication-failure exception in the session.
 	 *
 	 * @see org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler

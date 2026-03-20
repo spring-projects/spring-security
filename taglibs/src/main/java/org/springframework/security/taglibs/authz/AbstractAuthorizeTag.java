@@ -62,8 +62,6 @@ import org.springframework.util.StringUtils;
  */
 public abstract class AbstractAuthorizeTag {
 
-	private static final String DISPATCHER_SERVLET_CONTEXT_ATTRIBUTE = "org.springframework.web.servlet.DispatcherServlet.CONTEXT";
-
 	@SuppressWarnings("NullAway.Init")
 	private @Nullable String access;
 
@@ -226,11 +224,15 @@ public abstract class AbstractAuthorizeTag {
 	}
 
 	private ApplicationContext getApplicationContext() {
-		Object dispatcherContext = getRequest().getAttribute(DISPATCHER_SERVLET_CONTEXT_ATTRIBUTE);
-		if (dispatcherContext instanceof ApplicationContext applicationContext) {
-			return applicationContext;
+		Object value = getRequest().getAttribute(WebAttributes.APPLICATION_CONTEXT_ATTRIBUTE);
+		if (value == null) {
+			return SecurityWebApplicationContextUtils.findRequiredWebApplicationContext(getServletContext());
 		}
-		return SecurityWebApplicationContextUtils.findRequiredWebApplicationContext(getServletContext());
+		if (value instanceof ApplicationContext context) {
+			return context;
+		}
+		throw new IllegalArgumentException("WebAttributes.APPLICATION_CONTEXT_ATTRIBUTE value must be of type "
+				+ "ApplicationContext, found type " + value.getClass());
 	}
 
 }
