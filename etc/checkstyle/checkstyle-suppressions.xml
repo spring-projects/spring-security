@@ -60,6 +60,10 @@
 	<suppress files="[\\/]src[\\/]test[\\/]" checks="JavadocPackage"/>
 	<suppress files="[\\/]src[\\/]test[\\/].*package-info\.java$" checks="RegexpMultiline" id="requireNullMarkedInPackageInfo"/>
 
+	<!-- Suppress package-info.java and @NullMarked checks for integration test sources -->
+	<suppress files="[\\/]src[\\/]integration-test[\\/]" checks="JavadocPackage"/>
+	<suppress files="[\\/]src[\\/]integration-test[\\/].*package-info\.java$" checks="RegexpMultiline" id="requireNullMarkedInPackageInfo"/>
+
 	<!-- Suppress package-info.java and @NullMarked checks for test fixture sources -->
 	<suppress files="[\\/]src[\\/]testFixtures[\\/]" checks="JavadocPackage"/>
 	<suppress files="[\\/]src[\\/]testFixtures[\\/].*package-info\.java$" checks="RegexpMultiline" id="requireNullMarkedInPackageInfo"/>
@@ -77,9 +81,6 @@
 	<suppress files="itest[\\/]" checks="IllegalImport" id="bannedNullabilityImports"/>
 	<suppress files="itest[\\/]" checks="JavadocPackage"/>
 	<suppress files="itest[\\/].*package-info\.java" checks="RegexpMultiline" id="requireNullMarkedInPackageInfo"/>
-	<suppress files="ldap[\\/]" checks="IllegalImport" id="bannedNullabilityImports"/>
-	<suppress files="ldap[\\/]" checks="JavadocPackage"/>
-	<suppress files="ldap[\\/].*package-info\.java" checks="RegexpMultiline" id="requireNullMarkedInPackageInfo"/>
 	<suppress files="oauth2[\\/]oauth2-authorization-server[\\/]" checks="IllegalImport" id="bannedNullabilityImports"/>
 	<suppress files="oauth2[\\/]oauth2-authorization-server[\\/]" checks="JavadocPackage"/>
 	<suppress files="oauth2[\\/]oauth2-authorization-server[\\/].*package-info\.java" checks="RegexpMultiline" id="requireNullMarkedInPackageInfo"/>
