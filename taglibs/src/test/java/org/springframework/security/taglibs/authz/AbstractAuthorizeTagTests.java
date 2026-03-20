@@ -42,6 +42,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -136,20 +137,24 @@ public class AbstractAuthorizeTagTests {
 
 	@Test
 	@SuppressWarnings("rawtypes")
-	public void expressionFromDispatcherContextWhenRootContextPresent() throws IOException {
+	public void expressionWhenApplicationContextAttributeIsSetThenUsed() throws IOException {
 		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "pass", "USER"));
-		WebApplicationContext root = mock(WebApplicationContext.class);
-		given(root.getBeansOfType(SecurityExpressionHandler.class)).willReturn(Collections.emptyMap());
-		given(root.getBeanNamesForType(SecurityContextHolderStrategy.class)).willReturn(new String[0]);
-		this.servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, root);
 		DefaultWebSecurityExpressionHandler expected = new DefaultWebSecurityExpressionHandler();
-		WebApplicationContext dispatcher = mock(WebApplicationContext.class);
-		given(dispatcher.getBeansOfType(SecurityExpressionHandler.class))
+		WebApplicationContext context = mock(WebApplicationContext.class);
+		given(context.getBeansOfType(SecurityExpressionHandler.class))
 			.willReturn(Collections.<String, SecurityExpressionHandler>singletonMap("wipe", expected));
-		given(dispatcher.getBeanNamesForType(SecurityContextHolderStrategy.class)).willReturn(new String[0]);
-		this.request.setAttribute("org.springframework.web.servlet.DispatcherServlet.CONTEXT", dispatcher);
+		given(context.getBeanNamesForType(SecurityContextHolderStrategy.class)).willReturn(new String[0]);
+		this.request.setAttribute(WebAttributes.APPLICATION_CONTEXT_ATTRIBUTE, context);
 		this.tag.setAccess("permitAll");
 		assertThat(this.tag.authorize()).isTrue();
+		verify(context).getBeansOfType(SecurityExpressionHandler.class);
+	}
+
+	@Test
+	public void expressionWhenApplicationContextAttributeIsWrongTypeThenIllegalArgumentException() {
+		this.request.setAttribute(WebAttributes.APPLICATION_CONTEXT_ATTRIBUTE, "notAnApplicationContext");
+		this.tag.setAccess("permitAll");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.tag.authorize());
 	}
 
 	private class AuthzTag extends AbstractAuthorizeTag {
