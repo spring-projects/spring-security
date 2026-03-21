@@ -138,4 +138,17 @@ public class OAuth2AuthorizationTests {
 		assertThat(authorization.getRefreshToken().getToken()).isEqualTo(REFRESH_TOKEN);
 	}
 
+	@Test
+	public void invalidateRefreshTokenWhenNoAccessTokenThenDoesNotThrow() {
+		OAuth2Authorization authorization = OAuth2Authorization.withRegisteredClient(REGISTERED_CLIENT)
+			.principalName(PRINCIPAL_NAME)
+			.authorizationGrantType(AUTHORIZATION_GRANT_TYPE)
+			.refreshToken(REFRESH_TOKEN)
+			.build();
+
+		OAuth2Authorization invalidated = OAuth2Authorization.from(authorization).invalidate(REFRESH_TOKEN).build();
+
+		assertThat(invalidated.getRefreshToken().isInvalidated()).isTrue();
+	}
+
 }

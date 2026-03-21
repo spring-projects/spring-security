@@ -503,8 +503,10 @@ public class OAuth2Authorization implements Serializable {
 			token(token, (metadata) -> metadata.put(OAuth2Authorization.Token.INVALIDATED_METADATA_NAME, true));
 			if (OAuth2RefreshToken.class.isAssignableFrom(token.getClass())) {
 				Token<?> accessToken = this.tokens.get(OAuth2AccessToken.class);
-				token(accessToken.getToken(),
-						(metadata) -> metadata.put(OAuth2Authorization.Token.INVALIDATED_METADATA_NAME, true));
+				if (accessToken != null && !accessToken.isInvalidated()) {
+					token(accessToken.getToken(),
+							(metadata) -> metadata.put(OAuth2Authorization.Token.INVALIDATED_METADATA_NAME, true));
+				}
 
 				Token<?> authorizationCode = this.tokens.get(OAuth2AuthorizationCode.class);
 				if (authorizationCode != null && !authorizationCode.isInvalidated()) {
