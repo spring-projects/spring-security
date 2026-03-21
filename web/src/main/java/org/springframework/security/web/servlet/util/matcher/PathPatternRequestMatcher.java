@@ -340,6 +340,19 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 		}
 
 		@Override
+		public boolean equals(Object o) {
+			if (!(o instanceof HttpMethodRequestMatcher that)) {
+				return false;
+			}
+			return Objects.equals(this.method, that.method);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.method);
+		}
+
+		@Override
 		public String toString() {
 			return "HttpMethod [" + this.method + "]";
 		}
