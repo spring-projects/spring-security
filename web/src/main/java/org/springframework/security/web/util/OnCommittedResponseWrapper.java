@@ -31,6 +31,7 @@ import org.jspecify.annotations.Nullable;
  * the {@link jakarta.servlet.http.HttpServletResponse} is committed.
  *
  * @author Rob Winch
+ * @author Andrey Litvitski
  * @since 4.0.2
  */
 public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
@@ -70,8 +71,10 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 	}
 
 	@Override
-	public void setHeader(String name, String value) {
-		checkContentLengthHeader(name, value);
+	public void setHeader(String name, @Nullable String value) {
+		if (value != null) {
+			checkContentLengthHeader(name, value);
+		}
 		super.setHeader(name, value);
 	}
 

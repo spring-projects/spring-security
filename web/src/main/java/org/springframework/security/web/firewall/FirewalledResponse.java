@@ -21,6 +21,7 @@ import java.io.IOException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.util.Assert;
 
@@ -29,6 +30,7 @@ import org.springframework.util.Assert;
  * @author Eddú Meléndez
  * @author Gabriel Lavoie
  * @author Luke Butters
+ * @author Andrey Litvitski
  */
 class FirewalledResponse extends HttpServletResponseWrapper {
 
@@ -49,7 +51,7 @@ class FirewalledResponse extends HttpServletResponseWrapper {
 	}
 
 	@Override
-	public void setHeader(String name, String value) {
+	public void setHeader(String name, @Nullable String value) {
 		validateCrlf(name, value);
 		super.setHeader(name, value);
 	}
@@ -71,11 +73,11 @@ class FirewalledResponse extends HttpServletResponseWrapper {
 		super.addCookie(cookie);
 	}
 
-	void validateCrlf(String name, String value) {
+	void validateCrlf(String name, @Nullable String value) {
 		Assert.isTrue(!hasCrlf(name) && !hasCrlf(value), () -> "Invalid characters (CR/LF) in header " + name);
 	}
 
-	private boolean hasCrlf(String value) {
+	private boolean hasCrlf(@Nullable String value) {
 		return value != null && (value.indexOf('\n') != -1 || value.indexOf('\r') != -1);
 	}
 

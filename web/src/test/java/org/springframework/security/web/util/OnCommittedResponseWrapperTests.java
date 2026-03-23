@@ -1054,4 +1054,11 @@ public class OnCommittedResponseWrapperTests {
 		assertThat(this.committed).isFalse();
 	}
 
+	// gh-18970
+	@Test
+	public void setHeaderContentLengthNull() {
+		this.response.setHeader("Content-Length", null);
+		assertThat(this.delegate.getHeader("Content-Length")).isNull();
+	}
+
 }
