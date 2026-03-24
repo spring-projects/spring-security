@@ -50,7 +50,7 @@ public final class ServerOneTimeTokenAuthenticationConverter implements ServerAu
 		Assert.notNull(exchange, "exchange cannot be null");
 		if (isFormEncodedRequest(exchange.getRequest())) {
 			return exchange.getFormData()
-				.mapNotNull((data) -> data.getFirst(TOKEN))
+				.flatMap((data) -> Mono.justOrEmpty(data.getFirst(TOKEN)))
 				.map((data) -> OneTimeTokenAuthenticationToken.unauthenticated(data));
 		}
 		String token = resolveTokenFromRequest(exchange.getRequest());
