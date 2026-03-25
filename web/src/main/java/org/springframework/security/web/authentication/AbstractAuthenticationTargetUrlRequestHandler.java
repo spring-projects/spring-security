@@ -114,7 +114,10 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 		}
 
 		String refererHeader = request.getHeader("Referer");
-		if (this.useReferer && StringUtils.hasText(refererHeader)) {
+		if (!StringUtils.hasText(refererHeader)) {
+			return this.defaultTargetUrl;
+		}
+		if (this.useReferer) {
 			trace("Using url %s from Referer header", refererHeader);
 			return refererHeader;
 		}
