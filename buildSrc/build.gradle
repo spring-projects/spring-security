@@ -3,6 +3,7 @@ plugins {
 	id "groovy-gradle-plugin"
 	id "java"
 	id "groovy"
+	id "org.jetbrains.dokka" version "2.1.0"
 }
 
 java {
@@ -79,6 +80,7 @@ dependencies {
 	implementation libs.io.spring.javaformat.spring.javaformat.gradle.plugin
 	implementation libs.io.spring.nohttp.nohttp.gradle
 	implementation libs.org.jetbrains.kotlin.kotlin.gradle.plugin
+	implementation libs.org.jetbrains.dokka.dokka.gradle.plugin
 	implementation (libs.net.sourceforge.htmlunit) {
 		exclude group: 'org.eclipse.jetty.websocket', module: 'websocket-client'
 	}

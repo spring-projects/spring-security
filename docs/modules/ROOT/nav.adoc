@@ -11,6 +11,7 @@
 ** xref:migration/reactive.adoc[Reactive]
 * xref:getting-spring-security.adoc[Getting Spring Security]
 * xref:attachment$api/java/index.html[Javadoc]
+* xref:attachment$api/kotlin/index.html[KDoc]
 * xref:features/index.adoc[Features]
 ** xref:features/authentication/index.adoc[Authentication]
 *** xref:features/authentication/password-storage.adoc[Password Storage]

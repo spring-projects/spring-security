@@ -19,12 +19,32 @@ public class DocsPlugin implements Plugin<Project> {
 		PluginManager pluginManager = project.getPluginManager();
 		pluginManager.apply(BasePlugin);
 		pluginManager.apply(JavadocApiPlugin);
+		pluginManager.apply("org.jetbrains.dokka");
+
+		project.rootProject.subprojects { subproject ->
+			subproject.pluginManager.withPlugin("security-kotlin") {
+				subproject.pluginManager.apply("org.jetbrains.dokka")
+				configureDokka(subproject)
+				project.dependencies.add("dokka", subproject)
+			}
+		}
+
+		project.extensions.configure("dokka") { dokka ->
+			dokka.moduleName.set(Utils.getProjectName(project) + " Kotlin API")
+		}
+
+		project.tasks.named("dokkaGeneratePublicationHtml").configure { it.dependsOn("api") }
 
 		project.tasks.register("syncAntoraAttachments", Sync) { sync ->
 			sync.group = 'Documentation'
 			sync.description = 'Syncs the Antora attachments'
-			sync.from(project.provider({ project.tasks.api.outputs }))
-			sync.into(project.layout.buildDirectory.dir('generated-antora-resources/modules/ROOT/assets/attachments/api/java'))
+			sync.into(project.layout.buildDirectory.dir('generated-antora-resources/modules/ROOT/assets/attachments/api'))
+			sync.from(project.provider({ project.tasks.api.outputs })) { copy ->
+				copy.into('java')
+			}
+			sync.from(project.tasks.named("dokkaGeneratePublicationHtml")) { copy ->
+				copy.into('kotlin')
+			}
 		}
 
 		project.tasks.register("generateAntoraResources") {
@@ -52,5 +72,17 @@ public class DocsPlugin implements Plugin<Project> {
 			dependsOn docsZip
 		}
 		project.tasks.assemble.dependsOn docs
+	}
+
+	void configureDokka(Project project) {
+		project.extensions.configure("dokka") { dokka ->
+			dokka.dokkaSourceSets.configureEach { spec ->
+				spec.suppressedFiles.from(project.fileTree("src/main/java"))
+				spec.externalDocumentationLinks.register("javadoc") {
+					it.url.set(new URI("https://docs.spring.io/${Utils.getProjectName(project)}/reference/${project.rootProject.version}/api/java/"))
+					it.packageListUrl.set(project.layout.buildDirectory.file("api/element-list").get().asFile.toURI())
+				}
+			}
+		}
 	}
 }
