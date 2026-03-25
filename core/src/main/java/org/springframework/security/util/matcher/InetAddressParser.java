@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.util.matcher;
+package org.springframework.security.util.matcher;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

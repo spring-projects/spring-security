@@ -19,6 +19,9 @@ package org.springframework.security.web.util.matcher;
 import jakarta.servlet.http.HttpServletRequest;
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.security.util.matcher.InetAddressMatcher;
+import org.springframework.security.util.matcher.InetAddressMatchers;
+
 /**
  * Matches a request based on IP Address or subnet mask matching against the remote
  * address.
@@ -42,7 +45,7 @@ public final class IpAddressMatcher implements RequestMatcher {
 	 * come.
 	 */
 	public IpAddressMatcher(String ipAddress) {
-		this.matcher = new IpInetAddressMatcher(ipAddress);
+		this.matcher = InetAddressMatchers.fromIpAddress(ipAddress);
 	}
 
 	@Override

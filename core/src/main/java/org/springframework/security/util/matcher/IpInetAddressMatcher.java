@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.util.matcher;
+package org.springframework.security.util.matcher;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -34,18 +34,18 @@ import org.springframework.util.StringUtils;
  * Both IPv4 and IPv6 addresses are supported. The matcher can be configured with either a
  * specific IP address or a subnet using CIDR notation.
  * <p>
- * The logic from this class was migrated from {@link IpAddressMatcher} to provide a more
- * general API that did not depend on the servlet APIs (e.g. HttpServletRequest).
+ * The logic from this class was migrated from
+ * {@code org.springframework.security.web.util.matcher.IpAddressMatcher} to provide a
+ * more general API that did not depend on the servlet APIs (e.g. HttpServletRequest).
  *
  * @author Luke Taylor
  * @author Steve Riesenberg
  * @author Andrey Litvitski
  * @since 7.1
- * @see IpAddressMatcher
  */
 final class IpInetAddressMatcher implements InetAddressMatcher {
 
-	private static final Log logger = LogFactory.getLog(IpAddressMatcher.class);
+	private static final Log logger = LogFactory.getLog(IpInetAddressMatcher.class);
 
 	private final InetAddress requiredAddress;
 

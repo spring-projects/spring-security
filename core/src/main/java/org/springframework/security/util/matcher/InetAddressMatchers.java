@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.util.matcher;
+package org.springframework.security.util.matcher;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -64,6 +64,18 @@ public final class InetAddressMatchers {
 	 */
 	public static Builder matchInternal() {
 		return builder().matchAll(InternalInetAddressMatcher.getInstance());
+	}
+
+	/**
+	 * Creates an {@link InetAddressMatcher} that matches a specific IP address or subnet
+	 * using CIDR notation (e.g., {@code 192.168.1.0/24}).
+	 * <p>
+	 * Both IPv4 and IPv6 addresses are supported.
+	 * @param ipAddress the IP address or CIDR range to match against
+	 * @return an {@link InetAddressMatcher} for the given IP address pattern
+	 */
+	public static InetAddressMatcher fromIpAddress(String ipAddress) {
+		return new IpInetAddressMatcher(ipAddress);
 	}
 
 	/**

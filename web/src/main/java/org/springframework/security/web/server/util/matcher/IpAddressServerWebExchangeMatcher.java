@@ -20,8 +20,8 @@ import java.util.List;
 
 import reactor.core.publisher.Mono;
 
-import org.springframework.security.web.util.matcher.InetAddressMatcher;
-import org.springframework.security.web.util.matcher.InetAddressMatchers;
+import org.springframework.security.util.matcher.InetAddressMatcher;
+import org.springframework.security.util.matcher.InetAddressMatchers;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
