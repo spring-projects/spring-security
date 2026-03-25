@@ -300,7 +300,11 @@ public final class OidcAuthorizedClientRefreshedEventListener
 			return;
 		}
 
-		if (!idToken.getAuthenticatedAt().equals(existingOidcUser.getIdToken().getAuthenticatedAt())) {
+		// The auth_time claim MUST represent the time of the original authentication OR
+		// the most recent time when the end-user reauthenticated when "prompt=login" is
+		// passed in the authentication request
+		if (!idToken.getAuthenticatedAt().equals(existingOidcUser.getIdToken().getAuthenticatedAt())
+				&& !idToken.getAuthenticatedAt().isAfter(existingOidcUser.getIdToken().getAuthenticatedAt())) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, "Invalid authenticated at time",
 					REFRESH_TOKEN_RESPONSE_ERROR_URI);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
