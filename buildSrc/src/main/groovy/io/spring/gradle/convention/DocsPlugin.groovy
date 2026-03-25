@@ -5,6 +5,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.plugins.PluginManager
+import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.bundling.Zip
 
 /**
@@ -18,6 +19,17 @@ public class DocsPlugin implements Plugin<Project> {
 		PluginManager pluginManager = project.getPluginManager();
 		pluginManager.apply(BasePlugin);
 		pluginManager.apply(JavadocApiPlugin);
+
+		project.tasks.register("syncAntoraAttachments", Sync) { sync ->
+			sync.group = 'Documentation'
+			sync.description = 'Syncs the Antora attachments'
+			sync.from(project.provider({ project.tasks.api.outputs }))
+			sync.into(project.layout.buildDirectory.dir('generated-antora-resources/modules/ROOT/assets/attachments/api/java'))
+		}
+
+		project.tasks.register("generateAntoraResources") {
+			it.dependsOn 'generateAntoraYml', 'syncAntoraAttachments'
+		}
 
 		Task docsZip = project.tasks.create('docsZip', Zip) {
 			dependsOn 'api'
