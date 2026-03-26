@@ -87,7 +87,7 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 	}
 
 	private void checkContentLengthHeader(String name, String value) {
-		if ("Content-Length".equalsIgnoreCase(name)) {
+		if (value != null && "Content-Length".equalsIgnoreCase(name)) {
 			setContentLength(Long.parseLong(value));
 		}
 	}
@@ -505,7 +505,7 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 
 		@Override
 		public PrintWriter append(CharSequence csq) {
-			checkContentLength(csq.length());
+			checkContentLength((csq != null) ? csq.length() : 4);
 			return this.delegate.append(csq);
 		}
 
