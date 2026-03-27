@@ -376,7 +376,9 @@ Java::
 ----
 @Bean
 public ReactiveJwtDecoder jwtDecoder() {
-    return NimbusReactiveJwtDecoder.withIssuerLocation(issuer).build();
+    NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withIssuerLocation(issuer).build();
+    jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer));
+    return jwtDecoder;
 }
 ----
 
@@ -386,7 +388,9 @@ Kotlin::
 ----
 @Bean
 fun jwtDecoder(): ReactiveJwtDecoder {
-    return NimbusReactiveJwtDecoder.withIssuerLocation(issuer).build()
+    val jwtDecoder = NimbusReactiveJwtDecoder.withIssuerLocation(issuer).build()
+    jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer))
+    return jwtDecoder
 }
 ----
 ======
@@ -452,8 +456,10 @@ Java::
 ----
 @Bean
 ReactiveJwtDecoder jwtDecoder() {
-    return NimbusReactiveJwtDecoder.withIssuerLocation(this.issuer)
+    NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withIssuerLocation(this.issuer)
             .jwsAlgorithm(RS512).build();
+    jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(this.issuer));
+    return jwtDecoder;
 }
 ----
 
@@ -463,8 +469,10 @@ Kotlin::
 ----
 @Bean
 fun jwtDecoder(): ReactiveJwtDecoder {
-    return NimbusReactiveJwtDecoder.withIssuerLocation(this.issuer)
+    val jwtDecoder = NimbusReactiveJwtDecoder.withIssuerLocation(this.issuer)
             .jwsAlgorithm(RS512).build()
+    jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(this.issuer))
+    return jwtDecoder
 }
 ----
 ======
@@ -479,8 +487,10 @@ Java::
 ----
 @Bean
 ReactiveJwtDecoder jwtDecoder() {
-    return NimbusReactiveJwtDecoder.withIssuerLocation(this.issuer)
+    NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withIssuerLocation(this.issuer)
             .jwsAlgorithm(RS512).jwsAlgorithm(ES512).build();
+    jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(this.issuer));
+    return jwtDecoder;
 }
 ----
 
@@ -490,8 +500,10 @@ Kotlin::
 ----
 @Bean
 fun jwtDecoder(): ReactiveJwtDecoder {
-    return NimbusReactiveJwtDecoder.withIssuerLocation(this.issuer)
+    val jwtDecoder = NimbusReactiveJwtDecoder.withIssuerLocation(this.issuer)
             .jwsAlgorithm(RS512).jwsAlgorithm(ES512).build()
+    jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(this.issuer))
+    return jwtDecoder
 }
 ----
 ======
@@ -506,11 +518,13 @@ Java::
 ----
 @Bean
 ReactiveJwtDecoder jwtDecoder() {
-    return NimbusReactiveJwtDecoder.withIssuerLocation(this.jwkSetUri)
+    NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withIssuerLocation(this.issuer)
             .jwsAlgorithms(algorithms -> {
                     algorithms.add(RS512);
                     algorithms.add(ES512);
             }).build();
+    jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(this.issuer));
+    return jwtDecoder;
 }
 ----
 
@@ -520,12 +534,14 @@ Kotlin::
 ----
 @Bean
 fun jwtDecoder(): ReactiveJwtDecoder {
-    return NimbusReactiveJwtDecoder.withIssuerLocation(this.jwkSetUri)
+    val jwtDecoder = NimbusReactiveJwtDecoder.withIssuerLocation(this.issuer)
             .jwsAlgorithms {
                 it.add(RS512)
                 it.add(ES512)
             }
             .build()
+    jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(this.issuer))
+    return jwtDecoder
 }
 ----
 ======
