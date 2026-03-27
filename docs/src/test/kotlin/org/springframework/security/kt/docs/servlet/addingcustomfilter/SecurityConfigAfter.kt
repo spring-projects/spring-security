@@ -23,32 +23,20 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter
-import org.springframework.security.web.authentication.logout.LogoutFilter
 
 @Configuration
 @EnableWebSecurity
-open class SecurityConfig {
+open class SecurityConfigAfter {
 
-    // tag::snippet-before[]
-    @Bean
-    open fun filterChainBefore(http: HttpSecurity): SecurityFilterChain {
-        http {
-            // ...
-            addFilterBefore<LogoutFilter>(TenantFilter()) // <1>
-        }
-        return http.build()
-    }
-    // end::snippet-before[]
-
-    // tag::snippet-after[]
+    // tag::snippet[]
 	@Bean
-	open fun filterChainAfter(http: HttpSecurity): SecurityFilterChain {
+	open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 		http {
 			// ...
 			addFilterAfter<AnonymousAuthenticationFilter>(TenantFilter()) // <1>
 		}
 		return http.build()
 	}
-    // end::snippet-after[]
+    // end::snippet[]
 
 }

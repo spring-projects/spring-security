@@ -47,7 +47,7 @@ import org.springframework.web.bind.annotation.RestController;
 @ContextConfiguration(classes = {
 		CustomFilterTests.UserDetailsConfig.class,
 		CustomFilterTests.ApiController.class,
-		SecurityConfig.class })
+		SecurityConfigBefore.class })
 @WebAppConfiguration
 public class CustomFilterTests {
 
