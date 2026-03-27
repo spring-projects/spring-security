@@ -36,9 +36,6 @@ import org.springframework.util.Assert;
  * Uses an expression for extracting the token claim value to use for mapping
  * {@link GrantedAuthority authorities}.
  *
- * Note this can be used in combination with a
- * {@link DelegatingJwtGrantedAuthoritiesConverter}.
- *
  * @author Thomas Darimont
  * @since 6.4
  */
