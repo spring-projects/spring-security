@@ -20,7 +20,9 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -40,6 +42,7 @@ import org.springframework.util.Assert;
  * is not expired for each {@link RequiredFactor}.
  *
  * @author Rob Winch
+ * @author Evgeniy Cheban
  * @since 7.0
  * @see AuthorityAuthorizationManager
  */
@@ -48,6 +51,32 @@ public final class AllRequiredFactorsAuthorizationManager<T> implements Authoriz
 	private Clock clock = Clock.systemUTC();
 
 	private final List<RequiredFactor> requiredFactors;
+
+	/**
+	 * Creates an {@link AuthorizationManager} that grants access if at least one
+	 * {@link AllRequiredFactorsAuthorizationManager} granted, collects
+	 * {@link RequiredFactorError}s omitting duplicate errors of the same factor.
+	 * @param <T> the type of object that is being authorized
+	 * @param managers the {@link AllRequiredFactorsAuthorizationManager}s to use
+	 * @return the {@link AuthorizationManager} to use
+	 * @since 7.1
+	 * @see AuthorizationManagers#anyOf(AuthorizationManager[])
+	 */
+	@SafeVarargs
+	public static <T> AuthorizationManager<T> anyOf(AllRequiredFactorsAuthorizationManager<T>... managers) {
+		return (authentication, object) -> {
+			Map<String, RequiredFactorError> factorErrors = new LinkedHashMap<>();
+			for (AllRequiredFactorsAuthorizationManager<T> manager : managers) {
+				FactorAuthorizationDecision decision = manager.authorize(authentication, object);
+				if (decision.isGranted()) {
+					return decision;
+				}
+				decision.getFactorErrors()
+					.forEach((e) -> factorErrors.putIfAbsent(e.getRequiredFactor().getAuthority(), e));
+			}
+			return new FactorAuthorizationDecision(List.copyOf(factorErrors.values()));
+		};
+	}
 
 	/**
 	 * Creates a new instance.
