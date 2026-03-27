@@ -1189,6 +1189,13 @@ include-code::./ExpressionJwtGrantedAuthoritiesConverterTests[tag=spel-expressio
 
 The SpEL expression result should be a `Collection`.
 
+[[jwt-granted-authorities-composite]]
+==== Reading from Multiple Locations
+
+When you are collecting authorities from more than one claim, you can use `DelegatingJwtGrantedAuthoritiesConverter` and provide multiple converter instances like so:
+
+include-code::./DelegatingJwtGrantedAuthoritiesConverterTests[tag=two-locations,indent=0]
+
 [[oauth2resourceserver-jwt-validation]]
 == Configuring Validation
 
