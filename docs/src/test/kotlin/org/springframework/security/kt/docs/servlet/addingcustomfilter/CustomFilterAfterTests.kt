@@ -45,13 +45,13 @@ import org.springframework.web.bind.annotation.RestController
 @ExtendWith(SpringExtension::class)
 @ContextConfiguration(
 	classes = [
-		CustomFilterTests.UserDetailsConfig::class,
-		CustomFilterTests.ApiController::class,
-		SecurityConfigBefore::class
+		CustomFilterAfterTests.UserDetailsConfig::class,
+		CustomFilterAfterTests.ApiController::class,
+		SecurityConfigAfter::class
 	]
 )
 @WebAppConfiguration
-class CustomFilterTests {
+class CustomFilterAfterTests {
 
 	@Autowired
 	private lateinit var context: WebApplicationContext
