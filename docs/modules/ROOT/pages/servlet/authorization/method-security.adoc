@@ -1382,12 +1382,15 @@ Java::
 [source,java,role="primary"]
 ----
 @Component
-public class MyAuthorizationManager implements AuthorizationManager<MethodInvocation>, AuthorizationManager<MethodInvocationResult> {
+public class MyPreAuthorizeAuthorizationManager implements AuthorizationManager<MethodInvocation> {
     @Override
     public AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocation invocation) {
         // ... authorization logic
     }
+}
 
+@Component
+public class MyPostAuthorizeAuthorizationManager implements AuthorizationManager<MethodInvocationResult> {
     @Override
     public AuthorizationResult authorize(Supplier<Authentication> authentication, MethodInvocationResult invocation) {
         // ... authorization logic
@@ -1400,11 +1403,14 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 @Component
-class MyAuthorizationManager : AuthorizationManager<MethodInvocation>, AuthorizationManager<MethodInvocationResult> {
+class MyPreAuthorizeAuthorizationManager : AuthorizationManager<MethodInvocation> {
     override fun authorize(authentication: Supplier<Authentication>, invocation: MethodInvocation): AuthorizationResult {
         // ... authorization logic
     }
+}
 
+@Component
+class MyPostAuthorizeAuthorizationManager : AuthorizationManager<MethodInvocationResult> {
     override fun authorize(authentication: Supplier<Authentication>, invocation: MethodInvocationResult): AuthorizationResult {
         // ... authorization logic
     }
@@ -1427,13 +1433,13 @@ Java::
 class MethodSecurityConfig {
     @Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	Advisor preAuthorize(MyAuthorizationManager manager) {
+	Advisor preAuthorize(MyPreAuthorizeAuthorizationManager manager) {
 		return AuthorizationManagerBeforeMethodInterceptor.preAuthorize(manager);
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	Advisor postAuthorize(MyAuthorizationManager manager) {
+	Advisor postAuthorize(MyPostAuthorizeAuthorizationManager manager) {
 		return AuthorizationManagerAfterMethodInterceptor.postAuthorize(manager);
 	}
 }
@@ -1446,15 +1452,15 @@ Kotlin::
 @Configuration
 @EnableMethodSecurity(prePostEnabled = false)
 class MethodSecurityConfig {
-   	@Bean
+	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	fun preAuthorize(manager: MyAuthorizationManager) : Advisor {
+	fun preAuthorize(manager: MyPreAuthorizeAuthorizationManager): Advisor {
 		return AuthorizationManagerBeforeMethodInterceptor.preAuthorize(manager)
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	fun postAuthorize(manager: MyAuthorizationManager) : Advisor {
+	fun postAuthorize(manager: MyPostAuthorizeAuthorizationManager): Advisor {
 		return AuthorizationManagerAfterMethodInterceptor.postAuthorize(manager)
 	}
 }
@@ -1471,13 +1477,13 @@ Xml::
 <bean id="preAuthorize"
 	class="org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor"
 	factory-method="preAuthorize">
-    <constructor-arg ref="myAuthorizationManager"/>
+    <constructor-arg ref="myPreAuthorizeAuthorizationManager"/>
 </bean>
 
 <bean id="postAuthorize"
 	class="org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor"
 	factory-method="postAuthorize">
-    <constructor-arg ref="myAuthorizationManager"/>
+    <constructor-arg ref="myPostAuthorizeAuthorizationManager"/>
 </bean>
 ----
 ======
@@ -1486,6 +1492,8 @@ Xml::
 ====
 You can place your interceptor in between Spring Security method interceptors using the order constants specified in `AuthorizationInterceptorsOrder`.
 ====
+
+You can also implement `MethodAuthorizationDeniedHandler` in the same manager class to override the default exception-handling behavior.
 
 [[customizing-expression-handling]]
 === Customizing Expression Handling
