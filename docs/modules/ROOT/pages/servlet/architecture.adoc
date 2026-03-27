@@ -248,13 +248,13 @@ The previous description already gives us a clue on where to add the filter, sin
 
 Based on the rule of thumb, you can add it before xref:servlet/authentication/logout.adoc[`LogoutFilter`], like so:
 
-include-code::./SecurityConfig[tag=snippet-before,indent=0]
+include-code::./SecurityConfigBefore[tag=snippet,indent=0]
 
 <1> Use `HttpSecurity#addFilterBefore` to add the `TenantFilter` before the `LogoutFilter`.
 
 Or after xref:servlet/authentication/anonymous.adoc[`AnonymousAuthenticationFilter`], the last authentication filter in the chain, like so:
 
-include-code::./SecurityConfig[tag=snippet-after,indent=0]
+include-code::./SecurityConfigAfter[tag=snippet,indent=0]
 
 <1> Use `HttpSecurity#addFilterAfter` to add the `TenantFilter` after the `AnonymousAuthenticationFilter`.
 

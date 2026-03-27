@@ -21,33 +21,22 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.test.context.ContextConfiguration;
 
 @Configuration
-@ContextConfiguration(classes = { SecurityConfig.class })
+@ContextConfiguration(classes = { SecurityConfigBefore.class })
 @EnableWebSecurity
-public class SecurityConfig {
+public class SecurityConfigBefore {
 
-	// tag::snippet-before[]
+	// tag::snippet[]
 	@Bean
-	public SecurityFilterChain filterChainBefore(HttpSecurity http) throws Exception {
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			// ...
 			.addFilterBefore(new TenantFilter(), LogoutFilter.class); // <1>
 		return http.build();
 	}
-	// end::snippet-before[]
-
-	// tag::snippet-after[]
-	@Bean
-	public SecurityFilterChain filterChainAfter(HttpSecurity http) throws Exception {
-		http
-			// ...
-			.addFilterAfter(new TenantFilter(), AnonymousAuthenticationFilter.class); // <1>
-		return http.build();
-	}
-	// end::snippet-after[]
+	// end::snippet[]
 
 }
