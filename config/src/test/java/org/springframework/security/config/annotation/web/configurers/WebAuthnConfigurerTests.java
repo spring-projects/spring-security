@@ -43,9 +43,16 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.ui.DefaultResourcesFilter;
+import org.springframework.security.web.webauthn.api.Bytes;
+import org.springframework.security.web.webauthn.api.ImmutablePublicKeyCredentialUserEntity;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
+import org.springframework.security.web.webauthn.api.TestCredentialRecords;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialCreationOptions;
 import org.springframework.security.web.webauthn.authentication.WebAuthnAuthenticationFilter;
+import org.springframework.security.web.webauthn.management.MapPublicKeyCredentialUserEntityRepository;
+import org.springframework.security.web.webauthn.management.MapUserCredentialRepository;
+import org.springframework.security.web.webauthn.management.PublicKeyCredentialUserEntityRepository;
+import org.springframework.security.web.webauthn.management.UserCredentialRepository;
 import org.springframework.security.web.webauthn.management.WebAuthnRelyingPartyOperations;
 import org.springframework.security.web.webauthn.registration.HttpSessionPublicKeyCredentialCreationOptionsRepository;
 import org.springframework.test.web.servlet.MockMvc;
@@ -58,6 +65,7 @@ import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.mock;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -255,6 +263,24 @@ public class WebAuthnConfigurerTests {
 		this.mvc.perform(post("/webauthn/register/options"))
 			.andExpect(status().isOk())
 			.andExpect(content().string(expectedBody));
+	}
+
+	@Test
+	void webauthnWhenDeleteAndCredentialBelongsToUserThenNoContent() throws Exception {
+		this.spring.register(DeleteCredentialConfiguration.class).autowire();
+		this.mvc
+			.perform(delete("/webauthn/register/" + DeleteCredentialConfiguration.CREDENTIAL_ID_BASE64URL)
+				.with(authentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"))))
+			.andExpect(status().isNoContent());
+	}
+
+	@Test
+	void webauthnWhenDeleteAndCredentialBelongsToDifferentUserThenForbidden() throws Exception {
+		this.spring.register(DeleteCredentialConfiguration.class).autowire();
+		this.mvc
+			.perform(delete("/webauthn/register/" + DeleteCredentialConfiguration.CREDENTIAL_ID_BASE64URL)
+				.with(authentication(new TestingAuthenticationToken("other-user", "password", "ROLE_USER"))))
+			.andExpect(status().isForbidden());
 	}
 
 	@Configuration
@@ -471,6 +497,49 @@ public class WebAuthnConfigurerTests {
 					);
 			// @formatter:on
 			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class DeleteCredentialConfiguration {
+
+		static final String CREDENTIAL_ID_BASE64URL = "NauGCN7bZ5jEBwThcde51g";
+
+		static final Bytes USER_ENTITY_ID = Bytes.fromBase64("vKBFhsWT3gQnn-gHdT4VXIvjDkVXVYg5w8CLGHPunMM");
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager();
+		}
+
+		@Bean
+		WebAuthnRelyingPartyOperations webAuthnRelyingPartyOperations() {
+			return mock(WebAuthnRelyingPartyOperations.class);
+		}
+
+		@Bean
+		UserCredentialRepository userCredentialRepository() {
+			MapUserCredentialRepository repository = new MapUserCredentialRepository();
+			repository.save(TestCredentialRecords.userCredential().build());
+			return repository;
+		}
+
+		@Bean
+		PublicKeyCredentialUserEntityRepository userEntityRepository() {
+			MapPublicKeyCredentialUserEntityRepository repository = new MapPublicKeyCredentialUserEntityRepository();
+			repository.save(ImmutablePublicKeyCredentialUserEntity.builder()
+				.name("user")
+				.id(USER_ENTITY_ID)
+				.displayName("User")
+				.build());
+			return repository;
+		}
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			return http.csrf(AbstractHttpConfigurer::disable).webAuthn(Customizer.withDefaults()).build();
 		}
 
 	}
