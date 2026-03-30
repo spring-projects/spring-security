@@ -39,6 +39,7 @@ import org.springframework.security.web.webauthn.api.PublicKeyCredentialRpEntity
 import org.springframework.security.web.webauthn.authentication.PublicKeyCredentialRequestOptionsFilter;
 import org.springframework.security.web.webauthn.authentication.WebAuthnAuthenticationFilter;
 import org.springframework.security.web.webauthn.authentication.WebAuthnAuthenticationProvider;
+import org.springframework.security.web.webauthn.management.CredentialRecordOwnerAuthorizationManager;
 import org.springframework.security.web.webauthn.management.MapPublicKeyCredentialUserEntityRepository;
 import org.springframework.security.web.webauthn.management.MapUserCredentialRepository;
 import org.springframework.security.web.webauthn.management.PublicKeyCredentialUserEntityRepository;
@@ -180,6 +181,8 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 		webAuthnAuthnFilter = postProcess(webAuthnAuthnFilter);
 		WebAuthnRegistrationFilter webAuthnRegistrationFilter = new WebAuthnRegistrationFilter(userCredentials,
 				rpOperations);
+		webAuthnRegistrationFilter.setDeleteCredentialAuthorizationManager(
+				new CredentialRecordOwnerAuthorizationManager(userCredentials, userEntities));
 		PublicKeyCredentialCreationOptionsFilter creationOptionsFilter = new PublicKeyCredentialCreationOptionsFilter(
 				rpOperations);
 		if (creationOptionsRepository != null) {
