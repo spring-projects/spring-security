@@ -33,11 +33,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -208,10 +207,7 @@ class SpringSecurityCoreVersionSerializableTests {
 			boolean hasSerialVersion = Stream.of(clazz.getDeclaredFields())
 				.map(Field::getName)
 				.anyMatch((n) -> n.equals("serialVersionUID"));
-			SuppressWarnings suppressWarnings = clazz.getAnnotation(SuppressWarnings.class);
-			boolean hasSerialIgnore = Objects.nonNull(suppressWarnings)
-					&& Arrays.asList(suppressWarnings.value()).contains("serial");
-			if (!hasSerialVersion && !hasSerialIgnore) {
+			if (!hasSerialVersion && !hasSuppressSerialInSource(clazz)) {
 				classes.add(clazz);
 				continue;
 			}
@@ -248,6 +244,58 @@ class SpringSecurityCoreVersionSerializableTests {
 			}
 		}
 		return classes.stream();
+	}
+
+	private static boolean hasSuppressSerialInSource(Class<?> clazz) {
+		try {
+			Class<?> fileClass = clazz;
+			while (fileClass.getEnclosingClass() != null) {
+				fileClass = fileClass.getEnclosingClass();
+			}
+			var codeSource = fileClass.getProtectionDomain().getCodeSource();
+			if (codeSource == null) {
+				return false;
+			}
+			Path sourceFile = findSourceFile(Path.of(codeSource.getLocation().toURI()), fileClass);
+			if (sourceFile == null) {
+				return false;
+			}
+			return hasSuppressSerialAnnotation(Files.readAllLines(sourceFile), clazz.getSimpleName());
+		}
+		catch (Exception ex) {
+			return false;
+		}
+	}
+
+	private static Path findSourceFile(Path start, Class<?> clazz) {
+		String relativePath = clazz.getName().replace('.', '/') + ".java";
+		Path dir = start;
+		for (int i = 0; i < 10 && dir != null; i++) {
+			for (String sourceRoot : List.of("src/main/java", "src/test/java")) {
+				Path candidate = dir.resolve(sourceRoot).resolve(relativePath);
+				if (Files.exists(candidate)) {
+					return candidate;
+				}
+			}
+			dir = dir.getParent();
+		}
+		return null;
+	}
+
+	private static boolean hasSuppressSerialAnnotation(List<String> lines, String simpleClassName) {
+		Pattern classDeclaration = Pattern
+			.compile("\\b(?:class|interface|enum|record)\\s+" + Pattern.quote(simpleClassName) + "\\b");
+		for (int i = 0; i < lines.size(); i++) {
+			if (classDeclaration.matcher(lines.get(i)).find()) {
+				for (int j = Math.max(0, i - 5); j < i; j++) {
+					String line = lines.get(j);
+					if (line.contains("@SuppressWarnings") && line.contains("\"serial\"")) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	private static String getCurrentVersion() {
