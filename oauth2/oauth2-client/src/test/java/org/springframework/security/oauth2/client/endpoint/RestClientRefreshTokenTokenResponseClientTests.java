@@ -384,6 +384,7 @@ public class RestClientRefreshTokenTokenResponseClientTests {
 				this.accessToken, this.refreshToken);
 		Converter<OAuth2RefreshTokenGrantRequest, HttpHeaders> headersConverter = mock();
 		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		headers.put("custom-header-name", Collections.singletonList("custom-header-value"));
 		given(headersConverter.convert(grantRequest)).willReturn(headers);
 		this.tokenResponseClient.setHeadersConverter(headersConverter);
