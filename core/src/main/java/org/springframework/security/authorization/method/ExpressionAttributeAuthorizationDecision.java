@@ -28,6 +28,7 @@ import org.springframework.security.authorization.AuthorizationDecision;
  * instead
  */
 @Deprecated
+@SuppressWarnings("serial")
 public class ExpressionAttributeAuthorizationDecision extends AuthorizationDecision {
 
 	private final ExpressionAttribute expressionAttribute;
