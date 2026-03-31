@@ -268,6 +268,7 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 
 	}
 
+	@SuppressWarnings("serial")
 	private static final class OAuth2AuthorizationRequestException extends AuthenticationException {
 
 		OAuth2AuthorizationRequestException(Throwable cause) {

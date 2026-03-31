@@ -16,6 +16,7 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
+import java.io.Serial;
 import java.util.Collections;
 
 import org.jspecify.annotations.Nullable;
@@ -34,6 +35,9 @@ import org.springframework.util.Assert;
  * @since 5.2
  */
 public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
+
+	@Serial
+	private static final long serialVersionUID = 5225098478444036532L;
 
 	private final RelyingPartyRegistration relyingPartyRegistration;
 

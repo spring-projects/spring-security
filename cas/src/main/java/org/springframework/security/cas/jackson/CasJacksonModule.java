@@ -48,6 +48,7 @@ import org.springframework.security.jackson.SecurityJacksonModules;
  * @since 7.0
  * @see SecurityJacksonModules
  */
+@SuppressWarnings("serial")
 public class CasJacksonModule extends SecurityJacksonModule {
 
 	public CasJacksonModule() {

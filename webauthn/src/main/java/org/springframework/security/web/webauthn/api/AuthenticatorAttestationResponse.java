@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serial;
 import java.util.Arrays;
 import java.util.List;
 
@@ -35,6 +36,9 @@ import org.jspecify.annotations.Nullable;
  * @see PublicKeyCredential#getResponse()
  */
 public final class AuthenticatorAttestationResponse extends AuthenticatorResponse {
+
+	@Serial
+	private static final long serialVersionUID = -1628559840895428945L;
 
 	private final Bytes attestationObject;
 

@@ -25,6 +25,7 @@ import org.springframework.security.core.GrantedAuthority;
  * @author Rob Winch
  * @since 7.0
  */
+@SuppressWarnings("serial")
 public class DefaultEqualsGrantedAuthority implements GrantedAuthority {
 
 	public static final String AUTHORITY = "CUSTOM_AUTHORITY";

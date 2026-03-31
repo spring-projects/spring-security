@@ -16,6 +16,8 @@
 
 package org.springframework.security.authorization;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Duration;
 import java.util.Objects;
 
@@ -40,7 +42,10 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @since 7.0
  */
-public final class RequiredFactor {
+public final class RequiredFactor implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = 295501208651764485L;
 
 	private final String authority;
 

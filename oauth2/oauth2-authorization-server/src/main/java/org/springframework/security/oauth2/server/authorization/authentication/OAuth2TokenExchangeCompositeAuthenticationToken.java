@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.server.authorization.authentication;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +37,9 @@ import org.springframework.util.Assert;
  * @see OAuth2TokenExchangeAuthenticationToken
  */
 public class OAuth2TokenExchangeCompositeAuthenticationToken extends AbstractAuthenticationToken {
+
+	@Serial
+	private static final long serialVersionUID = 1912280308201180854L;
 
 	private final Authentication subject;
 

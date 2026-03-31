@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.server.authorization.authentication;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
@@ -33,7 +35,10 @@ import org.springframework.util.Assert;
  * @since 7.0
  * @see OAuth2TokenExchangeCompositeAuthenticationToken
  */
-public final class OAuth2TokenExchangeActor implements ClaimAccessor {
+public final class OAuth2TokenExchangeActor implements ClaimAccessor, Serializable {
+
+	@Serial
+	private static final long serialVersionUID = -3966261411784615574L;
 
 	private final Map<String, Object> claims;
 

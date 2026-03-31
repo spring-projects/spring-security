@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.server.authorization.authentication;
 
+import java.io.Serial;
 import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
@@ -34,6 +35,9 @@ import org.springframework.util.Assert;
  * @see OAuth2DeviceCodeAuthenticationProvider
  */
 public class OAuth2DeviceCodeAuthenticationToken extends OAuth2AuthorizationGrantAuthenticationToken {
+
+	@Serial
+	private static final long serialVersionUID = 8364555864666204030L;
 
 	private final String deviceCode;
 

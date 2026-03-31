@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.server.authorization.authentication;
 
+import java.io.Serial;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -36,6 +37,9 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
  * @see OAuth2ClientCredentialsAuthenticationProvider
  */
 public class OAuth2ClientCredentialsAuthenticationToken extends OAuth2AuthorizationGrantAuthenticationToken {
+
+	@Serial
+	private static final long serialVersionUID = -220223451609576578L;
 
 	private final Set<String> scopes;
 

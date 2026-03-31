@@ -225,6 +225,7 @@ public final class InMemoryOAuth2AuthorizationService implements OAuth2Authoriza
 		return userCode != null && userCode.getToken().getTokenValue().equals(token);
 	}
 
+	@SuppressWarnings("serial")
 	private static final class MaxSizeHashMap<K, V> extends LinkedHashMap<K, V> {
 
 		private final int maxSize;
