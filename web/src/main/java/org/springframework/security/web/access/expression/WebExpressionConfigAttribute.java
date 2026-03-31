@@ -32,6 +32,7 @@ import org.springframework.security.web.FilterInvocation;
  * {@link AuthorizationManager}.
  */
 @Deprecated
+@SuppressWarnings("serial")
 class WebExpressionConfigAttribute implements ConfigAttribute, EvaluationContextPostProcessor<FilterInvocation> {
 
 	private final Expression authorizeExpression;

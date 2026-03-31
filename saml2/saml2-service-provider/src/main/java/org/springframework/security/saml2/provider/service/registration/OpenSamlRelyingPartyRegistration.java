@@ -42,6 +42,7 @@ import org.springframework.security.saml2.core.Saml2X509Credential;
  * </pre>
  */
 @Deprecated
+@SuppressWarnings("serial")
 public final class OpenSamlRelyingPartyRegistration extends RelyingPartyRegistration {
 
 	OpenSamlRelyingPartyRegistration(RelyingPartyRegistration registration) {

@@ -211,6 +211,7 @@ import org.springframework.security.web.webauthn.api.AuthenticationExtensionsCli
 import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientOutputs;
 import org.springframework.security.web.webauthn.api.AuthenticatorAssertionResponse;
 import org.springframework.security.web.webauthn.api.AuthenticatorAttachment;
+import org.springframework.security.web.webauthn.api.AuthenticatorAttestationResponse;
 import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
 import org.springframework.security.web.webauthn.api.Bytes;
 import org.springframework.security.web.webauthn.api.CredProtectAuthenticationExtensionsClientInput;
@@ -225,6 +226,7 @@ import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestO
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialType;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
 import org.springframework.security.web.webauthn.api.TestAuthenticationAssertionResponses;
+import org.springframework.security.web.webauthn.api.TestAuthenticatorAttestationResponses;
 import org.springframework.security.web.webauthn.api.TestBytes;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialRequestOptions;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntities;
@@ -654,6 +656,8 @@ final class SerializationSamples {
 		generatorByClassName.put(CredentialPropertiesOutput.class, (o) -> credentialOutput);
 		generatorByClassName.put(ImmutableAuthenticationExtensionsClientOutputs.class, (o) -> outputs);
 		generatorByClassName.put(AuthenticatorAssertionResponse.class, (r) -> response);
+		generatorByClassName.put(AuthenticatorAttestationResponse.class,
+				(r) -> TestAuthenticatorAttestationResponses.createAuthenticatorAttestationResponse().build());
 		generatorByClassName.put(RelyingPartyAuthenticationRequest.class, (r) -> authRequest);
 		generatorByClassName.put(PublicKeyCredential.class, (r) -> credential);
 		generatorByClassName.put(WebAuthnAuthenticationRequestToken.class, (r) -> requestToken);
