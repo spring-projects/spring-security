@@ -39,7 +39,7 @@ import static org.mockito.Mockito.spy;
  * @author Ziqin Wang
  * @since 7.l
  */
-class NonceGeneratingFilterTests {
+class ContentSecurityPolicyNonceGeneratingFilterTests {
 
 	private static final String ATTRIBUTE_NAME = "TEST_NONCE_ATTR";
 
@@ -51,7 +51,7 @@ class NonceGeneratingFilterTests {
 		HttpServletResponse response = new MockHttpServletResponse();
 		FilterChain chain = spy(new MockFilterChain());
 
-		Filter filter = new NonceGeneratingFilter(ATTRIBUTE_NAME);
+		Filter filter = new ContentSecurityPolicyNonceGeneratingFilter(ATTRIBUTE_NAME);
 		filter.doFilter(request, response, chain);
 
 		assertThat(request.getAttribute(ATTRIBUTE_NAME)).isInstanceOfSatisfying(String.class,
@@ -69,7 +69,7 @@ class NonceGeneratingFilterTests {
 		StringKeyGenerator nonceGenerator = mock();
 		given(nonceGenerator.generateKey()).willReturn(nonce);
 
-		Filter filter = new NonceGeneratingFilter(ATTRIBUTE_NAME, nonceGenerator);
+		Filter filter = new ContentSecurityPolicyNonceGeneratingFilter(ATTRIBUTE_NAME, nonceGenerator);
 		filter.doFilter(request, response, chain);
 
 		assertThat(request.getAttribute(ATTRIBUTE_NAME)).isSameAs(nonce);
@@ -78,15 +78,18 @@ class NonceGeneratingFilterTests {
 
 	@Test
 	void illegalConstructorArgumentsAreRejected() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new NonceGeneratingFilter(null))
+		assertThatIllegalArgumentException().isThrownBy(() -> new ContentSecurityPolicyNonceGeneratingFilter(null))
 			.withMessage("AttributeName must not be null or empty");
-		assertThatIllegalArgumentException().isThrownBy(() -> new NonceGeneratingFilter(""))
+		assertThatIllegalArgumentException().isThrownBy(() -> new ContentSecurityPolicyNonceGeneratingFilter(""))
 			.withMessage("AttributeName must not be null or empty");
-		assertThatIllegalArgumentException().isThrownBy(() -> new NonceGeneratingFilter(null, KeyGenerators.string()))
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> new ContentSecurityPolicyNonceGeneratingFilter(null, KeyGenerators.string()))
 			.withMessage("AttributeName must not be null or empty");
-		assertThatIllegalArgumentException().isThrownBy(() -> new NonceGeneratingFilter("", KeyGenerators.string()))
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> new ContentSecurityPolicyNonceGeneratingFilter("", KeyGenerators.string()))
 			.withMessage("AttributeName must not be null or empty");
-		assertThatIllegalArgumentException().isThrownBy(() -> new NonceGeneratingFilter(ATTRIBUTE_NAME, null))
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> new ContentSecurityPolicyNonceGeneratingFilter(ATTRIBUTE_NAME, null))
 			.withMessage("NonceGenerator must not be null");
 	}
 

@@ -41,21 +41,19 @@ import org.springframework.web.server.ServerWebExchange;
  * placeholder in the {@code policyDirectives} with a real nonce value read from a
  * {@link ServerWebExchange#getAttribute(String) request attribute} named
  * {@code _csp_nonce} (or another configured attribute name). A
- * {@link org.springframework.security.web.server.header.NonceGeneratingWebFilter} can be
- * configured to generate a unique secure random {@code _csp_nonce} attribute for each
- * request.
+ * {@link ContentSecurityPolicyNonceGeneratingWebFilter} can be configured to generate a
+ * unique secure random {@code _csp_nonce} attribute for each request.
  *
  * <p>
  * For example, if the configured {@code policyDirectives} is {@code script-src 'self'
- * 'nonce-{nonce}'}, and a
- * {@link org.springframework.security.web.server.header.NonceGeneratingWebFilter} has set
+ * 'nonce-{nonce}'}, and a {@link ContentSecurityPolicyNonceGeneratingWebFilter} has set
  * the {@code _csp_nonce} attribute to {@code "Nc3n83cnSAd3wc3Sasdfn9"}, then the written
  * HTTP header value would be {@code script-src 'self' 'nonce-Nc3n83cnSAd3wc3Sasdfn9'}.
  *
  * @author Vedran Pavic
  * @author Ziqin Wang
  * @since 5.1
- * @see org.springframework.security.web.server.header.NonceGeneratingWebFilter
+ * @see ContentSecurityPolicyNonceGeneratingWebFilter
  */
 public final class ContentSecurityPolicyServerHttpHeadersWriter implements ServerHttpHeadersWriter {
 

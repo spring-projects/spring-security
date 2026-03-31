@@ -30,9 +30,9 @@ import org.springframework.security.config.annotation.configuration.ObjectPostPr
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.header.ContentSecurityPolicyNonceGeneratingFilter;
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.header.HeaderWriterFilter;
-import org.springframework.security.web.header.NonceGeneratingFilter;
 import org.springframework.security.web.header.writers.CacheControlHeadersWriter;
 import org.springframework.security.web.header.writers.ContentSecurityPolicyHeaderWriter;
 import org.springframework.security.web.header.writers.CrossOriginEmbedderPolicyHeaderWriter;
@@ -286,7 +286,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	private void configureCspNonceGeneratingFilter(H http) {
 		ContentSecurityPolicyHeaderWriter writer = this.contentSecurityPolicy.writer;
 		if (writer != null && writer.isNonceBased()) {
-			http.addFilterBefore(new NonceGeneratingFilter(writer.getNonceAttributeName()), HeaderWriterFilter.class);
+			http.addFilterBefore(new ContentSecurityPolicyNonceGeneratingFilter(writer.getNonceAttributeName()),
+					HeaderWriterFilter.class);
 		}
 	}
 

@@ -66,16 +66,18 @@ import org.springframework.util.Assert;
  * To ease writing nonce-based CSP headers, this class replaces the {@code {nonce}}
  * placeholder in the {@code policyDirectives} with a real nonce value read from a servlet
  * request attribute named {@code _csp_nonce} (or another configured attribute name). A
- * {@link org.springframework.security.web.header.NonceGeneratingFilter} can be configured
- * to generate a unique secure random {@code _csp_nonce} attribute for each request.
+ * {@link org.springframework.security.web.header.ContentSecurityPolicyNonceGeneratingFilter}
+ * can be configured to generate a unique secure random {@code _csp_nonce} attribute for
+ * each request.
  * </p>
  *
  * <p>
  * For example, if the configured {@code policyDirectives} is {@code script-src 'self'
  * 'nonce-{nonce}'}, and a
- * {@link org.springframework.security.web.header.NonceGeneratingFilter} has set the
- * {@code _csp_nonce} attribute to {@code "Nc3n83cnSAd3wc3Sasdfn9"}, then the written HTTP
- * header value would be {@code script-src 'self' 'nonce-Nc3n83cnSAd3wc3Sasdfn9'}.
+ * {@link org.springframework.security.web.header.ContentSecurityPolicyNonceGeneratingFilter}
+ * has set the {@code _csp_nonce} attribute to {@code "Nc3n83cnSAd3wc3Sasdfn9"}, then the
+ * written HTTP header value would be
+ * {@code script-src 'self' 'nonce-Nc3n83cnSAd3wc3Sasdfn9'}.
  * </p>
  *
  * <p>
@@ -105,7 +107,7 @@ import org.springframework.util.Assert;
  * @author Ankur Pathak
  * @author Ziqin Wang
  * @since 4.1
- * @see org.springframework.security.web.header.NonceGeneratingFilter
+ * @see org.springframework.security.web.header.ContentSecurityPolicyNonceGeneratingFilter
  */
 public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 

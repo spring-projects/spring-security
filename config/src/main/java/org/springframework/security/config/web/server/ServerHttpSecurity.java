@@ -183,6 +183,7 @@ import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestHandle
 import org.springframework.security.web.server.csrf.WebSessionServerCsrfTokenRepository;
 import org.springframework.security.web.server.header.CacheControlServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.CompositeServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.ContentSecurityPolicyNonceGeneratingWebFilter;
 import org.springframework.security.web.server.header.ContentSecurityPolicyServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.CrossOriginEmbedderPolicyServerHttpHeadersWriter;
@@ -193,7 +194,6 @@ import org.springframework.security.web.server.header.CrossOriginResourcePolicyS
 import org.springframework.security.web.server.header.CrossOriginResourcePolicyServerHttpHeadersWriter.CrossOriginResourcePolicy;
 import org.springframework.security.web.server.header.FeaturePolicyServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.HttpHeaderWriterWebFilter;
-import org.springframework.security.web.server.header.NonceGeneratingWebFilter;
 import org.springframework.security.web.server.header.PermissionsPolicyServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.ReferrerPolicyServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.ReferrerPolicyServerHttpHeadersWriter.ReferrerPolicy;
@@ -2564,7 +2564,9 @@ public class ServerHttpSecurity {
 			HttpHeaderWriterWebFilter result = new HttpHeaderWriterWebFilter(writer);
 			http.addFilterAt(result, SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
 			if (this.contentSecurityPolicy.isNonceBased()) {
-				http.addFilterBefore(new NonceGeneratingWebFilter(this.contentSecurityPolicy.getNonceAttributeName()),
+				http.addFilterBefore(
+						new ContentSecurityPolicyNonceGeneratingWebFilter(
+								this.contentSecurityPolicy.getNonceAttributeName()),
 						SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
 			}
 		}

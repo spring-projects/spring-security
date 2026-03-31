@@ -14,37 +14,33 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.header;
+package org.springframework.security.web.server.header;
 
-import java.io.IOException;
 import java.util.Base64;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import reactor.core.publisher.Mono;
 
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
 import org.springframework.util.Assert;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
 
 /**
- * A filter which generates a nonce string and sets it as a request attribute.
+ * A filter which generates a nonce string for Content Security Policy and sets it as an
+ * exchange attribute.
  *
  * <p>
- * {@link org.springframework.security.web.header.writers.ContentSecurityPolicyHeaderWriter}
+ * {@link org.springframework.security.web.server.header.ContentSecurityPolicyServerHttpHeadersWriter}
  * can use the attribute to write a nonce-based Content Security Policy header, and a view
  * technology can render the nonce in generated HTML to allow intended inline
  * {@code <script>} or {@code <style>} blocks.
  *
- * <p>
- * This filter may be used to generate a nonce attribute for other purposes.
- *
  * @author Ziqin Wang
  * @since 7.1
  */
-public final class NonceGeneratingFilter extends OncePerRequestFilter {
+public final class ContentSecurityPolicyNonceGeneratingWebFilter implements WebFilter {
 
 	private final String attributeName;
 
@@ -57,7 +53,7 @@ public final class NonceGeneratingFilter extends OncePerRequestFilter {
 	 * @throws IllegalArgumentException if {@code attributeName} is null or empty string,
 	 * or {@code nonceGenerator} is null
 	 */
-	public NonceGeneratingFilter(String attributeName, StringKeyGenerator nonceGenerator) {
+	public ContentSecurityPolicyNonceGeneratingWebFilter(String attributeName, StringKeyGenerator nonceGenerator) {
 		Assert.hasLength(attributeName, "AttributeName must not be null or empty");
 		Assert.notNull(nonceGenerator, "NonceGenerator must not be null");
 		this.attributeName = attributeName;
@@ -67,22 +63,21 @@ public final class NonceGeneratingFilter extends OncePerRequestFilter {
 	/**
 	 * Creates a new instance.
 	 * <p>
-	 * For each request, the created filter will generate a secure random nonce value with
-	 * 128-bit entropy and encode it as a Base64 string without padding.
-	 * @param attributeName the name of the request attribute to generate
+	 * For each exchange, the created filter will generate a secure random nonce value
+	 * with 128-bit entropy and encode it as a Base64 string without padding.
+	 * @param attributeName the name of the exchange attribute to generate
 	 * @throws IllegalArgumentException if {@code attributeName} is null or empty string
 	 */
-	public NonceGeneratingFilter(String attributeName) {
+	public ContentSecurityPolicyNonceGeneratingWebFilter(String attributeName) {
 		this(attributeName, new Base64StringKeyGenerator(Base64.getEncoder().withoutPadding(), 16));
 	}
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-			throws ServletException, IOException {
-
-		String nonce = this.nonceGenerator.generateKey();
-		request.setAttribute(this.attributeName, nonce);
-		filterChain.doFilter(request, response);
+	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+		return Mono.fromSupplier(this.nonceGenerator::generateKey).flatMap((nonce) -> {
+			exchange.getAttributes().put(this.attributeName, nonce);
+			return chain.filter(exchange);
+		});
 	}
 
 }
