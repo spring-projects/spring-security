@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.server.resource.authentication;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -89,7 +90,11 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
 		this.jwtPrincipalConverter = (jwt) -> new JwtAuthenticatedPrincipal(jwt, principalClaimName);
 	}
 
+	@SuppressWarnings("serial") // suppress warnings in serialization tests
 	private static final class JwtAuthenticatedPrincipal extends Jwt implements OAuth2AuthenticatedPrincipal {
+
+		@Serial
+		private static final long serialVersionUID = 2236855178032591277L;
 
 		private final String principalClaimName;
 
