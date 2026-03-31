@@ -154,6 +154,7 @@ public final class OAuth2AccessTokenGenerator implements OAuth2TokenGenerator<OA
 		this.clock = clock;
 	}
 
+	@SuppressWarnings("serial")
 	private static final class OAuth2AccessTokenClaims extends OAuth2AccessToken implements ClaimAccessor {
 
 		private final Map<String, Object> claims;

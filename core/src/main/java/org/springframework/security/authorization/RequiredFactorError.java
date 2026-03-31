@@ -16,6 +16,8 @@
 
 package org.springframework.security.authorization;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Objects;
 
 import org.springframework.security.core.authority.FactorGrantedAuthority;
@@ -27,7 +29,10 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @since 7.0
  */
-public class RequiredFactorError {
+public class RequiredFactorError implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = 1946221547278528901L;
 
 	private final RequiredFactor requiredFactor;
 

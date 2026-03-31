@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.server.authorization.authentication;
 
+import java.io.Serial;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -36,6 +37,9 @@ import org.springframework.util.Assert;
  * @see OAuth2TokenExchangeAuthenticationProvider
  */
 public class OAuth2TokenExchangeAuthenticationToken extends OAuth2AuthorizationGrantAuthenticationToken {
+
+	@Serial
+	private static final long serialVersionUID = 2484741634669297785L;
 
 	private final String requestedTokenType;
 

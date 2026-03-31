@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.server.authorization.authentication;
 
+import java.io.Serial;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -35,6 +36,9 @@ import org.springframework.util.Assert;
  * @see OAuth2RefreshTokenAuthenticationProvider
  */
 public class OAuth2RefreshTokenAuthenticationToken extends OAuth2AuthorizationGrantAuthenticationToken {
+
+	@Serial
+	private static final long serialVersionUID = 328697547826078993L;
 
 	private final String refreshToken;
 
