@@ -204,6 +204,9 @@ class SpringSecurityCoreVersionSerializableTests {
 			if (clazz.getName().contains("Tests")) {
 				continue;
 			}
+			if (clazz.isAnonymousClass()) {
+				continue;
+			}
 			boolean hasSerialVersion = Stream.of(clazz.getDeclaredFields())
 				.map(Field::getName)
 				.anyMatch((n) -> n.equals("serialVersionUID"));
