@@ -44,11 +44,11 @@ class AllRequiredFactorsAuthorizationManagerTests {
 
 	private static final Object DOES_NOT_MATTER = new Object();
 
-	private static final RequiredFactor REQUIRED_PASSWORD = RequiredFactor
+	private static RequiredFactor REQUIRED_PASSWORD = RequiredFactor
 		.withAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY)
 		.build();
 
-	private static final RequiredFactor EXPIRING_PASSWORD = RequiredFactor
+	private static RequiredFactor EXPIRING_PASSWORD = RequiredFactor
 		.withAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY)
 		.validDuration(Duration.ofHours(1))
 		.build();
@@ -255,7 +255,7 @@ class AllRequiredFactorsAuthorizationManagerTests {
 	}
 
 	@Test
-	void anyOfWhenRequiredFactorMissingThenMissing() {
+	void anyOfWhenSameAuthorityDifferentValidDurationThenBothErrorsReturned() {
 		AllRequiredFactorsAuthorizationManager<Object> passwordAndOtt = AllRequiredFactorsAuthorizationManager.builder()
 			.requireFactor(REQUIRED_PASSWORD)
 			.requireFactor(REQUIRED_OTT)
@@ -273,8 +273,60 @@ class AllRequiredFactorsAuthorizationManagerTests {
 		AuthorizationResult result = anyOf.authorize(() -> authentication, DOES_NOT_MATTER);
 		assertThat(result).asInstanceOf(type(FactorAuthorizationDecision.class)).satisfies((decision) -> {
 			assertThat(decision.isGranted()).isFalse();
-			assertThat(decision.getFactorErrors()).containsExactly(RequiredFactorError.createMissing(REQUIRED_OTT));
+			assertThat(decision.getFactorErrors()).containsExactly(RequiredFactorError.createMissing(REQUIRED_OTT),
+					RequiredFactorError.createMissing(EXPIRING_OTT));
 		});
+	}
+
+	@Test
+	void anyOfWhenIdenticalErrorInMultipleManagersThenDeduplicated() {
+		AllRequiredFactorsAuthorizationManager<Object> passwordAndOtt = AllRequiredFactorsAuthorizationManager.builder()
+			.requireFactor(REQUIRED_PASSWORD)
+			.requireFactor(REQUIRED_OTT)
+			.build();
+		AllRequiredFactorsAuthorizationManager<Object> passwordOnly = AllRequiredFactorsAuthorizationManager.builder()
+			.requireFactor(REQUIRED_PASSWORD)
+			.build();
+		AuthorizationManager<Object> anyOf = AllRequiredFactorsAuthorizationManager.anyOf(passwordAndOtt, passwordOnly);
+		Authentication authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		AuthorizationResult result = anyOf.authorize(() -> authentication, DOES_NOT_MATTER);
+		assertThat(result).asInstanceOf(type(FactorAuthorizationDecision.class)).satisfies((decision) -> {
+			assertThat(decision.isGranted()).isFalse();
+			assertThat(decision.getFactorErrors()).containsOnly(RequiredFactorError.createMissing(REQUIRED_PASSWORD),
+					RequiredFactorError.createMissing(REQUIRED_OTT));
+		});
+	}
+
+	@Test
+	void anyOfWhenDeniedThenErrorsRetainedInManagerOrder() {
+		AllRequiredFactorsAuthorizationManager<Object> passwordOnly = AllRequiredFactorsAuthorizationManager.builder()
+			.requireFactor(REQUIRED_PASSWORD)
+			.build();
+		AllRequiredFactorsAuthorizationManager<Object> ottOnly = AllRequiredFactorsAuthorizationManager.builder()
+			.requireFactor(REQUIRED_OTT)
+			.build();
+		AuthorizationManager<Object> anyOf = AllRequiredFactorsAuthorizationManager.anyOf(passwordOnly, ottOnly);
+		Authentication authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		AuthorizationResult result = anyOf.authorize(() -> authentication, DOES_NOT_MATTER);
+		assertThat(result).asInstanceOf(type(FactorAuthorizationDecision.class)).satisfies((decision) -> {
+			assertThat(decision.isGranted()).isFalse();
+			assertThat(decision.getFactorErrors()).containsExactly(RequiredFactorError.createMissing(REQUIRED_PASSWORD),
+					RequiredFactorError.createMissing(REQUIRED_OTT));
+		});
+	}
+
+	@Test
+	void anyOfWhenEmptyManagersThenIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> AllRequiredFactorsAuthorizationManager.anyOf());
+	}
+
+	@Test
+	void anyOfWhenSingleManagerThenReturnsSameInstance() {
+		AllRequiredFactorsAuthorizationManager<Object> manager = AllRequiredFactorsAuthorizationManager.builder()
+			.requireFactor(REQUIRED_PASSWORD)
+			.build();
+		AuthorizationManager<Object> result = AllRequiredFactorsAuthorizationManager.anyOf(manager);
+		assertThat(result == manager).isTrue();
 	}
 
 	@Test

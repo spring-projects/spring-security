@@ -20,11 +20,11 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -54,28 +54,23 @@ public final class AllRequiredFactorsAuthorizationManager<T> implements Authoriz
 
 	/**
 	 * Creates an {@link AuthorizationManager} that grants access if at least one
-	 * {@link AllRequiredFactorsAuthorizationManager} granted, collects
-	 * {@link RequiredFactorError}s omitting duplicate errors of the same factor.
+	 * {@link AllRequiredFactorsAuthorizationManager} granted. When all managers deny,
+	 * collects the unique {@link RequiredFactorError}s from each manager.
 	 * @param <T> the type of object that is being authorized
-	 * @param managers the {@link AllRequiredFactorsAuthorizationManager}s to use
+	 * @param managers the {@link AllRequiredFactorsAuthorizationManager}s to use; cannot
+	 * be empty or contain null elements
 	 * @return the {@link AuthorizationManager} to use
 	 * @since 7.1
 	 * @see AuthorizationManagers#anyOf(AuthorizationManager[])
 	 */
 	@SafeVarargs
 	public static <T> AuthorizationManager<T> anyOf(AllRequiredFactorsAuthorizationManager<T>... managers) {
-		return (authentication, object) -> {
-			Map<String, RequiredFactorError> factorErrors = new LinkedHashMap<>();
-			for (AllRequiredFactorsAuthorizationManager<T> manager : managers) {
-				FactorAuthorizationDecision decision = manager.authorize(authentication, object);
-				if (decision.isGranted()) {
-					return decision;
-				}
-				decision.getFactorErrors()
-					.forEach((e) -> factorErrors.putIfAbsent(e.getRequiredFactor().getAuthority(), e));
-			}
-			return new FactorAuthorizationDecision(List.copyOf(factorErrors.values()));
-		};
+		Assert.notEmpty(managers, "managers cannot be empty");
+		Assert.noNullElements(managers, "managers cannot contain null elements");
+		if (managers.length == 1) {
+			return managers[0];
+		}
+		return new AnyOfFactorsAuthorizationManager<>(managers);
 	}
 
 	/**
@@ -177,6 +172,38 @@ public final class AllRequiredFactorsAuthorizationManager<T> implements Authoriz
 	 */
 	public static <T> Builder<T> builder() {
 		return new Builder<>();
+	}
+
+	/**
+	 * An {@link AuthorizationManager} that grants access if at least one
+	 * {@link AllRequiredFactorsAuthorizationManager} granted. When all deny, collects the
+	 * unique {@link RequiredFactorError}s from each manager.
+	 *
+	 * @param <T> the type of object being authorized
+	 */
+	private static final class AnyOfFactorsAuthorizationManager<T> implements AuthorizationManager<T> {
+
+		private final AllRequiredFactorsAuthorizationManager<T>[] managers;
+
+		AnyOfFactorsAuthorizationManager(AllRequiredFactorsAuthorizationManager<T>[] managers) {
+			Assert.notEmpty(managers, "managers cannot be empty");
+			Assert.noNullElements(managers, "managers cannot contain null elements");
+			this.managers = managers;
+		}
+
+		@Override
+		public AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication, T object) {
+			Set<RequiredFactorError> factorErrors = new LinkedHashSet<>();
+			for (AllRequiredFactorsAuthorizationManager<T> manager : this.managers) {
+				FactorAuthorizationDecision decision = manager.authorize(authentication, object);
+				if (decision.isGranted()) {
+					return decision;
+				}
+				factorErrors.addAll(decision.getFactorErrors());
+			}
+			return new FactorAuthorizationDecision(List.copyOf(factorErrors));
+		}
+
 	}
 
 	/**
