@@ -32,8 +32,10 @@ import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -116,12 +118,20 @@ public class ClientRegistrationsTests {
 
 	private String issuer;
 
+	private RestTemplate restTemplate;
+
 	@BeforeEach
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
 		this.response = this.mapper.readValue(DEFAULT_RESPONSE, new TypeReference<Map<String, Object>>() {
 		});
+
+		this.restTemplate = new RestTemplate();
+		SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+		requestFactory.setConnectTimeout(30_000);
+		requestFactory.setReadTimeout(30_000);
+		this.restTemplate.setRequestFactory(requestFactory);
 	}
 
 	@AfterEach
@@ -678,6 +688,132 @@ public class ClientRegistrationsTests {
 				.setBody(body)
 				.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		// @formatter:on
+	}
+
+	@Test
+	public void oidcIssuerLocationWithRestTemplateWhenSuccess() throws Exception {
+		ClientRegistration registration = registrationWithRestTemplate("").build();
+		ClientRegistration.ProviderDetails provider = registration.getProviderDetails();
+		assertIssuerMetadata(registration, provider);
+		assertThat(provider.getUserInfoEndpoint().getUri()).isEqualTo("https://example.com/oauth2/v3/userinfo");
+	}
+
+	@Test
+	public void oidcIssuerLocationWithRestTemplateWhenNullRestTemplateThrowsException() {
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> ClientRegistrations.fromOidcIssuerLocation(null, "https://example.com"))
+			.withMessageContaining("restTemplate cannot be null");
+	}
+
+	@Test
+	public void oidcIssuerLocationWithRestTemplateWhenEmptyIssuerThrowsException() {
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> ClientRegistrations.fromOidcIssuerLocation(this.restTemplate, ""))
+			.withMessageContaining("issuer cannot be empty");
+	}
+
+	@Test
+	public void issuerLocationWithRestTemplateWhenNullRestTemplateThrowsException() {
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> ClientRegistrations.fromIssuerLocation(null, "https://example.com"))
+			.withMessageContaining("restTemplate cannot be null");
+	}
+
+	@Test
+	public void issuerLocationWithRestTemplateWhenEmptyIssuerThrowsException() {
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> ClientRegistrations.fromIssuerLocation(this.restTemplate, ""))
+			.withMessageContaining("issuer cannot be empty");
+	}
+
+	@Test
+	public void issuerLocationWithRestTemplateWhenOidcFallbackSuccess() throws Exception {
+		ClientRegistration registration = registrationOidcFallbackWithRestTemplate("issuer1", null).build();
+		ClientRegistration.ProviderDetails provider = registration.getProviderDetails();
+		assertIssuerMetadata(registration, provider);
+		assertThat(provider.getUserInfoEndpoint().getUri()).isEqualTo("https://example.com/oauth2/v3/userinfo");
+	}
+
+	@Test
+	public void issuerLocationWithRestTemplateWhenOAuth2Success() throws Exception {
+		ClientRegistration registration = registrationOAuth2WithRestTemplate("issuer1", null).build();
+		ClientRegistration.ProviderDetails provider = registration.getProviderDetails();
+		assertIssuerMetadata(registration, provider);
+	}
+
+	@Test
+	public void issuerLocationWithRestTemplateWhenAllEndpointsFailedThenExceptionIncludesFailureInformation() {
+		this.issuer = createIssuerFromServer("issuer1");
+		this.server.setDispatcher(new Dispatcher() {
+			@Override
+			public MockResponse dispatch(RecordedRequest request) {
+				int responseCode = switch (request.getPath()) {
+					case "/issuer1/.well-known/openid-configuration" -> 405;
+					case "/.well-known/openid-configuration/issuer1" -> 400;
+					default -> 404;
+				};
+				return new MockResponse().setResponseCode(responseCode);
+			}
+		});
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> ClientRegistrations.fromIssuerLocation(this.restTemplate, this.issuer).build())
+			.withMessageContaining("405")
+			.withMessageContaining("400")
+			.withMessageContaining("404");
+	}
+
+	private ClientRegistration.Builder registrationWithRestTemplate(String path) throws Exception {
+		this.issuer = createIssuerFromServer(path);
+		this.response.put("issuer", this.issuer);
+		String body = this.mapper.writeValueAsString(this.response);
+		MockResponse mockResponse = new MockResponse().setBody(body)
+			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+		this.server.enqueue(mockResponse);
+		return ClientRegistrations.fromOidcIssuerLocation(this.restTemplate, this.issuer)
+			.clientId("client-id")
+			.clientSecret("client-secret");
+	}
+
+	private ClientRegistration.Builder registrationOidcFallbackWithRestTemplate(String path, String body)
+			throws Exception {
+		this.issuer = createIssuerFromServer(path);
+		this.response.put("issuer", this.issuer);
+		String responseBody = (body != null) ? body : this.mapper.writeValueAsString(this.response);
+		final Dispatcher dispatcher = new Dispatcher() {
+			@Override
+			public MockResponse dispatch(RecordedRequest request) {
+				return switch (request.getPath()) {
+					case "/issuer1/.well-known/openid-configuration", "/.well-known/openid-configuration/" ->
+						buildSuccessMockResponse(responseBody);
+					default -> new MockResponse().setResponseCode(404);
+				};
+			}
+		};
+		this.server.setDispatcher(dispatcher);
+		return ClientRegistrations.fromIssuerLocation(this.restTemplate, this.issuer)
+			.clientId("client-id")
+			.clientSecret("client-secret");
+	}
+
+	private ClientRegistration.Builder registrationOAuth2WithRestTemplate(String path, String body) throws Exception {
+		this.issuer = createIssuerFromServer(path);
+		this.response.put("issuer", this.issuer);
+		final String responseBody = (body != null) ? body : this.mapper.writeValueAsString(this.response);
+		final Dispatcher dispatcher = new Dispatcher() {
+			@Override
+			public MockResponse dispatch(RecordedRequest request) {
+				return switch (request.getPath()) {
+					case "/.well-known/oauth-authorization-server/issuer1",
+							"/.well-known/oauth-authorization-server/" ->
+						buildSuccessMockResponse(responseBody);
+					default -> new MockResponse().setResponseCode(404);
+				};
+			}
+		};
+		this.server.setDispatcher(dispatcher);
+		return ClientRegistrations.fromIssuerLocation(this.restTemplate, this.issuer)
+			.clientId("client-id")
+			.clientSecret("client-secret");
 	}
 
 }

@@ -146,9 +146,14 @@ public final class ClientRegistrations {
 	 * @return a {@link ClientRegistration.Builder} that was initialized by the OpenID
 	 * Provider Configuration.
 	 */
-	public static ClientRegistration.Builder fromOidcIssuerLocation(String issuer) {
+	public static ClientRegistration.Builder fromOidcIssuerLocation(RestTemplate restTemplate, String issuer) {
+		Assert.notNull(restTemplate, "restTemplate cannot be null");
 		Assert.hasText(issuer, "issuer cannot be empty");
-		return getBuilder(issuer, oidc(issuer));
+		return getBuilder(issuer, oidc(restTemplate, issuer));
+	}
+
+	public static ClientRegistration.Builder fromOidcIssuerLocation(String issuer) {
+		return fromOidcIssuerLocation(rest, issuer);
 	}
 
 	/**
@@ -174,7 +179,7 @@ public final class ClientRegistrations {
 	 * </ol>
 	 *
 	 * Note that the second endpoint is the equivalent of calling
-	 * {@link ClientRegistrations#fromOidcIssuerLocation(String)}.
+	 * {@link ClientRegistrations#fromOidcIssuerLocation(RestTemplate, String)}.
 	 *
 	 * <p>
 	 * Example usage:
@@ -185,21 +190,28 @@ public final class ClientRegistrations {
 	 *     .clientSecret("client-secret")
 	 *     .build();
 	 * </pre>
+	 * @param restTemplate
 	 * @param issuer
 	 * @return a {@link ClientRegistration.Builder} that was initialized by one of the
 	 * described endpoints
 	 */
-	public static ClientRegistration.Builder fromIssuerLocation(String issuer) {
+	public static ClientRegistration.Builder fromIssuerLocation(RestTemplate restTemplate, String issuer) {
+		Assert.notNull(restTemplate, "restTemplate cannot be null");
 		Assert.hasText(issuer, "issuer cannot be empty");
-		return getBuilder(issuer, oidc(issuer), oidcRfc8414(issuer), oauth(issuer));
+		return getBuilder(issuer, oidc(restTemplate, issuer), oidcRfc8414(restTemplate, issuer),
+				oauth(restTemplate, issuer));
 	}
 
-	static Supplier<ClientRegistration.Builder> oidc(String issuer) {
+	public static ClientRegistration.Builder fromIssuerLocation(String issuer) {
+		return fromIssuerLocation(rest, issuer);
+	}
+
+	static Supplier<ClientRegistration.Builder> oidc(RestTemplate restTemplate, String issuer) {
 		UriComponents uri = oidcUri(issuer);
 		// @formatter:on
 		return () -> {
 			RequestEntity<Void> request = RequestEntity.get(uri.toUriString()).build();
-			Map<String, Object> configuration = rest.exchange(request, typeReference).getBody();
+			Map<String, Object> configuration = restTemplate.exchange(request, typeReference).getBody();
 			Assert.notNull(configuration, "OIDC provider configuration cannot be null");
 			OIDCProviderMetadata metadata = parse(configuration, OIDCProviderMetadata::parse);
 			ClientRegistration.Builder builder = withProviderConfiguration(metadata, issuer)
@@ -219,10 +231,10 @@ public final class ClientRegistrations {
 				.build();
 	}
 
-	static Supplier<ClientRegistration.Builder> oidcRfc8414(String issuer) {
+	static Supplier<ClientRegistration.Builder> oidcRfc8414(RestTemplate restTemplate, String issuer) {
 		UriComponents uri = oidcRfc8414Uri(issuer);
 		// @formatter:on
-		return getRfc8414Builder(issuer, uri);
+		return getRfc8414Builder(restTemplate, issuer, uri);
 	}
 
 	static UriComponents oidcRfc8414Uri(String issuer) {
@@ -233,9 +245,9 @@ public final class ClientRegistrations {
 				.build();
 	}
 
-	static Supplier<ClientRegistration.Builder> oauth(String issuer) {
+	static Supplier<ClientRegistration.Builder> oauth(RestTemplate restTemplate, String issuer) {
 		UriComponents uri = oauthUri(issuer);
-		return getRfc8414Builder(issuer, uri);
+		return getRfc8414Builder(restTemplate, issuer, uri);
 	}
 
 	static UriComponents oauthUri(String issuer) {
@@ -247,10 +259,11 @@ public final class ClientRegistrations {
 		// @formatter:on
 	}
 
-	private static Supplier<ClientRegistration.Builder> getRfc8414Builder(String issuer, UriComponents uri) {
+	private static Supplier<ClientRegistration.Builder> getRfc8414Builder(RestTemplate restTemplate, String issuer,
+			UriComponents uri) {
 		return () -> {
 			RequestEntity<Void> request = RequestEntity.get(uri.toUriString()).build();
-			Map<String, Object> configuration = rest.exchange(request, typeReference).getBody();
+			Map<String, Object> configuration = restTemplate.exchange(request, typeReference).getBody();
 			Assert.notNull(configuration, "Authorization server configuration cannot be null");
 			AuthorizationServerMetadata metadata = parse(configuration, AuthorizationServerMetadata::parse);
 			ClientRegistration.Builder builder = withProviderConfiguration(metadata, issuer);
