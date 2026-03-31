@@ -4,6 +4,7 @@
 == Core
 
 * https://github.com/spring-projects/spring-security/pull/18634[gh-18634] - Added javadoc:org.springframework.security.util.matcher.InetAddressMatcher[]
+* https://github.com/spring-projects/spring-security/issues/18960[gh-18960] - Added xref:servlet/authentication/mfa.adoc#all-factors-anyof[AllRequiredFactorsAuthorizationManager.anyOf]
 
 == Web
 * https://github.com/spring-projects/spring-security/issues/18755[gh-18755] - Include `charset` in `WWW-Authenticate` header

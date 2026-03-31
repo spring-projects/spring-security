@@ -125,6 +125,23 @@ include-code::./ValidDurationConfiguration[tag=httpSecurity,indent=0]
 <5> Otherwise, authentication is required, but it does not care if it is a password or how long ago authentication occurred
 <6> Set up the authentication mechanisms that can provide the required factors.
 
+[[all-factors-anyof]]
+== AllRequiredFactorsAuthorizationManager.anyOf
+
+In the previous examples, access requires satisfying that the user has authenticated with all factors.
+There are times when an application wants to allow users to satisfy one of several different combinations of factors.
+javadoc:org.springframework.security.authorization.AllRequiredFactorsAuthorizationManager#anyOf(AllRequiredFactorsAuthorizationManager...)[AllRequiredFactorsAuthorizationManager.anyOf] grants access if at least one of the provided combinations of factors is satisfied.
+
+Consider a scenario where a user can authenticate with WebAuthn alone, or with both a password and a one-time token.
+
+include-code::./AnyOfRequiredFactorsConfiguration[tag=httpSecurity,indent=0]
+<1> Require WebAuthn
+<2> Require both a password and a one-time token
+<3> Combine the combinations of factors with `anyOf`, granting access if either is satisfied
+<4> URLs that begin with `/protected/**` require the user to satisfy either combination of factors
+<5> All other requests require only authentication
+<6> Set up the authentication mechanisms that can provide the required factors
+
 [[programmatic-mfa]]
 == Programmatic MFA
 
