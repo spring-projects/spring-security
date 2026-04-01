@@ -401,7 +401,6 @@ public class HeaderSpecTests {
 		assertHeaders();
 	}
 
-	/** @since 7.1 */
 	@Test
 	public void headersWhenContentSecurityPolicyEnabledWithDefaultNonceThenHeaderMatchesContent() {
 		String headerName = ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY;
@@ -429,7 +428,6 @@ public class HeaderSpecTests {
 		});
 	}
 
-	/** @since 7.1 */
 	@Test
 	public void headersWhenContentSecurityPolicyEnabledWithCustomNonceThenHeaderMatchesContent() {
 		String headerName = ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY;
@@ -458,7 +456,6 @@ public class HeaderSpecTests {
 		});
 	}
 
-	/** @since 7.1 */
 	@Test
 	public void headersWhenContentSecurityPolicyEnabledWithMatcherThenHeaderInResponseIfMatched() {
 		String headerName = ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY;
@@ -487,7 +484,6 @@ public class HeaderSpecTests {
 		// @formatter:on
 	}
 
-	/** @since 7.1 */
 	@Test
 	public void headersWhenContentSecurityPolicyEnabledWithPathMatchersThenHeaderInResponseIfMatched() {
 		String headerName = ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY;
@@ -515,7 +511,6 @@ public class HeaderSpecTests {
 		// @formatter:on
 	}
 
-	/** @since 7.1 */
 	@Test
 	public void headersWhenContentSecurityPolicyWithOverriddenMatchersThenFailToConfigure() {
 		// @formatter:off

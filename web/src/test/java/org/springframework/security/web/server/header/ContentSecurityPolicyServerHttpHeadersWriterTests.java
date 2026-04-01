@@ -98,7 +98,6 @@ public class ContentSecurityPolicyServerHttpHeadersWriterTests {
 		assertThat(headers.get(CONTENT_SECURITY_POLICY_HEADER)).containsOnly(headerValue);
 	}
 
-	/** @since 7.1 */
 	@Test
 	public void whenPolicyDirectivesContainNoncePlaceholderThenWriterIsNonceBased() {
 		this.writer.setPolicyDirectives("script-src 'self' 'nonce-{nonce}'");
@@ -111,7 +110,6 @@ public class ContentSecurityPolicyServerHttpHeadersWriterTests {
 		assertThat(this.writer.isNonceBased()).isFalse();
 	}
 
-	/** @since 7.1 */
 	@Test
 	public void writeNonceBasedCspWhenNonceAttributeNameUnsetThenUseDefault() {
 		this.writer.setPolicyDirectives("script-src 'nonce-{nonce}'; style-src 'nonce-{nonce}'");
@@ -122,7 +120,6 @@ public class ContentSecurityPolicyServerHttpHeadersWriterTests {
 			.containsOnly("script-src 'nonce-Test+Nonce+Value'; style-src 'nonce-Test+Nonce+Value'");
 	}
 
-	/** @since 7.1 */
 	@Test
 	public void writeNonceBasedCspWhenNonceAttributeNameSetThenUseCustomAttribute() {
 		String customAttributeName = "custom-attribute-name";
@@ -136,7 +133,6 @@ public class ContentSecurityPolicyServerHttpHeadersWriterTests {
 			.containsOnly("script-src 'nonce-For/Custom/Nonce/Attribute/Name'");
 	}
 
-	/** @since 7.1 */
 	@Test
 	public void writeNonceBasedCspWhenNonceUnsetThenEmitError() {
 		this.writer.setPolicyDirectives("script-src 'nonce-{nonce}'");

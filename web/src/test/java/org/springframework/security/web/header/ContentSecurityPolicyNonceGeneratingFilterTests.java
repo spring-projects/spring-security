@@ -42,7 +42,6 @@ import static org.mockito.Mockito.spy;
 
 /**
  * @author Ziqin Wang
- * @since 7.l
  */
 class ContentSecurityPolicyNonceGeneratingFilterTests {
 

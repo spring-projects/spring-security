@@ -131,7 +131,6 @@ class ServerContentSecurityPolicyDslTests {
         }
     }
 
-    /** @since 7.1 */
     @Test
     fun `request when configured with default nonce then CSP header with nonce in response`() {
         this.spring.register(CspDefaultNonceConfig::class.java).autowire()
@@ -159,7 +158,6 @@ class ServerContentSecurityPolicyDslTests {
         }
     }
 
-    /** @since 7.1 */
     @Test
     fun `request when configured with custom nonce then CSP header with nonce in response`() {
         this.spring.register(CspCustomNonceConfig::class.java).autowire()
@@ -188,7 +186,6 @@ class ServerContentSecurityPolicyDslTests {
         }
     }
 
-    /** @since 7.1 */
     @Test
     fun `request when configured with matcher then CSP header in response if matched`() {
         val headerName = ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY
@@ -226,7 +223,6 @@ class ServerContentSecurityPolicyDslTests {
         }
     }
 
-    /** @since 7.1 */
     @Test
     fun `request when configured with path matchers then CSP header in response if matched`() {
         val headerName = ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY
@@ -261,7 +257,6 @@ class ServerContentSecurityPolicyDslTests {
         }
     }
 
-    /** @since 7.1 */
     @Test
     fun `when matchers overridden then fails to configure`() {
         assertThatThrownBy {

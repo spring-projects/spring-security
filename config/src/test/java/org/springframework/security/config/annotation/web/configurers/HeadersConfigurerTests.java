@@ -426,7 +426,6 @@ public class HeadersConfigurerTests {
 		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.CONTENT_SECURITY_POLICY);
 	}
 
-	/** @since 7.1 */
 	@Test
 	public void configureWhenContentSecurityPolicyWithDefaultNonceThenHeaderMatchesContent() throws Exception {
 		Pattern regex = Pattern.compile("^script-src 'self' 'nonce-([A-Za-z0-9+/]{22,}={0,2})'$");
@@ -444,7 +443,6 @@ public class HeadersConfigurerTests {
 			});
 	}
 
-	/** @since 7.1 */
 	@Test
 	public void configureWhenContentSecurityPolicyWithCustomNonceThenHeaderMatchesContent() throws Exception {
 		Pattern regex = Pattern.compile("^script-src 'self' 'nonce-([A-Za-z0-9+/]{22,}={0,2})'$");
@@ -462,7 +460,6 @@ public class HeadersConfigurerTests {
 			});
 	}
 
-	/** @since 7.1 */
 	@Test
 	public void configureWhenContentSecurityPolicyWithMatcherThenHeaderInResponseIfMatched() throws Exception {
 		this.spring.register(ContentSecurityPolicyMatcherConfig.class).autowire();
@@ -472,7 +469,6 @@ public class HeadersConfigurerTests {
 			.andExpect(header().doesNotExist(HttpHeaders.CONTENT_SECURITY_POLICY));
 	}
 
-	/** @since 7.1 */
 	@Test
 	public void configureWhenContentSecurityPolicyWithPathMatchersThenHeaderInResponseIfMatched() throws Exception {
 		this.spring.register(ContentSecurityPolicyPathMatchersConfig.class).autowire();
@@ -484,7 +480,6 @@ public class HeadersConfigurerTests {
 			.andExpect(header().doesNotExist(HttpHeaders.CONTENT_SECURITY_POLICY));
 	}
 
-	/** @since 7.1 */
 	@Test
 	public void configureWhenContentSecurityPolicyWithOverriddenMatchersThenThrows() {
 		assertThatException()

@@ -36,7 +36,6 @@ import static org.mockito.Mockito.mock;
 
 /**
  * @author Ziqin Wang
- * @since 7.1
  */
 class ContentSecurityPolicyNonceGeneratingWebFilterTests {
 

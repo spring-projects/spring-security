@@ -139,7 +139,6 @@ class ContentSecurityPolicyDslTests {
         }
     }
 
-    /** @since 7.1 */
     @Test
     fun `headers when content security policy configured with default nonce attribute then header in response`() {
         this.spring.register(ContentSecurityPolicyDefaultNonceConfig::class.java).autowire()
@@ -171,7 +170,6 @@ class ContentSecurityPolicyDslTests {
         }
     }
 
-    /** @since 7.1 */
     @Test
     fun `headers when content security policy configured with custom nonce attribute then header in response`() {
         this.spring.register(ContentSecurityPolicyCustomNonceConfig::class.java).autowire()
@@ -204,7 +202,6 @@ class ContentSecurityPolicyDslTests {
         }
     }
 
-    /** @since 7.1 */
     @Test
     fun `headers when content security policy configured with matcher then header in response if matched`() {
         this.spring.register(ContentSecurityPolicyMatcherConfig::class.java).autowire()
@@ -247,7 +244,6 @@ class ContentSecurityPolicyDslTests {
         }
     }
 
-    /** @since 7.1 */
     @Test
     fun `headers when content security policy configured with path matchers then header in response if matched`() {
         this.spring.register(ContentSecurityPolicyPathMatchersConfig::class.java).autowire()
@@ -293,7 +289,6 @@ class ContentSecurityPolicyDslTests {
         }
     }
 
-    /** @since 7.1 */
     @Test
     fun `headers when content security policy configured with overridden matchers then throws`() {
         assertThatThrownBy {
