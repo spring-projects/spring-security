@@ -32,7 +32,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher
 class ContentSecurityPolicyDsl {
     /**
      * The security policy directive(s) to be used in the response header.
-     * The [policyDirectives] may contain `{code}` as placeholders for a generated secure
+     * The [policyDirectives] may contain `{nonce}` as placeholders for a generated secure
      * random nonce, e.g., `script-src 'self' 'nonce-{nonce}'`.
      */
     var policyDirectives: String? = null
