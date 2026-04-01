@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.header.writers;
 
+import java.util.function.Supplier;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -152,15 +154,18 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 	 * jakarta.servlet.http.HttpServletResponse)
 	 */
 	@Override
+	@SuppressWarnings("unchecked")
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
 		String headerName = (!this.reportOnly) ? CONTENT_SECURITY_POLICY_HEADER
 				: CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER;
 		if (!response.containsHeader(headerName)) {
 			String csp;
 			if (this.isNonceBased) {
-				String nonce = (String) request.getAttribute(this.nonceAttributeName);
-				Assert.state(nonce != null, "Nonce is unset");
-				csp = this.policyDirectives.replace(NONCE_PLACEHOLDER, nonce);
+				Supplier<String> deferredNonce = (Supplier<String>) request.getAttribute(this.nonceAttributeName);
+				Assert.state(deferredNonce != null,
+						() -> "Failed to replace {nonce} placeholders since no nonce found as a request attribute "
+								+ this.nonceAttributeName);
+				csp = this.policyDirectives.replace(NONCE_PLACEHOLDER, deferredNonce.get());
 			}
 			else {
 				csp = this.policyDirectives;

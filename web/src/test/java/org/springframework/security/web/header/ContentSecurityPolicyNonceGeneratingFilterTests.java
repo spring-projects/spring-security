@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.header;
 
+import java.util.function.Supplier;
+
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,8 +30,11 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
+import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
@@ -54,9 +59,10 @@ class ContentSecurityPolicyNonceGeneratingFilterTests {
 		Filter filter = new ContentSecurityPolicyNonceGeneratingFilter(ATTRIBUTE_NAME);
 		filter.doFilter(request, response, chain);
 
-		assertThat(request.getAttribute(ATTRIBUTE_NAME)).isInstanceOfSatisfying(String.class,
-				(nonce) -> assertThat(nonce).isBase64()
-					.hasSizeGreaterThanOrEqualTo((int) Math.ceil(4.0 / 3 * MIN_STRENGTH_IN_BYTE)));
+		assertThat(request.getAttribute(ATTRIBUTE_NAME)).asInstanceOf(type(Supplier.class))
+			.extracting(Supplier::get, as(STRING))
+			.isBase64()
+			.hasSizeGreaterThanOrEqualTo((int) Math.ceil(4.0 / 3 * MIN_STRENGTH_IN_BYTE));
 		then(chain).should().doFilter(request, response);
 	}
 
@@ -72,7 +78,9 @@ class ContentSecurityPolicyNonceGeneratingFilterTests {
 		Filter filter = new ContentSecurityPolicyNonceGeneratingFilter(ATTRIBUTE_NAME, nonceGenerator);
 		filter.doFilter(request, response, chain);
 
-		assertThat(request.getAttribute(ATTRIBUTE_NAME)).isSameAs(nonce);
+		assertThat(request.getAttribute(ATTRIBUTE_NAME)).asInstanceOf(type(Supplier.class))
+			.extracting(Supplier::get, as(STRING))
+			.isSameAs(nonce);
 		then(nonceGenerator).should().generateKey();
 	}
 

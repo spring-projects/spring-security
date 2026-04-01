@@ -670,26 +670,26 @@ public class HeaderSpecTests {
 
 		@GetMapping(produces = MediaType.TEXT_HTML_VALUE)
 		@ResponseBody
-		Mono<String> defaultAttribute(@RequestAttribute("_csp_nonce") String cspNonce) {
-			return Mono.fromSupplier(() -> """
+		Mono<String> defaultAttribute(@RequestAttribute("_csp_nonce") Mono<String> cspNonce) {
+			return cspNonce.map("""
 					<!DOCTYPE html>
 					<html>
 					<head><script nonce="%s"></script></head>
 					<body>Default</body>
 					</html>
-					""".formatted(cspNonce));
+					"""::formatted);
 		}
 
 		@GetMapping(path = "/custom", produces = MediaType.TEXT_HTML_VALUE)
 		@ResponseBody
-		Mono<String> custom(@RequestAttribute("CUSTOM_NONCE") String cspNonce) {
-			return Mono.fromSupplier(() -> """
+		Mono<String> custom(@RequestAttribute("CUSTOM_NONCE") Mono<String> cspNonce) {
+			return cspNonce.map("""
 					<!DOCTYPE html>
 					<html>
 					<head><script nonce="%s"></script></head>
 					<body>Custom</body>
 					</html>
-					""".formatted(cspNonce));
+					"""::formatted);
 		}
 
 	}

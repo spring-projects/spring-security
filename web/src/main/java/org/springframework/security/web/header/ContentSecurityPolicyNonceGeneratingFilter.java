@@ -18,6 +18,7 @@ package org.springframework.security.web.header;
 
 import java.io.IOException;
 import java.util.Base64;
+import java.util.function.Supplier;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -27,6 +28,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
 import org.springframework.util.Assert;
+import org.springframework.util.function.SingletonSupplier;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
@@ -78,8 +80,8 @@ public final class ContentSecurityPolicyNonceGeneratingFilter extends OncePerReq
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
-		String nonce = this.nonceGenerator.generateKey();
-		request.setAttribute(this.attributeName, nonce);
+		Supplier<String> deferredNonce = SingletonSupplier.of(this.nonceGenerator::generateKey);
+		request.setAttribute(this.attributeName, deferredNonce);
 		filterChain.doFilter(request, response);
 	}
 

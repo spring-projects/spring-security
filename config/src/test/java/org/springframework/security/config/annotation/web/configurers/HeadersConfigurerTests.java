@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.web.configurers;
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import com.google.common.net.HttpHeaders;
@@ -1177,26 +1178,26 @@ public class HeadersConfigurerTests {
 
 		@GetMapping(produces = MediaType.TEXT_HTML_VALUE)
 		@ResponseBody
-		String defaultAttribute(@RequestAttribute("_csp_nonce") String cspNonce) {
+		String defaultAttribute(@RequestAttribute("_csp_nonce") Supplier<String> cspNonce) {
 			return """
 					<!DOCTYPE html>
 					<html>
 					<head><script nonce="%s"></script></head>
 					<body>Default</body>
 					</html>
-					""".formatted(cspNonce);
+					""".formatted(cspNonce.get());
 		}
 
 		@GetMapping(path = "/custom", produces = MediaType.TEXT_HTML_VALUE)
 		@ResponseBody
-		String custom(@RequestAttribute("CUSTOM_NONCE") String cspNonce) {
+		String custom(@RequestAttribute("CUSTOM_NONCE") Supplier<String> cspNonce) {
 			return """
 					<!DOCTYPE html>
 					<html>
 					<head><script nonce="%s"></script></head>
 					<body>Custom</body>
 					</html>
-					""".formatted(cspNonce);
+					""".formatted(cspNonce.get());
 		}
 
 	}

@@ -52,9 +52,12 @@ class ContentSecurityPolicyNonceGeneratingWebFilterTests {
 
 		WebFilter filter = new ContentSecurityPolicyNonceGeneratingWebFilter(ATTRIBUTE_NAME);
 		StepVerifier.create(filter.filter(exchange, chain)).verifyComplete();
-		String nonce = exchange.getRequiredAttribute(ATTRIBUTE_NAME);
+		Mono<String> deferredNonce = exchange.getRequiredAttribute(ATTRIBUTE_NAME);
 
-		assertThat(nonce).isBase64().hasSizeGreaterThanOrEqualTo((int) Math.ceil(4.0 / 3 * MIN_STRENGTH_IN_BYTE));
+		StepVerifier.create(deferredNonce)
+			.assertNext((nonce) -> assertThat(nonce).isBase64()
+				.hasSizeGreaterThanOrEqualTo((int) Math.ceil(4.0 / 3 * MIN_STRENGTH_IN_BYTE)))
+			.verifyComplete();
 		then(chain).should().filter(exchange);
 	}
 
@@ -69,8 +72,9 @@ class ContentSecurityPolicyNonceGeneratingWebFilterTests {
 
 		WebFilter filter = new ContentSecurityPolicyNonceGeneratingWebFilter(ATTRIBUTE_NAME, nonceGenerator);
 		StepVerifier.create(filter.filter(exchange, chain)).verifyComplete();
+		Mono<String> deferredNonce = exchange.getRequiredAttribute(ATTRIBUTE_NAME);
 
-		assertThat((String) exchange.getRequiredAttribute(ATTRIBUTE_NAME)).isSameAs(nonce);
+		StepVerifier.create(deferredNonce).expectNext(nonce).verifyComplete();
 		then(nonceGenerator).should().generateKey();
 	}
 

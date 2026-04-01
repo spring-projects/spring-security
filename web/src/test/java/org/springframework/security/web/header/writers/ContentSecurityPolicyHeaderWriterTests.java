@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.header.writers;
 
+import java.util.function.Supplier;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -147,7 +149,7 @@ public class ContentSecurityPolicyHeaderWriterTests {
 	@Test
 	public void writeNonceBasedCspWhenNonceAttributeNameUnsetThenUseDefault() {
 		this.writer.setPolicyDirectives("script-src 'nonce-{nonce}'; style-src 'nonce-{nonce}'");
-		this.request.setAttribute(DEFAULT_NONCE_ATTRIBUTE_NAME, "Test+Nonce+Value");
+		this.request.setAttribute(DEFAULT_NONCE_ATTRIBUTE_NAME, (Supplier<String>) () -> "Test+Nonce+Value");
 		this.writer.writeHeaders(this.request, this.response);
 		assertThat(this.response.getHeader(CONTENT_SECURITY_POLICY_HEADER))
 			.isEqualTo("script-src 'nonce-Test+Nonce+Value'; style-src 'nonce-Test+Nonce+Value'");
@@ -159,8 +161,8 @@ public class ContentSecurityPolicyHeaderWriterTests {
 		String customAttributeName = "custom-attribute-name";
 		this.writer.setPolicyDirectives("script-src 'nonce-{nonce}'");
 		this.writer.setNonceAttributeName(customAttributeName);
-		this.request.setAttribute(DEFAULT_NONCE_ATTRIBUTE_NAME, "SHOULD+NOT+USE");
-		this.request.setAttribute(customAttributeName, "For/Custom/Nonce/Attribute/Name");
+		this.request.setAttribute(DEFAULT_NONCE_ATTRIBUTE_NAME, (Supplier<String>) () -> "SHOULD+NOT+USE");
+		this.request.setAttribute(customAttributeName, (Supplier<String>) () -> "For/Custom/Nonce/Attribute/Name");
 		this.writer.writeHeaders(this.request, this.response);
 		assertThat(this.response.getHeader(CONTENT_SECURITY_POLICY_HEADER))
 			.isEqualTo("script-src 'nonce-For/Custom/Nonce/Attribute/Name'");
@@ -172,7 +174,8 @@ public class ContentSecurityPolicyHeaderWriterTests {
 		this.writer.setPolicyDirectives("script-src 'nonce-{nonce}'");
 		this.writer.setNonceAttributeName(DEFAULT_NONCE_ATTRIBUTE_NAME);
 		assertThatIllegalStateException().isThrownBy(() -> this.writer.writeHeaders(this.request, this.response))
-			.withMessage("Nonce is unset");
+			.withMessage(
+					"Failed to replace {nonce} placeholders since no nonce found as a request attribute _csp_nonce");
 	}
 
 }

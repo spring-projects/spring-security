@@ -18,6 +18,7 @@ package org.springframework.security.web.server.header;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import org.springframework.http.HttpHeaders;
@@ -114,7 +115,7 @@ public class ContentSecurityPolicyServerHttpHeadersWriterTests {
 	@Test
 	public void writeNonceBasedCspWhenNonceAttributeNameUnsetThenUseDefault() {
 		this.writer.setPolicyDirectives("script-src 'nonce-{nonce}'; style-src 'nonce-{nonce}'");
-		this.exchange.getAttributes().put(DEFAULT_NONCE_ATTRIBUTE_NAME, "Test+Nonce+Value");
+		this.exchange.getAttributes().put(DEFAULT_NONCE_ATTRIBUTE_NAME, Mono.just("Test+Nonce+Value"));
 		StepVerifier.create(this.writer.writeHttpHeaders(this.exchange)).verifyComplete();
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers.get(CONTENT_SECURITY_POLICY_HEADER))
@@ -127,8 +128,8 @@ public class ContentSecurityPolicyServerHttpHeadersWriterTests {
 		String customAttributeName = "custom-attribute-name";
 		this.writer.setPolicyDirectives("script-src 'nonce-{nonce}'");
 		this.writer.setNonceAttributeName(customAttributeName);
-		this.exchange.getAttributes().put(DEFAULT_NONCE_ATTRIBUTE_NAME, "SHOULD+NOT+USE");
-		this.exchange.getAttributes().put(customAttributeName, "For/Custom/Nonce/Attribute/Name");
+		this.exchange.getAttributes().put(DEFAULT_NONCE_ATTRIBUTE_NAME, Mono.just("SHOULD+NOT+USE"));
+		this.exchange.getAttributes().put(customAttributeName, Mono.just("For/Custom/Nonce/Attribute/Name"));
 		StepVerifier.create(this.writer.writeHttpHeaders(this.exchange)).verifyComplete();
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers.get(CONTENT_SECURITY_POLICY_HEADER))
@@ -141,8 +142,9 @@ public class ContentSecurityPolicyServerHttpHeadersWriterTests {
 		this.writer.setPolicyDirectives("script-src 'nonce-{nonce}'");
 		this.writer.setNonceAttributeName(DEFAULT_NONCE_ATTRIBUTE_NAME);
 		StepVerifier.create(this.writer.writeHttpHeaders(this.exchange))
-			.expectErrorSatisfies(
-					(ex) -> assertThat(ex).isInstanceOf(IllegalStateException.class).hasMessage("Nonce is unset"))
+			.expectErrorSatisfies((ex) -> assertThat(ex).isInstanceOf(IllegalStateException.class)
+				.hasMessage(
+						"Failed to replace {nonce} placeholders since no nonce found as an exchange attribute _csp_nonce"))
 			.verify();
 	}
 

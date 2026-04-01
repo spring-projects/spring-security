@@ -78,17 +78,26 @@ public final class ContentSecurityPolicyServerHttpHeadersWriter implements Serve
 		return Mono.justOrEmpty(this.policyDirectives).flatMap((csp) -> {
 			String headerName = resolveHeader(this.reportOnly);
 			HttpHeaders headers = exchange.getResponse().getHeaders();
-			if (!headers.containsHeader(headerName)) {
-				if (this.isNonceBased) {
-					String nonce = exchange.getAttribute(this.nonceAttributeName);
-					if (nonce == null) {
-						return Mono.error(new IllegalStateException("Nonce is unset"));
-					}
-					csp = csp.replace(NONCE_PLACEHOLDER, nonce);
-				}
-				headers.put(headerName, List.of(csp));
+
+			if (headers.containsHeader(headerName)) {
+				return Mono.empty();
 			}
-			return Mono.empty();
+
+			if (!this.isNonceBased) {
+				headers.put(headerName, List.of(csp));
+				return Mono.empty();
+			}
+
+			Mono<String> deferredNonce = exchange.getAttribute(this.nonceAttributeName);
+			if (deferredNonce == null) {
+				return Mono.error(new IllegalStateException(
+						"Failed to replace {nonce} placeholders since no nonce found as an exchange attribute "
+								+ this.nonceAttributeName));
+			}
+			return deferredNonce.flatMap((nonce) -> {
+				headers.put(headerName, List.of(csp.replace(NONCE_PLACEHOLDER, nonce)));
+				return Mono.empty();
+			});
 		});
 	}
 

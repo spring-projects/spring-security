@@ -74,10 +74,9 @@ public final class ContentSecurityPolicyNonceGeneratingWebFilter implements WebF
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		return Mono.fromSupplier(this.nonceGenerator::generateKey).flatMap((nonce) -> {
-			exchange.getAttributes().put(this.attributeName, nonce);
-			return chain.filter(exchange);
-		});
+		Mono<String> deferredNonce = Mono.fromSupplier(this.nonceGenerator::generateKey).cache();
+		exchange.getAttributes().put(this.attributeName, deferredNonce);
+		return chain.filter(exchange);
 	}
 
 }
