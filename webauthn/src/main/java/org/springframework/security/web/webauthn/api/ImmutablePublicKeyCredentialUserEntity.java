@@ -137,7 +137,7 @@ public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCr
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (this == obj) {
 			return true;
 		}
