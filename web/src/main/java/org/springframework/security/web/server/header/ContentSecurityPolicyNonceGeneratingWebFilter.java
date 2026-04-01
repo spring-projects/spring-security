@@ -17,6 +17,7 @@
 package org.springframework.security.web.server.header;
 
 import java.util.Base64;
+import java.util.Map;
 
 import reactor.core.publisher.Mono;
 
@@ -42,21 +43,17 @@ import org.springframework.web.server.WebFilterChain;
  */
 public final class ContentSecurityPolicyNonceGeneratingWebFilter implements WebFilter {
 
-	private final String attributeName;
+	private String attributeName = "_csp_nonce";
 
 	private final StringKeyGenerator nonceGenerator;
 
 	/**
 	 * Creates a new instance.
-	 * @param attributeName the name of the request attribute to generate
 	 * @param nonceGenerator a {@link StringKeyGenerator} for generating nonce
-	 * @throws IllegalArgumentException if {@code attributeName} is null or empty string,
-	 * or {@code nonceGenerator} is null
+	 * @throws IllegalArgumentException if {@code nonceGenerator} is {@code null}
 	 */
-	public ContentSecurityPolicyNonceGeneratingWebFilter(String attributeName, StringKeyGenerator nonceGenerator) {
-		Assert.hasLength(attributeName, "AttributeName must not be null or empty");
+	public ContentSecurityPolicyNonceGeneratingWebFilter(StringKeyGenerator nonceGenerator) {
 		Assert.notNull(nonceGenerator, "NonceGenerator must not be null");
-		this.attributeName = attributeName;
 		this.nonceGenerator = nonceGenerator;
 	}
 
@@ -65,18 +62,34 @@ public final class ContentSecurityPolicyNonceGeneratingWebFilter implements WebF
 	 * <p>
 	 * For each exchange, the created filter will generate a secure random nonce value
 	 * with 128-bit entropy and encode it as a Base64 string without padding.
-	 * @param attributeName the name of the exchange attribute to generate
-	 * @throws IllegalArgumentException if {@code attributeName} is null or empty string
 	 */
-	public ContentSecurityPolicyNonceGeneratingWebFilter(String attributeName) {
-		this(attributeName, new Base64StringKeyGenerator(Base64.getEncoder().withoutPadding(), 16));
+	public ContentSecurityPolicyNonceGeneratingWebFilter() {
+		this(new Base64StringKeyGenerator(Base64.getEncoder().withoutPadding(), 16));
 	}
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		Mono<String> deferredNonce = Mono.fromSupplier(this.nonceGenerator::generateKey).cache();
-		exchange.getAttributes().put(this.attributeName, deferredNonce);
+		Map<String, Object> attributes = exchange.getAttributes();
+
+		// For internal use
+		attributes.put(ContentSecurityPolicyNonceGeneratingWebFilter.class.getName(), deferredNonce);
+
+		// Exposed to users
+		attributes.put(this.attributeName, deferredNonce);
+
 		return chain.filter(exchange);
+	}
+
+	/**
+	 * Sets the name of the exchange attribute to generate.
+	 * @param attributeName the name of the exchange attribute to generate
+	 * @throws IllegalArgumentException if {@code attributeName} is {@code null} or empty
+	 * string
+	 */
+	public void setAttributeName(String attributeName) {
+		Assert.hasLength(attributeName, "AttributeName must not be null or empty");
+		this.attributeName = attributeName;
 	}
 
 }

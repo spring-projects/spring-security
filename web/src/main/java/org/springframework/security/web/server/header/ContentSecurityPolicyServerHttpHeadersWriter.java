@@ -61,15 +61,11 @@ public final class ContentSecurityPolicyServerHttpHeadersWriter implements Serve
 
 	public static final String CONTENT_SECURITY_POLICY_REPORT_ONLY = "Content-Security-Policy-Report-Only";
 
-	public static final String DEFAULT_NONCE_ATTRIBUTE_NAME = "_csp_nonce";
-
 	public static final String NONCE_PLACEHOLDER = "{nonce}";
 
 	private @Nullable String policyDirectives;
 
 	private boolean reportOnly;
-
-	private String nonceAttributeName = DEFAULT_NONCE_ATTRIBUTE_NAME;
 
 	private boolean isNonceBased;
 
@@ -88,11 +84,12 @@ public final class ContentSecurityPolicyServerHttpHeadersWriter implements Serve
 				return Mono.empty();
 			}
 
-			Mono<String> deferredNonce = exchange.getAttribute(this.nonceAttributeName);
+			Mono<String> deferredNonce = exchange
+				.getAttribute(ContentSecurityPolicyNonceGeneratingWebFilter.class.getName());
 			if (deferredNonce == null) {
 				return Mono.error(new IllegalStateException(
 						"Failed to replace {nonce} placeholders since no nonce found as an exchange attribute "
-								+ this.nonceAttributeName));
+								+ ContentSecurityPolicyNonceGeneratingWebFilter.class.getName()));
 			}
 			return deferredNonce.flatMap((nonce) -> {
 				headers.put(headerName, List.of(csp.replace(NONCE_PLACEHOLDER, nonce)));
@@ -121,31 +118,6 @@ public final class ContentSecurityPolicyServerHttpHeadersWriter implements Serve
 	 */
 	public void setReportOnly(boolean reportOnly) {
 		this.reportOnly = reportOnly;
-	}
-
-	/**
-	 * Sets the name of the {@link ServerWebExchange#getAttribute(String) exchange
-	 * attribute} from which the nonce value is taken. Defaults to {@code _csp_nonce} if
-	 * unset.
-	 * @param nonceAttributeName the name of the nonce attribute
-	 * @throws IllegalArgumentException if {@code nonceAttributeName} is {@code null} or
-	 * empty
-	 * @since 7.1
-	 */
-	public void setNonceAttributeName(String nonceAttributeName) {
-		Assert.hasLength(nonceAttributeName, "nonceAttributeName cannot be null or empty");
-		this.nonceAttributeName = nonceAttributeName;
-	}
-
-	/**
-	 * Returns the name of the {@link ServerWebExchange#getAttribute(String) request
-	 * attribute} from which the nonce value is taken. Defaults to {@code _csp_nonce} if
-	 * unset.
-	 * @return the name of the nonce attribute.
-	 * @since 7.1
-	 */
-	public String getNonceAttributeName() {
-		return this.nonceAttributeName;
 	}
 
 	/**

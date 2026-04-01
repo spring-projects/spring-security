@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.web.header.ContentSecurityPolicyNonceGeneratingFilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -36,8 +37,6 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 public class ContentSecurityPolicyHeaderWriterTests {
 
 	private static final String DEFAULT_POLICY_DIRECTIVES = "default-src 'self'";
-
-	private static final String DEFAULT_NONCE_ATTRIBUTE_NAME = "_csp_nonce";
 
 	private MockHttpServletRequest request;
 
@@ -145,33 +144,21 @@ public class ContentSecurityPolicyHeaderWriterTests {
 	}
 
 	@Test
-	public void writeNonceBasedCspWhenNonceAttributeNameUnsetThenUseDefault() {
+	public void writeNonceBasedCspWhenNoncePresent() {
 		this.writer.setPolicyDirectives("script-src 'nonce-{nonce}'; style-src 'nonce-{nonce}'");
-		this.request.setAttribute(DEFAULT_NONCE_ATTRIBUTE_NAME, (Supplier<String>) () -> "Test+Nonce+Value");
+		this.request.setAttribute(ContentSecurityPolicyNonceGeneratingFilter.class.getName(),
+				(Supplier<String>) () -> "Test+Nonce+Value");
 		this.writer.writeHeaders(this.request, this.response);
 		assertThat(this.response.getHeader(CONTENT_SECURITY_POLICY_HEADER))
 			.isEqualTo("script-src 'nonce-Test+Nonce+Value'; style-src 'nonce-Test+Nonce+Value'");
 	}
 
 	@Test
-	public void writeNonceBasedCspWhenNonceAttributeNameSetThenUseCustomAttribute() {
-		String customAttributeName = "custom-attribute-name";
-		this.writer.setPolicyDirectives("script-src 'nonce-{nonce}'");
-		this.writer.setNonceAttributeName(customAttributeName);
-		this.request.setAttribute(DEFAULT_NONCE_ATTRIBUTE_NAME, (Supplier<String>) () -> "SHOULD+NOT+USE");
-		this.request.setAttribute(customAttributeName, (Supplier<String>) () -> "For/Custom/Nonce/Attribute/Name");
-		this.writer.writeHeaders(this.request, this.response);
-		assertThat(this.response.getHeader(CONTENT_SECURITY_POLICY_HEADER))
-			.isEqualTo("script-src 'nonce-For/Custom/Nonce/Attribute/Name'");
-	}
-
-	@Test
 	public void writeNonceBasedCspWhenNonceUnsetThenThrows() {
 		this.writer.setPolicyDirectives("script-src 'nonce-{nonce}'");
-		this.writer.setNonceAttributeName(DEFAULT_NONCE_ATTRIBUTE_NAME);
 		assertThatIllegalStateException().isThrownBy(() -> this.writer.writeHeaders(this.request, this.response))
-			.withMessage(
-					"Failed to replace {nonce} placeholders since no nonce found as a request attribute _csp_nonce");
+			.withMessage("Failed to replace {nonce} placeholders since no nonce found as a request attribute "
+					+ ContentSecurityPolicyNonceGeneratingFilter.class.getName());
 	}
 
 }

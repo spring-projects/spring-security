@@ -2486,6 +2486,8 @@ public class ServerHttpSecurity {
 
 		private CrossOriginResourcePolicyServerHttpHeadersWriter crossOriginResourcePolicy = new CrossOriginResourcePolicyServerHttpHeadersWriter();
 
+		private final ContentSecurityPolicyNonceGeneratingWebFilter nonceGeneratingFilter = new ContentSecurityPolicyNonceGeneratingWebFilter();
+
 		private HeaderSpec() {
 			this.writers = new ArrayList<>(Arrays.asList(this.cacheControl, this.contentTypeOptions, this.hsts,
 					this.frameOptions, this.xss, this.featurePolicy, this.permissionsPolicy, this.contentSecurityPolicy,
@@ -2564,10 +2566,7 @@ public class ServerHttpSecurity {
 			HttpHeaderWriterWebFilter result = new HttpHeaderWriterWebFilter(writer);
 			http.addFilterAt(result, SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
 			if (this.contentSecurityPolicy.isNonceBased()) {
-				http.addFilterBefore(
-						new ContentSecurityPolicyNonceGeneratingWebFilter(
-								this.contentSecurityPolicy.getNonceAttributeName()),
-						SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
+				http.addFilterBefore(this.nonceGeneratingFilter, SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
 			}
 		}
 
@@ -2875,7 +2874,7 @@ public class ServerHttpSecurity {
 			}
 
 			/**
-			 * Sets the name of the {@link ServerWebExchange#getAttribute(String) request
+			 * Sets the name of the {@link ServerWebExchange#getAttribute(String) exchange
 			 * attribute} for the generated nonce. Views can read this attribute to render
 			 * the nonce in HTML.
 			 * @param nonceAttributeName the name of the nonce attribute
@@ -2885,7 +2884,7 @@ public class ServerHttpSecurity {
 			 * @since 7.1
 			 */
 			public ContentSecurityPolicySpec nonceAttributeName(String nonceAttributeName) {
-				HeaderSpec.this.contentSecurityPolicy.setNonceAttributeName(nonceAttributeName);
+				HeaderSpec.this.nonceGeneratingFilter.setAttributeName(nonceAttributeName);
 				return this;
 			}
 

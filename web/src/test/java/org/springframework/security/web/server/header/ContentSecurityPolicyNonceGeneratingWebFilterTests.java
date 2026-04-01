@@ -39,7 +39,7 @@ import static org.mockito.Mockito.mock;
  */
 class ContentSecurityPolicyNonceGeneratingWebFilterTests {
 
-	private static final String ATTRIBUTE_NAME = "TEST_NONCE_ATTR";
+	private static final String DEFAULT_ATTRIBUTE_NAME = "_csp_nonce";
 
 	private static final int MIN_STRENGTH_IN_BYTE = 16;
 
@@ -49,14 +49,38 @@ class ContentSecurityPolicyNonceGeneratingWebFilterTests {
 		WebFilterChain chain = mock();
 		given(chain.filter(exchange)).willReturn(Mono.empty());
 
-		WebFilter filter = new ContentSecurityPolicyNonceGeneratingWebFilter(ATTRIBUTE_NAME);
+		WebFilter filter = new ContentSecurityPolicyNonceGeneratingWebFilter();
 		StepVerifier.create(filter.filter(exchange, chain)).verifyComplete();
-		Mono<String> deferredNonce = exchange.getRequiredAttribute(ATTRIBUTE_NAME);
+		Mono<String> internalDeferredNonce = exchange
+			.getRequiredAttribute(ContentSecurityPolicyNonceGeneratingWebFilter.class.getName());
+		Mono<String> deferredNonce = exchange.getRequiredAttribute(DEFAULT_ATTRIBUTE_NAME);
 
-		StepVerifier.create(deferredNonce)
-			.assertNext((nonce) -> assertThat(nonce).isBase64()
-				.hasSizeGreaterThanOrEqualTo((int) Math.ceil(4.0 / 3 * MIN_STRENGTH_IN_BYTE)))
+		int minExpectedLength = (int) Math.ceil(4.0 / 3 * MIN_STRENGTH_IN_BYTE);
+		StepVerifier.create(internalDeferredNonce)
+			.assertNext((nonce) -> assertThat(nonce).isBase64().hasSizeGreaterThanOrEqualTo(minExpectedLength))
 			.verifyComplete();
+		StepVerifier.create(deferredNonce)
+			.assertNext((nonce) -> assertThat(nonce).isBase64().hasSizeGreaterThanOrEqualTo(minExpectedLength))
+			.verifyComplete();
+		then(chain).should().filter(exchange);
+	}
+
+	@Test
+	void customAttributeNameIsUsed() {
+		ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/"));
+		WebFilterChain chain = mock();
+		given(chain.filter(exchange)).willReturn(Mono.empty());
+		String customAttributeName = "TEST_NONCE_ATTR";
+
+		var filter = new ContentSecurityPolicyNonceGeneratingWebFilter();
+		filter.setAttributeName(customAttributeName);
+		StepVerifier.create(filter.filter(exchange, chain)).verifyComplete();
+		Mono<String> internalDeferredNonce = exchange
+			.getRequiredAttribute(ContentSecurityPolicyNonceGeneratingWebFilter.class.getName());
+		Mono<String> deferredNonce = exchange.getRequiredAttribute(customAttributeName);
+
+		StepVerifier.create(internalDeferredNonce).assertNext((nonce) -> assertThat(nonce).isBase64()).verifyComplete();
+		StepVerifier.create(deferredNonce).assertNext((nonce) -> assertThat(nonce).isBase64()).verifyComplete();
 		then(chain).should().filter(exchange);
 	}
 
@@ -69,29 +93,30 @@ class ContentSecurityPolicyNonceGeneratingWebFilterTests {
 		StringKeyGenerator nonceGenerator = mock();
 		given(nonceGenerator.generateKey()).willReturn(nonce);
 
-		WebFilter filter = new ContentSecurityPolicyNonceGeneratingWebFilter(ATTRIBUTE_NAME, nonceGenerator);
+		WebFilter filter = new ContentSecurityPolicyNonceGeneratingWebFilter(nonceGenerator);
 		StepVerifier.create(filter.filter(exchange, chain)).verifyComplete();
-		Mono<String> deferredNonce = exchange.getRequiredAttribute(ATTRIBUTE_NAME);
+		Mono<String> internalDeferredNonce = exchange
+			.getRequiredAttribute(ContentSecurityPolicyNonceGeneratingWebFilter.class.getName());
+		Mono<String> deferredNonce = exchange.getRequiredAttribute(DEFAULT_ATTRIBUTE_NAME);
 
+		StepVerifier.create(internalDeferredNonce).expectNext(nonce).verifyComplete();
 		StepVerifier.create(deferredNonce).expectNext(nonce).verifyComplete();
 		then(nonceGenerator).should().generateKey();
 	}
 
 	@Test
-	void illegalConstructorArgumentsAreRejected() {
+	void illegalConstructorArgumentIsRejected() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new ContentSecurityPolicyNonceGeneratingWebFilter(null))
-			.withMessage("AttributeName must not be null or empty");
-		assertThatIllegalArgumentException().isThrownBy(() -> new ContentSecurityPolicyNonceGeneratingWebFilter(""))
-			.withMessage("AttributeName must not be null or empty");
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> new ContentSecurityPolicyNonceGeneratingWebFilter(null, KeyGenerators.string()))
-			.withMessage("AttributeName must not be null or empty");
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> new ContentSecurityPolicyNonceGeneratingWebFilter("", KeyGenerators.string()))
-			.withMessage("AttributeName must not be null or empty");
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> new ContentSecurityPolicyNonceGeneratingWebFilter(ATTRIBUTE_NAME, null))
 			.withMessage("NonceGenerator must not be null");
+	}
+
+	@Test
+	void illegalSetterArgumentsAreRejected() {
+		var filter = new ContentSecurityPolicyNonceGeneratingWebFilter();
+		assertThatIllegalArgumentException().isThrownBy(() -> filter.setAttributeName(null))
+			.withMessage("AttributeName must not be null or empty");
+		assertThatIllegalArgumentException().isThrownBy(() -> filter.setAttributeName(""))
+			.withMessage("AttributeName must not be null or empty");
 	}
 
 }

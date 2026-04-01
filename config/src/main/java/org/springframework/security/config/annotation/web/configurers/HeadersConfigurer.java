@@ -286,8 +286,11 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	private void configureCspNonceGeneratingFilter(H http) {
 		ContentSecurityPolicyHeaderWriter writer = this.contentSecurityPolicy.writer;
 		if (writer != null && writer.isNonceBased()) {
-			http.addFilterBefore(new ContentSecurityPolicyNonceGeneratingFilter(writer.getNonceAttributeName()),
-					HeaderWriterFilter.class);
+			ContentSecurityPolicyNonceGeneratingFilter filter = new ContentSecurityPolicyNonceGeneratingFilter();
+			if (this.contentSecurityPolicy.nonceAttributeName != null) {
+				filter.setAttributeName(this.contentSecurityPolicy.nonceAttributeName);
+			}
+			http.addFilterBefore(filter, HeaderWriterFilter.class);
 		}
 	}
 
@@ -953,6 +956,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 
 		private ContentSecurityPolicyHeaderWriter writer;
 
+		private @Nullable String nonceAttributeName;
+
 		private @Nullable RequestMatcher requestMatcher;
 
 		private ContentSecurityPolicyConfig() {
@@ -991,7 +996,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @since 7.1
 		 */
 		public ContentSecurityPolicyConfig nonceAttributeName(String nonceAttributeName) {
-			this.writer.setNonceAttributeName(nonceAttributeName);
+			Assert.hasLength(nonceAttributeName, "NonceAttributeName must not be null or empty");
+			this.nonceAttributeName = nonceAttributeName;
 			return this;
 		}
 

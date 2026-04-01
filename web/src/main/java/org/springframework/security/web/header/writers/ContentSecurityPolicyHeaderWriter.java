@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.security.web.header.ContentSecurityPolicyNonceGeneratingFilter;
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.util.Assert;
 
@@ -119,8 +120,6 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 
 	private static final String DEFAULT_SRC_SELF_POLICY = "default-src 'self'";
 
-	public static final String DEFAULT_NONCE_ATTRIBUTE_NAME = "_csp_nonce";
-
 	public static final String NONCE_PLACEHOLDER = "{nonce}";
 
 	private String policyDirectives;
@@ -128,8 +127,6 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 	private boolean reportOnly;
 
 	private boolean isNonceBased;
-
-	private String nonceAttributeName = DEFAULT_NONCE_ATTRIBUTE_NAME;
 
 	/**
 	 * Creates a new instance. Default value: default-src 'self'
@@ -161,10 +158,11 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 		if (!response.containsHeader(headerName)) {
 			String csp;
 			if (this.isNonceBased) {
-				Supplier<String> deferredNonce = (Supplier<String>) request.getAttribute(this.nonceAttributeName);
+				Supplier<String> deferredNonce = (Supplier<String>) request
+					.getAttribute(ContentSecurityPolicyNonceGeneratingFilter.class.getName());
 				Assert.state(deferredNonce != null,
 						() -> "Failed to replace {nonce} placeholders since no nonce found as a request attribute "
-								+ this.nonceAttributeName);
+								+ ContentSecurityPolicyNonceGeneratingFilter.class.getName());
 				csp = this.policyDirectives.replace(NONCE_PLACEHOLDER, deferredNonce.get());
 			}
 			else {
@@ -197,29 +195,6 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 	}
 
 	/**
-	 * Sets the name of the servlet request attribute from which the nonce value is taken.
-	 * Defaults to {@code _csp_nonce} if unset.
-	 * @param nonceAttributeName the name of the nonce attribute
-	 * @throws IllegalArgumentException if {@code nonceAttributeName} is {@code null} or
-	 * empty
-	 * @since 7.1
-	 */
-	public void setNonceAttributeName(String nonceAttributeName) {
-		Assert.hasLength(nonceAttributeName, "nonceAttributeName cannot be null or empty");
-		this.nonceAttributeName = nonceAttributeName;
-	}
-
-	/**
-	 * Returns the name of the servlet request attribute from which the nonce value is
-	 * taken. Defaults to {@code _csp_nonce} if unset.
-	 * @return the name of the nonce attribute.
-	 * @since 7.1
-	 */
-	public String getNonceAttributeName() {
-		return this.nonceAttributeName;
-	}
-
-	/**
 	 * Returns whether the content security policy is nonce-based. The CSP is considered
 	 * nonce-based if the configured {@code policyDirectives} string contains a
 	 * {@code {nonce}} placeholder.
@@ -233,7 +208,7 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 	@Override
 	public String toString() {
 		return getClass().getName() + " [policyDirectives=" + this.policyDirectives + "; reportOnly=" + this.reportOnly
-				+ "; isNonceBased=" + this.isNonceBased + "; nonceAttributeName=" + this.nonceAttributeName + "]";
+				+ "; isNonceBased=" + this.isNonceBased + "]";
 	}
 
 }

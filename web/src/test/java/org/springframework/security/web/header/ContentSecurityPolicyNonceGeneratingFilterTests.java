@@ -45,7 +45,7 @@ import static org.mockito.Mockito.spy;
  */
 class ContentSecurityPolicyNonceGeneratingFilterTests {
 
-	private static final String ATTRIBUTE_NAME = "TEST_NONCE_ATTR";
+	private static final String DEFAULT_ATTRIBUTE_NAME = "_csp_nonce";
 
 	private static final int MIN_STRENGTH_IN_BYTE = 16;
 
@@ -55,13 +55,40 @@ class ContentSecurityPolicyNonceGeneratingFilterTests {
 		HttpServletResponse response = new MockHttpServletResponse();
 		FilterChain chain = spy(new MockFilterChain());
 
-		Filter filter = new ContentSecurityPolicyNonceGeneratingFilter(ATTRIBUTE_NAME);
+		Filter filter = new ContentSecurityPolicyNonceGeneratingFilter();
 		filter.doFilter(request, response, chain);
 
-		assertThat(request.getAttribute(ATTRIBUTE_NAME)).asInstanceOf(type(Supplier.class))
+		int minExpectedLength = (int) Math.ceil(4.0 / 3 * MIN_STRENGTH_IN_BYTE);
+		assertThat(request.getAttribute(ContentSecurityPolicyNonceGeneratingFilter.class.getName()))
+			.asInstanceOf(type(Supplier.class))
 			.extracting(Supplier::get, as(STRING))
 			.isBase64()
-			.hasSizeGreaterThanOrEqualTo((int) Math.ceil(4.0 / 3 * MIN_STRENGTH_IN_BYTE));
+			.hasSizeGreaterThanOrEqualTo(minExpectedLength);
+		assertThat(request.getAttribute(DEFAULT_ATTRIBUTE_NAME)).asInstanceOf(type(Supplier.class))
+			.extracting(Supplier::get, as(STRING))
+			.isBase64()
+			.hasSizeGreaterThanOrEqualTo(minExpectedLength);
+		then(chain).should().doFilter(request, response);
+	}
+
+	@Test
+	void customAttributeNameIsUsed() throws Exception {
+		HttpServletRequest request = new MockHttpServletRequest();
+		HttpServletResponse response = new MockHttpServletResponse();
+		FilterChain chain = spy(new MockFilterChain());
+		String customAttributeName = "TEST_NONCE_ATTR";
+
+		var filter = new ContentSecurityPolicyNonceGeneratingFilter();
+		filter.setAttributeName(customAttributeName);
+		filter.doFilter(request, response, chain);
+
+		assertThat(request.getAttribute(ContentSecurityPolicyNonceGeneratingFilter.class.getName()))
+			.asInstanceOf(type(Supplier.class))
+			.extracting(Supplier::get, as(STRING))
+			.isBase64();
+		assertThat(request.getAttribute(customAttributeName)).asInstanceOf(type(Supplier.class))
+			.extracting(Supplier::get, as(STRING))
+			.isBase64();
 		then(chain).should().doFilter(request, response);
 	}
 
@@ -74,10 +101,14 @@ class ContentSecurityPolicyNonceGeneratingFilterTests {
 		StringKeyGenerator nonceGenerator = mock();
 		given(nonceGenerator.generateKey()).willReturn(nonce);
 
-		Filter filter = new ContentSecurityPolicyNonceGeneratingFilter(ATTRIBUTE_NAME, nonceGenerator);
+		Filter filter = new ContentSecurityPolicyNonceGeneratingFilter(nonceGenerator);
 		filter.doFilter(request, response, chain);
 
-		assertThat(request.getAttribute(ATTRIBUTE_NAME)).asInstanceOf(type(Supplier.class))
+		assertThat(request.getAttribute(ContentSecurityPolicyNonceGeneratingFilter.class.getName()))
+			.asInstanceOf(type(Supplier.class))
+			.extracting(Supplier::get, as(STRING))
+			.isSameAs(nonce);
+		assertThat(request.getAttribute(DEFAULT_ATTRIBUTE_NAME)).asInstanceOf(type(Supplier.class))
 			.extracting(Supplier::get, as(STRING))
 			.isSameAs(nonce);
 		then(nonceGenerator).should().generateKey();
@@ -86,18 +117,16 @@ class ContentSecurityPolicyNonceGeneratingFilterTests {
 	@Test
 	void illegalConstructorArgumentsAreRejected() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new ContentSecurityPolicyNonceGeneratingFilter(null))
-			.withMessage("AttributeName must not be null or empty");
-		assertThatIllegalArgumentException().isThrownBy(() -> new ContentSecurityPolicyNonceGeneratingFilter(""))
-			.withMessage("AttributeName must not be null or empty");
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> new ContentSecurityPolicyNonceGeneratingFilter(null, KeyGenerators.string()))
-			.withMessage("AttributeName must not be null or empty");
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> new ContentSecurityPolicyNonceGeneratingFilter("", KeyGenerators.string()))
-			.withMessage("AttributeName must not be null or empty");
-		assertThatIllegalArgumentException()
-			.isThrownBy(() -> new ContentSecurityPolicyNonceGeneratingFilter(ATTRIBUTE_NAME, null))
 			.withMessage("NonceGenerator must not be null");
+	}
+
+	@Test
+	void illegalSetterArgumentsAreRejected() {
+		var filter = new ContentSecurityPolicyNonceGeneratingFilter();
+		assertThatIllegalArgumentException().isThrownBy(() -> filter.setAttributeName(null))
+			.withMessage("AttributeName must not be null or empty");
+		assertThatIllegalArgumentException().isThrownBy(() -> filter.setAttributeName(""))
+			.withMessage("AttributeName must not be null or empty");
 	}
 
 }

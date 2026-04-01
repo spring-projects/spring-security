@@ -46,21 +46,17 @@ import org.springframework.web.filter.OncePerRequestFilter;
  */
 public final class ContentSecurityPolicyNonceGeneratingFilter extends OncePerRequestFilter {
 
-	private final String attributeName;
+	private String attributeName = "_csp_nonce";
 
 	private final StringKeyGenerator nonceGenerator;
 
 	/**
 	 * Creates a new instance.
-	 * @param attributeName the name of the request attribute to generate
 	 * @param nonceGenerator a {@link StringKeyGenerator} for generating nonce
-	 * @throws IllegalArgumentException if {@code attributeName} is null or empty string,
-	 * or {@code nonceGenerator} is null
+	 * @throws IllegalArgumentException if {@code nonceGenerator} is {@code null}
 	 */
-	public ContentSecurityPolicyNonceGeneratingFilter(String attributeName, StringKeyGenerator nonceGenerator) {
-		Assert.hasLength(attributeName, "AttributeName must not be null or empty");
+	public ContentSecurityPolicyNonceGeneratingFilter(StringKeyGenerator nonceGenerator) {
 		Assert.notNull(nonceGenerator, "NonceGenerator must not be null");
-		this.attributeName = attributeName;
 		this.nonceGenerator = nonceGenerator;
 	}
 
@@ -69,11 +65,9 @@ public final class ContentSecurityPolicyNonceGeneratingFilter extends OncePerReq
 	 * <p>
 	 * For each request, the created filter will generate a secure random nonce value with
 	 * 128-bit entropy and encode it as a Base64 string without padding.
-	 * @param attributeName the name of the request attribute to generate
-	 * @throws IllegalArgumentException if {@code attributeName} is null or empty string
 	 */
-	public ContentSecurityPolicyNonceGeneratingFilter(String attributeName) {
-		this(attributeName, new Base64StringKeyGenerator(Base64.getEncoder().withoutPadding(), 16));
+	public ContentSecurityPolicyNonceGeneratingFilter() {
+		this(new Base64StringKeyGenerator(Base64.getEncoder().withoutPadding(), 16));
 	}
 
 	@Override
@@ -81,8 +75,25 @@ public final class ContentSecurityPolicyNonceGeneratingFilter extends OncePerReq
 			throws ServletException, IOException {
 
 		Supplier<String> deferredNonce = SingletonSupplier.of(this.nonceGenerator::generateKey);
+
+		// For internal use
+		request.setAttribute(ContentSecurityPolicyNonceGeneratingFilter.class.getName(), deferredNonce);
+
+		// Exposed to users
 		request.setAttribute(this.attributeName, deferredNonce);
+
 		filterChain.doFilter(request, response);
+	}
+
+	/**
+	 * Set the name of the request attribute to generate.
+	 * @param attributeName the name of the request attribute to generate
+	 * @throws IllegalArgumentException if {@code attributeName} is {@code null} or empty
+	 * string
+	 */
+	public void setAttributeName(String attributeName) {
+		Assert.hasLength(attributeName, "AttributeName must not be null or empty");
+		this.attributeName = attributeName;
 	}
 
 }
