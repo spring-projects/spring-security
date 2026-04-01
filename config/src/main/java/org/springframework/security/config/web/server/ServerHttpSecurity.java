@@ -2852,11 +2852,11 @@ public class ServerHttpSecurity {
 			 * in the response. Otherwise, defaults to the {@code Content-Security-Policy}
 			 * header.
 			 * @param reportOnly whether to only report policy violations
-			 * @return the {@link ContentSecurityPolicySpec} to continue configuring
+			 * @return the {@link HeaderSpec} to continue configuring
 			 */
-			public ContentSecurityPolicySpec reportOnly(boolean reportOnly) {
+			public HeaderSpec reportOnly(boolean reportOnly) {
 				HeaderSpec.this.contentSecurityPolicy.setReportOnly(reportOnly);
-				return this;
+				return HeaderSpec.this;
 			}
 
 			/**
@@ -2865,11 +2865,11 @@ public class ServerHttpSecurity {
 			 * for a generated secure random nonce, e.g., {@code script-src 'self'
 			 * 'nonce-{nonce}'}.
 			 * @param policyDirectives the security policy directive(s)
-			 * @return the {@link ContentSecurityPolicySpec} to continue configuring
+			 * @return the {@link HeaderSpec} to continue configuring
 			 */
-			public ContentSecurityPolicySpec policyDirectives(String policyDirectives) {
+			public HeaderSpec policyDirectives(String policyDirectives) {
 				HeaderSpec.this.contentSecurityPolicy.setPolicyDirectives(policyDirectives);
-				return this;
+				return HeaderSpec.this;
 			}
 
 			/**
