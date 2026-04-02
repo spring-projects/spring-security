@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.core.oidc.user;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -145,6 +146,33 @@ public class DefaultOidcUserTests {
 		assertThat(user.getAuthorities().iterator().next()).isEqualTo(AUTHORITY);
 		assertThat(user.getAttributes()).containsOnlyKeys(IdTokenClaimNames.ISS, IdTokenClaimNames.SUB,
 				StandardClaimNames.NAME, StandardClaimNames.EMAIL);
+	}
+
+	// gh-18622
+	@Test
+	public void equalsWhenOidcUserPrincipalSameThenTrue() {
+		String issuer = "https://example.com";
+		String subject = "subject-1";
+
+		// @formatter:off
+		OidcIdToken idToken1 = OidcIdToken.withTokenValue("id-token-value-1")
+				.issuer(issuer)
+				.subject(subject)
+				.issuedAt(Instant.now())
+				.expiresAt(Instant.now().plus(30, ChronoUnit.MINUTES))
+				.build();
+
+		OidcIdToken idToken2 = OidcIdToken.withTokenValue("id-token-value-2")
+				.issuer(issuer)
+				.subject(subject)
+				.issuedAt(Instant.now())
+				.expiresAt(Instant.now().plus(30, ChronoUnit.MINUTES))
+				.build();
+		// @formatter:on
+
+		DefaultOidcUser user1 = new DefaultOidcUser(AUTHORITIES, idToken1, USER_INFO);
+		DefaultOidcUser user2 = new DefaultOidcUser(AUTHORITIES, idToken2, USER_INFO);
+		assertThat(user1).isEqualTo(user2);
 	}
 
 }
