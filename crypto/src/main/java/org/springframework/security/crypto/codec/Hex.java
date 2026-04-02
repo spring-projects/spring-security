@@ -24,7 +24,9 @@ package org.springframework.security.crypto.codec;
  *
  * @author Luke Taylor
  * @since 3.0
+ * @deprecated Use java.util.HexFormat
  */
+@Deprecated
 public final class Hex {
 
 	private static final char[] HEX = "0123456789abcdef".toCharArray();
