@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.core.oidc.user;
 import java.io.Serial;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
@@ -112,6 +113,40 @@ public class DefaultOidcUser extends DefaultOAuth2User implements OidcUser {
 	@Override
 	public OidcUserInfo getUserInfo() {
 		return this.userInfo;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null || this.getClass() != obj.getClass()) {
+			return false;
+		}
+		DefaultOidcUser that = (DefaultOidcUser) obj;
+		if (!this.getName().equals(that.getName())) {
+			return false;
+		}
+		if (!this.getAuthorities().equals(that.getAuthorities())) {
+			return false;
+		}
+		if (this.getIdToken().getIssuer() == null || that.getIdToken().getIssuer() == null) {
+			return false;
+		}
+		return Objects.equals(this.getIdToken().getIssuer().toExternalForm(),
+				that.getIdToken().getIssuer().toExternalForm())
+				&& Objects.equals(this.getIdToken().getSubject(), that.getIdToken().getSubject());
+	}
+
+	@Override
+	public int hashCode() {
+		int result = this.getName().hashCode();
+		result = 31 * result + this.getAuthorities().hashCode();
+		result = 31 * result + ((this.getIdToken().getIssuer() != null)
+				? this.getIdToken().getIssuer().toExternalForm().hashCode() : 0);
+		result = 31 * result
+				+ ((this.getIdToken().getSubject() != null) ? this.getIdToken().getSubject().hashCode() : 0);
+		return result;
 	}
 
 }
