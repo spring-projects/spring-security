@@ -22,7 +22,7 @@ jobs:
             toolchain: 25
     with:
       java-version: ${{ matrix.java-version }}
-      test-args: --refresh-dependencies -PforceMavenRepositories=snapshot,https://oss.sonatype.org/content/repositories/snapshots -PisOverrideVersionCatalog -PtestToolchain=${{ matrix.toolchain }} -PspringFrameworkVersion=7.+ -PreactorVersion=2025.+ -PspringDataVersion=2025.+ --stacktrace
+      test-args: --refresh-dependencies -PforceMavenRepositories=snapshot,https://oss.sonatype.org/content/repositories/snapshots -PisOverrideVersionCatalog -PtestToolchain=${{ matrix.toolchain }} -PspringFrameworkVersion=7.0.+ -PreactorVersion=2025.+ -PspringDataVersion=2025.+ --stacktrace
     secrets: inherit
   send-notification:
     name: Send Notification
