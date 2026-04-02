@@ -119,7 +119,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 			"anonymous", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_USER"));
 
 	private final Mono<Authentication> currentAuthenticationMono = ReactiveSecurityContextHolder.getContext()
-		.mapNotNull(SecurityContext::getAuthentication);
+		.flatMap((ctx) -> Mono.justOrEmpty(ctx.getAuthentication()));
 
 	// @formatter:off
 	private final Mono<String> clientRegistrationIdMono = this.currentAuthenticationMono
@@ -526,7 +526,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		 * request, which is used to obtain an {@link OAuth2AuthorizedClient}.
 		 * @param request the intercepted request, containing HTTP method, URI, headers,
 		 * and request attributes
-		 * @return the {@link Mono} of the {@link Authentication principal} to be used for
+		 * @return a {@link Mono} of the {@link Authentication principal} to be used for
 		 * resolving an {@link OAuth2AuthorizedClient}
 		 */
 		Mono<Authentication> resolve(ClientRequest request);

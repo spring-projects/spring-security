@@ -617,12 +617,12 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	public interface PrincipalResolver {
 
 		/**
-		 * Resolve a {@link Authentication principal} from the current request, which is
+		 * Resolve the {@link Authentication principal} from the current request, which is
 		 * used to obtain an {@link OAuth2AuthorizedClient}.
 		 * @param request the intercepted request, containing HTTP method, URI, headers,
 		 * and request attributes
-		 * @return the {@link Mono} of the {@link Authentication principal} to be used for
-		 * resolving an {@link OAuth2AuthorizedClient}
+		 * @return the {@link Authentication principal} to be used for resolving an
+		 * {@link OAuth2AuthorizedClient}
 		 */
 		@Nullable Authentication resolve(ClientRequest request);
 
