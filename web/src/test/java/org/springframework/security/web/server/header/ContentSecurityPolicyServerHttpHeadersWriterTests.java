@@ -97,18 +97,6 @@ public class ContentSecurityPolicyServerHttpHeadersWriterTests {
 	}
 
 	@Test
-	public void whenPolicyDirectivesContainNoncePlaceholderThenWriterIsNonceBased() {
-		this.writer.setPolicyDirectives("script-src 'self' 'nonce-{nonce}'");
-		assertThat(this.writer.isNonceBased()).isTrue();
-		this.writer.setPolicyDirectives("script-src 'nonce-{nonce}'; style-src 'nonce-{nonce}'");
-		assertThat(this.writer.isNonceBased()).isTrue();
-		this.writer.setPolicyDirectives(DEFAULT_POLICY_DIRECTIVES);
-		assertThat(this.writer.isNonceBased()).isFalse();
-		this.writer.setPolicyDirectives("script-src 'self' 'sha256-A/nonce/without/braces/is/not/a/placeholder='");
-		assertThat(this.writer.isNonceBased()).isFalse();
-	}
-
-	@Test
 	public void writeNonceBasedCspWhenNoncePresent() {
 		this.writer.setPolicyDirectives("script-src 'nonce-{nonce}'; style-src 'nonce-{nonce}'");
 		this.exchange.getAttributes()

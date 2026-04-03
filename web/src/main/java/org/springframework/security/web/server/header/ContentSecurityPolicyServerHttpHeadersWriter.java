@@ -120,17 +120,6 @@ public final class ContentSecurityPolicyServerHttpHeadersWriter implements Serve
 		this.reportOnly = reportOnly;
 	}
 
-	/**
-	 * Returns whether the content security policy is nonce-based. The CSP is considered
-	 * nonce-based if the configured {@code policyDirectives} string contains a
-	 * {@code {nonce}} placeholder.
-	 * @return whether the content security policy is nonce-based
-	 * @since 7.1
-	 */
-	public boolean isNonceBased() {
-		return this.isNonceBased;
-	}
-
 	private static String resolveHeader(boolean reportOnly) {
 		return reportOnly ? CONTENT_SECURITY_POLICY_REPORT_ONLY : CONTENT_SECURITY_POLICY;
 	}

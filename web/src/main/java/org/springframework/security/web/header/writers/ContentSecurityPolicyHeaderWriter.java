@@ -194,17 +194,6 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 		this.reportOnly = reportOnly;
 	}
 
-	/**
-	 * Returns whether the content security policy is nonce-based. The CSP is considered
-	 * nonce-based if the configured {@code policyDirectives} string contains a
-	 * {@code {nonce}} placeholder.
-	 * @return whether the content security policy is nonce-based
-	 * @since 7.1
-	 */
-	public boolean isNonceBased() {
-		return this.isNonceBased;
-	}
-
 	@Override
 	public String toString() {
 		return getClass().getName() + " [policyDirectives=" + this.policyDirectives + "; reportOnly=" + this.reportOnly
