@@ -212,7 +212,7 @@ class ServerContentSecurityPolicyDslTests {
             headers {
                 contentSecurityPolicy {
                     policyDirectives = "default-src 'self'"
-                    requireCspMatcher = ServerWebExchangeMatcher { exchange ->
+                    exchangeMatcher = ServerWebExchangeMatcher { exchange ->
                         if (MediaType.TEXT_HTML.isPresentIn(exchange.request.headers.accept))
                             ServerWebExchangeMatcher.MatchResult.match()
                         else
@@ -251,7 +251,7 @@ class ServerContentSecurityPolicyDslTests {
             headers {
                 contentSecurityPolicy {
                     policyDirectives = "default-src 'self'"
-                    requireCspMatchers("/foo/**", "/bar/**")
+                    exchangeMatchers("/foo/**", "/bar/**")
                 }
             }
         }
@@ -262,7 +262,7 @@ class ServerContentSecurityPolicyDslTests {
         assertThatThrownBy {
             this.spring.register(CspPathOverriddenMatchersConfig::class.java).autowire()
         }.hasRootCauseInstanceOf(IllegalStateException::class.java)
-            .hasRootCauseMessage("RequireCspMatcher(s) is already configured")
+            .hasRootCauseMessage("ExchangeMatcher(s) is already configured")
     }
 
     @Configuration
@@ -274,8 +274,8 @@ class ServerContentSecurityPolicyDslTests {
             headers {
                 contentSecurityPolicy {
                     policyDirectives = "default-src 'self'"
-                    requireCspMatcher = ServerWebExchangeMatchers.anyExchange()
-                    requireCspMatchers("/**")
+                    exchangeMatcher = ServerWebExchangeMatchers.anyExchange()
+                    exchangeMatchers("/**")
                 }
             }
         }

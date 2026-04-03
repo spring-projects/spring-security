@@ -1009,13 +1009,13 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @return the {@link ContentSecurityPolicyConfig} for additional configuration
 		 * @throws IllegalArgumentException if {@code requestMatcher} is null
 		 * @throws IllegalStateException if a {@link RequestMatcher} is already configured
-		 * by a previous call of this method or {@link #requireCspMatchers(String...)}
+		 * by a previous call of this method or {@link #requestMatchers(String...)}
 		 * @since 7.1
-		 * @see #requireCspMatchers(String...)
+		 * @see #requestMatchers(String...)
 		 */
-		public ContentSecurityPolicyConfig requireCspMatcher(RequestMatcher requestMatcher) {
+		public ContentSecurityPolicyConfig requestMatcher(RequestMatcher requestMatcher) {
 			Assert.notNull(requestMatcher, "RequestMatcher cannot be null");
-			Assert.state(this.requestMatcher == null, "RequireCspMatcher(s) is already configured");
+			Assert.state(this.requestMatcher == null, "RequestMatcher(s) is already configured");
 			this.requestMatcher = requestMatcher;
 			return this;
 		}
@@ -1030,14 +1030,14 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @throws IllegalArgumentException if any path pattern if rejected by
 		 * {@link PathPatternRequestMatcher.Builder#matcher(String)}
 		 * @throws IllegalStateException if a {@link RequestMatcher} is already configured
-		 * by a previous call of this method or {@link #requireCspMatcher(RequestMatcher)}
+		 * by a previous call of this method or {@link #requestMatcher(RequestMatcher)}
 		 * @since 7.1
-		 * @see #requireCspMatcher(RequestMatcher)
+		 * @see #requestMatcher(RequestMatcher)
 		 */
-		public ContentSecurityPolicyConfig requireCspMatchers(String... pathPatterns) {
+		public ContentSecurityPolicyConfig requestMatchers(String... pathPatterns) {
 			PathPatternRequestMatcher.Builder builder = HeadersConfigurer.this.getRequestMatcherBuilder();
 			OrRequestMatcher matcher = new OrRequestMatcher(Arrays.stream(pathPatterns).map(builder::matcher).toList());
-			return this.requireCspMatcher(matcher);
+			return this.requestMatcher(matcher);
 		}
 
 		HeaderWriter getWriter() {

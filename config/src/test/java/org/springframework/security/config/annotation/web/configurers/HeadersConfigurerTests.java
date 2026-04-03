@@ -486,7 +486,7 @@ public class HeadersConfigurerTests {
 			.isThrownBy(() -> this.spring.register(ContentSecurityPolicyOverriddenMatchersConfig.class).autowire())
 			.havingRootCause()
 			.isInstanceOf(IllegalStateException.class)
-			.withMessage("RequireCspMatcher(s) is already configured");
+			.withMessage("RequestMatcher(s) is already configured");
 	}
 
 	@Test
@@ -1246,7 +1246,7 @@ public class HeadersConfigurerTests {
 					.defaultsDisabled()
 					.contentSecurityPolicy((csp) -> csp
 						.policyDirectives("default-src 'self'")
-						.requireCspMatcher((request) -> {
+						.requestMatcher((request) -> {
 							var accepted = MediaType.parseMediaTypes(request.getHeader(HttpHeaders.ACCEPT));
 							return MediaType.TEXT_HTML.isPresentIn(accepted);
 						})));
@@ -1268,7 +1268,7 @@ public class HeadersConfigurerTests {
 					.defaultsDisabled()
 					.contentSecurityPolicy((csp) -> csp
 						.policyDirectives("default-src 'self'")
-						.requireCspMatchers("/foo/**", "/bar/**")));
+						.requestMatchers("/foo/**", "/bar/**")));
 			// @formatter:on
 			return http.build();
 		}
@@ -1287,8 +1287,8 @@ public class HeadersConfigurerTests {
 					.defaultsDisabled()
 					.contentSecurityPolicy((csp) -> csp
 						.policyDirectives("default-src 'self'")
-						.requireCspMatcher(AnyRequestMatcher.INSTANCE)
-						.requireCspMatchers("/**")));
+						.requestMatcher(AnyRequestMatcher.INSTANCE)
+						.requestMatchers("/**")));
 			// @formatter:on
 			return http.build();
 		}

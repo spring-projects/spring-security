@@ -463,7 +463,7 @@ public class HeaderSpecTests {
 		// @formatter:off
 		this.http.headers((headers) -> headers
 			.contentSecurityPolicy((csp) -> csp
-				.requireCspMatcher((exchange) ->
+				.exchangeMatcher((exchange) ->
 					(MediaType.TEXT_HTML.isPresentIn(exchange.getRequest().getHeaders().getAccept()) ?
 						ServerWebExchangeMatcher.MatchResult.match() :
 						ServerWebExchangeMatcher.MatchResult.notMatch()))
@@ -491,7 +491,7 @@ public class HeaderSpecTests {
 		// @formatter:off
 		this.http.headers((headers) -> headers
 			.contentSecurityPolicy((csp) -> csp
-				.requireCspMatchers("/foo/**", "/bar/**")
+				.exchangeMatchers("/foo/**", "/bar/**")
 				.policyDirectives(policyDirectives)));
 		// @formatter:on
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.http.build()).build();
@@ -518,10 +518,10 @@ public class HeaderSpecTests {
 			.isThrownBy(() -> this.http
 				.headers((headers) -> headers
 					.contentSecurityPolicy((csp) -> csp
-						.requireCspMatcher(ServerWebExchangeMatchers.anyExchange())
-						.requireCspMatchers("/**")
+						.exchangeMatcher(ServerWebExchangeMatchers.anyExchange())
+						.exchangeMatchers("/**")
 						.policyDirectives("default-src 'self'"))))
-			.withMessage("RequireCspMatcher(s) is already configured");
+			.withMessage("ExchangeMatcher(s) is already configured");
 		// @formatter:on
 	}
 

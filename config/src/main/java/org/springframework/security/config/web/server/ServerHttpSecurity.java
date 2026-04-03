@@ -2897,15 +2897,15 @@ public class ServerHttpSecurity {
 			 * @throws IllegalArgumentException if {@code matcher} is {@code null}
 			 * @throws IllegalStateException if a {@link ServerWebExchangeMatcher} is
 			 * already configured by a previous call of this method or
-			 * {@link #requireCspMatchers(String...)}
+			 * {@link #exchangeMatchers(String...)}
 			 * @since 7.1
-			 * @see #requireCspMatchers(String...)
+			 * @see #exchangeMatchers(String...)
 			 */
-			public ContentSecurityPolicySpec requireCspMatcher(ServerWebExchangeMatcher matcher) {
+			public ContentSecurityPolicySpec exchangeMatcher(ServerWebExchangeMatcher matcher) {
 				Assert.notNull(matcher, "Matcher must not be null");
 				// Replace the CSP writer in the list with a matcher-decorated writer
 				int idx = HeaderSpec.this.writers.indexOf(HeaderSpec.this.contentSecurityPolicy);
-				Assert.state(idx >= 0, "RequireCspMatcher(s) is already configured");
+				Assert.state(idx >= 0, "ExchangeMatcher(s) is already configured");
 				HeaderSpec.this.writers.set(idx, new ServerWebExchangeDelegatingServerHttpHeadersWriter(matcher,
 						HeaderSpec.this.contentSecurityPolicy));
 				return this;
@@ -2922,12 +2922,12 @@ public class ServerHttpSecurity {
 			 * {@link PathPatternParserServerWebExchangeMatcher}
 			 * @throws IllegalStateException if a {@link ServerWebExchangeMatcher} is
 			 * already configured by a previous call of this method or
-			 * {@link #requireCspMatcher(ServerWebExchangeMatcher)}
+			 * {@link #exchangeMatcher(ServerWebExchangeMatcher)}
 			 * @since 7.1
-			 * @see #requireCspMatcher(ServerWebExchangeMatcher)
+			 * @see #exchangeMatcher(ServerWebExchangeMatcher)
 			 */
-			public ContentSecurityPolicySpec requireCspMatchers(String... pathPatterns) {
-				return this.requireCspMatcher(ServerWebExchangeMatchers.pathMatchers(pathPatterns));
+			public ContentSecurityPolicySpec exchangeMatchers(String... pathPatterns) {
+				return this.exchangeMatcher(ServerWebExchangeMatchers.pathMatchers(pathPatterns));
 			}
 
 			private ContentSecurityPolicySpec(String policyDirectives) {

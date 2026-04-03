@@ -52,11 +52,11 @@ class ContentSecurityPolicyDsl {
      * The default is to enable CSP in every response if
      * [org.springframework.security.config.annotation.web.HeadersDsl.contentSecurityPolicy]
      * is configured.
-     * You can configure either this property or [requireCspMatchers], but not both.
+     * You can configure either this property or [requestMatchers], but not both.
      * @since 7.1
-     * @see requireCspMatchers
+     * @see requestMatchers
      */
-    var requireCspMatcher: RequestMatcher? = null
+    var requestMatcher: RequestMatcher? = null
 
     private var requireCspPathPatterns: Array<out String>? = null
 
@@ -65,13 +65,13 @@ class ContentSecurityPolicyDsl {
      * The default is to write CSP header in every response if
      * [org.springframework.security.config.annotation.web.HeadersDsl.contentSecurityPolicy]
      * is configured.
-     * You can configure either this method or [requireCspMatcher], but not both.
+     * You can configure either this method or [requestMatcher], but not both.
      * @param pathPatterns the path patterns to be matched with a
      * [org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher]
      * @since 7.1
-     * @see requireCspMatcher
+     * @see requestMatcher
      */
-    fun requireCspMatchers(vararg pathPatterns: String) {
+    fun requestMatchers(vararg pathPatterns: String) {
         requireCspPathPatterns = pathPatterns
     }
 
@@ -86,8 +86,8 @@ class ContentSecurityPolicyDsl {
                 }
             }
             nonceAttributeName?.also(contentSecurityPolicy::nonceAttributeName)
-            requireCspMatcher?.also(contentSecurityPolicy::requireCspMatcher)
-            requireCspPathPatterns?.also(contentSecurityPolicy::requireCspMatchers)
+            requestMatcher?.also(contentSecurityPolicy::requestMatcher)
+            requireCspPathPatterns?.also(contentSecurityPolicy::requestMatchers)
         }
     }
 }
