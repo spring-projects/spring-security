@@ -280,18 +280,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	public void configure(H http) {
 		HeaderWriterFilter headersFilter = createHeaderWriterFilter();
 		http.addFilter(headersFilter);
-		configureCspNonceGeneratingFilter(http);
-	}
-
-	private void configureCspNonceGeneratingFilter(H http) {
-		ContentSecurityPolicyHeaderWriter writer = this.contentSecurityPolicy.writer;
-		if (writer != null && writer.isNonceBased()) {
-			ContentSecurityPolicyNonceGeneratingFilter filter = new ContentSecurityPolicyNonceGeneratingFilter();
-			if (this.contentSecurityPolicy.nonceAttributeName != null) {
-				filter.setAttributeName(this.contentSecurityPolicy.nonceAttributeName);
-			}
-			http.addFilterBefore(filter, HeaderWriterFilter.class);
-		}
+		http.addFilterBefore(this.contentSecurityPolicy.getNonceGeneratingFilter(), HeaderWriterFilter.class);
 	}
 
 	/**
@@ -1045,6 +1034,14 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 				return new DelegatingRequestMatcherHeaderWriter(this.requestMatcher, this.writer);
 			}
 			return this.writer;
+		}
+
+		ContentSecurityPolicyNonceGeneratingFilter getNonceGeneratingFilter() {
+			var filter = new ContentSecurityPolicyNonceGeneratingFilter();
+			if (this.nonceAttributeName != null) {
+				filter.setAttributeName(this.nonceAttributeName);
+			}
+			return filter;
 		}
 
 	}
