@@ -120,7 +120,7 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 
 	private static final String DEFAULT_SRC_SELF_POLICY = "default-src 'self'";
 
-	public static final String NONCE_PLACEHOLDER = "{nonce}";
+	private static final String NONCE_PLACEHOLDER = "{nonce}";
 
 	private String policyDirectives;
 

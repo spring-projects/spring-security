@@ -61,7 +61,7 @@ public final class ContentSecurityPolicyServerHttpHeadersWriter implements Serve
 
 	public static final String CONTENT_SECURITY_POLICY_REPORT_ONLY = "Content-Security-Policy-Report-Only";
 
-	public static final String NONCE_PLACEHOLDER = "{nonce}";
+	private static final String NONCE_PLACEHOLDER = "{nonce}";
 
 	private @Nullable String policyDirectives;
 
