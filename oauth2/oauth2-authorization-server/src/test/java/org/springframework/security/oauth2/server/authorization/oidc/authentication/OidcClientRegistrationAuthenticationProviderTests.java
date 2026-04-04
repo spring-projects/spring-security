@@ -766,6 +766,124 @@ public class OidcClientRegistrationAuthenticationProviderTests {
 		assertThat(clientRegistrationResult.getRegistrationAccessToken()).isEqualTo(jwt.getTokenValue());
 	}
 
+	@Test
+	public void setAllowedScopesWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.authenticationProvider.setAllowedScopes(null))
+			.withMessage("allowedScopes cannot be null");
+	}
+
+	@Test
+	public void authenticateWhenAllowedScopesSetAndRequestedScopesAllowedThenSuccess() {
+		Jwt jwt = createJwtClientRegistration();
+		OAuth2AccessToken jwtAccessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
+				jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaim(OAuth2ParameterNames.SCOPE));
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
+		OAuth2Authorization authorization = TestOAuth2Authorizations
+			.authorization(registeredClient, jwtAccessToken, jwt.getClaims())
+			.build();
+		given(this.authorizationService.findByToken(eq(jwtAccessToken.getTokenValue()),
+				eq(OAuth2TokenType.ACCESS_TOKEN)))
+			.willReturn(authorization);
+		given(this.jwtEncoder.encode(any())).willReturn(createJwtClientConfiguration());
+
+		this.authenticationProvider.setAllowedScopes(new HashSet<>(Arrays.asList("openid", "profile", "email")));
+
+		JwtAuthenticationToken principal = new JwtAuthenticationToken(jwt,
+				AuthorityUtils.createAuthorityList("SCOPE_client.create"));
+		// @formatter:off
+		OidcClientRegistration clientRegistration = OidcClientRegistration.builder()
+				.clientName("client-name")
+				.redirectUri("https://client.example.com")
+				.grantType(AuthorizationGrantType.AUTHORIZATION_CODE.getValue())
+				.scope("openid")
+				.scope("profile")
+				.build();
+		// @formatter:on
+
+		OidcClientRegistrationAuthenticationToken authentication = new OidcClientRegistrationAuthenticationToken(
+				principal, clientRegistration);
+		OidcClientRegistrationAuthenticationToken authenticationResult = (OidcClientRegistrationAuthenticationToken) this.authenticationProvider
+			.authenticate(authentication);
+
+		assertThat(authenticationResult.getClientRegistration()).isNotNull();
+	}
+
+	@Test
+	public void authenticateWhenAllowedScopesSetAndRequestedScopesNotAllowedThenThrowOAuth2AuthenticationException() {
+		Jwt jwt = createJwtClientRegistration();
+		OAuth2AccessToken jwtAccessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
+				jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaim(OAuth2ParameterNames.SCOPE));
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
+		OAuth2Authorization authorization = TestOAuth2Authorizations
+			.authorization(registeredClient, jwtAccessToken, jwt.getClaims())
+			.build();
+		given(this.authorizationService.findByToken(eq(jwtAccessToken.getTokenValue()),
+				eq(OAuth2TokenType.ACCESS_TOKEN)))
+			.willReturn(authorization);
+
+		this.authenticationProvider.setAllowedScopes(new HashSet<>(Arrays.asList("openid", "profile")));
+
+		JwtAuthenticationToken principal = new JwtAuthenticationToken(jwt,
+				AuthorityUtils.createAuthorityList("SCOPE_client.create"));
+		// @formatter:off
+		OidcClientRegistration clientRegistration = OidcClientRegistration.builder()
+				.clientName("client-name")
+				.redirectUri("https://client.example.com")
+				.grantType(AuthorizationGrantType.AUTHORIZATION_CODE.getValue())
+				.scope("admin")
+				.scope("ROLE_ADMIN")
+				.build();
+		// @formatter:on
+
+		OidcClientRegistrationAuthenticationToken authentication = new OidcClientRegistrationAuthenticationToken(
+				principal, clientRegistration);
+
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.extracting(OAuth2AuthenticationException::getError)
+			.satisfies((error) -> {
+				assertThat(error.getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_SCOPE);
+				assertThat(error.getDescription()).contains(OidcClientMetadataClaimNames.SCOPE);
+			});
+	}
+
+	@Test
+	public void authenticateWhenAllowedScopesNotSetThenAnyScopeAllowed() {
+		Jwt jwt = createJwtClientRegistration();
+		OAuth2AccessToken jwtAccessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
+				jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaim(OAuth2ParameterNames.SCOPE));
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
+		OAuth2Authorization authorization = TestOAuth2Authorizations
+			.authorization(registeredClient, jwtAccessToken, jwt.getClaims())
+			.build();
+		given(this.authorizationService.findByToken(eq(jwtAccessToken.getTokenValue()),
+				eq(OAuth2TokenType.ACCESS_TOKEN)))
+			.willReturn(authorization);
+		given(this.jwtEncoder.encode(any())).willReturn(createJwtClientConfiguration());
+
+		JwtAuthenticationToken principal = new JwtAuthenticationToken(jwt,
+				AuthorityUtils.createAuthorityList("SCOPE_client.create"));
+		// @formatter:off
+		OidcClientRegistration clientRegistration = OidcClientRegistration.builder()
+				.clientName("client-name")
+				.redirectUri("https://client.example.com")
+				.grantType(AuthorizationGrantType.AUTHORIZATION_CODE.getValue())
+				.scope("admin")
+				.scope("ROLE_ADMIN")
+				.scope("superuser")
+				.build();
+		// @formatter:on
+
+		OidcClientRegistrationAuthenticationToken authentication = new OidcClientRegistrationAuthenticationToken(
+				principal, clientRegistration);
+		OidcClientRegistrationAuthenticationToken authenticationResult = (OidcClientRegistrationAuthenticationToken) this.authenticationProvider
+			.authenticate(authentication);
+
+		assertThat(authenticationResult.getClientRegistration()).isNotNull();
+		assertThat(authenticationResult.getClientRegistration().getScopes()).containsExactlyInAnyOrder("admin",
+				"ROLE_ADMIN", "superuser");
+	}
+
 	private static Jwt createJwtClientRegistration() {
 		return createJwt(Collections.singleton("client.create"));
 	}
