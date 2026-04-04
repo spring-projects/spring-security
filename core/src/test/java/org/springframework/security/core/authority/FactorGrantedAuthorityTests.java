@@ -67,4 +67,16 @@ public class FactorGrantedAuthorityTests {
 			.withMessage("A granted authority textual representation is required");
 	}
 
+	@Test
+	public void builderConstructorWhenPublicThenCreatesCorrectly() {
+		Instant issuedAt = Instant.now();
+
+		FactorGrantedAuthority authority = new FactorGrantedAuthority.Builder("FACTOR_CUSTOM")
+			.issuedAt(issuedAt)
+			.build();
+
+		assertThat(authority.getAuthority()).isEqualTo("FACTOR_CUSTOM");
+		assertThat(authority.getIssuedAt()).isEqualTo(issuedAt);
+	}
+
 }

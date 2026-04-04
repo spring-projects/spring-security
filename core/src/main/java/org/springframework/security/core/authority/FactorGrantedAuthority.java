@@ -184,7 +184,7 @@ public final class FactorGrantedAuthority implements GrantedAuthority {
 
 		private @Nullable Instant issuedAt;
 
-		private Builder(String authority) {
+		public Builder(String authority) {
 			Assert.hasText(authority, "A granted authority textual representation is required");
 			this.authority = authority;
 		}
