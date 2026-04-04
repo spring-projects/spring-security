@@ -37,11 +37,11 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.dao.DataRetrievalFailureException;
 
 /**
- * Represents the response control received when a <tt>PasswordPolicyControl</tt> is used
+ * Represents the response control received when a {@code PasswordPolicyControl} is used
  * when binding to a directory. Currently tested with the OpenLDAP 2.3.19 implementation
  * of the LDAP Password Policy Draft. It extends the request control with the control
- * specific data. This is accomplished by the properties <tt>timeBeforeExpiration</tt>,
- * <tt>graceLoginsRemaining</tt>.
+ * specific data. This is accomplished by the properties {@code timeBeforeExpiration},
+ * {@code graceLoginsRemaining}.
  * <p>
  *
  * @author Stefan Zoerner

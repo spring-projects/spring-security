@@ -86,9 +86,9 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
 
 	/**
 	 * Builds list of possible DNs for the user, worked out from the
-	 * <tt>userDnPatterns</tt> property.
+	 * {@code userDnPatterns} property.
 	 * @param username the user's login name
-	 * @return the list of possible DN matches, empty if <tt>userDnPatterns</tt> wasn't
+	 * @return the list of possible DN matches, empty if {@code userDnPatterns} wasn't
 	 * set.
 	 */
 	protected List<String> getUserDns(String username) {

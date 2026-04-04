@@ -28,11 +28,11 @@ import org.springframework.ldap.support.LdapUtils;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 
 /**
- * Extended version of the <tt>DefaultSpringSecurityContextSource</tt> which adds support
+ * Extended version of the {@code DefaultSpringSecurityContextSource} which adds support
  * for the use of {@link PasswordPolicyControl} to make use of user account data stored in
  * the directory.
  * <p>
- * When binding with specific username (not the <tt>userDn</tt>) property it will connect
+ * When binding with specific username (not the {@code userDn}) property it will connect
  * first as the userDn, then reconnect as the user in order to retrieve any
  * password-policy control sent with the response, even if an exception occurs.
  *

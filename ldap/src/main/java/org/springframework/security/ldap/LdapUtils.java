@@ -125,7 +125,7 @@ public final class LdapUtils {
 	/**
 	 * Works out the root DN for an LDAP URL.
 	 * <p>
-	 * For example, the URL <tt>ldap://monkeymachine:11389/dc=springframework,dc=org</tt>
+	 * For example, the URL {@code ldap://monkeymachine:11389/dc=springframework,dc=org}
 	 * has the root DN "dc=springframework,dc=org".
 	 * </p>
 	 * @param url the LDAP URL
@@ -151,7 +151,7 @@ public final class LdapUtils {
 	/**
 	 * Parses the supplied LDAP URL.
 	 * @param url the URL (e.g.
-	 * <tt>ldap://monkeymachine:11389/dc=springframework,dc=org</tt>).
+	 * {@code ldap://monkeymachine:11389/dc=springframework,dc=org}).
 	 * @return the URI object created from the URL
 	 * @throws IllegalArgumentException if the URL is null, empty or the URI syntax is
 	 * invalid.

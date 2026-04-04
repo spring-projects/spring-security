@@ -22,7 +22,7 @@ import org.springframework.security.core.AuthenticationException;
 
 /**
  * <p>
- * Thrown as a translation of an {@link javax.naming.AuthenticationException} when
+ * Thrown as a translation of a {@code javax.naming.AuthenticationException} when
  * attempting to authenticate against Active Directory using
  * {@link ActiveDirectoryLdapAuthenticationProvider}. Typically this error is wrapped by
  * an {@link AuthenticationException} since it does not provide a user friendly message.
