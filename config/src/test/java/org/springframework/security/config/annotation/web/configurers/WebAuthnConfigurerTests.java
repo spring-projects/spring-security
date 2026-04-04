@@ -42,6 +42,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.ui.DefaultResourcesFilter;
 import org.springframework.security.web.webauthn.api.Bytes;
 import org.springframework.security.web.webauthn.api.ImmutablePublicKeyCredentialUserEntity;
@@ -399,6 +400,50 @@ public class WebAuthnConfigurerTests {
 			// @formatter:off
 			http
 				.formLogin(Customizer.withDefaults())
+				.webAuthn((authn) -> authn
+					.rpId("example.com")
+				);
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	// gh-16685
+	@Test
+	public void webAuthnWhenSessionManagementConfiguredThenSessionAuthenticationStrategyApplied() {
+		this.spring.register(SessionManagementWebauthnConfiguration.class).autowire();
+		FilterChainProxy filterChain = this.spring.getContext().getBean(FilterChainProxy.class);
+		List<jakarta.servlet.Filter> filters = filterChain.getFilterChains().get(0).getFilters();
+		WebAuthnAuthenticationFilter webAuthnFilter = filters.stream()
+			.filter(WebAuthnAuthenticationFilter.class::isInstance)
+			.map(WebAuthnAuthenticationFilter.class::cast)
+			.findFirst()
+			.orElseThrow(() -> new AssertionError("WebAuthnAuthenticationFilter not found"));
+		SessionAuthenticationStrategy strategy = (SessionAuthenticationStrategy) org.springframework.test.util.ReflectionTestUtils
+			.getField(webAuthnFilter, "sessionStrategy");
+		assertThat(strategy).isNotNull();
+		assertThat(strategy).isInstanceOf(
+				org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy.class);
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class SessionManagementWebauthnConfiguration {
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager();
+		}
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.formLogin(Customizer.withDefaults())
+				.sessionManagement((session) -> session
+					.maximumSessions(1)
+				)
 				.webAuthn((authn) -> authn
 					.rpId("example.com")
 				);
