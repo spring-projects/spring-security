@@ -368,7 +368,7 @@ public class HeaderSpecTests {
 				policyDirectives);
 		// @formatter:off
 		this.http.headers((headers) -> headers
-			.contentSecurityPolicy((csp) -> csp.policyDirectives(policyDirectives)));
+			.contentSecurityPolicy((csp) -> csp.directives(policyDirectives)));
 		// @formatter:on
 		assertHeaders();
 	}
@@ -393,9 +393,9 @@ public class HeaderSpecTests {
 				policyDirectives);
 		// @formatter:off
 		this.http.headers((headers) -> headers
-				.contentSecurityPolicy((csp) -> csp
-						.policyDirectives(policyDirectives)
-				)
+			.contentSecurityPolicy((csp) -> csp
+				.directives(policyDirectives)
+			)
 		);
 		// @formatter:on
 		assertHeaders();
@@ -409,7 +409,7 @@ public class HeaderSpecTests {
 		// @formatter:off
 		this.http.headers((headers) -> headers
 			.contentSecurityPolicy((csp) -> csp
-				.policyDirectives("script-src 'self' 'nonce-{nonce}'")));
+				.directives("script-src 'self' 'nonce-{nonce}'")));
 		// @formatter:on
 		WebTestClient client = WebTestClientBuilder
 			.bindToControllerAndWebFilters(ReactiveTestCspNonceController.class, this.http.build())
@@ -437,7 +437,7 @@ public class HeaderSpecTests {
 		this.http.headers((headers) -> headers
 			.contentSecurityPolicy((csp) -> csp
 				.nonceAttributeName("CUSTOM_NONCE")
-				.policyDirectives("script-src 'self' 'nonce-{nonce}'")));
+				.directives("script-src 'self' 'nonce-{nonce}'")));
 		// @formatter:on
 		WebTestClient client = WebTestClientBuilder
 			.bindToControllerAndWebFilters(ReactiveTestCspNonceController.class, this.http.build())
@@ -467,7 +467,7 @@ public class HeaderSpecTests {
 					(MediaType.TEXT_HTML.isPresentIn(exchange.getRequest().getHeaders().getAccept()) ?
 						ServerWebExchangeMatcher.MatchResult.match() :
 						ServerWebExchangeMatcher.MatchResult.notMatch()))
-				.policyDirectives(policyDirectives)));
+				.directives(policyDirectives)));
 		// @formatter:on
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.http.build()).build();
 		// @formatter:off
@@ -492,7 +492,7 @@ public class HeaderSpecTests {
 		this.http.headers((headers) -> headers
 			.contentSecurityPolicy((csp) -> csp
 				.exchangeMatchers("/foo/**", "/bar/**")
-				.policyDirectives(policyDirectives)));
+				.directives(policyDirectives)));
 		// @formatter:on
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.http.build()).build();
 		// @formatter:off
@@ -520,7 +520,7 @@ public class HeaderSpecTests {
 					.contentSecurityPolicy((csp) -> csp
 						.exchangeMatcher(ServerWebExchangeMatchers.anyExchange())
 						.exchangeMatchers("/**")
-						.policyDirectives("default-src 'self'"))))
+						.directives("default-src 'self'"))))
 			.withMessage("ExchangeMatcher(s) is already configured");
 		// @formatter:on
 	}

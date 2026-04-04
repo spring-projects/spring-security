@@ -73,9 +73,7 @@ class ServerContentSecurityPolicyDsl {
 
     internal fun get(): (ServerHttpSecurity.HeaderSpec.ContentSecurityPolicySpec) -> Unit {
         return { contentSecurityPolicy ->
-            policyDirectives?.also {
-                contentSecurityPolicy.policyDirectives(policyDirectives)
-            }
+            policyDirectives?.also(contentSecurityPolicy::directives)
             if (reportOnly == true) {
                 contentSecurityPolicy.reportOnly()
             }

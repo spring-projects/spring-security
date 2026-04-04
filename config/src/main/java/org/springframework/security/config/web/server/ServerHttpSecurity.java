@@ -2890,10 +2890,25 @@ public class ServerHttpSecurity {
 			 * 'nonce-{nonce}'}.
 			 * @param policyDirectives the security policy directive(s)
 			 * @return the {@link HeaderSpec} to continue configuring
+			 * @deprecated Use {@link #directives(String)} instead
 			 */
+			@Deprecated(since = "7.1")
 			public HeaderSpec policyDirectives(String policyDirectives) {
-				this.writer.setPolicyDirectives(policyDirectives);
+				this.directives(policyDirectives);
 				return HeaderSpec.this;
+			}
+
+			/**
+			 * Sets the security policy directive(s) to be used in the response header.
+			 * The {@code policyDirectives} may contain {@code {nonce}} as placeholders
+			 * for a generated secure random nonce, e.g., {@code script-src 'self'
+			 * 'nonce-{nonce}'}.
+			 * @param policyDirectives the security policy directive(s)
+			 * @return the {@link ContentSecurityPolicySpec} to continue configuring
+			 */
+			public ContentSecurityPolicySpec directives(String policyDirectives) {
+				this.writer.setPolicyDirectives(policyDirectives);
+				return this;
 			}
 
 			/**
