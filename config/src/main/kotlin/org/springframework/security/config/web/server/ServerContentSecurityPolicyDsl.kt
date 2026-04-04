@@ -76,8 +76,8 @@ class ServerContentSecurityPolicyDsl {
             policyDirectives?.also {
                 contentSecurityPolicy.policyDirectives(policyDirectives)
             }
-            reportOnly?.also {
-                contentSecurityPolicy.reportOnly(reportOnly!!)
+            if (reportOnly == true) {
+                contentSecurityPolicy.reportOnly()
             }
             nonceAttributeName?.also(contentSecurityPolicy::nonceAttributeName)
             exchangeMatcher?.also(contentSecurityPolicy::exchangeMatcher)

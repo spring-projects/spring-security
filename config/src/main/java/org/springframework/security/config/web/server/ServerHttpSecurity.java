@@ -2862,10 +2862,25 @@ public class ServerHttpSecurity {
 			 * header.
 			 * @param reportOnly whether to only report policy violations
 			 * @return the {@link HeaderSpec} to continue configuring
+			 * @deprecated Use {@link #reportOnly()} instead
 			 */
+			@Deprecated(since = "7.1")
 			public HeaderSpec reportOnly(boolean reportOnly) {
-				this.writer.setReportOnly(reportOnly);
+				if (reportOnly) {
+					this.reportOnly();
+				}
 				return HeaderSpec.this;
+			}
+
+			/**
+			 * Enables (includes) the {@code Content-Security-Policy-Report-Only} header
+			 * in the response. Otherwise, defaults to the {@code Content-Security-Policy}
+			 * header.
+			 * @return the {@link ContentSecurityPolicySpec} to continue configuring
+			 */
+			public ContentSecurityPolicySpec reportOnly() {
+				this.writer.setReportOnly(true);
+				return this;
 			}
 
 			/**
