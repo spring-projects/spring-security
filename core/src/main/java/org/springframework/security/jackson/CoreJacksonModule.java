@@ -20,8 +20,6 @@ import java.time.Duration;
 import java.time.Instant;
 
 import tools.jackson.core.Version;
-import tools.jackson.databind.cfg.DateTimeFeature;
-import tools.jackson.databind.cfg.MapperBuilder;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -101,7 +99,6 @@ public class CoreJacksonModule extends SecurityJacksonModule {
 
 	@Override
 	public void setupModule(SetupContext context) {
-		((MapperBuilder<?, ?>) context.getOwner()).enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS);
 		context.setMixIn(AnonymousAuthenticationToken.class, AnonymousAuthenticationTokenMixin.class);
 		context.setMixIn(RememberMeAuthenticationToken.class, RememberMeAuthenticationTokenMixin.class);
 		context.setMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class);

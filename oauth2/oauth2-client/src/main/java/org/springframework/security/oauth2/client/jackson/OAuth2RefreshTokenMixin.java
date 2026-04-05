@@ -20,6 +20,7 @@ import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -40,7 +41,8 @@ import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 abstract class OAuth2RefreshTokenMixin {
 
 	@JsonCreator
-	OAuth2RefreshTokenMixin(@JsonProperty("tokenValue") String tokenValue, @JsonProperty("issuedAt") Instant issuedAt) {
+	OAuth2RefreshTokenMixin(@JsonProperty("tokenValue") String tokenValue,
+			@JsonProperty("issuedAt") @JsonFormat(shape = JsonFormat.Shape.NUMBER) Instant issuedAt) {
 	}
 
 }

@@ -21,6 +21,9 @@ import java.time.Instant;
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
@@ -55,6 +58,43 @@ class FactorGrantedAuthorityMixinTests extends AbstractMixinTests {
 		assertThat(authority).isNotNull();
 		assertThat(authority.getAuthority()).isEqualTo("FACTOR_PASSWORD");
 		assertThat(authority.getIssuedAt()).isEqualTo(this.issuedAt);
+	}
+
+	@Test
+	void serializeWhenWriteDatesAsTimestampsDisabledThenStillUsesTimestamps() throws JSONException {
+		ClassLoader loader = getClass().getClassLoader();
+		JsonMapper customMapper = JsonMapper.builder()
+			.disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+			.addModules(SecurityJacksonModules.getModules(loader, BasicPolymorphicTypeValidator.builder()))
+			.build();
+		GrantedAuthority authority = FactorGrantedAuthority.withAuthority("FACTOR_PASSWORD")
+			.issuedAt(this.issuedAt)
+			.build();
+		String json = customMapper.writeValueAsString(authority);
+		JSONAssert.assertEquals(AUTHORITY_JSON, json, true);
+	}
+
+	@Test
+	void deserializeWhenWriteDatesAsTimestampsDisabledThenStillDeserializesTimestamps() {
+		ClassLoader loader = getClass().getClassLoader();
+		JsonMapper customMapper = JsonMapper.builder()
+			.disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+			.addModules(SecurityJacksonModules.getModules(loader, BasicPolymorphicTypeValidator.builder()))
+			.build();
+		FactorGrantedAuthority authority = (FactorGrantedAuthority) customMapper.readValue(AUTHORITY_JSON, Object.class);
+		assertThat(authority).isNotNull();
+		assertThat(authority.getAuthority()).isEqualTo("FACTOR_PASSWORD");
+		assertThat(authority.getIssuedAt()).isEqualTo(this.issuedAt);
+	}
+
+	@Test
+	void serializeDoesNotOverrideGlobalDateTimeFeature() {
+		ClassLoader loader = getClass().getClassLoader();
+		JsonMapper customMapper = JsonMapper.builder()
+			.disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+			.addModules(SecurityJacksonModules.getModules(loader, BasicPolymorphicTypeValidator.builder()))
+			.build();
+		assertThat(customMapper.isEnabled(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)).isFalse();
 	}
 
 }

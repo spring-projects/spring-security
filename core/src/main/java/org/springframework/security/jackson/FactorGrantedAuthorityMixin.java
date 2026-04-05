@@ -20,6 +20,7 @@ import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -44,7 +45,10 @@ abstract class FactorGrantedAuthorityMixin {
 	 */
 	@JsonCreator
 	FactorGrantedAuthorityMixin(@JsonProperty("authority") String authority,
-			@JsonProperty("issuedAt") Instant issuedAt) {
+			@JsonProperty("issuedAt") @JsonFormat(shape = JsonFormat.Shape.NUMBER) Instant issuedAt) {
 	}
+
+	@JsonFormat(shape = JsonFormat.Shape.NUMBER)
+	abstract Instant getIssuedAt();
 
 }
