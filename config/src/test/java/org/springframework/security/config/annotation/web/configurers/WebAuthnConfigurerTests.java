@@ -30,6 +30,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -55,6 +58,7 @@ import org.springframework.security.web.webauthn.management.PublicKeyCredentialU
 import org.springframework.security.web.webauthn.management.UserCredentialRepository;
 import org.springframework.security.web.webauthn.management.WebAuthnRelyingPartyOperations;
 import org.springframework.security.web.webauthn.registration.HttpSessionPublicKeyCredentialCreationOptionsRepository;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -283,6 +287,55 @@ public class WebAuthnConfigurerTests {
 			.andExpect(status().isForbidden());
 	}
 
+	@Test
+	public void webauthnWhenAuthenticationEventPublisherBeanThenUsed() {
+		this.spring.register(DefaultWebauthnConfiguration.class, CustomEventPublisherConfig.class).autowire();
+
+		FilterChainProxy filterChain = this.spring.getContext().getBean(FilterChainProxy.class);
+		WebAuthnAuthenticationFilter webAuthnFilter = filterChain.getFilterChains()
+			.get(0)
+			.getFilters()
+			.stream()
+			.filter(WebAuthnAuthenticationFilter.class::isInstance)
+			.map(WebAuthnAuthenticationFilter.class::cast)
+			.findFirst()
+			.orElseThrow();
+
+		AuthenticationManager authManager = (AuthenticationManager) ReflectionTestUtils.getField(webAuthnFilter,
+				"authenticationManager");
+		assertThat(authManager).isInstanceOf(ProviderManager.class);
+
+		Object publisher = ReflectionTestUtils.getField(authManager, "eventPublisher");
+		AuthenticationEventPublisher expectedPublisher = this.spring.getContext()
+			.getBean(AuthenticationEventPublisher.class);
+		assertThat(publisher).isSameAs(expectedPublisher);
+	}
+
+	@Test
+	public void webauthnWhenNoAuthenticationEventPublisherBeanThenDefaultNullPublisher() {
+		this.spring.register(DefaultWebauthnConfiguration.class).autowire();
+
+		FilterChainProxy filterChain = this.spring.getContext().getBean(FilterChainProxy.class);
+		WebAuthnAuthenticationFilter webAuthnFilter = filterChain.getFilterChains()
+			.get(0)
+			.getFilters()
+			.stream()
+			.filter(WebAuthnAuthenticationFilter.class::isInstance)
+			.map(WebAuthnAuthenticationFilter.class::cast)
+			.findFirst()
+			.orElseThrow();
+
+		AuthenticationManager authManager = (AuthenticationManager) ReflectionTestUtils.getField(webAuthnFilter,
+				"authenticationManager");
+		assertThat(authManager).isInstanceOf(ProviderManager.class);
+
+		Object publisher = ReflectionTestUtils.getField(authManager, "eventPublisher");
+		// ProviderManager.java:316: private static final class NullEventPublisher
+		assertThat(publisher).isNotNull();
+		assertThat(publisher.getClass().getDeclaringClass()).isEqualTo(ProviderManager.class);
+		assertThat(publisher.getClass().getName()).contains("NullEventPublisher");
+	}
+
 	@Configuration
 	@EnableWebSecurity
 	static class ConfigCredentialCreationOptionsRepository {
@@ -361,6 +414,16 @@ public class WebAuthnConfigurerTests {
 		@Bean
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			return http.csrf(AbstractHttpConfigurer::disable).webAuthn((c) -> c.messageConverter(converter)).build();
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class CustomEventPublisherConfig {
+
+		@Bean
+		AuthenticationEventPublisher authenticationEventPublisher() {
+			return mock(AuthenticationEventPublisher.class);
 		}
 
 	}
