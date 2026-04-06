@@ -44,24 +44,24 @@ public class BCryptPasswordEncoder extends AbstractValidatingPasswordEncoder {
 
 	private final BCryptVersion version;
 
-	private final @Nullable SecureRandom random;
+	private final SecureRandom random;
 
 	public BCryptPasswordEncoder() {
-		this(-1, new SecureRandom());
+		this(-1);
 	}
 
 	/**
 	 * @param strength the log rounds to use, between 4 and 31
 	 */
 	public BCryptPasswordEncoder(int strength) {
-		this(strength, new SecureRandom());
+		this(strength, null);
 	}
 
 	/**
 	 * @param version the version of bcrypt, can be 2a,2b,2y
 	 */
 	public BCryptPasswordEncoder(BCryptVersion version) {
-		this(version, new SecureRandom());
+		this(version, null);
 	}
 
 	/**
@@ -85,7 +85,7 @@ public class BCryptPasswordEncoder extends AbstractValidatingPasswordEncoder {
 	 * @param strength the log rounds to use, between 4 and 31
 	 */
 	public BCryptPasswordEncoder(BCryptVersion version, int strength) {
-		this(version, strength, new SecureRandom());
+		this(version, strength, null);
 	}
 
 	/**
@@ -99,7 +99,7 @@ public class BCryptPasswordEncoder extends AbstractValidatingPasswordEncoder {
 		}
 		this.version = version;
 		this.strength = (strength == -1) ? 10 : strength;
-		this.random = random;
+		this.random = (random != null) ? random : SecureRandomHolder.INSTANCE;
 	}
 
 	@Override
@@ -109,10 +109,7 @@ public class BCryptPasswordEncoder extends AbstractValidatingPasswordEncoder {
 	}
 
 	private String getSalt() {
-		if (this.random != null) {
-			return BCrypt.gensalt(this.version.getVersion(), this.strength, this.random);
-		}
-		return BCrypt.gensalt(this.version.getVersion(), this.strength);
+		return BCrypt.gensalt(this.version.getVersion(), this.strength, this.random);
 	}
 
 	@Override
@@ -156,6 +153,12 @@ public class BCryptPasswordEncoder extends AbstractValidatingPasswordEncoder {
 		public String getVersion() {
 			return this.version;
 		}
+
+	}
+
+	private static final class SecureRandomHolder {
+
+		private static final SecureRandom INSTANCE = new SecureRandom();
 
 	}
 
