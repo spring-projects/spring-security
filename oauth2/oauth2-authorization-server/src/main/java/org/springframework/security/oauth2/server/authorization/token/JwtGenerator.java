@@ -144,7 +144,7 @@ public final class JwtGenerator implements OAuth2TokenGenerator<Jwt> {
 				SessionInformation sessionInformation = context.get(SessionInformation.class);
 				if (sessionInformation != null) {
 					claimsBuilder.claim("sid", sessionInformation.getSessionId());
-					claimsBuilder.claim(IdTokenClaimNames.AUTH_TIME, getAuthenticationTime(context.getPrincipal()));
+					claimsBuilder.claim(IdTokenClaimNames.AUTH_TIME, getAuthenticationTime(principal));
 				}
 			}
 			else if (AuthorizationGrantType.REFRESH_TOKEN.equals(authorizationGrantType)) {
