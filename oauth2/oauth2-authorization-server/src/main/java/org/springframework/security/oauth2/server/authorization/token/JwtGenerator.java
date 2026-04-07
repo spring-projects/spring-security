@@ -24,6 +24,9 @@ import java.util.Date;
 import java.util.UUID;
 
 import org.springframework.lang.Nullable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -141,7 +144,7 @@ public final class JwtGenerator implements OAuth2TokenGenerator<Jwt> {
 				SessionInformation sessionInformation = context.get(SessionInformation.class);
 				if (sessionInformation != null) {
 					claimsBuilder.claim("sid", sessionInformation.getSessionId());
-					claimsBuilder.claim(IdTokenClaimNames.AUTH_TIME, sessionInformation.getLastRequest());
+					claimsBuilder.claim(IdTokenClaimNames.AUTH_TIME, getAuthenticationTime(context.getPrincipal()));
 				}
 			}
 			else if (AuthorizationGrantType.REFRESH_TOKEN.equals(context.getAuthorizationGrantType())) {
@@ -220,6 +223,19 @@ public final class JwtGenerator implements OAuth2TokenGenerator<Jwt> {
 	public void setClock(Clock clock) {
 		Assert.notNull(clock, "clock cannot be null");
 		this.clock = clock;
+	}
+
+	static Date getAuthenticationTime(Authentication authentication) {
+		Instant authenticationTime = null;
+		for (GrantedAuthority grantedAuthority : authentication.getAuthorities()) {
+			if (grantedAuthority instanceof FactorGrantedAuthority factorGrantedAuthority) {
+				if (authenticationTime == null || factorGrantedAuthority.getIssuedAt().isAfter(authenticationTime)) {
+					authenticationTime = factorGrantedAuthority.getIssuedAt();
+				}
+			}
+		}
+		Assert.notNull(authenticationTime, "authenticationTime cannot be null");
+		return Date.from(authenticationTime);
 	}
 
 }
