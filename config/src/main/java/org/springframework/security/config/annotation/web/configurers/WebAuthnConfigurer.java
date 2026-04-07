@@ -31,6 +31,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.ui.DefaultResourcesFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -178,6 +179,11 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 		WebAuthnAuthenticationFilter webAuthnAuthnFilter = new WebAuthnAuthenticationFilter();
 		webAuthnAuthnFilter.setAuthenticationManager(
 				new ProviderManager(new WebAuthnAuthenticationProvider(rpOperations, userDetailsService)));
+		SessionAuthenticationStrategy sessionAuthenticationStrategy = http
+			.getSharedObject(SessionAuthenticationStrategy.class);
+		if (sessionAuthenticationStrategy != null) {
+			webAuthnAuthnFilter.setSessionAuthenticationStrategy(sessionAuthenticationStrategy);
+		}
 		webAuthnAuthnFilter = postProcess(webAuthnAuthnFilter);
 		WebAuthnRegistrationFilter webAuthnRegistrationFilter = new WebAuthnRegistrationFilter(userCredentials,
 				rpOperations);
