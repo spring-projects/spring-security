@@ -26,7 +26,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import tools.jackson.core.JacksonException;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
 import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -105,6 +107,47 @@ public class OAuth2AuthorizedClientMixinTests {
 		String expectedJson = asJson(authorizedClient);
 		String json = this.mapper.writeValueAsString(authorizedClient);
 		JSONAssert.assertEquals(expectedJson, json, true);
+	}
+
+	@Test
+	public void serializeWhenWriteDatesAsTimestampsDisabledThenTokenDatesStillUseTimestamps() throws Exception {
+		ClassLoader loader = getClass().getClassLoader();
+		JsonMapper customMapper = JsonMapper.builder()
+			.disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+			.addModules(SecurityJacksonModules.getModules(loader, BasicPolymorphicTypeValidator.builder()))
+			.build();
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistrationBuilder.build(),
+				this.principalName, this.accessToken, this.refreshToken);
+		String expectedJson = asJson(authorizedClient);
+		String json = customMapper.writeValueAsString(authorizedClient);
+		JSONAssert.assertEquals(expectedJson, json, true);
+	}
+
+	@Test
+	public void deserializeWhenWriteDatesAsTimestampsDisabledThenTokenDatesStillDeserialize() throws Exception {
+		ClassLoader loader = getClass().getClassLoader();
+		JsonMapper customMapper = JsonMapper.builder()
+			.disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+			.addModules(SecurityJacksonModules.getModules(loader, BasicPolymorphicTypeValidator.builder()))
+			.build();
+		OAuth2AuthorizedClient expectedAuthorizedClient = new OAuth2AuthorizedClient(this.clientRegistrationBuilder.build(),
+				this.principalName, this.accessToken, this.refreshToken);
+		String json = asJson(expectedAuthorizedClient);
+		OAuth2AuthorizedClient authorizedClient = customMapper.readValue(json, OAuth2AuthorizedClient.class);
+		assertThat(authorizedClient.getAccessToken().getIssuedAt()).isEqualTo(this.accessToken.getIssuedAt());
+		assertThat(authorizedClient.getAccessToken().getExpiresAt()).isEqualTo(this.accessToken.getExpiresAt());
+		assertThat(authorizedClient.getRefreshToken()).isNotNull();
+		assertThat(authorizedClient.getRefreshToken().getIssuedAt()).isEqualTo(this.refreshToken.getIssuedAt());
+	}
+
+	@Test
+	public void setupWhenWriteDatesAsTimestampsDisabledThenSettingIsNotOverridden() {
+		ClassLoader loader = getClass().getClassLoader();
+		JsonMapper customMapper = JsonMapper.builder()
+			.disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+			.addModules(SecurityJacksonModules.getModules(loader, BasicPolymorphicTypeValidator.builder()))
+			.build();
+		assertThat(customMapper.isEnabled(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)).isFalse();
 	}
 
 	@Test
