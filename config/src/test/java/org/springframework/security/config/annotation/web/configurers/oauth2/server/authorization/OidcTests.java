@@ -60,6 +60,7 @@ import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
@@ -210,7 +211,8 @@ public class OidcTests {
 				registeredClient);
 		MvcResult mvcResult = this.mvc
 			.perform(get(DEFAULT_AUTHORIZATION_ENDPOINT_URI).queryParams(authorizationRequestParameters)
-				.with(user("user").roles("A", "B")))
+				.with(user("user").roles("A", "B")
+					.authorities(FactorGrantedAuthority.fromAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY))))
 			.andExpect(status().is3xxRedirection())
 			.andReturn();
 		String redirectedUrl = mvcResult.getResponse().getRedirectedUrl();
@@ -270,7 +272,8 @@ public class OidcTests {
 				registeredClient);
 		MvcResult mvcResult = this.mvc
 			.perform(get(DEFAULT_AUTHORIZATION_ENDPOINT_URI).queryParams(authorizationRequestParameters)
-				.with(user("user").roles("A", "B")))
+				.with(user("user").roles("A", "B")
+					.authorities(FactorGrantedAuthority.fromAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY))))
 			.andExpect(status().is3xxRedirection())
 			.andReturn();
 		String redirectedUrl = mvcResult.getResponse().getRedirectedUrl();
@@ -335,7 +338,8 @@ public class OidcTests {
 				registeredClient);
 		MvcResult mvcResult = this.mvc
 			.perform(get(issuer.concat(DEFAULT_AUTHORIZATION_ENDPOINT_URI)).queryParams(authorizationRequestParameters)
-				.with(user("user")))
+				.with(user("user")
+					.authorities(FactorGrantedAuthority.fromAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY))))
 			.andExpect(status().is3xxRedirection())
 			.andReturn();
 
@@ -388,7 +392,8 @@ public class OidcTests {
 				registeredClient1);
 		MvcResult mvcResult = this.mvc
 			.perform(get(DEFAULT_AUTHORIZATION_ENDPOINT_URI).queryParams(authorizationRequestParameters)
-				.with(user("user1")))
+				.with(user("user1")
+					.authorities(FactorGrantedAuthority.fromAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY))))
 			.andExpect(status().is3xxRedirection())
 			.andReturn();
 
@@ -424,7 +429,8 @@ public class OidcTests {
 		authorizationRequestParameters = getAuthorizationRequestParameters(registeredClient2);
 		mvcResult = this.mvc
 			.perform(get(DEFAULT_AUTHORIZATION_ENDPOINT_URI).queryParams(authorizationRequestParameters)
-				.with(user("user2")))
+				.with(user("user2")
+					.authorities(FactorGrantedAuthority.fromAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY))))
 			.andExpect(status().is3xxRedirection())
 			.andReturn();
 
@@ -497,7 +503,8 @@ public class OidcTests {
 				registeredClient);
 		MvcResult mvcResult = this.mvc
 			.perform(get(DEFAULT_AUTHORIZATION_ENDPOINT_URI).queryParams(authorizationRequestParameters)
-				.with(user("user")))
+				.with(user("user")
+					.authorities(FactorGrantedAuthority.fromAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY))))
 			.andExpect(status().is3xxRedirection())
 			.andReturn();
 		String redirectedUrl = mvcResult.getResponse().getRedirectedUrl();
@@ -537,7 +544,8 @@ public class OidcTests {
 				registeredClient);
 		MvcResult mvcResult = this.mvc
 			.perform(get(DEFAULT_AUTHORIZATION_ENDPOINT_URI).queryParams(authorizationRequestParameters)
-				.with(user("user")))
+				.with(user("user")
+					.authorities(FactorGrantedAuthority.fromAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY))))
 			.andExpect(status().is3xxRedirection())
 			.andReturn();
 		String redirectedUrl = mvcResult.getResponse().getRedirectedUrl();

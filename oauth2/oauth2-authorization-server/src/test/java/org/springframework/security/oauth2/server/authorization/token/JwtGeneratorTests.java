@@ -363,7 +363,7 @@ public class JwtGeneratorTests {
 				SessionInformation sessionInformation = tokenContext.get(SessionInformation.class);
 				assertThat(jwtClaimsSet.<String>getClaim("sid")).isEqualTo(sessionInformation.getSessionId());
 				assertThat(jwtClaimsSet.<Date>getClaim(IdTokenClaimNames.AUTH_TIME))
-					.isEqualTo(sessionInformation.getLastRequest());
+					.isEqualTo(JwtGenerator.getAuthenticationTime(tokenContext.getPrincipal()));
 			}
 			else if (tokenContext.getAuthorizationGrantType().equals(AuthorizationGrantType.REFRESH_TOKEN)) {
 				OidcIdToken currentIdToken = tokenContext.getAuthorization().getToken(OidcIdToken.class).getToken();
