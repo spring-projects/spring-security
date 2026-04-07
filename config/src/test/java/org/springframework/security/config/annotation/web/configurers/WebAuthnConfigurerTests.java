@@ -42,6 +42,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.ui.DefaultResourcesFilter;
 import org.springframework.security.web.webauthn.api.Bytes;
@@ -56,6 +57,7 @@ import org.springframework.security.web.webauthn.management.PublicKeyCredentialU
 import org.springframework.security.web.webauthn.management.UserCredentialRepository;
 import org.springframework.security.web.webauthn.management.WebAuthnRelyingPartyOperations;
 import org.springframework.security.web.webauthn.registration.HttpSessionPublicKeyCredentialCreationOptionsRepository;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -420,11 +422,10 @@ public class WebAuthnConfigurerTests {
 			.map(WebAuthnAuthenticationFilter.class::cast)
 			.findFirst()
 			.orElseThrow(() -> new AssertionError("WebAuthnAuthenticationFilter not found"));
-		SessionAuthenticationStrategy strategy = (SessionAuthenticationStrategy) org.springframework.test.util.ReflectionTestUtils
+		SessionAuthenticationStrategy strategy = (SessionAuthenticationStrategy) ReflectionTestUtils
 			.getField(webAuthnFilter, "sessionStrategy");
 		assertThat(strategy).isNotNull();
-		assertThat(strategy).isInstanceOf(
-				org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy.class);
+		assertThat(strategy).isInstanceOf(CompositeSessionAuthenticationStrategy.class);
 	}
 
 	@Configuration
