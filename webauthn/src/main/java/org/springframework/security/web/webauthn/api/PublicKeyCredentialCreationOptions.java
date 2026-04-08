@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +36,10 @@ import org.jspecify.annotations.Nullable;
  * @author Rob Winch
  * @since 6.4
  */
-public final class PublicKeyCredentialCreationOptions {
+public final class PublicKeyCredentialCreationOptions implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = 800506727675279143L;
 
 	private final PublicKeyCredentialRpEntity rp;
 
@@ -265,7 +270,7 @@ public final class PublicKeyCredentialCreationOptions {
 		 * @param timeout the timeout
 		 * @return the PublicKeyCredentialCreationOptionsBuilder
 		 */
-		public PublicKeyCredentialCreationOptionsBuilder timeout(Duration timeout) {
+		public PublicKeyCredentialCreationOptionsBuilder timeout(@Nullable Duration timeout) {
 			this.timeout = timeout;
 			return this;
 		}
@@ -297,7 +302,8 @@ public final class PublicKeyCredentialCreationOptions {
 		 * @param attestation the attestation
 		 * @return the PublicKeyCredentialCreationOptionsBuilder
 		 */
-		public PublicKeyCredentialCreationOptionsBuilder attestation(AttestationConveyancePreference attestation) {
+		public PublicKeyCredentialCreationOptionsBuilder attestation(
+				@Nullable AttestationConveyancePreference attestation) {
 			this.attestation = attestation;
 			return this;
 		}
@@ -307,7 +313,8 @@ public final class PublicKeyCredentialCreationOptions {
 		 * @param extensions the extensions
 		 * @return the PublicKeyCredentialCreationOptionsBuilder
 		 */
-		public PublicKeyCredentialCreationOptionsBuilder extensions(AuthenticationExtensionsClientInputs extensions) {
+		public PublicKeyCredentialCreationOptionsBuilder extensions(
+				@Nullable AuthenticationExtensionsClientInputs extensions) {
 			this.extensions = extensions;
 			return this;
 		}

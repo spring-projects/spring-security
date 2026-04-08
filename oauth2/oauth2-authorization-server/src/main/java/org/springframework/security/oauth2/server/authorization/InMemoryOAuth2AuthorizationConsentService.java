@@ -23,7 +23,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -90,8 +91,7 @@ public final class InMemoryOAuth2AuthorizationConsentService implements OAuth2Au
 	}
 
 	@Override
-	@Nullable
-	public OAuth2AuthorizationConsent findById(String registeredClientId, String principalName) {
+	public @Nullable OAuth2AuthorizationConsent findById(String registeredClientId, String principalName) {
 		Assert.hasText(registeredClientId, "registeredClientId cannot be empty");
 		Assert.hasText(principalName, "principalName cannot be empty");
 		int id = getId(registeredClientId, principalName);

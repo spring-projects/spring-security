@@ -101,6 +101,7 @@ class WebAuthnAuthenticationFilterTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	void setConverterWhenNullThenIllegalArgumentException() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> this.filter.setConverter((GenericHttpMessageConverter<Object>) null));

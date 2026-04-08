@@ -28,7 +28,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.http.HttpHeaders;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -1007,6 +1010,63 @@ public class OnCommittedResponseWrapperTests {
 	}
 
 	@Test
+	public void addHeaderNullNameDoesNotThrow() {
+		assertThatNoException().isThrownBy(() -> this.response.addHeader(null, "value"));
+	}
+
+	@Test
+	public void addHeaderNullValueDoesNotThrow() {
+		assertThatNoException().isThrownBy(() -> this.response.addHeader(HttpHeaders.CONTENT_LENGTH, null));
+	}
+
+	@Test
+	public void addIntHeaderContentLengthPrintWriterWriteStringCommits() throws Exception {
+		givenGetWriterThenReturn();
+		int expected = 1234;
+		this.response.addIntHeader("Content-Length", String.valueOf(expected).length());
+		this.response.getWriter().write(expected);
+		assertThat(this.committed).isTrue();
+	}
+
+	@Test
+	public void addIntHeaderNullNameDoesNotThrow() {
+		assertThatNoException().isThrownBy(() -> this.response.addIntHeader(null, 1));
+	}
+
+	@Test
+	public void setHeaderContentLengthPrintWriterWriteStringCommits() throws Exception {
+		givenGetWriterThenReturn();
+		int expected = 1234;
+		this.response.setHeader("Content-Length", String.valueOf(String.valueOf(expected).length()));
+		this.response.getWriter().write(expected);
+		assertThat(this.committed).isTrue();
+	}
+
+	@Test
+	public void setHeaderNullNameDoesNotThrow() {
+		assertThatNoException().isThrownBy(() -> this.response.setHeader(null, "value"));
+	}
+
+	@Test
+	public void setHeaderNullValueDoesNotThrow() {
+		assertThatNoException().isThrownBy(() -> this.response.setHeader(HttpHeaders.CONTENT_LENGTH, null));
+	}
+
+	@Test
+	public void setIntHeaderContentLengthPrintWriterWriteStringCommits() throws Exception {
+		givenGetWriterThenReturn();
+		int expected = 1234;
+		this.response.setIntHeader("Content-Length", String.valueOf(expected).length());
+		this.response.getWriter().write(expected);
+		assertThat(this.committed).isTrue();
+	}
+
+	@Test
+	public void setIntHeaderNullNameDoesNotThrow() {
+		assertThatNoException().isThrownBy(() -> this.response.setIntHeader(null, 1));
+	}
+
+	@Test
 	public void bufferSizePrintWriterWriteCommits() throws Exception {
 		givenGetWriterThenReturn();
 		String expected = "1234567890";
@@ -1025,6 +1085,88 @@ public class OnCommittedResponseWrapperTests {
 		this.committed = false;
 		this.response.getWriter().write(expected);
 		assertThat(this.committed).isFalse();
+	}
+
+	@Test
+	public void printWriterPrintNullStringDoesNotThrow() throws Exception {
+		givenGetWriterThenReturn();
+		String s = null;
+		assertThatNoException().isThrownBy(() -> this.response.getWriter().print(s));
+		verify(this.writer).print(s);
+	}
+
+	@Test
+	public void printWriterPrintlnNullStringDoesNotThrow() throws Exception {
+		givenGetWriterThenReturn();
+		String s = null;
+		assertThatNoException().isThrownBy(() -> this.response.getWriter().println(s));
+		verify(this.writer).println(s);
+	}
+
+	@Test
+	public void printWriterPrintNullObjectDoesNotThrow() throws Exception {
+		givenGetWriterThenReturn();
+		Object obj = null;
+		assertThatNoException().isThrownBy(() -> this.response.getWriter().print(obj));
+		verify(this.writer).print(obj);
+	}
+
+	@Test
+	public void printWriterPrintlnNullObjectDoesNotThrow() throws Exception {
+		givenGetWriterThenReturn();
+		Object obj = null;
+		assertThatNoException().isThrownBy(() -> this.response.getWriter().println(obj));
+		verify(this.writer).println(obj);
+	}
+
+	@Test
+	public void printWriterWriteNullStringDoesNotThrow() throws Exception {
+		givenGetWriterThenReturn();
+		String s = null;
+		assertThatNoException().isThrownBy(() -> this.response.getWriter().write(s));
+		verify(this.writer).write(s);
+	}
+
+	@Test
+	public void printWriterAppendNullCharSequenceDoesNotThrow() throws Exception {
+		givenGetWriterThenReturn();
+		CharSequence csq = null;
+		assertThatNoException().isThrownBy(() -> this.response.getWriter().append(csq));
+		verify(this.writer).append(csq);
+	}
+
+	@Test
+	public void printWriterAppendNullCharSequenceIntIntDoesNotThrow() throws Exception {
+		givenGetWriterThenReturn();
+		CharSequence csq = null;
+		assertThatNoException().isThrownBy(() -> this.response.getWriter().append(csq, 0, 3));
+		verify(this.writer).append(csq, 0, 3);
+	}
+
+	@Test
+	public void outputStreamPrintNullStringDoesNotThrow() throws Exception {
+		givenGetOutputStreamThenReturn();
+		String s = null;
+		assertThatNoException().isThrownBy(() -> this.response.getOutputStream().print(s));
+		verify(this.out).print(s);
+	}
+
+	@Test
+	public void outputStreamPrintlnNullStringDoesNotThrow() throws Exception {
+		givenGetOutputStreamThenReturn();
+		String s = null;
+		assertThatNoException().isThrownBy(() -> this.response.getOutputStream().println(s));
+		verify(this.out).println(s);
+	}
+
+	@Test
+	public void sendErrorWithNullMsgDoesNotThrow() throws Exception {
+		assertThatNoException().isThrownBy(() -> this.response.sendError(400, null));
+	}
+
+	@Test
+	public void sendRedirectWithNullLocationDoesNotThrow() throws Exception {
+		assertThatNoException().isThrownBy(() -> this.response.sendRedirect(null));
 	}
 
 }

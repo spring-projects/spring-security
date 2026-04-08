@@ -33,11 +33,18 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.ldap.InitialLdapContext;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.log.LogMessage;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.ldap.CommunicationException;
 import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.core.LdapClient;
 import org.springframework.ldap.core.support.DefaultDirObjectFactory;
+import org.springframework.ldap.core.support.SingleContextSource;
+import org.springframework.ldap.query.LdapQuery;
+import org.springframework.ldap.query.LdapQueryBuilder;
+import org.springframework.ldap.query.SearchScope;
 import org.springframework.ldap.support.LdapUtils;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -48,7 +55,6 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.security.ldap.authentication.AbstractLdapAuthenticationProvider;
 import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.util.Assert;
@@ -94,6 +100,7 @@ import org.springframework.util.StringUtils;
  * @author Luke Taylor
  * @author Rob Winch
  * @author Roman Zabaluev
+ * @author Andrey Litvitski
  * @since 3.1
  */
 public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLdapAuthenticationProvider {
@@ -117,9 +124,9 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 
 	private static final int ACCOUNT_LOCKED = 0x775;
 
-	private final String domain;
+	private final @Nullable String domain;
 
-	private final String rootDn;
+	private final @Nullable String rootDn;
 
 	private final String url;
 
@@ -163,6 +170,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 	protected DirContextOperations doAuthentication(UsernamePasswordAuthenticationToken auth) {
 		String username = auth.getName();
 		String password = (String) auth.getCredentials();
+		Assert.notNull(password, "password cannot be null");
 		DirContext ctx = null;
 		try {
 			ctx = bindAsUser(username, password);
@@ -236,7 +244,10 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 		}
 	}
 
-	private int parseSubErrorCode(String message) {
+	private int parseSubErrorCode(@Nullable String message) {
+		if (message == null) {
+			return -1;
+		}
 		Matcher matcher = SUB_ERROR_CODE.matcher(message);
 		if (matcher.matches()) {
 			return Integer.parseInt(matcher.group(1), 16);
@@ -293,10 +304,22 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 		String bindPrincipal = createBindPrincipal(username);
 		String searchRoot = (this.rootDn != null) ? this.rootDn : searchRootFromPrincipal(bindPrincipal);
-
+		SingleContextSource contextSource = new SingleContextSource(context);
+		LdapClient ldapClient = LdapClient.builder()
+			.contextSource(contextSource)
+			.defaultSearchControls(() -> searchControls)
+			.ignorePartialResultException(true)
+			.build();
 		try {
-			return SpringSecurityLdapTemplate.searchForSingleEntryInternal(context, searchControls, searchRoot,
-					this.searchFilter, new Object[] { bindPrincipal, username });
+			LdapQuery query = LdapQueryBuilder.query()
+				.base(searchRoot)
+				.searchScope(SearchScope.SUBTREE)
+				.filter(this.searchFilter, bindPrincipal, username);
+			DirContextOperations result = ldapClient.search().query(query).toEntry();
+			if (result == null) {
+				throw new IncorrectResultSizeDataAccessException(1, 0);
+			}
+			return result;
 		}
 		catch (CommunicationException ex) {
 			throw badLdapConnection(ex);
@@ -309,6 +332,12 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 			// If we found no results, then the username/password did not match
 			UsernameNotFoundException userNameNotFoundException = UsernameNotFoundException.fromUsername(username, ex);
 			throw badCredentials(userNameNotFoundException);
+		}
+		catch (org.springframework.ldap.NamingException ex) {
+			if (ex.getCause() instanceof NamingException original) {
+				throw original;
+			}
+			throw badCredentials(ex);
 		}
 	}
 

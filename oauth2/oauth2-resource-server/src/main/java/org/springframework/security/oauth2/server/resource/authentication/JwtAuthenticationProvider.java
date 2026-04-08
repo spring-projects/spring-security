@@ -101,10 +101,12 @@ public final class JwtAuthenticationProvider implements AuthenticationProvider {
 		}
 		catch (BadJwtException failed) {
 			this.logger.debug("Failed to authenticate since the JWT was invalid");
-			throw new InvalidBearerTokenException(failed.getMessage(), failed);
+			throw new InvalidBearerTokenException((failed.getMessage() != null) ? failed.getMessage() : "Invalid token",
+					failed);
 		}
 		catch (JwtException failed) {
-			throw new AuthenticationServiceException(failed.getMessage(), failed);
+			throw new AuthenticationServiceException(
+					(failed.getMessage() != null) ? failed.getMessage() : "Invalid token", failed);
 		}
 	}
 

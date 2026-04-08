@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
@@ -118,7 +119,7 @@ final class X509CertificateThumbprintValidator implements OAuth2TokenValidator<J
 	private static final class DefaultX509CertificateSupplier implements Supplier<X509Certificate> {
 
 		@Override
-		public X509Certificate get() {
+		public @Nullable X509Certificate get() {
 			RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
 			if (requestAttributes == null) {
 				return null;

@@ -20,7 +20,8 @@ import java.io.Serial;
 import java.util.Collections;
 import java.util.Map;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -52,7 +53,7 @@ public class OAuth2AccessTokenAuthenticationToken extends AbstractAuthentication
 
 	private final OAuth2AccessToken accessToken;
 
-	private final OAuth2RefreshToken refreshToken;
+	private final @Nullable OAuth2RefreshToken refreshToken;
 
 	private final Map<String, Object> additionalParameters;
 
@@ -135,8 +136,7 @@ public class OAuth2AccessTokenAuthenticationToken extends AbstractAuthentication
 	 * Returns the {@link OAuth2RefreshToken refresh token}.
 	 * @return the {@link OAuth2RefreshToken} or {@code null} if not available
 	 */
-	@Nullable
-	public OAuth2RefreshToken getRefreshToken() {
+	public @Nullable OAuth2RefreshToken getRefreshToken() {
 		return this.refreshToken;
 	}
 

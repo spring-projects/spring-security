@@ -68,6 +68,27 @@ The https://github.com/spring-projects/spring-security/tree/docs-build[playbook 
 
 Discover more commands with `./gradlew tasks`.
 
+=== IDE setup (IntelliJ)
+
+No special steps are needed to open Spring Security in IntelliJ.
+
+=== IDE setup (Eclipse and VS Code)
+
+To work in Eclipse or VS Code, first generate Eclipse metadata so you can import the project into Eclipse or VS Code:
+
+[indent=0]
+----
+./gradlew cleanEclipse eclipse
+----
+
+If you have not built the project yet, run `./gradlew publishToMavenLocal` first so dependencies are resolved.
+
+*VS Code:* Open the repository root as a folder. The repository includes `.vscode/settings.json` which disables automatic Gradle import so that the generated Eclipse metadata (`.classpath`, `.project`) is used. Do not use the Gradle for Java extension to import the project.
+
+*Eclipse:* File → Import → General → Existing Projects into Workspace, then select the repository root.
+
+The build uses a custom Eclipse plugin to work around Gradle dependency cycles that confuse IDE metadata generation. You may see Eclipse warnings about `xml-apis` from some test dependencies; those are excluded in the build and can be ignored.
+
 == Getting Support
 Check out the https://stackoverflow.com/questions/tagged/spring-security[Spring Security tags on Stack Overflow].
 https://spring.io/support[Commercial support] is available too.

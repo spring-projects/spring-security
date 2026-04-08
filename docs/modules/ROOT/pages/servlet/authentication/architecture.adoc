@@ -97,7 +97,11 @@ val authorities = authentication.authorities
 ----
 ======
 
-// FIXME: Add links to and relevant description of HttpServletRequest.getRemoteUser() and @CurrentSecurityContext @AuthenticationPrincipal
+In Spring MVC, you can resolve the current principal with
+xref:servlet/integrations/mvc.adoc#mvc-authentication-principal[`@AuthenticationPrincipal`]
+and the full `SecurityContext` with
+xref:servlet/integrations/mvc.adoc#mvc-current-security-context[`@CurrentSecurityContext`].
+For Servlet API access, use `HttpServletRequest#getRemoteUser`.
 
 By default, `SecurityContextHolder` uses a `ThreadLocal` to store these details, which means that the `SecurityContext` is always available to methods in the same thread, even if the `SecurityContext` is not explicitly passed around as an argument to those methods.
 Using a `ThreadLocal` in this way is quite safe if you take care to clear the thread after the present principal's request is processed.

@@ -18,7 +18,8 @@ package org.springframework.security.oauth2.client;
 
 import java.io.Serializable;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
@@ -50,7 +51,7 @@ public class OAuth2AuthorizedClient implements Serializable {
 
 	private final OAuth2AccessToken accessToken;
 
-	private final OAuth2RefreshToken refreshToken;
+	private final @Nullable OAuth2RefreshToken refreshToken;
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizedClient} using the provided parameters.

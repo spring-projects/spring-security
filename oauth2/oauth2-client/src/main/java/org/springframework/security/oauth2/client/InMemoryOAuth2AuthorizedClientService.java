@@ -19,6 +19,8 @@ package org.springframework.security.oauth2.client;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -72,7 +74,7 @@ public final class InMemoryOAuth2AuthorizedClientService implements OAuth2Author
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId,
+	public <T extends OAuth2AuthorizedClient> @Nullable T loadAuthorizedClient(String clientRegistrationId,
 			String principalName) {
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
 		Assert.hasText(principalName, "principalName cannot be empty");

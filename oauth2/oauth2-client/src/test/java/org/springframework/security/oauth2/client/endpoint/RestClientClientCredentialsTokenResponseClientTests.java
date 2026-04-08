@@ -366,6 +366,7 @@ public class RestClientClientCredentialsTokenResponseClientTests {
 		OAuth2ClientCredentialsGrantRequest grantRequest = new OAuth2ClientCredentialsGrantRequest(clientRegistration);
 		Converter<OAuth2ClientCredentialsGrantRequest, HttpHeaders> headersConverter = mock();
 		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		headers.put("custom-header-name", Collections.singletonList("custom-header-value"));
 		given(headersConverter.convert(grantRequest)).willReturn(headers);
 		this.tokenResponseClient.setHeadersConverter(headersConverter);

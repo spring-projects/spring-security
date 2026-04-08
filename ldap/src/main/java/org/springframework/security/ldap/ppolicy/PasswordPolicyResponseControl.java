@@ -31,6 +31,7 @@ import netscape.ldap.ber.stream.BERTag;
 import netscape.ldap.ber.stream.BERTagDecoder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.dao.DataRetrievalFailureException;
@@ -59,7 +60,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 
 	private final byte[] encodedValue;
 
-	private PasswordPolicyErrorStatus errorStatus;
+	private @Nullable PasswordPolicyErrorStatus errorStatus;
 
 	private int graceLoginsRemaining = Integer.MAX_VALUE;
 
@@ -100,7 +101,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 		return this.encodedValue;
 	}
 
-	public PasswordPolicyErrorStatus getErrorStatus() {
+	public @Nullable PasswordPolicyErrorStatus getErrorStatus() {
 		return this.errorStatus;
 	}
 
@@ -165,7 +166,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(getClass().getSimpleName()).append(" [");
-		if (hasError()) {
+		if (hasError() && this.errorStatus != null) {
 			sb.append("error=").append(this.errorStatus.getDefaultMessage()).append("; ");
 		}
 		if (this.graceLoginsRemaining != Integer.MAX_VALUE) {
@@ -227,7 +228,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 		static class SpecificTagDecoder extends BERTagDecoder {
 
 			/** Allows us to remember which of the two options we're decoding */
-			private Boolean inChoice = null;
+			private @Nullable Boolean inChoice = null;
 
 			@Override
 			public BERElement getElement(BERTagDecoder decoder, int tag, InputStream stream, int[] bytesRead,

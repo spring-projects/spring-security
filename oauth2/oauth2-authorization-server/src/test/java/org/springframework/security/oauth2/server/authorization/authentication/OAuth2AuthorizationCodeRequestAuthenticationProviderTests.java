@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -109,6 +110,11 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 			.build();
 		AuthorizationServerContextHolder
 			.setContext(new TestAuthorizationServerContext(authorizationServerSettings, null));
+	}
+
+	@AfterEach
+	public void tearDown() {
+		AuthorizationServerContextHolder.resetContext();
 	}
 
 	@Test

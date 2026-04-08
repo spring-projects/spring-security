@@ -21,7 +21,8 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
@@ -39,9 +40,9 @@ public class OAuth2PushedAuthorizationRequestAuthenticationToken
 	@Serial
 	private static final long serialVersionUID = 7330534287786569644L;
 
-	private final String requestUri;
+	private final @Nullable String requestUri;
 
-	private final Instant requestUriExpiresAt;
+	private final @Nullable Instant requestUriExpiresAt;
 
 	/**
 	 * Constructs an {@code OAuth2PushedAuthorizationRequestAuthenticationToken} using the
@@ -91,8 +92,7 @@ public class OAuth2PushedAuthorizationRequestAuthenticationToken
 	 * Returns the {@code request_uri} corresponding to the authorization request posted.
 	 * @return the {@code request_uri} corresponding to the authorization request posted
 	 */
-	@Nullable
-	public String getRequestUri() {
+	public @Nullable String getRequestUri() {
 		return this.requestUri;
 	}
 
@@ -102,8 +102,7 @@ public class OAuth2PushedAuthorizationRequestAuthenticationToken
 	 * @return the expiration time on or after which the {@code request_uri} MUST NOT be
 	 * accepted
 	 */
-	@Nullable
-	public Instant getRequestUriExpiresAt() {
+	public @Nullable Instant getRequestUriExpiresAt() {
 		return this.requestUriExpiresAt;
 	}
 

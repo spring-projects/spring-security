@@ -16,6 +16,7 @@
 
 package org.springframework.security.authentication;
 
+@SuppressWarnings("serial")
 public class NonBuildableAuthenticationToken extends TestingAuthenticationToken {
 
 	public NonBuildableAuthenticationToken(String user, String password, String... authorities) {

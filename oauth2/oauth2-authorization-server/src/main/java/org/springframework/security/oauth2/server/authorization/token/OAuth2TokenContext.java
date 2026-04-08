@@ -22,7 +22,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -55,7 +56,9 @@ public interface OAuth2TokenContext extends Context {
 	 * @return the {@link RegisteredClient}
 	 */
 	default RegisteredClient getRegisteredClient() {
-		return get(RegisteredClient.class);
+		RegisteredClient registeredClient = get(RegisteredClient.class);
+		Assert.notNull(registeredClient, "registeredClient cannot be null");
+		return registeredClient;
 	}
 
 	/**
@@ -63,9 +66,9 @@ public interface OAuth2TokenContext extends Context {
 	 * owner (or client).
 	 * @param <T> the type of the {@code Authentication}
 	 * @return the {@link Authentication} representing the {@code Principal} resource
-	 * owner (or client)
+	 * owner (or client), or {@code null} if not available
 	 */
-	default <T extends Authentication> T getPrincipal() {
+	default <T extends Authentication> @Nullable T getPrincipal() {
 		return get(AbstractBuilder.PRINCIPAL_AUTHENTICATION_KEY);
 	}
 
@@ -74,15 +77,16 @@ public interface OAuth2TokenContext extends Context {
 	 * @return the {@link AuthorizationServerContext}
 	 */
 	default AuthorizationServerContext getAuthorizationServerContext() {
-		return get(AuthorizationServerContext.class);
+		AuthorizationServerContext authorizationServerContext = get(AuthorizationServerContext.class);
+		Assert.notNull(authorizationServerContext, "authorizationServerContext cannot be null");
+		return authorizationServerContext;
 	}
 
 	/**
 	 * Returns the {@link OAuth2Authorization authorization}.
 	 * @return the {@link OAuth2Authorization}, or {@code null} if not available
 	 */
-	@Nullable
-	default OAuth2Authorization getAuthorization() {
+	default @Nullable OAuth2Authorization getAuthorization() {
 		return get(OAuth2Authorization.class);
 	}
 
@@ -91,8 +95,8 @@ public interface OAuth2TokenContext extends Context {
 	 * @return the authorized scope(s)
 	 */
 	default Set<String> getAuthorizedScopes() {
-		return hasKey(AbstractBuilder.AUTHORIZED_SCOPE_KEY) ? get(AbstractBuilder.AUTHORIZED_SCOPE_KEY)
-				: Collections.emptySet();
+		Set<String> authorizedScopes = get(AbstractBuilder.AUTHORIZED_SCOPE_KEY);
+		return (authorizedScopes != null) ? authorizedScopes : Collections.emptySet();
 	}
 
 	/**
@@ -100,23 +104,26 @@ public interface OAuth2TokenContext extends Context {
 	 * @return the {@link OAuth2TokenType}
 	 */
 	default OAuth2TokenType getTokenType() {
-		return get(OAuth2TokenType.class);
+		OAuth2TokenType tokenType = get(OAuth2TokenType.class);
+		Assert.notNull(tokenType, "tokenType cannot be null");
+		return tokenType;
 	}
 
 	/**
 	 * Returns the {@link AuthorizationGrantType authorization grant type}.
-	 * @return the {@link AuthorizationGrantType}
+	 * @return the {@link AuthorizationGrantType}, or {@code null} if not available
 	 */
-	default AuthorizationGrantType getAuthorizationGrantType() {
+	default @Nullable AuthorizationGrantType getAuthorizationGrantType() {
 		return get(AuthorizationGrantType.class);
 	}
 
 	/**
 	 * Returns the {@link Authentication} representing the authorization grant.
 	 * @param <T> the type of the {@code Authentication}
-	 * @return the {@link Authentication} representing the authorization grant
+	 * @return the {@link Authentication} representing the authorization grant, or
+	 * {@code null} if not available
 	 */
-	default <T extends Authentication> T getAuthorizationGrant() {
+	default <T extends Authentication> @Nullable T getAuthorizationGrant() {
 		return get(AbstractBuilder.AUTHORIZATION_GRANT_AUTHENTICATION_KEY);
 	}
 
@@ -238,7 +245,7 @@ public interface OAuth2TokenContext extends Context {
 		}
 
 		@SuppressWarnings("unchecked")
-		protected <V> V get(Object key) {
+		protected <V> @Nullable V get(Object key) {
 			return (V) this.context.get(key);
 		}
 

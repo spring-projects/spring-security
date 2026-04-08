@@ -154,6 +154,36 @@ public class PathPatternRequestMatcherTests {
 		assertThat(matcher.matches(mock)).isFalse();
 	}
 
+	@Test
+	void matcherWhenRequestPathNotParsedThenDoesNotLeaveParsedRequestPath() {
+		RequestMatcher matcher = pathPattern("/uri");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/uri");
+		assertThat(ServletRequestPathUtils.hasParsedRequestPath(request)).isFalse();
+		assertThat(matcher.matches(request)).isTrue();
+		assertThat(ServletRequestPathUtils.hasParsedRequestPath(request)).isFalse();
+	}
+
+	@Test
+	void matcherWhenRequestPathAlreadyParsedThenLeavesParsedRequestPath() {
+		RequestMatcher matcher = pathPattern("/uri");
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/uri");
+		ServletRequestPathUtils.parseAndCache(request);
+		assertThat(ServletRequestPathUtils.hasParsedRequestPath(request)).isTrue();
+		assertThat(matcher.matches(request)).isTrue();
+		assertThat(ServletRequestPathUtils.hasParsedRequestPath(request)).isTrue();
+	}
+
+	// gh-18911
+	@Test
+	void testEqualsWithSameAndDifferentHttpMethod() {
+		PathPatternRequestMatcher.Builder builder = PathPatternRequestMatcher.withDefaults();
+		PathPatternRequestMatcher matcher1 = builder.matcher(HttpMethod.GET, "/foo");
+		PathPatternRequestMatcher matcher2 = builder.matcher(HttpMethod.GET, "/foo");
+		PathPatternRequestMatcher matcher3 = builder.matcher(HttpMethod.POST, "/foo");
+		assertThat(matcher1).isEqualTo(matcher2);
+		assertThat(matcher1).isNotEqualTo(matcher3);
+	}
+
 	MockHttpServletRequest request(String uri) {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
 		ServletRequestPathUtils.parseAndCache(request);

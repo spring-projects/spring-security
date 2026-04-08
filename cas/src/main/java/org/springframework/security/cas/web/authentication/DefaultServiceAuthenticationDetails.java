@@ -34,6 +34,7 @@ import org.springframework.util.Assert;
  * and using the current URL minus the artifact and the corresponding value.
  *
  * @author Rob Winch
+ * @author Ngoc Nhan
  */
 final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 		implements ServiceAuthenticationDetails {
@@ -70,14 +71,13 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (this == obj) {
 			return true;
 		}
-		if (!super.equals(obj) || !(obj instanceof DefaultServiceAuthenticationDetails)) {
+		if (!super.equals(obj) || !(obj instanceof DefaultServiceAuthenticationDetails that)) {
 			return false;
 		}
-		ServiceAuthenticationDetails that = (ServiceAuthenticationDetails) obj;
 		return this.serviceUrl.equals(that.getServiceUrl());
 	}
 
@@ -101,7 +101,11 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 	/**
 	 * If present, removes the artifactParameterName and the corresponding value from the
 	 * query String.
-	 * @param request
+	 * @param request the current {@link HttpServletRequest} to obtain the
+	 * {@link #getServiceUrl()} from.
+	 * @param artifactPattern the {@link Pattern} that will be used to clean up the query
+	 * string from containing the artifact name and value. This can be created using
+	 * {@link #createArtifactPattern(String)}.
 	 * @return the query String minus the artifactParameterName and the corresponding
 	 * value.
 	 */
@@ -111,7 +115,7 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 			return null;
 		}
 		String result = artifactPattern.matcher(query).replaceFirst("");
-		if (result.length() == 0) {
+		if (result.isEmpty()) {
 			return null;
 		}
 		// strip off the trailing & only if the artifact was the first query param
@@ -122,8 +126,9 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 	 * Creates a {@link Pattern} that can be passed into the constructor. This allows the
 	 * {@link Pattern} to be reused for every instance of
 	 * {@link DefaultServiceAuthenticationDetails}.
-	 * @param artifactParameterName
-	 * @return
+	 * @param artifactParameterName the artifactParameterName that is removed from the
+	 * current URL. The result becomes the service url. Cannot be null or an empty String.
+	 * @return a {@link Pattern}
 	 */
 	static Pattern createArtifactPattern(String artifactParameterName) {
 		Assert.hasLength(artifactParameterName, "artifactParameterName is expected to have a length");

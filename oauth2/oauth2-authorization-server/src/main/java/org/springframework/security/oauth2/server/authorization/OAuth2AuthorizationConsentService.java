@@ -18,7 +18,8 @@ package org.springframework.security.oauth2.server.authorization;
 
 import java.security.Principal;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 
 /**
@@ -50,7 +51,6 @@ public interface OAuth2AuthorizationConsentService {
 	 * @param principalName the name of the {@link Principal}
 	 * @return the {@link OAuth2AuthorizationConsent} if found, otherwise {@code null}
 	 */
-	@Nullable
-	OAuth2AuthorizationConsent findById(String registeredClientId, String principalName);
+	@Nullable OAuth2AuthorizationConsent findById(String registeredClientId, String principalName);
 
 }

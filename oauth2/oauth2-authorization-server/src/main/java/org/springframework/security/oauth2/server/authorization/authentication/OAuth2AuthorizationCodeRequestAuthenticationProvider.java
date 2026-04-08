@@ -30,6 +30,7 @@ import java.util.function.Predicate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -129,19 +130,19 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 		String requestUri = (String) authorizationCodeRequestAuthentication.getAdditionalParameters()
 			.get(OAuth2ParameterNames.REQUEST_URI);
 		if (StringUtils.hasText(requestUri)) {
-			OAuth2PushedAuthorizationRequestUri pushedAuthorizationRequestUri = null;
+			OAuth2PushedAuthorizationRequestUri pushedAuthorizationRequestUri;
 			try {
 				pushedAuthorizationRequestUri = OAuth2PushedAuthorizationRequestUri.parse(requestUri);
 			}
 			catch (Exception ex) {
-				throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.REQUEST_URI,
+				throw createException(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.REQUEST_URI,
 						authorizationCodeRequestAuthentication, null);
 			}
 
 			pushedAuthorization = this.authorizationService.findByToken(pushedAuthorizationRequestUri.getState(),
 					STATE_TOKEN_TYPE);
 			if (pushedAuthorization == null) {
-				throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.REQUEST_URI,
+				throw createException(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.REQUEST_URI,
 						authorizationCodeRequestAuthentication, null);
 			}
 
@@ -151,9 +152,10 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 
 			OAuth2AuthorizationRequest authorizationRequest = pushedAuthorization
 				.getAttribute(OAuth2AuthorizationRequest.class.getName());
+			Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
 
 			if (!authorizationCodeRequestAuthentication.getClientId().equals(authorizationRequest.getClientId())) {
-				throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.CLIENT_ID,
+				throw createException(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.CLIENT_ID,
 						authorizationCodeRequestAuthentication, null);
 			}
 
@@ -165,7 +167,7 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 						.warn(LogMessage.format("Removed expired pushed authorization request for client id '%s'",
 								authorizationRequest.getClientId()));
 				}
-				throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.REQUEST_URI,
+				throw createException(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.REQUEST_URI,
 						authorizationCodeRequestAuthentication, null);
 			}
 
@@ -179,7 +181,7 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 		RegisteredClient registeredClient = this.registeredClientRepository
 			.findByClientId(authorizationCodeRequestAuthentication.getClientId());
 		if (registeredClient == null) {
-			throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.CLIENT_ID,
+			throw createException(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.CLIENT_ID,
 					authorizationCodeRequestAuthentication, null);
 		}
 
@@ -233,11 +235,12 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 
 		if (!isPrincipalAuthenticated(principal)) {
 			if (promptValues.contains(OidcPrompt.NONE)) {
-				throwError("login_required", "prompt", authorizationCodeRequestAuthentication, registeredClient);
+				throw createException("login_required", "prompt", authorizationCodeRequestAuthentication,
+						registeredClient);
 			}
 			else {
-				throwError(OAuth2ErrorCodes.INVALID_REQUEST, "principal", authorizationCodeRequestAuthentication,
-						registeredClient);
+				throw createException(OAuth2ErrorCodes.INVALID_REQUEST, "principal",
+						authorizationCodeRequestAuthentication, registeredClient);
 			}
 		}
 
@@ -260,7 +263,8 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 		if (this.authorizationConsentRequired.test(authenticationContextBuilder.build())) {
 			if (promptValues.contains(OidcPrompt.NONE)) {
 				// Return an error instead of displaying the consent page
-				throwError("consent_required", "prompt", authorizationCodeRequestAuthentication, registeredClient);
+				throw createException("consent_required", "prompt", authorizationCodeRequestAuthentication,
+						registeredClient);
 			}
 
 			String state = DEFAULT_STATE_GENERATOR.generateKey();
@@ -416,15 +420,17 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 		if (!authenticationContext.getRegisteredClient().getClientSettings().isRequireAuthorizationConsent()) {
 			return false;
 		}
+		OAuth2AuthorizationRequest authorizationRequest = authenticationContext.getAuthorizationRequest();
+		Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
 		// 'openid' scope does not require consent
-		if (authenticationContext.getAuthorizationRequest().getScopes().contains(OidcScopes.OPENID)
-				&& authenticationContext.getAuthorizationRequest().getScopes().size() == 1) {
+		if (authorizationRequest.getScopes().contains(OidcScopes.OPENID)
+				&& authorizationRequest.getScopes().size() == 1) {
 			return false;
 		}
 
 		if (authenticationContext.getAuthorizationConsent() != null && authenticationContext.getAuthorizationConsent()
 			.getScopes()
-			.containsAll(authenticationContext.getAuthorizationRequest().getScopes())) {
+			.containsAll(authorizationRequest.getScopes())) {
 			return false;
 		}
 
@@ -442,7 +448,8 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 
 	private static OAuth2TokenContext createAuthorizationCodeTokenContext(
 			OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication,
-			RegisteredClient registeredClient, OAuth2Authorization authorization, Set<String> authorizedScopes) {
+			RegisteredClient registeredClient, @Nullable OAuth2Authorization authorization,
+			Set<String> authorizedScopes) {
 
 		// @formatter:off
 		DefaultOAuth2TokenContext.Builder tokenContextBuilder = DefaultOAuth2TokenContext.builder()
@@ -467,23 +474,27 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 				&& principal.isAuthenticated();
 	}
 
-	private static void throwError(String errorCode, String parameterName,
+	private static OAuth2AuthorizationCodeRequestAuthenticationException createException(String errorCode,
+			String parameterName,
 			OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication,
-			RegisteredClient registeredClient) {
-		throwError(errorCode, parameterName, ERROR_URI, authorizationCodeRequestAuthentication, registeredClient, null);
+			@Nullable RegisteredClient registeredClient) {
+		return createException(errorCode, parameterName, ERROR_URI, authorizationCodeRequestAuthentication,
+				registeredClient, null);
 	}
 
-	private static void throwError(String errorCode, String parameterName, String errorUri,
+	private static OAuth2AuthorizationCodeRequestAuthenticationException createException(String errorCode,
+			String parameterName, String errorUri,
 			OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication,
-			RegisteredClient registeredClient, OAuth2AuthorizationRequest authorizationRequest) {
+			@Nullable RegisteredClient registeredClient, @Nullable OAuth2AuthorizationRequest authorizationRequest) {
 		OAuth2Error error = new OAuth2Error(errorCode, "OAuth 2.0 Parameter: " + parameterName, errorUri);
-		throwError(error, parameterName, authorizationCodeRequestAuthentication, registeredClient,
+		return createException(error, parameterName, authorizationCodeRequestAuthentication, registeredClient,
 				authorizationRequest);
 	}
 
-	private static void throwError(OAuth2Error error, String parameterName,
+	private static OAuth2AuthorizationCodeRequestAuthenticationException createException(OAuth2Error error,
+			String parameterName,
 			OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication,
-			RegisteredClient registeredClient, OAuth2AuthorizationRequest authorizationRequest) {
+			@Nullable RegisteredClient registeredClient, @Nullable OAuth2AuthorizationRequest authorizationRequest) {
 
 		String redirectUri = resolveRedirectUri(authorizationCodeRequestAuthentication, authorizationRequest,
 				registeredClient);
@@ -500,13 +511,13 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 				authorizationCodeRequestAuthentication.getState(), authorizationCodeRequestAuthentication.getScopes(),
 				authorizationCodeRequestAuthentication.getAdditionalParameters());
 
-		throw new OAuth2AuthorizationCodeRequestAuthenticationException(error,
+		return new OAuth2AuthorizationCodeRequestAuthenticationException(error,
 				authorizationCodeRequestAuthenticationResult);
 	}
 
-	private static String resolveRedirectUri(
+	private static @Nullable String resolveRedirectUri(
 			OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication,
-			OAuth2AuthorizationRequest authorizationRequest, RegisteredClient registeredClient) {
+			@Nullable OAuth2AuthorizationRequest authorizationRequest, @Nullable RegisteredClient registeredClient) {
 
 		if (authorizationCodeRequestAuthentication != null
 				&& StringUtils.hasText(authorizationCodeRequestAuthentication.getRedirectUri())) {

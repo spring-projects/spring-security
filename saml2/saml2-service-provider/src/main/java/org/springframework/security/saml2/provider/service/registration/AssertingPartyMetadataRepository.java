@@ -16,7 +16,7 @@
 
 package org.springframework.security.saml2.provider.service.registration;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A repository for retrieving SAML 2.0 Asserting Party Metadata
@@ -34,8 +34,7 @@ public interface AssertingPartyMetadataRepository extends Iterable<AssertingPart
 	 * @param entityId the EntityID to lookup
 	 * @return the found {@link AssertingPartyMetadata}, or {@code null} otherwise
 	 */
-	@Nullable
-	default AssertingPartyMetadata findByEntityId(String entityId) {
+	default @Nullable AssertingPartyMetadata findByEntityId(String entityId) {
 		for (AssertingPartyMetadata metadata : this) {
 			if (metadata.getEntityId().equals(entityId)) {
 				return metadata;

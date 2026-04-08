@@ -17,11 +17,12 @@
 package org.springframework.security.oauth2.server.authorization.web.authentication;
 
 import java.security.cert.X509Certificate;
+import java.util.List;
 import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
-import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -47,9 +48,8 @@ import org.springframework.util.StringUtils;
  */
 public final class X509ClientCertificateAuthenticationConverter implements AuthenticationConverter {
 
-	@Nullable
 	@Override
-	public Authentication convert(HttpServletRequest request) {
+	public @Nullable Authentication convert(HttpServletRequest request) {
 		X509Certificate[] clientCertificateChain = (X509Certificate[]) request
 			.getAttribute("jakarta.servlet.request.X509Certificate");
 		if (clientCertificateChain == null || clientCertificateChain.length == 0) {
@@ -64,7 +64,8 @@ public final class X509ClientCertificateAuthenticationConverter implements Authe
 			return null;
 		}
 
-		if (parameters.get(OAuth2ParameterNames.CLIENT_ID).size() != 1) {
+		List<String> clientIdParams = parameters.get(OAuth2ParameterNames.CLIENT_ID);
+		if (clientIdParams == null || clientIdParams.size() != 1) {
 			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_REQUEST);
 		}
 

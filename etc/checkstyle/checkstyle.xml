@@ -11,6 +11,15 @@
 		<property name="headerFile" value="${config_loc}/header.txt" />
 		<property name="fileExtensions" value="java" />
 	</module>
+	<module name="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocPackageCheck" /><!-- Require package-info.java -->
+	<module name="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpMultilineCheck">
+		<property name="id" value="requireNullMarkedInPackageInfo"/>
+		<property name="format" value="@NullMarked\s+package"/>
+		<property name="minimum" value="1"/>
+		<property name="maximum" value="1"/>
+		<property name="message" value="package-info.java must include @NullMarked annotation before the package declaration"/>
+		<property name="fileExtensions" value="java"/>
+	</module>
 	<module name="io.spring.javaformat.checkstyle.SpringChecks">
 		<property name="excludes" value="io.spring.javaformat.checkstyle.check.SpringHeaderCheck" />
 		<property name="excludes" value="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocPackageCheck" />
@@ -47,10 +56,23 @@
 					  value="String.toUpperCase() should be String.toUpperCase(Locale.ROOT) or String.toUpperCase(Locale.ENGLISH)"/>
 			<property name="ignoreComments" value="true"/>
 		</module>
-		<module name="com.puppycrawl.tools.checkstyle.checks.imports.IllegalImportCheck">
-			<property name="id" value="bannedImports"/>
-			<property name="regexp" value="true"/>
-			<property name="illegalPkgs" value="org.jetbrains.annotations, reactor.util.annotation, javax.annotation"/>
-		</module>
+	<module name="com.puppycrawl.tools.checkstyle.checks.imports.IllegalImportCheck">
+		<property name="id" value="bannedImports"/>
+		<property name="regexp" value="true"/>
+		<property name="illegalPkgs" value="org.jetbrains.annotations, reactor.util.annotation, javax.annotation"/>
+	</module>
+	<module name="com.puppycrawl.tools.checkstyle.checks.imports.IllegalImportCheck">
+		<property name="id" value="bannedNullabilityImports"/>
+		<property name="regexp" value="true"/>
+		<!-- Rejects all NonNull, Nonnull, and Nullable types that are NOT in the org.jspecify.annotations package. -->
+		<property name="illegalClasses" value="^(?!org\.jspecify\.annotations).*(Non[Nn]ull|Nullable)$"/>
+	</module>
+	<module name="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineJavaCheck">
+		<property name="id" value="nullableAfterModifiers"/>
+		<property name="format" value="^\s*(public|protected|private|static|final|synchronized|native|strictfp|abstract)\s+@Nullable\s+(public|protected|private|static|final|synchronized|native|strictfp|abstract)\s"/>
+		<property name="maximum" value="0"/>
+		<property name="message" value="@Nullable must appear immediately before the type, after all other modifiers (e.g., 'private final @Nullable Object' not 'private @Nullable final Object')"/>
+		<property name="ignoreComments" value="true"/>
+	</module>
 	</module>
 </module>

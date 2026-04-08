@@ -147,7 +147,7 @@ public final class PreFilterAuthorizationMethodInterceptor implements Authorizat
 					+ "' found in method.");
 		}
 		else {
-			Object[] arguments = methodInvocation.getArguments();
+			@Nullable Object[] arguments = methodInvocation.getArguments();
 			Assert.state(arguments.length == 1,
 					"Unable to determine the method argument for filtering. Specify the filter target.");
 			filterTarget = arguments[0];

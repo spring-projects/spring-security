@@ -19,7 +19,8 @@ package org.springframework.security.oauth2.core;
 import java.util.Collection;
 import java.util.Map;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -38,9 +39,8 @@ public interface OAuth2AuthenticatedPrincipal extends AuthenticatedPrincipal {
 	 * @param <A> the type of the attribute
 	 * @return the attribute or {@code null} otherwise
 	 */
-	@Nullable
 	@SuppressWarnings("unchecked")
-	default <A> A getAttribute(String name) {
+	default <A> @Nullable A getAttribute(String name) {
 		return (A) getAttributes().get(name);
 	}
 

@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import com.nimbusds.jose.jwk.JWK;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -72,13 +73,15 @@ public final class DPoPAuthenticationProvider implements AuthenticationProvider 
 	public DPoPAuthenticationProvider(AuthenticationManager tokenAuthenticationManager) {
 		Assert.notNull(tokenAuthenticationManager, "tokenAuthenticationManager cannot be null");
 		this.tokenAuthenticationManager = tokenAuthenticationManager;
-		Function<DPoPProofContext, OAuth2TokenValidator<Jwt>> jwtValidatorFactory = (
-				context) -> new DelegatingOAuth2TokenValidator<>(
-						// Use default validators
-						DPoPProofJwtDecoderFactory.DEFAULT_JWT_VALIDATOR_FACTORY.apply(context),
-						// Add custom validators
-						new AthClaimValidator(context.getAccessToken()),
-						new JwkThumbprintValidator(context.getAccessToken()));
+		Function<DPoPProofContext, OAuth2TokenValidator<Jwt>> jwtValidatorFactory = (context) -> {
+			OAuth2AccessTokenClaims accessToken = context.getAccessToken();
+			Assert.notNull(accessToken, "accessToken cannot be null");
+			return new DelegatingOAuth2TokenValidator<>(
+					// Use default validators
+					DPoPProofJwtDecoderFactory.DEFAULT_JWT_VALIDATOR_FACTORY.apply(context),
+					// Add custom validators
+					new AthClaimValidator(accessToken), new JwkThumbprintValidator(accessToken));
+		};
 		DPoPProofJwtDecoderFactory dPoPProofJwtDecoderFactory = new DPoPProofJwtDecoderFactory();
 		dPoPProofJwtDecoderFactory.setJwtValidatorFactory(jwtValidatorFactory);
 		this.dPoPProofVerifierFactory = dPoPProofJwtDecoderFactory;
@@ -260,12 +263,12 @@ public final class DPoPAuthenticationProvider implements AuthenticationProvider 
 		}
 
 		@Override
-		public Instant getIssuedAt() {
+		public @Nullable Instant getIssuedAt() {
 			return this.accessToken.getIssuedAt();
 		}
 
 		@Override
-		public Instant getExpiresAt() {
+		public @Nullable Instant getExpiresAt() {
 			return this.accessToken.getExpiresAt();
 		}
 

@@ -18,6 +18,7 @@ package org.springframework.security.saml2.provider.service.web.authentication.l
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 
@@ -44,16 +45,18 @@ public interface Saml2LogoutRequestRepository {
 	 * @param request the {@code HttpServletRequest}
 	 * @return the {@link Saml2LogoutRequest} or {@code null} if not available
 	 */
-	Saml2LogoutRequest loadLogoutRequest(HttpServletRequest request);
+	@Nullable Saml2LogoutRequest loadLogoutRequest(HttpServletRequest request);
 
 	/**
 	 * Persists the {@link Saml2LogoutRequest} associating it to the provided
 	 * {@code HttpServletRequest} and/or {@code HttpServletResponse}.
-	 * @param logoutRequest the {@link Saml2LogoutRequest}
+	 * @param logoutRequest the {@link Saml2LogoutRequest}, if {@code null}, then remove
+	 * logout request
 	 * @param request the {@code HttpServletRequest}
 	 * @param response the {@code HttpServletResponse}
 	 */
-	void saveLogoutRequest(Saml2LogoutRequest logoutRequest, HttpServletRequest request, HttpServletResponse response);
+	void saveLogoutRequest(@Nullable Saml2LogoutRequest logoutRequest, HttpServletRequest request,
+			HttpServletResponse response);
 
 	/**
 	 * Removes and returns the {@link Saml2LogoutRequest} associated to the provided
@@ -63,6 +66,6 @@ public interface Saml2LogoutRequestRepository {
 	 * @param response the {@code HttpServletResponse}
 	 * @return the {@link Saml2LogoutRequest} or {@code null} if not available
 	 */
-	Saml2LogoutRequest removeLogoutRequest(HttpServletRequest request, HttpServletResponse response);
+	@Nullable Saml2LogoutRequest removeLogoutRequest(HttpServletRequest request, HttpServletResponse response);
 
 }

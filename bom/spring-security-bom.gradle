@@ -1,6 +1,7 @@
 import io.spring.gradle.convention.SpringModulePlugin
 
 apply plugin: 'io.spring.convention.bom'
+apply plugin: 'compile-warnings-error'
 
 dependencies {
 	constraints {

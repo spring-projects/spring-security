@@ -16,6 +16,8 @@
 
 package org.springframework.security.saml2.provider.service.metadata;
 
+import org.jspecify.annotations.NullUnmarked;
+
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -30,6 +32,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * {@link org.springframework.security.saml2.provider.service.web.metadata.RequestMatcherMetadataResponseResolver}
  */
 @Deprecated
+@NullUnmarked
 public final class RequestMatcherMetadataResponseResolver extends
 		org.springframework.security.saml2.provider.service.web.metadata.RequestMatcherMetadataResponseResolver {
 

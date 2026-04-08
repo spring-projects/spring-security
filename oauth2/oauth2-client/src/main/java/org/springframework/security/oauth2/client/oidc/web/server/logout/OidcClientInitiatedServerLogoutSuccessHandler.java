@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.convert.converter.Converter;
@@ -57,7 +58,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 
 	private final ReactiveClientRegistrationRepository clientRegistrationRepository;
 
-	private String postLogoutRedirectUri;
+	private @Nullable String postLogoutRedirectUri;
 
 	private Converter<RedirectUriParameters, Mono<String>> redirectUriResolver = new DefaultRedirectUriResolver();
 
@@ -94,7 +95,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 		// @formatter:on
 	}
 
-	private URI endSessionEndpoint(ClientRegistration clientRegistration) {
+	private @Nullable URI endSessionEndpoint(@Nullable ClientRegistration clientRegistration) {
 		if (clientRegistration != null) {
 			Object endSessionEndpoint = clientRegistration.getProviderDetails()
 				.getConfigurationMetadata()
@@ -106,7 +107,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 		return null;
 	}
 
-	private String endpointUri(URI endSessionEndpoint, String idToken, String postLogoutRedirectUri) {
+	private String endpointUri(URI endSessionEndpoint, String idToken, @Nullable String postLogoutRedirectUri) {
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(endSessionEndpoint);
 		builder.queryParam("id_token_hint", idToken);
 		if (postLogoutRedirectUri != null) {
@@ -116,10 +117,13 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 	}
 
 	private String idToken(Authentication authentication) {
-		return ((OidcUser) authentication.getPrincipal()).getIdToken().getTokenValue();
+		Object principal = authentication.getPrincipal();
+		String idToken = (principal instanceof OidcUser oidcUser) ? oidcUser.getIdToken().getTokenValue() : null;
+		Assert.notNull(idToken, "idToken cannot be null");
+		return idToken;
 	}
 
-	private String postLogoutRedirectUri(ServerHttpRequest request, ClientRegistration clientRegistration) {
+	private @Nullable String postLogoutRedirectUri(ServerHttpRequest request, ClientRegistration clientRegistration) {
 		if (this.postLogoutRedirectUri == null) {
 			return null;
 		}

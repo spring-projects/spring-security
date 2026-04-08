@@ -17,16 +17,24 @@
 package org.springframework.security.config.annotation.authorization;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.authorization.DefaultAuthorizationManagerFactory;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 
 /**
  * Uses {@link EnableMultiFactorAuthentication} to configure a
  * {@link DefaultAuthorizationManagerFactory}.
+ * <p>
+ * When {@link EnableMultiFactorAuthentication#when()} includes
+ * {@link MultiFactorCondition#WEBAUTHN_REGISTERED}, validates that
+ * {@link EnableMultiFactorAuthentication#authorities()} includes
+ * {@link org.springframework.security.core.authority.FactorGrantedAuthority#WEBAUTHN_AUTHORITY}
+ * and throws an {@link IllegalArgumentException} if not.
  *
  * @author Rob Winch
  * @since 7.0
@@ -39,9 +47,19 @@ class MultiFactorAuthenticationSelector implements ImportSelector {
 		Map<String, Object> multiFactorAuthenticationAttrs = metadata
 			.getAnnotationAttributes(EnableMultiFactorAuthentication.class.getName());
 		String[] authorities = (String[]) multiFactorAuthenticationAttrs.getOrDefault("authorities", new String[0]);
-		List<String> imports = new ArrayList<>(2);
+		MultiFactorCondition[] when = (MultiFactorCondition[]) multiFactorAuthenticationAttrs.getOrDefault("when",
+				new MultiFactorCondition[0]);
+		boolean hasWebAuthn = Arrays.asList(when).contains(MultiFactorCondition.WEBAUTHN_REGISTERED);
+		if (hasWebAuthn && !Arrays.asList(authorities).contains(FactorGrantedAuthority.WEBAUTHN_AUTHORITY)) {
+			throw new IllegalArgumentException("When when() includes " + MultiFactorCondition.WEBAUTHN_REGISTERED
+					+ ", authorities() must include " + FactorGrantedAuthority.WEBAUTHN_AUTHORITY);
+		}
+		List<String> imports = new ArrayList<>(3);
 		if (authorities.length > 0) {
 			imports.add(AuthorizationManagerFactoryConfiguration.class.getName());
+			if (hasWebAuthn) {
+				imports.add(WhenWebAuthnRegisteredMfaConfiguration.class.getName());
+			}
 		}
 		imports.add(EnableMfaFiltersConfiguration.class.getName());
 		return imports.toArray(new String[imports.size()]);

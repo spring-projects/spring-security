@@ -18,6 +18,8 @@ package org.springframework.security.oauth2.core.oidc.user;
 
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimAccessor;
@@ -65,10 +67,11 @@ public interface OidcUser extends OAuth2User, IdTokenClaimAccessor {
 	Map<String, Object> getClaims();
 
 	/**
-	 * Returns the {@link OidcUserInfo UserInfo} containing claims about the user.
-	 * @return the {@link OidcUserInfo} containing claims about the user.
+	 * Returns the {@link OidcUserInfo UserInfo} containing claims about the user, or
+	 * {@code null} if not present.
+	 * @return the {@link OidcUserInfo} containing claims about the user, or {@code null}
 	 */
-	OidcUserInfo getUserInfo();
+	@Nullable OidcUserInfo getUserInfo();
 
 	/**
 	 * Returns the {@link OidcIdToken ID Token} containing claims about the user.

@@ -21,7 +21,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.function.Function;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.RestClientTokenExchangeTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.TokenExchangeGrantRequest;
@@ -45,9 +46,9 @@ public final class TokenExchangeOAuth2AuthorizedClientProvider implements OAuth2
 
 	private OAuth2AccessTokenResponseClient<TokenExchangeGrantRequest> accessTokenResponseClient = new RestClientTokenExchangeTokenResponseClient();
 
-	private Function<OAuth2AuthorizationContext, OAuth2Token> subjectTokenResolver = this::resolveSubjectToken;
+	private Function<OAuth2AuthorizationContext, @Nullable OAuth2Token> subjectTokenResolver = this::resolveSubjectToken;
 
-	private Function<OAuth2AuthorizationContext, OAuth2Token> actorTokenResolver = (context) -> null;
+	private Function<OAuth2AuthorizationContext, @Nullable OAuth2Token> actorTokenResolver = (context) -> null;
 
 	private Duration clockSkew = Duration.ofSeconds(60);
 
@@ -66,8 +67,7 @@ public final class TokenExchangeOAuth2AuthorizedClientProvider implements OAuth2
 	 * supported
 	 */
 	@Override
-	@Nullable
-	public OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
+	public @Nullable OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
 		ClientRegistration clientRegistration = context.getClientRegistration();
 		if (!AuthorizationGrantType.TOKEN_EXCHANGE.equals(clientRegistration.getAuthorizationGrantType())) {
@@ -93,7 +93,7 @@ public final class TokenExchangeOAuth2AuthorizedClientProvider implements OAuth2
 				tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
 	}
 
-	private OAuth2Token resolveSubjectToken(OAuth2AuthorizationContext context) {
+	private @Nullable OAuth2Token resolveSubjectToken(OAuth2AuthorizationContext context) {
 		if (context.getPrincipal().getPrincipal() instanceof OAuth2Token accessToken) {
 			return accessToken;
 		}
@@ -111,7 +111,8 @@ public final class TokenExchangeOAuth2AuthorizedClientProvider implements OAuth2
 	}
 
 	private boolean hasTokenExpired(OAuth2Token token) {
-		return this.clock.instant().isAfter(token.getExpiresAt().minus(this.clockSkew));
+		Instant expiresAt = token.getExpiresAt();
+		return expiresAt != null && this.clock.instant().isAfter(expiresAt.minus(this.clockSkew));
 	}
 
 	/**
@@ -131,7 +132,8 @@ public final class TokenExchangeOAuth2AuthorizedClientProvider implements OAuth2
 	 * @param subjectTokenResolver the resolver used for resolving the {@link OAuth2Token
 	 * subject token}
 	 */
-	public void setSubjectTokenResolver(Function<OAuth2AuthorizationContext, OAuth2Token> subjectTokenResolver) {
+	public void setSubjectTokenResolver(
+			Function<OAuth2AuthorizationContext, @Nullable OAuth2Token> subjectTokenResolver) {
 		Assert.notNull(subjectTokenResolver, "subjectTokenResolver cannot be null");
 		this.subjectTokenResolver = subjectTokenResolver;
 	}
@@ -141,7 +143,7 @@ public final class TokenExchangeOAuth2AuthorizedClientProvider implements OAuth2
 	 * @param actorTokenResolver the resolver used for resolving the {@link OAuth2Token
 	 * actor token}
 	 */
-	public void setActorTokenResolver(Function<OAuth2AuthorizationContext, OAuth2Token> actorTokenResolver) {
+	public void setActorTokenResolver(Function<OAuth2AuthorizationContext, @Nullable OAuth2Token> actorTokenResolver) {
 		Assert.notNull(actorTokenResolver, "actorTokenResolver cannot be null");
 		this.actorTokenResolver = actorTokenResolver;
 	}

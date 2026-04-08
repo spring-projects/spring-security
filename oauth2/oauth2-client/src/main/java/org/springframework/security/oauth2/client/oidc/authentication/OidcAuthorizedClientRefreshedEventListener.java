@@ -16,12 +16,15 @@
 
 package org.springframework.security.oauth2.client.oidc.authentication;
 
+import java.net.URL;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
+
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
@@ -82,7 +85,7 @@ public final class OidcAuthorizedClientRefreshedEventListener
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
-	private ApplicationEventPublisher applicationEventPublisher;
+	private @Nullable ApplicationEventPublisher applicationEventPublisher;
 
 	private Duration clockSkew = Duration.ofSeconds(60);
 
@@ -131,6 +134,7 @@ public final class OidcAuthorizedClientRefreshedEventListener
 		OidcUserRequest userRequest = new OidcUserRequest(clientRegistration, accessTokenResponse.getAccessToken(),
 				idToken, additionalParameters);
 		OidcUser oidcUser = this.userService.loadUser(userRequest);
+		Assert.notNull(oidcUser, "oidcUser cannot be null");
 		Collection<? extends GrantedAuthority> mappedAuthorities = this.authoritiesMapper
 			.mapAuthorities(oidcUser.getAuthorities());
 		OAuth2AuthenticationToken authenticationResult = new OAuth2AuthenticationToken(oidcUser, mappedAuthorities,
@@ -216,7 +220,9 @@ public final class OidcAuthorizedClientRefreshedEventListener
 	private Jwt getJwt(OAuth2AccessTokenResponse accessTokenResponse, JwtDecoder jwtDecoder) {
 		try {
 			Map<String, Object> parameters = accessTokenResponse.getAdditionalParameters();
-			return jwtDecoder.decode((String) parameters.get(OidcParameterNames.ID_TOKEN));
+			String idToken = (String) parameters.get(OidcParameterNames.ID_TOKEN);
+			Assert.hasText(idToken, "id_token parameter cannot be null or empty");
+			return jwtDecoder.decode(idToken);
 		}
 		catch (JwtException ex) {
 			OAuth2Error invalidIdTokenError = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, ex.getMessage(), null);
@@ -250,7 +256,10 @@ public final class OidcAuthorizedClientRefreshedEventListener
 	}
 
 	private void validateIssuer(OidcUser existingOidcUser, OidcIdToken idToken) {
-		if (!idToken.getIssuer().toString().equals(existingOidcUser.getIdToken().getIssuer().toString())) {
+		URL idTokenIssuer = idToken.getIssuer();
+		URL existingIdTokenIssuer = existingOidcUser.getIdToken().getIssuer();
+		if (idTokenIssuer == null || existingIdTokenIssuer == null
+				|| !idTokenIssuer.toString().equals(existingIdTokenIssuer.toString())) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, "Invalid issuer",
 					REFRESH_TOKEN_RESPONSE_ERROR_URI);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
@@ -258,7 +267,10 @@ public final class OidcAuthorizedClientRefreshedEventListener
 	}
 
 	private void validateSubject(OidcUser existingOidcUser, OidcIdToken idToken) {
-		if (!idToken.getSubject().equals(existingOidcUser.getIdToken().getSubject())) {
+		String idTokenSubject = idToken.getSubject();
+		String existingIdTokenSubject = existingOidcUser.getIdToken().getSubject();
+		if (idTokenSubject == null || existingIdTokenSubject == null
+				|| !idTokenSubject.equals(existingIdTokenSubject)) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, "Invalid subject",
 					REFRESH_TOKEN_RESPONSE_ERROR_URI);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
@@ -266,7 +278,10 @@ public final class OidcAuthorizedClientRefreshedEventListener
 	}
 
 	private void validateIssuedAt(OidcUser existingOidcUser, OidcIdToken idToken) {
-		if (!idToken.getIssuedAt().isAfter(existingOidcUser.getIdToken().getIssuedAt().minus(this.clockSkew))) {
+		Instant idTokenIssuedAt = idToken.getIssuedAt();
+		Instant existingIdTokenIssuedAt = existingOidcUser.getIdToken().getIssuedAt();
+		if (idTokenIssuedAt == null || existingIdTokenIssuedAt == null
+				|| !idTokenIssuedAt.isAfter(existingIdTokenIssuedAt.minus(this.clockSkew))) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, "Invalid issued at time",
 					REFRESH_TOKEN_RESPONSE_ERROR_URI);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
@@ -283,12 +298,13 @@ public final class OidcAuthorizedClientRefreshedEventListener
 
 	private boolean isValidAudience(OidcUser existingOidcUser, OidcIdToken idToken) {
 		List<String> idTokenAudiences = idToken.getAudience();
-		Set<String> oidcUserAudiences = new HashSet<>(existingOidcUser.getIdToken().getAudience());
-		if (idTokenAudiences.size() != oidcUserAudiences.size()) {
+		List<String> existingIdTokenAudiences = existingOidcUser.getIdToken().getAudience();
+		if (idTokenAudiences == null || existingIdTokenAudiences == null
+				|| idTokenAudiences.size() != existingIdTokenAudiences.size()) {
 			return false;
 		}
 		for (String audience : idTokenAudiences) {
-			if (!oidcUserAudiences.contains(audience)) {
+			if (!existingIdTokenAudiences.contains(audience)) {
 				return false;
 			}
 		}
@@ -300,7 +316,12 @@ public final class OidcAuthorizedClientRefreshedEventListener
 			return;
 		}
 
-		if (!idToken.getAuthenticatedAt().equals(existingOidcUser.getIdToken().getAuthenticatedAt())) {
+		// The auth_time claim MUST represent the time of the original authentication OR
+		// the most recent time when the end-user reauthenticated when "prompt=login" is
+		// passed in the authentication request
+		if (!idToken.getAuthenticatedAt().equals(existingOidcUser.getIdToken().getAuthenticatedAt())
+				&& (existingOidcUser.getIdToken().getAuthenticatedAt() == null
+						|| !idToken.getAuthenticatedAt().isAfter(existingOidcUser.getIdToken().getAuthenticatedAt()))) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, "Invalid authenticated at time",
 					REFRESH_TOKEN_RESPONSE_ERROR_URI);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
@@ -312,7 +333,7 @@ public final class OidcAuthorizedClientRefreshedEventListener
 			return;
 		}
 
-		if (!idToken.getNonce().equals(existingOidcUser.getIdToken().getNonce())) {
+		if (!Objects.equals(idToken.getNonce(), existingOidcUser.getIdToken().getNonce())) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_NONCE_ERROR_CODE, "Invalid nonce",
 					REFRESH_TOKEN_RESPONSE_ERROR_URI);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());

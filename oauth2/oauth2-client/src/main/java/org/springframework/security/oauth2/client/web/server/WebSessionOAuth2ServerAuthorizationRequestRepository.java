@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.client.web.server;
 
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -55,7 +56,7 @@ public final class WebSessionOAuth2ServerAuthorizationRequestRepository
 		// @formatter:off
 		return getSessionAttributes(exchange)
 				.filter((sessionAttrs) -> sessionAttrs.containsKey(this.sessionAttributeName))
-				.map(this::getAuthorizationRequest)
+				.flatMap((sessionAttrs) -> Mono.justOrEmpty(getAuthorizationRequest(sessionAttrs)))
 				.filter((authorizationRequest) -> state.equals(authorizationRequest.getState()));
 		// @formatter:on
 	}
@@ -85,8 +86,9 @@ public final class WebSessionOAuth2ServerAuthorizationRequestRepository
 		return getSessionAttributes(exchange)
 				.filter((sessionAttrs) -> sessionAttrs.containsKey(this.sessionAttributeName))
 				.flatMap((sessionAttrs) -> {
-					OAuth2AuthorizationRequest authorizationRequest = (OAuth2AuthorizationRequest) sessionAttrs.get(this.sessionAttributeName);
-					if (state.equals(authorizationRequest.getState())) {
+					OAuth2AuthorizationRequest authorizationRequest = (OAuth2AuthorizationRequest) sessionAttrs
+							.get(this.sessionAttributeName);
+					if (authorizationRequest != null && state.equals(authorizationRequest.getState())) {
 						sessionAttrs.remove(this.sessionAttributeName);
 						return Mono.just(authorizationRequest);
 					}
@@ -100,7 +102,7 @@ public final class WebSessionOAuth2ServerAuthorizationRequestRepository
 	 * @param exchange the exchange to use
 	 * @return the state parameter or null if not found
 	 */
-	private String getStateParameter(ServerWebExchange exchange) {
+	private @Nullable String getStateParameter(ServerWebExchange exchange) {
 		Assert.notNull(exchange, "exchange cannot be null");
 		return exchange.getRequest().getQueryParams().getFirst(OAuth2ParameterNames.STATE);
 	}
@@ -109,7 +111,7 @@ public final class WebSessionOAuth2ServerAuthorizationRequestRepository
 		return exchange.getSession().map(WebSession::getAttributes);
 	}
 
-	private OAuth2AuthorizationRequest getAuthorizationRequest(Map<String, Object> sessionAttrs) {
+	private @Nullable OAuth2AuthorizationRequest getAuthorizationRequest(Map<String, Object> sessionAttrs) {
 		return (OAuth2AuthorizationRequest) sessionAttrs.get(this.sessionAttributeName);
 	}
 

@@ -1,8 +1,10 @@
 plugins {
+	id 'io.spring.convention.spring-module'
 	id 'security-nullability'
+	id 'compile-warnings-error'
+	id 'javadoc-warnings-error'
+	id 'test-compile-target-jdk25'
 }
-
-apply plugin: 'io.spring.convention.spring-module'
 
 configurations {
 	javascript {

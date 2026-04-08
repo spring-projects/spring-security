@@ -37,9 +37,11 @@ class HeadersDsl {
     private var cacheControl: ((HeadersConfigurer<HttpSecurity>.CacheControlConfig) -> Unit)? = null
     private var hsts: ((HeadersConfigurer<HttpSecurity>.HstsConfig) -> Unit)? = null
     private var frameOptions: ((HeadersConfigurer<HttpSecurity>.FrameOptionsConfig) -> Unit)? = null
+    @Suppress("DEPRECATION")
     private var hpkp: ((HeadersConfigurer<HttpSecurity>.HpkpConfig) -> Unit)? = null
     private var contentSecurityPolicy: ((HeadersConfigurer<HttpSecurity>.ContentSecurityPolicyConfig) -> Unit)? = null
     private var referrerPolicy: ((HeadersConfigurer<HttpSecurity>.ReferrerPolicyConfig) -> Unit)? = null
+    @Suppress("DEPRECATION")
     private var featurePolicyDirectives: String? = null
     private var permissionsPolicy: ((HeadersConfigurer<HttpSecurity>.PermissionsPolicyConfig) -> Unit)? = null
     private var crossOriginOpenerPolicy: ((HeadersConfigurer<HttpSecurity>.CrossOriginOpenerPolicyConfig) -> Unit)? = null
@@ -120,6 +122,7 @@ class HeadersDsl {
      * @deprecated see <a href="https://owasp.org/www-community/controls/Certificate_and_Public_Key_Pinning">Certificate and Public Key Pinning</a> for more context
      */
     @Deprecated(message = "as of 5.8 with no replacement")
+    @Suppress("DEPRECATION")
     fun httpPublicKeyPinning(hpkpConfig: HttpPublicKeyPinningDsl.() -> Unit) {
         this.hpkp = HttpPublicKeyPinningDsl().apply(hpkpConfig).get()
     }
@@ -167,6 +170,7 @@ class HeadersDsl {
      * @param policyDirectives policyDirectives the security policy directive(s)
      */
     @Deprecated("Use 'permissionsPolicy { }' instead.")
+    @Suppress("DEPRECATION")
     fun featurePolicy(policyDirectives: String) {
         this.featurePolicyDirectives = policyDirectives
     }

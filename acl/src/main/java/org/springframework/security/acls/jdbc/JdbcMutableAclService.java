@@ -22,6 +22,8 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.security.acls.domain.AccessControlEntryImpl;
@@ -120,6 +122,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 		// Need to retrieve the current principal, in order to know who "owns" this ACL
 		// (can be changed later on)
 		Authentication auth = this.securityContextHolderStrategy.getContext().getAuthentication();
+		Assert.isTrue(auth != null, "Authentication required");
 		PrincipalSid sid = new PrincipalSid(auth);
 
 		// Create the acl_object_identity row
@@ -155,9 +158,12 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 				Assert.isTrue(entry_ instanceof AccessControlEntryImpl, "Unknown ACE class");
 				AccessControlEntryImpl entry = (AccessControlEntryImpl) entry_;
 
+				Assert.state(acl.getId() != null, "ACL ID cannot be null");
 				stmt.setLong(1, (Long) acl.getId());
 				stmt.setInt(2, i);
-				stmt.setLong(3, createOrRetrieveSidPrimaryKey(entry.getSid(), true));
+				Long sidPrimaryKey = createOrRetrieveSidPrimaryKey(entry.getSid(), true);
+				Assert.state(sidPrimaryKey != null, "SID primary key cannot be null");
+				stmt.setLong(3, sidPrimaryKey);
 				stmt.setInt(4, entry.getPermission().getMask());
 				stmt.setBoolean(5, entry.isGranting());
 				stmt.setBoolean(6, entry.isAuditSuccess());
@@ -189,11 +195,14 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	 * @param allowCreate true if creation is permitted if not found
 	 * @return the primary key or null if not found
 	 */
-	protected Long createOrRetrieveClassPrimaryKey(String type, boolean allowCreate, Class idType) {
-		List<Long> classIds = this.jdbcOperations.queryForList(this.selectClassPrimaryKey, Long.class, type);
+	protected @Nullable Long createOrRetrieveClassPrimaryKey(String type, boolean allowCreate, Class idType) {
+		List<@Nullable Long> classIds = this.jdbcOperations.queryForList(this.selectClassPrimaryKey, Long.class, type);
 
 		if (!classIds.isEmpty()) {
-			return classIds.get(0);
+			Long result = classIds.get(0);
+			if (result != null) {
+				return result;
+			}
 		}
 
 		if (allowCreate) {
@@ -204,7 +213,9 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 				this.jdbcOperations.update(this.insertClass, type, idType.getCanonicalName());
 			}
 			Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(), "Transaction must be running");
-			return this.jdbcOperations.queryForObject(this.classIdentityQuery, Long.class);
+			Long result = this.jdbcOperations.queryForObject(this.classIdentityQuery, Long.class);
+			Assert.state(result != null, "Failed to retrieve class primary key");
+			return result;
 		}
 
 		return null;
@@ -219,7 +230,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	 * @throws IllegalArgumentException if the <tt>Sid</tt> is not a recognized
 	 * implementation.
 	 */
-	protected Long createOrRetrieveSidPrimaryKey(Sid sid, boolean allowCreate) {
+	protected @Nullable Long createOrRetrieveSidPrimaryKey(Sid sid, boolean allowCreate) {
 		Assert.notNull(sid, "Sid required");
 		if (sid instanceof PrincipalSid) {
 			String sidName = ((PrincipalSid) sid).getPrincipal();
@@ -240,16 +251,22 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	 * @param allowCreate true if creation is permitted if not found
 	 * @return the primary key or null if not found
 	 */
-	protected Long createOrRetrieveSidPrimaryKey(String sidName, boolean sidIsPrincipal, boolean allowCreate) {
-		List<Long> sidIds = this.jdbcOperations.queryForList(this.selectSidPrimaryKey, Long.class, sidIsPrincipal,
-				sidName);
+	protected @Nullable Long createOrRetrieveSidPrimaryKey(String sidName, boolean sidIsPrincipal,
+			boolean allowCreate) {
+		List<@Nullable Long> sidIds = this.jdbcOperations.queryForList(this.selectSidPrimaryKey, Long.class,
+				sidIsPrincipal, sidName);
 		if (!sidIds.isEmpty()) {
-			return sidIds.get(0);
+			Long result = sidIds.get(0);
+			if (result != null) {
+				return result;
+			}
 		}
 		if (allowCreate) {
 			this.jdbcOperations.update(this.insertSid, sidIsPrincipal, sidName);
 			Assert.isTrue(TransactionSynchronizationManager.isSynchronizationActive(), "Transaction must be running");
-			return this.jdbcOperations.queryForObject(this.sidIdentityQuery, Long.class);
+			Long result = this.jdbcOperations.queryForObject(this.sidIdentityQuery, Long.class);
+			Assert.state(result != null, "Failed to retrieve sid primary key");
+			return result;
 		}
 		return null;
 	}
@@ -279,6 +296,9 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 		}
 
 		Long oidPrimaryKey = retrieveObjectIdentityPrimaryKey(objectIdentity);
+		if (oidPrimaryKey == null) {
+			throw new NotFoundException("Object identity not found: " + objectIdentity);
+		}
 
 		// Delete this ACL's ACEs in the acl_entry table
 		deleteEntries(oidPrimaryKey);
@@ -319,10 +339,11 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	 * @param oid to find
 	 * @return the object identity or null if not found
 	 */
-	protected Long retrieveObjectIdentityPrimaryKey(ObjectIdentity oid) {
+	protected @Nullable Long retrieveObjectIdentityPrimaryKey(ObjectIdentity oid) {
 		try {
-			return this.jdbcOperations.queryForObject(this.selectObjectIdentityPrimaryKey, Long.class, oid.getType(),
-					oid.getIdentifier().toString());
+			Long result = this.jdbcOperations.queryForObject(this.selectObjectIdentityPrimaryKey, Long.class,
+					oid.getType(), oid.getIdentifier().toString());
+			return result;
 		}
 		catch (DataAccessException notFound) {
 			return null;
@@ -340,7 +361,11 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 		Assert.notNull(acl.getId(), "Object Identity doesn't provide an identifier");
 
 		// Delete this ACL's ACEs in the acl_entry table
-		deleteEntries(retrieveObjectIdentityPrimaryKey(acl.getObjectIdentity()));
+		Long oidPrimaryKey = retrieveObjectIdentityPrimaryKey(acl.getObjectIdentity());
+		if (oidPrimaryKey == null) {
+			throw new NotFoundException("Object identity not found for ACL: " + acl.getObjectIdentity());
+		}
+		deleteEntries(oidPrimaryKey);
 
 		// Create this ACL's ACEs in the acl_entry table
 		createEntries(acl);

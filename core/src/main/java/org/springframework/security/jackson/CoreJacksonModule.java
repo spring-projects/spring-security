@@ -29,6 +29,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.ott.OneTimeTokenAuthentication;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextImpl;
@@ -81,6 +82,7 @@ public class CoreJacksonModule extends SecurityJacksonModule {
 			.allowIfSubType(BadCredentialsException.class)
 			.allowIfSubType(SecurityContextImpl.class)
 			.allowIfSubType(TestingAuthenticationToken.class)
+			.allowIfSubType(OneTimeTokenAuthentication.class)
 			.allowIfSubType("java.util.Collections$UnmodifiableSet")
 			.allowIfSubType("java.util.Collections$UnmodifiableRandomAccessList")
 			.allowIfSubType("java.util.Collections$EmptyList")
@@ -108,6 +110,7 @@ public class CoreJacksonModule extends SecurityJacksonModule {
 		context.setMixIn(UsernamePasswordAuthenticationToken.class, UsernamePasswordAuthenticationTokenMixin.class);
 		context.setMixIn(TestingAuthenticationToken.class, TestingAuthenticationTokenMixin.class);
 		context.setMixIn(BadCredentialsException.class, BadCredentialsExceptionMixin.class);
+		context.setMixIn(OneTimeTokenAuthentication.class, OneTimeTokenAuthenticationMixin.class);
 	}
 
 }

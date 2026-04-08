@@ -88,7 +88,6 @@ public final class FactorGrantedAuthority implements GrantedAuthority {
 
 	private final Instant issuedAt;
 
-	@SuppressWarnings("NullAway")
 	private FactorGrantedAuthority(String authority, Instant issuedAt) {
 		Assert.notNull(authority, "authority cannot be null");
 		Assert.notNull(issuedAt, "issuedAt cannot be null");
@@ -151,7 +150,7 @@ public final class FactorGrantedAuthority implements GrantedAuthority {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (this == obj) {
 			return true;
 		}

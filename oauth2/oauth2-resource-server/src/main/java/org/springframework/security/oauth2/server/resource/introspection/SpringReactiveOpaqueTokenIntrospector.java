@@ -28,7 +28,9 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.ParameterizedTypeReference;
@@ -187,7 +189,7 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 	}
 
 	private OAuth2IntrospectionException onError(Throwable ex) {
-		return new OAuth2IntrospectionException(ex.getMessage(), ex);
+		return new OAuth2IntrospectionException((ex.getMessage() != null) ? ex.getMessage() : "Invalid token", ex);
 	}
 
 	/**
@@ -211,7 +213,8 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 
 	private Mono<OAuth2IntrospectionAuthenticatedPrincipal> defaultAuthenticationConverter(
 			OAuth2TokenIntrospectionClaimAccessor accessor) {
-		Collection<GrantedAuthority> authorities = authorities(accessor.getScopes());
+		List<String> scopes = accessor.getScopes();
+		Collection<GrantedAuthority> authorities = authorities((scopes != null) ? scopes : Collections.emptyList());
 		return Mono.just(new OAuth2IntrospectionAuthenticatedPrincipal(accessor.getClaims(), authorities));
 	}
 
@@ -254,7 +257,7 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 	private interface ArrayListFromStringClaimAccessor extends OAuth2TokenIntrospectionClaimAccessor {
 
 		@Override
-		default List<String> getScopes() {
+		default @Nullable List<String> getScopes() {
 			Object value = getClaims().get(OAuth2TokenIntrospectionClaimNames.SCOPE);
 			if (value instanceof ArrayListFromString list) {
 				return list;
@@ -274,9 +277,11 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 
 		private final String introspectionUri;
 
-		private String clientId;
+		private @Nullable String clientId;
 
-		private String clientSecret;
+		private @Nullable String clientSecret;
+
+		private final List<Consumer<SpringReactiveOpaqueTokenIntrospector>> postProcessors = new ArrayList<>();
 
 		private Builder(String introspectionUri) {
 			this.introspectionUri = introspectionUri;
@@ -309,15 +314,37 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		}
 
 		/**
+		 * Adds a {@link Consumer} to customize the
+		 * {@link SpringReactiveOpaqueTokenIntrospector} after it is built. This allows
+		 * for additional configuration that cannot be expressed through the builder
+		 * methods.
+		 * @param postProcessor the {@link Consumer} to customize the introspector
+		 * @return the {@link SpringReactiveOpaqueTokenIntrospector.Builder}
+		 * @since 7.1.0
+		 */
+		public Builder postProcessor(Consumer<SpringReactiveOpaqueTokenIntrospector> postProcessor) {
+			Assert.notNull(postProcessor, "postProcessor cannot be null");
+			this.postProcessors.add(postProcessor);
+			return this;
+		}
+
+		/**
 		 * Creates a {@code SpringReactiveOpaqueTokenIntrospector}
 		 * @return the {@link SpringReactiveOpaqueTokenIntrospector}
 		 * @since 6.5
 		 */
 		public SpringReactiveOpaqueTokenIntrospector build() {
-			WebClient webClient = WebClient.builder()
-				.defaultHeaders((h) -> h.setBasicAuth(this.clientId, this.clientSecret))
-				.build();
-			return new SpringReactiveOpaqueTokenIntrospector(this.introspectionUri, webClient);
+			WebClient.Builder builder = WebClient.builder();
+			if (this.clientId != null && this.clientSecret != null) {
+				String clientId = this.clientId;
+				String clientSecret = this.clientSecret;
+				builder.defaultHeaders((h) -> h.setBasicAuth(clientId, clientSecret));
+			}
+			WebClient webClient = builder.build();
+			SpringReactiveOpaqueTokenIntrospector introspector = new SpringReactiveOpaqueTokenIntrospector(
+					this.introspectionUri, webClient);
+			this.postProcessors.forEach((postProcessor) -> postProcessor.accept(introspector));
+			return introspector;
 		}
 
 	}

@@ -36,7 +36,7 @@ public class OneTimeTokenAuthenticationToken extends AbstractAuthenticationToken
 	@Serial
 	private static final long serialVersionUID = -8691636031126328365L;
 
-	private @Nullable final Object principal;
+	private final @Nullable Object principal;
 
 	private @Nullable String tokenValue;
 

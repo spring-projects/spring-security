@@ -56,6 +56,15 @@ public class SpringSecurityAuthenticationSourceTests {
 	}
 
 	@Test
+	public void credentialsAreEmptyWithNullCredentials() {
+		AuthenticationSource source = new SpringSecurityAuthenticationSource();
+		SecurityContextHolder.getContext()
+			.setAuthentication(
+					new AnonymousAuthenticationToken("key", "anonUser", AuthorityUtils.createAuthorityList("ignored")));
+		assertThat(source.getCredentials()).isEqualTo("");
+	}
+
+	@Test
 	public void principalIsEmptyForAnonymousUser() {
 		AuthenticationSource source = new SpringSecurityAuthenticationSource();
 		SecurityContextHolder.getContext()

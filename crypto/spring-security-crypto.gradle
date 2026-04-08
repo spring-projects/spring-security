@@ -1,5 +1,7 @@
 plugins {
 	id 'security-nullability'
+	id 'javadoc-warnings-error'
+	id 'java-test-fixtures'
 }
 
 apply plugin: 'io.spring.convention.spring-module'
@@ -9,6 +11,8 @@ dependencies {
 	optional 'org.springframework:spring-core'
 	optional 'org.bouncycastle:bcpkix-jdk18on'
 	optional libs.com.password4j.password4j
+
+	testFixturesImplementation "org.assertj:assertj-core"
 
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"

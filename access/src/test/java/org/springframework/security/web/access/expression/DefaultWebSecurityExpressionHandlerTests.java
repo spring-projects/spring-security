@@ -64,6 +64,7 @@ public class DefaultWebSecurityExpressionHandlerTests {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void expressionPropertiesAreResolvedAgainstAppContextBeans() {
 		StaticApplicationContext appContext = new StaticApplicationContext();
 		RootBeanDefinition bean = new RootBeanDefinition(SecurityConfig.class);
@@ -78,11 +79,13 @@ public class DefaultWebSecurityExpressionHandlerTests {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void setTrustResolverNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setTrustResolver(null));
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void createEvaluationContextCustomTrustResolver() {
 		this.handler.setTrustResolver(this.trustResolver);
 		Expression expression = this.handler.getExpressionParser().parseExpression("anonymous");

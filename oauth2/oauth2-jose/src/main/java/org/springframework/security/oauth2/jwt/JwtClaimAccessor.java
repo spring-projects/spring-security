@@ -20,6 +20,8 @@ import java.net.URL;
 import java.time.Instant;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.ClaimAccessor;
 
 /**
@@ -39,27 +41,28 @@ public interface JwtClaimAccessor extends ClaimAccessor {
 	/**
 	 * Returns the Issuer {@code (iss)} claim which identifies the principal that issued
 	 * the JWT.
-	 * @return the Issuer identifier
+	 * @return the Issuer identifier, or {@code null} if the claim is missing
 	 */
-	default URL getIssuer() {
+	default @Nullable URL getIssuer() {
 		return this.getClaimAsURL(JwtClaimNames.ISS);
 	}
 
 	/**
 	 * Returns the Subject {@code (sub)} claim which identifies the principal that is the
 	 * subject of the JWT.
-	 * @return the Subject identifier
+	 * @return the Subject identifier, or {@code null} if the claim is missing
 	 */
-	default String getSubject() {
+	default @Nullable String getSubject() {
 		return this.getClaimAsString(JwtClaimNames.SUB);
 	}
 
 	/**
 	 * Returns the Audience {@code (aud)} claim which identifies the recipient(s) that the
 	 * JWT is intended for.
-	 * @return the Audience(s) that this JWT intended for
+	 * @return the Audience(s) that this JWT intended for, or {@code null} if the claim is
+	 * missing
 	 */
-	default List<String> getAudience() {
+	default @Nullable List<String> getAudience() {
 		return this.getClaimAsStringList(JwtClaimNames.AUD);
 	}
 
@@ -67,9 +70,9 @@ public interface JwtClaimAccessor extends ClaimAccessor {
 	 * Returns the Expiration time {@code (exp)} claim which identifies the expiration
 	 * time on or after which the JWT MUST NOT be accepted for processing.
 	 * @return the Expiration time on or after which the JWT MUST NOT be accepted for
-	 * processing
+	 * processing, or {@code null} if the claim is missing
 	 */
-	default Instant getExpiresAt() {
+	default @Nullable Instant getExpiresAt() {
 		return this.getClaimAsInstant(JwtClaimNames.EXP);
 	}
 
@@ -77,27 +80,29 @@ public interface JwtClaimAccessor extends ClaimAccessor {
 	 * Returns the Not Before {@code (nbf)} claim which identifies the time before which
 	 * the JWT MUST NOT be accepted for processing.
 	 * @return the Not Before time before which the JWT MUST NOT be accepted for
-	 * processing
+	 * processing, or {@code null} if the claim is missing
 	 */
-	default Instant getNotBefore() {
+	default @Nullable Instant getNotBefore() {
 		return this.getClaimAsInstant(JwtClaimNames.NBF);
 	}
 
 	/**
 	 * Returns the Issued at {@code (iat)} claim which identifies the time at which the
 	 * JWT was issued.
-	 * @return the Issued at claim which identifies the time at which the JWT was issued
+	 * @return the Issued at claim which identifies the time at which the JWT was issued,
+	 * or {@code null} if the claim is missing
 	 */
-	default Instant getIssuedAt() {
+	default @Nullable Instant getIssuedAt() {
 		return this.getClaimAsInstant(JwtClaimNames.IAT);
 	}
 
 	/**
 	 * Returns the JWT ID {@code (jti)} claim which provides a unique identifier for the
 	 * JWT.
-	 * @return the JWT ID claim which provides a unique identifier for the JWT
+	 * @return the JWT ID claim which provides a unique identifier for the JWT, or
+	 * {@code null} if the claim is missing
 	 */
-	default String getId() {
+	default @Nullable String getId() {
 		return this.getClaimAsString(JwtClaimNames.JTI);
 	}
 

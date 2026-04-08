@@ -17,6 +17,7 @@
 package org.springframework.security.saml2.provider.service.web.authentication.logout;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
@@ -43,7 +44,7 @@ public interface Saml2LogoutResponseResolver {
 	 * @param authentication the current user
 	 * @return a signed and serialized SAML 2.0 Logout Response
 	 */
-	Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication);
+	@Nullable Saml2LogoutResponse resolve(HttpServletRequest request, @Nullable Authentication authentication);
 
 	/**
 	 * Prepare to create, sign, and serialize a SAML 2.0 Error Logout Response.
@@ -55,7 +56,7 @@ public interface Saml2LogoutResponseResolver {
 	 * cannot generate a SAML 2.0 Error Logout Response
 	 * @since 7.0
 	 */
-	default Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication,
+	default @Nullable Saml2LogoutResponse resolve(HttpServletRequest request, @Nullable Authentication authentication,
 			Saml2AuthenticationException authenticationException) {
 		return null;
 	}

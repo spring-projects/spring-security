@@ -24,7 +24,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apereo.cas.client.validation.Assertion;
 import org.apereo.cas.client.validation.TicketValidationException;
 import org.apereo.cas.client.validation.TicketValidator;
-import org.jspecify.annotations.NullUnmarked;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -166,7 +165,6 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 	 * @param authentication
 	 * @return
 	 */
-	@NullUnmarked
 	private @Nullable String getServiceUrl(Authentication authentication) {
 		String serviceUrl;
 		if (authentication.getDetails() instanceof ServiceAuthenticationDetails) {

@@ -19,8 +19,10 @@ package org.springframework.security.authorization;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.TestAuthentication;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -309,6 +311,59 @@ public class AuthorizationManagerFactoryTests {
 		assertUserDenied(factory.hasRole("USER"));
 		assertThat(factory.hasRole("USER").authorize(() -> TestAuthentication.authenticatedAdmin(), "").isGranted())
 			.isTrue();
+	}
+
+	@Test
+	public void builderWhenWhenConditionThenAdditionalFactorsRequiredOnlyWhenConditionTrue() {
+		AuthorizationManagerFactory<String> factory = AuthorizationManagerFactories.<String>multiFactor()
+			.requireFactors("ROLE_ADMIN")
+			.when((auth) -> "admin".equals(auth.getName()))
+			.build();
+		// When condition is true (admin user), ROLE_ADMIN is required in addition to
+		// hasRole("USER")
+		assertThat(factory.hasRole("USER").authorize(() -> TestAuthentication.authenticatedAdmin(), "").isGranted())
+			.isTrue();
+		// When condition is false (non-admin user), additional factors are not required
+		assertUserGranted(factory.hasRole("USER"));
+	}
+
+	@Test
+	public void builderWhenWhenConditionFalseThenUserWithoutRequiredFactorGranted() {
+		AuthorizationManagerFactory<String> factory = AuthorizationManagerFactories.<String>multiFactor()
+			.requireFactors("ROLE_ADMIN")
+			.when((auth) -> "admin".equals(auth.getName()))
+			.build();
+		// Non-admin user does not need ROLE_ADMIN for hasRole("USER")
+		assertThat(factory.hasRole("USER").authorize(() -> TestAuthentication.authenticatedUser(), "").isGranted())
+			.isTrue();
+	}
+
+	@Test
+	public void builderWhenWithWhenConditionThenConditionIsCustomized() {
+		AuthorizationManagerFactory<String> factory = AuthorizationManagerFactories.<String>multiFactor()
+			.requireFactors("ROLE_ADMIN")
+			.when((auth) -> "admin".equals(auth.getName()))
+			.withWhen((current) -> (auth) -> current != null && current.test(auth) && auth.isAuthenticated())
+			.build();
+		// When condition is true (admin user and authenticated), ROLE_ADMIN is required
+		assertThat(factory.hasRole("USER").authorize(() -> TestAuthentication.authenticatedAdmin(), "").isGranted())
+			.isTrue();
+		// When condition is false (admin user but not authenticated), additional factors
+		// are not required
+		TestingAuthenticationToken unauthenticatedAdmin = new TestingAuthenticationToken("admin", "password",
+				"ROLE_USER");
+		unauthenticatedAdmin.setAuthenticated(false);
+		assertThat(factory.hasRole("USER").authorize(() -> unauthenticatedAdmin, "").isGranted()).isTrue();
+		// When condition is false (non-admin user), additional factors are not required
+		assertUserGranted(factory.hasRole("USER"));
+	}
+
+	@Test
+	public void builderWhenWithWhenNullThenIllegalArgumentException() {
+		AuthorizationManagerFactories.AdditionalRequiredFactorsBuilder<Object> builder = AuthorizationManagerFactories
+			.multiFactor();
+		assertThatIllegalArgumentException().isThrownBy(() -> builder.withWhen(null))
+			.withMessage("condition cannot be null");
 	}
 
 	private void assertUserGranted(AuthorizationManager<String> manager) {

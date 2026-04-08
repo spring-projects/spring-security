@@ -53,7 +53,9 @@ import org.springframework.util.CollectionUtils;
  *
  * @author Ben Alex
  * @author Luke Taylor
- * @deprecated Use {@link EnableMethodSecurity} or publish interceptors directly
+ * @deprecated Use
+ * <code>org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity</code>
+ * or publish interceptors directly
  */
 @NullUnmarked
 @Deprecated

@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.jspecify.annotations.NullUnmarked;
 
 import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.saml2.provider.service.authentication.Saml2PostAuthenticationRequest;
@@ -36,6 +37,7 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2P
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
+@NullUnmarked
 class Saml2PostAuthenticationRequestMixin {
 
 	@JsonCreator

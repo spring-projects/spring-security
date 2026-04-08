@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.jspecify.annotations.NullUnmarked;
 
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
@@ -49,6 +50,7 @@ import org.springframework.security.saml2.provider.service.authentication.Defaul
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@NullUnmarked
 class DefaultSaml2AuthenticatedPrincipalMixin {
 
 	@JsonProperty("registrationId")

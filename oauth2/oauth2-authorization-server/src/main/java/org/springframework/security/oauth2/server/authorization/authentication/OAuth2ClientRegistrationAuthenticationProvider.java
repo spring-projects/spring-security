@@ -21,10 +21,12 @@ import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -138,6 +140,7 @@ public final class OAuth2ClientRegistrationAuthenticationProvider implements Aut
 		}
 
 		OAuth2Authorization.Token<OAuth2AccessToken> authorizedAccessToken = authorization.getAccessToken();
+		Assert.notNull(authorizedAccessToken, "accessToken cannot be null");
 		if (!authorizedAccessToken.isActive()) {
 			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_TOKEN);
 		}
@@ -199,9 +202,10 @@ public final class OAuth2ClientRegistrationAuthenticationProvider implements Aut
 
 	private OAuth2ClientRegistrationAuthenticationToken registerClient(
 			OAuth2ClientRegistrationAuthenticationToken clientRegistrationAuthentication,
-			OAuth2Authorization authorization) {
+			@Nullable OAuth2Authorization authorization) {
 
-		if (!isValidRedirectUris(clientRegistrationAuthentication.getClientRegistration().getRedirectUris())) {
+		List<String> redirectUris = clientRegistrationAuthentication.getClientRegistration().getRedirectUris();
+		if (!isValidRedirectUris((redirectUris != null) ? redirectUris : Collections.emptyList())) {
 			throwInvalidClientRegistration(OAuth2ErrorCodes.INVALID_REDIRECT_URI,
 					OAuth2ClientMetadataClaimNames.REDIRECT_URIS);
 		}
@@ -236,8 +240,10 @@ public final class OAuth2ClientRegistrationAuthenticationProvider implements Aut
 
 		if (authorization != null) {
 			// Invalidate the "initial" access token as it can only be used once
+			OAuth2Authorization.Token<OAuth2AccessToken> accessToken = authorization.getAccessToken();
+			Assert.notNull(accessToken, "accessToken cannot be null");
 			OAuth2Authorization.Builder builder = OAuth2Authorization.from(authorization)
-				.invalidate(authorization.getAccessToken().getToken());
+				.invalidate(accessToken.getToken());
 			if (authorization.getRefreshToken() != null) {
 				builder.invalidate(authorization.getRefreshToken().getToken());
 			}
@@ -265,8 +271,9 @@ public final class OAuth2ClientRegistrationAuthenticationProvider implements Aut
 	private static void checkScope(OAuth2Authorization.Token<OAuth2AccessToken> authorizedAccessToken,
 			Set<String> requiredScope) {
 		Collection<String> authorizedScope = Collections.emptySet();
-		if (authorizedAccessToken.getClaims().containsKey(OAuth2ParameterNames.SCOPE)) {
-			authorizedScope = (Collection<String>) authorizedAccessToken.getClaims().get(OAuth2ParameterNames.SCOPE);
+		Map<String, Object> claims = authorizedAccessToken.getClaims();
+		if (claims != null && claims.containsKey(OAuth2ParameterNames.SCOPE)) {
+			authorizedScope = (Collection<String>) claims.get(OAuth2ParameterNames.SCOPE);
 		}
 		if (!authorizedScope.containsAll(requiredScope)) {
 			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INSUFFICIENT_SCOPE);

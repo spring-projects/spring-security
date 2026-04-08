@@ -16,6 +16,8 @@
 
 package org.springframework.security.saml2.provider.service.authentication.logout;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 
@@ -31,7 +33,7 @@ public class Saml2LogoutRequestValidatorParameters {
 
 	private final RelyingPartyRegistration registration;
 
-	private final Authentication authentication;
+	private final @Nullable Authentication authentication;
 
 	/**
 	 * Construct a {@link Saml2LogoutRequestValidatorParameters}
@@ -40,7 +42,7 @@ public class Saml2LogoutRequestValidatorParameters {
 	 * @param authentication the current user
 	 */
 	public Saml2LogoutRequestValidatorParameters(Saml2LogoutRequest request, RelyingPartyRegistration registration,
-			Authentication authentication) {
+			@Nullable Authentication authentication) {
 		this.request = request;
 		this.registration = registration;
 		this.authentication = authentication;
@@ -66,7 +68,7 @@ public class Saml2LogoutRequestValidatorParameters {
 	 * The current {@link Authentication}
 	 * @return the authenticated user
 	 */
-	public Authentication getAuthentication() {
+	public @Nullable Authentication getAuthentication() {
 		return this.authentication;
 	}
 

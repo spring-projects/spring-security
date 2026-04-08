@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.jose.jws;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * An enumeration of the cryptographic algorithms defined by the JSON Web Algorithms (JWA)
  * specification and used by JSON Web Signature (JWS) to digitally sign the contents of
@@ -99,7 +101,7 @@ public enum SignatureAlgorithm implements JwsAlgorithm {
 	 * @param name the algorithm name
 	 * @return the resolved {@code SignatureAlgorithm}, or {@code null} if not found
 	 */
-	public static SignatureAlgorithm from(String name) {
+	public static @Nullable SignatureAlgorithm from(String name) {
 		for (SignatureAlgorithm value : values()) {
 			if (value.getName().equals(name)) {
 				return value;

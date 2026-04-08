@@ -411,6 +411,30 @@ public class OAuth2ClientRegistrationTests {
 			.isCloseTo(expectedSecretExpiryDate, allowedDelta);
 	}
 
+	@Test
+	public void requestWhenClientRegistersWithCustomTokenSettingsThenSavedToRegisteredClient() throws Exception {
+		this.spring.register(CustomTokenSettingsConfiguration.class).autowire();
+
+		// @formatter:off
+		OAuth2ClientRegistration clientRegistration = OAuth2ClientRegistration.builder()
+				.clientName("client-name")
+				.redirectUri("https://client.example.com")
+				.grantType(AuthorizationGrantType.AUTHORIZATION_CODE.getValue())
+				.grantType(AuthorizationGrantType.CLIENT_CREDENTIALS.getValue())
+				.scope("scope1")
+				.scope("scope2")
+				.build();
+		// @formatter:on
+
+		OAuth2ClientRegistration clientRegistrationResponse = registerClient(clientRegistration);
+
+		RegisteredClient registeredClient = this.registeredClientRepository
+			.findByClientId(clientRegistrationResponse.getClientId());
+
+		assertThat(registeredClient).isNotNull();
+		assertThat(registeredClient.getTokenSettings().getAccessTokenTimeToLive()).isEqualTo(Duration.ofMinutes(60));
+	}
+
 	private OAuth2ClientRegistration registerClient(OAuth2ClientRegistration clientRegistration) throws Exception {
 		// ***** (1) Obtain the "initial" access token used for registering the client
 
@@ -602,6 +626,44 @@ public class OAuth2ClientRegistrationTests {
 
 	@EnableWebSecurity
 	@Configuration(proxyBeanMethods = false)
+	static class CustomTokenSettingsConfiguration extends AuthorizationServerConfiguration {
+
+		// @formatter:off
+		@Bean
+		@Override
+		public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.clientRegistrationEndpoint((clientRegistration) ->
+											clientRegistration
+													.authenticationProviders(configureClientRegistrationConverters())
+									)
+					)
+					.authorizeHttpRequests((authorize) ->
+							authorize.anyRequest().authenticated()
+					);
+			return http.build();
+		}
+		// @formatter:on
+
+		private Consumer<List<AuthenticationProvider>> configureClientRegistrationConverters() {
+			// @formatter:off
+			return (authenticationProviders) ->
+					authenticationProviders.forEach((authenticationProvider) -> {
+						if (authenticationProvider instanceof OAuth2ClientRegistrationAuthenticationProvider provider) {
+							OAuth2ClientRegistrationRegisteredClientConverter clientRegistrationRegisteredClientConverter = new OAuth2ClientRegistrationRegisteredClientConverter();
+							clientRegistrationRegisteredClientConverter.setTokenSettingsCustomizer((tokenSettings) -> tokenSettings.accessTokenTimeToLive(Duration.ofMinutes(60)));
+							provider.setRegisteredClientConverter(clientRegistrationRegisteredClientConverter);
+						}
+					});
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
 	static class OpenClientRegistrationConfiguration extends AuthorizationServerConfiguration {
 
 		// @formatter:off
@@ -647,6 +709,7 @@ public class OAuth2ClientRegistrationTests {
 		// @formatter:on
 
 		@Bean
+		@SuppressWarnings("removal")
 		RegisteredClientRepository registeredClientRepository(JdbcOperations jdbcOperations) {
 			RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
 			RegisteredClientParametersMapper registeredClientParametersMapper = new RegisteredClientParametersMapper();

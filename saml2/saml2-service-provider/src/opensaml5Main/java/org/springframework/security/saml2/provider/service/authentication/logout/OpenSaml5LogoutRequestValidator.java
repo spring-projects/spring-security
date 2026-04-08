@@ -16,12 +16,15 @@
 
 package org.springframework.security.saml2.provider.service.authentication.logout;
 
+import org.jspecify.annotations.NullMarked;
+
 /**
  * An OpenSAML 5.x compatible implementation of {@link Saml2LogoutResponseValidator}
  *
  * @author Josh Cummings
  * @since 5.6
  */
+@NullMarked
 public final class OpenSaml5LogoutRequestValidator implements Saml2LogoutRequestValidator {
 
 	@SuppressWarnings("deprecation")

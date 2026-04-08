@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION", "PLATFORM_CLASS_MAPPED_TO_KOTLIN", "UNCHECKED_CAST")
+
 /*
 
  * Copyright 2004-present the original author or authors.

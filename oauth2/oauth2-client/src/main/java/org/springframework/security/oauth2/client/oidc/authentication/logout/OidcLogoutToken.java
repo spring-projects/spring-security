@@ -24,6 +24,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.util.Assert;
@@ -59,10 +61,10 @@ public class OidcLogoutToken extends AbstractOAuth2Token implements LogoutTokenC
 	 * @param issuedAt the time at which the Logout Token was issued {@code (iat)}
 	 * @param claims the claims about the logout statement
 	 */
-	OidcLogoutToken(String tokenValue, Instant issuedAt, Map<String, Object> claims) {
+	OidcLogoutToken(String tokenValue, @Nullable Instant issuedAt, Map<String, Object> claims) {
 		super(tokenValue, issuedAt, Instant.MAX);
-		this.claims = Collections.unmodifiableMap(claims);
 		Assert.notNull(claims, "claims must not be null");
+		this.claims = Collections.unmodifiableMap(claims);
 	}
 
 	@Override
@@ -201,7 +203,8 @@ public class OidcLogoutToken extends AbstractOAuth2Token implements LogoutTokenC
 					"logout token must contain an events claim that contains a member called " + "'"
 							+ BACKCHANNEL_LOGOUT_TOKEN_EVENT_NAME + "' whose value is an empty Map");
 			Assert.isNull(this.claims.get("nonce"), "logout token must not contain a nonce claim");
-			Instant iat = toInstant(this.claims.get(IdTokenClaimNames.IAT));
+			Object iatClaim = this.claims.get(IdTokenClaimNames.IAT);
+			Instant iat = (iatClaim != null) ? toInstant(iatClaim) : null;
 			return new OidcLogoutToken(this.tokenValue, iat, this.claims);
 		}
 
@@ -215,7 +218,7 @@ public class OidcLogoutToken extends AbstractOAuth2Token implements LogoutTokenC
 			return object.isEmpty();
 		}
 
-		private Instant toInstant(Object timestamp) {
+		private @Nullable Instant toInstant(@Nullable Object timestamp) {
 			if (timestamp != null) {
 				Assert.isInstanceOf(Instant.class, timestamp, "timestamps must be of type Instant");
 			}

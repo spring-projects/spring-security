@@ -38,11 +38,11 @@ final class OAuth2PushedAuthorizationRequestUri {
 	private static final StringKeyGenerator DEFAULT_STATE_GENERATOR = new Base64StringKeyGenerator(
 			Base64.getUrlEncoder());
 
-	private String requestUri;
+	private final String requestUri;
 
-	private String state;
+	private final String state;
 
-	private Instant expiresAt;
+	private final Instant expiresAt;
 
 	static OAuth2PushedAuthorizationRequestUri create() {
 		return create(Instant.now().plusSeconds(300));
@@ -50,23 +50,17 @@ final class OAuth2PushedAuthorizationRequestUri {
 
 	static OAuth2PushedAuthorizationRequestUri create(Instant expiresAt) {
 		String state = DEFAULT_STATE_GENERATOR.generateKey();
-		OAuth2PushedAuthorizationRequestUri pushedAuthorizationRequestUri = new OAuth2PushedAuthorizationRequestUri();
-		pushedAuthorizationRequestUri.requestUri = REQUEST_URI_PREFIX + state + REQUEST_URI_DELIMITER
-				+ expiresAt.toEpochMilli();
-		pushedAuthorizationRequestUri.state = state + REQUEST_URI_DELIMITER + expiresAt.toEpochMilli();
-		pushedAuthorizationRequestUri.expiresAt = expiresAt;
-		return pushedAuthorizationRequestUri;
+		String requestUri = REQUEST_URI_PREFIX + state + REQUEST_URI_DELIMITER + expiresAt.toEpochMilli();
+		state = state + REQUEST_URI_DELIMITER + expiresAt.toEpochMilli();
+		return new OAuth2PushedAuthorizationRequestUri(requestUri, state, expiresAt);
 	}
 
 	static OAuth2PushedAuthorizationRequestUri parse(String requestUri) {
 		int stateStartIndex = REQUEST_URI_PREFIX.length();
 		int expiresAtStartIndex = requestUri.indexOf(REQUEST_URI_DELIMITER) + REQUEST_URI_DELIMITER.length();
-		OAuth2PushedAuthorizationRequestUri pushedAuthorizationRequestUri = new OAuth2PushedAuthorizationRequestUri();
-		pushedAuthorizationRequestUri.requestUri = requestUri;
-		pushedAuthorizationRequestUri.state = requestUri.substring(stateStartIndex);
-		pushedAuthorizationRequestUri.expiresAt = Instant
-			.ofEpochMilli(Long.parseLong(requestUri.substring(expiresAtStartIndex)));
-		return pushedAuthorizationRequestUri;
+		String state = requestUri.substring(stateStartIndex);
+		Instant expiresAt = Instant.ofEpochMilli(Long.parseLong(requestUri.substring(expiresAtStartIndex)));
+		return new OAuth2PushedAuthorizationRequestUri(requestUri, state, expiresAt);
 	}
 
 	String getRequestUri() {
@@ -81,7 +75,10 @@ final class OAuth2PushedAuthorizationRequestUri {
 		return this.expiresAt;
 	}
 
-	private OAuth2PushedAuthorizationRequestUri() {
+	private OAuth2PushedAuthorizationRequestUri(String requestUri, String state, Instant expiresAt) {
+		this.requestUri = requestUri;
+		this.state = state;
+		this.expiresAt = expiresAt;
 	}
 
 }

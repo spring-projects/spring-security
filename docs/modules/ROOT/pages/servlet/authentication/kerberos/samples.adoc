@@ -189,7 +189,7 @@ In above we simply set `app.user-principal` and `app.keytab-location`
 to empty values which disables a use of keytab file.
 ====
 
-If operation is succesfull you should see below output with `user1@EXAMPLE.ORG`.
+If operation is successful you should see below output with `user1@EXAMPLE.ORG`.
 [source,text]
 ----
 <html xmlns="https://www.w3.org/1999/xhtml"
@@ -209,7 +209,7 @@ Or use a `user2` with a keytab file.
 $ java -jar sec-client-rest-template-{spring-security-version}.jar
 ----
 
-If operation is succesfull you should see below output with `user2@EXAMPLE.ORG`.
+If operation is succesful you should see below output with `user2@EXAMPLE.ORG`.
 [source,text]
 ----
 <html xmlns="https://www.w3.org/1999/xhtml"

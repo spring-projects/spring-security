@@ -18,6 +18,8 @@ package org.springframework.security.acls.model;
 
 import java.io.Serializable;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.acls.jdbc.JdbcAclService;
 
 /**
@@ -31,9 +33,9 @@ public interface AclCache {
 
 	void evictFromCache(ObjectIdentity objectIdentity);
 
-	MutableAcl getFromCache(ObjectIdentity objectIdentity);
+	@Nullable MutableAcl getFromCache(ObjectIdentity objectIdentity);
 
-	MutableAcl getFromCache(Serializable pk);
+	@Nullable MutableAcl getFromCache(Serializable pk);
 
 	void putInCache(MutableAcl acl);
 

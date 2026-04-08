@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
@@ -85,6 +88,9 @@ public final class TestOAuth2Authorizations {
 			.additionalParameters(authorizationRequestAdditionalParameters)
 			.state("state")
 			.build();
+		Authentication principal = new TestingAuthenticationToken("principal", null,
+				new SimpleGrantedAuthority("ROLE_A"), new SimpleGrantedAuthority("ROLE_B"),
+				FactorGrantedAuthority.fromAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY));
 		OAuth2Authorization.Builder builder = OAuth2Authorization.withRegisteredClient(registeredClient)
 			.id("id")
 			.principalName("principal")
@@ -93,8 +99,7 @@ public final class TestOAuth2Authorizations {
 			.token(authorizationCode)
 			.attribute(OAuth2ParameterNames.STATE, "consent-state")
 			.attribute(OAuth2AuthorizationRequest.class.getName(), authorizationRequest)
-			.attribute(Principal.class.getName(),
-					new TestingAuthenticationToken("principal", null, "ROLE_A", "ROLE_B"));
+			.attribute(Principal.class.getName(), principal);
 		if (accessToken != null) {
 			OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", Instant.now(),
 					Instant.now().plus(1, ChronoUnit.HOURS));

@@ -40,7 +40,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 /**
  * @author Rob Winch
@@ -167,7 +166,7 @@ public class ClientRegistrationsTests {
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 		assertThat(registration.getRegistrationId()).isEqualTo(URI.create(this.issuer).getHost());
 		assertThat(registration.getClientName()).isEqualTo(this.issuer);
-		assertThat(registration.getScopes()).isNull();
+		assertThat(registration.getScopes()).isEmpty();
 		assertThat(provider.getAuthorizationUri()).isEqualTo("https://example.com/o/oauth2/v2/auth");
 		assertThat(provider.getTokenUri()).isEqualTo("https://example.com/oauth2/v4/token");
 		assertThat(provider.getJwkSetUri()).isEqualTo("https://example.com/oauth2/v3/certs");
@@ -475,7 +474,7 @@ public class ClientRegistrationsTests {
 	@Test
 	public void issuerWhenOidcConfigurationResponseMissingJwksUriThenThrowsIllegalArgumentException() throws Exception {
 		this.response.remove("jwks_uri");
-		assertThatNullPointerException().isThrownBy(() -> registration(this.response).build());
+		assertThatIllegalArgumentException().isThrownBy(() -> registration(this.response).build());
 	}
 
 	@Test

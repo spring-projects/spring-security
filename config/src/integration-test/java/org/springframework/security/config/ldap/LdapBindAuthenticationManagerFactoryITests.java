@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -98,12 +99,14 @@ public class LdapBindAuthenticationManagerFactoryITests {
 	public void authenticationManagerFactoryWhenCustomUserDetailsContextMapperThenUsed() throws Exception {
 		CustomUserDetailsContextMapperConfig.CONTEXT_MAPPER = new UserDetailsContextMapper() {
 			@Override
+			@NullMarked
 			public UserDetails mapUserFromContext(DirContextOperations ctx, String username,
 					Collection<? extends GrantedAuthority> authorities) {
 				return User.withUsername("other").password("password").roles("USER").build();
 			}
 
 			@Override
+			@NullMarked
 			public void mapUserToContext(UserDetails user, DirContextAdapter ctx) {
 			}
 		};

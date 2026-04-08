@@ -19,6 +19,8 @@ package org.springframework.security.acls.model;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Provides retrieval of {@link Acl} instances.
  *
@@ -32,7 +34,7 @@ public interface AclService {
 	 * @param parentIdentity to locate children of
 	 * @return the children (or <tt>null</tt> if none were found)
 	 */
-	List<ObjectIdentity> findChildren(ObjectIdentity parentIdentity);
+	@Nullable List<ObjectIdentity> findChildren(ObjectIdentity parentIdentity);
 
 	/**
 	 * Same as {@link #readAclsById(List)} except it returns only a single Acl.
@@ -59,7 +61,7 @@ public interface AclService {
 	 * @throws NotFoundException if an {@link Acl} was not found for the requested
 	 * {@link ObjectIdentity}
 	 */
-	Acl readAclById(ObjectIdentity object, List<Sid> sids) throws NotFoundException;
+	Acl readAclById(ObjectIdentity object, @Nullable List<Sid> sids) throws NotFoundException;
 
 	/**
 	 * Obtains all the <tt>Acl</tt>s that apply for the passed <tt>Object</tt>s.
@@ -98,6 +100,7 @@ public interface AclService {
 	 * @throws NotFoundException if an {@link Acl} was not found for each requested
 	 * {@link ObjectIdentity}
 	 */
-	Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects, List<Sid> sids) throws NotFoundException;
+	Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects, @Nullable List<Sid> sids)
+			throws NotFoundException;
 
 }

@@ -21,6 +21,9 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationManagerFactory;
+import org.springframework.security.authorization.SingleResultAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 
@@ -28,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Luke Taylor
@@ -172,6 +176,150 @@ public class SecurityExpressionRootTests {
 		given(atr.isAuthenticated(JOE)).willReturn(true);
 		this.root.setTrustResolver(atr);
 		assertThat(this.root.isAuthenticated()).isTrue();
+	}
+
+	// gh-18486
+	@Test
+	@SuppressWarnings("unchecked")
+	public void hasAuthorityDelegatesToAuthorizationManagerFactoryHasAuthority() {
+		AuthorizationManagerFactory<Object> factory = mock(AuthorizationManagerFactory.class);
+		AuthorizationManager<Object> manager = SingleResultAuthorizationManager.denyAll();
+		given(factory.hasAuthority("CUSTOM_AUTHORITY")).willReturn(manager);
+		this.root.setAuthorizationManagerFactory(factory);
+		assertThat(this.root.hasAuthority("CUSTOM_AUTHORITY")).isFalse();
+		verify(factory).hasAuthority("CUSTOM_AUTHORITY");
+	}
+
+	// gh-18486
+	@Test
+	@SuppressWarnings("unchecked")
+	public void hasAnyAuthorityDelegatesToAuthorizationManagerFactoryHasAnyAuthority() {
+		AuthorizationManagerFactory<Object> factory = mock(AuthorizationManagerFactory.class);
+		AuthorizationManager<Object> manager = SingleResultAuthorizationManager.denyAll();
+		given(factory.hasAnyAuthority("CUSTOM_AUTHORITY")).willReturn(manager);
+		this.root.setAuthorizationManagerFactory(factory);
+		assertThat(this.root.hasAnyAuthority("CUSTOM_AUTHORITY")).isFalse();
+		verify(factory).hasAnyAuthority("CUSTOM_AUTHORITY");
+	}
+
+	// gh-18486
+	@Test
+	@SuppressWarnings("unchecked")
+	public void hasAllAuthoritiesDelegatesToAuthorizationManagerFactoryHasAllAuthorities() {
+		AuthorizationManagerFactory<Object> factory = mock(AuthorizationManagerFactory.class);
+		AuthorizationManager<Object> manager = SingleResultAuthorizationManager.denyAll();
+		given(factory.hasAllAuthorities("A", "B")).willReturn(manager);
+		this.root.setAuthorizationManagerFactory(factory);
+		assertThat(this.root.hasAllAuthorities("A", "B")).isFalse();
+		verify(factory).hasAllAuthorities("A", "B");
+	}
+
+	// gh-18486
+	@Test
+	@SuppressWarnings("unchecked")
+	public void hasRoleDelegatesToAuthorizationManagerFactoryHasRole() {
+		AuthorizationManagerFactory<Object> factory = mock(AuthorizationManagerFactory.class);
+		AuthorizationManager<Object> manager = SingleResultAuthorizationManager.denyAll();
+		given(factory.hasRole("CUSTOM_ROLE")).willReturn(manager);
+		this.root.setAuthorizationManagerFactory(factory);
+		assertThat(this.root.hasRole("CUSTOM_ROLE")).isFalse();
+		verify(factory).hasRole("CUSTOM_ROLE");
+	}
+
+	// gh-18486
+	@Test
+	@SuppressWarnings("unchecked")
+	public void hasAnyRoleDelegatesToAuthorizationManagerFactoryHasAnyRole() {
+		AuthorizationManagerFactory<Object> factory = mock(AuthorizationManagerFactory.class);
+		AuthorizationManager<Object> manager = SingleResultAuthorizationManager.denyAll();
+		given(factory.hasAnyRole("A", "B")).willReturn(manager);
+		this.root.setAuthorizationManagerFactory(factory);
+		assertThat(this.root.hasAnyRole("A", "B")).isFalse();
+		verify(factory).hasAnyRole("A", "B");
+	}
+
+	// gh-18486
+	@Test
+	@SuppressWarnings("unchecked")
+	public void hasAllRolesDelegatesToAuthorizationManagerFactoryHasAllRoles() {
+		AuthorizationManagerFactory<Object> factory = mock(AuthorizationManagerFactory.class);
+		AuthorizationManager<Object> manager = SingleResultAuthorizationManager.denyAll();
+		given(factory.hasAllRoles("A", "B")).willReturn(manager);
+		this.root.setAuthorizationManagerFactory(factory);
+		assertThat(this.root.hasAllRoles("A", "B")).isFalse();
+		verify(factory).hasAllRoles("A", "B");
+	}
+
+	// gh-18486
+	@Test
+	@SuppressWarnings("unchecked")
+	public void permitAllDelegatesToAuthorizationManagerFactoryPermitAll() {
+		AuthorizationManagerFactory<Object> factory = mock(AuthorizationManagerFactory.class);
+		AuthorizationManager<Object> manager = SingleResultAuthorizationManager.denyAll();
+		given(factory.permitAll()).willReturn(manager);
+		this.root.setAuthorizationManagerFactory(factory);
+		assertThat(this.root.permitAll()).isFalse();
+		verify(factory).permitAll();
+	}
+
+	// gh-18486
+	@Test
+	@SuppressWarnings("unchecked")
+	public void denyAllDelegatesToAuthorizationManagerFactoryDenyAll() {
+		AuthorizationManagerFactory<Object> factory = mock(AuthorizationManagerFactory.class);
+		AuthorizationManager<Object> manager = SingleResultAuthorizationManager.denyAll();
+		given(factory.denyAll()).willReturn(manager);
+		this.root.setAuthorizationManagerFactory(factory);
+		assertThat(this.root.denyAll()).isFalse();
+		verify(factory).denyAll();
+	}
+
+	// gh-18486
+	@Test
+	@SuppressWarnings("unchecked")
+	public void isAnonymousDelegatesToAuthorizationManagerFactoryAnonymous() {
+		AuthorizationManagerFactory<Object> factory = mock(AuthorizationManagerFactory.class);
+		AuthorizationManager<Object> manager = SingleResultAuthorizationManager.denyAll();
+		given(factory.anonymous()).willReturn(manager);
+		this.root.setAuthorizationManagerFactory(factory);
+		assertThat(this.root.isAnonymous()).isFalse();
+		verify(factory).anonymous();
+	}
+
+	// gh-18486
+	@Test
+	@SuppressWarnings("unchecked")
+	public void isAuthenticatedDelegatesToAuthorizationManagerFactoryAuthenticated() {
+		AuthorizationManagerFactory<Object> factory = mock(AuthorizationManagerFactory.class);
+		AuthorizationManager<Object> manager = SingleResultAuthorizationManager.denyAll();
+		given(factory.authenticated()).willReturn(manager);
+		this.root.setAuthorizationManagerFactory(factory);
+		assertThat(this.root.isAuthenticated()).isFalse();
+		verify(factory).authenticated();
+	}
+
+	// gh-18486
+	@Test
+	@SuppressWarnings("unchecked")
+	public void isRememberMeDelegatesToAuthorizationManagerFactoryRememberMe() {
+		AuthorizationManagerFactory<Object> factory = mock(AuthorizationManagerFactory.class);
+		AuthorizationManager<Object> manager = SingleResultAuthorizationManager.denyAll();
+		given(factory.rememberMe()).willReturn(manager);
+		this.root.setAuthorizationManagerFactory(factory);
+		assertThat(this.root.isRememberMe()).isFalse();
+		verify(factory).rememberMe();
+	}
+
+	// gh-18486
+	@Test
+	@SuppressWarnings("unchecked")
+	public void isFullyAuthenticatedDelegatesToAuthorizationManagerFactoryFullyAuthenticated() {
+		AuthorizationManagerFactory<Object> factory = mock(AuthorizationManagerFactory.class);
+		AuthorizationManager<Object> manager = SingleResultAuthorizationManager.denyAll();
+		given(factory.fullyAuthenticated()).willReturn(manager);
+		this.root.setAuthorizationManagerFactory(factory);
+		assertThat(this.root.isFullyAuthenticated()).isFalse();
+		verify(factory).fullyAuthenticated();
 	}
 
 }

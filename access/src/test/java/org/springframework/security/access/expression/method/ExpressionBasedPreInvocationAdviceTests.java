@@ -39,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @since 5.2
  */
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("deprecation")
 public class ExpressionBasedPreInvocationAdviceTests {
 
 	@Mock

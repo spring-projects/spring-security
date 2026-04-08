@@ -17,6 +17,7 @@
 package org.springframework.security.saml2.provider.service.web.authentication.logout;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,6 +25,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.http.MediaType;
@@ -210,8 +212,9 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 	private void doRedirect(HttpServletRequest request, HttpServletResponse response,
 			Saml2LogoutResponse logoutResponse) throws IOException {
 		String location = logoutResponse.getResponseLocation();
-		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(location)
-			.query(logoutResponse.getParametersQuery());
+		String query = logoutResponse.getParametersQuery();
+		Assert.notNull(query, "logout response must have a parameters query when using redirect binding");
+		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(location).query(query);
 		this.redirectStrategy.sendRedirect(request, response, uriBuilder.build(true).toUriString());
 	}
 
@@ -224,7 +227,7 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 		response.getWriter().write(html);
 	}
 
-	private String createSamlPostRequestFormData(String location, String saml, String relayState) {
+	private String createSamlPostRequestFormData(String location, String saml, @Nullable String relayState) {
 		StringBuilder html = new StringBuilder();
 		html.append("<!DOCTYPE html>\n");
 		html.append("<html>\n").append("    <head>\n");
@@ -279,8 +282,8 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 		}
 
 		@Override
-		public Saml2LogoutRequestValidatorParameters resolve(HttpServletRequest request,
-				Authentication authentication) {
+		public @Nullable Saml2LogoutRequestValidatorParameters resolve(HttpServletRequest request,
+				@Nullable Authentication authentication) {
 			String serialized = request.getParameter(Saml2ParameterNames.SAML_REQUEST);
 			if (serialized == null) {
 				return null;
@@ -298,6 +301,7 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 			}
 			UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers.uriResolver(request, registration);
 			String entityId = uriResolver.resolve(registration.getEntityId());
+			entityId = Objects.requireNonNull(entityId);
 			String logoutLocation = uriResolver.resolve(registration.getSingleLogoutServiceLocation());
 			String logoutResponseLocation = uriResolver.resolve(registration.getSingleLogoutServiceResponseLocation());
 			registration = registration.mutate()
@@ -310,7 +314,6 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 				.samlRequest(serialized)
 				.relayState(request.getParameter(Saml2ParameterNames.RELAY_STATE))
 				.binding(saml2MessageBinding)
-				.location(registration.getSingleLogoutServiceLocation())
 				.parameters((params) -> params.put(Saml2ParameterNames.SIG_ALG,
 						request.getParameter(Saml2ParameterNames.SIG_ALG)))
 				.parameters((params) -> params.put(Saml2ParameterNames.SIGNATURE,
@@ -325,7 +328,8 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 			this.logoutRequestMatcher = logoutRequestMatcher;
 		}
 
-		private String getRegistrationId(RequestMatcher.MatchResult result, Authentication authentication) {
+		private @Nullable String getRegistrationId(RequestMatcher.MatchResult result,
+				@Nullable Authentication authentication) {
 			String registrationId = result.getVariables().get("registrationId");
 			if (registrationId != null) {
 				return registrationId;

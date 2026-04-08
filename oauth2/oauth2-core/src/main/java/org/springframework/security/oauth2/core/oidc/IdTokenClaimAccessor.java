@@ -20,6 +20,8 @@ import java.net.URL;
 import java.time.Instant;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.ClaimAccessor;
 
 /**
@@ -43,101 +45,117 @@ import org.springframework.security.oauth2.core.ClaimAccessor;
 public interface IdTokenClaimAccessor extends StandardClaimAccessor {
 
 	/**
-	 * Returns the Issuer identifier {@code (iss)}.
-	 * @return the Issuer identifier
+	 * Returns the Issuer identifier {@code (iss)}, or {@code null} if it does not exist.
+	 * @return the Issuer identifier, or {@code null} if it does not exist
 	 */
-	default URL getIssuer() {
+	default @Nullable URL getIssuer() {
 		return this.getClaimAsURL(IdTokenClaimNames.ISS);
 	}
 
 	/**
-	 * Returns the Subject identifier {@code (sub)}.
-	 * @return the Subject identifier
+	 * Returns the Subject identifier {@code (sub)}, or {@code null} if it does not exist.
+	 * @return the Subject identifier, or {@code null} if it does not exist
 	 */
 	@Override
-	default String getSubject() {
+	default @Nullable String getSubject() {
 		return this.getClaimAsString(IdTokenClaimNames.SUB);
 	}
 
 	/**
-	 * Returns the Audience(s) {@code (aud)} that this ID Token is intended for.
-	 * @return the Audience(s) that this ID Token is intended for
+	 * Returns the Audience(s) {@code (aud)} that this ID Token is intended for, or
+	 * {@code null} if it does not exist.
+	 * @return the Audience(s) that this ID Token is intended for, or {@code null} if it
+	 * does not exist
 	 */
-	default List<String> getAudience() {
+	default @Nullable List<String> getAudience() {
 		return this.getClaimAsStringList(IdTokenClaimNames.AUD);
 	}
 
 	/**
 	 * Returns the Expiration time {@code (exp)} on or after which the ID Token MUST NOT
-	 * be accepted.
-	 * @return the Expiration time on or after which the ID Token MUST NOT be accepted
+	 * be accepted, or {@code null} if it does not exist.
+	 * @return the Expiration time on or after which the ID Token MUST NOT be accepted, or
+	 * {@code null} if it does not exist
 	 */
-	default Instant getExpiresAt() {
+	default @Nullable Instant getExpiresAt() {
 		return this.getClaimAsInstant(IdTokenClaimNames.EXP);
 	}
 
 	/**
-	 * Returns the time at which the ID Token was issued {@code (iat)}.
-	 * @return the time at which the ID Token was issued
+	 * Returns the time at which the ID Token was issued {@code (iat)}, or {@code null} if
+	 * it does not exist.
+	 * @return the time at which the ID Token was issued, or {@code null} if it does not
+	 * exist
 	 */
-	default Instant getIssuedAt() {
+	default @Nullable Instant getIssuedAt() {
 		return this.getClaimAsInstant(IdTokenClaimNames.IAT);
 	}
 
 	/**
-	 * Returns the time when the End-User authentication occurred {@code (auth_time)}.
-	 * @return the time when the End-User authentication occurred
+	 * Returns the time when the End-User authentication occurred {@code (auth_time)}, or
+	 * {@code null} if it does not exist.
+	 * @return the time when the End-User authentication occurred, or {@code null} if it
+	 * does not exist
 	 */
-	default Instant getAuthenticatedAt() {
+	default @Nullable Instant getAuthenticatedAt() {
 		return this.getClaimAsInstant(IdTokenClaimNames.AUTH_TIME);
 	}
 
 	/**
 	 * Returns a {@code String} value {@code (nonce)} used to associate a Client session
-	 * with an ID Token, and to mitigate replay attacks.
-	 * @return the nonce used to associate a Client session with an ID Token
+	 * with an ID Token, and to mitigate replay attacks, or {@code null} if it does not
+	 * exist.
+	 * @return the nonce used to associate a Client session with an ID Token, or
+	 * {@code null} if it does not exist
 	 */
-	default String getNonce() {
+	default @Nullable String getNonce() {
 		return this.getClaimAsString(IdTokenClaimNames.NONCE);
 	}
 
 	/**
-	 * Returns the Authentication Context Class Reference {@code (acr)}.
-	 * @return the Authentication Context Class Reference
+	 * Returns the Authentication Context Class Reference {@code (acr)}, or {@code null}
+	 * if it does not exist.
+	 * @return the Authentication Context Class Reference, or {@code null} if it does not
+	 * exist
 	 */
-	default String getAuthenticationContextClass() {
+	default @Nullable String getAuthenticationContextClass() {
 		return this.getClaimAsString(IdTokenClaimNames.ACR);
 	}
 
 	/**
-	 * Returns the Authentication Methods References {@code (amr)}.
-	 * @return the Authentication Methods References
+	 * Returns the Authentication Methods References {@code (amr)}, or {@code null} if it
+	 * does not exist.
+	 * @return the Authentication Methods References, or {@code null} if it does not exist
 	 */
-	default List<String> getAuthenticationMethods() {
+	default @Nullable List<String> getAuthenticationMethods() {
 		return this.getClaimAsStringList(IdTokenClaimNames.AMR);
 	}
 
 	/**
-	 * Returns the Authorized party {@code (azp)} to which the ID Token was issued.
-	 * @return the Authorized party to which the ID Token was issued
+	 * Returns the Authorized party {@code (azp)} to which the ID Token was issued, or
+	 * {@code null} if it does not exist.
+	 * @return the Authorized party to which the ID Token was issued, or {@code null} if
+	 * it does not exist
 	 */
-	default String getAuthorizedParty() {
+	default @Nullable String getAuthorizedParty() {
 		return this.getClaimAsString(IdTokenClaimNames.AZP);
 	}
 
 	/**
-	 * Returns the Access Token hash value {@code (at_hash)}.
-	 * @return the Access Token hash value
+	 * Returns the Access Token hash value {@code (at_hash)}, or {@code null} if it does
+	 * not exist.
+	 * @return the Access Token hash value, or {@code null} if it does not exist
 	 */
-	default String getAccessTokenHash() {
+	default @Nullable String getAccessTokenHash() {
 		return this.getClaimAsString(IdTokenClaimNames.AT_HASH);
 	}
 
 	/**
-	 * Returns the Authorization Code hash value {@code (c_hash)}.
-	 * @return the Authorization Code hash value
+	 * Returns the Authorization Code hash value {@code (c_hash)}, or {@code null} if it
+	 * does not exist.
+	 * @return the Authorization Code hash value, or {@code null} if it does not exist
 	 */
-	default String getAuthorizationCodeHash() {
+	default @Nullable String getAuthorizationCodeHash() {
 		return this.getClaimAsString(IdTokenClaimNames.C_HASH);
 	}
 

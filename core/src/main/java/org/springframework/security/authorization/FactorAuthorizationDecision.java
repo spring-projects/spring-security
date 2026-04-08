@@ -16,6 +16,7 @@
 
 package org.springframework.security.authorization;
 
+import java.io.Serial;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,6 +29,9 @@ import org.springframework.util.Assert;
  * @since 7.0
  */
 public class FactorAuthorizationDecision implements AuthorizationResult {
+
+	@Serial
+	private static final long serialVersionUID = -245342816437885039L;
 
 	private final List<RequiredFactorError> factorErrors;
 

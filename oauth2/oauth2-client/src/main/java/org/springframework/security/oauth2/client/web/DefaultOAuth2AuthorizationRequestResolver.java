@@ -22,9 +22,11 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
@@ -118,7 +120,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 	}
 
 	@Override
-	public OAuth2AuthorizationRequest resolve(HttpServletRequest request) {
+	public @Nullable OAuth2AuthorizationRequest resolve(HttpServletRequest request) {
 		String registrationId = resolveRegistrationId(request);
 		if (registrationId == null) {
 			return null;
@@ -128,7 +130,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 	}
 
 	@Override
-	public OAuth2AuthorizationRequest resolve(HttpServletRequest request, String registrationId) {
+	public @Nullable OAuth2AuthorizationRequest resolve(HttpServletRequest request, String registrationId) {
 		if (registrationId == null) {
 			return null;
 		}
@@ -158,7 +160,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 		return action;
 	}
 
-	private OAuth2AuthorizationRequest resolve(HttpServletRequest request, String registrationId,
+	private @Nullable OAuth2AuthorizationRequest resolve(HttpServletRequest request, String registrationId,
 			String redirectUriAction) {
 		if (registrationId == null) {
 			return null;
@@ -171,9 +173,11 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 
 		String redirectUriStr = expandRedirectUri(request, clientRegistration, redirectUriAction);
 
+		String authorizationUri = clientRegistration.getProviderDetails().getAuthorizationUri();
+		Assert.hasText(authorizationUri, "Authorization URI is required");
 		// @formatter:off
 		builder.clientId(clientRegistration.getClientId())
-				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
+				.authorizationUri(authorizationUri)
 				.redirectUri(redirectUriStr)
 				.scopes(clientRegistration.getScopes())
 				.state(DEFAULT_STATE_GENERATOR.generateKey());
@@ -210,7 +214,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 						+ ") for Client Registration with Id: " + clientRegistration.getRegistrationId());
 	}
 
-	private String resolveRegistrationId(HttpServletRequest request) {
+	private @Nullable String resolveRegistrationId(HttpServletRequest request) {
 		if (this.authorizationRequestMatcher.matches(request)) {
 			return this.authorizationRequestMatcher.matcher(request)
 				.getVariables()
@@ -263,7 +267,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 		uriVariables.put("basePath", (path != null) ? path : "");
 		uriVariables.put("baseUrl", uriComponents.toUriString());
 		uriVariables.put("action", (action != null) ? action : "");
-		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUri())
+		return UriComponentsBuilder.fromUriString(Objects.requireNonNull(clientRegistration.getRedirectUri()))
 			.buildAndExpand(uriVariables)
 			.toUriString();
 	}

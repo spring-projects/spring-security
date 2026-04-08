@@ -27,6 +27,7 @@ import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.as.AuthorizationServerMetadata;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import net.minidev.json.JSONObject;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
@@ -101,11 +102,11 @@ public final class ClientRegistrations {
 	 *     .clientSecret("client-secret")
 	 *     .build();
 	 * </pre>
-	 * @param the OpenID Provider configuration map
+	 * @param configuration the OpenID Provider configuration map
 	 * @return the {@link ClientRegistration} built from the configuration
 	 */
 	public static ClientRegistration.Builder fromOidcConfiguration(Map<String, Object> configuration) {
-		OIDCProviderMetadata metadata = parse(configuration, OIDCProviderMetadata::parse);
+		OIDCProviderMetadata metadata = parseInput(configuration, OIDCProviderMetadata::parse);
 		ClientRegistration.Builder builder = withProviderConfiguration(metadata, metadata.getIssuer().getValue());
 		builder.jwkSetUri(metadata.getJWKSetURI().toASCIIString());
 		if (metadata.getUserInfoEndpointURI() != null) {
@@ -199,6 +200,7 @@ public final class ClientRegistrations {
 		return () -> {
 			RequestEntity<Void> request = RequestEntity.get(uri.toUriString()).build();
 			Map<String, Object> configuration = rest.exchange(request, typeReference).getBody();
+			Assert.notNull(configuration, "OIDC provider configuration cannot be null");
 			OIDCProviderMetadata metadata = parse(configuration, OIDCProviderMetadata::parse);
 			ClientRegistration.Builder builder = withProviderConfiguration(metadata, issuer)
 				.jwkSetUri(metadata.getJWKSetURI().toASCIIString());
@@ -249,6 +251,7 @@ public final class ClientRegistrations {
 		return () -> {
 			RequestEntity<Void> request = RequestEntity.get(uri.toUriString()).build();
 			Map<String, Object> configuration = rest.exchange(request, typeReference).getBody();
+			Assert.notNull(configuration, "Authorization server configuration cannot be null");
 			AuthorizationServerMetadata metadata = parse(configuration, AuthorizationServerMetadata::parse);
 			ClientRegistration.Builder builder = withProviderConfiguration(metadata, issuer);
 			URI jwkSetUri = metadata.getJWKSetURI();
@@ -292,6 +295,15 @@ public final class ClientRegistrations {
 		throw new IllegalArgumentException(errorMessage);
 	}
 
+	private static <T> T parseInput(Map<String, Object> body, ThrowingFunction<JSONObject, T, ParseException> parser) {
+		try {
+			return parse(body, parser);
+		}
+		catch (RuntimeException ex) {
+			throw new IllegalArgumentException(ex);
+		}
+	}
+
 	private static <T> T parse(Map<String, Object> body, ThrowingFunction<JSONObject, T, ParseException> parser) {
 		try {
 			return parser.apply(new JSONObject(body));
@@ -309,22 +321,29 @@ public final class ClientRegistrations {
 						+ "not match the requested issuer \"" + issuer + "\"");
 		String name = URI.create(issuer).getHost();
 		ClientAuthenticationMethod method = getClientAuthenticationMethod(metadata.getTokenEndpointAuthMethods());
+		URI authorizationEndpointURI = metadata.getAuthorizationEndpointURI();
+		URI tokenEndpointURI = metadata.getTokenEndpointURI();
+		ClientAuthenticationMethod authMethod = (method != null) ? method
+				: ClientAuthenticationMethod.CLIENT_SECRET_BASIC;
 		Map<String, Object> configurationMetadata = new LinkedHashMap<>(metadata.toJSONObject());
 		// @formatter:off
-		return ClientRegistration.withRegistrationId(name)
+		ClientRegistration.Builder builder = ClientRegistration.withRegistrationId(name)
 				.userNameAttributeName(IdTokenClaimNames.SUB)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.clientAuthenticationMethod(method)
+				.clientAuthenticationMethod(authMethod)
 				.redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
-				.authorizationUri((metadata.getAuthorizationEndpointURI() != null) ? metadata.getAuthorizationEndpointURI().toASCIIString() : null)
+				.authorizationUri((authorizationEndpointURI != null) ? authorizationEndpointURI.toASCIIString() : null)
 				.providerConfigurationMetadata(configurationMetadata)
-				.tokenUri(metadata.getTokenEndpointURI().toASCIIString())
 				.issuerUri(issuer)
 				.clientName(issuer);
+		if (tokenEndpointURI != null) {
+			builder.tokenUri(tokenEndpointURI.toASCIIString());
+		}
+		return builder;
 		// @formatter:on
 	}
 
-	private static ClientAuthenticationMethod getClientAuthenticationMethod(
+	private static @Nullable ClientAuthenticationMethod getClientAuthenticationMethod(
 			List<com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod> metadataAuthMethods) {
 		if (metadataAuthMethods == null || metadataAuthMethods
 			.contains(com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod.CLIENT_SECRET_BASIC)) {

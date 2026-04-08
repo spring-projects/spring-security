@@ -18,9 +18,11 @@ package org.springframework.security.oauth2.server.resource.web;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,6 +33,7 @@ import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.util.UrlUtils;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -49,7 +52,9 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public final class BearerTokenAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-	private String realmName;
+	private @Nullable String realmName;
+
+	private Function<HttpServletRequest, String> resourceMetadataParameterResolver = BearerTokenAuthenticationEntryPoint::getResourceMetadataParameter;
 
 	/**
 	 * Collect error details from the provided parameters and format according to RFC
@@ -83,7 +88,7 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 				status = bearerTokenError.getHttpStatus();
 			}
 		}
-		parameters.put("resource_metadata", getResourceMetadataParameter(request));
+		parameters.put("resource_metadata", this.resourceMetadataParameterResolver.apply(request));
 		String wwwAuthenticate = computeWWWAuthenticateHeaderValue(parameters);
 		response.addHeader(HttpHeaders.WWW_AUTHENTICATE, wwwAuthenticate);
 		response.setStatus(status.value());
@@ -91,16 +96,30 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 
 	/**
 	 * Set the default realm name to use in the bearer token error response
-	 * @param realmName
+	 * @param realmName the realm name, or {@code null}
 	 */
-	public void setRealmName(String realmName) {
+	public void setRealmName(@Nullable String realmName) {
 		this.realmName = realmName;
 	}
 
+	/**
+	 * Set the resolver to compute the {@code resource_metadata} parameter from the
+	 * request.
+	 * @param resourceMetadataParameterResolver
+	 * @since 7.1
+	 */
+	public void setResourceMetadataParameterResolver(
+			Function<HttpServletRequest, String> resourceMetadataParameterResolver) {
+		Assert.notNull(resourceMetadataParameterResolver, "resourceMetadataParameterResolver cannot be null");
+		this.resourceMetadataParameterResolver = resourceMetadataParameterResolver;
+	}
+
 	private static String getResourceMetadataParameter(HttpServletRequest request) {
+		String path = request.getContextPath()
+				+ OAuth2ProtectedResourceMetadataFilter.DEFAULT_OAUTH2_PROTECTED_RESOURCE_METADATA_ENDPOINT_URI;
 		// @formatter:off
 		return UriComponentsBuilder.fromUriString(UrlUtils.buildFullRequestUrl(request))
-				.replacePath(OAuth2ProtectedResourceMetadataFilter.DEFAULT_OAUTH2_PROTECTED_RESOURCE_METADATA_ENDPOINT_URI)
+				.replacePath(path)
 				.replaceQuery(null)
 				.fragment(null)
 				.build()

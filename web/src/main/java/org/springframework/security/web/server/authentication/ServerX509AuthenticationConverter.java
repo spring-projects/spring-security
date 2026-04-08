@@ -20,10 +20,10 @@ import java.security.cert.X509Certificate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.NonNull;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.server.reactive.SslInfo;
-import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;

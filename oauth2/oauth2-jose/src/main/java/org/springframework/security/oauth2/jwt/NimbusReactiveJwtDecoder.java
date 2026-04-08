@@ -55,6 +55,7 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -262,7 +263,9 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 						catch (IllegalStateException ex) {
 							return Mono.error(ex);
 						}
-						return Mono.just(configuration.get("jwks_uri").toString());
+						Object jwksUri = configuration.get("jwks_uri");
+						Assert.notNull(jwksUri, "The public JWK Set URI must not be null");
+						return Mono.just(jwksUri.toString());
 					}),
 				ReactiveJwtDecoderProviderConfigurationUtils::getJWSAlgorithms);
 	}
@@ -313,7 +316,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	}
 
 	private static <C extends SecurityContext> JWTClaimsSet createClaimsSet(JWTProcessor<C> jwtProcessor,
-			JWT parsedToken, C context) {
+			JWT parsedToken, @Nullable C context) {
 		try {
 			return jwtProcessor.process(parsedToken, context);
 		}

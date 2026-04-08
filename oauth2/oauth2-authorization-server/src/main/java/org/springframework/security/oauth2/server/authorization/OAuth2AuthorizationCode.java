@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.server.authorization;
 
+import java.io.Serial;
 import java.time.Instant;
 
 import org.springframework.security.oauth2.core.AbstractOAuth2Token;
@@ -31,6 +32,9 @@ import org.springframework.security.oauth2.core.AbstractOAuth2Token;
  * 4.1 Authorization Code Grant</a>
  */
 public class OAuth2AuthorizationCode extends AbstractOAuth2Token {
+
+	@Serial
+	private static final long serialVersionUID = 3789328028057414501L;
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizationCode} using the provided parameters.

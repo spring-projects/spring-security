@@ -17,6 +17,8 @@
 package org.springframework.security.saml2.provider.service.web.authentication.logout;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
@@ -31,6 +33,7 @@ import org.springframework.util.Assert;
  * An OpenSAML-based implementation of
  * {@link Saml2LogoutRequestValidatorParametersResolver}
  */
+@NullMarked
 public final class OpenSaml5LogoutRequestValidatorParametersResolver
 		implements Saml2LogoutRequestValidatorParametersResolver {
 
@@ -77,7 +80,8 @@ public final class OpenSaml5LogoutRequestValidatorParametersResolver
 	 * non-existent {@code registrationId}
 	 */
 	@Override
-	public Saml2LogoutRequestValidatorParameters resolve(HttpServletRequest request, Authentication authentication) {
+	public @Nullable Saml2LogoutRequestValidatorParameters resolve(HttpServletRequest request,
+			@Nullable Authentication authentication) {
 		return this.delegate.resolve(request, authentication);
 	}
 

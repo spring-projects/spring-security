@@ -20,7 +20,9 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Base64;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -45,9 +47,8 @@ public final class OAuth2RefreshTokenGenerator implements OAuth2TokenGenerator<O
 
 	private Clock clock = Clock.systemUTC();
 
-	@Nullable
 	@Override
-	public OAuth2RefreshToken generate(OAuth2TokenContext context) {
+	public @Nullable OAuth2RefreshToken generate(OAuth2TokenContext context) {
 		if (!OAuth2TokenType.REFRESH_TOKEN.equals(context.getTokenType())) {
 			return null;
 		}
@@ -74,8 +75,10 @@ public final class OAuth2RefreshTokenGenerator implements OAuth2TokenGenerator<O
 
 	private static boolean isPublicClientForAuthorizationCodeGrant(OAuth2TokenContext context) {
 		// @formatter:off
-		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(context.getAuthorizationGrantType()) &&
-				(context.getAuthorizationGrant().getPrincipal() instanceof OAuth2ClientAuthenticationToken clientPrincipal)) {
+		AuthorizationGrantType authorizationGrantType = context.getAuthorizationGrantType();
+		Authentication authorizationGrant = context.getAuthorizationGrant();
+		if (authorizationGrantType != null && AuthorizationGrantType.AUTHORIZATION_CODE.equals(authorizationGrantType) &&
+				authorizationGrant != null && (authorizationGrant.getPrincipal() instanceof OAuth2ClientAuthenticationToken clientPrincipal)) {
 			return clientPrincipal.getClientAuthenticationMethod().equals(ClientAuthenticationMethod.NONE);
 		}
 		// @formatter:on

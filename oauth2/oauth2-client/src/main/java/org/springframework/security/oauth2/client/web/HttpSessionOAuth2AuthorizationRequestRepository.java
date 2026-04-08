@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.client.web;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
@@ -44,7 +45,7 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 	private final String sessionAttributeName = DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME;
 
 	@Override
-	public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
+	public @Nullable OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
 		Assert.notNull(request, "request cannot be null");
 		String stateParameter = getStateParameter(request);
 		if (stateParameter == null) {
@@ -70,7 +71,7 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 	}
 
 	@Override
-	public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request,
+	public @Nullable OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request,
 			HttpServletResponse response) {
 		Assert.notNull(response, "response cannot be null");
 		OAuth2AuthorizationRequest authorizationRequest = loadAuthorizationRequest(request);
@@ -85,11 +86,11 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 	 * @param request the request to use
 	 * @return the state parameter or null if not found
 	 */
-	private String getStateParameter(HttpServletRequest request) {
+	private @Nullable String getStateParameter(HttpServletRequest request) {
 		return request.getParameter(OAuth2ParameterNames.STATE);
 	}
 
-	private OAuth2AuthorizationRequest getAuthorizationRequest(HttpServletRequest request) {
+	private @Nullable OAuth2AuthorizationRequest getAuthorizationRequest(HttpServletRequest request) {
 		HttpSession session = request.getSession(false);
 		return (session != null) ? (OAuth2AuthorizationRequest) session.getAttribute(this.sessionAttributeName) : null;
 	}

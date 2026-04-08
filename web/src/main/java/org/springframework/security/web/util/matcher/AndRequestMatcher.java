@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.util.Assert;
 
@@ -35,13 +36,13 @@ import org.springframework.util.Assert;
  */
 public final class AndRequestMatcher implements RequestMatcher {
 
-	private final List<RequestMatcher> requestMatchers;
+	private final List<? extends RequestMatcher> requestMatchers;
 
 	/**
 	 * Creates a new instance
 	 * @param requestMatchers the {@link RequestMatcher} instances to try
 	 */
-	public AndRequestMatcher(List<RequestMatcher> requestMatchers) {
+	public AndRequestMatcher(List<? extends RequestMatcher> requestMatchers) {
 		Assert.notEmpty(requestMatchers, "requestMatchers must contain a value");
 		Assert.noNullElements(requestMatchers, "requestMatchers cannot contain null values");
 		this.requestMatchers = requestMatchers;
@@ -88,7 +89,7 @@ public final class AndRequestMatcher implements RequestMatcher {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (this == o) {
 			return true;
 		}

@@ -17,4 +17,7 @@
 /**
  * OAuth 2.0 Client {@code Filter}'s and supporting classes and interfaces.
  */
+@NullMarked
 package org.springframework.security.oauth2.client.web;
+
+import org.jspecify.annotations.NullMarked;

@@ -16,6 +16,11 @@
 
 package org.springframework.security.web.webauthn.management;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
@@ -43,6 +48,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.dataformat.cbor.CBORMapper;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -75,9 +82,11 @@ import org.springframework.security.web.webauthn.api.UserVerificationRequirement
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatRuntimeException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.RETURNS_SELF;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -256,6 +265,33 @@ class Webauthn4jRelyingPartyOperationsTests {
 		assertThat(credentialRecord.getCredentialId()).isNotNull();
 		assertThat(credentialRecord.getTransports()).containsExactlyInAnyOrder(AuthenticatorTransport.INTERNAL,
 				AuthenticatorTransport.HYBRID);
+	}
+
+	@Test
+	void registerCredentialWhenCreationOptionsAreJavaDeserializedThenDoesNotThrow()
+			throws IOException, ClassNotFoundException {
+		PublicKeyCredentialCreationOptions creationOptions = TestPublicKeyCredentialCreationOptions
+			.createPublicKeyCredentialCreationOptions()
+			.build();
+		PublicKeyCredential<AuthenticatorAttestationResponse> publicKeyCredential = TestPublicKeyCredentials
+			.createPublicKeyCredential()
+			.build();
+		RelyingPartyPublicKey rpPublicKey = new RelyingPartyPublicKey(publicKeyCredential, this.label);
+
+		try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+				ObjectOutputStream objectOutputStream = new ObjectOutputStream(out)) {
+			objectOutputStream.writeObject(creationOptions);
+			objectOutputStream.flush();
+
+			try (ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+					ObjectInputStream objectInputStream = new ObjectInputStream(in)) {
+				PublicKeyCredentialCreationOptions deserialized = (PublicKeyCredentialCreationOptions) objectInputStream
+					.readObject();
+				ImmutableRelyingPartyRegistrationRequest rpRegistrationRequest = new ImmutableRelyingPartyRegistrationRequest(
+						deserialized, rpPublicKey);
+				assertThatNoException().isThrownBy(() -> this.rpOperations.registerCredential(rpRegistrationRequest));
+			}
+		}
 	}
 
 	@Test
@@ -613,9 +649,11 @@ class Webauthn4jRelyingPartyOperationsTests {
 
 		ImmutableCredentialRecord credentialRecord = TestCredentialRecords.fullUserCredential().build();
 		given(this.userCredentials.findByCredentialId(publicKey.getRawId())).willReturn(credentialRecord);
-		ObjectMapper json = mock(ObjectMapper.class);
-		ObjectMapper cbor = mock(ObjectMapper.class);
-		given(cbor.getFactory()).willReturn(mock(CBORFactory.class));
+		JsonMapper json = new JsonMapper();
+		CBORMapper cbor = mock(CBORMapper.class);
+		CBORMapper.Builder builder = mock(CBORMapper.Builder.class, RETURNS_SELF);
+		given(builder.build()).willReturn(cbor);
+		given(cbor.rebuild()).willReturn(builder);
 		AttestationObject attestationObject = mock(AttestationObject.class);
 		AuthenticatorData wa4jAuthData = mock(AuthenticatorData.class);
 		given(attestationObject.getAuthenticatorData()).willReturn(wa4jAuthData);

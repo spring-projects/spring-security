@@ -24,6 +24,7 @@ import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.WriteListener;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Base class for response wrappers which encapsulate the logic for handling an event when
@@ -57,11 +58,39 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 	}
 
 	@Override
-	public void addHeader(String name, String value) {
+	public void addHeader(@Nullable String name, @Nullable String value) {
+		checkContentLengthHeader(name, value);
+		super.addHeader(name, value);
+	}
+
+	@Override
+	public void addIntHeader(@Nullable String name, int value) {
+		checkContentLengthHeader(name, value);
+		super.addIntHeader(name, value);
+	}
+
+	@Override
+	public void setHeader(@Nullable String name, @Nullable String value) {
+		checkContentLengthHeader(name, value);
+		super.setHeader(name, value);
+	}
+
+	@Override
+	public void setIntHeader(@Nullable String name, int value) {
+		checkContentLengthHeader(name, value);
+		super.setIntHeader(name, value);
+	}
+
+	private void checkContentLengthHeader(@Nullable String name, int value) {
 		if ("Content-Length".equalsIgnoreCase(name)) {
+			setContentLength(value);
+		}
+	}
+
+	private void checkContentLengthHeader(@Nullable String name, @Nullable String value) {
+		if (value != null && "Content-Length".equalsIgnoreCase(name)) {
 			setContentLength(Long.parseLong(value));
 		}
-		super.addHeader(name, value);
 	}
 
 	@Override
@@ -121,7 +150,7 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 	 * before calling the superclass <code>sendError()</code>
 	 */
 	@Override
-	public final void sendError(int sc, String msg) throws IOException {
+	public final void sendError(int sc, @Nullable String msg) throws IOException {
 		doOnResponseCommitted();
 		super.sendError(sc, msg);
 	}
@@ -131,7 +160,7 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 	 * before calling the superclass <code>sendRedirect()</code>
 	 */
 	@Override
-	public final void sendRedirect(String location) throws IOException {
+	public final void sendRedirect(@Nullable String location) throws IOException {
 		doOnResponseCommitted();
 		super.sendRedirect(location);
 	}
@@ -178,7 +207,7 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 		}
 	}
 
-	private void trackContentLength(Object content) {
+	private void trackContentLength(@Nullable Object content) {
 		if (!this.disableOnCommitted) {
 			trackContentLength(String.valueOf(content));
 		}
@@ -220,7 +249,7 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 		}
 	}
 
-	private void trackContentLength(String content) {
+	private void trackContentLength(@Nullable String content) {
 		if (!this.disableOnCommitted) {
 			int contentLength = (content != null) ? content.length() : 4;
 			checkContentLength(contentLength);
@@ -283,7 +312,7 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(@Nullable Object obj) {
 			return this.delegate.equals(obj);
 		}
 
@@ -327,7 +356,7 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 		}
 
 		@Override
-		public void write(String s) {
+		public void write(@Nullable String s) {
 			trackContentLength(s);
 			this.delegate.write(s);
 		}
@@ -375,13 +404,13 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 		}
 
 		@Override
-		public void print(String s) {
+		public void print(@Nullable String s) {
 			trackContentLength(s);
 			this.delegate.print(s);
 		}
 
 		@Override
-		public void print(Object obj) {
+		public void print(@Nullable Object obj) {
 			trackContentLength(obj);
 			this.delegate.print(obj);
 		}
@@ -442,14 +471,14 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 		}
 
 		@Override
-		public void println(String x) {
+		public void println(@Nullable String x) {
 			trackContentLength(x);
 			trackContentLengthLn();
 			this.delegate.println(x);
 		}
 
 		@Override
-		public void println(Object x) {
+		public void println(@Nullable Object x) {
 			trackContentLength(x);
 			trackContentLengthLn();
 			this.delegate.println(x);
@@ -476,13 +505,13 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 		}
 
 		@Override
-		public PrintWriter append(CharSequence csq) {
-			checkContentLength(csq.length());
+		public PrintWriter append(@Nullable CharSequence csq) {
+			checkContentLength((csq != null) ? csq.length() : 4);
 			return this.delegate.append(csq);
 		}
 
 		@Override
-		public PrintWriter append(CharSequence csq, int start, int end) {
+		public PrintWriter append(@Nullable CharSequence csq, int start, int end) {
 			checkContentLength(end - start);
 			return this.delegate.append(csq, start, end);
 		}
@@ -567,7 +596,7 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 		}
 
 		@Override
-		public void print(String s) throws IOException {
+		public void print(@Nullable String s) throws IOException {
 			trackContentLength(s);
 			this.delegate.print(s);
 		}
@@ -621,7 +650,7 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 		}
 
 		@Override
-		public void println(String s) throws IOException {
+		public void println(@Nullable String s) throws IOException {
 			trackContentLength(s);
 			trackContentLengthLn();
 			this.delegate.println(s);
@@ -650,7 +679,7 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(@Nullable Object obj) {
 			return this.delegate.equals(obj);
 		}
 

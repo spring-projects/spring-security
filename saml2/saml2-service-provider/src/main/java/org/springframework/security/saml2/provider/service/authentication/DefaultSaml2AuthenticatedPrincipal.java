@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.jspecify.annotations.NullUnmarked;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -33,6 +36,7 @@ import org.springframework.util.Assert;
  * @deprecated Please use {@link Saml2ResponseAssertionAccessor}
  */
 @Deprecated
+@NullUnmarked
 public class DefaultSaml2AuthenticatedPrincipal implements Saml2AuthenticatedPrincipal, Serializable {
 
 	@Serial
@@ -92,7 +96,7 @@ public class DefaultSaml2AuthenticatedPrincipal implements Saml2AuthenticatedPri
 	}
 
 	@Override
-	public boolean equals(Object object) {
+	public boolean equals(@Nullable Object object) {
 		if (this == object) {
 			return true;
 		}

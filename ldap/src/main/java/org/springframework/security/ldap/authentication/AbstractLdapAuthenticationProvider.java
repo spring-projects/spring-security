@@ -25,7 +25,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.lang.NonNull;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -83,7 +82,7 @@ public abstract class AbstractLdapAuthenticationProvider implements Authenticati
 		Assert.notNull(password, "Null password was supplied in authentication token");
 		DirContextOperations userData = doAuthentication(userToken);
 		UserDetails user = this.userDetailsContextMapper.mapUserFromContext(userData, authentication.getName(),
-				loadUserAuthorities(userData, authentication.getName(), (String) authentication.getCredentials()));
+				loadUserAuthorities(userData, authentication.getName(), password));
 		return createSuccessfulAuthentication(userToken, user);
 	}
 
@@ -133,7 +132,7 @@ public abstract class AbstractLdapAuthenticationProvider implements Authenticati
 	}
 
 	@Override
-	public void setMessageSource(@NonNull MessageSource messageSource) {
+	public void setMessageSource(MessageSource messageSource) {
 		this.messages = new MessageSourceAccessor(messageSource);
 	}
 

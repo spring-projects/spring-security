@@ -17,6 +17,7 @@
 package org.springframework.security.crypto.bcrypt;
 
 import java.security.SecureRandom;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,7 +45,7 @@ public class BCryptPasswordEncoder extends AbstractValidatingPasswordEncoder {
 
 	private final BCryptVersion version;
 
-	private final @Nullable SecureRandom random;
+	private final Supplier<SecureRandom> random;
 
 	public BCryptPasswordEncoder() {
 		this(-1);
@@ -99,7 +100,7 @@ public class BCryptPasswordEncoder extends AbstractValidatingPasswordEncoder {
 		}
 		this.version = version;
 		this.strength = (strength == -1) ? 10 : strength;
-		this.random = random;
+		this.random = (random != null) ? () -> random : SecureRandomHolder::getInstance;
 	}
 
 	@Override
@@ -109,10 +110,7 @@ public class BCryptPasswordEncoder extends AbstractValidatingPasswordEncoder {
 	}
 
 	private String getSalt() {
-		if (this.random != null) {
-			return BCrypt.gensalt(this.version.getVersion(), this.strength, this.random);
-		}
-		return BCrypt.gensalt(this.version.getVersion(), this.strength);
+		return BCrypt.gensalt(this.version.getVersion(), this.strength, this.random.get());
 	}
 
 	@Override
@@ -155,6 +153,16 @@ public class BCryptPasswordEncoder extends AbstractValidatingPasswordEncoder {
 
 		public String getVersion() {
 			return this.version;
+		}
+
+	}
+
+	private static final class SecureRandomHolder {
+
+		private static final SecureRandom INSTANCE = new SecureRandom();
+
+		private static SecureRandom getInstance() {
+			return INSTANCE;
 		}
 
 	}

@@ -17,11 +17,12 @@
 package org.springframework.security.oauth2.server.authorization.web.authentication;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
-import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -30,6 +31,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.web.OAuth2TokenEndpointFilter;
 import org.springframework.security.web.authentication.AuthenticationConverter;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
@@ -47,9 +49,8 @@ import org.springframework.util.StringUtils;
  */
 public final class OAuth2AuthorizationCodeAuthenticationConverter implements AuthenticationConverter {
 
-	@Nullable
 	@Override
-	public Authentication convert(HttpServletRequest request) {
+	public @Nullable Authentication convert(HttpServletRequest request) {
 		MultiValueMap<String, String> parameters = OAuth2EndpointUtils.getFormParameters(request);
 
 		// grant_type (REQUIRED)
@@ -58,20 +59,21 @@ public final class OAuth2AuthorizationCodeAuthenticationConverter implements Aut
 			return null;
 		}
 
-		Authentication clientPrincipal = SecurityContextHolder.getContext().getAuthentication();
-
 		// code (REQUIRED)
 		String code = parameters.getFirst(OAuth2ParameterNames.CODE);
-		if (!StringUtils.hasText(code) || parameters.get(OAuth2ParameterNames.CODE).size() != 1) {
+		List<String> codeParams = parameters.get(OAuth2ParameterNames.CODE);
+		if (!StringUtils.hasText(code) || codeParams == null || codeParams.size() != 1) {
 			OAuth2EndpointUtils.throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.CODE,
 					OAuth2EndpointUtils.ACCESS_TOKEN_REQUEST_ERROR_URI);
 		}
+		Assert.notNull(code, "code cannot be null");
 
 		// redirect_uri (REQUIRED)
 		// Required only if the "redirect_uri" parameter was included in the authorization
 		// request
 		String redirectUri = parameters.getFirst(OAuth2ParameterNames.REDIRECT_URI);
-		if (StringUtils.hasText(redirectUri) && parameters.get(OAuth2ParameterNames.REDIRECT_URI).size() != 1) {
+		List<String> redirectUriParams = parameters.get(OAuth2ParameterNames.REDIRECT_URI);
+		if (StringUtils.hasText(redirectUri) && redirectUriParams != null && redirectUriParams.size() != 1) {
 			OAuth2EndpointUtils.throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.REDIRECT_URI,
 					OAuth2EndpointUtils.ACCESS_TOKEN_REQUEST_ERROR_URI);
 		}
@@ -86,6 +88,9 @@ public final class OAuth2AuthorizationCodeAuthenticationConverter implements Aut
 
 		// Validate DPoP Proof HTTP Header (if available)
 		OAuth2EndpointUtils.validateAndAddDPoPParametersIfAvailable(request, additionalParameters);
+
+		Authentication clientPrincipal = SecurityContextHolder.getContext().getAuthentication();
+		Assert.notNull(clientPrincipal, "clientPrincipal cannot be null");
 
 		return new OAuth2AuthorizationCodeAuthenticationToken(code, clientPrincipal, redirectUri, additionalParameters);
 	}

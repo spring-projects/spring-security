@@ -16,6 +16,10 @@
 
 package org.springframework.security.oauth2.server.authorization.jackson;
 
+import java.util.Collections;
+import java.util.Map;
+
+import org.jspecify.annotations.Nullable;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;
@@ -25,6 +29,7 @@ import tools.jackson.databind.exc.InvalidFormatException;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest.Builder;
+import org.springframework.util.Assert;
 
 /**
  * A {@code JsonDeserializer} for {@link OAuth2AuthorizationRequest}.
@@ -45,16 +50,27 @@ final class OAuth2AuthorizationRequestDeserializer extends ValueDeserializer<OAu
 	private OAuth2AuthorizationRequest deserialize(JsonParser parser, DeserializationContext context, JsonNode root) {
 		AuthorizationGrantType authorizationGrantType = convertAuthorizationGrantType(
 				JsonNodeUtils.findObjectNode(root, "authorizationGrantType"));
+		Assert.notNull(authorizationGrantType, "authorizationGrantType cannot be null");
 		Builder builder = getBuilder(parser, authorizationGrantType);
-		builder.authorizationUri(JsonNodeUtils.findStringValue(root, "authorizationUri"));
-		builder.clientId(JsonNodeUtils.findStringValue(root, "clientId"));
+		String authorizationUri = JsonNodeUtils.findStringValue(root, "authorizationUri");
+		Assert.notNull(authorizationUri, "authorizationUri cannot be null");
+		builder.authorizationUri(authorizationUri);
+		String clientId = JsonNodeUtils.findStringValue(root, "clientId");
+		Assert.notNull(clientId, "clientId cannot be null");
+		builder.clientId(clientId);
 		builder.redirectUri(JsonNodeUtils.findStringValue(root, "redirectUri"));
 		builder.scopes(JsonNodeUtils.findValue(root, "scopes", JsonNodeUtils.STRING_SET, context));
 		builder.state(JsonNodeUtils.findStringValue(root, "state"));
-		builder.additionalParameters(
-				JsonNodeUtils.findValue(root, "additionalParameters", JsonNodeUtils.STRING_OBJECT_MAP, context));
-		builder.authorizationRequestUri(JsonNodeUtils.findStringValue(root, "authorizationRequestUri"));
-		builder.attributes(JsonNodeUtils.findValue(root, "attributes", JsonNodeUtils.STRING_OBJECT_MAP, context));
+		Map<String, Object> additionalParameters = JsonNodeUtils.findValue(root, "additionalParameters",
+				JsonNodeUtils.STRING_OBJECT_MAP, context);
+		builder.additionalParameters((additionalParameters != null) ? additionalParameters : Collections.emptyMap());
+		String authorizationRequestUri = JsonNodeUtils.findStringValue(root, "authorizationRequestUri");
+		if (authorizationRequestUri != null) {
+			builder.authorizationRequestUri(authorizationRequestUri);
+		}
+		Map<String, Object> attributes = JsonNodeUtils.findValue(root, "attributes", JsonNodeUtils.STRING_OBJECT_MAP,
+				context);
+		builder.attributes((attributes != null) ? attributes : Collections.emptyMap());
 		return builder.build();
 	}
 
@@ -66,7 +82,10 @@ final class OAuth2AuthorizationRequestDeserializer extends ValueDeserializer<OAu
 				AuthorizationGrantType.class);
 	}
 
-	private static AuthorizationGrantType convertAuthorizationGrantType(JsonNode jsonNode) {
+	private static @Nullable AuthorizationGrantType convertAuthorizationGrantType(@Nullable JsonNode jsonNode) {
+		if (jsonNode == null) {
+			return null;
+		}
 		String value = JsonNodeUtils.findStringValue(jsonNode, "value");
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.getValue().equalsIgnoreCase(value)) {
 			return AuthorizationGrantType.AUTHORIZATION_CODE;

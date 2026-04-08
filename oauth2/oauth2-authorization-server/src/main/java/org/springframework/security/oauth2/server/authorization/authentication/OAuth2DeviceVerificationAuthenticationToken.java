@@ -21,7 +21,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
@@ -46,7 +47,7 @@ public class OAuth2DeviceVerificationAuthenticationToken extends AbstractAuthent
 
 	private final Map<String, Object> additionalParameters;
 
-	private final String clientId;
+	private final @Nullable String clientId;
 
 	/**
 	 * Constructs an {@code OAuth2DeviceVerificationAuthenticationToken} using the
@@ -114,9 +115,9 @@ public class OAuth2DeviceVerificationAuthenticationToken extends AbstractAuthent
 
 	/**
 	 * Returns the client identifier.
-	 * @return the client identifier
+	 * @return the client identifier, or {@code null} if not set
 	 */
-	public String getClientId() {
+	public @Nullable String getClientId() {
 		return this.clientId;
 	}
 

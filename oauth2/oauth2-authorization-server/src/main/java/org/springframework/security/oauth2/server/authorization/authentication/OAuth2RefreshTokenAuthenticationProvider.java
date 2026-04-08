@@ -105,6 +105,7 @@ public final class OAuth2RefreshTokenAuthenticationProvider implements Authentic
 		OAuth2ClientAuthenticationToken clientPrincipal = OAuth2AuthenticationProviderUtils
 			.getAuthenticatedClientElseThrowInvalidClient(refreshTokenAuthentication);
 		RegisteredClient registeredClient = clientPrincipal.getRegisteredClient();
+		Assert.notNull(registeredClient, "registeredClient cannot be null");
 
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace("Retrieved registered client");
@@ -137,6 +138,7 @@ public final class OAuth2RefreshTokenAuthenticationProvider implements Authentic
 		}
 
 		OAuth2Authorization.Token<OAuth2RefreshToken> refreshToken = authorization.getRefreshToken();
+		Assert.notNull(refreshToken, "refreshToken cannot be null");
 		if (!refreshToken.isActive()) {
 			// As per https://tools.ietf.org/html/rfc6749#section-5.2
 			// invalid_grant: The provided authorization grant (e.g., authorization code,
@@ -168,7 +170,10 @@ public final class OAuth2RefreshTokenAuthenticationProvider implements Authentic
 				&& clientPrincipal.getClientAuthenticationMethod().equals(ClientAuthenticationMethod.NONE)) {
 			// For public clients, verify the DPoP Proof public key is same as (current)
 			// access token public key binding
-			Map<String, Object> accessTokenClaims = authorization.getAccessToken().getClaims();
+			OAuth2Authorization.Token<OAuth2AccessToken> accessToken = authorization.getAccessToken();
+			Assert.notNull(accessToken, "accessToken cannot be null");
+			Map<String, Object> accessTokenClaims = (accessToken.getClaims() != null) ? accessToken.getClaims()
+					: Collections.emptyMap();
 			verifyDPoPProofPublicKey(dPoPProof, () -> accessTokenClaims);
 		}
 
@@ -180,10 +185,12 @@ public final class OAuth2RefreshTokenAuthenticationProvider implements Authentic
 			scopes = authorizedScopes;
 		}
 
+		Authentication principal = authorization.getAttribute(Principal.class.getName());
+		Assert.notNull(principal, "principal cannot be null");
 		// @formatter:off
 		DefaultOAuth2TokenContext.Builder tokenContextBuilder = DefaultOAuth2TokenContext.builder()
 				.registeredClient(registeredClient)
-				.principal(authorization.getAttribute(Principal.class.getName()))
+				.principal(principal)
 				.authorizationServerContext(AuthorizationServerContextHolder.getContext())
 				.authorization(authorization)
 				.authorizedScopes(scopes)

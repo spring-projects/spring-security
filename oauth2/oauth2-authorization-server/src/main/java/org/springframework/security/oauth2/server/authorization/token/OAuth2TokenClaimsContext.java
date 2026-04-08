@@ -20,7 +20,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -41,9 +42,8 @@ public final class OAuth2TokenClaimsContext implements OAuth2TokenContext {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Nullable
 	@Override
-	public <V> V get(Object key) {
+	public <V> @Nullable V get(Object key) {
 		return hasKey(key) ? (V) this.context.get(key) : null;
 	}
 
@@ -59,7 +59,9 @@ public final class OAuth2TokenClaimsContext implements OAuth2TokenContext {
 	 * @return the {@link OAuth2TokenClaimsSet.Builder}
 	 */
 	public OAuth2TokenClaimsSet.Builder getClaims() {
-		return get(OAuth2TokenClaimsSet.Builder.class);
+		OAuth2TokenClaimsSet.Builder claimsBuilder = get(OAuth2TokenClaimsSet.Builder.class);
+		Assert.notNull(claimsBuilder, "claimsBuilder cannot be null");
+		return claimsBuilder;
 	}
 
 	/**

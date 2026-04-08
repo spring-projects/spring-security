@@ -17,4 +17,7 @@
 /**
  * Embedded UnboundID Server implementation, as used by the configuration namespace.
  */
+@NullMarked
 package org.springframework.security.ldap.server;
+
+import org.jspecify.annotations.NullMarked;

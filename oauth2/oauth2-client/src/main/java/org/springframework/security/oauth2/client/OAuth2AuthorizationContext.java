@@ -22,7 +22,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.util.Assert;
@@ -48,13 +49,13 @@ public final class OAuth2AuthorizationContext {
 	public static final String REQUEST_SCOPE_ATTRIBUTE_NAME = OAuth2AuthorizationContext.class.getName()
 		.concat(".REQUEST_SCOPE");
 
-	private ClientRegistration clientRegistration;
+	private @Nullable ClientRegistration clientRegistration;
 
-	private OAuth2AuthorizedClient authorizedClient;
+	private @Nullable OAuth2AuthorizedClient authorizedClient;
 
-	private Authentication principal;
+	private @Nullable Authentication principal;
 
-	private Map<String, Object> attributes;
+	private @Nullable Map<String, Object> attributes;
 
 	private OAuth2AuthorizationContext() {
 	}
@@ -64,6 +65,7 @@ public final class OAuth2AuthorizationContext {
 	 * @return the {@link ClientRegistration}
 	 */
 	public ClientRegistration getClientRegistration() {
+		Assert.notNull(this.clientRegistration, "clientRegistration cannot be null");
 		return this.clientRegistration;
 	}
 
@@ -74,8 +76,7 @@ public final class OAuth2AuthorizationContext {
 	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if the client
 	 * registration was supplied
 	 */
-	@Nullable
-	public OAuth2AuthorizedClient getAuthorizedClient() {
+	public @Nullable OAuth2AuthorizedClient getAuthorizedClient() {
 		return this.authorizedClient;
 	}
 
@@ -84,6 +85,7 @@ public final class OAuth2AuthorizationContext {
 	 * @return the {@code Principal} (to be) associated to the authorized client
 	 */
 	public Authentication getPrincipal() {
+		Assert.notNull(this.principal, "principal cannot be null");
 		return this.principal;
 	}
 
@@ -92,6 +94,7 @@ public final class OAuth2AuthorizationContext {
 	 * @return a {@code Map} of the attributes associated to the context
 	 */
 	public Map<String, Object> getAttributes() {
+		Assert.notNull(this.attributes, "attributes cannot be null");
 		return this.attributes;
 	}
 
@@ -131,13 +134,13 @@ public final class OAuth2AuthorizationContext {
 	 */
 	public static final class Builder {
 
-		private ClientRegistration clientRegistration;
+		private @Nullable ClientRegistration clientRegistration;
 
-		private OAuth2AuthorizedClient authorizedClient;
+		private @Nullable OAuth2AuthorizedClient authorizedClient;
 
-		private Authentication principal;
+		private @Nullable Authentication principal;
 
-		private Map<String, Object> attributes;
+		private @Nullable Map<String, Object> attributes;
 
 		private Builder(ClientRegistration clientRegistration) {
 			Assert.notNull(clientRegistration, "clientRegistration cannot be null");

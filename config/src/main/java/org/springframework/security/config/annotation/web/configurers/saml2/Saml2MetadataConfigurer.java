@@ -21,6 +21,7 @@ import java.util.function.Function;
 import org.opensaml.core.Version;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -42,7 +43,8 @@ import org.springframework.util.Assert;
  *
  * <p>
  * Defaults are provided for all configuration options with the only required
- * configuration being a {@link Saml2LoginConfigurer#relyingPartyRegistrationRepository}.
+ * configuration being a
+ * {@link Saml2LoginConfigurer#relyingPartyRegistrationRepository(HttpSecurityBuilder)}.
  * Alternatively, a {@link RelyingPartyRegistrationRepository} {@code @Bean} may be
  * registered instead.
  *
@@ -67,7 +69,7 @@ import org.springframework.util.Assert;
  * </ul>
  *
  * @since 6.1
- * @see HttpSecurity#saml2Metadata()
+ * @see HttpSecurity#saml2Metadata(Customizer)
  * @see Saml2MetadataFilter
  * @see RelyingPartyRegistrationRepository
  */

@@ -61,17 +61,18 @@ class WithUserDetailsTests {
     @Configuration
     open class Config {
 
+        @Suppress("DEPRECATION")
         @Bean
         open fun userDetailsService(): UserDetailsService {
             val user1 = User.withDefaultPasswordEncoder()
                 .username("user")
                 .password("password")
-                .build();
+                .build()
             val customUser = User.withDefaultPasswordEncoder()
                 .username("customUsername")
                 .password("password")
-                .build();
-            return InMemoryUserDetailsManager(user1, customUser);
+                .build()
+            return InMemoryUserDetailsManager(user1, customUser)
         }
 
         @Bean

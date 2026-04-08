@@ -20,8 +20,8 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.core.OAuth2Token;
+import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
@@ -63,17 +63,18 @@ public final class ServerBearerExchangeFilterFunction implements ExchangeFilterF
 	private Mono<OAuth2Token> oauth2Token() {
 		// @formatter:off
 		return currentAuthentication()
-				.filter((authentication) -> authentication.getCredentials() instanceof OAuth2Token)
-				.map(Authentication::getCredentials)
-				.cast(OAuth2Token.class);
+				.filter((authentication) -> authentication.getCredentials() != null
+						&& authentication.getCredentials() instanceof OAuth2Token)
+				.map((authentication) -> {
+					Object credentials = authentication.getCredentials();
+					Assert.notNull(credentials, "credentials cannot be null");
+					return (OAuth2Token) credentials;
+				});
 		// @formatter:on
 	}
 
 	private Mono<Authentication> currentAuthentication() {
-		// @formatter:off
-		return ReactiveSecurityContextHolder.getContext()
-				.map(SecurityContext::getAuthentication);
-		// @formatter:on
+		return ReactiveSecurityContextHolder.getContext().flatMap((ctx) -> Mono.justOrEmpty(ctx.getAuthentication()));
 	}
 
 	private ClientRequest bearer(ClientRequest request, OAuth2Token token) {

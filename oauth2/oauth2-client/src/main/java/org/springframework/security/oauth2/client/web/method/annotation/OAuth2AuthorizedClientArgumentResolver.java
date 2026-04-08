@@ -18,11 +18,10 @@ package org.springframework.security.oauth2.client.web.method.annotation;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -106,9 +105,8 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 			.findMergedAnnotation(parameter.getParameter(), RegisteredOAuth2AuthorizedClient.class) != null));
 	}
 
-	@NonNull
 	@Override
-	public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
+	public @Nullable Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) {
 		String clientRegistrationId = this.resolveClientRegistrationId(parameter);
 		if (!StringUtils.hasLength(clientRegistrationId)) {
@@ -122,6 +120,8 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 		}
 		HttpServletRequest servletRequest = webRequest.getNativeRequest(HttpServletRequest.class);
 		HttpServletResponse servletResponse = webRequest.getNativeResponse(HttpServletResponse.class);
+		Assert.notNull(servletRequest, "HttpServletRequest is required for OAuth2 authorized client resolution");
+		Assert.notNull(servletResponse, "HttpServletResponse is required for OAuth2 authorized client resolution");
 		// @formatter:off
 		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
 				.withClientRegistrationId(clientRegistrationId)
@@ -133,9 +133,12 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 		return this.authorizedClientManager.authorize(authorizeRequest);
 	}
 
-	private String resolveClientRegistrationId(MethodParameter parameter) {
+	private @Nullable String resolveClientRegistrationId(MethodParameter parameter) {
 		RegisteredOAuth2AuthorizedClient authorizedClientAnnotation = AnnotatedElementUtils
 			.findMergedAnnotation(parameter.getParameter(), RegisteredOAuth2AuthorizedClient.class);
+		if (authorizedClientAnnotation == null) {
+			return null;
+		}
 		Authentication principal = this.securityContextHolderStrategy.getContext().getAuthentication();
 		if (StringUtils.hasLength(authorizedClientAnnotation.registrationId())) {
 			return authorizedClientAnnotation.registrationId();

@@ -16,7 +16,7 @@ permissions:
 jobs:
   perform-release:
     name: Perform Release
-    uses: spring-io/spring-security-release-tools/.github/workflows/perform-release.yml@v1
+    uses: spring-io/spring-security-release-tools/.github/workflows/perform-release.yml@b92832ecbc7cbe969201e6beafbde0ee400cf095 # v1.0.15
     with:
       should-perform-release: true
       project-version: ${{ inputs.version }}

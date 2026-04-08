@@ -44,6 +44,7 @@ import org.springframework.security.web.webauthn.api.UserVerificationRequirement
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SuppressWarnings("removal")
 class Jackson2Tests {
 
 	private ObjectMapper mapper;
@@ -120,6 +121,47 @@ class Jackson2Tests {
 
 		CredentialPropertiesOutput outputs = this.mapper.readValue(json, CredentialPropertiesOutput.class);
 		assertThat(outputs).usingRecursiveComparison().isEqualTo(credProps);
+	}
+
+	@Test
+	void readAuthenticationExtensionsClientOutputsWhenAppId() throws Exception {
+		String json = """
+				{
+				  "appid": false,
+				  "credProps": {
+				    "rk": false
+				  }
+				}
+				""";
+		CredentialPropertiesOutput credProps = new CredentialPropertiesOutput(false);
+
+		AuthenticationExtensionsClientOutputs outputs = this.mapper.readValue(json,
+				AuthenticationExtensionsClientOutputs.class);
+		assertThat(outputs.getOutputs()).usingRecursiveFieldByFieldElementComparator().contains(credProps);
+	}
+
+	@Test
+	void readAuthenticationExtensionsClientOutputsWhenUnknownExtension() throws Exception {
+		String json = """
+				{
+				  "unknownObject1": {
+				    "key": "value"
+				  },
+				  "unknownArray": [
+				    { "key": "value1" },
+				    { "key": "value2" }
+				  ],
+				  "credProps": {
+				    "rk": false
+				  },
+				  "unknownObject2": {}
+				}
+				""";
+		CredentialPropertiesOutput credProps = new CredentialPropertiesOutput(false);
+
+		AuthenticationExtensionsClientOutputs outputs = this.mapper.readValue(json,
+				AuthenticationExtensionsClientOutputs.class);
+		assertThat(outputs.getOutputs()).usingRecursiveFieldByFieldElementComparator().contains(credProps);
 	}
 
 	@Test

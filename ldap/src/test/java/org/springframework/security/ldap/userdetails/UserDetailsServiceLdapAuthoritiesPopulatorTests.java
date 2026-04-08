@@ -38,6 +38,7 @@ import static org.mockito.Mockito.mock;
 public class UserDetailsServiceLdapAuthoritiesPopulatorTests {
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void delegationToUserDetailsServiceReturnsCorrectRoles() {
 		UserDetailsService uds = mock(UserDetailsService.class);
 		UserDetails user = mock(UserDetails.class);

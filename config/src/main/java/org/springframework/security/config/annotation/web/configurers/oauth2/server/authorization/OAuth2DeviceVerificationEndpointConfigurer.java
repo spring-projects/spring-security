@@ -40,11 +40,11 @@ import org.springframework.security.oauth2.server.authorization.settings.Authori
 import org.springframework.security.oauth2.server.authorization.web.OAuth2DeviceVerificationEndpointFilter;
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2DeviceAuthorizationConsentAuthenticationConverter;
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2DeviceVerificationAuthenticationConverter;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.DelegatingAuthenticationConverter;
-import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -279,8 +279,7 @@ public final class OAuth2DeviceVerificationEndpointConfigurer extends AbstractOA
 		if (StringUtils.hasText(this.consentPage)) {
 			deviceVerificationEndpointFilter.setConsentPage(this.consentPage);
 		}
-		builder.addFilterBefore(postProcess(deviceVerificationEndpointFilter),
-				AbstractPreAuthenticatedProcessingFilter.class);
+		builder.addFilterAfter(postProcess(deviceVerificationEndpointFilter), AuthorizationFilter.class);
 	}
 
 	@Override

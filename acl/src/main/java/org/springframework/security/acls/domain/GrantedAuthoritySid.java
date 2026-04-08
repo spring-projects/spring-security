@@ -16,6 +16,8 @@
 
 package org.springframework.security.acls.domain;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
@@ -47,7 +49,7 @@ public class GrantedAuthoritySid implements Sid {
 	}
 
 	@Override
-	public boolean equals(Object object) {
+	public boolean equals(@Nullable Object object) {
 		if ((object == null) || !(object instanceof GrantedAuthoritySid)) {
 			return false;
 		}

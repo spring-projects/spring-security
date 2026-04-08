@@ -23,7 +23,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
@@ -48,9 +49,9 @@ abstract class AbstractOAuth2AuthorizationCodeRequestAuthenticationToken extends
 
 	private final Authentication principal;
 
-	private final String redirectUri;
+	private final @Nullable String redirectUri;
 
-	private final String state;
+	private final @Nullable String state;
 
 	private final Set<String> scopes;
 
@@ -103,8 +104,7 @@ abstract class AbstractOAuth2AuthorizationCodeRequestAuthenticationToken extends
 	 * Returns the redirect uri.
 	 * @return the redirect uri
 	 */
-	@Nullable
-	public String getRedirectUri() {
+	public @Nullable String getRedirectUri() {
 		return this.redirectUri;
 	}
 
@@ -112,8 +112,7 @@ abstract class AbstractOAuth2AuthorizationCodeRequestAuthenticationToken extends
 	 * Returns the state.
 	 * @return the state
 	 */
-	@Nullable
-	public String getState() {
+	public @Nullable String getState() {
 		return this.state;
 	}
 

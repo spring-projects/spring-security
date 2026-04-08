@@ -24,7 +24,7 @@
 			http://www.springframework.org/schema/beans
 			https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<http request-matcher="ant">
+	<http request-matcher="path">
 		<intercept-url pattern="/path" access="denyAll" servlet-path="/spring"/>
 		<http-basic/>
 	</http>

@@ -18,4 +18,7 @@
  * Classes and interfaces providing support to the client for initiating requests to the
  * Authorization Server's Protocol Endpoints.
  */
+@NullMarked
 package org.springframework.security.oauth2.client.endpoint;
+
+import org.jspecify.annotations.NullMarked;

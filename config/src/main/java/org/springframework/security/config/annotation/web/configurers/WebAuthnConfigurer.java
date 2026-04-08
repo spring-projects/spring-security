@@ -24,6 +24,7 @@ import java.util.Set;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
@@ -39,6 +40,7 @@ import org.springframework.security.web.webauthn.api.PublicKeyCredentialRpEntity
 import org.springframework.security.web.webauthn.authentication.PublicKeyCredentialRequestOptionsFilter;
 import org.springframework.security.web.webauthn.authentication.WebAuthnAuthenticationFilter;
 import org.springframework.security.web.webauthn.authentication.WebAuthnAuthenticationProvider;
+import org.springframework.security.web.webauthn.management.CredentialRecordOwnerAuthorizationManager;
 import org.springframework.security.web.webauthn.management.MapPublicKeyCredentialUserEntityRepository;
 import org.springframework.security.web.webauthn.management.MapUserCredentialRepository;
 import org.springframework.security.web.webauthn.management.PublicKeyCredentialUserEntityRepository;
@@ -175,11 +177,15 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 		WebAuthnRelyingPartyOperations rpOperations = webAuthnRelyingPartyOperations(userEntities, userCredentials);
 		PublicKeyCredentialCreationOptionsRepository creationOptionsRepository = creationOptionsRepository();
 		WebAuthnAuthenticationFilter webAuthnAuthnFilter = new WebAuthnAuthenticationFilter();
-		webAuthnAuthnFilter.setAuthenticationManager(
-				new ProviderManager(new WebAuthnAuthenticationProvider(rpOperations, userDetailsService)));
+		ProviderManager providerManager = new ProviderManager(
+				new WebAuthnAuthenticationProvider(rpOperations, userDetailsService));
+		getBeanOrNull(AuthenticationEventPublisher.class).ifPresent(providerManager::setAuthenticationEventPublisher);
+		webAuthnAuthnFilter.setAuthenticationManager(providerManager);
 		webAuthnAuthnFilter = postProcess(webAuthnAuthnFilter);
 		WebAuthnRegistrationFilter webAuthnRegistrationFilter = new WebAuthnRegistrationFilter(userCredentials,
 				rpOperations);
+		webAuthnRegistrationFilter.setDeleteCredentialAuthorizationManager(
+				new CredentialRecordOwnerAuthorizationManager(userCredentials, userEntities));
 		PublicKeyCredentialCreationOptionsFilter creationOptionsFilter = new PublicKeyCredentialCreationOptionsFilter(
 				rpOperations);
 		if (creationOptionsRepository != null) {

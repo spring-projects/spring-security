@@ -18,7 +18,8 @@ package org.springframework.security.oauth2.jwt;
 
 import java.net.URI;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.util.Assert;
 
@@ -38,7 +39,7 @@ public final class DPoPProofContext {
 
 	private final String targetUri;
 
-	private final OAuth2Token accessToken;
+	private final @Nullable OAuth2Token accessToken;
 
 	private DPoPProofContext(String dPoPProof, String method, String targetUri, @Nullable OAuth2Token accessToken) {
 		this.dPoPProof = dPoPProof;
@@ -82,8 +83,7 @@ public final class DPoPProofContext {
 	 * {@code null}
 	 */
 	@SuppressWarnings("unchecked")
-	@Nullable
-	public <T extends OAuth2Token> T getAccessToken() {
+	public @Nullable <T extends OAuth2Token> T getAccessToken() {
 		return (T) this.accessToken;
 	}
 
@@ -103,11 +103,11 @@ public final class DPoPProofContext {
 
 		private String dPoPProof;
 
-		private String method;
+		private @Nullable String method;
 
-		private String targetUri;
+		private @Nullable String targetUri;
 
-		private OAuth2Token accessToken;
+		private @Nullable OAuth2Token accessToken;
 
 		private Builder(String dPoPProof) {
 			Assert.hasText(dPoPProof, "dPoPProof cannot be empty");
@@ -144,7 +144,7 @@ public final class DPoPProofContext {
 		 * request
 		 * @return the {@link Builder}
 		 */
-		public Builder accessToken(OAuth2Token accessToken) {
+		public Builder accessToken(@Nullable OAuth2Token accessToken) {
 			this.accessToken = accessToken;
 			return this;
 		}
@@ -154,13 +154,13 @@ public final class DPoPProofContext {
 		 * @return a {@link DPoPProofContext}
 		 */
 		public DPoPProofContext build() {
+			Assert.hasText(this.method, "method cannot be empty");
+			Assert.hasText(this.targetUri, "targetUri cannot be empty");
 			validate();
 			return new DPoPProofContext(this.dPoPProof, this.method, this.targetUri, this.accessToken);
 		}
 
 		private void validate() {
-			Assert.hasText(this.method, "method cannot be empty");
-			Assert.hasText(this.targetUri, "targetUri cannot be empty");
 			if (!"GET".equals(this.method) && !"HEAD".equals(this.method) && !"POST".equals(this.method)
 					&& !"PUT".equals(this.method) && !"PATCH".equals(this.method) && !"DELETE".equals(this.method)
 					&& !"OPTIONS".equals(this.method) && !"TRACE".equals(this.method)) {

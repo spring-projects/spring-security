@@ -22,4 +22,7 @@
  * This code will not work with servers such as Active Directory, which do not implement
  * this standard.
  */
+@NullMarked
 package org.springframework.security.ldap.ppolicy;
+
+import org.jspecify.annotations.NullMarked;

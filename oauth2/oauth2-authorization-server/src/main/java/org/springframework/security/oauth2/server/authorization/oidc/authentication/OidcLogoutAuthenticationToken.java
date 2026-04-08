@@ -19,7 +19,8 @@ package org.springframework.security.oauth2.server.authorization.oidc.authentica
 import java.io.Serial;
 import java.util.Collections;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -42,17 +43,17 @@ public class OidcLogoutAuthenticationToken extends AbstractAuthenticationToken {
 
 	private final String idTokenHint;
 
-	private final OidcIdToken idToken;
+	private final @Nullable OidcIdToken idToken;
 
 	private final Authentication principal;
 
-	private final String sessionId;
+	private final @Nullable String sessionId;
 
-	private final String clientId;
+	private final @Nullable String clientId;
 
-	private final String postLogoutRedirectUri;
+	private final @Nullable String postLogoutRedirectUri;
 
-	private final String state;
+	private final @Nullable String state;
 
 	/**
 	 * Constructs an {@code OidcLogoutAuthenticationToken} using the provided parameters.
@@ -147,8 +148,7 @@ public class OidcLogoutAuthenticationToken extends AbstractAuthenticationToken {
 	 * Returns the ID Token previously issued by the Provider to the Client.
 	 * @return the ID Token previously issued by the Provider to the Client
 	 */
-	@Nullable
-	public OidcIdToken getIdToken() {
+	public @Nullable OidcIdToken getIdToken() {
 		return this.idToken;
 	}
 
@@ -156,8 +156,7 @@ public class OidcLogoutAuthenticationToken extends AbstractAuthenticationToken {
 	 * Returns the End-User's current authenticated session identifier with the Provider.
 	 * @return the End-User's current authenticated session identifier with the Provider
 	 */
-	@Nullable
-	public String getSessionId() {
+	public @Nullable String getSessionId() {
 		return this.sessionId;
 	}
 
@@ -165,8 +164,7 @@ public class OidcLogoutAuthenticationToken extends AbstractAuthenticationToken {
 	 * Returns the client identifier the ID Token was issued to.
 	 * @return the client identifier
 	 */
-	@Nullable
-	public String getClientId() {
+	public @Nullable String getClientId() {
 		return this.clientId;
 	}
 
@@ -176,8 +174,7 @@ public class OidcLogoutAuthenticationToken extends AbstractAuthenticationToken {
 	 * @return the URI which the Client is requesting that the End-User's User Agent be
 	 * redirected to after a logout has been performed
 	 */
-	@Nullable
-	public String getPostLogoutRedirectUri() {
+	public @Nullable String getPostLogoutRedirectUri() {
 		return this.postLogoutRedirectUri;
 	}
 
@@ -187,8 +184,7 @@ public class OidcLogoutAuthenticationToken extends AbstractAuthenticationToken {
 	 * @return the opaque value used by the Client to maintain state between the logout
 	 * request and the callback to the {@link #getPostLogoutRedirectUri()}
 	 */
-	@Nullable
-	public String getState() {
+	public @Nullable String getState() {
 		return this.state;
 	}
 

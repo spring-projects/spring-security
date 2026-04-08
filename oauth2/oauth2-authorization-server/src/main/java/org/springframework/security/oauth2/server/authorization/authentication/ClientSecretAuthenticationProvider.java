@@ -20,6 +20,7 @@ import java.time.Instant;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -92,7 +93,7 @@ public final class ClientSecretAuthenticationProvider implements AuthenticationP
 	}
 
 	@Override
-	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+	public @Nullable Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		OAuth2ClientAuthenticationToken clientAuthentication = (OAuth2ClientAuthenticationToken) authentication;
 
 		// @formatter:off
@@ -105,7 +106,7 @@ public final class ClientSecretAuthenticationProvider implements AuthenticationP
 		String clientId = clientAuthentication.getPrincipal().toString();
 		RegisteredClient registeredClient = this.registeredClientRepository.findByClientId(clientId);
 		if (registeredClient == null) {
-			throwInvalidClient(OAuth2ParameterNames.CLIENT_ID);
+			throw invalidClientException(OAuth2ParameterNames.CLIENT_ID);
 		}
 
 		if (this.logger.isTraceEnabled()) {
@@ -114,26 +115,27 @@ public final class ClientSecretAuthenticationProvider implements AuthenticationP
 
 		if (!registeredClient.getClientAuthenticationMethods()
 			.contains(clientAuthentication.getClientAuthenticationMethod())) {
-			throwInvalidClient("authentication_method");
+			throw invalidClientException("authentication_method");
 		}
 
-		if (clientAuthentication.getCredentials() == null) {
-			throwInvalidClient("credentials");
+		Object credentials = clientAuthentication.getCredentials();
+		if (credentials == null) {
+			throw invalidClientException("credentials");
 		}
 
-		String clientSecret = clientAuthentication.getCredentials().toString();
+		String clientSecret = credentials.toString();
 		if (!this.passwordEncoder.matches(clientSecret, registeredClient.getClientSecret())) {
 			if (this.logger.isDebugEnabled()) {
 				this.logger.debug(LogMessage.format(
 						"Invalid request: client_secret does not match" + " for registered client '%s'",
 						registeredClient.getId()));
 			}
-			throwInvalidClient(OAuth2ParameterNames.CLIENT_SECRET);
+			throw invalidClientException(OAuth2ParameterNames.CLIENT_SECRET);
 		}
 
 		if (registeredClient.getClientSecretExpiresAt() != null
 				&& Instant.now().isAfter(registeredClient.getClientSecretExpiresAt())) {
-			throwInvalidClient("client_secret_expires_at");
+			throw invalidClientException("client_secret_expires_at");
 		}
 
 		if (this.passwordEncoder.upgradeEncoding(registeredClient.getClientSecret())) {
@@ -164,10 +166,10 @@ public final class ClientSecretAuthenticationProvider implements AuthenticationP
 		return OAuth2ClientAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
-	private static void throwInvalidClient(String parameterName) {
+	private static OAuth2AuthenticationException invalidClientException(String parameterName) {
 		OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT,
 				"Client authentication failed: " + parameterName, ERROR_URI);
-		throw new OAuth2AuthenticationException(error);
+		return new OAuth2AuthenticationException(error);
 	}
 
 }

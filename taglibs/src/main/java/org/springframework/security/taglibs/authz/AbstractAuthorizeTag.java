@@ -24,7 +24,6 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import org.jspecify.annotations.NullUnmarked;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.context.ApplicationContext;
@@ -180,14 +179,12 @@ public abstract class AbstractAuthorizeTag {
 		return this.method;
 	}
 
-	@NullUnmarked
 	public void setMethod(String method) {
 		this.method = (method != null) ? method.toUpperCase(Locale.ENGLISH) : null;
 	}
 
 	private SecurityContext getContext() {
-		ApplicationContext appContext = SecurityWebApplicationContextUtils
-			.findRequiredWebApplicationContext(getServletContext());
+		ApplicationContext appContext = getApplicationContext();
 		String[] names = appContext.getBeanNamesForType(SecurityContextHolderStrategy.class);
 		if (names.length == 1) {
 			SecurityContextHolderStrategy strategy = appContext.getBean(SecurityContextHolderStrategy.class);
@@ -198,8 +195,7 @@ public abstract class AbstractAuthorizeTag {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private SecurityExpressionHandler<FilterInvocation> getExpressionHandler() throws IOException {
-		ApplicationContext appContext = SecurityWebApplicationContextUtils
-			.findRequiredWebApplicationContext(getServletContext());
+		ApplicationContext appContext = getApplicationContext();
 		Map<String, SecurityExpressionHandler> handlers = appContext.getBeansOfType(SecurityExpressionHandler.class);
 		for (SecurityExpressionHandler handler : handlers.values()) {
 			if (FilterInvocation.class
@@ -217,8 +213,7 @@ public abstract class AbstractAuthorizeTag {
 		if (privEvaluatorFromRequest != null) {
 			return privEvaluatorFromRequest;
 		}
-		ApplicationContext ctx = SecurityWebApplicationContextUtils
-			.findRequiredWebApplicationContext(getServletContext());
+		ApplicationContext ctx = getApplicationContext();
 		Map<String, WebInvocationPrivilegeEvaluator> wipes = ctx.getBeansOfType(WebInvocationPrivilegeEvaluator.class);
 		if (wipes.isEmpty()) {
 			throw new IOException(
@@ -226,6 +221,18 @@ public abstract class AbstractAuthorizeTag {
 							+ "context. There must be at least one in order to support the use of URL access checks in 'authorize' tags.");
 		}
 		return (WebInvocationPrivilegeEvaluator) wipes.values().toArray()[0];
+	}
+
+	private ApplicationContext getApplicationContext() {
+		Object value = getRequest().getAttribute(WebAttributes.APPLICATION_CONTEXT_ATTRIBUTE);
+		if (value == null) {
+			return SecurityWebApplicationContextUtils.findRequiredWebApplicationContext(getServletContext());
+		}
+		if (value instanceof ApplicationContext context) {
+			return context;
+		}
+		throw new IllegalArgumentException("WebAttributes.APPLICATION_CONTEXT_ATTRIBUTE value must be of type "
+				+ "ApplicationContext, found type " + value.getClass());
 	}
 
 }

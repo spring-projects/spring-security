@@ -17,4 +17,7 @@
 /**
  * OAuth 2.0 Resource Server core classes and interfaces providing support.
  */
+@NullMarked
 package org.springframework.security.oauth2.server.resource;
+
+import org.jspecify.annotations.NullMarked;

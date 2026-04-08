@@ -1,3 +1,9 @@
+plugins {
+	id 'compile-warnings-error'
+	id 'javadoc-warnings-error'
+	id 'security-nullability'
+}
+
 apply plugin: 'io.spring.convention.spring-module'
 
 configurations {
@@ -109,6 +115,7 @@ dependencies {
 
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testRuntimeOnly 'org.hsqldb:hsqldb'
+	opensamlFiveMain "org.apiguardian:apiguardian-api:1.1.2"
 }
 
 jar {
@@ -129,6 +136,10 @@ testJar {
 javadoc {
 	classpath += configurations.opensamlFiveMain
 	source = sourceSets.main.allJava + sourceSets.opensaml5Main.allJava
+}
+
+tasks.named("compileOpensaml5MainJava") {
+	options.nullability.checking = "main"
 }
 
 tasks.register("opensaml5Test", Test) {

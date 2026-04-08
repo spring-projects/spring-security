@@ -17,4 +17,7 @@
 /**
  * OAuth 2.0 Resource Server access denial classes and interfaces.
  */
+@NullMarked
 package org.springframework.security.oauth2.server.resource.web.access;
+
+import org.jspecify.annotations.NullMarked;

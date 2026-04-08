@@ -26,6 +26,7 @@ import javax.naming.ldap.LdapName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.support.LdapNameBuilder;
@@ -44,7 +45,7 @@ public final class LdapUtils {
 	private LdapUtils() {
 	}
 
-	public static void closeContext(Context ctx) {
+	public static void closeContext(@Nullable Context ctx) {
 		if (ctx instanceof DirContextAdapter) {
 			return;
 		}
@@ -58,7 +59,7 @@ public final class LdapUtils {
 		}
 	}
 
-	public static void closeEnumeration(NamingEnumeration ne) {
+	public static void closeEnumeration(@Nullable NamingEnumeration ne) {
 		try {
 			if (ne != null) {
 				ne.close();

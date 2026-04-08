@@ -17,6 +17,7 @@
 package org.springframework.security.saml2.provider.service.web.authentication.logout;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -135,16 +136,17 @@ public final class Saml2LogoutResponseFilter extends OncePerRequestFilter {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, error.toString());
 			return;
 		}
-		if (registration.getSingleLogoutServiceResponseLocation() == null) {
+		String responseLocation = registration.getSingleLogoutServiceResponseLocation();
+		if (responseLocation == null) {
 			this.logger.trace(
 					"Did not process logout response since RelyingPartyRegistration has not been configured with a logout response endpoint");
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
 		UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers.uriResolver(request, registration);
-		String entityId = uriResolver.resolve(registration.getEntityId());
+		String entityId = Objects.requireNonNull(uriResolver.resolve(registration.getEntityId()));
 		String logoutLocation = uriResolver.resolve(registration.getSingleLogoutServiceLocation());
-		String logoutResponseLocation = uriResolver.resolve(registration.getSingleLogoutServiceResponseLocation());
+		String logoutResponseLocation = Objects.requireNonNull(uriResolver.resolve(responseLocation));
 		registration = registration.mutate()
 			.entityId(entityId)
 			.singleLogoutServiceLocation(logoutLocation)
@@ -162,7 +164,7 @@ public final class Saml2LogoutResponseFilter extends OncePerRequestFilter {
 			.samlResponse(serialized)
 			.relayState(request.getParameter(Saml2ParameterNames.RELAY_STATE))
 			.binding(saml2MessageBinding)
-			.location(registration.getSingleLogoutServiceResponseLocation())
+			.location(logoutResponseLocation)
 			.parameters((params) -> params.put(Saml2ParameterNames.SIG_ALG,
 					request.getParameter(Saml2ParameterNames.SIG_ALG)))
 			.parameters((params) -> params.put(Saml2ParameterNames.SIGNATURE,

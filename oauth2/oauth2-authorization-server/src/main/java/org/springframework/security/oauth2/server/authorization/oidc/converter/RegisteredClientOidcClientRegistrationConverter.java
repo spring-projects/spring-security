@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.server.authorization.oidc.converter;
 
+import java.time.Instant;
+
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponseType;
@@ -43,8 +45,11 @@ public final class RegisteredClientOidcClientRegistrationConverter
 		// @formatter:off
 		OidcClientRegistration.Builder builder = OidcClientRegistration.builder()
 				.clientId(registeredClient.getClientId())
-				.clientIdIssuedAt(registeredClient.getClientIdIssuedAt())
 				.clientName(registeredClient.getClientName());
+		Instant clientIdIssuedAt = registeredClient.getClientIdIssuedAt();
+		if (clientIdIssuedAt != null) {
+			builder.clientIdIssuedAt(clientIdIssuedAt);
+		}
 
 		if (registeredClient.getClientSecret() != null) {
 			builder.clientSecret(registeredClient.getClientSecret());

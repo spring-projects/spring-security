@@ -19,7 +19,6 @@ package org.springframework.security.config.http;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.security.AccessController;
 import java.security.Principal;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
@@ -989,7 +988,7 @@ public class MiscHttpConfigTests {
 
 		@GetMapping("/username")
 		String username() {
-			Subject subject = Subject.getSubject(AccessController.getContext());
+			Subject subject = Subject.current();
 			return subject.getPrincipals().iterator().next().getName();
 		}
 

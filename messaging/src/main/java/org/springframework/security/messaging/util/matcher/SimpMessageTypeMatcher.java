@@ -16,6 +16,8 @@
 
 package org.springframework.security.messaging.util.matcher;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -53,7 +55,7 @@ public class SimpMessageTypeMatcher implements MessageMatcher<Object> {
 	}
 
 	@Override
-	public boolean equals(Object other) {
+	public boolean equals(@Nullable Object other) {
 		if (this == other) {
 			return true;
 		}

@@ -27,6 +27,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.convert.ConversionService;
 import org.springframework.jdbc.core.JdbcOperations;
@@ -98,7 +99,7 @@ public class JdbcAclService implements AclService {
 	}
 
 	@Override
-	public List<ObjectIdentity> findChildren(ObjectIdentity parentIdentity) {
+	public @Nullable List<ObjectIdentity> findChildren(ObjectIdentity parentIdentity) {
 		Object[] args = { parentIdentity.getIdentifier().toString(), parentIdentity.getType() };
 		List<ObjectIdentity> objects = this.jdbcOperations.query(this.findChildrenSql,
 				(rs, rowNum) -> mapObjectIdentityRow(rs), args);
@@ -109,11 +110,14 @@ public class JdbcAclService implements AclService {
 		String javaType = rs.getString("class");
 		Serializable identifier = (Serializable) rs.getObject("obj_id");
 		identifier = this.aclClassIdUtils.identifierFrom(identifier, rs);
+		if (identifier == null) {
+			throw new IllegalStateException("Identifier cannot be null");
+		}
 		return this.objectIdentityGenerator.createObjectIdentity(identifier, javaType);
 	}
 
 	@Override
-	public Acl readAclById(ObjectIdentity object, List<Sid> sids) throws NotFoundException {
+	public Acl readAclById(ObjectIdentity object, @Nullable List<Sid> sids) throws NotFoundException {
 		Map<ObjectIdentity, Acl> map = readAclsById(Collections.singletonList(object), sids);
 		Assert.isTrue(map.containsKey(object),
 				() -> "There should have been an Acl entry for ObjectIdentity " + object);
@@ -131,7 +135,7 @@ public class JdbcAclService implements AclService {
 	}
 
 	@Override
-	public Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects, List<Sid> sids)
+	public Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects, @Nullable List<Sid> sids)
 			throws NotFoundException {
 		Map<ObjectIdentity, Acl> result = this.lookupStrategy.readAclsById(objects, sids);
 		// Check every requested object identity was found (throw NotFoundException if

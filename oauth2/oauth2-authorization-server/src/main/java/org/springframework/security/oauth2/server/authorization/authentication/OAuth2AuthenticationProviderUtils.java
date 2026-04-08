@@ -43,8 +43,9 @@ final class OAuth2AuthenticationProviderUtils {
 
 	static OAuth2ClientAuthenticationToken getAuthenticatedClientElseThrowInvalidClient(Authentication authentication) {
 		OAuth2ClientAuthenticationToken clientPrincipal = null;
-		if (OAuth2ClientAuthenticationToken.class.isAssignableFrom(authentication.getPrincipal().getClass())) {
-			clientPrincipal = (OAuth2ClientAuthenticationToken) authentication.getPrincipal();
+		Object principal = authentication.getPrincipal();
+		if (principal != null && OAuth2ClientAuthenticationToken.class.isAssignableFrom(principal.getClass())) {
+			clientPrincipal = (OAuth2ClientAuthenticationToken) principal;
 		}
 		if (clientPrincipal != null && clientPrincipal.isAuthenticated()) {
 			return clientPrincipal;

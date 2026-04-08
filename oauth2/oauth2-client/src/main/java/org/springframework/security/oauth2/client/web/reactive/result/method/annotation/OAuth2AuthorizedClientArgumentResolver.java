@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.client.web.reactive.result.method.annotation;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.MethodParameter;
@@ -24,7 +25,6 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
@@ -105,13 +105,16 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 		return Mono.defer(() -> {
 			RegisteredOAuth2AuthorizedClient authorizedClientAnnotation = AnnotatedElementUtils
 				.findMergedAnnotation(parameter.getParameter(), RegisteredOAuth2AuthorizedClient.class);
+			if (authorizedClientAnnotation == null) {
+				return Mono.empty();
+			}
 			String clientRegistrationId = StringUtils.hasLength(authorizedClientAnnotation.registrationId())
 					? authorizedClientAnnotation.registrationId() : null;
 			return authorizeRequest(clientRegistrationId, exchange).flatMap(this.authorizedClientManager::authorize);
 		});
 	}
 
-	private Mono<OAuth2AuthorizeRequest> authorizeRequest(String registrationId, ServerWebExchange exchange) {
+	private Mono<OAuth2AuthorizeRequest> authorizeRequest(@Nullable String registrationId, ServerWebExchange exchange) {
 		Mono<Authentication> defaultedAuthentication = currentAuthentication();
 		Mono<String> defaultedRegistrationId = Mono.justOrEmpty(registrationId)
 			.switchIfEmpty(clientRegistrationId(defaultedAuthentication))
@@ -129,7 +132,7 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 	private Mono<Authentication> currentAuthentication() {
 		// @formatter:off
 		return ReactiveSecurityContextHolder.getContext()
-				.map(SecurityContext::getAuthentication)
+				.flatMap((ctx) -> Mono.justOrEmpty(ctx.getAuthentication()))
 				.defaultIfEmpty(ANONYMOUS_USER_TOKEN);
 		// @formatter:on
 	}

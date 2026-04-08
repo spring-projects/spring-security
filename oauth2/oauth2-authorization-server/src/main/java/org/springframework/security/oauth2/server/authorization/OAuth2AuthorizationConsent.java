@@ -24,7 +24,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.springframework.lang.NonNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
@@ -99,8 +98,9 @@ public final class OAuth2AuthorizationConsent implements Serializable {
 	public Set<String> getScopes() {
 		Set<String> authorities = new HashSet<>();
 		for (GrantedAuthority authority : getAuthorities()) {
-			if (authority.getAuthority().startsWith(AUTHORITIES_SCOPE_PREFIX)) {
-				authorities.add(authority.getAuthority().substring(AUTHORITIES_SCOPE_PREFIX.length()));
+			String authorityValue = authority.getAuthority();
+			if (authorityValue != null && authorityValue.startsWith(AUTHORITIES_SCOPE_PREFIX)) {
+				authorities.add(authorityValue.substring(AUTHORITIES_SCOPE_PREFIX.length()));
 			}
 		}
 		return authorities;
@@ -146,7 +146,7 @@ public final class OAuth2AuthorizationConsent implements Serializable {
 	 * @param principalName the {@code Principal} name
 	 * @return the {@link Builder}
 	 */
-	public static Builder withId(@NonNull String registeredClientId, @NonNull String principalName) {
+	public static Builder withId(String registeredClientId, String principalName) {
 		Assert.hasText(registeredClientId, "registeredClientId cannot be empty");
 		Assert.hasText(principalName, "principalName cannot be empty");
 		return new Builder(registeredClientId, principalName);

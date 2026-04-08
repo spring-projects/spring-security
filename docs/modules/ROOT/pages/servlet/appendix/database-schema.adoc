@@ -76,7 +76,7 @@ create table group_members (
 );
 ----
 
-Remember that these tables are required only if you us the provided JDBC `UserDetailsService` implementation.
+Remember that these tables are required only if you use the provided JDBC `UserDetailsService` implementation.
 If you write your own or choose to implement `AuthenticationProvider` without a `UserDetailsService`, you have complete freedom over how you store the data, as long as the interface contract is satisfied.
 
 

@@ -23,7 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2DeviceCode;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
@@ -125,17 +126,15 @@ public final class InMemoryOAuth2AuthorizationService implements OAuth2Authoriza
 		}
 	}
 
-	@Nullable
 	@Override
-	public OAuth2Authorization findById(String id) {
+	public @Nullable OAuth2Authorization findById(String id) {
 		Assert.hasText(id, "id cannot be empty");
 		OAuth2Authorization authorization = this.authorizations.get(id);
 		return (authorization != null) ? authorization : this.initializedAuthorizations.get(id);
 	}
 
-	@Nullable
 	@Override
-	public OAuth2Authorization findByToken(String token, @Nullable OAuth2TokenType tokenType) {
+	public @Nullable OAuth2Authorization findByToken(String token, @Nullable OAuth2TokenType tokenType) {
 		Assert.hasText(token, "token cannot be empty");
 		for (OAuth2Authorization authorization : this.authorizations.values()) {
 			if (hasToken(authorization, token, tokenType)) {
@@ -226,6 +225,7 @@ public final class InMemoryOAuth2AuthorizationService implements OAuth2Authoriza
 		return userCode != null && userCode.getToken().getTokenValue().equals(token);
 	}
 
+	@SuppressWarnings("serial")
 	private static final class MaxSizeHashMap<K, V> extends LinkedHashMap<K, V> {
 
 		private final int maxSize;

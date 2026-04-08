@@ -17,6 +17,7 @@
 package org.springframework.security.web.webauthn.api;
 
 import java.io.Serial;
+import java.util.Objects;
 
 import org.jspecify.annotations.Nullable;
 
@@ -135,6 +136,22 @@ public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCr
 		return new PublicKeyCredentialUserEntityBuilder();
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof ImmutablePublicKeyCredentialUserEntity that)) {
+			return false;
+		}
+		return Objects.equals(this.name, that.name) && Objects.equals(this.id, that.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.name, this.id);
+	}
+
 	/**
 	 * Used to build {@link PublicKeyCredentialUserEntity}.
 	 *
@@ -179,7 +196,7 @@ public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCr
 		 * @param displayName the display name
 		 * @return the {@link PublicKeyCredentialUserEntityBuilder}
 		 */
-		public PublicKeyCredentialUserEntityBuilder displayName(String displayName) {
+		public PublicKeyCredentialUserEntityBuilder displayName(@Nullable String displayName) {
 			this.displayName = displayName;
 			return this;
 		}

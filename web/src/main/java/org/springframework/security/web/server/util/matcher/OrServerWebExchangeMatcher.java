@@ -40,9 +40,9 @@ public class OrServerWebExchangeMatcher implements ServerWebExchangeMatcher {
 
 	private static final Log logger = LogFactory.getLog(OrServerWebExchangeMatcher.class);
 
-	private final List<ServerWebExchangeMatcher> matchers;
+	private final List<? extends ServerWebExchangeMatcher> matchers;
 
-	public OrServerWebExchangeMatcher(List<ServerWebExchangeMatcher> matchers) {
+	public OrServerWebExchangeMatcher(List<? extends ServerWebExchangeMatcher> matchers) {
 		Assert.notEmpty(matchers, "matchers cannot be empty");
 		this.matchers = matchers;
 	}
