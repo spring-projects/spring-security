@@ -2074,26 +2074,6 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
-  <xs:element name="dpop">
-      <xs:annotation>
-         <xs:documentation>Configuration DpoP
-                </xs:documentation>
-      </xs:annotation>
-      <xs:complexType>
-         <xs:attributeGroup ref="security:dpop.attlist"/>
-      </xs:complexType>
-   </xs:element>
-  <xs:attributeGroup name="dpop.attlist">
-      <xs:attribute name="dpop-request-matcher-ref" type="xs:token">
-         <xs:annotation>
-            <xs:documentation>DPoP Request Matcher
-                </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-      <xs:attribute name="dpop-authentication-converter-ref" type="xs:token"/>
-      <xs:attribute name="dpop-success-handler-ref" type="xs:token"/>
-      <xs:attribute name="dpop-failure-handler-ref" type="xs:token"/>
-  </xs:attributeGroup>
   
   <xs:attributeGroup name="saml2-login.attlist">
       <xs:attribute name="relying-party-registration-repository-ref" type="xs:token">

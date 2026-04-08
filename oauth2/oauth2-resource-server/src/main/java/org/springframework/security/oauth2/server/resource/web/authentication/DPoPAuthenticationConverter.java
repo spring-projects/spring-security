@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.server.resource.authentication;
+package org.springframework.security.oauth2.server.resource.web.authentication;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,10 +30,22 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.server.resource.authentication.DPoPAuthenticationToken;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+/**
+ * Attempts to extract a DPoP-bound access token from {@link HttpServletRequest} and then
+ * converts it to a {@link DPoPAuthenticationToken} used for authenticating the
+ * DPoP-protected resource request.
+ *
+ * @author Joe Grandja
+ * @author Max Batischev
+ * @since 7.1
+ * @see AuthenticationConverter
+ * @see DPoPAuthenticationToken
+ */
 public final class DPoPAuthenticationConverter implements AuthenticationConverter {
 
 	private static final Pattern AUTHORIZATION_PATTERN = Pattern.compile("^DPoP (?<token>[a-zA-Z0-9-._~+/]+=*)$",

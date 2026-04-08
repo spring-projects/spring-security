@@ -37,8 +37,6 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -53,7 +51,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.jose.TestJwks;
 import org.springframework.security.oauth2.jose.TestKeys;
@@ -65,28 +62,24 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Tests for {@link DPoPAuthenticationConfigurer}.
+ * Integration tests for OAuth 2.0 Demonstrating Proof of Possession (DPoP) support.
  *
  * @author Joe Grandja
  */
 @ExtendWith(SpringTestContextExtension.class)
-public class DPoPAuthenticationConfigurerTests {
+public class DPoPAuthenticationTests {
 
 	private static final RSAPublicKey PROVIDER_RSA_PUBLIC_KEY = TestKeys.DEFAULT_PUBLIC_KEY;
 
@@ -183,22 +176,6 @@ public class DPoPAuthenticationConfigurerTests {
 		// @formatter:on
 	}
 
-	@Test
-	public void requestWhenCustomSuccessHandlerIsPresentThenAccessed() throws Exception {
-		this.spring.register(SecurityConfigWithCustomSuccessHandler.class, ResourceEndpoints.class).autowire();
-		Set<String> scope = Collections.singleton("resource1.read");
-		String accessToken = generateAccessToken(scope, CLIENT_EC_KEY);
-		String dPoPProof = generateDPoPProof(HttpMethod.GET.name(), "http://localhost/resource1", accessToken);
-		// @formatter:off
-		this.mvc.perform(get("/resource1")
-						.header(HttpHeaders.AUTHORIZATION, "DPoP " + accessToken)
-						.header("DPoP", dPoPProof))
-				.andExpect(status().isOk())
-				.andExpect(content().string("resource1"));
-		// @formatter:on
-		verify(SecurityConfigWithCustomSuccessHandler.successHandler).onAuthenticationSuccess(any(), any(), any());
-	}
-
 	private static String generateAccessToken(Set<String> scope, JWK jwk) {
 		Map<String, Object> jktClaim = null;
 		if (jwk != null) {
@@ -268,11 +245,10 @@ public class DPoPAuthenticationConfigurerTests {
 						.requestMatchers("/resource2").hasAnyAuthority("SCOPE_resource2.read", "SCOPE_resource2.write")
 						.anyRequest().authenticated()
 				)
-				.oauth2ResourceServer((oauth2ResourceServer) ->
-					oauth2ResourceServer
-							.jwt(Customizer.withDefaults())
-							.dpop(Customizer.withDefaults())
-				);
+				.oauth2ResourceServer((oauth2) -> oauth2
+						.jwt(Customizer.withDefaults())
+						.dPoP(Customizer.withDefaults()));
+
 			// @formatter:on
 			return http.build();
 		}
@@ -280,48 +256,6 @@ public class DPoPAuthenticationConfigurerTests {
 		@Bean
 		NimbusJwtDecoder jwtDecoder() {
 			return NimbusJwtDecoder.withPublicKey(PROVIDER_RSA_PUBLIC_KEY).build();
-		}
-
-	}
-
-	@Configuration
-	@EnableWebSecurity
-	@EnableWebMvc
-	static class SecurityConfigWithCustomSuccessHandler {
-
-		static final CustomSuccessHandler successHandler = spy(CustomSuccessHandler.class);
-
-		@Bean
-		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-					.authorizeHttpRequests((authorize) ->
-							authorize
-									.requestMatchers("/resource1").hasAnyAuthority("SCOPE_resource1.read", "SCOPE_resource1.write")
-									.requestMatchers("/resource2").hasAnyAuthority("SCOPE_resource2.read", "SCOPE_resource2.write")
-									.anyRequest().authenticated()
-					)
-					.oauth2ResourceServer((oauth2ResourceServer) ->
-							oauth2ResourceServer
-									.jwt(Customizer.withDefaults())
-									.dpop((dpop) -> dpop.successHandler(successHandler))
-					);
-			// @formatter:on
-			return http.build();
-		}
-
-		@Bean
-		NimbusJwtDecoder jwtDecoder() {
-			return NimbusJwtDecoder.withPublicKey(PROVIDER_RSA_PUBLIC_KEY).build();
-		}
-
-		static class CustomSuccessHandler implements AuthenticationSuccessHandler {
-
-			@Override
-			public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-					Authentication authentication) {
-			}
-
 		}
 
 	}

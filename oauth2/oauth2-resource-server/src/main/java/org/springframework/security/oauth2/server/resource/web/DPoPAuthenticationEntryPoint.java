@@ -33,6 +33,16 @@ import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.util.StringUtils;
 
+/**
+ * An {@link AuthenticationEntryPoint} implementation used to commence authentication for
+ * DPoP-protected resource requests.
+ *
+ * @author Joe Grandja
+ * @author Max Batischev
+ * @since 7.1
+ * @see <a href="https://datatracker.ietf.org/doc/html/rfc9449#section-7.1" target=
+ * "_blank">RFC 9449 Section 7.1. The DPoP Authentication Scheme</a>
+ */
 public final class DPoPAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
 	@Override

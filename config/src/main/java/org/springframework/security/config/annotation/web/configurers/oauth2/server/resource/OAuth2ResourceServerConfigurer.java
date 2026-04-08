@@ -27,6 +27,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -40,11 +41,14 @@ import org.springframework.security.config.annotation.web.configurers.ExceptionH
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.OAuth2ProtectedResourceMetadata;
+import org.springframework.security.oauth2.server.resource.authentication.DPoPAuthenticationProvider;
+import org.springframework.security.oauth2.server.resource.authentication.DPoPAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.authentication.OpaqueTokenAuthenticationProvider;
@@ -53,16 +57,23 @@ import org.springframework.security.oauth2.server.resource.introspection.OpaqueT
 import org.springframework.security.oauth2.server.resource.introspection.SpringOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.security.oauth2.server.resource.web.DPoPAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.OAuth2ProtectedResourceMetadataFilter;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
+import org.springframework.security.oauth2.server.resource.web.authentication.DPoPAuthenticationConverter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.access.DelegatingAccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationConverter;
+import org.springframework.security.web.authentication.AuthenticationEntryPointFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationFilter;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfException;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
@@ -72,8 +83,12 @@ import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  *
@@ -146,6 +161,7 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * @author Josh Cummings
  * @author Evgeniy Cheban
  * @author Jerome Wacongne &lt;ch4mp@c4-soft.com&gt;
+ * @author Joe Grandja
  * @author Max Batischev
  * @since 5.1
  * @see BearerTokenAuthenticationFilter
@@ -169,8 +185,6 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 	private final ApplicationContext context;
 
-	private DPoPAuthenticationConfigurer<H> dPoPAuthenticationConfigurer;
-
 	private AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver;
 
 	private AuthenticationConverter authenticationConverter;
@@ -178,6 +192,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 	private JwtConfigurer jwtConfigurer;
 
 	private OpaqueTokenConfigurer opaqueTokenConfigurer;
+
+	private DPoPConfigurer dPoPConfigurer;
 
 	private final ProtectedResourceMetadataConfigurer protectedResourceMetadataConfigurer = new ProtectedResourceMetadataConfigurer();
 
@@ -260,6 +276,21 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 	}
 
 	/**
+	 * Enables DPoP-bound access token support.
+	 * @param dPoPCustomizer the {@link Customizer} to provide more options for the
+	 * {@link DPoPConfigurer}
+	 * @return the {@link OAuth2ResourceServerConfigurer} for further customizations
+	 * @since 7.1
+	 */
+	public OAuth2ResourceServerConfigurer<H> dPoP(Customizer<DPoPConfigurer> dPoPCustomizer) {
+		if (this.dPoPConfigurer == null) {
+			this.dPoPConfigurer = new DPoPConfigurer();
+		}
+		dPoPCustomizer.customize(this.dPoPConfigurer);
+		return this;
+	}
+
+	/**
 	 * Configure OAuth 2.0 Protected Resource Metadata.
 	 * @param protectedResourceMetadataCustomizer the {@link Customizer} to provide more
 	 * options for the {@link ProtectedResourceMetadataConfigurer}
@@ -268,22 +299,6 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 	public OAuth2ResourceServerConfigurer<H> protectedResourceMetadata(
 			Customizer<ProtectedResourceMetadataConfigurer> protectedResourceMetadataCustomizer) {
 		protectedResourceMetadataCustomizer.customize(this.protectedResourceMetadataConfigurer);
-		return this;
-	}
-
-	/**
-	 * Enables DPoP support.
-	 * @param dpopAuthenticatioCustomizer the {@link Customizer} to provide more options
-	 * for the {@link DPoPAuthenticationConfigurer}
-	 * @return the {@link OAuth2ResourceServerConfigurer} for further customizations
-	 * @since 7.0
-	 */
-	public OAuth2ResourceServerConfigurer<H> dpop(
-			Customizer<DPoPAuthenticationConfigurer<H>> dpopAuthenticatioCustomizer) {
-		if (this.dPoPAuthenticationConfigurer == null) {
-			this.dPoPAuthenticationConfigurer = new DPoPAuthenticationConfigurer<>();
-		}
-		dpopAuthenticatioCustomizer.customize(this.dPoPAuthenticationConfigurer);
 		return this;
 	}
 
@@ -315,8 +330,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		filter = postProcess(filter);
 		http.addFilter(filter);
 
-		if (dPoPAuthenticationAvailable && this.dPoPAuthenticationConfigurer != null) {
-			this.dPoPAuthenticationConfigurer.configure(http);
+		if (dPoPAuthenticationAvailable && this.dPoPConfigurer != null) {
+			this.dPoPConfigurer.configure(http);
 		}
 
 		OAuth2ProtectedResourceMetadataFilter protectedResourceMetadataFilter = new OAuth2ProtectedResourceMetadataFilter();
@@ -607,6 +622,153 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 				return this.authenticationManager;
 			}
 			return http.getSharedObject(AuthenticationManager.class);
+		}
+
+	}
+
+	/**
+	 * A configurer for OAuth 2.0 Demonstrating Proof of Possession (DPoP) support.
+	 *
+	 * @author Joe Grandja
+	 * @author Max Batischev
+	 * @since 7.1
+	 * @see AuthenticationFilter
+	 * @see DPoPAuthenticationConverter
+	 * @see DPoPAuthenticationEntryPoint
+	 * @see DPoPAuthenticationProvider
+	 * @see <a target="_blank" href="https://datatracker.ietf.org/doc/html/rfc9449">RFC
+	 * 9449 OAuth 2.0 Demonstrating Proof of Possession (DPoP)</a>
+	 */
+	public final class DPoPConfigurer {
+
+		private RequestMatcher requestMatcher;
+
+		private AuthenticationConverter authenticationConverter;
+
+		private AuthenticationSuccessHandler authenticationSuccessHandler;
+
+		private AuthenticationFailureHandler authenticationFailureHandler;
+
+		/**
+		 * Sets the {@link RequestMatcher} used when matching the
+		 * {@link HttpServletRequest} to a DPoP-protected resource request.
+		 * @param requestMatcher the {@link RequestMatcher} used when matching the
+		 * {@link HttpServletRequest} to a DPoP-protected resource request
+		 * @return the {@link DPoPConfigurer} for further configuration
+		 */
+		public DPoPConfigurer requestMatcher(RequestMatcher requestMatcher) {
+			Assert.notNull(requestMatcher, "requestMatcher cannot be null");
+			this.requestMatcher = requestMatcher;
+			return this;
+		}
+
+		/**
+		 * Sets the {@link AuthenticationConverter} used when attempting to extract a
+		 * DPoP-bound access token from {@link HttpServletRequest} to an instance of
+		 * {@link DPoPAuthenticationToken} used for authenticating the DPoP-protected
+		 * resource request. The default is {@link DPoPAuthenticationConverter}.
+		 * @param authenticationConverter the {@link AuthenticationConverter} used when
+		 * attempting to extract a DPoP-bound access token from {@link HttpServletRequest}
+		 * @return the {@link DPoPConfigurer} for further configuration
+		 */
+		public DPoPConfigurer authenticationConverter(AuthenticationConverter authenticationConverter) {
+			Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
+			this.authenticationConverter = authenticationConverter;
+			return this;
+		}
+
+		/**
+		 * Sets the {@link AuthenticationSuccessHandler} used for handling an
+		 * authenticated DPoP-protected resource request.
+		 * @param authenticationSuccessHandler the {@link AuthenticationSuccessHandler}
+		 * used for handling an authenticated DPoP-protected resource request
+		 * @return the {@link DPoPConfigurer} for further configuration
+		 */
+		public DPoPConfigurer authenticationSuccessHandler(AuthenticationSuccessHandler authenticationSuccessHandler) {
+			Assert.notNull(authenticationSuccessHandler, "authenticationSuccessHandler cannot be null");
+			this.authenticationSuccessHandler = authenticationSuccessHandler;
+			return this;
+		}
+
+		/**
+		 * Sets the {@link AuthenticationFailureHandler} used for handling a failed
+		 * DPoP-protected resource request. The default is
+		 * {@link AuthenticationEntryPointFailureHandler} with
+		 * {@link DPoPAuthenticationEntryPoint}.
+		 * @param authenticationFailureHandler the {@link AuthenticationFailureHandler}
+		 * used for handling a failed DPoP-protected resource request
+		 * @return the {@link DPoPConfigurer} for further configuration
+		 */
+		public DPoPConfigurer authenticationFailureHandler(AuthenticationFailureHandler authenticationFailureHandler) {
+			Assert.notNull(authenticationFailureHandler, "authenticationFailureHandler cannot be null");
+			this.authenticationFailureHandler = authenticationFailureHandler;
+			return this;
+		}
+
+		private void configure(H http) {
+			AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
+			http.authenticationProvider(new DPoPAuthenticationProvider(getTokenAuthenticationManager(http)));
+			AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManager,
+					getAuthenticationConverter());
+			authenticationFilter.setRequestMatcher(getRequestMatcher());
+			authenticationFilter.setSuccessHandler(getAuthenticationSuccessHandler());
+			authenticationFilter.setFailureHandler(getAuthenticationFailureHandler());
+			authenticationFilter.setSecurityContextRepository(new RequestAttributeSecurityContextRepository());
+			authenticationFilter = postProcess(authenticationFilter);
+			http.addFilter(authenticationFilter);
+		}
+
+		private AuthenticationManager getTokenAuthenticationManager(H http) {
+			final AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver = getAuthenticationManagerResolver();
+			if (authenticationManagerResolver == null) {
+				return getAuthenticationManager(http);
+			}
+			return (authentication) -> {
+				RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+				ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) requestAttributes;
+				AuthenticationManager authenticationManager = authenticationManagerResolver
+					.resolve(servletRequestAttributes.getRequest());
+				return authenticationManager.authenticate(authentication);
+			};
+		}
+
+		private RequestMatcher getRequestMatcher() {
+			if (this.requestMatcher == null) {
+				this.requestMatcher = this::matchesDPoPRequest;
+			}
+			return this.requestMatcher;
+		}
+
+		private AuthenticationConverter getAuthenticationConverter() {
+			if (this.authenticationConverter == null) {
+				this.authenticationConverter = new DPoPAuthenticationConverter();
+			}
+			return this.authenticationConverter;
+		}
+
+		private AuthenticationSuccessHandler getAuthenticationSuccessHandler() {
+			if (this.authenticationSuccessHandler == null) {
+				this.authenticationSuccessHandler = (request, response, authentication) -> {
+					// No-op - will continue on filter chain
+				};
+			}
+			return this.authenticationSuccessHandler;
+		}
+
+		private AuthenticationFailureHandler getAuthenticationFailureHandler() {
+			if (this.authenticationFailureHandler == null) {
+				this.authenticationFailureHandler = new AuthenticationEntryPointFailureHandler(
+						new DPoPAuthenticationEntryPoint());
+			}
+			return this.authenticationFailureHandler;
+		}
+
+		private boolean matchesDPoPRequest(HttpServletRequest request) {
+			String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
+			if (!StringUtils.hasText(authorization)) {
+				return false;
+			}
+			return StringUtils.startsWithIgnoreCase(authorization, OAuth2AccessToken.TokenType.DPOP.getValue());
 		}
 
 	}
