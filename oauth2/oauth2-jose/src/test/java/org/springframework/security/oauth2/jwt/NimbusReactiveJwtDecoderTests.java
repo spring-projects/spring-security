@@ -293,7 +293,7 @@ public class NimbusReactiveJwtDecoderTests {
 	public void setJwtValidatorWhenGivenNullThrowsIllegalArgumentException() {
 		// @formatter:off
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.decoder.setJwtValidator(null));
+				.isThrownBy(() -> this.decoder.setJwtValidator((OAuth2TokenValidator)null));
 		// @formatter:on
 	}
 
@@ -667,7 +667,7 @@ public class NimbusReactiveJwtDecoderTests {
 		NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withPublicKey(TestKeys.DEFAULT_PUBLIC_KEY)
 			.validateType(false)
 			.build();
-		jwtDecoder.setJwtValidator((jwt) -> OAuth2TokenValidatorResult.success());
+		jwtDecoder.setJwtValidator((OAuth2TokenValidator) (jwt) -> OAuth2TokenValidatorResult.success());
 		RSAPrivateKey privateKey = TestKeys.DEFAULT_PRIVATE_KEY;
 		SignedJWT jwt = signedJwt(privateKey,
 				new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JOSE).build(),
@@ -680,7 +680,7 @@ public class NimbusReactiveJwtDecoderTests {
 		NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withSecretKey(TestKeys.DEFAULT_SECRET_KEY)
 			.validateType(false)
 			.build();
-		jwtDecoder.setJwtValidator((jwt) -> OAuth2TokenValidatorResult.success());
+		jwtDecoder.setJwtValidator((OAuth2TokenValidator) (jwt) -> OAuth2TokenValidatorResult.success());
 		SignedJWT jwt = signedJwt(TestKeys.DEFAULT_SECRET_KEY,
 				new JWSHeader.Builder(JWSAlgorithm.HS256).type(JOSEObjectType.JOSE).build(),
 				new JWTClaimsSet.Builder().subject("subject").build());
@@ -695,7 +695,7 @@ public class NimbusReactiveJwtDecoderTests {
 		NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withJwkSource((jwt) -> Flux.just(jwk))
 			.validateType(false)
 			.build();
-		jwtDecoder.setJwtValidator((jwt) -> OAuth2TokenValidatorResult.success());
+		jwtDecoder.setJwtValidator((OAuth2TokenValidator) (jwt) -> OAuth2TokenValidatorResult.success());
 		SignedJWT jwt = signedJwt(TestKeys.DEFAULT_PRIVATE_KEY,
 				new JWSHeader.Builder(JWSAlgorithm.RS256).type(JOSEObjectType.JOSE).build(),
 				new JWTClaimsSet.Builder().subject("subject").build());
