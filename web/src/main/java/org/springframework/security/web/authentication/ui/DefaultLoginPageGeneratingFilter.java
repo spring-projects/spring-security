@@ -366,6 +366,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		String usernameInput = (username != null)
 				? HtmlTemplates.fromTemplate(ONE_TIME_READONLY_USERNAME_INPUT).withValue("username", username).render()
 				: ONE_TIME_USERNAME_INPUT;
+		String buttonAutofocus = (username != null) ? " autofocus" : "";
 
 		return HtmlTemplates.fromTemplate(ONE_TIME_TEMPLATE)
 			.withValue("generateOneTimeTokenUrl", contextPath + this.generateOneTimeTokenUrl)
@@ -373,6 +374,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			.withRawHtml("logoutMessage", renderSuccess(logoutSuccess))
 			.withRawHtml("hiddenInputs", hiddenInputs)
 			.withRawHtml("usernameInput", usernameInput)
+			.withRawHtml("buttonAutofocus", buttonAutofocus)
 			.render();
 	}
 
@@ -604,7 +606,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			          {{usernameInput}}
 			        </p>
 			{{hiddenInputs}}
-			        <button class="primary" type="submit">Send Token</button>
+			        <button class="primary" type="submit" form="ott-form"{{buttonAutofocus}}>Send Token</button>
 			      </form>
 			""";
 
@@ -613,7 +615,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			""";
 
 	private static final String ONE_TIME_USERNAME_INPUT = """
-			<input type="text" id="ott-username" name="username" placeholder="Username" required>
+			<input type="text" id="ott-username" name="username" placeholder="Username" required autofocus>
 			""";
 
 }

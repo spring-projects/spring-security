@@ -174,10 +174,10 @@ public class OneTimeTokenLoginConfigurerTests {
 
 						        <p>
 						          <label for="ott-username" class="screenreader">Username</label>
-						          <input type="text" id="ott-username" name="username" placeholder="Username" required>
+						          <input type="text" id="ott-username" name="username" placeholder="Username" required autofocus>
 						        </p>
 						<input name="_csrf" type="hidden" value="%s" />
-						        <button class="primary" type="submit">Send Token</button>
+						        <button class="primary" type="submit" form="ott-form">Send Token</button>
 						      </form>
 
 
