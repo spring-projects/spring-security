@@ -88,7 +88,7 @@ public class OneTimeTokenAuthenticationToken extends AbstractAuthenticationToken
 	}
 
 	/**
-	 * Creates an unauthenticated token
+	 * Creates an authenticated token
 	 * @param principal the principal
 	 * @param authorities the principal authorities
 	 * @return an authenticated {@link OneTimeTokenAuthenticationToken}
