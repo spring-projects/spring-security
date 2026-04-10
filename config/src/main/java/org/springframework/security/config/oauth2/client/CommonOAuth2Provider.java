@@ -66,6 +66,7 @@ public enum CommonOAuth2Provider {
 			builder.userInfoUri("https://api.github.com/user");
 			builder.userNameAttributeName("id");
 			builder.clientName("GitHub");
+			builder.issuerUri("https://github.com/login/oauth");
 			return builder;
 		}
 
