@@ -152,7 +152,9 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 			return null;
 		}
 		OneTimeToken token = tokens.get(0);
-		deleteOneTimeToken(token);
+		if (deleteOneTimeToken(token) == 0) {
+			return null;
+		}
 		if (isExpired(token)) {
 			return null;
 		}
@@ -170,11 +172,11 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 		return this.jdbcOperations.query(SELECT_ONE_TIME_TOKEN_SQL, pss, this.oneTimeTokenRowMapper);
 	}
 
-	private void deleteOneTimeToken(OneTimeToken oneTimeToken) {
+	private int deleteOneTimeToken(OneTimeToken oneTimeToken) {
 		List<SqlParameterValue> parameters = List
 			.of(new SqlParameterValue(Types.VARCHAR, oneTimeToken.getTokenValue()));
 		PreparedStatementSetter pss = new ArgumentPreparedStatementSetter(parameters.toArray());
-		this.jdbcOperations.update(DELETE_ONE_TIME_TOKEN_SQL, pss);
+		return this.jdbcOperations.update(DELETE_ONE_TIME_TOKEN_SQL, pss);
 	}
 
 	private ThreadPoolTaskScheduler createTaskScheduler(String cleanupCron) {
