@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.jwt;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -43,6 +44,12 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 	 * The cached JWK set.
 	 */
 	private final AtomicReference<Mono<JWKSet>> cachedJWKSet = new AtomicReference<>(Mono.empty());
+
+	/**
+	 * In-flight JWK set fetch request, used to coalesce concurrent fetches into a single
+	 * HTTP call.
+	 */
+	private final AtomicReference<@Nullable Mono<JWKSet>> inflightRequest = new AtomicReference<>();
 
 	/**
 	 * The cached JWK set URL.
@@ -101,24 +108,23 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 	}
 
 	/**
-	 * Updates the cached JWK set from the configured URL.
+	 * Updates the cached JWK set from the configured URL. Concurrent calls are coalesced
+	 * into a single HTTP request to prevent thundering herd during cold start.
 	 * @return The updated JWK set.
 	 * @throws RemoteKeySourceException If JWK retrieval failed.
 	 */
 	private Mono<JWKSet> getJWKSet() {
-		// @formatter:off
-		return this.jwkSetUrlProvider
-				.flatMap((jwkSetURL) -> this.webClient.get()
-					.uri(jwkSetURL)
-					.retrieve()
-					.bodyToMono(String.class)
-				)
-				.map(this::parse)
-				.doOnNext((jwkSet) -> this.cachedJWKSet
-					.set(Mono.just(jwkSet))
-				)
-				.cache();
-		// @formatter:on
+		Mono<JWKSet> fetch = Mono.defer(() -> this.jwkSetUrlProvider
+			.flatMap((jwkSetURL) -> this.webClient.get().uri(jwkSetURL).retrieve().bodyToMono(String.class))
+			.map(this::parse)
+			.doOnNext((jwkSet) -> {
+				this.cachedJWKSet.set(Mono.just(jwkSet));
+				this.inflightRequest.set(null);
+			})
+			.doOnError((ex) -> this.inflightRequest.set(null))
+			.doOnCancel(() -> this.inflightRequest.set(null))
+			.switchIfEmpty(Mono.fromRunnable(() -> this.inflightRequest.set(null)))).cache();
+		return Objects.requireNonNull(this.inflightRequest.updateAndGet((v) -> (v != null) ? v : fetch));
 	}
 
 	private JWKSet parse(String body) {
