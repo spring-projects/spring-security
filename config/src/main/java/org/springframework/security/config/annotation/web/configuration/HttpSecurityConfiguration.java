@@ -238,7 +238,9 @@ class HttpSecurityConfiguration {
 		Map<Class<?>, Object> sharedObjects = new HashMap<>();
 		sharedObjects.put(ApplicationContext.class, this.context);
 		sharedObjects.put(ContentNegotiationStrategy.class, this.contentNegotiationStrategy);
-		sharedObjects.put(PathPatternRequestMatcher.Builder.class, constructRequestMatcherBuilder(this.context));
+		sharedObjects.put(PathPatternRequestMatcher.Builder.class,
+				this.context.getBeanProvider(PathPatternRequestMatcher.Builder.class)
+					.getIfUnique(() -> constructRequestMatcherBuilder(this.context)));
 		return sharedObjects;
 	}
 
