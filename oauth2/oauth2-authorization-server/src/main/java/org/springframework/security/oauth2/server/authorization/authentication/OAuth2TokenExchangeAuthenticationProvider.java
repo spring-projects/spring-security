@@ -86,6 +86,8 @@ public final class OAuth2TokenExchangeAuthenticationProvider implements Authenti
 
 	private final OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator;
 
+	private @Nullable OAuth2TokenExchangeSubjectTokenResolver subjectTokenResolver;
+
 	/**
 	 * Constructs an {@code OAuth2TokenExchangeAuthenticationProvider} using the provided
 	 * parameters.
@@ -98,6 +100,18 @@ public final class OAuth2TokenExchangeAuthenticationProvider implements Authenti
 		Assert.notNull(tokenGenerator, "tokenGenerator cannot be null");
 		this.authorizationService = authorizationService;
 		this.tokenGenerator = tokenGenerator;
+	}
+
+	/**
+	 * Sets the {@link OAuth2TokenExchangeSubjectTokenResolver} used for resolving
+	 * externally-issued subject tokens (e.g., OIDC ID tokens from trusted identity
+	 * providers).
+	 * @param subjectTokenResolver the subject token resolver
+	 * @since 7.0
+	 */
+	public void setSubjectTokenResolver(OAuth2TokenExchangeSubjectTokenResolver subjectTokenResolver) {
+		Assert.notNull(subjectTokenResolver, "subjectTokenResolver cannot be null");
+		this.subjectTokenResolver = subjectTokenResolver;
 	}
 
 	@Override
@@ -123,45 +137,72 @@ public final class OAuth2TokenExchangeAuthenticationProvider implements Authenti
 			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_REQUEST);
 		}
 
-		OAuth2Authorization subjectAuthorization = this.authorizationService
-			.findByToken(tokenExchangeAuthentication.getSubjectToken(), OAuth2TokenType.ACCESS_TOKEN);
-		if (subjectAuthorization == null) {
-			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_GRANT);
+		// Try to resolve the subject token using the configured resolver (e.g., for
+		// externally-issued ID tokens)
+		OAuth2TokenExchangeSubjectTokenContext subjectTokenContext = null;
+		if (this.subjectTokenResolver != null) {
+			subjectTokenContext = this.subjectTokenResolver.resolve(tokenExchangeAuthentication.getSubjectToken(),
+					tokenExchangeAuthentication.getSubjectTokenType(), registeredClient);
 		}
 
-		if (this.logger.isTraceEnabled()) {
-			this.logger.trace("Retrieved authorization with subject token");
-		}
-
-		OAuth2Authorization.Token<OAuth2Token> subjectToken = subjectAuthorization
-			.getToken(tokenExchangeAuthentication.getSubjectToken());
-		Assert.notNull(subjectToken, "subjectToken cannot be null");
-		if (!subjectToken.isActive()) {
-			// As per https://tools.ietf.org/html/rfc6749#section-5.2
-			// invalid_grant: The provided authorization grant (e.g., authorization code,
-			// resource owner credentials) or refresh token is invalid, expired, revoked
-			// [...].
-			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_GRANT);
-		}
-
-		if (!isValidTokenType(tokenExchangeAuthentication.getSubjectTokenType(), subjectToken)) {
-			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_REQUEST);
-		}
-
-		if (subjectAuthorization.getAttribute(Principal.class.getName()) == null) {
-			// As per https://datatracker.ietf.org/doc/html/rfc8693#section-1.1,
-			// we require a principal to be available via the subject_token for
-			// impersonation or delegation use cases.
-			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_GRANT);
-		}
-
-		// As per https://datatracker.ietf.org/doc/html/rfc8693#section-4.4,
-		// The may_act claim makes a statement that one party is authorized to
-		// become the actor and act on behalf of another party.
+		OAuth2Authorization subjectAuthorization;
 		Map<String, Object> authorizedActorClaims = null;
-		if (subjectToken.getClaims() != null && subjectToken.getClaims().containsKey(MAY_ACT)
-				&& subjectToken.getClaims().get(MAY_ACT) instanceof Map<?, ?> mayAct) {
-			authorizedActorClaims = (Map<String, Object>) mayAct;
+
+		if (subjectTokenContext != null) {
+			// Build an OAuth2Authorization from the resolved external subject token
+			// @formatter:off
+			subjectAuthorization = OAuth2Authorization.withRegisteredClient(registeredClient)
+					.principalName(subjectTokenContext.getPrincipalName())
+					.authorizationGrantType(AuthorizationGrantType.TOKEN_EXCHANGE)
+					.attribute(Principal.class.getName(), subjectTokenContext.getPrincipal())
+					.build();
+			// @formatter:on
+
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace("Resolved external subject token");
+			}
+		}
+		else {
+			subjectAuthorization = this.authorizationService.findByToken(tokenExchangeAuthentication.getSubjectToken(),
+					OAuth2TokenType.ACCESS_TOKEN);
+			if (subjectAuthorization == null) {
+				throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_GRANT);
+			}
+
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace("Retrieved authorization with subject token");
+			}
+
+			OAuth2Authorization.Token<OAuth2Token> subjectToken = subjectAuthorization
+				.getToken(tokenExchangeAuthentication.getSubjectToken());
+			Assert.notNull(subjectToken, "subjectToken cannot be null");
+			if (!subjectToken.isActive()) {
+				// As per https://tools.ietf.org/html/rfc6749#section-5.2
+				// invalid_grant: The provided authorization grant (e.g., authorization
+				// code,
+				// resource owner credentials) or refresh token is invalid, expired,
+				// revoked [...].
+				throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_GRANT);
+			}
+
+			if (!isValidTokenType(tokenExchangeAuthentication.getSubjectTokenType(), subjectToken)) {
+				throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_REQUEST);
+			}
+
+			if (subjectAuthorization.getAttribute(Principal.class.getName()) == null) {
+				// As per https://datatracker.ietf.org/doc/html/rfc8693#section-1.1,
+				// we require a principal to be available via the subject_token for
+				// impersonation or delegation use cases.
+				throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_GRANT);
+			}
+
+			// As per https://datatracker.ietf.org/doc/html/rfc8693#section-4.4,
+			// The may_act claim makes a statement that one party is authorized to
+			// become the actor and act on behalf of another party.
+			if (subjectToken.getClaims() != null && subjectToken.getClaims().containsKey(MAY_ACT)
+					&& subjectToken.getClaims().get(MAY_ACT) instanceof Map<?, ?> mayAct) {
+				authorizedActorClaims = (Map<String, Object>) mayAct;
+			}
 		}
 
 		OAuth2Authorization actorAuthorization = null;

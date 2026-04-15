@@ -98,6 +98,8 @@ public class OAuth2TokenExchangeAuthenticationProviderTests {
 
 	private static final String JWT_TOKEN_TYPE_VALUE = "urn:ietf:params:oauth:token-type:jwt";
 
+	private static final String ID_TOKEN_TYPE_VALUE = "urn:ietf:params:oauth:token-type:id_token";
+
 	private OAuth2AuthorizationService authorizationService;
 
 	private OAuth2TokenGenerator<OAuth2Token> tokenGenerator;
@@ -637,6 +639,124 @@ public class OAuth2TokenExchangeAuthenticationProviderTests {
 		assertThat(authorization.<Authentication>getAttribute(Principal.class.getName())).isSameAs(userPrincipal);
 		assertThat(authorization.getAccessToken().getToken()).isEqualTo(accessToken);
 		assertThat(authorization.getRefreshToken()).isNull();
+	}
+
+	@Test
+	public void setSubjectTokenResolverWhenNullThenThrowIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authenticationProvider.setSubjectTokenResolver(null))
+				.withMessage("subjectTokenResolver cannot be null");
+		// @formatter:on
+	}
+
+	@Test
+	public void authenticateWhenSubjectTokenResolverReturnsContextThenReturnAccessToken() {
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient()
+			.authorizationGrantType(AuthorizationGrantType.TOKEN_EXCHANGE)
+			.build();
+		OAuth2ClientAuthenticationToken clientPrincipal = new OAuth2ClientAuthenticationToken(registeredClient,
+				ClientAuthenticationMethod.CLIENT_SECRET_BASIC, null);
+		OAuth2TokenExchangeAuthenticationToken authentication = new OAuth2TokenExchangeAuthenticationToken(
+				ACCESS_TOKEN_TYPE_VALUE, SUBJECT_TOKEN, ID_TOKEN_TYPE_VALUE, clientPrincipal, null, null, RESOURCES,
+				AUDIENCES, registeredClient.getScopes(), null);
+
+		TestingAuthenticationToken userPrincipal = new TestingAuthenticationToken("user@example.com", null,
+				"ROLE_USER");
+		OAuth2TokenExchangeSubjectTokenContext subjectTokenContext = new OAuth2TokenExchangeSubjectTokenContext(
+				userPrincipal, "user@example.com", Map.of("iss", "https://gitlab.com", "sub", "user@example.com"),
+				registeredClient.getScopes());
+
+		OAuth2TokenExchangeSubjectTokenResolver subjectTokenResolver = mock(
+				OAuth2TokenExchangeSubjectTokenResolver.class);
+		given(subjectTokenResolver.resolve(SUBJECT_TOKEN, ID_TOKEN_TYPE_VALUE, registeredClient))
+			.willReturn(subjectTokenContext);
+		this.authenticationProvider.setSubjectTokenResolver(subjectTokenResolver);
+
+		OAuth2AccessToken accessToken = createAccessToken("token-value");
+		given(this.tokenGenerator.generate(any(OAuth2TokenContext.class))).willReturn(accessToken);
+
+		OAuth2AccessTokenAuthenticationToken authenticationResult = (OAuth2AccessTokenAuthenticationToken) this.authenticationProvider
+			.authenticate(authentication);
+		assertThat(authenticationResult.getRegisteredClient()).isEqualTo(registeredClient);
+		assertThat(authenticationResult.getAccessToken()).isEqualTo(accessToken);
+		assertThat(authenticationResult.getRefreshToken()).isNull();
+
+		ArgumentCaptor<OAuth2Authorization> authorizationCaptor = ArgumentCaptor.forClass(OAuth2Authorization.class);
+		ArgumentCaptor<OAuth2TokenContext> tokenContextCaptor = ArgumentCaptor.forClass(OAuth2TokenContext.class);
+		verify(this.tokenGenerator).generate(tokenContextCaptor.capture());
+		verify(this.authorizationService).save(authorizationCaptor.capture());
+		verifyNoMoreInteractions(this.tokenGenerator);
+
+		OAuth2TokenContext tokenContext = tokenContextCaptor.getValue();
+		assertThat(tokenContext.getRegisteredClient()).isEqualTo(registeredClient);
+		assertThat(tokenContext.<Authentication>getPrincipal()).isSameAs(userPrincipal);
+		assertThat(tokenContext.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.TOKEN_EXCHANGE);
+
+		OAuth2Authorization authorization = authorizationCaptor.getValue();
+		assertThat(authorization.getPrincipalName()).isEqualTo("user@example.com");
+		assertThat(authorization.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.TOKEN_EXCHANGE);
+		assertThat(authorization.<Authentication>getAttribute(Principal.class.getName())).isSameAs(userPrincipal);
+		assertThat(authorization.getAccessToken().getToken()).isEqualTo(accessToken);
+	}
+
+	@Test
+	public void authenticateWhenSubjectTokenResolverReturnsNullThenFallBackToAuthorizationService() {
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient()
+			.authorizationGrantType(AuthorizationGrantType.TOKEN_EXCHANGE)
+			.build();
+		OAuth2TokenExchangeAuthenticationToken authentication = createImpersonationRequest(registeredClient);
+
+		OAuth2TokenExchangeSubjectTokenResolver subjectTokenResolver = mock(
+				OAuth2TokenExchangeSubjectTokenResolver.class);
+		given(subjectTokenResolver.resolve(anyString(), anyString(), any(RegisteredClient.class))).willReturn(null);
+		this.authenticationProvider.setSubjectTokenResolver(subjectTokenResolver);
+
+		TestingAuthenticationToken userPrincipal = new TestingAuthenticationToken("user", null, "ROLE_USER");
+		// @formatter:off
+		OAuth2Authorization subjectAuthorization = TestOAuth2Authorizations.authorization(registeredClient)
+				.token(createAccessToken(SUBJECT_TOKEN))
+				.attribute(Principal.class.getName(), userPrincipal)
+				.build();
+		// @formatter:on
+		given(this.authorizationService.findByToken(anyString(), any(OAuth2TokenType.class)))
+			.willReturn(subjectAuthorization);
+		OAuth2AccessToken accessToken = createAccessToken("token-value");
+		given(this.tokenGenerator.generate(any(OAuth2TokenContext.class))).willReturn(accessToken);
+
+		OAuth2AccessTokenAuthenticationToken authenticationResult = (OAuth2AccessTokenAuthenticationToken) this.authenticationProvider
+			.authenticate(authentication);
+		assertThat(authenticationResult.getAccessToken()).isEqualTo(accessToken);
+
+		verify(subjectTokenResolver).resolve(SUBJECT_TOKEN, ACCESS_TOKEN_TYPE_VALUE, registeredClient);
+		verify(this.authorizationService).findByToken(SUBJECT_TOKEN, OAuth2TokenType.ACCESS_TOKEN);
+	}
+
+	@Test
+	public void authenticateWhenSubjectTokenResolverThrowsThenPropagateException() {
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient()
+			.authorizationGrantType(AuthorizationGrantType.TOKEN_EXCHANGE)
+			.build();
+		OAuth2ClientAuthenticationToken clientPrincipal = new OAuth2ClientAuthenticationToken(registeredClient,
+				ClientAuthenticationMethod.CLIENT_SECRET_BASIC, null);
+		OAuth2TokenExchangeAuthenticationToken authentication = new OAuth2TokenExchangeAuthenticationToken(
+				ACCESS_TOKEN_TYPE_VALUE, SUBJECT_TOKEN, ID_TOKEN_TYPE_VALUE, clientPrincipal, null, null, RESOURCES,
+				AUDIENCES, registeredClient.getScopes(), null);
+
+		OAuth2TokenExchangeSubjectTokenResolver subjectTokenResolver = mock(
+				OAuth2TokenExchangeSubjectTokenResolver.class);
+		given(subjectTokenResolver.resolve(anyString(), anyString(), any(RegisteredClient.class)))
+			.willThrow(new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_GRANT));
+		this.authenticationProvider.setSubjectTokenResolver(subjectTokenResolver);
+
+		// @formatter:off
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+				.extracting(OAuth2AuthenticationException::getError)
+				.extracting(OAuth2Error::getErrorCode)
+				.isEqualTo(OAuth2ErrorCodes.INVALID_GRANT);
+		// @formatter:on
+		verifyNoInteractions(this.authorizationService, this.tokenGenerator);
 	}
 
 	@Test
