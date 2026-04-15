@@ -79,6 +79,7 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.OAuth2ClientRegistration;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientRegistrationAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientRegistrationAuthenticationToken;
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientRegistrationAuthenticationValidator;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository.RegisteredClientParametersMapper;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
@@ -411,6 +412,138 @@ public class OAuth2ClientRegistrationTests {
 			.isCloseTo(expectedSecretExpiryDate, allowedDelta);
 	}
 
+	// ----- CVE attack-replay tests (GHSA-qmmm-qvv5-j353) -----
+	// These tests use the default (strict) authentication validator — not the
+	// scope-permissive one the happy-path tests install — so the full filter chain,
+	// JSON converter, provider, and validator are exercised against the exact
+	// payloads from the disclosure. Each attack is expected to produce HTTP 400.
+
+	@Test
+	public void attackReplayWhenProtocolRelativeRedirectUriThenBadRequest() throws Exception {
+		this.spring.register(AttackReplayConfiguration.class).autowire();
+		assertThat(replayAttackJson("""
+				{
+				  "client_name": "attacker-client",
+				  "redirect_uris": ["//evil-attacker.example.com/steal"],
+				  "grant_types": ["authorization_code"]
+				}
+				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+
+	@Test
+	public void attackReplayWhenJavascriptSchemeRedirectUriThenBadRequest() throws Exception {
+		this.spring.register(AttackReplayConfiguration.class).autowire();
+		assertThat(replayAttackJson("""
+				{
+				  "client_name": "attacker-client",
+				  "redirect_uris": ["javascript:alert(document.cookie)"],
+				  "grant_types": ["authorization_code"]
+				}
+				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+
+	@Test
+	public void attackReplayWhenDataSchemeRedirectUriThenBadRequest() throws Exception {
+		this.spring.register(AttackReplayConfiguration.class).autowire();
+		assertThat(replayAttackJson("""
+				{
+				  "client_name": "attacker-client",
+				  "redirect_uris": ["data:text/html,<h1>xss</h1>"],
+				  "grant_types": ["authorization_code"]
+				}
+				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+
+	@Test
+	public void attackReplayWhenHttpJwkSetUriToImdsThenBadRequest() throws Exception {
+		this.spring.register(AttackReplayConfiguration.class).autowire();
+		assertThat(replayAttackJson("""
+				{
+				  "client_name": "ssrf-client",
+				  "redirect_uris": ["https://example.com/callback"],
+				  "grant_types": ["authorization_code"],
+				  "jwks_uri": "http://169.254.169.254/latest/meta-data/iam/security-credentials/app-role",
+				  "token_endpoint_auth_method": "private_key_jwt"
+				}
+				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+
+	@Test
+	public void attackReplayWhenArbitraryScopeThenBadRequest() throws Exception {
+		this.spring.register(AttackReplayConfiguration.class).autowire();
+		assertThat(replayAttackJson("""
+				{
+				  "client_name": "scope-injection-client",
+				  "redirect_uris": ["https://example.com/callback"],
+				  "grant_types": ["client_credentials"],
+				  "scope": "admin ROLE_ADMIN superuser"
+				}
+				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+
+	/**
+	 * Obtains a {@code client.create} bearer token and then POSTs the given raw JSON
+	 * (which may intentionally contain malformed or malicious values) to the DCR
+	 * endpoint, returning the HTTP status.
+	 */
+	private int replayAttackJson(String json) throws Exception {
+		String clientRegistrationScope = "client.create";
+		// @formatter:off
+		RegisteredClient clientRegistrar = RegisteredClient.withId("client-registrar-" + System.nanoTime())
+				.clientId("client-registrar-" + System.nanoTime())
+				.clientSecret("{noop}secret")
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+				.scope(clientRegistrationScope)
+				.build();
+		// @formatter:on
+		this.registeredClientRepository.save(clientRegistrar);
+
+		MvcResult tokenResult = this.mvc
+			.perform(post(ISSUER.concat(DEFAULT_TOKEN_ENDPOINT_URI))
+				.param(OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantType.CLIENT_CREDENTIALS.getValue())
+				.param(OAuth2ParameterNames.SCOPE, clientRegistrationScope)
+				.with(httpBasic(clientRegistrar.getClientId(), "secret")))
+			.andExpect(status().isOk())
+			.andReturn();
+		OAuth2AccessToken accessToken = readAccessTokenResponse(tokenResult.getResponse()).getAccessToken();
+
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.setBearerAuth(accessToken.getTokenValue());
+
+		MvcResult registerResult = this.mvc
+			.perform(post(ISSUER.concat(DEFAULT_OAUTH2_CLIENT_REGISTRATION_ENDPOINT_URI)).headers(httpHeaders)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(json))
+			.andReturn();
+		return registerResult.getResponse().getStatus();
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
+	static class AttackReplayConfiguration extends AuthorizationServerConfiguration {
+
+		// Override with Customizer.withDefaults() so the default (strict)
+		// OAuth2ClientRegistrationAuthenticationValidator is in effect — no
+		// scope-permissive override. This is what a fresh deployment gets.
+		// @formatter:off
+		@Bean
+		@Override
+		public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.clientRegistrationEndpoint(Customizer.withDefaults())
+					)
+					.authorizeHttpRequests((authorize) ->
+							authorize.anyRequest().authenticated()
+					);
+			return http.build();
+		}
+		// @formatter:on
+
+	}
+
 	private OAuth2ClientRegistration registerClient(OAuth2ClientRegistration clientRegistration) throws Exception {
 		// ***** (1) Obtain the "initial" access token used for registering the client
 
@@ -512,7 +645,7 @@ public class OAuth2ClientRegistrationTests {
 													.clientRegistrationRequestConverter(authenticationConverter)
 													.clientRegistrationRequestConverters(authenticationConvertersConsumer)
 													.authenticationProvider(authenticationProvider)
-													.authenticationProviders(authenticationProvidersConsumer)
+													.authenticationProviders(scopePermissiveValidatorCustomizer().andThen(authenticationProvidersConsumer))
 													.clientRegistrationResponseHandler(authenticationSuccessHandler)
 													.errorResponseHandler(authenticationFailureHandler)
 									)
@@ -539,7 +672,7 @@ public class OAuth2ClientRegistrationTests {
 							authorizationServer
 									.clientRegistrationEndpoint((clientRegistration) ->
 											clientRegistration
-													.authenticationProviders(configureClientRegistrationConverters())
+													.authenticationProviders(scopePermissiveValidatorCustomizer().andThen(configureClientRegistrationConverters()))
 									)
 					)
 					.authorizeHttpRequests((authorize) ->
@@ -577,7 +710,7 @@ public class OAuth2ClientRegistrationTests {
 							authorizationServer
 									.clientRegistrationEndpoint((clientRegistration) ->
 											clientRegistration
-													.authenticationProviders(configureClientRegistrationConverters())
+													.authenticationProviders(scopePermissiveValidatorCustomizer().andThen(configureClientRegistrationConverters()))
 									)
 					)
 					.authorizeHttpRequests((authorize) ->
@@ -614,6 +747,7 @@ public class OAuth2ClientRegistrationTests {
 									.clientRegistrationEndpoint((clientRegistration) ->
 											clientRegistration
 													.openRegistrationAllowed(true)
+													.authenticationProviders(scopePermissiveValidatorCustomizer())
 									)
 					)
 					.authorizeHttpRequests((authorize) ->
@@ -627,6 +761,23 @@ public class OAuth2ClientRegistrationTests {
 
 	}
 
+	/**
+	 * Installs a scope-permissive composed validator on the DCR provider so happy-path
+	 * integration tests that send {@code scope} values continue to succeed after the
+	 * CVE fix. Deployers that legitimately need scopes in DCR will use this exact
+	 * pattern.
+	 */
+	static Consumer<List<AuthenticationProvider>> scopePermissiveValidatorCustomizer() {
+		return (authenticationProviders) -> authenticationProviders.forEach((authenticationProvider) -> {
+			if (authenticationProvider instanceof OAuth2ClientRegistrationAuthenticationProvider provider) {
+				provider.setAuthenticationValidator(
+						OAuth2ClientRegistrationAuthenticationValidator.DEFAULT_REDIRECT_URI_VALIDATOR
+							.andThen(OAuth2ClientRegistrationAuthenticationValidator.DEFAULT_JWK_SET_URI_VALIDATOR)
+							.andThen(OAuth2ClientRegistrationAuthenticationValidator.SIMPLE_SCOPE_VALIDATOR));
+			}
+		});
+	}
+
 	@EnableWebSecurity
 	@Configuration(proxyBeanMethods = false)
 	static class AuthorizationServerConfiguration {
@@ -637,7 +788,10 @@ public class OAuth2ClientRegistrationTests {
 			http
 					.oauth2AuthorizationServer((authorizationServer) ->
 							authorizationServer
-									.clientRegistrationEndpoint(Customizer.withDefaults())
+									.clientRegistrationEndpoint((clientRegistration) ->
+											clientRegistration
+													.authenticationProviders(scopePermissiveValidatorCustomizer())
+									)
 					)
 					.authorizeHttpRequests((authorize) ->
 							authorize.anyRequest().authenticated()

@@ -96,6 +96,7 @@ import org.springframework.security.oauth2.server.authorization.client.TestRegis
 import org.springframework.security.oauth2.server.authorization.oidc.OidcClientRegistration;
 import org.springframework.security.oauth2.server.authorization.oidc.authentication.OidcClientConfigurationAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.oidc.authentication.OidcClientRegistrationAuthenticationProvider;
+import org.springframework.security.oauth2.server.authorization.oidc.authentication.OidcClientRegistrationAuthenticationValidator;
 import org.springframework.security.oauth2.server.authorization.oidc.authentication.OidcClientRegistrationAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.oidc.converter.OidcClientRegistrationRegisteredClientConverter;
 import org.springframework.security.oauth2.server.authorization.oidc.converter.RegisteredClientOidcClientRegistrationConverter;
@@ -545,6 +546,133 @@ public class OidcClientRegistrationTests {
 			.isCloseTo(expectedSecretExpiryDate, allowedDelta);
 	}
 
+	// ----- CVE attack-replay tests (GHSA-qmmm-qvv5-j353) -----
+
+	@Test
+	public void attackReplayWhenProtocolRelativeRedirectUriThenBadRequest() throws Exception {
+		this.spring.register(AttackReplayConfiguration.class).autowire();
+		assertThat(replayAttackJson("""
+				{
+				  "client_name": "attacker-client",
+				  "redirect_uris": ["//evil-attacker.example.com/steal"],
+				  "grant_types": ["authorization_code"]
+				}
+				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+
+	@Test
+	public void attackReplayWhenJavascriptSchemeRedirectUriThenBadRequest() throws Exception {
+		this.spring.register(AttackReplayConfiguration.class).autowire();
+		assertThat(replayAttackJson("""
+				{
+				  "client_name": "attacker-client",
+				  "redirect_uris": ["javascript:alert(document.cookie)"],
+				  "grant_types": ["authorization_code"]
+				}
+				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+
+	@Test
+	public void attackReplayWhenJavascriptPostLogoutRedirectUriThenBadRequest() throws Exception {
+		this.spring.register(AttackReplayConfiguration.class).autowire();
+		assertThat(replayAttackJson("""
+				{
+				  "client_name": "xss-client",
+				  "redirect_uris": ["https://example.com/callback"],
+				  "post_logout_redirect_uris": ["javascript:alert(document.cookie)"],
+				  "grant_types": ["authorization_code"]
+				}
+				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+
+	@Test
+	public void attackReplayWhenHttpJwkSetUriToImdsThenBadRequest() throws Exception {
+		this.spring.register(AttackReplayConfiguration.class).autowire();
+		assertThat(replayAttackJson("""
+				{
+				  "client_name": "ssrf-client",
+				  "redirect_uris": ["https://example.com/callback"],
+				  "grant_types": ["authorization_code"],
+				  "jwks_uri": "http://169.254.169.254/latest/meta-data/iam/security-credentials/app-role",
+				  "token_endpoint_auth_method": "private_key_jwt"
+				}
+				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+
+	@Test
+	public void attackReplayWhenArbitraryScopeThenBadRequest() throws Exception {
+		this.spring.register(AttackReplayConfiguration.class).autowire();
+		assertThat(replayAttackJson("""
+				{
+				  "client_name": "scope-injection-client",
+				  "redirect_uris": ["https://example.com/callback"],
+				  "grant_types": ["authorization_code"],
+				  "scope": "admin ROLE_ADMIN superuser"
+				}
+				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+
+	private int replayAttackJson(String json) throws Exception {
+		String clientRegistrationScope = "client.create";
+		String clientId = "client-registrar-" + System.nanoTime();
+		// @formatter:off
+		RegisteredClient clientRegistrar = RegisteredClient.withId(clientId)
+				.clientId(clientId)
+				.clientSecret("{noop}secret")
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+				.scope(clientRegistrationScope)
+				.build();
+		// @formatter:on
+		this.registeredClientRepository.save(clientRegistrar);
+
+		MvcResult tokenResult = this.mvc
+			.perform(post(ISSUER.concat(DEFAULT_TOKEN_ENDPOINT_URI))
+				.param(OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantType.CLIENT_CREDENTIALS.getValue())
+				.param(OAuth2ParameterNames.SCOPE, clientRegistrationScope)
+				.with(httpBasic(clientId, "secret")))
+			.andExpect(status().isOk())
+			.andReturn();
+		OAuth2AccessToken accessToken = readAccessTokenResponse(tokenResult.getResponse()).getAccessToken();
+
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.setBearerAuth(accessToken.getTokenValue());
+
+		MvcResult registerResult = this.mvc
+			.perform(post(ISSUER.concat(DEFAULT_OIDC_CLIENT_REGISTRATION_ENDPOINT_URI)).headers(httpHeaders)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(json))
+			.andReturn();
+		return registerResult.getResponse().getStatus();
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
+	static class AttackReplayConfiguration extends AuthorizationServerConfiguration {
+
+		// Override with Customizer.withDefaults() so the default (strict)
+		// OidcClientRegistrationAuthenticationValidator is in effect.
+		// @formatter:off
+		@Bean
+		@Override
+		public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.oidc((oidc) ->
+											oidc
+													.clientRegistrationEndpoint(Customizer.withDefaults())
+									)
+					)
+					.authorizeHttpRequests((authorize) ->
+							authorize.anyRequest().authenticated()
+					);
+			return http.build();
+		}
+		// @formatter:on
+
+	}
+
 	private OidcClientRegistration registerClient(OidcClientRegistration clientRegistration) throws Exception {
 		// ***** (1) Obtain the "initial" access token used for registering the client
 
@@ -660,7 +788,7 @@ public class OidcClientRegistrationTests {
 																	.clientRegistrationRequestConverter(authenticationConverter)
 																	.clientRegistrationRequestConverters(authenticationConvertersConsumer)
 																	.authenticationProvider(authenticationProvider)
-																	.authenticationProviders(authenticationProvidersConsumer)
+																	.authenticationProviders(scopePermissiveValidatorCustomizer().andThen(authenticationProvidersConsumer))
 																	.clientRegistrationResponseHandler(authenticationSuccessHandler)
 																	.errorResponseHandler(authenticationFailureHandler)
 													)
@@ -690,7 +818,7 @@ public class OidcClientRegistrationTests {
 											oidc
 													.clientRegistrationEndpoint((clientRegistration) ->
 															clientRegistration
-																	.authenticationProviders(configureClientRegistrationConverters())
+																	.authenticationProviders(scopePermissiveValidatorCustomizer().andThen(configureClientRegistrationConverters()))
 													)
 									)
 					)
@@ -731,7 +859,7 @@ public class OidcClientRegistrationTests {
 											oidc
 													.clientRegistrationEndpoint((clientRegistration) ->
 															clientRegistration
-																	.authenticationProviders(configureClientRegistrationConverters())
+																	.authenticationProviders(scopePermissiveValidatorCustomizer().andThen(configureClientRegistrationConverters()))
 													)
 									)
 					)
@@ -755,6 +883,23 @@ public class OidcClientRegistrationTests {
 
 	}
 
+	/**
+	 * Installs a scope-permissive composed validator on the OIDC DCR provider so
+	 * happy-path integration tests that send {@code scope} values continue to succeed
+	 * after the CVE fix.
+	 */
+	static Consumer<List<AuthenticationProvider>> scopePermissiveValidatorCustomizer() {
+		return (authenticationProviders) -> authenticationProviders.forEach((authenticationProvider) -> {
+			if (authenticationProvider instanceof OidcClientRegistrationAuthenticationProvider provider) {
+				provider.setAuthenticationValidator(
+						OidcClientRegistrationAuthenticationValidator.DEFAULT_REDIRECT_URI_VALIDATOR
+							.andThen(OidcClientRegistrationAuthenticationValidator.DEFAULT_POST_LOGOUT_REDIRECT_URI_VALIDATOR)
+							.andThen(OidcClientRegistrationAuthenticationValidator.DEFAULT_JWK_SET_URI_VALIDATOR)
+							.andThen(OidcClientRegistrationAuthenticationValidator.SIMPLE_SCOPE_VALIDATOR));
+			}
+		});
+	}
+
 	@EnableWebSecurity
 	@Configuration(proxyBeanMethods = false)
 	static class AuthorizationServerConfiguration {
@@ -767,7 +912,10 @@ public class OidcClientRegistrationTests {
 							authorizationServer
 									.oidc((oidc) ->
 											oidc
-													.clientRegistrationEndpoint(Customizer.withDefaults())
+													.clientRegistrationEndpoint((clientRegistration) ->
+															clientRegistration
+																	.authenticationProviders(scopePermissiveValidatorCustomizer())
+													)
 									)
 					)
 					.authorizeHttpRequests((authorize) ->

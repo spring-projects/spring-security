@@ -561,6 +561,12 @@ public class OidcClientRegistrationAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenTokenEndpointAuthenticationSigningAlgorithmNotProvidedThenDefaults() {
+		// Allow scopes via composition so the happy path can assert scope flow-through
+		this.authenticationProvider.setAuthenticationValidator(
+				OidcClientRegistrationAuthenticationValidator.DEFAULT_REDIRECT_URI_VALIDATOR
+					.andThen(OidcClientRegistrationAuthenticationValidator.DEFAULT_POST_LOGOUT_REDIRECT_URI_VALIDATOR)
+					.andThen(OidcClientRegistrationAuthenticationValidator.DEFAULT_JWK_SET_URI_VALIDATOR)
+					.andThen(OidcClientRegistrationAuthenticationValidator.SIMPLE_SCOPE_VALIDATOR));
 		Jwt jwt = createJwtClientRegistration();
 		OAuth2AccessToken jwtAccessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
 				jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaim(OAuth2ParameterNames.SCOPE));
@@ -612,6 +618,12 @@ public class OidcClientRegistrationAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenRegistrationAccessTokenNotGeneratedThenThrowOAuth2AuthenticationException() {
+		// Allow scopes via composition so this test exercises the post-validation path
+		this.authenticationProvider.setAuthenticationValidator(
+				OidcClientRegistrationAuthenticationValidator.DEFAULT_REDIRECT_URI_VALIDATOR
+					.andThen(OidcClientRegistrationAuthenticationValidator.DEFAULT_POST_LOGOUT_REDIRECT_URI_VALIDATOR)
+					.andThen(OidcClientRegistrationAuthenticationValidator.DEFAULT_JWK_SET_URI_VALIDATOR)
+					.andThen(OidcClientRegistrationAuthenticationValidator.SIMPLE_SCOPE_VALIDATOR));
 		Jwt jwt = createJwtClientRegistration();
 		OAuth2AccessToken jwtAccessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
 				jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaim(OAuth2ParameterNames.SCOPE));
@@ -653,6 +665,12 @@ public class OidcClientRegistrationAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenValidAccessTokenThenReturnClientRegistration() {
+		// Allow scopes via composition so the happy path can assert scope flow-through
+		this.authenticationProvider.setAuthenticationValidator(
+				OidcClientRegistrationAuthenticationValidator.DEFAULT_REDIRECT_URI_VALIDATOR
+					.andThen(OidcClientRegistrationAuthenticationValidator.DEFAULT_POST_LOGOUT_REDIRECT_URI_VALIDATOR)
+					.andThen(OidcClientRegistrationAuthenticationValidator.DEFAULT_JWK_SET_URI_VALIDATOR)
+					.andThen(OidcClientRegistrationAuthenticationValidator.SIMPLE_SCOPE_VALIDATOR));
 		Jwt jwt = createJwtClientRegistration();
 		OAuth2AccessToken jwtAccessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
 				jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaim(OAuth2ParameterNames.SCOPE));

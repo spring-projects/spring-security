@@ -16,14 +16,12 @@
 
 package org.springframework.security.oauth2.server.authorization.oidc.authentication;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,7 +58,6 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -101,6 +98,8 @@ public final class OidcClientRegistrationAuthenticationProvider implements Authe
 	private Converter<OidcClientRegistration, RegisteredClient> registeredClientConverter;
 
 	private PasswordEncoder passwordEncoder;
+
+	private Consumer<OidcClientRegistrationAuthenticationContext> authenticationValidator = new OidcClientRegistrationAuthenticationValidator();
 
 	/**
 	 * Constructs an {@code OidcClientRegistrationAuthenticationProvider} using the
@@ -206,20 +205,34 @@ public final class OidcClientRegistrationAuthenticationProvider implements Authe
 		this.passwordEncoder = passwordEncoder;
 	}
 
+	/**
+	 * Sets the {@code Consumer} providing access to the
+	 * {@link OidcClientRegistrationAuthenticationContext} and is responsible for
+	 * validating specific OpenID Connect 1.0 Client Registration Request parameters
+	 * associated in the {@link OidcClientRegistrationAuthenticationToken}. The default
+	 * authentication validator is {@link OidcClientRegistrationAuthenticationValidator}.
+	 *
+	 * <p>
+	 * <b>NOTE:</b> The authentication validator MUST throw
+	 * {@link OAuth2AuthenticationException} if validation fails.
+	 * @param authenticationValidator the {@code Consumer} providing access to the
+	 * {@link OidcClientRegistrationAuthenticationContext} and is responsible for
+	 * validating specific OpenID Connect 1.0 Client Registration Request parameters
+	 */
+	public void setAuthenticationValidator(
+			Consumer<OidcClientRegistrationAuthenticationContext> authenticationValidator) {
+		Assert.notNull(authenticationValidator, "authenticationValidator cannot be null");
+		this.authenticationValidator = authenticationValidator;
+	}
+
 	private OidcClientRegistrationAuthenticationToken registerClient(
 			OidcClientRegistrationAuthenticationToken clientRegistrationAuthentication,
 			OAuth2Authorization authorization) {
 
-		if (!isValidRedirectUris(clientRegistrationAuthentication.getClientRegistration().getRedirectUris())) {
-			throwInvalidClientRegistration(OAuth2ErrorCodes.INVALID_REDIRECT_URI,
-					OidcClientMetadataClaimNames.REDIRECT_URIS);
-		}
-
-		if (!isValidRedirectUris(
-				clientRegistrationAuthentication.getClientRegistration().getPostLogoutRedirectUris())) {
-			throwInvalidClientRegistration("invalid_client_metadata",
-					OidcClientMetadataClaimNames.POST_LOGOUT_REDIRECT_URIS);
-		}
+		OidcClientRegistrationAuthenticationContext authenticationContext = OidcClientRegistrationAuthenticationContext
+			.with(clientRegistrationAuthentication)
+			.build();
+		this.authenticationValidator.accept(authenticationContext);
 
 		if (!isValidTokenEndpointAuthenticationMethod(clientRegistrationAuthentication.getClientRegistration())) {
 			throwInvalidClientRegistration("invalid_client_metadata",
@@ -349,26 +362,6 @@ public final class OidcClientRegistrationAuthenticationProvider implements Authe
 			// Restrict the access token to only contain the required scope
 			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_TOKEN);
 		}
-	}
-
-	private static boolean isValidRedirectUris(List<String> redirectUris) {
-		if (CollectionUtils.isEmpty(redirectUris)) {
-			return true;
-		}
-
-		for (String redirectUri : redirectUris) {
-			try {
-				URI validRedirectUri = new URI(redirectUri);
-				if (validRedirectUri.getFragment() != null) {
-					return false;
-				}
-			}
-			catch (URISyntaxException ex) {
-				return false;
-			}
-		}
-
-		return true;
 	}
 
 	private static boolean isValidTokenEndpointAuthenticationMethod(OidcClientRegistration clientRegistration) {
