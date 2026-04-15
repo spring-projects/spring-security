@@ -64,6 +64,8 @@ public class CommonOAuth2ProviderTests {
 		assertThat(providerDetails.getUserInfoEndpoint().getUri()).isEqualTo("https://api.github.com/user");
 		assertThat(providerDetails.getUserInfoEndpoint().getUserNameAttributeName()).isEqualTo("id");
 		assertThat(providerDetails.getJwkSetUri()).isNull();
+		// gh-19058: issuerUri must be set for RFC 9207 iss parameter validation
+		assertThat(providerDetails.getIssuerUri()).isEqualTo("https://github.com/login/oauth");
 		assertThat(registration.getClientAuthenticationMethod())
 			.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 		assertThat(registration.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
@@ -71,6 +73,18 @@ public class CommonOAuth2ProviderTests {
 		assertThat(registration.getScopes()).containsOnly("read:user");
 		assertThat(registration.getClientName()).isEqualTo("GitHub");
 		assertThat(registration.getRegistrationId()).isEqualTo("123");
+	}
+
+	@Test
+	public void getBuilderWhenGitHubShouldHaveIssuerUriForRfc9207Compliance() {
+		// gh-19058: GitHub enabled RFC 9207 issuer identification; the provider must
+		// declare an issuerUri so that the iss parameter returned in authorization
+		// responses can be validated against a known value.
+		ClientRegistration registration = build(CommonOAuth2Provider.GITHUB);
+		ProviderDetails providerDetails = registration.getProviderDetails();
+		assertThat(providerDetails.getIssuerUri())
+			.as("GitHub provider must have issuerUri set for RFC 9207 iss validation")
+			.isEqualTo("https://github.com/login/oauth");
 	}
 
 	@Test
