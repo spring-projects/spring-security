@@ -16,12 +16,10 @@
 
 package org.springframework.security.oauth2.server.authorization.authentication;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,12 +33,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
-import org.springframework.security.oauth2.server.authorization.OAuth2ClientMetadataClaimNames;
 import org.springframework.security.oauth2.server.authorization.OAuth2ClientRegistration;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
@@ -49,7 +45,6 @@ import org.springframework.security.oauth2.server.authorization.converter.OAuth2
 import org.springframework.security.oauth2.server.authorization.converter.RegisteredClientOAuth2ClientRegistrationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -67,8 +62,6 @@ import org.springframework.util.StringUtils;
  */
 public final class OAuth2ClientRegistrationAuthenticationProvider implements AuthenticationProvider {
 
-	private static final String ERROR_URI = "https://datatracker.ietf.org/doc/html/rfc7591#section-3.2.2";
-
 	private static final String DEFAULT_CLIENT_REGISTRATION_AUTHORIZED_SCOPE = "client.create";
 
 	private final Log logger = LogFactory.getLog(getClass());
@@ -85,6 +78,8 @@ public final class OAuth2ClientRegistrationAuthenticationProvider implements Aut
 
 	private boolean openRegistrationAllowed;
 
+	private Consumer<OAuth2ClientRegistrationAuthenticationContext> authenticationValidator;
+
 	/**
 	 * Constructs an {@code OAuth2ClientRegistrationAuthenticationProvider} using the
 	 * provided parameters.
@@ -99,6 +94,7 @@ public final class OAuth2ClientRegistrationAuthenticationProvider implements Aut
 		this.clientRegistrationConverter = new RegisteredClientOAuth2ClientRegistrationConverter();
 		this.registeredClientConverter = new OAuth2ClientRegistrationRegisteredClientConverter();
 		this.passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+		this.authenticationValidator = new OAuth2ClientRegistrationAuthenticationValidator();
 	}
 
 	@Override
@@ -197,14 +193,35 @@ public final class OAuth2ClientRegistrationAuthenticationProvider implements Aut
 		this.openRegistrationAllowed = openRegistrationAllowed;
 	}
 
+	/**
+	 * Sets the {@code Consumer} providing access to the
+	 * {@link OAuth2ClientRegistrationAuthenticationContext} and is responsible for
+	 * validating specific OAuth 2.0 Client Registration Request parameters associated in
+	 * the {@link OAuth2ClientRegistrationAuthenticationToken}. The default authentication
+	 * validator is {@link OAuth2ClientRegistrationAuthenticationValidator}.
+	 *
+	 * <p>
+	 * <b>NOTE:</b> The authentication validator MUST throw
+	 * {@link OAuth2AuthenticationException} if validation fails.
+	 * @param authenticationValidator the {@code Consumer} providing access to the
+	 * {@link OAuth2ClientRegistrationAuthenticationContext} and is responsible for
+	 * validating specific OAuth 2.0 Client Registration Request parameters
+	 * @since 7.0.5
+	 */
+	public void setAuthenticationValidator(
+			Consumer<OAuth2ClientRegistrationAuthenticationContext> authenticationValidator) {
+		Assert.notNull(authenticationValidator, "authenticationValidator cannot be null");
+		this.authenticationValidator = authenticationValidator;
+	}
+
 	private OAuth2ClientRegistrationAuthenticationToken registerClient(
 			OAuth2ClientRegistrationAuthenticationToken clientRegistrationAuthentication,
 			OAuth2Authorization authorization) {
 
-		if (!isValidRedirectUris(clientRegistrationAuthentication.getClientRegistration().getRedirectUris())) {
-			throwInvalidClientRegistration(OAuth2ErrorCodes.INVALID_REDIRECT_URI,
-					OAuth2ClientMetadataClaimNames.REDIRECT_URIS);
-		}
+		OAuth2ClientRegistrationAuthenticationContext authenticationContext = OAuth2ClientRegistrationAuthenticationContext
+			.with(clientRegistrationAuthentication)
+			.build();
+		this.authenticationValidator.accept(authenticationContext);
 
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace("Validated client registration request parameters");
@@ -275,31 +292,6 @@ public final class OAuth2ClientRegistrationAuthenticationProvider implements Aut
 			// Restrict the access token to only contain the required scope
 			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_TOKEN);
 		}
-	}
-
-	private static boolean isValidRedirectUris(List<String> redirectUris) {
-		if (CollectionUtils.isEmpty(redirectUris)) {
-			return true;
-		}
-
-		for (String redirectUri : redirectUris) {
-			try {
-				URI validRedirectUri = new URI(redirectUri);
-				if (validRedirectUri.getFragment() != null) {
-					return false;
-				}
-			}
-			catch (URISyntaxException ex) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	private static void throwInvalidClientRegistration(String errorCode, String fieldName) {
-		OAuth2Error error = new OAuth2Error(errorCode, "Invalid Client Registration: " + fieldName, ERROR_URI);
-		throw new OAuth2AuthenticationException(error);
 	}
 
 }
