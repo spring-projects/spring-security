@@ -230,7 +230,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 				.getConfigurationForIssuerLocation(issuer, rest);
 			JwtDecoderProviderConfigurationUtils.validateIssuer(configuration, issuer);
 			return configuration.get("jwks_uri").toString();
-		}, JwtDecoderProviderConfigurationUtils::getJWSAlgorithms);
+		}, JwtDecoderProviderConfigurationUtils::getJWSAlgorithms)
+			.validator(JwtValidators.createDefaultWithIssuer(issuer));
 	}
 
 	/**
@@ -288,6 +289,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		private Cache cache = new NoOpCache("default");
 
 		private Consumer<ConfigurableJWTProcessor<SecurityContext>> jwtProcessorCustomizer;
+
+		private OAuth2TokenValidator<Jwt> validator = JwtValidators.createDefault();
 
 		private JwkSetUriJwtDecoderBuilder(String jwkSetUri) {
 			Assert.hasText(jwkSetUri, "jwkSetUri cannot be empty");
@@ -423,6 +426,12 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			return this;
 		}
 
+		JwkSetUriJwtDecoderBuilder validator(OAuth2TokenValidator<Jwt> validator) {
+			Assert.notNull(validator, "validator cannot be null");
+			this.validator = validator;
+			return this;
+		}
+
 		JWSKeySelector<SecurityContext> jwsKeySelector(JWKSource<SecurityContext> jwkSource) {
 			if (this.signatureAlgorithms.isEmpty()) {
 				return new JWSVerificationKeySelector<>(this.defaultAlgorithms.apply(jwkSource), jwkSource);
@@ -461,7 +470,9 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		 * @return the configured {@link NimbusJwtDecoder}
 		 */
 		public NimbusJwtDecoder build() {
-			return new NimbusJwtDecoder(processor());
+			NimbusJwtDecoder decoder = new NimbusJwtDecoder(processor());
+			decoder.setJwtValidator(this.validator);
+			return decoder;
 		}
 
 		private static final class SpringJWKSource<C extends SecurityContext> implements JWKSetSource<C> {
