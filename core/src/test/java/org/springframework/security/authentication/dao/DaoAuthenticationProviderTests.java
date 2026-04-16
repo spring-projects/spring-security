@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 import org.springframework.cache.Cache;
 import org.springframework.dao.DataRetrievalFailureException;
@@ -42,6 +43,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -62,6 +64,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -452,12 +455,10 @@ public class DaoAuthenticationProviderTests {
 		assertThat(daoAuthenticationProvider.getPasswordEncoder()).isSameAs(NoOpPasswordEncoder.getInstance());
 	}
 
-	/**
-	 * This is an explicit test for SEC-2056. It is intentionally ignored since this test
-	 * is not deterministic and {@link #testUserNotFoundEncodesPassword()} ensures that
-	 * SEC-2056 is fixed.
-	 */
-	public void IGNOREtestSec2056() {
+	// SEC-2056
+	@Test
+	@EnabledIfSystemProperty(named = "spring.security.timing-tests", matches = "true")
+	public void testSec2056() {
 		UsernamePasswordAuthenticationToken foundUser = UsernamePasswordAuthenticationToken.unauthenticated("rod",
 				"koala");
 		UsernamePasswordAuthenticationToken notFoundUser = UsernamePasswordAuthenticationToken
@@ -488,6 +489,41 @@ public class DaoAuthenticationProviderTests {
 		assertThat(Math.abs(userNotFoundAvg - userFoundAvg) <= 3)
 			.withFailMessage("User not found average " + userNotFoundAvg
 					+ " should be within 3ms of user found average " + userFoundAvg)
+			.isTrue();
+	}
+
+	// related to SEC-2056
+	@Test
+	@EnabledIfSystemProperty(named = "spring.security.timing-tests", matches = "true")
+	public void testDisabledUserTiming() {
+		UsernamePasswordAuthenticationToken user = UsernamePasswordAuthenticationToken.unauthenticated("rod", "koala");
+		PasswordEncoder encoder = new BCryptPasswordEncoder();
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		provider.setPasswordEncoder(encoder);
+		MockUserDetailsServiceUserRod users = new MockUserDetailsServiceUserRod();
+		users.password = encoder.encode((CharSequence) user.getCredentials());
+		provider.setUserDetailsService(users);
+		int sampleSize = 100;
+		List<Long> enabledTimes = new ArrayList<>(sampleSize);
+		for (int i = 0; i < sampleSize; i++) {
+			long start = System.currentTimeMillis();
+			provider.authenticate(user);
+			enabledTimes.add(System.currentTimeMillis() - start);
+		}
+		UserDetailsChecker preChecks = mock(UserDetailsChecker.class);
+		willThrow(new DisabledException("User is disabled")).given(preChecks).check(any(UserDetails.class));
+		provider.setPreAuthenticationChecks(preChecks);
+		List<Long> disabledTimes = new ArrayList<>(sampleSize);
+		for (int i = 0; i < sampleSize; i++) {
+			long start = System.currentTimeMillis();
+			assertThatExceptionOfType(DisabledException.class).isThrownBy(() -> provider.authenticate(user));
+			disabledTimes.add(System.currentTimeMillis() - start);
+		}
+		double enabledAvg = avg(enabledTimes);
+		double disabledAvg = avg(disabledTimes);
+		assertThat(Math.abs(disabledAvg - enabledAvg) <= 3)
+			.withFailMessage("Disabled user average " + disabledAvg + " should be within 3ms of enabled user average "
+					+ enabledAvg)
 			.isTrue();
 	}
 
