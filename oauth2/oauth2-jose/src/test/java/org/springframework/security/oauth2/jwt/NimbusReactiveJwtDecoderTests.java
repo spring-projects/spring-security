@@ -617,11 +617,31 @@ public class NimbusReactiveJwtDecoderTests {
 		given(responseSpec.bodyToMono(any(ParameterizedTypeReference.class)))
 			.willReturn(Mono.just(Map.of("issuer", issuer, "jwks_uri", issuer + "/jwks")));
 		given(spec.retrieve()).willReturn(responseSpec);
+		NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withIssuerLocation(issuer)
+			.webClient(webClient)
+			.build();
+		jwtDecoder.setJwtValidator(JwtValidators.createDefault());
+		Jwt jwt = jwtDecoder.decode(this.messageReadToken).block();
+		assertThat(jwt.hasClaim(JwtClaimNames.EXP)).isNotNull();
+	}
+
+	@Test
+	public void decodeWhenIssuerLocationThenRejectsMismatchingIssuers() {
+		String issuer = "https://example.org/wrong-issuer";
+		WebClient real = WebClient.builder().build();
+		WebClient.RequestHeadersUriSpec spec = spy(real.get());
+		WebClient webClient = spy(WebClient.class);
+		given(webClient.get()).willReturn(spec);
+		WebClient.ResponseSpec responseSpec = mock(WebClient.ResponseSpec.class);
+		given(responseSpec.bodyToMono(String.class)).willReturn(Mono.just(this.jwkSet));
+		given(responseSpec.bodyToMono(any(ParameterizedTypeReference.class)))
+			.willReturn(Mono.just(Map.of("issuer", issuer, "jwks_uri", issuer + "/jwks")));
+		given(spec.retrieve()).willReturn(responseSpec);
 		ReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withIssuerLocation(issuer)
 			.webClient(webClient)
 			.build();
-		Jwt jwt = jwtDecoder.decode(this.messageReadToken).block();
-		assertThat(jwt.hasClaim(JwtClaimNames.EXP)).isNotNull();
+		assertThatExceptionOfType(JwtValidationException.class)
+			.isThrownBy(() -> jwtDecoder.decode(this.messageReadToken).block());
 	}
 
 	@Test
