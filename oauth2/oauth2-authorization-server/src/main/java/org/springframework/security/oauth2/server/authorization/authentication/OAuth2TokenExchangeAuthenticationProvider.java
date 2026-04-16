@@ -80,6 +80,16 @@ public final class OAuth2TokenExchangeAuthenticationProvider implements Authenti
 
 	private static final String MAY_ACT = "may_act";
 
+	/**
+	 * The attribute name for the subject token claims stored in the
+	 * {@link OAuth2Authorization}. These claims are available to
+	 * {@link org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer}
+	 * implementations for mapping external ID token claims to the generated access token.
+	 * @since 7.0
+	 */
+	public static final String SUBJECT_TOKEN_CLAIMS_ATTRIBUTE = OAuth2TokenExchangeSubjectTokenContext.class.getName()
+			+ ".CLAIMS";
+
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final OAuth2AuthorizationService authorizationService;
@@ -155,6 +165,7 @@ public final class OAuth2TokenExchangeAuthenticationProvider implements Authenti
 					.principalName(subjectTokenContext.getPrincipalName())
 					.authorizationGrantType(AuthorizationGrantType.TOKEN_EXCHANGE)
 					.attribute(Principal.class.getName(), subjectTokenContext.getPrincipal())
+					.attribute(SUBJECT_TOKEN_CLAIMS_ATTRIBUTE, subjectTokenContext.getClaims())
 					.build();
 			// @formatter:on
 

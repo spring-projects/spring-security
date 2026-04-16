@@ -698,6 +698,15 @@ public class OAuth2TokenExchangeAuthenticationProviderTests {
 		assertThat(authorization.getAuthorizationGrantType()).isEqualTo(AuthorizationGrantType.TOKEN_EXCHANGE);
 		assertThat(authorization.<Authentication>getAttribute(Principal.class.getName())).isSameAs(userPrincipal);
 		assertThat(authorization.getAccessToken().getToken()).isEqualTo(accessToken);
+
+		// Verify subject token claims are available via the token context authorization
+		OAuth2Authorization subjectAuth = tokenContext.getAuthorization();
+		assertThat(subjectAuth).isNotNull();
+		Map<String, Object> subjectTokenClaims = subjectAuth
+			.getAttribute(OAuth2TokenExchangeAuthenticationProvider.SUBJECT_TOKEN_CLAIMS_ATTRIBUTE);
+		assertThat(subjectTokenClaims).isNotNull();
+		assertThat(subjectTokenClaims).containsEntry("iss", "https://gitlab.com");
+		assertThat(subjectTokenClaims).containsEntry("sub", "user@example.com");
 	}
 
 	@Test

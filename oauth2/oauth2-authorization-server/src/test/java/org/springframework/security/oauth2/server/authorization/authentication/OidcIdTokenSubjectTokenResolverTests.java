@@ -21,6 +21,7 @@ import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
@@ -110,6 +111,21 @@ public class OidcIdTokenSubjectTokenResolverTests {
 				.extracting(OAuth2AuthenticationException::getError)
 				.extracting(OAuth2Error::getErrorCode)
 				.isEqualTo(OAuth2ErrorCodes.INVALID_GRANT);
+		// @formatter:on
+	}
+
+	@Test
+	public void resolveWhenDefaultConstructorAndNoIdTokenJwkSetUrlThenThrowOAuth2AuthenticationException() {
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient()
+			.authorizationGrantType(AuthorizationGrantType.TOKEN_EXCHANGE)
+			.build();
+		OidcIdTokenSubjectTokenResolver defaultResolver = new OidcIdTokenSubjectTokenResolver();
+		// @formatter:off
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> defaultResolver.resolve(ID_TOKEN_VALUE, ID_TOKEN_TYPE_VALUE, registeredClient))
+				.extracting(OAuth2AuthenticationException::getError)
+				.extracting(OAuth2Error::getErrorCode)
+				.isEqualTo(OAuth2ErrorCodes.INVALID_CLIENT);
 		// @formatter:on
 	}
 

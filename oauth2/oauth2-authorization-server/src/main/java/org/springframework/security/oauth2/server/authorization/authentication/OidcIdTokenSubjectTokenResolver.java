@@ -18,6 +18,8 @@ package org.springframework.security.oauth2.server.authorization.authentication;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,13 +28,17 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
+import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * An {@link OAuth2TokenExchangeSubjectTokenResolver} implementation that resolves
@@ -44,11 +50,30 @@ import org.springframework.util.Assert;
  * token using a {@link JwtDecoder} obtained from the provided factory, then constructs an
  * {@link OAuth2TokenExchangeSubjectTokenContext} from the token's claims.
  *
+ * <p>
+ * When constructed with no arguments, the resolver uses the
+ * {@link ClientSettings#getIdTokenJwkSetUrl()} setting to resolve the external IdP's JWKS
+ * endpoint per client. Example client registration:
+ *
+ * <pre>
+ * RegisteredClient.withId(UUID.randomUUID().toString())
+ *     .clientId("cicd-client")
+ *     .clientSettings(ClientSettings.builder()
+ *         .idTokenJwkSetUrl("https://gitlab.com/oauth/discovery/keys")
+ *         .build())
+ *     .build();
+ * </pre>
+ *
+ * <p>
+ * For advanced use cases (e.g., multi-issuer routing, custom validation), a custom
+ * {@link JwtDecoderFactory} can be provided via the constructor.
+ *
  * @author Bapuji Koraganti
  * @since 7.0
  * @see OAuth2TokenExchangeSubjectTokenResolver
  * @see OAuth2TokenExchangeSubjectTokenContext
  * @see JwtDecoderFactory
+ * @see ClientSettings#getIdTokenJwkSetUrl()
  */
 public final class OidcIdTokenSubjectTokenResolver implements OAuth2TokenExchangeSubjectTokenResolver {
 
@@ -59,8 +84,18 @@ public final class OidcIdTokenSubjectTokenResolver implements OAuth2TokenExchang
 	private final JwtDecoderFactory<RegisteredClient> jwtDecoderFactory;
 
 	/**
+	 * Constructs an {@code OidcIdTokenSubjectTokenResolver} that uses the
+	 * {@link ClientSettings#getIdTokenJwkSetUrl()} setting to resolve the external IdP's
+	 * JWKS endpoint for each client. Decoders are cached per client.
+	 * @since 7.0
+	 */
+	public OidcIdTokenSubjectTokenResolver() {
+		this(new DefaultIdTokenJwtDecoderFactory());
+	}
+
+	/**
 	 * Constructs an {@code OidcIdTokenSubjectTokenResolver} using the provided
-	 * parameters.
+	 * {@link JwtDecoderFactory}.
 	 * @param jwtDecoderFactory the factory for creating {@link JwtDecoder} instances
 	 * keyed by {@link RegisteredClient}
 	 */
@@ -96,6 +131,31 @@ public final class OidcIdTokenSubjectTokenResolver implements OAuth2TokenExchang
 		Authentication principal = new IdTokenAuthenticationToken(subject);
 
 		return new OAuth2TokenExchangeSubjectTokenContext(principal, subject, jwt.getClaims(), Collections.emptySet());
+	}
+
+	/**
+	 * Default {@link JwtDecoderFactory} that reads the JWKS endpoint from
+	 * {@link ClientSettings#getIdTokenJwkSetUrl()} and caches decoders per client.
+	 */
+	private static final class DefaultIdTokenJwtDecoderFactory implements JwtDecoderFactory<RegisteredClient> {
+
+		private final Map<String, JwtDecoder> jwtDecoders = new ConcurrentHashMap<>();
+
+		@Override
+		public JwtDecoder createDecoder(RegisteredClient registeredClient) {
+			return this.jwtDecoders.computeIfAbsent(registeredClient.getId(), (key) -> {
+				String idTokenJwkSetUrl = registeredClient.getClientSettings().getIdTokenJwkSetUrl();
+				if (!StringUtils.hasText(idTokenJwkSetUrl)) {
+					OAuth2Error oauth2Error = new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT,
+							"Failed to find an ID Token Verifier for Client: '" + registeredClient.getId()
+									+ "'. Check to ensure you have configured the ID Token JWK Set URL.",
+							null);
+					throw new OAuth2AuthenticationException(oauth2Error);
+				}
+				return NimbusJwtDecoder.withJwkSetUri(idTokenJwkSetUrl).build();
+			});
+		}
+
 	}
 
 	/**
