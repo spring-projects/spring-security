@@ -1527,13 +1527,13 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableMethodSecurity
 	static class CustomPermissionEvaluatorConfig {
 
 		@Bean
-		MethodSecurityExpressionHandler methodSecurityExpressionHandler() {
-			DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
-			expressionHandler.setPermissionEvaluator(new PermissionEvaluator() {
+		PermissionEvaluator permissionEvaluator() {
+			return new PermissionEvaluator() {
 				@Override
 				public boolean hasPermission(Authentication authentication, Object targetDomainObject,
 						Object permission) {
@@ -1545,8 +1545,7 @@ public class PrePostMethodSecurityConfigurationTests {
 						Object permission) {
 					throw new UnsupportedOperationException();
 				}
-			});
-			return expressionHandler;
+			};
 		}
 
 	}
