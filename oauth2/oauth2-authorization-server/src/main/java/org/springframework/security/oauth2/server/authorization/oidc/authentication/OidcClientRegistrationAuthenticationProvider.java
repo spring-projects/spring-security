@@ -103,6 +103,8 @@ public final class OidcClientRegistrationAuthenticationProvider implements Authe
 
 	private PasswordEncoder passwordEncoder;
 
+	private Set<String> allowedScopes;
+
 	/**
 	 * Constructs an {@code OidcClientRegistrationAuthenticationProvider} using the
 	 * provided parameters.
@@ -208,6 +210,18 @@ public final class OidcClientRegistrationAuthenticationProvider implements Authe
 		this.passwordEncoder = passwordEncoder;
 	}
 
+	/**
+	 * Sets the allowed scopes for client registration. When set, only the specified
+	 * scopes will be accepted during Dynamic Client Registration. If not set, any scope
+	 * value will be accepted.
+	 * @param allowedScopes the {@code Set} of allowed scopes
+	 * @since 7.1
+	 */
+	public void setAllowedScopes(Set<String> allowedScopes) {
+		Assert.notNull(allowedScopes, "allowedScopes cannot be null");
+		this.allowedScopes = allowedScopes;
+	}
+
 	private OidcClientRegistrationAuthenticationToken registerClient(
 			OidcClientRegistrationAuthenticationToken clientRegistrationAuthentication,
 			OAuth2Authorization authorization) {
@@ -232,6 +246,14 @@ public final class OidcClientRegistrationAuthenticationProvider implements Authe
 		if (!isValidTokenEndpointAuthenticationMethod(clientRegistrationRequest)) {
 			throwInvalidClientRegistration("invalid_client_metadata",
 					OidcClientMetadataClaimNames.TOKEN_ENDPOINT_AUTH_METHOD);
+		}
+
+		if (this.allowedScopes != null) {
+			Set<String> requestedScopes = clientRegistrationRequest.getScopes();
+			if (!CollectionUtils.isEmpty(requestedScopes) && !this.allowedScopes.containsAll(requestedScopes)) {
+				throwInvalidClientRegistration(OAuth2ErrorCodes.INVALID_SCOPE,
+						OidcClientMetadataClaimNames.SCOPE);
+			}
 		}
 
 		if (this.logger.isTraceEnabled()) {

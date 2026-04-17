@@ -87,6 +87,8 @@ public final class OAuth2ClientRegistrationAuthenticationProvider implements Aut
 
 	private boolean openRegistrationAllowed;
 
+	private Set<String> allowedScopes;
+
 	/**
 	 * Constructs an {@code OAuth2ClientRegistrationAuthenticationProvider} using the
 	 * provided parameters.
@@ -200,6 +202,18 @@ public final class OAuth2ClientRegistrationAuthenticationProvider implements Aut
 		this.openRegistrationAllowed = openRegistrationAllowed;
 	}
 
+	/**
+	 * Sets the allowed scopes for client registration. When set, only the specified
+	 * scopes will be accepted during Dynamic Client Registration. If not set, any scope
+	 * value will be accepted.
+	 * @param allowedScopes the {@code Set} of allowed scopes
+	 * @since 7.1
+	 */
+	public void setAllowedScopes(Set<String> allowedScopes) {
+		Assert.notNull(allowedScopes, "allowedScopes cannot be null");
+		this.allowedScopes = allowedScopes;
+	}
+
 	private OAuth2ClientRegistrationAuthenticationToken registerClient(
 			OAuth2ClientRegistrationAuthenticationToken clientRegistrationAuthentication,
 			@Nullable OAuth2Authorization authorization) {
@@ -208,6 +222,14 @@ public final class OAuth2ClientRegistrationAuthenticationProvider implements Aut
 		if (!isValidRedirectUris((redirectUris != null) ? redirectUris : Collections.emptyList())) {
 			throwInvalidClientRegistration(OAuth2ErrorCodes.INVALID_REDIRECT_URI,
 					OAuth2ClientMetadataClaimNames.REDIRECT_URIS);
+		}
+
+		if (this.allowedScopes != null) {
+			Set<String> requestedScopes = clientRegistrationAuthentication.getClientRegistration().getScopes();
+			if (!CollectionUtils.isEmpty(requestedScopes) && !this.allowedScopes.containsAll(requestedScopes)) {
+				throwInvalidClientRegistration(OAuth2ErrorCodes.INVALID_SCOPE,
+						OAuth2ClientMetadataClaimNames.SCOPE);
+			}
 		}
 
 		if (this.logger.isTraceEnabled()) {

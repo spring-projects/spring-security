@@ -730,6 +730,35 @@ The access token in a Client Registration request *REQUIRES* the OAuth2 scope `c
 [TIP]
 To allow open client registration (no access token in request), configure `OAuth2ClientRegistrationAuthenticationProvider.setOpenRegistrationAllowed(true)`.
 
+[[oauth2AuthorizationServer-oauth2-client-registration-endpoint-scope-validation]]
+=== Customizing Scope Validation
+
+By default, the OAuth2 Client Registration endpoint accepts any scope values in the registration request.
+It is recommended to configure the allowed scopes to restrict which scopes can be assigned to dynamically registered clients.
+
+[source,java]
+----
+@Bean
+public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+	http
+		.oauth2AuthorizationServer((authorizationServer) ->
+			authorizationServer
+				.clientRegistrationEndpoint(clientRegistrationEndpoint ->
+                    clientRegistrationEndpoint
+                        .allowedScopes("openid", "profile", "email") // <1>
+				)
+		);
+
+	return http.build();
+}
+----
+<1> `allowedScopes()`: Restricts which scope values are accepted during client registration. Registration requests containing scopes not in this set will be rejected with an `invalid_scope` error.
+
+[IMPORTANT]
+When enabling Dynamic Client Registration, it is recommended to always configure `allowedScopes()` to prevent dynamically registered clients from requesting arbitrary scope values.
+
+For advanced scope validation logic, use `setRegisteredClientConverter()` to provide a custom `Converter<OAuth2ClientRegistration, RegisteredClient>` that performs the required validation.
+
 [[oauth2AuthorizationServer-oauth2-authorization-server-metadata-endpoint]]
 == OAuth2 Authorization Server Metadata Endpoint
 
@@ -1041,3 +1070,35 @@ The access token in a Client Registration request *REQUIRES* the OAuth2 scope `c
 
 [IMPORTANT]
 The access token in a Client Read request *REQUIRES* the OAuth2 scope `client.read`.
+
+[[oauth2AuthorizationServer-oidc-client-registration-endpoint-scope-validation]]
+=== Customizing Scope Validation
+
+By default, the OIDC Client Registration endpoint accepts any scope values in the registration request.
+It is recommended to configure the allowed scopes to restrict which scopes can be assigned to dynamically registered clients.
+
+[source,java]
+----
+@Bean
+public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+	http
+		.oauth2AuthorizationServer((authorizationServer) ->
+			authorizationServer
+                .oidc(oidc ->
+                    oidc
+                        .clientRegistrationEndpoint(clientRegistrationEndpoint ->
+                            clientRegistrationEndpoint
+                                .allowedScopes("openid", "profile", "email") // <1>
+                        )
+                )
+		);
+
+	return http.build();
+}
+----
+<1> `allowedScopes()`: Restricts which scope values are accepted during client registration. Registration requests containing scopes not in this set will be rejected with an `invalid_scope` error.
+
+[IMPORTANT]
+When enabling Dynamic Client Registration, it is recommended to always configure `allowedScopes()` to prevent dynamically registered clients from requesting arbitrary scope values.
+
+For advanced scope validation logic, use `setRegisteredClientConverter()` to provide a custom `Converter<OidcClientRegistration, RegisteredClient>` that performs the required validation.

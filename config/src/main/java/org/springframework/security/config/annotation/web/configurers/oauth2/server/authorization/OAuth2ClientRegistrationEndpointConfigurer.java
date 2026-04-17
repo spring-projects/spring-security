@@ -17,7 +17,10 @@
 package org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -73,6 +76,8 @@ public final class OAuth2ClientRegistrationEndpointConfigurer extends AbstractOA
 	private AuthenticationFailureHandler errorResponseHandler;
 
 	private boolean openRegistrationAllowed;
+
+	private Set<String> allowedScopes;
 
 	/**
 	 * Restrict for internal use only.
@@ -195,6 +200,21 @@ public final class OAuth2ClientRegistrationEndpointConfigurer extends AbstractOA
 		return this;
 	}
 
+	/**
+	 * Sets the allowed scopes for client registration. When set, only the specified
+	 * scopes will be accepted during Dynamic Client Registration. If not set, any scope
+	 * value will be accepted.
+	 * @param allowedScopes the allowed scopes
+	 * @return the {@link OAuth2ClientRegistrationEndpointConfigurer} for further
+	 * configuration
+	 * @since 7.1
+	 */
+	public OAuth2ClientRegistrationEndpointConfigurer allowedScopes(String... allowedScopes) {
+		Assert.notEmpty(allowedScopes, "allowedScopes cannot be empty");
+		this.allowedScopes = new HashSet<>(Arrays.asList(allowedScopes));
+		return this;
+	}
+
 	@Override
 	void init(HttpSecurity httpSecurity) {
 		AuthorizationServerSettings authorizationServerSettings = OAuth2ConfigurerUtils
@@ -207,7 +227,7 @@ public final class OAuth2ClientRegistrationEndpointConfigurer extends AbstractOA
 			.matcher(HttpMethod.POST, clientRegistrationEndpointUri);
 
 		List<AuthenticationProvider> authenticationProviders = createDefaultAuthenticationProviders(httpSecurity,
-				this.openRegistrationAllowed);
+				this.openRegistrationAllowed, this.allowedScopes);
 		if (!this.authenticationProviders.isEmpty()) {
 			authenticationProviders.addAll(0, this.authenticationProviders);
 		}
@@ -258,7 +278,7 @@ public final class OAuth2ClientRegistrationEndpointConfigurer extends AbstractOA
 	}
 
 	private static List<AuthenticationProvider> createDefaultAuthenticationProviders(HttpSecurity httpSecurity,
-			boolean openRegistrationAllowed) {
+			boolean openRegistrationAllowed, Set<String> allowedScopes) {
 		List<AuthenticationProvider> authenticationProviders = new ArrayList<>();
 
 		OAuth2ClientRegistrationAuthenticationProvider clientRegistrationAuthenticationProvider = new OAuth2ClientRegistrationAuthenticationProvider(
@@ -269,6 +289,9 @@ public final class OAuth2ClientRegistrationEndpointConfigurer extends AbstractOA
 			clientRegistrationAuthenticationProvider.setPasswordEncoder(passwordEncoder);
 		}
 		clientRegistrationAuthenticationProvider.setOpenRegistrationAllowed(openRegistrationAllowed);
+		if (allowedScopes != null) {
+			clientRegistrationAuthenticationProvider.setAllowedScopes(allowedScopes);
+		}
 		authenticationProviders.add(clientRegistrationAuthenticationProvider);
 
 		return authenticationProviders;

@@ -17,7 +17,10 @@
 package org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -74,6 +77,8 @@ public final class OidcClientRegistrationEndpointConfigurer extends AbstractOAut
 	private AuthenticationSuccessHandler clientRegistrationResponseHandler;
 
 	private AuthenticationFailureHandler errorResponseHandler;
+
+	private Set<String> allowedScopes;
 
 	/**
 	 * Restrict for internal use only.
@@ -182,6 +187,21 @@ public final class OidcClientRegistrationEndpointConfigurer extends AbstractOAut
 		return this;
 	}
 
+	/**
+	 * Sets the allowed scopes for client registration. When set, only the specified
+	 * scopes will be accepted during Dynamic Client Registration. If not set, any scope
+	 * value will be accepted.
+	 * @param allowedScopes the allowed scopes
+	 * @return the {@link OidcClientRegistrationEndpointConfigurer} for further
+	 * configuration
+	 * @since 7.1
+	 */
+	public OidcClientRegistrationEndpointConfigurer allowedScopes(String... allowedScopes) {
+		Assert.notEmpty(allowedScopes, "allowedScopes cannot be empty");
+		this.allowedScopes = new HashSet<>(Arrays.asList(allowedScopes));
+		return this;
+	}
+
 	@Override
 	void init(HttpSecurity httpSecurity) {
 		AuthorizationServerSettings authorizationServerSettings = OAuth2ConfigurerUtils
@@ -194,7 +214,8 @@ public final class OidcClientRegistrationEndpointConfigurer extends AbstractOAut
 				PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, clientRegistrationEndpointUri),
 				PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, clientRegistrationEndpointUri));
 
-		List<AuthenticationProvider> authenticationProviders = createDefaultAuthenticationProviders(httpSecurity);
+		List<AuthenticationProvider> authenticationProviders = createDefaultAuthenticationProviders(httpSecurity,
+				this.allowedScopes);
 		if (!this.authenticationProviders.isEmpty()) {
 			authenticationProviders.addAll(0, this.authenticationProviders);
 		}
@@ -245,7 +266,8 @@ public final class OidcClientRegistrationEndpointConfigurer extends AbstractOAut
 		return authenticationConverters;
 	}
 
-	private static List<AuthenticationProvider> createDefaultAuthenticationProviders(HttpSecurity httpSecurity) {
+	private static List<AuthenticationProvider> createDefaultAuthenticationProviders(HttpSecurity httpSecurity,
+			Set<String> allowedScopes) {
 		List<AuthenticationProvider> authenticationProviders = new ArrayList<>();
 
 		OidcClientRegistrationAuthenticationProvider oidcClientRegistrationAuthenticationProvider = new OidcClientRegistrationAuthenticationProvider(
@@ -255,6 +277,9 @@ public final class OidcClientRegistrationEndpointConfigurer extends AbstractOAut
 		PasswordEncoder passwordEncoder = OAuth2ConfigurerUtils.getOptionalBean(httpSecurity, PasswordEncoder.class);
 		if (passwordEncoder != null) {
 			oidcClientRegistrationAuthenticationProvider.setPasswordEncoder(passwordEncoder);
+		}
+		if (allowedScopes != null) {
+			oidcClientRegistrationAuthenticationProvider.setAllowedScopes(allowedScopes);
 		}
 		authenticationProviders.add(oidcClientRegistrationAuthenticationProvider);
 
