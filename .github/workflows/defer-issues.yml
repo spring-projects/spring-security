@@ -18,21 +18,21 @@ jobs:
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
     - name: Compute Version
       id: compute-version
-      uses: spring-io/spring-release-actions/compute-version@0.0.3
+      uses: spring-io/spring-release-actions/compute-version@0.0.4
     - name: Get Today's Release Version
       id: todays-release
-      uses: spring-io/spring-release-actions/get-todays-release-version@0.0.3
+      uses: spring-io/spring-release-actions/get-todays-release-version@0.0.4
       with:
         snapshot-version: ${{ steps.compute-version.outputs.version }}
         milestone-repository: ${{ github.repository }}
         milestone-token: ${{ secrets.GITHUB_TOKEN }}
     - name: Compute Next Version
       id: next-version
-      uses: spring-io/spring-release-actions/compute-next-version@0.0.3
+      uses: spring-io/spring-release-actions/compute-next-version@0.0.4
       with:
         version: ${{ steps.todays-release.outputs.release-version }}
     - name: Schedule Next Milestone
-      uses: spring-io/spring-release-actions/schedule-milestone@0.0.3
+      uses: spring-io/spring-release-actions/schedule-milestone@0.0.4
       with:
         version: ${{ steps.next-version.outputs.version }}
         version-date: ${{ steps.next-version.outputs.version-date }}
