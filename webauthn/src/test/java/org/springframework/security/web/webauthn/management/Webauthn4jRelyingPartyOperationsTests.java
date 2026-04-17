@@ -488,7 +488,7 @@ class Webauthn4jRelyingPartyOperationsTests {
 	 * https://www.w3.org/TR/webauthn-3/#sctn-registering-a-new-credential
 	 *
 	 * 19. Verify that the "alg" parameter in the credential public key in authData
-	 * matches the alg attribute of one of the items in options.pubKeyCredParams.
+	 * matches the alg attribute of one of the items in pkOptions.pubKeyCredParams.
 	 */
 	@Test
 	void registerCredentialWhenAlgDoesNotMatchOptions() {
@@ -503,7 +503,7 @@ class Webauthn4jRelyingPartyOperationsTests {
 				options, new RelyingPartyPublicKey(publicKey, this.label));
 
 		assertThatRuntimeException().isThrownBy(() -> this.rpOperations.registerCredential(registrationRequest))
-			.withMessageContaining("options.pubKeyCredParams");
+			.withMessageContaining("pkOptions.pubKeyCredParams");
 	}
 
 	/**
