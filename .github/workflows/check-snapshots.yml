@@ -14,7 +14,7 @@ permissions:
 jobs:
   snapshot-test:
     name: Test Against Snapshots
-    uses: spring-io/spring-security-release-tools/.github/workflows/test.yml@v1
+    uses: spring-io/spring-security-release-tools/.github/workflows/test.yml@ed473b4dafba053c63a453d2d88a89df3b3e18b3 # v1
     strategy:
       matrix:
         include:
@@ -33,6 +33,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send Notification
-        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@v1
+        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@ed473b4dafba053c63a453d2d88a89df3b3e18b3 # v1
         with:
           webhook-url: ${{ secrets.SPRING_SECURITY_CI_GCHAT_WEBHOOK_URL }}
