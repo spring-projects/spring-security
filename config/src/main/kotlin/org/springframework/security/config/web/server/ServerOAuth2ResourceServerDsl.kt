@@ -20,6 +20,7 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler
+import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler
 import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler
 import org.springframework.web.server.ServerWebExchange
 
@@ -35,6 +36,8 @@ import org.springframework.web.server.ServerWebExchange
  * @property bearerTokenConverter the [ServerAuthenticationConverter] to use for requests authenticating with
  * Bearer Tokens.
  * @property authenticationManagerResolver the [ReactiveAuthenticationManagerResolver] to use.
+ * @property authenticationSuccessHandler the [ServerAuthenticationSuccessHandler] to use after
+ * authentication success.
  */
 @ServerSecurityMarker
 class ServerOAuth2ResourceServerDsl {
@@ -43,6 +46,7 @@ class ServerOAuth2ResourceServerDsl {
     var authenticationEntryPoint: ServerAuthenticationEntryPoint? = null
     var bearerTokenConverter: ServerAuthenticationConverter? = null
     var authenticationManagerResolver: ReactiveAuthenticationManagerResolver<ServerWebExchange>? = null
+    var authenticationSuccessHandler: ServerAuthenticationSuccessHandler? = null
 
     private var jwt: ((ServerHttpSecurity.OAuth2ResourceServerSpec.JwtSpec) -> Unit)? = null
     private var opaqueToken: ((ServerHttpSecurity.OAuth2ResourceServerSpec.OpaqueTokenSpec) -> Unit)? = null
@@ -115,6 +119,7 @@ class ServerOAuth2ResourceServerDsl {
             authenticationEntryPoint?.also { oauth2ResourceServer.authenticationEntryPoint(authenticationEntryPoint) }
             bearerTokenConverter?.also { oauth2ResourceServer.bearerTokenConverter(bearerTokenConverter) }
             authenticationManagerResolver?.also { oauth2ResourceServer.authenticationManagerResolver(authenticationManagerResolver!!) }
+            authenticationSuccessHandler?.also { oauth2ResourceServer.authenticationSuccessHandler(authenticationSuccessHandler) }
             jwt?.also { oauth2ResourceServer.jwt(jwt) }
             opaqueToken?.also { oauth2ResourceServer.opaqueToken(opaqueToken) }
         }
