@@ -8,3 +8,8 @@
 == Web
 
 * Since Spring Framework's `HttpMethod#valueOf` now normalizes casing, `StrictServerWebExchangeFirewall` no longer detects a non-canonical-case HTTP method (for example, `get` instead of `GET`) as a distinct value; such requests are processed as the canonical method instead of being rejected. Applications with a customized `ServerExchangeRejectedHandler` should be aware it is no longer invoked for this case.
+
+== OAuth 2.0
+
+* https://github.com/spring-projects/spring-security/pull/18895[gh-18895] - Add `authenticationSuccessHandler` to the Reactive Resource Server DSL
+
