@@ -381,8 +381,8 @@ public class OAuth2ResourceServerSpecTests {
 		ReactiveAuthenticationManager authenticationManager = this.spring.getContext()
 			.getBean(ReactiveAuthenticationManager.class);
 		given(authenticationManager.authenticate(any()))
-				.willAnswer(input -> Mono.just(input.getArgument(0, Authentication.class)));
-		given(handler.onAuthenticationSuccess(any(), any())).willAnswer(input -> {
+			.willAnswer((input) -> Mono.just(input.getArgument(0, Authentication.class)));
+		given(handler.onAuthenticationSuccess(any(), any())).willAnswer((input) -> {
 			WebFilterExchange webFilterExchange = input.getArgument(0, WebFilterExchange.class);
 			return webFilterExchange.getChain().filter(webFilterExchange.getExchange());
 		});
@@ -403,8 +403,8 @@ public class OAuth2ResourceServerSpecTests {
 		ReactiveAuthenticationManager authenticationManager = this.spring.getContext()
 			.getBean(ReactiveAuthenticationManager.class);
 		given(authenticationManager.authenticate(any()))
-				.willAnswer(input -> Mono.just(input.getArgument(0, Authentication.class)));
-		given(handler.onAuthenticationSuccess(any(), any())).willAnswer(input -> {
+			.willAnswer((input) -> Mono.just(input.getArgument(0, Authentication.class)));
+		given(handler.onAuthenticationSuccess(any(), any())).willAnswer((input) -> {
 			WebFilterExchange webFilterExchange = input.getArgument(0, WebFilterExchange.class);
 			return webFilterExchange.getChain().filter(webFilterExchange.getExchange());
 		});
@@ -419,17 +419,18 @@ public class OAuth2ResourceServerSpecTests {
 
 	@Test
 	public void getWhenUsingCustomAuthenticationSuccessHandlerWIthOpaqueTokenThenUsesIsAccordingly() {
-		this.spring.register(CustomAuthenticationSuccessHandlerOpaqueTokenConfig.class, RootController.class).autowire();
+		this.spring.register(CustomAuthenticationSuccessHandlerOpaqueTokenConfig.class, RootController.class)
+			.autowire();
 		this.spring.getContext()
-				.getBean(MockWebServer.class)
-				.setDispatcher(requiresAuth(this.clientId, this.clientSecret, this.active));
+			.getBean(MockWebServer.class)
+			.setDispatcher(requiresAuth(this.clientId, this.clientSecret, this.active));
 		ServerAuthenticationSuccessHandler handler = this.spring.getContext()
 			.getBean(ServerAuthenticationSuccessHandler.class);
 		ReactiveAuthenticationManager authenticationManager = this.spring.getContext()
 			.getBean(ReactiveAuthenticationManager.class);
 		given(authenticationManager.authenticate(any()))
-				.willAnswer(input -> Mono.just(input.getArgument(0, Authentication.class)));
-		given(handler.onAuthenticationSuccess(any(), any())).willAnswer(input -> {
+			.willAnswer((input) -> Mono.just(input.getArgument(0, Authentication.class)));
+		given(handler.onAuthenticationSuccess(any(), any())).willAnswer((input) -> {
 			WebFilterExchange webFilterExchange = input.getArgument(0, WebFilterExchange.class);
 			return webFilterExchange.getChain().filter(webFilterExchange.getExchange());
 		});
@@ -1036,7 +1037,7 @@ public class OAuth2ResourceServerSpecTests {
 					.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
 					.oauth2ResourceServer((oauth2) -> oauth2
 							.authenticationSuccessHandler(authenticationSuccessHandler())
-							.authenticationManagerResolver(exchange -> Mono.just(authenticationManager()))
+							.authenticationManagerResolver((exchange) -> Mono.just(authenticationManager()))
 					);
 			// @formatter:on
 			return http.build();
@@ -1126,6 +1127,7 @@ public class OAuth2ResourceServerSpecTests {
 		void shutdown() throws IOException {
 			this.mockWebServer.shutdown();
 		}
+
 	}
 
 	@EnableWebFlux
