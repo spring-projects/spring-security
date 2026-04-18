@@ -29,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * Tests for {@link ScryptPassword4jPasswordEncoder}.
  *
  * @author Mehrdad Bozorgmehr
+ * @author Andrey Litvitski
  */
 class ScryptPassword4jPasswordEncoderTests {
 
@@ -69,6 +70,19 @@ class ScryptPassword4jPasswordEncoderTests {
 		assertThat(encoded).isNotNull();
 		assertThat(encoded.split("\\$").length).isGreaterThanOrEqualTo(3);
 		assertThat(encoder.matches(PASSWORD, encoded)).isTrue();
+	}
+
+	@Test
+	void constructorWithPepperShouldWork() {
+		String pepper = "scrypt-pepper";
+		String wrongPepper = "wrong-pepper";
+		ScryptFunction function = AlgorithmFinder.getScryptInstance();
+		ScryptPassword4jPasswordEncoder encoderWithPepper = new ScryptPassword4jPasswordEncoder(function, pepper);
+		String encoded = encoderWithPepper.encode(PASSWORD);
+		assertThat(encoderWithPepper.matches(PASSWORD, encoded)).isTrue();
+		ScryptPassword4jPasswordEncoder encoderWithWrongPepper = new ScryptPassword4jPasswordEncoder(function,
+				wrongPepper);
+		assertThat(encoderWithWrongPepper.matches(PASSWORD, encoded)).isFalse();
 	}
 
 	@ParameterizedTest

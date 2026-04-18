@@ -29,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * Tests for {@link BcryptPassword4jPasswordEncoder}.
  *
  * @author Mehrdad Bozorgmehr
+ * @author Andrey Litvitski
  */
 class BcryptPassword4jPasswordEncoderTests {
 
@@ -68,6 +69,19 @@ class BcryptPassword4jPasswordEncoderTests {
 
 		assertThat(encoded).isNotNull().contains("$06$"); // 6 rounds
 		assertThat(encoder.matches(PASSWORD, encoded)).isTrue();
+	}
+
+	@Test
+	void constructorWithPepperShouldWork() {
+		String pepper = "bcrypt-pepper";
+		String wrongPepper = "wrong-pepper";
+		BcryptFunction function = BcryptFunction.getInstance(6);
+		BcryptPassword4jPasswordEncoder encoderWithPepper = new BcryptPassword4jPasswordEncoder(function, pepper);
+		String encoded = encoderWithPepper.encode(PASSWORD);
+		assertThat(encoderWithPepper.matches(PASSWORD, encoded)).isTrue();
+		BcryptPassword4jPasswordEncoder encoderWithWrongPepper = new BcryptPassword4jPasswordEncoder(function,
+				wrongPepper);
+		assertThat(encoderWithWrongPepper.matches(PASSWORD, encoded)).isFalse();
 	}
 
 	@ParameterizedTest

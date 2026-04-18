@@ -26,6 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * tests verify the common behavior across all concrete password encoder subclasses.
  *
  * @author Mehrdad Bozorgmehr
+ * @author Andrey Litvitski
  */
 class Password4jPasswordEncoderTests {
 
@@ -100,6 +101,38 @@ class Password4jPasswordEncoderTests {
 		assertThat(encoder.matches("", encoded)).isFalse();
 		assertThat(encoder.matches(PASSWORD, null)).isFalse();
 		assertThat(encoder.matches(PASSWORD, "")).isFalse();
+	}
+
+	@Test
+	void matchesShouldReturnTrueWhenSamePepperIsUsed() {
+		String pepper = "secret-pepper";
+		BcryptPassword4jPasswordEncoder encoderWithPepper = new BcryptPassword4jPasswordEncoder(
+				BcryptFunction.getInstance(4), pepper);
+		String encoded = encoderWithPepper.encode(PASSWORD);
+		assertThat(encoderWithPepper.matches(PASSWORD, encoded)).isTrue();
+	}
+
+	@Test
+	void matchesShouldReturnFalseWhenDifferentPepperIsUsed() {
+		String pepper = "secret-pepper";
+		String wrongPepper = "wrong-pepper";
+		BcryptPassword4jPasswordEncoder encoderWithPepper = new BcryptPassword4jPasswordEncoder(
+				BcryptFunction.getInstance(4), pepper);
+		BcryptPassword4jPasswordEncoder encoderWithWrongPepper = new BcryptPassword4jPasswordEncoder(
+				BcryptFunction.getInstance(6), wrongPepper);
+		String encoded = encoderWithPepper.encode(PASSWORD);
+		assertThat(encoderWithWrongPepper.matches(PASSWORD, encoded)).isFalse();
+	}
+
+	@Test
+	void matchesShouldReturnFalseWhenPepperIsMissing() {
+		String pepper = "secret-pepper";
+		BcryptPassword4jPasswordEncoder encoderWithPepper = new BcryptPassword4jPasswordEncoder(
+				BcryptFunction.getInstance(6), pepper);
+		BcryptPassword4jPasswordEncoder encoderWithoutPepper = new BcryptPassword4jPasswordEncoder(
+				BcryptFunction.getInstance(6));
+		String encoded = encoderWithPepper.encode(PASSWORD);
+		assertThat(encoderWithoutPepper.matches(PASSWORD, encoded)).isFalse();
 	}
 
 }

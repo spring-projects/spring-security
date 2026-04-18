@@ -27,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * Tests for {@link Pbkdf2Password4jPasswordEncoder}.
  *
  * @author Mehrdad Bozorgmehr
+ * @author Andrey Litvitski
  */
 class Pbkdf2Password4jPasswordEncoderTests {
 
@@ -79,6 +80,19 @@ class Pbkdf2Password4jPasswordEncoderTests {
 
 		assertThat(encoded).isNotNull().isNotEqualTo(PASSWORD).contains(":");
 		assertThat(encoder.matches(PASSWORD, encoded)).isTrue();
+	}
+
+	@Test
+	void constructorWithPepperShouldWork() {
+		String pepper = "pbkdf2-pepper";
+		String wrongPepper = "wrong-pepper";
+		PBKDF2Function function = AlgorithmFinder.getPBKDF2Instance();
+		Pbkdf2Password4jPasswordEncoder encoderWithPepper = new Pbkdf2Password4jPasswordEncoder(function, 16, pepper);
+		String encoded = encoderWithPepper.encode(PASSWORD);
+		assertThat(encoderWithPepper.matches(PASSWORD, encoded)).isTrue();
+		Pbkdf2Password4jPasswordEncoder encoderWithWrongPepper = new Pbkdf2Password4jPasswordEncoder(function, 16,
+				wrongPepper);
+		assertThat(encoderWithWrongPepper.matches(PASSWORD, encoded)).isFalse();
 	}
 
 	@Test
