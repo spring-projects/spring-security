@@ -97,6 +97,7 @@ import org.springframework.security.oauth2.server.authorization.oidc.OidcClientR
 import org.springframework.security.oauth2.server.authorization.oidc.authentication.OidcClientConfigurationAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.oidc.authentication.OidcClientRegistrationAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.oidc.authentication.OidcClientRegistrationAuthenticationToken;
+import org.springframework.security.oauth2.server.authorization.oidc.authentication.OidcClientRegistrationAuthenticationValidator;
 import org.springframework.security.oauth2.server.authorization.oidc.converter.OidcClientRegistrationRegisteredClientConverter;
 import org.springframework.security.oauth2.server.authorization.oidc.converter.RegisteredClientOidcClientRegistrationConverter;
 import org.springframework.security.oauth2.server.authorization.oidc.http.converter.OidcClientRegistrationHttpMessageConverter;
@@ -545,6 +546,129 @@ public class OidcClientRegistrationTests {
 			.isCloseTo(expectedSecretExpiryDate, allowedDelta);
 	}
 
+	@Test
+	public void requestWhenProtocolRelativeRedirectUriThenBadRequest() throws Exception {
+		this.spring.register(DefaultValidatorConfiguration.class).autowire();
+		assertThat(requestWhenInvalidClientMetadataThenBadRequest("""
+				{
+				  "client_name": "client-name",
+				  "redirect_uris": ["//client.example.com/path"],
+				  "grant_types": ["authorization_code"]
+				}
+				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+
+	@Test
+	public void requestWhenJavascriptSchemeRedirectUriThenBadRequest() throws Exception {
+		this.spring.register(DefaultValidatorConfiguration.class).autowire();
+		assertThat(requestWhenInvalidClientMetadataThenBadRequest("""
+				{
+				  "client_name": "client-name",
+				  "redirect_uris": ["javascript:alert(document.cookie)"],
+				  "grant_types": ["authorization_code"]
+				}
+				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+
+	@Test
+	public void requestWhenDataSchemeRedirectUriThenBadRequest() throws Exception {
+		this.spring.register(DefaultValidatorConfiguration.class).autowire();
+		assertThat(requestWhenInvalidClientMetadataThenBadRequest("""
+				{
+				  "client_name": "client-name",
+				  "redirect_uris": ["data:text/html,<h1>content</h1>"],
+				  "grant_types": ["authorization_code"]
+				}
+				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+
+	@Test
+	public void requestWhenJavascriptSchemePostLogoutRedirectUriThenBadRequest() throws Exception {
+		this.spring.register(DefaultValidatorConfiguration.class).autowire();
+		assertThat(requestWhenInvalidClientMetadataThenBadRequest("""
+				{
+				  "client_name": "client-name",
+				  "redirect_uris": ["https://client.example.com"],
+				  "post_logout_redirect_uris": ["javascript:alert(document.cookie)"],
+				  "grant_types": ["authorization_code"]
+				}
+				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+
+	@Test
+	public void requestWhenDataSchemePostLogoutRedirectUriThenBadRequest() throws Exception {
+		this.spring.register(DefaultValidatorConfiguration.class).autowire();
+		assertThat(requestWhenInvalidClientMetadataThenBadRequest("""
+				{
+				  "client_name": "client-name",
+				  "redirect_uris": ["https://client.example.com"],
+				  "post_logout_redirect_uris": ["data:text/html,<h1>content</h1>"],
+				  "grant_types": ["authorization_code"]
+				}
+				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+
+	@Test
+	public void requestWhenHttpJwkSetUriThenBadRequest() throws Exception {
+		this.spring.register(DefaultValidatorConfiguration.class).autowire();
+		assertThat(requestWhenInvalidClientMetadataThenBadRequest("""
+				{
+				  "client_name": "client-name",
+				  "redirect_uris": ["https://client.example.com"],
+				  "grant_types": ["authorization_code"],
+				  "jwks_uri": "http://169.254.169.254/keys",
+				  "token_endpoint_auth_method": "private_key_jwt"
+				}
+				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+
+	@Test
+	public void requestWhenArbitraryScopeThenBadRequest() throws Exception {
+		this.spring.register(DefaultValidatorConfiguration.class).autowire();
+		assertThat(requestWhenInvalidClientMetadataThenBadRequest("""
+				{
+				  "client_name": "client-name",
+				  "redirect_uris": ["https://client.example.com"],
+				  "grant_types": ["authorization_code"],
+				  "scope": "read write"
+				}
+				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+
+	private int requestWhenInvalidClientMetadataThenBadRequest(String json) throws Exception {
+		String clientRegistrationScope = "client.create";
+		String clientId = "client-registrar-" + System.nanoTime();
+		// @formatter:off
+		RegisteredClient clientRegistrar = RegisteredClient.withId(clientId)
+				.clientId(clientId)
+				.clientSecret("{noop}secret")
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+				.scope(clientRegistrationScope)
+				.build();
+		// @formatter:on
+		this.registeredClientRepository.save(clientRegistrar);
+
+		MvcResult tokenResult = this.mvc
+			.perform(post(ISSUER.concat(DEFAULT_TOKEN_ENDPOINT_URI))
+				.param(OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantType.CLIENT_CREDENTIALS.getValue())
+				.param(OAuth2ParameterNames.SCOPE, clientRegistrationScope)
+				.with(httpBasic(clientId, "secret")))
+			.andExpect(status().isOk())
+			.andReturn();
+		OAuth2AccessToken accessToken = readAccessTokenResponse(tokenResult.getResponse()).getAccessToken();
+
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.setBearerAuth(accessToken.getTokenValue());
+
+		MvcResult registerResult = this.mvc
+			.perform(post(ISSUER.concat(DEFAULT_OIDC_CLIENT_REGISTRATION_ENDPOINT_URI)).headers(httpHeaders)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(json))
+			.andReturn();
+		return registerResult.getResponse().getStatus();
+	}
+
 	private OidcClientRegistration registerClient(OidcClientRegistration clientRegistration) throws Exception {
 		// ***** (1) Obtain the "initial" access token used for registering the client
 
@@ -642,6 +766,18 @@ public class OidcClientRegistrationTests {
 		return clientRegistrationHttpMessageConverter.read(OidcClientRegistration.class, httpResponse);
 	}
 
+	private static Consumer<List<AuthenticationProvider>> scopePermissiveValidatorCustomizer() {
+		return (authenticationProviders) -> authenticationProviders.forEach((authenticationProvider) -> {
+			if (authenticationProvider instanceof OidcClientRegistrationAuthenticationProvider provider) {
+				provider.setAuthenticationValidator(
+						OidcClientRegistrationAuthenticationValidator.DEFAULT_REDIRECT_URI_VALIDATOR.andThen(
+								OidcClientRegistrationAuthenticationValidator.DEFAULT_POST_LOGOUT_REDIRECT_URI_VALIDATOR)
+							.andThen(OidcClientRegistrationAuthenticationValidator.DEFAULT_JWK_SET_URI_VALIDATOR)
+							.andThen(OidcClientRegistrationAuthenticationValidator.SIMPLE_SCOPE_VALIDATOR));
+			}
+		});
+	}
+
 	@EnableWebSecurity
 	@Configuration(proxyBeanMethods = false)
 	static class CustomClientRegistrationConfiguration extends AuthorizationServerConfiguration {
@@ -660,7 +796,7 @@ public class OidcClientRegistrationTests {
 																	.clientRegistrationRequestConverter(authenticationConverter)
 																	.clientRegistrationRequestConverters(authenticationConvertersConsumer)
 																	.authenticationProvider(authenticationProvider)
-																	.authenticationProviders(authenticationProvidersConsumer)
+																	.authenticationProviders(scopePermissiveValidatorCustomizer().andThen(authenticationProvidersConsumer))
 																	.clientRegistrationResponseHandler(authenticationSuccessHandler)
 																	.errorResponseHandler(authenticationFailureHandler)
 													)
@@ -690,7 +826,7 @@ public class OidcClientRegistrationTests {
 											oidc
 													.clientRegistrationEndpoint((clientRegistration) ->
 															clientRegistration
-																	.authenticationProviders(configureClientRegistrationConverters())
+																	.authenticationProviders(scopePermissiveValidatorCustomizer().andThen(configureClientRegistrationConverters()))
 													)
 									)
 					)
@@ -731,7 +867,7 @@ public class OidcClientRegistrationTests {
 											oidc
 													.clientRegistrationEndpoint((clientRegistration) ->
 															clientRegistration
-																	.authenticationProviders(configureClientRegistrationConverters())
+																	.authenticationProviders(scopePermissiveValidatorCustomizer().andThen(configureClientRegistrationConverters()))
 													)
 									)
 					)
@@ -757,6 +893,33 @@ public class OidcClientRegistrationTests {
 
 	@EnableWebSecurity
 	@Configuration(proxyBeanMethods = false)
+	static class DefaultValidatorConfiguration extends AuthorizationServerConfiguration {
+
+		// Override with Customizer.withDefaults() so the default (strict)
+		// OidcClientRegistrationAuthenticationValidator is in effect.
+		// @formatter:off
+		@Bean
+		@Override
+		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.oidc((oidc) ->
+											oidc
+													.clientRegistrationEndpoint(Customizer.withDefaults())
+									)
+					)
+					.authorizeHttpRequests((authorize) ->
+							authorize.anyRequest().authenticated()
+					);
+			return http.build();
+		}
+		// @formatter:on
+
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
 	static class AuthorizationServerConfiguration {
 
 		// @formatter:off
@@ -767,7 +930,10 @@ public class OidcClientRegistrationTests {
 							authorizationServer
 									.oidc((oidc) ->
 											oidc
-													.clientRegistrationEndpoint(Customizer.withDefaults())
+													.clientRegistrationEndpoint((clientRegistration) ->
+															clientRegistration
+																	.authenticationProviders(scopePermissiveValidatorCustomizer())
+													)
 									)
 					)
 					.authorizeHttpRequests((authorize) ->
