@@ -26,8 +26,11 @@
 
 	<http>
 		<intercept-url pattern="/path" access="denyAll" servlet-path="/spring"/>
+		<intercept-url pattern="/**" access="permitAll"/>
 		<http-basic/>
 	</http>
+
+	<b:bean name="path" class="org.springframework.security.config.http.InterceptUrlConfigTests.PathController"/>
 
 	<b:import resource="userservice.xml"/>
 </b:beans>

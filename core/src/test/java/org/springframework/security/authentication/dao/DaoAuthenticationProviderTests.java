@@ -467,11 +467,10 @@ public class DaoAuthenticationProviderTests {
 	public void testDisabledUserTiming() {
 		UsernamePasswordAuthenticationToken user = UsernamePasswordAuthenticationToken.unauthenticated("rod", "koala");
 		PasswordEncoder encoder = new BCryptPasswordEncoder();
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-		provider.setPasswordEncoder(encoder);
 		MockUserDetailsServiceUserRod users = new MockUserDetailsServiceUserRod();
 		users.password = encoder.encode((CharSequence) user.getCredentials());
-		provider.setUserDetailsService(users);
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(users);
+		provider.setPasswordEncoder(encoder);
 		int sampleSize = 100;
 		List<Long> enabledTimes = new ArrayList<>(sampleSize);
 		for (int i = 0; i < sampleSize; i++) {
