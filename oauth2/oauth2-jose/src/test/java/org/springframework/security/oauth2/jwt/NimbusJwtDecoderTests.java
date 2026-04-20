@@ -328,9 +328,24 @@ public class NimbusJwtDecoderTests {
 			.willReturn(new ResponseEntity<>(Map.of("issuer", issuer, "jwks_uri", issuer + "/jwks"), HttpStatus.OK));
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
 			.willReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
-		JwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).restOperations(restOperations).build();
+		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer)
+			.restOperations(restOperations)
+			.build();
+		jwtDecoder.setJwtValidator(JwtValidators.createDefault());
 		Jwt jwt = jwtDecoder.decode(SIGNED_JWT);
 		assertThat(jwt.hasClaim(JwtClaimNames.EXP)).isNotNull();
+	}
+
+	@Test
+	public void decodeWhenIssuerLocationThenRejectsMismatchingIssuers() {
+		String issuer = "https://example.org/wrong-issuer";
+		RestOperations restOperations = mock(RestOperations.class);
+		given(restOperations.exchange(any(RequestEntity.class), any(ParameterizedTypeReference.class)))
+			.willReturn(new ResponseEntity<>(Map.of("issuer", issuer, "jwks_uri", issuer + "/jwks"), HttpStatus.OK));
+		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
+			.willReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
+		JwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).restOperations(restOperations).build();
+		assertThatExceptionOfType(JwtValidationException.class).isThrownBy(() -> jwtDecoder.decode(SIGNED_JWT));
 	}
 
 	@Test
