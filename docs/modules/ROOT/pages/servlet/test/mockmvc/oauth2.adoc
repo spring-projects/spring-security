@@ -790,12 +790,59 @@ mvc.get("/endpoint") {
 ======
 
 [[testing-jwt]]
-== Testing JWT Authentication
+== Testing OAuth 2.0 Resource Servers with JWT
 
-In order to make an authorized request on a resource server, you need a bearer token.
+Similar to <<testing-opaque-token,opaque tokens>>, JWTs require an authorization server in order to verify their validity, which can make testing more difficult.
+To help with that, Spring Security has test support for JWTs.
 
-If your resource server is configured for JWTs, then this would mean that the bearer token needs to be signed and then encoded according to the JWT specification.
-All of this can be quite daunting, especially when this isn't the focus of your test.
+Let's say that we've got a controller that retrieves the authentication as a `Jwt`:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@GetMapping("/endpoint")
+public String foo(@AuthenticationPrincipal Jwt jwt) {
+    return jwt.getClaimAsString("sub");
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/endpoint")
+fun foo(@AuthenticationPrincipal jwt: Jwt): String {
+    return jwt.getClaimAsString("sub")
+}
+----
+======
+
+In that case, we can tell Spring Security to include a default `Jwt` using the `jwt` xref:servlet/test/mockmvc/request-post-processors.adoc[`RequestPostProcessor`], like so:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+mvc
+    .perform(get("/endpoint").with(jwt()));
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+mvc.get("/endpoint") {
+    with(jwt())
+}
+----
+======
+
+What this will do is create a mock `Jwt`, passing it correctly through any authentication APIs so that it's available for your authorization mechanisms to verify.
 
 Fortunately, there are a number of simple ways that you can overcome this difficulty and allow your tests to focus on authorization and not on representing bearer tokens.
 We'll look at two of them now:
