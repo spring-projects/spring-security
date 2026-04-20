@@ -14,7 +14,7 @@ org-jetbrains-kotlinx = "1.10.2"
 org-mockito = "5.17.0"
 org-opensaml = "4.3.2"
 org-opensaml5 = "5.1.2"
-org-springframework = "6.2.17"
+org-springframework = "6.2.18"
 
 [libraries]
 ch-qos-logback-logback-classic = "ch.qos.logback:logback-classic:1.5.32"
@@ -57,7 +57,7 @@ org-apache-directory-server-apacheds-protocol-shared = { module = "org.apache.di
 org-apache-directory-server-apacheds-server-jndi = { module = "org.apache.directory.server:apacheds-server-jndi", version.ref = "org-apache-directory-server" }
 org-apache-directory-shared-shared-ldap = "org.apache.directory.shared:shared-ldap:0.9.15"
 org-apache-httpcomponents-httpclient = "org.apache.httpcomponents:httpclient:4.5.14"
-org-apache-maven-maven-resolver-provider = "org.apache.maven:maven-resolver-provider:3.9.14"
+org-apache-maven-maven-resolver-provider = "org.apache.maven:maven-resolver-provider:3.9.15"
 org-apache-maven-resolver-maven-resolver-connector-basic = { module = "org.apache.maven.resolver:maven-resolver-connector-basic", version.ref = "org-apache-maven-resolver" }
 org-apache-maven-resolver-maven-resolver-impl = { module = "org.apache.maven.resolver:maven-resolver-impl", version.ref = "org-apache-maven-resolver" }
 org-apache-maven-resolver-maven-resolver-transport-http = { module = "org.apache.maven.resolver:maven-resolver-transport-http", version.ref = "org-apache-maven-resolver" }
@@ -71,7 +71,7 @@ org-bouncycastle-bcprov-jdk15on = { module = "org.bouncycastle:bcprov-jdk18on", 
 org-eclipse-jetty-jetty-server = { module = "org.eclipse.jetty:jetty-server", version.ref = "org-eclipse-jetty" }
 org-eclipse-jetty-jetty-servlet = { module = "org.eclipse.jetty:jetty-servlet", version.ref = "org-eclipse-jetty" }
 org-hamcrest = "org.hamcrest:hamcrest:2.2"
-org-hibernate-orm-hibernate-core = "org.hibernate.orm:hibernate-core:6.6.48.Final"
+org-hibernate-orm-hibernate-core = "org.hibernate.orm:hibernate-core:6.6.49.Final"
 org-hsqldb = "org.hsqldb:hsqldb:2.7.4"
 org-jetbrains-kotlin-kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "org-jetbrains-kotlin" }
 org-jetbrains-kotlin-kotlin-gradle-plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.25"
