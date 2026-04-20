@@ -141,16 +141,15 @@ public final class OAuth2ClientRegistrationAuthenticationValidator
 					LOGGER
 						.debug(LogMessage.format("Invalid request: redirect_uri is not parseable ('%s')", redirectUri));
 				}
-				throwInvalidClientRegistration(OAuth2ErrorCodes.INVALID_REDIRECT_URI,
+				throw createException(OAuth2ErrorCodes.INVALID_REDIRECT_URI,
 						OAuth2ClientMetadataClaimNames.REDIRECT_URIS);
-				return;
 			}
 			if (parsed.getFragment() != null) {
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug(
 							LogMessage.format("Invalid request: redirect_uri contains a fragment ('%s')", redirectUri));
 				}
-				throwInvalidClientRegistration(OAuth2ErrorCodes.INVALID_REDIRECT_URI,
+				throw createException(OAuth2ErrorCodes.INVALID_REDIRECT_URI,
 						OAuth2ClientMetadataClaimNames.REDIRECT_URIS);
 			}
 			String scheme = parsed.getScheme();
@@ -158,7 +157,7 @@ public final class OAuth2ClientRegistrationAuthenticationValidator
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug(LogMessage.format("Invalid request: redirect_uri has no scheme ('%s')", redirectUri));
 				}
-				throwInvalidClientRegistration(OAuth2ErrorCodes.INVALID_REDIRECT_URI,
+				throw createException(OAuth2ErrorCodes.INVALID_REDIRECT_URI,
 						OAuth2ClientMetadataClaimNames.REDIRECT_URIS);
 			}
 			if (isUnsafeScheme(scheme)) {
@@ -166,7 +165,7 @@ public final class OAuth2ClientRegistrationAuthenticationValidator
 					LOGGER.debug(
 							LogMessage.format("Invalid request: redirect_uri uses unsafe scheme ('%s')", redirectUri));
 				}
-				throwInvalidClientRegistration(OAuth2ErrorCodes.INVALID_REDIRECT_URI,
+				throw createException(OAuth2ErrorCodes.INVALID_REDIRECT_URI,
 						OAuth2ClientMetadataClaimNames.REDIRECT_URIS);
 			}
 		}
@@ -184,12 +183,12 @@ public final class OAuth2ClientRegistrationAuthenticationValidator
 			try {
 				URI parsed = new URI(redirectUri);
 				if (parsed.getFragment() != null) {
-					throwInvalidClientRegistration(OAuth2ErrorCodes.INVALID_REDIRECT_URI,
+					throw createException(OAuth2ErrorCodes.INVALID_REDIRECT_URI,
 							OAuth2ClientMetadataClaimNames.REDIRECT_URIS);
 				}
 			}
 			catch (URISyntaxException ex) {
-				throwInvalidClientRegistration(OAuth2ErrorCodes.INVALID_REDIRECT_URI,
+				throw createException(OAuth2ErrorCodes.INVALID_REDIRECT_URI,
 						OAuth2ClientMetadataClaimNames.REDIRECT_URIS);
 			}
 		}
@@ -206,7 +205,7 @@ public final class OAuth2ClientRegistrationAuthenticationValidator
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug(LogMessage.format("Invalid request: jwks_uri does not use https ('%s')", jwkSetUrl));
 			}
-			throwInvalidClientRegistration("invalid_client_metadata", OAuth2ClientMetadataClaimNames.JWKS_URI);
+			throw createException("invalid_client_metadata", OAuth2ClientMetadataClaimNames.JWKS_URI);
 		}
 	}
 
@@ -223,7 +222,7 @@ public final class OAuth2ClientRegistrationAuthenticationValidator
 				LOGGER.debug(LogMessage.format(
 						"Invalid request: scope must not be set during Dynamic Client Registration ('%s')", scopes));
 			}
-			throwInvalidClientRegistration(OAuth2ErrorCodes.INVALID_SCOPE, OAuth2ClientMetadataClaimNames.SCOPE);
+			throw createException(OAuth2ErrorCodes.INVALID_SCOPE, OAuth2ClientMetadataClaimNames.SCOPE);
 		}
 	}
 
@@ -236,7 +235,7 @@ public final class OAuth2ClientRegistrationAuthenticationValidator
 				|| "vbscript".equalsIgnoreCase(scheme);
 	}
 
-	private static void throwInvalidClientRegistration(String errorCode, String fieldName) {
+	private static OAuth2AuthenticationException createException(String errorCode, String fieldName) {
 		OAuth2Error error = new OAuth2Error(errorCode, "Invalid Client Registration: " + fieldName, ERROR_URI);
 		throw new OAuth2AuthenticationException(error);
 	}

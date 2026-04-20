@@ -236,13 +236,6 @@ public final class OidcClientRegistrationAuthenticationProvider implements Authe
 		OidcClientRegistration clientRegistrationRequest = clientRegistrationAuthentication.getClientRegistration();
 		Assert.notNull(clientRegistrationRequest, "clientRegistration cannot be null");
 
-		List<String> redirectUris = (clientRegistrationRequest.getRedirectUris() != null)
-				? clientRegistrationRequest.getRedirectUris() : Collections.emptyList();
-		if (!isValidRedirectUris(redirectUris)) {
-			throwInvalidClientRegistration(OAuth2ErrorCodes.INVALID_REDIRECT_URI,
-					OidcClientMetadataClaimNames.REDIRECT_URIS);
-		}
-
 		OidcClientRegistrationAuthenticationContext authenticationContext = OidcClientRegistrationAuthenticationContext
 			.with(clientRegistrationAuthentication)
 			.build();

@@ -31,6 +31,7 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.server.authorization.oidc.OidcClientMetadataClaimNames;
 import org.springframework.security.oauth2.server.authorization.oidc.OidcClientRegistration;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 /**
@@ -144,7 +145,11 @@ public final class OidcClientRegistrationAuthenticationValidator
 	private static void validateRedirectUris(OidcClientRegistrationAuthenticationContext authenticationContext) {
 		OidcClientRegistrationAuthenticationToken clientRegistrationAuthentication = authenticationContext
 			.getAuthentication();
+		Assert.notNull(clientRegistrationAuthentication.getClientRegistration(), "clientRegistration cannot be null");
 		List<String> redirectUris = clientRegistrationAuthentication.getClientRegistration().getRedirectUris();
+		if (CollectionUtils.isEmpty(redirectUris)) {
+			return;
+		}
 		validateRedirectUrisStrict(redirectUris, OAuth2ErrorCodes.INVALID_REDIRECT_URI,
 				OidcClientMetadataClaimNames.REDIRECT_URIS);
 	}
@@ -153,8 +158,12 @@ public final class OidcClientRegistrationAuthenticationValidator
 			OidcClientRegistrationAuthenticationContext authenticationContext) {
 		OidcClientRegistrationAuthenticationToken clientRegistrationAuthentication = authenticationContext
 			.getAuthentication();
+		Assert.notNull(clientRegistrationAuthentication.getClientRegistration(), "clientRegistration cannot be null");
 		List<String> postLogoutRedirectUris = clientRegistrationAuthentication.getClientRegistration()
 			.getPostLogoutRedirectUris();
+		if (CollectionUtils.isEmpty(postLogoutRedirectUris)) {
+			return;
+		}
 		validateRedirectUrisStrict(postLogoutRedirectUris, "invalid_client_metadata",
 				OidcClientMetadataClaimNames.POST_LOGOUT_REDIRECT_URIS);
 	}
@@ -173,29 +182,28 @@ public final class OidcClientRegistrationAuthenticationValidator
 					LOGGER.debug(
 							LogMessage.format("Invalid request: %s is not parseable ('%s')", fieldName, redirectUri));
 				}
-				throwInvalidClientRegistration(errorCode, fieldName);
-				return;
+				throw createException(errorCode, fieldName);
 			}
 			if (parsed.getFragment() != null) {
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug(LogMessage.format("Invalid request: %s contains a fragment ('%s')", fieldName,
 							redirectUri));
 				}
-				throwInvalidClientRegistration(errorCode, fieldName);
+				throw createException(errorCode, fieldName);
 			}
 			String scheme = parsed.getScheme();
 			if (scheme == null) {
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug(LogMessage.format("Invalid request: %s has no scheme ('%s')", fieldName, redirectUri));
 				}
-				throwInvalidClientRegistration(errorCode, fieldName);
+				throw createException(errorCode, fieldName);
 			}
 			if (isUnsafeScheme(scheme)) {
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug(
 							LogMessage.format("Invalid request: %s uses unsafe scheme ('%s')", fieldName, redirectUri));
 				}
-				throwInvalidClientRegistration(errorCode, fieldName);
+				throw createException(errorCode, fieldName);
 			}
 		}
 	}
@@ -203,7 +211,11 @@ public final class OidcClientRegistrationAuthenticationValidator
 	private static void validateRedirectUrisSimple(OidcClientRegistrationAuthenticationContext authenticationContext) {
 		OidcClientRegistrationAuthenticationToken clientRegistrationAuthentication = authenticationContext
 			.getAuthentication();
+		Assert.notNull(clientRegistrationAuthentication.getClientRegistration(), "clientRegistration cannot be null");
 		List<String> redirectUris = clientRegistrationAuthentication.getClientRegistration().getRedirectUris();
+		if (CollectionUtils.isEmpty(redirectUris)) {
+			return;
+		}
 		validateRedirectUrisFragmentOnly(redirectUris, OAuth2ErrorCodes.INVALID_REDIRECT_URI,
 				OidcClientMetadataClaimNames.REDIRECT_URIS);
 	}
@@ -212,8 +224,12 @@ public final class OidcClientRegistrationAuthenticationValidator
 			OidcClientRegistrationAuthenticationContext authenticationContext) {
 		OidcClientRegistrationAuthenticationToken clientRegistrationAuthentication = authenticationContext
 			.getAuthentication();
+		Assert.notNull(clientRegistrationAuthentication.getClientRegistration(), "clientRegistration cannot be null");
 		List<String> postLogoutRedirectUris = clientRegistrationAuthentication.getClientRegistration()
 			.getPostLogoutRedirectUris();
+		if (CollectionUtils.isEmpty(postLogoutRedirectUris)) {
+			return;
+		}
 		validateRedirectUrisFragmentOnly(postLogoutRedirectUris, "invalid_client_metadata",
 				OidcClientMetadataClaimNames.POST_LOGOUT_REDIRECT_URIS);
 	}
@@ -227,11 +243,11 @@ public final class OidcClientRegistrationAuthenticationValidator
 			try {
 				URI parsed = new URI(redirectUri);
 				if (parsed.getFragment() != null) {
-					throwInvalidClientRegistration(errorCode, fieldName);
+					throw createException(errorCode, fieldName);
 				}
 			}
 			catch (URISyntaxException ex) {
-				throwInvalidClientRegistration(errorCode, fieldName);
+				throw createException(errorCode, fieldName);
 			}
 		}
 	}
@@ -239,6 +255,7 @@ public final class OidcClientRegistrationAuthenticationValidator
 	private static void validateJwkSetUri(OidcClientRegistrationAuthenticationContext authenticationContext) {
 		OidcClientRegistrationAuthenticationToken clientRegistrationAuthentication = authenticationContext
 			.getAuthentication();
+		Assert.notNull(clientRegistrationAuthentication.getClientRegistration(), "clientRegistration cannot be null");
 		URL jwkSetUrl = clientRegistrationAuthentication.getClientRegistration().getJwkSetUrl();
 		if (jwkSetUrl == null) {
 			return;
@@ -247,7 +264,7 @@ public final class OidcClientRegistrationAuthenticationValidator
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug(LogMessage.format("Invalid request: jwks_uri does not use https ('%s')", jwkSetUrl));
 			}
-			throwInvalidClientRegistration("invalid_client_metadata", OidcClientMetadataClaimNames.JWKS_URI);
+			throw createException("invalid_client_metadata", OidcClientMetadataClaimNames.JWKS_URI);
 		}
 	}
 
@@ -258,13 +275,14 @@ public final class OidcClientRegistrationAuthenticationValidator
 	private static void validateScope(OidcClientRegistrationAuthenticationContext authenticationContext) {
 		OidcClientRegistrationAuthenticationToken clientRegistrationAuthentication = authenticationContext
 			.getAuthentication();
+		Assert.notNull(clientRegistrationAuthentication.getClientRegistration(), "clientRegistration cannot be null");
 		List<String> scopes = clientRegistrationAuthentication.getClientRegistration().getScopes();
 		if (!CollectionUtils.isEmpty(scopes)) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug(LogMessage.format(
 						"Invalid request: scope must not be set during Dynamic Client Registration ('%s')", scopes));
 			}
-			throwInvalidClientRegistration(OAuth2ErrorCodes.INVALID_SCOPE, OidcClientMetadataClaimNames.SCOPE);
+			throw createException(OAuth2ErrorCodes.INVALID_SCOPE, OidcClientMetadataClaimNames.SCOPE);
 		}
 	}
 
@@ -277,7 +295,7 @@ public final class OidcClientRegistrationAuthenticationValidator
 				|| "vbscript".equalsIgnoreCase(scheme);
 	}
 
-	private static void throwInvalidClientRegistration(String errorCode, String fieldName) {
+	private static OAuth2AuthenticationException createException(String errorCode, String fieldName) {
 		OAuth2Error error = new OAuth2Error(errorCode, "Invalid Client Registration: " + fieldName, ERROR_URI);
 		throw new OAuth2AuthenticationException(error);
 	}

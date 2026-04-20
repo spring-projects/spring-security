@@ -434,7 +434,8 @@ public class OAuth2ClientRegistrationTests {
 
 		assertThat(registeredClient).isNotNull();
 		assertThat(registeredClient.getTokenSettings().getAccessTokenTimeToLive()).isEqualTo(Duration.ofMinutes(60));
-	
+	}
+
 	@Test
 	public void requestWhenProtocolRelativeRedirectUriThenBadRequest() throws Exception {
 		this.spring.register(DefaultValidatorConfiguration.class).autowire();
@@ -529,7 +530,6 @@ public class OAuth2ClientRegistrationTests {
 				.content(json))
 			.andReturn();
 		return registerResult.getResponse().getStatus();
->>>>>>> 7.0.x
 	}
 
 	private OAuth2ClientRegistration registerClient(OAuth2ClientRegistration clientRegistration) throws Exception {
@@ -745,7 +745,7 @@ public class OAuth2ClientRegistrationTests {
 							authorizationServer
 									.clientRegistrationEndpoint((clientRegistration) ->
 											clientRegistration
-													.authenticationProviders(configureClientRegistrationConverters())
+													.authenticationProviders(scopePermissiveValidatorCustomizer().andThen(configureClientRegistrationConverters()))
 									)
 					)
 					.authorizeHttpRequests((authorize) ->
