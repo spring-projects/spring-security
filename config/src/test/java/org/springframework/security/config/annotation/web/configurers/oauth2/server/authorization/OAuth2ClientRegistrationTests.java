@@ -79,6 +79,7 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.OAuth2ClientRegistration;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientRegistrationAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientRegistrationAuthenticationToken;
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientRegistrationAuthenticationValidator;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository.RegisteredClientParametersMapper;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
@@ -433,6 +434,102 @@ public class OAuth2ClientRegistrationTests {
 
 		assertThat(registeredClient).isNotNull();
 		assertThat(registeredClient.getTokenSettings().getAccessTokenTimeToLive()).isEqualTo(Duration.ofMinutes(60));
+	
+	@Test
+	public void requestWhenProtocolRelativeRedirectUriThenBadRequest() throws Exception {
+		this.spring.register(DefaultValidatorConfiguration.class).autowire();
+		assertThat(requestWhenInvalidClientMetadataThenBadRequest("""
+				{
+				  "client_name": "client-name",
+				  "redirect_uris": ["//client.example.com/path"],
+				  "grant_types": ["authorization_code"]
+				}
+				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+
+	@Test
+	public void requestWhenJavascriptSchemeRedirectUriThenBadRequest() throws Exception {
+		this.spring.register(DefaultValidatorConfiguration.class).autowire();
+		assertThat(requestWhenInvalidClientMetadataThenBadRequest("""
+				{
+				  "client_name": "client-name",
+				  "redirect_uris": ["javascript:alert(document.cookie)"],
+				  "grant_types": ["authorization_code"]
+				}
+				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+
+	@Test
+	public void requestWhenDataSchemeRedirectUriThenBadRequest() throws Exception {
+		this.spring.register(DefaultValidatorConfiguration.class).autowire();
+		assertThat(requestWhenInvalidClientMetadataThenBadRequest("""
+				{
+				  "client_name": "client-name",
+				  "redirect_uris": ["data:text/html,<h1>content</h1>"],
+				  "grant_types": ["authorization_code"]
+				}
+				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+
+	@Test
+	public void requestWhenHttpJwkSetUriThenBadRequest() throws Exception {
+		this.spring.register(DefaultValidatorConfiguration.class).autowire();
+		assertThat(requestWhenInvalidClientMetadataThenBadRequest("""
+				{
+				  "client_name": "client-name",
+				  "redirect_uris": ["https://client.example.com"],
+				  "grant_types": ["authorization_code"],
+				  "jwks_uri": "http://169.254.169.254/keys",
+				  "token_endpoint_auth_method": "private_key_jwt"
+				}
+				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+
+	@Test
+	public void requestWhenArbitraryScopeThenBadRequest() throws Exception {
+		this.spring.register(DefaultValidatorConfiguration.class).autowire();
+		assertThat(requestWhenInvalidClientMetadataThenBadRequest("""
+				{
+				  "client_name": "client-name",
+				  "redirect_uris": ["https://client.example.com"],
+				  "grant_types": ["client_credentials"],
+				  "scope": "read write"
+				}
+				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+
+	private int requestWhenInvalidClientMetadataThenBadRequest(String json) throws Exception {
+		String clientRegistrationScope = "client.create";
+		// @formatter:off
+		RegisteredClient clientRegistrar = RegisteredClient.withId("client-registrar-" + System.nanoTime())
+				.clientId("client-registrar-" + System.nanoTime())
+				.clientSecret("{noop}secret")
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+				.scope(clientRegistrationScope)
+				.build();
+		// @formatter:on
+		this.registeredClientRepository.save(clientRegistrar);
+
+		MvcResult tokenResult = this.mvc
+			.perform(post(ISSUER.concat(DEFAULT_TOKEN_ENDPOINT_URI))
+				.param(OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantType.CLIENT_CREDENTIALS.getValue())
+				.param(OAuth2ParameterNames.SCOPE, clientRegistrationScope)
+				.with(httpBasic(clientRegistrar.getClientId(), "secret")))
+			.andExpect(status().isOk())
+			.andReturn();
+		OAuth2AccessToken accessToken = readAccessTokenResponse(tokenResult.getResponse()).getAccessToken();
+
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.setBearerAuth(accessToken.getTokenValue());
+
+		MvcResult registerResult = this.mvc
+			.perform(post(ISSUER.concat(DEFAULT_OAUTH2_CLIENT_REGISTRATION_ENDPOINT_URI)).headers(httpHeaders)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(json))
+			.andReturn();
+		return registerResult.getResponse().getStatus();
+>>>>>>> 7.0.x
 	}
 
 	private OAuth2ClientRegistration registerClient(OAuth2ClientRegistration clientRegistration) throws Exception {
@@ -520,6 +617,17 @@ public class OAuth2ClientRegistrationTests {
 		return clientRegistrationHttpMessageConverter.read(OAuth2ClientRegistration.class, httpResponse);
 	}
 
+	private static Consumer<List<AuthenticationProvider>> scopePermissiveValidatorCustomizer() {
+		return (authenticationProviders) -> authenticationProviders.forEach((authenticationProvider) -> {
+			if (authenticationProvider instanceof OAuth2ClientRegistrationAuthenticationProvider provider) {
+				provider.setAuthenticationValidator(
+						OAuth2ClientRegistrationAuthenticationValidator.DEFAULT_REDIRECT_URI_VALIDATOR
+							.andThen(OAuth2ClientRegistrationAuthenticationValidator.DEFAULT_JWK_SET_URI_VALIDATOR)
+							.andThen(OAuth2ClientRegistrationAuthenticationValidator.SIMPLE_SCOPE_VALIDATOR));
+			}
+		});
+	}
+
 	@EnableWebSecurity
 	@Configuration(proxyBeanMethods = false)
 	static class CustomClientRegistrationConfiguration extends AuthorizationServerConfiguration {
@@ -536,7 +644,7 @@ public class OAuth2ClientRegistrationTests {
 													.clientRegistrationRequestConverter(authenticationConverter)
 													.clientRegistrationRequestConverters(authenticationConvertersConsumer)
 													.authenticationProvider(authenticationProvider)
-													.authenticationProviders(authenticationProvidersConsumer)
+													.authenticationProviders(scopePermissiveValidatorCustomizer().andThen(authenticationProvidersConsumer))
 													.clientRegistrationResponseHandler(authenticationSuccessHandler)
 													.errorResponseHandler(authenticationFailureHandler)
 									)
@@ -563,7 +671,7 @@ public class OAuth2ClientRegistrationTests {
 							authorizationServer
 									.clientRegistrationEndpoint((clientRegistration) ->
 											clientRegistration
-													.authenticationProviders(configureClientRegistrationConverters())
+													.authenticationProviders(scopePermissiveValidatorCustomizer().andThen(configureClientRegistrationConverters()))
 									)
 					)
 					.authorizeHttpRequests((authorize) ->
@@ -601,7 +709,7 @@ public class OAuth2ClientRegistrationTests {
 							authorizationServer
 									.clientRegistrationEndpoint((clientRegistration) ->
 											clientRegistration
-													.authenticationProviders(configureClientRegistrationConverters())
+													.authenticationProviders(scopePermissiveValidatorCustomizer().andThen(configureClientRegistrationConverters()))
 									)
 					)
 					.authorizeHttpRequests((authorize) ->
@@ -676,12 +784,37 @@ public class OAuth2ClientRegistrationTests {
 									.clientRegistrationEndpoint((clientRegistration) ->
 											clientRegistration
 													.openRegistrationAllowed(true)
+													.authenticationProviders(scopePermissiveValidatorCustomizer())
 									)
 					)
 					.authorizeHttpRequests((authorize) ->
 							authorize
 									.requestMatchers("/**/oauth2/register").permitAll()
 									.anyRequest().authenticated()
+					);
+			return http.build();
+		}
+		// @formatter:on
+
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
+	static class DefaultValidatorConfiguration extends AuthorizationServerConfiguration {
+
+		// Override with Customizer.withDefaults() so the default (strict)
+		// OAuth2ClientRegistrationAuthenticationValidator is in effect.
+		// @formatter:off
+		@Bean
+		@Override
+		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.clientRegistrationEndpoint(Customizer.withDefaults())
+					)
+					.authorizeHttpRequests((authorize) ->
+							authorize.anyRequest().authenticated()
 					);
 			return http.build();
 		}
@@ -699,7 +832,10 @@ public class OAuth2ClientRegistrationTests {
 			http
 					.oauth2AuthorizationServer((authorizationServer) ->
 							authorizationServer
-									.clientRegistrationEndpoint(Customizer.withDefaults())
+									.clientRegistrationEndpoint((clientRegistration) ->
+											clientRegistration
+													.authenticationProviders(scopePermissiveValidatorCustomizer())
+									)
 					)
 					.authorizeHttpRequests((authorize) ->
 							authorize.anyRequest().authenticated()
