@@ -50,9 +50,9 @@ import org.springframework.util.CollectionUtils;
  * <p>
  * Each validated field is backed by two public constants:
  * <ul>
- * <li>{@code DEFAULT_*_VALIDATOR} — strict validation that rejects unsafe values. This is
+ * <li>{@code DEFAULT_*_VALIDATOR} -- strict validation that rejects unsafe values. This is
  * the default behavior and may reject input that was previously accepted.</li>
- * <li>{@code SIMPLE_*_VALIDATOR} — lenient validation preserving the behavior from prior
+ * <li>{@code SIMPLE_*_VALIDATOR} -- lenient validation preserving the behavior from prior
  * releases. Use only when strictly required for backward compatibility and with full
  * understanding that it may accept values that enable attacks against the authorization
  * server.</li>
