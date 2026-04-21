@@ -35,6 +35,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
  * Tests for {@link AuthorizationManagerFactory}.
  *
  * @author Steve Riesenberg
+ * @author Andrey Litvitski
  */
 public class AuthorizationManagerFactoryTests {
 
@@ -364,6 +365,42 @@ public class AuthorizationManagerFactoryTests {
 			.multiFactor();
 		assertThatIllegalArgumentException().isThrownBy(() -> builder.withWhen(null))
 			.withMessage("condition cannot be null");
+	}
+
+	@Test
+	public void builderWhenUnlessConditionFalseThenRequiredFactorsEnforced() {
+		AuthorizationManagerFactory<String> factory = AuthorizationManagerFactories.<String>multiFactor()
+			.requireFactors("ROLE_ADMIN")
+			.unless((auth) -> "bearer".equals(auth.getName()))
+			.build();
+		assertUserDenied(factory.hasRole("USER"));
+	}
+
+	@Test
+	public void builderWhenUnlessConditionTrueThenMfaSkipped() {
+		AuthorizationManagerFactory<String> factory = AuthorizationManagerFactories.<String>multiFactor()
+			.requireFactors("ROLE_ADMIN")
+			.unless((auth) -> "bearer".equals(auth.getName()))
+			.build();
+		assertThat(factory.hasRole("USER")
+			.authorize(() -> new TestingAuthenticationToken("bearer", "password", "ROLE_USER"), "")
+			.isGranted()).isTrue();
+	}
+
+	@Test
+	public void builderWhenWithUnlessConditionThenConditionIsCustomized() {
+		AuthorizationManagerFactory<String> factory = AuthorizationManagerFactories.<String>multiFactor()
+			.requireFactors("ROLE_ADMIN")
+			.unless((auth) -> "bearer".equals(auth.getName()))
+			.withUnless((current) -> (auth) -> current != null && current.test(auth) && auth.isAuthenticated())
+			.build();
+		assertThat(factory.hasRole("USER")
+			.authorize(() -> new TestingAuthenticationToken("bearer", "password", "ROLE_USER"), "")
+			.isGranted()).isTrue();
+		TestingAuthenticationToken unauthenticatedBearer = new TestingAuthenticationToken("bearer", "password",
+				"ROLE_USER");
+		unauthenticatedBearer.setAuthenticated(false);
+		assertThat(factory.hasRole("USER").authorize(() -> unauthenticatedBearer, "").isGranted()).isFalse();
 	}
 
 	private void assertUserGranted(AuthorizationManager<String> manager) {
