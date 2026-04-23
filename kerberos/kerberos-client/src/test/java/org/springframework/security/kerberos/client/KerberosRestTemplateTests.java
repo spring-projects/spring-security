@@ -19,6 +19,8 @@ package org.springframework.security.kerberos.client;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
@@ -33,8 +35,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.kerberos.test.KerberosSecurityTestcase;
 import org.springframework.security.kerberos.test.MiniKdc;
+import org.springframework.web.client.HttpClientErrorException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class KerberosRestTemplateTests extends KerberosSecurityTestcase {
 
@@ -72,6 +76,8 @@ class KerberosRestTemplateTests extends KerberosSecurityTestcase {
 		String serverPrincipal = "HTTP/localhost";
 		File serverKeytab = new File(workDir, "server.keytab");
 		kdc.createPrincipal(serverKeytab, serverPrincipal);
+
+		setUpClient();
 	}
 
 	@AfterEach
@@ -81,13 +87,20 @@ class KerberosRestTemplateTests extends KerberosSecurityTestcase {
 
 	@Test
 	void sendsNegotiateHeader() {
-		setUpClient();
 		String s = this.restTemplate.getForObject(this.baseUrl + "/get", String.class);
 		assertThat(s).isEqualTo(helloWorld);
 	}
 
+	@Test
+	void throwsOriginalException() {
+		assertThatThrownBy(() -> restTemplate.getForObject(this.baseUrl + "/notfound", String.class))
+				.isInstanceOf(HttpClientErrorException.NotFound.class);
+	}
+
 	private void setUpClient() {
-		this.restTemplate = new KerberosRestTemplate(this.clientKeytab.getAbsolutePath(), this.clientPrincipal);
+		Map<String, Object> loginOptions = new HashMap<>();
+		loginOptions.put("refreshKrb5Config", "true");
+		this.restTemplate = new KerberosRestTemplate(this.clientKeytab.getAbsolutePath(), this.clientPrincipal, loginOptions);
 	}
 
 	private MockResponse getRequest(RecordedRequest request, byte[] body, String contentType) {
