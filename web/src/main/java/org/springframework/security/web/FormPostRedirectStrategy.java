@@ -17,6 +17,7 @@
 package org.springframework.security.web;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map.Entry;
@@ -30,6 +31,7 @@ import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
 import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriUtils;
 
 /**
  * Redirect using an auto-submitting HTML form using the POST method. All query params
@@ -83,8 +85,12 @@ public final class FormPostRedirectStrategy implements RedirectStrategy {
 
 		final StringBuilder hiddenInputsHtmlBuilder = new StringBuilder();
 		for (final Entry<String, List<String>> entry : uriComponentsBuilder.build().getQueryParams().entrySet()) {
-			final String name = entry.getKey();
-			for (final String value : entry.getValue()) {
+			final String name = UriUtils.decode(entry.getKey(), StandardCharsets.UTF_8);
+			for (final String raw : entry.getValue()) {
+				if (raw == null) {
+					continue;
+				}
+				final String value = UriUtils.decode(raw, StandardCharsets.UTF_8);
 				// @formatter:off
 				final String hiddenInput = HIDDEN_INPUT_TEMPLATE
 					.replace("{{name}}", HtmlUtils.htmlEscape(name))
