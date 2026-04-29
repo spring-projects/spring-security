@@ -17,6 +17,7 @@
 package org.springframework.security.saml2.provider.service.web.authentication.logout;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -26,7 +27,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.log.LogMessage;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -46,6 +46,7 @@ import org.springframework.security.saml2.provider.service.web.RelyingPartyRegis
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers.UriResolver;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.FormPostRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.logout.CompositeLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -54,8 +55,8 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriUtils;
 
 /**
  * A filter for handling logout requests in the form of a &lt;saml2:LogoutRequest&gt; sent
@@ -81,6 +82,8 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 	private final LogoutHandler handler;
 
 	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+
+	private final RedirectStrategy formPostRedirectStrategy = new FormPostRedirectStrategy();
 
 	public Saml2LogoutRequestFilter(Saml2LogoutRequestValidatorParametersResolver logoutRequestResolver,
 			Saml2LogoutRequestValidator logoutRequestValidator, Saml2LogoutResponseResolver logoutResponseResolver,
@@ -158,7 +161,7 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 			doRedirect(request, response, logoutResponse);
 		}
 		else {
-			doPost(response, logoutResponse);
+			doPost(request, response, logoutResponse);
 		}
 	}
 
@@ -189,55 +192,21 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 		this.redirectStrategy.sendRedirect(request, response, uriBuilder.build(true).toUriString());
 	}
 
-	private void doPost(HttpServletResponse response, Saml2LogoutResponse logoutResponse) throws IOException {
+	private void doPost(HttpServletRequest request, HttpServletResponse response, Saml2LogoutResponse logoutResponse)
+			throws IOException {
 		String location = logoutResponse.getResponseLocation();
-		String saml = logoutResponse.getSamlResponse();
-		String relayState = logoutResponse.getRelayState();
-		String html = createSamlPostRequestFormData(location, saml, relayState);
-		response.setContentType(MediaType.TEXT_HTML_VALUE);
-		response.getWriter().write(html);
+		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(location);
+		addParameter(Saml2ParameterNames.SAML_RESPONSE, logoutResponse.getSamlResponse(), uriBuilder);
+		addParameter(Saml2ParameterNames.RELAY_STATE, logoutResponse.getRelayState(), uriBuilder);
+		this.formPostRedirectStrategy.sendRedirect(request, response, uriBuilder.build(true).toUriString());
 	}
 
-	private String createSamlPostRequestFormData(String location, String saml, String relayState) {
-		StringBuilder html = new StringBuilder();
-		html.append("<!DOCTYPE html>\n");
-		html.append("<html>\n").append("    <head>\n");
-		html.append("        <meta http-equiv=\"Content-Security-Policy\" ")
-			.append("content=\"script-src 'sha256-oZhLbc2kO8b8oaYLrUc7uye1MgVKMyLtPqWR4WtKF+c='\">\n");
-		html.append("        <meta charset=\"utf-8\" />\n");
-		html.append("    </head>\n");
-		html.append("    <body>\n");
-		html.append("        <noscript>\n");
-		html.append("            <p>\n");
-		html.append("                <strong>Note:</strong> Since your browser does not support JavaScript,\n");
-		html.append("                you must press the Continue button once to proceed.\n");
-		html.append("            </p>\n");
-		html.append("        </noscript>\n");
-		html.append("        \n");
-		html.append("        <form action=\"");
-		html.append(location);
-		html.append("\" method=\"post\">\n");
-		html.append("            <div>\n");
-		html.append("                <input type=\"hidden\" name=\"SAMLResponse\" value=\"");
-		html.append(HtmlUtils.htmlEscape(saml));
-		html.append("\"/>\n");
-		if (StringUtils.hasText(relayState)) {
-			html.append("                <input type=\"hidden\" name=\"RelayState\" value=\"");
-			html.append(HtmlUtils.htmlEscape(relayState));
-			html.append("\"/>\n");
+	private void addParameter(String name, String value, UriComponentsBuilder builder) {
+		Assert.hasText(name, "name cannot be empty or null");
+		if (StringUtils.hasText(value)) {
+			builder.queryParam(UriUtils.encode(name, StandardCharsets.ISO_8859_1),
+					UriUtils.encode(value, StandardCharsets.ISO_8859_1));
 		}
-		html.append("            </div>\n");
-		html.append("            <noscript>\n");
-		html.append("                <div>\n");
-		html.append("                    <input type=\"submit\" value=\"Continue\"/>\n");
-		html.append("                </div>\n");
-		html.append("            </noscript>\n");
-		html.append("        </form>\n");
-		html.append("        \n");
-		html.append("        <script>window.onload = function() { document.forms[0].submit(); }</script>\n");
-		html.append("    </body>\n");
-		html.append("</html>");
-		return html.toString();
 	}
 
 	private static class Saml2AssertingPartyLogoutRequestResolver
