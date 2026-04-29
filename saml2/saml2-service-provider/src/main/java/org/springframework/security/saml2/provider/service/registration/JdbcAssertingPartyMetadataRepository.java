@@ -16,6 +16,11 @@
 
 package org.springframework.security.saml2.provider.service.registration;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputFilter;
+import java.io.ObjectInputStream;
+import java.security.Security;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -23,11 +28,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
-import org.springframework.core.serializer.DefaultDeserializer;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.springframework.core.serializer.DefaultSerializer;
 import org.springframework.core.serializer.Deserializer;
 import org.springframework.core.serializer.Serializer;
@@ -37,6 +47,7 @@ import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.security.saml2.core.Saml2X509Credential;
+import org.springframework.security.saml2.provider.service.registration.JdbcAssertingPartyMetadataRepository.AssertingPartyMetadataRowMapper.Saml2X509CredentialCollectionDeserializer;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.AssertingPartyDetails;
 import org.springframework.util.Assert;
 import org.springframework.util.function.ThrowingFunction;
@@ -51,7 +62,7 @@ public final class JdbcAssertingPartyMetadataRepository implements AssertingPart
 
 	private final JdbcOperations jdbcOperations;
 
-	private final RowMapper<AssertingPartyMetadata> assertingPartyMetadataRowMapper = new AssertingPartyMetadataRowMapper();
+	private RowMapper<AssertingPartyMetadata> assertingPartyMetadataRowMapper = new AssertingPartyMetadataRowMapper();
 
 	private final AssertingPartyMetadataParametersMapper assertingPartyMetadataParametersMapper = new AssertingPartyMetadataParametersMapper();
 
@@ -146,12 +157,33 @@ public final class JdbcAssertingPartyMetadataRepository implements AssertingPart
 	}
 
 	/**
+	 * Set the {@link RowMapper} to use for reading {@link AssertingPartyMetadata} records
+	 * from the database. By default, {@link AssertingPartyMetadataRowMapper} is used.
+	 *
+	 * <p>
+	 * Note that the default row mapper protects against insecure deserialization of
+	 * credentials by way of {@link Saml2X509CredentialCollectionDeserializer}, which uses
+	 * an allowlist of classes that can be deserialized. If a custom row mapper is used,
+	 * it is the responsibility of the developer to ensure that any deserialization of
+	 * credentials is done securely.
+	 * @param rowMapper - the rowMapper to use
+	 * @since 7.0.5
+	 * @see AssertingPartyMetadataRowMapper
+	 */
+	public void setRowMapper(RowMapper<AssertingPartyMetadata> rowMapper) {
+		Assert.notNull(rowMapper, "rowMapper cannot be null");
+		this.assertingPartyMetadataRowMapper = rowMapper;
+	}
+
+	/**
 	 * The default {@link RowMapper} that maps the current row in
 	 * {@code java.sql.ResultSet} to {@link AssertingPartyMetadata}.
+	 *
+	 * @since 7.0.5
 	 */
-	private static final class AssertingPartyMetadataRowMapper implements RowMapper<AssertingPartyMetadata> {
+	public static final class AssertingPartyMetadataRowMapper implements RowMapper<AssertingPartyMetadata> {
 
-		private final Deserializer<Object> deserializer = new DefaultDeserializer();
+		private Deserializer<Collection<Saml2X509Credential>> deserializer = new Saml2X509CredentialCollectionDeserializer();
 
 		@Override
 		public AssertingPartyMetadata mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -162,8 +194,7 @@ public final class JdbcAssertingPartyMetadataRepository implements AssertingPart
 			List<String> algorithms = List.of(rs.getString(COLUMN_NAMES[4]).split(","));
 			byte[] verificationCredentialsBytes = rs.getBytes(COLUMN_NAMES[5]);
 			byte[] encryptionCredentialsBytes = rs.getBytes(COLUMN_NAMES[6]);
-			ThrowingFunction<byte[], Collection<Saml2X509Credential>> credentials = (
-					bytes) -> (Collection<Saml2X509Credential>) this.deserializer.deserializeFromByteArray(bytes);
+			ThrowingFunction<byte[], Collection<Saml2X509Credential>> credentials = this.deserializer::deserializeFromByteArray;
 			AssertingPartyMetadata.Builder<?> builder = new AssertingPartyDetails.Builder();
 			Collection<Saml2X509Credential> verificationCredentials = credentials.apply(verificationCredentialsBytes);
 			Collection<Saml2X509Credential> encryptionCredentials = (encryptionCredentialsBytes != null)
@@ -185,12 +216,121 @@ public final class JdbcAssertingPartyMetadataRepository implements AssertingPart
 			return builder.build();
 		}
 
+		/**
+		 * Set the {@link Deserializer} to use for reading the credential collection from
+		 * the database. By default, {@link Saml2X509CredentialCollectionDeserializer} is
+		 * used, which uses Java Object serialization.
+		 *
+		 * <p>
+		 * If a custom deserializer is used, it is the responsibility of the developer to
+		 * ensure that any deserialization of credentials is done securely.
+		 * @param deserializer the deserializer to use
+		 */
+		public void setCredentialsDeserializer(Deserializer<Collection<Saml2X509Credential>> deserializer) {
+			Assert.notNull(deserializer, "deserializer cannot be null");
+			this.deserializer = deserializer;
+		}
+
+		/**
+		 * The default deserializer for verification and encryption credentials.
+		 *
+		 * <p>
+		 * This is equipped with an allowlist of classes that can be deserialized. If you
+		 * implement your own, you are responsible for to protecte against insecure
+		 * deserialization.
+		 *
+		 * @since 7.0.5
+		 */
+		public static final class Saml2X509CredentialCollectionDeserializer
+				implements Deserializer<Collection<Saml2X509Credential>> {
+
+			private static final AllowlistObjectInputFilter ALLOWLIST;
+
+			static {
+				Set<String> classes = new LinkedHashSet<>();
+				classes.add(Saml2X509Credential.class.getName());
+				classes.add(Saml2X509Credential.Saml2X509CredentialType.class.getName());
+				classes.add(Enum.class.getName());
+				classes.add("java.security.cert.Certificate$CertificateRep");
+				classes.add("sun.security.x509.X509CertImpl");
+				classes.add(LinkedHashSet.class.getName());
+				classes.add(HashSet.class.getName());
+				classes.add("java.util.Map$Entry");
+				if (Security.getProvider("BC") != null) {
+					classes.add("org.bouncycastle.jcajce.provider.asymmetric.x509.X509CertificateObject");
+				}
+				ALLOWLIST = new AllowlistObjectInputFilter(classes);
+			}
+
+			@Override
+			@SuppressWarnings("unchecked")
+			public Collection<Saml2X509Credential> deserialize(InputStream in) throws IOException {
+				ObjectInputStream oin = new ObjectInputStream(in);
+				oin.setObjectInputFilter(ALLOWLIST);
+				try {
+					Collection<Saml2X509Credential> credentials = (Collection<Saml2X509Credential>) oin.readObject();
+					for (Object credential : credentials) {
+						Assert.isInstanceOf(Saml2X509Credential.class, credential,
+								"Deserialized object is not of type Saml2X509Credential");
+					}
+					return credentials;
+				}
+				catch (ClassNotFoundException ex) {
+					throw new IOException("Failed to deserialize asserting party credential collection", ex);
+				}
+			}
+
+			private static final class AllowlistObjectInputFilter implements ObjectInputFilter {
+
+				private static final Log logger = LogFactory.getLog(JdbcAssertingPartyMetadataRepository.class);
+
+				private static final int MAX_DEPTH = 20;
+
+				private static final int MAX_REFS = 1000;
+
+				private static final int MAX_ARRAY = 16384;
+
+				private static final int MAX_BYTES = 1_048_576;
+
+				private final ObjectInputFilter delegate;
+
+				private AllowlistObjectInputFilter(Set<String> allowlist) {
+					ObjectInputFilter pattern = ObjectInputFilter.Config
+						.createFilter(String.join(";", allowlist) + ";!*" + ";maxdepth=" + MAX_DEPTH + ";maxrefs="
+								+ MAX_REFS + ";maxarray=" + MAX_ARRAY + ";maxbytes=" + MAX_BYTES);
+					ObjectInputFilter global = ObjectInputFilter.Config.getSerialFilter();
+					this.delegate = (global != null) ? ObjectInputFilter.merge(pattern, global) : pattern;
+				}
+
+				@Override
+				public Status checkInput(FilterInfo info) {
+					Status status = this.delegate.checkInput(info);
+					if (status != Status.REJECTED) {
+						return status;
+					}
+					Class<?> c = info.serialClass();
+					if (c != null) {
+						logger.trace("Failed to deserialize due to [" + c.getName() + "] not being in the allowlist");
+					}
+					else {
+						logger.trace("Failed to deserialize due to exceeding one the following limits: " + "depth=["
+								+ info.depth() + " < " + MAX_DEPTH + "]" + ", refs=[" + info.references() + " < "
+								+ MAX_REFS + "]" + ", bytes=[" + info.streamBytes() + " < " + MAX_BYTES + "]"
+								+ ", arrayLength=[" + info.arrayLength() + " < " + MAX_ARRAY + "]");
+					}
+					return Status.REJECTED;
+				}
+
+			}
+
+		}
+
 	}
 
-	private static class AssertingPartyMetadataParametersMapper
+	private class AssertingPartyMetadataParametersMapper
 			implements Function<AssertingPartyMetadata, List<SqlParameterValue>> {
 
-		private final Serializer<Object> serializer = new DefaultSerializer();
+		private Serializer<Object> serializer = new DefaultSerializer();
 
 		@Override
 		public List<SqlParameterValue> apply(AssertingPartyMetadata record) {
