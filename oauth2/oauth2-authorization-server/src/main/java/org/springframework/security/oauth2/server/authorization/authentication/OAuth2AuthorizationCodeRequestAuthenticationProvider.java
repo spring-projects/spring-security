@@ -489,7 +489,8 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 				registeredClient);
 		if (error.getErrorCode().equals(OAuth2ErrorCodes.INVALID_REQUEST)
 				&& (parameterName.equals(OAuth2ParameterNames.CLIENT_ID)
-						|| parameterName.equals(OAuth2ParameterNames.STATE))) {
+						|| parameterName.equals(OAuth2ParameterNames.STATE)
+						|| parameterName.equals(OAuth2ParameterNames.REQUEST_URI))) {
 			redirectUri = null; // Prevent redirects
 		}
 
