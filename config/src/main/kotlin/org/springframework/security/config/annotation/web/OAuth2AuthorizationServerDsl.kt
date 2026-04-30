@@ -19,6 +19,9 @@ package org.springframework.security.config.annotation.web
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.*
 import org.springframework.security.config.annotation.web.oauth2.server.authorization.OidcDsl
+import org.springframework.security.config.annotation.web.oauth2.server.authorization.OAuth2AuthorizationEndpointDsl
+import org.springframework.security.config.annotation.web.oauth2.server.authorization.OAuth2TokenEndpointDsl
+import org.springframework.security.config.annotation.web.oauth2.server.authorization.OAuth2ClientAuthenticationDsl
 import org.springframework.security.oauth2.core.OAuth2Token
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService
@@ -83,8 +86,9 @@ class OAuth2AuthorizationServerDsl {
      *
      * @param clientAuthenticationConfiguration custom configurations to configure OAuth 2.0 client authentication
      */
-    fun clientAuthentication(clientAuthenticationConfiguration: OAuth2ClientAuthenticationConfigurer.() -> Unit) {
-        this.clientAuthenticationConfig = clientAuthenticationConfiguration
+    fun clientAuthentication(clientAuthenticationConfiguration: OAuth2ClientAuthenticationDsl.() -> Unit) {
+        this.clientAuthenticationConfig = OAuth2ClientAuthenticationDsl()
+            .apply(clientAuthenticationConfiguration).get()
     }
 
     /**
@@ -143,8 +147,9 @@ class OAuth2AuthorizationServerDsl {
      *
      * @param authorizationEndpointConfiguration custom configurations to configure the authorization endpoint
      */
-    fun authorizationEndpoint(authorizationEndpointConfiguration: OAuth2AuthorizationEndpointConfigurer.() -> Unit) {
-        this.authorizationEndpointConfig = authorizationEndpointConfiguration
+    fun authorizationEndpoint(authorizationEndpointConfiguration: OAuth2AuthorizationEndpointDsl.() -> Unit) {
+        this.authorizationEndpointConfig = OAuth2AuthorizationEndpointDsl()
+            .apply(authorizationEndpointConfiguration).get()
     }
 
     /**
@@ -203,8 +208,9 @@ class OAuth2AuthorizationServerDsl {
      *
      * @param tokenEndpointConfiguration custom configurations to configure the token endpoint
      */
-    fun tokenEndpoint(tokenEndpointConfiguration: OAuth2TokenEndpointConfigurer.() -> Unit) {
-        this.tokenEndpointConfig = tokenEndpointConfiguration
+    fun tokenEndpoint(tokenEndpointConfiguration: OAuth2TokenEndpointDsl.() -> Unit) {
+        this.tokenEndpointConfig = OAuth2TokenEndpointDsl()
+            .apply(tokenEndpointConfiguration).get()
     }
 
     /**
