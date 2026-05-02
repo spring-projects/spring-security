@@ -70,6 +70,8 @@ import org.opensaml.xmlsec.encryption.impl.EncryptedDataBuilder;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import tools.jackson.databind.json.JsonMapper;
 
+import org.springframework.cache.Cache;
+import org.springframework.cache.concurrent.ConcurrentMapCache;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.core.Authentication;
@@ -105,6 +107,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
  *
  * @author Filip Hanik
  * @author Josh Cummings
+ * @author Andrey Litvitski
  */
 public class OpenSaml5AuthenticationProviderTests {
 
@@ -223,6 +226,22 @@ public class OpenSaml5AuthenticationProviderTests {
 		assertThatExceptionOfType(Saml2AuthenticationException.class)
 			.isThrownBy(() -> this.provider.authenticate(token))
 			.satisfies(errorOf(Saml2ErrorCodes.SUBJECT_NOT_FOUND));
+	}
+
+	@Test
+	public void authenticateWhenOneTimeUseAssertionReusedThenThrowAuthenticationException() {
+		Response response = response();
+		Assertion assertion = assertion();
+		OneTimeUse oneTimeUse = build(OneTimeUse.DEFAULT_ELEMENT_NAME);
+		assertion.getConditions().getConditions().add(oneTimeUse);
+		response.getAssertions().add(signed(assertion));
+		Cache cache = new ConcurrentMapCache("saml2");
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
+		provider.setAssertionValidator(AssertionValidator.builder().replayCache(cache).build()::validate);
+		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		provider.authenticate(token);
+		assertThatExceptionOfType(Saml2AuthenticationException.class).isThrownBy(() -> provider.authenticate(token))
+			.satisfies(errorOf(Saml2ErrorCodes.INVALID_ASSERTION));
 	}
 
 	@Test
