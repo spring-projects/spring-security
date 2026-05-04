@@ -55,6 +55,8 @@ public class OAuth2TokenExchangeAuthenticationConverterTests {
 
 	private static final String JWT_TOKEN_TYPE_VALUE = "urn:ietf:params:oauth:token-type:jwt";
 
+	private static final String ID_TOKEN_TYPE_VALUE = "urn:ietf:params:oauth:token-type:id_token";
+
 	private OAuth2TokenExchangeAuthenticationConverter converter;
 
 	@BeforeEach
@@ -297,6 +299,24 @@ public class OAuth2TokenExchangeAuthenticationConverterTests {
 				.extracting(OAuth2Error::getErrorCode)
 				.isEqualTo(OAuth2ErrorCodes.UNSUPPORTED_TOKEN_TYPE);
 		// @formatter:on
+	}
+
+	@Test
+	public void convertWhenIdTokenSubjectTokenTypeThenTokenExchangeAuthenticationToken() {
+		MockHttpServletRequest request = createRequest();
+		request.addParameter(OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantType.TOKEN_EXCHANGE.getValue());
+		request.addParameter(OAuth2ParameterNames.SUBJECT_TOKEN, SUBJECT_TOKEN);
+		request.addParameter(OAuth2ParameterNames.SUBJECT_TOKEN_TYPE, ID_TOKEN_TYPE_VALUE);
+
+		SecurityContextImpl securityContext = new SecurityContextImpl();
+		securityContext.setAuthentication(new TestingAuthenticationToken(CLIENT_ID, null));
+		SecurityContextHolder.setContext(securityContext);
+
+		OAuth2TokenExchangeAuthenticationToken authentication = (OAuth2TokenExchangeAuthenticationToken) this.converter
+			.convert(request);
+		assertThat(authentication).isNotNull();
+		assertThat(authentication.getSubjectToken()).isEqualTo(SUBJECT_TOKEN);
+		assertThat(authentication.getSubjectTokenType()).isEqualTo(ID_TOKEN_TYPE_VALUE);
 	}
 
 	@Test
