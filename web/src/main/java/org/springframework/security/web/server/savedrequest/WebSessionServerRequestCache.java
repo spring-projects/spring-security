@@ -119,9 +119,11 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 	 * {@link #removeMatchingRequest(ServerWebExchange)} to look up the
 	 * {@link ServerHttpRequest}.
 	 * @param matchingRequestParameterName the parameter name that must be in the request
-	 * for {@link #removeMatchingRequest(ServerWebExchange)} to check the session.
+	 * for {@link #removeMatchingRequest(ServerWebExchange)} to check the session, or
+	 * {@code null} (the default) to disable the query-parameter requirement, in which
+	 * case {@link #removeMatchingRequest(ServerWebExchange)} always consults the session.
 	 */
-	public void setMatchingRequestParameterName(String matchingRequestParameterName) {
+	public void setMatchingRequestParameterName(@Nullable String matchingRequestParameterName) {
 		this.matchingRequestParameterName = matchingRequestParameterName;
 	}
 
