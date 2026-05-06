@@ -7,6 +7,10 @@ If the request does not contain any cookies and Spring Security is first, the re
 
 The easiest way to ensure that CORS is handled first is to use the `CorsWebFilter`.
 Users can integrate the `CorsWebFilter` with Spring Security by providing a `CorsConfigurationSource`.
+
+NOTE: If multiple `CorsConfigurationSource` beans are defined in the application context, Spring Security will not automatically select one and will fail with an ambiguous bean definition error.
+In that case, you should specify which `CorsConfigurationSource` to use for each security filter chain by passing it directly to the `.cors()` DSL.
+
 For example, the following will integrate CORS support within Spring Security:
 
 [tabs]
