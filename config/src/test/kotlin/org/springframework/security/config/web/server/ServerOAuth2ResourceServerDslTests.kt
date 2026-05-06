@@ -17,6 +17,7 @@
 package org.springframework.security.config.web.server
 
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
 import org.junit.jupiter.api.Test
@@ -37,6 +38,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.WebFilterExchange
 import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler
+import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler
 import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.config.EnableWebFlux
@@ -181,6 +183,46 @@ class ServerOAuth2ResourceServerDslTests {
             return Mono.empty()
         }
 
+    }
+
+    @Test
+    fun `request when custom authentication success handler then success handler used`() {
+        this.spring.register(AuthenticationSuccessHandlerConfig::class.java).autowire()
+        every {
+            AuthenticationSuccessHandlerConfig.SUCCESS_HANDLER.onAuthenticationSuccess(any(), any())
+        } returns Mono.empty()
+
+        this.client.get()
+            .uri("/")
+            .headers { it.setBearerAuth(validJwt) }
+            .exchange()
+
+        verify(exactly = 1) { AuthenticationSuccessHandlerConfig.SUCCESS_HANDLER.onAuthenticationSuccess(any(), any()) }
+    }
+
+    @Configuration
+    @EnableWebFluxSecurity
+    @EnableWebFlux
+    open class AuthenticationSuccessHandlerConfig {
+
+        companion object {
+            val SUCCESS_HANDLER: ServerAuthenticationSuccessHandler = mockk()
+        }
+
+        @Bean
+        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+            return http {
+                authorizeExchange {
+                    authorize(anyExchange, authenticated)
+                }
+                oauth2ResourceServer {
+                    authenticationSuccessHandler = SUCCESS_HANDLER
+                    jwt {
+                        publicKey = publicKey()
+                    }
+                }
+            }
+        }
     }
 
     @Test
