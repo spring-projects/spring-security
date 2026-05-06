@@ -21,6 +21,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -41,8 +42,10 @@ import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 abstract class OidcIdTokenMixin {
 
 	@JsonCreator
-	OidcIdTokenMixin(@JsonProperty("tokenValue") String tokenValue, @JsonProperty("issuedAt") Instant issuedAt,
-			@JsonProperty("expiresAt") Instant expiresAt, @JsonProperty("claims") Map<String, Object> claims) {
+	OidcIdTokenMixin(@JsonProperty("tokenValue") String tokenValue,
+			@JsonProperty("issuedAt") @JsonFormat(shape = JsonFormat.Shape.NUMBER) Instant issuedAt,
+			@JsonProperty("expiresAt") @JsonFormat(shape = JsonFormat.Shape.NUMBER) Instant expiresAt,
+			@JsonProperty("claims") Map<String, Object> claims) {
 	}
 
 }

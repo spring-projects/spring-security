@@ -21,6 +21,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.databind.annotation.JsonDeserialize;
@@ -45,8 +46,10 @@ abstract class OAuth2AccessTokenMixin {
 	OAuth2AccessTokenMixin(
 			@JsonProperty("tokenType") @JsonDeserialize(
 					converter = StdConverters.AccessTokenTypeConverter.class) OAuth2AccessToken.TokenType tokenType,
-			@JsonProperty("tokenValue") String tokenValue, @JsonProperty("issuedAt") Instant issuedAt,
-			@JsonProperty("expiresAt") Instant expiresAt, @JsonProperty("scopes") Set<String> scopes) {
+			@JsonProperty("tokenValue") String tokenValue,
+			@JsonProperty("issuedAt") @JsonFormat(shape = JsonFormat.Shape.NUMBER) Instant issuedAt,
+			@JsonProperty("expiresAt") @JsonFormat(shape = JsonFormat.Shape.NUMBER) Instant expiresAt,
+			@JsonProperty("scopes") Set<String> scopes) {
 	}
 
 }
