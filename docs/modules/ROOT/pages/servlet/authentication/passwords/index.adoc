@@ -318,6 +318,7 @@ class LoginController(val authenticationManager: AuthenticationManager) {
 ====
 In this example, it is your responsibility to save the authenticated user in the `SecurityContextRepository` if needed.
 For example, if using the `HttpSession` to persist the `SecurityContext` between requests, you can use xref:servlet/authentication/persistence.adoc#httpsecuritycontextrepository[`HttpSessionSecurityContextRepository`].
+For a complete code example, see xref:servlet/authentication/session-management.adoc#store-authentication-manually[Store Authentication Manually].
 ====
 
 [[customize-global-authentication-manager]]
