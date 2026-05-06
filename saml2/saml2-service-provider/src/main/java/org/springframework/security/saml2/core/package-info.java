@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
- * Core SAML2 types and utilities.
+ * Core Spring Security SAML 2.0 abstractions.
  */
 @NullMarked
 package org.springframework.security.saml2.core;

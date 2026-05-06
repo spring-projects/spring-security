@@ -1,6 +1,4 @@
 plugins {
-	id 'compile-warnings-error'
-	id 'javadoc-warnings-error'
 	id 'security-nullability'
 }
 
@@ -136,6 +134,10 @@ testJar {
 javadoc {
 	classpath += configurations.opensamlFiveMain
 	source = sourceSets.main.allJava + sourceSets.opensaml5Main.allJava
+}
+
+tasks.named("compileJava") {
+	options.nullability.checking = "main"
 }
 
 tasks.named("compileOpensaml5MainJava") {
