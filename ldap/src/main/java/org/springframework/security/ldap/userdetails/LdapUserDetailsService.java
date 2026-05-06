@@ -29,9 +29,9 @@ import org.springframework.util.Assert;
 
 /**
  * LDAP implementation of UserDetailsService based around an {@link LdapUserSearch} and an
- * {@link LdapAuthoritiesPopulator}. The final <tt>UserDetails</tt> object returned from
- * <tt>loadUserByUsername</tt> is created by the configured
- * <tt>UserDetailsContextMapper</tt>.
+ * {@link LdapAuthoritiesPopulator}. The final {@code UserDetails} object returned from
+ * {@code loadUserByUsername} is created by the configured
+ * {@code UserDetailsContextMapper}.
  *
  * @author Luke Taylor
  */

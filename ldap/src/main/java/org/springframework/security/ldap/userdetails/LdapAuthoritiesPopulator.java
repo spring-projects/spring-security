@@ -24,7 +24,7 @@ import org.springframework.security.core.GrantedAuthority;
 /**
  * Obtains a list of granted authorities for an Ldap user.
  * <p>
- * Used by the <tt>LdapAuthenticationProvider</tt> once a user has been authenticated to
+ * Used by the {@code LdapAuthenticationProvider} once a user has been authenticated to
  * create the final user details object.
  * </p>
  *

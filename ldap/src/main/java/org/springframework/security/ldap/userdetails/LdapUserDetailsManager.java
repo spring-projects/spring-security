@@ -365,7 +365,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	 * Sets the name of the multi-valued attribute which holds the DNs of users who are
 	 * members of a group.
 	 * <p>
-	 * Usually this will be <tt>uniquemember</tt> (the default value) or <tt>member</tt>.
+	 * Usually this will be {@code uniquemember} (the default value) or {@code member}.
 	 * </p>
 	 * @param groupMemberAttributeName the name of the attribute used to store group
 	 * members.

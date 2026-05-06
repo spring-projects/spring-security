@@ -29,7 +29,7 @@ import org.springframework.util.Assert;
 
 /**
  * UserDetails implementation whose properties are based on the LDAP schema for
- * <tt>Person</tt>.
+ * {@code Person}.
  *
  * @author Luke
  * @since 2.0

@@ -57,7 +57,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 	/**
 	 * The filter expression used in the user search. This is an LDAP search filter (as
 	 * defined in 'RFC 2254') with optional arguments. See the documentation for the
-	 * <tt>search</tt> methods in {@link javax.naming.directory.DirContext DirContext} for
+	 * {@code search} methods in {@code DirContext} for
 	 * more information.
 	 *
 	 * <p>

@@ -26,10 +26,10 @@ import org.springframework.util.Assert;
 
 /**
  * UserDetails implementation whose properties are based on a subset of the LDAP schema
- * for <tt>inetOrgPerson</tt>.
+ * for {@code inetOrgPerson}.
  *
  * <p>
- * The username will be mapped from the <tt>uid</tt> attribute by default.
+ * The username will be mapped from the {@code uid} attribute by default.
  *
  * @author Luke Taylor
  */
