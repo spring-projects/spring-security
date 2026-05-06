@@ -133,3 +133,135 @@ authenticationConverter.setAuthenticationDetailsSource(myAuthenticationDetailsSo
 val filter = BearerTokenAuthenticationFilter(authenticationManager, authenticationConverter)
 ----
 ======
+
+[[use-jackson-2-with-jdbc-authorization-server-components]]
+== Use Jackson 2 with `JdbcOAuth2AuthorizationService` and `JdbcRegisteredClientRepository`
+
+In Spring Security 7, `JdbcOAuth2AuthorizationService` and `JdbcRegisteredClientRepository` default
+to using Jackson 3 (`tools.jackson.core:jackson-databind`). The Jackson 3 serialization format is
+compatible with Jackson 2, so data already stored in the database and serialized with Jackson 2 can
+be deserialized by Jackson 3 without any schema changes.
+
+If you need to continue using Jackson 2 temporarily, you must first exclude the transitive Jackson 3
+dependency and add Jackson 2 explicitly:
+
+[tabs]
+======
+Maven::
++
+[source,xml,role="primary"]
+----
+<dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-oauth2-authorization-server</artifactId>
+    <exclusions>
+        <exclusion>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+</dependency>
+----
+
+Gradle::
++
+[source,groovy,role="secondary"]
+----
+implementation('org.springframework.security:spring-security-oauth2-authorization-server') {
+    exclude group: 'tools.jackson.core', module: 'jackson-databind'
+}
+implementation 'com.fasterxml.jackson.core:jackson-databind' // Version managed by Spring Boot's dependency management
+----
+======
+
+If `tools.jackson.core:jackson-databind` is also present on the classpath from other dependencies
+(for example, from `spring-boot-starter-web`), it must also be excluded from those.
+
+Then configure the deprecated Jackson 2 row mappers explicitly:
+
+[WARNING]
+====
+The following configuration uses deprecated APIs.
+Jackson 2 support is deprecated and will be removed in a future release.
+Migrating to Jackson 3 is strongly recommended. Plan to migrate to Jackson 3 before upgrading to Spring Security 8.
+====
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public JdbcOAuth2AuthorizationService authorizationService(
+        JdbcOperations jdbcOperations,
+        RegisteredClientRepository registeredClientRepository) {
+    JdbcOAuth2AuthorizationService authorizationService =
+            new JdbcOAuth2AuthorizationService(jdbcOperations, registeredClientRepository);
+
+    JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper rowMapper =
+            new JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper(registeredClientRepository);
+    authorizationService.setAuthorizationRowMapper(rowMapper);
+
+    JdbcOAuth2AuthorizationService.OAuth2AuthorizationParametersMapper parametersMapper =
+            new JdbcOAuth2AuthorizationService.OAuth2AuthorizationParametersMapper();
+    authorizationService.setAuthorizationParametersMapper(parametersMapper);
+
+    return authorizationService;
+}
+
+@Bean
+public JdbcRegisteredClientRepository registeredClientRepository(JdbcOperations jdbcOperations) {
+    JdbcRegisteredClientRepository registeredClientRepository =
+            new JdbcRegisteredClientRepository(jdbcOperations);
+
+    JdbcRegisteredClientRepository.RegisteredClientRowMapper rowMapper =
+            new JdbcRegisteredClientRepository.RegisteredClientRowMapper();
+    registeredClientRepository.setRegisteredClientRowMapper(rowMapper);
+
+    JdbcRegisteredClientRepository.RegisteredClientParametersMapper parametersMapper =
+            new JdbcRegisteredClientRepository.RegisteredClientParametersMapper();
+    registeredClientRepository.setRegisteredClientParametersMapper(parametersMapper);
+
+    return registeredClientRepository;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authorizationService(
+    jdbcOperations: JdbcOperations,
+    registeredClientRepository: RegisteredClientRepository
+): JdbcOAuth2AuthorizationService {
+    val authorizationService = JdbcOAuth2AuthorizationService(jdbcOperations, registeredClientRepository)
+
+    val rowMapper = JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper(registeredClientRepository)
+    authorizationService.setAuthorizationRowMapper(rowMapper)
+
+    val parametersMapper = JdbcOAuth2AuthorizationService.OAuth2AuthorizationParametersMapper()
+    authorizationService.setAuthorizationParametersMapper(parametersMapper)
+
+    return authorizationService
+}
+
+@Bean
+fun registeredClientRepository(jdbcOperations: JdbcOperations): JdbcRegisteredClientRepository {
+    val registeredClientRepository = JdbcRegisteredClientRepository(jdbcOperations)
+
+    val rowMapper = JdbcRegisteredClientRepository.RegisteredClientRowMapper()
+    registeredClientRepository.setRegisteredClientRowMapper(rowMapper)
+
+    val parametersMapper = JdbcRegisteredClientRepository.RegisteredClientParametersMapper()
+    registeredClientRepository.setRegisteredClientParametersMapper(parametersMapper)
+
+    return registeredClientRepository
+}
+----
+======
