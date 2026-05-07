@@ -18,11 +18,11 @@ package org.springframework.security.oauth2.jwt;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -39,12 +39,15 @@ import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 
+import org.springframework.security.oauth2.core.ClaimAccessor;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -63,10 +66,11 @@ public final class DPoPProofJwtDecoderFactory implements JwtDecoderFactory<DPoPP
 
 	/**
 	 * The default {@code OAuth2TokenValidator<Jwt>} factory that validates the
-	 * {@code htm}, {@code htu}, {@code jti} and {@code iat} claims of the DPoP Proof
-	 * {@link Jwt}.
+	 * {@code htm}, {@code htu}, {@code iat}, {@code jkt}, {@code ath} and {@code jti}
+	 * claims of the DPoP Proof {@link Jwt}.
 	 */
-	public static final Function<DPoPProofContext, OAuth2TokenValidator<Jwt>> DEFAULT_JWT_VALIDATOR_FACTORY = defaultJwtValidatorFactory();
+	public static final Function<DPoPProofContext, OAuth2TokenValidator<Jwt>> DEFAULT_JWT_VALIDATOR_FACTORY = createDefaultJwtValidatorFactory(
+			Collections.emptyList());
 
 	private static final JOSEObjectTypeVerifier<SecurityContext> DPOP_TYPE_VERIFIER = new DefaultJOSEObjectTypeVerifier<>(
 			new JOSEObjectType("dpop+jwt"));
@@ -92,6 +96,70 @@ public final class DPoPProofJwtDecoderFactory implements JwtDecoderFactory<DPoPP
 	public void setJwtValidatorFactory(Function<DPoPProofContext, OAuth2TokenValidator<Jwt>> jwtValidatorFactory) {
 		Assert.notNull(jwtValidatorFactory, "jwtValidatorFactory cannot be null");
 		this.jwtValidatorFactory = jwtValidatorFactory;
+	}
+
+	/**
+	 * Creates a factory that provides an {@link OAuth2TokenValidator} for the specified
+	 * {@link DPoPProofContext} and is used by the {@link JwtDecoder}. The returned
+	 * factory provides a validator that validates the {@code htm}, {@code htu},
+	 * {@code iat}, {@code jkt}, {@code ath} and {@code jti} claims, along with any custom
+	 * validators provided.
+	 * @param validators the custom validators to add
+	 * @return a factory that provides an {@link OAuth2TokenValidator} for the specified
+	 * {@link DPoPProofContext}
+	 * @since 6.5.12
+	 */
+	public static Function<DPoPProofContext, OAuth2TokenValidator<Jwt>> createDefaultJwtValidatorFactory(
+			List<OAuth2TokenValidator<Jwt>> validators) {
+		Assert.notNull(validators, "validators cannot be null");
+		List<OAuth2TokenValidator<Jwt>> customValidators = new ArrayList<>();
+		if (!CollectionUtils.isEmpty(validators)) {
+			customValidators.addAll(validators);
+		}
+		final Duration clockSkew = Duration.ofSeconds(30);
+		final JwtIssuedAtValidator jwtIssuedAtValidator;
+		if (CollectionUtils.findValueOfType(customValidators, JwtIssuedAtValidator.class) != null) {
+			jwtIssuedAtValidator = CollectionUtils.findValueOfType(customValidators, JwtIssuedAtValidator.class);
+			customValidators.remove(jwtIssuedAtValidator);
+		}
+		else {
+			jwtIssuedAtValidator = new JwtIssuedAtValidator(true);
+			jwtIssuedAtValidator.setClockSkew(clockSkew);
+		}
+		final DPoPProofReplayValidator dPoPProofReplayValidator;
+		if (CollectionUtils.findValueOfType(customValidators, DPoPProofReplayValidator.class) != null) {
+			dPoPProofReplayValidator = CollectionUtils.findValueOfType(customValidators,
+					DPoPProofReplayValidator.class);
+			customValidators.remove(dPoPProofReplayValidator);
+		}
+		else {
+			dPoPProofReplayValidator = new DPoPProofReplayValidator(new DPoPProofReplayValidator.InMemoryCache());
+			dPoPProofReplayValidator.setClockSkew(clockSkew);
+		}
+		return (context) -> createDefaultJwtValidatorFactory(context, jwtIssuedAtValidator, dPoPProofReplayValidator,
+				customValidators);
+	}
+
+	private static OAuth2TokenValidator<Jwt> createDefaultJwtValidatorFactory(DPoPProofContext context,
+			JwtIssuedAtValidator jwtIssuedAtValidator, DPoPProofReplayValidator dPoPProofReplayValidator,
+			List<OAuth2TokenValidator<Jwt>> customValidators) {
+		// Add custom validators first then default validators in a specific order
+		List<OAuth2TokenValidator<Jwt>> tokenValidators = new ArrayList<>();
+		if (!CollectionUtils.isEmpty(customValidators)) {
+			tokenValidators.addAll(customValidators);
+		}
+		tokenValidators.add(new JwtClaimValidator<>("htm", context.getMethod()::equalsIgnoreCase));
+		tokenValidators.add(new JwtClaimValidator<>("htu", context.getTargetUri()::equals));
+		tokenValidators.add(jwtIssuedAtValidator);
+		if (context.getAccessToken() != null) {
+			tokenValidators.add(new JwkThumbprintValidator(context.getAccessToken()));
+			tokenValidators.add(new AthClaimValidator(context.getAccessToken()));
+		}
+		tokenValidators.add(dPoPProofReplayValidator);
+		DelegatingOAuth2TokenValidator<Jwt> delegatingTokenValidator = new DelegatingOAuth2TokenValidator<>(
+				tokenValidators);
+		delegatingTokenValidator.setFailOnError(true);
+		return delegatingTokenValidator;
 	}
 
 	private static NimbusJwtDecoder buildDecoder() {
@@ -137,39 +205,34 @@ public final class DPoPProofJwtDecoderFactory implements JwtDecoderFactory<DPoPP
 		};
 	}
 
-	private static Function<DPoPProofContext, OAuth2TokenValidator<Jwt>> defaultJwtValidatorFactory() {
-		return (context) -> new DelegatingOAuth2TokenValidator<>(
-				new JwtClaimValidator<>("htm", context.getMethod()::equals),
-				new JwtClaimValidator<>("htu", context.getTargetUri()::equals), new JtiClaimValidator(),
-				new JwtIssuedAtValidator(true));
-	}
+	private static final class AthClaimValidator implements OAuth2TokenValidator<Jwt> {
 
-	private static final class JtiClaimValidator implements OAuth2TokenValidator<Jwt> {
+		private final OAuth2Token accessToken;
 
-		private static final Map<String, Long> JTI_CACHE = Collections.synchronizedMap(new JtiCache());
+		private AthClaimValidator(OAuth2Token accessToken) {
+			Assert.notNull(accessToken, "accessToken cannot be null");
+			this.accessToken = accessToken;
+		}
 
 		@Override
 		public OAuth2TokenValidatorResult validate(Jwt jwt) {
 			Assert.notNull(jwt, "DPoP proof jwt cannot be null");
-			String jti = jwt.getId();
-			if (!StringUtils.hasText(jti)) {
-				OAuth2Error error = createOAuth2Error("jti claim is required.");
+			String accessTokenHashClaim = jwt.getClaimAsString("ath");
+			if (!StringUtils.hasText(accessTokenHashClaim)) {
+				OAuth2Error error = createOAuth2Error("ath claim is required.");
 				return OAuth2TokenValidatorResult.failure(error);
 			}
 
-			// Enforce single-use to protect against DPoP proof replay
-			String jtiHash;
+			String accessTokenHash;
 			try {
-				jtiHash = computeSHA256(jti);
+				accessTokenHash = computeSHA256(this.accessToken.getTokenValue());
 			}
 			catch (Exception ex) {
-				OAuth2Error error = createOAuth2Error("jti claim is invalid.");
+				OAuth2Error error = createOAuth2Error("Failed to compute SHA-256 Thumbprint for access token.");
 				return OAuth2TokenValidatorResult.failure(error);
 			}
-			Instant expiry = Instant.now().plus(1, ChronoUnit.HOURS);
-			if ((JTI_CACHE.putIfAbsent(jtiHash, expiry.toEpochMilli())) != null) {
-				// Already used
-				OAuth2Error error = createOAuth2Error("jti claim is invalid.");
+			if (!accessTokenHashClaim.equals(accessTokenHash)) {
+				OAuth2Error error = createOAuth2Error("ath claim is invalid.");
 				return OAuth2TokenValidatorResult.failure(error);
 			}
 			return OAuth2TokenValidatorResult.success();
@@ -185,20 +248,65 @@ public final class DPoPProofJwtDecoderFactory implements JwtDecoderFactory<DPoPP
 			return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
 		}
 
-		@SuppressWarnings("serial")
-		private static final class JtiCache extends LinkedHashMap<String, Long> {
+	}
 
-			private static final int MAX_SIZE = 1000;
+	private static final class JwkThumbprintValidator implements OAuth2TokenValidator<Jwt> {
 
-			@Override
-			protected boolean removeEldestEntry(Map.Entry<String, Long> eldest) {
-				if (size() > MAX_SIZE) {
-					return true;
-				}
-				Instant expiry = Instant.ofEpochMilli(eldest.getValue());
-				return Instant.now().isAfter(expiry);
+		private final OAuth2Token accessToken;
+
+		private final ClaimAccessor claims;
+
+		private JwkThumbprintValidator(OAuth2Token accessToken) {
+			Assert.notNull(accessToken, "accessToken cannot be null");
+			Assert.isInstanceOf(ClaimAccessor.class, accessToken, "accessToken must be instance of ClaimAccessor");
+			this.accessToken = accessToken;
+			this.claims = (ClaimAccessor) accessToken;
+		}
+
+		@Override
+		public OAuth2TokenValidatorResult validate(Jwt jwt) {
+			Assert.notNull(jwt, "DPoP proof jwt cannot be null");
+			String jwkThumbprintClaim = null;
+			Map<String, Object> confirmationMethodClaim = this.claims.getClaimAsMap("cnf");
+			if (!CollectionUtils.isEmpty(confirmationMethodClaim) && confirmationMethodClaim.containsKey("jkt")) {
+				jwkThumbprintClaim = (String) confirmationMethodClaim.get("jkt");
+			}
+			if (jwkThumbprintClaim == null) {
+				OAuth2Error error = createOAuth2Error("jkt claim is required.");
+				return OAuth2TokenValidatorResult.failure(error);
 			}
 
+			JWK jwk = null;
+			@SuppressWarnings("unchecked")
+			Map<String, Object> jwkJson = (Map<String, Object>) jwt.getHeaders().get("jwk");
+			try {
+				jwk = JWK.parse(jwkJson);
+			}
+			catch (Exception ignored) {
+			}
+			if (jwk == null) {
+				OAuth2Error error = createOAuth2Error("jwk header is missing or invalid.");
+				return OAuth2TokenValidatorResult.failure(error);
+			}
+
+			String jwkThumbprint;
+			try {
+				jwkThumbprint = jwk.computeThumbprint().toString();
+			}
+			catch (Exception ex) {
+				OAuth2Error error = createOAuth2Error("Failed to compute SHA-256 Thumbprint for jwk.");
+				return OAuth2TokenValidatorResult.failure(error);
+			}
+
+			if (!jwkThumbprintClaim.equals(jwkThumbprint)) {
+				OAuth2Error error = createOAuth2Error("jkt claim is invalid.");
+				return OAuth2TokenValidatorResult.failure(error);
+			}
+			return OAuth2TokenValidatorResult.success();
+		}
+
+		private static OAuth2Error createOAuth2Error(String reason) {
+			return new OAuth2Error(OAuth2ErrorCodes.INVALID_DPOP_PROOF, reason, null);
 		}
 
 	}

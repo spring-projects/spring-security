@@ -33,6 +33,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
@@ -298,6 +299,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 		if (dPoPAuthenticationAvailable) {
 			DPoPAuthenticationConfigurer<H> dPoPAuthenticationConfigurer = new DPoPAuthenticationConfigurer<>();
+			dPoPAuthenticationConfigurer.withObjectPostProcessor(
+					(ObjectPostProcessor<Object>) OAuth2ResourceServerConfigurer.this::postProcess);
 			dPoPAuthenticationConfigurer.configure(http);
 		}
 

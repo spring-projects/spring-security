@@ -22,6 +22,7 @@ import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
@@ -30,6 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
@@ -47,20 +49,26 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.jose.TestJwks;
 import org.springframework.security.oauth2.jose.TestKeys;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.security.oauth2.jwt.DPoPProofContext;
+import org.springframework.security.oauth2.jwt.DPoPProofJwtDecoderFactory;
+import org.springframework.security.oauth2.jwt.DPoPProofReplayValidator;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.DPoPAuthenticationProvider;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -245,8 +253,10 @@ public class DPoPAuthenticationConfigurerTests {
 						.requestMatchers("/resource2").hasAnyAuthority("SCOPE_resource2.read", "SCOPE_resource2.write")
 						.anyRequest().authenticated()
 				)
-				.oauth2ResourceServer((oauth2) -> oauth2
-						.jwt(Customizer.withDefaults()));
+				.oauth2ResourceServer((oauth2ResourceServer) ->
+					oauth2ResourceServer
+						.jwt(Customizer.withDefaults())
+						.withObjectPostProcessor(dPoPProofVerifierFactoryCustomizer()));
 			// @formatter:on
 			return http.build();
 		}
@@ -254,6 +264,25 @@ public class DPoPAuthenticationConfigurerTests {
 		@Bean
 		NimbusJwtDecoder jwtDecoder() {
 			return NimbusJwtDecoder.withPublicKey(PROVIDER_RSA_PUBLIC_KEY).build();
+		}
+
+		private ObjectPostProcessor<DPoPAuthenticationProvider> dPoPProofVerifierFactoryCustomizer() {
+			return new ObjectPostProcessor<>() {
+				@Override
+				public <O extends DPoPAuthenticationProvider> O postProcess(O authenticationProvider) {
+					DPoPProofReplayValidator.InMemoryCache inMemoryCache = new DPoPProofReplayValidator.InMemoryCache();
+					inMemoryCache.setMaxSize(50_000);
+					inMemoryCache.setMaxRequestsPerKey(500);
+					DPoPProofReplayValidator dPoPProofReplayValidator = new DPoPProofReplayValidator(inMemoryCache);
+					dPoPProofReplayValidator.setClockSkew(Duration.ofSeconds(60));
+					Function<DPoPProofContext, OAuth2TokenValidator<Jwt>> jwtValidatorFactory = DPoPProofJwtDecoderFactory
+						.createDefaultJwtValidatorFactory(Collections.singletonList(dPoPProofReplayValidator));
+					DPoPProofJwtDecoderFactory dPoPProofJwtDecoderFactory = new DPoPProofJwtDecoderFactory();
+					dPoPProofJwtDecoderFactory.setJwtValidatorFactory(jwtValidatorFactory);
+					authenticationProvider.setDPoPProofVerifierFactory(dPoPProofJwtDecoderFactory);
+					return authenticationProvider;
+				}
+			};
 		}
 
 	}
