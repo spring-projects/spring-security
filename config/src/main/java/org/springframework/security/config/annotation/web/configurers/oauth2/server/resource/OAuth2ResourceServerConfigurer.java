@@ -706,8 +706,10 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		}
 
 		private void configure(H http) {
+			DPoPAuthenticationProvider authenticationProvider = new DPoPAuthenticationProvider(
+					getTokenAuthenticationManager(http));
+			http.authenticationProvider(postProcess(authenticationProvider));
 			AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
-			http.authenticationProvider(new DPoPAuthenticationProvider(getTokenAuthenticationManager(http)));
 			AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManager,
 					getAuthenticationConverter());
 			authenticationFilter.setRequestMatcher(getRequestMatcher());
