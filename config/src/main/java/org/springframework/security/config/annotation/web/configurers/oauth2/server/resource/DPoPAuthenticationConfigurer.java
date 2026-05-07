@@ -79,8 +79,10 @@ final class DPoPAuthenticationConfigurer<B extends HttpSecurityBuilder<B>>
 
 	@Override
 	public void configure(B http) {
+		DPoPAuthenticationProvider authenticationProvider = new DPoPAuthenticationProvider(
+				getTokenAuthenticationManager(http));
+		http.authenticationProvider(postProcess(authenticationProvider));
 		AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
-		http.authenticationProvider(new DPoPAuthenticationProvider(getTokenAuthenticationManager(http)));
 		AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManager,
 				getAuthenticationConverter());
 		authenticationFilter.setRequestMatcher(getRequestMatcher());
