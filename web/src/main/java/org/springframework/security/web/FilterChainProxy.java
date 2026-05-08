@@ -238,22 +238,37 @@ public class FilterChainProxy extends GenericFilterBean {
 	}
 
 	/**
-	 * Returns the first filter chain matching the supplied URL.
+	 * Returns the first filter chain matching the supplied request.
 	 * @param request the request to match
-	 * @return an ordered array of Filters defining the filter chain
+	 * @return the matching {@link SecurityFilterChain}, or {@code null} if none matches
 	 */
-	private @Nullable List<Filter> getFilters(HttpServletRequest request) {
+	private @Nullable SecurityFilterChain matchChain(HttpServletRequest request) {
 		int count = 0;
-		for (SecurityFilterChain chain : this.filterChains) {
+		for (SecurityFilterChain candidate : this.filterChains) {
 			if (logger.isTraceEnabled()) {
-				logger.trace(LogMessage.format("Trying to match request against %s (%d/%d)", chain, ++count,
+				logger.trace(LogMessage.format("Trying to match request against %s (%d/%d)", candidate, ++count,
 						this.filterChains.size()));
 			}
-			if (chain.matches(request)) {
-				return chain.getFilters();
+			if (candidate.matches(request)) {
+				return candidate;
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Returns the filters of the first chain matching the supplied request.
+	 * <p>
+	 * NOTE: this method is invoked reflectively by Spring Security's test support
+	 * (see {@code WebTestUtils.findFilter}). Renaming or changing its signature
+	 * is a breaking change to that contract.
+	 * @param request the request to match
+	 * @return an ordered list of Filters defining the matched filter chain, or
+	 * {@code null} if no chain matches
+	 */
+	private @Nullable List<Filter> getFilters(HttpServletRequest request) {
+		SecurityFilterChain matched = matchChain(request);
+		return (matched != null) ? matched.getFilters() : null;
 	}
 
 	/**
