@@ -11,44 +11,4 @@ This will:
 Often, you will want to also invalidate the session on logout.
 To achieve this, you can add the `WebSessionServerLogoutHandler` to your logout configuration, like so:
 
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Bean
-SecurityWebFilterChain http(ServerHttpSecurity http) throws Exception {
-    DelegatingServerLogoutHandler logoutHandler = new DelegatingServerLogoutHandler(
-            new SecurityContextServerLogoutHandler(), new WebSessionServerLogoutHandler()
-    );
-
-    http
-        .authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
-        .logout((logout) -> logout.logoutHandler(logoutHandler));
-
-    return http.build();
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Bean
-fun http(http: ServerHttpSecurity): SecurityWebFilterChain {
-    val customLogoutHandler = DelegatingServerLogoutHandler(
-        SecurityContextServerLogoutHandler(), WebSessionServerLogoutHandler()
-    )
-
-    return http {
-        authorizeExchange {
-            authorize(anyExchange, authenticated)
-        }
-        logout {
-            logoutHandler = customLogoutHandler
-        }
-    }
-}
-----
-======
+include-code::./CustomLogoutHandlerConfiguration[tag=customLogoutHandler,indent=0]
