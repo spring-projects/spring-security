@@ -26,7 +26,11 @@ import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
-import com.nimbusds.jose.jwk.*;
+import com.nimbusds.jose.jwk.Curve;
+import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.jwk.OctetKeyPair;
+import com.nimbusds.jose.jwk.OctetSequenceKey;
+import com.nimbusds.jose.jwk.RSAKey;
 
 /**
  * @author Joe Grandja
