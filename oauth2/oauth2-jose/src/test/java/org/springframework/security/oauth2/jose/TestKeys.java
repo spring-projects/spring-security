@@ -16,6 +16,11 @@
 
 package org.springframework.security.oauth2.jose;
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.jwk.Curve;
+import com.nimbusds.jose.jwk.OctetKeyPair;
+import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator;
+
 import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -37,6 +42,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 /**
  * @author Joe Grandja
+ * @author Andrey Litvitski
  * @since 5.2
  */
 public final class TestKeys {
@@ -120,6 +126,8 @@ public final class TestKeys {
 
 	public static final KeyPair DEFAULT_EC_KEY_PAIR = generateEcKeyPair();
 
+	public static final OctetKeyPair DEFAULT_OKP_KEY_PAIR = generateOkpKeyPair();
+
 	static KeyPair generateEcKeyPair() {
 		EllipticCurve ellipticCurve = new EllipticCurve(
 				new ECFieldFp(new BigInteger(
@@ -142,6 +150,15 @@ public final class TestKeys {
 			throw new IllegalStateException(ex);
 		}
 		return keyPair;
+	}
+
+	static OctetKeyPair generateOkpKeyPair() {
+		try {
+			return new OctetKeyPairGenerator(Curve.Ed25519).generate();
+		}
+		catch (JOSEException ex) {
+			throw new IllegalStateException(ex);
+		}
 	}
 
 	private TestKeys() {

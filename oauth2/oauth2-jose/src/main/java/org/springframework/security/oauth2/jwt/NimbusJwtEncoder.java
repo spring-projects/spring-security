@@ -42,16 +42,8 @@ import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.factories.DefaultJWSSignerFactory;
-import com.nimbusds.jose.jwk.Curve;
-import com.nimbusds.jose.jwk.ECKey;
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.JWKMatcher;
-import com.nimbusds.jose.jwk.JWKSelector;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.KeyType;
-import com.nimbusds.jose.jwk.KeyUse;
-import com.nimbusds.jose.jwk.OctetSequenceKey;
-import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.*;
+import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
@@ -84,6 +76,7 @@ import org.springframework.util.function.ThrowingFunction;
  * @author Joe Grandja
  * @author Josh Cummings
  * @author Suraj Bhadrike
+ * @author Andrey Litvitski
  * @since 5.6
  * @see JwtEncoder
  * @see com.nimbusds.jose.jwk.source.JWKSource
@@ -246,6 +239,16 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 					.keyType(KeyType.forAlgorithm(jwsAlgorithm))
 					.keyID(headers.getKeyId())
 					.privateOnly(true)
+					.algorithms(jwsAlgorithm, null)
+					.build();
+			// @formatter:on
+		}
+		else if (JWSAlgorithm.Family.ED.contains(jwsAlgorithm)) {
+			// @formatter:off
+			return new JWKMatcher.Builder()
+					.keyType(KeyType.forAlgorithm(jwsAlgorithm))
+					.keyID(headers.getKeyId())
+					.keyUses(KeyUse.SIGNATURE, null)
 					.algorithms(jwsAlgorithm, null)
 					.build();
 			// @formatter:on
@@ -447,6 +450,16 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 
 	/**
 	 * Creates a builder for constructing a {@link NimbusJwtEncoder} using the provided
+	 * @param keyPair the {@link OctetKeyPair} to use for signing JWTs
+	 * @return a {@link OctetKeyPairJwtEncoderBuilder}
+	 * @since 7.0
+	 */
+	public static OctetKeyPairJwtEncoderBuilder withKeyPair(OctetKeyPair keyPair) {
+		return new OctetKeyPairJwtEncoderBuilder(keyPair);
+	}
+
+	/**
+	 * Creates a builder for constructing a {@link NimbusJwtEncoder} using the provided
 	 * @param secretKey
 	 * @return a {@link SecretKeyJwtEncoderBuilder} for configuring the {@link JWK}
 	 * @since 7.0
@@ -610,6 +623,48 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		 * @return this builder instance for method chaining
 		 */
 		public EcKeyPairJwtEncoderBuilder jwkPostProcessor(Consumer<ECKey.Builder> jwkPostProcessor) {
+			Assert.notNull(jwkPostProcessor, "jwkPostProcessor cannot be null");
+			jwkPostProcessor.accept(this.builder);
+			return this;
+		}
+
+		/**
+		 * Builds the {@link NimbusJwtEncoder} instance.
+		 * @return the configured {@link NimbusJwtEncoder}
+		 */
+		public NimbusJwtEncoder build() {
+			return new NimbusJwtEncoder(this.builder.build());
+		}
+
+	}
+
+	/**
+	 * A builder for creating {@link NimbusJwtEncoder} instances configured with a
+	 * {@link OctetKeyPair}.
+	 * <p>
+	 * This builder is used to create a {@link NimbusJwtEncoder}
+	 *
+	 * @since 7.0
+	 */
+	public static final class OctetKeyPairJwtEncoderBuilder {
+
+		private static final ThrowingFunction<OctetKeyPair, OctetKeyPair.Builder> defaultJwk = JWKS::signingWithOkp;
+
+		private final OctetKeyPair.Builder builder;
+
+		private OctetKeyPairJwtEncoderBuilder(OctetKeyPair keyPair) {
+			Assert.notNull(keyPair, "keyPair cannot be null");
+			Assert.isTrue(keyPair.isPrivate(), "keyPair must contain a private key");
+			this.builder = defaultJwk.apply(keyPair);
+		}
+
+		/**
+		 * Post-process the {@link JWK} using the given {@link Consumer}. For example, you
+		 * may use this to override the default {@code jwk}
+		 * @param jwkPostProcessor the post-processor to use
+		 * @return this builder instance for method chaining
+		 */
+		public OctetKeyPairJwtEncoderBuilder jwkPostProcessor(Consumer<OctetKeyPair.Builder> jwkPostProcessor) {
 			Assert.notNull(jwkPostProcessor, "jwkPostProcessor cannot be null");
 			jwkPostProcessor.accept(this.builder);
 			return this;

@@ -26,13 +26,11 @@ import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
-import com.nimbusds.jose.jwk.Curve;
-import com.nimbusds.jose.jwk.ECKey;
-import com.nimbusds.jose.jwk.OctetSequenceKey;
-import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.*;
 
 /**
  * @author Joe Grandja
+ * @author Andrey Litvitski
  */
 public final class TestJwks {
 
@@ -67,6 +65,13 @@ public final class TestJwks {
 	public static final OctetSequenceKey DEFAULT_SECRET_JWK =
 			jwk(
 					TestKeys.DEFAULT_SECRET_KEY
+			).build();
+	// @formatter:on
+
+	// @formatter:off
+	public static final OctetKeyPair DEFAULT_OKP_JWK =
+			jwk(
+					TestKeys.DEFAULT_OKP_KEY_PAIR
 			).build();
 	// @formatter:on
 
@@ -108,6 +113,14 @@ public final class TestJwks {
 		// @formatter:off
 		return new OctetSequenceKey.Builder(secretKey)
 				.keyID("secret-jwk-kid");
+		// @formatter:on
+	}
+
+	public static OctetKeyPair.Builder jwk(OctetKeyPair octetKeyPair) {
+		// @formatter:off
+		return new OctetKeyPair.Builder(octetKeyPair.getCurve(), octetKeyPair.getX())
+				.d(octetKeyPair.getD())
+				.keyID("okp-jwk-kid");
 		// @formatter:on
 	}
 

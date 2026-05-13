@@ -33,15 +33,9 @@ import javax.crypto.spec.SecretKeySpec;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.KeySourceException;
-import com.nimbusds.jose.jwk.Curve;
-import com.nimbusds.jose.jwk.ECKey;
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.JWKSelector;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.KeyUse;
-import com.nimbusds.jose.jwk.OctetSequenceKey;
-import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.*;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
+import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
@@ -72,6 +66,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
  * Tests for {@link NimbusJwtEncoder}.
  *
  * @author Joe Grandja
+ * @author Andrey Litvitski
  */
 public class NimbusJwtEncoderTests {
 
@@ -107,6 +102,25 @@ public class NimbusJwtEncoderTests {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, null)))
 			.withMessage("claims cannot be null");
+	}
+
+	@Test
+	void keyPairBuilderWithOkpWhenPublicKeyOnlyThenThrowIllegalArgumentException() throws JOSEException {
+		OctetKeyPair key = new OctetKeyPairGenerator(Curve.Ed25519).generate();
+
+		assertThatIllegalArgumentException().isThrownBy(() -> NimbusJwtEncoder.withKeyPair(key.toPublicJWK()))
+			.withMessage("keyPair must contain a private key");
+	}
+
+	@Test
+	void encodeWhenEdDsaAlgorithmThenSuccess() throws JOSEException {
+		OctetKeyPair key = new OctetKeyPairGenerator(Curve.Ed25519).generate();
+		this.jwkList.add(key);
+		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.EdDSA).build();
+		JwtClaimsSet claims = buildClaims();
+		Jwt jwt = this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims));
+		assertJwt(jwt);
+		assertThat(jwt.getHeaders()).containsEntry(JoseHeaderNames.ALG, SignatureAlgorithm.EdDSA);
 	}
 
 	@Test
@@ -389,6 +403,17 @@ public class NimbusJwtEncoderTests {
 		assertThat(jwt.getHeaders()).containsKey(JoseHeaderNames.KID);
 	}
 
+	@Test
+	void keyPairBuilderWithOkpDefaultAlgorithm() throws JOSEException {
+		OctetKeyPair key = new OctetKeyPairGenerator(Curve.Ed25519).generate();
+		NimbusJwtEncoder jwtEncoder = NimbusJwtEncoder.withKeyPair(key).build();
+		JwtClaimsSet claims = buildClaims();
+		Jwt jwt = jwtEncoder.encode(JwtEncoderParameters.from(claims));
+		assertJwt(jwt);
+		assertThat(jwt.getHeaders()).containsEntry(JoseHeaderNames.ALG, SignatureAlgorithm.EdDSA);
+		assertThat(jwt.getHeaders()).containsKey(JoseHeaderNames.KID);
+	}
+
 	// With custom algorithm
 	@Test
 	void keyPairBuilderWithRsaWithAlgorithm() throws JOSEException {
@@ -490,6 +515,20 @@ public class NimbusJwtEncoderTests {
 		assertThat(jwt.getHeaders()).containsEntry(JoseHeaderNames.KID, keyId);
 	}
 
+	@Test
+	void keyPairBuilderWithOkpAlgorithmAndJwkSource() throws JOSEException {
+		OctetKeyPair key = new OctetKeyPairGenerator(Curve.Ed25519).generate();
+		String keyId = UUID.randomUUID().toString();
+		NimbusJwtEncoder jwtEncoder = NimbusJwtEncoder.withKeyPair(key)
+			.jwkPostProcessor((builder) -> builder.keyID(keyId))
+			.build();
+		JwtClaimsSet claims = buildClaims();
+		Jwt jwt = jwtEncoder.encode(JwtEncoderParameters.from(claims));
+		assertJwt(jwt);
+		assertThat(jwt.getHeaders()).containsEntry(JoseHeaderNames.ALG, SignatureAlgorithm.EdDSA);
+		assertThat(jwt.getHeaders()).containsEntry(JoseHeaderNames.KID, keyId);
+	}
+
 	private JwtClaimsSet buildClaims() {
 		Instant now = Instant.now();
 		return JwtClaimsSet.builder()
@@ -558,8 +597,11 @@ public class NimbusJwtEncoderTests {
 			OctetSequenceKey secretJwk = TestJwks.jwk(TestKeys.DEFAULT_SECRET_KEY)
 					.keyID("secret-jwk-" + this.keyId++)
 					.build();
+			OctetKeyPair okpJwk = TestJwks.jwk(TestKeys.DEFAULT_OKP_KEY_PAIR)
+					.keyID("okp-jwk-" + this.keyId++)
+					.build();
 			// @formatter:on
-			this.jwkSet = new JWKSet(Arrays.asList(rsaJwk, ecJwk, secretJwk));
+			this.jwkSet = new JWKSet(Arrays.asList(rsaJwk, ecJwk, secretJwk, okpJwk));
 		}
 
 		private void rotate() {

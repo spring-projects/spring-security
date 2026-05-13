@@ -28,12 +28,7 @@ import javax.crypto.SecretKey;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.crypto.impl.ECDSA;
-import com.nimbusds.jose.jwk.Curve;
-import com.nimbusds.jose.jwk.ECKey;
-import com.nimbusds.jose.jwk.KeyOperation;
-import com.nimbusds.jose.jwk.KeyUse;
-import com.nimbusds.jose.jwk.OctetSequenceKey;
-import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.*;
 
 final class JWKS {
 
@@ -79,6 +74,17 @@ final class JWKS {
 			.keyUse(KeyUse.SIGNATURE)
 			.keyOperations(Set.of(KeyOperation.SIGN))
 			.algorithm(JWSAlgorithm.RS256)
+			.keyIDFromThumbprint()
+			.issueTime(issued)
+			.notBeforeTime(issued);
+	}
+
+	static OctetKeyPair.Builder signingWithOkp(OctetKeyPair octetKeyPair) throws JOSEException {
+		Date issued = new Date();
+		return new OctetKeyPair.Builder(octetKeyPair.getCurve(), octetKeyPair.getX()).d(octetKeyPair.getD())
+			.keyOperations(Set.of(KeyOperation.SIGN))
+			.keyUse(KeyUse.SIGNATURE)
+			.algorithm(JWSAlgorithm.EdDSA)
 			.keyIDFromThumbprint()
 			.issueTime(issued)
 			.notBeforeTime(issued);
