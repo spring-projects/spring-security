@@ -203,7 +203,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 
 	/**
 	 * Returns the DN for the context representing this LDAP record. By default this is
-	 * using {@link javax.naming.Context#getNameInNamespace()} instead of
+	 * using {@code Context#getNameInNamespace()} instead of
 	 * {@link org.springframework.ldap.core.DirContextAdapter#getDn()} since the latter
 	 * returns a partial DN if a base has been specified.
 	 * @param adapter - the Context to extract the DN from
@@ -249,7 +249,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	 * Performs a search, with the requirement that the search shall return a single
 	 * directory entry, and uses the supplied mapper to create the object from that entry.
 	 * <p>
-	 * Ignores <tt>PartialResultException</tt> if thrown, for compatibility with Active
+	 * Ignores {@code PartialResultException} if thrown, for compatibility with Active
 	 * Directory (see {@link LdapTemplate#setIgnorePartialResultException(boolean)}).
 	 * @param base the search base, relative to the base context supplied by the context
 	 * source.

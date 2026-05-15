@@ -17,7 +17,7 @@
 package org.springframework.security.ldap.ppolicy;
 
 /**
- * Defines status codes for use with <tt>PasswordPolicyException</tt>, with error codes
+ * Defines status codes for use with {@code PasswordPolicyException}, with error codes
  * (for message source lookup) and default messages.
  *
  * <pre>

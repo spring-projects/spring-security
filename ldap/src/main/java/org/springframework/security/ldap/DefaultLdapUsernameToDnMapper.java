@@ -21,10 +21,10 @@ import javax.naming.ldap.LdapName;
 import org.springframework.ldap.support.LdapNameBuilder;
 
 /**
- * This implementation appends a name component to the <tt>userDnBase</tt> context using
- * the <tt>usernameAttributeName</tt> property. So if the <tt>uid</tt> attribute is used
- * to store the username, and the base DN is <tt>cn=users</tt> and we are creating a new
- * user called "sam", then the DN will be <tt>uid=sam,cn=users</tt>.
+ * This implementation appends a name component to the {@code userDnBase} context using
+ * the {@code usernameAttributeName} property. So if the {@code uid} attribute is used
+ * to store the username, and the base DN is {@code cn=users} and we are creating a new
+ * user called "sam", then the DN will be {@code uid=sam,cn=users}.
  *
  * @author Luke Taylor
  */

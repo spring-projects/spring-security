@@ -48,10 +48,10 @@ import org.springframework.util.CollectionUtils;
  * It obtains roles by performing a search for "groups" the user is a member of.
  * <p>
  * A typical group search scenario would be where each group/role is specified using the
- * <tt>groupOfNames</tt> (or <tt>groupOfUniqueNames</tt>) LDAP objectClass and the user's
- * DN is listed in the <tt>member</tt> (or <tt>uniqueMember</tt>) attribute to indicate
+ * {@code groupOfNames} (or {@code groupOfUniqueNames}) LDAP objectClass and the user's
+ * DN is listed in the {@code member} (or {@code uniqueMember}) attribute to indicate
  * that they should be assigned that role. The following LDIF sample has the groups stored
- * under the DN <tt>ou=groups,dc=springframework,dc=org</tt> and a group called
+ * under the DN {@code ou=groups,dc=springframework,dc=org} and a group called
  * "developers" with "ben" and "luke" as members:
  *
  * <pre>
@@ -70,13 +70,13 @@ import org.springframework.util.CollectionUtils;
  * ou: developer
  * </pre>
  * <p>
- * The group search is performed within a DN specified by the <tt>groupSearchBase</tt>
- * property, which should be relative to the root DN of its <tt>ContextSource</tt>. If the
+ * The group search is performed within a DN specified by the {@code groupSearchBase}
+ * property, which should be relative to the root DN of its {@code ContextSource}. If the
  * search base is null, group searching is disabled. The filter used in the search is
- * defined by the <tt>groupSearchFilter</tt> property, with the filter argument {0} being
+ * defined by the {@code groupSearchFilter} property, with the filter argument {0} being
  * the full DN of the user. You can also optionally use the parameter {1}, which will be
  * substituted with the username. You can also specify which attribute defines the role
- * name by setting the <tt>groupRoleAttribute</tt> property (the default is "cn").
+ * name by setting the {@code groupRoleAttribute} property (the default is "cn").
  * <p>
  * The configuration below shows how the group search might be performed with the above
  * schema.
@@ -97,9 +97,9 @@ import org.springframework.util.CollectionUtils;
  * A search for roles for user "uid=ben,ou=people,dc=springframework,dc=org" would return
  * the single granted authority "ROLE_DEVELOPER".
  * <p>
- * The single-level search is performed by default. Setting the <tt>searchSubTree</tt>
+ * The single-level search is performed by default. Setting the {@code searchSubTree}
  * property to true will enable a search of the entire subtree under
- * <tt>groupSearchBase</tt>.
+ * {@code groupSearchBase}.
  *
  * @author Luke Taylor
  * @author Filip Hanik
@@ -155,7 +155,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	private Function<Map<String, List<String>>, @Nullable GrantedAuthority> authorityMapper;
 
 	/**
-	 * Constructor for group search scenarios. <tt>userRoleAttributes</tt> may still be
+	 * Constructor for group search scenarios. {@code userRoleAttributes} may still be
 	 * set as a property.
 	 * @param contextSource supplies the contexts used to search for user roles.
 	 * @param groupSearchBase if this is an empty string the search will be performed from
@@ -277,7 +277,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
 	/**
 	 * Sets the prefix which will be prepended to the values loaded from the directory.
-	 * Defaults to "ROLE_" for compatibility with <tt>RoleVoter</tt>.
+	 * Defaults to "ROLE_" for compatibility with {@code RoleVoter}.
 	 */
 	public void setRolePrefix(String rolePrefix) {
 		Assert.notNull(rolePrefix, "rolePrefix must not be null");
@@ -288,7 +288,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	 * If set to true, a subtree scope search will be performed. If false a single-level
 	 * search is used.
 	 * @param searchSubtree set to true to enable searching of the entire tree below the
-	 * <tt>groupSearchBase</tt>.
+	 * {@code groupSearchBase}.
 	 */
 	public void setSearchSubtree(boolean searchSubtree) {
 		int searchScope = searchSubtree ? SearchControls.SUBTREE_SCOPE : SearchControls.ONELEVEL_SCOPE;

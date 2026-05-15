@@ -25,7 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Obtains the <tt>PasswordPolicyControl</tt> from a context for use by other classes.
+ * Obtains the {@code PasswordPolicyControl} from a context for use by other classes.
  *
  * @author Luke Taylor
  * @since 3.0

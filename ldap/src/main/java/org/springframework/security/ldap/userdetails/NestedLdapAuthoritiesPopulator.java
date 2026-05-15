@@ -137,7 +137,7 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 	private int maxSearchDepth = 10;
 
 	/**
-	 * Constructor for group search scenarios. <tt>userRoleAttributes</tt> may still be
+	 * Constructor for group search scenarios. {@code userRoleAttributes} may still be
 	 * set as a property.
 	 * @param contextSource supplies the contexts used to search for user roles.
 	 * @param groupSearchBase if this is an empty string the search will be performed from

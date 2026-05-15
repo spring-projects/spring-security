@@ -21,7 +21,7 @@ import java.io.Serial;
 /**
  * Generic exception raised by the ppolicy package.
  * <p>
- * The <tt>status</tt> property should be checked for more detail on the cause of the
+ * The {@code status} property should be checked for more detail on the cause of the
  * exception.
  *
  * @author Luke Taylor

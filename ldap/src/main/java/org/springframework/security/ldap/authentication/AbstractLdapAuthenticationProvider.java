@@ -95,8 +95,8 @@ public abstract class AbstractLdapAuthenticationProvider implements Authenticati
 	 * Creates the final {@code Authentication} object which will be returned from the
 	 * {@code authenticate} method.
 	 * @param authentication the original authentication request token
-	 * @param user the <tt>UserDetails</tt> instance returned by the configured
-	 * <tt>UserDetailsContextMapper</tt>.
+	 * @param user the {@code UserDetails} instance returned by the configured
+	 * {@code UserDetailsContextMapper}.
 	 * @return the Authentication object for the fully authenticated user.
 	 */
 	protected Authentication createSuccessfulAuthentication(UsernamePasswordAuthenticationToken authentication,
@@ -149,12 +149,12 @@ public abstract class AbstractLdapAuthenticationProvider implements Authenticati
 	}
 
 	/**
-	 * Allows a custom strategy to be used for creating the <tt>UserDetails</tt> which
-	 * will be stored as the principal in the <tt>Authentication</tt> returned by the
+	 * Allows a custom strategy to be used for creating the {@code UserDetails} which
+	 * will be stored as the principal in the {@code Authentication} returned by the
 	 * {@link #createSuccessfulAuthentication(org.springframework.security.authentication.UsernamePasswordAuthenticationToken, org.springframework.security.core.userdetails.UserDetails)}
 	 * method.
 	 * @param userDetailsContextMapper the strategy instance. If not set, defaults to a
-	 * simple <tt>LdapUserDetailsMapper</tt>.
+	 * simple {@code LdapUserDetailsMapper}.
 	 */
 	public void setUserDetailsContextMapper(UserDetailsContextMapper userDetailsContextMapper) {
 		Assert.notNull(userDetailsContextMapper, "UserDetailsContextMapper must not be null");

@@ -40,7 +40,7 @@ import org.springframework.util.Assert;
  * An instance may be created as the result of a search, or when user information is
  * retrieved during authentication.
  * <p>
- * An instance of this class will be used by the <tt>LdapAuthenticationProvider</tt> to
+ * An instance of this class will be used by the {@code LdapAuthenticationProvider} to
  * construct the final user details object that it returns.
  * <p>
  * The {@code equals} and {@code hashcode} methods are implemented using the {@code Dn}

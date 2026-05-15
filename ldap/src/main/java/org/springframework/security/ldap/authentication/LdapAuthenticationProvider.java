@@ -95,12 +95,12 @@ import org.springframework.util.Assert;
  *
  * <p>
  * This would set up the provider to access an LDAP server with URL
- * <tt>ldap://monkeymachine:389/dc=springframework,dc=org</tt>. Authentication will be
+ * {@code ldap://monkeymachine:389/dc=springframework,dc=org}. Authentication will be
  * performed by attempting to bind with the DN
- * <tt>uid=&lt;user-login-name&gt;,ou=people,dc=springframework,dc=org</tt>. After
+ * {@code uid=&lt;user-login-name&gt;,ou=people,dc=springframework,dc=org}. After
  * successful authentication, roles will be assigned to the user by searching under the DN
- * <tt>ou=groups,dc=springframework,dc=org</tt> with the default filter
- * <tt>(member=&lt;user's-DN&gt;)</tt>. The role name will be taken from the "ou"
+ * {@code ou=groups,dc=springframework,dc=org} with the default filter
+ * {@code (member=&lt;user's-DN&gt;)}. The role name will be taken from the "ou"
  * attribute of each match.
  * <p>
  * The authenticate method will reject empty passwords outright. LDAP servers may allow an

@@ -34,18 +34,18 @@ import org.springframework.ldap.core.support.SimpleDirContextAuthenticationStrat
 import org.springframework.util.Assert;
 
 /**
- * ContextSource implementation which uses Spring LDAP's <tt>LdapContextSource</tt> as a
+ * ContextSource implementation which uses Spring LDAP's {@code LdapContextSource} as a
  * base class. Used internally by the Spring Security LDAP namespace configuration.
  * <p>
- * From Spring Security 3.0, Spring LDAP 1.3 is used and the <tt>ContextSource</tt>
+ * From Spring Security 3.0, Spring LDAP 1.3 is used and the {@code ContextSource}
  * interface provides support for binding with a username and password. As a result,
- * Spring LDAP <tt>ContextSource</tt> implementations such as <tt>LdapContextSource</tt>
+ * Spring LDAP {@code ContextSource} implementations such as {@code LdapContextSource}
  * may be used directly with Spring Security.
  * <p>
  * Spring LDAP 1.3 doesn't have JVM-level LDAP connection pooling enabled by default. This
- * class sets the <tt>pooled</tt> property to true, but customizes the
- * {@link DirContextAuthenticationStrategy} used to disable pooling when the <tt>DN</tt>
- * doesn't match the <tt>userDn</tt> property. This prevents pooling for calls to
+ * class sets the {@code pooled} property to true, but customizes the
+ * {@link DirContextAuthenticationStrategy} used to disable pooling when the {@code DN}
+ * doesn't match the {@code userDn} property. This prevents pooling for calls to
  * {@link #getContext(String, String)} to authenticate as specific users.
  *
  * @author Luke Taylor
