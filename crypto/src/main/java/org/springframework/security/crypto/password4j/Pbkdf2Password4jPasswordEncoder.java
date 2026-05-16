@@ -20,9 +20,10 @@ import java.security.SecureRandom;
 import java.util.Base64;
 
 import com.password4j.AlgorithmFinder;
-import com.password4j.Hash;
+import com.password4j.HashBuilder;
 import com.password4j.PBKDF2Function;
 import com.password4j.Password;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.crypto.password.AbstractValidatingPasswordEncoder;
 import org.springframework.util.Assert;
@@ -60,6 +61,7 @@ import org.springframework.util.Assert;
  * }</pre>
  *
  * @author Mehrdad Bozorgmehr
+ * @author Andrey Litvitski
  * @since 7.0
  * @see PBKDF2Function
  * @see AlgorithmFinder#getPBKDF2Instance()
@@ -75,6 +77,8 @@ public class Pbkdf2Password4jPasswordEncoder extends AbstractValidatingPasswordE
 	private final SecureRandom secureRandom;
 
 	private final int saltLength;
+
+	@Nullable private final String pepper;
 
 	/**
 	 * Constructs a PBKDF2 password encoder using the default PBKDF2 configuration from
@@ -103,11 +107,28 @@ public class Pbkdf2Password4jPasswordEncoder extends AbstractValidatingPasswordE
 	 * positive
 	 */
 	public Pbkdf2Password4jPasswordEncoder(PBKDF2Function pbkdf2Function, int saltLength) {
+		this(pbkdf2Function, saltLength, null);
+	}
+
+	/**
+	 * Constructs a PBKDF2 password encoder with a custom PBKDF2 function, salt length,
+	 * and a pepper.
+	 * @param pbkdf2Function the PBKDF2 function to use for encoding passwords, must not
+	 * be null
+	 * @param saltLength the length of the salt in bytes, must be positive
+	 * @param pepper the pepper to be used in the hashing process. If null, no pepper will
+	 * be applied.
+	 * @throws IllegalArgumentException if pbkdf2Function is null or saltLength is not
+	 * positive
+	 * @since 7.0
+	 */
+	public Pbkdf2Password4jPasswordEncoder(PBKDF2Function pbkdf2Function, int saltLength, @Nullable String pepper) {
 		Assert.notNull(pbkdf2Function, "pbkdf2Function cannot be null");
 		Assert.isTrue(saltLength > 0, "saltLength must be positive");
 		this.pbkdf2Function = pbkdf2Function;
 		this.saltLength = saltLength;
 		this.secureRandom = new SecureRandom();
+		this.pepper = pepper;
 	}
 
 	@Override
@@ -115,9 +136,12 @@ public class Pbkdf2Password4jPasswordEncoder extends AbstractValidatingPasswordE
 		byte[] salt = new byte[this.saltLength];
 		this.secureRandom.nextBytes(salt);
 
-		Hash hash = Password.hash(rawPassword).addSalt(salt).with(this.pbkdf2Function);
+		HashBuilder hashBuilder = Password.hash(rawPassword).addSalt(salt);
+		if (this.pepper != null) {
+			hashBuilder.addPepper(this.pepper);
+		}
 		String encodedSalt = Base64.getEncoder().encodeToString(salt);
-		String encodedHash = hash.getResult();
+		String encodedHash = hashBuilder.with(this.pbkdf2Function).getResult();
 
 		return encodedSalt + DELIMITER + encodedHash;
 	}
@@ -137,8 +161,11 @@ public class Pbkdf2Password4jPasswordEncoder extends AbstractValidatingPasswordE
 			byte[] salt = Base64.getDecoder().decode(parts[0]);
 			String expectedHash = parts[1];
 
-			Hash hash = Password.hash(rawPassword).addSalt(salt).with(this.pbkdf2Function);
-			return expectedHash.equals(hash.getResult());
+			HashBuilder hashBuilder = Password.hash(rawPassword).addSalt(salt);
+			if (this.pepper != null) {
+				hashBuilder.addPepper(this.pepper);
+			}
+			return expectedHash.equals(hashBuilder.with(this.pbkdf2Function).getResult());
 		}
 		catch (IllegalArgumentException ex) {
 			// Invalid Base64 encoding
