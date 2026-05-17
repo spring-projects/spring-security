@@ -29,6 +29,7 @@ import org.springframework.util.Assert;
  * Creates common {@link AuthorizationManagerFactory} instances.
  *
  * @author Rob Winch
+ * @author Andrey Litvitski
  * @since 7.0
  * @see DefaultAuthorizationManagerFactory
  */
@@ -57,6 +58,7 @@ public final class AuthorizationManagerFactories {
 	 *
 	 * @param <T> the type for the {@link DefaultAuthorizationManagerFactory}
 	 * @author Rob Winch
+	 * @author Andrey Litvitski
 	 */
 	public static final class AdditionalRequiredFactorsBuilder<T> {
 
@@ -64,6 +66,8 @@ public final class AuthorizationManagerFactories {
 			.builder();
 
 		private @Nullable Predicate<Authentication> whenCondition;
+
+		private @Nullable Predicate<Authentication> unlessCondition;
 
 		/**
 		 * Apply the required factors only when the given condition is true for the
@@ -82,6 +86,21 @@ public final class AuthorizationManagerFactories {
 		}
 
 		/**
+		 * Skip the required factors when the given condition is true for the current
+		 * {@link Authentication}. When the condition is true, no additional factors are
+		 * required. Implemented using
+		 * {@link ConditionalAuthorizationManager#when(java.util.function.Predicate)}.
+		 * @param condition the condition to evaluate (must not be null)
+		 * @return the {@link AdditionalRequiredFactorsBuilder} to further customize
+		 * @since 7.1
+		 */
+		public AdditionalRequiredFactorsBuilder<T> unless(Predicate<Authentication> condition) {
+			Assert.notNull(condition, "condition cannot be null");
+			this.unlessCondition = condition;
+			return this;
+		}
+
+		/**
 		 * Customize the condition that determines if the required factors are evaluated.
 		 * @param condition a function that takes the current condition and returns the
 		 * new condition
@@ -92,6 +111,20 @@ public final class AuthorizationManagerFactories {
 				Function<@Nullable Predicate<Authentication>, @Nullable Predicate<Authentication>> condition) {
 			Assert.notNull(condition, "condition cannot be null");
 			this.whenCondition = condition.apply(this.whenCondition);
+			return this;
+		}
+
+		/**
+		 * Customize the condition that determines if the required factors are skipped.
+		 * @param condition a function that takes the current condition and returns the
+		 * new condition
+		 * @return the {@link AdditionalRequiredFactorsBuilder} to further customize
+		 * @since 7.1
+		 */
+		public AdditionalRequiredFactorsBuilder<T> withUnless(
+				Function<@Nullable Predicate<Authentication>, @Nullable Predicate<Authentication>> condition) {
+			Assert.notNull(condition, "condition cannot be null");
+			this.unlessCondition = condition.apply(this.unlessCondition);
 			return this;
 		}
 
@@ -132,6 +165,12 @@ public final class AuthorizationManagerFactories {
 			if (this.whenCondition != null) {
 				additionalChecks = ConditionalAuthorizationManager.<T>when(this.whenCondition)
 					.whenTrue(additionalChecks)
+					.build();
+			}
+			if (this.unlessCondition != null) {
+				additionalChecks = ConditionalAuthorizationManager.<T>when(this.unlessCondition)
+					.whenTrue(SingleResultAuthorizationManager.permitAll())
+					.whenFalse(additionalChecks)
 					.build();
 			}
 			result.setAdditionalAuthorization(additionalChecks);
