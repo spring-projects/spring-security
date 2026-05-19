@@ -130,11 +130,15 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 			}
 			if (authorizationFilter != null && filterSecurityInterceptor != null) {
 				this.logger.warn(
-						"It is not recommended to use authorizeRequests or FilterSecurityInterceptor in the configuration. Please only use authorizeHttpRequests");
+						"It is not recommended to use authorizeRequests or FilterSecurityInterceptor in the configuration. "
+								+ "Please only use authorizeHttpRequests. "
+								+ "For XML configuration, please add use-authorization-manager=\"true\" to your <http> element.");
 			}
 			if (filterSecurityInterceptor != null) {
 				this.logger.warn(
-						"Usage of authorizeRequests and FilterSecurityInterceptor are deprecated. Please use authorizeHttpRequests in the configuration");
+						"Usage of authorizeRequests and FilterSecurityInterceptor are deprecated. "
+								+ "Please use authorizeHttpRequests in the configuration. "
+								+ "For XML configuration, please add use-authorization-manager=\"true\" to your <http> element.");
 			}
 			authorizationFilter = null;
 			filterSecurityInterceptor = null;
