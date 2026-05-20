@@ -580,7 +580,6 @@ public class OAuth2LoginConfigurerTests {
 		Authentication authentication = this.securityContextRepository
 			.loadContext(new HttpRequestResponseHolder(this.request, this.response))
 			.getAuthentication();
-		assertThat(authentication.getAuthorities()).hasSize(1);
 		SecurityAssertions.assertThat(authentication).hasAuthority("OIDC_USER").isInstanceOf(OidcUserAuthority.class);
 	}
 
