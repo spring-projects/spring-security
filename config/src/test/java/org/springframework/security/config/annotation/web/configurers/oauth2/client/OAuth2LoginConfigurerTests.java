@@ -87,7 +87,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenRespon
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
-import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.TestOidcIdTokens;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
@@ -695,6 +695,22 @@ public class OAuth2LoginConfigurerTests {
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		// assertions
 		verify(this.context.getBean(SpyObjectPostProcessor.class).spy).authenticate(any());
+	}
+
+	// gh-17357
+	@Test
+	public void oauth2LoginWhenOidcAuthenticationProviderPostProcessorThenUses() throws Exception {
+		loadConfig(OAuth2LoginConfigCustomWithOidcPostProcessor.class);
+		// setup authorization request with OIDC scope
+		OAuth2AuthorizationRequest authorizationRequest = createOAuth2AuthorizationRequest(OidcScopes.OPENID);
+		this.authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, this.request, this.response);
+		// setup authentication parameters
+		this.request.setParameter("code", "code123");
+		this.request.setParameter("state", authorizationRequest.getState());
+		// perform test
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+		// assertions
+		verify(this.context.getBean(OidcSpyObjectPostProcessor.class).spy).authenticate(any());
 	}
 
 	// gh-16623
@@ -1454,6 +1470,55 @@ public class OAuth2LoginConfigurerTests {
 			return (clientRegistration) -> JwtDecoderFactoryConfig.getJwtDecoder();
 		}
 
+	@Configuration
+	static class OAuth2LoginConfigCustomWithOidcPostProcessor {
+
+		private final ClientRegistrationRepository clientRegistrationRepository = new InMemoryClientRegistrationRepository(
+				TestClientRegistrations.oidc().build());
+
+		private final ObjectPostProcessor<AuthenticationProvider> postProcessor = new OidcSpyObjectPostProcessor();
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.oauth2Login((oauth2Login) -> oauth2Login
+					.clientRegistrationRepository(this.clientRegistrationRepository)
+					.withObjectPostProcessor(this.postProcessor)
+				);
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		ObjectPostProcessor<AuthenticationProvider> mockPostProcessor() {
+			return this.postProcessor;
+		}
+
+		@Bean
+		HttpSessionOAuth2AuthorizationRequestRepository oauth2AuthorizationRequestRepository() {
+			return new HttpSessionOAuth2AuthorizationRequestRepository();
+		}
+
+		@Bean
+		JwtDecoderFactory<ClientRegistration> jwtDecoderFactory() {
+			return (clientRegistration) -> JwtDecoderFactoryConfig.getJwtDecoder();
+		}
+
+		static class OidcSpyObjectPostProcessor implements ObjectPostProcessor<AuthenticationProvider> {
+
+			AuthenticationProvider spy;
+
+			@Override
+			public <O extends AuthenticationProvider> O postProcess(O object) {
+				O spy = Mockito.spy(object);
+				this.spy = spy;
+				return spy;
+			}
+
+		}
+
 	}
 
+}
 }
