@@ -21,19 +21,24 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -143,6 +148,27 @@ class JdbcOneTimeTokenServiceTests {
 		OneTimeToken consumedOneTimeToken = this.oneTimeTokenService.consume(authenticationToken);
 
 		assertThat(consumedOneTimeToken).isNull();
+	}
+
+	@Test
+	void consumeWhenTokenIsDeletedConcurrentlyThenReturnNull() throws Exception {
+		// Simulates a concurrent consume: SELECT finds the token but DELETE affects
+		// 0 rows because another caller already consumed it.
+		JdbcOperations jdbcOperations = mock(JdbcOperations.class);
+		Instant notExpired = Instant.now().plus(5, ChronoUnit.MINUTES);
+		OneTimeToken token = new DefaultOneTimeToken(TOKEN_VALUE, USERNAME, notExpired);
+		given(jdbcOperations.query(any(String.class), any(PreparedStatementSetter.class),
+				ArgumentMatchers.<RowMapper<OneTimeToken>>any()))
+			.willReturn(List.of(token));
+		given(jdbcOperations.update(any(String.class), any(PreparedStatementSetter.class))).willReturn(0);
+		JdbcOneTimeTokenService service = new JdbcOneTimeTokenService(jdbcOperations);
+		try {
+			OneTimeToken consumed = service.consume(new OneTimeTokenAuthenticationToken(TOKEN_VALUE));
+			assertThat(consumed).isNull();
+		}
+		finally {
+			service.destroy();
+		}
 	}
 
 	@Test

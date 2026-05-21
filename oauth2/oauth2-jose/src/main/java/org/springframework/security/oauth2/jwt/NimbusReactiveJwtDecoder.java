@@ -244,7 +244,8 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 						Assert.notNull(jwksUri, "The public JWK Set URI must not be null");
 						return Mono.just(jwksUri.toString());
 					}),
-				ReactiveJwtDecoderProviderConfigurationUtils::getJWSAlgorithms);
+				ReactiveJwtDecoderProviderConfigurationUtils::getJWSAlgorithms)
+			.validator(JwtValidators.createDefaultWithIssuer(issuer));
 	}
 
 	/**
@@ -334,6 +335,8 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		private WebClient webClient = WebClient.create();
 
 		private BiFunction<ReactiveRemoteJWKSource, ConfigurableJWTProcessor<JWKSecurityContext>, Mono<ConfigurableJWTProcessor<JWKSecurityContext>>> jwtProcessorCustomizer;
+
+		private OAuth2TokenValidator<Jwt> validator = JwtValidators.createDefault();
 
 		private JwkSetUriReactiveJwtDecoderBuilder(String jwkSetUri) {
 			Assert.hasText(jwkSetUri, "jwkSetUri cannot be empty");
@@ -459,6 +462,11 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 			return this;
 		}
 
+		JwkSetUriReactiveJwtDecoderBuilder validator(OAuth2TokenValidator<Jwt> validator) {
+			this.validator = validator;
+			return this;
+		}
+
 		JwkSetUriReactiveJwtDecoderBuilder jwtProcessorCustomizer(
 				BiFunction<ReactiveRemoteJWKSource, ConfigurableJWTProcessor<JWKSecurityContext>, Mono<ConfigurableJWTProcessor<JWKSecurityContext>>> jwtProcessorCustomizer) {
 			Assert.notNull(jwtProcessorCustomizer, "jwtProcessorCustomizer cannot be null");
@@ -471,7 +479,9 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		 * @return the configured {@link NimbusReactiveJwtDecoder}
 		 */
 		public NimbusReactiveJwtDecoder build() {
-			return new NimbusReactiveJwtDecoder(processor());
+			NimbusReactiveJwtDecoder decoder = new NimbusReactiveJwtDecoder(processor());
+			decoder.setJwtValidator(this.validator);
+			return decoder;
 		}
 
 		Mono<JWSKeySelector<JWKSecurityContext>> jwsKeySelector(ReactiveRemoteJWKSource source) {

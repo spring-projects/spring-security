@@ -453,6 +453,18 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	}
 
 	@Test
+	public void requestMatchersWhenBuilderBeanWithBasePathAndRawStringThenHonorsBasePath() throws Exception {
+		this.spring.register(RequestMatchersRawStringServletPathConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder matchedByBasePath = get("/spring/path")
+				.servletPath("/spring")
+				.with(user("user").roles("USER"));
+		// @formatter:on
+		this.mvc.perform(matchedByBasePath).andExpect(status().isForbidden());
+		this.mvc.perform(get("/path").with(user("user").roles("USER"))).andExpect(status().isOk());
+	}
+
+	@Test
 	public void getWhenAnyRequestAuthenticatedConfiguredAndNoUserThenRespondsWithUnauthorized() throws Exception {
 		this.spring.register(AuthenticatedConfig.class, BasicController.class).autowire();
 		this.mvc.perform(get("/")).andExpect(status().isUnauthorized());
@@ -1352,6 +1364,32 @@ public class AuthorizeHttpRequestsConfigurerTests {
 			return http
 					.authorizeHttpRequests((authorize) -> authorize
 						.requestMatchers(builder.matcher("/")).hasRole("ADMIN")
+					)
+					.build();
+			// @formatter:on
+		}
+
+	}
+
+	@Configuration
+	@EnableWebMvc
+	@EnableWebSecurity
+	static class RequestMatchersRawStringServletPathConfig {
+
+		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder() {
+			PathPatternRequestMatcherBuilderFactoryBean bean = new PathPatternRequestMatcherBuilderFactoryBean();
+			bean.setBasePath("/spring");
+			return bean;
+		}
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			return http
+					.authorizeHttpRequests((authorize) -> authorize
+						.requestMatchers("/path").hasRole("ADMIN")
+						.anyRequest().permitAll()
 					)
 					.build();
 			// @formatter:on

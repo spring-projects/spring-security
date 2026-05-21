@@ -101,6 +101,19 @@ public class FormPostRedirectStrategyTests {
 		assertThat(this.response).satisfies(hasScriptSrcNonce());
 	}
 
+	// gh-19136
+
+	@Test
+	public void absoluteUrlWithPercentEncodedQueryParamsRedirect() throws IOException {
+		this.redirectStrategy.sendRedirect(this.request, this.response, "https://example.com/cb?payload=a%2Bb%2Fc%3D");
+		assertThat(this.response.getStatus()).isEqualTo(HttpStatus.OK.value());
+		assertThat(this.response.getContentType()).isEqualTo(MediaType.TEXT_HTML_VALUE);
+		assertThat(this.response.getContentAsString()).contains("action=\"https://example.com/cb\"");
+		assertThat(this.response.getContentAsString())
+			.contains("<input name=\"payload\" type=\"hidden\" value=\"a+b/c=\" />");
+		assertThat(this.response).satisfies(hasScriptSrcNonce());
+	}
+
 	private ThrowingConsumer<MockHttpServletResponse> hasScriptSrcNonce() {
 		return (response) -> {
 			final String policyDirective = response.getHeader("Content-Security-Policy");

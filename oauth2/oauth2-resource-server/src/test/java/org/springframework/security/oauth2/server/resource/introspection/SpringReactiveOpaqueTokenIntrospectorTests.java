@@ -328,6 +328,13 @@ public class SpringReactiveOpaqueTokenIntrospectorTests {
 		}
 	}
 
+	// gh-19201
+	@Test
+	public void builderWhenMissingClientCredentialsThenThrowsException() {
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> SpringReactiveOpaqueTokenIntrospector.withIntrospectionUri(INTROSPECTION_URL).build());
+	}
+
 	private WebClient mockResponse(String response) {
 		return mockResponse(toMap(response));
 	}
