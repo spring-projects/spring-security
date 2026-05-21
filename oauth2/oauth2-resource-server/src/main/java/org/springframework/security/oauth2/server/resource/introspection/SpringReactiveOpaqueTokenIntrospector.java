@@ -334,13 +334,13 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		 * @since 6.5
 		 */
 		public SpringReactiveOpaqueTokenIntrospector build() {
-			WebClient.Builder builder = WebClient.builder();
-			if (this.clientId != null && this.clientSecret != null) {
-				String clientId = this.clientId;
-				String clientSecret = this.clientSecret;
-				builder.defaultHeaders((h) -> h.setBasicAuth(clientId, clientSecret));
-			}
-			WebClient webClient = builder.build();
+			Assert.notNull(this.clientId, "clientId cannot be null");
+			Assert.notNull(this.clientSecret, "clientSecret cannot be null");
+			String clientId = this.clientId;
+			String clientSecret = this.clientSecret;
+			WebClient webClient = WebClient.builder()
+				.defaultHeaders((h) -> h.setBasicAuth(clientId, clientSecret))
+				.build();
 			SpringReactiveOpaqueTokenIntrospector introspector = new SpringReactiveOpaqueTokenIntrospector(
 					this.introspectionUri, webClient);
 			this.postProcessors.forEach((postProcessor) -> postProcessor.accept(introspector));
