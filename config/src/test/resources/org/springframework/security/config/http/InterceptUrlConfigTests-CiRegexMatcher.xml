@@ -24,9 +24,9 @@
 			http://www.springframework.org/schema/beans
 			https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<http use-authorization-manager="false">
-		<intercept-url pattern="/path" access="denyAll" servlet-path="/spring"/>
-		<intercept-url pattern="/**" access="permitAll"/>
+	<http request-matcher="ciRegex" use-authorization-manager="false">
+		<intercept-url pattern="\A/PATH\Z" access="denyAll"/>
+		<intercept-url pattern="\A/.*\Z" access="permitAll"/>
 		<http-basic/>
 	</http>
 

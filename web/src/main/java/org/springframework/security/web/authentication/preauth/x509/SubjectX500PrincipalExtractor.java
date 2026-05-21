@@ -17,9 +17,11 @@
 package org.springframework.security.web.authentication.preauth.x509;
 
 import java.security.cert.X509Certificate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.List;
 
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 import javax.security.auth.x500.X500Principal;
 
 import org.apache.commons.logging.Log;
@@ -47,14 +49,13 @@ public final class SubjectX500PrincipalExtractor implements X509PrincipalExtract
 
 	private final Log logger = LogFactory.getLog(getClass());
 
-	private static final Pattern EMAIL_SUBJECT_DN_PATTERN = Pattern.compile("OID.1.2.840.113549.1.9.1=(.*?)(?:,|$)",
-			Pattern.CASE_INSENSITIVE);
+	private static final String EMAIL_SUBJECT_DN_TYPE = "OID.1.2.840.113549.1.9.1";
 
-	private static final Pattern CN_SUBJECT_DN_PATTERN = Pattern.compile("CN=(.*?)(?:,|$)", Pattern.CASE_INSENSITIVE);
+	private static final String CN_SUBJECT_DN_TYPE = "CN";
 
 	private MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
-	private Pattern subjectDnPattern = CN_SUBJECT_DN_PATTERN;
+	private String subjectDnType = CN_SUBJECT_DN_TYPE;
 
 	private String x500PrincipalFormat = X500Principal.RFC2253;
 
@@ -64,14 +65,29 @@ public final class SubjectX500PrincipalExtractor implements X509PrincipalExtract
 		X500Principal principal = clientCert.getSubjectX500Principal();
 		String subjectDN = principal.getName(this.x500PrincipalFormat);
 		this.logger.debug(LogMessage.format("Subject DN is '%s'", subjectDN));
-		Matcher matcher = this.subjectDnPattern.matcher(subjectDN);
-		if (!matcher.find()) {
-			throw new BadCredentialsException(this.messages.getMessage("SubjectX500PrincipalExtractor.noMatching",
-					new Object[] { subjectDN }, "No matching pattern was found in subject DN: {0}"));
-		}
-		String principalName = matcher.group(1);
+		String principalName = getSubject(subjectDN);
 		this.logger.debug(LogMessage.format("Extracted Principal name is '%s'", principalName));
 		return principalName;
+	}
+
+	private List<Rdn> getDns(String subjectDn) {
+		try {
+			return new LdapName(subjectDn).getRdns();
+		}
+		catch (InvalidNameException ex) {
+			throw new BadCredentialsException("Failed to parse client certificate", ex);
+		}
+	}
+
+	private String getSubject(String subjectDn) {
+		for (Rdn rdn : getDns(subjectDn)) {
+			String type = rdn.getType();
+			if (this.subjectDnType.equals(type)) {
+				return String.valueOf(rdn.getValue());
+			}
+		}
+		throw new BadCredentialsException(this.messages.getMessage("SubjectX500PrincipalExtractor.noMatching",
+				new Object[] { subjectDn }, "No matching pattern was found in subject DN: {0}"));
 	}
 
 	@Override
@@ -104,11 +120,11 @@ public final class SubjectX500PrincipalExtractor implements X509PrincipalExtract
 	 */
 	public void setExtractPrincipalNameFromEmail(boolean extractPrincipalNameFromEmail) {
 		if (extractPrincipalNameFromEmail) {
-			this.subjectDnPattern = EMAIL_SUBJECT_DN_PATTERN;
+			this.subjectDnType = EMAIL_SUBJECT_DN_TYPE;
 			this.x500PrincipalFormat = X500Principal.RFC1779;
 		}
 		else {
-			this.subjectDnPattern = CN_SUBJECT_DN_PATTERN;
+			this.subjectDnType = CN_SUBJECT_DN_TYPE;
 			this.x500PrincipalFormat = X500Principal.RFC2253;
 		}
 	}

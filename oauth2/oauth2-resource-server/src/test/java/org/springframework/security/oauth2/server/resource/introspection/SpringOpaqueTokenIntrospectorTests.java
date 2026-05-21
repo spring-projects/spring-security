@@ -402,6 +402,13 @@ public class SpringOpaqueTokenIntrospectorTests {
 		}
 	}
 
+	// gh-19201
+	@Test
+	public void builderWhenMissingClientCredentialsThenThrowsException() {
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> SpringOpaqueTokenIntrospector.withIntrospectionUri(INTROSPECTION_URL).build());
+	}
+
 	private static ResponseEntity<Map<String, Object>> response(String content) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);

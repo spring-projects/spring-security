@@ -74,12 +74,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Tests for {@link DPoPAuthenticationConfigurer}.
+ * Integration tests for OAuth 2.0 Demonstrating Proof of Possession (DPoP) support.
  *
  * @author Joe Grandja
  */
 @ExtendWith(SpringTestContextExtension.class)
-public class DPoPAuthenticationConfigurerTests {
+public class DPoPAuthenticationTests {
 
 	private static final RSAPublicKey PROVIDER_RSA_PUBLIC_KEY = TestKeys.DEFAULT_PUBLIC_KEY;
 
@@ -246,7 +246,9 @@ public class DPoPAuthenticationConfigurerTests {
 						.anyRequest().authenticated()
 				)
 				.oauth2ResourceServer((oauth2) -> oauth2
-						.jwt(Customizer.withDefaults()));
+						.jwt(Customizer.withDefaults())
+						.dPoP(Customizer.withDefaults()));
+
 			// @formatter:on
 			return http.build();
 		}

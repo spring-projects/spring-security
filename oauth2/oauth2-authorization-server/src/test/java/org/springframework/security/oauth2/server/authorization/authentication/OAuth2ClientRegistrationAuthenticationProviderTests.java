@@ -360,6 +360,11 @@ public class OAuth2ClientRegistrationAuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenValidAccessTokenThenReturnClientRegistration() {
+		this.authenticationProvider
+			.setAuthenticationValidator(OAuth2ClientRegistrationAuthenticationValidator.DEFAULT_REDIRECT_URI_VALIDATOR
+				.andThen(OAuth2ClientRegistrationAuthenticationValidator.DEFAULT_JWK_SET_URI_VALIDATOR)
+				.andThen(OAuth2ClientRegistrationAuthenticationValidator.SIMPLE_SCOPE_VALIDATOR));
+
 		Jwt jwt = createJwtClientRegistration();
 		OAuth2AccessToken jwtAccessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
 				jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getClaim(OAuth2ParameterNames.SCOPE));
@@ -412,6 +417,10 @@ public class OAuth2ClientRegistrationAuthenticationProviderTests {
 	@Test
 	public void authenticateWhenOpenRegistrationThenReturnClientRegistration() {
 		this.authenticationProvider.setOpenRegistrationAllowed(true);
+		this.authenticationProvider
+			.setAuthenticationValidator(OAuth2ClientRegistrationAuthenticationValidator.DEFAULT_REDIRECT_URI_VALIDATOR
+				.andThen(OAuth2ClientRegistrationAuthenticationValidator.DEFAULT_JWK_SET_URI_VALIDATOR)
+				.andThen(OAuth2ClientRegistrationAuthenticationValidator.SIMPLE_SCOPE_VALIDATOR));
 
 		// @formatter:off
 		OAuth2ClientRegistration clientRegistration = OAuth2ClientRegistration.builder()
