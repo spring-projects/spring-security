@@ -361,6 +361,8 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		 * @since 6.5
 		 */
 		public SpringOpaqueTokenIntrospector build() {
+			Assert.notNull(this.clientId, "clientId cannot be null");
+			Assert.notNull(this.clientSecret, "clientSecret cannot be null");
 			RestTemplate restTemplate = new RestTemplate();
 			restTemplate.getInterceptors().add(new BasicAuthenticationInterceptor(this.clientId, this.clientSecret));
 			return new SpringOpaqueTokenIntrospector(this.introspectionUri, restTemplate);
