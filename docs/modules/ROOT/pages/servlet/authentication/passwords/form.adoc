@@ -155,6 +155,15 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 ----
 ======
 
+[NOTE]
+====
+The URI passed to `loginPage` (and to `loginProcessingUrl`, if set separately) is matched and redirected to literally.
+If your custom login page is served by an application servlet mapped under a base path, include that prefix in the URI you pass to the DSL.
+For example, if your dispatcher is at `/api/*`:
+
+include-code::./FormLoginServletPathConfiguration[tag=loginPage,indent=0]
+====
+
 [[servlet-authentication-form-custom-html]]
 When the login page is specified in the Spring Security configuration, you are responsible for rendering the page.
 // FIXME: default login page rendered by Spring Security

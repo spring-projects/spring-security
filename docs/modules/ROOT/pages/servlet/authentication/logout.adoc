@@ -81,6 +81,12 @@ Xml::
 
 and no authorization changes are necessary since it simply adjusts the `LogoutFilter`.
 
+[NOTE]
+====
+The URI passed to `logoutUrl` (and to `logoutSuccessUrl`) is matched and redirected to literally.
+If you want either URI to live under your application servlet's base path, include that prefix explicitly — for example, `logoutUrl("/api/logout")`.
+====
+
 [[permit-logout-endpoints]]
 However, if you stand up your own logout success endpoint (or in a rare case, <<creating-custom-logout-endpoint, your own logout endpoint>>), say using {spring-framework-reference-url}web.html#spring-web[Spring MVC], you will need to permit it in Spring Security.
 This is because Spring MVC processes your request after Spring Security does.

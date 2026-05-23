@@ -40,6 +40,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -89,6 +90,19 @@ public class OneTimeTokenLoginConfigurerTests {
 	@Test
 	void oneTimeTokenWhenCorrectTokenThenCanAuthenticate() throws Exception {
 		this.spring.register(OneTimeTokenDefaultConfig.class).autowire();
+		this.mvc.perform(post("/ott/generate").param("username", "user").with(csrf()))
+			.andExpectAll(status().isFound(), redirectedUrl("/login/ott"));
+
+		String token = getLastToken().getTokenValue();
+
+		this.mvc.perform(post("/login/ott").param("token", token).with(csrf()))
+			.andExpectAll(status().isFound(), redirectedUrl("/"), authenticated());
+	}
+
+	// gh-19128
+	@Test
+	void oneTimeTokenWhenBuilderBeanWithBasePathThenGenerateAndLoginUrlsIgnoreBasePath() throws Exception {
+		this.spring.register(OneTimeTokenBuilderBeanConfig.class).autowire();
 		this.mvc.perform(post("/ott/generate").param("username", "user").with(csrf()))
 			.andExpectAll(status().isFound(), redirectedUrl("/login/ott"));
 
@@ -273,6 +287,41 @@ public class OneTimeTokenLoginConfigurerTests {
 	@EnableWebSecurity
 	@Import(UserDetailsServiceConfig.class)
 	static class OneTimeTokenDefaultConfig {
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http,
+				OneTimeTokenGenerationSuccessHandler ottSuccessHandler) throws Exception {
+			// @formatter:off
+			http
+					.authorizeHttpRequests((authorize) -> authorize
+							.anyRequest().authenticated()
+					)
+					.oneTimeTokenLogin((ott) -> ott
+							.tokenGenerationSuccessHandler(ottSuccessHandler)
+					);
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		TestOneTimeTokenGenerationSuccessHandler ottSuccessHandler() {
+			return new TestOneTimeTokenGenerationSuccessHandler();
+		}
+
+	}
+
+	// gh-19128
+	@Configuration(proxyBeanMethods = false)
+	@EnableWebSecurity
+	@Import(UserDetailsServiceConfig.class)
+	static class OneTimeTokenBuilderBeanConfig {
+
+		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder() {
+			PathPatternRequestMatcherBuilderFactoryBean bean = new PathPatternRequestMatcherBuilderFactoryBean();
+			bean.setBasePath("/spring");
+			return bean;
+		}
 
 		@Bean
 		SecurityFilterChain securityFilterChain(HttpSecurity http,

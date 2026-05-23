@@ -37,6 +37,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -110,6 +111,21 @@ public class WebSecurityTests {
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
 	}
 
+	// gh-19128
+	@Test
+	public void ignoringWhenBuilderBeanWithBasePathThenHonorsBasePath() throws Exception {
+		loadConfig(IgnoringBuilderBeanConfig.class);
+		this.request.setServletPath("/spring");
+		this.request.setRequestURI("/spring/path");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+		setup();
+		this.request.setServletPath("");
+		this.request.setRequestURI("/path");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
+	}
+
 	public void loadConfig(Class<?>... configs) {
 		this.context = new AnnotationConfigWebApplicationContext();
 		this.context.register(configs);
@@ -171,6 +187,52 @@ public class WebSecurityTests {
 			return (web) -> web.ignoring()
 				.requestMatchers(builder.basePath("/spring").matcher("/path"))
 				.requestMatchers("/notused");
+		}
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.httpBasic(withDefaults())
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().denyAll());
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
+		}
+
+		@RestController
+		static class PathController {
+
+			@RequestMapping("/path")
+			String path() {
+				return "path";
+			}
+
+		}
+
+	}
+
+	// gh-19128
+	@EnableWebSecurity
+	@Configuration
+	@EnableWebMvc
+	static class IgnoringBuilderBeanConfig {
+
+		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder() {
+			PathPatternRequestMatcherBuilderFactoryBean bean = new PathPatternRequestMatcherBuilderFactoryBean();
+			bean.setBasePath("/spring");
+			return bean;
+		}
+
+		@Bean
+		WebSecurityCustomizer webSecurityCustomizer() {
+			return (web) -> web.ignoring().requestMatchers("/path");
 		}
 
 		@Bean
