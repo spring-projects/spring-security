@@ -3,6 +3,10 @@ plugins {
 	id 'org.antora' version '1.0.0'
 }
 
+node {
+	version = "24.15.0"
+}
+
 antora {
 	options = [clean: true, fetch: true, stacktrace: true]
 }
