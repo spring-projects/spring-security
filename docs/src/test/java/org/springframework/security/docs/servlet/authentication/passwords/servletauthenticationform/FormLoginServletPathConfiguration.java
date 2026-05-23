@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.docs.servlet.authentication.passwords.formloginservletpath;
+package org.springframework.security.docs.servlet.authentication.passwords.servletauthenticationform;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
