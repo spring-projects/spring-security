@@ -95,7 +95,6 @@ public class AuthenticationPrincipalArgumentResolver extends HandlerMethodArgume
 			});
 	}
 
-	@SuppressWarnings("NullAway") // https://github.com/spring-projects/spring-framework/issues/35371
 	private @Nullable Object resolvePrincipal(MethodParameter parameter, @Nullable Object principal) {
 		AuthenticationPrincipal annotation = findMethodAnnotation(parameter);
 		if (annotation == null) {
