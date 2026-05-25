@@ -16,12 +16,8 @@
 
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
@@ -39,6 +35,9 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.util.Assert;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * An {@link AbstractHttpConfigurer} for OIDC Logout flows
@@ -102,7 +101,10 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 	/**
 	 * Configure OIDC Back-Channel Logout using the provided {@link Consumer}
 	 * @return the {@link OidcLogoutConfigurer} for further configuration
+	 * @deprecated For removal in a future release. Use
+	 * {@link HttpSecurity#oidcBackChannelLogout(Customizer)} instead.
 	 */
+	@Deprecated(since = "6.5", forRemoval = true)
 	public OidcLogoutConfigurer<B> backChannel(Customizer<BackChannelLogoutConfigurer> backChannelLogoutConfigurer) {
 		if (this.backChannel == null) {
 			this.backChannel = new BackChannelLogoutConfigurer();
