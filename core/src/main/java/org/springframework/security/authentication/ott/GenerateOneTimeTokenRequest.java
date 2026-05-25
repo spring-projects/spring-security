@@ -17,6 +17,7 @@
 package org.springframework.security.authentication.ott;
 
 import java.time.Duration;
+import java.util.UUID;
 
 import org.springframework.util.Assert;
 
@@ -24,6 +25,7 @@ import org.springframework.util.Assert;
  * Class to store information related to an One-Time Token authentication request
  *
  * @author Marcus da Coregio
+ * @author Max Batiscev
  * @since 6.4
  */
 public class GenerateOneTimeTokenRequest {
@@ -34,6 +36,8 @@ public class GenerateOneTimeTokenRequest {
 
 	private final Duration expiresIn;
 
+	private final String tokenValue;
+
 	public GenerateOneTimeTokenRequest(String username) {
 		this(username, DEFAULT_EXPIRES_IN);
 	}
@@ -43,6 +47,16 @@ public class GenerateOneTimeTokenRequest {
 		Assert.notNull(expiresIn, "expiresIn cannot be null");
 		this.username = username;
 		this.expiresIn = expiresIn;
+		this.tokenValue = UUID.randomUUID().toString();
+	}
+
+	public GenerateOneTimeTokenRequest(String username, Duration expiresIn, String tokenValue) {
+		Assert.hasText(username, "username cannot be empty");
+		Assert.hasText(tokenValue, "tokenValue cannot be empty");
+		Assert.notNull(expiresIn, "expiresIn cannot be null");
+		this.username = username;
+		this.expiresIn = expiresIn;
+		this.tokenValue = tokenValue;
 	}
 
 	public String getUsername() {
@@ -51,6 +65,10 @@ public class GenerateOneTimeTokenRequest {
 
 	public Duration getExpiresIn() {
 		return this.expiresIn;
+	}
+
+	public String getTokenValue() {
+		return this.tokenValue;
 	}
 
 }
