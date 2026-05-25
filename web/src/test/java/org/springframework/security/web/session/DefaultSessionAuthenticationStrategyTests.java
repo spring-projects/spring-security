@@ -26,10 +26,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.session.SessionIdChangedEvent;
 import org.springframework.security.web.authentication.session.SessionFixationProtectionEvent;
 import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
-
-import org.springframework.security.core.session.SessionIdChangedEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
