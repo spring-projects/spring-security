@@ -29,8 +29,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.session.SessionFixationProtectionEvent;
 import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
 
+import org.springframework.security.core.session.SessionIdChangedEvent;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -69,16 +72,20 @@ public class DefaultSessionAuthenticationStrategyTests {
 		Authentication mockAuthentication = mock(Authentication.class);
 		strategy.onAuthentication(mockAuthentication, request, new MockHttpServletResponse());
 		ArgumentCaptor<ApplicationEvent> eventArgumentCaptor = ArgumentCaptor.forClass(ApplicationEvent.class);
-		verify(eventPublisher).publishEvent(eventArgumentCaptor.capture());
+		verify(eventPublisher, times(2)).publishEvent(eventArgumentCaptor.capture());
 		assertThat(oldSessionId.equals(request.getSession().getId())).isFalse();
 		assertThat(request.getSession().getAttribute("blah")).isNotNull();
 		assertThat(request.getSession().getAttribute("SPRING_SECURITY_SAVED_REQUEST_KEY")).isNotNull();
-		assertThat(eventArgumentCaptor.getValue()).isNotNull();
-		assertThat(eventArgumentCaptor.getValue() instanceof SessionFixationProtectionEvent).isTrue();
-		SessionFixationProtectionEvent event = (SessionFixationProtectionEvent) eventArgumentCaptor.getValue();
-		assertThat(event.getOldSessionId()).isEqualTo(oldSessionId);
-		assertThat(event.getNewSessionId()).isEqualTo(request.getSession().getId());
-		assertThat(event.getAuthentication()).isSameAs(mockAuthentication);
+		assertThat(eventArgumentCaptor.getAllValues().get(0)).isInstanceOf(SessionFixationProtectionEvent.class);
+		SessionFixationProtectionEvent fixationEvent = (SessionFixationProtectionEvent) eventArgumentCaptor.getAllValues()
+			.get(0);
+		assertThat(fixationEvent.getOldSessionId()).isEqualTo(oldSessionId);
+		assertThat(fixationEvent.getNewSessionId()).isEqualTo(request.getSession().getId());
+		assertThat(fixationEvent.getAuthentication()).isSameAs(mockAuthentication);
+		assertThat(eventArgumentCaptor.getAllValues().get(1)).isInstanceOf(SessionIdChangedEvent.class);
+		SessionIdChangedEvent idChangedEvent = (SessionIdChangedEvent) eventArgumentCaptor.getAllValues().get(1);
+		assertThat(idChangedEvent.getOldSessionId()).isEqualTo(oldSessionId);
+		assertThat(idChangedEvent.getNewSessionId()).isEqualTo(request.getSession().getId());
 	}
 
 	// See SEC-1077
@@ -110,15 +117,19 @@ public class DefaultSessionAuthenticationStrategyTests {
 		Authentication mockAuthentication = mock(Authentication.class);
 		strategy.onAuthentication(mockAuthentication, request, new MockHttpServletResponse());
 		ArgumentCaptor<ApplicationEvent> eventArgumentCaptor = ArgumentCaptor.forClass(ApplicationEvent.class);
-		verify(eventPublisher).publishEvent(eventArgumentCaptor.capture());
+		verify(eventPublisher, times(2)).publishEvent(eventArgumentCaptor.capture());
 		assertThat(request.getSession().getAttribute("blah")).isNull();
 		assertThat(request.getSession().getAttribute("SPRING_SECURITY_SAVED_REQUEST_KEY")).isNotNull();
-		assertThat(eventArgumentCaptor.getValue()).isNotNull();
-		assertThat(eventArgumentCaptor.getValue() instanceof SessionFixationProtectionEvent).isTrue();
-		SessionFixationProtectionEvent event = (SessionFixationProtectionEvent) eventArgumentCaptor.getValue();
-		assertThat(event.getOldSessionId()).isEqualTo(oldSessionId);
-		assertThat(event.getNewSessionId()).isEqualTo(request.getSession().getId());
-		assertThat(event.getAuthentication()).isSameAs(mockAuthentication);
+		assertThat(eventArgumentCaptor.getAllValues().get(0)).isInstanceOf(SessionFixationProtectionEvent.class);
+		SessionFixationProtectionEvent fixationEvent = (SessionFixationProtectionEvent) eventArgumentCaptor.getAllValues()
+			.get(0);
+		assertThat(fixationEvent.getOldSessionId()).isEqualTo(oldSessionId);
+		assertThat(fixationEvent.getNewSessionId()).isEqualTo(request.getSession().getId());
+		assertThat(fixationEvent.getAuthentication()).isSameAs(mockAuthentication);
+		assertThat(eventArgumentCaptor.getAllValues().get(1)).isInstanceOf(SessionIdChangedEvent.class);
+		SessionIdChangedEvent idChangedEvent = (SessionIdChangedEvent) eventArgumentCaptor.getAllValues().get(1);
+		assertThat(idChangedEvent.getOldSessionId()).isEqualTo(oldSessionId);
+		assertThat(idChangedEvent.getNewSessionId()).isEqualTo(request.getSession().getId());
 	}
 
 	@Test
