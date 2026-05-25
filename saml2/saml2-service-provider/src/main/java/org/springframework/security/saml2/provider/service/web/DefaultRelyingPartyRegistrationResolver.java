@@ -17,13 +17,11 @@
 package org.springframework.security.saml2.provider.service.web;
 
 import java.util.Map;
-import java.util.Objects;
+import java.util.regex.MatchResult;
 
-import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jspecify.annotations.Nullable;
-
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.server.PathContainer;
 import org.springframework.http.server.RequestPath;
@@ -32,6 +30,8 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers.UriResolver;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * A {@link Converter} that resolves a {@link RelyingPartyRegistration} by extracting the
@@ -78,7 +78,8 @@ public final class DefaultRelyingPartyRegistrationResolver
 	 * {@inheritDoc}
 	 */
 	@Override
-	public @Nullable RelyingPartyRegistration convert(HttpServletRequest request) {
+	@Nullable
+	public RelyingPartyRegistration convert(HttpServletRequest request) {
 		return resolve(request, null);
 	}
 
@@ -86,7 +87,8 @@ public final class DefaultRelyingPartyRegistrationResolver
 	 * {@inheritDoc}
 	 */
 	@Override
-	public @Nullable RelyingPartyRegistration resolve(HttpServletRequest request,
+	@Nullable
+	public RelyingPartyRegistration resolve(HttpServletRequest request, 
 			@Nullable String relyingPartyRegistrationId) {
 		if (relyingPartyRegistrationId == null) {
 			if (this.logger.isTraceEnabled()) {

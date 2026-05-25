@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
- * Internal utilities for SAML2 support (not for public use).
+ * Core Spring Security SAML 2.0 abstractions.
  */
 @NullMarked
 package org.springframework.security.saml2.provider.service.metadata;
