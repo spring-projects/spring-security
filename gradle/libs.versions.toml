@@ -1,5 +1,6 @@
 [versions]
 com-squareup-okhttp3 = "3.14.9"
+io-micrometer = "1.15.11"
 io-rsocket = "1.1.5"
 io-spring-javaformat = "0.0.47"
 io-spring-nohttp = "0.0.11"
@@ -29,7 +30,8 @@ com-unboundid-unboundid-ldapsdk = "com.unboundid:unboundid-ldapsdk:6.0.11"
 com-unboundid-unboundid-ldapsdk7 = "com.unboundid:unboundid-ldapsdk:7.0.1"
 commons-collections = "commons-collections:commons-collections:3.2.2"
 io-micrometer-context-propagation = "io.micrometer:context-propagation:1.1.4"
-io-micrometer-micrometer-observation = "io.micrometer:micrometer-observation:1.15.11"
+io-micrometer-micrometer-bom = { module = "io.micrometer:micrometer-bom", version.ref = "io-micrometer" }
+io-micrometer-micrometer-observation = { module = "io.micrometer:micrometer-observation", version.ref = "io-micrometer" }
 io-mockk = "io.mockk:mockk:1.14.7"
 io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2024.0.17"
 io-rsocket-rsocket-bom = { module = "io.rsocket:rsocket-bom", version.ref = "io-rsocket" }
