@@ -27,9 +27,16 @@ jobs:
       java-version: ${{ matrix.jdk }}
       distribution: temurin
     secrets: inherit
+  test:
+    name: Test Against Snapshots
+    uses: spring-io/spring-security-release-tools/.github/workflows/test.yml@b92832ecbc7cbe969201e6beafbde0ee400cf095 # v1.0.15
+    with:
+      java-version: 25
+      test-args: --refresh-dependencies -PforceMavenRepositories=snapshot -PisOverrideVersionCatalog -PtestToolchain=25 -PspringFrameworkVersion=7.0.+ -PreactorVersion=2025.0.+ -PspringDataVersion=2025.1.+ -PmicrometerVersion=1.16.+ --stacktrace
+    secrets: inherit
   deploy-artifacts:
     name: Deploy Artifacts
-    needs: [ build ]
+    needs: [ build, test ]
     uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@b92832ecbc7cbe969201e6beafbde0ee400cf095 # v1.0.15
     with:
       should-deploy-artifacts: ${{ needs.build.outputs.should-deploy-artifacts }}
