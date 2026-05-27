@@ -164,6 +164,7 @@ public class CsrfWebFilterTests {
 	@Test
 	public void filterWhenRequestHandlerSetThenUsed() {
 		ServerCsrfTokenRequestHandler requestHandler = mock(ServerCsrfTokenRequestHandler.class);
+		given(requestHandler.handleAsync(any(ServerWebExchange.class), any())).willReturn(Mono.empty());
 		given(requestHandler.resolveCsrfTokenValue(any(ServerWebExchange.class), any(CsrfToken.class)))
 			.willReturn(Mono.just(this.token.getToken()));
 		this.csrfFilter.setRequestHandler(requestHandler);
@@ -179,7 +180,7 @@ public class CsrfWebFilterTests {
 		StepVerifier.create(result).verifyComplete();
 		chainResult.assertWasSubscribed();
 
-		verify(requestHandler).handle(eq(this.post), any());
+		verify(requestHandler).handleAsync(eq(this.post), any());
 		verify(requestHandler).resolveCsrfTokenValue(this.post, this.token);
 	}
 
