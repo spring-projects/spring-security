@@ -54,7 +54,7 @@ public class CookieRequestCacheTests {
 		Cookie savedCookie = response.getCookie(DEFAULT_COOKIE_NAME);
 		assertThat(savedCookie).isNotNull();
 		String redirectUrl = decodeCookie(savedCookie.getValue());
-		assertThat(redirectUrl).isEqualTo("https://abc.com/destination?param1=a&param2=b&param3=1122");
+		assertThat(redirectUrl).isEqualTo("/destination?param1=a&param2=b&param3=1122");
 		assertThat(savedCookie.getMaxAge()).isEqualTo(-1);
 		assertThat(savedCookie.getPath()).isEqualTo("/");
 		assertThat(savedCookie.isHttpOnly()).isTrue();
@@ -101,18 +101,53 @@ public class CookieRequestCacheTests {
 	public void getRequestWhenRequestContainsSavedRequestCookieThenReturnsSaveRequest() {
 		CookieRequestCache cookieRequestCache = new CookieRequestCache();
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		String redirectUrl = "https://abc.com/destination?param1=a&param2=b&param3=1122";
-		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie(redirectUrl)));
+		request.setScheme("https");
+		request.setServerName("abc.com");
+		request.setServerPort(443);
+		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie("/destination?param1=a&param2=b&param3=1122")));
 		SavedRequest savedRequest = cookieRequestCache.getRequest(request, new MockHttpServletResponse());
 		assertThat(savedRequest).isNotNull();
-		assertThat(savedRequest.getRedirectUrl()).isEqualTo(redirectUrl);
+		assertThat(savedRequest.getRedirectUrl())
+			.isEqualTo("https://abc.com/destination?param1=a&param2=b&param3=1122");
+	}
+
+	@Test
+	public void getRequestWhenRelativePathInCookieThenRedirectUrlUsesCurrentRequestOrigin() {
+		CookieRequestCache cookieRequestCache = new CookieRequestCache();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setScheme("https");
+		request.setServerName("myapp.com");
+		request.setServerPort(443);
+		request.setSecure(true);
+		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie("/secret?token=abc")));
+		SavedRequest savedRequest = cookieRequestCache.getRequest(request, new MockHttpServletResponse());
+		assertThat(savedRequest).isNotNull();
+		assertThat(savedRequest.getRedirectUrl()).isEqualTo("https://myapp.com/secret?token=abc");
+	}
+
+	@Test
+	public void getRequestWhenAbsoluteUrlInCookieThenReturnsNull() {
+		CookieRequestCache cookieRequestCache = new CookieRequestCache();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie("https://evil.com/phishing")));
+		SavedRequest savedRequest = cookieRequestCache.getRequest(request, new MockHttpServletResponse());
+		assertThat(savedRequest).isNull();
+	}
+
+	@Test
+	public void getRequestWhenProtocolRelativeUrlInCookieThenReturnsNull() {
+		CookieRequestCache cookieRequestCache = new CookieRequestCache();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie("//evil.com/phishing")));
+		SavedRequest savedRequest = cookieRequestCache.getRequest(request, new MockHttpServletResponse());
+		assertThat(savedRequest).isNull();
 	}
 
 	@Test
 	public void getRequestWhenRequestContainsSavedRequestCookieThenSavedRequestContainsRequestParameters() {
 		CookieRequestCache cookieRequestCache = new CookieRequestCache();
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie("https://abc.com/destination")));
+		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie("/destination")));
 		request.setParameter("single", "first");
 		request.addParameter("multi", "second");
 		request.addParameter("multi", "third");
@@ -143,8 +178,7 @@ public class CookieRequestCacheTests {
 		request.setServerName("abc.com");
 		request.setRequestURI("/destination");
 		request.setQueryString("param1=a&param2=b&param3=1122");
-		String redirectUrl = "https://abc.com/destination?param1=a&param2=b&param3=1122";
-		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie(redirectUrl)));
+		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie("/destination?param1=a&param2=b&param3=1122")));
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		cookieRequestCache.getMatchingRequest(request, response);
 		Cookie expiredCookie = response.getCookie(DEFAULT_COOKIE_NAME);
@@ -162,8 +196,7 @@ public class CookieRequestCacheTests {
 		request.setScheme("https");
 		request.setServerName("abc.com");
 		request.setRequestURI("/destination");
-		String redirectUrl = "https://abc.com/api";
-		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie(redirectUrl)));
+		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie("/api")));
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		final HttpServletRequest matchingRequest = cookieRequestCache.getMatchingRequest(request, response);
 		assertThat(matchingRequest).isNull();
@@ -182,8 +215,8 @@ public class CookieRequestCacheTests {
 		request.setRequestURI("/destination");
 		request.setQueryString("goto=https%3A%2F%2Fstart.spring.io");
 		request.setParameter("goto", "https://start.spring.io");
-		String redirectUrl = "https://abc.com/destination?goto=https%3A%2F%2Fstart.spring.io";
-		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie(redirectUrl)));
+		request.setCookies(
+				new Cookie(DEFAULT_COOKIE_NAME, encodeCookie("/destination?goto=https%3A%2F%2Fstart.spring.io")));
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		final HttpServletRequest matchingRequest = cookieRequestCache.getMatchingRequest(request, response);
 		assertThat(matchingRequest).isNotNull();
@@ -212,7 +245,7 @@ public class CookieRequestCacheTests {
 		request.setServerName("example.com");
 		request.setRequestURI("/destination");
 		request.setPreferredLocales(Arrays.asList(Locale.FRENCH, Locale.GERMANY));
-		String redirectUrl = "https://example.com/destination";
+		String redirectUrl = "/destination";
 		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie(redirectUrl)));
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		HttpServletRequest matchingRequest = cookieRequestCache.getMatchingRequest(request, response);
