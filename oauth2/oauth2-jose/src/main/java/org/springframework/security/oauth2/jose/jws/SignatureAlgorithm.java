@@ -87,14 +87,14 @@ public enum SignatureAlgorithm implements JwsAlgorithm {
 	EdDSA(JwsAlgorithms.EdDSA),
 
 	/**
-	 * EdDSA signature algorithms using Ed448 curve (optional).
-	 */
-	ED448(JwsAlgorithms.ED448),
-
-	/**
 	 * EdDSA signature algorithms using Ed25519 curve (optional).
 	 */
-	ED25519(JwsAlgorithms.ED25519);
+	ED25519(JwsAlgorithms.ED25519),
+
+	/**
+	 * EdDSA signature algorithms using Ed448 curve (optional).
+	 */
+	ED448(JwsAlgorithms.ED448);
 
 	private final String name;
 

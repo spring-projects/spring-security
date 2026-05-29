@@ -100,14 +100,14 @@ public final class JwsAlgorithms {
 	public static final String EdDSA = "EdDSA";
 
 	/**
-	 * EdDSA signature algorithms using Ed448 curve (optional).
-	 */
-	public static final String ED448 = "Ed448";
-
-	/**
 	 * EdDSA signature algorithms using Ed25519 curve (optional).
 	 */
 	public static final String ED25519 = "Ed25519";
+
+	/**
+	 * EdDSA signature algorithms using Ed448 curve (optional).
+	 */
+	public static final String ED448 = "Ed448";
 
 	private JwsAlgorithms() {
 	}
