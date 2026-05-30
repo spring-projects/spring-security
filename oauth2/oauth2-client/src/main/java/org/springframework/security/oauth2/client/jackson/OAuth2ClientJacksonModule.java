@@ -16,6 +16,9 @@
 
 package org.springframework.security.oauth2.client.jackson;
 
+import java.net.URL;
+import java.time.Instant;
+
 import tools.jackson.core.Version;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
@@ -94,7 +97,9 @@ public class OAuth2ClientJacksonModule extends SecurityJacksonModule {
 			.allowIfSubType(OAuth2RefreshToken.class)
 			.allowIfSubType(OAuth2AuthenticationToken.class)
 			.allowIfSubType(OidcUserAuthority.class)
-			.allowIfSubType(OAuth2UserAuthority.class);
+			.allowIfSubType(OAuth2UserAuthority.class)
+			.allowIfSubType(URL.class)
+			.allowIfSubType(Instant.class);
 	}
 
 	@Override
