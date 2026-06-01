@@ -29,6 +29,7 @@ import org.springframework.security.web.server.context.ServerSecurityContextRepo
  * A Kotlin DSL to configure [ServerHttpSecurity] form login using idiomatic Kotlin code.
  *
  * @author Max Batischev
+ * @author Andrey Litvitski
  * @since 6.4
  * @property tokenService configures the [ReactiveOneTimeTokenService] used to generate and consume
  * @property authenticationManager configures the [ReactiveAuthenticationManager] used to generate and consume
@@ -39,6 +40,8 @@ import org.springframework.security.web.server.context.ServerSecurityContextRepo
  * @property defaultSubmitPageUrl sets the URL that the default submit page will be generated
  * @property showDefaultSubmitPage configures whether the default one-time token submit page should be shown
  * @property loginProcessingUrl the URL to process the login request
+ * @property loginPage the login page to redirect to if authentication is required (i.e.
+ * "/login")
  * @property tokenGeneratingUrl the URL that a One-Time Token generate request will be processed
  * @property tokenGenerationSuccessHandler the strategy to be used to handle generated one-time tokens
  * @property securityContextRepository the [ServerSecurityContextRepository] used to save the [Authentication]. For the [SecurityContext] to be loaded on subsequent requests the [ReactorContextWebFilter] must be configured to be able to load the value (they are not implicitly linked).
@@ -55,6 +58,7 @@ class ServerOneTimeTokenLoginDsl {
     var generateRequestResolver: ServerGenerateOneTimeTokenRequestResolver? = null
     var defaultSubmitPageUrl: String? = null
     var loginProcessingUrl: String? = null
+    var loginPage: String? = null
     var tokenGeneratingUrl: String? = null
     var showDefaultSubmitPage: Boolean? = true
 
@@ -78,6 +82,7 @@ class ServerOneTimeTokenLoginDsl {
             defaultSubmitPageUrl?.also { oneTimeTokenLogin.defaultSubmitPageUrl(defaultSubmitPageUrl) }
             showDefaultSubmitPage?.also { oneTimeTokenLogin.showDefaultSubmitPage(showDefaultSubmitPage!!) }
             loginProcessingUrl?.also { oneTimeTokenLogin.loginProcessingUrl(loginProcessingUrl) }
+            loginPage?.also { oneTimeTokenLogin.loginPage((loginPage)) }
             tokenGeneratingUrl?.also { oneTimeTokenLogin.tokenGeneratingUrl(tokenGeneratingUrl) }
             tokenGenerationSuccessHandler?.also {
                 oneTimeTokenLogin.tokenGenerationSuccessHandler(
