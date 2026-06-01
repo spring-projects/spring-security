@@ -53,6 +53,7 @@ dependencies {
 	testImplementation 'org.springframework:spring-test'
 
 	testImplementation 'org.springframework:spring-webmvc'
+	testImplementation 'org.springframework:spring-context-support'
 	testImplementation 'jakarta.servlet:jakarta.servlet-api'
 	testImplementation 'io.mockk:mockk'
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
