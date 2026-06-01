@@ -124,8 +124,11 @@ public class AuthenticationWebFilter implements WebFilter {
 				.defer(() -> Mono.error(new IllegalStateException("No provider found for " + token.getClass()))))
 			.flatMap(
 					(authentication) -> onAuthenticationSuccess(authentication, new WebFilterExchange(exchange, chain)))
-			.doOnError(AuthenticationException.class,
-					(ex) -> logger.debug(LogMessage.format("Authentication failed: %s", ex.getMessage()), ex));
+			.doOnError(AuthenticationException.class, (ex) -> {
+				if (logger.isDebugEnabled()) {
+					logger.debug(LogMessage.format("Authentication failed: %s", ex.getMessage()), ex);
+				}
+			});
 	}
 
 	protected Mono<Void> onAuthenticationSuccess(Authentication authentication, WebFilterExchange webFilterExchange) {

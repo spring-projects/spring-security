@@ -133,7 +133,9 @@ public final class RegexRequestMatcher implements RequestMatcher {
 			}
 			url = sb.toString();
 		}
-		logger.debug(LogMessage.format("Checking match of request : '%s'; against '%s'", url, this.pattern));
+		if (logger.isDebugEnabled()) {
+			logger.debug(LogMessage.format("Checking match of request : '%s'; against '%s'", url, this.pattern));
+		}
 		return this.pattern.matcher(url).matches();
 	}
 

@@ -129,7 +129,9 @@ public class ChannelProcessingFilter extends GenericFilterBean {
 		FilterInvocation filterInvocation = new FilterInvocation(request, response, chain);
 		Collection<ConfigAttribute> attributes = this.securityMetadataSource.getAttributes(filterInvocation);
 		if (attributes != null) {
-			this.logger.debug(LogMessage.format("Request: %s; ConfigAttributes: %s", filterInvocation, attributes));
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug(LogMessage.format("Request: %s; ConfigAttributes: %s", filterInvocation, attributes));
+			}
 			this.channelDecisionManager.decide(filterInvocation, attributes);
 			@Nullable HttpServletResponse channelResponse = filterInvocation.getResponse();
 			Assert.notNull(channelResponse, "HttpServletResponse is required");
