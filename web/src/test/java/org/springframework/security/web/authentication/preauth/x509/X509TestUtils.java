@@ -185,4 +185,38 @@ public final class X509TestUtils {
 		return (X509Certificate) cf.generateCertificate(in);
 	}
 
+	/**
+	 * Builds an X.509 certificate whose subject contains more than one CN. The subject DN
+	 * is:
+	 *
+	 * <pre>
+	 *  CN=alice, CN=bob, O=Example Corp, C=US
+	 * </pre>
+	 *
+	 * where {@code CN=alice} is the most specific (left-most) RDN.
+	 */
+	public static X509Certificate buildTestCertificateWithMultipleCns() throws Exception {
+		String cert = "-----BEGIN CERTIFICATE-----\n"
+				+ "MIIDJzCCAg+gAwIBAgIIclOz1VulWC8wDQYJKoZIhvcNAQEMBQAwQjELMAkGA1UE\n"
+				+ "BhMCVVMxFTATBgNVBAoTDEV4YW1wbGUgQ29ycDEMMAoGA1UEAxMDYm9iMQ4wDAYD\n"
+				+ "VQQDEwVhbGljZTAeFw0yNjA2MDExOTQzMTVaFw0zNjA1MjkxOTQzMTVaMEIxCzAJ\n"
+				+ "BgNVBAYTAlVTMRUwEwYDVQQKEwxFeGFtcGxlIENvcnAxDDAKBgNVBAMTA2JvYjEO\n"
+				+ "MAwGA1UEAxMFYWxpY2UwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCX\n"
+				+ "q8hZrTRHJEN7+D6yK65OKeCTVU+WccI6awz6g4T6O3aoC+1IiUljsEYn+xuDfx5L\n"
+				+ "L/O1kejjmbYt+vzRmiILoJ9xKfW3ERcB4+gEar959Dkj6wmpsgOKRjmOvcOFOkEe\n"
+				+ "gU1F7t04JHOou3DaAkHMNMQV+3jsWSh9Rry7XZBDkcT8XbbagoCgSIIef03Qtw31\n"
+				+ "zOBwqmJmd6CQhFJva5cl8cCE2xZinOIiz/2j7VprZTjhkud2M4bRnK3T0WExyOCg\n"
+				+ "jvjSf5ZoOKwC2Z9Q/Oyf8WKpren1+GfZhAKKmn7QZ2foHhdPPRtNjRGE6SqQyW2u\n"
+				+ "8+1tOXl+aRCF19rR7gIpAgMBAAGjITAfMB0GA1UdDgQWBBRfLtnK5WKU0q3zxIrr\n"
+				+ "y3GD+lYplzANBgkqhkiG9w0BAQwFAAOCAQEAe+/FHqErVPsF/sHrVHny8mIsn3ux\n"
+				+ "qE9P24KNF0oIfmBrAqqge6hoVQ8PS+JialyqFf//osuDjiuYaBEKBw7GCoA6I8mr\n"
+				+ "FA7wyFaGosfq7An5vxkJl7lap2u5oSVv3dCy13Bs0ziYmNlTkfHDLy9yh7jpH1wg\n"
+				+ "TvylH9O4Vc7y9rzzpIjMCuQJ/wJ4MuJ2mSarYZsx3UQHIRfpKtR/9jbFMX1Rbv/A\n"
+				+ "N0XD+NrtFjiikp71y3aCO1EHnGG7qPKCWh3PzaNoWFpyZKDBvud8ymW7RMiLPgv9\n"
+				+ "eTa82KGgnCwtKCNzGkszIn7fza/6xnCuzvh4y9tYE5BWP2mcMRtRmDD07w==\n" + "-----END CERTIFICATE-----";
+		ByteArrayInputStream in = new ByteArrayInputStream(cert.getBytes());
+		CertificateFactory cf = CertificateFactory.getInstance("X.509");
+		return (X509Certificate) cf.generateCertificate(in);
+	}
+
 }

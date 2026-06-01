@@ -17,6 +17,8 @@
 package org.springframework.security.web.authentication.preauth.x509;
 
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.naming.InvalidNameException;
@@ -72,7 +74,10 @@ public final class SubjectX500PrincipalExtractor implements X509PrincipalExtract
 
 	private List<Rdn> getDns(String subjectDn) {
 		try {
-			return new LdapName(subjectDn).getRdns();
+			// read most-specific first, see gh-19254
+			List<Rdn> rdns = new ArrayList<>(new LdapName(subjectDn).getRdns());
+			Collections.reverse(rdns);
+			return rdns;
 		}
 		catch (InvalidNameException ex) {
 			throw new BadCredentialsException("Failed to parse client certificate", ex);
