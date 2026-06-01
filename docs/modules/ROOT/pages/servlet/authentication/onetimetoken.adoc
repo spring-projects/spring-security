@@ -53,133 +53,12 @@ Therefore, a custom javadoc:org.springframework.security.web.authentication.ott.
 One of the most common delivery strategies is a Magic Link, via e-mail, SMS, etc.
 In the following example, we are going to create a magic link and sent it to the user's email.
 
-.One-Time Token Login Configuration
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Configuration
-@EnableWebSecurity
-public class SecurityConfig {
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) {
-        http
-            // ...
-            .formLogin(Customizer.withDefaults())
-            .oneTimeTokenLogin(Customizer.withDefaults());
-        return http.build();
-    }
-
-}
-
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-
-@Component <1>
-public class MagicLinkOneTimeTokenGenerationSuccessHandler implements OneTimeTokenGenerationSuccessHandler {
-
-    private final MailSender mailSender;
-
-    private final OneTimeTokenGenerationSuccessHandler redirectHandler = new RedirectOneTimeTokenGenerationSuccessHandler("/ott/sent");
-
-    // constructor omitted
-
-    @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response, OneTimeToken oneTimeToken) throws IOException, ServletException {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(request.getRequestURL().toString())
-                .replacePath(request.getContextPath())
-                .replaceQuery(null)
-                .fragment(null)
-                .path("/login/ott")
-                .queryParam("token", oneTimeToken.getTokenValue()); <2>
-        String magicLink = builder.toUriString();
-        String email = getUserEmail(oneTimeToken.getUsername()); <3>
-        this.mailSender.send(email, "Your Spring Security One Time Token", "Use the following link to sign in into the application: " + magicLink); <4>
-        this.redirectHandler.handle(request, response, oneTimeToken); <5>
-    }
-
-    private String getUserEmail() {
-        // ...
-    }
-
-}
-
-@Controller
-class PageController {
-
-    @GetMapping("/ott/sent")
-    String ottSent() {
-        return "my-template";
-    }
-
-}
-
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Configuration
-@EnableWebSecurity
-class SecurityConfig {
-
-        @Bean
-        open fun filterChain(http: HttpSecurity): SecurityFilterChain {
-            http{
-                formLogin {}
-                oneTimeTokenLogin {  }
-            }
-            return http.build()
-        }
-}
-
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-
-@Component (1)
-class MagicLinkOneTimeTokenGenerationSuccessHandler(
-    private val mailSender: MailSender,
-    private val redirectHandler: OneTimeTokenGenerationSuccessHandler = RedirectOneTimeTokenGenerationSuccessHandler("/ott/sent")
-) : OneTimeTokenGenerationSuccessHandler {
-
-    override fun handle(request: HttpServletRequest, response: HttpServletResponse, oneTimeToken: OneTimeToken) {
-        val builder = UriComponentsBuilder.fromUriString(request.getRequestURL().toString())
-            .replacePath(request.contextPath)
-            .replaceQuery(null)
-            .fragment(null)
-            .path("/login/ott")
-            .queryParam("token", oneTimeToken.getTokenValue()) (2)
-        val magicLink = builder.toUriString()
-        val email = getUserEmail(oneTimeToken.getUsername()) (3)
-        this.mailSender.send(email, "Your Spring Security One Time Token", "Use the following link to sign in into the application: $magicLink")(4)
-        this.redirectHandler.handle(request, response, oneTimeToken) (5)
-    }
-
-    private fun getUserEmail(): String {
-        // ...
-    }
-}
-
-@Controller
-class PageController {
-
-    @GetMapping("/ott/sent")
-    fun ottSent(): String {
-        return "my-template"
-    }
-}
-
-----
-======
-
+include-code::./SecurityConfig[tag=config,indent=0]
+include-code::./MagicLinkOneTimeTokenGenerationSuccessHandler[tag=snippet,indent=0]
 <1> Make the `MagicLinkOneTimeTokenGenerationSuccessHandler` a Spring bean
 <2> Create a login processing URL with the `token` as a query param
 <3> Retrieve the user's email based on the username
-<4> Use the `JavaMailSender` API to send the email to the user with the magic link
+<4> Use the `MailSender` API to send the email to the user with the magic link
 <5> Use the `RedirectOneTimeTokenGenerationSuccessHandler` to perform a redirect to your desired URL
 
 The email content will look similar to:
@@ -192,70 +71,15 @@ The default submit page will detect that the URL has the `token` query param and
 == Changing the One-Time Token Generate URL
 
 By default, the javadoc:org.springframework.security.web.authentication.ott.GenerateOneTimeTokenFilter[] listens to `POST /ott/generate` requests.
-That URL can be changed by using the `generateTokenUrl(String)` DSL method:
+That URL can be changed by using the `tokenGeneratingUrl(String)` DSL method:
 
-.Changing the Generate URL
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Configuration
-@EnableWebSecurity
-public class SecurityConfig {
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) {
-        http
-            // ...
-            .formLogin(Customizer.withDefaults())
-            .oneTimeTokenLogin((ott) -> ott
-                .tokenGeneratingUrl("/ott/my-generate-url")
-            );
-        return http.build();
-    }
-
-}
-
-@Component
-public class MagicLinkOneTimeTokenGenerationSuccessHandler implements OneTimeTokenGenerationSuccessHandler {
-    // ...
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Configuration
-@EnableWebSecurity
-class SecurityConfig {
-
-        @Bean
-        open fun filterChain(http: HttpSecurity): SecurityFilterChain {
-            http {
-                //...
-                formLogin { }
-                oneTimeTokenLogin {
-                    tokenGeneratingUrl = "/ott/my-generate-url"
-                }
-            }
-            return http.build()
-        }
-}
-
-@Component
-class MagicLinkOneTimeTokenGenerationSuccessHandler : OneTimeTokenGenerationSuccessHandler {
-     // ...
-}
-----
-======
+include-code::./SecurityConfig[tag=config,indent=0]
+include-code::./MagicLinkOneTimeTokenGenerationSuccessHandler[tag=snippet,indent=0]
 
 [NOTE]
 ====
-The URI passed to `generateTokenUrl` is matched literally.
-If you want it to live under your application servlet's base path, include that prefix explicitly — for example, `generateTokenUrl("/api/ott/generate")`.
+The URI passed to `tokenGeneratingUrl` is matched literally.
+If you want it to live under your application servlet's base path, include that prefix explicitly — for example, `tokenGeneratingUrl("/api/ott/generate")`.
 The same applies to `loginProcessingUrl` and `tokenGeneratingUrl` elsewhere on this page.
 ====
 
@@ -265,151 +89,17 @@ The same applies to `loginProcessingUrl` and `tokenGeneratingUrl` elsewhere on t
 The default One-Time Token submit page is generated by the javadoc:org.springframework.security.web.authentication.ui.DefaultOneTimeTokenSubmitPageGeneratingFilter[] and listens to `GET /login/ott`.
 The URL can also be changed, like so:
 
-.Configuring the Default Submit Page URL
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Configuration
-@EnableWebSecurity
-public class SecurityConfig {
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) {
-        http
-            // ...
-            .formLogin(Customizer.withDefaults())
-            .oneTimeTokenLogin((ott) -> ott
-                .defaultSubmitPageUrl("/ott/submit")
-            );
-        return http.build();
-    }
-
-}
-
-@Component
-public class MagicLinkGenerationSuccessHandler implements OneTimeTokenGenerationSuccessHandler {
-    // ...
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Configuration
-@EnableWebSecurity
-class SecurityConfig {
-
-        @Bean
-        open fun filterChain(http: HttpSecurity): SecurityFilterChain {
-            http {
-                //...
-                formLogin { }
-                oneTimeTokenLogin {
-                    defaultSubmitPageUrl = "/ott/submit"
-                }
-            }
-            return http.build()
-        }
-}
-
-@Component
-class MagicLinkOneTimeTokenGenerationSuccessHandler : OneTimeTokenGenerationSuccessHandler {
-     // ...
-}
-----
-======
+include-code::./SecurityConfig[tag=config,indent=0]
+include-code::./MagicLinkOneTimeTokenGenerationSuccessHandler[tag=snippet,indent=0]
 
 [[disabling-default-submit-page]]
 == Disabling the Default Submit Page
 
 If you want to use your own One-Time Token submit page, you can disable the default page and then provide your own endpoint.
 
-.Disabling the Default Submit Page
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Configuration
-@EnableWebSecurity
-public class SecurityConfig {
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) {
-        http
-            .authorizeHttpRequests((authorize) -> authorize
-                .requestMatchers("/my-ott-submit").permitAll()
-                .anyRequest().authenticated()
-            )
-            .formLogin(Customizer.withDefaults())
-            .oneTimeTokenLogin((ott) -> ott
-                .showDefaultSubmitPage(false)
-            );
-        return http.build();
-    }
-
-}
-
-@Controller
-public class MyController {
-
-    @GetMapping("/my-ott-submit")
-    public String ottSubmitPage() {
-        return "my-ott-submit";
-    }
-
-}
-
-@Component
-public class OneTimeTokenGenerationSuccessHandler implements OneTimeTokenGenerationSuccessHandler {
-    // ...
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Configuration
-@EnableWebSecurity
-class SecurityConfig {
-
-   @Bean
-   open fun filterChain(http: HttpSecurity): SecurityFilterChain {
-            http {
-                authorizeHttpRequests {
-                    authorize("/my-ott-submit", authenticated)
-                    authorize(anyRequest, authenticated)
-                }
-                formLogin { }
-                oneTimeTokenLogin {
-                    showDefaultSubmitPage = false
-                }
-            }
-            return http.build()
-    }
-}
-
-@Controller
-class MyController {
-
-   @GetMapping("/my-ott-submit")
-   fun ottSubmitPage(): String {
-       return "my-ott-submit"
-   }
-}
-
-@Component
-class MagicLinkOneTimeTokenGenerationSuccessHandler : OneTimeTokenGenerationSuccessHandler {
-     // ...
-}
-----
-======
+include-code::./SecurityConfig[tag=config,indent=0]
+include-code::./MagicLinkOneTimeTokenGenerationSuccessHandler[tag=snippet,indent=0]
+include-code::./MyController[tag=snippet,indent=0]
 
 [[customize-generate-consume-token]]
 == Customize How to Generate and Consume One-Time Tokens
@@ -428,161 +118,18 @@ Some of the most common reasons to customize the `OneTimeTokenService` are, but 
 There are two options to customize the `OneTimeTokenService`.
 One option is to provide it as a bean, so it can be automatically be picked-up by the `oneTimeTokenLogin()` DSL:
 
-.Passing the OneTimeTokenService as a Bean
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Configuration
-@EnableWebSecurity
-public class SecurityConfig {
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) {
-        http
-            // ...
-            .formLogin(Customizer.withDefaults())
-            .oneTimeTokenLogin(Customizer.withDefaults());
-        return http.build();
-    }
-
-    @Bean
-    public OneTimeTokenService oneTimeTokenService() {
-        return new MyCustomOneTimeTokenService();
-    }
-
-}
-
-@Component
-public class MagicLinkOneTimeTokenGenerationSuccessHandler implements OneTimeTokenGenerationSuccessHandler {
-    // ...
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Configuration
-@EnableWebSecurity
-class SecurityConfig {
-
-    @Bean
-    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
-        http {
-            //...
-            formLogin { }
-            oneTimeTokenLogin { }
-        }
-        return http.build()
-    }
-
-    @Bean
-    open fun oneTimeTokenService(): OneTimeTokenService {
-        return MyCustomOneTimeTokenService()
-    }
-}
-
-@Component
-class MagicLinkOneTimeTokenGenerationSuccessHandler : OneTimeTokenGenerationSuccessHandler {
-     // ...
-}
-----
-======
+include-code::./OneTimeTokenServiceBeanSecurityConfig[tag=config,indent=0]
+include-code::./MagicLinkOneTimeTokenGenerationSuccessHandler[tag=snippet,indent=0]
 
 The second option is to pass the `OneTimeTokenService` instance to the DSL, which is useful if there are multiple `SecurityFilterChain` and a different `OneTimeTokenService` is needed for each of them.
 
-.Passing the OneTimeTokenService using the DSL
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Configuration
-@EnableWebSecurity
-public class SecurityConfig {
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) {
-        http
-            // ...
-            .formLogin(Customizer.withDefaults())
-            .oneTimeTokenLogin((ott) -> ott
-                .oneTimeTokenService(new MyCustomOneTimeTokenService())
-            );
-        return http.build();
-    }
-
-}
-
-@Component
-public class MagicLinkOneTimeTokenGenerationSuccessHandler implements OneTimeTokenGenerationSuccessHandler {
-    // ...
-}
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Configuration
-@EnableWebSecurity
-class SecurityConfig {
-
-    @Bean
-    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
-        http {
-            //...
-            formLogin { }
-            oneTimeTokenLogin {
-                oneTimeTokenService = MyCustomOneTimeTokenService()
-            }
-        }
-        return http.build()
-    }
-
-}
-
-@Component
-class MagicLinkOneTimeTokenGenerationSuccessHandler : OneTimeTokenGenerationSuccessHandler {
-     // ...
-}
-----
-======
+include-code::./OneTimeTokenServiceDSLSecurityConfig[tag=config,indent=0]
+include-code::./MagicLinkOneTimeTokenGenerationSuccessHandler[tag=snippet,indent=0]
 
 [[customize-generate-token-request]]
 == Customize GenerateOneTimeTokenRequest Instance
 There are a number of reasons that you may want to adjust an GenerateOneTimeTokenRequest. For example, you may want expiresIn to be set to 10 mins, which Spring Security sets to 5 mins by default.
 
-You can customize elements of GenerateOneTimeTokenRequest by publishing an GenerateOneTimeTokenRequestResolver as a @Bean, like so:
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-@Bean
-GenerateOneTimeTokenRequestResolver generateOneTimeTokenRequestResolver() {
-    DefaultGenerateOneTimeTokenRequestResolver delegate = new DefaultGenerateOneTimeTokenRequestResolver();
-        return (request) -> {
-		    GenerateOneTimeTokenRequest generate = delegate.resolve(request);
-		    return new GenerateOneTimeTokenRequest(generate.getUsername(), Duration.ofSeconds(600));
-	};
-}
-----
+You can customize elements of GenerateOneTimeTokenRequest by publishing an GenerateOneTimeTokenRequestResolver as a `@Bean`, like so:
 
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-@Bean
-fun generateRequestResolver() : GenerateOneTimeTokenRequestResolver {
-    return DefaultGenerateOneTimeTokenRequestResolver().apply {
-        this.setExpiresIn(Duration.ofMinutes(10))
-    }
-}
-----
-======
+include-code::./SecurityConfig[tag=config,indent=0]
