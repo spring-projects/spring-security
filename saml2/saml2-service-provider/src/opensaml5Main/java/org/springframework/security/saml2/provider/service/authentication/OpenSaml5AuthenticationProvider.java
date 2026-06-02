@@ -42,6 +42,7 @@ import org.opensaml.saml.saml2.assertion.SubjectConfirmationValidator;
 import org.opensaml.saml.saml2.assertion.impl.AudienceRestrictionConditionValidator;
 import org.opensaml.saml.saml2.assertion.impl.BearerSubjectConfirmationValidator;
 import org.opensaml.saml.saml2.assertion.impl.DelegationRestrictionConditionValidator;
+import org.opensaml.saml.saml2.assertion.impl.OneTimeUseConditionValidator;
 import org.opensaml.saml.saml2.assertion.impl.ProxyRestrictionConditionValidator;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Condition;
@@ -57,6 +58,7 @@ import org.opensaml.saml.saml2.encryption.Decrypter;
 import org.opensaml.xmlsec.signature.support.SignaturePrevalidator;
 import org.opensaml.xmlsec.signature.support.SignatureTrustEngine;
 
+import org.springframework.cache.Cache;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -109,6 +111,7 @@ import org.springframework.util.StringUtils;
  * asserting party, IDP, verification certificates.
  *
  * @author Josh Cummings
+ * @author Andrey Litvitski
  * @since 5.5
  * @see <a href=
  * "https://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf#page=38">SAML 2
@@ -737,10 +740,11 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 
 			private final Map<String, Object> validationParameters = new HashMap<>();
 
+			@Nullable private Cache replayCache;
+
 			private Builder() {
 				this.conditions.add(new AudienceRestrictionConditionValidator());
 				this.conditions.add(new DelegationRestrictionConditionValidator());
-				this.conditions.add(new ValidConditionValidator(OneTimeUse.DEFAULT_ELEMENT_NAME));
 				this.conditions.add(new ProxyRestrictionConditionValidator());
 				this.subjects.add(new BearerSubjectConfirmationValidator());
 				this.validationParameters.put(SAML2AssertionValidationParameters.CLOCK_SKEW, Duration.ofMinutes(5));
@@ -820,10 +824,33 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 			}
 
 			/**
+			 * Use this {@link Cache} to validate {@code <saml2:OneTimeUse>} conditions in
+			 * SAML assertions. When set, assertions with a {@code <saml2:OneTimeUse>}
+			 * condition will be rejected if the assertion ID has already been seen and
+			 * has not yet expired.
+			 * <p>
+			 * If not set, {@code <saml2:OneTimeUse>} conditions are skipped.
+			 * @param cache the {@link Cache} to use for replay detection
+			 * @return the {@link Builder} for further configuration
+			 */
+			public Builder replayCache(Cache cache) {
+				Assert.notNull(cache, "cache cannot be null");
+				this.replayCache = cache;
+				return this;
+			}
+
+			/**
 			 * Build the {@link AssertionValidator}
 			 * @return the {@link AssertionValidator}
 			 */
 			public AssertionValidator build() {
+				if (this.replayCache != null) {
+					this.conditions
+						.add(new OneTimeUseConditionValidator(new SpringCacheReplayCache(this.replayCache), null));
+				}
+				else {
+					this.conditions.add(new ValidConditionValidator(OneTimeUse.DEFAULT_ELEMENT_NAME));
+				}
 				AssertionValidator validator = new AssertionValidator(new ValidSignatureAssertionValidator(
 						this.conditions, this.subjects, List.of(), null, null, null));
 				validator.setValidationContextParameters((params) -> params.putAll(this.validationParameters));
