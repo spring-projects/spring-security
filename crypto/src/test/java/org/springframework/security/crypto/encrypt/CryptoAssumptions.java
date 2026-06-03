@@ -24,25 +24,23 @@ import javax.crypto.NoSuchPaddingException;
 import org.junit.jupiter.api.Assumptions;
 import org.opentest4j.TestAbortedException;
 
-import org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgorithm;
-
 public final class CryptoAssumptions {
 
 	private CryptoAssumptions() {
 	}
 
 	public static void assumeGCMJCE() {
-		assumeAes256(CipherAlgorithm.GCM);
+		assumeAes256("GCM");
 	}
 
 	public static void assumeCBCJCE() {
-		assumeAes256(CipherAlgorithm.CBC);
+		assumeAes256("CBC");
 	}
 
-	private static void assumeAes256(CipherAlgorithm cipherAlgorithm) {
+	private static void assumeAes256(String cipherAlgorithm) {
 		boolean aes256Available = false;
 		try {
-			Cipher.getInstance(cipherAlgorithm.toString());
+			Cipher.getInstance(cipherAlgorithm);
 			aes256Available = Cipher.getMaxAllowedKeyLength("AES") >= 256;
 		}
 		catch (NoSuchAlgorithmException ex) {
