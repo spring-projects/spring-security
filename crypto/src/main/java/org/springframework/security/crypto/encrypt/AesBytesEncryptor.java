@@ -37,7 +37,9 @@ import org.springframework.security.crypto.util.EncodingUtils;
  *
  * @author Keith Donald
  * @author Dave Syer
+ * @deprecated Use {@link AesCbcBytesEncryptor} or {@link AesGcmBytesEncryptor} instead.
  */
+@Deprecated
 public final class AesBytesEncryptor implements BytesEncryptor {
 
 	private final SecretKey secretKey;
