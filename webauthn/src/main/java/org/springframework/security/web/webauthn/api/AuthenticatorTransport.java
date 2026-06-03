@@ -118,7 +118,7 @@ public final class AuthenticatorTransport implements Serializable {
 	}
 
 	public static AuthenticatorTransport[] values() {
-		return new AuthenticatorTransport[] { USB, NFC, BLE, HYBRID, INTERNAL };
+		return new AuthenticatorTransport[] { USB, NFC, BLE, SMART_CARD, HYBRID, INTERNAL };
 	}
 
 }
