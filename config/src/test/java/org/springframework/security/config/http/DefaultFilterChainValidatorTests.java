@@ -132,6 +132,15 @@ public class DefaultFilterChainValidatorTests {
 				+ "access to the configured login page. (Simulated access was rejected)");
 	}
 
+	@Test
+	void validateWhenOnlyFilterSecurityInterceptorThenWarnWithXmlGuidance() {
+		this.validator.validate(this.chain);
+		verify(this.logger).warn(
+				"Usage of authorizeRequests is deprecated. Please use authorizeHttpRequests in the configuration. "
+						+ "If you are using XML configuration with <intercept-url>, "
+						+ "add use-authorization-manager=\"true\" to your <http> element.");
+	}
+
 	// SEC-1957
 	@Test
 	public void validateCustomMetadataSource() {
