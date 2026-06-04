@@ -132,52 +132,66 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationConverter impleme
 			principal = ANONYMOUS_AUTHENTICATION;
 		}
 
-		// redirect_uri (OPTIONAL)
-		String redirectUri = parameters.getFirst(OAuth2ParameterNames.REDIRECT_URI);
-		List<String> redirectUriParams = parameters.get(OAuth2ParameterNames.REDIRECT_URI);
-		if (StringUtils.hasText(redirectUri) && redirectUriParams != null && redirectUriParams.size() != 1) {
-			throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.REDIRECT_URI);
+		String redirectUri = null;
+		if (!StringUtils.hasText(requestUri)) {
+			// redirect_uri (OPTIONAL)
+			redirectUri = parameters.getFirst(OAuth2ParameterNames.REDIRECT_URI);
+			List<String> redirectUriParams = parameters.get(OAuth2ParameterNames.REDIRECT_URI);
+			if (StringUtils.hasText(redirectUri) && redirectUriParams != null && redirectUriParams.size() != 1) {
+				throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.REDIRECT_URI);
+			}
 		}
 
-		// scope (OPTIONAL)
 		Set<String> scopes = null;
-		String scope = parameters.getFirst(OAuth2ParameterNames.SCOPE);
-		List<String> scopeParams = parameters.get(OAuth2ParameterNames.SCOPE);
-		if (StringUtils.hasText(scope) && scopeParams != null && scopeParams.size() != 1) {
-			throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.SCOPE);
-		}
-		if (StringUtils.hasText(scope)) {
-			scopes = new HashSet<>(Arrays.asList(StringUtils.delimitedListToStringArray(scope, " ")));
-		}
-
-		// state (RECOMMENDED)
-		String state = parameters.getFirst(OAuth2ParameterNames.STATE);
-		List<String> stateParams = parameters.get(OAuth2ParameterNames.STATE);
-		if (StringUtils.hasText(state) && stateParams != null && stateParams.size() != 1) {
-			throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.STATE);
+		if (!StringUtils.hasText(requestUri)) {
+			// scope (OPTIONAL)
+			String scope = parameters.getFirst(OAuth2ParameterNames.SCOPE);
+			List<String> scopeParams = parameters.get(OAuth2ParameterNames.SCOPE);
+			if (StringUtils.hasText(scope) && scopeParams != null && scopeParams.size() != 1) {
+				throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.SCOPE);
+			}
+			if (StringUtils.hasText(scope)) {
+				scopes = new HashSet<>(Arrays.asList(StringUtils.delimitedListToStringArray(scope, " ")));
+			}
 		}
 
-		// code_challenge (REQUIRED for public clients) - RFC 7636 (PKCE)
-		String codeChallenge = parameters.getFirst(PkceParameterNames.CODE_CHALLENGE);
-		List<String> codeChallengeParams = parameters.get(PkceParameterNames.CODE_CHALLENGE);
-		if (StringUtils.hasText(codeChallenge) && codeChallengeParams != null && codeChallengeParams.size() != 1) {
-			throwError(OAuth2ErrorCodes.INVALID_REQUEST, PkceParameterNames.CODE_CHALLENGE, PKCE_ERROR_URI);
+		String state = null;
+		if (!StringUtils.hasText(requestUri)) {
+			// state (RECOMMENDED)
+			state = parameters.getFirst(OAuth2ParameterNames.STATE);
+			List<String> stateParams = parameters.get(OAuth2ParameterNames.STATE);
+			if (StringUtils.hasText(state) && stateParams != null && stateParams.size() != 1) {
+				throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.STATE);
+			}
 		}
 
-		// code_challenge_method (OPTIONAL for public clients) - RFC 7636 (PKCE)
-		String codeChallengeMethod = parameters.getFirst(PkceParameterNames.CODE_CHALLENGE_METHOD);
-		List<String> codeChallengeMethodParams = parameters.get(PkceParameterNames.CODE_CHALLENGE_METHOD);
-		if (StringUtils.hasText(codeChallengeMethod) && codeChallengeMethodParams != null
-				&& codeChallengeMethodParams.size() != 1) {
-			throwError(OAuth2ErrorCodes.INVALID_REQUEST, PkceParameterNames.CODE_CHALLENGE_METHOD, PKCE_ERROR_URI);
+		if (!StringUtils.hasText(requestUri)) {
+			// code_challenge (REQUIRED for public clients) - RFC 7636 (PKCE)
+			String codeChallenge = parameters.getFirst(PkceParameterNames.CODE_CHALLENGE);
+			List<String> codeChallengeParams = parameters.get(PkceParameterNames.CODE_CHALLENGE);
+			if (StringUtils.hasText(codeChallenge) && codeChallengeParams != null && codeChallengeParams.size() != 1) {
+				throwError(OAuth2ErrorCodes.INVALID_REQUEST, PkceParameterNames.CODE_CHALLENGE, PKCE_ERROR_URI);
+			}
 		}
 
-		// prompt (OPTIONAL for OpenID Connect 1.0 Authentication Request)
-		if (!CollectionUtils.isEmpty(scopes) && scopes.contains(OidcScopes.OPENID)) {
-			String prompt = parameters.getFirst("prompt");
-			List<String> promptParams = parameters.get("prompt");
-			if (StringUtils.hasText(prompt) && promptParams != null && promptParams.size() != 1) {
-				throwError(OAuth2ErrorCodes.INVALID_REQUEST, "prompt");
+		if (!StringUtils.hasText(requestUri)) {
+			// code_challenge_method (OPTIONAL for public clients) - RFC 7636 (PKCE)
+			String codeChallengeMethod = parameters.getFirst(PkceParameterNames.CODE_CHALLENGE_METHOD);
+			List<String> codeChallengeMethodParams = parameters.get(PkceParameterNames.CODE_CHALLENGE_METHOD);
+			if (StringUtils.hasText(codeChallengeMethod) && codeChallengeMethodParams != null
+					&& codeChallengeMethodParams.size() != 1) {
+				throwError(OAuth2ErrorCodes.INVALID_REQUEST, PkceParameterNames.CODE_CHALLENGE_METHOD, PKCE_ERROR_URI);
+			}
+		}
+
+		if (!StringUtils.hasText(requestUri)) {
+			// prompt (OPTIONAL for OpenID Connect 1.0 Authentication Request)
+			if (!CollectionUtils.isEmpty(scopes) && scopes.contains(OidcScopes.OPENID)) {
+				String prompt = parameters.getFirst("prompt");
+				List<String> promptParams = parameters.get("prompt");
+				if (StringUtils.hasText(prompt) && promptParams != null && promptParams.size() != 1) {
+					throwError(OAuth2ErrorCodes.INVALID_REQUEST, "prompt");
+				}
 			}
 		}
 

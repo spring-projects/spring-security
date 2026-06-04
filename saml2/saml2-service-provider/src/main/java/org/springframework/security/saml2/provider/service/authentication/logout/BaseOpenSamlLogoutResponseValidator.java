@@ -16,8 +16,9 @@
 
 package org.springframework.security.saml2.provider.service.authentication.logout;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.function.Consumer;
+import java.util.Collections;
 
 import org.jspecify.annotations.Nullable;
 import org.opensaml.saml.saml2.core.LogoutResponse;
@@ -54,103 +55,91 @@ class BaseOpenSamlLogoutResponseValidator implements Saml2LogoutResponseValidato
 		LogoutResponse logoutResponse = this.saml.deserialize(Saml2Utils.withEncoded(response.getSamlResponse())
 			.inflate(response.getBinding() == Saml2MessageBinding.REDIRECT)
 			.decode());
-		return Saml2LogoutValidatorResult.withErrors()
-			.errors(verifySignature(response, logoutResponse, registration))
-			.errors(validateRequest(logoutResponse, registration))
-			.errors(validateLogoutRequest(logoutResponse, request.getId()))
-			.build();
+		Collection<Saml2Error> errors = verifySignature(response, logoutResponse, registration);
+		if (!errors.isEmpty()) {
+			return Saml2LogoutValidatorResult.withErrors(errors.toArray(Saml2Error[]::new)).build();
+		}
+		errors = validateRequest(logoutResponse, registration, request.getId());
+		return errors.isEmpty() ? Saml2LogoutValidatorResult.success()
+				: Saml2LogoutValidatorResult.withErrors(errors.toArray(Saml2Error[]::new)).build();
 	}
 
-	private Consumer<Collection<Saml2Error>> verifySignature(Saml2LogoutResponse response,
-			LogoutResponse logoutResponse, RelyingPartyRegistration registration) {
-		return (errors) -> {
-			AssertingPartyMetadata details = registration.getAssertingPartyMetadata();
-			Collection<Saml2X509Credential> credentials = details.getVerificationX509Credentials();
-			VerificationConfigurer verify = this.saml.withVerificationKeys(credentials)
-				.entityId(details.getEntityId())
-				.entityId(details.getEntityId());
-			if (logoutResponse.isSigned()) {
-				errors.addAll(verify.verify(logoutResponse));
-			}
-			else {
-				String parametersQuery = response.getParametersQuery();
-				Assert.notNull(parametersQuery, "parametersQuery cannot be null for redirect binding");
-				RedirectParameters params = new RedirectParameters(response.getParameters(), parametersQuery,
-						logoutResponse);
-				errors.addAll(verify.verify(params));
-			}
-		};
-	}
-
-	private Consumer<Collection<Saml2Error>> validateRequest(LogoutResponse response,
+	private Collection<Saml2Error> verifySignature(Saml2LogoutResponse response, LogoutResponse logoutResponse,
 			RelyingPartyRegistration registration) {
-		return (errors) -> {
-			validateIssuer(response, registration).accept(errors);
-			validateDestination(response, registration).accept(errors);
-			validateStatus(response).accept(errors);
-		};
+		AssertingPartyMetadata details = registration.getAssertingPartyMetadata();
+		Collection<Saml2X509Credential> credentials = details.getVerificationX509Credentials();
+		VerificationConfigurer verify = this.saml.withVerificationKeys(credentials).entityId(details.getEntityId());
+		if (logoutResponse.isSigned()) {
+			return verify.verify(logoutResponse);
+		}
+		String parametersQuery = response.getParametersQuery();
+		Assert.notNull(parametersQuery, "parametersQuery cannot be null for redirect binding");
+		RedirectParameters params = new RedirectParameters(response.getParameters(), parametersQuery, logoutResponse);
+		return verify.verify(params);
 	}
 
-	private Consumer<Collection<Saml2Error>> validateIssuer(LogoutResponse response,
-			RelyingPartyRegistration registration) {
-		return (errors) -> {
-			if (response.getIssuer() == null) {
-				errors.add(new Saml2Error(Saml2ErrorCodes.INVALID_ISSUER, "Failed to find issuer in LogoutResponse"));
-				return;
-			}
-			String issuer = response.getIssuer().getValue();
-			if (!registration.getAssertingPartyMetadata().getEntityId().equals(issuer)) {
-				errors
-					.add(new Saml2Error(Saml2ErrorCodes.INVALID_ISSUER, "Failed to match issuer to configured issuer"));
-			}
-		};
+	private Collection<Saml2Error> validateRequest(LogoutResponse response, RelyingPartyRegistration registration,
+			@Nullable String logoutRequestId) {
+		Collection<Saml2Error> errors = new ArrayList<>();
+		errors.addAll(validateIssuer(response, registration));
+		errors.addAll(validateDestination(response, registration));
+		errors.addAll(validateStatus(response));
+		errors.addAll(validateLogoutRequest(response, logoutRequestId));
+		return errors;
 	}
 
-	private Consumer<Collection<Saml2Error>> validateDestination(LogoutResponse response,
-			RelyingPartyRegistration registration) {
-		return (errors) -> {
-			if (response.getDestination() == null) {
-				errors.add(new Saml2Error(Saml2ErrorCodes.INVALID_DESTINATION,
-						"Failed to find destination in LogoutResponse"));
-				return;
-			}
-			String destination = response.getDestination();
-			if (!destination.equals(registration.getSingleLogoutServiceResponseLocation())) {
-				errors.add(new Saml2Error(Saml2ErrorCodes.INVALID_DESTINATION,
-						"Failed to match destination to configured destination"));
-			}
-		};
+	private Collection<Saml2Error> validateIssuer(LogoutResponse response, RelyingPartyRegistration registration) {
+		if (response.getIssuer() == null) {
+			return Collections.singletonList(
+					new Saml2Error(Saml2ErrorCodes.INVALID_ISSUER, "Failed to find issuer in LogoutResponse"));
+		}
+		String issuer = response.getIssuer().getValue();
+		if (!registration.getAssertingPartyMetadata().getEntityId().equals(issuer)) {
+			return Collections.singletonList(
+					new Saml2Error(Saml2ErrorCodes.INVALID_ISSUER, "Failed to match issuer to configured issuer"));
+		}
+		return Collections.emptyList();
 	}
 
-	private Consumer<Collection<Saml2Error>> validateStatus(LogoutResponse response) {
-		return (errors) -> {
-			if (response.getStatus() == null) {
-				return;
-			}
-			if (response.getStatus().getStatusCode() == null) {
-				return;
-			}
-			if (StatusCode.SUCCESS.equals(response.getStatus().getStatusCode().getValue())) {
-				return;
-			}
-			if (StatusCode.PARTIAL_LOGOUT.equals(response.getStatus().getStatusCode().getValue())) {
-				return;
-			}
-			errors.add(new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE, "Response indicated logout failed"));
-		};
+	private Collection<Saml2Error> validateDestination(LogoutResponse response, RelyingPartyRegistration registration) {
+		if (response.getDestination() == null) {
+			return Collections.singletonList(new Saml2Error(Saml2ErrorCodes.INVALID_DESTINATION,
+					"Failed to find destination in LogoutResponse"));
+		}
+		String destination = response.getDestination();
+		if (!destination.equals(registration.getSingleLogoutServiceResponseLocation())) {
+			return Collections.singletonList(new Saml2Error(Saml2ErrorCodes.INVALID_DESTINATION,
+					"Failed to match destination to configured destination"));
+		}
+		return Collections.emptyList();
 	}
 
-	private Consumer<Collection<Saml2Error>> validateLogoutRequest(LogoutResponse response, @Nullable String id) {
-		return (errors) -> {
-			if (response.getInResponseTo() == null) {
-				return;
-			}
-			if (response.getInResponseTo().equals(id)) {
-				return;
-			}
-			errors.add(new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE,
-					"LogoutResponse InResponseTo doesn't match ID of associated LogoutRequest"));
-		};
+	private Collection<Saml2Error> validateStatus(LogoutResponse response) {
+		if (response.getStatus() == null) {
+			return Collections.emptyList();
+		}
+		if (response.getStatus().getStatusCode() == null) {
+			return Collections.emptyList();
+		}
+		if (StatusCode.SUCCESS.equals(response.getStatus().getStatusCode().getValue())) {
+			return Collections.emptyList();
+		}
+		if (StatusCode.PARTIAL_LOGOUT.equals(response.getStatus().getStatusCode().getValue())) {
+			return Collections.emptyList();
+		}
+		return Collections
+			.singletonList(new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE, "Response indicated logout failed"));
+	}
+
+	private Collection<Saml2Error> validateLogoutRequest(LogoutResponse response, @Nullable String id) {
+		if (response.getInResponseTo() == null) {
+			return Collections.emptyList();
+		}
+		if (response.getInResponseTo().equals(id)) {
+			return Collections.emptyList();
+		}
+		return Collections.singletonList(new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE,
+				"LogoutResponse InResponseTo doesn't match ID of associated LogoutRequest"));
 	}
 
 }
