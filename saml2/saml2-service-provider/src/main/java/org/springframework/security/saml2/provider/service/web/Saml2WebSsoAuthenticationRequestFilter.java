@@ -24,17 +24,17 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.springframework.http.MediaType;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2PostAuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.web.authentication.Saml2AuthenticationRequestResolver;
+import org.springframework.security.web.FormPostRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
 
@@ -66,6 +66,8 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 	private final Saml2AuthenticationRequestResolver authenticationRequestResolver;
 
 	private Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository = new HttpSessionSaml2AuthenticationRequestRepository();
+
+	private final RedirectStrategy formPostRedirectStrategy = new FormPostRedirectStrategy();
 
 	/**
 	 * Construct a {@link Saml2WebSsoAuthenticationRequestFilter} with the strategy for
@@ -132,54 +134,11 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 	private void sendPost(HttpServletRequest request, HttpServletResponse response,
 			Saml2PostAuthenticationRequest authenticationRequest) throws IOException {
 		this.authenticationRequestRepository.saveAuthenticationRequest(authenticationRequest, request, response);
-		String html = createSamlPostRequestFormData(authenticationRequest);
-		response.setContentType(MediaType.TEXT_HTML_VALUE);
-		response.getWriter().write(html);
-	}
-
-	private String createSamlPostRequestFormData(Saml2PostAuthenticationRequest authenticationRequest) {
-		String authenticationRequestUri = authenticationRequest.getAuthenticationRequestUri();
-		String relayState = authenticationRequest.getRelayState();
-		String samlRequest = authenticationRequest.getSamlRequest();
-		StringBuilder html = new StringBuilder();
-		html.append("<!DOCTYPE html>\n");
-		html.append("<html>\n").append("    <head>\n");
-		html.append("        <meta http-equiv=\"Content-Security-Policy\" ")
-			.append("content=\"script-src 'sha256-oZhLbc2kO8b8oaYLrUc7uye1MgVKMyLtPqWR4WtKF+c='\">\n");
-		html.append("        <meta charset=\"utf-8\" />\n");
-		html.append("    </head>\n");
-		html.append("    <body>\n");
-		html.append("        <noscript>\n");
-		html.append("            <p>\n");
-		html.append("                <strong>Note:</strong> Since your browser does not support JavaScript,\n");
-		html.append("                you must press the Continue button once to proceed.\n");
-		html.append("            </p>\n");
-		html.append("        </noscript>\n");
-		html.append("        \n");
-		html.append("        <form action=\"");
-		html.append(authenticationRequestUri);
-		html.append("\" method=\"post\">\n");
-		html.append("            <div>\n");
-		html.append("                <input type=\"hidden\" name=\"SAMLRequest\" value=\"");
-		html.append(HtmlUtils.htmlEscape(samlRequest));
-		html.append("\"/>\n");
-		if (StringUtils.hasText(relayState)) {
-			html.append("                <input type=\"hidden\" name=\"RelayState\" value=\"");
-			html.append(HtmlUtils.htmlEscape(relayState));
-			html.append("\"/>\n");
-		}
-		html.append("            </div>\n");
-		html.append("            <noscript>\n");
-		html.append("                <div>\n");
-		html.append("                    <input type=\"submit\" value=\"Continue\"/>\n");
-		html.append("                </div>\n");
-		html.append("            </noscript>\n");
-		html.append("        </form>\n");
-		html.append("        \n");
-		html.append("        <script>window.onload = function() { document.forms[0].submit(); }</script>\n");
-		html.append("    </body>\n");
-		html.append("</html>");
-		return html.toString();
+		UriComponentsBuilder uriBuilder = UriComponentsBuilder
+			.fromUriString(authenticationRequest.getAuthenticationRequestUri());
+		addParameter(Saml2ParameterNames.SAML_REQUEST, authenticationRequest.getSamlRequest(), uriBuilder);
+		addParameter(Saml2ParameterNames.RELAY_STATE, authenticationRequest.getRelayState(), uriBuilder);
+		this.formPostRedirectStrategy.sendRedirect(request, response, uriBuilder.build(true).toUriString());
 	}
 
 }
