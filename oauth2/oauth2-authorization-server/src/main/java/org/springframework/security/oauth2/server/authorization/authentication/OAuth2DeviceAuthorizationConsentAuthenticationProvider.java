@@ -50,6 +50,7 @@ import org.springframework.util.Assert;
  * used in the OAuth 2.0 Device Authorization Grant.
  *
  * @author Steve Riesenberg
+ * @author Andrey Litvitski
  * @since 7.0
  * @see OAuth2DeviceAuthorizationConsentAuthenticationToken
  * @see OAuth2AuthorizationConsent
@@ -200,7 +201,7 @@ public final class OAuth2DeviceAuthorizationConsentAuthenticationProvider implem
 			if (this.logger.isTraceEnabled()) {
 				this.logger.trace("Invalidated device code and user code because authorization consent was denied");
 			}
-			throw createException(OAuth2ErrorCodes.ACCESS_DENIED, OAuth2ParameterNames.CLIENT_ID);
+			throw createException(OAuth2ErrorCodes.ACCESS_DENIED, OAuth2ParameterNames.SCOPE);
 		}
 
 		OAuth2AuthorizationConsent authorizationConsent = authorizationConsentBuilder.build();
