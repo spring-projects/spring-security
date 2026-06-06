@@ -21,8 +21,9 @@ import java.util.Base64;
 
 import com.password4j.AlgorithmFinder;
 import com.password4j.BalloonHashingFunction;
-import com.password4j.Hash;
+import com.password4j.HashBuilder;
 import com.password4j.Password;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.crypto.password.AbstractValidatingPasswordEncoder;
 import org.springframework.util.Assert;
@@ -60,6 +61,7 @@ import org.springframework.util.Assert;
  * }</pre>
  *
  * @author Mehrdad Bozorgmehr
+ * @author Andrey Litvitski
  * @since 7.0
  * @see BalloonHashingFunction
  * @see AlgorithmFinder#getBalloonHashingInstance()
@@ -75,6 +77,8 @@ public class BalloonHashingPassword4jPasswordEncoder extends AbstractValidatingP
 	private final SecureRandom secureRandom;
 
 	private final int saltLength;
+
+	@Nullable private final String pepper;
 
 	/**
 	 * Constructs a Balloon hashing password encoder using the default Balloon hashing
@@ -105,11 +109,29 @@ public class BalloonHashingPassword4jPasswordEncoder extends AbstractValidatingP
 	 * not positive
 	 */
 	public BalloonHashingPassword4jPasswordEncoder(BalloonHashingFunction balloonHashingFunction, int saltLength) {
+		this(balloonHashingFunction, saltLength, null);
+	}
+
+	/**
+	 * Constructs a Balloon hashing password encoder with a custom Balloon hashing
+	 * function, salt length, and a pepper.
+	 * @param balloonHashingFunction the Balloon hashing function to use for encoding
+	 * passwords, must not be null
+	 * @param saltLength the length of the salt in bytes, must be positive
+	 * @param pepper the pepper to be used in the hashing process. If null, no pepper will
+	 * be applied.
+	 * @throws IllegalArgumentException if balloonHashingFunction is null or saltLength is
+	 * not positive
+	 * @since 7.0
+	 */
+	public BalloonHashingPassword4jPasswordEncoder(BalloonHashingFunction balloonHashingFunction, int saltLength,
+			@Nullable String pepper) {
 		Assert.notNull(balloonHashingFunction, "balloonHashingFunction cannot be null");
 		Assert.isTrue(saltLength > 0, "saltLength must be positive");
 		this.balloonHashingFunction = balloonHashingFunction;
 		this.saltLength = saltLength;
 		this.secureRandom = new SecureRandom();
+		this.pepper = pepper;
 	}
 
 	@Override
@@ -117,9 +139,12 @@ public class BalloonHashingPassword4jPasswordEncoder extends AbstractValidatingP
 		byte[] salt = new byte[this.saltLength];
 		this.secureRandom.nextBytes(salt);
 
-		Hash hash = Password.hash(rawPassword).addSalt(salt).with(this.balloonHashingFunction);
+		HashBuilder hashBuilder = Password.hash(rawPassword).addSalt(salt);
+		if (this.pepper != null) {
+			hashBuilder.addPepper(this.pepper);
+		}
 		String encodedSalt = Base64.getEncoder().encodeToString(salt);
-		String encodedHash = hash.getResult();
+		String encodedHash = hashBuilder.with(this.balloonHashingFunction).getResult();
 
 		return encodedSalt + DELIMITER + encodedHash;
 	}
@@ -139,8 +164,11 @@ public class BalloonHashingPassword4jPasswordEncoder extends AbstractValidatingP
 			byte[] salt = Base64.getDecoder().decode(parts[0]);
 			String expectedHash = parts[1];
 
-			Hash hash = Password.hash(rawPassword).addSalt(salt).with(this.balloonHashingFunction);
-			return expectedHash.equals(hash.getResult());
+			HashBuilder hashBuilder = Password.hash(rawPassword).addSalt(salt);
+			if (this.pepper != null) {
+				hashBuilder.addPepper(this.pepper);
+			}
+			return expectedHash.equals(hashBuilder.with(this.balloonHashingFunction).getResult());
 		}
 		catch (IllegalArgumentException ex) {
 			// Invalid Base64 encoding
