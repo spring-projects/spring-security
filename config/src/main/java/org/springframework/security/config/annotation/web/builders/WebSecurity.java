@@ -379,9 +379,8 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 			}
 			if (filter instanceof AuthorizationFilter authorization) {
 				AuthorizationManager<HttpServletRequest> authorizationManager = authorization.getAuthorizationManager();
-				builder.add(securityFilterChain::matches,
-						(authentication, context) -> (AuthorizationDecision) authorizationManager
-							.authorize(authentication, context.getRequest()));
+				builder.add(securityFilterChain::matches, (authentication, context) -> authorizationManager
+					.authorize(authentication, context.getRequest()));
 				mappings = true;
 			}
 		}
