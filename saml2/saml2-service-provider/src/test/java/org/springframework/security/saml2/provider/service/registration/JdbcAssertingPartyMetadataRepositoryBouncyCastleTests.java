@@ -20,36 +20,37 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InvalidClassException;
 import java.io.ObjectOutputStream;
+import java.security.Security;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import org.springframework.security.saml2.provider.service.registration.JdbcAssertingPartyMetadataRepository.AssertingPartyMetadataRowMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 
 /**
- * Tests for {@link JdbcAssertingPartyMetadataRepository}
+ * Tests for {@link JdbcAssertingPartyMetadataRepository} when Bouncy Castle is the
+ * preferred JCA provider. Run in their own forked JVM (see the {@code bouncyCastleTest}
+ * Gradle task) so that the production code's allowlist is computed with BC registered and
+ * so this provider change does not leak into other tests.
  */
-class JdbcAssertingPartyMetadataRepositoryTests {
+class JdbcAssertingPartyMetadataRepositoryBouncyCastleTests {
 
 	private static final String SCHEMA_SQL_RESOURCE = "org/springframework/security/saml2/saml2-asserting-party-metadata-schema.sql";
+
+	static {
+		Security.insertProviderAt(new BouncyCastleProvider(), 1);
+	}
 
 	private EmbeddedDatabase db;
 
@@ -74,24 +75,6 @@ class JdbcAssertingPartyMetadataRepositoryTests {
 	}
 
 	@Test
-	void constructorWhenJdbcOperationsIsNullThenThrowIllegalArgumentException() {
-		// @formatter:off
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new JdbcAssertingPartyMetadataRepository(null))
-				.withMessage("jdbcOperations cannot be null");
-		// @formatter:on
-	}
-
-	@Test
-	void findByEntityIdWhenEntityIdIsNullThenThrowIllegalArgumentException() {
-		// @formatter:off
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.repository.findByEntityId(null))
-				.withMessage("entityId cannot be empty");
-		// @formatter:on
-	}
-
-	@Test
 	void findByEntityIdWhenEntityPresentThenReturns() {
 		this.repository.save(this.metadata);
 
@@ -101,40 +84,12 @@ class JdbcAssertingPartyMetadataRepositoryTests {
 	}
 
 	@Test
-	void findByEntityIdWhenNotExistsThenNull() {
-		AssertingPartyMetadata found = this.repository.findByEntityId("non-existent-entity-id");
-		assertThat(found).isNull();
-	}
-
-	@Test
-	void iteratorWhenEnitiesExistThenContains() {
-		AssertingPartyMetadata second = this.metadata.mutate().entityId("https://example.org/idp").build();
-		this.repository.save(this.metadata);
-		this.repository.save(second);
-
-		Iterator<AssertingPartyMetadata> iterator = this.repository.iterator();
-
-		assertAssertingPartyEquals(iterator.next(), this.metadata);
-		assertAssertingPartyEquals(iterator.next(), second);
-		assertThat(iterator.hasNext()).isFalse();
-	}
-
-	@Test
 	void saveWhenExistingThenUpdates() {
 		this.repository.save(this.metadata);
 		boolean existing = this.metadata.getWantAuthnRequestsSigned();
 		this.repository.save(this.metadata.mutate().wantAuthnRequestsSigned(!existing).build());
 		boolean updated = this.repository.findByEntityId(this.metadata.getEntityId()).getWantAuthnRequestsSigned();
 		assertThat(existing).isNotEqualTo(updated);
-	}
-
-	@Test
-	void saveWhenCustomRowMapperThenUses() throws Exception {
-		RowMapper<AssertingPartyMetadata> rowMapper = spy(new AssertingPartyMetadataRowMapper());
-		this.repository.setRowMapper(rowMapper);
-		this.repository.save(this.metadata);
-		this.repository.findByEntityId(this.metadata.getEntityId());
-		verify(rowMapper).mapRow(any(), eq(0));
 	}
 
 	@Test
@@ -159,16 +114,12 @@ class JdbcAssertingPartyMetadataRepositoryTests {
 	}
 
 	private static EmbeddedDatabase createDb() {
-		return createDb(SCHEMA_SQL_RESOURCE);
-	}
-
-	private static EmbeddedDatabase createDb(String schema) {
 		// @formatter:off
 		return new EmbeddedDatabaseBuilder()
 				.generateUniqueName(true)
 				.setType(EmbeddedDatabaseType.HSQL)
 				.setScriptEncoding("UTF-8")
-				.addScript(schema)
+				.addScript(SCHEMA_SQL_RESOURCE)
 				.build();
 		// @formatter:on
 	}
