@@ -43,7 +43,9 @@ import org.springframework.util.Assert;
  * "EMAILADDRESS=jimi@hendrix.org, CN=..." giving a user name "jimi@hendrix.org"
  *
  * @author Luke Taylor
+ * @deprecated Please use {@link SubjectX500PrincipalExtractor} instead
  */
+@Deprecated
 public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor, MessageSourceAware {
 
 	protected final Log logger = LogFactory.getLog(getClass());

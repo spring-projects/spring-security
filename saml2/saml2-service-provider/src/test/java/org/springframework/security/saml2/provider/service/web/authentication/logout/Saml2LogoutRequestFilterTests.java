@@ -120,9 +120,7 @@ public class Saml2LogoutRequestFilterTests {
 		String content = response.getContentAsString();
 		assertThat(content).contains(Saml2ParameterNames.SAML_RESPONSE);
 		assertThat(content).contains(registration.getAssertingPartyDetails().getSingleLogoutServiceResponseLocation());
-		assertThat(content).contains(
-				"<meta http-equiv=\"Content-Security-Policy\" content=\"script-src 'sha256-oZhLbc2kO8b8oaYLrUc7uye1MgVKMyLtPqWR4WtKF+c='\">");
-		assertThat(content).contains("<script>window.onload = function() { document.forms[0].submit(); }</script>");
+		assertThat(response.getHeader("Content-Security-Policy")).matches("script-src 'nonce-.+'");
 		verify(this.securityContextHolderStrategy).getContext();
 	}
 

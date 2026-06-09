@@ -26,6 +26,7 @@ import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
@@ -88,6 +89,38 @@ public class OpenSamlLogoutRequestValidatorTests {
 				registration, authentication(registration));
 		Saml2LogoutValidatorResult result = this.manager.validate(parameters);
 		assertThat(result.hasErrors()).isFalse();
+	}
+
+	@Test
+	public void handleWhenSignatureVerificationFailsThenDoesNotValidateRequestFurther() {
+		RelyingPartyRegistration registration = registration().build();
+		LogoutRequest logoutRequest = TestOpenSamlObjects.assertingPartyLogoutRequest(registration);
+		sign(logoutRequest, registration);
+		logoutRequest.getIssuer().setValue("https://other-asserting-party.example");
+		logoutRequest.setDestination("https://wrong-destination.example");
+		logoutRequest.getNameID().setValue("someone-else");
+		Saml2LogoutRequest request = post(logoutRequest, registration);
+		Saml2LogoutRequestValidatorParameters parameters = new Saml2LogoutRequestValidatorParameters(request,
+				registration, authentication(registration));
+		Saml2LogoutValidatorResult result = this.manager.validate(parameters);
+		assertThat(result.hasErrors()).isTrue();
+		assertThat(result.getErrors()).extracting(Saml2Error::getErrorCode)
+			.containsOnly(Saml2ErrorCodes.INVALID_SIGNATURE);
+	}
+
+	@Test
+	public void handleWhenDestinationAndNameIdInvalidThenCollectsAllApplicableRequestErrors() {
+		RelyingPartyRegistration registration = registration().build();
+		LogoutRequest logoutRequest = TestOpenSamlObjects.assertingPartyLogoutRequest(registration);
+		logoutRequest.setDestination("https://wrong-destination.example");
+		logoutRequest.getNameID().setValue("wrong-user");
+		sign(logoutRequest, registration);
+		Saml2LogoutRequest request = post(logoutRequest, registration);
+		Saml2LogoutRequestValidatorParameters parameters = new Saml2LogoutRequestValidatorParameters(request,
+				registration, authentication(registration));
+		Saml2LogoutValidatorResult result = this.manager.validate(parameters);
+		assertThat(result.getErrors()).extracting(Saml2Error::getErrorCode)
+			.containsExactly(Saml2ErrorCodes.INVALID_DESTINATION, Saml2ErrorCodes.INVALID_REQUEST);
 	}
 
 	@Test

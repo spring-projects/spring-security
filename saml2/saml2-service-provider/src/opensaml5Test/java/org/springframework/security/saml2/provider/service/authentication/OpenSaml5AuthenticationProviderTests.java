@@ -34,6 +34,7 @@ import javax.xml.namespace.QName;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.schema.XSDateTime;
@@ -181,6 +182,52 @@ public class OpenSaml5AuthenticationProviderTests {
 		assertThatExceptionOfType(Saml2AuthenticationException.class)
 			.isThrownBy(() -> this.provider.authenticate(token))
 			.satisfies(errorOf(Saml2ErrorCodes.INVALID_SIGNATURE));
+	}
+
+	@Test
+	public void authenticateWhenResponseSignatureInvalidThenSkipsResponseAndAssertionValidation() {
+		Response response = response();
+		response.setDestination(DESTINATION + "invalid");
+		Assertion assertion = assertion();
+		response.getAssertions().add(signed(assertion));
+		TestOpenSamlObjects.signed(response, TestSaml2X509Credentials.relyingPartyDecryptingCredential(),
+				RELYING_PARTY_ENTITY_ID);
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
+		Converter<ResponseToken, Saml2ResponseValidatorResult> responseValidator = mock(Converter.class);
+		Converter<OpenSaml5AuthenticationProvider.AssertionToken, Saml2ResponseValidatorResult> assertionValidator = mock(
+				Converter.class);
+		provider.setResponseValidator(responseValidator);
+		provider.setAssertionValidator(assertionValidator);
+		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		assertThatExceptionOfType(Saml2AuthenticationException.class).isThrownBy(() -> provider.authenticate(token))
+			.satisfies(errorOf(Saml2ErrorCodes.INVALID_SIGNATURE));
+		verifyNoInteractions(responseValidator, assertionValidator);
+	}
+
+	@Test
+	public void authenticateWhenAssertionSignatureInvalidThenSkipsThatAssertionValidationOnly() {
+		Response response = response();
+		Assertion bad = assertion();
+		bad.setID("bad-assertion");
+		TestOpenSamlObjects.signed(bad, TestSaml2X509Credentials.relyingPartyDecryptingCredential(),
+				RELYING_PARTY_ENTITY_ID);
+		response.getAssertions().add(bad);
+		Assertion good = assertion();
+		good.setID("good-assertion");
+		response.getAssertions().add(signed(good));
+		OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
+		Converter<OpenSaml5AuthenticationProvider.AssertionToken, Saml2ResponseValidatorResult> assertionValidator = mock(
+				Converter.class);
+		given(assertionValidator.convert(any(OpenSaml5AuthenticationProvider.AssertionToken.class)))
+			.willReturn(Saml2ResponseValidatorResult.success());
+		provider.setAssertionValidator(assertionValidator);
+		Saml2AuthenticationToken token = token(signed(response), verifying(registration()));
+		assertThatExceptionOfType(Saml2AuthenticationException.class).isThrownBy(() -> provider.authenticate(token))
+			.satisfies(errorOf(Saml2ErrorCodes.INVALID_SIGNATURE));
+		ArgumentCaptor<OpenSaml5AuthenticationProvider.AssertionToken> captor = ArgumentCaptor
+			.forClass(OpenSaml5AuthenticationProvider.AssertionToken.class);
+		verify(assertionValidator).convert(captor.capture());
+		assertThat(captor.getValue().getAssertion().getID()).isEqualTo("good-assertion");
 	}
 
 	@Test
@@ -512,7 +559,7 @@ public class OpenSaml5AuthenticationProviderTests {
 		EncryptedAssertion encryptedAssertion = TestOpenSamlObjects.encrypted(assertion(),
 				TestSaml2X509Credentials.assertingPartyEncryptingCredential());
 		response.getEncryptedAssertions().add(encryptedAssertion);
-		Saml2AuthenticationToken token = token(signed(response), registration()
+		Saml2AuthenticationToken token = token(signed(response), verifying(registration())
 			.decryptionX509Credentials((c) -> c.add(TestSaml2X509Credentials.assertingPartyPrivateCredential())));
 		assertThatExceptionOfType(Saml2AuthenticationException.class)
 			.isThrownBy(() -> this.provider.authenticate(token))

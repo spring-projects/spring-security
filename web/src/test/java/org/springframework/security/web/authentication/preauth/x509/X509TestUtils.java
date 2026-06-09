@@ -135,4 +135,88 @@ public final class X509TestUtils {
 		return (X509Certificate) cf.generateCertificate(in);
 	}
 
+	public static X509Certificate buildTestCertficateWithEmbeddedDn() throws Exception {
+		String cert = "-----BEGIN CERTIFICATE-----\n"
+				+ "MIIDDTCCAfWgAwIBAgIJANSyvk4gJhqPMA0GCSqGSIb3DQEBCwUAMEYxDTALBgNV\n"
+				+ "BAMMBGx1a2UxETAPBgNVBAsMCENOPWR1a2UsMRUwEwYDVQQKDAxFeGFtcGxlIENv\n"
+				+ "cnAxCzAJBgNVBAYTAlVTMB4XDTI2MDEwNDE5MjY0N1oXDTI3MDEwNTE5MjY0N1ow\n"
+				+ "RjENMAsGA1UEAwwEbHVrZTERMA8GA1UECwwIQ049ZHVrZSwxFTATBgNVBAoMDEV4\n"
+				+ "YW1wbGUgQ29ycDELMAkGA1UEBhMCVVMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAw\n"
+				+ "ggEKAoIBAQDU9fY74nEFbBKfIef7CK02J/BJb42sIF9kD8eHN5OvEwLQBeTh30it\n"
+				+ "E7LLalXyOXeUFkPe1N1ZhGdVak9udsIqULSvQaWqTbN+IrAGklZAxuXYTC1GbhMF\n"
+				+ "AkGWWM55J2SNqVGQaHzZUn6VPxWaDft6nZR0DxuvXMYM5kVG6VErdB3ygGUv8cjQ\n"
+				+ "QBKAYpsZeRldnauRPt2dImmGTagvSuJVyr8X/AioE2Rl0guii456AKw+QSvRiZ+g\n"
+				+ "w08Y8C9nDyzQmurqpdYYkp0X+4yqm1iVowMX+tSPvHnlqJdvVzaW2b0yRzrrT6ao\n"
+				+ "UCgw25slR1P1IcyzqPKWQIoQRnYIaX1bAgMBAAEwDQYJKoZIhvcNAQELBQADggEB\n"
+				+ "AIos+nr8DFM6bAt9AI/79O/12hcN7gVv4F3P4Vz6NRRkkvsb9WMN8fLLDEsEJ/BQ\n"
+				+ "eQkAVnhlmAe++vrqy8OTHoQ7F5C3K0zrr19NLNoyNFTkXkFgnm4ZhYinSbusuIb7\n"
+				+ "LPYoyCnEEiMdl0VMWWSWcOvZpipbvTtH3CiVxTqXLjFFNraEAyUN50kXjo/zuHpK\n"
+				+ "HzTS1BAu0li9GdV3Da2ELdDx90zaUym7dDIejY4YUlXYIJ5UUYS61fqtgOHGLLdb\n"
+				+ "UXGAr5gqEe7OrQ9D4ebg9w5ciTb7g1H2CmirjTf/rkii8AojmsGFKIfGVe3gY6EB\n" + "o9eF5FV9V9leo5yLo25ev08=\n"
+				+ "-----END CERTIFICATE-----";
+		ByteArrayInputStream in = new ByteArrayInputStream(cert.getBytes());
+		CertificateFactory cf = CertificateFactory.getInstance("X.509");
+		return (X509Certificate) cf.generateCertificate(in);
+	}
+
+	public static X509Certificate buildTestCertficateWithEmbeddedEmailDn() throws Exception {
+		String cert = "-----BEGIN CERTIFICATE-----\n"
+				+ "MIIDfDCCAmSgAwIBAgIIXHoOUFeZ29MwDQYJKoZIhvcNAQELBQAwfjEhMB8GCSqG\n"
+				+ "SIb3DQEJARYSbHVrZUBtb25rZXltYWNoaW5lMTUwMwYDVQQLDCxPSUQuMS4yLjg0\n"
+				+ "MC4xMTM1NDkuMS45LjE9ZHVrZUBnb3JpbGxhZ2FkZ2V0LDEVMBMGA1UECgwMRXhh\n"
+				+ "bXBsZSBDb3JwMQswCQYDVQQGEwJVUzAeFw0yNjAxMDQxOTMxMDhaFw0yNzAxMDUx\n"
+				+ "OTMxMDhaMH4xITAfBgkqhkiG9w0BCQEWEmx1a2VAbW9ua2V5bWFjaGluZTE1MDMG\n"
+				+ "A1UECwwsT0lELjEuMi44NDAuMTEzNTQ5LjEuOS4xPWR1a2VAZ29yaWxsYWdhZGdl\n"
+				+ "dCwxFTATBgNVBAoMDEV4YW1wbGUgQ29ycDELMAkGA1UEBhMCVVMwggEiMA0GCSqG\n"
+				+ "SIb3DQEBAQUAA4IBDwAwggEKAoIBAQDBuIQWnj+uvvG+4ZIyFMs4dSbiBavubCmC\n"
+				+ "hudrHr93hP19QbPulbHRTVCUqEi8efvq+J9jmMdPd7tziuDX02PeG9uljp9+c5Ir\n"
+				+ "pw9/oMoTRkF7K4PK1JxLN4tcgxjxVA4QkS+MjKLPeHrYyGCjKspcHbi+zBiQ9Xqp\n"
+				+ "yHWq6N5XPd6mEj2gh0zamnsJCeUCOX4SJbcp3MFtcYzhguHAeVhy9Jv+EAMJejDn\n"
+				+ "YIZmMUdP6Ykf2zTzs/4L3bRZb0oS5WvfeRdJB6SKg8mNO/jdGX87krSio//cRdDy\n"
+				+ "TGQK+YCVDf8GyLLavYZW56AJbZxL3MWgHYilQjj4p+Kw/PWpaBVvAgMBAAEwDQYJ\n"
+				+ "KoZIhvcNAQELBQADggEBAKVTMIo8JO0H0HRrpsEDP17E2pnfMJV4g70BwClUMMek\n"
+				+ "wNIWZn+6XPR8oObzzjnVWXjrovMkmmyFk0vWIpF68MPyiQ++5fwdzOZiQtUP177n\n"
+				+ "9ulAtLoIJld3olGeL9VsCZGp3J2PqiDe613zd+bkSUG1lQYC2awozWqJEdvwJJtf\n"
+				+ "j9nlhyMsARKEEu3tFGJsCHST3XhbhFKOraf/GZ21xW650R7ap0ZNaEiB16M2a5Oe\n"
+				+ "WXasgUukIo82Z8+yK4IITeCcr0aA1fJxwhU8J6qfYWloaoirSYj487HRnPPv3X/b\n"
+				+ "RxZynIjtGKygT6T1dRaWennmoitqfprJnEO2tlhLwP0=\n" + "-----END CERTIFICATE-----";
+		ByteArrayInputStream in = new ByteArrayInputStream(cert.getBytes());
+		CertificateFactory cf = CertificateFactory.getInstance("X.509");
+		return (X509Certificate) cf.generateCertificate(in);
+	}
+
+	/**
+	 * Builds an X.509 certificate whose subject contains more than one CN. The subject DN
+	 * is:
+	 *
+	 * <pre>
+	 *  CN=alice, CN=bob, O=Example Corp, C=US
+	 * </pre>
+	 *
+	 * where {@code CN=alice} is the most specific (left-most) RDN.
+	 */
+	public static X509Certificate buildTestCertificateWithMultipleCns() throws Exception {
+		String cert = "-----BEGIN CERTIFICATE-----\n"
+				+ "MIIDJzCCAg+gAwIBAgIIclOz1VulWC8wDQYJKoZIhvcNAQEMBQAwQjELMAkGA1UE\n"
+				+ "BhMCVVMxFTATBgNVBAoTDEV4YW1wbGUgQ29ycDEMMAoGA1UEAxMDYm9iMQ4wDAYD\n"
+				+ "VQQDEwVhbGljZTAeFw0yNjA2MDExOTQzMTVaFw0zNjA1MjkxOTQzMTVaMEIxCzAJ\n"
+				+ "BgNVBAYTAlVTMRUwEwYDVQQKEwxFeGFtcGxlIENvcnAxDDAKBgNVBAMTA2JvYjEO\n"
+				+ "MAwGA1UEAxMFYWxpY2UwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCX\n"
+				+ "q8hZrTRHJEN7+D6yK65OKeCTVU+WccI6awz6g4T6O3aoC+1IiUljsEYn+xuDfx5L\n"
+				+ "L/O1kejjmbYt+vzRmiILoJ9xKfW3ERcB4+gEar959Dkj6wmpsgOKRjmOvcOFOkEe\n"
+				+ "gU1F7t04JHOou3DaAkHMNMQV+3jsWSh9Rry7XZBDkcT8XbbagoCgSIIef03Qtw31\n"
+				+ "zOBwqmJmd6CQhFJva5cl8cCE2xZinOIiz/2j7VprZTjhkud2M4bRnK3T0WExyOCg\n"
+				+ "jvjSf5ZoOKwC2Z9Q/Oyf8WKpren1+GfZhAKKmn7QZ2foHhdPPRtNjRGE6SqQyW2u\n"
+				+ "8+1tOXl+aRCF19rR7gIpAgMBAAGjITAfMB0GA1UdDgQWBBRfLtnK5WKU0q3zxIrr\n"
+				+ "y3GD+lYplzANBgkqhkiG9w0BAQwFAAOCAQEAe+/FHqErVPsF/sHrVHny8mIsn3ux\n"
+				+ "qE9P24KNF0oIfmBrAqqge6hoVQ8PS+JialyqFf//osuDjiuYaBEKBw7GCoA6I8mr\n"
+				+ "FA7wyFaGosfq7An5vxkJl7lap2u5oSVv3dCy13Bs0ziYmNlTkfHDLy9yh7jpH1wg\n"
+				+ "TvylH9O4Vc7y9rzzpIjMCuQJ/wJ4MuJ2mSarYZsx3UQHIRfpKtR/9jbFMX1Rbv/A\n"
+				+ "N0XD+NrtFjiikp71y3aCO1EHnGG7qPKCWh3PzaNoWFpyZKDBvud8ymW7RMiLPgv9\n"
+				+ "eTa82KGgnCwtKCNzGkszIn7fza/6xnCuzvh4y9tYE5BWP2mcMRtRmDD07w==\n" + "-----END CERTIFICATE-----";
+		ByteArrayInputStream in = new ByteArrayInputStream(cert.getBytes());
+		CertificateFactory cf = CertificateFactory.getInstance("X.509");
+		return (X509Certificate) cf.generateCertificate(in);
+	}
+
 }

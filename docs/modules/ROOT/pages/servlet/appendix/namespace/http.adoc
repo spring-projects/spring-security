@@ -2212,6 +2212,10 @@ A `PreAuthenticatedAuthenticationProvider` will also be created which delegates 
 * **authentication-details-source-ref**
 A reference to an `AuthenticationDetailsSource`
 
+[[nsa-x509-principal-extractor-ref]]
+* **principal-extractor-ref**
+Reference to an `X509PrincipalExtractor` which will be used by the authentication filter.
+
 
 [[nsa-x509-subject-principal-regex]]
 * **subject-principal-regex**
@@ -2222,7 +2226,6 @@ Defines a regular expression which will be used to extract the username from the
 * **user-service-ref**
 Allows a specific `UserDetailsService` to be used with X.509 in the case where multiple instances are configured.
 If not set, an attempt will be made to locate a suitable instance automatically and use that.
-
 
 [[nsa-filter-chain-map]]
 == <filter-chain-map>
