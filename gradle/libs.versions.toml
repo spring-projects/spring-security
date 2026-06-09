@@ -1,6 +1,6 @@
 [versions]
 com-squareup-okhttp3 = "3.14.9"
-io-micrometer = "1.16.5"
+io-micrometer = "1.17.0"
 io-rsocket = "1.1.5"
 io-spring-javaformat = "0.0.47"
 io-spring-nohttp = "0.0.11"
