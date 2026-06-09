@@ -32,7 +32,7 @@ commons-collections = "commons-collections:commons-collections:3.2.2"
 io-micrometer-context-propagation = "io.micrometer:context-propagation:1.1.4"
 io-micrometer-micrometer-bom = { module = "io.micrometer:micrometer-bom", version.ref = "io-micrometer" }
 io-micrometer-micrometer-observation = { module = "io.micrometer:micrometer-observation", version.ref = "io-micrometer" }
-io-mockk = "io.mockk:mockk:1.14.7"
+io-mockk = "io.mockk:mockk:1.14.11"
 io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2024.0.18"
 io-rsocket-rsocket-bom = { module = "io.rsocket:rsocket-bom", version.ref = "io-rsocket" }
 io-spring-javaformat-spring-javaformat-checkstyle = { module = "io.spring.javaformat:spring-javaformat-checkstyle", version.ref = "io-spring-javaformat" }
