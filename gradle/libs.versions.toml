@@ -14,7 +14,7 @@ org-jetbrains-kotlin = "2.4.0"
 org-jetbrains-kotlinx = "1.11.0"
 org-mockito = "5.23.0"
 org-opensaml5 = "5.2.2"
-org-springframework = "7.0.7"
+org-springframework = "7.0.8"
 com-password4j = "1.8.4"
 
 [libraries]
