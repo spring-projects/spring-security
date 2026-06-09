@@ -148,6 +148,14 @@ tasks.register("opensaml5Test", Test) {
 	classpath = sourceSets.opensaml5Test.output + sourceSets.opensaml5Test.runtimeClasspath
 }
 
+tasks.register("bouncyCastleTest", Test) {
+	useJUnitPlatform()
+	testClassesDirs = sourceSets.test.output.classesDirs
+	classpath = sourceSets.test.runtimeClasspath
+	include "**/JdbcAssertingPartyMetadataRepositoryBouncyCastleTests.class"
+}
+
 tasks.named("test") {
-	dependsOn opensaml5Test
+	exclude "**/JdbcAssertingPartyMetadataRepositoryBouncyCastleTests.class"
+	dependsOn opensaml5Test, bouncyCastleTest
 }
