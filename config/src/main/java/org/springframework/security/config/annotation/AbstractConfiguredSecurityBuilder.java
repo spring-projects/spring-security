@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.ObjectPostProcessor;
@@ -51,6 +52,7 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  * @param <B> The type of this builder (that is returned by the base class)
  * @author Rob Winch
  * @author DingHao
+ * @author Andrey Litvitski
  * @see WebSecurity
  */
 public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBuilder<O>>
@@ -101,7 +103,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * @return the result of {@link SecurityBuilder#build()} or {@link #getObject()}. If
 	 * an error occurs while building, returns null.
 	 */
-	public O getOrBuild() {
+	public @Nullable O getOrBuild() {
 		if (!isUnbuilt()) {
 			return getObject();
 		}
@@ -182,7 +184,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * @return the shared Object or null if it is not found
 	 */
 	@SuppressWarnings("unchecked")
-	public <C> C getSharedObject(Class<C> sharedType) {
+	public <C> @Nullable C getSharedObject(Class<C> sharedType) {
 		return (C) this.sharedObjects.get(sharedType);
 	}
 
@@ -276,7 +278,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public <C extends SecurityConfigurer<O, B>> C removeConfigurer(Class<C> clazz) {
+	public <C extends SecurityConfigurer<O, B>> @Nullable C removeConfigurer(Class<C> clazz) {
 		List<SecurityConfigurer<O, B>> configs = this.configurers.remove(clazz);
 		if (configs == null) {
 			return null;
