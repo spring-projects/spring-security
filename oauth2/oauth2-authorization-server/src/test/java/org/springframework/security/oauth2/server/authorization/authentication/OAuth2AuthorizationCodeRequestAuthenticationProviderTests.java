@@ -311,7 +311,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 		assertThatExceptionOfType(OAuth2AuthorizationCodeRequestAuthenticationException.class)
 			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
 			.satisfies((ex) -> assertAuthenticationException(ex, OAuth2ErrorCodes.UNAUTHORIZED_CLIENT,
-					OAuth2ParameterNames.CLIENT_ID, authentication.getRedirectUri()));
+					OAuth2ParameterNames.CLIENT_ID, null));
 	}
 
 	@Test

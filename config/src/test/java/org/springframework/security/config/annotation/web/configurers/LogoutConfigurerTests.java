@@ -35,6 +35,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -122,6 +123,17 @@ public class LogoutConfigurerTests {
 		MockHttpServletRequestBuilder logoutRequest = post("/custom/logout").with(csrf());
 		// @formatter:off
 		this.mvc.perform(logoutRequest)
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
+	}
+
+	// gh-19128
+	@Test
+	public void logoutWhenBuilderBeanWithBasePathThenLogoutUrlIgnoresBasePath() throws Exception {
+		this.spring.register(LogoutBuilderBeanConfig.class).autowire();
+		// @formatter:off
+		this.mvc.perform(post("/logout").with(csrf()))
 				.andExpect(status().isFound())
 				.andExpect(redirectedUrl("/login?logout"));
 		// @formatter:on
@@ -520,6 +532,29 @@ public class LogoutConfigurerTests {
 		@Bean
 		UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
+		}
+
+	}
+
+	// gh-19128
+	@Configuration
+	@EnableWebSecurity
+	static class LogoutBuilderBeanConfig {
+
+		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder() {
+			PathPatternRequestMatcherBuilderFactoryBean bean = new PathPatternRequestMatcherBuilderFactoryBean();
+			bean.setBasePath("/spring");
+			return bean;
+		}
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.logout(withDefaults());
+			// @formatter:on
+			return http.build();
 		}
 
 	}

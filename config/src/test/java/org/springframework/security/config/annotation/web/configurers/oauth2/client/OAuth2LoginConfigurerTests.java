@@ -56,6 +56,7 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.cli
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.context.DelegatingApplicationListener;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -440,6 +441,18 @@ public class OAuth2LoginConfigurerTests {
 		then(redirectStrategy).should().sendRedirect(any(), any(), anyString());
 	}
 
+	// gh-19128
+	@Test
+	public void oauth2LoginWhenBuilderBeanWithBasePathThenLoginProcessingUrlIgnoresBasePath() throws Exception {
+		loadConfig(OAuth2LoginBuilderBeanConfig.class);
+		String requestUri = "/login/oauth2/code/google";
+		this.request = get(requestUri).build();
+		this.request.setParameter("code", "code123");
+		this.request.setParameter("state", "state123");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+		assertThat(this.response.getRedirectedUrl()).endsWith("/login?error");
+	}
+
 	// gh-5347
 	@Test
 	public void oauth2LoginWithOneClientConfiguredThenRedirectForAuthorization() throws Exception {
@@ -784,6 +797,31 @@ public class OAuth2LoginConfigurerTests {
 		@Override
 		public void onApplicationEvent(AuthenticationSuccessEvent event) {
 			EVENTS.add(event);
+		}
+
+	}
+
+	// gh-19128
+	@Configuration
+	@EnableWebSecurity
+	static class OAuth2LoginBuilderBeanConfig extends CommonSecurityFilterChainConfig {
+
+		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder() {
+			PathPatternRequestMatcherBuilderFactoryBean bean = new PathPatternRequestMatcherBuilderFactoryBean();
+			bean.setBasePath("/spring");
+			return bean;
+		}
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.oauth2Login((login) -> login
+					.clientRegistrationRepository(
+						new InMemoryClientRegistrationRepository(GOOGLE_CLIENT_REGISTRATION)));
+			// @formatter:on
+			return super.configureFilterChain(http);
 		}
 
 	}

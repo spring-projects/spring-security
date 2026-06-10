@@ -642,6 +642,8 @@ This is because Spring Security requires all URIs to be absolute (minus the cont
 There are several other components that create request matchers for you like {spring-boot-api-url}org/springframework/boot/security/autoconfigure/web/servlet/PathRequest.html[`PathRequest#toStaticResources#atCommonLocations`]
 =====
 
+If most of your authorization rules sit under the same servlet path, you can xref:servlet/integrations/mvc.adoc#mvc-requestmatcher[publish a `PathPatternRequestMatcher.Builder` bean] with that base path; Spring Security then applies it to the string overloads of `authorizeHttpRequests((authorize) -> authorize.requestMatchers(...))`, `HttpSecurity#securityMatcher(...)` / `#securityMatchers(...)`, and `WebSecurityCustomizer#ignoring().requestMatchers(...)`.
+
 [[match-by-custom]]
 === Using a Custom Matcher
 

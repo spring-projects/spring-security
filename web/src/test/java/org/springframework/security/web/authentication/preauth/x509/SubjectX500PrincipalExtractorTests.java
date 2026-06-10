@@ -60,6 +60,14 @@ public class SubjectX500PrincipalExtractorTests {
 		assertThat(principal).isEqualTo("luke");
 	}
 
+	// gh-19254
+	@Test
+	void extractWhenMultipleCnsThenExtractsMostSpecificCn() throws Exception {
+		Object principal = this.extractor.extractPrincipal(X509TestUtils.buildTestCertificateWithMultipleCns());
+
+		assertThat(principal).isEqualTo("alice");
+	}
+
 	@Test
 	void extractWhenEmailDnEmbeddedInCnThenExtractsEmail() throws Exception {
 		this.extractor.setExtractPrincipalNameFromEmail(true);

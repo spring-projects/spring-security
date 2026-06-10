@@ -49,6 +49,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.saml2.core.Saml2Utils;
@@ -194,6 +195,17 @@ public class Saml2LogoutConfigurerTests {
 		LogoutHandler logoutHandler = this.spring.getContext().getBean(LogoutHandler.class);
 		assertThat(location).startsWith("https://ap.example.org/logout/saml2/request");
 		verify(logoutHandler).logout(any(), any(), any());
+	}
+
+	// gh-19128
+	@Test
+	public void saml2LogoutWhenBuilderBeanWithBasePathThenLogoutUrlIgnoresBasePath() throws Exception {
+		this.spring.register(Saml2LogoutBuilderBeanConfig.class).autowire();
+		MvcResult result = this.mvc.perform(post("/logout").with(authentication(this.user)).with(csrf()))
+			.andExpect(status().isFound())
+			.andReturn();
+		String location = result.getResponse().getHeader("Location");
+		assertThat(location).startsWith("https://ap.example.org/logout/saml2/request");
 	}
 
 	@Test
@@ -575,6 +587,32 @@ public class Saml2LogoutConfigurerTests {
 		@Bean
 		LogoutHandler logoutHandler() {
 			return this.mockLogoutHandler;
+		}
+
+	}
+
+	// gh-19128
+	@Configuration
+	@EnableWebSecurity
+	@Import(Saml2LoginConfigBeans.class)
+	static class Saml2LogoutBuilderBeanConfig {
+
+		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder() {
+			PathPatternRequestMatcherBuilderFactoryBean bean = new PathPatternRequestMatcherBuilderFactoryBean();
+			bean.setBasePath("/spring");
+			return bean;
+		}
+
+		@Bean
+		SecurityFilterChain web(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+				.saml2Login(withDefaults())
+				.saml2Logout(withDefaults());
+			// @formatter:on
+			return http.build();
 		}
 
 	}
