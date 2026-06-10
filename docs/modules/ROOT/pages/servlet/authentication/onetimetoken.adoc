@@ -89,7 +89,7 @@ public class MagicLinkOneTimeTokenGenerationSuccessHandler implements OneTimeTok
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, OneTimeToken oneTimeToken) throws IOException, ServletException {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(request.getRequestURL().toString())
                 .replacePath(request.getContextPath())
                 .replaceQuery(null)
                 .fragment(null)
@@ -147,7 +147,7 @@ class MagicLinkOneTimeTokenGenerationSuccessHandler(
 ) : OneTimeTokenGenerationSuccessHandler {
 
     override fun handle(request: HttpServletRequest, response: HttpServletResponse, oneTimeToken: OneTimeToken) {
-        val builder = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
+        val builder = UriComponentsBuilder.fromUriString(request.getRequestURL().toString())
             .replacePath(request.contextPath)
             .replaceQuery(null)
             .fragment(null)
@@ -211,7 +211,7 @@ public class SecurityConfig {
             // ...
             .formLogin(Customizer.withDefaults())
             .oneTimeTokenLogin((ott) -> ott
-                .generateTokenUrl("/ott/my-generate-url")
+                .tokenGeneratingUrl("/ott/my-generate-url")
             );
         return http.build();
     }
@@ -238,7 +238,7 @@ class SecurityConfig {
                 //...
                 formLogin { }
                 oneTimeTokenLogin {
-                    generateTokenUrl = "/ott/my-generate-url"
+                    tokenGeneratingUrl = "/ott/my-generate-url"
                 }
             }
             return http.build()
@@ -282,7 +282,7 @@ public class SecurityConfig {
             // ...
             .formLogin(Customizer.withDefaults())
             .oneTimeTokenLogin((ott) -> ott
-                .submitPageUrl("/ott/submit")
+                .defaultSubmitPageUrl("/ott/submit")
             );
         return http.build();
     }
@@ -309,7 +309,7 @@ class SecurityConfig {
                 //...
                 formLogin { }
                 oneTimeTokenLogin {
-                    submitPageUrl = "/ott/submit"
+                    defaultSubmitPageUrl = "/ott/submit"
                 }
             }
             return http.build()
