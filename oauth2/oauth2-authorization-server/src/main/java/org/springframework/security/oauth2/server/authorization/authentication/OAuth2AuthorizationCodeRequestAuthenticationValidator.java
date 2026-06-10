@@ -298,8 +298,10 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationValidator
 		String redirectUri = StringUtils.hasText(authorizationCodeRequestAuthentication.getRedirectUri())
 				? authorizationCodeRequestAuthentication.getRedirectUri()
 				: registeredClient.getRedirectUris().iterator().next();
-		if (error.getErrorCode().equals(OAuth2ErrorCodes.INVALID_REQUEST)
-				&& parameterName.equals(OAuth2ParameterNames.REDIRECT_URI)) {
+		if ((error.getErrorCode().equals(OAuth2ErrorCodes.INVALID_REQUEST)
+				|| error.getErrorCode().equals(OAuth2ErrorCodes.UNAUTHORIZED_CLIENT))
+				&& (parameterName.equals(OAuth2ParameterNames.CLIENT_ID)
+						|| parameterName.equals(OAuth2ParameterNames.REDIRECT_URI))) {
 			redirectUri = null; // Prevent redirects
 		}
 

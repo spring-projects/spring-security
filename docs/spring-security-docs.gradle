@@ -12,6 +12,10 @@ plugins {
 apply plugin: 'io.spring.convention.docs'
 apply plugin: 'java'
 
+node {
+	version = "24.15.0"
+}
+
 antora {
 	options = [clean: true, fetch: !project.gradle.startParameter.offline, stacktrace: true]
 	environment = [
