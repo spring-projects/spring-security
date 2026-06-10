@@ -35,6 +35,7 @@ import org.springframework.util.Assert;
  * .
  *
  * @author Kazuki Shimizu
+ * @author Andrey Litvitski
  * @since 4.0
  */
 public class DelegatingAuthenticationFailureHandler implements AuthenticationFailureHandler {
@@ -52,13 +53,36 @@ public class DelegatingAuthenticationFailureHandler implements AuthenticationFai
 	 * @param defaultHandler the default {@link AuthenticationFailureHandler} that should
 	 * be used if none of the handlers matches. This parameter cannot specify null.
 	 * @throws IllegalArgumentException if invalid argument is specified
+	 * @deprecated Use
+	 * {@link #DelegatingAuthenticationFailureHandler(Map, AuthenticationFailureHandler)}
+	 * instead.
 	 */
+	@Deprecated(since = "7.0.6")
 	public DelegatingAuthenticationFailureHandler(
 			LinkedHashMap<Class<? extends AuthenticationException>, AuthenticationFailureHandler> handlers,
 			AuthenticationFailureHandler defaultHandler) {
 		Assert.notEmpty(handlers, "handlers cannot be null or empty");
 		Assert.notNull(defaultHandler, "defaultHandler cannot be null");
 		this.handlers = handlers;
+		this.defaultHandler = defaultHandler;
+	}
+
+	/**
+	 * Creates a new instance
+	 * @param handlers a map of the {@link AuthenticationException} class to the
+	 * {@link AuthenticationFailureHandler} that should be used. Each is considered in the
+	 * order they are specified and only the first {@link AuthenticationFailureHandler} is
+	 * ued. This parameter cannot specify null or empty.
+	 * @param defaultHandler the default {@link AuthenticationFailureHandler} that should
+	 * be used if none of the handlers matches. This parameter cannot specify null.
+	 * @throws IllegalArgumentException if invalid argument is specified
+	 */
+	public DelegatingAuthenticationFailureHandler(
+			Map<Class<? extends AuthenticationException>, AuthenticationFailureHandler> handlers,
+			AuthenticationFailureHandler defaultHandler) {
+		Assert.notEmpty(handlers, "handlers cannot be null or empty");
+		Assert.notNull(defaultHandler, "defaultHandler cannot be null");
+		this.handlers = new LinkedHashMap<>(handlers);
 		this.defaultHandler = defaultHandler;
 	}
 
