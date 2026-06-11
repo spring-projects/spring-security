@@ -21,6 +21,8 @@ import java.util.function.Supplier;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.aop.Pointcut;
@@ -43,6 +45,8 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
  * @since 5.6
  */
 public final class PostFilterAuthorizationMethodInterceptor implements AuthorizationAdvisor {
+
+	private final Log logger = LogFactory.getLog(getClass());
 
 	private Supplier<SecurityContextHolderStrategy> securityContextHolderStrategy = SecurityContextHolder::getContextHolderStrategy;
 
@@ -132,6 +136,10 @@ public final class PostFilterAuthorizationMethodInterceptor implements Authoriza
 		ExpressionAttribute attribute = this.registry.getAttribute(mi);
 		if (attribute == null) {
 			return returnedObject;
+		}
+		if (returnedObject == null) {
+			this.logger.debug("Returned object is null, filtering will be skipped");
+			return null;
 		}
 		MethodSecurityExpressionHandler expressionHandler = this.registry.getExpressionHandler();
 		EvaluationContext ctx = expressionHandler.createEvaluationContext(this::getAuthentication, mi);
