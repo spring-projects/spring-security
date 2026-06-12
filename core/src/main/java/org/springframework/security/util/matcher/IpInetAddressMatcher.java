@@ -89,6 +89,9 @@ final class IpInetAddressMatcher implements InetAddressMatcher {
 		if (toCheck == null) {
 			return false;
 		}
+		if (!this.requiredAddress.getClass().equals(toCheck.getClass())) {
+			return false;
+		}
 		if (this.nMaskBits < 0) {
 			return toCheck.equals(this.requiredAddress);
 		}
