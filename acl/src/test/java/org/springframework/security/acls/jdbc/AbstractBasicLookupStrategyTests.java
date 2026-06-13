@@ -46,6 +46,7 @@ import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.domain.SpringCacheBasedAclCache;
+import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.AuditableAccessControlEntry;
 import org.springframework.security.acls.model.MutableAcl;
@@ -318,6 +319,21 @@ public abstract class AbstractBasicLookupStrategyTests {
 		Sid result = this.strategy.createSid(false, "sid");
 		assertThat(result.getClass()).isEqualTo(GrantedAuthoritySid.class);
 		assertThat(((GrantedAuthoritySid) result).getGrantedAuthority()).isEqualTo("sid");
+	}
+
+	// gh-19127
+	@Test
+	public void readAclsByIdWhenChildLoadedThenAcesPointToConvertedAcl() {
+		ObjectIdentity topParentOid = new ObjectIdentityImpl(TARGET_CLASS, 100L);
+		ObjectIdentity middleParentOid = new ObjectIdentityImpl(TARGET_CLASS, 101L);
+		ObjectIdentity childOid = new ObjectIdentityImpl(TARGET_CLASS, 102L);
+		Map<ObjectIdentity, Acl> map = this.strategy
+			.readAclsById(Arrays.asList(topParentOid, middleParentOid, childOid), null);
+		for (Acl acl : map.values()) {
+			for (AccessControlEntry ace : acl.getEntries()) {
+				assertThat(ace.getAcl()).isSameAs(acl);
+			}
+		}
 	}
 
 	@Test
