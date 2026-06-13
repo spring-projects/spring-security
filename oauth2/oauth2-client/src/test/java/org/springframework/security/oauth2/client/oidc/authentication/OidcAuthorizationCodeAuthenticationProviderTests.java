@@ -32,8 +32,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
 
+import org.springframework.security.authentication.SecurityAssertions;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
@@ -56,6 +59,7 @@ import org.springframework.security.oauth2.core.endpoint.TestOAuth2Authorization
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.oidc.user.TestOidcUsers;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
@@ -275,7 +279,7 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		assertThat(authentication.isAuthenticated()).isTrue();
 		assertThat(authentication.getPrincipal()).isEqualTo(principal);
 		assertThat(authentication.getCredentials()).isEqualTo("");
-		assertThat(authentication.getAuthorities()).isEqualTo(authorities);
+		assertThat(authentication.getAuthorities()).containsAll(authorities);
 		assertThat(authentication.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authentication.getAuthorizationExchange()).isEqualTo(this.authorizationExchange);
 		assertThat(authentication.getAccessToken()).isEqualTo(this.accessTokenResponse.getAccessToken());
@@ -302,7 +306,23 @@ public class OidcAuthorizationCodeAuthenticationProviderTests {
 		this.authenticationProvider.setAuthoritiesMapper(authoritiesMapper);
 		OAuth2LoginAuthenticationToken authentication = (OAuth2LoginAuthenticationToken) this.authenticationProvider
 			.authenticate(new OAuth2LoginAuthenticationToken(this.clientRegistration, this.authorizationExchange));
-		assertThat(authentication.getAuthorities()).isEqualTo(mappedAuthorities);
+		SecurityAssertions.assertThat(authentication).authorities().containsAll(mappedAuthorities);
+	}
+
+	@Test
+	public void authenticateWhenLoginSuccessThenIssuesFactor() {
+		Map<String, Object> claims = new HashMap<>();
+		claims.put(IdTokenClaimNames.ISS, "https://provider.com");
+		claims.put(IdTokenClaimNames.SUB, "subject1");
+		claims.put(IdTokenClaimNames.AUD, Arrays.asList("client1", "client2"));
+		claims.put(IdTokenClaimNames.AZP, "client1");
+		claims.put(IdTokenClaimNames.NONCE, this.nonceHash);
+		this.setUpIdToken(claims);
+		given(this.userService.loadUser(any())).willReturn(TestOidcUsers.create());
+		Authentication request = new OAuth2LoginAuthenticationToken(this.clientRegistration,
+				this.authorizationExchange);
+		Authentication result = this.authenticationProvider.authenticate(request);
+		SecurityAssertions.assertThat(result).hasAuthority(FactorGrantedAuthority.AUTHORIZATION_CODE_AUTHORITY);
 	}
 
 	// gh-5368
