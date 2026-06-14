@@ -28,7 +28,9 @@ import org.springframework.security.web.util.matcher.IpAddressMatcher;
 /**
  * @author Steve Riesenberg
  * @since 7.0
+ * @deprecated in favor of {@link WebSecurityExpressionRoot}
  */
+@Deprecated(since = "7.0.0")
 final class FilterInvocationExpressionRoot extends SecurityExpressionRoot<FilterInvocation> {
 
 	/**
