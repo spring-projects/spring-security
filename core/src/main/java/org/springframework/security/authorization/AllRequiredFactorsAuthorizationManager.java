@@ -46,7 +46,8 @@ import org.springframework.util.Assert;
  * @since 7.0
  * @see AuthorityAuthorizationManager
  */
-public final class AllRequiredFactorsAuthorizationManager<T> implements AuthorizationManager<T> {
+public final class AllRequiredFactorsAuthorizationManager<T extends @Nullable Object>
+		implements AuthorizationManager<T> {
 
 	private Clock clock = Clock.systemUTC();
 
@@ -64,7 +65,8 @@ public final class AllRequiredFactorsAuthorizationManager<T> implements Authoriz
 	 * @see AuthorizationManagers#anyOf(AuthorizationManager[])
 	 */
 	@SafeVarargs
-	public static <T> AuthorizationManager<T> anyOf(AllRequiredFactorsAuthorizationManager<T>... managers) {
+	public static <T extends @Nullable Object> AuthorizationManager<T> anyOf(
+			AllRequiredFactorsAuthorizationManager<T>... managers) {
 		Assert.notEmpty(managers, "managers cannot be empty");
 		Assert.noNullElements(managers, "managers cannot contain null elements");
 		if (managers.length == 1) {
@@ -170,7 +172,7 @@ public final class AllRequiredFactorsAuthorizationManager<T> implements Authoriz
 	 * Creates a new {@link Builder}
 	 * @return
 	 */
-	public static <T> Builder<T> builder() {
+	public static <T extends @Nullable Object> Builder<T> builder() {
 		return new Builder<>();
 	}
 
@@ -181,7 +183,8 @@ public final class AllRequiredFactorsAuthorizationManager<T> implements Authoriz
 	 *
 	 * @param <T> the type of object being authorized
 	 */
-	private static final class AnyOfFactorsAuthorizationManager<T> implements AuthorizationManager<T> {
+	private static final class AnyOfFactorsAuthorizationManager<T extends @Nullable Object>
+			implements AuthorizationManager<T> {
 
 		private final AllRequiredFactorsAuthorizationManager<T>[] managers;
 
@@ -212,7 +215,7 @@ public final class AllRequiredFactorsAuthorizationManager<T> implements Authoriz
 	 * @author Rob Winch
 	 * @since 7.0
 	 */
-	public static final class Builder<T> {
+	public static final class Builder<T extends @Nullable Object> {
 
 		private List<RequiredFactor> requiredFactors = new ArrayList<>();
 
