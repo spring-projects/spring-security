@@ -65,7 +65,10 @@ public final class OAuth2TokenExchangeAuthenticationConverter implements Authent
 
 	private static final String JWT_TOKEN_TYPE_VALUE = "urn:ietf:params:oauth:token-type:jwt";
 
-	private static final Set<String> SUPPORTED_TOKEN_TYPES = Set.of(ACCESS_TOKEN_TYPE_VALUE, JWT_TOKEN_TYPE_VALUE);
+	private static final String ID_TOKEN_TYPE_VALUE = "urn:ietf:params:oauth:token-type:id_token";
+
+	private static final Set<String> SUPPORTED_TOKEN_TYPES = Set.of(ACCESS_TOKEN_TYPE_VALUE, JWT_TOKEN_TYPE_VALUE,
+			ID_TOKEN_TYPE_VALUE);
 
 	@Override
 	public @Nullable Authentication convert(HttpServletRequest request) {
@@ -202,8 +205,8 @@ public final class OAuth2TokenExchangeAuthenticationConverter implements Authent
 			String message = String.format(
 					"OAuth 2.0 Token Exchange parameter: %s - " +
 					"The provided value is not supported by this authorization server. " +
-					"Supported values are %s and %s.",
-					parameterName, ACCESS_TOKEN_TYPE_VALUE, JWT_TOKEN_TYPE_VALUE);
+					"Supported values are %s, %s and %s.",
+					parameterName, ACCESS_TOKEN_TYPE_VALUE, JWT_TOKEN_TYPE_VALUE, ID_TOKEN_TYPE_VALUE);
 			// @formatter:on
 			throw new OAuth2AuthenticationException(error, message);
 		}
