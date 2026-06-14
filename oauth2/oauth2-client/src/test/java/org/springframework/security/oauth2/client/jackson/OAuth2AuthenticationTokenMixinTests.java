@@ -16,11 +16,14 @@
 
 package org.springframework.security.oauth2.client.jackson;
 
+import java.net.URL;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.datatype.jsr310.DecimalUtils;
@@ -169,6 +172,33 @@ public class OAuth2AuthenticationTokenMixinTests {
 		assertThat(idToken.getExpiresAt()).isEqualTo(expectedIdToken.getExpiresAt());
 		assertThat(idToken.getClaims()).containsExactlyEntriesOf(expectedIdToken.getClaims());
 		assertThat(principal.getUserInfo()).isNull();
+	}
+
+	@Test
+	public void deserializeWhenClaimsContainUrlAndInstantThenDeserializes() throws Exception {
+		Map<String, Object> claims = new HashMap<>();
+		Instant issuedAt = Instant.now();
+		Instant expiresAt = issuedAt.plusSeconds(3600);
+		claims.put(IdTokenClaimNames.ISS, new URL("http://localhost/issuer"));
+		claims.put(IdTokenClaimNames.SUB, "subject");
+		claims.put(IdTokenClaimNames.IAT, issuedAt);
+		claims.put(IdTokenClaimNames.EXP, expiresAt);
+
+		OidcIdToken idToken = new OidcIdToken("id-token", issuedAt, expiresAt, claims);
+		Collection<GrantedAuthority> authorities =
+				Collections.singleton(new OidcUserAuthority(idToken));
+		DefaultOidcUser principal = new DefaultOidcUser(authorities, idToken);
+		OAuth2AuthenticationToken authentication =
+				new OAuth2AuthenticationToken(principal, authorities, "registration-id");
+
+		String json = this.mapper.writeValueAsString(authentication);
+		OAuth2AuthenticationToken deserialized =
+				this.mapper.readValue(json, OAuth2AuthenticationToken.class);
+
+		assertThat(deserialized).isNotNull();
+		DefaultOidcUser deserializedUser = (DefaultOidcUser) deserialized.getPrincipal();
+		assertThat(deserializedUser.getIdToken().getClaims())
+				.containsKey(IdTokenClaimNames.ISS);
 	}
 
 	private static String asJson(OAuth2AuthenticationToken authentication) {
