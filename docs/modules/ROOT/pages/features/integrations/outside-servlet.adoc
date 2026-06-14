@@ -1,0 +1,33 @@
+[[outside-servlet]]
+= Using Spring Security Outside a Servlet Request
+
+Outside the servlet filter chain, Spring Security does not automatically establish a
+`SecurityContext` for the current execution.
+If secured code needs an `Authentication` in these environments, the application can
+establish and clear a `SecurityContext` explicitly.
+
+For example, one possible pattern is:
+
+[source,java]
+----
+SecurityContext context = SecurityContextHolder.createEmptyContext();
+context.setAuthentication(authentication); // <1>
+SecurityContextHolder.setContext(context);
+try {
+    // invoke secured service
+} finally {
+    SecurityContextHolder.clearContext();
+}
+----
+<1> How the `Authentication` is created depends on the application.
+For example, it may come from an application-specific authentication flow
+or another authentication mechanism.
+
+The same general pattern can apply to scheduled jobs, command-line runners, and message handlers,
+depending on how the application authenticates the work being performed.
+
+For propagating the `SecurityContext` across thread boundaries, see
+xref:features/integrations/concurrency.adoc[Java's Concurrency APIs].
+
+For Spring Security test support, including annotations such as `@WithMockUser`,
+see xref:servlet/test/method.adoc[Testing Method Security].
