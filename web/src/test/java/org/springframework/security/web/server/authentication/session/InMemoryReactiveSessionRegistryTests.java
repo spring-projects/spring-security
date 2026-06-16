@@ -117,35 +117,38 @@ class InMemoryReactiveSessionRegistryTests {
 		ExecutorService executor = Executors.newFixedThreadPool(2);
 		try {
 			for (int i = 0; i < 1000; i++) {
-				String existing = "existing-" + i;
-				String added = "added-" + i;
-				this.sessionRegistry
-					.saveSessionInformation(new ReactiveSessionInformation(principal, existing, this.now))
-					.block();
-				CountDownLatch start = new CountDownLatch(1);
-				Future<?> remove = executor.submit(() -> {
-					awaitUninterruptibly(start);
-					this.sessionRegistry.removeSessionInformation(existing).block();
-				});
-				Future<?> save = executor.submit(() -> {
-					awaitUninterruptibly(start);
-					this.sessionRegistry
-						.saveSessionInformation(new ReactiveSessionInformation(principal, added, this.now))
-						.block();
-				});
-				start.countDown();
-				remove.get();
-				save.get();
-				List<ReactiveSessionInformation> sessions = this.sessionRegistry.getAllSessions(principal)
-					.collectList()
-					.block();
-				assertThat(sessions).extracting(ReactiveSessionInformation::getSessionId).contains(added);
-				this.sessionRegistry.removeSessionInformation(added).block();
+				assertAddedSessionSurvivesConcurrentSaveAndRemove(principal, "existing-" + i, "added-" + i, executor);
 			}
 		}
 		finally {
 			executor.shutdownNow();
 		}
+	}
+
+	// Runs one concurrent save/remove race for the principal and asserts the
+	// concurrently added session is not lost.
+	private void assertAddedSessionSurvivesConcurrentSaveAndRemove(Object principal, String existing, String added,
+			ExecutorService executor) throws Exception {
+		this.sessionRegistry.saveSessionInformation(new ReactiveSessionInformation(principal, existing, this.now))
+			.block();
+		CountDownLatch start = new CountDownLatch(1);
+		Future<?> remove = executor.submit(() -> {
+			awaitUninterruptibly(start);
+			this.sessionRegistry.removeSessionInformation(existing).block();
+		});
+		Future<?> save = executor.submit(() -> {
+			awaitUninterruptibly(start);
+			this.sessionRegistry.saveSessionInformation(new ReactiveSessionInformation(principal, added, this.now))
+				.block();
+		});
+		start.countDown();
+		remove.get();
+		save.get();
+		List<ReactiveSessionInformation> sessions = this.sessionRegistry.getAllSessions(principal)
+			.collectList()
+			.block();
+		assertThat(sessions).extracting(ReactiveSessionInformation::getSessionId).contains(added);
+		this.sessionRegistry.removeSessionInformation(added).block();
 	}
 
 	private static void awaitUninterruptibly(CountDownLatch latch) {
