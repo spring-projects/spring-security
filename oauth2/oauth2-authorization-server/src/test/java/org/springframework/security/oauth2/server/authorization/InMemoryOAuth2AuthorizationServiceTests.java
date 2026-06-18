@@ -25,7 +25,9 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2DeviceCode;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
+import org.springframework.security.oauth2.core.OAuth2UserCode;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
@@ -59,6 +61,10 @@ public class InMemoryOAuth2AuthorizationServiceTests {
 	private static final OAuth2TokenType STATE_TOKEN_TYPE = new OAuth2TokenType(OAuth2ParameterNames.STATE);
 
 	private static final OAuth2TokenType ID_TOKEN_TOKEN_TYPE = new OAuth2TokenType(OidcParameterNames.ID_TOKEN);
+
+	private static final OAuth2TokenType DEVICE_CODE_TOKEN_TYPE = new OAuth2TokenType(OAuth2ParameterNames.DEVICE_CODE);
+
+	private static final OAuth2TokenType USER_CODE_TOKEN_TYPE = new OAuth2TokenType(OAuth2ParameterNames.USER_CODE);
 
 	private InMemoryOAuth2AuthorizationService authorizationService;
 
@@ -310,6 +316,44 @@ public class InMemoryOAuth2AuthorizationServiceTests {
 				OAuth2TokenType.REFRESH_TOKEN);
 		assertThat(authorization).isEqualTo(result);
 		result = this.authorizationService.findByToken(refreshToken.getTokenValue(), null);
+		assertThat(authorization).isEqualTo(result);
+	}
+
+	@Test
+	public void findByTokenWhenDeviceCodeExistsThenFound() {
+		OAuth2DeviceCode deviceCode = new OAuth2DeviceCode("device-code", Instant.now(),
+				Instant.now().plus(5, ChronoUnit.MINUTES));
+		OAuth2Authorization authorization = OAuth2Authorization.withRegisteredClient(REGISTERED_CLIENT)
+			.id(ID)
+			.principalName(PRINCIPAL_NAME)
+			.authorizationGrantType(AUTHORIZATION_GRANT_TYPE)
+			.token(deviceCode)
+			.build();
+		this.authorizationService.save(authorization);
+
+		OAuth2Authorization result = this.authorizationService.findByToken(deviceCode.getTokenValue(),
+				DEVICE_CODE_TOKEN_TYPE);
+		assertThat(authorization).isEqualTo(result);
+		result = this.authorizationService.findByToken(deviceCode.getTokenValue(), null);
+		assertThat(authorization).isEqualTo(result);
+	}
+
+	@Test
+	public void findByTokenWhenUserCodeExistsThenFound() {
+		OAuth2UserCode userCode = new OAuth2UserCode("user-code", Instant.now(),
+				Instant.now().plus(5, ChronoUnit.MINUTES));
+		OAuth2Authorization authorization = OAuth2Authorization.withRegisteredClient(REGISTERED_CLIENT)
+			.id(ID)
+			.principalName(PRINCIPAL_NAME)
+			.authorizationGrantType(AUTHORIZATION_GRANT_TYPE)
+			.token(userCode)
+			.build();
+		this.authorizationService.save(authorization);
+
+		OAuth2Authorization result = this.authorizationService.findByToken(userCode.getTokenValue(),
+				USER_CODE_TOKEN_TYPE);
+		assertThat(authorization).isEqualTo(result);
+		result = this.authorizationService.findByToken(userCode.getTokenValue(), null);
 		assertThat(authorization).isEqualTo(result);
 	}
 
