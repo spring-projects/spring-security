@@ -55,6 +55,14 @@ public class JwtClaimValidatorTests {
 	}
 
 	@Test
+	public void validateWhenClaimIsMissingAndTestAcceptsNullThenReturnsSuccess() {
+		JwtClaimValidator<String> validator = new JwtClaimValidator<>("loa", Objects::isNull);
+		Jwt jwt = TestJwts.jwt().build();
+
+		assertThat(validator.validate(jwt)).isEqualTo(OAuth2TokenValidatorResult.success());
+	}
+
+	@Test
 	public void validateWhenClaimIsNullThenThrowsIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new JwtClaimValidator<>(null, test));
 	}
