@@ -276,16 +276,17 @@ class InetAddressMatchersTests {
 		}
 
 		@ParameterizedTest
-		@ValueSource(strings = { "127.0.0.1", "127.0.0.255" })
+		@ValueSource(strings = { "127.0.0.1", "127.0.0.255", "0.0.0.0" })
 		void matchesWhenIpv4LoopbackThenReturnsTrue(String address) throws Exception {
 			InetAddressMatcher matcher = InetAddressMatchers.matchInternal().build();
 			assertThat(matcher.matches(InetAddress.getByName(address))).isTrue();
 		}
 
-		@Test
-		void matchesWhenIpv6LoopbackThenReturnsTrue() throws Exception {
+		@ParameterizedTest
+		@ValueSource(strings = { "::1", "::" })
+		void matchesWhenIpv6LoopbackThenReturnsTrue(String address) throws Exception {
 			InetAddressMatcher matcher = InetAddressMatchers.matchInternal().build();
-			assertThat(matcher.matches(InetAddress.getByName("::1"))).isTrue();
+			assertThat(matcher.matches(InetAddress.getByName(address))).isTrue();
 		}
 
 		@ParameterizedTest
