@@ -18,6 +18,7 @@ package org.springframework.security.web.header.writers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.util.Assert;
@@ -60,6 +61,7 @@ import org.springframework.util.Assert;
  * <ul>
  * <li>Content-Security-Policy</li>
  * <li>Content-Security-Policy-Report-Only</li>
+ * <li>Reporting-Endpoints (optional)</li>
  * </ul>
  *
  * <p>
@@ -71,6 +73,12 @@ import org.springframework.util.Assert;
  * </p>
  *
  * <p>
+ * To enable violation reporting, use {@link #setReportingEndpoints(String)} to declare
+ * one or more reporting endpoints, and include the {@code report-to} directive in the
+ * policy.
+ * </p>
+ *
+ * <p>
  * <strong> CSP is not intended as a first line of defense against content injection
  * vulnerabilities. Instead, CSP is used to reduce the harm caused by content injection
  * attacks. As a first line of defense against content injection, web application authors
@@ -79,6 +87,7 @@ import org.springframework.util.Assert;
  *
  * @author Joe Grandja
  * @author Ankur Pathak
+ * @author Andrey Litvitski
  * @since 4.1
  */
 public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
@@ -87,11 +96,15 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 
 	private static final String CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER = "Content-Security-Policy-Report-Only";
 
+	private static final String REPORTING_ENDPOINTS_HEADER = "Reporting-Endpoints";
+
 	private static final String DEFAULT_SRC_SELF_POLICY = "default-src 'self'";
 
 	private String policyDirectives;
 
 	private boolean reportOnly;
+
+	@Nullable private String reportingEndpoints;
 
 	/**
 	 * Creates a new instance. Default value: default-src 'self'
@@ -117,10 +130,13 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 	 */
 	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
-		String headerName = (!this.reportOnly) ? CONTENT_SECURITY_POLICY_HEADER
+		String policyHeader = (!this.reportOnly) ? CONTENT_SECURITY_POLICY_HEADER
 				: CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER;
-		if (!response.containsHeader(headerName)) {
-			response.setHeader(headerName, this.policyDirectives);
+		if (!response.containsHeader(policyHeader)) {
+			response.setHeader(policyHeader, this.policyDirectives);
+		}
+		if (this.reportingEndpoints != null && !response.containsHeader(REPORTING_ENDPOINTS_HEADER)) {
+			response.setHeader(REPORTING_ENDPOINTS_HEADER, this.reportingEndpoints);
 		}
 	}
 
@@ -135,6 +151,16 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 	}
 
 	/**
+	 * Sets the reporting endpoints to be used in the response header.
+	 * @param reportingEndpoints the reporting endpoints
+	 * @throws IllegalArgumentException if reportingEndpoints is null or empty
+	 */
+	public void setReportingEndpoints(String reportingEndpoints) {
+		Assert.hasLength(reportingEndpoints, "reportingEndpoints cannot be null or empty");
+		this.reportingEndpoints = reportingEndpoints;
+	}
+
+	/**
 	 * If true, includes the Content-Security-Policy-Report-Only header in the response,
 	 * otherwise, defaults to the Content-Security-Policy header.
 	 * @param reportOnly set to true for reporting policy violations only
@@ -146,7 +172,7 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 	@Override
 	public String toString() {
 		return getClass().getName() + " [policyDirectives=" + this.policyDirectives + "; reportOnly=" + this.reportOnly
-				+ "]";
+				+ "; reportingEndpoints= " + this.reportingEndpoints + "]";
 	}
 
 }
