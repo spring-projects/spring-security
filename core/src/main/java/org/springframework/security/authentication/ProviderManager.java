@@ -63,7 +63,9 @@ import org.springframework.util.CollectionUtils;
  * {@code Authentication} object, if it implements the {@link CredentialsContainer}
  * interface. This behaviour can be controlled by modifying the
  * {@link #setEraseCredentialsAfterAuthentication(boolean)
- * eraseCredentialsAfterAuthentication} property.
+ * eraseCredentialsAfterAuthentication} property. Disabling credential erasure is
+ * generally discouraged, since retaining credentials increases the likelihood of exposing
+ * sensitive data in memory or in serialized {@code Authentication} instances.
  *
  * <h2>Event Publishing</h2>
  * <p>
@@ -302,6 +304,10 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 	 * {@code CredentialsContainer} interface will have its
 	 * {@link CredentialsContainer#eraseCredentials() eraseCredentials} method called
 	 * before it is returned from the {@code authenticate()} method.
+	 * <p>
+	 * Setting this property to {@literal false} is generally discouraged, since retaining
+	 * the credentials increases the likelihood of exposing sensitive data in memory or in
+	 * serialized {@code Authentication} instances.
 	 * @param eraseSecretData set to {@literal false} to retain the credentials data in
 	 * memory. Defaults to {@literal true}.
 	 */
