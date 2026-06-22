@@ -38,7 +38,7 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
  * @see OAuth2AuthorizationCodeRequestAuthenticationProvider
  * @see OAuth2AuthorizationConsentAuthenticationProvider
  */
-final class OAuth2AuthorizationCodeGenerator implements OAuth2TokenGenerator<OAuth2AuthorizationCode> {
+public final class OAuth2AuthorizationCodeGenerator implements OAuth2TokenGenerator<OAuth2AuthorizationCode> {
 
 	private final StringKeyGenerator authorizationCodeGenerator = new Base64StringKeyGenerator(
 			Base64.getUrlEncoder().withoutPadding(), 96);
