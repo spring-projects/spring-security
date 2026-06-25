@@ -1443,7 +1443,7 @@ Consequently, Spring Security is subject to Nimbus's interpretation of each fiel
 
 For example, because Nimbus remains Java 7 compatible, it doesn't use `Instant` to represent timestamp fields.
 
-And it's entirely possible to use a different library or for JWT processing, which may make its own coercion decisions that need adjustment.
+And it's entirely possible to use a different library for JWT processing, which may make its own coercion decisions that need adjustment.
 
 Or, quite simply, a resource server may want to add or remove claims from a JWT for domain-specific reasons.
 
