@@ -173,4 +173,18 @@ public class BearerTokenAuthenticationTests {
 		assertThat(authorities).containsExactlyInAnyOrder("FACTOR_ONE", "FACTOR_TWO");
 	}
 
+	// gh-19377
+	@Test
+	public void compareTokenType() {
+		Instant current = Instant.now();
+		Instant after1hour = Instant.now().plusSeconds(3600);
+		OAuth2AccessToken oAuth2AccessToken = new OAuth2AccessToken(new OAuth2AccessToken.TokenType("Bearer"), "token",
+				current, after1hour);
+		BearerTokenAuthentication authenticated = new BearerTokenAuthentication(principal, oAuth2AccessToken,
+				this.authorities);
+		assertThat(authenticated.getName()).isEqualTo(this.name);
+		assertThat(authenticated.getCredentials())
+			.isEqualTo(new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "token", current, after1hour));
+	}
+
 }
