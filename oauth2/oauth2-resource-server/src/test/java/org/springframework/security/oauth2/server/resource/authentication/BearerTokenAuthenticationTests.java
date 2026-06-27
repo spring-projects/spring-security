@@ -180,7 +180,7 @@ public class BearerTokenAuthenticationTests {
 		Instant after1hour = Instant.now().plusSeconds(3600);
 		OAuth2AccessToken oAuth2AccessToken = new OAuth2AccessToken(new OAuth2AccessToken.TokenType("Bearer"), "token",
 				current, after1hour);
-		BearerTokenAuthentication authenticated = new BearerTokenAuthentication(principal, oAuth2AccessToken,
+		BearerTokenAuthentication authenticated = new BearerTokenAuthentication(this.principal, oAuth2AccessToken,
 				this.authorities);
 		assertThat(authenticated.getName()).isEqualTo(this.name);
 		assertThat(authenticated.getCredentials())
