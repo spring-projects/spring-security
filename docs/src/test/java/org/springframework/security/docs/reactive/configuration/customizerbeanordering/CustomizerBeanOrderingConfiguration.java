@@ -75,7 +75,7 @@ class CustomizerBeanOrderingConfiguration {
 		// @formatter:off
 		return (headers) -> headers
 			.contentSecurityPolicy((csp) -> csp
-				.policyDirectives("object-src 'none'")
+				.directives("object-src 'none'")
 			);
 		// @formatter:on
 	}
