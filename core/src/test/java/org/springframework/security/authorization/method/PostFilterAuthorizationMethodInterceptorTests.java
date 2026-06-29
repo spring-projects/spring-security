@@ -109,6 +109,20 @@ public class PostFilterAuthorizationMethodInterceptorTests {
 		assertThat(result).asInstanceOf(InstanceOfAssertFactories.array(String[].class)).containsOnly("john");
 	}
 
+	// gh-19280
+	@Test
+	public void invokeWhenReturnedObjectIsNullThenSkipsFilteringAndReturnsNull() throws Throwable {
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+				"doSomethingArray", new Class[] { String[].class }, new Object[] { null }) {
+			@Override
+			public Object proceed() {
+				return null;
+			}
+		};
+		PostFilterAuthorizationMethodInterceptor advice = new PostFilterAuthorizationMethodInterceptor();
+		assertThat(advice.invoke(methodInvocation)).isNull();
+	}
+
 	@Test
 	public void checkInheritedAnnotationsWhenConflictingThenAnnotationConfigurationException() throws Exception {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ConflictingAnnotations(),
