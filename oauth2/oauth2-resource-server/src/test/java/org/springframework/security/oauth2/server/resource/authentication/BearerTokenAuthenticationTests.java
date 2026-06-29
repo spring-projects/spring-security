@@ -175,13 +175,27 @@ public class BearerTokenAuthenticationTests {
 
 	// gh-19377
 	@Test
-	public void compareTokenType() {
+	public void compareCredentialsHasBearerTokenType() {
 		Instant current = Instant.now();
 		Instant after1hour = Instant.now().plusSeconds(3600);
 		OAuth2AccessToken oAuth2AccessToken = new OAuth2AccessToken(new OAuth2AccessToken.TokenType("Bearer"), "token",
 				current, after1hour);
 		BearerTokenAuthentication authenticated = new BearerTokenAuthentication(this.principal, oAuth2AccessToken,
 				this.authorities);
+		assertThat(authenticated.getName()).isEqualTo(this.name);
+		assertThat(authenticated.getCredentials())
+			.isEqualTo(new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "token", current, after1hour));
+	}
+
+	// gh-19377
+	@Test
+	public void toBuilderCompareCredentialsHasBearerTokenType() {
+		Instant current = Instant.now();
+		Instant after1hour = Instant.now().plusSeconds(3600);
+		OAuth2AccessToken oAuth2AccessToken = new OAuth2AccessToken(new OAuth2AccessToken.TokenType("Bearer"), "token",
+				current, after1hour);
+		BearerTokenAuthentication token = new BearerTokenAuthentication(this.principal, this.token, this.authorities);
+		BearerTokenAuthentication authenticated = token.toBuilder().token(oAuth2AccessToken).build();
 		assertThat(authenticated.getName()).isEqualTo(this.name);
 		assertThat(authenticated.getCredentials())
 			.isEqualTo(new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "token", current, after1hour));

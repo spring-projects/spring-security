@@ -121,7 +121,8 @@ public class BearerTokenAuthentication extends AbstractOAuth2TokenAuthentication
 		 */
 		@Override
 		public B token(OAuth2AccessToken token) {
-			Assert.isTrue(token.getTokenType() == OAuth2AccessToken.TokenType.BEARER, "token must be a bearer token");
+			Assert.isTrue(OAuth2AccessToken.TokenType.BEARER.equals(token.getTokenType()),
+					"token must be a bearer token");
 			super.credentials(token);
 			return super.token(token);
 		}
