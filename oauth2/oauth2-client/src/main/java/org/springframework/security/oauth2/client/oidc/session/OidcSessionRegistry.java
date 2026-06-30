@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.client.oidc.session;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcLogoutToken;
 
 /**
@@ -44,7 +46,7 @@ public interface OidcSessionRegistry {
 	 * @param clientSessionId the client session
 	 * @return any found {@link OidcSessionInformation}, could be {@code null}
 	 */
-	OidcSessionInformation removeSessionInformation(String clientSessionId);
+	@Nullable OidcSessionInformation removeSessionInformation(String clientSessionId);
 
 	/**
 	 * Deregister the OIDC Provider sessions referenced by the provided OIDC Logout Token
