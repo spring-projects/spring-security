@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.client.oidc.session;
 
 import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcLogoutToken;
 
 /**
