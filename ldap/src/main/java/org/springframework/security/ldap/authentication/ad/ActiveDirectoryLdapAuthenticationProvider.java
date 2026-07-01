@@ -305,8 +305,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 		String bindPrincipal = createBindPrincipal(username);
 		String searchRoot = (this.rootDn != null) ? this.rootDn : searchRootFromPrincipal(bindPrincipal);
 		SingleContextSource contextSource = new SingleContextSource(context);
-		LdapClient ldapClient = LdapClient.builder()
-			.contextSource(contextSource)
+		LdapClient ldapClient = LdapClient.withContextSource(contextSource)
 			.defaultSearchControls(() -> searchControls)
 			.ignorePartialResultException(true)
 			.build();
@@ -315,11 +314,10 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 				.base(searchRoot)
 				.searchScope(SearchScope.SUBTREE)
 				.filter(this.searchFilter, bindPrincipal, username);
-			DirContextOperations result = ldapClient.search().query(query).toEntry();
-			if (result == null) {
-				throw new IncorrectResultSizeDataAccessException(1, 0);
-			}
-			return result;
+			return ldapClient.search()
+				.query(query)
+				.<DirContextOperations>optional()
+				.orElseThrow(() -> new IncorrectResultSizeDataAccessException(1, 0));
 		}
 		catch (CommunicationException ex) {
 			throw badLdapConnection(ex);
