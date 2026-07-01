@@ -18,6 +18,7 @@ package org.springframework.security.crypto.password4j;
 
 import com.password4j.AlgorithmFinder;
 import com.password4j.Argon2Function;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Implementation of {@link org.springframework.security.crypto.password.PasswordEncoder}
@@ -47,6 +48,7 @@ import com.password4j.Argon2Function;
  * }</pre>
  *
  * @author Mehrdad Bozorgmehr
+ * @author Andrey Litvitski
  * @since 7.0
  * @see Argon2Function
  * @see AlgorithmFinder#getArgon2Instance()
@@ -58,7 +60,7 @@ public class Argon2Password4jPasswordEncoder extends Password4jPasswordEncoder {
 	 * Password4j's AlgorithmFinder.
 	 */
 	public Argon2Password4jPasswordEncoder() {
-		super(AlgorithmFinder.getArgon2Instance());
+		this(AlgorithmFinder.getArgon2Instance());
 	}
 
 	/**
@@ -68,7 +70,20 @@ public class Argon2Password4jPasswordEncoder extends Password4jPasswordEncoder {
 	 * @throws IllegalArgumentException if argon2Function is null
 	 */
 	public Argon2Password4jPasswordEncoder(Argon2Function argon2Function) {
-		super(argon2Function);
+		this(argon2Function, null);
+	}
+
+	/**
+	 * Constructs an Argon2 password encoder with a custom Argon2 function and a pepper.
+	 * @param argon2Function the Argon2 function to use for encoding passwords, must not
+	 * be null
+	 * @param pepper the pepper to be used in the hashing process. If null, no pepper will
+	 * be applied.
+	 * @throws IllegalArgumentException if argon2Function is null
+	 * @since 7.0
+	 */
+	public Argon2Password4jPasswordEncoder(Argon2Function argon2Function, @Nullable String pepper) {
+		super(argon2Function, pepper);
 	}
 
 }
