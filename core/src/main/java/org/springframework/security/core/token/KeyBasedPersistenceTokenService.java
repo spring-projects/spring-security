@@ -132,7 +132,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 		// Verification
 		String content = creationTime + ":" + pseudoRandomNumber + ":" + extendedInfo.toString();
 		String expectedSha512Hex = Sha512DigestUtils.shaHex(content + ":" + serverSecret);
-		Assert.isTrue(expectedSha512Hex.equals(sha1Hex), "Key verification failure");
+		Assert.isTrue(Utf8.isEqual(expectedSha512Hex, sha1Hex), "Key verification failure");
 		return new DefaultToken(key, creationTime, extendedInfo.toString());
 	}
 
