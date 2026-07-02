@@ -51,6 +51,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
+import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
@@ -167,7 +168,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 			}
 			serverDigestMd5 = digestAuth.calculateServerDigest(user.getPassword(), request.getMethod());
 			// If digest is incorrect, try refreshing from backend and recomputing
-			if (!serverDigestMd5.equals(digestAuth.getResponse()) && cacheWasUsed) {
+			if (!Utf8.isEqual(serverDigestMd5, digestAuth.getResponse()) && cacheWasUsed) {
 				logger.debug("Digest comparison failure; trying to refresh user from DAO in case password had changed");
 				user = this.userDetailsService.loadUserByUsername(username);
 				this.userCache.putUserInCache(user);
@@ -181,7 +182,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 			return;
 		}
 		// If digest is still incorrect, definitely reject authentication attempt
-		if (!serverDigestMd5.equals(digestAuth.getResponse())) {
+		if (!Utf8.isEqual(serverDigestMd5, digestAuth.getResponse())) {
 			logger.debug(LogMessage.format(
 					"Expected response: '%s' but received: '%s'; is AuthenticationDao returning clear text passwords?",
 					serverDigestMd5, digestAuth.getResponse()));
@@ -405,7 +406,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 			}
 			// Check signature of nonce matches this expiry time
 			String expectedNonceSignature = DigestAuthUtils.md5Hex(this.nonceExpiryTime + ":" + entryPointKey);
-			if (!expectedNonceSignature.equals(nonceTokens[1])) {
+			if (!Utf8.isEqual(expectedNonceSignature, nonceTokens[1])) {
 				throw new BadCredentialsException(DigestAuthenticationFilter.this.messages.getMessage(
 						"DigestAuthenticationFilter.nonceCompromised", new Object[] { nonceAsPlainText },
 						"Nonce token compromised {0}"));
