@@ -1,5 +1,5 @@
 changelog:
-  repository: spring-projects/spring-security
+  repository: spring-projects/spring-security-commercial
   sections:
     - title: ":rewind: Breaking Changes"
       labels: ["type: breaks-passivity"]
@@ -17,5 +17,6 @@ changelog:
       labels: ["type: task", "in: build"]
       sort: "title"
   issues:
+    generate_links: false
     exclude:
       labels: ["status: duplicate"]
