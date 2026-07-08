@@ -1,0 +1,27 @@
+subprojects {
+	repositories {
+		mavenCentral()
+		def repoUsername = project.findProperty("artifactoryUsername") ?: System.getenv("COMMERCIAL_REPO_USERNAME")
+		def repoPassword = project.findProperty("artifactoryPassword") ?: System.getenv("COMMERCIAL_REPO_PASSWORD")
+		if (repoUsername && repoPassword) {
+			maven {
+				name "spring-commercial-release"
+				url "https://usw1.packages.broadcom.com/spring-enterprise-maven-prod-local"
+				credentials {
+					username repoUsername
+					password repoPassword
+				}
+			}
+			if ("$version".endsWith("-SNAPSHOT")) {
+				maven {
+					name "spring-commercial-snapshot"
+					url "https://usw1.packages.broadcom.com/spring-enterprise-maven-dev-local"
+					credentials {
+						username repoUsername
+						password repoPassword
+					}
+				}
+			}
+		}
+	}
+}

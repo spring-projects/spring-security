@@ -27,6 +27,7 @@ apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'org.springframework.security.versions.verify-dependencies-versions'
 apply plugin: 'org.springframework.security.check-expected-branch-version'
 apply plugin: 'io.spring.security.release'
+apply from: 'commercial-settings.gradle'
 
 group = 'org.springframework.security'
 description = 'Spring Security'
@@ -41,10 +42,12 @@ repositories {
 }
 
 springRelease {
+	repositoryOwner = "spring-projects"
+	repositoryName = "spring-security-commercial"
 	weekOfMonth = 3
 	dayOfWeek = 1
-	referenceDocUrl = "https://docs.spring.io/spring-security/reference/{version}/index.html"
-	apiDocUrl = "https://docs.spring.io/spring-security/reference/{version}/api/java/index.html"
+	referenceDocUrl = "https://docs.spring.vmware.com/spring-security/reference/{version}/index.html"
+	apiDocUrl = "https://docs.spring.vmware.com/spring-security/reference/{version}/api/java/index.html"
 	replaceSnapshotVersionInReferenceDocUrl = true
 }
 
@@ -72,12 +75,6 @@ allprojects {
 	}
 }
 
-develocity {
-	buildScan {
-		termsOfUseUrl = 'https://gradle.com/help/legal-terms-of-use'
-		termsOfUseAgree = 'yes'
-	}
-}
 
 nohttp {
 	source.exclude "buildSrc/build/**", "**/build/**", "**/target/**", "javascript/.gradle/**", "javascript/package-lock.json", "javascript/node_modules/**", "javascript/build/**", "javascript/dist/**"
