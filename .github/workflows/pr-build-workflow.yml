@@ -1,0 +1,13 @@
+name: PR Build
+
+on: pull_request
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    uses: spring-projects/spring-security-commercial/.github/workflows/build-pull-request.yml@workflows/v1
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    secrets: inherit

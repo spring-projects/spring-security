@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches-ignore:
+      - "dependabot/**"
+  schedule:
+    - cron: '0 10 * * *' # Once per day at 10am UTC
+  workflow_dispatch: # Manual trigger
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    uses: spring-projects/spring-security-commercial/.github/workflows/build.yml@workflows/v1
+    secrets: inherit
+  test:
+    name: Test Against Snapshots
+    uses: spring-projects/spring-security-commercial/.github/workflows/test.yml@workflows/v1
+    with:
+      java-version: '17'
+      test-args: --refresh-dependencies -PforceMavenRepositories=snapshot -PisOverrideVersionCatalog -PtestToolchain=17 -PspringFrameworkVersion=7.0.+ -PreactorVersion=2025.0.+ -PspringDataVersion=2025.1.+ -PmicrometerVersion=1.16.+ --stacktrace
+    secrets: inherit
+  compute-version:
+    name: Compute Version
+    runs-on: ubuntu-latest
+    outputs:
+      snapshot: ${{ steps.project-version.outputs.snapshot }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # 7.0.0
+      - id: project-version
+        name: Extract Project Version
+        uses: spring-io/spring-release-actions/compute-version@a1f321783a0769dd2aea4fad6c2ae2f95a52b885 # 0.0.5
+  deploy-artifacts:
+    name: Deploy Artifacts
+    needs: [ build, test, compute-version ]
+    if: needs.compute-version.outputs.snapshot == 'true'
+    uses: spring-projects/spring-security-commercial/.github/workflows/deploy-artifacts.yml@workflows/v1
+    secrets: inherit
+  send-notification:
+    name: Send Notification
+    needs: [ deploy-artifacts ]
+    if: ${{ !success() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Notification
+        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@b92832ecbc7cbe969201e6beafbde0ee400cf095 # v1.0.15
+        with:
+          webhook-url: ${{ secrets.SPRING_SECURITY_CI_GCHAT_WEBHOOK_URL }}
