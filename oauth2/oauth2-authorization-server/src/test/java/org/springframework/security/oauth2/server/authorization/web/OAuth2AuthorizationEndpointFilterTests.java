@@ -64,6 +64,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -579,6 +580,39 @@ public class OAuth2AuthorizationEndpointFilterTests {
 		for (String approvedScope : approvedScopes) {
 			assertThat(response.getContentAsString()).contains(disabledScopeCheckbox(approvedScope));
 		}
+	}
+
+	@Test
+	public void doFilterWhenAuthorizationRequestConsentRequiredThenConsentResponseHtmlEscaped() throws Exception {
+		String unencodedScope = "<scope2>";
+		String unencodedState = "<state>";
+		Set<String> requestedScopes = new HashSet<>(Arrays.asList("scope1", unencodedScope));
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().scopes((scopes) -> {
+			scopes.clear();
+			scopes.addAll(requestedScopes);
+		}).build();
+		// No scopes previously approved
+		OAuth2AuthorizationConsentAuthenticationToken authorizationConsentAuthenticationResult = new OAuth2AuthorizationConsentAuthenticationToken(
+				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, unencodedState, new HashSet<>(),
+				null);
+		authorizationConsentAuthenticationResult.setAuthenticated(true);
+		given(this.authenticationManager.authenticate(any())).willReturn(authorizationConsentAuthenticationResult);
+
+		MockHttpServletRequest request = createAuthorizationRequest(registeredClient);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain filterChain = mock(FilterChain.class);
+
+		this.filter.doFilter(request, response, filterChain);
+
+		verify(this.authenticationManager).authenticate(any());
+		verifyNoInteractions(filterChain);
+
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+		String html = response.getContentAsString();
+		assertThat(html).doesNotContain(unencodedScope);
+		assertThat(html).doesNotContain(unencodedState);
+		assertThat(html).contains(HtmlUtils.htmlEscape(unencodedScope));
+		assertThat(html).contains("name=\"state\" value=\"" + HtmlUtils.htmlEscape(unencodedState) + "\"");
 	}
 
 	@Test
