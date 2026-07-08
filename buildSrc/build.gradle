@@ -12,7 +12,16 @@ java {
 repositories {
 	gradlePluginPortal()
 	mavenCentral()
-	maven { url = 'https://repo.spring.io/snapshot' }
+	if (project.hasProperty("artifactoryUsername") && project.hasProperty("artifactoryPassword")) {
+		maven {
+			name "spring-commercial-release"
+			url "https://usw1.packages.broadcom.com/spring-enterprise-maven-prod-local"
+			credentials {
+				username project.artifactoryUsername
+				password project.artifactoryPassword
+			}
+		}
+	}
 	if (System.getenv("RELEASE_TRAIN_MAVEN_REPOSITORY_URL") != null) {
 		maven {
 			name = "Release Train"
