@@ -23,6 +23,7 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.ser
 import org.springframework.security.config.annotation.web.oauth2.resourceserver.DPoPDsl
 import org.springframework.security.config.annotation.web.oauth2.resourceserver.JwtDsl
 import org.springframework.security.config.annotation.web.oauth2.resourceserver.OpaqueTokenDsl
+import org.springframework.security.config.annotation.web.oauth2.resourceserver.ProtectedResourceMetadataDsl
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.access.AccessDeniedHandler
@@ -33,6 +34,7 @@ import org.springframework.security.web.access.AccessDeniedHandler
  *
  * @author Eleftheria Stein
  * @author Max Batischev
+ * @author Andrey Litvitski
  * @since 5.3
  * @property accessDeniedHandler the [AccessDeniedHandler] to use for requests authenticating
  * with <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer Token</a>s.
@@ -51,6 +53,7 @@ class OAuth2ResourceServerDsl {
     private var jwt: ((OAuth2ResourceServerConfigurer<HttpSecurity>.JwtConfigurer) -> Unit)? = null
     private var opaqueToken: ((OAuth2ResourceServerConfigurer<HttpSecurity>.OpaqueTokenConfigurer) -> Unit)? = null
     private var dPoP: ((OAuth2ResourceServerConfigurer<HttpSecurity>.DPoPConfigurer) -> Unit)? = null
+    private var protectedResourceMetadata: ((OAuth2ResourceServerConfigurer.ProtectedResourceMetadataConfigurer) -> Unit)? = null
 
     /**
      * Enables JWT-encoded bearer token support.
@@ -143,6 +146,40 @@ class OAuth2ResourceServerDsl {
         this.dPoP = DPoPDsl().apply(dPoPConfig).get()
     }
 
+    /**
+     * Enables OAuth 2.0 Protected Resource Metadata support.
+     *
+     * Example:
+     *
+     * ```
+     * @Configuration
+     * @EnableWebSecurity
+     * class SecurityConfig {
+     *
+     *     @Bean
+     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *         http {
+     *             oauth2ResourceServer {
+     *                 jwt { }
+     *                 protectedResourceMetadata {
+     *                     protectedResourceMetadataCustomizer { }
+     *                 }
+     *             }
+     *         }
+     *         return http.build()
+     *     }
+     * }
+     * ```
+     *
+     * @param protectedResourceMetadataConfig custom configurations to configure OAuth 2.0
+     * Protected Resource Metadata support
+     * @see [ProtectedResourceMetadataDsl]
+     * @since 7.1
+     */
+    fun protectedResourceMetadata(protectedResourceMetadataConfig: ProtectedResourceMetadataDsl.() -> Unit) {
+        this.protectedResourceMetadata = ProtectedResourceMetadataDsl().apply(protectedResourceMetadataConfig).get()
+    }
+
     internal fun get(): (OAuth2ResourceServerConfigurer<HttpSecurity>) -> Unit {
         return { oauth2ResourceServer ->
             accessDeniedHandler?.also { oauth2ResourceServer.accessDeniedHandler(accessDeniedHandler) }
@@ -152,6 +189,7 @@ class OAuth2ResourceServerDsl {
             jwt?.also { oauth2ResourceServer.jwt(jwt) }
             opaqueToken?.also { oauth2ResourceServer.opaqueToken(opaqueToken) }
             dPoP?.also { oauth2ResourceServer.dPoP(dPoP) }
+            protectedResourceMetadata?.also { oauth2ResourceServer.protectedResourceMetadata(protectedResourceMetadata) }
         }
     }
 }
