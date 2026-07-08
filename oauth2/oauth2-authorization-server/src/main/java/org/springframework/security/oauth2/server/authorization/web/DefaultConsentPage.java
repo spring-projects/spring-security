@@ -29,6 +29,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
+import org.springframework.web.util.HtmlUtils;
 
 /**
  * For internal use only.
@@ -56,6 +57,12 @@ final class DefaultConsentPage {
 	private static String generateConsentPage(HttpServletRequest request, String clientId, Authentication principal,
 			Set<String> requestedScopes, Set<String> authorizedScopes, String state,
 			Map<String, String> additionalParameters) {
+
+		String encodedClientId = HtmlUtils.htmlEscape(clientId);
+		String encodedState = HtmlUtils.htmlEscape(state);
+		String encodedPrincipalName = HtmlUtils.htmlEscape(principal.getName());
+		String encodedRequestUri = HtmlUtils.htmlEscape(request.getRequestURI());
+
 		Set<String> scopesToAuthorize = new HashSet<>();
 		Set<String> scopesPreviouslyAuthorized = new HashSet<>();
 		for (String scope : requestedScopes) {
@@ -74,6 +81,7 @@ final class DefaultConsentPage {
 		// the "user_code" being displayed on the device to confirm they are
 		// authorizing the correct device.
 		String userCode = additionalParameters.get(OAuth2ParameterNames.USER_CODE);
+		String encodedUserCode = (userCode != null) ? HtmlUtils.htmlEscape(userCode) : null;
 
 		// @formatter:off
 		StringBuilder builder = new StringBuilder();
@@ -98,13 +106,13 @@ final class DefaultConsentPage {
 		builder.append("    </div>");
 		builder.append("    <div class=\"row\">");
 		builder.append("        <div class=\"col text-center\">");
-		builder.append("            <p><span class=\"font-weight-bold text-primary\">" + clientId + "</span> wants to access your account <span class=\"font-weight-bold\">" + principal.getName() + "</span></p>");
+		builder.append("            <p><span class=\"font-weight-bold text-primary\">" + encodedClientId + "</span> wants to access your account <span class=\"font-weight-bold\">" + encodedPrincipalName + "</span></p>");
 		builder.append("        </div>");
 		builder.append("    </div>");
 		if (userCode != null) {
 			builder.append("    <div class=\"row\">");
 			builder.append("        <div class=\"col text-center\">");
-			builder.append("            <p class=\"alert alert-warning\">You have provided the code <span class=\"font-weight-bold\">" + userCode + "</span>. Verify that this code matches what is shown on your device.</p>");
+			builder.append("            <p class=\"alert alert-warning\">You have provided the code <span class=\"font-weight-bold\">" + encodedUserCode + "</span>. Verify that this code matches what is shown on your device.</p>");
 			builder.append("        </div>");
 			builder.append("    </div>");
 		}
@@ -115,26 +123,28 @@ final class DefaultConsentPage {
 		builder.append("    </div>");
 		builder.append("    <div class=\"row\">");
 		builder.append("        <div class=\"col text-center\">");
-		builder.append("            <form name=\"consent_form\" method=\"post\" action=\"" + request.getRequestURI() + "\">");
-		builder.append("                <input type=\"hidden\" name=\"client_id\" value=\"" + clientId + "\">");
-		builder.append("                <input type=\"hidden\" name=\"state\" value=\"" + state + "\">");
+		builder.append("            <form name=\"consent_form\" method=\"post\" action=\"" + encodedRequestUri + "\">");
+		builder.append("                <input type=\"hidden\" name=\"client_id\" value=\"" + encodedClientId + "\">");
+		builder.append("                <input type=\"hidden\" name=\"state\" value=\"" + encodedState + "\">");
 		if (userCode != null) {
-			builder.append("                <input type=\"hidden\" name=\"user_code\" value=\"" + userCode + "\">");
+			builder.append("                <input type=\"hidden\" name=\"user_code\" value=\"" + encodedUserCode + "\">");
 		}
 
 		for (String scope : scopesToAuthorize) {
+			String encodedScope = HtmlUtils.htmlEscape(scope);
 			builder.append("                <div class=\"form-group form-check py-1\">");
-			builder.append("                    <input class=\"form-check-input\" type=\"checkbox\" name=\"scope\" value=\"" + scope + "\" id=\"" + scope + "\">");
-			builder.append("                    <label class=\"form-check-label\" for=\"" + scope + "\">" + scope + "</label>");
+			builder.append("                    <input class=\"form-check-input\" type=\"checkbox\" name=\"scope\" value=\"" + encodedScope + "\" id=\"" + encodedScope + "\">");
+			builder.append("                    <label class=\"form-check-label\" for=\"" + encodedScope + "\">" + encodedScope + "</label>");
 			builder.append("                </div>");
 		}
 
 		if (!scopesPreviouslyAuthorized.isEmpty()) {
 			builder.append("                <p>You have already granted the following permissions to the above app:</p>");
 			for (String scope : scopesPreviouslyAuthorized) {
+				String encodedScope = HtmlUtils.htmlEscape(scope);
 				builder.append("                <div class=\"form-group form-check py-1\">");
-				builder.append("                    <input class=\"form-check-input\" type=\"checkbox\" name=\"scope\" id=\"" + scope + "\" checked disabled>");
-				builder.append("                    <label class=\"form-check-label\" for=\"" + scope + "\">" + scope + "</label>");
+				builder.append("                    <input class=\"form-check-input\" type=\"checkbox\" name=\"scope\" id=\"" + encodedScope + "\" checked disabled>");
+				builder.append("                    <label class=\"form-check-label\" for=\"" + encodedScope + "\">" + encodedScope + "</label>");
 				builder.append("                </div>");
 			}
 		}
