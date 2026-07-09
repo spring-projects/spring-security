@@ -134,4 +134,19 @@ public class ListeningSecurityContextHolderStrategyTests {
 					(SecurityContextChangedListener) null));
 	}
 
+	// gh-18059
+	@Test
+	public void peekDeferredContextDelegatesToUnderlyingStrategy() {
+		SecurityContextHolderStrategy delegate = mock(SecurityContextHolderStrategy.class);
+		SecurityContextChangedListener listener = mock(SecurityContextChangedListener.class);
+		SecurityContextHolderStrategy strategy = new ListeningSecurityContextHolderStrategy(delegate, listener);
+
+		given(delegate.peekDeferredContext()).willReturn(null);
+		assertThat(strategy.peekDeferredContext()).isNull();
+
+		Supplier<SecurityContext> supplier = () -> new SecurityContextImpl();
+		given(delegate.peekDeferredContext()).willReturn(supplier);
+		assertThat(strategy.peekDeferredContext()).isSameAs(supplier);
+	}
+
 }
