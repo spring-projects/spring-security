@@ -301,8 +301,7 @@ class SpringSecurityCoreVersionSerializableTests {
 	private static String getCurrentVersion() {
 		String version = System.getProperty("springSecurityVersion");
 		String[] parts = version.split("\\.");
-		parts[2] = "x";
-		return String.join(".", parts);
+		return parts[0] + "." + parts[1] + ".x";
 	}
 
 	private static String getPreviousVersion() {
@@ -315,8 +314,7 @@ class SpringSecurityCoreVersionSerializableTests {
 			parts[0] = String.valueOf(Integer.parseInt(parts[0]) - 1);
 			parts[1] = "5"; // FIXME: this should not be hard coded
 		}
-		parts[2] = "x";
-		return String.join(".", parts);
+		return parts[0] + "." + parts[1] + ".x";
 	}
 
 }
