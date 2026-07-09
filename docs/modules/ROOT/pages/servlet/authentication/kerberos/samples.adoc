@@ -209,7 +209,7 @@ Or use a `user2` with a keytab file.
 $ java -jar sec-client-rest-template-{spring-security-version}.jar
 ----
 
-If operation is succesful you should see below output with `user2@EXAMPLE.ORG`.
+If operation is successful you should see below output with `user2@EXAMPLE.ORG`.
 [source,text]
 ----
 <html xmlns="https://www.w3.org/1999/xhtml"
