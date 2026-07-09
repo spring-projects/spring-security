@@ -16,9 +16,14 @@
 
 package org.springframework.security.core.context;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
+import io.micrometer.context.ContextSnapshot;
+import io.micrometer.context.ContextSnapshotFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import reactor.util.context.Context;
 
 import org.springframework.security.authentication.TestingAuthenticationToken;
 
@@ -88,6 +93,65 @@ public class SecurityContextHolderThreadLocalAccessorTests {
 
 		SecurityContext emptyContext = SecurityContextHolder.createEmptyContext();
 		assertThat(SecurityContextHolder.getContext()).isEqualTo(emptyContext);
+	}
+
+	// gh-18059
+	@Test
+	public void captureAllWhenDeferredContextSetThenDoesNotInvokeSupplier() {
+		SecurityContext securityContext = new SecurityContextImpl(new TestingAuthenticationToken("user", "password"));
+		AtomicInteger invocationCount = new AtomicInteger();
+		SecurityContextHolder.setDeferredContext(() -> {
+			invocationCount.incrementAndGet();
+			return securityContext;
+		});
+
+		ContextSnapshotFactory factory = ContextSnapshotFactory.builder().build();
+		factory.captureAll();
+
+		assertThat(invocationCount.get()).as("snapshot capture must not invoke the deferred supplier").isZero();
+	}
+
+	// gh-18059
+	@Test
+	public void setThreadLocalsFromWhenContextMissingKeyThenDoesNotInvokeSupplier() {
+		// The branch from the issue's stack trace: clearMissing=true and no
+		// SecurityContext key in the Reactor Context invokes accessor.getValue()
+		// to save the previous value before clearing.
+		SecurityContext securityContext = new SecurityContextImpl(new TestingAuthenticationToken("user", "password"));
+		AtomicInteger invocationCount = new AtomicInteger();
+		SecurityContextHolder.setDeferredContext(() -> {
+			invocationCount.incrementAndGet();
+			return securityContext;
+		});
+
+		ContextSnapshotFactory factory = ContextSnapshotFactory.builder().clearMissing(true).build();
+		try (ContextSnapshot.Scope scope = factory.setThreadLocalsFrom(Context.empty())) {
+			assertThat(invocationCount.get()).as("entering the scope must not invoke the deferred supplier").isZero();
+		}
+
+		assertThat(invocationCount.get()).as("leaving the scope must not invoke the deferred supplier").isZero();
+	}
+
+	// gh-18059
+	@Test
+	public void captureAllWhenDeferredContextReentersPropagationThenDoesNotRecurse() {
+		// Models the issue's Lettuce/Redis flow: materializing the deferred context
+		// itself triggers Mono.subscribe -> context propagation -> accessor.getValue().
+		// Bounded so a regression fails the assertion instead of a StackOverflowError.
+		SecurityContext securityContext = new SecurityContextImpl(new TestingAuthenticationToken("user", "password"));
+		ContextSnapshotFactory factory = ContextSnapshotFactory.builder().build();
+		AtomicInteger invocationCount = new AtomicInteger();
+		SecurityContextHolder.setDeferredContext(() -> {
+			if (invocationCount.incrementAndGet() <= 3) {
+				factory.captureAll();
+			}
+			return securityContext;
+		});
+
+		factory.captureAll();
+
+		assertThat(invocationCount.get()).as("snapshot capture must not invoke the deferred supplier, even reentrantly")
+			.isZero();
 	}
 
 }
