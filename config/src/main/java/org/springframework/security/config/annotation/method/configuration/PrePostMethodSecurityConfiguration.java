@@ -32,6 +32,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.context.annotation.Role;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -125,6 +126,11 @@ final class PrePostMethodSecurityConfiguration implements ImportAware, Applicati
 	@Autowired(required = false)
 	void setAuthorizationManagerFactory(AuthorizationManagerFactory<MethodInvocation> authorizationManagerFactory) {
 		this.expressionHandler.setAuthorizationManagerFactory(authorizationManagerFactory);
+	}
+
+	@Autowired(required = false)
+	void setPermissionEvaluator(PermissionEvaluator permissionEvaluator) {
+		this.expressionHandler.setPermissionEvaluator(permissionEvaluator);
 	}
 
 	@Autowired(required = false)
