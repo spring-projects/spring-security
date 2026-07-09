@@ -18,8 +18,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - java-version: 21-ea
-            toolchain: 21
           - java-version: 17
             toolchain: 17
     with:
