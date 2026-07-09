@@ -32,6 +32,7 @@ import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.HasRequestCacheSetter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
@@ -66,9 +67,9 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
 
-	private SavedRequestAwareAuthenticationSuccessHandler defaultSuccessHandler = new SavedRequestAwareAuthenticationSuccessHandler();
+	private AuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
 
-	private AuthenticationSuccessHandler successHandler = this.defaultSuccessHandler;
+	private boolean trySetRequestCacheIntoSuccessHandler = true;
 
 	private LoginUrlAuthenticationEntryPoint authenticationEntryPoint;
 
@@ -131,7 +132,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 		SavedRequestAwareAuthenticationSuccessHandler handler = new SavedRequestAwareAuthenticationSuccessHandler();
 		handler.setDefaultTargetUrl(defaultSuccessUrl);
 		handler.setAlwaysUseDefaultTargetUrl(alwaysUse);
-		this.defaultSuccessHandler = handler;
+		this.successHandler = handler;
 		return successHandler(handler);
 	}
 
@@ -180,6 +181,19 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	 */
 	public final T successHandler(AuthenticationSuccessHandler successHandler) {
 		this.successHandler = successHandler;
+		return getSelf();
+	}
+
+	/**
+	 * Determines if {@link RequestCache} should be set into the
+	 * {@link AuthenticationSuccessHandler} when possible.
+	 * @param trySetRequestCacheIntoSuccessHandler true if it should be tried to set the
+	 * {@code RequestCache}
+	 * @return the {@link AbstractAuthenticationFilterConfigurer} for additional
+	 * customization
+	 */
+	public final T trySetRequestCacheIntoSuccessHandler(boolean trySetRequestCacheIntoSuccessHandler) {
+		this.trySetRequestCacheIntoSuccessHandler = trySetRequestCacheIntoSuccessHandler;
 		return getSelf();
 	}
 
@@ -273,9 +287,12 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 		if (portMapper != null) {
 			this.authenticationEntryPoint.setPortMapper(portMapper);
 		}
-		RequestCache requestCache = http.getSharedObject(RequestCache.class);
-		if (requestCache != null) {
-			this.defaultSuccessHandler.setRequestCache(requestCache);
+		if (this.trySetRequestCacheIntoSuccessHandler
+				&& this.successHandler instanceof HasRequestCacheSetter hasRequestCacheSetter) {
+			RequestCache requestCache = http.getSharedObject(RequestCache.class);
+			if (requestCache != null) {
+				hasRequestCacheSetter.setRequestCache(requestCache);
+			}
 		}
 		this.authFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
 		this.authFilter.setAuthenticationSuccessHandler(this.successHandler);
