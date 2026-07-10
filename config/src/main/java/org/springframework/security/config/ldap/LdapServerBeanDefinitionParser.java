@@ -17,6 +17,7 @@
 package org.springframework.security.config.ldap;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 
 import org.w3c.dom.Element;
@@ -188,7 +189,7 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private String getDefaultPort() {
-		try (ServerSocket serverSocket = new ServerSocket(DEFAULT_PORT)) {
+		try (ServerSocket serverSocket = new ServerSocket(DEFAULT_PORT, 50, InetAddress.getLoopbackAddress())) {
 			return String.valueOf(serverSocket.getLocalPort());
 		}
 		catch (IOException ex) {

@@ -17,6 +17,7 @@
 package org.springframework.security.config.annotation.authentication.configurers.ldap;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
@@ -590,7 +591,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		}
 
 		private int getDefaultPort() {
-			try (ServerSocket serverSocket = new ServerSocket(DEFAULT_PORT)) {
+			try (ServerSocket serverSocket = new ServerSocket(DEFAULT_PORT, 50, InetAddress.getLoopbackAddress())) {
 				return serverSocket.getLocalPort();
 			}
 			catch (IOException ex) {
