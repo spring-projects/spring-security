@@ -258,8 +258,8 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 		byte[] clientDataJSON = response.getClientDataJSON().getBytes();
 		Challenge challenge = new DefaultChallenge(base64Challenge);
 		ServerProperty serverProperty = new ServerProperty(origins, rpId, challenge);
-		boolean userVerificationRequired = creationOptions.getAuthenticatorSelection()
-			.getUserVerification() == UserVerificationRequirement.REQUIRED;
+		boolean userVerificationRequired = UserVerificationRequirement.REQUIRED
+			.equals(creationOptions.getAuthenticatorSelection().getUserVerification());
 		// requireUserPresence The constant Boolean value true
 		// https://www.w3.org/TR/webauthn-3/#sctn-op-make-cred
 		boolean userPresenceRequired = true;
@@ -318,7 +318,7 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 
 	private com.webauthn4j.data.PublicKeyCredentialParameters convertParamToWebauthn4j(
 			PublicKeyCredentialParameters parameter) {
-		if (parameter.getType() != PublicKeyCredentialType.PUBLIC_KEY) {
+		if (!PublicKeyCredentialType.PUBLIC_KEY.equals(parameter.getType())) {
 			throw new IllegalArgumentException(
 					"Cannot convert unknown credential type " + parameter.getType() + " to webauthn4j");
 		}
@@ -395,8 +395,8 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 		String rpId = requestOptions.getRpId();
 		Assert.notNull(rpId, "rpId cannot be null");
 		ServerProperty serverProperty = new ServerProperty(origins, rpId, challenge);
-		boolean userVerificationRequired = request.getRequestOptions()
-			.getUserVerification() == UserVerificationRequirement.REQUIRED;
+		boolean userVerificationRequired = UserVerificationRequirement.REQUIRED
+			.equals(request.getRequestOptions().getUserVerification());
 
 		com.webauthn4j.data.AuthenticationRequest authenticationRequest = new com.webauthn4j.data.AuthenticationRequest(
 				request.getPublicKey().getRawId().getBytes(), assertionResponse.getAuthenticatorData().getBytes(),
