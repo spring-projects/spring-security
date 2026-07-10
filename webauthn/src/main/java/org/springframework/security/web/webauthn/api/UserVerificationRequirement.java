@@ -16,8 +16,11 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.ObjectStreamException;
 import java.io.Serial;
 import java.io.Serializable;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * <a href=
@@ -70,6 +73,36 @@ public final class UserVerificationRequirement implements Serializable {
 	 */
 	public String getValue() {
 		return this.value;
+	}
+
+	@Override
+	public boolean equals(@Nullable Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof UserVerificationRequirement other)) {
+			return false;
+		}
+		return this.value.equals(other.value);
+	}
+
+	@Override
+	public int hashCode() {
+		return this.value.hashCode();
+	}
+
+	@Serial
+	private Object readResolve() throws ObjectStreamException {
+		switch (this.value) {
+			case "required":
+				return REQUIRED;
+			case "preferred":
+				return PREFERRED;
+			case "discouraged":
+				return DISCOURAGED;
+			default:
+				return this;
+		}
 	}
 
 }
