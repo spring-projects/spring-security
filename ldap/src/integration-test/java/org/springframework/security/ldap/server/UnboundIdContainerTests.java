@@ -21,9 +21,11 @@ import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,6 +44,24 @@ public class UnboundIdContainerTests {
 		try {
 			server.afterPropertiesSet();
 			assertThat(server.getPort()).isEqualTo(ports.get(0));
+		}
+		finally {
+			server.destroy();
+		}
+	}
+
+	@Test
+	public void startLdapServerThenListenerBindsToLoopbackAddressOnly() throws Exception {
+		UnboundIdContainer server = new UnboundIdContainer("dc=springframework,dc=org", null);
+		server.setApplicationContext(new GenericApplicationContext());
+		List<Integer> ports = getDefaultPorts(1);
+		server.setPort(ports.get(0));
+
+		try {
+			server.afterPropertiesSet();
+			InMemoryDirectoryServer directoryServer = (InMemoryDirectoryServer) ReflectionTestUtils.getField(server,
+					"directoryServer");
+			assertThat(directoryServer.getListenAddress().isLoopbackAddress()).isTrue();
 		}
 		finally {
 			server.destroy();
