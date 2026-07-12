@@ -78,9 +78,7 @@ public abstract class AbstractSecurityExpressionHandler<T>
 	public final EvaluationContext createEvaluationContext(@Nullable Authentication authentication, T invocation) {
 		SecurityExpressionOperations root = createSecurityExpressionRoot(authentication, invocation);
 		StandardEvaluationContext ctx = createEvaluationContextInternal(authentication, invocation);
-		if (this.beanResolver != null) {
-			ctx.setBeanResolver(this.beanResolver);
-		}
+		ctx.setBeanResolver(this.beanResolver);
 		ctx.setRootObject(root);
 		return ctx;
 	}
