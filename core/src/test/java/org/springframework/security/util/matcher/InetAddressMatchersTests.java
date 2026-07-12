@@ -415,6 +415,12 @@ class InetAddressMatchersTests {
 	@Nested
 	class ExternalInetAddressMatcherTests {
 
+		@Test
+		void matchesWhenInetAddressNullThenReturnsFalse() {
+			InetAddressMatcher matcher = InetAddressMatchers.matchExternal().build();
+			assertThat(matcher.matches((InetAddress) null)).isFalse();
+		}
+
 		@ParameterizedTest
 		@ValueSource(strings = { "8.8.8.8", "1.1.1.1" })
 		void matchesWhenIpv4PublicThenReturnsTrue(String address) throws Exception {
