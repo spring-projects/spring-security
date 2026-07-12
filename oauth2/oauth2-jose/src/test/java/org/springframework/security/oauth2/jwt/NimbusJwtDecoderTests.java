@@ -49,6 +49,7 @@ import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
 import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
+import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.BadJWTException;
@@ -82,6 +83,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -892,6 +894,20 @@ public class NimbusJwtDecoderTests {
 				new JWSHeader.Builder(JWSAlgorithm.HS256).type(JOSEObjectType.JOSE).build(),
 				new JWTClaimsSet.Builder().subject("subject").build());
 		jwtDecoder.decode(jwt.serialize());
+	}
+
+	// gh-18388
+	@Test
+	public void decodeWhenIllegalStateExceptionThenThrowsBadJwtException() throws Exception {
+		JWTProcessor<SecurityContext> jwtProcessor = mock(JWTProcessor.class);
+		given(jwtProcessor.process(any(JWT.class), isNull())).willThrow(new IllegalStateException());
+		NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(jwtProcessor);
+		// @formatter:off
+		assertThatExceptionOfType(BadJwtException.class)
+				.isThrownBy(() -> jwtDecoder.decode(SIGNED_JWT))
+				.withCauseInstanceOf(IllegalStateException.class)
+				.withMessageContaining("An error occurred while attempting to decode the Jwt");
+		// @formatter:on
 	}
 
 	private RSAPublicKey key() throws InvalidKeySpecException {

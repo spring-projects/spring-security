@@ -183,6 +183,10 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			this.logger.trace("Failed to process JWT", ex);
 			throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, ex.getMessage()), ex);
 		}
+		catch (IllegalStateException ex) {
+			this.logger.trace("Failed to validate issuer", ex);
+			throw new BadJwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, ex.getMessage()), ex);
+		}
 		catch (Exception ex) {
 			this.logger.trace("Failed to process JWT", ex);
 			if (ex.getCause() instanceof ParseException) {
