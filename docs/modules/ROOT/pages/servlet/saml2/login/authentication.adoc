@@ -483,6 +483,32 @@ provider.setAssertionValidator(assertionValidator)
 ----
 ======
 
+Also, you can use `AssertionValidator.Builder#replayCache` to have Spring Security configure `OneTimeUseConditionValidator` for you:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+OpenSaml5AuthenticationProvider provider = new OpenSaml5AuthenticationProvider();
+AssertionValidator assertionValidator = AssertionValidator.builder()
+        .replayCache(cache).build();
+provider.setAssertionValidator(assertionValidator);
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+val provider = OpenSaml5AuthenticationProvider()
+val assertionValidator = AssertionValidator.builder()
+        .replayCache(cache).build()
+provider.setAssertionValidator(assertionValidator)
+----
+
+======
+
 [[servlet-saml2login-opensamlauthenticationprovider-decryption]]
 == Customizing Decryption
 
