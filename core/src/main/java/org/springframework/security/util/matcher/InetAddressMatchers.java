@@ -335,6 +335,9 @@ public final class InetAddressMatchers {
 
 		@Override
 		public boolean matches(@Nullable InetAddress address) {
+			if (address == null) {
+				return false;
+			}
 			return !this.internalMatcher.matches(address);
 		}
 
