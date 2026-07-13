@@ -27,6 +27,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -181,6 +182,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * @param sharedType the type of the shared Object
 	 * @return the shared Object or null if it is not found
 	 */
+	@Nullable
 	@SuppressWarnings("unchecked")
 	public <C> C getSharedObject(Class<C> sharedType) {
 		return (C) this.sharedObjects.get(sharedType);
