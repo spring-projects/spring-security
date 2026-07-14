@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -85,6 +86,8 @@ public final class OAuth2TokenExchangeAuthenticationProvider implements Authenti
 	private final OAuth2AuthorizationService authorizationService;
 
 	private final OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator;
+
+	private Consumer<OAuth2TokenExchangeAuthenticationContext> authenticationValidator = new OAuth2TokenExchangeAuthenticationValidator();
 
 	/**
 	 * Constructs an {@code OAuth2TokenExchangeAuthenticationProvider} using the provided
@@ -204,12 +207,20 @@ public final class OAuth2TokenExchangeAuthenticationProvider implements Authenti
 			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_GRANT);
 		}
 
+		OAuth2TokenExchangeAuthenticationContext authenticationContext = OAuth2TokenExchangeAuthenticationContext
+			.with(tokenExchangeAuthentication)
+			.registeredClient(registeredClient)
+			.subjectAuthorization(subjectAuthorization)
+			.actorAuthorization(actorAuthorization)
+			.build();
+		this.authenticationValidator.accept(authenticationContext);
+
 		Set<String> authorizedScopes = Collections.emptySet();
 		if (!CollectionUtils.isEmpty(tokenExchangeAuthentication.getScopes())) {
-			authorizedScopes = validateRequestedScopes(registeredClient, tokenExchangeAuthentication.getScopes());
+			authorizedScopes = new LinkedHashSet<>(tokenExchangeAuthentication.getScopes());
 		}
 		else if (!CollectionUtils.isEmpty(subjectAuthorization.getAuthorizedScopes())) {
-			authorizedScopes = validateRequestedScopes(registeredClient, subjectAuthorization.getAuthorizedScopes());
+			authorizedScopes = new LinkedHashSet<>(subjectAuthorization.getAuthorizedScopes());
 		}
 
 		// Verify the DPoP Proof (if available)
@@ -285,16 +296,6 @@ public final class OAuth2TokenExchangeAuthenticationProvider implements Authenti
 				&& OAuth2TokenFormat.SELF_CONTAINED.getValue().equals(tokenFormat);
 	}
 
-	private static Set<String> validateRequestedScopes(RegisteredClient registeredClient, Set<String> requestedScopes) {
-		for (String requestedScope : requestedScopes) {
-			if (!registeredClient.getScopes().contains(requestedScope)) {
-				throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_SCOPE);
-			}
-		}
-
-		return new LinkedHashSet<>(requestedScopes);
-	}
-
 	private static void validateClaims(Map<String, Object> expectedClaims, @Nullable Map<String, Object> actualClaims,
 			String... claimNames) {
 		if (actualClaims == null) {
@@ -340,6 +341,27 @@ public final class OAuth2TokenExchangeAuthenticationProvider implements Authenti
 	@Override
 	public boolean supports(Class<?> authentication) {
 		return OAuth2TokenExchangeAuthenticationToken.class.isAssignableFrom(authentication);
+	}
+
+	/**
+	 * Sets the {@code Consumer} providing access to the
+	 * {@link OAuth2TokenExchangeAuthenticationContext} and is responsible for validating
+	 * specific OAuth 2.0 Token Exchange Grant Request parameters associated in the
+	 * {@link OAuth2TokenExchangeAuthenticationToken}. The default authentication validator
+	 * is {@link OAuth2TokenExchangeAuthenticationValidator}.
+	 *
+	 * <p>
+	 * <b>NOTE:</b> The authentication validator MUST throw
+	 * {@link org.springframework.security.oauth2.core.OAuth2AuthenticationException} if
+	 * validation fails.
+	 * @param authenticationValidator the {@code Consumer} providing access to the
+	 * {@link OAuth2TokenExchangeAuthenticationContext} and is responsible for validating
+	 * specific OAuth 2.0 Token Exchange Grant Request parameters
+	 */
+	public void setAuthenticationValidator(
+			Consumer<OAuth2TokenExchangeAuthenticationContext> authenticationValidator) {
+		Assert.notNull(authenticationValidator, "authenticationValidator cannot be null");
+		this.authenticationValidator = authenticationValidator;
 	}
 
 }
