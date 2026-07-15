@@ -18,6 +18,8 @@ package org.springframework.security.core.context;
 
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -47,8 +49,7 @@ final class ThreadLocalSecurityContextHolderStrategy implements SecurityContextH
 	public Supplier<SecurityContext> getDeferredContext() {
 		Supplier<SecurityContext> result = contextHolder.get();
 		if (result == null) {
-			SecurityContext context = createEmptyContext();
-			result = () -> context;
+			result = new ConstantSupplier(createEmptyContext());
 			contextHolder.set(result);
 		}
 		return result;
@@ -57,23 +58,26 @@ final class ThreadLocalSecurityContextHolderStrategy implements SecurityContextH
 	@Override
 	public void setContext(SecurityContext context) {
 		Assert.notNull(context, "Only non-null SecurityContext instances are permitted");
-		contextHolder.set(() -> context);
+		contextHolder.set(new ConstantSupplier(context));
 	}
 
 	@Override
 	public void setDeferredContext(Supplier<SecurityContext> deferredContext) {
 		Assert.notNull(deferredContext, "Only non-null Supplier instances are permitted");
-		Supplier<SecurityContext> notNullDeferredContext = () -> {
-			SecurityContext result = deferredContext.get();
-			Assert.notNull(result, "A Supplier<SecurityContext> returned null and is not allowed.");
-			return result;
-		};
+		Supplier<SecurityContext> notNullDeferredContext = (deferredContext instanceof NotNullSupplier
+				|| deferredContext instanceof ConstantSupplier) ? deferredContext
+						: new NotNullSupplier(deferredContext);
 		contextHolder.set(notNullDeferredContext);
 	}
 
 	@Override
 	public SecurityContext createEmptyContext() {
 		return new SecurityContextImpl();
+	}
+
+	@Override
+	public @Nullable Supplier<SecurityContext> peekDeferredContext() {
+		return contextHolder.get();
 	}
 
 }

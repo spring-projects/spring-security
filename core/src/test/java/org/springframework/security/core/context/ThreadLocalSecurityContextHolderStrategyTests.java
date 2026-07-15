@@ -81,4 +81,58 @@ class ThreadLocalSecurityContextHolderStrategyTests {
 		assertThat(this.strategy.getContext().getAuthentication()).isEqualTo(authentication);
 	}
 
+	@Test
+	void setDeferredContextWhenAlreadyWrappedThenDoesNotRewrap() {
+		Authentication authentication = mock(Authentication.class);
+		this.strategy.setDeferredContext(() -> new SecurityContextImpl(authentication));
+		Supplier<SecurityContext> wrapped = this.strategy.getDeferredContext();
+		this.strategy.setDeferredContext(wrapped);
+		assertThat(this.strategy.getDeferredContext()).isSameAs(wrapped);
+	}
+
+	// gh-18059
+	@Test
+	void setDeferredContextWhenAlreadyMaterializedThenDoesNotRewrap() {
+		Authentication authentication = mock(Authentication.class);
+		this.strategy.setContext(new SecurityContextImpl(authentication));
+		Supplier<SecurityContext> materialized = this.strategy.getDeferredContext();
+		this.strategy.setDeferredContext(materialized);
+		assertThat(this.strategy.getDeferredContext()).isSameAs(materialized);
+	}
+
+	// gh-18059
+	@Test
+	void peekDeferredContextWhenNotSetThenReturnsNull() {
+		assertThat(this.strategy.peekDeferredContext()).isNull();
+	}
+
+	// gh-18059
+	@Test
+	void peekDeferredContextWhenContextAutoCreatedThenReturnsSupplierOfSameContext() {
+		SecurityContext context = this.strategy.getContext();
+		Supplier<SecurityContext> deferred = this.strategy.peekDeferredContext();
+		assertThat(deferred).isNotNull();
+		assertThat(deferred.get()).isSameAs(context);
+	}
+
+	// gh-18059
+	@Test
+	void peekDeferredContextWhenContextSetThenReturnsSupplierOfSameContext() {
+		Authentication authentication = mock(Authentication.class);
+		SecurityContext context = new SecurityContextImpl(authentication);
+		this.strategy.setContext(context);
+		Supplier<SecurityContext> deferred = this.strategy.peekDeferredContext();
+		assertThat(deferred).isNotNull();
+		assertThat(deferred.get()).isSameAs(context);
+	}
+
+	// gh-18059
+	@Test
+	void peekDeferredContextWhenDeferredContextSetThenReturnsSameSupplierWithoutInvoking() {
+		Supplier<SecurityContext> deferredContext = mock(Supplier.class);
+		this.strategy.setDeferredContext(deferredContext);
+		assertThat(this.strategy.peekDeferredContext()).isSameAs(this.strategy.getDeferredContext());
+		verifyNoInteractions(deferredContext);
+	}
+
 }

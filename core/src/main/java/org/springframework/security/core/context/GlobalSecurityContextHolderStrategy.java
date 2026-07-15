@@ -16,6 +16,8 @@
 
 package org.springframework.security.core.context;
 
+import java.util.function.Supplier;
+
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.util.Assert;
@@ -50,6 +52,12 @@ final class GlobalSecurityContextHolderStrategy implements SecurityContextHolder
 	public void setContext(SecurityContext context) {
 		Assert.notNull(context, "Only non-null SecurityContext instances are permitted");
 		contextHolder = context;
+	}
+
+	@Override
+	public @Nullable Supplier<SecurityContext> peekDeferredContext() {
+		SecurityContext context = contextHolder;
+		return (context != null) ? new ConstantSupplier(context) : null;
 	}
 
 	@Override
