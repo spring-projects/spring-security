@@ -35,6 +35,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.util.MultiValueMap;
@@ -50,6 +51,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DefaultOAuth2TokenRequestParametersConverterTests {
 
 	private static final String ACCESS_TOKEN_TYPE_VALUE = "urn:ietf:params:oauth:token-type:access_token";
+
+	private static final String ID_TOKEN_TYPE_VALUE = "urn:ietf:params:oauth:token-type:id_token";
 
 	private static final String JWT_TOKEN_TYPE_VALUE = "urn:ietf:params:oauth:token-type:jwt";
 
@@ -199,6 +202,22 @@ public class DefaultOAuth2TokenRequestParametersConverterTests {
 		assertThat(parameters.get(OAuth2ParameterNames.SUBJECT_TOKEN_TYPE)).containsExactly(ACCESS_TOKEN_TYPE_VALUE);
 		assertThat(parameters.get(OAuth2ParameterNames.ACTOR_TOKEN)).containsExactly(actorToken.getTokenValue());
 		assertThat(parameters.get(OAuth2ParameterNames.ACTOR_TOKEN_TYPE)).containsExactly(JWT_TOKEN_TYPE_VALUE);
+	}
+
+	@Test
+	public void convertWhenGrantRequestIsTokenExchangeAndSubjectTokenIsOidcIdTokenThenSubjectTokenTypeIsIdToken() {
+		ClientRegistration clientRegistration = this.clientRegistration
+			.authorizationGrantType(AuthorizationGrantType.TOKEN_EXCHANGE)
+			.build();
+		OidcIdToken subjectToken = OidcIdToken.withTokenValue("id-token").claim("sub", "user").build();
+		TokenExchangeGrantRequest grantRequest = new TokenExchangeGrantRequest(clientRegistration, subjectToken, null);
+		// @formatter:off
+		DefaultOAuth2TokenRequestParametersConverter<TokenExchangeGrantRequest> parametersConverter =
+			new DefaultOAuth2TokenRequestParametersConverter<>();
+		// @formatter:on
+		MultiValueMap<String, String> parameters = parametersConverter.convert(grantRequest);
+		assertThat(parameters.get(OAuth2ParameterNames.SUBJECT_TOKEN)).containsExactly(subjectToken.getTokenValue());
+		assertThat(parameters.get(OAuth2ParameterNames.SUBJECT_TOKEN_TYPE)).containsExactly(ID_TOKEN_TYPE_VALUE);
 	}
 
 }
