@@ -108,7 +108,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 	protected CasAuthenticationToken(Builder<?> builder) {
 		super(builder);
 		Assert.isTrue(!"".equals(builder.principal), "principal cannot be null or empty");
-		Assert.notNull(!"".equals(builder.credentials), "credentials cannot be null or empty");
+		Assert.isTrue(!"".equals(builder.credentials), "credentials cannot be null or empty");
 		Assert.notNull(builder.userDetails, "userDetails cannot be null");
 		Assert.notNull(builder.assertion, "assertion cannot be null");
 		this.keyHash = builder.keyHash;
