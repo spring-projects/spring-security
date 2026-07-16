@@ -38,6 +38,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -133,6 +135,9 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 
 	@Mock
 	private OAuth2AuthorizedClientRepository authorizedClientRepository;
+
+	@Mock
+	private OAuth2AuthorizedClientService oAuth2AuthorizedClientService;
 
 	@Mock
 	private ClientRegistrationRepository clientRegistrationRepository;
@@ -659,6 +664,41 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		assertThat(getBody(request)).isEmpty();
 		verify(this.authorizedClientRepository).loadAuthorizedClient(this.registration.getRegistrationId(),
 				authentication, servletRequest);
+	}
+
+	@Test
+	public void filterWhenServletRequestNullClientRegistrationIdFromAuthenticationAndCustomPrincipalResolverThenAuthorizedClientResolved() {
+		this.function = new ServletOAuth2AuthorizedClientExchangeFilterFunction(
+				new AuthorizedClientServiceOAuth2AuthorizedClientManager(this.clientRegistrationRepository,
+						oAuth2AuthorizedClientService));
+		this.function.setDefaultOAuth2AuthorizedClient(true);
+		OAuth2User user = mock(OAuth2User.class);
+		List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
+		OAuth2AuthenticationToken initialAuthentication = new OAuth2AuthenticationToken(user, authorities,
+				"initial-registration-id");
+		OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(user, authorities,
+				this.registration.getRegistrationId());
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
+				this.accessToken);
+		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(this.registration);
+		given(this.oAuth2AuthorizedClientService.loadAuthorizedClient(this.registration.getRegistrationId(),
+				initialAuthentication.getName()))
+			.willReturn(authorizedClient);
+		final ClientRequest clientRequest = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+			.build();
+		this.function.setPrincipalResolver((request) -> authentication);
+		this.function.filter(clientRequest, this.exchange)
+			.contextWrite(context(null, null, initialAuthentication))
+			.block();
+		List<ClientRequest> requests = this.exchange.getRequests();
+		assertThat(requests).hasSize(1);
+		ClientRequest request = requests.get(0);
+		assertThat(request.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer token-0");
+		assertThat(request.url().toASCIIString()).isEqualTo("https://example.com");
+		assertThat(request.method()).isEqualTo(HttpMethod.GET);
+		assertThat(getBody(request)).isEmpty();
+		verify(this.oAuth2AuthorizedClientService).loadAuthorizedClient(this.registration.getRegistrationId(),
+				authentication.getName());
 	}
 
 	@Test
