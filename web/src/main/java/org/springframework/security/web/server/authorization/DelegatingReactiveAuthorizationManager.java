@@ -58,9 +58,11 @@ public final class DelegatingReactiveAuthorizationManager implements ReactiveAut
 				.filter(MatchResult::isMatch)
 				.map(MatchResult::getVariables)
 				.flatMap((variables) -> {
-					logger.debug(LogMessage.of(() -> "Checking authorization on '"
-							+ exchange.getRequest().getPath().pathWithinApplication() + "' using "
-							+ mapping.getEntry()));
+					if (logger.isDebugEnabled()) {
+						logger.debug(LogMessage.of(() -> "Checking authorization on '"
+								+ exchange.getRequest().getPath().pathWithinApplication() + "' using "
+								+ mapping.getEntry()));
+					}
 					return mapping.getEntry().authorize(authentication, new AuthorizationContext(exchange, variables));
 				}))
 			.next()
