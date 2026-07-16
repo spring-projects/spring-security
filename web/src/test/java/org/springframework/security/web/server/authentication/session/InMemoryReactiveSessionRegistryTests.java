@@ -20,6 +20,10 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.junit.jupiter.api.Test;
 
@@ -101,6 +105,60 @@ class InMemoryReactiveSessionRegistryTests {
 		saved = this.sessionRegistry.getSessionInformation("1234").block();
 		assertThat(saved.getLastAccessTime()).isNotNull();
 		assertThat(saved.getLastAccessTime()).isAfter(lastAccessTimeBefore);
+	}
+
+	// Removing the last session of a principal must not race with a concurrent save for
+	// the same principal. Previously remove pruned the principal key with a non-atomic
+	// isEmpty()-then-remove, which could drop a session added concurrently.
+	@Test
+	void saveAndRemoveConcurrentlyThenAddedSessionNotLost() throws Exception {
+		Authentication authentication = TestAuthentication.authenticatedUser();
+		Object principal = authentication.getPrincipal();
+		ExecutorService executor = Executors.newFixedThreadPool(2);
+		try {
+			for (int i = 0; i < 1000; i++) {
+				assertAddedSessionSurvivesConcurrentSaveAndRemove(principal, "existing-" + i, "added-" + i, executor);
+			}
+		}
+		finally {
+			executor.shutdownNow();
+		}
+	}
+
+	// Runs one concurrent save/remove race for the principal and asserts the
+	// concurrently added session is not lost.
+	private void assertAddedSessionSurvivesConcurrentSaveAndRemove(Object principal, String existing, String added,
+			ExecutorService executor) throws Exception {
+		this.sessionRegistry.saveSessionInformation(new ReactiveSessionInformation(principal, existing, this.now))
+			.block();
+		CountDownLatch start = new CountDownLatch(1);
+		Future<?> remove = executor.submit(() -> {
+			awaitUninterruptibly(start);
+			this.sessionRegistry.removeSessionInformation(existing).block();
+		});
+		Future<?> save = executor.submit(() -> {
+			awaitUninterruptibly(start);
+			this.sessionRegistry.saveSessionInformation(new ReactiveSessionInformation(principal, added, this.now))
+				.block();
+		});
+		start.countDown();
+		remove.get();
+		save.get();
+		List<ReactiveSessionInformation> sessions = this.sessionRegistry.getAllSessions(principal)
+			.collectList()
+			.block();
+		assertThat(sessions).extracting(ReactiveSessionInformation::getSessionId).contains(added);
+		this.sessionRegistry.removeSessionInformation(added).block();
+	}
+
+	private static void awaitUninterruptibly(CountDownLatch latch) {
+		try {
+			latch.await();
+		}
+		catch (InterruptedException ex) {
+			Thread.currentThread().interrupt();
+			throw new RuntimeException(ex);
+		}
 	}
 
 }
