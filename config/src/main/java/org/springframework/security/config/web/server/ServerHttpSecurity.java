@@ -297,6 +297,7 @@ import org.springframework.web.util.pattern.PathPatternParser;
  * @author Ankur Pathak
  * @author Alexey Nesterov
  * @author Yanming Zhou
+ * @author Iain Henderson
  * @since 5.0
  */
 public class ServerHttpSecurity {
@@ -4138,6 +4139,8 @@ public class ServerHttpSecurity {
 
 		private ServerAuthenticationFailureHandler authenticationFailureHandler;
 
+		private ServerAuthenticationSuccessHandler authenticationSuccessHandler;
+
 		private ServerAccessDeniedHandler accessDeniedHandler = new BearerTokenServerAccessDeniedHandler();
 
 		private ServerAuthenticationConverter bearerTokenConverter = new ServerBearerTokenAuthenticationConverter();
@@ -4183,6 +4186,20 @@ public class ServerHttpSecurity {
 		public OAuth2ResourceServerSpec authenticationFailureHandler(
 				ServerAuthenticationFailureHandler authenticationFailureHandler) {
 			this.authenticationFailureHandler = authenticationFailureHandler;
+			return this;
+		}
+
+		/**
+		 * Configures the {@link ServerAuthenticationSuccessHandler} to use. The default
+		 * is {@link WebFilterChainServerAuthenticationSuccessHandler}
+		 * @param authenticationSuccessHandler the
+		 * {@link ServerAuthenticationSuccessHandler} to use
+		 * @return the {@link OAuth2ClientSpec} to customize
+		 * @since 7.1
+		 */
+		public OAuth2ResourceServerSpec authenticationSuccessHandler(
+				ServerAuthenticationSuccessHandler authenticationSuccessHandler) {
+			this.authenticationSuccessHandler = authenticationSuccessHandler;
 			return this;
 		}
 
@@ -4254,6 +4271,7 @@ public class ServerHttpSecurity {
 				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(this.authenticationManagerResolver);
 				oauth2.setServerAuthenticationConverter(this.bearerTokenConverter);
 				oauth2.setAuthenticationFailureHandler(authenticationFailureHandler());
+				oauth2.setAuthenticationSuccessHandler(authenticationSuccessHandler());
 				http.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
 			}
 			else if (this.jwt != null) {
@@ -4311,6 +4329,13 @@ public class ServerHttpSecurity {
 				return this.authenticationFailureHandler;
 			}
 			return new ServerAuthenticationEntryPointFailureHandler(this.entryPoint);
+		}
+
+		private ServerAuthenticationSuccessHandler authenticationSuccessHandler() {
+			if (this.authenticationSuccessHandler != null) {
+				return this.authenticationSuccessHandler;
+			}
+			return new WebFilterChainServerAuthenticationSuccessHandler();
 		}
 
 		/**
@@ -4387,6 +4412,7 @@ public class ServerHttpSecurity {
 				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(authenticationManager);
 				oauth2.setServerAuthenticationConverter(OAuth2ResourceServerSpec.this.bearerTokenConverter);
 				oauth2.setAuthenticationFailureHandler(authenticationFailureHandler());
+				oauth2.setAuthenticationSuccessHandler(authenticationSuccessHandler());
 				http.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
 			}
 
@@ -4519,6 +4545,7 @@ public class ServerHttpSecurity {
 				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(authenticationManager);
 				oauth2.setServerAuthenticationConverter(OAuth2ResourceServerSpec.this.bearerTokenConverter);
 				oauth2.setAuthenticationFailureHandler(authenticationFailureHandler());
+				oauth2.setAuthenticationSuccessHandler(authenticationSuccessHandler());
 				http.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
 			}
 
