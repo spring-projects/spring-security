@@ -220,4 +220,22 @@ public class DefaultOAuth2TokenRequestParametersConverterTests {
 		assertThat(parameters.get(OAuth2ParameterNames.SUBJECT_TOKEN_TYPE)).containsExactly(ID_TOKEN_TYPE_VALUE);
 	}
 
+	@Test
+	public void convertWhenGrantRequestIsTokenExchangeAndActorTokenIsOidcIdTokenThenActorTokenTypeIsIdToken() {
+		ClientRegistration clientRegistration = this.clientRegistration
+			.authorizationGrantType(AuthorizationGrantType.TOKEN_EXCHANGE)
+			.build();
+		OAuth2Token subjectToken = TestOAuth2AccessTokens.scopes("read", "write");
+		OidcIdToken actorToken = OidcIdToken.withTokenValue("id-token").claim("sub", "user").build();
+		TokenExchangeGrantRequest grantRequest = new TokenExchangeGrantRequest(clientRegistration, subjectToken,
+				actorToken);
+		// @formatter:off
+		DefaultOAuth2TokenRequestParametersConverter<TokenExchangeGrantRequest> parametersConverter =
+			new DefaultOAuth2TokenRequestParametersConverter<>();
+		// @formatter:on
+		MultiValueMap<String, String> parameters = parametersConverter.convert(grantRequest);
+		assertThat(parameters.get(OAuth2ParameterNames.ACTOR_TOKEN)).containsExactly(actorToken.getTokenValue());
+		assertThat(parameters.get(OAuth2ParameterNames.ACTOR_TOKEN_TYPE)).containsExactly(ID_TOKEN_TYPE_VALUE);
+	}
+
 }
