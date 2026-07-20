@@ -33,7 +33,7 @@ import org.springframework.util.Assert;
  * @since 7.0
  * @see AllAuthoritiesAuthorizationManager
  */
-public class RequiredAuthoritiesAuthorizationManager<T> implements AuthorizationManager<T> {
+public class RequiredAuthoritiesAuthorizationManager<T extends @Nullable Object> implements AuthorizationManager<T> {
 
 	private final RequiredAuthoritiesRepository authorities;
 
