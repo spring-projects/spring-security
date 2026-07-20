@@ -26,6 +26,7 @@ import org.springframework.context.annotation.AutoProxyRegistrar;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.lang.NonNull;
+import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 /**
@@ -34,6 +35,8 @@ import org.springframework.util.ClassUtils;
  * @since 5.0
  */
 class ReactiveMethodSecuritySelector implements ImportSelector {
+
+	private static final String METHOD_SECURITY_METADATA_SOURCE_ADVISOR = "org.springframework.security.access.intercept.aopalliance.MethodSecurityMetadataSourceAdvisor";
 
 	private static final boolean isDataPresent = ClassUtils
 		.isPresent("org.springframework.security.data.aot.hint.AuthorizeReturnObjectDataHintsRegistrar", null);
@@ -56,6 +59,11 @@ class ReactiveMethodSecuritySelector implements ImportSelector {
 			imports.add(ReactiveAuthorizationManagerMethodSecurityConfiguration.class.getName());
 		}
 		else {
+			Assert.state(
+					ClassUtils.isPresent(METHOD_SECURITY_METADATA_SOURCE_ADVISOR, ClassUtils.getDefaultClassLoader()),
+					() -> "@EnableReactiveMethodSecurity(useAuthorizationManager = false) requires the "
+							+ "spring-security-access dependency on the classpath. Please add spring-security-access, "
+							+ "or use the default useAuthorizationManager = true which does not require it.");
 			imports.add(ReactiveMethodSecurityConfiguration.class.getName());
 		}
 		if (isDataPresent) {
