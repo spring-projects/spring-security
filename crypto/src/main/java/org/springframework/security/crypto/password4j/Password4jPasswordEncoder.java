@@ -16,9 +16,11 @@
 
 package org.springframework.security.crypto.password4j;
 
-import com.password4j.Hash;
+import com.password4j.HashBuilder;
+import com.password4j.HashChecker;
 import com.password4j.HashingFunction;
 import com.password4j.Password;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.crypto.password.AbstractValidatingPasswordEncoder;
 import org.springframework.util.Assert;
@@ -39,11 +41,14 @@ import org.springframework.util.Assert;
  * </p>
  *
  * @author Mehrdad Bozorgmehr
+ * @author Andrey Litvitski
  * @since 7.0
  */
 abstract class Password4jPasswordEncoder extends AbstractValidatingPasswordEncoder {
 
 	private final HashingFunction hashingFunction;
+
+	@Nullable private final String pepper;
 
 	/**
 	 * Constructs a Password4j password encoder with the specified hashing function. This
@@ -53,19 +58,41 @@ abstract class Password4jPasswordEncoder extends AbstractValidatingPasswordEncod
 	 * @throws IllegalArgumentException if hashingFunction is null
 	 */
 	Password4jPasswordEncoder(HashingFunction hashingFunction) {
+		this(hashingFunction, null);
+	}
+
+	/**
+	 * Constructs a Password4j password encoder with the specified hashing function and a
+	 * pepper. This constructor is package-private and intended for use by subclasses
+	 * only.
+	 * @param hashingFunction the hashing function to use for encoding passwords, must not
+	 * be null
+	 * @param pepper the pepper to be used in the hashing process. If null, no pepper will
+	 * be applied.
+	 * @throws IllegalArgumentException if hashingFunction is null
+	 */
+	Password4jPasswordEncoder(HashingFunction hashingFunction, @Nullable String pepper) {
 		Assert.notNull(hashingFunction, "hashingFunction cannot be null");
 		this.hashingFunction = hashingFunction;
+		this.pepper = pepper;
 	}
 
 	@Override
 	protected String encodeNonNullPassword(String rawPassword) {
-		Hash hash = Password.hash(rawPassword).with(this.hashingFunction);
-		return hash.getResult();
+		HashBuilder hashBuilder = Password.hash(rawPassword);
+		if (this.pepper != null) {
+			hashBuilder = hashBuilder.addPepper(this.pepper);
+		}
+		return hashBuilder.with(this.hashingFunction).getResult();
 	}
 
 	@Override
 	protected boolean matchesNonNull(String rawPassword, String encodedPassword) {
-		return Password.check(rawPassword, encodedPassword).with(this.hashingFunction);
+		HashChecker hashChecker = Password.check(rawPassword, encodedPassword);
+		if (this.pepper != null) {
+			hashChecker = hashChecker.addPepper(this.pepper);
+		}
+		return hashChecker.with(this.hashingFunction);
 	}
 
 	@Override
