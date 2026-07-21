@@ -26,8 +26,10 @@ import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2TokenExchangeActor;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2TokenExchangeCompositeAuthenticationToken;
+import org.springframework.security.oauth2.server.authorization.jackson2.OAuth2AuthorizationTokenMixin;
 import org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat;
 
 /**
@@ -84,6 +86,7 @@ public class OAuth2AuthorizationServerJacksonModule extends SecurityJacksonModul
 		context.setMixIn(SignatureAlgorithm.class, JwsAlgorithmMixin.class);
 		context.setMixIn(MacAlgorithm.class, JwsAlgorithmMixin.class);
 		context.setMixIn(OAuth2TokenFormat.class, OAuth2TokenFormatMixin.class);
+		context.setMixIn(OAuth2Authorization.Token.class, OAuth2AuthorizationTokenMixin.class);
 	}
 
 }

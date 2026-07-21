@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.server.authorization;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
@@ -238,12 +239,16 @@ public class OAuth2Authorization implements Serializable {
 	public static Builder from(OAuth2Authorization authorization) {
 		Assert.notNull(authorization, "authorization cannot be null");
 		Assert.notNull(authorization.tokens, "tokens cannot be null");
-		return new Builder(authorization.getRegisteredClientId()).id(authorization.getId())
+		Builder builder = new Builder(authorization.getRegisteredClientId()).id(authorization.getId())
 			.principalName(authorization.getPrincipalName())
 			.authorizationGrantType(authorization.getAuthorizationGrantType())
 			.authorizedScopes(authorization.getAuthorizedScopes())
 			.tokens(authorization.tokens)
 			.attributes((attrs) -> attrs.putAll(authorization.getAttributes()));
+		if (!authorization.tokens.isEmpty()) {
+			builder.clock(authorization.tokens.values().iterator().next().getClock());
+		}
+		return builder;
 	}
 
 	/**
@@ -273,6 +278,8 @@ public class OAuth2Authorization implements Serializable {
 
 		private final Map<String, Object> metadata;
 
+		private transient @Nullable Clock clock;
+
 		protected Token(T token) {
 			this(token, defaultMetadata());
 		}
@@ -280,6 +287,7 @@ public class OAuth2Authorization implements Serializable {
 		protected Token(T token, Map<String, Object> metadata) {
 			this.token = token;
 			this.metadata = Collections.unmodifiableMap(metadata);
+
 		}
 
 		/**
@@ -304,7 +312,7 @@ public class OAuth2Authorization implements Serializable {
 		 * @return {@code true} if the token has expired, {@code false} otherwise
 		 */
 		public boolean isExpired() {
-			return getToken().getExpiresAt() != null && Instant.now().isAfter(getToken().getExpiresAt());
+			return getToken().getExpiresAt() != null && this.getClock().instant().isAfter(getToken().getExpiresAt());
 		}
 
 		/**
@@ -317,7 +325,7 @@ public class OAuth2Authorization implements Serializable {
 			if (!CollectionUtils.isEmpty(getClaims())) {
 				notBefore = (Instant) getClaims().get("nbf");
 			}
-			return notBefore != null && Instant.now().isBefore(notBefore);
+			return notBefore != null && this.getClock().instant().isBefore(notBefore);
 		}
 
 		/**
@@ -362,6 +370,15 @@ public class OAuth2Authorization implements Serializable {
 			return metadata;
 		}
 
+		/**
+		 * Returns the {@link Clock} used for computing time-based checks.
+		 * @return the {@link Clock} to use, or {@link Clock#systemDefaultZone()} if not
+		 * set
+		 */
+		protected Clock getClock() {
+			return (this.clock != null) ? this.clock : Clock.systemDefaultZone();
+		}
+
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) {
@@ -395,6 +412,8 @@ public class OAuth2Authorization implements Serializable {
 		private @Nullable AuthorizationGrantType authorizationGrantType;
 
 		private @Nullable Set<String> authorizedScopes;
+
+		private transient @Nullable Clock clock;
 
 		private Map<Class<? extends OAuth2Token>, Token<?>> tokens = new HashMap<>();
 
@@ -491,7 +510,9 @@ public class OAuth2Authorization implements Serializable {
 			}
 			metadataConsumer.accept(metadata);
 			Class<? extends OAuth2Token> tokenClass = token.getClass();
-			this.tokens.put(tokenClass, new Token<>(token, metadata));
+			Token<T> tokenWithClock = new Token<>(token, metadata);
+			tokenWithClock.clock = this.clock;
+			this.tokens.put(tokenClass, tokenWithClock);
 			return this;
 		}
 
@@ -570,9 +591,30 @@ public class OAuth2Authorization implements Serializable {
 			authorization.authorizationGrantType = this.authorizationGrantType;
 			authorization.authorizedScopes = Collections.unmodifiableSet(!CollectionUtils.isEmpty(this.authorizedScopes)
 					? new HashSet<>(this.authorizedScopes) : new HashSet<>());
+
+			if (this.clock != null && this.tokens != null) {
+				for (Token<?> token : this.tokens.values()) {
+					token.clock = this.clock;
+				}
+			}
+
 			authorization.tokens = Collections.unmodifiableMap(this.tokens);
 			authorization.attributes = Collections.unmodifiableMap(this.attributes);
 			return authorization;
+		}
+
+		/**
+		 * Sets the {@link Clock} used for determining if a {@link Token} is
+		 * {@link Token#isExpired() expired} or {@link Token#isBeforeUse() before use}. If
+		 * not set, defaults to {@link Clock#systemDefaultZone()}.
+		 * @param clock the {@link Clock} to use
+		 * @return the {@link Builder} for further configuration
+		 * @since 7.1.1
+		 */
+		public Builder clock(Clock clock) {
+			Assert.notNull(clock, "clock cannot be null");
+			this.clock = clock;
+			return this;
 		}
 
 	}
