@@ -228,6 +228,7 @@ public class KerberosRestTemplate extends RestTemplate {
 		return lc;
 	}
 
+	@SuppressWarnings("removal")
 	@Override
 	protected final <T> T doExecute(final URI url, final @Nullable String uriTemplate,
 			final @Nullable HttpMethod method, final @Nullable RequestCallback requestCallback,
