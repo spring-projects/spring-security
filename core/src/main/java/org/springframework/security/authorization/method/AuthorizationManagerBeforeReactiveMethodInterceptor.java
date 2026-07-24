@@ -121,7 +121,7 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor implement
 		ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(type);
 		if (hasFlowReturnType) {
 			if (isSuspendingFunction) {
-				return preAuthorized(mi, Flux.defer(() -> ReactiveMethodInvocationUtils.proceed(mi)));
+				return preAuthorized(mi, Flux.defer(() -> ReactiveMethodInvocationUtils.proceedAsFlux(mi)));
 			}
 			else {
 				Assert.state(adapter != null, () -> "The returnType " + type + " on " + method
@@ -132,10 +132,10 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor implement
 			}
 		}
 		if (isMultiValue(type, adapter)) {
-			Flux<?> result = preAuthorized(mi, Flux.defer(() -> ReactiveMethodInvocationUtils.proceed(mi)));
+			Flux<?> result = preAuthorized(mi, Flux.defer(() -> ReactiveMethodInvocationUtils.proceedAsFlux(mi)));
 			return (adapter != null) ? adapter.fromPublisher(result) : result;
 		}
-		Mono<?> result = preAuthorized(mi, Mono.defer(() -> ReactiveMethodInvocationUtils.proceed(mi)));
+		Mono<?> result = preAuthorized(mi, Mono.defer(() -> ReactiveMethodInvocationUtils.proceedAsMono(mi)));
 		return (adapter != null) ? adapter.fromPublisher(result) : result;
 	}
 

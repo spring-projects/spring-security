@@ -137,11 +137,7 @@ public final class AuthorizationManagerAfterReactiveMethodInterceptor implements
 		ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(type);
 		if (hasFlowReturnType) {
 			if (isSuspendingFunction) {
-				Publisher<?> publisher = ReactiveMethodInvocationUtils.proceed(mi);
-				if (publisher == null) {
-					return Flux.empty();
-				}
-				return Flux.from(publisher).materialize().flatMap(postAuthorize);
+				return ReactiveMethodInvocationUtils.proceedAsFlux(mi).materialize().flatMap(postAuthorize);
 			}
 			else {
 				Assert.state(adapter != null, () -> "The returnType " + type + " on " + method
@@ -152,15 +148,11 @@ public final class AuthorizationManagerAfterReactiveMethodInterceptor implements
 				return KotlinDelegate.asFlow(response);
 			}
 		}
-		Publisher<?> publisher = ReactiveMethodInvocationUtils.proceed(mi);
-		if (publisher == null) {
-			return Flux.empty();
-		}
 		if (isMultiValue(type, adapter)) {
-			Flux<?> flux = Flux.from(publisher).materialize().flatMap(postAuthorize);
+			Flux<?> flux = ReactiveMethodInvocationUtils.proceedAsFlux(mi).materialize().flatMap(postAuthorize);
 			return (adapter != null) ? adapter.fromPublisher(flux) : flux;
 		}
-		Mono<?> mono = Mono.from(publisher).materialize().flatMap(postAuthorize);
+		Mono<?> mono = ReactiveMethodInvocationUtils.proceedAsMono(mi).materialize().flatMap(postAuthorize);
 		return (adapter != null) ? adapter.fromPublisher(mono) : mono;
 	}
 
