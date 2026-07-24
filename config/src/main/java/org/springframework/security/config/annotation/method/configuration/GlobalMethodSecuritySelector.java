@@ -39,6 +39,8 @@ import org.springframework.util.ClassUtils;
 @Deprecated
 final class GlobalMethodSecuritySelector implements ImportSelector {
 
+	private static final String METHOD_SECURITY_METADATA_SOURCE_ADVISOR = "org.springframework.security.access.intercept.aopalliance.MethodSecurityMetadataSourceAdvisor";
+
 	@Override
 	public String[] selectImports(AnnotationMetadata importingClassMetadata) {
 		Class<EnableGlobalMethodSecurity> annoType = EnableGlobalMethodSecurity.class;
@@ -57,6 +59,16 @@ final class GlobalMethodSecuritySelector implements ImportSelector {
 		String autoProxyClassName = isProxy ? AutoProxyRegistrar.class.getName()
 				: GlobalMethodSecurityAspectJAutoProxyRegistrar.class.getName();
 		boolean jsr250Enabled = attributes.getBoolean("jsr250Enabled");
+		if (isProxy || !skipMethodSecurityConfiguration) {
+			// The proxy-mode advisor registrar and GlobalMethodSecurityConfiguration
+			// (imported for both proxy and aspectj modes) need types that only exist in
+			// the optional spring-security-access module.
+			Assert.state(
+					ClassUtils.isPresent(METHOD_SECURITY_METADATA_SOURCE_ADVISOR, ClassUtils.getDefaultClassLoader()),
+					() -> "@EnableGlobalMethodSecurity requires the spring-security-access dependency on the "
+							+ "classpath. Please add spring-security-access, or migrate to @EnableMethodSecurity "
+							+ "which does not require it.");
+		}
 		List<String> classNames = new ArrayList<>(4);
 		if (isProxy) {
 			classNames.add(MethodSecurityMetadataSourceAdvisorRegistrar.class.getName());
