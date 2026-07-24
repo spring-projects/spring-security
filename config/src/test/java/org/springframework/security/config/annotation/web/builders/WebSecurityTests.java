@@ -17,6 +17,7 @@
 package org.springframework.security.config.annotation.web.builders;
 
 import java.io.IOException;
+import java.util.List;
 
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.observation.ObservationTextPublisher;
@@ -35,13 +36,19 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authorization.FactorAuthorizationDecision;
+import org.springframework.security.authorization.RequiredFactor;
+import org.springframework.security.authorization.RequiredFactorError;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.firewall.HttpStatusRequestRejectedHandler;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -109,6 +116,19 @@ public class WebSecurityTests {
 		this.request.setRequestURI("/spring/\u0019path");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
+	}
+
+	// gh-19282
+	@Test
+	public void privilegeEvaluatorWhenAuthorizationManagerReturnsFactorDecisionThenIsAllowedReturnsFalseWithoutClassCastException() {
+		loadConfig(FactorDecisionConfig.class);
+		WebInvocationPrivilegeEvaluator evaluator = this.context.getBean(WebInvocationPrivilegeEvaluator.class);
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		// Before gh-19282 the lambda registered in WebSecurity#addAuthorizationManager
+		// cast the result of AuthorizationManager#authorize to AuthorizationDecision,
+		// which fails for AuthorizationResult subtypes such as
+		// FactorAuthorizationDecision.
+		assertThat(evaluator.isAllowed("/secure", authentication)).isFalse();
 	}
 
 	// gh-19128
@@ -259,6 +279,25 @@ public class WebSecurityTests {
 				return "path";
 			}
 
+		}
+
+	}
+
+	// gh-19282
+	@Configuration
+	@EnableWebSecurity
+	static class FactorDecisionConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().access((authentication, context) -> new FactorAuthorizationDecision(
+							List.of(RequiredFactorError.createMissing(
+									RequiredFactor.withAuthority(FactorGrantedAuthority.OTT_AUTHORITY).build())))));
+			// @formatter:on
+			return http.build();
 		}
 
 	}
