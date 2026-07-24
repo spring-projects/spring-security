@@ -22,13 +22,9 @@ import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.security.config.Customizer
 import org.springframework.security.config.ThrowingCustomizer
-import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer
-import org.springframework.security.config.annotation.web.configurers.HttpsRedirectConfigurer
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.SecurityWebFilterChain
-import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers.anyExchange
 
 /**
  *
@@ -79,7 +75,7 @@ internal class CustomizerBeanOrderingConfiguration {
         // @formatter:off
         return Customizer { headers -> headers
             .contentSecurityPolicy { csp -> csp
-                .policyDirectives("object-src 'none'")
+                .directives("object-src 'none'")
             }
         }
         // @formatter:on
