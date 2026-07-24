@@ -511,9 +511,6 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		}
 		HttpServletRequest servletRequest = getRequest(attrs);
 		HttpServletResponse servletResponse = getResponse(attrs);
-		if (servletRequest == null || servletResponse == null) {
-			return Mono.empty();
-		}
 		OAuth2AuthorizeRequest.Builder builder = OAuth2AuthorizeRequest.withClientRegistrationId(clientRegistrationId)
 			.principal(authentication);
 		builder.attributes((attributes) -> addToAttributes(attributes, servletRequest, servletResponse));
@@ -538,9 +535,6 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		}
 		HttpServletRequest servletRequest = getRequest(attrs);
 		HttpServletResponse servletResponse = getResponse(attrs);
-		if (servletRequest == null || servletResponse == null) {
-			return Mono.just(authorizedClient);
-		}
 		OAuth2AuthorizeRequest.Builder builder = OAuth2AuthorizeRequest.withAuthorizedClient(authorizedClient)
 			.principal(authentication);
 		builder.attributes((attributes) -> addToAttributes(attributes, servletRequest, servletResponse));
@@ -552,8 +546,8 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 			.subscribeOn(Schedulers.boundedElastic());
 	}
 
-	private void addToAttributes(Map<String, Object> attributes, HttpServletRequest servletRequest,
-			HttpServletResponse servletResponse) {
+	private void addToAttributes(Map<String, Object> attributes, @Nullable HttpServletRequest servletRequest,
+			@Nullable HttpServletResponse servletResponse) {
 		if (servletRequest != null) {
 			attributes.put(HTTP_SERVLET_REQUEST_ATTR_NAME, servletRequest);
 		}
