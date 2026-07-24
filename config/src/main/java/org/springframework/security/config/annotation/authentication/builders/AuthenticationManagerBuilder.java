@@ -104,7 +104,9 @@ public class AuthenticationManagerBuilder
 
 	/**
 	 * @param eraseCredentials true if {@link AuthenticationManager} should clear the
-	 * credentials from the {@link Authentication} object after authenticating
+	 * credentials from the {@link Authentication} object after authenticating. Setting
+	 * this to {@code false} is generally discouraged because it retains credentials in
+	 * memory for longer than necessary.
 	 * @return the {@link AuthenticationManagerBuilder} for further customizations
 	 */
 	public AuthenticationManagerBuilder eraseCredentials(boolean eraseCredentials) {
