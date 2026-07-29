@@ -23,22 +23,7 @@ Both `BytesEncryptor` and `TextEncryptor` are interfaces. `BytesEncryptor` has m
 You can use the `Encryptors.stronger` factory method to construct a `BytesEncryptor`:
 
 .BytesEncryptor
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-Encryptors.stronger("password", "salt");
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-Encryptors.stronger("password", "salt")
-----
-======
+include-code::./CryptoEncryptionTests[tag=bytes-encryptor,indent=0]
 
 The `stronger` encryption method creates an encryptor by using 256-bit AES encryption with
 Galois Counter Mode (GCM).
@@ -52,22 +37,7 @@ The provided salt should be in hex-encoded String form, be random, and be at lea
 You can generate such a salt by using a `KeyGenerator`:
 
 .Generating a key
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-String salt = KeyGenerators.string().generateKey(); // generates a random 8-byte salt that is then hex-encoded
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-val salt = KeyGenerators.string().generateKey() // generates a random 8-byte salt that is then hex-encoded
-----
-======
+include-code::./CryptoEncryptionTests[tag=generate-salt,indent=0]
 
 You can also use the `standard` encryption method, which is 256-bit AES in Cipher Block Chaining (CBC) Mode.
 This mode is not https://en.wikipedia.org/wiki/Authenticated_encryption[authenticated] and does not provide any
@@ -79,22 +49,7 @@ For a more secure alternative, use `Encryptors.stronger`.
 You can use the `Encryptors.text` factory method to construct a standard TextEncryptor:
 
 .TextEncryptor
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-Encryptors.text("password", "salt");
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-Encryptors.text("password", "salt")
-----
-======
+include-code::./CryptoEncryptionTests[tag=text-encryptor,indent=0]
 
 A `TextEncryptor` uses a standard `BytesEncryptor` to encrypt text data.
 Encrypted results are returned as hex-encoded strings for easy storage on the filesystem or in a database.
@@ -110,86 +65,24 @@ You can also construct a javadoc:org.springframework.security.crypto.keygen.Stri
 You can use the `KeyGenerators.secureRandom` factory methods to generate a `BytesKeyGenerator` backed by a `SecureRandom` instance:
 
 .BytesKeyGenerator
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-BytesKeyGenerator generator = KeyGenerators.secureRandom();
-byte[] key = generator.generateKey();
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-val generator = KeyGenerators.secureRandom()
-val key = generator.generateKey()
-----
-======
+include-code::./CryptoKeyGeneratorTests[tag=bytes-key-generator,indent=0]
 
 The default key length is 8 bytes.
 A `KeyGenerators.secureRandom` variant provides control over the key length:
 
 .KeyGenerators.secureRandom
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-KeyGenerators.secureRandom(16);
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-KeyGenerators.secureRandom(16)
-----
-======
+include-code::./CryptoKeyGeneratorTests[tag=bytes-key-generator-custom-length,indent=0]
 
 Use the `KeyGenerators.shared` factory method to construct a BytesKeyGenerator that always returns the same key on every invocation:
 
 .KeyGenerators.shared
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-KeyGenerators.shared(16);
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-KeyGenerators.shared(16)
-----
-======
+include-code::./CryptoKeyGeneratorTests[tag=bytes-key-generator-shared,indent=0]
 
 === StringKeyGenerator
 You can use the `KeyGenerators.string` factory method to construct an 8-byte, `SecureRandom` `KeyGenerator` that hex-encodes each key as a `String`:
 
 .StringKeyGenerator
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-KeyGenerators.string();
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-KeyGenerators.string()
-----
-======
+include-code::./CryptoKeyGeneratorTests[tag=string-key-generator,indent=0]
 
 [[spring-security-crypto-passwordencoders]]
 == Password Encoding
@@ -221,30 +114,7 @@ You can change this value in your deployed system without affecting existing pas
 The following example uses the `BCryptPasswordEncoder`:
 
 .BCryptPasswordEncoder
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-
-// Create an encoder with strength 16
-BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(16);
-String result = encoder.encode("myPassword");
-assertTrue(encoder.matches("myPassword", result));
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-
-// Create an encoder with strength 16
-val encoder = BCryptPasswordEncoder(16)
-val result: String = encoder.encode("myPassword")
-assertTrue(encoder.matches("myPassword", result))
-----
-======
+include-code::./CryptoPasswordEncodingTests[tag=bcrypt,indent=0]
 
 The `Pbkdf2PasswordEncoder` implementation uses PBKDF2 algorithm to hash the passwords.
 To defeat password cracking, PBKDF2 is a deliberately slow algorithm and should be tuned to take about .5 seconds to verify a password on your system.
@@ -252,25 +122,4 @@ The following system uses the `Pbkdf2PasswordEncoder`:
 
 
 .Pbkdf2PasswordEncoder
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-// Create an encoder with all the defaults
-Pbkdf2PasswordEncoder encoder = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8();
-String result = encoder.encode("myPassword");
-assertTrue(encoder.matches("myPassword", result));
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-// Create an encoder with all the defaults
-val encoder = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8()
-val result: String = encoder.encode("myPassword")
-assertTrue(encoder.matches("myPassword", result))
-----
-======
+include-code::./CryptoPasswordEncodingTests[tag=pbkdf2,indent=0]
