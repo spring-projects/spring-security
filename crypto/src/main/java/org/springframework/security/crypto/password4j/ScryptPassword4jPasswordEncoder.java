@@ -18,6 +18,7 @@ package org.springframework.security.crypto.password4j;
 
 import com.password4j.AlgorithmFinder;
 import com.password4j.ScryptFunction;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Implementation of {@link org.springframework.security.crypto.password.PasswordEncoder}
@@ -47,6 +48,7 @@ import com.password4j.ScryptFunction;
  * }</pre>
  *
  * @author Mehrdad Bozorgmehr
+ * @author Andrey Litvitski
  * @since 7.0
  * @see ScryptFunction
  * @see AlgorithmFinder#getScryptInstance()
@@ -58,7 +60,7 @@ public class ScryptPassword4jPasswordEncoder extends Password4jPasswordEncoder {
 	 * Password4j's AlgorithmFinder.
 	 */
 	public ScryptPassword4jPasswordEncoder() {
-		super(AlgorithmFinder.getScryptInstance());
+		this(AlgorithmFinder.getScryptInstance());
 	}
 
 	/**
@@ -68,7 +70,20 @@ public class ScryptPassword4jPasswordEncoder extends Password4jPasswordEncoder {
 	 * @throws IllegalArgumentException if scryptFunction is null
 	 */
 	public ScryptPassword4jPasswordEncoder(ScryptFunction scryptFunction) {
-		super(scryptFunction);
+		this(scryptFunction, null);
+	}
+
+	/**
+	 * Constructs an SCrypt password encoder with a custom SCrypt function and a pepper.
+	 * @param scryptFunction the SCrypt function to use for encoding passwords, must not
+	 * be null
+	 * @param pepper the pepper to be used in the hashing process. If null, no pepper will
+	 * be applied.
+	 * @throws IllegalArgumentException if scryptFunction is null
+	 * @since 7.0
+	 */
+	public ScryptPassword4jPasswordEncoder(ScryptFunction scryptFunction, @Nullable String pepper) {
+		super(scryptFunction, pepper);
 	}
 
 }

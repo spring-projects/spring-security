@@ -18,6 +18,7 @@ package org.springframework.security.crypto.password4j;
 
 import com.password4j.AlgorithmFinder;
 import com.password4j.BcryptFunction;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Implementation of {@link org.springframework.security.crypto.password.PasswordEncoder}
@@ -45,6 +46,7 @@ import com.password4j.BcryptFunction;
  * }</pre>
  *
  * @author Mehrdad Bozorgmehr
+ * @author Andrey Litvitski
  * @since 7.0
  * @see BcryptFunction
  * @see AlgorithmFinder#getBcryptInstance()
@@ -56,7 +58,7 @@ public class BcryptPassword4jPasswordEncoder extends Password4jPasswordEncoder {
 	 * Password4j's AlgorithmFinder.
 	 */
 	public BcryptPassword4jPasswordEncoder() {
-		super(AlgorithmFinder.getBcryptInstance());
+		this(AlgorithmFinder.getBcryptInstance());
 	}
 
 	/**
@@ -66,7 +68,20 @@ public class BcryptPassword4jPasswordEncoder extends Password4jPasswordEncoder {
 	 * @throws IllegalArgumentException if bcryptFunction is null
 	 */
 	public BcryptPassword4jPasswordEncoder(BcryptFunction bcryptFunction) {
-		super(bcryptFunction);
+		this(bcryptFunction, null);
+	}
+
+	/**
+	 * Constructs a BCrypt password encoder with a custom BCrypt function and a pepper.
+	 * @param bcryptFunction the BCrypt function to use for encoding passwords, must not
+	 * be null
+	 * @param pepper the pepper to be used in the hashing process. If null, no pepper will
+	 * be applied.
+	 * @throws IllegalArgumentException if bcryptFunction is null
+	 * @since 7.0
+	 */
+	public BcryptPassword4jPasswordEncoder(BcryptFunction bcryptFunction, @Nullable String pepper) {
+		super(bcryptFunction, pepper);
 	}
 
 }

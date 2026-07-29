@@ -27,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * Tests for {@link BalloonHashingPassword4jPasswordEncoder}.
  *
  * @author Mehrdad Bozorgmehr
+ * @author Andrey Litvitski
  */
 class BalloonHashingPassword4jPasswordEncoderTests {
 
@@ -70,6 +71,20 @@ class BalloonHashingPassword4jPasswordEncoderTests {
 		assertThat(encoded).isNotNull().isNotEqualTo(PASSWORD);
 		assertThat(encoded).contains(":");
 		assertThat(encoder.matches(PASSWORD, encoded)).isTrue();
+	}
+
+	@Test
+	void constructorWithPepperShouldWork() {
+		String pepper = "balloon-pepper";
+		String wrongPepper = "wrong-pepper";
+		BalloonHashingFunction function = AlgorithmFinder.getBalloonHashingInstance();
+		BalloonHashingPassword4jPasswordEncoder encoderWithPepper = new BalloonHashingPassword4jPasswordEncoder(
+				function, 16, pepper);
+		String encoded = encoderWithPepper.encode(PASSWORD);
+		assertThat(encoderWithPepper.matches(PASSWORD, encoded)).isTrue();
+		BalloonHashingPassword4jPasswordEncoder encoderWithWrongPepper = new BalloonHashingPassword4jPasswordEncoder(
+				function, 16, wrongPepper);
+		assertThat(encoderWithWrongPepper.matches(PASSWORD, encoded)).isFalse();
 	}
 
 	@Test
