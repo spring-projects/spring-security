@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.server.authorization.web.authenticat
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -85,6 +86,9 @@ final class OAuth2EndpointUtils {
 		}
 		MultiValueMap<String, String> multiValueParameters = "GET".equals(request.getMethod())
 				? getQueryParameters(request) : getFormParameters(request);
+		validateSingleParameter(multiValueParameters, OAuth2ParameterNames.GRANT_TYPE);
+		validateSingleParameter(multiValueParameters, OAuth2ParameterNames.CODE);
+		validateSingleParameter(multiValueParameters, PkceParameterNames.CODE_VERIFIER);
 		for (String exclusion : exclusions) {
 			multiValueParameters.remove(exclusion);
 		}
@@ -94,6 +98,13 @@ final class OAuth2EndpointUtils {
 				(key, value) -> parameters.put(key, (value.size() == 1) ? value.get(0) : value.toArray(new String[0])));
 
 		return parameters;
+	}
+
+	private static void validateSingleParameter(MultiValueMap<String, String> parameters, String parameterName) {
+		List<String> values = parameters.get(parameterName);
+		if (values != null && values.size() != 1) {
+			throwError(OAuth2ErrorCodes.INVALID_REQUEST, parameterName, ACCESS_TOKEN_REQUEST_ERROR_URI);
+		}
 	}
 
 	static boolean matchesAuthorizationCodeGrantRequest(HttpServletRequest request) {
