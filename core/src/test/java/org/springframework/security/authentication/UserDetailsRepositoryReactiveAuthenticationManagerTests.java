@@ -70,6 +70,9 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 	private Scheduler scheduler;
 
 	@Mock
+	private UserDetailsChecker preAuthenticationChecks;
+
+	@Mock
 	private UserDetailsChecker postAuthenticationChecks;
 
 	// @formatter:off
@@ -147,6 +150,25 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 				this.user.getPassword());
 		Authentication result = this.manager.authenticate(token).block();
 		verifyNoMoreInteractions(this.userDetailsPasswordService);
+	}
+
+	@Test
+	public void setPreAuthenticationChecksWhenNullThenIllegalArgumentException() {
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.manager.setPreAuthenticationChecks(null));
+	}
+
+	@Test
+	public void authenticateWhenPreAuthenticationChecksFail() {
+		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(this.user));
+		willThrow(new LockedException("account is locked")).given(this.preAuthenticationChecks).check(any());
+		this.manager.setPreAuthenticationChecks(this.preAuthenticationChecks);
+		assertThatExceptionOfType(LockedException.class)
+			.isThrownBy(() -> this.manager
+				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(this.user, this.user.getPassword()))
+				.block())
+			.withMessage("account is locked");
+		verify(this.preAuthenticationChecks).check(eq(this.user));
 	}
 
 	@Test
