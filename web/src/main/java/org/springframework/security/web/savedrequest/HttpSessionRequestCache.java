@@ -51,7 +51,7 @@ public class HttpSessionRequestCache implements RequestCache {
 
 	private String sessionAttrName = SAVED_REQUEST;
 
-	private String matchingRequestParameterName = "continue";
+	private @Nullable String matchingRequestParameterName = "continue";
 
 	/**
 	 * Stores the current request, provided the configuration properties allow it.
@@ -172,9 +172,12 @@ public class HttpSessionRequestCache implements RequestCache {
 	 * {@link #getMatchingRequest(HttpServletRequest, HttpServletResponse)}
 	 * @param matchingRequestParameterName the parameter name that must be in the request
 	 * for {@link #getMatchingRequest(HttpServletRequest, HttpServletResponse)} to check
-	 * the session. Default is "continue".
+	 * the session. Default is "continue". Set to {@code null} to disable the
+	 * query-parameter requirement, in which case
+	 * {@link #getMatchingRequest(HttpServletRequest, HttpServletResponse)} always
+	 * consults the session.
 	 */
-	public void setMatchingRequestParameterName(String matchingRequestParameterName) {
+	public void setMatchingRequestParameterName(@Nullable String matchingRequestParameterName) {
 		this.matchingRequestParameterName = matchingRequestParameterName;
 	}
 
