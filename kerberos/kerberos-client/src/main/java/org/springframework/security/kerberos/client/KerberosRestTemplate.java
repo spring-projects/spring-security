@@ -247,6 +247,9 @@ public class KerberosRestTemplate extends RestTemplate {
 			});
 
 		}
+		catch (RestClientException ex) {
+			throw ex;
+		}
 		catch (Exception ex) {
 			throw new RestClientException("Error running rest call", ex);
 		}
