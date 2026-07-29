@@ -24,7 +24,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Function;
 
 import org.apache.commons.logging.Log;
@@ -131,9 +130,8 @@ public final class JdbcOneTimeTokenService implements OneTimeTokenService, Dispo
 	@Override
 	public OneTimeToken generate(GenerateOneTimeTokenRequest request) {
 		Assert.notNull(request, "generateOneTimeTokenRequest cannot be null");
-		String token = UUID.randomUUID().toString();
 		Instant expiresAt = this.clock.instant().plus(request.getExpiresIn());
-		OneTimeToken oneTimeToken = new DefaultOneTimeToken(token, request.getUsername(), expiresAt);
+		OneTimeToken oneTimeToken = new DefaultOneTimeToken(request.getTokenValue(), request.getUsername(), expiresAt);
 		insertOneTimeToken(oneTimeToken);
 		return oneTimeToken;
 	}
