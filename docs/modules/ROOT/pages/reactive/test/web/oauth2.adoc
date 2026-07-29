@@ -787,11 +787,58 @@ client
 ======
 
 [[webflux-testing-jwt]]
-== Testing JWT Authentication
+== Testing OAuth 2.0 Resource Servers with JWT
 
-To make an authorized request on a resource server, you need a bearer token.
-If your resource server is configured for JWTs, the bearer token needs to be signed and then encoded according to the JWT specification.
-All of this can be quite daunting, especially when this is not the focus of your test.
+Similar to <<webflux-testing-opaque-token,opaque tokens>>, JWTs require an authorization server in order to verify their validity, which can make testing more difficult.
+To help with that, Spring Security has test support for JWTs.
+
+Suppose you have a controller that retrieves the authentication as a `Jwt`:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@GetMapping("/endpoint")
+public Mono<String> foo(@AuthenticationPrincipal Jwt jwt) {
+    return Mono.just(jwt.getClaimAsString("sub"));
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/endpoint")
+fun foo(@AuthenticationPrincipal jwt: Jwt): Mono<String> {
+    return Mono.just(jwt.getClaimAsString("sub"))
+}
+----
+======
+
+In that case, you can tell Spring Security to include a default `Jwt` by using the `SecurityMockServerConfigurers#mockJwt` method:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+client
+    .mutateWith(mockJwt()).get().uri("/endpoint").exchange();
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+client
+    .mutateWith(mockJwt()).get().uri("/endpoint").exchange()
+----
+======
+
+This example creates a mock `Jwt` and passes it through any authentication APIs so that it is available for your authorization mechanisms to verify.
 
 Fortunately, there are a number of simple ways in which you can overcome this difficulty and let your tests focus on authorization and not on representing bearer tokens.
 We look at two of them in the next two subsections.
