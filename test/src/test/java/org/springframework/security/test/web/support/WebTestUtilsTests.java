@@ -171,6 +171,18 @@ public class WebTestUtilsTests {
 		assertThat(WebTestUtils.findFilter(this.request, toFind.getClass())).isSameAs(toFind);
 	}
 
+	@Test
+	void findFilterWhenFilterChainProxyThenResolvesFilters() {
+		CsrfFilter sentinel = new CsrfFilter(new HttpSessionCsrfTokenRepository());
+		DefaultSecurityFilterChain chain = new DefaultSecurityFilterChain(AnyRequestMatcher.INSTANCE, sentinel);
+		FilterChainProxy fcp = new FilterChainProxy(chain);
+		this.request.getServletContext().setAttribute(BeanIds.SPRING_SECURITY_FILTER_CHAIN, fcp);
+
+		CsrfFilter resolved = WebTestUtils.findFilter(this.request, CsrfFilter.class);
+
+		assertThat(resolved).isSameAs(sentinel);
+	}
+
 	private void loadConfig(Class<?> config) {
 		AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
 		context.register(config);
