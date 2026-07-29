@@ -31,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * Tests for {@link InetAddressMatchers}.
  *
  * @author Rob Winch
+ * @author Andrey Litvitski
  */
 class InetAddressMatchersTests {
 
@@ -49,6 +50,12 @@ class InetAddressMatchersTests {
 	void matchInternalWhenInvokedThenReturnsBuilder() {
 		InetAddressMatchers.Builder builder = InetAddressMatchers.matchInternal();
 		assertThat(builder).isNotNull();
+	}
+
+	@Test
+	void matchesWhenInetAddressNullThenReturnsFalse() {
+		InetAddressMatcher matcher = InetAddressMatchers.matchExternal().build();
+		assertThat(matcher.matches((InetAddress) null)).isFalse();
 	}
 
 	@Nested
@@ -408,6 +415,13 @@ class InetAddressMatchersTests {
 		void matchesWhenIpv6PublicThenReturnsFalse() throws Exception {
 			InetAddressMatcher matcher = InetAddressMatchers.matchInternal().build();
 			assertThat(matcher.matches(InetAddress.getByName("2001:4860:4860::8888"))).isFalse();
+		}
+
+		@ParameterizedTest
+		@ValueSource(strings = { "0.0.0.0", "::" })
+		void matchesWhenWildcardAddressThenReturnsFalse(String address) throws Exception {
+			InetAddressMatcher matcher = InetAddressMatchers.matchExternal().build();
+			assertThat(matcher.matches(InetAddress.getByName(address))).isFalse();
 		}
 
 	}
