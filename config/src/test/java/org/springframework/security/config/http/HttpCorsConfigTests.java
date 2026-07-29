@@ -16,7 +16,7 @@
 
 package org.springframework.security.config.http;
 
-import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -151,8 +151,8 @@ public class HttpCorsConfigTests {
 
 		MyCorsConfigurationSource() {
 			CorsConfiguration configuration = new CorsConfiguration();
-			configuration.setAllowedOrigins(Arrays.asList("*"));
-			configuration.setAllowedMethods(Arrays.asList(RequestMethod.GET.name(), RequestMethod.POST.name()));
+			configuration.setAllowedOrigins(List.of("*"));
+			configuration.setAllowedMethods(List.of(RequestMethod.GET.name(), RequestMethod.POST.name()));
 			super.registerCorsConfiguration("/**", configuration);
 		}
 
