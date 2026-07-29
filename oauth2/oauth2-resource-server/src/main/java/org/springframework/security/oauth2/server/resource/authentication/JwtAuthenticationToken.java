@@ -135,13 +135,17 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 		}
 
 		/**
-		 * A synonym for {@link #token(Jwt)}
+		 * Use this {@code principal} as the principal. If it is an
+		 * {@link AuthenticatedPrincipal}, also uses its name.
 		 * @return the {@link Builder} for further configurations
 		 */
 		@Override
 		public B principal(@Nullable Object principal) {
-			Assert.isInstanceOf(Jwt.class, principal, "principal must be of type Jwt");
-			return token((Jwt) principal);
+			super.principal(principal);
+			if (principal instanceof AuthenticatedPrincipal authenticatedPrincipal) {
+				name(authenticatedPrincipal.getName());
+			}
+			return (B) this;
 		}
 
 		/**
