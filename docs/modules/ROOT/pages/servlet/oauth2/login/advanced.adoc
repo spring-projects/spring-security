@@ -944,5 +944,45 @@ For MAC-based algorithms (such as `HS256`, `HS384`, or `HS512`), the `client-sec
 If more than one `ClientRegistration` is configured for OpenID Connect 1.0 Authentication, the JWS algorithm resolver may evaluate the provided `ClientRegistration` to determine which algorithm to return.
 ====
 
+OAuth2 Login does not use a resource server `JwtDecoder` bean to validate ID Tokens.
+The following code shows how to configure the `JwtDecoderFactory<ClientRegistration>` and the HTTP timeouts used to retrieve the JWK Set:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public JwtDecoderFactory<ClientRegistration> idTokenDecoderFactory() {
+	SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+	requestFactory.setConnectTimeout(Duration.ofSeconds(10));
+	requestFactory.setReadTimeout(Duration.ofSeconds(10));
+	RestOperations restOperations = new RestTemplate(requestFactory);
+
+	OidcIdTokenDecoderFactory idTokenDecoderFactory = new OidcIdTokenDecoderFactory();
+	idTokenDecoderFactory.setRestOperationsFactory((clientRegistration) -> restOperations);
+	return idTokenDecoderFactory;
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun idTokenDecoderFactory(): JwtDecoderFactory<ClientRegistration> {
+    val requestFactory = SimpleClientHttpRequestFactory()
+    requestFactory.setConnectTimeout(Duration.ofSeconds(10))
+    requestFactory.setReadTimeout(Duration.ofSeconds(10))
+    val restOperations = RestTemplate(requestFactory)
+
+    val idTokenDecoderFactory = OidcIdTokenDecoderFactory()
+    idTokenDecoderFactory.setRestOperationsFactory { restOperations }
+    return idTokenDecoderFactory
+}
+----
+======
+
 [[oauth2login-advanced-oidc-logout]]
 Then, you can proceed to configure xref:servlet/oauth2/login/logout.adoc[logout]

@@ -27,6 +27,8 @@ import java.util.function.Function;
 
 import javax.crypto.spec.SecretKeySpec;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -48,6 +50,7 @@ import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestOperations;
 
 /**
  * A {@link JwtDecoderFactory factory} that provides a {@link JwtDecoder} used for
@@ -84,6 +87,8 @@ public final class OidcIdTokenDecoderFactory implements JwtDecoderFactory<Client
 
 	private Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory = (
 			clientRegistration) -> DEFAULT_CLAIM_TYPE_CONVERTER;
+
+	private @Nullable Function<ClientRegistration, RestOperations> restOperationsFactory;
 
 	/**
 	 * Returns the default {@link Converter}'s used for type conversion of claim values
@@ -169,7 +174,13 @@ public final class OidcIdTokenDecoderFactory implements JwtDecoderFactory<Client
 						null);
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
-			return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).jwsAlgorithm((SignatureAlgorithm) jwsAlgorithm).build();
+			NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder builder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
+				.jwsAlgorithm((SignatureAlgorithm) jwsAlgorithm);
+			Function<ClientRegistration, RestOperations> restOperationsFactory = this.restOperationsFactory;
+			if (restOperationsFactory != null) {
+				builder.restOperations(restOperationsFactory.apply(clientRegistration));
+			}
+			return builder.build();
 		}
 		if (jwsAlgorithm != null && MacAlgorithm.class.isAssignableFrom(jwsAlgorithm.getClass())) {
 			// https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
@@ -240,6 +251,19 @@ public final class OidcIdTokenDecoderFactory implements JwtDecoderFactory<Client
 			Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory) {
 		Assert.notNull(claimTypeConverterFactory, "claimTypeConverterFactory cannot be null");
 		this.claimTypeConverterFactory = claimTypeConverterFactory;
+	}
+
+	/**
+	 * Sets the factory that provides a {@link RestOperations} used by
+	 * {@link NimbusJwtDecoder} to coordinate with the authorization servers indicated in
+	 * the <a href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a> URI.
+	 * @param restOperationsFactory the factory that provides a {@link RestOperations}
+	 * used by {@link NimbusJwtDecoder}
+	 * @since 7.1
+	 */
+	public void setRestOperationsFactory(Function<ClientRegistration, RestOperations> restOperationsFactory) {
+		Assert.notNull(restOperationsFactory, "restOperationsFactory cannot be null");
+		this.restOperationsFactory = restOperationsFactory;
 	}
 
 }

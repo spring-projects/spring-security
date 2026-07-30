@@ -16,13 +16,25 @@
 
 package org.springframework.security.oauth2.client.oidc.authentication;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.Map;
 import java.util.function.Function;
 
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -30,15 +42,19 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.converter.ClaimTypeConverter;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
+import org.springframework.security.oauth2.jose.TestJwks;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.web.client.RestOperations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -177,6 +193,31 @@ public class OidcIdTokenDecoderFactoryTests {
 			.willReturn(new ClaimTypeConverter(OidcIdTokenDecoderFactory.createDefaultClaimTypeConverters()));
 		this.idTokenDecoderFactory.createDecoder(clientRegistration);
 		verify(customClaimTypeConverterFactory).apply(same(clientRegistration));
+	}
+
+	// gh-19474
+	@Test
+	public void createDecoderWhenCustomRestOperationsFactorySetThenUsesRestOperationsToDecode() throws Exception {
+		ClientRegistration clientRegistration = this.registration.build();
+		RSAKey rsaJwk = TestJwks.DEFAULT_RSA_JWK;
+		RestOperations restOperations = mock(RestOperations.class);
+		String jwkSet = new JWKSet(rsaJwk.toPublicJWK()).toString();
+		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
+			.willReturn(new ResponseEntity<>(jwkSet, HttpStatus.OK));
+		this.idTokenDecoderFactory.setRestOperationsFactory((registration) -> restOperations);
+		Instant issuedAt = Instant.now();
+		JWTClaimsSet claims = new JWTClaimsSet.Builder().issuer(clientRegistration.getProviderDetails().getIssuerUri())
+			.audience(clientRegistration.getClientId())
+			.subject("test-subject")
+			.issueTime(Date.from(issuedAt))
+			.expirationTime(Date.from(issuedAt.plusSeconds(60)))
+			.build();
+		JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(rsaJwk.getKeyID()).build();
+		SignedJWT signedJwt = new SignedJWT(header, claims);
+		signedJwt.sign(new RSASSASigner(rsaJwk));
+		JwtDecoder decoder = this.idTokenDecoderFactory.createDecoder(clientRegistration);
+		assertThat(decoder.decode(signedJwt.serialize()).getSubject()).isEqualTo("test-subject");
+		verify(restOperations).exchange(any(RequestEntity.class), eq(String.class));
 	}
 
 	// gh-16647
