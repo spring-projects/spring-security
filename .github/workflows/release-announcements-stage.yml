@@ -1,0 +1,24 @@
+name: Release Announcements - Stage
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: The version to stage
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  stage-release-announcements:
+    name: Stage Release Announcements
+    uses: spring-projects/spring-security-commercial/.github/workflows/release-announcements-stage.yml@workflows/v1
+    with:
+      version: ${{ inputs.version || github.ref_name }}
+    secrets: inherit
