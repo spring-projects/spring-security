@@ -76,7 +76,11 @@ dependencies {
 		api libs.org.skyscreamer.jsonassert
 		api libs.org.slf4j.log4j.over.slf4j
 		api libs.org.slf4j.slf4j.api
-		api libs.org.springframework.ldap.spring.ldap.core
+		if (project.hasProperty("isOverrideVersionCatalog") && project.hasProperty("springLdapVersion")) {
+			api "org.springframework.ldap:spring-ldap-core:${springLdapVersion}"
+		} else {
+			api libs.org.springframework.ldap.spring.ldap.core
+		}
 		api libs.org.synchronoss.cloud.nio.multipart.parser
 		api libs.org.apache.maven.resolver.maven.resolver.connector.basic
 		api libs.org.apache.maven.resolver.maven.resolver.impl
