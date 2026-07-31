@@ -26,6 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests for {@link OAuth2PushedAuthorizationRequestUri}.
  *
  * @author Josh Cummings
+ * @author Andrey Litvitski
  */
 public class OAuth2PushedAuthorizationRequestUriTests {
 
@@ -52,6 +53,19 @@ public class OAuth2PushedAuthorizationRequestUriTests {
 		assertThat(parsed.getRequestUri()).isEqualTo(created.getRequestUri());
 		assertThat(parsed.getState()).isEqualTo(created.getState());
 		assertThat(parsed.getExpiresAt()).isEqualTo(created.getExpiresAt());
+	}
+
+	@Test
+	public void parseWhenStateContainsDelimiterThenParsesSuccessfully() {
+		String state = "xXMGJTZwzXIFL8i_DFu_EM8IeWC___frCWjpiF2q-xs=";
+		long epochMillis = 1781670640281L;
+		String requestUri = "urn:ietf:params:oauth:request_uri:" + state + "___" + epochMillis;
+
+		OAuth2PushedAuthorizationRequestUri parsedUri = OAuth2PushedAuthorizationRequestUri.parse(requestUri);
+
+		assertThat(parsedUri.getRequestUri()).isEqualTo(requestUri);
+		assertThat(parsedUri.getState()).isEqualTo(state + "___" + epochMillis);
+		assertThat(parsedUri.getExpiresAt()).isEqualTo(Instant.ofEpochMilli(epochMillis));
 	}
 
 }
