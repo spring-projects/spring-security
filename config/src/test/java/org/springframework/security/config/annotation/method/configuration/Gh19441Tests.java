@@ -88,6 +88,17 @@ public class Gh19441Tests {
 		}
 	}
 
+	@Test
+	public void enableGlobalMethodSecurityWhenAspectJModeAndJsr250EnabledAndConfigurationSubclassedAndAccessModuleAbsentThenClearException() {
+		try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
+			context.register(EnableGlobalMethodSecurityAspectJJsr250SubclassedConfig.class);
+			assertThatExceptionOfType(Exception.class).isThrownBy(context::refresh)
+				.havingRootCause()
+				.isInstanceOf(IllegalStateException.class)
+				.withMessageContaining("spring-security-access");
+		}
+	}
+
 	@Configuration
 	@EnableMethodSecurity
 	static class EnableMethodSecurityConfig {
@@ -115,6 +126,12 @@ public class Gh19441Tests {
 	@Configuration
 	@EnableReactiveMethodSecurity(useAuthorizationManager = false)
 	static class EnableReactiveMethodSecurityLegacyConfig {
+
+	}
+
+	@Configuration
+	@EnableGlobalMethodSecurity(jsr250Enabled = true, mode = AdviceMode.ASPECTJ)
+	static class EnableGlobalMethodSecurityAspectJJsr250SubclassedConfig extends GlobalMethodSecurityConfiguration {
 
 	}
 
