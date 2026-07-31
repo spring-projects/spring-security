@@ -30,10 +30,10 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.nimbusds.jose.jwk.JWK;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.cache.Cache;
 import org.springframework.cache.support.SimpleValueWrapper;
-import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
