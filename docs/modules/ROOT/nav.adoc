@@ -173,6 +173,7 @@
 **** xref:reactive/oauth2/resource-server/opaque-token.adoc[Opaque Token]
 **** xref:reactive/oauth2/resource-server/multitenancy.adoc[Multitenancy]
 **** xref:reactive/oauth2/resource-server/bearer-tokens.adoc[Bearer Tokens]
+**** xref:reactive/oauth2/resource-server/protected-resource-metadata.adoc[Protected Resource Metadata]
 ** xref:reactive/exploits/index.adoc[Protection Against Exploits]
 *** xref:reactive/exploits/csrf.adoc[CSRF]
 *** xref:reactive/exploits/headers.adoc[Headers]
