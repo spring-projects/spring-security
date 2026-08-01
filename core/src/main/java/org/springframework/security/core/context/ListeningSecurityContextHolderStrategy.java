@@ -21,6 +21,8 @@ import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -148,6 +150,14 @@ public final class ListeningSecurityContextHolderStrategy implements SecurityCon
 	@Override
 	public Supplier<SecurityContext> getDeferredContext() {
 		return this.delegate.getDeferredContext();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public @Nullable Supplier<SecurityContext> peekDeferredContext() {
+		return this.delegate.peekDeferredContext();
 	}
 
 	/**

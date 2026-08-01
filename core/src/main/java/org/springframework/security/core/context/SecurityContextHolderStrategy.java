@@ -18,6 +18,8 @@ package org.springframework.security.core.context;
 
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A strategy for storing security context information against a thread.
  *
@@ -49,6 +51,23 @@ public interface SecurityContextHolderStrategy {
 	 */
 	default Supplier<SecurityContext> getDeferredContext() {
 		return this::getContext;
+	}
+
+	/**
+	 * Obtains the current context as a {@link Supplier} if one is associated with the
+	 * current thread, or {@code null} otherwise. Used by Micrometer Context Propagation
+	 * during snapshot capture, so implementations SHOULD return the stored
+	 * {@link Supplier} without invoking it and without auto-creating or storing a default
+	 * context as a side effect.
+	 * <p>
+	 * The default implementation preserves the pre-7.1 propagation behavior: it
+	 * materializes the current context eagerly and returns a {@link Supplier} of the
+	 * captured context.
+	 * @return the current context's {@link Supplier}, or {@code null} if none is set
+	 * @since 7.1.1
+	 */
+	default @Nullable Supplier<SecurityContext> peekDeferredContext() {
+		return new ConstantSupplier(getContext());
 	}
 
 	/**
