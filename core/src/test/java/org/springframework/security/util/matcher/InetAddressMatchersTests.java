@@ -461,6 +461,19 @@ class InetAddressMatchersTests {
 			assertThat(matcher.matches(InetAddress.getByName(address))).isFalse();
 		}
 
+		@Test
+		void matchesWhenNullThenReturnsFalse() {
+			InetAddressMatcher matcher = InetAddressMatchers.matchExternal().build();
+			assertThat(matcher.matches((InetAddress) null)).isFalse();
+		}
+
+		@ParameterizedTest
+		@ValueSource(strings = { "0.0.0.0", "::" })
+		void matchesWhenWildcardThenReturnsFalse(String address) throws Exception {
+			InetAddressMatcher matcher = InetAddressMatchers.matchExternal().build();
+			assertThat(matcher.matches(InetAddress.getByName(address))).isFalse();
+		}
+
 	}
 
 	@Nested

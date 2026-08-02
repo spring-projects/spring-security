@@ -48,6 +48,9 @@ public final class InetAddressMatchers {
 
 	/**
 	 * Creates a new builder configured to match external (non-private) IP addresses.
+	 * <p>
+	 * A {@code null} address and the wildcard addresses ({@code 0.0.0.0} and {@code ::})
+	 * are not treated as external.
 	 * @return a {@link Builder} configured to match external addresses
 	 */
 	public static Builder matchExternal() {
@@ -314,6 +317,10 @@ public final class InetAddressMatchers {
 	 * External addresses are any addresses that are not internal (private) addresses.
 	 * This matcher delegates to {@link InternalInetAddressMatcher} and negates the
 	 * result.
+	 * <p>
+	 * A {@code null} address and the wildcard addresses ({@code 0.0.0.0} and {@code ::})
+	 * are not external. They do not identify a host that a request could originate from,
+	 * so negating the internal check is not meaningful for them.
 	 *
 	 * @author Gábor Vaspöri
 	 * @author Kian Jamali
@@ -335,6 +342,9 @@ public final class InetAddressMatchers {
 
 		@Override
 		public boolean matches(@Nullable InetAddress address) {
+			if (address == null || address.isAnyLocalAddress()) {
+				return false;
+			}
 			return !this.internalMatcher.matches(address);
 		}
 
