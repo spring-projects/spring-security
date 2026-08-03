@@ -299,7 +299,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		private final Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
 
-		private RestOperations restOperations = new RestTemplateWithNimbusDefaultTimeouts();
+		private RestOperations restOperations = new RestTemplateWithDefaultTimeouts();
 
 		private Cache cache = new NoOpCache("default");
 
@@ -577,12 +577,12 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	 * A RestTemplate with timeouts configured to avoid blocking indefinitely when
 	 * fetching JWK Sets while holding the reentrantLock.
 	 */
-	private static final class RestTemplateWithNimbusDefaultTimeouts extends RestTemplate {
+	private static final class RestTemplateWithDefaultTimeouts extends RestTemplate {
 
-		private RestTemplateWithNimbusDefaultTimeouts() {
+		private RestTemplateWithDefaultTimeouts() {
 			SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-			requestFactory.setConnectTimeout(JWKSourceBuilder.DEFAULT_HTTP_CONNECT_TIMEOUT);
-			requestFactory.setReadTimeout(JWKSourceBuilder.DEFAULT_HTTP_READ_TIMEOUT);
+			requestFactory.setConnectTimeout(JwtDecoderProviderConfigurationUtils.getConnectTimeout());
+			requestFactory.setReadTimeout(JwtDecoderProviderConfigurationUtils.getReadTimeout());
 			setRequestFactory(requestFactory);
 		}
 
