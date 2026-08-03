@@ -67,14 +67,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.TestKeys;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
+import org.springframework.web.client.RestTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -389,6 +392,24 @@ public class NimbusJwtDecoderTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> builder.restOperations(null));
 		// @formatter:on
+	}
+
+	// gh-19474
+	@Test
+	public void withJwkSetUriWhenDefaultRestOperationsThenUsesConfiguredTimeouts() {
+		try {
+			System.setProperty("sun.net.client.defaultConnectTimeout", "12345");
+			System.setProperty("sun.net.client.defaultReadTimeout", "23456");
+			NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder builder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI);
+			RestOperations restOperations = (RestOperations) ReflectionTestUtils.getField(builder, "restOperations");
+			ClientHttpRequestFactory requestFactory = ((RestTemplate) restOperations).getRequestFactory();
+			assertThat(ReflectionTestUtils.getField(requestFactory, "connectTimeout")).isEqualTo(12345);
+			assertThat(ReflectionTestUtils.getField(requestFactory, "readTimeout")).isEqualTo(23456);
+		}
+		finally {
+			System.clearProperty("sun.net.client.defaultConnectTimeout");
+			System.clearProperty("sun.net.client.defaultReadTimeout");
+		}
 	}
 
 	@Test
