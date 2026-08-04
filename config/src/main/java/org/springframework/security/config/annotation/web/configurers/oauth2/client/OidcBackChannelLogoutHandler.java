@@ -194,4 +194,13 @@ public final class OidcBackChannelLogoutHandler implements LogoutHandler {
 		this.sessionCookieName = sessionCookieName;
 	}
 
+	/**
+	 * Use this {@link RestOperations} to perform the per-session back-channel logout
+	 * @param restOperations the {@link RestOperations} to use
+	 */
+	public void setRestOperations(RestOperations restOperations) {
+		Assert.notNull(restOperations, "restOperations cannot be null");
+		this.restOperations = restOperations;
+	}
+
 }
