@@ -213,6 +213,54 @@ public class DefaultBearerTokenResolverTests {
 	}
 
 	@Test
+	public void resolveWhenContentTypeContainsCharsetAndFormParameterIsPresentAndSupportedThenTokenIsResolved() {
+		this.resolver.setAllowFormEncodedBodyParameter(true);
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod("POST");
+		request.setContentType("application/x-www-form-urlencoded;charset=UTF-8");
+		request.addParameter("access_token", TEST_TOKEN);
+
+		assertThat(this.resolver.resolve(request)).isEqualTo(TEST_TOKEN);
+	}
+
+	@Test
+	public void resolveWhenContentTypeIsUppercaseAndFormParameterIsPresentAndSupportedThenTokenIsResolved() {
+		this.resolver.setAllowFormEncodedBodyParameter(true);
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod("POST");
+		request.setContentType("APPLICATION/X-WWW-FORM-URLENCODED");
+		request.addParameter("access_token", TEST_TOKEN);
+
+		assertThat(this.resolver.resolve(request)).isEqualTo(TEST_TOKEN);
+	}
+
+	@Test
+	public void resolveWhenContentTypeIsMalformedAndFormParameterIsPresentAndSupportedThenTokenIsNotResolved() {
+		this.resolver.setAllowFormEncodedBodyParameter(true);
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod("POST");
+		request.setContentType("application/x-www-form-urlencoded;charset=");
+		request.addParameter("access_token", TEST_TOKEN);
+
+		assertThat(this.resolver.resolve(request)).isNull();
+	}
+
+	@Test
+	public void resolveWhenContentTypeIsWildcardAndFormParameterIsPresentAndSupportedThenTokenIsNotResolved() {
+		this.resolver.setAllowFormEncodedBodyParameter(true);
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod("POST");
+		request.setContentType("*/*");
+		request.addParameter("access_token", TEST_TOKEN);
+
+		assertThat(this.resolver.resolve(request)).isNull();
+	}
+
+	@Test
 	public void resolveWhenGetAndFormParameterIsPresentAndSupportedThenTokenIsNotResolved() {
 		this.resolver.setAllowFormEncodedBodyParameter(true);
 
