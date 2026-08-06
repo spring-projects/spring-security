@@ -22,6 +22,7 @@ package org.springframework.security.oauth2.jose.jws;
  * the JWS Protected Header and JWS Payload.
  *
  * @author Joe Grandja
+ * @author Andrey Litvitski
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7518">JSON Web Algorithms
  * (JWA)</a>
@@ -92,6 +93,21 @@ public final class JwsAlgorithms {
 	 * RSASSA-PSS using SHA-512 and MGF1 with SHA-512 (Optional)
 	 */
 	public static final String PS512 = "PS512";
+
+	/**
+	 * EdDSA signature algorithms (optional).
+	 */
+	public static final String EdDSA = "EdDSA";
+
+	/**
+	 * EdDSA signature algorithms using Ed25519 curve (optional).
+	 */
+	public static final String ED25519 = "Ed25519";
+
+	/**
+	 * EdDSA signature algorithms using Ed448 curve (optional).
+	 */
+	public static final String ED448 = "Ed448";
 
 	private JwsAlgorithms() {
 	}
