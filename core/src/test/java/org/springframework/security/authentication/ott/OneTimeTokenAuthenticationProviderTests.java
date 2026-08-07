@@ -25,10 +25,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.security.authentication.AccountExpiredException;
+import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -84,14 +87,61 @@ public class OneTimeTokenAuthenticationProviderTests {
 	}
 
 	@Test
-	void authenticateWhenAuthenticationTokenIsPresentThenFails() {
+	void authenticateWhenAccountStatusInvalidAndNoUserDetailsCheckerThenAuthenticates() {
 		given(this.oneTimeTokenService.consume(any()))
 			.willReturn(new DefaultOneTimeToken(TOKEN, USERNAME, Instant.now().plusSeconds(120)));
 		given(this.userDetailsService.loadUserByUsername(anyString()))
 			.willReturn(new User(USERNAME, PASSWORD, false, false, false, false, List.of()));
 		OneTimeTokenAuthenticationToken token = new OneTimeTokenAuthenticationToken(TOKEN);
 
-		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(() -> this.provider.authenticate(token));
+		Authentication authentication = this.provider.authenticate(token);
+
+		assertThat(authentication.isAuthenticated()).isTrue();
+	}
+
+	@Test
+	void authenticateWhenUserDetailsCheckerConfiguredAndAccountLockedThenThrowsLockedException() {
+		given(this.oneTimeTokenService.consume(any()))
+			.willReturn(new DefaultOneTimeToken(TOKEN, USERNAME, Instant.now().plusSeconds(120)));
+		given(this.userDetailsService.loadUserByUsername(anyString()))
+			.willReturn(new User(USERNAME, PASSWORD, true, true, true, false, List.of()));
+		this.provider.setUserDetailsChecker(new AccountStatusUserDetailsChecker());
+		OneTimeTokenAuthenticationToken token = new OneTimeTokenAuthenticationToken(TOKEN);
+
+		assertThatExceptionOfType(LockedException.class).isThrownBy(() -> this.provider.authenticate(token));
+	}
+
+	@Test
+	void authenticateWhenUserDetailsCheckerConfiguredAndAccountDisabledThenThrowsDisabledException() {
+		given(this.oneTimeTokenService.consume(any()))
+			.willReturn(new DefaultOneTimeToken(TOKEN, USERNAME, Instant.now().plusSeconds(120)));
+		given(this.userDetailsService.loadUserByUsername(anyString()))
+			.willReturn(new User(USERNAME, PASSWORD, false, true, true, true, List.of()));
+		this.provider.setUserDetailsChecker(new AccountStatusUserDetailsChecker());
+		OneTimeTokenAuthenticationToken token = new OneTimeTokenAuthenticationToken(TOKEN);
+
+		assertThatExceptionOfType(DisabledException.class).isThrownBy(() -> this.provider.authenticate(token));
+	}
+
+	@Test
+	void authenticateWhenUserDetailsCheckerConfiguredAndAccountExpiredThenThrowsAccountExpiredException() {
+		given(this.oneTimeTokenService.consume(any()))
+			.willReturn(new DefaultOneTimeToken(TOKEN, USERNAME, Instant.now().plusSeconds(120)));
+		given(this.userDetailsService.loadUserByUsername(anyString()))
+			.willReturn(new User(USERNAME, PASSWORD, true, false, true, true, List.of()));
+		this.provider.setUserDetailsChecker(new AccountStatusUserDetailsChecker());
+		OneTimeTokenAuthenticationToken token = new OneTimeTokenAuthenticationToken(TOKEN);
+
+		assertThatExceptionOfType(AccountExpiredException.class).isThrownBy(() -> this.provider.authenticate(token));
+	}
+
+	@Test
+	void setUserDetailsCheckerWhenNullThenThrowsIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.provider.setUserDetailsChecker(null))
+				.withMessage("userDetailsChecker cannot be null");
+		// @formatter:on
 	}
 
 	@Test
