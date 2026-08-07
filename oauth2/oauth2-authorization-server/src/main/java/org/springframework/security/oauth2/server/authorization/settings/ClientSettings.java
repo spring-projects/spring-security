@@ -100,6 +100,17 @@ public final class ClientSettings extends AbstractSettings {
 	}
 
 	/**
+	 * Returns the {@code URL} for the external Identity Provider's JSON Web Key Set used
+	 * to validate ID tokens during token exchange.
+	 * @return the {@code URL} for the external IdP's JSON Web Key Set, or {@code null} if
+	 * not set
+	 * @since 7.0
+	 */
+	public @Nullable String getIdTokenJwkSetUrl() {
+		return getSetting(ConfigurationSettingNames.Client.ID_TOKEN_JWK_SET_URL);
+	}
+
+	/**
 	 * Constructs a new {@link Builder} with the default settings.
 	 * @return the {@link Builder}
 	 */
@@ -183,6 +194,17 @@ public final class ClientSettings extends AbstractSettings {
 		 */
 		public Builder x509CertificateSubjectDN(String x509CertificateSubjectDN) {
 			return setting(ConfigurationSettingNames.Client.X509_CERTIFICATE_SUBJECT_DN, x509CertificateSubjectDN);
+		}
+
+		/**
+		 * Sets the {@code URL} for the external Identity Provider's JSON Web Key Set used
+		 * to validate ID tokens during token exchange.
+		 * @param idTokenJwkSetUrl the {@code URL} for the external IdP's JSON Web Key Set
+		 * @return the {@link Builder} for further configuration
+		 * @since 7.0
+		 */
+		public Builder idTokenJwkSetUrl(String idTokenJwkSetUrl) {
+			return setting(ConfigurationSettingNames.Client.ID_TOKEN_JWK_SET_URL, idTokenJwkSetUrl);
 		}
 
 		/**
