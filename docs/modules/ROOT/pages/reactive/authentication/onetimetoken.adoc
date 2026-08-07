@@ -38,6 +38,7 @@ In the following sections we will explore how to configure OTT Login for your ne
 - <<changing-submit-page-url,Configuring the One-Time Token submit page>>
 - <<changing-generate-url,Changing the One-Time Token generate URL>>
 - <<customize-generate-consume-token,Customize how to generate and consume tokens>>
+- <<validating-account-status,Validating account status>>
 
 [[default-pages]]
 == Default Login Page and Default One-Time Token Submit Page
@@ -578,3 +579,13 @@ fun generateOneTimeTokenRequestResolver() : ServerGenerateOneTimeTokenRequestRes
 }
 ----
 ======
+
+[[validating-account-status]]
+== Validating Account Status
+
+By default, javadoc:org.springframework.security.authentication.ott.reactive.OneTimeTokenReactiveAuthenticationManager[] does not validate the status of the authenticated account -- for example, whether the account is locked, disabled, or expired.
+This keeps the manager's behavior consistent with earlier versions of Spring Security; this default may change in future versions of Spring Security.
+
+If you would like `OneTimeTokenReactiveAuthenticationManager` to reject One-Time Token authentication for such accounts, provide it a javadoc:org.springframework.security.core.userdetails.UserDetailsChecker[], such as javadoc:org.springframework.security.authentication.AccountStatusUserDetailsChecker[], with `setUserDetailsChecker`:
+
+include-code::./OneTimeTokenAccountStatusExample[tag=userDetailsChecker,indent=0]
