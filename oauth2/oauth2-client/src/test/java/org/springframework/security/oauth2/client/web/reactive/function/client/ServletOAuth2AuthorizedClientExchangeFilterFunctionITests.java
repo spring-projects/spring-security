@@ -40,8 +40,10 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
@@ -163,6 +165,67 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionITests {
 			.forClass(OAuth2AuthorizedClient.class);
 		verify(this.authorizedClientRepository).saveAuthorizedClient(authorizedClientCaptor.capture(),
 				eq(this.authentication), eq(this.request), eq(this.response));
+		assertThat(authorizedClientCaptor.getValue().getClientRegistration()).isSameAs(clientRegistration);
+	}
+
+	@Test
+	public void requestWhenNoServletRequestThenAuthorizeAndSendRequest() {
+		RequestContextHolder.resetRequestAttributes();
+		InMemoryOAuth2AuthorizedClientService delegate = new InMemoryOAuth2AuthorizedClientService(
+				this.clientRegistrationRepository);
+		OAuth2AuthorizedClientService clientService = spy(new OAuth2AuthorizedClientService() {
+			@Override
+			public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId,
+					String principal) {
+				return delegate.loadAuthorizedClient(clientRegistrationId, principal);
+			}
+
+			@Override
+			public void saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
+				delegate.saveAuthorizedClient(authorizedClient, principal);
+			}
+
+			@Override
+			public void removeAuthorizedClient(String clientRegistrationId, String principal) {
+				delegate.removeAuthorizedClient(clientRegistrationId, principal);
+			}
+		});
+		this.authorizedClientFilter = new ServletOAuth2AuthorizedClientExchangeFilterFunction(
+				new AuthorizedClientServiceOAuth2AuthorizedClientManager(this.clientRegistrationRepository,
+						clientService));
+		this.webClient = WebClient.builder().apply(this.authorizedClientFilter.oauth2Configuration()).build();
+
+		// @formatter:off
+		String accessTokenResponse = "{\n"
+			+ "   \"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"bearer\",\n"
+			+ "   \"expires_in\": \"3600\",\n"
+			+ "   \"scope\": \"read write\"\n"
+			+ "}\n";
+		String clientResponse = "{\n"
+			+ "	\"attribute1\": \"value1\",\n"
+			+ "	\"attribute2\": \"value2\"\n"
+			+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(accessTokenResponse));
+		this.server.enqueue(jsonResponse(clientResponse));
+		ClientRegistration clientRegistration = TestClientRegistrations.clientCredentials()
+			.tokenUri(this.serverUrl)
+			.build();
+		given(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration.getRegistrationId())))
+			.willReturn(clientRegistration);
+
+		this.webClient.get()
+			.uri(this.serverUrl)
+			.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction
+				.clientRegistrationId(clientRegistration.getRegistrationId()))
+			.retrieve()
+			.bodyToMono(String.class)
+			.block();
+		assertThat(this.server.getRequestCount()).isEqualTo(2);
+		ArgumentCaptor<OAuth2AuthorizedClient> authorizedClientCaptor = ArgumentCaptor
+			.forClass(OAuth2AuthorizedClient.class);
+		verify(clientService).saveAuthorizedClient(authorizedClientCaptor.capture(), eq(this.authentication));
 		assertThat(authorizedClientCaptor.getValue().getClientRegistration()).isSameAs(clientRegistration);
 	}
 
