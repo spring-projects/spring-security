@@ -108,6 +108,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoderFactory;
+import org.springframework.security.oauth2.server.resource.OAuth2ProtectedResourceMetadata;
 import org.springframework.security.oauth2.server.resource.authentication.JwtReactiveAuthenticationManager;
 import org.springframework.security.oauth2.server.resource.authentication.OpaqueTokenReactiveAuthenticationManager;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverter;
@@ -116,6 +117,7 @@ import org.springframework.security.oauth2.server.resource.introspection.Reactiv
 import org.springframework.security.oauth2.server.resource.introspection.SpringReactiveOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.web.access.server.BearerTokenServerAccessDeniedHandler;
 import org.springframework.security.oauth2.server.resource.web.server.BearerTokenServerAuthenticationEntryPoint;
+import org.springframework.security.oauth2.server.resource.web.server.OAuth2ProtectedResourceMetadataWebFilter;
 import org.springframework.security.oauth2.server.resource.web.server.authentication.ServerBearerTokenAuthenticationConverter;
 import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -297,6 +299,7 @@ import org.springframework.web.util.pattern.PathPatternParser;
  * @author Ankur Pathak
  * @author Alexey Nesterov
  * @author Yanming Zhou
+ * @author Andrey Litvitski
  * @since 5.0
  */
 public class ServerHttpSecurity {
@@ -4150,6 +4153,8 @@ public class ServerHttpSecurity {
 
 		private ReactiveAuthenticationManagerResolver<ServerWebExchange> authenticationManagerResolver;
 
+		private final ProtectedResourceMetadataSpec protectedResourceMetadataConfigurer = new ProtectedResourceMetadataSpec();
+
 		/**
 		 * Configures the {@link ServerAccessDeniedHandler} to use for requests
 		 * authenticating with
@@ -4243,6 +4248,18 @@ public class ServerHttpSecurity {
 			return this;
 		}
 
+		/**
+		 * Configure OAuth 2.0 Protected Resource Metadata.
+		 * @param protectedResourceMetadataCustomizer the {@link Customizer} to provide
+		 * more options for the {@link ProtectedResourceMetadataSpec}
+		 * @return the {@link OAuth2ResourceServerSpec} for further customizations
+		 */
+		public OAuth2ResourceServerSpec protectedResourceMetadata(
+				Customizer<ProtectedResourceMetadataSpec> protectedResourceMetadataCustomizer) {
+			protectedResourceMetadataCustomizer.customize(this.protectedResourceMetadataConfigurer);
+			return this;
+		}
+
 		protected void configure(ServerHttpSecurity http) {
 			this.authenticationConverterServerWebExchangeMatcher = new AuthenticationConverterServerWebExchangeMatcher(
 					this.bearerTokenConverter);
@@ -4250,6 +4267,12 @@ public class ServerHttpSecurity {
 			registerDefaultAuthenticationEntryPoint(http);
 			registerDefaultCsrfOverride(http);
 			validateConfiguration();
+			OAuth2ProtectedResourceMetadataWebFilter protectedResourceMetadataFilter = new OAuth2ProtectedResourceMetadataWebFilter();
+			if (this.protectedResourceMetadataConfigurer.protectedResourceMetadataCustomizer != null) {
+				protectedResourceMetadataFilter.setProtectedResourceMetadataCustomizer(
+						this.protectedResourceMetadataConfigurer.protectedResourceMetadataCustomizer);
+			}
+			http.addFilterBefore(protectedResourceMetadataFilter, SecurityWebFiltersOrder.AUTHENTICATION);
 			if (this.authenticationManagerResolver != null) {
 				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(this.authenticationManagerResolver);
 				oauth2.setServerAuthenticationConverter(this.bearerTokenConverter);
@@ -5247,6 +5270,29 @@ public class ServerHttpSecurity {
 		public OneTimeTokenLoginSpec loginPage(String loginPage) {
 			Assert.hasText(loginPage, "loginPage cannot be empty");
 			this.loginPage = loginPage;
+			return this;
+		}
+
+	}
+
+	public static final class ProtectedResourceMetadataSpec {
+
+		private Consumer<OAuth2ProtectedResourceMetadata.Builder> protectedResourceMetadataCustomizer;
+
+		private ProtectedResourceMetadataSpec() {
+		}
+
+		/**
+		 * Sets the {@code Consumer} providing access to the
+		 * {@link OAuth2ProtectedResourceMetadata.Builder} allowing the ability to
+		 * customize the claims of the Resource Server's configuration.
+		 * @param protectedResourceMetadataCustomizer the {@code Consumer} providing
+		 * access to the {@link OAuth2ProtectedResourceMetadata.Builder}
+		 * @return the {@link ProtectedResourceMetadataSpec} for further configuration
+		 */
+		public ProtectedResourceMetadataSpec protectedResourceMetadataCustomizer(
+				Consumer<OAuth2ProtectedResourceMetadata.Builder> protectedResourceMetadataCustomizer) {
+			this.protectedResourceMetadataCustomizer = protectedResourceMetadataCustomizer;
 			return this;
 		}
 
