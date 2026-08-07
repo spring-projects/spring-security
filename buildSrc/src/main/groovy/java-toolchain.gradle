@@ -17,7 +17,8 @@ java {
 tasks.withType(JavaCompile).configureEach {
 	options.encoding = "UTF-8"
 	options.compilerArgs.add("-parameters")
-	options.release = 17
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
 }
 
 pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {

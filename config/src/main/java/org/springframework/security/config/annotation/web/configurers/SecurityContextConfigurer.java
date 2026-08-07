@@ -20,11 +20,14 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.context.ScopedSecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.context.ScopedSecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
@@ -69,6 +72,9 @@ public final class SecurityContextConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private boolean requireExplicitSave = true;
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+		.getContextHolderStrategy();
+
 	/**
 	 * Creates a new instance
 	 * @see HttpSecurity#securityContext(Customizer)
@@ -110,10 +116,18 @@ public final class SecurityContextConfigurer<H extends HttpSecurityBuilder<H>>
 	public void configure(H http) {
 		SecurityContextRepository securityContextRepository = getSecurityContextRepository();
 		if (this.requireExplicitSave) {
-			SecurityContextHolderFilter securityContextHolderFilter = postProcess(
-					new SecurityContextHolderFilter(securityContextRepository));
-			securityContextHolderFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
-			http.addFilter(securityContextHolderFilter);
+			if (this.securityContextHolderStrategy instanceof ScopedSecurityContextHolderStrategy) {
+				ScopedSecurityContextHolderFilter securityContextHolderFilter = postProcess(
+						new ScopedSecurityContextHolderFilter(securityContextRepository));
+				securityContextHolderFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
+				http.addFilter(securityContextHolderFilter);
+			}
+			else {
+				SecurityContextHolderFilter securityContextHolderFilter = postProcess(
+						new SecurityContextHolderFilter(securityContextRepository));
+				securityContextHolderFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
+				http.addFilter(securityContextHolderFilter);
+			}
 		}
 		else {
 			SecurityContextPersistenceFilter securityContextFilter = new SecurityContextPersistenceFilter(
