@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.core.authorization;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authorization.AllAuthoritiesAuthorizationManager;
 import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -53,7 +55,7 @@ public final class OAuth2AuthorizationManagers {
 	 * @return an {@link AuthorizationManager} that requires a {@code "SCOPE_scope"}
 	 * authority
 	 */
-	public static <T> AuthorizationManager<T> hasScope(String scope) {
+	public static <T extends @Nullable Object> AuthorizationManager<T> hasScope(String scope) {
 		assertScope(scope);
 		return AuthorityAuthorizationManager.hasAuthority("SCOPE_" + scope);
 	}
@@ -78,7 +80,7 @@ public final class OAuth2AuthorizationManagers {
 	 * {@code "SCOPE_scope1"}, {@code SCOPE_scope2}, ... {@code SCOPE_scopeN}.
 	 *
 	 */
-	public static <T> AuthorizationManager<T> hasAnyScope(String... scopes) {
+	public static <T extends @Nullable Object> AuthorizationManager<T> hasAnyScope(String... scopes) {
 		String[] mappedScopes = new String[scopes.length];
 		for (int i = 0; i < scopes.length; i++) {
 			assertScope(scopes[i]);
@@ -106,7 +108,7 @@ public final class OAuth2AuthorizationManagers {
 	 * {@code SCOPE_scope1}, {@code SCOPE_scope2}, ... {@code SCOPE_scopeN}.
 	 * @since 7.1
 	 */
-	public static <T> AuthorizationManager<T> hasAllScopes(String... scopes) {
+	public static <T extends @Nullable Object> AuthorizationManager<T> hasAllScopes(String... scopes) {
 		String[] mappedScopes = new String[scopes.length];
 		for (int i = 0; i < scopes.length; i++) {
 			assertScope(scopes[i]);
