@@ -19,21 +19,12 @@ package org.springframework.security.authentication.ott;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.context.MessageSource;
-import org.springframework.context.MessageSourceAware;
-import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.security.authentication.AccountExpiredException;
+import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
@@ -50,7 +41,7 @@ import org.springframework.util.Assert;
  * @author Andrey Litvitski
  * @since 6.4
  */
-public final class OneTimeTokenAuthenticationProvider implements AuthenticationProvider, MessageSourceAware {
+public final class OneTimeTokenAuthenticationProvider implements AuthenticationProvider {
 
 	private static final String AUTHORITY = FactorGrantedAuthority.OTT_AUTHORITY;
 
@@ -58,11 +49,8 @@ public final class OneTimeTokenAuthenticationProvider implements AuthenticationP
 
 	private final UserDetailsService userDetailsService;
 
-	private final Log logger = LogFactory.getLog(getClass());
-
-	private UserDetailsChecker authenticationChecks = new DefaultAuthenticationChecks();
-
-	private MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+	private UserDetailsChecker userDetailsChecker = (user) -> {
+	};
 
 	public OneTimeTokenAuthenticationProvider(OneTimeTokenService oneTimeTokenService,
 			UserDetailsService userDetailsService) {
@@ -81,7 +69,7 @@ public final class OneTimeTokenAuthenticationProvider implements AuthenticationP
 		}
 		try {
 			UserDetails user = this.userDetailsService.loadUserByUsername(consumed.getUsername());
-			this.authenticationChecks.check(user);
+			this.userDetailsChecker.check(user);
 			Collection<GrantedAuthority> authorities = new HashSet<>(user.getAuthorities());
 			authorities.add(FactorGrantedAuthority.fromAuthority(AUTHORITY));
 			OneTimeTokenAuthentication authenticated = new OneTimeTokenAuthentication(user, authorities);
@@ -98,39 +86,21 @@ public final class OneTimeTokenAuthenticationProvider implements AuthenticationP
 		return OneTimeTokenAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
-	@Override
-	public void setMessageSource(MessageSource messageSource) {
-		this.messages = new MessageSourceAccessor(messageSource);
-	}
-
-	public void setAuthenticationChecks(UserDetailsChecker authenticationChecks) {
-		this.authenticationChecks = authenticationChecks;
-	}
-
-	private class DefaultAuthenticationChecks implements UserDetailsChecker {
-
-		@Override
-		public void check(UserDetails user) {
-			if (!user.isAccountNonLocked()) {
-				OneTimeTokenAuthenticationProvider.this.logger
-					.debug("Failed to authenticate since user account is locked");
-				throw new LockedException(OneTimeTokenAuthenticationProvider.this.messages
-					.getMessage("AbstractUserDetailsAuthenticationProvider.locked", "User account is locked"));
-			}
-			if (!user.isEnabled()) {
-				OneTimeTokenAuthenticationProvider.this.logger
-					.debug("Failed to authenticate since user account is disabled");
-				throw new DisabledException(OneTimeTokenAuthenticationProvider.this.messages
-					.getMessage("AbstractUserDetailsAuthenticationProvider.disabled", "User is disabled"));
-			}
-			if (!user.isAccountNonExpired()) {
-				OneTimeTokenAuthenticationProvider.this.logger
-					.debug("Failed to authenticate since user account has expired");
-				throw new AccountExpiredException(OneTimeTokenAuthenticationProvider.this.messages
-					.getMessage("AbstractUserDetailsAuthenticationProvider.expired", "User account has expired"));
-			}
-		}
-
+	/**
+	 * Use this {@link UserDetailsChecker} to verify the status of the loaded
+	 * {@link UserDetails} after authentication.
+	 *
+	 * <p>
+	 * By default, no checks are performed, keeping this provider's behavior consistent
+	 * with earlier versions of Spring Security. To reject authentication for accounts
+	 * that are locked, disabled, or expired, provide a
+	 * {@link AccountStatusUserDetailsChecker}.
+	 * @param userDetailsChecker the {@link UserDetailsChecker} to use
+	 * @since 7.2
+	 */
+	public void setUserDetailsChecker(UserDetailsChecker userDetailsChecker) {
+		Assert.notNull(userDetailsChecker, "userDetailsChecker cannot be null");
+		this.userDetailsChecker = userDetailsChecker;
 	}
 
 }
