@@ -66,6 +66,7 @@ import org.springframework.util.Assert;
  * Strict-Transport-Security: max-age=31536000 ; includeSubDomains
  * X-Frame-Options: DENY
  * X-XSS-Protection: 0
+ * Referrer-Policy: no-referrer
  * </pre>
  *
  * @author Rob Winch
@@ -75,6 +76,7 @@ import org.springframework.util.Assert;
  * @author Vedran Pavic
  * @author Ankur Pathak
  * @author Daniel Garnier-Moiroux
+ * @author Andrey Litvitski
  * @since 3.2
  */
 public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
@@ -266,6 +268,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		this.cacheControl.disable();
 		this.hsts.disable();
 		this.frameOptions.disable();
+		this.referrerPolicy.disable();
 		return this;
 	}
 
@@ -968,6 +971,27 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		private ReferrerPolicyHeaderWriter writer;
 
 		private ReferrerPolicyConfig() {
+			enable();
+		}
+
+		/**
+		 * Disables Referrer Policy
+		 * @return the {@link HeadersConfigurer} for additional configuration
+		 */
+		public HeadersConfigurer<H> disable() {
+			this.writer = null;
+			return HeadersConfigurer.this;
+		}
+
+		/**
+		 * Ensures the Referrer Policy header is enabled if it is not already.
+		 * @return the {@link ReferrerPolicyConfig} for additional customization
+		 */
+		public ReferrerPolicyConfig enable() {
+			if (this.writer == null) {
+				this.writer = new ReferrerPolicyHeaderWriter();
+			}
+			return this;
 		}
 
 		/**
