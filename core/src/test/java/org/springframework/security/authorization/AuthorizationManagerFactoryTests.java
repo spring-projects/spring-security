@@ -128,8 +128,9 @@ public class AuthorizationManagerFactoryTests {
 		DefaultAuthorizationManagerFactory<String> factory = new DefaultAuthorizationManagerFactory<>();
 		factory.setAdditionalAuthorization(additional);
 
-		factory.anonymous();
+		AuthorizationManager<String> anonymous = factory.anonymous();
 
+		assertThat(anonymous.authorize(() -> TestAuthentication.anonymousUser(), "").isGranted()).isTrue();
 		verifyNoInteractions(additional);
 	}
 
