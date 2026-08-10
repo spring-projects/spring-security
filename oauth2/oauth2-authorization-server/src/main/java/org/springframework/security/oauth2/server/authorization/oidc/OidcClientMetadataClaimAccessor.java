@@ -19,6 +19,8 @@ package org.springframework.security.oauth2.server.authorization.oidc;
 import java.net.URL;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.ClaimAccessor;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
@@ -53,7 +55,7 @@ public interface OidcClientMetadataClaimAccessor extends OAuth2ClientMetadataCla
 	 * to after a logout has been performed.
 	 * @return the post logout redirection {@code URI} values used by the Client
 	 */
-	default List<String> getPostLogoutRedirectUris() {
+	default @Nullable List<String> getPostLogoutRedirectUris() {
 		return getClaimAsStringList(OidcClientMetadataClaimNames.POST_LOGOUT_REDIRECT_URIS);
 	}
 
@@ -66,7 +68,7 @@ public interface OidcClientMetadataClaimAccessor extends OAuth2ClientMetadataCla
 	 * @return the {@link JwsAlgorithm JWS} algorithm that must be used for signing the
 	 * {@link Jwt JWT} used to authenticate the Client at the Token Endpoint
 	 */
-	default String getTokenEndpointAuthenticationSigningAlgorithm() {
+	default @Nullable String getTokenEndpointAuthenticationSigningAlgorithm() {
 		return getClaimAsString(OidcClientMetadataClaimNames.TOKEN_ENDPOINT_AUTH_SIGNING_ALG);
 	}
 
@@ -77,7 +79,7 @@ public interface OidcClientMetadataClaimAccessor extends OAuth2ClientMetadataCla
 	 * @return the {@link SignatureAlgorithm JWS} algorithm required for signing the
 	 * {@link OidcIdToken ID Token} issued to the Client
 	 */
-	default String getIdTokenSignedResponseAlgorithm() {
+	default @Nullable String getIdTokenSignedResponseAlgorithm() {
 		return getClaimAsString(OidcClientMetadataClaimNames.ID_TOKEN_SIGNED_RESPONSE_ALG);
 	}
 
@@ -87,7 +89,7 @@ public interface OidcClientMetadataClaimAccessor extends OAuth2ClientMetadataCla
 	 * @return the Registration Access Token that can be used at the Client Configuration
 	 * Endpoint
 	 */
-	default String getRegistrationAccessToken() {
+	default @Nullable String getRegistrationAccessToken() {
 		return getClaimAsString(OidcClientMetadataClaimNames.REGISTRATION_ACCESS_TOKEN);
 	}
 
@@ -97,7 +99,7 @@ public interface OidcClientMetadataClaimAccessor extends OAuth2ClientMetadataCla
 	 * @return the {@code URL} of the Client Configuration Endpoint where the Registration
 	 * Access Token can be used
 	 */
-	default URL getRegistrationClientUrl() {
+	default @Nullable URL getRegistrationClientUrl() {
 		return getClaimAsURL(OidcClientMetadataClaimNames.REGISTRATION_CLIENT_URI);
 	}
 

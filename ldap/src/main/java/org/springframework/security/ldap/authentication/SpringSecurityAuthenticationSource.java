@@ -78,7 +78,12 @@ public class SpringSecurityAuthenticationSource implements AuthenticationSource 
 			log.debug("Returning empty String as Credentials since authentication is null");
 			return "";
 		}
-		return (String) authentication.getCredentials();
+		String password = (String) authentication.getCredentials();
+		if (password == null) {
+			log.debug("Returning empty String as Credentials since password is null");
+			return "";
+		}
+		return password;
 	}
 
 	/**

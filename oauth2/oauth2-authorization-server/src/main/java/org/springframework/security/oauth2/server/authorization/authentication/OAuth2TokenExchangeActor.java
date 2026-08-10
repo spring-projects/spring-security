@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.server.authorization.authentication;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
@@ -33,7 +35,10 @@ import org.springframework.util.Assert;
  * @since 7.0
  * @see OAuth2TokenExchangeCompositeAuthenticationToken
  */
-public final class OAuth2TokenExchangeActor implements ClaimAccessor {
+public final class OAuth2TokenExchangeActor implements ClaimAccessor, Serializable {
+
+	@Serial
+	private static final long serialVersionUID = -3966261411784615574L;
 
 	private final Map<String, Object> claims;
 
@@ -48,11 +53,15 @@ public final class OAuth2TokenExchangeActor implements ClaimAccessor {
 	}
 
 	public String getIssuer() {
-		return getClaimAsString(OAuth2TokenClaimNames.ISS);
+		String issuer = getClaimAsString(OAuth2TokenClaimNames.ISS);
+		Assert.notNull(issuer, "issuer cannot be null");
+		return issuer;
 	}
 
 	public String getSubject() {
-		return getClaimAsString(OAuth2TokenClaimNames.SUB);
+		String subject = getClaimAsString(OAuth2TokenClaimNames.SUB);
+		Assert.notNull(subject, "subject cannot be null");
+		return subject;
 	}
 
 	@Override

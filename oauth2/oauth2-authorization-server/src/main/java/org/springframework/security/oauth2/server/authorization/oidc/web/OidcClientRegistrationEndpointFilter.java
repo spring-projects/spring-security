@@ -143,6 +143,7 @@ public final class OidcClientRegistrationEndpointFilter extends OncePerRequestFi
 
 		try {
 			Authentication clientRegistrationAuthentication = this.authenticationConverter.convert(request);
+			Assert.notNull(clientRegistrationAuthentication, "clientRegistrationAuthentication cannot be null");
 
 			Authentication clientRegistrationAuthenticationResult = this.authenticationManager
 				.authenticate(clientRegistrationAuthentication);
@@ -212,6 +213,7 @@ public final class OidcClientRegistrationEndpointFilter extends OncePerRequestFi
 			Authentication authentication) throws IOException {
 		OidcClientRegistration clientRegistration = ((OidcClientRegistrationAuthenticationToken) authentication)
 			.getClientRegistration();
+		Assert.notNull(clientRegistration, "clientRegistration cannot be null");
 		ServletServerHttpResponse httpResponse = new ServletServerHttpResponse(response);
 		if (HttpMethod.POST.name().equals(request.getMethod())) {
 			httpResponse.setStatusCode(HttpStatus.CREATED);

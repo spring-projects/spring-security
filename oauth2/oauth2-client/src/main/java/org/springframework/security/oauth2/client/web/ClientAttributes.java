@@ -19,12 +19,14 @@ package org.springframework.security.oauth2.client.web;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.util.Assert;
 
 /**
- * Used for accessing the attribute that stores the the
+ * Used for accessing the attribute that stores the
  * {@link ClientRegistration#getRegistrationId()}. This ensures that
  * {@link org.springframework.security.oauth2.client.web.client.ClientRegistrationIdProcessor}
  * aligns with all of ways of setting on both
@@ -44,10 +46,10 @@ public final class ClientAttributes {
 	/**
 	 * Resolves the {@link ClientRegistration#getRegistrationId() clientRegistrationId} to
 	 * be used to look up the {@link OAuth2AuthorizedClient}.
-	 * @param attributes the to search
+	 * @param attributes the attributes to search.
 	 * @return the registration id to use.
 	 */
-	public static String resolveClientRegistrationId(Map<String, Object> attributes) {
+	public static @Nullable String resolveClientRegistrationId(Map<String, Object> attributes) {
 		return (String) attributes.get(CLIENT_REGISTRATION_ID_ATTR_NAME);
 	}
 

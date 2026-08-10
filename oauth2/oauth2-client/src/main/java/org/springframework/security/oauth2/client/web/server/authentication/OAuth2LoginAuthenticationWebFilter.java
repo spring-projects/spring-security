@@ -55,6 +55,8 @@ public class OAuth2LoginAuthenticationWebFilter extends AuthenticationWebFilter 
 	@Override
 	protected Mono<Void> onAuthenticationSuccess(Authentication authentication, WebFilterExchange webFilterExchange) {
 		OAuth2LoginAuthenticationToken authenticationResult = (OAuth2LoginAuthenticationToken) authentication;
+		Assert.notNull(authenticationResult.getAccessToken(), "accessToken cannot be null");
+		Assert.notNull(authenticationResult.getPrincipal(), "principal cannot be null");
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
 				authenticationResult.getClientRegistration(), authenticationResult.getName(),
 				authenticationResult.getAccessToken(), authenticationResult.getRefreshToken());

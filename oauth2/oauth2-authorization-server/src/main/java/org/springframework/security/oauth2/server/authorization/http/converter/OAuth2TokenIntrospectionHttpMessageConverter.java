@@ -61,8 +61,7 @@ public class OAuth2TokenIntrospectionHttpMessageConverter
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<>() {
 	};
 
-	private final GenericHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters
-		.getJsonMessageConverter();
+	private final GenericHttpMessageConverter<Object> jsonMessageConverter;
 
 	private Converter<Map<String, Object>, OAuth2TokenIntrospection> tokenIntrospectionConverter = new MapOAuth2TokenIntrospectionConverter();
 
@@ -70,6 +69,9 @@ public class OAuth2TokenIntrospectionHttpMessageConverter
 
 	public OAuth2TokenIntrospectionHttpMessageConverter() {
 		super(MediaType.APPLICATION_JSON, new MediaType("application", "*+json"));
+		GenericHttpMessageConverter<Object> converter = HttpMessageConverters.getJsonMessageConverter();
+		Assert.notNull(converter, "Unable to locate a supported JSON message converter");
+		this.jsonMessageConverter = converter;
 	}
 
 	@Override

@@ -23,9 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
-import org.jspecify.annotations.Nullable;
 import org.w3c.dom.Element;
 
 import org.springframework.beans.BeansException;
@@ -44,25 +42,18 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.xml.XmlReaderContext;
-import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.Expression;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.annotation.support.SimpAnnotationMethodMessageHandler;
-import org.springframework.security.access.expression.ExpressionUtils;
-import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.vote.ConsensusBased;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.config.Elements;
 import org.springframework.security.config.http.MessageMatcherFactoryBean;
 import org.springframework.security.config.web.messaging.PathPatternMessageMatcherBuilderFactoryBean;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.messaging.access.expression.ExpressionBasedMessageSecurityMetadataSourceFactory;
-import org.springframework.security.messaging.access.expression.MessageAuthorizationContextSecurityExpressionHandler;
+import org.springframework.security.messaging.access.expression.MessageExpressionAuthorizationManager;
 import org.springframework.security.messaging.access.expression.MessageExpressionVoter;
 import org.springframework.security.messaging.access.intercept.AuthorizationChannelInterceptor;
 import org.springframework.security.messaging.access.intercept.ChannelSecurityInterceptor;
@@ -75,7 +66,6 @@ import org.springframework.security.messaging.util.matcher.SimpMessageTypeMatche
 import org.springframework.security.messaging.web.csrf.XorCsrfChannelInterceptor;
 import org.springframework.security.messaging.web.socket.server.CsrfTokenHandshakeInterceptor;
 import org.springframework.util.AntPathMatcher;
-import org.springframework.util.Assert;
 import org.springframework.util.PathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
@@ -219,9 +209,15 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 			String messageType = interceptMessage.getAttribute(TYPE_ATTR);
 			BeanDefinition matcher = createMatcher(matcherPattern, messageType, parserContext, interceptMessage);
 			BeanDefinitionBuilder authorizationManager = BeanDefinitionBuilder
-				.rootBeanDefinition(ExpressionBasedAuthorizationManager.class);
+				.rootBeanDefinition(MessageExpressionAuthorizationManager.class);
 			if (StringUtils.hasText(expressionHandlerRef)) {
-				authorizationManager.addConstructorArgReference(expressionHandlerRef);
+				BeanDefinitionBuilder authorizationManagerBuilder = BeanDefinitionBuilder
+					.rootBeanDefinition(MessageExpressionAuthorizationManager.class);
+				authorizationManagerBuilder.setFactoryMethod("withSecurityExpressionHandler");
+				authorizationManagerBuilder.addConstructorArgReference(expressionHandlerRef);
+				String authorizationManagerBuilderRef = context
+					.registerWithGeneratedName(authorizationManagerBuilder.getBeanDefinition());
+				authorizationManager.setFactoryMethodOnBean("expression", authorizationManagerBuilderRef);
 			}
 			authorizationManager.addConstructorArgValue(accessExpression);
 			matcherToExpression.put(matcher, authorizationManager.getBeanDefinition());
@@ -435,35 +431,6 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 
 		void setPathMatcher(PathMatcher pathMatcher) {
 			this.delegate = pathMatcher;
-		}
-
-	}
-
-	private static final class ExpressionBasedAuthorizationManager
-			implements AuthorizationManager<MessageAuthorizationContext<?>> {
-
-		private final SecurityExpressionHandler<MessageAuthorizationContext<?>> expressionHandler;
-
-		private final Expression expression;
-
-		private ExpressionBasedAuthorizationManager(String expression) {
-			this(new MessageAuthorizationContextSecurityExpressionHandler(), expression);
-		}
-
-		private ExpressionBasedAuthorizationManager(
-				SecurityExpressionHandler<MessageAuthorizationContext<?>> expressionHandler, String expression) {
-			Assert.notNull(expressionHandler, "expressionHandler cannot be null");
-			Assert.notNull(expression, "expression cannot be null");
-			this.expressionHandler = expressionHandler;
-			this.expression = this.expressionHandler.getExpressionParser().parseExpression(expression);
-		}
-
-		@Override
-		public AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication,
-				MessageAuthorizationContext<?> object) {
-			EvaluationContext context = this.expressionHandler.createEvaluationContext(authentication, object);
-			boolean granted = ExpressionUtils.evaluateAsBoolean(this.expression, context);
-			return new AuthorizationDecision(granted);
 		}
 
 	}

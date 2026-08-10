@@ -98,6 +98,7 @@ public final class OidcUserInfoAuthenticationProvider implements AuthenticationP
 		}
 
 		OAuth2Authorization.Token<OAuth2AccessToken> authorizedAccessToken = authorization.getAccessToken();
+		Assert.notNull(authorizedAccessToken, "authorizedAccessToken cannot be null");
 		if (!authorizedAccessToken.isActive()) {
 			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_TOKEN);
 		}
@@ -191,7 +192,9 @@ public final class OidcUserInfoAuthenticationProvider implements AuthenticationP
 		@Override
 		public OidcUserInfo apply(OidcUserInfoAuthenticationContext authenticationContext) {
 			OAuth2Authorization authorization = authenticationContext.getAuthorization();
-			OidcIdToken idToken = authorization.getToken(OidcIdToken.class).getToken();
+			OAuth2Authorization.Token<OidcIdToken> authorizedIdToken = authorization.getToken(OidcIdToken.class);
+			Assert.notNull(authorizedIdToken, "authorizedIdToken cannot be null");
+			OidcIdToken idToken = authorizedIdToken.getToken();
 			OAuth2AccessToken accessToken = authenticationContext.getAccessToken();
 			Map<String, Object> scopeRequestedClaims = getClaimsRequestedByScope(idToken.getClaims(),
 					accessToken.getScopes());

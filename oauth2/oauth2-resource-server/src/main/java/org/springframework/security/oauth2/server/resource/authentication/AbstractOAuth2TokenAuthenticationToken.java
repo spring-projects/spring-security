@@ -61,21 +61,20 @@ public abstract class AbstractOAuth2TokenAuthenticationToken<T extends OAuth2Tok
 	 * Sub-class constructor.
 	 */
 	protected AbstractOAuth2TokenAuthenticationToken(T token) {
-
 		this(token, null);
 	}
 
 	/**
 	 * Sub-class constructor.
-	 * @param authorities the authorities assigned to the Access Token
+	 * @param authorities the authorities assigned to the Access Token, or {@code null}
 	 */
-	protected AbstractOAuth2TokenAuthenticationToken(T token, Collection<? extends GrantedAuthority> authorities) {
-
+	protected AbstractOAuth2TokenAuthenticationToken(T token,
+			@Nullable Collection<? extends GrantedAuthority> authorities) {
 		this(token, token, token, authorities);
 	}
 
 	protected AbstractOAuth2TokenAuthenticationToken(T token, Object principal, Object credentials,
-			Collection<? extends GrantedAuthority> authorities) {
+			@Nullable Collection<? extends GrantedAuthority> authorities) {
 
 		super(authorities);
 		Assert.notNull(token, "token cannot be null");

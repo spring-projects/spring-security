@@ -21,7 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2AccessTokenResponseAuthenticationSuccessHandler;
 import org.springframework.util.Assert;
@@ -47,9 +48,8 @@ public final class OAuth2AccessTokenAuthenticationContext implements OAuth2Authe
 	}
 
 	@SuppressWarnings("unchecked")
-	@Nullable
 	@Override
-	public <V> V get(Object key) {
+	public <V> @Nullable V get(Object key) {
 		return hasKey(key) ? (V) this.context.get(key) : null;
 	}
 
@@ -65,7 +65,9 @@ public final class OAuth2AccessTokenAuthenticationContext implements OAuth2Authe
 	 * @return the {@link OAuth2AccessTokenResponse.Builder}
 	 */
 	public OAuth2AccessTokenResponse.Builder getAccessTokenResponse() {
-		return get(OAuth2AccessTokenResponse.Builder.class);
+		OAuth2AccessTokenResponse.Builder accessTokenResponse = get(OAuth2AccessTokenResponse.Builder.class);
+		Assert.notNull(accessTokenResponse, "accessTokenResponse cannot be null");
+		return accessTokenResponse;
 	}
 
 	/**

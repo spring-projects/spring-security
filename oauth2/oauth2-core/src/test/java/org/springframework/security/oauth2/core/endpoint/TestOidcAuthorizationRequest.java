@@ -23,6 +23,7 @@ import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames
 /**
  * @author Joe Grandja
  */
+@SuppressWarnings("serial")
 public class TestOidcAuthorizationRequest extends OAuth2AuthorizationRequest {
 
 	private final String nonce;

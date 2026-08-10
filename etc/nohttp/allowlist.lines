@@ -14,3 +14,5 @@
 ^http://schemas.openid.net/event/backchannel-logout
 ^http://host.docker.internal:8090/back-channel/logout
 ^http://host.docker.internal:8090/logout
+^http://169.254.169.254/keys
+

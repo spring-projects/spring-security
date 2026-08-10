@@ -26,6 +26,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.Converter;
@@ -60,8 +62,7 @@ public class OAuth2ClientRegistrationHttpMessageConverter
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<>() {
 	};
 
-	private final GenericHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters
-		.getJsonMessageConverter();
+	private final GenericHttpMessageConverter<Object> jsonMessageConverter;
 
 	private Converter<Map<String, Object>, OAuth2ClientRegistration> clientRegistrationConverter = new MapOAuth2ClientRegistrationConverter();
 
@@ -69,6 +70,9 @@ public class OAuth2ClientRegistrationHttpMessageConverter
 
 	public OAuth2ClientRegistrationHttpMessageConverter() {
 		super(MediaType.APPLICATION_JSON, new MediaType("application", "*+json"));
+		GenericHttpMessageConverter<Object> converter = HttpMessageConverters.getJsonMessageConverter();
+		Assert.notNull(converter, "Unable to locate a supported JSON message converter");
+		this.jsonMessageConverter = converter;
 	}
 
 	@Override
@@ -187,7 +191,7 @@ public class OAuth2ClientRegistrationHttpMessageConverter
 			return (source) -> CLAIM_CONVERSION_SERVICE.convert(source, OBJECT_TYPE_DESCRIPTOR, targetDescriptor);
 		}
 
-		private static Instant convertClientSecretExpiresAt(Object clientSecretExpiresAt) {
+		private static @Nullable Instant convertClientSecretExpiresAt(Object clientSecretExpiresAt) {
 			if (clientSecretExpiresAt != null && String.valueOf(clientSecretExpiresAt).equals("0")) {
 				// 0 indicates that client_secret_expires_at does not expire
 				return null;

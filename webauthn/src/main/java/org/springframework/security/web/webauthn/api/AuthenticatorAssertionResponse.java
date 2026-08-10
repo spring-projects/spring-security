@@ -155,7 +155,7 @@ public final class AuthenticatorAssertionResponse extends AuthenticatorResponse 
 		 * @param authenticatorData the authenticator data.
 		 * @return the {@link AuthenticatorAssertionResponseBuilder}
 		 */
-		public AuthenticatorAssertionResponseBuilder authenticatorData(Bytes authenticatorData) {
+		public AuthenticatorAssertionResponseBuilder authenticatorData(@Nullable Bytes authenticatorData) {
 			this.authenticatorData = authenticatorData;
 			return this;
 		}
@@ -165,7 +165,7 @@ public final class AuthenticatorAssertionResponse extends AuthenticatorResponse 
 		 * @param signature the signature
 		 * @return the {@link AuthenticatorAssertionResponseBuilder}
 		 */
-		public AuthenticatorAssertionResponseBuilder signature(Bytes signature) {
+		public AuthenticatorAssertionResponseBuilder signature(@Nullable Bytes signature) {
 			this.signature = signature;
 			return this;
 		}
@@ -175,7 +175,7 @@ public final class AuthenticatorAssertionResponse extends AuthenticatorResponse 
 		 * @param userHandle the user handle
 		 * @return the {@link AuthenticatorAssertionResponseBuilder}
 		 */
-		public AuthenticatorAssertionResponseBuilder userHandle(Bytes userHandle) {
+		public AuthenticatorAssertionResponseBuilder userHandle(@Nullable Bytes userHandle) {
 			this.userHandle = userHandle;
 			return this;
 		}
@@ -185,7 +185,7 @@ public final class AuthenticatorAssertionResponse extends AuthenticatorResponse 
 		 * @param attestationObject the attestation object
 		 * @return the {@link AuthenticatorAssertionResponseBuilder}
 		 */
-		public AuthenticatorAssertionResponseBuilder attestationObject(Bytes attestationObject) {
+		public AuthenticatorAssertionResponseBuilder attestationObject(@Nullable Bytes attestationObject) {
 			this.attestationObject = attestationObject;
 			return this;
 		}
@@ -195,7 +195,7 @@ public final class AuthenticatorAssertionResponse extends AuthenticatorResponse 
 		 * @param clientDataJSON the client data JSON
 		 * @return the {@link AuthenticatorAssertionResponseBuilder}
 		 */
-		public AuthenticatorAssertionResponseBuilder clientDataJSON(Bytes clientDataJSON) {
+		public AuthenticatorAssertionResponseBuilder clientDataJSON(@Nullable Bytes clientDataJSON) {
 			this.clientDataJSON = clientDataJSON;
 			return this;
 		}

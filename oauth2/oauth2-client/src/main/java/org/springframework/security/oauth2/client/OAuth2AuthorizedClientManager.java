@@ -16,7 +16,8 @@
 
 package org.springframework.security.oauth2.client;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 
@@ -62,7 +63,6 @@ public interface OAuth2AuthorizedClientManager {
 	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if authorization is not
 	 * supported for the specified client
 	 */
-	@Nullable
-	OAuth2AuthorizedClient authorize(OAuth2AuthorizeRequest authorizeRequest);
+	@Nullable OAuth2AuthorizedClient authorize(OAuth2AuthorizeRequest authorizeRequest);
 
 }

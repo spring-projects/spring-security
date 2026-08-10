@@ -16,7 +16,10 @@
 
 package org.springframework.security.oauth2.server.authorization.authentication;
 
-import org.springframework.lang.Nullable;
+import java.io.Serial;
+
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -33,7 +36,10 @@ import org.springframework.security.oauth2.core.OAuth2Error;
  */
 public class OAuth2AuthorizationCodeRequestAuthenticationException extends OAuth2AuthenticationException {
 
-	private final OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication;
+	@Serial
+	private static final long serialVersionUID = -3791188557904282453L;
+
+	private final @Nullable OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication;
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizationCodeRequestAuthenticationException} using
@@ -67,8 +73,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationException extends OAuth
 	 * (or Consent), or {@code null} if not available.
 	 * @return the {@link OAuth2AuthorizationCodeRequestAuthenticationToken}
 	 */
-	@Nullable
-	public OAuth2AuthorizationCodeRequestAuthenticationToken getAuthorizationCodeRequestAuthentication() {
+	public @Nullable OAuth2AuthorizationCodeRequestAuthenticationToken getAuthorizationCodeRequestAuthentication() {
 		return this.authorizationCodeRequestAuthentication;
 	}
 

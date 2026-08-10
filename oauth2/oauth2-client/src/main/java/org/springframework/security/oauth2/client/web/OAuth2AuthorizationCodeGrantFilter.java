@@ -28,9 +28,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -193,7 +195,7 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 		if (authorizationRequest == null) {
 			return false;
 		}
-		// Compare redirect_uri
+		Assert.notNull(authorizationRequest.getRedirectUri(), "redirectUri cannot be null");
 		UriComponents requestUri = UriComponentsBuilder.fromUriString(UrlUtils.buildFullRequestUrl(request)).build();
 		UriComponents redirectUri = UriComponentsBuilder.fromUriString(authorizationRequest.getRedirectUri()).build();
 		Set<Map.Entry<String, List<String>>> requestUriParameters = new LinkedHashSet<>(
@@ -220,8 +222,11 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 			throws IOException {
 		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestRepository
 			.removeAuthorizationRequest(request, response);
+		Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
 		String registrationId = authorizationRequest.getAttribute(OAuth2ParameterNames.REGISTRATION_ID);
+		Assert.hasText(registrationId, "registrationId cannot be empty");
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
+		Assert.notNull(clientRegistration, "Client registration not found with id: " + registrationId);
 		MultiValueMap<String, String> params = OAuth2AuthorizationResponseUtils.toMultiMap(request.getParameterMap());
 		String redirectUri = UrlUtils.buildFullRequestUrl(request);
 		OAuth2AuthorizationResponse authorizationResponse = OAuth2AuthorizationResponseUtils.convert(params,
@@ -236,7 +241,9 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 		}
 		catch (OAuth2AuthorizationException ex) {
 			OAuth2Error error = ex.getError();
-			UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(authorizationRequest.getRedirectUri())
+			String errorRedirectUri = authorizationRequest.getRedirectUri();
+			Assert.hasText(errorRedirectUri, "redirectUri cannot be empty");
+			UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(errorRedirectUri)
 				.queryParam(OAuth2ParameterNames.ERROR, error.getErrorCode());
 			if (StringUtils.hasLength(error.getDescription())) {
 				uriBuilder.queryParam(OAuth2ParameterNames.ERROR_DESCRIPTION, error.getDescription());
@@ -249,17 +256,21 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 		}
 		Authentication currentAuthentication = this.securityContextHolderStrategy.getContext().getAuthentication();
 		String principalName = (currentAuthentication != null) ? currentAuthentication.getName() : "anonymousUser";
+		Authentication principal = (currentAuthentication != null) ? currentAuthentication
+				: new AnonymousAuthenticationToken("anonymous", principalName,
+						AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+		Assert.notNull(authenticationResult.getAccessToken(), "accessToken cannot be null");
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
 				authenticationResult.getClientRegistration(), principalName, authenticationResult.getAccessToken(),
 				authenticationResult.getRefreshToken());
-		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, currentAuthentication, request,
-				response);
+		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, principal, request, response);
 		String redirectUrl = authorizationRequest.getRedirectUri();
 		SavedRequest savedRequest = this.requestCache.getRequest(request, response);
 		if (savedRequest != null) {
 			redirectUrl = savedRequest.getRedirectUrl();
 			this.requestCache.removeRequest(request, response);
 		}
+		Assert.hasText(redirectUrl, "redirectUrl cannot be empty");
 		this.redirectStrategy.sendRedirect(request, response, redirectUrl);
 	}
 

@@ -72,6 +72,18 @@ public class ServerOneTimeTokenAuthenticationConverterTests {
 		assertThat(authentication).isNull();
 	}
 
+	// gh-18973
+	@Test
+	void convertWhenNoTokenFormParameterThenNull() {
+		MockServerHttpRequest request = MockServerHttpRequest.post("/")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.body("username=Max");
+
+		Authentication authentication = this.converter.convert(MockServerWebExchange.from(request)).block();
+
+		assertThat(authentication).isNull();
+	}
+
 	@Test
 	void convertWhenTokenEncodedFormParameterThenReturnOneTimeTokenAuthenticationToken() {
 		// @formatter:off

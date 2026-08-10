@@ -29,7 +29,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.assertj.core.api.Assertions.assertThatObject;
 
 /**
@@ -146,10 +145,10 @@ public class ClaimAccessorTests {
 	}
 
 	@Test
-	public void getClaimAsMapWhenValueIsNullThenThrowNullPointerException() {
+	public void getClaimAsMapWhenValueIsNullThenReturnNull() {
 		String claimName = "map";
 		this.claims.put(claimName, null);
-		assertThatNullPointerException().isThrownBy(() -> this.claimAccessor.getClaimAsMap(claimName));
+		assertThat(this.claimAccessor.getClaimAsMap(claimName)).isNull();
 	}
 
 	@Test
@@ -181,10 +180,10 @@ public class ClaimAccessorTests {
 	}
 
 	@Test
-	public void getClaimAsStringListWhenValueIsNullThenNullPointerException() {
+	public void getClaimAsStringListWhenValueIsNullThenReturnNull() {
 		String claimName = "list";
 		this.claims.put(claimName, null);
-		assertThatNullPointerException().isThrownBy(() -> this.claimAccessor.getClaimAsStringList(claimName));
+		assertThat(this.claimAccessor.getClaimAsStringList(claimName)).isNull();
 	}
 
 	@Test

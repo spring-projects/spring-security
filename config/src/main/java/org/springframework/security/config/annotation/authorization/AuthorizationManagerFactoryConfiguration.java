@@ -16,15 +16,16 @@
 
 package org.springframework.security.config.annotation.authorization;
 
+import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authorization.AuthorizationManagerFactories;
+import org.springframework.security.authorization.AuthorizationManagerFactories.AdditionalRequiredFactorsBuilder;
 import org.springframework.security.authorization.DefaultAuthorizationManagerFactory;
+import org.springframework.security.config.Customizer;
 
 /**
  * Uses {@link EnableMultiFactorAuthentication} to configure a
@@ -39,10 +40,13 @@ class AuthorizationManagerFactoryConfiguration implements ImportAware {
 	private String[] authorities;
 
 	@Bean
-	DefaultAuthorizationManagerFactory authorizationManagerFactory(ObjectProvider<RoleHierarchy> roleHierarchy) {
-		AuthorizationManagerFactories.AdditionalRequiredFactorsBuilder<Object> builder = AuthorizationManagerFactories
-			.multiFactor()
+	DefaultAuthorizationManagerFactory authorizationManagerFactory(
+			List<Customizer<AdditionalRequiredFactorsBuilder<Object>>> additionalRequiredFactorsCustomizers) {
+		AdditionalRequiredFactorsBuilder<Object> builder = AuthorizationManagerFactories.multiFactor()
 			.requireFactors(this.authorities);
+		for (Customizer<AdditionalRequiredFactorsBuilder<Object>> customizer : additionalRequiredFactorsCustomizers) {
+			customizer.customize(builder);
+		}
 		return builder.build();
 	}
 

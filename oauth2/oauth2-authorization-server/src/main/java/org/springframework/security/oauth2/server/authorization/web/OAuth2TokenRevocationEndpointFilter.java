@@ -115,6 +115,7 @@ public final class OAuth2TokenRevocationEndpointFilter extends OncePerRequestFil
 
 		try {
 			Authentication tokenRevocationAuthentication = this.authenticationConverter.convert(request);
+			Assert.notNull(tokenRevocationAuthentication, "tokenRevocationAuthentication cannot be null");
 			if (tokenRevocationAuthentication instanceof AbstractAuthenticationToken authenticationToken) {
 				authenticationToken.setDetails(this.authenticationDetailsSource.buildDetails(request));
 			}

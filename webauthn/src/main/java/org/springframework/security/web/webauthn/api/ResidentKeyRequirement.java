@@ -16,15 +16,21 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * The <a href=
  * "https://www.w3.org/TR/webauthn-3/#enumdef-residentkeyrequirement">ResidentKeyRequirement</a>
- * describes the Relying Partys requirements for client-side discoverable credentials.
+ * describes the Relying Party requirements for client-side discoverable credentials.
  *
  * @author Rob Winch
  * @since 6.4
  */
-public final class ResidentKeyRequirement {
+public final class ResidentKeyRequirement implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = 1730700608982834858L;
 
 	/**
 	 * The <a href=

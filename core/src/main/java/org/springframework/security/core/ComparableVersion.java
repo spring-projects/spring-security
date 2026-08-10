@@ -143,7 +143,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o) {
 				return true;
 			}
@@ -208,7 +208,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o) {
 				return true;
 			}
@@ -271,7 +271,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o) {
 				return true;
 			}
@@ -379,7 +379,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o) {
 				return true;
 			}
@@ -607,7 +607,7 @@ class ComparableVersion implements Comparable<ComparableVersion> {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		return (o instanceof ComparableVersion) && items.equals(((ComparableVersion) o).items);
 	}
 

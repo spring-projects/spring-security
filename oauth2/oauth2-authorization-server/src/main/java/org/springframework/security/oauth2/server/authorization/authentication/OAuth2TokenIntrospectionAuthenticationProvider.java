@@ -102,6 +102,7 @@ public final class OAuth2TokenIntrospectionAuthenticationProvider implements Aut
 
 		OAuth2Authorization.Token<OAuth2Token> authorizedToken = authorization
 			.getToken(tokenIntrospectionAuthentication.getToken());
+		Assert.notNull(authorizedToken, "authorizedToken cannot be null");
 		if (!authorizedToken.isActive()) {
 			if (this.logger.isTraceEnabled()) {
 				this.logger.trace("Did not introspect token since not active");
@@ -112,6 +113,7 @@ public final class OAuth2TokenIntrospectionAuthenticationProvider implements Aut
 
 		RegisteredClient authorizedClient = this.registeredClientRepository
 			.findById(authorization.getRegisteredClientId());
+		Assert.notNull(authorizedClient, "authorizedClient cannot be null");
 		OAuth2TokenIntrospection tokenClaims = withActiveTokenClaims(authorizedToken, authorizedClient);
 
 		if (this.logger.isTraceEnabled()) {

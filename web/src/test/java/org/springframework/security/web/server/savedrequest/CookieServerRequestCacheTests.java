@@ -118,6 +118,26 @@ public class CookieServerRequestCacheTests {
 	}
 
 	@Test
+	public void getRedirectUriWhenCookieContainsAbsoluteUrlThenRedirectUriIsNull() {
+		String encodedAbsoluteUrl = Base64.getEncoder().encodeToString("https://evil.com/phishing".getBytes());
+		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/login")
+			.accept(MediaType.TEXT_HTML)
+			.cookie(new HttpCookie("REDIRECT_URI", encodedAbsoluteUrl)));
+		URI redirectUri = this.cache.getRedirectUri(exchange).block();
+		assertThat(redirectUri).isNull();
+	}
+
+	@Test
+	public void getRedirectUriWhenCookieContainsProtocolRelativeUrlThenRedirectUriIsNull() {
+		String encodedProtocolRelativeUrl = Base64.getEncoder().encodeToString("//evil.com/phishing".getBytes());
+		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/login")
+			.accept(MediaType.TEXT_HTML)
+			.cookie(new HttpCookie("REDIRECT_URI", encodedProtocolRelativeUrl)));
+		URI redirectUri = this.cache.getRedirectUri(exchange).block();
+		assertThat(redirectUri).isNull();
+	}
+
+	@Test
 	public void getRedirectUriWhenNoCookieThenRedirectUriIsNull() {
 		MockServerWebExchange exchange = MockServerWebExchange
 			.from(MockServerHttpRequest.get("/secured/").accept(MediaType.TEXT_HTML));

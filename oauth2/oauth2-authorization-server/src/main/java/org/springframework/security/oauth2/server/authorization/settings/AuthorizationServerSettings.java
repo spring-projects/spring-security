@@ -19,6 +19,8 @@ package org.springframework.security.oauth2.server.authorization.settings;
 import java.io.Serial;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.server.authorization.context.AuthorizationServerContext;
 import org.springframework.util.Assert;
 
@@ -42,9 +44,10 @@ public final class AuthorizationServerSettings extends AbstractSettings {
 
 	/**
 	 * Returns the URL of the Authorization Server's Issuer Identifier.
-	 * @return the URL of the Authorization Server's Issuer Identifier
+	 * @return the URL of the Authorization Server's Issuer Identifier, or {@code null}
+	 * when using multiple issuers per host
 	 */
-	public String getIssuer() {
+	public @Nullable String getIssuer() {
 		return getSetting(ConfigurationSettingNames.AuthorizationServer.ISSUER);
 	}
 
@@ -64,7 +67,7 @@ public final class AuthorizationServerSettings extends AbstractSettings {
 	 * @see AuthorizationServerContext#getIssuer()
 	 */
 	public boolean isMultipleIssuersAllowed() {
-		return getSetting(ConfigurationSettingNames.AuthorizationServer.MULTIPLE_ISSUERS_ALLOWED);
+		return Boolean.TRUE.equals(getSetting(ConfigurationSettingNames.AuthorizationServer.MULTIPLE_ISSUERS_ALLOWED));
 	}
 
 	/**
@@ -73,7 +76,9 @@ public final class AuthorizationServerSettings extends AbstractSettings {
 	 * @return the Authorization endpoint
 	 */
 	public String getAuthorizationEndpoint() {
-		return getSetting(ConfigurationSettingNames.AuthorizationServer.AUTHORIZATION_ENDPOINT);
+		String authorizationEndpoint = getSetting(ConfigurationSettingNames.AuthorizationServer.AUTHORIZATION_ENDPOINT);
+		Assert.notNull(authorizationEndpoint, "authorizationEndpoint cannot be null");
+		return authorizationEndpoint;
 	}
 
 	/**
@@ -82,7 +87,10 @@ public final class AuthorizationServerSettings extends AbstractSettings {
 	 * @return the Pushed Authorization Request endpoint
 	 */
 	public String getPushedAuthorizationRequestEndpoint() {
-		return getSetting(ConfigurationSettingNames.AuthorizationServer.PUSHED_AUTHORIZATION_REQUEST_ENDPOINT);
+		String pushedAuthorizationRequestEndpoint = getSetting(
+				ConfigurationSettingNames.AuthorizationServer.PUSHED_AUTHORIZATION_REQUEST_ENDPOINT);
+		Assert.notNull(pushedAuthorizationRequestEndpoint, "pushedAuthorizationRequestEndpoint cannot be null");
+		return pushedAuthorizationRequestEndpoint;
 	}
 
 	/**
@@ -91,7 +99,10 @@ public final class AuthorizationServerSettings extends AbstractSettings {
 	 * @return the Device Authorization endpoint
 	 */
 	public String getDeviceAuthorizationEndpoint() {
-		return getSetting(ConfigurationSettingNames.AuthorizationServer.DEVICE_AUTHORIZATION_ENDPOINT);
+		String deviceAuthorizationEndpoint = getSetting(
+				ConfigurationSettingNames.AuthorizationServer.DEVICE_AUTHORIZATION_ENDPOINT);
+		Assert.notNull(deviceAuthorizationEndpoint, "deviceAuthorizationEndpoint cannot be null");
+		return deviceAuthorizationEndpoint;
 	}
 
 	/**
@@ -100,7 +111,10 @@ public final class AuthorizationServerSettings extends AbstractSettings {
 	 * @return the Device Verification endpoint
 	 */
 	public String getDeviceVerificationEndpoint() {
-		return getSetting(ConfigurationSettingNames.AuthorizationServer.DEVICE_VERIFICATION_ENDPOINT);
+		String deviceVerificationEndpoint = getSetting(
+				ConfigurationSettingNames.AuthorizationServer.DEVICE_VERIFICATION_ENDPOINT);
+		Assert.notNull(deviceVerificationEndpoint, "deviceVerificationEndpoint cannot be null");
+		return deviceVerificationEndpoint;
 	}
 
 	/**
@@ -108,7 +122,9 @@ public final class AuthorizationServerSettings extends AbstractSettings {
 	 * @return the Token endpoint
 	 */
 	public String getTokenEndpoint() {
-		return getSetting(ConfigurationSettingNames.AuthorizationServer.TOKEN_ENDPOINT);
+		String tokenEndpoint = getSetting(ConfigurationSettingNames.AuthorizationServer.TOKEN_ENDPOINT);
+		Assert.notNull(tokenEndpoint, "tokenEndpoint cannot be null");
+		return tokenEndpoint;
 	}
 
 	/**
@@ -116,7 +132,9 @@ public final class AuthorizationServerSettings extends AbstractSettings {
 	 * @return the JWK Set endpoint
 	 */
 	public String getJwkSetEndpoint() {
-		return getSetting(ConfigurationSettingNames.AuthorizationServer.JWK_SET_ENDPOINT);
+		String jwkSetEndpoint = getSetting(ConfigurationSettingNames.AuthorizationServer.JWK_SET_ENDPOINT);
+		Assert.notNull(jwkSetEndpoint, "jwkSetEndpoint cannot be null");
+		return jwkSetEndpoint;
 	}
 
 	/**
@@ -125,7 +143,10 @@ public final class AuthorizationServerSettings extends AbstractSettings {
 	 * @return the Token Revocation endpoint
 	 */
 	public String getTokenRevocationEndpoint() {
-		return getSetting(ConfigurationSettingNames.AuthorizationServer.TOKEN_REVOCATION_ENDPOINT);
+		String tokenRevocationEndpoint = getSetting(
+				ConfigurationSettingNames.AuthorizationServer.TOKEN_REVOCATION_ENDPOINT);
+		Assert.notNull(tokenRevocationEndpoint, "tokenRevocationEndpoint cannot be null");
+		return tokenRevocationEndpoint;
 	}
 
 	/**
@@ -134,7 +155,10 @@ public final class AuthorizationServerSettings extends AbstractSettings {
 	 * @return the Token Introspection endpoint
 	 */
 	public String getTokenIntrospectionEndpoint() {
-		return getSetting(ConfigurationSettingNames.AuthorizationServer.TOKEN_INTROSPECTION_ENDPOINT);
+		String tokenIntrospectionEndpoint = getSetting(
+				ConfigurationSettingNames.AuthorizationServer.TOKEN_INTROSPECTION_ENDPOINT);
+		Assert.notNull(tokenIntrospectionEndpoint, "tokenIntrospectionEndpoint cannot be null");
+		return tokenIntrospectionEndpoint;
 	}
 
 	/**
@@ -143,7 +167,10 @@ public final class AuthorizationServerSettings extends AbstractSettings {
 	 * @return the OAuth 2.0 Dynamic Client Registration endpoint
 	 */
 	public String getClientRegistrationEndpoint() {
-		return getSetting(ConfigurationSettingNames.AuthorizationServer.CLIENT_REGISTRATION_ENDPOINT);
+		String clientRegistrationEndpoint = getSetting(
+				ConfigurationSettingNames.AuthorizationServer.CLIENT_REGISTRATION_ENDPOINT);
+		Assert.notNull(clientRegistrationEndpoint, "clientRegistrationEndpoint cannot be null");
+		return clientRegistrationEndpoint;
 	}
 
 	/**
@@ -152,7 +179,10 @@ public final class AuthorizationServerSettings extends AbstractSettings {
 	 * @return the OpenID Connect 1.0 Client Registration endpoint
 	 */
 	public String getOidcClientRegistrationEndpoint() {
-		return getSetting(ConfigurationSettingNames.AuthorizationServer.OIDC_CLIENT_REGISTRATION_ENDPOINT);
+		String oidcClientRegistrationEndpoint = getSetting(
+				ConfigurationSettingNames.AuthorizationServer.OIDC_CLIENT_REGISTRATION_ENDPOINT);
+		Assert.notNull(oidcClientRegistrationEndpoint, "oidcClientRegistrationEndpoint cannot be null");
+		return oidcClientRegistrationEndpoint;
 	}
 
 	/**
@@ -160,7 +190,9 @@ public final class AuthorizationServerSettings extends AbstractSettings {
 	 * @return the OpenID Connect 1.0 UserInfo endpoint
 	 */
 	public String getOidcUserInfoEndpoint() {
-		return getSetting(ConfigurationSettingNames.AuthorizationServer.OIDC_USER_INFO_ENDPOINT);
+		String oidcUserInfoEndpoint = getSetting(ConfigurationSettingNames.AuthorizationServer.OIDC_USER_INFO_ENDPOINT);
+		Assert.notNull(oidcUserInfoEndpoint, "oidcUserInfoEndpoint cannot be null");
+		return oidcUserInfoEndpoint;
 	}
 
 	/**
@@ -169,7 +201,9 @@ public final class AuthorizationServerSettings extends AbstractSettings {
 	 * @return the OpenID Connect 1.0 Logout endpoint
 	 */
 	public String getOidcLogoutEndpoint() {
-		return getSetting(ConfigurationSettingNames.AuthorizationServer.OIDC_LOGOUT_ENDPOINT);
+		String oidcLogoutEndpoint = getSetting(ConfigurationSettingNames.AuthorizationServer.OIDC_LOGOUT_ENDPOINT);
+		Assert.notNull(oidcLogoutEndpoint, "oidcLogoutEndpoint cannot be null");
+		return oidcLogoutEndpoint;
 	}
 
 	/**

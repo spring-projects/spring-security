@@ -109,7 +109,9 @@ public final class JwtDecoders {
 	private static JwtDecoder withProviderConfiguration(Map<String, Object> configuration, String issuer) {
 		JwtDecoderProviderConfigurationUtils.validateIssuer(configuration, issuer);
 		OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefaultWithIssuer(issuer);
-		String jwkSetUri = configuration.get("jwks_uri").toString();
+		Object jwksUri = configuration.get("jwks_uri");
+		Assert.notNull(jwksUri, "The public JWK Set URI must not be null");
+		String jwkSetUri = jwksUri.toString();
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
 			.jwtProcessorCustomizer(JwtDecoderProviderConfigurationUtils::addJWSAlgorithms)
 			.build();

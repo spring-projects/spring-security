@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
@@ -148,7 +150,7 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId,
+	public <T extends OAuth2AuthorizedClient> @Nullable T loadAuthorizedClient(String clientRegistrationId,
 			String principalName) {
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
 		Assert.hasText(principalName, "principalName cannot be empty");
@@ -265,16 +267,21 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 			if (OAuth2AccessToken.TokenType.BEARER.getValue().equalsIgnoreCase(rs.getString("access_token_type"))) {
 				tokenType = OAuth2AccessToken.TokenType.BEARER;
 			}
+			OAuth2AccessToken.TokenType tokenTypeToUse = (tokenType != null) ? tokenType
+					: OAuth2AccessToken.TokenType.BEARER;
 			String tokenValue = new String(this.lobHandler.getBlobAsBytes(rs, "access_token_value"),
 					StandardCharsets.UTF_8);
-			Instant issuedAt = rs.getTimestamp("access_token_issued_at").toInstant();
-			Instant expiresAt = rs.getTimestamp("access_token_expires_at").toInstant();
+			Timestamp issuedAtTs = rs.getTimestamp("access_token_issued_at");
+			Timestamp expiresAtTs = rs.getTimestamp("access_token_expires_at");
+			Instant issuedAt = (issuedAtTs != null) ? issuedAtTs.toInstant() : null;
+			Instant expiresAt = (expiresAtTs != null) ? expiresAtTs.toInstant() : null;
 			Set<String> scopes = Collections.emptySet();
 			String accessTokenScopes = rs.getString("access_token_scopes");
 			if (accessTokenScopes != null) {
 				scopes = StringUtils.commaDelimitedListToSet(accessTokenScopes);
 			}
-			OAuth2AccessToken accessToken = new OAuth2AccessToken(tokenType, tokenValue, issuedAt, expiresAt, scopes);
+			OAuth2AccessToken accessToken = new OAuth2AccessToken(tokenTypeToUse, tokenValue, issuedAt, expiresAt,
+					scopes);
 			OAuth2RefreshToken refreshToken = null;
 			byte[] refreshTokenValue = this.lobHandler.getBlobAsBytes(rs, "refresh_token_value");
 			if (refreshTokenValue != null) {
@@ -312,8 +319,12 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 			parameters.add(new SqlParameterValue(Types.VARCHAR, accessToken.getTokenType().getValue()));
 			parameters
 				.add(new SqlParameterValue(Types.BLOB, accessToken.getTokenValue().getBytes(StandardCharsets.UTF_8)));
-			parameters.add(new SqlParameterValue(Types.TIMESTAMP, Timestamp.from(accessToken.getIssuedAt())));
-			parameters.add(new SqlParameterValue(Types.TIMESTAMP, Timestamp.from(accessToken.getExpiresAt())));
+			Instant accessTokenIssuedAt = accessToken.getIssuedAt();
+			Instant accessTokenExpiresAt = accessToken.getExpiresAt();
+			parameters.add(new SqlParameterValue(Types.TIMESTAMP,
+					(accessTokenIssuedAt != null) ? Timestamp.from(accessTokenIssuedAt) : null));
+			parameters.add(new SqlParameterValue(Types.TIMESTAMP,
+					(accessTokenExpiresAt != null) ? Timestamp.from(accessTokenExpiresAt) : null));
 			String accessTokenScopes = null;
 			if (!CollectionUtils.isEmpty(accessToken.getScopes())) {
 				accessTokenScopes = StringUtils.collectionToDelimitedString(accessToken.getScopes(), ",");
@@ -385,7 +396,8 @@ public class JdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClient
 		}
 
 		@Override
-		protected void doSetValue(PreparedStatement ps, int parameterPosition, Object argValue) throws SQLException {
+		protected void doSetValue(PreparedStatement ps, int parameterPosition, @Nullable Object argValue)
+				throws SQLException {
 			if (argValue instanceof SqlParameterValue paramValue) {
 				if (paramValue.getSqlType() == Types.BLOB) {
 					if (paramValue.getValue() != null) {

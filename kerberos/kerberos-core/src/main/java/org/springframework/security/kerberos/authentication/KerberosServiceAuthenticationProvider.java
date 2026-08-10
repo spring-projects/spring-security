@@ -18,6 +18,7 @@ package org.springframework.security.kerberos.authentication;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
@@ -39,7 +40,7 @@ import org.springframework.util.Assert;
  * It needs a <code>KerberosTicketValidator</code>, which contains the code to validate
  * the ticket, as this code is different between SUN and IBM JRE.<br>
  * It also needs an <code>UserDetailsService</code> to load the user properties and the
- * <code>GrantedAuthorities</code>, as we only get back the username from Kerbeos
+ * <code>GrantedAuthorities</code>, as we only get back the username from Kerberos
  * </p>
  *
  * You can see an example configuration in
@@ -55,9 +56,9 @@ public class KerberosServiceAuthenticationProvider implements AuthenticationProv
 
 	private static final Log LOG = LogFactory.getLog(KerberosServiceAuthenticationProvider.class);
 
-	private KerberosTicketValidator ticketValidator;
+	private @Nullable KerberosTicketValidator ticketValidator;
 
-	private UserDetailsService userDetailsService;
+	private @Nullable UserDetailsService userDetailsService;
 
 	private UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
 
@@ -66,6 +67,12 @@ public class KerberosServiceAuthenticationProvider implements AuthenticationProv
 		KerberosServiceRequestToken auth = (KerberosServiceRequestToken) authentication;
 		byte[] token = auth.getToken();
 		LOG.debug("Try to validate Kerberos Token");
+		if (this.ticketValidator == null) {
+			throw new IllegalStateException("ticketValidator must be set");
+		}
+		if (this.userDetailsService == null) {
+			throw new IllegalStateException("userDetailsService must be set");
+		}
 		KerberosTicketValidation ticketValidation = this.ticketValidator.validateTicket(token);
 		LOG.debug("Successfully validated " + ticketValidation.username());
 		UserDetails userDetails = this.userDetailsService.loadUserByUsername(ticketValidation.username());

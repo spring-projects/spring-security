@@ -57,6 +57,7 @@ public class DefaultLdapAuthoritiesPopulatorGetGrantedAuthoritiesTests {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void groupSearchDoesNotAllowNullRoles() {
 		this.populator.setRolePrefix("ROLE_");
 		this.populator.setGroupRoleAttribute("ou");

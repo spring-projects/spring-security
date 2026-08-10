@@ -40,6 +40,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.config.users.AuthenticationTestConfiguration;
+import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextChangedListener;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -146,6 +147,17 @@ public class FormLoginConfigurerTests {
 	@Test
 	public void loginWhenFormLoginConfiguredThenHasDefaultFailureUrl() throws Exception {
 		this.spring.register(FormLoginConfig.class).autowire();
+		// @formatter:off
+		this.mockMvc.perform(formLogin().user("invalid"))
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?error"));
+		// @formatter:on
+	}
+
+	// gh-19128
+	@Test
+	public void loginWhenBuilderBeanWithBasePathThenLoginProcessingUrlIgnoresBasePath() throws Exception {
+		this.spring.register(FormLoginBuilderBeanConfig.class).autowire();
 		// @formatter:off
 		this.mockMvc.perform(formLogin().user("invalid"))
 				.andExpect(status().isFound())
@@ -508,6 +520,37 @@ public class FormLoginConfigurerTests {
 					.anyRequest().hasRole("USER"))
 				.formLogin((login) -> login
 					.loginPage("/login"));
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
+		}
+
+	}
+
+	// gh-19128
+	@Configuration
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class FormLoginBuilderBeanConfig {
+
+		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder() {
+			PathPatternRequestMatcherBuilderFactoryBean bean = new PathPatternRequestMatcherBuilderFactoryBean();
+			bean.setBasePath("/spring");
+			return bean;
+		}
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.formLogin(withDefaults());
 			// @formatter:on
 			return http.build();
 		}

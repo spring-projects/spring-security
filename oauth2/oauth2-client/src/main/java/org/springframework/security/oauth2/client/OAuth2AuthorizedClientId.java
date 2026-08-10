@@ -19,6 +19,8 @@ package org.springframework.security.oauth2.client;
 import java.io.Serializable;
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.util.Assert;
 
@@ -69,7 +71,7 @@ public final class OAuth2AuthorizedClientId implements Serializable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (this == obj) {
 			return true;
 		}

@@ -16,7 +16,6 @@
 
 package org.springframework.security.web.authentication.rememberme;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -60,6 +59,7 @@ import org.springframework.util.StringUtils;
  * @author Rob Winch
  * @author Eddú Meléndez
  * @author Onur Kagan Ozcan
+ * @author Ngoc Nhan
  * @since 2.0
  */
 public abstract class AbstractRememberMeServices
@@ -130,7 +130,7 @@ public abstract class AbstractRememberMeServices
 			return null;
 		}
 		this.logger.debug("Remember-me cookie detected");
-		if (rememberMeCookie.length() == 0) {
+		if (rememberMeCookie.isEmpty()) {
 			this.logger.debug("Cookie was empty");
 			cancelCookie(request, response);
 			return null;
@@ -171,7 +171,7 @@ public abstract class AbstractRememberMeServices
 	 */
 	protected @Nullable String extractRememberMeCookie(HttpServletRequest request) {
 		Cookie[] cookies = request.getCookies();
-		if ((cookies == null) || (cookies.length == 0)) {
+		if (cookies == null) {
 			return null;
 		}
 		for (Cookie cookie : cookies) {
@@ -221,12 +221,7 @@ public abstract class AbstractRememberMeServices
 		}
 		String[] tokens = StringUtils.delimitedListToStringArray(cookieAsPlainText, DELIMITER);
 		for (int i = 0; i < tokens.length; i++) {
-			try {
-				tokens[i] = URLDecoder.decode(tokens[i], StandardCharsets.UTF_8.toString());
-			}
-			catch (UnsupportedEncodingException ex) {
-				this.logger.error(ex.getMessage(), ex);
-			}
+			tokens[i] = URLDecoder.decode(tokens[i], StandardCharsets.UTF_8);
 		}
 		return tokens;
 	}
@@ -239,12 +234,7 @@ public abstract class AbstractRememberMeServices
 	protected String encodeCookie(String[] cookieTokens) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < cookieTokens.length; i++) {
-			try {
-				sb.append(URLEncoder.encode(cookieTokens[i], StandardCharsets.UTF_8.toString()));
-			}
-			catch (UnsupportedEncodingException ex) {
-				this.logger.error(ex.getMessage(), ex);
-			}
+			sb.append(URLEncoder.encode(cookieTokens[i], StandardCharsets.UTF_8));
 			if (i < cookieTokens.length - 1) {
 				sb.append(DELIMITER);
 			}
@@ -383,7 +373,7 @@ public abstract class AbstractRememberMeServices
 
 	private String getCookiePath(HttpServletRequest request) {
 		String contextPath = request.getContextPath();
-		return (contextPath.length() > 0) ? contextPath : "/";
+		return contextPath.isEmpty() ? "/" : contextPath;
 	}
 
 	/**

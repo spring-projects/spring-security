@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
 import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.saml.criterion.EntityRoleCriterion;
 import org.opensaml.saml.metadata.IterableMetadataSource;
@@ -31,8 +32,6 @@ import org.opensaml.saml.metadata.resolver.index.impl.RoleMetadataIndex;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
 
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.util.Assert;
@@ -95,7 +94,6 @@ class BaseOpenSamlAssertingPartyMetadataRepository implements AssertingPartyMeta
 	}
 
 	@Override
-	@NonNull
 	public Iterator<AssertingPartyMetadata> iterator() {
 		Iterator<EntityDescriptor> descriptors = this.descriptors.get();
 		return new Iterator<>() {
@@ -111,9 +109,8 @@ class BaseOpenSamlAssertingPartyMetadataRepository implements AssertingPartyMeta
 		};
 	}
 
-	@Nullable
 	@Override
-	public AssertingPartyMetadata findByEntityId(String entityId) {
+	public @Nullable AssertingPartyMetadata findByEntityId(String entityId) {
 		EntityDescriptor descriptor = resolveSingle(new EntityIdCriterion(entityId));
 		if (descriptor == null) {
 			return null;
@@ -121,7 +118,7 @@ class BaseOpenSamlAssertingPartyMetadataRepository implements AssertingPartyMeta
 		return OpenSamlAssertingPartyDetails.withEntityDescriptor(descriptor).build();
 	}
 
-	private EntityDescriptor resolveSingle(EntityIdCriterion criterion) {
+	private @Nullable EntityDescriptor resolveSingle(EntityIdCriterion criterion) {
 		try {
 			return this.metadataResolver.resolveSingle(criterion);
 		}
@@ -150,7 +147,7 @@ class BaseOpenSamlAssertingPartyMetadataRepository implements AssertingPartyMeta
 			this.metadataResolver = metadataResolver;
 		}
 
-		abstract EntityDescriptor resolveSingle(EntityIdCriterion entityId) throws Exception;
+		abstract @Nullable EntityDescriptor resolveSingle(EntityIdCriterion entityId) throws Exception;
 
 		abstract Iterable<EntityDescriptor> resolve(EntityRoleCriterion role) throws Exception;
 

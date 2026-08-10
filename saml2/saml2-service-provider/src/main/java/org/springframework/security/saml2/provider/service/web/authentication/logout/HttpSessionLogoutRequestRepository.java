@@ -21,6 +21,7 @@ import java.security.MessageDigest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
@@ -45,7 +46,7 @@ public final class HttpSessionLogoutRequestRepository implements Saml2LogoutRequ
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Saml2LogoutRequest loadLogoutRequest(HttpServletRequest request) {
+	public @Nullable Saml2LogoutRequest loadLogoutRequest(HttpServletRequest request) {
 		Assert.notNull(request, "request cannot be null");
 		HttpSession session = request.getSession(false);
 		if (session == null) {
@@ -62,7 +63,7 @@ public final class HttpSessionLogoutRequestRepository implements Saml2LogoutRequ
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void saveLogoutRequest(Saml2LogoutRequest logoutRequest, HttpServletRequest request,
+	public void saveLogoutRequest(@Nullable Saml2LogoutRequest logoutRequest, HttpServletRequest request,
 			HttpServletResponse response) {
 		Assert.notNull(request, "request cannot be null");
 		Assert.notNull(response, "response cannot be null");
@@ -79,7 +80,7 @@ public final class HttpSessionLogoutRequestRepository implements Saml2LogoutRequ
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Saml2LogoutRequest removeLogoutRequest(HttpServletRequest request, HttpServletResponse response) {
+	public @Nullable Saml2LogoutRequest removeLogoutRequest(HttpServletRequest request, HttpServletResponse response) {
 		Assert.notNull(request, "request cannot be null");
 		Assert.notNull(response, "response cannot be null");
 		Saml2LogoutRequest logoutRequest = loadLogoutRequest(request);
@@ -90,16 +91,19 @@ public final class HttpSessionLogoutRequestRepository implements Saml2LogoutRequ
 		return logoutRequest;
 	}
 
-	private String getStateParameter(HttpServletRequest request) {
+	private @Nullable String getStateParameter(HttpServletRequest request) {
 		return request.getParameter(Saml2ParameterNames.RELAY_STATE);
 	}
 
-	private boolean stateParameterEquals(HttpServletRequest request, Saml2LogoutRequest logoutRequest) {
+	private boolean stateParameterEquals(HttpServletRequest request, @Nullable Saml2LogoutRequest logoutRequest) {
 		String stateParameter = getStateParameter(request);
 		if (stateParameter == null || logoutRequest == null) {
 			return false;
 		}
 		String relayState = logoutRequest.getRelayState();
+		if (relayState == null) {
+			return false;
+		}
 		return MessageDigest.isEqual(Utf8.encode(stateParameter), Utf8.encode(relayState));
 	}
 

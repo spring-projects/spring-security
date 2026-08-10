@@ -18,9 +18,9 @@ package org.springframework.security.web.util.matcher;
 
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.HttpMethod;
-import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
 /**
@@ -36,8 +36,7 @@ public class DispatcherTypeRequestMatcher implements RequestMatcher {
 
 	private final DispatcherType dispatcherType;
 
-	@Nullable
-	private final HttpMethod httpMethod;
+	private final @Nullable HttpMethod httpMethod;
 
 	/**
 	 * Creates an instance which matches requests with the provided {@link DispatcherType}

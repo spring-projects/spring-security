@@ -61,7 +61,7 @@ public class SecurityContextLogoutHandler implements LogoutHandler {
 	/**
 	 * Requires the request to be passed in.
 	 * @param request from which to obtain a HTTP session (cannot be null)
-	 * @param response not used (can be <code>null</code>)
+	 * @param response the response (cannot be null)
 	 * @param authentication not used (can be <code>null</code>)
 	 */
 	@Override

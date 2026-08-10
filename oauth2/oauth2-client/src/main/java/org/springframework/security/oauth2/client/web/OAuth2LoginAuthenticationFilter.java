@@ -178,6 +178,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
 		String registrationId = authorizationRequest.getAttribute(OAuth2ParameterNames.REGISTRATION_ID);
+		Assert.hasText(registrationId, "registrationId cannot be empty");
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
 		if (clientRegistration == null) {
 			OAuth2Error oauth2Error = new OAuth2Error(CLIENT_REGISTRATION_NOT_FOUND_ERROR_CODE,
@@ -203,6 +204,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 			.convert(authenticationResult);
 		Assert.notNull(oauth2Authentication, "authentication result cannot be null");
 		oauth2Authentication.setDetails(authenticationDetails);
+		Assert.notNull(authenticationResult.getAccessToken(), "accessToken cannot be null");
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
 				authenticationResult.getClientRegistration(), oauth2Authentication.getName(),
 				authenticationResult.getAccessToken(), authenticationResult.getRefreshToken());
@@ -237,6 +239,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	}
 
 	private OAuth2AuthenticationToken createAuthenticationResult(OAuth2LoginAuthenticationToken authenticationResult) {
+		Assert.notNull(authenticationResult.getPrincipal(), "principal cannot be null");
 		return new OAuth2AuthenticationToken(authenticationResult.getPrincipal(), authenticationResult.getAuthorities(),
 				authenticationResult.getClientRegistration().getRegistrationId());
 	}

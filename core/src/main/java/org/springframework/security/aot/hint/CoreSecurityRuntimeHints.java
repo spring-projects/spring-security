@@ -35,6 +35,8 @@ import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.ProviderNotFoundException;
+import org.springframework.security.authentication.RememberMeAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.event.AuthenticationFailureBadCredentialsEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureCredentialsExpiredEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureDisabledEvent;
@@ -43,6 +45,7 @@ import org.springframework.security.authentication.event.AuthenticationFailureLo
 import org.springframework.security.authentication.event.AuthenticationFailureProviderNotFoundEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureProxyUntrustedEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureServiceExceptionEvent;
+import org.springframework.security.authentication.ott.OneTimeTokenAuthentication;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
@@ -60,6 +63,7 @@ class CoreSecurityRuntimeHints implements RuntimeHintsRegistrar {
 		registerExceptionEventsHints(hints);
 		registerExpressionEvaluationHints(hints);
 		registerMethodSecurityHints(hints);
+		registerAdditionalAuthenticationTypes(hints);
 		hints.resources().registerResourceBundle("org.springframework.security.messages");
 		registerDefaultJdbcSchemaFileHint(hints);
 		registerSecurityContextHints(hints);
@@ -112,6 +116,19 @@ class CoreSecurityRuntimeHints implements RuntimeHintsRegistrar {
 		hints.reflection()
 			.registerType(SecurityContextImpl.class,
 					(builder) -> builder.withMembers(MemberCategory.INVOKE_PUBLIC_METHODS));
+	}
+
+	private void registerAdditionalAuthenticationTypes(RuntimeHints hints) {
+		// RememberMeAuthenticationToken can be stored in the HTTP session and
+		// deserialized via Jackson (RememberMeAuthenticationTokenMixin exists for both
+		// Jackson 2 and 3), so it needs reflection hints in all native image scenarios.
+		Stream
+			.of(RememberMeAuthenticationToken.class, OneTimeTokenAuthentication.class,
+					UsernamePasswordAuthenticationToken.class)
+			.map(TypeReference::of)
+			.forEach((it) -> hints.reflection()
+				.registerType(it, (builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+						MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.ACCESS_DECLARED_FIELDS)));
 	}
 
 }

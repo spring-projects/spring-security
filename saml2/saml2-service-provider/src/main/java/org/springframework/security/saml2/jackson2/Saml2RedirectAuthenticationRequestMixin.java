@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.jspecify.annotations.NullUnmarked;
 
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest;
@@ -47,6 +48,7 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2R
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@NullUnmarked
 class Saml2RedirectAuthenticationRequestMixin {
 
 	@JsonCreator

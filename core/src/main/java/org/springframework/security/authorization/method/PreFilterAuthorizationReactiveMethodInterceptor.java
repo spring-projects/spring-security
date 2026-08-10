@@ -136,9 +136,9 @@ public final class PreFilterAuthorizationReactiveMethodInterceptor implements Au
 			Object target = mi.getThis();
 			Class<?> targetClass = (target != null) ? AopUtils.getTargetClass(target) : null;
 			Method specificMethod = AopUtils.getMostSpecificMethod(mi.getMethod(), targetClass);
-			String[] parameterNames = this.parameterNameDiscoverer.getParameterNames(specificMethod);
+			@Nullable String @Nullable [] parameterNames = this.parameterNameDiscoverer.getParameterNames(specificMethod);
 			if (parameterNames != null && parameterNames.length > 0) {
-				Object[] arguments = mi.getArguments();
+				@Nullable Object[] arguments = mi.getArguments();
 				for (index = 0; index < parameterNames.length; index++) {
 					if (name.equals(parameterNames[index])) {
 						value = arguments[index];
@@ -150,7 +150,7 @@ public final class PreFilterAuthorizationReactiveMethodInterceptor implements Au
 			}
 		}
 		else {
-			Object[] arguments = mi.getArguments();
+			@Nullable Object[] arguments = mi.getArguments();
 			Assert.state(arguments.length == 1,
 					"Unable to determine the method argument for filtering. Specify the filter target.");
 			value = arguments[0];

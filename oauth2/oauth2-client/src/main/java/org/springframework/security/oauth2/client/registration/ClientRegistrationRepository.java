@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.client.registration;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A repository for OAuth 2.0 / OpenID Connect 1.0 {@link ClientRegistration}(s).
  *
@@ -37,6 +39,6 @@ public interface ClientRegistrationRepository {
 	 * @param registrationId the registration identifier
 	 * @return the {@link ClientRegistration} if found, otherwise {@code null}
 	 */
-	ClientRegistration findByRegistrationId(String registrationId);
+	@Nullable ClientRegistration findByRegistrationId(String registrationId);
 
 }

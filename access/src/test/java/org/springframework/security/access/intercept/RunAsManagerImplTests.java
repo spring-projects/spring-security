@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.fail;
  *
  * @author Ben Alex
  */
+@SuppressWarnings("deprecation")
 public class RunAsManagerImplTests {
 
 	@Test

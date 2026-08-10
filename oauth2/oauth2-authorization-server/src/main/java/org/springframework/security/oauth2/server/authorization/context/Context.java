@@ -16,7 +16,8 @@
 
 package org.springframework.security.oauth2.server.authorization.context;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -34,8 +35,7 @@ public interface Context {
 	 * @return the value of the attribute associated to the key, or {@code null} if not
 	 * available
 	 */
-	@Nullable
-	<V> V get(Object key);
+	<V> @Nullable V get(Object key);
 
 	/**
 	 * Returns the value of the attribute associated to the key.
@@ -44,8 +44,7 @@ public interface Context {
 	 * @return the value of the attribute associated to the key, or {@code null} if not
 	 * available or not of the specified type
 	 */
-	@Nullable
-	default <V> V get(Class<V> key) {
+	default <V> @Nullable V get(Class<V> key) {
 		Assert.notNull(key, "key cannot be null");
 		V value = get((Object) key);
 		return key.isInstance(value) ? value : null;

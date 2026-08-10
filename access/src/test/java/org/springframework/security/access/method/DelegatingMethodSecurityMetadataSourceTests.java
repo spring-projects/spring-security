@@ -36,7 +36,7 @@ import static org.mockito.Mockito.mock;
 /**
  * @author Luke Taylor
  */
-@SuppressWarnings({ "unchecked" })
+@SuppressWarnings({ "unchecked", "deprecation" })
 public class DelegatingMethodSecurityMetadataSourceTests {
 
 	DelegatingMethodSecurityMetadataSource mds;

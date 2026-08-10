@@ -18,7 +18,6 @@ package org.springframework.security.messaging.handler.invocation.reactive;
 
 import java.lang.annotation.Annotation;
 
-import org.jspecify.annotations.NullUnmarked;
 import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
@@ -152,9 +151,11 @@ public class AuthenticationPrincipalArgumentResolver implements HandlerMethodArg
 		// @formatter:on
 	}
 
-	@NullUnmarked
 	private @Nullable Object resolvePrincipal(MethodParameter parameter, @Nullable Object principal) {
 		AuthenticationPrincipal authPrincipal = findMethodAnnotation(parameter);
+		if (authPrincipal == null) {
+			return null;
+		}
 		String expressionToParse = authPrincipal.expression();
 		if (StringUtils.hasLength(expressionToParse)) {
 			StandardEvaluationContext context = new StandardEvaluationContext();

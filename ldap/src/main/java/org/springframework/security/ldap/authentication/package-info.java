@@ -22,4 +22,7 @@
  * an <tt>LdapAuthenticator</tt> instance and an <tt>LdapAuthoritiesPopulator</tt>. The
  * latter is used to obtain the list of roles for the user.
  */
+@NullMarked
 package org.springframework.security.ldap.authentication;
+
+import org.jspecify.annotations.NullMarked;

@@ -67,18 +67,30 @@ final class OAuth2AuthorizationResponseUtils {
 		String errorCode = request.getFirst(OAuth2ParameterNames.ERROR);
 		String state = request.getFirst(OAuth2ParameterNames.STATE);
 		if (StringUtils.hasText(code)) {
-			return OAuth2AuthorizationResponse.success(code).redirectUri(redirectUri).state(state).build();
+			OAuth2AuthorizationResponse.Builder builder = OAuth2AuthorizationResponse.success(code)
+				.redirectUri(redirectUri);
+			if (state != null) {
+				builder.state(state);
+			}
+			return builder.build();
+		}
+		if (!StringUtils.hasText(errorCode)) {
+			errorCode = "unknown_error";
 		}
 		String errorDescription = request.getFirst(OAuth2ParameterNames.ERROR_DESCRIPTION);
 		String errorUri = request.getFirst(OAuth2ParameterNames.ERROR_URI);
-		// @formatter:off
-		return OAuth2AuthorizationResponse.error(errorCode)
-				.redirectUri(redirectUri)
-				.errorDescription(errorDescription)
-				.errorUri(errorUri)
-				.state(state)
-				.build();
-		// @formatter:on
+		OAuth2AuthorizationResponse.Builder builder = OAuth2AuthorizationResponse.error(errorCode)
+			.redirectUri(redirectUri);
+		if (errorDescription != null) {
+			builder.errorDescription(errorDescription);
+		}
+		if (errorUri != null) {
+			builder.errorUri(errorUri);
+		}
+		if (state != null) {
+			builder.state(state);
+		}
+		return builder.build();
 	}
 
 }

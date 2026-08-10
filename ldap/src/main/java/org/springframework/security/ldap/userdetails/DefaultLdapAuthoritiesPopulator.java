@@ -18,6 +18,7 @@ package org.springframework.security.ldap.userdetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -29,6 +30,7 @@ import javax.naming.directory.SearchControls;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.ldap.core.ContextSource;
@@ -109,7 +111,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	/**
 	 * A default role which will be assigned to all authenticated users if set
 	 */
-	private GrantedAuthority defaultRole;
+	private @Nullable GrantedAuthority defaultRole;
 
 	/**
 	 * Template that will be used for searching
@@ -130,7 +132,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	/**
 	 * The base DN from which the search for group membership should be performed
 	 */
-	private final String groupSearchBase;
+	private final @Nullable String groupSearchBase;
 
 	/**
 	 * The pattern to be used for the user search. {0} is the user's DN
@@ -150,7 +152,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	/**
 	 * The mapping function to be used to populate authorities.
 	 */
-	private Function<Map<String, List<String>>, GrantedAuthority> authorityMapper;
+	private Function<Map<String, List<String>>, @Nullable GrantedAuthority> authorityMapper;
 
 	/**
 	 * Constructor for group search scenarios. <tt>userRoleAttributes</tt> may still be
@@ -159,7 +161,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	 * @param groupSearchBase if this is an empty string the search will be performed from
 	 * the root DN of the context factory. If null, no search will be performed.
 	 */
-	public DefaultLdapAuthoritiesPopulator(ContextSource contextSource, String groupSearchBase) {
+	public DefaultLdapAuthoritiesPopulator(ContextSource contextSource, @Nullable String groupSearchBase) {
 		Assert.notNull(contextSource, "contextSource must not be null");
 		this.ldapTemplate = new SpringSecurityLdapTemplate(contextSource);
 		getLdapTemplate().setSearchControls(getSearchControls());
@@ -176,9 +178,6 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 				return null;
 			}
 			String role = roles.get(0);
-			if (role == null) {
-				return null;
-			}
 			if (this.convertToUpperCase) {
 				role = role.toUpperCase(Locale.ROOT);
 			}
@@ -196,7 +195,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	 */
 
 	protected Set<GrantedAuthority> getAdditionalRoles(DirContextOperations user, String username) {
-		return null;
+		return Collections.emptySet();
 	}
 
 	/**
@@ -223,15 +222,15 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	}
 
 	public Set<GrantedAuthority> getGroupMembershipRoles(String userDn, String username) {
-		if (getGroupSearchBase() == null) {
+		String base = getGroupSearchBase();
+		if (base == null) {
 			return new HashSet<>();
 		}
 		Set<GrantedAuthority> authorities = new HashSet<>();
 		logger.trace(LogMessage.of(() -> "Searching for roles for user " + username + " with DN " + userDn
 				+ " and filter " + this.groupSearchFilter + " in search base " + getGroupSearchBase()));
-		Set<Map<String, List<String>>> userRoles = getLdapTemplate().searchForMultipleAttributeValues(
-				getGroupSearchBase(), this.groupSearchFilter, new String[] { userDn, username },
-				new String[] { this.groupRoleAttribute });
+		Set<Map<String, List<String>>> userRoles = getLdapTemplate().searchForMultipleAttributeValues(base,
+				this.groupSearchFilter, new String[] { userDn, username }, new String[] { this.groupRoleAttribute });
 		logger.debug(LogMessage.of(() -> "Found roles from search " + userRoles));
 		for (Map<String, List<String>> role : userRoles) {
 			GrantedAuthority authority = this.authorityMapper.apply(role);
@@ -246,7 +245,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 		return getLdapTemplate().getContextSource();
 	}
 
-	protected String getGroupSearchBase() {
+	protected @Nullable String getGroupSearchBase() {
 		return this.groupSearchBase;
 	}
 
@@ -311,7 +310,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	 * {@link GrantedAuthority} given the context record.
 	 * @param authorityMapper the mapping function
 	 */
-	public void setAuthorityMapper(Function<Map<String, List<String>>, GrantedAuthority> authorityMapper) {
+	public void setAuthorityMapper(Function<Map<String, List<String>>, @Nullable GrantedAuthority> authorityMapper) {
 		Assert.notNull(authorityMapper, "authorityMapper must not be null");
 		this.authorityMapper = authorityMapper;
 	}

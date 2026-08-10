@@ -17,4 +17,7 @@
 /**
  * Jackson 3+ serialization support for CAS.
  */
+@NullMarked
 package org.springframework.security.cas.jackson;
+
+import org.jspecify.annotations.NullMarked;

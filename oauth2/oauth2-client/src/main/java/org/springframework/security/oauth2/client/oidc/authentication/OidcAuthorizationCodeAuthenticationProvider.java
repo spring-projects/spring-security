@@ -22,6 +22,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
+
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
@@ -117,7 +120,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 	}
 
 	@Override
-	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+	public @Nullable Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		OAuth2LoginAuthenticationToken authorizationCodeAuthentication = (OAuth2LoginAuthenticationToken) authentication;
 		// Section 3.1.2.1 Authentication Request -
 		// https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
@@ -136,10 +139,11 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		OAuth2AuthorizationResponse authorizationResponse = authorizationCodeAuthentication.getAuthorizationExchange()
 			.getAuthorizationResponse();
 		if (authorizationResponse.statusError()) {
-			throw new OAuth2AuthenticationException(authorizationResponse.getError(),
-					authorizationResponse.getError().toString());
+			OAuth2Error error = authorizationResponse.getError();
+			Assert.notNull(error, "error cannot be null when status is error");
+			throw new OAuth2AuthenticationException(error, error.toString());
 		}
-		if (!authorizationResponse.getState().equals(authorizationRequest.getState())) {
+		if (!Objects.equals(authorizationResponse.getState(), authorizationRequest.getState())) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_STATE_PARAMETER_ERROR_CODE);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 		}
@@ -157,6 +161,7 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		validateNonce(authorizationRequest, idToken);
 		OidcUser oidcUser = this.userService.loadUser(new OidcUserRequest(clientRegistration,
 				accessTokenResponse.getAccessToken(), idToken, additionalParameters));
+		Assert.notNull(oidcUser, "oidcUser cannot be null");
 		Collection<? extends GrantedAuthority> mappedAuthorities = this.authoritiesMapper
 			.mapAuthorities(oidcUser.getAuthorities());
 		OAuth2LoginAuthenticationToken authenticationResult = new OAuth2LoginAuthenticationToken(
@@ -244,7 +249,9 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 	private Jwt getJwt(OAuth2AccessTokenResponse accessTokenResponse, JwtDecoder jwtDecoder) {
 		try {
 			Map<String, Object> parameters = accessTokenResponse.getAdditionalParameters();
-			return jwtDecoder.decode((String) parameters.get(OidcParameterNames.ID_TOKEN));
+			String idToken = (String) parameters.get(OidcParameterNames.ID_TOKEN);
+			Assert.hasText(idToken, "id_token parameter cannot be null or empty");
+			return jwtDecoder.decode(idToken);
 		}
 		catch (JwtException ex) {
 			OAuth2Error invalidIdTokenError = new OAuth2Error(INVALID_ID_TOKEN_ERROR_CODE, ex.getMessage(), null);

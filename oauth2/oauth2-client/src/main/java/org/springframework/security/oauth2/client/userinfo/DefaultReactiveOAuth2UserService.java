@@ -140,11 +140,12 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 
 				return new DefaultOAuth2User(authorities, attrs, userNameAttributeName);
 			})
-			.onErrorMap((ex) -> (ex instanceof UnsupportedMediaTypeException ||
-					ex.getCause() instanceof UnsupportedMediaTypeException), (ex) -> {
-				String contentType = (ex instanceof UnsupportedMediaTypeException) ?
-						((UnsupportedMediaTypeException) ex).getContentType().toString() :
-						((UnsupportedMediaTypeException) ex.getCause()).getContentType().toString();
+			.onErrorMap((ex) -> (ex instanceof UnsupportedMediaTypeException
+					|| (ex.getCause() != null && ex.getCause() instanceof UnsupportedMediaTypeException)), (ex) -> {
+				UnsupportedMediaTypeException umte = (ex instanceof UnsupportedMediaTypeException)
+						? (UnsupportedMediaTypeException) ex : (UnsupportedMediaTypeException) ex.getCause();
+				String contentType = (umte != null && umte.getContentType() != null)
+						? umte.getContentType().toString() : "unknown";
 				String errorMessage = "An error occurred while attempting to retrieve the UserInfo Resource from '"
 						+ userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint()
 								.getUri()

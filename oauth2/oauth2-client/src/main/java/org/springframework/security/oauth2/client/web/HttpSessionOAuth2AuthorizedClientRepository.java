@@ -22,6 +22,7 @@ import java.util.Map;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -45,7 +46,7 @@ public final class HttpSessionOAuth2AuthorizedClientRepository implements OAuth2
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId,
+	public <T extends OAuth2AuthorizedClient> @Nullable T loadAuthorizedClient(String clientRegistrationId,
 			Authentication principal, HttpServletRequest request) {
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
 		Assert.notNull(request, "request cannot be null");

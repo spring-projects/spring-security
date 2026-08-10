@@ -62,14 +62,15 @@ public final class InMemoryReactiveOAuth2AuthorizedClientService implements Reac
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
 		Assert.hasText(principalName, "principalName cannot be empty");
 		return (Mono<T>) this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId)
-			.mapNotNull((clientRegistration) -> {
+			.flatMap((clientRegistration) -> {
 				OAuth2AuthorizedClientId id = new OAuth2AuthorizedClientId(clientRegistrationId, principalName);
 				OAuth2AuthorizedClient cachedAuthorizedClient = this.authorizedClients.get(id);
 				if (cachedAuthorizedClient == null) {
-					return null;
+					return Mono.empty();
 				}
-				return new OAuth2AuthorizedClient(clientRegistration, cachedAuthorizedClient.getPrincipalName(),
-						cachedAuthorizedClient.getAccessToken(), cachedAuthorizedClient.getRefreshToken());
+				return Mono
+					.just(new OAuth2AuthorizedClient(clientRegistration, cachedAuthorizedClient.getPrincipalName(),
+							cachedAuthorizedClient.getAccessToken(), cachedAuthorizedClient.getRefreshToken()));
 			});
 	}
 

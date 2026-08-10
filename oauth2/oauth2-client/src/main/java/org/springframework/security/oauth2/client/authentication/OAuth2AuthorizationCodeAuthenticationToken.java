@@ -20,7 +20,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -50,9 +51,9 @@ public class OAuth2AuthorizationCodeAuthenticationToken extends AbstractAuthenti
 
 	private OAuth2AuthorizationExchange authorizationExchange;
 
-	private OAuth2AccessToken accessToken;
+	private @Nullable OAuth2AccessToken accessToken;
 
-	private OAuth2RefreshToken refreshToken;
+	private @Nullable OAuth2RefreshToken refreshToken;
 
 	/**
 	 * This constructor should be used when the Authorization Request/Response is
@@ -97,7 +98,7 @@ public class OAuth2AuthorizationCodeAuthenticationToken extends AbstractAuthenti
 
 	public OAuth2AuthorizationCodeAuthenticationToken(ClientRegistration clientRegistration,
 			OAuth2AuthorizationExchange authorizationExchange, OAuth2AccessToken accessToken,
-			OAuth2RefreshToken refreshToken, Map<String, Object> additionalParameters) {
+			@Nullable OAuth2RefreshToken refreshToken, Map<String, Object> additionalParameters) {
 		this(clientRegistration, authorizationExchange);
 		Assert.notNull(accessToken, "accessToken cannot be null");
 		this.accessToken = accessToken;
@@ -112,7 +113,7 @@ public class OAuth2AuthorizationCodeAuthenticationToken extends AbstractAuthenti
 	}
 
 	@Override
-	public Object getCredentials() {
+	public @Nullable Object getCredentials() {
 		return (this.accessToken != null) ? this.accessToken.getTokenValue()
 				: this.authorizationExchange.getAuthorizationResponse().getCode();
 	}
@@ -137,7 +138,7 @@ public class OAuth2AuthorizationCodeAuthenticationToken extends AbstractAuthenti
 	 * Returns the {@link OAuth2AccessToken access token}.
 	 * @return the {@link OAuth2AccessToken}
 	 */
-	public OAuth2AccessToken getAccessToken() {
+	public @Nullable OAuth2AccessToken getAccessToken() {
 		return this.accessToken;
 	}
 

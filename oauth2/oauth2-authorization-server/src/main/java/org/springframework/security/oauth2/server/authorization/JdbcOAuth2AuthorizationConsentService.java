@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.context.annotation.ImportRuntimeHints;
@@ -35,7 +37,6 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
-import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
@@ -162,8 +163,7 @@ public class JdbcOAuth2AuthorizationConsentService implements OAuth2Authorizatio
 	}
 
 	@Override
-	@Nullable
-	public OAuth2AuthorizationConsent findById(String registeredClientId, String principalName) {
+	public @Nullable OAuth2AuthorizationConsent findById(String registeredClientId, String principalName) {
 		Assert.hasText(registeredClientId, "registeredClientId cannot be empty");
 		Assert.hasText(principalName, "principalName cannot be empty");
 		SqlParameterValue[] parameters = new SqlParameterValue[] {
@@ -281,7 +281,7 @@ public class JdbcOAuth2AuthorizationConsentService implements OAuth2Authorizatio
 	static class JdbcOAuth2AuthorizationConsentServiceRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
 
 		@Override
-		public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+		public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
 			hints.resources()
 				.registerResource(new ClassPathResource(
 						"org/springframework/security/oauth2/server/authorization/oauth2-authorization-consent-schema.sql"));

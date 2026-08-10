@@ -26,6 +26,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -66,6 +67,16 @@ public class PasswordManagementConfigurerTests {
 			.andExpect(redirectedUrl("/custom-change-password-page"));
 	}
 
+	// gh-19128
+	@Test
+	public void changePasswordWhenBuilderBeanWithBasePathThenChangePasswordUrlIgnoresBasePath() throws Exception {
+		this.spring.register(PasswordManagementBuilderBeanConfig.class).autowire();
+
+		this.mvc.perform(get("/.well-known/change-password"))
+			.andExpect(status().isFound())
+			.andExpect(redirectedUrl("/change-password"));
+	}
+
 	@Test
 	public void whenSettingNullChangePasswordPage() {
 		PasswordManagementConfigurer configurer = new PasswordManagementConfigurer();
@@ -90,6 +101,29 @@ public class PasswordManagementConfigurerTests {
 	@Configuration
 	@EnableWebSecurity
 	static class PasswordManagementWithDefaultChangePasswordPageConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			return http
+					.passwordManagement(withDefaults())
+					.build();
+			// @formatter:on
+		}
+
+	}
+
+	// gh-19128
+	@Configuration
+	@EnableWebSecurity
+	static class PasswordManagementBuilderBeanConfig {
+
+		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder() {
+			PathPatternRequestMatcherBuilderFactoryBean bean = new PathPatternRequestMatcherBuilderFactoryBean();
+			bean.setBasePath("/spring");
+			return bean;
+		}
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.server.resource.web;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 
@@ -41,6 +42,6 @@ public interface BearerTokenResolver {
 	 * @return the Bearer Token value or {@code null} if none found
 	 * @throws OAuth2AuthenticationException if the found token is invalid
 	 */
-	String resolve(HttpServletRequest request);
+	@Nullable String resolve(HttpServletRequest request);
 
 }

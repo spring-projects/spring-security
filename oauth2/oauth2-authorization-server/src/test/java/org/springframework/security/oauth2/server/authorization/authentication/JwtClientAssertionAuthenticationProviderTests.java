@@ -30,6 +30,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.OctetSequenceKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -110,6 +111,11 @@ public class JwtClientAssertionAuthenticationProviderTests {
 			.build();
 		AuthorizationServerContextHolder
 			.setContext(new TestAuthorizationServerContext(this.authorizationServerSettings, null));
+	}
+
+	@AfterEach
+	public void tearDown() {
+		AuthorizationServerContextHolder.resetContext();
 	}
 
 	@Test

@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.jspecify.annotations.NullUnmarked;
 
 import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.saml2.provider.service.authentication.Saml2ResponseAssertion;
@@ -41,6 +42,7 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2R
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties({ "authenticated" })
+@NullUnmarked
 class SimpleSaml2ResponseAssertionAccessorMixin {
 
 	@JsonCreator

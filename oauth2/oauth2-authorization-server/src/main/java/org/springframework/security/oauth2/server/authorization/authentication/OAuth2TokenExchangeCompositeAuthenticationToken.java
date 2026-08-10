@@ -16,10 +16,13 @@
 
 package org.springframework.security.oauth2.server.authorization.authentication;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -34,6 +37,9 @@ import org.springframework.util.Assert;
  * @see OAuth2TokenExchangeAuthenticationToken
  */
 public class OAuth2TokenExchangeCompositeAuthenticationToken extends AbstractAuthenticationToken {
+
+	@Serial
+	private static final long serialVersionUID = 1912280308201180854L;
 
 	private final Authentication subject;
 
@@ -51,12 +57,12 @@ public class OAuth2TokenExchangeCompositeAuthenticationToken extends AbstractAut
 	}
 
 	@Override
-	public Object getPrincipal() {
+	public @Nullable Object getPrincipal() {
 		return this.subject.getPrincipal();
 	}
 
 	@Override
-	public Object getCredentials() {
+	public @Nullable Object getCredentials() {
 		return null;
 	}
 
@@ -69,7 +75,7 @@ public class OAuth2TokenExchangeCompositeAuthenticationToken extends AbstractAut
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (!(obj instanceof OAuth2TokenExchangeCompositeAuthenticationToken other)) {
 			return false;
 		}

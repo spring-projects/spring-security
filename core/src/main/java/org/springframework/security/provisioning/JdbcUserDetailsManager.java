@@ -20,6 +20,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -67,6 +69,7 @@ import org.springframework.util.Assert;
  *
  * @author Luke Taylor
  * @author Junhyeok Lee
+ * @author Andrey Litvitski
  * @since 2.0
  */
 public class JdbcUserDetailsManager extends JdbcDaoImpl
@@ -308,7 +311,8 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl
 	}
 
 	@Override
-	public void changePassword(String oldPassword, String newPassword) throws AuthenticationException {
+	public void changePassword(@Nullable String oldPassword, @Nullable String newPassword)
+			throws AuthenticationException {
 		Authentication currentUser = this.securityContextHolderStrategy.getContext().getAuthentication();
 		if (currentUser == null) {
 			// This would indicate bad coding somewhere
@@ -335,7 +339,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl
 		this.userCache.removeUserFromCache(username);
 	}
 
-	protected Authentication createNewAuthentication(Authentication currentAuth, String newPassword) {
+	protected Authentication createNewAuthentication(Authentication currentAuth, @Nullable String newPassword) {
 		UserDetails user = loadUserByUsername(currentAuth.getName());
 		UsernamePasswordAuthenticationToken newAuthentication = UsernamePasswordAuthenticationToken.authenticated(user,
 				null, user.getAuthorities());
@@ -356,13 +360,23 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl
 
 	@Override
 	public List<String> findAllGroups() {
-		return requireJdbcTemplate().queryForList(this.findAllGroupsSql, String.class);
+		// @formatter:off
+		return requireJdbcTemplate().queryForList(this.findAllGroupsSql, String.class)
+			.stream()
+			.filter(Objects::nonNull)
+			.collect(Collectors.toList());
+		// @formatter:on
 	}
 
 	@Override
 	public List<String> findUsersInGroup(String groupName) {
 		Assert.hasText(groupName, "groupName should have text");
-		return requireJdbcTemplate().queryForList(this.findUsersInGroupSql, String.class, groupName);
+		// @formatter:off
+		return requireJdbcTemplate().queryForList(this.findUsersInGroupSql, String.class, groupName)
+			.stream()
+			.filter(Objects::nonNull)
+			.collect(Collectors.toList());
+		// @formatter:on
 	}
 
 	@Override

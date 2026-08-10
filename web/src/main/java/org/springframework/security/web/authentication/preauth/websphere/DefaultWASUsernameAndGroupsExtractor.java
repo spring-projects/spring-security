@@ -133,8 +133,8 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 			return new ArrayList<>(groups);
 		}
 		catch (Exception ex) {
-			logger.error("Exception occured while looking up groups for user", ex);
-			throw new RuntimeException("Exception occured while looking up groups for user", ex);
+			logger.error("Exception occurred while looking up groups for user", ex);
+			throw new RuntimeException("Exception occurred while looking up groups for user", ex);
 		}
 		finally {
 			closeContext(context);
@@ -148,7 +148,7 @@ final class DefaultWASUsernameAndGroupsExtractor implements WASUsernameAndGroups
 			}
 		}
 		catch (NamingException ex) {
-			logger.debug("Exception occured while closing context", ex);
+			logger.debug("Exception occurred while closing context", ex);
 		}
 	}
 

@@ -18,8 +18,11 @@ package org.springframework.security.saml2.provider.service.authentication;
 
 import java.io.Serial;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
+import org.springframework.util.Assert;
 
 /**
  * Data holder for information required to send an {@code AuthNRequest} over a REDIRECT
@@ -35,12 +38,13 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 	@Serial
 	private static final long serialVersionUID = 6476874109764554798L;
 
-	private final String sigAlg;
+	private final @Nullable String sigAlg;
 
-	private final String signature;
+	private final @Nullable String signature;
 
-	private Saml2RedirectAuthenticationRequest(String samlRequest, String sigAlg, String signature, String relayState,
-			String authenticationRequestUri, String relyingPartyRegistrationId, String id) {
+	private Saml2RedirectAuthenticationRequest(String samlRequest, @Nullable String sigAlg, @Nullable String signature,
+			@Nullable String relayState, String authenticationRequestUri, String relyingPartyRegistrationId,
+			@Nullable String id) {
 		super(samlRequest, relayState, authenticationRequestUri, relyingPartyRegistrationId, id);
 		this.sigAlg = sigAlg;
 		this.signature = signature;
@@ -50,7 +54,7 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 	 * Returns the SigAlg value for {@link Saml2MessageBinding#REDIRECT} requests
 	 * @return the SigAlg value
 	 */
-	public String getSigAlg() {
+	public @Nullable String getSigAlg() {
 		return this.sigAlg;
 	}
 
@@ -58,7 +62,7 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 	 * Returns the Signature value for {@link Saml2MessageBinding#REDIRECT} requests
 	 * @return the Signature value
 	 */
-	public String getSignature() {
+	public @Nullable String getSignature() {
 		return this.signature;
 	}
 
@@ -87,9 +91,9 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 	 */
 	public static final class Builder extends AbstractSaml2AuthenticationRequest.Builder<Builder> {
 
-		private String sigAlg;
+		private @Nullable String sigAlg;
 
-		private String signature;
+		private @Nullable String signature;
 
 		private Builder(RelyingPartyRegistration registration) {
 			super(registration);
@@ -100,7 +104,7 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 		 * @param sigAlg the SigAlg parameter value.
 		 * @return this object
 		 */
-		public Builder sigAlg(String sigAlg) {
+		public Builder sigAlg(@Nullable String sigAlg) {
 			this.sigAlg = sigAlg;
 			return _this();
 		}
@@ -110,7 +114,7 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 		 * @param signature the Signature parameter value.
 		 * @return this object
 		 */
-		public Builder signature(String signature) {
+		public Builder signature(@Nullable String signature) {
 			this.signature = signature;
 			return _this();
 		}
@@ -120,6 +124,9 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 		 * @return an immutable {@link Saml2RedirectAuthenticationRequest} object.
 		 */
 		public Saml2RedirectAuthenticationRequest build() {
+			Assert.notNull(this.samlRequest, "samlRequest cannot be null");
+			Assert.notNull(this.authenticationRequestUri, "authenticationRequestUri cannot be null");
+			Assert.notNull(this.relyingPartyRegistrationId, "relyingPartyRegistrationId cannot be null");
 			return new Saml2RedirectAuthenticationRequest(this.samlRequest, this.sigAlg, this.signature,
 					this.relayState, this.authenticationRequestUri, this.relyingPartyRegistrationId, this.id);
 		}

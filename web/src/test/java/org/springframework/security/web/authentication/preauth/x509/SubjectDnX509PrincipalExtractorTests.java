@@ -74,6 +74,13 @@ public class SubjectDnX509PrincipalExtractorTests {
 		assertThat(principal).isEqualTo("Duke");
 	}
 
+	// gh-19254
+	@Test
+	public void defaultCNPatternReturnsMostSpecificPrincipalWhenMultipleCns() throws Exception {
+		Object principal = this.extractor.extractPrincipal(X509TestUtils.buildTestCertificateWithMultipleCns());
+		assertThat(principal).isEqualTo("alice");
+	}
+
 	@Test
 	public void setMessageSourceWhenNullThenThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.extractor.setMessageSource(null));

@@ -538,7 +538,7 @@ final class AuthenticationConfigBuilder {
 			}
 			injectAuthenticationDetailsSource(x509Elt, filterBuilder);
 			filter = (RootBeanDefinition) filterBuilder.getBeanDefinition();
-			createPrauthEntryPoint(x509Elt);
+			createPreauthEntryPoint(x509Elt);
 			createX509Provider();
 		}
 		this.x509Filter = filter;
@@ -562,7 +562,7 @@ final class AuthenticationConfigBuilder {
 		this.x509ProviderRef = new RuntimeBeanReference(this.pc.getReaderContext().registerWithGeneratedName(provider));
 	}
 
-	private void createPrauthEntryPoint(Element source) {
+	private void createPreauthEntryPoint(Element source) {
 		if (this.preAuthEntryPoint == null) {
 			this.preAuthEntryPoint = new RootBeanDefinition(Http403ForbiddenEntryPoint.class);
 			this.preAuthEntryPoint.setSource(this.pc.extractSource(source));
@@ -595,7 +595,7 @@ final class AuthenticationConfigBuilder {
 			adsBldr.addPropertyValue("mappableRolesRetriever", mappableRolesRetriever);
 			filterBuilder.addPropertyValue("authenticationDetailsSource", adsBldr.getBeanDefinition());
 			filter = (RootBeanDefinition) filterBuilder.getBeanDefinition();
-			createPrauthEntryPoint(jeeElt);
+			createPreauthEntryPoint(jeeElt);
 			createJeeProvider();
 		}
 		this.jeeFilter = filter;

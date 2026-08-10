@@ -22,6 +22,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import reactor.core.publisher.Mono;
@@ -130,8 +131,8 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 				.matches(exchange)
 				.filter((matchResult) -> matchResult.isMatch())
 				.map(ServerWebExchangeMatcher.MatchResult::getVariables)
-				.map((variables) -> variables.get(DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME))
-				.cast(String.class)
+				.flatMap((variables) -> Mono
+					.justOrEmpty((String) variables.get(DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME)))
 				.flatMap((clientRegistrationId) -> resolve(exchange, clientRegistrationId));
 		// @formatter:on
 	}
@@ -167,9 +168,13 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 			ClientRegistration clientRegistration) {
 		OAuth2AuthorizationRequest.Builder builder = getBuilder(clientRegistration);
 		String redirectUriStr = expandRedirectUri(exchange.getRequest(), clientRegistration);
+
+		String authorizationUri = clientRegistration.getProviderDetails().getAuthorizationUri();
+		Assert.hasText(authorizationUri, "Authorization URI is required");
+
 		// @formatter:off
 		builder.clientId(clientRegistration.getClientId())
-				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
+				.authorizationUri(authorizationUri)
 				.redirectUri(redirectUriStr)
 				.scopes(clientRegistration.getScopes())
 				.state(DEFAULT_STATE_GENERATOR.generateKey());
@@ -255,7 +260,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 		}
 		uriVariables.put("action", action);
 		// @formatter:off
-		return UriComponentsBuilder.fromUriString(clientRegistration.getRedirectUri())
+		return UriComponentsBuilder.fromUriString(Objects.requireNonNull(clientRegistration.getRedirectUri()))
 				.buildAndExpand(uriVariables)
 				.toUriString();
 		// @formatter:on

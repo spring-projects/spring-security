@@ -16,6 +16,8 @@
 
 package org.springframework.security.kerberos.authentication;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,17 +34,31 @@ import org.springframework.security.core.userdetails.UserDetailsService;
  */
 public class KerberosAuthenticationProvider implements AuthenticationProvider {
 
-	private KerberosClient kerberosClient;
+	private @Nullable KerberosClient kerberosClient;
 
-	private UserDetailsService userDetailsService;
+	private @Nullable UserDetailsService userDetailsService;
 
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) authentication;
-		JaasSubjectHolder subjectHolder = this.kerberosClient.login(auth.getName(), auth.getCredentials().toString());
-		UserDetails userDetails = this.userDetailsService.loadUserByUsername(subjectHolder.getUsername());
+		if (this.kerberosClient == null) {
+			throw new IllegalStateException("kerberosClient must be set");
+		}
+		if (this.userDetailsService == null) {
+			throw new IllegalStateException("userDetailsService must be set");
+		}
+		Object credentials = auth.getCredentials();
+		if (credentials == null) {
+			throw new IllegalArgumentException("credentials cannot be null");
+		}
+		JaasSubjectHolder subjectHolder = this.kerberosClient.login(auth.getName(), credentials.toString());
+		String username = subjectHolder.getUsername();
+		if (username == null) {
+			throw new IllegalStateException("username cannot be null");
+		}
+		UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 		KerberosUsernamePasswordAuthenticationToken output = new KerberosUsernamePasswordAuthenticationToken(
-				userDetails, auth.getCredentials(), userDetails.getAuthorities(), subjectHolder);
+				userDetails, credentials, userDetails.getAuthorities(), subjectHolder);
 		output.setDetails(authentication.getDetails());
 		return output;
 

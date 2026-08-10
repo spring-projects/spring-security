@@ -16,8 +16,10 @@
 
 package org.springframework.security.oauth2.server.authorization.oidc.converter;
 
+import java.net.URL;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.UUID;
 
 import org.springframework.core.convert.converter.Converter;
@@ -32,6 +34,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.oidc.OidcClientRegistration;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 /**
@@ -56,8 +59,11 @@ public final class OidcClientRegistrationRegisteredClientConverter
 		// @formatter:off
 		RegisteredClient.Builder builder = RegisteredClient.withId(UUID.randomUUID().toString())
 				.clientId(CLIENT_ID_GENERATOR.generateKey())
-				.clientIdIssuedAt(Instant.now())
-				.clientName(clientRegistration.getClientName());
+				.clientIdIssuedAt(Instant.now());
+		String clientName = clientRegistration.getClientName();
+		if (clientName != null) {
+			builder.clientName(clientName);
+		}
 
 		if (ClientAuthenticationMethod.CLIENT_SECRET_POST.getValue().equals(clientRegistration.getTokenEndpointAuthenticationMethod())) {
 			builder
@@ -86,9 +92,10 @@ public final class OidcClientRegistrationRegisteredClientConverter
 					postLogoutRedirectUris.addAll(clientRegistration.getPostLogoutRedirectUris()));
 		}
 
-		if (!CollectionUtils.isEmpty(clientRegistration.getGrantTypes())) {
+		Collection<String> grantTypes = clientRegistration.getGrantTypes();
+		if (!CollectionUtils.isEmpty(grantTypes)) {
 			builder.authorizationGrantTypes((authorizationGrantTypes) ->
-					clientRegistration.getGrantTypes().forEach((grantType) ->
+					grantTypes.forEach((grantType) ->
 							authorizationGrantTypes.add(new AuthorizationGrantType(grantType))));
 		}
 		else {
@@ -109,19 +116,24 @@ public final class OidcClientRegistrationRegisteredClientConverter
 				.requireAuthorizationConsent(true);
 
 		if (ClientAuthenticationMethod.CLIENT_SECRET_JWT.getValue().equals(clientRegistration.getTokenEndpointAuthenticationMethod())) {
-			MacAlgorithm macAlgorithm = MacAlgorithm.from(clientRegistration.getTokenEndpointAuthenticationSigningAlgorithm());
+			String signingAlgorithm = clientRegistration.getTokenEndpointAuthenticationSigningAlgorithm();
+			MacAlgorithm macAlgorithm = (signingAlgorithm != null) ? MacAlgorithm.from(signingAlgorithm) : null;
 			if (macAlgorithm == null) {
 				macAlgorithm = MacAlgorithm.HS256;
 			}
 			clientSettingsBuilder.tokenEndpointAuthenticationSigningAlgorithm(macAlgorithm);
 		}
 		else if (ClientAuthenticationMethod.PRIVATE_KEY_JWT.getValue().equals(clientRegistration.getTokenEndpointAuthenticationMethod())) {
-			SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.from(clientRegistration.getTokenEndpointAuthenticationSigningAlgorithm());
+			String signingAlgorithm = clientRegistration.getTokenEndpointAuthenticationSigningAlgorithm();
+			SignatureAlgorithm signatureAlgorithm = (signingAlgorithm != null)
+					? SignatureAlgorithm.from(signingAlgorithm) : null;
 			if (signatureAlgorithm == null) {
 				signatureAlgorithm = SignatureAlgorithm.RS256;
 			}
 			clientSettingsBuilder.tokenEndpointAuthenticationSigningAlgorithm(signatureAlgorithm);
-			clientSettingsBuilder.jwkSetUrl(clientRegistration.getJwkSetUrl().toString());
+			URL jwkSetUrl = clientRegistration.getJwkSetUrl();
+			Assert.notNull(jwkSetUrl, "jwkSetUrl cannot be null");
+			clientSettingsBuilder.jwkSetUrl(jwkSetUrl.toString());
 		}
 
 		builder

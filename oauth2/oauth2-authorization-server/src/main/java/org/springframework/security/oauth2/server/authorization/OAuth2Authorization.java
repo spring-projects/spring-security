@@ -28,7 +28,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
@@ -58,19 +59,19 @@ public class OAuth2Authorization implements Serializable {
 	@Serial
 	private static final long serialVersionUID = 880363144799377926L;
 
-	private String id;
+	private @Nullable String id;
 
-	private String registeredClientId;
+	private @Nullable String registeredClientId;
 
-	private String principalName;
+	private @Nullable String principalName;
 
-	private AuthorizationGrantType authorizationGrantType;
+	private @Nullable AuthorizationGrantType authorizationGrantType;
 
-	private Set<String> authorizedScopes;
+	private @Nullable Set<String> authorizedScopes;
 
-	private Map<Class<? extends OAuth2Token>, Token<?>> tokens;
+	private @Nullable Map<Class<? extends OAuth2Token>, Token<?>> tokens;
 
-	private Map<String, Object> attributes;
+	private @Nullable Map<String, Object> attributes;
 
 	protected OAuth2Authorization() {
 	}
@@ -80,6 +81,7 @@ public class OAuth2Authorization implements Serializable {
 	 * @return the identifier for the authorization
 	 */
 	public String getId() {
+		Assert.notNull(this.id, "id cannot be null");
 		return this.id;
 	}
 
@@ -88,6 +90,7 @@ public class OAuth2Authorization implements Serializable {
 	 * @return the {@link RegisteredClient#getId()}
 	 */
 	public String getRegisteredClientId() {
+		Assert.notNull(this.registeredClientId, "registeredClientId cannot be null");
 		return this.registeredClientId;
 	}
 
@@ -96,6 +99,7 @@ public class OAuth2Authorization implements Serializable {
 	 * @return the {@code Principal} name of the resource owner (or client)
 	 */
 	public String getPrincipalName() {
+		Assert.notNull(this.principalName, "principalName cannot be null");
 		return this.principalName;
 	}
 
@@ -105,6 +109,7 @@ public class OAuth2Authorization implements Serializable {
 	 * @return the {@link AuthorizationGrantType} used for the authorization
 	 */
 	public AuthorizationGrantType getAuthorizationGrantType() {
+		Assert.notNull(this.authorizationGrantType, "authorizationGrantType cannot be null");
 		return this.authorizationGrantType;
 	}
 
@@ -113,14 +118,16 @@ public class OAuth2Authorization implements Serializable {
 	 * @return the {@code Set} of authorized scope(s)
 	 */
 	public Set<String> getAuthorizedScopes() {
+		Assert.notNull(this.authorizedScopes, "authorizedScopes cannot be null");
 		return this.authorizedScopes;
 	}
 
 	/**
 	 * Returns the {@link Token} of type {@link OAuth2AccessToken}.
-	 * @return the {@link Token} of type {@link OAuth2AccessToken}
+	 * @return the {@link Token} of type {@link OAuth2AccessToken}, or {@code null} if not
+	 * available
 	 */
-	public Token<OAuth2AccessToken> getAccessToken() {
+	public @Nullable Token<OAuth2AccessToken> getAccessToken() {
 		return getToken(OAuth2AccessToken.class);
 	}
 
@@ -129,8 +136,7 @@ public class OAuth2Authorization implements Serializable {
 	 * @return the {@link Token} of type {@link OAuth2RefreshToken}, or {@code null} if
 	 * not available
 	 */
-	@Nullable
-	public Token<OAuth2RefreshToken> getRefreshToken() {
+	public @Nullable Token<OAuth2RefreshToken> getRefreshToken() {
 		return getToken(OAuth2RefreshToken.class);
 	}
 
@@ -140,10 +146,10 @@ public class OAuth2Authorization implements Serializable {
 	 * @param <T> the type of the token
 	 * @return the {@link Token}, or {@code null} if not available
 	 */
-	@Nullable
 	@SuppressWarnings("unchecked")
-	public <T extends OAuth2Token> Token<T> getToken(Class<T> tokenType) {
+	public <T extends OAuth2Token> @Nullable Token<T> getToken(Class<T> tokenType) {
 		Assert.notNull(tokenType, "tokenType cannot be null");
+		Assert.notNull(this.tokens, "tokens cannot be null");
 		Token<?> token = this.tokens.get(tokenType);
 		return (token != null) ? (Token<T>) token : null;
 	}
@@ -154,10 +160,10 @@ public class OAuth2Authorization implements Serializable {
 	 * @param <T> the type of the token
 	 * @return the {@link Token}, or {@code null} if not available
 	 */
-	@Nullable
 	@SuppressWarnings("unchecked")
-	public <T extends OAuth2Token> Token<T> getToken(String tokenValue) {
+	public <T extends OAuth2Token> @Nullable Token<T> getToken(String tokenValue) {
 		Assert.hasText(tokenValue, "tokenValue cannot be empty");
+		Assert.notNull(this.tokens, "tokens cannot be null");
 		for (Token<?> token : this.tokens.values()) {
 			if (token.getToken().getTokenValue().equals(tokenValue)) {
 				return (Token<T>) token;
@@ -171,6 +177,7 @@ public class OAuth2Authorization implements Serializable {
 	 * @return a {@code Map} of the attribute(s)
 	 */
 	public Map<String, Object> getAttributes() {
+		Assert.notNull(this.attributes, "attributes cannot be null");
 		return this.attributes;
 	}
 
@@ -181,10 +188,10 @@ public class OAuth2Authorization implements Serializable {
 	 * @return the value of an attribute associated to the authorization, or {@code null}
 	 * if not available
 	 */
-	@Nullable
 	@SuppressWarnings("unchecked")
-	public <T> T getAttribute(String name) {
+	public <T> @Nullable T getAttribute(String name) {
 		Assert.hasText(name, "name cannot be empty");
+		Assert.notNull(this.attributes, "attributes cannot be null");
 		return (T) this.attributes.get(name);
 	}
 
@@ -230,6 +237,7 @@ public class OAuth2Authorization implements Serializable {
 	 */
 	public static Builder from(OAuth2Authorization authorization) {
 		Assert.notNull(authorization, "authorization cannot be null");
+		Assert.notNull(authorization.tokens, "tokens cannot be null");
 		return new Builder(authorization.getRegisteredClientId()).id(authorization.getId())
 			.principalName(authorization.getPrincipalName())
 			.authorizationGrantType(authorization.getAuthorizationGrantType())
@@ -324,8 +332,7 @@ public class OAuth2Authorization implements Serializable {
 		 * Returns the claims associated to the token.
 		 * @return a {@code Map} of the claims, or {@code null} if not available
 		 */
-		@Nullable
-		public Map<String, Object> getClaims() {
+		public @Nullable Map<String, Object> getClaims() {
 			return getMetadata(CLAIMS_METADATA_NAME);
 		}
 
@@ -335,9 +342,8 @@ public class OAuth2Authorization implements Serializable {
 		 * @param <V> the value type of the metadata
 		 * @return the value of the metadata, or {@code null} if not available
 		 */
-		@Nullable
 		@SuppressWarnings("unchecked")
-		public <V> V getMetadata(String name) {
+		public <V> @Nullable V getMetadata(String name) {
 			Assert.hasText(name, "name cannot be empty");
 			return (V) this.metadata.get(name);
 		}
@@ -380,15 +386,15 @@ public class OAuth2Authorization implements Serializable {
 	 */
 	public static class Builder {
 
-		private String id;
+		private @Nullable String id;
 
 		private final String registeredClientId;
 
-		private String principalName;
+		private @Nullable String principalName;
 
-		private AuthorizationGrantType authorizationGrantType;
+		private @Nullable AuthorizationGrantType authorizationGrantType;
 
-		private Set<String> authorizedScopes;
+		private @Nullable Set<String> authorizedScopes;
 
 		private Map<Class<? extends OAuth2Token>, Token<?>> tokens = new HashMap<>();
 
@@ -503,8 +509,10 @@ public class OAuth2Authorization implements Serializable {
 			token(token, (metadata) -> metadata.put(OAuth2Authorization.Token.INVALIDATED_METADATA_NAME, true));
 			if (OAuth2RefreshToken.class.isAssignableFrom(token.getClass())) {
 				Token<?> accessToken = this.tokens.get(OAuth2AccessToken.class);
-				token(accessToken.getToken(),
-						(metadata) -> metadata.put(OAuth2Authorization.Token.INVALIDATED_METADATA_NAME, true));
+				if (accessToken != null) {
+					token(accessToken.getToken(),
+							(metadata) -> metadata.put(OAuth2Authorization.Token.INVALIDATED_METADATA_NAME, true));
+				}
 
 				Token<?> authorizationCode = this.tokens.get(OAuth2AuthorizationCode.class);
 				if (authorizationCode != null && !authorizationCode.isInvalidated()) {

@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import org.jspecify.annotations.NullUnmarked;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AuthenticationTrustResolver;
@@ -107,7 +106,6 @@ public final class SecurityMockMvcResultMatchers {
 		AuthenticatedMatcher() {
 		}
 
-		@NullUnmarked
 		@Override
 		public void match(MvcResult result) {
 			SecurityContext context = load(result);

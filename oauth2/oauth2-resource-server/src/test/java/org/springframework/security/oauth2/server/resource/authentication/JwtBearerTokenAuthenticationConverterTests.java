@@ -17,6 +17,8 @@
 package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Test;
@@ -24,6 +26,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -79,6 +83,23 @@ public class JwtBearerTokenAuthenticationConverterTests {
 		assertThat(token).isInstanceOf(BearerTokenAuthentication.class);
 		BearerTokenAuthentication bearerToken = (BearerTokenAuthentication) token;
 		SecurityAssertions.assertThat(bearerToken).hasAuthorities("SCOPE_message:read", "SCOPE_message:write");
+	}
+
+	@Test
+	public void convertWhenJwtPrincipalConverterSetThenCustomPrincipalUsed() {
+		OAuth2AuthenticatedPrincipal customPrincipal = new DefaultOAuth2AuthenticatedPrincipal("custom-name",
+				Map.of("claim", "value"), List.of());
+		this.converter.setJwtPrincipalConverter((jwt) -> customPrincipal);
+		// @formatter:off
+		Jwt jwt = Jwt.withTokenValue("token-value")
+				.claim("claim", "value")
+				.header("header", "value")
+				.build();
+		// @formatter:on
+		AbstractAuthenticationToken token = this.converter.convert(jwt);
+		assertThat(token).isInstanceOf(BearerTokenAuthentication.class);
+		BearerTokenAuthentication bearerToken = (BearerTokenAuthentication) token;
+		assertThat(bearerToken.getName()).isEqualTo("custom-name");
 	}
 
 	static Predicate<GrantedAuthority> isScope() {

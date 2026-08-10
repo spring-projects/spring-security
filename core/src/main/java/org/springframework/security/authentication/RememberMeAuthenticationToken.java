@@ -103,7 +103,7 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (!super.equals(obj)) {
 			return false;
 		}

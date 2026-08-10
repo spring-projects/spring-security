@@ -27,6 +27,7 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKMatcher;
 import com.nimbusds.jose.jwk.JWKSelector;
 import com.nimbusds.jose.jwk.JWKSet;
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.util.Assert;
@@ -134,17 +135,12 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 	 * @param jwkMatcher The JWK matcher. Must not be {@code null}.
 	 * @return The first key ID, {@code null} if none.
 	 */
-	protected static String getFirstSpecifiedKeyID(final JWKMatcher jwkMatcher) {
+	protected static @Nullable String getFirstSpecifiedKeyID(final JWKMatcher jwkMatcher) {
 		Set<String> keyIDs = jwkMatcher.getKeyIDs();
 		if (keyIDs == null || keyIDs.isEmpty()) {
 			return null;
 		}
-		for (String id : keyIDs) {
-			if (id != null) {
-				return id;
-			}
-		}
-		return null; // No kid in matcher
+		return keyIDs.iterator().next();
 	}
 
 	void setWebClient(WebClient webClient) {

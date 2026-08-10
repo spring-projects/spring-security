@@ -27,6 +27,7 @@ import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -54,13 +55,12 @@ public class OAuth2UserRequestEntityConverter implements Converter<OAuth2UserReq
 	@Override
 	public RequestEntity<?> convert(OAuth2UserRequest userRequest) {
 		ClientRegistration clientRegistration = userRequest.getClientRegistration();
+		String userInfoUri = clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri();
+		Assert.hasText(userInfoUri, "UserInfo Endpoint Uri is required");
 		HttpMethod httpMethod = getHttpMethod(clientRegistration);
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-		URI uri = UriComponentsBuilder
-			.fromUriString(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri())
-			.build()
-			.toUri();
+		URI uri = UriComponentsBuilder.fromUriString(userInfoUri).build().toUri();
 
 		RequestEntity<?> request;
 		if (HttpMethod.POST.equals(httpMethod)) {

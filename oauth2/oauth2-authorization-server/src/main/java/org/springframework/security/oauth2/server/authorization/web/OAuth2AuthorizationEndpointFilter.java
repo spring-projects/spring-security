@@ -29,6 +29,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpMethod;
@@ -45,6 +46,7 @@ import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
+import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationCode;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationContext;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationException;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationProvider;
@@ -124,7 +126,7 @@ public final class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilte
 	private SessionAuthenticationStrategy sessionAuthenticationStrategy = (authentication, request, response) -> {
 	};
 
-	private String consentPage;
+	private @Nullable String consentPage;
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizationEndpointFilter} using the provided
@@ -198,6 +200,7 @@ public final class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilte
 					authenticationToken.setDetails(this.authenticationDetailsSource.buildDetails(request));
 				}
 			}
+			Assert.notNull(authentication, "authentication cannot be null");
 			Authentication authenticationResult = this.authenticationManager.authenticate(authentication);
 
 			if (authenticationResult instanceof OAuth2AuthorizationConsentAuthenticationToken authorizationConsentAuthenticationToken) {
@@ -316,6 +319,9 @@ public final class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilte
 		else {
 			requestedScopes = authorizationCodeRequestAuthentication.getScopes();
 		}
+		if (requestedScopes == null) {
+			requestedScopes = Collections.emptySet();
+		}
 
 		if (hasConsentUri()) {
 			String redirectUri = UriComponentsBuilder.fromUriString(resolveConsentUri(request))
@@ -339,6 +345,7 @@ public final class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilte
 	}
 
 	private String resolveConsentUri(HttpServletRequest request) {
+		Assert.hasText(this.consentPage, "consentPage cannot be empty");
 		if (UrlUtils.isAbsoluteUrl(this.consentPage)) {
 			return this.consentPage;
 		}
@@ -355,10 +362,12 @@ public final class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilte
 			Authentication authentication) throws IOException {
 
 		OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication = (OAuth2AuthorizationCodeRequestAuthenticationToken) authentication;
-		UriComponentsBuilder uriBuilder = UriComponentsBuilder
-			.fromUriString(authorizationCodeRequestAuthentication.getRedirectUri())
-			.queryParam(OAuth2ParameterNames.CODE,
-					authorizationCodeRequestAuthentication.getAuthorizationCode().getTokenValue());
+		String redirectUriForResponse = authorizationCodeRequestAuthentication.getRedirectUri();
+		Assert.notNull(redirectUriForResponse, "redirectUri cannot be null");
+		OAuth2AuthorizationCode authorizationCode = authorizationCodeRequestAuthentication.getAuthorizationCode();
+		Assert.notNull(authorizationCode, "authorizationCode cannot be null");
+		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(redirectUriForResponse)
+			.queryParam(OAuth2ParameterNames.CODE, authorizationCode.getTokenValue());
 		if (StringUtils.hasText(authorizationCodeRequestAuthentication.getState())) {
 			uriBuilder.queryParam(OAuth2ParameterNames.STATE,
 					UriUtils.encode(authorizationCodeRequestAuthentication.getState(), StandardCharsets.UTF_8));
@@ -429,8 +438,11 @@ public final class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilte
 			Assert.notNull(authenticationValidator, "authenticationValidator cannot be null");
 			this.registeredClientRepository = registeredClientRepository;
 			this.authenticationValidator = authenticationValidator;
-			this.setValidatedField = ReflectionUtils.findField(OAuth2AuthorizationCodeRequestAuthenticationToken.class,
+			Field validatedField = ReflectionUtils.findField(OAuth2AuthorizationCodeRequestAuthenticationToken.class,
 					"validated");
+			Assert.notNull(validatedField,
+					"OAuth2AuthorizationCodeRequestAuthenticationToken.validated field cannot be resolved");
+			this.setValidatedField = validatedField;
 			ReflectionUtils.makeAccessible(this.setValidatedField);
 		}
 

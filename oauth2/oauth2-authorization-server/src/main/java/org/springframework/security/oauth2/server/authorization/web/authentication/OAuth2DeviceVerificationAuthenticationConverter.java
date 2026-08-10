@@ -17,9 +17,11 @@
 package org.springframework.security.oauth2.server.authorization.web.authentication;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -30,6 +32,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2DeviceVerificationAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.web.OAuth2DeviceVerificationEndpointFilter;
 import org.springframework.security.web.authentication.AuthenticationConverter;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 
 /**
@@ -52,7 +55,7 @@ public final class OAuth2DeviceVerificationAuthenticationConverter implements Au
 			"anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 
 	@Override
-	public Authentication convert(HttpServletRequest request) {
+	public @Nullable Authentication convert(HttpServletRequest request) {
 		if (!("GET".equals(request.getMethod()) || "POST".equals(request.getMethod()))) {
 			return null;
 		}
@@ -66,10 +69,12 @@ public final class OAuth2DeviceVerificationAuthenticationConverter implements Au
 
 		// user_code (REQUIRED)
 		String userCode = parameters.getFirst(OAuth2ParameterNames.USER_CODE);
-		if (!OAuth2EndpointUtils.validateUserCode(userCode)
-				|| parameters.get(OAuth2ParameterNames.USER_CODE).size() != 1) {
+		List<String> userCodeParams = parameters.get(OAuth2ParameterNames.USER_CODE);
+		if (userCode == null || !OAuth2EndpointUtils.validateUserCode(userCode) || userCodeParams == null
+				|| userCodeParams.size() != 1) {
 			OAuth2EndpointUtils.throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.USER_CODE, ERROR_URI);
 		}
+		Assert.notNull(userCode, "userCode cannot be null");
 
 		Authentication principal = SecurityContextHolder.getContext().getAuthentication();
 		if (principal == null) {

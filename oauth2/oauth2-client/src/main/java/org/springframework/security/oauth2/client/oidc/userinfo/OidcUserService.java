@@ -99,6 +99,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 		OAuth2User oauth2User = null;
 		if (this.retrieveUserInfo.test(userRequest)) {
 			oauth2User = this.oauth2UserService.loadUser(userRequest);
+			Assert.notNull(oauth2User, "oauth2User cannot be null");
 			Map<String, Object> claims = getClaims(userRequest, oauth2User);
 			userInfo = new OidcUserInfo(claims);
 			// https://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse

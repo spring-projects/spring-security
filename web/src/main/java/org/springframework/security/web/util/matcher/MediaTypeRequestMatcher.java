@@ -26,6 +26,7 @@ import java.util.Set;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
@@ -253,7 +254,7 @@ public final class MediaTypeRequestMatcher implements RequestMatcher {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (this == obj) {
 			return true;
 		}

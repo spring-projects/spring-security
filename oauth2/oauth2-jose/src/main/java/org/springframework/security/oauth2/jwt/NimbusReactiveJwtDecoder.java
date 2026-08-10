@@ -55,6 +55,7 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -239,9 +240,12 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 						catch (IllegalStateException ex) {
 							return Mono.error(ex);
 						}
-						return Mono.just(configuration.get("jwks_uri").toString());
+						Object jwksUri = configuration.get("jwks_uri");
+						Assert.notNull(jwksUri, "The public JWK Set URI must not be null");
+						return Mono.just(jwksUri.toString());
 					}),
-				ReactiveJwtDecoderProviderConfigurationUtils::getJWSAlgorithms);
+				ReactiveJwtDecoderProviderConfigurationUtils::getJWSAlgorithms)
+			.validator(JwtValidators.createDefaultWithIssuer(issuer));
 	}
 
 	/**
@@ -290,7 +294,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	}
 
 	private static <C extends SecurityContext> JWTClaimsSet createClaimsSet(JWTProcessor<C> jwtProcessor,
-			JWT parsedToken, C context) {
+			JWT parsedToken, @Nullable C context) {
 		try {
 			return jwtProcessor.process(parsedToken, context);
 		}
@@ -331,6 +335,8 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		private WebClient webClient = WebClient.create();
 
 		private BiFunction<ReactiveRemoteJWKSource, ConfigurableJWTProcessor<JWKSecurityContext>, Mono<ConfigurableJWTProcessor<JWKSecurityContext>>> jwtProcessorCustomizer;
+
+		private OAuth2TokenValidator<Jwt> validator = JwtValidators.createDefault();
 
 		private JwkSetUriReactiveJwtDecoderBuilder(String jwkSetUri) {
 			Assert.hasText(jwkSetUri, "jwkSetUri cannot be empty");
@@ -456,6 +462,11 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 			return this;
 		}
 
+		JwkSetUriReactiveJwtDecoderBuilder validator(OAuth2TokenValidator<Jwt> validator) {
+			this.validator = validator;
+			return this;
+		}
+
 		JwkSetUriReactiveJwtDecoderBuilder jwtProcessorCustomizer(
 				BiFunction<ReactiveRemoteJWKSource, ConfigurableJWTProcessor<JWKSecurityContext>, Mono<ConfigurableJWTProcessor<JWKSecurityContext>>> jwtProcessorCustomizer) {
 			Assert.notNull(jwtProcessorCustomizer, "jwtProcessorCustomizer cannot be null");
@@ -468,7 +479,9 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		 * @return the configured {@link NimbusReactiveJwtDecoder}
 		 */
 		public NimbusReactiveJwtDecoder build() {
-			return new NimbusReactiveJwtDecoder(processor());
+			NimbusReactiveJwtDecoder decoder = new NimbusReactiveJwtDecoder(processor());
+			decoder.setJwtValidator(this.validator);
+			return decoder;
 		}
 
 		Mono<JWSKeySelector<JWKSecurityContext>> jwsKeySelector(ReactiveRemoteJWKSource source) {

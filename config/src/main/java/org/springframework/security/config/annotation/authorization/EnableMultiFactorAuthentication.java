@@ -30,8 +30,12 @@ import org.springframework.security.authorization.DefaultAuthorizationManagerFac
  *
  * When {@link #authorities()} is specified creates a
  * {@link DefaultAuthorizationManagerFactory} as a Bean with the {@link #authorities()}
- * specified as additional required authorities. The configuration will be picked up by
- * both
+ * specified as additional required authorities. When {@link #when()} is
+ * {@link MultiFactorCondition#WEBAUTHN_REGISTERED}, {@link #authorities()} must include
+ * {@link org.springframework.security.core.authority.FactorGrantedAuthority#WEBAUTHN_AUTHORITY};
+ * otherwise an {@link IllegalArgumentException} is thrown during configuration
+ * processing. When {@link #when()} is not specified (default is an empty array), no such
+ * requirement applies. The configuration will be picked up by both
  * {@link org.springframework.security.config.annotation.web.configuration.EnableWebSecurity}
  * and
  * {@link org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity}.
@@ -42,6 +46,19 @@ import org.springframework.security.authorization.DefaultAuthorizationManagerFac
  * &#64;EnableMultiFactorAuthentication(authorities = { GrantedAuthorities.FACTOR_OTT, GrantedAuthorities.FACTOR_PASSWORD })
  * public class MyConfiguration {
  *     // ...
+ * }
+ * </pre>
+ *
+ * <p>
+ * You can also publish one or more
+ * {@code Customizer<AdditionalRequiredFactorsBuilder<Object>>} beans to further customize
+ * the {@link DefaultAuthorizationManagerFactory}. For example, conditionally applying MFA
+ * for specific users:
+ *
+ * <pre>
+ * &#64;Bean
+ * Customizer&lt;AuthorizationManagerFactories.AdditionalRequiredFactorsBuilder&lt;Object&gt;&gt; additionalRequiredFactorsCustomizer() {
+ *     return (builder) -&gt; builder.when((auth) -&gt; "admin".equals(auth.getName()));
  * }
  * </pre>
  *
@@ -66,5 +83,16 @@ public @interface EnableMultiFactorAuthentication {
 	 * @see org.springframework.security.core.authority.FactorGrantedAuthority
 	 */
 	String[] authorities();
+
+	/**
+	 * The conditions under which multi-factor authentication is required.
+	 * <p>
+	 * When multiple conditions are specified, they are applied as an AND (all conditions
+	 * must be met).
+	 * @return the conditions (default is an empty array, which requires MFA
+	 * unconditionally)
+	 * @since 7.1
+	 */
+	MultiFactorCondition[] when() default {};
 
 }

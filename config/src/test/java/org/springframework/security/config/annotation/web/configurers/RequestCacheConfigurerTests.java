@@ -34,6 +34,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.test.web.servlet.RequestCacheResultMatcher;
@@ -183,6 +184,21 @@ public class RequestCacheConfigurerTests {
 		// This is desirable since websocket requests are typically not invoked
 		// directly from the browser and we don't want the browser to replay them
 		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
+	}
+
+	// gh-19128
+	@Test
+	public void getWhenBuilderBeanWithBasePathThenSavedRequestMatcherIgnoresBasePath() throws Exception {
+		this.spring.register(RequestCacheBuilderBeanConfig.class, DefaultSecurityConfig.class).autowire();
+		MockHttpServletRequestBuilder request = get("/messages").header(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(request)
+				.andExpect(redirectedUrl("/login"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
+		this.mvc.perform(formLogin(session)).andExpect(RequestCacheResultMatcher.redirectToCachedRequest());
 	}
 
 	@Test
@@ -397,6 +413,31 @@ public class RequestCacheConfigurerTests {
 				.formLogin(withDefaults());
 			return http.build();
 			// @formatter:on
+		}
+
+	}
+
+	// gh-19128
+	@Configuration
+	@EnableWebSecurity
+	static class RequestCacheBuilderBeanConfig {
+
+		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder() {
+			PathPatternRequestMatcherBuilderFactoryBean bean = new PathPatternRequestMatcherBuilderFactoryBean();
+			bean.setBasePath("/spring");
+			return bean;
+		}
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.formLogin(withDefaults());
+			// @formatter:on
+			return http.build();
 		}
 
 	}

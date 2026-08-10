@@ -22,6 +22,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 
 import reactor.core.publisher.Mono;
 
@@ -132,10 +133,11 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements React
 				.getAuthorizationExchange()
 				.getAuthorizationResponse();
 			if (authorizationResponse.statusError()) {
-				return Mono.error(new OAuth2AuthenticationException(authorizationResponse.getError(),
-						authorizationResponse.getError().toString()));
+				OAuth2Error error = authorizationResponse.getError();
+				Assert.notNull(error, "error cannot be null when status is error");
+				return Mono.error(new OAuth2AuthenticationException(error, error.toString()));
 			}
-			if (!authorizationResponse.getState().equals(authorizationRequest.getState())) {
+			if (!Objects.equals(authorizationResponse.getState(), authorizationRequest.getState())) {
 				OAuth2Error oauth2Error = new OAuth2Error(INVALID_STATE_PARAMETER_ERROR_CODE);
 				return Mono.error(new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString()));
 			}
@@ -213,6 +215,7 @@ public class OidcAuthorizationCodeReactiveAuthenticationManager implements React
 			OAuth2AccessTokenResponse accessTokenResponse) {
 		ReactiveJwtDecoder jwtDecoder = this.jwtDecoderFactory.createDecoder(clientRegistration);
 		String rawIdToken = (String) accessTokenResponse.getAdditionalParameters().get(OidcParameterNames.ID_TOKEN);
+		Assert.hasText(rawIdToken, "id_token parameter cannot be null or empty");
 		// @formatter:off
 		return jwtDecoder.decode(rawIdToken)
 				.map((jwt) ->

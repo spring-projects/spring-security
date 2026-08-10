@@ -46,7 +46,7 @@ public class OneTimeTokenAuthenticationConverter implements AuthenticationConver
 			this.logger.debug("No token found in request");
 			return null;
 		}
-		return OneTimeTokenAuthenticationToken.unauthenticated(token);
+		return new OneTimeTokenAuthenticationToken(token);
 	}
 
 }

@@ -95,6 +95,7 @@ public final class OAuth2ClientCredentialsAuthenticationProvider implements Auth
 		OAuth2ClientAuthenticationToken clientPrincipal = OAuth2AuthenticationProviderUtils
 			.getAuthenticatedClientElseThrowInvalidClient(clientCredentialsAuthentication);
 		RegisteredClient registeredClient = clientPrincipal.getRegisteredClient();
+		Assert.notNull(registeredClient, "registeredClient cannot be null");
 
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace("Retrieved registered client");

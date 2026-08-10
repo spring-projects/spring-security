@@ -38,7 +38,7 @@ Gradle::
 [[servlet-hello-starting]]
 == Starting Hello Spring Security Boot
 
-You can now https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#using-boot-running-with-the-maven-plugin[run the Spring Boot application] by using the Maven Plugin's `run` goal.
+You can now {spring-boot-reference-url}reference/using/running-your-application.html#using.running-your-application.with-the-maven-plugin[run the Spring Boot application] by using the Maven Plugin's `run` goal.
 The following example shows how to do so (and the beginning of the output from doing so):
 
 

@@ -177,7 +177,7 @@ public class User implements UserDetails, CredentialsContainer {
 	 * the same principal.
 	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (obj instanceof User user) {
 			return this.username.equals(user.getUsername());
 		}

@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.server.authorization.authentication;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
@@ -82,7 +83,7 @@ public final class JwtClientAssertionAuthenticationProvider implements Authentic
 	}
 
 	@Override
-	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+	public @Nullable Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		OAuth2ClientAuthenticationToken clientAuthentication = (OAuth2ClientAuthenticationToken) authentication;
 
 		if (!JWT_CLIENT_ASSERTION_AUTHENTICATION_METHOD.equals(clientAuthentication.getClientAuthenticationMethod())) {
@@ -92,7 +93,7 @@ public final class JwtClientAssertionAuthenticationProvider implements Authentic
 		String clientId = clientAuthentication.getPrincipal().toString();
 		RegisteredClient registeredClient = this.registeredClientRepository.findByClientId(clientId);
 		if (registeredClient == null) {
-			throwInvalidClient(OAuth2ParameterNames.CLIENT_ID);
+			throw invalidClientException(OAuth2ParameterNames.CLIENT_ID);
 		}
 
 		if (this.logger.isTraceEnabled()) {
@@ -102,21 +103,22 @@ public final class JwtClientAssertionAuthenticationProvider implements Authentic
 		// @formatter:off
 		if (!registeredClient.getClientAuthenticationMethods().contains(ClientAuthenticationMethod.PRIVATE_KEY_JWT) &&
 				!registeredClient.getClientAuthenticationMethods().contains(ClientAuthenticationMethod.CLIENT_SECRET_JWT)) {
-			throwInvalidClient("authentication_method");
+			throw invalidClientException("authentication_method");
 		}
 		// @formatter:on
 
-		if (clientAuthentication.getCredentials() == null) {
-			throwInvalidClient("credentials");
+		Object credentials = clientAuthentication.getCredentials();
+		if (credentials == null) {
+			throw invalidClientException("credentials");
 		}
 
 		Jwt jwtAssertion = null;
 		JwtDecoder jwtDecoder = this.jwtDecoderFactory.createDecoder(registeredClient);
 		try {
-			jwtAssertion = jwtDecoder.decode(clientAuthentication.getCredentials().toString());
+			jwtAssertion = jwtDecoder.decode(credentials.toString());
 		}
 		catch (JwtException ex) {
-			throwInvalidClient(OAuth2ParameterNames.CLIENT_ASSERTION, ex);
+			throw invalidClientException(OAuth2ParameterNames.CLIENT_ASSERTION, ex);
 		}
 
 		if (this.logger.isTraceEnabled()) {
@@ -159,14 +161,15 @@ public final class JwtClientAssertionAuthenticationProvider implements Authentic
 		this.jwtDecoderFactory = jwtDecoderFactory;
 	}
 
-	private static void throwInvalidClient(String parameterName) {
-		throwInvalidClient(parameterName, null);
+	private static OAuth2AuthenticationException invalidClientException(String parameterName) {
+		return invalidClientException(parameterName, null);
 	}
 
-	private static void throwInvalidClient(String parameterName, Throwable cause) {
+	private static OAuth2AuthenticationException invalidClientException(String parameterName,
+			@Nullable Throwable cause) {
 		OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT,
 				"Client authentication failed: " + parameterName, ERROR_URI);
-		throw new OAuth2AuthenticationException(error, error.toString(), cause);
+		return new OAuth2AuthenticationException(error, error.toString(), cause);
 	}
 
 }

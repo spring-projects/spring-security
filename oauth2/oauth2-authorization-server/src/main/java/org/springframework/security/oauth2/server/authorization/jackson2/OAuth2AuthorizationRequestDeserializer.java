@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.server.authorization.jackson2;
 
 import java.io.IOException;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -24,10 +25,12 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest.Builder;
+import org.springframework.util.Assert;
 
 /**
  * A {@code JsonDeserializer} for {@link OAuth2AuthorizationRequest}.
@@ -57,27 +60,42 @@ final class OAuth2AuthorizationRequestDeserializer extends JsonDeserializer<OAut
 		AuthorizationGrantType authorizationGrantType = convertAuthorizationGrantType(
 				JsonNodeUtils.findObjectNode(root, "authorizationGrantType"));
 		Builder builder = getBuilder(parser, authorizationGrantType);
-		builder.authorizationUri(JsonNodeUtils.findStringValue(root, "authorizationUri"));
-		builder.clientId(JsonNodeUtils.findStringValue(root, "clientId"));
+		String authorizationUri = JsonNodeUtils.findStringValue(root, "authorizationUri");
+		Assert.notNull(authorizationUri, "authorizationUri cannot be null");
+		builder.authorizationUri(authorizationUri);
+		String clientId = JsonNodeUtils.findStringValue(root, "clientId");
+		Assert.notNull(clientId, "clientId cannot be null");
+		builder.clientId(clientId);
 		builder.redirectUri(JsonNodeUtils.findStringValue(root, "redirectUri"));
 		builder.scopes(JsonNodeUtils.findValue(root, "scopes", JsonNodeUtils.STRING_SET, mapper));
 		builder.state(JsonNodeUtils.findStringValue(root, "state"));
-		builder.additionalParameters(
-				JsonNodeUtils.findValue(root, "additionalParameters", JsonNodeUtils.STRING_OBJECT_MAP, mapper));
-		builder.authorizationRequestUri(JsonNodeUtils.findStringValue(root, "authorizationRequestUri"));
-		builder.attributes(JsonNodeUtils.findValue(root, "attributes", JsonNodeUtils.STRING_OBJECT_MAP, mapper));
+		Map<String, Object> additionalParameters = JsonNodeUtils.findValue(root, "additionalParameters",
+				JsonNodeUtils.STRING_OBJECT_MAP, mapper);
+		if (additionalParameters != null) {
+			builder.additionalParameters(additionalParameters);
+		}
+		String authorizationRequestUri = JsonNodeUtils.findStringValue(root, "authorizationRequestUri");
+		if (authorizationRequestUri != null) {
+			builder.authorizationRequestUri(authorizationRequestUri);
+		}
+		Map<String, Object> attributes = JsonNodeUtils.findValue(root, "attributes", JsonNodeUtils.STRING_OBJECT_MAP,
+				mapper);
+		if (attributes != null) {
+			builder.attributes(attributes);
+		}
 		return builder.build();
 	}
 
-	private Builder getBuilder(JsonParser parser, AuthorizationGrantType authorizationGrantType)
+	private Builder getBuilder(JsonParser parser, @Nullable AuthorizationGrantType authorizationGrantType)
 			throws JsonParseException {
-		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(authorizationGrantType)) {
+		if (authorizationGrantType != null
+				&& authorizationGrantType.equals(AuthorizationGrantType.AUTHORIZATION_CODE)) {
 			return OAuth2AuthorizationRequest.authorizationCode();
 		}
 		throw new JsonParseException(parser, "Invalid authorizationGrantType");
 	}
 
-	private static AuthorizationGrantType convertAuthorizationGrantType(JsonNode jsonNode) {
+	private static @Nullable AuthorizationGrantType convertAuthorizationGrantType(@Nullable JsonNode jsonNode) {
 		String value = JsonNodeUtils.findStringValue(jsonNode, "value");
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.getValue().equalsIgnoreCase(value)) {
 			return AuthorizationGrantType.AUTHORIZATION_CODE;

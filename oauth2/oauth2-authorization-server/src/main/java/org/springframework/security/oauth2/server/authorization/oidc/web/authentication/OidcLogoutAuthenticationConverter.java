@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.server.authorization.oidc.web.authentication;
 
+import java.util.List;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
@@ -56,8 +58,9 @@ public final class OidcLogoutAuthenticationConverter implements AuthenticationCo
 
 		// id_token_hint (REQUIRED) // RECOMMENDED as per spec
 		String idTokenHint = parameters.getFirst("id_token_hint");
-		if (!StringUtils.hasText(idTokenHint) || parameters.get("id_token_hint").size() != 1) {
-			throwError(OAuth2ErrorCodes.INVALID_REQUEST, "id_token_hint");
+		List<String> idTokenHintParameters = parameters.get("id_token_hint");
+		if (!StringUtils.hasText(idTokenHint) || idTokenHintParameters == null || idTokenHintParameters.size() != 1) {
+			throw createException(OAuth2ErrorCodes.INVALID_REQUEST, "id_token_hint");
 		}
 
 		Authentication principal = SecurityContextHolder.getContext().getAuthentication();
@@ -73,30 +76,34 @@ public final class OidcLogoutAuthenticationConverter implements AuthenticationCo
 
 		// client_id (OPTIONAL)
 		String clientId = parameters.getFirst(OAuth2ParameterNames.CLIENT_ID);
-		if (StringUtils.hasText(clientId) && parameters.get(OAuth2ParameterNames.CLIENT_ID).size() != 1) {
-			throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.CLIENT_ID);
+		List<String> clientIdParameters = parameters.get(OAuth2ParameterNames.CLIENT_ID);
+		if (StringUtils.hasText(clientId) && (clientIdParameters == null || clientIdParameters.size() != 1)) {
+			throw createException(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.CLIENT_ID);
 		}
 
 		// post_logout_redirect_uri (OPTIONAL)
 		String postLogoutRedirectUri = parameters.getFirst("post_logout_redirect_uri");
-		if (StringUtils.hasText(postLogoutRedirectUri) && parameters.get("post_logout_redirect_uri").size() != 1) {
-			throwError(OAuth2ErrorCodes.INVALID_REQUEST, "post_logout_redirect_uri");
+		List<String> postLogoutRedirectUriParameters = parameters.get("post_logout_redirect_uri");
+		if (StringUtils.hasText(postLogoutRedirectUri)
+				&& (postLogoutRedirectUriParameters == null || postLogoutRedirectUriParameters.size() != 1)) {
+			throw createException(OAuth2ErrorCodes.INVALID_REQUEST, "post_logout_redirect_uri");
 		}
 
 		// state (OPTIONAL)
 		String state = parameters.getFirst(OAuth2ParameterNames.STATE);
-		if (StringUtils.hasText(state) && parameters.get(OAuth2ParameterNames.STATE).size() != 1) {
-			throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.STATE);
+		List<String> stateParameters = parameters.get(OAuth2ParameterNames.STATE);
+		if (StringUtils.hasText(state) && (stateParameters == null || stateParameters.size() != 1)) {
+			throw createException(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.STATE);
 		}
 
 		return new OidcLogoutAuthenticationToken(idTokenHint, principal, sessionId, clientId, postLogoutRedirectUri,
 				state);
 	}
 
-	private static void throwError(String errorCode, String parameterName) {
+	private static OAuth2AuthenticationException createException(String errorCode, String parameterName) {
 		OAuth2Error error = new OAuth2Error(errorCode, "OpenID Connect 1.0 Logout Request Parameter: " + parameterName,
 				"https://openid.net/specs/openid-connect-rpinitiated-1_0.html#ValidationAndErrorHandling");
-		throw new OAuth2AuthenticationException(error);
+		return new OAuth2AuthenticationException(error);
 	}
 
 }

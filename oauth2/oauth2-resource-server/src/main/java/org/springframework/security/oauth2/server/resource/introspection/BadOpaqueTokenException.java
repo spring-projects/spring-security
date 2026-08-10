@@ -18,6 +18,8 @@ package org.springframework.security.oauth2.server.resource.introspection;
 
 import java.io.Serial;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * An exception similar to
  * {@link org.springframework.security.authentication.BadCredentialsException} that
@@ -35,7 +37,7 @@ public class BadOpaqueTokenException extends OAuth2IntrospectionException {
 		super(message);
 	}
 
-	public BadOpaqueTokenException(String message, Throwable cause) {
+	public BadOpaqueTokenException(String message, @Nullable Throwable cause) {
 		super(message, cause);
 	}
 

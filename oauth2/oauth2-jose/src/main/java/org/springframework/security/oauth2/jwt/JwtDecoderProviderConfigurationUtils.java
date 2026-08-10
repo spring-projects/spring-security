@@ -66,11 +66,9 @@ final class JwtDecoderProviderConfigurationUtils {
 	private static final RestTemplate rest = new RestTemplate();
 
 	static {
-		int connectTimeout = Integer.parseInt(System.getProperty("sun.net.client.defaultConnectTimeout", "30000"));
-		int readTimeout = Integer.parseInt(System.getProperty("sun.net.client.defaultReadTimeout", "30000"));
 		SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-		requestFactory.setConnectTimeout(connectTimeout);
-		requestFactory.setReadTimeout(readTimeout);
+		requestFactory.setConnectTimeout(getConnectTimeout());
+		requestFactory.setReadTimeout(getReadTimeout());
 		rest.setRequestFactory(requestFactory);
 	}
 
@@ -78,6 +76,27 @@ final class JwtDecoderProviderConfigurationUtils {
 	};
 
 	private JwtDecoderProviderConfigurationUtils() {
+	}
+
+	/**
+	 * Returns the default HTTP connect timeout, in milliseconds, for fetching
+	 * provider/JWK Set metadata. Honors the JDK's
+	 * {@code sun.net.client.defaultConnectTimeout} system property when set, otherwise
+	 * defaults to 30 seconds.
+	 * @return the default HTTP connect timeout, in milliseconds
+	 */
+	static int getConnectTimeout() {
+		return Integer.parseInt(System.getProperty("sun.net.client.defaultConnectTimeout", "30000"));
+	}
+
+	/**
+	 * Returns the default HTTP read timeout, in milliseconds, for fetching provider/JWK
+	 * Set metadata. Honors the JDK's {@code sun.net.client.defaultReadTimeout} system
+	 * property when set, otherwise defaults to 30 seconds.
+	 * @return the default HTTP read timeout, in milliseconds
+	 */
+	static int getReadTimeout() {
+		return Integer.parseInt(System.getProperty("sun.net.client.defaultReadTimeout", "30000"));
 	}
 
 	static Map<String, Object> getConfigurationForOidcIssuerLocation(String oidcIssuerLocation) {
@@ -164,6 +183,7 @@ final class JwtDecoderProviderConfigurationUtils {
 				RequestEntity<Void> request = RequestEntity.get(uri.toUriString()).build();
 				ResponseEntity<Map<String, Object>> response = rest.exchange(request, STRING_OBJECT_MAP);
 				Map<String, Object> configuration = response.getBody();
+				Assert.notNull(configuration, "configuration must not be null");
 				Assert.isTrue(configuration.get("jwks_uri") != null, "The public JWK set URI must not be null");
 				return configuration;
 			}

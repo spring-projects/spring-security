@@ -16,7 +16,13 @@
 
 package org.springframework.security.saml2.provider.service.registration;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InvalidClassException;
+import java.io.ObjectOutputStream;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,12 +30,19 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.security.saml2.provider.service.registration.JdbcAssertingPartyMetadataRepository.AssertingPartyMetadataRowMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link JdbcAssertingPartyMetadataRepository}
@@ -113,6 +126,36 @@ class JdbcAssertingPartyMetadataRepositoryTests {
 		this.repository.save(this.metadata.mutate().wantAuthnRequestsSigned(!existing).build());
 		boolean updated = this.repository.findByEntityId(this.metadata.getEntityId()).getWantAuthnRequestsSigned();
 		assertThat(existing).isNotEqualTo(updated);
+	}
+
+	@Test
+	void saveWhenCustomRowMapperThenUses() throws Exception {
+		RowMapper<AssertingPartyMetadata> rowMapper = spy(new AssertingPartyMetadataRowMapper());
+		this.repository.setRowMapper(rowMapper);
+		this.repository.save(this.metadata);
+		this.repository.findByEntityId(this.metadata.getEntityId());
+		verify(rowMapper).mapRow(any(), eq(0));
+	}
+
+	@Test
+	void findByEntityIdWhenSerializedTypeNotInAllowlistThenFailsDeserialization() throws Exception {
+		this.repository.save(this.metadata);
+		byte[] notAllowed = serialize(new HashMap<>(Map.of("not", "allowed")));
+		this.jdbcOperations.update(
+				"UPDATE saml2_asserting_party_metadata SET verification_credentials = ? WHERE entity_id = ?",
+				notAllowed, this.metadata.getEntityId());
+
+		assertThatExceptionOfType(RuntimeException.class)
+			.isThrownBy(() -> this.repository.findByEntityId(this.metadata.getEntityId()))
+			.withRootCauseInstanceOf(InvalidClassException.class);
+	}
+
+	private static byte[] serialize(Object value) throws IOException {
+		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+		try (ObjectOutputStream oos = new ObjectOutputStream(bytes)) {
+			oos.writeObject(value);
+		}
+		return bytes.toByteArray();
 	}
 
 	private static EmbeddedDatabase createDb() {

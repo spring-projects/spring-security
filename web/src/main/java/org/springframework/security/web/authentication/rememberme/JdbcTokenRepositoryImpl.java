@@ -35,6 +35,7 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
  * @author Luke Taylor
  * @since 2.0
  */
+@SuppressWarnings("removal")
 public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements PersistentTokenRepository {
 
 	/** Default SQL for creating the database table to store the tokens */

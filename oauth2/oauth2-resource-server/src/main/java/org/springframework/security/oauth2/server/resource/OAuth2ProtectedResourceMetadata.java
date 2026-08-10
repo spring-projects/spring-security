@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -271,7 +273,10 @@ public final class OAuth2ProtectedResourceMetadata
 			valuesConsumer.accept(values);
 		}
 
-		private static void validateURL(Object url, String errorMessage) {
+		private static void validateURL(@Nullable Object url, String errorMessage) {
+			if (url == null) {
+				return;
+			}
 			if (URL.class.isAssignableFrom(url.getClass())) {
 				return;
 			}

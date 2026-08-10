@@ -52,13 +52,13 @@ data with its own key.
 When `KDC` receives this authentication package from a client it
 checks who this `client` claims to be from an unencrypted part and based
 on that information it uses `client` decryption key it already have in
-its database. If this decryption is succesfull `KDC` knows that this
+its database. If this decryption is successful `KDC` knows that this
 `client` is the one it claims to be.
 
 What KDC returns to a client is a ticket called `Ticket Granting
 Ticket` which is signed by a KDC's own private key. Later when
 `client` sends back this ticket it can try to decrypt it and if that
-operation is succesfull it knows that it was a ticket it itself
+operation is successful it knows that it was a ticket it itself
 originally signed and gave to a `client`.
 
 image::{figures}/drawio-kerb-cc3.png[]
@@ -75,7 +75,7 @@ When `client` is authenticating with a service it sends previously
 received service ticket to a service which then thinks that I don't
 know anything about this guy but he gave me an authentication ticket.
 What `service` can do next is try to decrypt that ticket and if that
-operation is succesfull it knows that only other party who knows my
+operation is successful it knows that only other party who knows my
 credentials is the `KDC` and because I trust him I can also trust that
 this client is a one he claims to be.
 
@@ -394,7 +394,7 @@ Valid starting     Expires            Service principal
 
 Above you can see what happened if query was successful by looking
 kerberos tickets. Now you can experiment with further query commands
-i.e. if you working with `KerberosLdapContextSource`.
+i.e. if you are working with `KerberosLdapContextSource`.
 
 [source,text]
 ----
@@ -435,7 +435,7 @@ order to white list servers with Chrome will negotiate.
   Internet Explorer so if all changes were applied to IE (as described
   in E.3), nothing has to be passed via command-line parameters.
 - on Linux/Mac OS machines (clients): the command-line parameter
-  `--auth-negotiate-delegate-whitelist` should only used if Kerberos
+  `--auth-negotiate-delegate-whitelist` should only be used if Kerberos
   delegation is required (otherwise do not set this parameter).
 - It is recommended to use `https` for all communication.
 

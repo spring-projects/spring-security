@@ -16,6 +16,8 @@
 
 package org.springframework.security.acls.domain;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
@@ -42,12 +44,12 @@ public class GrantedAuthoritySid implements Sid {
 	public GrantedAuthoritySid(GrantedAuthority grantedAuthority) {
 		Assert.notNull(grantedAuthority, "GrantedAuthority required");
 		Assert.notNull(grantedAuthority.getAuthority(),
-				"This Sid is only compatible with GrantedAuthoritys that provide a non-null getAuthority()");
+				"This Sid is only compatible with GrantedAuthority that provide a non-null getAuthority()");
 		this.grantedAuthority = grantedAuthority.getAuthority();
 	}
 
 	@Override
-	public boolean equals(Object object) {
+	public boolean equals(@Nullable Object object) {
 		if ((object == null) || !(object instanceof GrantedAuthoritySid)) {
 			return false;
 		}

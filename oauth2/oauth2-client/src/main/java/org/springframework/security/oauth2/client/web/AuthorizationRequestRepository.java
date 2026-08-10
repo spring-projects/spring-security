@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.client.web;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 
@@ -45,7 +46,7 @@ public interface AuthorizationRequestRepository<T extends OAuth2AuthorizationReq
 	 * @param request the {@code HttpServletRequest}
 	 * @return the {@link OAuth2AuthorizationRequest} or {@code null} if not available
 	 */
-	T loadAuthorizationRequest(HttpServletRequest request);
+	@Nullable T loadAuthorizationRequest(HttpServletRequest request);
 
 	/**
 	 * Persists the {@link OAuth2AuthorizationRequest} associating it to the provided
@@ -65,6 +66,6 @@ public interface AuthorizationRequestRepository<T extends OAuth2AuthorizationReq
 	 * @return the {@link OAuth2AuthorizationRequest} or {@code null} if not available
 	 * @since 5.1
 	 */
-	T removeAuthorizationRequest(HttpServletRequest request, HttpServletResponse response);
+	@Nullable T removeAuthorizationRequest(HttpServletRequest request, HttpServletResponse response);
 
 }

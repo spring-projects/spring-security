@@ -1,5 +1,7 @@
 import io.spring.gradle.IncludeRepoTask
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import trang.RncToXsd
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
 	dependencies {
@@ -10,7 +12,7 @@ buildscript {
 		classpath libs.com.netflix.nebula.nebula.project.plugin
 	}
 	repositories {
-		maven { url 'https://plugins.gradle.org/m2/' }
+		maven { url='https://plugins.gradle.org/m2/' }
 	}
 }
 
@@ -35,7 +37,7 @@ ext.milestoneBuild = !(snapshotBuild || releaseBuild)
 
 repositories {
 	mavenCentral()
-	maven { url "https://repo.spring.io/milestone" }
+	maven { url = "https://repo.spring.io/milestone" }
 }
 
 springRelease {
@@ -46,46 +48,19 @@ springRelease {
 	replaceSnapshotVersionInReferenceDocUrl = true
 }
 
-def toolchainVersion() {
-	if (project.hasProperty('testToolchain')) {
-		return project.property('testToolchain').toString().toInteger()
-	}
-	return 17
-}
-
-subprojects {
-	java {
-		toolchain {
-			languageVersion = JavaLanguageVersion.of(toolchainVersion())
-		}
-	}
-	kotlin {
-		jvmToolchain {
-			languageVersion = JavaLanguageVersion.of(17)
-		}
-	}
-	tasks.withType(JavaCompile).configureEach {
-		options.encoding = "UTF-8"
-		options.compilerArgs.add("-parameters")
-		options.release.set(17)
-	}
-}
-
 allprojects {
 	if (!['spring-security-bom', 'spring-security-docs'].contains(project.name)) {
 		apply plugin: 'io.spring.javaformat'
 		apply plugin: 'checkstyle'
 
-		pluginManager.withPlugin("io.spring.convention.checkstyle", { plugin ->
-			configure(plugin) {
-				dependencies {
-					checkstyle libs.io.spring.javaformat.spring.javaformat.checkstyle
-				}
-				checkstyle {
-					toolVersion = '8.34'
-				}
+		pluginManager.withPlugin("io.spring.convention.checkstyle") {
+			dependencies {
+				checkstyle libs.io.spring.javaformat.spring.javaformat.checkstyle
 			}
-		})
+			checkstyle {
+				toolVersion = '8.34'
+			}
+		}
 
 		if (project.name.contains('sample')) {
 			tasks.whenTaskAdded { task ->
@@ -105,7 +80,7 @@ develocity {
 }
 
 nohttp {
-	source.exclude "buildSrc/build/**", "javascript/.gradle/**", "javascript/package-lock.json", "javascript/node_modules/**", "javascript/build/**", "javascript/dist/**"
+	source.exclude "buildSrc/build/**", "**/build/**", "**/target/**", "javascript/.gradle/**", "javascript/package-lock.json", "javascript/node_modules/**", "javascript/build/**", "javascript/dist/**"
 	source.builtBy(project(':spring-security-config').tasks.withType(RncToXsd))
 }
 

@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.converter.ClaimConversionService;
 import org.springframework.security.oauth2.jose.JwaAlgorithm;
 import org.springframework.util.Assert;
@@ -59,36 +61,37 @@ class JoseHeader {
 	 * encrypt the JWE.
 	 * @return the {@link JwaAlgorithm}
 	 */
-	@SuppressWarnings("unchecked")
 	public <T extends JwaAlgorithm> T getAlgorithm() {
-		return (T) getHeader(JoseHeaderNames.ALG);
+		T algorithm = getHeader(JoseHeaderNames.ALG);
+		Assert.notNull(algorithm, "algorithm cannot be null");
+		return algorithm;
 	}
 
 	/**
 	 * Returns the JWK Set URL that refers to the resource of a set of JSON-encoded public
 	 * keys, one of which corresponds to the key used to digitally sign the JWS or encrypt
 	 * the JWE.
-	 * @return the JWK Set URL
+	 * @return the JWK Set URL, or {@code null} if the header is absent
 	 */
-	public URL getJwkSetUrl() {
+	public @Nullable URL getJwkSetUrl() {
 		return getHeader(JoseHeaderNames.JKU);
 	}
 
 	/**
 	 * Returns the JSON Web Key which is the public key that corresponds to the key used
 	 * to digitally sign the JWS or encrypt the JWE.
-	 * @return the JSON Web Key
+	 * @return the JSON Web Key, or {@code null} if the header is absent
 	 */
-	public Map<String, Object> getJwk() {
+	public @Nullable Map<String, Object> getJwk() {
 		return getHeader(JoseHeaderNames.JWK);
 	}
 
 	/**
 	 * Returns the key ID that is a hint indicating which key was used to secure the JWS
 	 * or JWE.
-	 * @return the key ID
+	 * @return the key ID, or {@code null} if the header is absent
 	 */
-	public String getKeyId() {
+	public @Nullable String getKeyId() {
 		return getHeader(JoseHeaderNames.KID);
 	}
 
@@ -96,9 +99,9 @@ class JoseHeader {
 	 * Returns the X.509 URL that refers to the resource for the X.509 public key
 	 * certificate or certificate chain corresponding to the key used to digitally sign
 	 * the JWS or encrypt the JWE.
-	 * @return the X.509 URL
+	 * @return the X.509 URL, or {@code null} if the header is absent
 	 */
-	public URL getX509Url() {
+	public @Nullable URL getX509Url() {
 		return getHeader(JoseHeaderNames.X5U);
 	}
 
@@ -108,9 +111,9 @@ class JoseHeader {
 	 * encrypt the JWE. The certificate or certificate chain is represented as a
 	 * {@code List} of certificate value {@code String}s. Each {@code String} in the
 	 * {@code List} is a Base64-encoded DER PKIX certificate value.
-	 * @return the X.509 certificate chain
+	 * @return the X.509 certificate chain, or {@code null} if the header is absent
 	 */
-	public List<String> getX509CertificateChain() {
+	public @Nullable List<String> getX509CertificateChain() {
 		return getHeader(JoseHeaderNames.X5C);
 	}
 
@@ -118,7 +121,8 @@ class JoseHeader {
 	 * Returns the X.509 certificate SHA-1 thumbprint that is a base64url-encoded SHA-1
 	 * thumbprint (a.k.a. digest) of the DER encoding of the X.509 certificate
 	 * corresponding to the key used to digitally sign the JWS or encrypt the JWE.
-	 * @return the X.509 certificate SHA-1 thumbprint
+	 * @return the X.509 certificate SHA-1 thumbprint, or {@code null} if the header is
+	 * absent
 	 * @deprecated The SHA-1 algorithm has been proven to be vulnerable to collision
 	 * attacks and should not be used. See the <a target="_blank" href=
 	 * "https://security.googleblog.com/2017/02/announcing-first-sha1-collision.html">Google
@@ -128,7 +132,7 @@ class JoseHeader {
 	 * the first SHA1 collision</a>
 	 */
 	@Deprecated
-	public String getX509SHA1Thumbprint() {
+	public @Nullable String getX509SHA1Thumbprint() {
 		return getHeader(JoseHeaderNames.X5T);
 	}
 
@@ -136,35 +140,36 @@ class JoseHeader {
 	 * Returns the X.509 certificate SHA-256 thumbprint that is a base64url-encoded
 	 * SHA-256 thumbprint (a.k.a. digest) of the DER encoding of the X.509 certificate
 	 * corresponding to the key used to digitally sign the JWS or encrypt the JWE.
-	 * @return the X.509 certificate SHA-256 thumbprint
+	 * @return the X.509 certificate SHA-256 thumbprint, or {@code null} if the header is
+	 * absent
 	 */
-	public String getX509SHA256Thumbprint() {
+	public @Nullable String getX509SHA256Thumbprint() {
 		return getHeader(JoseHeaderNames.X5T_S256);
 	}
 
 	/**
 	 * Returns the type header that declares the media type of the JWS/JWE.
-	 * @return the type header
+	 * @return the type header, or {@code null} if the header is absent
 	 */
-	public String getType() {
+	public @Nullable String getType() {
 		return getHeader(JoseHeaderNames.TYP);
 	}
 
 	/**
 	 * Returns the content type header that declares the media type of the secured content
 	 * (the payload).
-	 * @return the content type header
+	 * @return the content type header, or {@code null} if the header is absent
 	 */
-	public String getContentType() {
+	public @Nullable String getContentType() {
 		return getHeader(JoseHeaderNames.CTY);
 	}
 
 	/**
 	 * Returns the critical headers that indicates which extensions to the JWS/JWE/JWA
 	 * specifications are being used that MUST be understood and processed.
-	 * @return the critical headers
+	 * @return the critical headers, or {@code null} if the header is absent
 	 */
-	public Set<String> getCritical() {
+	public @Nullable Set<String> getCritical() {
 		return getHeader(JoseHeaderNames.CRIT);
 	}
 
@@ -180,10 +185,10 @@ class JoseHeader {
 	 * Returns the header value.
 	 * @param name the header name
 	 * @param <T> the type of the header value
-	 * @return the header value
+	 * @return the header value, or {@code null} if the header is absent
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T getHeader(String name) {
+	public <T> @Nullable T getHeader(String name) {
 		Assert.hasText(name, "name cannot be empty");
 		return (T) getHeaders().get(name);
 	}

@@ -16,14 +16,9 @@
 
 package org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization;
 
-import java.util.Map;
-
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 
-import org.springframework.beans.factory.BeanFactoryUtils;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ResolvableType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -45,7 +40,6 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 /**
  * Utility methods for the OAuth 2.0 Configurers.
@@ -207,41 +201,16 @@ final class OAuth2ConfigurerUtils {
 	}
 
 	static <T> T getBean(HttpSecurity httpSecurity, Class<T> type) {
-		return httpSecurity.getSharedObject(ApplicationContext.class).getBean(type);
-	}
-
-	@SuppressWarnings("unchecked")
-	static <T> T getBean(HttpSecurity httpSecurity, ResolvableType type) {
-		ApplicationContext context = httpSecurity.getSharedObject(ApplicationContext.class);
-		String[] names = context.getBeanNamesForType(type);
-		if (names.length == 1) {
-			return (T) context.getBean(names[0]);
-		}
-		if (names.length > 1) {
-			throw new NoUniqueBeanDefinitionException(type, names);
-		}
-		throw new NoSuchBeanDefinitionException(type);
+		return httpSecurity.getSharedObject(ApplicationContext.class).getBeanProvider(type).getObject();
 	}
 
 	static <T> T getOptionalBean(HttpSecurity httpSecurity, Class<T> type) {
-		Map<String, T> beansMap = BeanFactoryUtils
-			.beansOfTypeIncludingAncestors(httpSecurity.getSharedObject(ApplicationContext.class), type);
-		if (beansMap.size() > 1) {
-			throw new NoUniqueBeanDefinitionException(type, beansMap.size(),
-					"Expected single matching bean of type '" + type.getName() + "' but found " + beansMap.size() + ": "
-							+ StringUtils.collectionToCommaDelimitedString(beansMap.keySet()));
-		}
-		return (!beansMap.isEmpty() ? beansMap.values().iterator().next() : null);
+		return httpSecurity.getSharedObject(ApplicationContext.class).getBeanProvider(type).getIfUnique();
 	}
 
 	@SuppressWarnings("unchecked")
 	static <T> T getOptionalBean(HttpSecurity httpSecurity, ResolvableType type) {
-		ApplicationContext context = httpSecurity.getSharedObject(ApplicationContext.class);
-		String[] names = context.getBeanNamesForType(type);
-		if (names.length > 1) {
-			throw new NoUniqueBeanDefinitionException(type, names);
-		}
-		return (names.length == 1) ? (T) context.getBean(names[0]) : null;
+		return (T) httpSecurity.getSharedObject(ApplicationContext.class).getBeanProvider(type).getIfUnique();
 	}
 
 }

@@ -21,11 +21,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.lang.NonNull;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.ldap.search.LdapUserSearch;
@@ -46,7 +47,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
 	 * Optional search object which can be used to locate a user when a simple DN match
 	 * isn't sufficient
 	 */
-	private LdapUserSearch userSearch;
+	private @Nullable LdapUserSearch userSearch;
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
@@ -54,11 +55,11 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
 	 * The attributes which will be retrieved from the directory. Null means all
 	 * attributes
 	 */
-	private String[] userAttributes = null;
+	private String @Nullable [] userAttributes = null;
 
 	// private String[] userDnPattern = null;
 	/** Stores the patterns which are used as potential DN matches */
-	private MessageFormat[] userDnFormat = null;
+	private MessageFormat @Nullable [] userDnFormat = null;
 
 	/**
 	 * Create an initialized instance with the {@link ContextSource} provided.
@@ -79,7 +80,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
 		return this.contextSource;
 	}
 
-	public String[] getUserAttributes() {
+	public String @Nullable [] getUserAttributes() {
 		return this.userAttributes;
 	}
 
@@ -104,12 +105,12 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
 		return userDns;
 	}
 
-	protected LdapUserSearch getUserSearch() {
+	protected @Nullable LdapUserSearch getUserSearch() {
 		return this.userSearch;
 	}
 
 	@Override
-	public void setMessageSource(@NonNull MessageSource messageSource) {
+	public void setMessageSource(MessageSource messageSource) {
 		Assert.notNull(messageSource, "Message source must not be null");
 		this.messages = new MessageSourceAccessor(messageSource);
 	}

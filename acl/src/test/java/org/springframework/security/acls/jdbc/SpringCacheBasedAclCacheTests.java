@@ -80,11 +80,10 @@ public class SpringCacheBasedAclCacheTests {
 		assertThatIllegalArgumentException().isThrownBy(() -> new SpringCacheBasedAclCache(null, null, null));
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Test
 	public void cacheOperationsAclWithoutParent() {
 		Cache cache = getCache();
-		Map realCache = (Map) cache.getNativeCache();
+		Map<?, ?> realCache = (Map<?, ?>) cache.getNativeCache();
 		ObjectIdentity identity = new ObjectIdentityImpl(TARGET_CLASS, 100L);
 		AclAuthorizationStrategy aclAuthorizationStrategy = new AclAuthorizationStrategyImpl(
 				new SimpleGrantedAuthority("ROLE_OWNERSHIP"), new SimpleGrantedAuthority("ROLE_AUDITING"),
@@ -116,11 +115,10 @@ public class SpringCacheBasedAclCacheTests {
 		assertThat(realCache).isEmpty();
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Test
 	public void cacheOperationsAclWithParent() throws Exception {
 		Cache cache = getCache();
-		Map realCache = (Map) cache.getNativeCache();
+		Map<?, ?> realCache = (Map<?, ?>) cache.getNativeCache();
 		Authentication auth = new TestingAuthenticationToken("user", "password", "ROLE_GENERAL");
 		auth.setAuthenticated(true);
 		SecurityContextHolder.getContext().setAuthentication(auth);

@@ -17,10 +17,12 @@
 package org.springframework.security.saml2.provider.service.web;
 
 import java.util.Map;
+import java.util.Objects;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.server.PathContainer;
@@ -40,7 +42,7 @@ import org.springframework.util.Assert;
  * @since 5.4
  */
 public final class DefaultRelyingPartyRegistrationResolver
-		implements Converter<HttpServletRequest, RelyingPartyRegistration>, RelyingPartyRegistrationResolver {
+		implements Converter<HttpServletRequest, @Nullable RelyingPartyRegistration>, RelyingPartyRegistrationResolver {
 
 	private Log logger = LogFactory.getLog(getClass());
 
@@ -76,7 +78,7 @@ public final class DefaultRelyingPartyRegistrationResolver
 	 * {@inheritDoc}
 	 */
 	@Override
-	public RelyingPartyRegistration convert(HttpServletRequest request) {
+	public @Nullable RelyingPartyRegistration convert(HttpServletRequest request) {
 		return resolve(request, null);
 	}
 
@@ -84,7 +86,8 @@ public final class DefaultRelyingPartyRegistrationResolver
 	 * {@inheritDoc}
 	 */
 	@Override
-	public RelyingPartyRegistration resolve(HttpServletRequest request, String relyingPartyRegistrationId) {
+	public @Nullable RelyingPartyRegistration resolve(HttpServletRequest request,
+			@Nullable String relyingPartyRegistrationId) {
 		if (relyingPartyRegistrationId == null) {
 			if (this.logger.isTraceEnabled()) {
 				this.logger.trace("Attempting to resolve from " + this.registrationRequestMatcher
@@ -106,9 +109,14 @@ public final class DefaultRelyingPartyRegistrationResolver
 			return null;
 		}
 		UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers.uriResolver(request, registration);
+		String entityId = uriResolver.resolve(registration.getEntityId());
+		entityId = Objects.requireNonNull(entityId);
+		String assertionConsumerServiceLocation = uriResolver
+			.resolve(registration.getAssertionConsumerServiceLocation());
+		assertionConsumerServiceLocation = Objects.requireNonNull(assertionConsumerServiceLocation);
 		return registration.mutate()
-			.entityId(uriResolver.resolve(registration.getEntityId()))
-			.assertionConsumerServiceLocation(uriResolver.resolve(registration.getAssertionConsumerServiceLocation()))
+			.entityId(entityId)
+			.assertionConsumerServiceLocation(assertionConsumerServiceLocation)
 			.singleLogoutServiceLocation(uriResolver.resolve(registration.getSingleLogoutServiceLocation()))
 			.singleLogoutServiceResponseLocation(
 					uriResolver.resolve(registration.getSingleLogoutServiceResponseLocation()))

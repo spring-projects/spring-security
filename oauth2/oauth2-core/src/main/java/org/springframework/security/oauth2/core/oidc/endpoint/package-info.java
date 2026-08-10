@@ -18,4 +18,7 @@
  * Support classes that model the OpenID Connect Core 1.0 Request and Response messages
  * from the Authorization Endpoint and Token Endpoint.
  */
+@NullMarked
 package org.springframework.security.oauth2.core.oidc.endpoint;
+
+import org.jspecify.annotations.NullMarked;

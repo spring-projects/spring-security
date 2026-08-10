@@ -1,0 +1,30 @@
+import org.gradle.api.tasks.compile.JavaCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+/**
+ * We need to compile with JDK 25 for nullability support, but using JDK 25 means that our tests will fail due to the
+ * <a href="https://docs.oracle.com/en/java/javase/25/security/security-manager-is-permanently-disabled.html">removal
+ * of the Java Security Manager</a>. For example, in JDK 25 {@code Subject.getSubject(AccessControlContext)} throws an
+ * {@code UnsupportedOperationException}.
+ *
+ * To resolve this, we must migrate tests to use the new APIs (e.g. {@code Subject.current()}) but those APIs are not
+ * available in the JDK 17 source, so compiling with JDK 25 and release 17 fails. The plugin overrides the test
+ * compilation to use release 25.
+ *
+ * @see <a href="https://docs.oracle.com/en/java/javase/25/security/security-manager-is-permanently-disabled.html">The
+ * Security Manager Is Permanently Disabled</a>
+ * @see <a href="https://inside.java/2024/07/08/quality-heads-up/">Quality Outreach Heads-up - JDK 23: Re-Specified
+ * Subject.getSubject API</a>
+ */
+
+tasks.withType(JavaCompile).configureEach { task ->
+	if (task.name == 'compileTestJava' || task.name == 'compileIntegrationTestJava') {
+		task.options.release.set(25)
+	}
+}
+
+tasks.withType(KotlinCompile).configureEach { task ->
+	if (task.name == 'compileTestKotlin' || task.name == 'compileIntegrationTestKotlin') {
+		task.kotlinOptions.jvmTarget = '25'
+	}
+}

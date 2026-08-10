@@ -16,7 +16,10 @@
 
 package org.springframework.security.oauth2.server.authorization.web.authentication;
 
+import java.util.List;
+
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,6 +30,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2TokenRevocationAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.web.OAuth2TokenRevocationEndpointFilter;
 import org.springframework.security.web.authentication.AuthenticationConverter;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
@@ -45,22 +49,26 @@ import org.springframework.util.StringUtils;
 public final class OAuth2TokenRevocationAuthenticationConverter implements AuthenticationConverter {
 
 	@Override
-	public Authentication convert(HttpServletRequest request) {
-		Authentication clientPrincipal = SecurityContextHolder.getContext().getAuthentication();
-
+	public @Nullable Authentication convert(HttpServletRequest request) {
 		MultiValueMap<String, String> parameters = OAuth2EndpointUtils.getFormParameters(request);
 
 		// token (REQUIRED)
 		String token = parameters.getFirst(OAuth2ParameterNames.TOKEN);
-		if (!StringUtils.hasText(token) || parameters.get(OAuth2ParameterNames.TOKEN).size() != 1) {
+		List<String> tokenParams = parameters.get(OAuth2ParameterNames.TOKEN);
+		if (!StringUtils.hasText(token) || tokenParams == null || tokenParams.size() != 1) {
 			throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.TOKEN);
 		}
+		Assert.notNull(token, "token cannot be null");
 
 		// token_type_hint (OPTIONAL)
 		String tokenTypeHint = parameters.getFirst(OAuth2ParameterNames.TOKEN_TYPE_HINT);
-		if (StringUtils.hasText(tokenTypeHint) && parameters.get(OAuth2ParameterNames.TOKEN_TYPE_HINT).size() != 1) {
+		List<String> tokenTypeHintParams = parameters.get(OAuth2ParameterNames.TOKEN_TYPE_HINT);
+		if (StringUtils.hasText(tokenTypeHint) && tokenTypeHintParams != null && tokenTypeHintParams.size() != 1) {
 			throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.TOKEN_TYPE_HINT);
 		}
+
+		Authentication clientPrincipal = SecurityContextHolder.getContext().getAuthentication();
+		Assert.notNull(clientPrincipal, "clientPrincipal cannot be null");
 
 		return new OAuth2TokenRevocationAuthenticationToken(token, clientPrincipal, tokenTypeHint);
 	}

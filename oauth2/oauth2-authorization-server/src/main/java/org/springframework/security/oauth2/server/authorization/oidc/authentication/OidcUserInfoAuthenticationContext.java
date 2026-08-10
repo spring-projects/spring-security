@@ -21,7 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
@@ -48,9 +49,8 @@ public final class OidcUserInfoAuthenticationContext implements OAuth2Authentica
 	}
 
 	@SuppressWarnings("unchecked")
-	@Nullable
 	@Override
-	public <V> V get(Object key) {
+	public <V> @Nullable V get(Object key) {
 		return hasKey(key) ? (V) this.context.get(key) : null;
 	}
 
@@ -65,7 +65,9 @@ public final class OidcUserInfoAuthenticationContext implements OAuth2Authentica
 	 * @return the {@link OAuth2AccessToken}
 	 */
 	public OAuth2AccessToken getAccessToken() {
-		return get(OAuth2AccessToken.class);
+		OAuth2AccessToken accessToken = get(OAuth2AccessToken.class);
+		Assert.notNull(accessToken, "accessToken cannot be null");
+		return accessToken;
 	}
 
 	/**
@@ -73,7 +75,9 @@ public final class OidcUserInfoAuthenticationContext implements OAuth2Authentica
 	 * @return the {@link OAuth2Authorization}
 	 */
 	public OAuth2Authorization getAuthorization() {
-		return get(OAuth2Authorization.class);
+		OAuth2Authorization authorization = get(OAuth2Authorization.class);
+		Assert.notNull(authorization, "authorization cannot be null");
+		return authorization;
 	}
 
 	/**

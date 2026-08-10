@@ -20,7 +20,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -47,9 +48,8 @@ public final class JwtEncodingContext implements OAuth2TokenContext {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Nullable
 	@Override
-	public <V> V get(Object key) {
+	public <V> @Nullable V get(Object key) {
 		return hasKey(key) ? (V) this.context.get(key) : null;
 	}
 
@@ -65,7 +65,9 @@ public final class JwtEncodingContext implements OAuth2TokenContext {
 	 * @return the {@link JwsHeader.Builder}
 	 */
 	public JwsHeader.Builder getJwsHeader() {
-		return get(JwsHeader.Builder.class);
+		JwsHeader.Builder jwsHeaderBuilder = get(JwsHeader.Builder.class);
+		Assert.notNull(jwsHeaderBuilder, "jwsHeaderBuilder cannot be null");
+		return jwsHeaderBuilder;
 	}
 
 	/**
@@ -74,7 +76,9 @@ public final class JwtEncodingContext implements OAuth2TokenContext {
 	 * @return the {@link JwtClaimsSet.Builder}
 	 */
 	public JwtClaimsSet.Builder getClaims() {
-		return get(JwtClaimsSet.Builder.class);
+		JwtClaimsSet.Builder claimsBuilder = get(JwtClaimsSet.Builder.class);
+		Assert.notNull(claimsBuilder, "claimsBuilder cannot be null");
+		return claimsBuilder;
 	}
 
 	/**

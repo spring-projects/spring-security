@@ -34,6 +34,7 @@ import org.apache.kerby.kerberos.kerb.server.KdcConfigKey;
 import org.apache.kerby.kerberos.kerb.server.SimpleKdcServer;
 import org.apache.kerby.util.IOUtil;
 import org.apache.kerby.util.NetworkUtil;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -197,7 +198,7 @@ public class MiniKdc {
 
 	private Properties conf;
 
-	private SimpleKdcServer simpleKdc;
+	private @Nullable SimpleKdcServer simpleKdc;
 
 	private int port;
 
@@ -205,9 +206,9 @@ public class MiniKdc {
 
 	private File workDir;
 
-	private File krb5conf;
+	private @Nullable File krb5conf;
 
-	private String transport;
+	private @Nullable String transport;
 
 	private boolean krb5Debug;
 
@@ -300,6 +301,9 @@ public class MiniKdc {
 
 	private void prepareKdcServer() throws Exception {
 		// transport
+		if (this.simpleKdc == null) {
+			throw new IllegalStateException("simpleKdc must be initialized");
+		}
 		this.simpleKdc.setWorkDir(this.workDir);
 		this.simpleKdc.setKdcHost(getHost());
 		this.simpleKdc.setKdcRealm(this.realm);
@@ -395,6 +399,9 @@ public class MiniKdc {
 	 * @throws Exception thrown if the principal could not be created.
 	 */
 	public synchronized void createPrincipal(String principal, String password) throws Exception {
+		if (this.simpleKdc == null) {
+			throw new IllegalStateException("MiniKdc must be started before creating principals");
+		}
 		this.simpleKdc.createPrincipal(principal, password);
 	}
 
@@ -405,6 +412,9 @@ public class MiniKdc {
 	 * @throws Exception thrown if the principals or the keytab file could not be created.
 	 */
 	public synchronized void createPrincipal(File keytabFile, String... principals) throws Exception {
+		if (this.simpleKdc == null) {
+			throw new IllegalStateException("MiniKdc must be started before creating principals");
+		}
 		this.simpleKdc.createPrincipals(principals);
 		if (keytabFile.exists() && !keytabFile.delete()) {
 			LOG.error("Failed to delete keytab file: " + keytabFile);

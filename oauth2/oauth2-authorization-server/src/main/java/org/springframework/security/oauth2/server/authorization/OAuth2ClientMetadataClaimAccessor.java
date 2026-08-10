@@ -20,7 +20,10 @@ import java.net.URL;
 import java.time.Instant;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.ClaimAccessor;
+import org.springframework.util.Assert;
 
 /**
  * A {@link ClaimAccessor} for the claims that are contained in the OAuth 2.0 Client
@@ -41,7 +44,9 @@ public interface OAuth2ClientMetadataClaimAccessor extends ClaimAccessor {
 	 * @return the Client Identifier
 	 */
 	default String getClientId() {
-		return getClaimAsString(OAuth2ClientMetadataClaimNames.CLIENT_ID);
+		String clientId = getClaimAsString(OAuth2ClientMetadataClaimNames.CLIENT_ID);
+		Assert.notNull(clientId, "clientId cannot be null");
+		return clientId;
 	}
 
 	/**
@@ -49,7 +54,7 @@ public interface OAuth2ClientMetadataClaimAccessor extends ClaimAccessor {
 	 * {@code (client_id_issued_at)}.
 	 * @return the time at which the Client Identifier was issued
 	 */
-	default Instant getClientIdIssuedAt() {
+	default @Nullable Instant getClientIdIssuedAt() {
 		return getClaimAsInstant(OAuth2ClientMetadataClaimNames.CLIENT_ID_ISSUED_AT);
 	}
 
@@ -57,7 +62,7 @@ public interface OAuth2ClientMetadataClaimAccessor extends ClaimAccessor {
 	 * Returns the Client Secret {@code (client_secret)}.
 	 * @return the Client Secret
 	 */
-	default String getClientSecret() {
+	default @Nullable String getClientSecret() {
 		return getClaimAsString(OAuth2ClientMetadataClaimNames.CLIENT_SECRET);
 	}
 
@@ -66,7 +71,7 @@ public interface OAuth2ClientMetadataClaimAccessor extends ClaimAccessor {
 	 * {@code (client_secret_expires_at)}.
 	 * @return the time at which the {@code client_secret} will expire
 	 */
-	default Instant getClientSecretExpiresAt() {
+	default @Nullable Instant getClientSecretExpiresAt() {
 		return getClaimAsInstant(OAuth2ClientMetadataClaimNames.CLIENT_SECRET_EXPIRES_AT);
 	}
 
@@ -75,7 +80,7 @@ public interface OAuth2ClientMetadataClaimAccessor extends ClaimAccessor {
 	 * {@code (client_name)}.
 	 * @return the name of the Client to be presented to the End-User
 	 */
-	default String getClientName() {
+	default @Nullable String getClientName() {
 		return getClaimAsString(OAuth2ClientMetadataClaimNames.CLIENT_NAME);
 	}
 
@@ -84,7 +89,7 @@ public interface OAuth2ClientMetadataClaimAccessor extends ClaimAccessor {
 	 * {@code (redirect_uris)}.
 	 * @return the redirection {@code URI} values used by the Client
 	 */
-	default List<String> getRedirectUris() {
+	default @Nullable List<String> getRedirectUris() {
 		return getClaimAsStringList(OAuth2ClientMetadataClaimNames.REDIRECT_URIS);
 	}
 
@@ -93,7 +98,7 @@ public interface OAuth2ClientMetadataClaimAccessor extends ClaimAccessor {
 	 * {@code (token_endpoint_auth_method)}.
 	 * @return the authentication method used by the Client for the Token Endpoint
 	 */
-	default String getTokenEndpointAuthenticationMethod() {
+	default @Nullable String getTokenEndpointAuthenticationMethod() {
 		return getClaimAsString(OAuth2ClientMetadataClaimNames.TOKEN_ENDPOINT_AUTH_METHOD);
 	}
 
@@ -103,7 +108,7 @@ public interface OAuth2ClientMetadataClaimAccessor extends ClaimAccessor {
 	 * @return the OAuth 2.0 {@code grant_type} values that the Client will restrict
 	 * itself to using
 	 */
-	default List<String> getGrantTypes() {
+	default @Nullable List<String> getGrantTypes() {
 		return getClaimAsStringList(OAuth2ClientMetadataClaimNames.GRANT_TYPES);
 	}
 
@@ -113,7 +118,7 @@ public interface OAuth2ClientMetadataClaimAccessor extends ClaimAccessor {
 	 * @return the OAuth 2.0 {@code response_type} values that the Client will restrict
 	 * itself to using
 	 */
-	default List<String> getResponseTypes() {
+	default @Nullable List<String> getResponseTypes() {
 		return getClaimAsStringList(OAuth2ClientMetadataClaimNames.RESPONSE_TYPES);
 	}
 
@@ -123,7 +128,7 @@ public interface OAuth2ClientMetadataClaimAccessor extends ClaimAccessor {
 	 * @return the OAuth 2.0 {@code scope} values that the Client will restrict itself to
 	 * using
 	 */
-	default List<String> getScopes() {
+	default @Nullable List<String> getScopes() {
 		return getClaimAsStringList(OAuth2ClientMetadataClaimNames.SCOPE);
 	}
 
@@ -131,7 +136,7 @@ public interface OAuth2ClientMetadataClaimAccessor extends ClaimAccessor {
 	 * Returns the {@code URL} for the Client's JSON Web Key Set {@code (jwks_uri)}.
 	 * @return the {@code URL} for the Client's JSON Web Key Set {@code (jwks_uri)}
 	 */
-	default URL getJwkSetUrl() {
+	default @Nullable URL getJwkSetUrl() {
 		return getClaimAsURL(OAuth2ClientMetadataClaimNames.JWKS_URI);
 	}
 

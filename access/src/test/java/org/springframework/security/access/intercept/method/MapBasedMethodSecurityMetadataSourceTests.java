@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Luke Taylor
  * @since 2.0.4
  */
+@SuppressWarnings("deprecation")
 public class MapBasedMethodSecurityMetadataSourceTests {
 
 	private final List<ConfigAttribute> ROLE_A = SecurityConfig.createList("ROLE_A");

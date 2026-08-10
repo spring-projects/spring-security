@@ -29,7 +29,6 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.log.LogMessage;
-import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.core.Authentication;
@@ -169,7 +168,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	private static class JwtClaimIssuerConverter implements Converter<BearerTokenAuthenticationToken, String> {
 
 		@Override
-		public String convert(@NonNull BearerTokenAuthenticationToken authentication) {
+		public String convert(BearerTokenAuthenticationToken authentication) {
 			String token = authentication.getToken();
 			try {
 				String issuer = JWTParser.parse(token).getJWTClaimsSet().getIssuer();
@@ -178,7 +177,8 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 				}
 			}
 			catch (Exception cause) {
-				AuthenticationException ex = new InvalidBearerTokenException(cause.getMessage(), cause);
+				AuthenticationException ex = new InvalidBearerTokenException(
+						(cause.getMessage() != null) ? cause.getMessage() : "Invalid token", cause);
 				ex.setAuthenticationRequest(authentication);
 				throw ex;
 			}
@@ -202,6 +202,9 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 		}
 
 		@Override
+		@SuppressWarnings("NullAway") // Interface does not declare @Nullable; this
+										// implementation returns null when issuer not
+										// trusted
 		public AuthenticationManager resolve(String issuer) {
 			if (this.trustedIssuer.test(issuer)) {
 				AuthenticationManager authenticationManager = this.authenticationManagers.computeIfAbsent(issuer,

@@ -19,6 +19,7 @@ package org.springframework.security.web.util.matcher;
 import java.util.Objects;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.util.Assert;
 
@@ -50,7 +51,7 @@ public class NegatedRequestMatcher implements RequestMatcher {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (this == obj) {
 			return true;
 		}

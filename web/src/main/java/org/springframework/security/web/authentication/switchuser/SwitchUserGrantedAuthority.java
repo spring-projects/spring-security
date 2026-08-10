@@ -40,7 +40,7 @@ public final class SwitchUserGrantedAuthority implements GrantedAuthority {
 
 	private final Authentication source;
 
-	public SwitchUserGrantedAuthority(String role, @Nullable Authentication source) {
+	public SwitchUserGrantedAuthority(String role, Authentication source) {
 		Assert.notNull(role, "role cannot be null");
 		Assert.notNull(source, "source cannot be null");
 		this.role = role;
@@ -61,7 +61,7 @@ public final class SwitchUserGrantedAuthority implements GrantedAuthority {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (this == obj) {
 			return true;
 		}

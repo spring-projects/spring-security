@@ -16,6 +16,9 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.util.Assert;
@@ -29,7 +32,10 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @since 6.4
  */
-public final class PublicKeyCredentialRpEntity {
+public final class PublicKeyCredentialRpEntity implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = -2741017471467698174L;
 
 	private final String name;
 
@@ -91,7 +97,7 @@ public final class PublicKeyCredentialRpEntity {
 		 * @param name the name property
 		 * @return the {@link PublicKeyCredentialRpEntityBuilder}
 		 */
-		public PublicKeyCredentialRpEntityBuilder name(String name) {
+		public PublicKeyCredentialRpEntityBuilder name(@Nullable String name) {
 			this.name = name;
 			return this;
 		}
@@ -101,7 +107,7 @@ public final class PublicKeyCredentialRpEntity {
 		 * @param id the id
 		 * @return the {@link PublicKeyCredentialRpEntityBuilder}
 		 */
-		public PublicKeyCredentialRpEntityBuilder id(String id) {
+		public PublicKeyCredentialRpEntityBuilder id(@Nullable String id) {
 			this.id = id;
 			return this;
 		}

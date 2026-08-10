@@ -32,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Luke Taylor
  * @author Ben Alex
  */
+@SuppressWarnings("deprecation")
 public class Jsr250MethodSecurityMetadataSourceTests {
 
 	Jsr250MethodSecurityMetadataSource mds;

@@ -161,6 +161,14 @@ public class OidcClientRegistrationEndpointFilterTests {
 
 	@Test
 	public void doFilterWhenClientRegistrationRequestInvalidThenInvalidRequestError() throws Exception {
+		Jwt jwt = createJwt("client.create");
+		JwtAuthenticationToken principal = new JwtAuthenticationToken(jwt,
+				AuthorityUtils.createAuthorityList("SCOPE_client.create"));
+
+		SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+		securityContext.setAuthentication(principal);
+		SecurityContextHolder.setContext(securityContext);
+
 		String requestUri = DEFAULT_OIDC_CLIENT_REGISTRATION_ENDPOINT_URI;
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", requestUri);
 		request.setServletPath(requestUri);

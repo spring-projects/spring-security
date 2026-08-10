@@ -97,6 +97,8 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 
 	private UserDetailsChecker postAuthenticationChecks = new DefaultPostAuthenticationChecks();
 
+	private boolean alwaysPerformAdditionalChecksOnUser = true;
+
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
 	private static final String AUTHORITY = FactorGrantedAuthority.PASSWORD_AUTHORITY;
@@ -154,8 +156,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 			Assert.notNull(user, "retrieveUser returned null - a violation of the interface contract");
 		}
 		try {
-			this.preAuthenticationChecks.check(user);
-			additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
+			performPreCheck(user, (UsernamePasswordAuthenticationToken) authentication);
 		}
 		catch (AuthenticationException ex) {
 			if (!cacheWasUsed) {
@@ -165,8 +166,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 			// we're using latest data (i.e. not from the cache)
 			cacheWasUsed = false;
 			user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
-			this.preAuthenticationChecks.check(user);
-			additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
+			performPreCheck(user, (UsernamePasswordAuthenticationToken) authentication);
 		}
 		this.postAuthenticationChecks.check(user);
 		if (!cacheWasUsed) {
@@ -177,6 +177,25 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 			principalToReturn = user.getUsername();
 		}
 		return createSuccessAuthentication(principalToReturn, authentication, user);
+	}
+
+	private void performPreCheck(UserDetails user, UsernamePasswordAuthenticationToken authentication) {
+		try {
+			this.preAuthenticationChecks.check(user);
+		}
+		catch (AuthenticationException ex) {
+			if (!this.alwaysPerformAdditionalChecksOnUser) {
+				throw ex;
+			}
+			try {
+				additionalAuthenticationChecks(user, authentication);
+			}
+			catch (AuthenticationException ignored) {
+				// preserve the original failed check
+			}
+			throw ex;
+		}
+		additionalAuthenticationChecks(user, authentication);
 	}
 
 	private String determineUsername(Authentication authentication) {
@@ -322,6 +341,22 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 
 	public void setPostAuthenticationChecks(UserDetailsChecker postAuthenticationChecks) {
 		this.postAuthenticationChecks = postAuthenticationChecks;
+	}
+
+	/**
+	 * Set whether to always perform the additional checks on the user, even if the
+	 * pre-authentication checks fail. This is useful to ensure that regardless of the
+	 * state of the user account, authentication takes the same amount of time to
+	 * complete.
+	 *
+	 * <p>
+	 * For applications that rely on the additional checks running only once should set
+	 * this value to {@code false}
+	 * @param alwaysPerformAdditionalChecksOnUser
+	 * @since 5.7.23
+	 */
+	public void setAlwaysPerformAdditionalChecksOnUser(boolean alwaysPerformAdditionalChecksOnUser) {
+		this.alwaysPerformAdditionalChecksOnUser = alwaysPerformAdditionalChecksOnUser;
 	}
 
 	public void setAuthoritiesMapper(GrantedAuthoritiesMapper authoritiesMapper) {

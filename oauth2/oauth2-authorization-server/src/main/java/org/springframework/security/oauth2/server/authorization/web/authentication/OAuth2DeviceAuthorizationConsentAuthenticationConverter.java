@@ -18,10 +18,12 @@ package org.springframework.security.oauth2.server.authorization.web.authenticat
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,6 +34,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2DeviceAuthorizationConsentAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.web.OAuth2DeviceVerificationEndpointFilter;
 import org.springframework.security.web.authentication.AuthenticationConverter;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
@@ -55,7 +58,7 @@ public final class OAuth2DeviceAuthorizationConsentAuthenticationConverter imple
 			"anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 
 	@Override
-	public Authentication convert(HttpServletRequest request) {
+	public @Nullable Authentication convert(HttpServletRequest request) {
 		if (!"POST".equals(request.getMethod()) || request.getParameter(OAuth2ParameterNames.STATE) == null) {
 			return null;
 		}
@@ -66,9 +69,11 @@ public final class OAuth2DeviceAuthorizationConsentAuthenticationConverter imple
 
 		// client_id (REQUIRED)
 		String clientId = parameters.getFirst(OAuth2ParameterNames.CLIENT_ID);
-		if (!StringUtils.hasText(clientId) || parameters.get(OAuth2ParameterNames.CLIENT_ID).size() != 1) {
+		List<String> clientIdParams = parameters.get(OAuth2ParameterNames.CLIENT_ID);
+		if (!StringUtils.hasText(clientId) || clientIdParams == null || clientIdParams.size() != 1) {
 			OAuth2EndpointUtils.throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.CLIENT_ID, ERROR_URI);
 		}
+		Assert.notNull(clientId, "clientId cannot be null");
 
 		Authentication principal = SecurityContextHolder.getContext().getAuthentication();
 		if (principal == null) {
@@ -77,16 +82,20 @@ public final class OAuth2DeviceAuthorizationConsentAuthenticationConverter imple
 
 		// user_code (REQUIRED)
 		String userCode = parameters.getFirst(OAuth2ParameterNames.USER_CODE);
-		if (!OAuth2EndpointUtils.validateUserCode(userCode)
-				|| parameters.get(OAuth2ParameterNames.USER_CODE).size() != 1) {
+		List<String> userCodeParams = parameters.get(OAuth2ParameterNames.USER_CODE);
+		if (userCode == null || !OAuth2EndpointUtils.validateUserCode(userCode) || userCodeParams == null
+				|| userCodeParams.size() != 1) {
 			OAuth2EndpointUtils.throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.USER_CODE, ERROR_URI);
 		}
+		Assert.notNull(userCode, "userCode cannot be null");
 
 		// state (REQUIRED)
 		String state = parameters.getFirst(OAuth2ParameterNames.STATE);
-		if (!StringUtils.hasText(state) || parameters.get(OAuth2ParameterNames.STATE).size() != 1) {
+		List<String> stateParams = parameters.get(OAuth2ParameterNames.STATE);
+		if (!StringUtils.hasText(state) || stateParams == null || stateParams.size() != 1) {
 			OAuth2EndpointUtils.throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.STATE, ERROR_URI);
 		}
+		Assert.notNull(state, "state cannot be null");
 
 		// scope (OPTIONAL)
 		Set<String> scopes = null;

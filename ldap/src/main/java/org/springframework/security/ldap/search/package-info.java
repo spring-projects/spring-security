@@ -18,4 +18,7 @@
  * {@code LdapUserSearch} implementations. These may be used to locate the user in the
  * directory.
  */
+@NullMarked
 package org.springframework.security.ldap.search;
+
+import org.jspecify.annotations.NullMarked;

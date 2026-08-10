@@ -31,6 +31,7 @@ import com.nimbusds.jose.jwk.KeyType;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -77,7 +78,7 @@ import org.springframework.util.MultiValueMap;
  * JOSE + JWT SDK</a>
  */
 public final class NimbusJwtClientAuthenticationParametersConverter<T extends AbstractOAuth2AuthorizationGrantRequest>
-		implements Converter<T, MultiValueMap<String, String>> {
+		implements Converter<T, @Nullable MultiValueMap<String, String>> {
 
 	private static final String INVALID_KEY_ERROR_CODE = "invalid_key";
 
@@ -104,7 +105,7 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 	}
 
 	@Override
-	public MultiValueMap<String, String> convert(T authorizationGrantRequest) {
+	public @Nullable MultiValueMap<String, String> convert(T authorizationGrantRequest) {
 		Assert.notNull(authorizationGrantRequest, "authorizationGrantRequest cannot be null");
 
 		ClientRegistration clientRegistration = authorizationGrantRequest.getClientRegistration();
@@ -173,7 +174,7 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 		return parameters;
 	}
 
-	private static JwsAlgorithm resolveAlgorithm(JWK jwk) {
+	private static @Nullable JwsAlgorithm resolveAlgorithm(JWK jwk) {
 		JwsAlgorithm jwsAlgorithm = null;
 
 		if (jwk.getAlgorithm() != null) {

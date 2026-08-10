@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
@@ -51,7 +52,7 @@ public class BearerTokenServerAccessDeniedHandler implements ServerAccessDeniedH
 
 	private static final Collection<String> WELL_KNOWN_SCOPE_ATTRIBUTE_NAMES = Arrays.asList("scope", "scp");
 
-	private String realmName;
+	private @Nullable String realmName;
 
 	@Override
 	public Mono<Void> handle(ServerWebExchange exchange, AccessDeniedException denied) {
@@ -72,7 +73,7 @@ public class BearerTokenServerAccessDeniedHandler implements ServerAccessDeniedH
 	 * Set the default realm name to use in the bearer token error response
 	 * @param realmName
 	 */
-	public final void setRealmName(String realmName) {
+	public final void setRealmName(@Nullable String realmName) {
 		this.realmName = realmName;
 	}
 

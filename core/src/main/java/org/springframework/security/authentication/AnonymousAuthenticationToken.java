@@ -19,6 +19,8 @@ package org.springframework.security.authentication;
 import java.io.Serializable;
 import java.util.Collection;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
@@ -70,7 +72,7 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (!super.equals(obj)) {
 			return false;
 		}

@@ -439,14 +439,14 @@ Java::
 ----
 @Bean
 public Saml2LogoutResponseResolver logoutResponseResolver(RelyingPartyRegistrationRepository registrations) {
-	OpenSaml5LogoutResponseResolver logoutRequestResolver =
+	OpenSaml5LogoutResponseResolver resolver = 
 			new OpenSaml5LogoutResponseResolver(registrations);
-	logoutRequestResolver.setParametersConsumer((parameters) -> {
+	resolver.setParametersConsumer((parameters) -> {
 		if (checkOtherPrevailingConditions(parameters.getRequest())) {
-			parameters.getLogoutRequest().getStatus().getStatusCode().setCode(StatusCode.PARTIAL_LOGOUT);
+			parameters.getLogoutResponse().getStatus().getStatusCode().setCode(StatusCode.PARTIAL_LOGOUT);
 		}
 	});
-	return logoutRequestResolver;
+	return resolver;
 }
 ----
 
@@ -456,13 +456,13 @@ Kotlin::
 ----
 @Bean
 open fun logoutResponseResolver(registrations: RelyingPartyRegistrationRepository?): Saml2LogoutResponseResolver {
-    val logoutRequestResolver = OpenSaml5LogoutResponseResolver(registrations)
-    logoutRequestResolver.setParametersConsumer { LogoutResponseParameters parameters ->
-        if (checkOtherPrevailingConditions(parameters.getRequest())) {
-            parameters.getLogoutRequest().getStatus().getStatusCode().setCode(StatusCode.PARTIAL_LOGOUT)
+    val resolver = OpenSaml5LogoutResponseResolver(registrations)
+    resolver.setParametersConsumer { parameters ->
+        if (checkOtherPrevailingConditions(parameters.request)) {
+            parameters.logoutResponse.status.statusCode.code = StatusCode.PARTIAL_LOGOUT
         }
     }
-    return logoutRequestResolver
+    return resolver
 }
 ----
 ======
@@ -477,8 +477,8 @@ Java::
 ----
 http
     .saml2Logout((saml2) -> saml2
-        .logoutRequest((request) -> request
-            .logoutRequestResolver(this.logoutRequestResolver)
+        .logoutResponse((request) -> request
+            .logoutResponseResolver(this.logoutResponseResolver)
         )
     );
 ----
@@ -489,8 +489,8 @@ Kotlin::
 ----
 http {
     saml2Logout {
-        logoutRequest {
-            logoutRequestResolver = this.logoutRequestResolver
+        logoutResponse  {
+            logoutResponseResolver = logoutResponseResolver
         }
     }
 }
@@ -513,12 +513,17 @@ public class MyOpenSamlLogoutRequestValidator implements Saml2LogoutRequestValid
 	private final Saml2LogoutRequestValidator delegate = new OpenSaml5LogoutRequestValidator();
 
 	@Override
-    public Saml2LogoutRequestValidator logout(Saml2LogoutRequestValidatorParameters parameters) {
+    public Saml2LogoutValidatorResult validate(Saml2LogoutRequestValidatorParameters parameters) {
 		 // verify signature, issuer, destination, and principal name
-		Saml2LogoutValidatorResult result = delegate.authenticate(authentication);
+		Saml2LogoutValidatorResult result = delegate.validate(authentication);
 
-		LogoutRequest logoutRequest = // ... parse using OpenSAML
+        if(result.hasErrors()){
+            return result;
+        }
+		
         // perform custom validation
+
+        return result;
     }
 }
 ----
@@ -528,16 +533,21 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 @Component
-open class MyOpenSamlLogoutRequestValidator: Saml2LogoutRequestValidator {
+open class MyOpenSamlLogoutRequestValidator : Saml2LogoutRequestValidator {
 	private val delegate = OpenSaml5LogoutRequestValidator()
 
 	@Override
-    fun logout(parameters: Saml2LogoutRequestValidatorParameters): Saml2LogoutRequestValidator {
+    fun validate(parameters: Saml2LogoutRequestValidatorParameters): Saml2LogoutValidatorResult {
 		 // verify signature, issuer, destination, and principal name
-		val result = delegate.authenticate(authentication)
+		val result = delegate.validate(authentication)
 
-		val logoutRequest: LogoutRequest = // ... parse using OpenSAML
+		if (result.hasErrors()) {
+            return result
+        }
+
         // perform custom validation
+
+        return result
     }
 }
 ----
@@ -589,12 +599,17 @@ public class MyOpenSamlLogoutResponseValidator implements Saml2LogoutResponseVal
 	private final Saml2LogoutResponseValidator delegate = new OpenSaml5LogoutResponseValidator();
 
 	@Override
-    public Saml2LogoutValidatorResult logout(Saml2LogoutResponseValidatorParameters parameters) {
+    public Saml2LogoutValidatorResult validate(Saml2LogoutResponseValidatorParameters parameters) {
 		// verify signature, issuer, destination, and status
-		Saml2LogoutValidatorResult result = delegate.authenticate(parameters);
+		Saml2LogoutValidatorResult result = delegate.validate(parameters);
 
-		LogoutResponse logoutResponse = // ... parse using OpenSAML
+        if (result.hasErrors()) {
+            return result;
+        }
+
         // perform custom validation
+
+        return result;
     }
 }
 ----
@@ -604,16 +619,20 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 @Component
-open class MyOpenSamlLogoutResponseValidator: Saml2LogoutResponseValidator {
+open class MyOpenSamlLogoutResponseValidator : Saml2LogoutResponseValidator {
 	private val delegate = OpenSaml5LogoutResponseValidator()
 
-	@Override
-    fun logout(parameters: Saml2LogoutResponseValidatorParameters): Saml2LogoutResponseValidator {
+    override fun validate(parameters: Saml2LogoutResponseValidatorParameters): Saml2LogoutValidatorResult {
 		// verify signature, issuer, destination, and status
-		val result = delegate.authenticate(authentication)
+		val result = delegate.validate(authentication)
 
-		val logoutResponse: LogoutResponse = // ... parse using OpenSAML
+        if (result.hasErrors()) {
+            return result
+        }
+		
         // perform custom validation
+
+        return result
     }
 }
 ----
@@ -630,7 +649,7 @@ Java::
 http
     .saml2Logout((saml2) -> saml2
         .logoutResponse((response) -> response
-            .logoutResponseAuthenticator(myOpenSamlLogoutResponseAuthenticator)
+            .logoutResponseValidator(myOpenSamlLogoutResponseValidator)
         )
     );
 ----

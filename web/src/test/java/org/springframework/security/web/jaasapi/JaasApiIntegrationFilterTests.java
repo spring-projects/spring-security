@@ -17,7 +17,6 @@
 package org.springframework.security.web.jaasapi;
 
 import java.io.IOException;
-import java.security.AccessController;
 import java.util.HashMap;
 
 import javax.security.auth.Subject;
@@ -131,7 +130,7 @@ public class JaasApiIntegrationFilterTests {
 	 */
 	@Test
 	public void currentSubjectNull() {
-		assertThat(Subject.getSubject(AccessController.getContext())).isNull();
+		assertThat(Subject.current()).isNull();
 	}
 
 	@Test
@@ -207,7 +206,7 @@ public class JaasApiIntegrationFilterTests {
 			public void doFilter(ServletRequest request, ServletResponse response)
 					throws IOException, ServletException {
 				// See if the subject was updated
-				Subject currentSubject = Subject.getSubject(AccessController.getContext());
+				Subject currentSubject = Subject.current();
 				assertThat(currentSubject).isEqualTo(expectedValue);
 				// run so we know the chain was executed
 				super.doFilter(request, response);

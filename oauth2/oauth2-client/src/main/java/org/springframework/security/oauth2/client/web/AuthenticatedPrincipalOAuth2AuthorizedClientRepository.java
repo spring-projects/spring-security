@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.client.web;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
@@ -74,7 +75,7 @@ public final class AuthenticatedPrincipalOAuth2AuthorizedClientRepository implem
 	}
 
 	@Override
-	public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId,
+	public <T extends OAuth2AuthorizedClient> @Nullable T loadAuthorizedClient(String clientRegistrationId,
 			Authentication principal, HttpServletRequest request) {
 		if (this.isPrincipalAuthenticated(principal)) {
 			return this.authorizedClientService.loadAuthorizedClient(clientRegistrationId, principal.getName());

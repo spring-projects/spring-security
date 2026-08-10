@@ -16,11 +16,12 @@
 
 package org.springframework.security.oauth2.server.authorization.web.authentication;
 
+import java.util.List;
 import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
-import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -47,9 +48,8 @@ import org.springframework.util.StringUtils;
  */
 public final class ClientSecretPostAuthenticationConverter implements AuthenticationConverter {
 
-	@Nullable
 	@Override
-	public Authentication convert(HttpServletRequest request) {
+	public @Nullable Authentication convert(HttpServletRequest request) {
 		MultiValueMap<String, String> parameters = OAuth2EndpointUtils.getFormParameters(request);
 
 		// client_id (REQUIRED)
@@ -58,7 +58,8 @@ public final class ClientSecretPostAuthenticationConverter implements Authentica
 			return null;
 		}
 
-		if (parameters.get(OAuth2ParameterNames.CLIENT_ID).size() != 1) {
+		List<String> clientIdParams = parameters.get(OAuth2ParameterNames.CLIENT_ID);
+		if (clientIdParams == null || clientIdParams.size() != 1) {
 			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_REQUEST);
 		}
 
@@ -68,7 +69,8 @@ public final class ClientSecretPostAuthenticationConverter implements Authentica
 			return null;
 		}
 
-		if (parameters.get(OAuth2ParameterNames.CLIENT_SECRET).size() != 1) {
+		List<String> clientSecretParams = parameters.get(OAuth2ParameterNames.CLIENT_SECRET);
+		if (clientSecretParams == null || clientSecretParams.size() != 1) {
 			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_REQUEST);
 		}
 

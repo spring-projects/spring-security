@@ -22,6 +22,8 @@ import java.util.Map;
 
 import javax.security.auth.Subject;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.kerberos.authentication.sun.SunJaasKerberosClient;
 
 /**
@@ -40,7 +42,7 @@ public class JaasSubjectHolder implements Serializable {
 
 	private Subject jaasSubject;
 
-	private String username;
+	private @Nullable String username;
 
 	private Map<String, byte[]> savedTokens = new HashMap<String, byte[]>();
 
@@ -53,7 +55,7 @@ public class JaasSubjectHolder implements Serializable {
 		this.username = username;
 	}
 
-	public String getUsername() {
+	public @Nullable String getUsername() {
 		return this.username;
 	}
 
@@ -65,7 +67,7 @@ public class JaasSubjectHolder implements Serializable {
 		this.savedTokens.put(targetService, outToken);
 	}
 
-	public byte[] getToken(String principalName) {
+	public byte @Nullable [] getToken(String principalName) {
 		return this.savedTokens.get(principalName);
 	}
 

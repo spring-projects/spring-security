@@ -64,6 +64,7 @@ public final class OAuth2TokenRevocationAuthenticationProvider implements Authen
 		OAuth2ClientAuthenticationToken clientPrincipal = OAuth2AuthenticationProviderUtils
 			.getAuthenticatedClientElseThrowInvalidClient(tokenRevocationAuthentication);
 		RegisteredClient registeredClient = clientPrincipal.getRegisteredClient();
+		Assert.notNull(registeredClient, "registeredClient cannot be null");
 
 		OAuth2Authorization authorization = this.authorizationService
 			.findByToken(tokenRevocationAuthentication.getToken(), null);
@@ -80,6 +81,7 @@ public final class OAuth2TokenRevocationAuthenticationProvider implements Authen
 		}
 
 		OAuth2Authorization.Token<OAuth2Token> token = authorization.getToken(tokenRevocationAuthentication.getToken());
+		Assert.notNull(token, "token cannot be null");
 		authorization = OAuth2Authorization.from(authorization).invalidate(token.getToken()).build();
 		this.authorizationService.save(authorization);
 

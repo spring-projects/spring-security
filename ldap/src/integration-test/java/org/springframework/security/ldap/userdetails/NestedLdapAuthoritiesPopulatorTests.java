@@ -116,6 +116,7 @@ public class NestedLdapAuthoritiesPopulatorTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void testClosureDudeJDevelopersWithMembershipAsAttributeValues() {
 		this.populator.setAttributeNames(new HashSet(Arrays.asList("member")));
 

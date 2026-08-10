@@ -278,7 +278,7 @@ public class LogoutSpecTests {
 
 	private static class InMemorySecurityContextRepository implements ServerSecurityContextRepository {
 
-		@Nullable private SecurityContext savedContext;
+		private @Nullable SecurityContext savedContext;
 
 		@Override
 		public Mono<Void> save(ServerWebExchange exchange, SecurityContext context) {
@@ -291,7 +291,7 @@ public class LogoutSpecTests {
 			return Mono.justOrEmpty(this.savedContext);
 		}
 
-		@Nullable private SecurityContext getSavedContext() {
+		private @Nullable SecurityContext getSavedContext() {
 			return this.savedContext;
 		}
 

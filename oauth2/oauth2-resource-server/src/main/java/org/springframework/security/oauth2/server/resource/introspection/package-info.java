@@ -17,4 +17,7 @@
 /**
  * OAuth 2.0 Introspection supporting classes and interfaces.
  */
+@NullMarked
 package org.springframework.security.oauth2.server.resource.introspection;
+
+import org.jspecify.annotations.NullMarked;

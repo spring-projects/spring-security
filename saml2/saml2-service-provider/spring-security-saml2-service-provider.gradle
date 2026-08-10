@@ -1,3 +1,9 @@
+plugins {
+	id 'compile-warnings-error'
+	id 'javadoc-warnings-error'
+	id 'security-nullability'
+}
+
 apply plugin: 'io.spring.convention.spring-module'
 
 configurations {
@@ -109,6 +115,7 @@ dependencies {
 
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testRuntimeOnly 'org.hsqldb:hsqldb'
+	opensamlFiveMain "org.apiguardian:apiguardian-api:1.1.2"
 }
 
 jar {
@@ -131,12 +138,24 @@ javadoc {
 	source = sourceSets.main.allJava + sourceSets.opensaml5Main.allJava
 }
 
+tasks.named("compileOpensaml5MainJava") {
+	options.nullability.checking = "main"
+}
+
 tasks.register("opensaml5Test", Test) {
 	useJUnitPlatform()
 	testClassesDirs = sourceSets.opensaml5Test.output.classesDirs
 	classpath = sourceSets.opensaml5Test.output + sourceSets.opensaml5Test.runtimeClasspath
 }
 
+tasks.register("bouncyCastleTest", Test) {
+	useJUnitPlatform()
+	testClassesDirs = sourceSets.test.output.classesDirs
+	classpath = sourceSets.test.runtimeClasspath
+	include "**/JdbcAssertingPartyMetadataRepositoryBouncyCastleTests.class"
+}
+
 tasks.named("test") {
-	dependsOn opensaml5Test
+	exclude "**/JdbcAssertingPartyMetadataRepositoryBouncyCastleTests.class"
+	dependsOn opensaml5Test, bouncyCastleTest
 }

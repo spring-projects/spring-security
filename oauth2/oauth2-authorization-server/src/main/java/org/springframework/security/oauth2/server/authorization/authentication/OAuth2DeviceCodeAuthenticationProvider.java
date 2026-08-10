@@ -104,6 +104,7 @@ public final class OAuth2DeviceCodeAuthenticationProvider implements Authenticat
 		OAuth2ClientAuthenticationToken clientPrincipal = OAuth2AuthenticationProviderUtils
 			.getAuthenticatedClientElseThrowInvalidClient(deviceCodeAuthentication);
 		RegisteredClient registeredClient = clientPrincipal.getRegisteredClient();
+		Assert.notNull(registeredClient, "registeredClient cannot be null");
 
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace("Retrieved registered client");
@@ -119,8 +120,8 @@ public final class OAuth2DeviceCodeAuthenticationProvider implements Authenticat
 			this.logger.trace("Retrieved authorization with device code");
 		}
 
-		OAuth2Authorization.Token<OAuth2UserCode> userCode = authorization.getToken(OAuth2UserCode.class);
 		OAuth2Authorization.Token<OAuth2DeviceCode> deviceCode = authorization.getToken(OAuth2DeviceCode.class);
+		Assert.notNull(deviceCode, "deviceCode cannot be null");
 
 		if (!registeredClient.getId().equals(authorization.getRegisteredClientId())) {
 			if (!deviceCode.isInvalidated()) {
@@ -158,6 +159,9 @@ public final class OAuth2DeviceCodeAuthenticationProvider implements Authenticat
 			throw new OAuth2AuthenticationException(error);
 		}
 
+		OAuth2Authorization.Token<OAuth2UserCode> userCode = authorization.getToken(OAuth2UserCode.class);
+		Assert.notNull(userCode, "userCode cannot be null");
+
 		// authorization_pending
 		// The authorization request is still pending as the end user hasn't
 		// yet completed the user-interaction steps (Section 3.3). The
@@ -193,10 +197,13 @@ public final class OAuth2DeviceCodeAuthenticationProvider implements Authenticat
 			this.logger.trace("Validated device token request parameters");
 		}
 
+		Authentication principal = authorization.getAttribute(Principal.class.getName());
+		Assert.notNull(principal, "principal cannot be null");
+
 		// @formatter:off
 		DefaultOAuth2TokenContext.Builder tokenContextBuilder = DefaultOAuth2TokenContext.builder()
 				.registeredClient(registeredClient)
-				.principal(authorization.getAttribute(Principal.class.getName()))
+				.principal(principal)
 				.authorizationServerContext(AuthorizationServerContextHolder.getContext())
 				.authorization(authorization)
 				.authorizedScopes(authorization.getAuthorizedScopes())

@@ -23,7 +23,7 @@ import org.springframework.util.Assert;
 /**
  * Implementation which uses a regular expression to validate the supplied origin. If the
  * value of the HTTP parameter matches the pattern, then the result will be ALLOW-FROM
- * &lt;paramter-value&gt;.
+ * &lt;parameter-value&gt;.
  *
  * @author Marten Deinum
  * @since 3.2

@@ -39,6 +39,7 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
  * other than applying this {@link SecurityConfigurer}.
  *
  * @author Rob Winch
+ * @author DingHao
  * @since 3.2
  */
 public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>>
@@ -158,7 +159,7 @@ public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 		this.authenticationFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		this.authenticationFilter.afterPropertiesSet();
-		http.addFilter(this.authenticationFilter);
+		http.addFilter(postProcess(this.authenticationFilter));
 	}
 
 	private String getKey() {

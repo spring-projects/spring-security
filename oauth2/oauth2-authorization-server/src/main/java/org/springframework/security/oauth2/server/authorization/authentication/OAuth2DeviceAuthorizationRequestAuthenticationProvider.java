@@ -23,9 +23,9 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
-import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -101,6 +101,7 @@ public final class OAuth2DeviceAuthorizationRequestAuthenticationProvider implem
 		OAuth2ClientAuthenticationToken clientPrincipal = OAuth2AuthenticationProviderUtils
 			.getAuthenticatedClientElseThrowInvalidClient(deviceAuthorizationRequestAuthentication);
 		RegisteredClient registeredClient = clientPrincipal.getRegisteredClient();
+		Assert.notNull(registeredClient, "registeredClient cannot be null");
 
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace("Retrieved registered client");
@@ -224,9 +225,8 @@ public final class OAuth2DeviceAuthorizationRequestAuthenticationProvider implem
 		private final StringKeyGenerator deviceCodeGenerator = new Base64StringKeyGenerator(
 				Base64.getUrlEncoder().withoutPadding(), 96);
 
-		@Nullable
 		@Override
-		public OAuth2DeviceCode generate(OAuth2TokenContext context) {
+		public @Nullable OAuth2DeviceCode generate(OAuth2TokenContext context) {
 			if (context.getTokenType() == null
 					|| !OAuth2ParameterNames.DEVICE_CODE.equals(context.getTokenType().getValue())) {
 				return null;
@@ -268,9 +268,8 @@ public final class OAuth2DeviceAuthorizationRequestAuthenticationProvider implem
 
 		private final StringKeyGenerator userCodeGenerator = new UserCodeStringKeyGenerator();
 
-		@Nullable
 		@Override
-		public OAuth2UserCode generate(OAuth2TokenContext context) {
+		public @Nullable OAuth2UserCode generate(OAuth2TokenContext context) {
 			if (context.getTokenType() == null
 					|| !OAuth2ParameterNames.USER_CODE.equals(context.getTokenType().getValue())) {
 				return null;

@@ -145,6 +145,7 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 			.map((r) -> (attr != null) ? this.postAdvice.after(auth, invocation, attr, r) : r));
 	}
 
+	@SuppressWarnings("unchecked")
 	private static <T extends Publisher<?>> @Nullable T proceed(final MethodInvocation invocation) {
 		try {
 			return (T) invocation.proceed();

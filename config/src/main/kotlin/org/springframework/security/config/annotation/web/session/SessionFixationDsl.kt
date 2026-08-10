@@ -68,12 +68,11 @@ class SessionFixationDsl {
     internal fun get(): (SessionManagementConfigurer<HttpSecurity>.SessionFixationConfigurer) -> Unit {
         return { sessionFixation ->
             strategy?.also {
-                when (strategy) {
+                when (it) {
                     SessionFixationStrategy.NEW -> sessionFixation.newSession()
                     SessionFixationStrategy.MIGRATE -> sessionFixation.migrateSession()
                     SessionFixationStrategy.CHANGE_ID -> sessionFixation.changeSessionId()
                     SessionFixationStrategy.NONE -> sessionFixation.none()
-                    null -> null
                 }
             }
         }

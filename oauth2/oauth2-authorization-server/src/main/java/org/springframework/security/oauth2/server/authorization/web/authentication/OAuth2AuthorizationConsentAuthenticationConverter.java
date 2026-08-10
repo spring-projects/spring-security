@@ -18,10 +18,12 @@ package org.springframework.security.oauth2.server.authorization.web.authenticat
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -36,6 +38,7 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 import org.springframework.security.oauth2.server.authorization.web.OAuth2AuthorizationEndpointFilter;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
@@ -61,7 +64,7 @@ public final class OAuth2AuthorizationConsentAuthenticationConverter implements 
 	private final RequestMatcher requestMatcher = createDefaultRequestMatcher();
 
 	@Override
-	public Authentication convert(HttpServletRequest request) {
+	public @Nullable Authentication convert(HttpServletRequest request) {
 		if (!this.requestMatcher.matches(request)) {
 			return null;
 		}
@@ -72,9 +75,11 @@ public final class OAuth2AuthorizationConsentAuthenticationConverter implements 
 
 		// client_id (REQUIRED)
 		String clientId = parameters.getFirst(OAuth2ParameterNames.CLIENT_ID);
-		if (!StringUtils.hasText(clientId) || parameters.get(OAuth2ParameterNames.CLIENT_ID).size() != 1) {
+		List<String> clientIdParams = parameters.get(OAuth2ParameterNames.CLIENT_ID);
+		if (!StringUtils.hasText(clientId) || clientIdParams == null || clientIdParams.size() != 1) {
 			throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.CLIENT_ID);
 		}
+		Assert.notNull(clientId, "clientId cannot be null");
 
 		Authentication principal = SecurityContextHolder.getContext().getAuthentication();
 		if (principal == null) {
@@ -83,9 +88,11 @@ public final class OAuth2AuthorizationConsentAuthenticationConverter implements 
 
 		// state (REQUIRED)
 		String state = parameters.getFirst(OAuth2ParameterNames.STATE);
-		if (!StringUtils.hasText(state) || parameters.get(OAuth2ParameterNames.STATE).size() != 1) {
+		List<String> stateParams = parameters.get(OAuth2ParameterNames.STATE);
+		if (!StringUtils.hasText(state) || stateParams == null || stateParams.size() != 1) {
 			throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.STATE);
 		}
+		Assert.notNull(state, "state cannot be null");
 
 		// scope (OPTIONAL)
 		Set<String> scopes = null;

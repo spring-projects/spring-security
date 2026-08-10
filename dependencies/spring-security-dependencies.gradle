@@ -1,5 +1,6 @@
 plugins {
 	id 'java-platform'
+	id 'compile-warnings-error'
 }
 
 javaPlatform {
@@ -11,13 +12,16 @@ dependencies {
 		def springFrameworkVersion = project.property("springFrameworkVersion")
 		def reactorVersion = project.property("reactorVersion")
 		def springDataVersion = project.property("springDataVersion")
+		def micrometerVersion = project.property("micrometerVersion")
 		api platform("org.springframework:spring-framework-bom:$springFrameworkVersion")
 		api platform("io.projectreactor:reactor-bom:$reactorVersion")
 		api platform("org.springframework.data:spring-data-bom:$springDataVersion")
+		api platform("io.micrometer:micrometer-bom:$micrometerVersion")
 	} else {
 		api platform(libs.org.springframework.spring.framework.bom)
 		api platform(libs.io.projectreactor.reactor.bom)
 		api platform(libs.org.springframework.data.spring.data.bom)
+		api platform(libs.io.micrometer.micrometer.bom)
 	}
 	api platform(libs.io.rsocket.rsocket.bom)
 	api platform(libs.org.junit.junit.bom)
@@ -72,7 +76,11 @@ dependencies {
 		api libs.org.skyscreamer.jsonassert
 		api libs.org.slf4j.log4j.over.slf4j
 		api libs.org.slf4j.slf4j.api
-		api libs.org.springframework.ldap.spring.ldap.core
+		if (project.hasProperty("isOverrideVersionCatalog") && project.hasProperty("springLdapVersion")) {
+			api "org.springframework.ldap:spring-ldap-core:${springLdapVersion}"
+		} else {
+			api libs.org.springframework.ldap.spring.ldap.core
+		}
 		api libs.org.synchronoss.cloud.nio.multipart.parser
 		api libs.org.apache.maven.resolver.maven.resolver.connector.basic
 		api libs.org.apache.maven.resolver.maven.resolver.impl

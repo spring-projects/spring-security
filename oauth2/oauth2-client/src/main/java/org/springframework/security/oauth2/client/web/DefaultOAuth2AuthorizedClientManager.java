@@ -23,8 +23,8 @@ import java.util.function.Function;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
-import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
@@ -121,15 +121,24 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 		this.authorizedClientRepository = authorizedClientRepository;
 		this.authorizedClientProvider = DEFAULT_AUTHORIZED_CLIENT_PROVIDER;
 		this.contextAttributesMapper = new DefaultContextAttributesMapper();
-		this.authorizationSuccessHandler = (authorizedClient, principal, attributes) -> authorizedClientRepository
-			.saveAuthorizedClient(authorizedClient, principal,
-					(HttpServletRequest) attributes.get(HttpServletRequest.class.getName()),
-					(HttpServletResponse) attributes.get(HttpServletResponse.class.getName()));
+		this.authorizationSuccessHandler = (authorizedClient, principal, attributes) -> {
+			HttpServletRequest request = (HttpServletRequest) attributes.get(HttpServletRequest.class.getName());
+			HttpServletResponse response = (HttpServletResponse) attributes.get(HttpServletResponse.class.getName());
+			Assert.notNull(request, "HttpServletRequest is required");
+			Assert.notNull(response, "HttpServletResponse is required");
+			authorizedClientRepository.saveAuthorizedClient(authorizedClient, principal, request, response);
+		};
 		this.authorizationFailureHandler = new RemoveAuthorizedClientOAuth2AuthorizationFailureHandler(
-				(clientRegistrationId, principal, attributes) -> authorizedClientRepository.removeAuthorizedClient(
-						clientRegistrationId, principal,
-						(HttpServletRequest) attributes.get(HttpServletRequest.class.getName()),
-						(HttpServletResponse) attributes.get(HttpServletResponse.class.getName())));
+				(clientRegistrationId, principal, attributes) -> {
+					HttpServletRequest request = (HttpServletRequest) attributes
+						.get(HttpServletRequest.class.getName());
+					HttpServletResponse response = (HttpServletResponse) attributes
+						.get(HttpServletResponse.class.getName());
+					Assert.notNull(request, "HttpServletRequest is required");
+					Assert.notNull(response, "HttpServletResponse is required");
+					authorizedClientRepository.removeAuthorizedClient(clientRegistrationId, principal, request,
+							response);
+				});
 	}
 
 	@Nullable
@@ -203,7 +212,7 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 		return attributes;
 	}
 
-	private static HttpServletRequest getHttpServletRequestOrDefault(Map<String, Object> attributes) {
+	private static @Nullable HttpServletRequest getHttpServletRequestOrDefault(Map<String, Object> attributes) {
 		HttpServletRequest servletRequest = (HttpServletRequest) attributes.get(HttpServletRequest.class.getName());
 		if (servletRequest == null) {
 			RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
@@ -214,7 +223,7 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 		return servletRequest;
 	}
 
-	private static HttpServletResponse getHttpServletResponseOrDefault(Map<String, Object> attributes) {
+	private static @Nullable HttpServletResponse getHttpServletResponseOrDefault(Map<String, Object> attributes) {
 		HttpServletResponse servletResponse = (HttpServletResponse) attributes.get(HttpServletResponse.class.getName());
 		if (servletResponse == null) {
 			RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
@@ -294,11 +303,13 @@ public final class DefaultOAuth2AuthorizedClientManager implements OAuth2Authori
 		public Map<String, Object> apply(OAuth2AuthorizeRequest authorizeRequest) {
 			Map<String, Object> contextAttributes = Collections.emptyMap();
 			HttpServletRequest servletRequest = getHttpServletRequestOrDefault(authorizeRequest.getAttributes());
-			String scope = servletRequest.getParameter(OAuth2ParameterNames.SCOPE);
-			if (StringUtils.hasText(scope)) {
-				contextAttributes = new HashMap<>();
-				contextAttributes.put(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME,
-						StringUtils.delimitedListToStringArray(scope, " "));
+			if (servletRequest != null) {
+				String scope = servletRequest.getParameter(OAuth2ParameterNames.SCOPE);
+				if (StringUtils.hasText(scope)) {
+					contextAttributes = new HashMap<>();
+					contextAttributes.put(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME,
+							StringUtils.delimitedListToStringArray(scope, " "));
+				}
 			}
 			return contextAttributes;
 		}

@@ -17,4 +17,7 @@
 /**
  * Spring Security's LDAP module.
  */
+@NullMarked
 package org.springframework.security.ldap;
+
+import org.jspecify.annotations.NullMarked;

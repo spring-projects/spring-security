@@ -24,6 +24,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -60,7 +61,7 @@ public final class OAuth2ProtectedResourceMetadataFilter extends OncePerRequestF
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<>() {
 	};
 
-	private static final GenericHttpMessageConverter<Object> JSON_MESSAGE_CONVERTER = HttpMessageConverters
+	private static final @Nullable GenericHttpMessageConverter<Object> JSON_MESSAGE_CONVERTER = HttpMessageConverters
 		.getJsonMessageConverter();
 
 	/**
@@ -108,8 +109,10 @@ public final class OAuth2ProtectedResourceMetadataFilter extends OncePerRequestF
 		OAuth2ProtectedResourceMetadata protectedResourceMetadata = builder.build();
 
 		try {
+			GenericHttpMessageConverter<Object> converter = JSON_MESSAGE_CONVERTER;
+			Assert.notNull(converter, "No JSON message converter available");
 			ServletServerHttpResponse httpResponse = new ServletServerHttpResponse(response);
-			JSON_MESSAGE_CONVERTER.write(protectedResourceMetadata.getClaims(), STRING_OBJECT_MAP.getType(),
+			converter.write(protectedResourceMetadata.getClaims(), STRING_OBJECT_MAP.getType(),
 					MediaType.APPLICATION_JSON, httpResponse);
 		}
 		catch (Exception ex) {
@@ -161,7 +164,7 @@ public final class OAuth2ProtectedResourceMetadataFilter extends OncePerRequestF
 		}
 
 		@SuppressWarnings("removal")
-		private static GenericHttpMessageConverter<Object> getJsonMessageConverter() {
+		private static @Nullable GenericHttpMessageConverter<Object> getJsonMessageConverter() {
 			if (jacksonPresent) {
 				return new GenericHttpMessageConverterAdapter<>(new JacksonJsonHttpMessageConverter());
 			}

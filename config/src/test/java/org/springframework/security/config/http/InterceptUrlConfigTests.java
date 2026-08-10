@@ -315,6 +315,78 @@ public class InterceptUrlConfigTests {
 	}
 
 	@Test
+	public void requestWhenUsingDefaultMatcherAndServletPathThenAuthorizesRequestsAccordingly() throws Exception {
+		this.spring.configLocations(this.xml("DefaultMatcherServletPath")).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/spring/path").with(userCredentials()))
+				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/path").with(userCredentials()))
+				.andExpect(status().isOk());
+		// @formatter:on
+	}
+
+	@Test
+	public void requestWhenUsingDefaultMatcherAndServletPathAndAuthorizationManagerThenAuthorizesRequestsAccordingly()
+			throws Exception {
+		this.spring.configLocations(this.xml("DefaultMatcherServletPathAuthorizationManager")).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/spring/path").with(userCredentials()))
+				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/path").with(userCredentials()))
+				.andExpect(status().isOk());
+		// @formatter:on
+		assertThat(this.spring.getContext().getBean(AuthorizationManager.class)).isNotNull();
+	}
+
+	@Test
+	public void requestWhenUsingRegexMatcherThenAuthorizesRequestsAccordingly() throws Exception {
+		this.spring.configLocations(this.xml("RegexMatcher")).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/path").with(userCredentials()))
+				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/other").with(userCredentials()))
+				.andExpect(status().isNotFound());
+		// @formatter:on
+	}
+
+	@Test
+	public void requestWhenUsingRegexMatcherAndAuthorizationManagerThenAuthorizesRequestsAccordingly()
+			throws Exception {
+		this.spring.configLocations(this.xml("RegexMatcherAuthorizationManager")).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/path").with(userCredentials()))
+				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/other").with(userCredentials()))
+				.andExpect(status().isNotFound());
+		// @formatter:on
+		assertThat(this.spring.getContext().getBean(AuthorizationManager.class)).isNotNull();
+	}
+
+	@Test
+	public void requestWhenUsingCiRegexMatcherThenAuthorizesRequestsAccordingly() throws Exception {
+		this.spring.configLocations(this.xml("CiRegexMatcher")).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/path").with(userCredentials()))
+				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/PATH").with(userCredentials()))
+				.andExpect(status().isForbidden());
+		// @formatter:on
+	}
+
+	@Test
+	public void requestWhenUsingCiRegexMatcherAndAuthorizationManagerThenAuthorizesRequestsAccordingly()
+			throws Exception {
+		this.spring.configLocations(this.xml("CiRegexMatcherAuthorizationManager")).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/path").with(userCredentials()))
+				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/PATH").with(userCredentials()))
+				.andExpect(status().isForbidden());
+		// @formatter:on
+		assertThat(this.spring.getContext().getBean(AuthorizationManager.class)).isNotNull();
+	}
+
+	@Test
 	public void requestWhenUsingFilterAllDispatcherTypesAndAuthorizationManagerThenAuthorizesRequestsAccordingly()
 			throws Exception {
 		this.spring.configLocations(this.xml("AuthorizationManagerFilterAllDispatcherTypes")).autowire();
@@ -335,6 +407,54 @@ public class InterceptUrlConfigTests {
 		})).andExpect(status().isUnauthorized());
 		// @formatter:on
 		assertThat(this.spring.getContext().getBean(AuthorizationManager.class)).isNotNull();
+	}
+
+	/**
+	 * gh-18503
+	 */
+	@Test
+	public void configWhenInterceptUrlMissingAccessThenException() {
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+			.isThrownBy(() -> this.spring.configLocations(this.xml("MissingAccess")).autowire())
+			.withMessageContaining("access attribute cannot be empty or null");
+	}
+
+	/**
+	 * gh-18503
+	 */
+	@Test
+	public void configWhenInterceptUrlEmptyAccessThenException() {
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+			.isThrownBy(() -> this.spring.configLocations(this.xml("EmptyAccess")).autowire())
+			.withMessageContaining("access attribute cannot be empty or null");
+	}
+
+	/**
+	 * gh-18503
+	 */
+	@Test
+	public void configWhenInterceptUrlValidAccessThenLoads() {
+		assertThatNoException().isThrownBy(() -> this.spring.configLocations(this.xml("ValidAccess")).autowire());
+	}
+
+	/**
+	 * gh-18503
+	 */
+	@Test
+	public void configWhenUseAuthorizationManagerFalseAndMissingAccessThenException() {
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+			.isThrownBy(() -> this.spring.configLocations(this.xml("MissingAccessLegacy")).autowire())
+			.withMessageContaining("access attribute cannot be empty or null");
+	}
+
+	/**
+	 * gh-18503
+	 */
+	@Test
+	public void configWhenUseAuthorizationManagerFalseAndEmptyAccessThenException() {
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+			.isThrownBy(() -> this.spring.configLocations(this.xml("EmptyAccessLegacy")).autowire())
+			.withMessageContaining("access attribute cannot be empty or null");
 	}
 
 	private static RequestPostProcessor adminCredentials() {

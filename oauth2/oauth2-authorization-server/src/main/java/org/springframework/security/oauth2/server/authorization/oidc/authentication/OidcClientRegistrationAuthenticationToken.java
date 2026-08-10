@@ -19,7 +19,8 @@ package org.springframework.security.oauth2.server.authorization.oidc.authentica
 import java.io.Serial;
 import java.util.Collections;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.authorization.oidc.OidcClientRegistration;
@@ -44,9 +45,9 @@ public class OidcClientRegistrationAuthenticationToken extends AbstractAuthentic
 
 	private final Authentication principal;
 
-	private final OidcClientRegistration clientRegistration;
+	private final @Nullable OidcClientRegistration clientRegistration;
 
-	private final String clientId;
+	private final @Nullable String clientId;
 
 	/**
 	 * Constructs an {@code OidcClientRegistrationAuthenticationToken} using the provided
@@ -95,7 +96,7 @@ public class OidcClientRegistrationAuthenticationToken extends AbstractAuthentic
 	 * Returns the client registration.
 	 * @return the client registration
 	 */
-	public OidcClientRegistration getClientRegistration() {
+	public @Nullable OidcClientRegistration getClientRegistration() {
 		return this.clientRegistration;
 	}
 
@@ -103,8 +104,7 @@ public class OidcClientRegistrationAuthenticationToken extends AbstractAuthentic
 	 * Returns the client identifier.
 	 * @return the client identifier
 	 */
-	@Nullable
-	public String getClientId() {
+	public @Nullable String getClientId() {
 		return this.clientId;
 	}
 

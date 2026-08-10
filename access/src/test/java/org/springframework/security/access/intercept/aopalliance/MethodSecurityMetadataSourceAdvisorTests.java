@@ -33,6 +33,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Ben Alex
  */
+@SuppressWarnings("deprecation")
 public class MethodSecurityMetadataSourceAdvisorTests {
 
 	@Test

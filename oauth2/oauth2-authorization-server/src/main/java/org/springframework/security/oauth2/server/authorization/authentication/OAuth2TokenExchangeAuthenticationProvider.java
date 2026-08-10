@@ -28,6 +28,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
@@ -106,6 +107,7 @@ public final class OAuth2TokenExchangeAuthenticationProvider implements Authenti
 		OAuth2ClientAuthenticationToken clientPrincipal = OAuth2AuthenticationProviderUtils
 			.getAuthenticatedClientElseThrowInvalidClient(tokenExchangeAuthentication);
 		RegisteredClient registeredClient = clientPrincipal.getRegisteredClient();
+		Assert.notNull(registeredClient, "registeredClient cannot be null");
 
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace("Retrieved registered client");
@@ -133,6 +135,7 @@ public final class OAuth2TokenExchangeAuthenticationProvider implements Authenti
 
 		OAuth2Authorization.Token<OAuth2Token> subjectToken = subjectAuthorization
 			.getToken(tokenExchangeAuthentication.getSubjectToken());
+		Assert.notNull(subjectToken, "subjectToken cannot be null");
 		if (!subjectToken.isActive()) {
 			// As per https://tools.ietf.org/html/rfc6749#section-5.2
 			// invalid_grant: The provided authorization grant (e.g., authorization code,
@@ -175,6 +178,7 @@ public final class OAuth2TokenExchangeAuthenticationProvider implements Authenti
 
 			OAuth2Authorization.Token<OAuth2Token> actorToken = actorAuthorization
 				.getToken(tokenExchangeAuthentication.getActorToken());
+			Assert.notNull(actorToken, "actorToken cannot be null");
 			if (!actorToken.isActive()) {
 				// As per https://tools.ietf.org/html/rfc6749#section-5.2
 				// invalid_grant: The provided authorization grant (e.g., authorization
@@ -184,8 +188,11 @@ public final class OAuth2TokenExchangeAuthenticationProvider implements Authenti
 				throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_GRANT);
 			}
 
-			if (!isValidTokenType(tokenExchangeAuthentication.getActorTokenType(), actorToken)) {
-				throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_REQUEST);
+			String actorTokenType = tokenExchangeAuthentication.getActorTokenType();
+			if (actorTokenType != null) {
+				if (!isValidTokenType(actorTokenType, actorToken)) {
+					throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_REQUEST);
+				}
 			}
 
 			if (authorizedActorClaims != null) {
@@ -288,7 +295,7 @@ public final class OAuth2TokenExchangeAuthenticationProvider implements Authenti
 		return new LinkedHashSet<>(requestedScopes);
 	}
 
-	private static void validateClaims(Map<String, Object> expectedClaims, Map<String, Object> actualClaims,
+	private static void validateClaims(Map<String, Object> expectedClaims, @Nullable Map<String, Object> actualClaims,
 			String... claimNames) {
 		if (actualClaims == null) {
 			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_GRANT);
@@ -302,8 +309,9 @@ public final class OAuth2TokenExchangeAuthenticationProvider implements Authenti
 	}
 
 	private static Authentication getPrincipal(OAuth2Authorization subjectAuthorization,
-			OAuth2Authorization actorAuthorization) {
+			@Nullable OAuth2Authorization actorAuthorization) {
 		Authentication subjectPrincipal = subjectAuthorization.getAttribute(Principal.class.getName());
+		Assert.notNull(subjectPrincipal, "subject principal cannot be null");
 		if (actorAuthorization == null) {
 			if (subjectPrincipal instanceof OAuth2TokenExchangeCompositeAuthenticationToken compositeAuthenticationToken) {
 				return compositeAuthenticationToken.getSubject();
@@ -312,8 +320,11 @@ public final class OAuth2TokenExchangeAuthenticationProvider implements Authenti
 		}
 
 		// Capture claims for current actor's access token
-		OAuth2TokenExchangeActor currentActor = new OAuth2TokenExchangeActor(
-				actorAuthorization.getAccessToken().getClaims());
+		OAuth2Authorization.Token<OAuth2AccessToken> actorAccessToken = actorAuthorization.getAccessToken();
+		Assert.notNull(actorAccessToken, "actor access token cannot be null");
+		Map<String, Object> actorAccessTokenClaims = actorAccessToken.getClaims();
+		Assert.notNull(actorAccessTokenClaims, "actor access token claims cannot be null");
+		OAuth2TokenExchangeActor currentActor = new OAuth2TokenExchangeActor(actorAccessTokenClaims);
 		List<OAuth2TokenExchangeActor> actorPrincipals = new LinkedList<>();
 		actorPrincipals.add(currentActor);
 

@@ -28,14 +28,17 @@ import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.session.SessionLimit;
+import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -143,6 +146,16 @@ public class HttpHeadersConfigTests {
 	@Test
 	public void requestWhenHeadersElementUsedThenResponseContainsAllSecureHeaders() throws Exception {
 		this.spring.configLocations(this.xml("HeadersEnabled")).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/").secure(true))
+				.andExpect(status().isOk())
+				.andExpect(includesDefaults());
+		// @formatter:on
+	}
+
+	@Test
+	public void requestWhenHeadersEagerlyConfiguredThenHeadersAreWritten() throws Exception {
+		this.spring.configLocations(this.xml("HeadersEagerlyConfigured")).autowire();
 		// @formatter:off
 		this.mvc.perform(get("/").secure(true))
 				.andExpect(status().isOk())
@@ -951,6 +964,18 @@ public class HttpHeadersConfigTests {
 		@GetMapping("/")
 		public String ok() {
 			return "ok";
+		}
+
+	}
+
+	public static class EagerHeadersBeanPostProcessor implements BeanPostProcessor {
+
+		@Override
+		public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+			if (bean instanceof HeaderWriterFilter headerWriterFilter) {
+				headerWriterFilter.setShouldWriteHeadersEagerly(true);
+			}
+			return bean;
 		}
 
 	}

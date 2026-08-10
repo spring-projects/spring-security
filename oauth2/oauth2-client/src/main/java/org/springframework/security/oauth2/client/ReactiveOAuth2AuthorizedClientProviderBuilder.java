@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
@@ -178,11 +180,11 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 	 */
 	public final class ClientCredentialsGrantBuilder implements Builder {
 
-		private ReactiveOAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient;
+		private @Nullable ReactiveOAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient;
 
-		private Duration clockSkew;
+		private @Nullable Duration clockSkew;
 
-		private Clock clock;
+		private @Nullable Clock clock;
 
 		private ClientCredentialsGrantBuilder() {
 		}
@@ -252,11 +254,13 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 	 */
 	public final class RefreshTokenGrantBuilder implements Builder {
 
-		private ReactiveOAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient;
+		private @Nullable ReactiveOAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient;
 
-		private Duration clockSkew;
+		private @Nullable ReactiveOAuth2AuthorizationSuccessHandler authorizationSuccessHandler;
 
-		private Clock clock;
+		private @Nullable Duration clockSkew;
+
+		private @Nullable Clock clock;
 
 		private RefreshTokenGrantBuilder() {
 		}
@@ -271,6 +275,21 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 		public RefreshTokenGrantBuilder accessTokenResponseClient(
 				ReactiveOAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient) {
 			this.accessTokenResponseClient = accessTokenResponseClient;
+			return this;
+		}
+
+		/**
+		 * Sets a {@link ReactiveOAuth2AuthorizationSuccessHandler} to use for handling
+		 * successful refresh token response, see
+		 * {@link RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler}.
+		 * @param authorizationSuccessHandler the
+		 * {@link ReactiveOAuth2AuthorizationSuccessHandler} to use
+		 * @return the {@link RefreshTokenGrantBuilder}
+		 * @since 7.1
+		 */
+		public RefreshTokenGrantBuilder authorizationSuccessHandler(
+				ReactiveOAuth2AuthorizationSuccessHandler authorizationSuccessHandler) {
+			this.authorizationSuccessHandler = authorizationSuccessHandler;
 			return this;
 		}
 
@@ -309,6 +328,9 @@ public final class ReactiveOAuth2AuthorizedClientProviderBuilder {
 			RefreshTokenReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = new RefreshTokenReactiveOAuth2AuthorizedClientProvider();
 			if (this.accessTokenResponseClient != null) {
 				authorizedClientProvider.setAccessTokenResponseClient(this.accessTokenResponseClient);
+			}
+			if (this.authorizationSuccessHandler != null) {
+				authorizedClientProvider.setAuthorizationSuccessHandler(this.authorizationSuccessHandler);
 			}
 			if (this.clockSkew != null) {
 				authorizedClientProvider.setClockSkew(this.clockSkew);

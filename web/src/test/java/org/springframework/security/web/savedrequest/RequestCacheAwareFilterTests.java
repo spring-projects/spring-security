@@ -16,8 +16,6 @@
 
 package org.springframework.security.web.savedrequest;
 
-import java.util.Base64;
-
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 
@@ -53,14 +51,15 @@ public class RequestCacheAwareFilterTests {
 		request.setScheme("https");
 		request.setServerPort(443);
 		request.setSecure(true);
-		String encodedRedirectUrl = Base64.getEncoder().encodeToString("https://abc.com/destination".getBytes());
-		Cookie savedRequest = new Cookie("REDIRECT_URI", encodedRedirectUrl);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		cache.saveRequest(request, response);
+		Cookie savedRequest = response.getCookie("REDIRECT_URI");
 		savedRequest.setMaxAge(-1);
 		savedRequest.setSecure(request.isSecure());
 		savedRequest.setPath("/");
 		savedRequest.setHttpOnly(true);
 		request.setCookies(savedRequest);
-		MockHttpServletResponse response = new MockHttpServletResponse();
+		response = new MockHttpServletResponse();
 		filter.doFilter(request, response, new MockFilterChain());
 		Cookie expiredCookie = response.getCookie("REDIRECT_URI");
 		assertThat(expiredCookie).isNotNull();

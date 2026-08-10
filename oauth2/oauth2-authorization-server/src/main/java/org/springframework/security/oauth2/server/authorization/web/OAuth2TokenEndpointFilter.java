@@ -155,12 +155,12 @@ public final class OAuth2TokenEndpointFilter extends OncePerRequestFilter {
 		try {
 			String[] grantTypes = request.getParameterValues(OAuth2ParameterNames.GRANT_TYPE);
 			if (grantTypes == null || grantTypes.length != 1) {
-				throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.GRANT_TYPE);
+				throw createException(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.GRANT_TYPE);
 			}
 
 			Authentication authorizationGrantAuthentication = this.authenticationConverter.convert(request);
 			if (authorizationGrantAuthentication == null) {
-				throwError(OAuth2ErrorCodes.UNSUPPORTED_GRANT_TYPE, OAuth2ParameterNames.GRANT_TYPE);
+				throw createException(OAuth2ErrorCodes.UNSUPPORTED_GRANT_TYPE, OAuth2ParameterNames.GRANT_TYPE);
 			}
 			if (authorizationGrantAuthentication instanceof AbstractAuthenticationToken authenticationToken) {
 				authenticationToken.setDetails(this.authenticationDetailsSource.buildDetails(request));
@@ -228,9 +228,9 @@ public final class OAuth2TokenEndpointFilter extends OncePerRequestFilter {
 		this.authenticationFailureHandler = authenticationFailureHandler;
 	}
 
-	private static void throwError(String errorCode, String parameterName) {
+	private static OAuth2AuthenticationException createException(String errorCode, String parameterName) {
 		OAuth2Error error = new OAuth2Error(errorCode, "OAuth 2.0 Parameter: " + parameterName, DEFAULT_ERROR_URI);
-		throw new OAuth2AuthenticationException(error);
+		return new OAuth2AuthenticationException(error);
 	}
 
 }

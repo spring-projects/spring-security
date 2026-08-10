@@ -18,8 +18,11 @@ package org.springframework.security.saml2.provider.service.authentication;
 
 import java.io.Serial;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
+import org.springframework.util.Assert;
 
 /**
  * Data holder for information required to send an {@code AuthNRequest} over a POST
@@ -35,8 +38,8 @@ public class Saml2PostAuthenticationRequest extends AbstractSaml2AuthenticationR
 	@Serial
 	private static final long serialVersionUID = -6412064305715642123L;
 
-	Saml2PostAuthenticationRequest(String samlRequest, String relayState, String authenticationRequestUri,
-			String relyingPartyRegistrationId, String id) {
+	Saml2PostAuthenticationRequest(String samlRequest, @Nullable String relayState, String authenticationRequestUri,
+			@Nullable String relyingPartyRegistrationId, @Nullable String id) {
 		super(samlRequest, relayState, authenticationRequestUri, relyingPartyRegistrationId, id);
 	}
 
@@ -73,6 +76,8 @@ public class Saml2PostAuthenticationRequest extends AbstractSaml2AuthenticationR
 		 * @return an immutable {@link Saml2PostAuthenticationRequest} object.
 		 */
 		public Saml2PostAuthenticationRequest build() {
+			Assert.notNull(this.samlRequest, "samlRequest cannot be null");
+			Assert.notNull(this.authenticationRequestUri, "authenticationRequestUri cannot be null");
 			return new Saml2PostAuthenticationRequest(this.samlRequest, this.relayState, this.authenticationRequestUri,
 					this.relyingPartyRegistrationId, this.id);
 		}

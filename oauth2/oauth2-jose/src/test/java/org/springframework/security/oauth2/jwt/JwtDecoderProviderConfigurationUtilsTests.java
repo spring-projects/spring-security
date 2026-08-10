@@ -30,6 +30,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jose.util.Base64URL;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.oauth2.jose.TestKeys;
@@ -45,6 +46,40 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.mock;
 
 public class JwtDecoderProviderConfigurationUtilsTests {
+
+	@AfterEach
+	public void cleanup() {
+		System.clearProperty("sun.net.client.defaultConnectTimeout");
+		System.clearProperty("sun.net.client.defaultReadTimeout");
+	}
+
+	// gh-19474
+	@Test
+	public void getConnectTimeoutWhenPropertyNotSetThenDefaultsToThirtySeconds() {
+		System.clearProperty("sun.net.client.defaultConnectTimeout");
+		assertThat(JwtDecoderProviderConfigurationUtils.getConnectTimeout()).isEqualTo(30000);
+	}
+
+	// gh-19474
+	@Test
+	public void getConnectTimeoutWhenPropertySetThenUses() {
+		System.setProperty("sun.net.client.defaultConnectTimeout", "5000");
+		assertThat(JwtDecoderProviderConfigurationUtils.getConnectTimeout()).isEqualTo(5000);
+	}
+
+	// gh-19474
+	@Test
+	public void getReadTimeoutWhenPropertyNotSetThenDefaultsToThirtySeconds() {
+		System.clearProperty("sun.net.client.defaultReadTimeout");
+		assertThat(JwtDecoderProviderConfigurationUtils.getReadTimeout()).isEqualTo(30000);
+	}
+
+	// gh-19474
+	@Test
+	public void getReadTimeoutWhenPropertySetThenUses() {
+		System.setProperty("sun.net.client.defaultReadTimeout", "5000");
+		assertThat(JwtDecoderProviderConfigurationUtils.getReadTimeout()).isEqualTo(5000);
+	}
 
 	@Test
 	public void getSignatureAlgorithmsWhenJwkSetSpecifiesAlgorithmThenUses() throws Exception {

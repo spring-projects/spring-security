@@ -105,7 +105,7 @@ public class OpaqueTokenReactiveAuthenticationManager implements ReactiveAuthent
 
 	private AuthenticationException onError(OAuth2IntrospectionException ex) {
 		if (ex instanceof BadOpaqueTokenException) {
-			return new InvalidBearerTokenException(ex.getMessage(), ex);
+			return new InvalidBearerTokenException((ex.getMessage() != null) ? ex.getMessage() : "Invalid token", ex);
 		}
 		return new AuthenticationServiceException(ex.getMessage(), ex);
 	}

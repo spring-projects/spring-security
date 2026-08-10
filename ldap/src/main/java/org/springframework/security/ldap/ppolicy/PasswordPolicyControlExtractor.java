@@ -22,6 +22,7 @@ import javax.naming.ldap.LdapContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Obtains the <tt>PasswordPolicyControl</tt> from a context for use by other classes.
@@ -36,7 +37,7 @@ public final class PasswordPolicyControlExtractor {
 	private PasswordPolicyControlExtractor() {
 	}
 
-	public static PasswordPolicyResponseControl extractControl(DirContext dirCtx) {
+	public static @Nullable PasswordPolicyResponseControl extractControl(DirContext dirCtx) {
 		LdapContext ctx = (LdapContext) dirCtx;
 		Control[] ctrls = null;
 		try {

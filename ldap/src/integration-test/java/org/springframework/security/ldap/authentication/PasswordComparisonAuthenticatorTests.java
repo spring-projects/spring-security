@@ -47,6 +47,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = UnboundIdContainerConfig.class)
+@SuppressWarnings("deprecation")
 public class PasswordComparisonAuthenticatorTests {
 
 	@Autowired

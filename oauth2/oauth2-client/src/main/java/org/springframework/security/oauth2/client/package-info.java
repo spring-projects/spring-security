@@ -17,4 +17,7 @@
 /**
  * Core classes and interfaces providing support for OAuth 2.0 Client.
  */
+@NullMarked
 package org.springframework.security.oauth2.client;
+
+import org.jspecify.annotations.NullMarked;

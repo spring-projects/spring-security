@@ -57,6 +57,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -242,6 +243,14 @@ public class Saml2LoginConfigurerTests {
 	public void saml2LoginWhenDefaultAndSamlAuthenticationManagerThenSamlManagerIsUsed() throws Exception {
 		this.spring.register(Saml2LoginConfigWithDefaultAndCustomAuthenticationManager.class).autowire();
 		performSaml2Login("ROLE_AUTH_MANAGER");
+	}
+
+	// gh-19128
+	@Test
+	public void saml2LoginWhenBuilderBeanWithBasePathThenAuthenticateUriIgnoresBasePath() throws Exception {
+		this.spring.register(Saml2LoginBuilderBeanConfig.class).autowire();
+		MvcResult result = this.mvc.perform(get("/saml2/authenticate/registration-id")).andReturn();
+		assertThat(result.getResponse().getRedirectedUrl()).contains("SAMLRequest");
 	}
 
 	@Test
@@ -517,6 +526,33 @@ public class Saml2LoginConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			http.authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
 				.saml2Login((saml2) -> saml2.failureHandler(authenticationFailureHandler));
+			return http.build();
+		}
+
+	}
+
+	// gh-19128
+	@Configuration
+	@EnableWebSecurity
+	@Import(Saml2LoginConfigBeans.class)
+	static class Saml2LoginBuilderBeanConfig {
+
+		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder() {
+			PathPatternRequestMatcherBuilderFactoryBean bean = new PathPatternRequestMatcherBuilderFactoryBean();
+			bean.setBasePath("/spring");
+			return bean;
+		}
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((authz) -> authz
+					.anyRequest().authenticated()
+				)
+				.saml2Login(Customizer.withDefaults());
+			// @formatter:on
 			return http.build();
 		}
 

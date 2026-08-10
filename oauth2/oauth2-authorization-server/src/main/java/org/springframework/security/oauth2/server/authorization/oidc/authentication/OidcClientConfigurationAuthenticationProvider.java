@@ -18,10 +18,12 @@ package org.springframework.security.oauth2.server.authorization.oidc.authentica
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -99,7 +101,7 @@ public final class OidcClientConfigurationAuthenticationProvider implements Auth
 	}
 
 	@Override
-	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+	public @Nullable Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		OidcClientRegistrationAuthenticationToken clientRegistrationAuthentication = (OidcClientRegistrationAuthenticationToken) authentication;
 
 		if (!StringUtils.hasText(clientRegistrationAuthentication.getClientId())) {
@@ -132,6 +134,7 @@ public final class OidcClientConfigurationAuthenticationProvider implements Auth
 		}
 
 		OAuth2Authorization.Token<OAuth2AccessToken> authorizedAccessToken = authorization.getAccessToken();
+		Assert.notNull(authorizedAccessToken, "authorizedAccessToken cannot be null");
 		if (!authorizedAccessToken.isActive()) {
 			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_TOKEN);
 		}
@@ -149,8 +152,9 @@ public final class OidcClientConfigurationAuthenticationProvider implements Auth
 			OidcClientRegistrationAuthenticationToken clientRegistrationAuthentication,
 			OAuth2Authorization authorization) {
 
-		RegisteredClient registeredClient = this.registeredClientRepository
-			.findByClientId(clientRegistrationAuthentication.getClientId());
+		String clientId = clientRegistrationAuthentication.getClientId();
+		Assert.hasText(clientId, "clientId cannot be empty");
+		RegisteredClient registeredClient = this.registeredClientRepository.findByClientId(clientId);
 		if (registeredClient == null) {
 			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_CLIENT);
 		}
@@ -176,9 +180,11 @@ public final class OidcClientConfigurationAuthenticationProvider implements Auth
 	@SuppressWarnings("unchecked")
 	private static void checkScope(OAuth2Authorization.Token<OAuth2AccessToken> authorizedAccessToken,
 			Set<String> requiredScope) {
+		Map<String, Object> claims = authorizedAccessToken.getClaims();
+		Assert.notNull(claims, "claims cannot be null");
 		Collection<String> authorizedScope = Collections.emptySet();
-		if (authorizedAccessToken.getClaims().containsKey(OAuth2ParameterNames.SCOPE)) {
-			authorizedScope = (Collection<String>) authorizedAccessToken.getClaims().get(OAuth2ParameterNames.SCOPE);
+		if (claims.containsKey(OAuth2ParameterNames.SCOPE)) {
+			authorizedScope = (Collection<String>) claims.get(OAuth2ParameterNames.SCOPE);
 		}
 		if (!authorizedScope.containsAll(requiredScope)) {
 			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INSUFFICIENT_SCOPE);

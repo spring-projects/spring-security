@@ -17,11 +17,12 @@
 package org.springframework.security.oauth2.server.authorization.web.authentication;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
-import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -30,6 +31,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2DeviceCodeAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.web.OAuth2TokenEndpointFilter;
 import org.springframework.security.web.authentication.AuthenticationConverter;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
@@ -47,9 +49,8 @@ import org.springframework.util.StringUtils;
  */
 public final class OAuth2DeviceCodeAuthenticationConverter implements AuthenticationConverter {
 
-	@Nullable
 	@Override
-	public Authentication convert(HttpServletRequest request) {
+	public @Nullable Authentication convert(HttpServletRequest request) {
 		MultiValueMap<String, String> parameters = OAuth2EndpointUtils.getFormParameters(request);
 
 		// grant_type (REQUIRED)
@@ -58,14 +59,14 @@ public final class OAuth2DeviceCodeAuthenticationConverter implements Authentica
 			return null;
 		}
 
-		Authentication clientPrincipal = SecurityContextHolder.getContext().getAuthentication();
-
 		// device_code (REQUIRED)
 		String deviceCode = parameters.getFirst(OAuth2ParameterNames.DEVICE_CODE);
-		if (!StringUtils.hasText(deviceCode) || parameters.get(OAuth2ParameterNames.DEVICE_CODE).size() != 1) {
+		List<String> deviceCodeParams = parameters.get(OAuth2ParameterNames.DEVICE_CODE);
+		if (!StringUtils.hasText(deviceCode) || deviceCodeParams == null || deviceCodeParams.size() != 1) {
 			OAuth2EndpointUtils.throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.DEVICE_CODE,
 					OAuth2EndpointUtils.ACCESS_TOKEN_REQUEST_ERROR_URI);
 		}
+		Assert.notNull(deviceCode, "deviceCode cannot be null");
 
 		Map<String, Object> additionalParameters = new HashMap<>();
 		parameters.forEach((key, value) -> {
@@ -77,6 +78,9 @@ public final class OAuth2DeviceCodeAuthenticationConverter implements Authentica
 
 		// Validate DPoP Proof HTTP Header (if available)
 		OAuth2EndpointUtils.validateAndAddDPoPParametersIfAvailable(request, additionalParameters);
+
+		Authentication clientPrincipal = SecurityContextHolder.getContext().getAuthentication();
+		Assert.notNull(clientPrincipal, "clientPrincipal cannot be null");
 
 		return new OAuth2DeviceCodeAuthenticationToken(deviceCode, clientPrincipal, additionalParameters);
 	}

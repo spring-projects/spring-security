@@ -19,7 +19,8 @@ package org.springframework.security.oauth2.server.authorization.authentication;
 import java.io.Serial;
 import java.util.Collections;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2Token;
@@ -43,7 +44,7 @@ public class OAuth2TokenRevocationAuthenticationToken extends AbstractAuthentica
 
 	private final Authentication clientPrincipal;
 
-	private final String tokenTypeHint;
+	private final @Nullable String tokenTypeHint;
 
 	/**
 	 * Constructs an {@code OAuth2TokenRevocationAuthenticationToken} using the provided
@@ -100,8 +101,7 @@ public class OAuth2TokenRevocationAuthenticationToken extends AbstractAuthentica
 	 * Returns the token type hint.
 	 * @return the token type hint
 	 */
-	@Nullable
-	public String getTokenTypeHint() {
+	public @Nullable String getTokenTypeHint() {
 		return this.tokenTypeHint;
 	}
 

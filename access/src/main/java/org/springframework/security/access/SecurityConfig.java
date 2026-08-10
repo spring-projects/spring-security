@@ -20,6 +20,8 @@ import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.annotation.SecurityAnnotationScanner;
 import org.springframework.util.Assert;
@@ -50,7 +52,7 @@ public class SecurityConfig implements ConfigAttribute {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (obj instanceof ConfigAttribute attr) {
 			return this.attrib.equals(attr.getAttribute());
 		}

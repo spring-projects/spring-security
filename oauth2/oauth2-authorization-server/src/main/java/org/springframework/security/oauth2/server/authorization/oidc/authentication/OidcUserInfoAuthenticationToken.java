@@ -19,6 +19,8 @@ package org.springframework.security.oauth2.server.authorization.oidc.authentica
 import java.io.Serial;
 import java.util.Collections;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
@@ -40,7 +42,7 @@ public class OidcUserInfoAuthenticationToken extends AbstractAuthenticationToken
 
 	private final Authentication principal;
 
-	private final OidcUserInfo userInfo;
+	private final @Nullable OidcUserInfo userInfo;
 
 	/**
 	 * Constructs an {@code OidcUserInfoAuthenticationToken} using the provided
@@ -82,9 +84,9 @@ public class OidcUserInfoAuthenticationToken extends AbstractAuthenticationToken
 
 	/**
 	 * Returns the UserInfo claims.
-	 * @return the UserInfo claims
+	 * @return the UserInfo claims, or {@code null} if not provided
 	 */
-	public OidcUserInfo getUserInfo() {
+	public @Nullable OidcUserInfo getUserInfo() {
 		return this.userInfo;
 	}
 

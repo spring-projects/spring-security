@@ -42,7 +42,7 @@ public class SecurityContextImpl implements SecurityContext {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (obj instanceof SecurityContextImpl other) {
 			if ((this.getAuthentication() == null) && (other.getAuthentication() == null)) {
 				return true;

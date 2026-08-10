@@ -115,6 +115,7 @@ public final class OAuth2TokenIntrospectionEndpointFilter extends OncePerRequest
 
 		try {
 			Authentication tokenIntrospectionAuthentication = this.authenticationConverter.convert(request);
+			Assert.notNull(tokenIntrospectionAuthentication, "tokenIntrospectionAuthentication cannot be null");
 			Authentication tokenIntrospectionAuthenticationResult = this.authenticationManager
 				.authenticate(tokenIntrospectionAuthentication);
 			this.authenticationSuccessHandler.onAuthenticationSuccess(request, response,

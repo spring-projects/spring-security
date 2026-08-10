@@ -18,7 +18,6 @@ package org.springframework.security.web.authentication;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import jakarta.servlet.ServletException;
@@ -52,8 +51,6 @@ public class DelegatingAuthenticationEntryPointTests {
 
 	private DelegatingAuthenticationEntryPoint daep;
 
-	private LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints;
-
 	private AuthenticationEntryPoint defaultEntryPoint;
 
 	private HttpServletRequest request = new MockHttpServletRequest();
@@ -61,33 +58,31 @@ public class DelegatingAuthenticationEntryPointTests {
 	@BeforeEach
 	public void before() {
 		this.defaultEntryPoint = mock(AuthenticationEntryPoint.class);
-		this.entryPoints = new LinkedHashMap<>();
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void testDefaultEntryPoint() throws Exception {
 		AuthenticationEntryPoint firstAEP = mock(AuthenticationEntryPoint.class);
 		RequestMatcher firstRM = mock(RequestMatcher.class);
 		given(firstRM.matches(this.request)).willReturn(false);
-		this.entryPoints.put(firstRM, firstAEP);
-		this.daep = new DelegatingAuthenticationEntryPoint(this.entryPoints);
-		this.daep.setDefaultEntryPoint(this.defaultEntryPoint);
+		this.daep = new DelegatingAuthenticationEntryPoint(this.defaultEntryPoint,
+				new RequestMatcherEntry<>(firstRM, firstAEP));
 		this.daep.commence(this.request, null, null);
 		verify(this.defaultEntryPoint).commence(this.request, null, null);
 		verify(firstAEP, never()).commence(this.request, null, null);
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void testFirstEntryPoint() throws Exception {
 		AuthenticationEntryPoint firstAEP = mock(AuthenticationEntryPoint.class);
 		RequestMatcher firstRM = mock(RequestMatcher.class);
 		AuthenticationEntryPoint secondAEP = mock(AuthenticationEntryPoint.class);
 		RequestMatcher secondRM = mock(RequestMatcher.class);
 		given(firstRM.matches(this.request)).willReturn(true);
-		this.entryPoints.put(firstRM, firstAEP);
-		this.entryPoints.put(secondRM, secondAEP);
-		this.daep = new DelegatingAuthenticationEntryPoint(this.entryPoints);
-		this.daep.setDefaultEntryPoint(this.defaultEntryPoint);
+		this.daep = new DelegatingAuthenticationEntryPoint(this.defaultEntryPoint,
+				new RequestMatcherEntry<>(firstRM, firstAEP), new RequestMatcherEntry<>(secondRM, secondAEP));
 		this.daep.commence(this.request, null, null);
 		verify(firstAEP).commence(this.request, null, null);
 		verify(secondAEP, never()).commence(this.request, null, null);
@@ -96,6 +91,7 @@ public class DelegatingAuthenticationEntryPointTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void testSecondEntryPoint() throws Exception {
 		AuthenticationEntryPoint firstAEP = mock(AuthenticationEntryPoint.class);
 		RequestMatcher firstRM = mock(RequestMatcher.class);
@@ -103,10 +99,8 @@ public class DelegatingAuthenticationEntryPointTests {
 		RequestMatcher secondRM = mock(RequestMatcher.class);
 		given(firstRM.matches(this.request)).willReturn(false);
 		given(secondRM.matches(this.request)).willReturn(true);
-		this.entryPoints.put(firstRM, firstAEP);
-		this.entryPoints.put(secondRM, secondAEP);
-		this.daep = new DelegatingAuthenticationEntryPoint(this.entryPoints);
-		this.daep.setDefaultEntryPoint(this.defaultEntryPoint);
+		this.daep = new DelegatingAuthenticationEntryPoint(this.defaultEntryPoint,
+				new RequestMatcherEntry<>(firstRM, firstAEP), new RequestMatcherEntry<>(secondRM, secondAEP));
 		this.daep.commence(this.request, null, null);
 		verify(secondAEP).commence(this.request, null, null);
 		verify(firstAEP, never()).commence(this.request, null, null);
@@ -114,6 +108,7 @@ public class DelegatingAuthenticationEntryPointTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void constructorAepListWhenNullEntryPoints() {
 		List<RequestMatcherEntry<AuthenticationEntryPoint>> entryPoints = null;
 		assertThatIllegalArgumentException().isThrownBy(
@@ -121,6 +116,7 @@ public class DelegatingAuthenticationEntryPointTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void constructorAepListWhenEmptyEntryPoints() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> new DelegatingAuthenticationEntryPoint(mock(AuthenticationEntryPoint.class),
@@ -128,6 +124,7 @@ public class DelegatingAuthenticationEntryPointTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void constructorAepListWhenNullDefaultEntryPoint() {
 		AuthenticationEntryPoint entryPoint = mock(AuthenticationEntryPoint.class);
 		RequestMatcher matcher = mock(RequestMatcher.class);
@@ -138,6 +135,7 @@ public class DelegatingAuthenticationEntryPointTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void constructorAepVargsWhenNullEntryPoints() {
 		RequestMatcherEntry<AuthenticationEntryPoint>[] entryPoints = null;
 		assertThatIllegalArgumentException().isThrownBy(
@@ -145,6 +143,7 @@ public class DelegatingAuthenticationEntryPointTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void constructorAepVargsWhenEmptyEntryPoints() {
 		RequestMatcherEntry<AuthenticationEntryPoint>[] entryPoints = new RequestMatcherEntry[0];
 		assertThatIllegalArgumentException().isThrownBy(
@@ -152,6 +151,7 @@ public class DelegatingAuthenticationEntryPointTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void constructorAepVargsWhenNullDefaultEntryPoint() {
 		AuthenticationEntryPoint entryPoint = mock(AuthenticationEntryPoint.class);
 		RequestMatcher matcher = mock(RequestMatcher.class);
@@ -162,6 +162,7 @@ public class DelegatingAuthenticationEntryPointTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void commenceWhenNoMatchThenDefaultEntryPoint() throws Exception {
 		AuthenticationEntryPoint firstAEP = mock(AuthenticationEntryPoint.class);
 		RequestMatcher firstRM = mock(RequestMatcher.class);
@@ -174,6 +175,7 @@ public class DelegatingAuthenticationEntryPointTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void commenceWhenMatchFirstEntryPointThenOthersNotInvoked() throws Exception {
 		AuthenticationEntryPoint firstAEP = mock(AuthenticationEntryPoint.class);
 		RequestMatcher firstRM = mock(RequestMatcher.class);
@@ -192,6 +194,7 @@ public class DelegatingAuthenticationEntryPointTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void commenceWhenSecondMatchesThenDefaultNotInvoked() throws Exception {
 		AuthenticationEntryPoint firstAEP = mock(AuthenticationEntryPoint.class);
 		RequestMatcher firstRM = mock(RequestMatcher.class);
@@ -220,6 +223,7 @@ public class DelegatingAuthenticationEntryPointTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	void builderWhenDefaultNullThenFirstIsDefault() throws ServletException, IOException {
 		AuthenticationEntryPoint firstEntryPoint = mock(AuthenticationEntryPoint.class);
 		AuthenticationEntryPoint secondEntryPoint = mock(AuthenticationEntryPoint.class);
@@ -237,6 +241,7 @@ public class DelegatingAuthenticationEntryPointTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	void builderWhenDefaultAndEmptyEntryPointsThenReturnsDefault() {
 		AuthenticationEntryPoint defaultEntryPoint = mock(AuthenticationEntryPoint.class);
 
@@ -248,6 +253,7 @@ public class DelegatingAuthenticationEntryPointTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	void builderWhenNoEntryPointsThenIllegalStateException() {
 		DelegatingAuthenticationEntryPoint.Builder builder = DelegatingAuthenticationEntryPoint.builder();
 		assertThatIllegalStateException().isThrownBy(builder::build);

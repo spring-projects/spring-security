@@ -23,6 +23,7 @@ import javax.security.auth.login.Configuration;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.io.ClassPathResource;
@@ -40,9 +41,9 @@ public class SunJaasKrb5LoginConfig extends Configuration implements Initializin
 
 	private static final Log LOG = LogFactory.getLog(SunJaasKrb5LoginConfig.class);
 
-	private String servicePrincipal;
+	private @Nullable String servicePrincipal;
 
-	private Resource keyTabLocation;
+	private @Nullable Resource keyTabLocation;
 
 	private Boolean useTicketCache = false;
 
@@ -50,7 +51,7 @@ public class SunJaasKrb5LoginConfig extends Configuration implements Initializin
 
 	private Boolean debug = false;
 
-	private String keyTabLocationAsString;
+	private @Nullable String keyTabLocationAsString;
 
 	public void setServicePrincipal(String servicePrincipal) {
 		this.servicePrincipal = servicePrincipal;

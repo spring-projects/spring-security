@@ -252,6 +252,13 @@ class MagicLinkOneTimeTokenGenerationSuccessHandler : OneTimeTokenGenerationSucc
 ----
 ======
 
+[NOTE]
+====
+The URI passed to `generateTokenUrl` is matched literally.
+If you want it to live under your application servlet's base path, include that prefix explicitly — for example, `generateTokenUrl("/api/ott/generate")`.
+The same applies to `loginProcessingUrl` and `tokenGeneratingUrl` elsewhere on this page.
+====
+
 [[changing-submit-page-url]]
 == Changing the Default Submit Page URL
 

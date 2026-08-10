@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.jspecify.annotations.NullUnmarked;
 
 import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
@@ -40,6 +41,7 @@ import org.springframework.security.saml2.provider.service.registration.Saml2Mes
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
+@NullUnmarked
 class Saml2LogoutRequestMixin {
 
 	@JsonIgnore

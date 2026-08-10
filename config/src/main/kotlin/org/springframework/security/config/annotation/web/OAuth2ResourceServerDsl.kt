@@ -16,21 +16,23 @@
 
 package org.springframework.security.config.annotation.web
 
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.security.authentication.AuthenticationManagerResolver
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer
+import org.springframework.security.config.annotation.web.oauth2.resourceserver.DPoPDsl
 import org.springframework.security.config.annotation.web.oauth2.resourceserver.JwtDsl
 import org.springframework.security.config.annotation.web.oauth2.resourceserver.OpaqueTokenDsl
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.access.AccessDeniedHandler
-import jakarta.servlet.http.HttpServletRequest
 
 /**
  * A Kotlin DSL to configure [HttpSecurity] OAuth 2.0 resource server support using
  * idiomatic Kotlin code.
  *
  * @author Eleftheria Stein
+ * @author Max Batischev
  * @since 5.3
  * @property accessDeniedHandler the [AccessDeniedHandler] to use for requests authenticating
  * with <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer Token</a>s.
@@ -48,6 +50,7 @@ class OAuth2ResourceServerDsl {
 
     private var jwt: ((OAuth2ResourceServerConfigurer<HttpSecurity>.JwtConfigurer) -> Unit)? = null
     private var opaqueToken: ((OAuth2ResourceServerConfigurer<HttpSecurity>.OpaqueTokenConfigurer) -> Unit)? = null
+    private var dPoP: ((OAuth2ResourceServerConfigurer<HttpSecurity>.DPoPConfigurer) -> Unit)? = null
 
     /**
      * Enables JWT-encoded bearer token support.
@@ -109,6 +112,37 @@ class OAuth2ResourceServerDsl {
         this.opaqueToken = OpaqueTokenDsl().apply(opaqueTokenConfig).get()
     }
 
+    /**
+     * Enables DPoP-bound access token support.
+     *
+     * Example:
+     *
+     * ```
+     * @Configuration
+     * @EnableWebSecurity
+     * class SecurityConfig {
+     *
+     *     @Bean
+     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *         http {
+     *             oauth2ResourceServer {
+     *                 jwt { }
+     *                 dPoP { }
+     *             }
+     *         }
+     *         return http.build()
+     *     }
+     * }
+     * ```
+     *
+     * @param dPoPConfig custom configurations to configure DPoP-bound access token support
+     * @see [DPoPDsl]
+     * @since 7.1
+     */
+    fun dPoP(dPoPConfig: DPoPDsl.() -> Unit) {
+        this.dPoP = DPoPDsl().apply(dPoPConfig).get()
+    }
+
     internal fun get(): (OAuth2ResourceServerConfigurer<HttpSecurity>) -> Unit {
         return { oauth2ResourceServer ->
             accessDeniedHandler?.also { oauth2ResourceServer.accessDeniedHandler(accessDeniedHandler) }
@@ -117,6 +151,7 @@ class OAuth2ResourceServerDsl {
             authenticationManagerResolver?.also { oauth2ResourceServer.authenticationManagerResolver(authenticationManagerResolver) }
             jwt?.also { oauth2ResourceServer.jwt(jwt) }
             opaqueToken?.also { oauth2ResourceServer.opaqueToken(opaqueToken) }
+            dPoP?.also { oauth2ResourceServer.dPoP(dPoP) }
         }
     }
 }

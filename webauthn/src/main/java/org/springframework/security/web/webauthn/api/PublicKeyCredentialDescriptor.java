@@ -124,7 +124,7 @@ public final class PublicKeyCredentialDescriptor implements Serializable {
 		 * @param id the id
 		 * @return the {@link PublicKeyCredentialDescriptorBuilder}
 		 */
-		public PublicKeyCredentialDescriptorBuilder id(Bytes id) {
+		public PublicKeyCredentialDescriptorBuilder id(@Nullable Bytes id) {
 			this.id = id;
 			return this;
 		}
@@ -134,7 +134,7 @@ public final class PublicKeyCredentialDescriptor implements Serializable {
 		 * @param transports the transports
 		 * @return the {@link PublicKeyCredentialDescriptorBuilder}
 		 */
-		public PublicKeyCredentialDescriptorBuilder transports(Set<AuthenticatorTransport> transports) {
+		public PublicKeyCredentialDescriptorBuilder transports(@Nullable Set<AuthenticatorTransport> transports) {
 			this.transports = transports;
 			return this;
 		}

@@ -24,6 +24,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.util.Assert;
 
@@ -60,13 +62,14 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 	/**
 	 * Constructs a {@code Jwt} using the provided parameters.
 	 * @param tokenValue the token value
-	 * @param issuedAt the time at which the JWT was issued
-	 * @param expiresAt the expiration time on or after which the JWT MUST NOT be accepted
+	 * @param issuedAt the time at which the JWT was issued, may be {@code null}
+	 * @param expiresAt the expiration time on or after which the JWT MUST NOT be
+	 * accepted, may be {@code null}
 	 * @param headers the JOSE header(s)
 	 * @param claims the JWT Claims Set
 	 *
 	 */
-	public Jwt(String tokenValue, Instant issuedAt, Instant expiresAt, Map<String, Object> headers,
+	public Jwt(String tokenValue, @Nullable Instant issuedAt, @Nullable Instant expiresAt, Map<String, Object> headers,
 			Map<String, Object> claims) {
 		super(tokenValue, issuedAt, expiresAt);
 		Assert.notEmpty(headers, "headers cannot be empty");
@@ -252,7 +255,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 			return new Jwt(this.tokenValue, iat, exp, this.headers, this.claims);
 		}
 
-		private Instant toInstant(Object timestamp) {
+		private @Nullable Instant toInstant(@Nullable Object timestamp) {
 			if (timestamp != null) {
 				Assert.isInstanceOf(Instant.class, timestamp, "timestamps must be of type Instant");
 			}

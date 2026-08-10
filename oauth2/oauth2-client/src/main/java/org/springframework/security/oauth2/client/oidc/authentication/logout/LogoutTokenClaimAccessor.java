@@ -21,7 +21,10 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.ClaimAccessor;
+import org.springframework.util.Assert;
 
 /**
  * A {@link ClaimAccessor} for the &quot;claims&quot; that can be returned in OIDC Logout
@@ -41,14 +44,16 @@ public interface LogoutTokenClaimAccessor extends ClaimAccessor {
 	 * @return the Issuer identifier
 	 */
 	default URL getIssuer() {
-		return this.getClaimAsURL(LogoutTokenClaimNames.ISS);
+		URL issuer = this.getClaimAsURL(LogoutTokenClaimNames.ISS);
+		Assert.notNull(issuer, "issuer cannot be null");
+		return issuer;
 	}
 
 	/**
 	 * Returns the Subject identifier {@code (sub)}.
 	 * @return the Subject identifier
 	 */
-	default String getSubject() {
+	default @Nullable String getSubject() {
 		return this.getClaimAsString(LogoutTokenClaimNames.SUB);
 	}
 
@@ -57,14 +62,16 @@ public interface LogoutTokenClaimAccessor extends ClaimAccessor {
 	 * @return the Audience(s) that this ID Token is intended for
 	 */
 	default List<String> getAudience() {
-		return this.getClaimAsStringList(LogoutTokenClaimNames.AUD);
+		List<String> audience = this.getClaimAsStringList(LogoutTokenClaimNames.AUD);
+		Assert.notNull(audience, "audience cannot be null");
+		return audience;
 	}
 
 	/**
 	 * Returns the time at which the ID Token was issued {@code (iat)}.
 	 * @return the time at which the ID Token was issued
 	 */
-	default Instant getIssuedAt() {
+	default @Nullable Instant getIssuedAt() {
 		return this.getClaimAsInstant(LogoutTokenClaimNames.IAT);
 	}
 
@@ -73,14 +80,16 @@ public interface LogoutTokenClaimAccessor extends ClaimAccessor {
 	 * @return the identifying {@link Map}
 	 */
 	default Map<String, Object> getEvents() {
-		return getClaimAsMap(LogoutTokenClaimNames.EVENTS);
+		Map<String, Object> events = getClaimAsMap(LogoutTokenClaimNames.EVENTS);
+		Assert.notNull(events, "events cannot be null");
+		return events;
 	}
 
 	/**
 	 * Returns a {@code String} value {@code (sid)} representing the OIDC Provider session
 	 * @return the value representing the OIDC Provider session
 	 */
-	default String getSessionId() {
+	default @Nullable String getSessionId() {
 		return getClaimAsString(LogoutTokenClaimNames.SID);
 	}
 
@@ -90,7 +99,9 @@ public interface LogoutTokenClaimAccessor extends ClaimAccessor {
 	 * @return the JWT ID claim which provides a unique identifier for the JWT
 	 */
 	default String getId() {
-		return this.getClaimAsString(LogoutTokenClaimNames.JTI);
+		String jti = this.getClaimAsString(LogoutTokenClaimNames.JTI);
+		Assert.hasText(jti, "jti cannot be empty");
+		return jti;
 	}
 
 }

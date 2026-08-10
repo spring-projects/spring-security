@@ -19,11 +19,11 @@ package org.springframework.security.web.servlet.util.matcher;
 import java.util.Objects;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.http.server.PathContainer;
 import org.springframework.http.server.RequestPath;
-import org.springframework.lang.Nullable;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -161,7 +161,7 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (!(o instanceof PathPatternRequestMatcher that)) {
 			return false;
 		}
@@ -268,9 +268,9 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 		 * The following are valid patterns and their meaning
 		 * <ul>
 		 * <li>{@code /path} - match exactly and only `/path`</li>
-		 * <li>{@code /path/**} - match `/path` and any of its descendents</li>
+		 * <li>{@code /path/**} - match `/path` and any of its descendants</li>
 		 * <li>{@code /path/{value}/**} - match `/path/subdirectory` and any of its
-		 * descendents, capturing the value of the subdirectory in
+		 * descendants, capturing the value of the subdirectory in
 		 * {@link RequestAuthorizationContext#getVariables()}</li>
 		 * </ul>
 		 *
@@ -303,9 +303,9 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 		 * The following are valid patterns and their meaning
 		 * <ul>
 		 * <li>{@code /path} - match exactly and only `/path`</li>
-		 * <li>{@code /path/**} - match `/path` and any of its descendents</li>
+		 * <li>{@code /path/**} - match `/path` and any of its descendants</li>
 		 * <li>{@code /path/{value}/**} - match `/path/subdirectory` and any of its
-		 * descendents, capturing the value of the subdirectory in
+		 * descendants, capturing the value of the subdirectory in
 		 * {@link RequestAuthorizationContext#getVariables()}</li>
 		 * </ul>
 		 *
@@ -337,6 +337,19 @@ public final class PathPatternRequestMatcher implements RequestMatcher {
 		@Override
 		public boolean matches(HttpServletRequest request) {
 			return this.method.name().equals(request.getMethod());
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (!(o instanceof HttpMethodRequestMatcher that)) {
+				return false;
+			}
+			return Objects.equals(this.method, that.method);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.method);
 		}
 
 		@Override

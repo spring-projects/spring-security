@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import com.nimbusds.oauth2.sdk.token.BearerTokenError;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -68,7 +69,7 @@ public class OAuth2ErrorResponseErrorHandler implements ResponseErrorHandler {
 		throw new OAuth2AuthorizationException(oauth2Error);
 	}
 
-	private OAuth2Error readErrorFromWwwAuthenticate(HttpHeaders headers) {
+	private @Nullable OAuth2Error readErrorFromWwwAuthenticate(HttpHeaders headers) {
 		String wwwAuthenticateHeader = headers.getFirst(HttpHeaders.WWW_AUTHENTICATE);
 		if (!StringUtils.hasText(wwwAuthenticateHeader)) {
 			return null;
@@ -84,7 +85,7 @@ public class OAuth2ErrorResponseErrorHandler implements ResponseErrorHandler {
 		return new OAuth2Error(errorCode, errorDescription, errorUri);
 	}
 
-	private BearerTokenError getBearerToken(String wwwAuthenticateHeader) {
+	private @Nullable BearerTokenError getBearerToken(String wwwAuthenticateHeader) {
 		try {
 			return BearerTokenError.parse(wwwAuthenticateHeader);
 		}

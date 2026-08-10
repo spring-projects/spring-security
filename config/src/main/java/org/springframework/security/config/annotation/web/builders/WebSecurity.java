@@ -226,7 +226,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	 *
 	 * <p>
 	 * Typically this method is invoked automatically within the framework from
-	 * {@link WebSecurityConfiguration#springSecurityFilterChain()}
+	 * {@link WebSecurityConfiguration#springSecurityFilterChain(ObjectProvider)}
 	 * </p>
 	 * @param securityFilterChainBuilder the builder to use to create the
 	 * {@link SecurityFilterChain} instances

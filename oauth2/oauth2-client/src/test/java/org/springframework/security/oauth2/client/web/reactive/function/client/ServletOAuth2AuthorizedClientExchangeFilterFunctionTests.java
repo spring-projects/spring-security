@@ -125,6 +125,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 /**
  * @author Rob Winch
+ * @author Evgeniy Cheban
  * @since 5.1
  */
 @ExtendWith(MockitoExtension.class)
@@ -215,6 +216,13 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	public void constructorWhenAuthorizedClientManagerIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> new ServletOAuth2AuthorizedClientExchangeFilterFunction(null));
+	}
+
+	@Test
+	public void setPrincipalResolverWhenResolverIsNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> new ServletOAuth2AuthorizedClientExchangeFilterFunction(this.authorizedClientManager)
+				.setPrincipalResolver(null));
 	}
 
 	@Test
@@ -618,6 +626,39 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		assertThat(request.url().toASCIIString()).isEqualTo("https://example2.com");
 		assertThat(request.method()).isEqualTo(HttpMethod.GET);
 		assertThat(getBody(request)).isEmpty();
+	}
+
+	@Test
+	public void filterWhenClientRegistrationIdFromAuthenticationAndCustomPrincipalResolverThenAuthorizedClientResolved() {
+		this.function.setDefaultOAuth2AuthorizedClient(true);
+		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+		MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+		OAuth2User user = mock(OAuth2User.class);
+		List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
+		OAuth2AuthenticationToken initialAuthentication = new OAuth2AuthenticationToken(user, authorities,
+				"initial-registration-id");
+		OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(user, authorities,
+				this.registration.getRegistrationId());
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
+				this.accessToken);
+		given(this.authorizedClientRepository.loadAuthorizedClient(this.registration.getRegistrationId(),
+				initialAuthentication, servletRequest))
+			.willReturn(authorizedClient);
+		final ClientRequest clientRequest = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+			.build();
+		this.function.setPrincipalResolver((request) -> authentication);
+		this.function.filter(clientRequest, this.exchange)
+			.contextWrite(context(servletRequest, servletResponse, initialAuthentication))
+			.block();
+		List<ClientRequest> requests = this.exchange.getRequests();
+		assertThat(requests).hasSize(1);
+		ClientRequest request = requests.get(0);
+		assertThat(request.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer token-0");
+		assertThat(request.url().toASCIIString()).isEqualTo("https://example.com");
+		assertThat(request.method()).isEqualTo(HttpMethod.GET);
+		assertThat(getBody(request)).isEmpty();
+		verify(this.authorizedClientRepository).loadAuthorizedClient(this.registration.getRegistrationId(),
+				authentication, servletRequest);
 	}
 
 	@Test

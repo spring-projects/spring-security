@@ -16,7 +16,8 @@
 
 package org.springframework.security.oauth2.server.authorization.token;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.ClaimAccessor;
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
@@ -49,7 +50,6 @@ public interface OAuth2TokenGenerator<T extends OAuth2Token> {
 	 * @return an {@link OAuth2Token} or {@code null} if the
 	 * {@link OAuth2TokenContext#getTokenType()} is not supported
 	 */
-	@Nullable
-	T generate(OAuth2TokenContext context);
+	@Nullable T generate(OAuth2TokenContext context);
 
 }

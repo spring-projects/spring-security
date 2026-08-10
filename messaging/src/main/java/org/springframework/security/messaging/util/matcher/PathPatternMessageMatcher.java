@@ -18,8 +18,9 @@ package org.springframework.security.messaging.util.matcher;
 
 import java.util.Collections;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.http.server.PathContainer;
-import org.springframework.lang.Nullable;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
@@ -134,9 +135,9 @@ public final class PathPatternMessageMatcher implements MessageMatcher<Object> {
 		 * The following are valid patterns and their meaning
 		 * <ul>
 		 * <li>{@code /path} - match exactly and only `/path`</li>
-		 * <li>{@code /path/**} - match `/path` and any of its descendents</li>
+		 * <li>{@code /path/**} - match `/path` and any of its descendants</li>
 		 * <li>{@code /path/{value}/**} - match `/path/subdirectory` and any of its
-		 * descendents, capturing the value of the subdirectory in
+		 * descendants, capturing the value of the subdirectory in
 		 * {@link MessageAuthorizationContext#getVariables()}</li>
 		 * </ul>
 		 *
@@ -169,9 +170,9 @@ public final class PathPatternMessageMatcher implements MessageMatcher<Object> {
 		 * The following are valid patterns and their meaning
 		 * <ul>
 		 * <li>{@code /path} - match exactly and only `/path`</li>
-		 * <li>{@code /path/**} - match `/path` and any of its descendents</li>
+		 * <li>{@code /path/**} - match `/path` and any of its descendants</li>
 		 * <li>{@code /path/{value}/**} - match `/path/subdirectory` and any of its
-		 * descendents, capturing the value of the subdirectory in
+		 * descendants, capturing the value of the subdirectory in
 		 * {@link MessageAuthorizationContext#getVariables()}</li>
 		 * </ul>
 		 *

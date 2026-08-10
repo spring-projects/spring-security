@@ -16,6 +16,7 @@
 
 package org.springframework.security.authentication.dao;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
@@ -43,6 +44,7 @@ import org.springframework.util.function.SingletonSupplier;
  *
  * @author Ben Alex
  * @author Rob Winch
+ * @author Andrey Litvitski
  */
 public class DaoAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
@@ -131,7 +133,8 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 			throw new CompromisedPasswordException("The provided password is compromised, please change your password");
 		}
 		String existingEncodedPassword = user.getPassword();
-		boolean upgradeEncoding = existingEncodedPassword != null && this.userDetailsPasswordService != null
+		boolean upgradeEncoding = existingEncodedPassword != null
+				&& !Objects.equals(this.userDetailsPasswordService, UserDetailsPasswordService.NOOP)
 				&& this.passwordEncoder.get().upgradeEncoding(existingEncodedPassword);
 		if (upgradeEncoding) {
 			String newPassword = this.passwordEncoder.get().encode(presentedPassword);

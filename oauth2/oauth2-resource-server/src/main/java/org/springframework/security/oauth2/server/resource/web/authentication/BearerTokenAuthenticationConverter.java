@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.server.resource.web.authentication;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.core.Authentication;
@@ -43,7 +44,7 @@ public final class BearerTokenAuthenticationConverter implements AuthenticationC
 	private BearerTokenResolver bearerTokenResolver = new DefaultBearerTokenResolver();
 
 	@Override
-	public Authentication convert(HttpServletRequest request) {
+	public @Nullable Authentication convert(HttpServletRequest request) {
 		String token = this.bearerTokenResolver.resolve(request);
 		if (StringUtils.hasText(token)) {
 			BearerTokenAuthenticationToken authenticationToken = new BearerTokenAuthenticationToken(token);

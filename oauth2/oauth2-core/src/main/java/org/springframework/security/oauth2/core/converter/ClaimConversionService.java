@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.core.converter;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.converter.ConverterRegistry;
 import org.springframework.core.convert.support.GenericConversionService;
@@ -32,7 +34,7 @@ import org.springframework.security.oauth2.core.ClaimAccessor;
  */
 public final class ClaimConversionService extends GenericConversionService {
 
-	private static volatile ClaimConversionService sharedInstance;
+	private static volatile @Nullable ClaimConversionService sharedInstance;
 
 	private ClaimConversionService() {
 		addConverters(this);

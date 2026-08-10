@@ -178,12 +178,10 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 		given(this.authenticationRequestResolver.resolve(any())).willReturn(request);
 		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
 		assertThat(this.response.getHeader("Location")).isNull();
-		assertThat(this.response.getContentAsString()).contains(
-				"<meta http-equiv=\"Content-Security-Policy\" content=\"script-src 'sha256-oZhLbc2kO8b8oaYLrUc7uye1MgVKMyLtPqWR4WtKF+c='\">")
-			.contains("<script>window.onload = function() { document.forms[0].submit(); }</script>")
-			.contains("<form action=\"https://sso-url.example.com/IDP/SSO\" method=\"post\">")
-			.contains("<input type=\"hidden\" name=\"SAMLRequest\"")
+		assertThat(this.response.getContentAsString()).contains("action=\"https://sso-url.example.com/IDP/SSO\"")
+			.contains("name=\"SAMLRequest\"")
 			.contains("value=\"" + relayStateEncoded + "\"");
+		assertThat(this.response.getHeader("Content-Security-Policy")).matches("script-src 'nonce-.+'");
 	}
 
 	@Test

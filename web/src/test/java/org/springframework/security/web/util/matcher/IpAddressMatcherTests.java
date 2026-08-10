@@ -154,6 +154,12 @@ public class IpAddressMatcherTests {
 			.withMessage("ipAddress cannot be empty");
 	}
 
+	@Test
+	public void isIpAddressWhenEmptyOrBlankThenThrowsIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new IpAddressMatcher("   "))
+			.withMessage("ipAddress cannot be empty");
+	}
+
 	// gh-16795
 	@Test
 	public void toStringWhenCidrIsProvidedThenReturnsIpAddressWithCidr() {

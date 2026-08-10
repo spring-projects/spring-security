@@ -286,7 +286,7 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
         if (factoryOfRequestAuthorizationContext != null) {
             return factoryOfRequestAuthorizationContext
         }
-        val factoryOfObjectType = ResolvableType.forClassWithGenerics(AuthorizationManagerFactory::class.java, Object::class.java)
+        val factoryOfObjectType = ResolvableType.forClassWithGenerics(AuthorizationManagerFactory::class.java, Any::class.java)
         val factoryOfAny = context.getBeanProvider<AuthorizationManagerFactory<Any>>(factoryOfObjectType).getIfUnique()
         if (factoryOfAny != null) {
             return factoryOfAny
@@ -303,20 +303,20 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl {
         return defaultFactory
     }
 
-    private fun resolveRolePrefix(context: ApplicationContext): String {
+    private fun resolveRolePrefix(context: ApplicationContext): String? {
         val beanNames = context.getBeanNamesForType(GrantedAuthorityDefaults::class.java)
         if (beanNames.isNotEmpty()) {
             return context.getBean(GrantedAuthorityDefaults::class.java).rolePrefix
         }
-        return "ROLE_";
+        return null
     }
 
-    private fun resolveRoleHierarchy(context: ApplicationContext): RoleHierarchy {
+    private fun resolveRoleHierarchy(context: ApplicationContext): RoleHierarchy? {
         val beanNames = context.getBeanNamesForType(RoleHierarchy::class.java)
         if (beanNames.isNotEmpty()) {
             return context.getBean(RoleHierarchy::class.java)
         }
-        return NullRoleHierarchy()
+        return null
     }
 
 }

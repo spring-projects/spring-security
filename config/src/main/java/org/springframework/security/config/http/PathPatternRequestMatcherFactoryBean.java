@@ -70,7 +70,7 @@ public final class PathPatternRequestMatcherFactoryBean
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (this.basePath != null) {
-			this.builder.basePath(this.basePath);
+			this.builder = this.builder.basePath(this.basePath);
 		}
 	}
 

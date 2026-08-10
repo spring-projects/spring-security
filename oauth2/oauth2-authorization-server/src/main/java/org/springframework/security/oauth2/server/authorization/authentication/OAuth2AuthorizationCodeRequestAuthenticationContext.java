@@ -22,7 +22,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsent;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
@@ -50,9 +51,8 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationContext implement
 	}
 
 	@SuppressWarnings("unchecked")
-	@Nullable
 	@Override
-	public <V> V get(Object key) {
+	public <V> @Nullable V get(Object key) {
 		return hasKey(key) ? (V) this.context.get(key) : null;
 	}
 
@@ -67,15 +67,16 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationContext implement
 	 * @return the {@link RegisteredClient}
 	 */
 	public RegisteredClient getRegisteredClient() {
-		return get(RegisteredClient.class);
+		RegisteredClient registeredClient = get(RegisteredClient.class);
+		Assert.notNull(registeredClient, "registeredClient cannot be null");
+		return registeredClient;
 	}
 
 	/**
 	 * Returns the {@link OAuth2AuthorizationRequest authorization request}.
 	 * @return the {@link OAuth2AuthorizationRequest}
 	 */
-	@Nullable
-	public OAuth2AuthorizationRequest getAuthorizationRequest() {
+	public @Nullable OAuth2AuthorizationRequest getAuthorizationRequest() {
 		return get(OAuth2AuthorizationRequest.class);
 	}
 
@@ -83,8 +84,7 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationContext implement
 	 * Returns the {@link OAuth2AuthorizationConsent authorization consent}.
 	 * @return the {@link OAuth2AuthorizationConsent}
 	 */
-	@Nullable
-	public OAuth2AuthorizationConsent getAuthorizationConsent() {
+	public @Nullable OAuth2AuthorizationConsent getAuthorizationConsent() {
 		return get(OAuth2AuthorizationConsent.class);
 	}
 

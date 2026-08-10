@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.server.authorization;
 
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -36,6 +37,7 @@ import java.util.function.Function;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.JacksonModule;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -54,7 +56,6 @@ import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobCreator;
 import org.springframework.jdbc.support.lob.LobHandler;
-import org.springframework.lang.Nullable;
 import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -210,7 +211,7 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 
 	private static final String REMOVE_AUTHORIZATION_SQL = "DELETE FROM " + TABLE_NAME + " WHERE " + PK_FILTER;
 
-	private static Map<String, ColumnMetadata> columnMetadataMap;
+	private static final Map<String, ColumnMetadata> columnMetadataMap = new HashMap<>();
 
 	private final JdbcOperations jdbcOperations;
 
@@ -292,18 +293,16 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 		this.jdbcOperations.update(REMOVE_AUTHORIZATION_SQL, pss);
 	}
 
-	@Nullable
 	@Override
-	public OAuth2Authorization findById(String id) {
+	public @Nullable OAuth2Authorization findById(String id) {
 		Assert.hasText(id, "id cannot be empty");
 		List<SqlParameterValue> parameters = new ArrayList<>();
 		parameters.add(new SqlParameterValue(Types.VARCHAR, id));
 		return findBy(PK_FILTER, parameters);
 	}
 
-	@Nullable
 	@Override
-	public OAuth2Authorization findByToken(String token, @Nullable OAuth2TokenType tokenType) {
+	public @Nullable OAuth2Authorization findByToken(String token, @Nullable OAuth2TokenType tokenType) {
 		Assert.hasText(token, "token cannot be empty");
 		List<SqlParameterValue> parameters = new ArrayList<>();
 		if (tokenType == null) {
@@ -347,7 +346,7 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 		return null;
 	}
 
-	private OAuth2Authorization findBy(String filter, List<SqlParameterValue> parameters) {
+	private @Nullable OAuth2Authorization findBy(String filter, List<SqlParameterValue> parameters) {
 		try (LobCreator lobCreator = getLobHandler().getLobCreator()) {
 			PreparedStatementSetter pss = new LobCreatorArgumentPreparedStatementSetter(lobCreator,
 					parameters.toArray());
@@ -399,7 +398,7 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 	}
 
 	private static void initColumnMetadata(JdbcOperations jdbcOperations) {
-		columnMetadataMap = new HashMap<>();
+		columnMetadataMap.clear();
 		ColumnMetadata columnMetadata;
 
 		columnMetadata = getColumnMetadata(jdbcOperations, "attributes", Types.BLOB);
@@ -432,32 +431,37 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 
 	private static ColumnMetadata getColumnMetadata(JdbcOperations jdbcOperations, String columnName,
 			int defaultDataType) {
-		Integer dataType = jdbcOperations.execute((ConnectionCallback<Integer>) (conn) -> {
-			DatabaseMetaData databaseMetaData = conn.getMetaData();
-			ResultSet rs = databaseMetaData.getColumns(null, null, TABLE_NAME, columnName);
-			if (rs.next()) {
-				return rs.getInt("DATA_TYPE");
+		@Nullable Integer dataType = jdbcOperations.execute(new ConnectionCallback<@Nullable Integer>() {
+			@Override
+			public @Nullable Integer doInConnection(Connection conn) throws SQLException {
+				DatabaseMetaData databaseMetaData = conn.getMetaData();
+				ResultSet rs = databaseMetaData.getColumns(null, null, TABLE_NAME, columnName);
+				if (rs.next()) {
+					return rs.getInt("DATA_TYPE");
+				}
+				// NOTE: (Applies to HSQL)
+				// When a database object is created with one of the CREATE statements or
+				// renamed with the ALTER statement,
+				// if the name is enclosed in double quotes, the exact name is used as the
+				// case-normal form.
+				// But if it is not enclosed in double quotes,
+				// the name is converted to uppercase and this uppercase version is stored
+				// in
+				// the database as the case-normal form.
+				rs = databaseMetaData.getColumns(null, null, TABLE_NAME.toUpperCase(Locale.ENGLISH),
+						columnName.toUpperCase(Locale.ENGLISH));
+				if (rs.next()) {
+					return rs.getInt("DATA_TYPE");
+				}
+				return null;
 			}
-			// NOTE: (Applies to HSQL)
-			// When a database object is created with one of the CREATE statements or
-			// renamed with the ALTER statement,
-			// if the name is enclosed in double quotes, the exact name is used as the
-			// case-normal form.
-			// But if it is not enclosed in double quotes,
-			// the name is converted to uppercase and this uppercase version is stored in
-			// the database as the case-normal form.
-			rs = databaseMetaData.getColumns(null, null, TABLE_NAME.toUpperCase(Locale.ENGLISH),
-					columnName.toUpperCase(Locale.ENGLISH));
-			if (rs.next()) {
-				return rs.getInt("DATA_TYPE");
-			}
-			return null;
 		});
 		return new ColumnMetadata(columnName, (dataType != null) ? dataType : defaultDataType);
 	}
 
-	private static SqlParameterValue mapToSqlParameter(String columnName, String value) {
+	private static SqlParameterValue mapToSqlParameter(String columnName, @Nullable String value) {
 		ColumnMetadata columnMetadata = columnMetadataMap.get(columnName);
+		Assert.notNull(columnMetadata, "Column metadata not found for column '" + columnName + "'");
 		return (Types.BLOB == columnMetadata.getDataType() && StringUtils.hasText(value))
 				? new SqlParameterValue(Types.BLOB, value.getBytes(StandardCharsets.UTF_8))
 				: new SqlParameterValue(columnMetadata.getDataType(), value);
@@ -505,6 +509,7 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 	 * 3.
 	 */
 	@Deprecated(forRemoval = true, since = "7.0")
+	@SuppressWarnings("removal")
 	public static class OAuth2AuthorizationRowMapper extends AbstractOAuth2AuthorizationRowMapper {
 
 		private ObjectMapper objectMapper = Jackson2.createObjectMapper();
@@ -609,6 +614,7 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 					.equalsIgnoreCase(rs.getString("access_token_type"))) {
 					tokenType = OAuth2AccessToken.TokenType.DPOP;
 				}
+				Assert.notNull(tokenType, "access_token_type must be BEARER or DPOP");
 
 				Set<String> scopes = Collections.emptySet();
 				String accessTokenScopes = rs.getString("access_token_scopes");
@@ -626,8 +632,13 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 				tokenExpiresAt = rs.getTimestamp("oidc_id_token_expires_at").toInstant();
 				Map<String, Object> oidcTokenMetadata = parseMap(getLobValue(rs, OIDC_ID_TOKEN_METADATA));
 
-				OidcIdToken oidcToken = new OidcIdToken(oidcIdTokenValue, tokenIssuedAt, tokenExpiresAt,
-						(Map<String, Object>) oidcTokenMetadata.get(OAuth2Authorization.Token.CLAIMS_METADATA_NAME));
+				@SuppressWarnings("unchecked")
+				Map<String, Object> idTokenClaims = (Map<String, Object>) oidcTokenMetadata
+					.get(OAuth2Authorization.Token.CLAIMS_METADATA_NAME);
+				if (idTokenClaims == null) {
+					idTokenClaims = Collections.emptyMap();
+				}
+				OidcIdToken oidcToken = new OidcIdToken(oidcIdTokenValue, tokenIssuedAt, tokenExpiresAt, idTokenClaims);
 				builder.token(oidcToken, (metadata) -> metadata.putAll(oidcTokenMetadata));
 			}
 
@@ -669,9 +680,10 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 			return builder.build();
 		}
 
-		private String getLobValue(ResultSet rs, String columnName) throws SQLException {
+		private @Nullable String getLobValue(ResultSet rs, String columnName) throws SQLException {
 			String columnValue = null;
 			ColumnMetadata columnMetadata = columnMetadataMap.get(columnName);
+			Assert.notNull(columnMetadata, "Column metadata not found for column '" + columnName + "'");
 			if (Types.BLOB == columnMetadata.getDataType()) {
 				byte[] columnValueBytes = this.lobHandler.getBlobAsBytes(rs, columnName);
 				if (columnValueBytes != null) {
@@ -700,7 +712,10 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 			return this.lobHandler;
 		}
 
-		private Map<String, Object> parseMap(String data) {
+		private Map<String, Object> parseMap(@Nullable String data) {
+			if (!StringUtils.hasText(data)) {
+				return Collections.emptyMap();
+			}
 			try {
 				return readValue(data);
 			}
@@ -747,6 +762,7 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 	 * Jackson 3.
 	 */
 	@Deprecated(forRemoval = true, since = "7.0")
+	@SuppressWarnings("removal")
 	public static class OAuth2AuthorizationParametersMapper extends AbstractOAuth2AuthorizationParametersMapper {
 
 		private ObjectMapper objectMapper = Jackson2.createObjectMapper();
@@ -847,7 +863,7 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 		}
 
 		private <T extends OAuth2Token> List<SqlParameterValue> toSqlParameterList(String tokenColumnName,
-				String tokenMetadataColumnName, OAuth2Authorization.Token<T> token) {
+				String tokenMetadataColumnName, OAuth2Authorization.@Nullable Token<T> token) {
 
 			List<SqlParameterValue> parameters = new ArrayList<>();
 			String tokenValue = null;
@@ -895,6 +911,7 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 	@Deprecated(forRemoval = true, since = "7.0")
 	private static final class Jackson2 {
 
+		@SuppressWarnings("removal")
 		private static ObjectMapper createObjectMapper() {
 			ObjectMapper objectMapper = new ObjectMapper();
 			ClassLoader classLoader = Jackson2.class.getClassLoader();
@@ -930,7 +947,8 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 		}
 
 		@Override
-		protected void doSetValue(PreparedStatement ps, int parameterPosition, Object argValue) throws SQLException {
+		protected void doSetValue(PreparedStatement ps, int parameterPosition, @Nullable Object argValue)
+				throws SQLException {
 			if (argValue instanceof SqlParameterValue paramValue) {
 				if (paramValue.getSqlType() == Types.BLOB) {
 					if (paramValue.getValue() != null) {
@@ -980,7 +998,7 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 	static class JdbcOAuth2AuthorizationServiceRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
 
 		@Override
-		public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+		public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
 			hints.resources()
 				.registerResource(new ClassPathResource(
 						"org/springframework/security/oauth2/server/authorization/oauth2-authorization-schema.sql"));

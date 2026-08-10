@@ -3,11 +3,9 @@ package org.springframework.security.kt.docs.servlet.authentication.validduratio
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authorization.AuthorizationManagerFactories
-import org.springframework.security.authorization.AuthorizationManagerFactory
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
-import org.springframework.security.core.authority.FactorGrantedAuthority
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
@@ -55,6 +53,7 @@ internal class ValidDurationConfiguration {
     }
 
     // end::httpSecurity[]
+    @Suppress("DEPRECATION")
     @Bean
     fun userDetailsService(): UserDetailsService {
         return InMemoryUserDetailsManager(

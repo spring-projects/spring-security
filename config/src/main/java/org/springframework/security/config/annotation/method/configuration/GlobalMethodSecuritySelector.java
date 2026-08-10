@@ -39,6 +39,9 @@ import org.springframework.util.ClassUtils;
 @Deprecated
 final class GlobalMethodSecuritySelector implements ImportSelector {
 
+	private static final boolean isAccessPresent = ClassUtils.isPresent(
+			"org.springframework.security.access.intercept.aopalliance.MethodSecurityMetadataSourceAdvisor", null);
+
 	@Override
 	public String[] selectImports(AnnotationMetadata importingClassMetadata) {
 		Class<EnableGlobalMethodSecurity> annoType = EnableGlobalMethodSecurity.class;
@@ -59,16 +62,26 @@ final class GlobalMethodSecuritySelector implements ImportSelector {
 		boolean jsr250Enabled = attributes.getBoolean("jsr250Enabled");
 		List<String> classNames = new ArrayList<>(4);
 		if (isProxy) {
+			assertAccessModulePresent();
 			classNames.add(MethodSecurityMetadataSourceAdvisorRegistrar.class.getName());
 		}
 		classNames.add(autoProxyClassName);
 		if (!skipMethodSecurityConfiguration) {
+			assertAccessModulePresent();
 			classNames.add(GlobalMethodSecurityConfiguration.class.getName());
 		}
 		if (jsr250Enabled) {
+			assertAccessModulePresent();
 			classNames.add(Jsr250MetadataSourceConfiguration.class.getName());
 		}
 		return classNames.toArray(new String[0]);
+	}
+
+	private static void assertAccessModulePresent() {
+		Assert.state(isAccessPresent,
+				() -> "@EnableGlobalMethodSecurity requires the spring-security-access dependency on the "
+						+ "classpath. Please add spring-security-access, or migrate to @EnableMethodSecurity "
+						+ "which does not require it.");
 	}
 
 }

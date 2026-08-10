@@ -168,7 +168,7 @@ class ServerJwtDslTests {
     }
 
     class NullReactiveJwtDecoder: ReactiveJwtDecoder {
-        override fun decode(token: String?): Mono<Jwt> {
+        override fun decode(token: String): Mono<Jwt> {
             return Mono.empty()
         }
     }

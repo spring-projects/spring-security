@@ -26,6 +26,7 @@ import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
 import org.ietf.jgss.GSSName;
 import org.ietf.jgss.Oid;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -59,9 +60,9 @@ public final class KerberosMultiTier {
 		final JaasSubjectHolder jaasSubjectHolder = kerberosAuthentication.getJaasSubjectHolder();
 		Subject subject = jaasSubjectHolder.getJaasSubject();
 
-		Subject.doAs(subject, new PrivilegedAction<Object>() {
+		Subject.doAs(subject, new PrivilegedAction<@Nullable Object>() {
 			@Override
-			public Object run() {
+			public @Nullable Object run() {
 				runAuthentication(jaasSubjectHolder, username, lifetimeInSeconds, targetService);
 
 				return null;
@@ -71,7 +72,7 @@ public final class KerberosMultiTier {
 		return authentication;
 	}
 
-	public static byte[] getTokenForService(Authentication authentication, String principalName) {
+	public static byte @Nullable [] getTokenForService(Authentication authentication, String principalName) {
 		KerberosAuthentication kerberosAuthentication = (KerberosAuthentication) authentication;
 		final JaasSubjectHolder jaasSubjectHolder = kerberosAuthentication.getJaasSubjectHolder();
 

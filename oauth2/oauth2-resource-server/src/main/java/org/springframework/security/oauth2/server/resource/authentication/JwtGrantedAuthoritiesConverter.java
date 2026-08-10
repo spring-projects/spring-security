@@ -23,6 +23,7 @@ import java.util.Collections;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.log.LogMessage;
@@ -105,7 +106,7 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 		this.authoritiesClaimNames = Collections.singletonList(authoritiesClaimName);
 	}
 
-	private String getAuthoritiesClaimName(Jwt jwt) {
+	private @Nullable String getAuthoritiesClaimName(Jwt jwt) {
 		for (String claimName : this.authoritiesClaimNames) {
 			if (jwt.hasClaim(claimName)) {
 				return claimName;

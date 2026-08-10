@@ -49,7 +49,7 @@ public class RequestKey {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (!(obj instanceof RequestKey key)) {
 			return false;
 		}

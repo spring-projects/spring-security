@@ -31,6 +31,7 @@ import java.util.function.Function;
 
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.dao.DataRetrievalFailureException;
@@ -240,7 +241,7 @@ public class R2dbcReactiveOAuth2AuthorizedClientService implements ReactiveOAuth
 
 		private final OAuth2AccessToken accessToken;
 
-		private final OAuth2RefreshToken refreshToken;
+		private final @Nullable OAuth2RefreshToken refreshToken;
 
 		/**
 		 * Constructs an {@code OAuth2AuthorizedClientHolder} using the provided
@@ -266,7 +267,7 @@ public class R2dbcReactiveOAuth2AuthorizedClientService implements ReactiveOAuth
 		 * @param refreshToken the refresh token
 		 */
 		public OAuth2AuthorizedClientHolder(String clientRegistrationId, String principalName,
-				OAuth2AccessToken accessToken, OAuth2RefreshToken refreshToken) {
+				OAuth2AccessToken accessToken, @Nullable OAuth2RefreshToken refreshToken) {
 			Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
 			Assert.hasText(principalName, "principalName cannot be empty");
 			Assert.notNull(accessToken, "accessToken cannot be null");
@@ -288,7 +289,7 @@ public class R2dbcReactiveOAuth2AuthorizedClientService implements ReactiveOAuth
 			return this.accessToken;
 		}
 
-		public OAuth2RefreshToken getRefreshToken() {
+		public @Nullable OAuth2RefreshToken getRefreshToken() {
 			return this.refreshToken;
 		}
 
@@ -317,10 +318,16 @@ public class R2dbcReactiveOAuth2AuthorizedClientService implements ReactiveOAuth
 					Parameter.fromOrEmpty(accessToken.getTokenType().getValue(), String.class));
 			parameters.put("accessTokenValue", Parameter.fromOrEmpty(
 					ByteBuffer.wrap(accessToken.getTokenValue().getBytes(StandardCharsets.UTF_8)), ByteBuffer.class));
-			parameters.put("accessTokenIssuedAt", Parameter
-				.fromOrEmpty(LocalDateTime.ofInstant(accessToken.getIssuedAt(), ZoneOffset.UTC), LocalDateTime.class));
-			parameters.put("accessTokenExpiresAt", Parameter
-				.fromOrEmpty(LocalDateTime.ofInstant(accessToken.getExpiresAt(), ZoneOffset.UTC), LocalDateTime.class));
+			Instant accessTokenIssuedAt = accessToken.getIssuedAt();
+			Instant accessTokenExpiresAt = accessToken.getExpiresAt();
+			parameters.put("accessTokenIssuedAt", Parameter.fromOrEmpty(
+					(accessTokenIssuedAt != null) ? LocalDateTime.ofInstant(accessTokenIssuedAt, ZoneOffset.UTC) : null,
+					LocalDateTime.class));
+			parameters.put("accessTokenExpiresAt",
+					Parameter.fromOrEmpty(
+							(accessTokenExpiresAt != null)
+									? LocalDateTime.ofInstant(accessTokenExpiresAt, ZoneOffset.UTC) : null,
+							LocalDateTime.class));
 			String accessTokenScopes = null;
 			if (!CollectionUtils.isEmpty(accessToken.getScopes())) {
 				accessTokenScopes = StringUtils.collectionToDelimitedString(accessToken.getScopes(), ",");
@@ -353,17 +360,29 @@ public class R2dbcReactiveOAuth2AuthorizedClientService implements ReactiveOAuth
 
 		@Override
 		public OAuth2AuthorizedClientHolder apply(Row row, RowMetadata rowMetadata) {
-
-			String dbClientRegistrationId = row.get("client_registration_id", String.class);
-			OAuth2AccessToken.TokenType tokenType = null;
-			if (OAuth2AccessToken.TokenType.BEARER.getValue()
-				.equalsIgnoreCase(row.get("access_token_type", String.class))) {
-				tokenType = OAuth2AccessToken.TokenType.BEARER;
+			String clientRegistrationId = row.get("client_registration_id", String.class);
+			Assert.hasText(clientRegistrationId, "client_registration_id cannot be empty");
+			String principalName = row.get("principal_name", String.class);
+			Assert.hasText(principalName, "principal_name cannot be empty");
+			OAuth2AccessToken.TokenType tokenType = OAuth2AccessToken.TokenType.BEARER;
+			String accessTokenType = row.get("access_token_type", String.class);
+			if (StringUtils.hasText(accessTokenType)
+					&& !OAuth2AccessToken.TokenType.BEARER.getValue().equalsIgnoreCase(accessTokenType)) {
+				tokenType = new OAuth2AccessToken.TokenType(accessTokenType);
 			}
-			String tokenValue = new String(row.get("access_token_value", ByteBuffer.class).array(),
-					StandardCharsets.UTF_8);
-			Instant issuedAt = row.get("access_token_issued_at", LocalDateTime.class).toInstant(ZoneOffset.UTC);
-			Instant expiresAt = row.get("access_token_expires_at", LocalDateTime.class).toInstant(ZoneOffset.UTC);
+			ByteBuffer accessTokenValueBuffer = row.get("access_token_value", ByteBuffer.class);
+			Assert.notNull(accessTokenValueBuffer, "access_token_value cannot be null");
+			String tokenValue = new String(accessTokenValueBuffer.array(), StandardCharsets.UTF_8);
+			Instant issuedAt = null;
+			LocalDateTime issuedAtLdt = row.get("access_token_issued_at", LocalDateTime.class);
+			if (issuedAtLdt != null) {
+				issuedAt = issuedAtLdt.toInstant(ZoneOffset.UTC);
+			}
+			Instant expiresAt = null;
+			LocalDateTime expiresAtLdt = row.get("access_token_expires_at", LocalDateTime.class);
+			if (expiresAtLdt != null) {
+				expiresAt = expiresAtLdt.toInstant(ZoneOffset.UTC);
+			}
 
 			Set<String> scopes = Collections.emptySet();
 			String accessTokenScopes = row.get("access_token_scopes", String.class);
@@ -374,19 +393,18 @@ public class R2dbcReactiveOAuth2AuthorizedClientService implements ReactiveOAuth
 					scopes);
 
 			OAuth2RefreshToken refreshToken = null;
-			ByteBuffer refreshTokenValue = row.get("refresh_token_value", ByteBuffer.class);
-			if (refreshTokenValue != null) {
-				tokenValue = new String(refreshTokenValue.array(), StandardCharsets.UTF_8);
+			ByteBuffer refreshTokenValueBuffer = row.get("refresh_token_value", ByteBuffer.class);
+			if (refreshTokenValueBuffer != null) {
+				tokenValue = new String(refreshTokenValueBuffer.array(), StandardCharsets.UTF_8);
 				issuedAt = null;
-				LocalDateTime refreshTokenIssuedAt = row.get("refresh_token_issued_at", LocalDateTime.class);
-				if (refreshTokenIssuedAt != null) {
-					issuedAt = refreshTokenIssuedAt.toInstant(ZoneOffset.UTC);
+				issuedAtLdt = row.get("refresh_token_issued_at", LocalDateTime.class);
+				if (issuedAtLdt != null) {
+					issuedAt = issuedAtLdt.toInstant(ZoneOffset.UTC);
 				}
 				refreshToken = new OAuth2RefreshToken(tokenValue, issuedAt);
 			}
 
-			String dbPrincipalName = row.get("principal_name", String.class);
-			return new OAuth2AuthorizedClientHolder(dbClientRegistrationId, dbPrincipalName, accessToken, refreshToken);
+			return new OAuth2AuthorizedClientHolder(clientRegistrationId, principalName, accessToken, refreshToken);
 		}
 
 	}

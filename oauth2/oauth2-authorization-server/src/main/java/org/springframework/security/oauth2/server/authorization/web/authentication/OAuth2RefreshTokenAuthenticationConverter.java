@@ -19,12 +19,13 @@ package org.springframework.security.oauth2.server.authorization.web.authenticat
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
-import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -33,6 +34,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2RefreshTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.web.OAuth2TokenEndpointFilter;
 import org.springframework.security.web.authentication.AuthenticationConverter;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
@@ -50,9 +52,8 @@ import org.springframework.util.StringUtils;
  */
 public final class OAuth2RefreshTokenAuthenticationConverter implements AuthenticationConverter {
 
-	@Nullable
 	@Override
-	public Authentication convert(HttpServletRequest request) {
+	public @Nullable Authentication convert(HttpServletRequest request) {
 		MultiValueMap<String, String> parameters = OAuth2EndpointUtils.getFormParameters(request);
 
 		// grant_type (REQUIRED)
@@ -61,18 +62,19 @@ public final class OAuth2RefreshTokenAuthenticationConverter implements Authenti
 			return null;
 		}
 
-		Authentication clientPrincipal = SecurityContextHolder.getContext().getAuthentication();
-
 		// refresh_token (REQUIRED)
 		String refreshToken = parameters.getFirst(OAuth2ParameterNames.REFRESH_TOKEN);
-		if (!StringUtils.hasText(refreshToken) || parameters.get(OAuth2ParameterNames.REFRESH_TOKEN).size() != 1) {
+		List<String> refreshTokenParams = parameters.get(OAuth2ParameterNames.REFRESH_TOKEN);
+		if (!StringUtils.hasText(refreshToken) || refreshTokenParams == null || refreshTokenParams.size() != 1) {
 			OAuth2EndpointUtils.throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.REFRESH_TOKEN,
 					OAuth2EndpointUtils.ACCESS_TOKEN_REQUEST_ERROR_URI);
 		}
+		Assert.notNull(refreshToken, "refreshToken cannot be null");
 
 		// scope (OPTIONAL)
 		String scope = parameters.getFirst(OAuth2ParameterNames.SCOPE);
-		if (StringUtils.hasText(scope) && parameters.get(OAuth2ParameterNames.SCOPE).size() != 1) {
+		List<String> scopeParams = parameters.get(OAuth2ParameterNames.SCOPE);
+		if (StringUtils.hasText(scope) && scopeParams != null && scopeParams.size() != 1) {
 			OAuth2EndpointUtils.throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.SCOPE,
 					OAuth2EndpointUtils.ACCESS_TOKEN_REQUEST_ERROR_URI);
 		}
@@ -91,6 +93,9 @@ public final class OAuth2RefreshTokenAuthenticationConverter implements Authenti
 
 		// Validate DPoP Proof HTTP Header (if available)
 		OAuth2EndpointUtils.validateAndAddDPoPParametersIfAvailable(request, additionalParameters);
+
+		Authentication clientPrincipal = SecurityContextHolder.getContext().getAuthentication();
+		Assert.notNull(clientPrincipal, "clientPrincipal cannot be null");
 
 		return new OAuth2RefreshTokenAuthenticationToken(refreshToken, clientPrincipal, requestedScopes,
 				additionalParameters);

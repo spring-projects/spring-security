@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -92,8 +93,10 @@ public final class OidcLogoutAuthenticationSuccessHandler implements Authenticat
 	}
 
 	private void performLogout(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication) {
-		OidcLogoutAuthenticationToken oidcLogoutAuthentication = (OidcLogoutAuthenticationToken) authentication;
+			@Nullable Authentication authentication) {
+		if (!(authentication instanceof OidcLogoutAuthenticationToken oidcLogoutAuthentication)) {
+			return;
+		}
 
 		// Check for active user session
 		if (oidcLogoutAuthentication.isPrincipalAuthenticated()) {

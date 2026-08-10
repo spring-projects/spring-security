@@ -18,6 +18,7 @@ package org.springframework.security.saml2.provider.service.metadata;
 
 import java.util.function.Consumer;
 
+import org.jspecify.annotations.NullMarked;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
@@ -31,6 +32,7 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
  * @author Josh Cummings
  * @since 5.4
  */
+@NullMarked
 public final class OpenSaml5MetadataResolver implements Saml2MetadataResolver {
 
 	static {

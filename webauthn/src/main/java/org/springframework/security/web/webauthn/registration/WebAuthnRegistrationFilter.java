@@ -17,6 +17,7 @@
 package org.springframework.security.web.webauthn.registration;
 
 import java.io.IOException;
+import java.util.function.Supplier;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -35,6 +36,12 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.http.server.ServletServerHttpResponse;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
+import org.springframework.security.authorization.SingleResultAuthorizationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.webauthn.api.Bytes;
@@ -88,6 +95,9 @@ public class WebAuthnRegistrationFilter extends OncePerRequestFilter {
 
 	private final UserCredentialRepository userCredentials;
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+		.getContextHolderStrategy();
+
 	private HttpMessageConverter<Object> converter = new JacksonJsonHttpMessageConverter(
 			JsonMapper.builder().addModule(new WebauthnJacksonModule()).build());
 
@@ -98,6 +108,9 @@ public class WebAuthnRegistrationFilter extends OncePerRequestFilter {
 
 	private RequestMatcher removeCredentialMatcher = PathPatternRequestMatcher.withDefaults()
 		.matcher(HttpMethod.DELETE, "/webauthn/register/{id}");
+
+	private AuthorizationManager<Bytes> deleteCredentialAuthorizationManager = SingleResultAuthorizationManager
+		.denyAll();
 
 	public WebAuthnRegistrationFilter(UserCredentialRepository userCredentials,
 			WebAuthnRelyingPartyOperations rpOptions) {
@@ -131,6 +144,42 @@ public class WebAuthnRegistrationFilter extends OncePerRequestFilter {
 	public void setRemoveCredentialMatcher(RequestMatcher removeCredentialMatcher) {
 		Assert.notNull(removeCredentialMatcher, "removeCredentialMatcher cannot be null");
 		this.removeCredentialMatcher = removeCredentialMatcher;
+	}
+
+	/**
+	 * Sets the {@link AuthorizationManager} used to authorize the delete credential
+	 * operation. The object being authorized is the credential id as {@link Bytes}. By
+	 * default, all delete requests are denied.
+	 *
+	 * <p>
+	 * Per the <a href="https://www.w3.org/TR/webauthn-3/#credential-id">WebAuthn
+	 * specification</a>, a credential id must contain at least 16 bytes with at least 100
+	 * bits of entropy, making it practically unguessable. The specification also advises
+	 * that credential ids should be kept private, as exposing them can leak personally
+	 * identifying information (see
+	 * <a href="https://www.w3.org/TR/webauthn-3/#sctn-credential-id-privacy-leak">§
+	 * 14.6.3 Privacy leak via credential IDs</a>). This {@link AuthorizationManager} is
+	 * therefore intended as defense in depth: even if a credential id were somehow
+	 * exposed, an unauthorized user could not delete another user's credential.
+	 * @param deleteCredentialAuthorizationManager the {@link AuthorizationManager} to use
+	 * @since 6.5.10
+	 */
+	public void setDeleteCredentialAuthorizationManager(
+			AuthorizationManager<Bytes> deleteCredentialAuthorizationManager) {
+		Assert.notNull(deleteCredentialAuthorizationManager, "deleteCredentialAuthorizationManager cannot be null");
+		this.deleteCredentialAuthorizationManager = deleteCredentialAuthorizationManager;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default is
+	 * {@link SecurityContextHolder#getContextHolderStrategy()}.
+	 * @param securityContextHolderStrategy the {@link SecurityContextHolderStrategy} to
+	 * use
+	 * @since 6.5.10
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 	@Override
@@ -204,7 +253,15 @@ public class WebAuthnRegistrationFilter extends OncePerRequestFilter {
 
 	private void removeCredential(HttpServletRequest request, HttpServletResponse response, @Nullable String id)
 			throws IOException {
-		this.userCredentials.delete(Bytes.fromBase64(id));
+		Bytes credentialId = Bytes.fromBase64(id);
+		Supplier<Authentication> authentication = () -> this.securityContextHolderStrategy.getContext()
+			.getAuthentication();
+		AuthorizationResult result = this.deleteCredentialAuthorizationManager.authorize(authentication, credentialId);
+		if (result != null && !result.isGranted()) {
+			response.setStatus(HttpStatus.FORBIDDEN.value());
+			return;
+		}
+		this.userCredentials.delete(credentialId);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 

@@ -31,7 +31,11 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.SingleResultAuthorizationManager;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.webauthn.api.Bytes;
 import org.springframework.security.web.webauthn.api.ImmutableCredentialRecord;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
 import org.springframework.security.web.webauthn.api.TestCredentialRecords;
@@ -213,10 +217,39 @@ class WebAuthnRegistrationFilterTests {
 
 	@Test
 	void doFilterWhenDeleteSuccessThenNoContent() throws Exception {
+		this.filter.setDeleteCredentialAuthorizationManager(SingleResultAuthorizationManager.permitAll());
 		MockHttpServletRequest request = MockMvcRequestBuilders.delete("/webauthn/register/123456")
 			.buildRequest(new MockServletContext());
 		this.filter.doFilter(request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
+	}
+
+	@Test
+	void setDeleteCredentialAuthorizationManagerWhenNullThenIllegalArgument() {
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> this.filter.setDeleteCredentialAuthorizationManager(null));
+	}
+
+	@Test
+	void doFilterWhenDeleteAndCustomAuthorizationManagerThenUses() throws Exception {
+		AuthorizationManager<Bytes> authorizationManager = mock(AuthorizationManager.class);
+		given(authorizationManager.authorize(any(), any())).willReturn(new AuthorizationDecision(true));
+		this.filter.setDeleteCredentialAuthorizationManager(authorizationManager);
+		MockHttpServletRequest request = MockMvcRequestBuilders.delete("/webauthn/register/123456")
+			.buildRequest(new MockServletContext());
+		this.filter.doFilter(request, this.response, this.chain);
+		verify(authorizationManager).authorize(any(), any());
+	}
+
+	@Test
+	void doFilterWhenDeleteAndAuthorizationDeniedThenForbidden() throws Exception {
+		AuthorizationManager<Bytes> authorizationManager = mock(AuthorizationManager.class);
+		given(authorizationManager.authorize(any(), any())).willReturn(new AuthorizationDecision(false));
+		this.filter.setDeleteCredentialAuthorizationManager(authorizationManager);
+		MockHttpServletRequest request = MockMvcRequestBuilders.delete("/webauthn/register/123456")
+			.buildRequest(new MockServletContext());
+		this.filter.doFilter(request, this.response, this.chain);
+		assertThat(this.response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
 	}
 
 	private static MockHttpServletRequest registerCredentialRequest(String body) {

@@ -19,7 +19,8 @@ package org.springframework.security.oauth2.server.authorization.authentication;
 import java.io.Serial;
 import java.util.Collections;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.authorization.OAuth2ClientRegistration;
@@ -40,8 +41,7 @@ public class OAuth2ClientRegistrationAuthenticationToken extends AbstractAuthent
 	@Serial
 	private static final long serialVersionUID = 7135429161909989115L;
 
-	@Nullable
-	private final Authentication principal;
+	private final @Nullable Authentication principal;
 
 	private final OAuth2ClientRegistration clientRegistration;
 
@@ -62,9 +62,8 @@ public class OAuth2ClientRegistrationAuthenticationToken extends AbstractAuthent
 		}
 	}
 
-	@Nullable
 	@Override
-	public Object getPrincipal() {
+	public @Nullable Object getPrincipal() {
 		return this.principal;
 	}
 

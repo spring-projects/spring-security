@@ -18,11 +18,13 @@ package org.springframework.security.oauth2.server.resource.web.reactive.functio
 
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2Token;
+import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
@@ -71,9 +73,13 @@ public final class ServletBearerExchangeFilterFunction implements ExchangeFilter
 		return Mono.deferContextual(Mono::just)
 				.cast(Context.class)
 				.flatMap(this::currentAuthentication)
-				.filter((authentication) -> authentication.getCredentials() instanceof OAuth2Token)
-				.map(Authentication::getCredentials)
-				.cast(OAuth2Token.class);
+				.filter((authentication) -> authentication.getCredentials() != null
+						&& authentication.getCredentials() instanceof OAuth2Token)
+				.map((authentication) -> {
+					Object credentials = authentication.getCredentials();
+					Assert.notNull(credentials, "credentials cannot be null");
+					return (OAuth2Token) credentials;
+				});
 		// @formatter:on
 	}
 
@@ -81,7 +87,7 @@ public final class ServletBearerExchangeFilterFunction implements ExchangeFilter
 		return Mono.justOrEmpty(getAttribute(ctx, Authentication.class));
 	}
 
-	private <T> T getAttribute(Context ctx, Class<T> clazz) {
+	private <T> @Nullable T getAttribute(Context ctx, Class<T> clazz) {
 		// NOTE: SecurityReactorContextConfiguration.SecurityReactorContextSubscriber adds
 		// this key
 		if (!ctx.hasKey(SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY)) {

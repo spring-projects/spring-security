@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.server.resource.web.server;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
@@ -49,9 +50,9 @@ import org.springframework.web.server.ServerWebExchange;
  */
 public final class BearerTokenServerAuthenticationEntryPoint implements ServerAuthenticationEntryPoint {
 
-	private String realmName;
+	private @Nullable String realmName;
 
-	public void setRealmName(String realmName) {
+	public void setRealmName(@Nullable String realmName) {
 		this.realmName = realmName;
 	}
 

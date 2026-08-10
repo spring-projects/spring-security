@@ -17,4 +17,7 @@
 /**
  * Jackson 3+ serialization support for LDAP.
  */
+@NullMarked
 package org.springframework.security.ldap.jackson;
+
+import org.jspecify.annotations.NullMarked;

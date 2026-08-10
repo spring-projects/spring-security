@@ -1,5 +1,8 @@
 plugins {
 	id 'io.spring.convention.spring-module'
+	id 'javadoc-warnings-error'
+	id 'compile-warnings-error'
+	id 'security-nullability'
 }
 
 description = 'Spring Security Kerberos Test'

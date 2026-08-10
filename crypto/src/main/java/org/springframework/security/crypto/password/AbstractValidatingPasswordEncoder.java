@@ -18,9 +18,23 @@ package org.springframework.security.crypto.password;
 
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.lang.Contract;
+import org.springframework.util.StringUtils;
+
+/**
+ * An abstract {@link PasswordEncoder} that implementers can use for expecting the
+ * password to be non-{@code null}. Each common password API method is accompanied with an
+ * abstract method with a {@code NonNull} prefix. By implementing this, the concrete class
+ * is specifying what to do with the password when it is non-{@code null}, allowing this
+ * class to handle the {@code null} case.
+ *
+ * @author Rob Winch
+ * @since 7.0
+ */
 public abstract class AbstractValidatingPasswordEncoder implements PasswordEncoder {
 
 	@Override
+	@Contract("!null -> !null; null -> null")
 	public final @Nullable String encode(@Nullable CharSequence rawPassword) {
 		if (rawPassword == null) {
 			return null;
@@ -32,8 +46,7 @@ public abstract class AbstractValidatingPasswordEncoder implements PasswordEncod
 
 	@Override
 	public final boolean matches(@Nullable CharSequence rawPassword, @Nullable String encodedPassword) {
-		if (rawPassword == null || rawPassword.length() == 0 || encodedPassword == null
-				|| encodedPassword.length() == 0) {
+		if (!StringUtils.hasLength(rawPassword) || !StringUtils.hasLength(encodedPassword)) {
 			return false;
 		}
 		return matchesNonNull(rawPassword.toString(), encodedPassword);
@@ -43,7 +56,7 @@ public abstract class AbstractValidatingPasswordEncoder implements PasswordEncod
 
 	@Override
 	public final boolean upgradeEncoding(@Nullable String encodedPassword) {
-		if (encodedPassword == null || encodedPassword.length() == 0) {
+		if (!StringUtils.hasLength(encodedPassword)) {
 			return false;
 		}
 		return upgradeEncodingNonNull(encodedPassword);

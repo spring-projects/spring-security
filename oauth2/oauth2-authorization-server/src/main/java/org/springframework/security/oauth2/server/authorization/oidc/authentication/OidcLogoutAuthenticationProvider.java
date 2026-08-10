@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
@@ -99,7 +100,7 @@ public final class OidcLogoutAuthenticationProvider implements AuthenticationPro
 		OAuth2Authorization authorization = this.authorizationService
 			.findByToken(oidcLogoutAuthentication.getIdTokenHint(), ID_TOKEN_TOKEN_TYPE);
 		if (authorization == null) {
-			throwError(OAuth2ErrorCodes.INVALID_TOKEN, "id_token_hint");
+			throw createException(OAuth2ErrorCodes.INVALID_TOKEN, "id_token_hint");
 		}
 
 		if (this.logger.isTraceEnabled()) {
@@ -107,13 +108,15 @@ public final class OidcLogoutAuthenticationProvider implements AuthenticationPro
 		}
 
 		OAuth2Authorization.Token<OidcIdToken> authorizedIdToken = authorization.getToken(OidcIdToken.class);
+		Assert.notNull(authorizedIdToken, "authorizedIdToken cannot be null");
 		if (authorizedIdToken.isInvalidated() || authorizedIdToken.isBeforeUse()) {
 			// Expired ID Token should be accepted
-			throwError(OAuth2ErrorCodes.INVALID_TOKEN, "id_token_hint");
+			throw createException(OAuth2ErrorCodes.INVALID_TOKEN, "id_token_hint");
 		}
 
 		RegisteredClient registeredClient = this.registeredClientRepository
 			.findById(authorization.getRegisteredClientId());
+		Assert.notNull(registeredClient, "registeredClient cannot be null");
 
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace("Retrieved registered client");
@@ -124,11 +127,11 @@ public final class OidcLogoutAuthenticationProvider implements AuthenticationPro
 		// Validate client identity
 		List<String> audClaim = idToken.getAudience();
 		if (CollectionUtils.isEmpty(audClaim) || !audClaim.contains(registeredClient.getClientId())) {
-			throwError(OAuth2ErrorCodes.INVALID_TOKEN, IdTokenClaimNames.AUD);
+			throw createException(OAuth2ErrorCodes.INVALID_TOKEN, IdTokenClaimNames.AUD);
 		}
 		if (StringUtils.hasText(oidcLogoutAuthentication.getClientId())
 				&& !oidcLogoutAuthentication.getClientId().equals(registeredClient.getClientId())) {
-			throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.CLIENT_ID);
+			throw createException(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.CLIENT_ID);
 		}
 
 		OidcLogoutAuthenticationContext context = OidcLogoutAuthenticationContext.with(oidcLogoutAuthentication)
@@ -144,9 +147,10 @@ public final class OidcLogoutAuthenticationProvider implements AuthenticationPro
 		if (oidcLogoutAuthentication.isPrincipalAuthenticated()) {
 			Authentication currentUserPrincipal = (Authentication) oidcLogoutAuthentication.getPrincipal();
 			Authentication authorizedUserPrincipal = authorization.getAttribute(Principal.class.getName());
+			Assert.notNull(authorizedUserPrincipal, "authorizedUserPrincipal cannot be null");
 			if (!StringUtils.hasText(idToken.getSubject())
 					|| !currentUserPrincipal.getName().equals(authorizedUserPrincipal.getName())) {
-				throwError(OAuth2ErrorCodes.INVALID_TOKEN, IdTokenClaimNames.SUB);
+				throw createException(OAuth2ErrorCodes.INVALID_TOKEN, IdTokenClaimNames.SUB);
 			}
 
 			// Check for active session
@@ -166,7 +170,7 @@ public final class OidcLogoutAuthenticationProvider implements AuthenticationPro
 
 					String sidClaim = idToken.getClaim("sid");
 					if (!StringUtils.hasText(sidClaim) || !sidClaim.equals(sessionIdHash)) {
-						throwError(OAuth2ErrorCodes.INVALID_TOKEN, "sid");
+						throw createException(OAuth2ErrorCodes.INVALID_TOKEN, "sid");
 					}
 				}
 			}
@@ -205,8 +209,10 @@ public final class OidcLogoutAuthenticationProvider implements AuthenticationPro
 		this.authenticationValidator = authenticationValidator;
 	}
 
-	private SessionInformation findSessionInformation(Authentication principal, String sessionId) {
-		List<SessionInformation> sessions = this.sessionRegistry.getAllSessions(principal.getPrincipal(), true);
+	private @Nullable SessionInformation findSessionInformation(Authentication principal, String sessionId) {
+		Object sessionPrincipal = principal.getPrincipal();
+		Assert.notNull(sessionPrincipal, "sessionPrincipal cannot be null");
+		List<SessionInformation> sessions = this.sessionRegistry.getAllSessions(sessionPrincipal, true);
 		SessionInformation sessionInformation = null;
 		if (!CollectionUtils.isEmpty(sessions)) {
 			for (SessionInformation session : sessions) {
@@ -219,10 +225,10 @@ public final class OidcLogoutAuthenticationProvider implements AuthenticationPro
 		return sessionInformation;
 	}
 
-	private static void throwError(String errorCode, String parameterName) {
+	private static OAuth2AuthenticationException createException(String errorCode, String parameterName) {
 		OAuth2Error error = new OAuth2Error(errorCode, "OpenID Connect 1.0 Logout Request Parameter: " + parameterName,
 				"https://openid.net/specs/openid-connect-rpinitiated-1_0.html#ValidationAndErrorHandling");
-		throw new OAuth2AuthenticationException(error);
+		return new OAuth2AuthenticationException(error);
 	}
 
 	private static String createHash(String value) throws NoSuchAlgorithmException {

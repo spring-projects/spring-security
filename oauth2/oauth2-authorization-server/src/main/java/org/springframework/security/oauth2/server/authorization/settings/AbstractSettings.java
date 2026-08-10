@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -51,7 +53,7 @@ public abstract class AbstractSettings implements Serializable {
 	 * @return the value of the setting, or {@code null} if not available
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T getSetting(String name) {
+	public <T> @Nullable T getSetting(String name) {
 		Assert.hasText(name, "name cannot be empty");
 		return (T) getSettings().get(name);
 	}

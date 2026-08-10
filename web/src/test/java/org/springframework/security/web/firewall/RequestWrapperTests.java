@@ -73,7 +73,7 @@ public class RequestWrapperTests {
 			String path = entry.getKey();
 			String expectedResult = entry.getValue();
 			// Should be null when stripped value is empty
-			if (expectedResult.length() == 0) {
+			if (expectedResult.isEmpty()) {
 				expectedResult = null;
 			}
 			request.setPathInfo(path);

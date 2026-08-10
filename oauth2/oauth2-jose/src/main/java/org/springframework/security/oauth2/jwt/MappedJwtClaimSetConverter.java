@@ -23,6 +23,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.Converter;
@@ -50,7 +52,7 @@ public final class MappedJwtClaimSetConverter implements Converter<Map<String, O
 
 	private static final TypeDescriptor URL_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(URL.class);
 
-	private final Map<String, Converter<Object, ?>> claimTypeConverters;
+	private final Map<String, Converter<Object, ? extends @Nullable Object>> claimTypeConverters;
 
 	/**
 	 * Constructs a {@link MappedJwtClaimSetConverter} with the provided arguments
@@ -62,7 +64,7 @@ public final class MappedJwtClaimSetConverter implements Converter<Map<String, O
 	 * claim set.
 	 * @param claimTypeConverters The {@link Map} of converters to use
 	 */
-	public MappedJwtClaimSetConverter(Map<String, Converter<Object, ?>> claimTypeConverters) {
+	public MappedJwtClaimSetConverter(Map<String, Converter<Object, ? extends @Nullable Object>> claimTypeConverters) {
 		Assert.notNull(claimTypeConverters, "claimTypeConverters cannot be null");
 		this.claimTypeConverters = claimTypeConverters;
 	}
@@ -96,12 +98,13 @@ public final class MappedJwtClaimSetConverter implements Converter<Map<String, O
 	 * @return An instance of {@link MappedJwtClaimSetConverter} that contains the
 	 * converters provided, plus any defaults that were not overridden.
 	 */
-	public static MappedJwtClaimSetConverter withDefaults(Map<String, Converter<Object, ?>> claimTypeConverters) {
+	public static MappedJwtClaimSetConverter withDefaults(
+			Map<String, Converter<Object, ? extends @Nullable Object>> claimTypeConverters) {
 		Assert.notNull(claimTypeConverters, "claimTypeConverters cannot be null");
-		Converter<Object, ?> stringConverter = getConverter(STRING_TYPE_DESCRIPTOR);
-		Converter<Object, ?> collectionStringConverter = getConverter(
+		Converter<Object, ? extends @Nullable Object> stringConverter = getConverter(STRING_TYPE_DESCRIPTOR);
+		Converter<Object, ? extends @Nullable Object> collectionStringConverter = getConverter(
 				TypeDescriptor.collection(Collection.class, STRING_TYPE_DESCRIPTOR));
-		Map<String, Converter<Object, ?>> claimNameToConverter = new HashMap<>();
+		Map<String, Converter<Object, ? extends @Nullable Object>> claimNameToConverter = new HashMap<>();
 		claimNameToConverter.put(JwtClaimNames.AUD, collectionStringConverter);
 		claimNameToConverter.put(JwtClaimNames.EXP, MappedJwtClaimSetConverter::convertInstant);
 		claimNameToConverter.put(JwtClaimNames.IAT, MappedJwtClaimSetConverter::convertInstant);
@@ -113,11 +116,11 @@ public final class MappedJwtClaimSetConverter implements Converter<Map<String, O
 		return new MappedJwtClaimSetConverter(claimNameToConverter);
 	}
 
-	private static Converter<Object, ?> getConverter(TypeDescriptor targetDescriptor) {
+	private static Converter<Object, ? extends @Nullable Object> getConverter(TypeDescriptor targetDescriptor) {
 		return (source) -> CONVERSION_SERVICE.convert(source, OBJECT_TYPE_DESCRIPTOR, targetDescriptor);
 	}
 
-	private static Instant convertInstant(Object source) {
+	private static @Nullable Instant convertInstant(Object source) {
 		if (source == null) {
 			return null;
 		}
@@ -126,7 +129,7 @@ public final class MappedJwtClaimSetConverter implements Converter<Map<String, O
 		return result;
 	}
 
-	private static String convertIssuer(Object source) {
+	private static @Nullable String convertIssuer(Object source) {
 		if (source == null) {
 			return null;
 		}
@@ -149,14 +152,14 @@ public final class MappedJwtClaimSetConverter implements Converter<Map<String, O
 	public Map<String, Object> convert(Map<String, Object> claims) {
 		Assert.notNull(claims, "claims cannot be null");
 		Map<String, Object> mappedClaims = new HashMap<>(claims);
-		for (Map.Entry<String, Converter<Object, ?>> entry : this.claimTypeConverters.entrySet()) {
+		for (Map.Entry<String, Converter<Object, ? extends @Nullable Object>> entry : this.claimTypeConverters
+			.entrySet()) {
 			String claimName = entry.getKey();
-			Converter<Object, ?> converter = entry.getValue();
-			if (converter != null) {
-				Object claim = claims.get(claimName);
-				Object mappedClaim = converter.convert(claim);
-				mappedClaims.compute(claimName, (key, value) -> mappedClaim);
-			}
+			Converter<Object, ? extends @Nullable Object> converter = entry.getValue();
+			Object claim = claims.get(claimName);
+			@SuppressWarnings("NullAway")
+			Object mappedClaim = converter.convert(claim);
+			mappedClaims.compute(claimName, (key, value) -> mappedClaim);
 		}
 		Instant issuedAt = (Instant) mappedClaims.get(JwtClaimNames.IAT);
 		Instant expiresAt = (Instant) mappedClaims.get(JwtClaimNames.EXP);

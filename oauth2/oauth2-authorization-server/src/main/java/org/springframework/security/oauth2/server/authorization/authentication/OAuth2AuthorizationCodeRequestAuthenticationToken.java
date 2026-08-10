@@ -20,7 +20,8 @@ import java.io.Serial;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationCode;
 import org.springframework.util.Assert;
@@ -40,7 +41,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationToken
 	@Serial
 	private static final long serialVersionUID = -1946164725241393094L;
 
-	private final OAuth2AuthorizationCode authorizationCode;
+	private final @Nullable OAuth2AuthorizationCode authorizationCode;
 
 	private boolean validated;
 
@@ -86,8 +87,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationToken
 	 * Returns the {@link OAuth2AuthorizationCode}.
 	 * @return the {@link OAuth2AuthorizationCode}
 	 */
-	@Nullable
-	public OAuth2AuthorizationCode getAuthorizationCode() {
+	public @Nullable OAuth2AuthorizationCode getAuthorizationCode() {
 		return this.authorizationCode;
 	}
 

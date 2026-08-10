@@ -18,6 +18,8 @@ package org.springframework.security.oauth2.server.resource;
 
 import java.io.Serial;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 
 /**
@@ -52,10 +54,13 @@ public class InvalidBearerTokenException extends OAuth2AuthenticationException {
 	 * {@link org.springframework.security.oauth2.core.OAuth2Error} instance as the
 	 * {@code error_description}.
 	 * @param description the description
-	 * @param cause the causing exception
+	 * @param cause the causing exception, or {@code null}
 	 */
-	public InvalidBearerTokenException(String description, Throwable cause) {
-		super(BearerTokenErrors.invalidToken(description), cause);
+	public InvalidBearerTokenException(String description, @Nullable Throwable cause) {
+		super(BearerTokenErrors.invalidToken(description));
+		if (cause != null) {
+			initCause(cause);
+		}
 	}
 
 }

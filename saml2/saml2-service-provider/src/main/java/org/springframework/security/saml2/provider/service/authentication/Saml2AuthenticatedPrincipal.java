@@ -20,7 +20,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.NullUnmarked;
+
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.util.CollectionUtils;
@@ -35,6 +36,7 @@ import org.springframework.util.CollectionUtils;
  * {@link Saml2ResponseAssertionAccessor} instead
  */
 @Deprecated
+@NullUnmarked
 public interface Saml2AuthenticatedPrincipal extends AuthenticatedPrincipal {
 
 	/**
@@ -44,7 +46,6 @@ public interface Saml2AuthenticatedPrincipal extends AuthenticatedPrincipal {
 	 * @return the first attribute value or {@code null} otherwise
 	 * @since 5.4
 	 */
-	@Nullable
 	default <A> A getFirstAttribute(String name) {
 		List<A> values = getAttribute(name);
 		return CollectionUtils.firstElement(values);
@@ -57,7 +58,6 @@ public interface Saml2AuthenticatedPrincipal extends AuthenticatedPrincipal {
 	 * @return the attribute or {@code null} otherwise
 	 * @since 5.4
 	 */
-	@Nullable
 	default <A> List<A> getAttribute(String name) {
 		return (List<A>) getAttributes().get(name);
 	}

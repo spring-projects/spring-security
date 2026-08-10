@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.Transient;
@@ -32,6 +33,7 @@ import org.springframework.util.Assert;
  * {@link Jwt} {@code Authentication}.
  *
  * @author Joe Grandja
+ * @author Andrey Litvitski
  * @since 5.1
  * @see AbstractOAuth2TokenAuthenticationToken
  * @see Jwt
@@ -41,7 +43,7 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 
 	private static final long serialVersionUID = 620L;
 
-	private final String name;
+	private final @Nullable String name;
 
 	/**
 	 * Constructs a {@code JwtAuthenticationToken} using the provided parameters.
@@ -80,17 +82,36 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 		this.name = builder.name;
 	}
 
+	/**
+	 * Constructs a {@code JwtAuthenticationToken} using the provided parameters.
+	 * @param jwt the JWT
+	 * @param principal the principal
+	 * @param authorities the authorities assigned to the JWT
+	 * @since 7.1
+	 */
+	public JwtAuthenticationToken(Jwt jwt, Object principal, Collection<? extends GrantedAuthority> authorities) {
+		super(jwt, principal, jwt, authorities);
+		this.setAuthenticated(true);
+		if (principal instanceof AuthenticatedPrincipal authenticatedPrincipal) {
+			this.name = authenticatedPrincipal.getName();
+		}
+		else {
+			this.name = jwt.getSubject();
+		}
+	}
+
 	@Override
 	public Map<String, Object> getTokenAttributes() {
 		return this.getToken().getClaims();
 	}
 
 	/**
-	 * The principal name which is, by default, the {@link Jwt}'s subject
+	 * The principal name which is, by default, the {@link Jwt}'s subject. Returns empty
+	 * string if the subject claim is absent.
 	 */
 	@Override
 	public String getName() {
-		return this.name;
+		return (this.name != null) ? this.name : "";
 	}
 
 	@Override
@@ -106,7 +127,7 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 	 */
 	public static class Builder<B extends Builder<B>> extends AbstractOAuth2TokenAuthenticationBuilder<Jwt, B> {
 
-		private String name;
+		private @Nullable String name;
 
 		protected Builder(JwtAuthenticationToken token) {
 			super(token);
@@ -148,10 +169,10 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 
 		/**
 		 * The name to use.
-		 * @param name the name to use
+		 * @param name the name to use, or {@code null} if the principal has no name
 		 * @return the {@link Builder} for further configurations
 		 */
-		public B name(String name) {
+		public B name(@Nullable String name) {
 			this.name = name;
 			return (B) this;
 		}

@@ -9,7 +9,7 @@ permissions:
 jobs:
   update-scheduled-release-version:
     name: Update Scheduled Release Version
-    uses: spring-io/spring-security-release-tools/.github/workflows/update-scheduled-release-version.yml@v1
+    uses: spring-io/spring-security-release-tools/.github/workflows/update-scheduled-release-version.yml@b92832ecbc7cbe969201e6beafbde0ee400cf095 # v1.0.15
     secrets: inherit
   send-notification:
     name: Send Notification
@@ -18,6 +18,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send Notification
-        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@v1
+        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@b92832ecbc7cbe969201e6beafbde0ee400cf095 # v1.0.15
         with:
           webhook-url: ${{ secrets.SPRING_SECURITY_CI_GCHAT_WEBHOOK_URL }}

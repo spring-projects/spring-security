@@ -20,6 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -51,7 +52,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 	private String bearerTokenHeaderName = HttpHeaders.AUTHORIZATION;
 
 	@Override
-	public String resolve(final HttpServletRequest request) {
+	public @Nullable String resolve(final HttpServletRequest request) {
 		// @formatter:off
 		return resolveToken(
 			resolveFromAuthorizationHeader(request),
@@ -61,7 +62,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 		// @formatter:on
 	}
 
-	private static String resolveToken(String... accessTokens) {
+	private static @Nullable String resolveToken(@Nullable String... accessTokens) {
 		if (accessTokens == null || accessTokens.length == 0) {
 			return null;
 		}
@@ -87,7 +88,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 		return accessToken;
 	}
 
-	private String resolveFromAuthorizationHeader(HttpServletRequest request) {
+	private @Nullable String resolveFromAuthorizationHeader(HttpServletRequest request) {
 		String authorization = request.getHeader(this.bearerTokenHeaderName);
 		if (!StringUtils.startsWithIgnoreCase(authorization, "bearer")) {
 			return null;
@@ -102,7 +103,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 		return matcher.group("token");
 	}
 
-	private String resolveAccessTokenFromQueryString(HttpServletRequest request) {
+	private @Nullable String resolveAccessTokenFromQueryString(HttpServletRequest request) {
 		if (!this.allowUriQueryParameter || !HttpMethod.GET.name().equals(request.getMethod())) {
 			return null;
 		}
@@ -110,7 +111,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 		return resolveToken(request.getParameterValues(ACCESS_TOKEN_PARAMETER_NAME));
 	}
 
-	private String resolveAccessTokenFromBody(HttpServletRequest request) {
+	private @Nullable String resolveAccessTokenFromBody(HttpServletRequest request) {
 		if (!this.allowFormEncodedBodyParameter
 				|| !MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(request.getContentType())
 				|| HttpMethod.GET.name().equals(request.getMethod())) {

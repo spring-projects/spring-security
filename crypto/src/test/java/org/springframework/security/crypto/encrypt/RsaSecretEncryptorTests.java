@@ -22,8 +22,9 @@ import java.security.interfaces.RSAPublicKey;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.security.crypto.assertions.CryptoAssertions;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * @author Dave Syer
@@ -86,13 +87,15 @@ public class RsaSecretEncryptorTests {
 	@Test
 	public void roundTripWithMixedAlgorithm() {
 		RsaSecretEncryptor oaep = new RsaSecretEncryptor(RsaAlgorithm.OAEP);
-		assertThatIllegalStateException().isThrownBy(() -> oaep.decrypt(this.encryptor.encrypt("encryptor")));
+		CryptoAssertions.assertThat(() -> oaep.decrypt(this.encryptor.encrypt("encryptor")))
+			.doesNotDecryptTo("encryptor");
 	}
 
 	@Test
 	public void roundTripWithMixedSalt() {
 		RsaSecretEncryptor other = new RsaSecretEncryptor(this.encryptor.getPublicKey(), RsaAlgorithm.DEFAULT, "salt");
-		assertThatIllegalStateException().isThrownBy(() -> this.encryptor.decrypt(other.encrypt("encryptor")));
+		CryptoAssertions.assertThat(() -> this.encryptor.decrypt(other.encrypt("encryptor")))
+			.doesNotDecryptTo("encryptor");
 	}
 
 	@Test
@@ -106,7 +109,8 @@ public class RsaSecretEncryptorTests {
 	public void publicKeyCannotDecrypt() {
 		RsaSecretEncryptor encryptor = new RsaSecretEncryptor(this.encryptor.getPublicKey());
 		assertThat(encryptor.canDecrypt()).as("Encryptor schould not be able to decrypt").isFalse();
-		assertThatIllegalStateException().isThrownBy(() -> encryptor.decrypt(encryptor.encrypt("encryptor")));
+		CryptoAssertions.assertThat(() -> encryptor.decrypt(encryptor.encrypt("encryptor")))
+			.doesNotDecryptTo("encryptor");
 	}
 
 	@Test

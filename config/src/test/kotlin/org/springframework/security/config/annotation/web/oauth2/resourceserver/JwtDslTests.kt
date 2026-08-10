@@ -207,7 +207,7 @@ class JwtDslTests {
     }
 
     class MockJwtDecoder: JwtDecoder {
-        override fun decode(token: String?): Jwt {
+        override fun decode(token: String): Jwt {
             return Jwt.withTokenValue("some tokenValue").build()
         }
     }

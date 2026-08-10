@@ -657,6 +657,7 @@ public class JdbcOAuth2AuthorizationServiceTests {
 			return !result.isEmpty() ? result.get(0) : null;
 		}
 
+		@SuppressWarnings("removal")
 		private static final class CustomOAuth2AuthorizationRowMapper
 				extends JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper {
 
@@ -794,6 +795,7 @@ public class JdbcOAuth2AuthorizationServiceTests {
 
 		}
 
+		@SuppressWarnings("removal")
 		private static final class CustomOAuth2AuthorizationParametersMapper
 				extends JdbcOAuth2AuthorizationService.OAuth2AuthorizationParametersMapper {
 

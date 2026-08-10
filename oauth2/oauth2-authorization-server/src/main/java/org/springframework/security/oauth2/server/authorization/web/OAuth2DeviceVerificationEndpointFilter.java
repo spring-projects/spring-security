@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.server.authorization.web;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +27,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpMethod;
@@ -100,7 +102,7 @@ public final class OAuth2DeviceVerificationEndpointFilter extends OncePerRequest
 
 	private AuthenticationFailureHandler authenticationFailureHandler = this::sendErrorResponse;
 
-	private String consentPage;
+	private @Nullable String consentPage;
 
 	/**
 	 * Constructs an {@code OAuth2DeviceVerificationEndpointFilter} using the provided
@@ -156,20 +158,12 @@ public final class OAuth2DeviceVerificationEndpointFilter extends OncePerRequest
 
 		try {
 			Authentication authentication = this.authenticationConverter.convert(request);
+			Assert.notNull(authentication, "authentication cannot be null");
 			if (authentication instanceof AbstractAuthenticationToken authenticationToken) {
 				authenticationToken.setDetails(this.authenticationDetailsSource.buildDetails(request));
 			}
 
 			Authentication authenticationResult = this.authenticationManager.authenticate(authentication);
-			if (!authenticationResult.isAuthenticated()) {
-				// If the Principal (Resource Owner) is not authenticated then pass
-				// through the chain
-				// with the expectation that the authentication process will commence via
-				// AuthenticationEntryPoint
-				filterChain.doFilter(request, response);
-				return;
-			}
-
 			if (authenticationResult instanceof OAuth2DeviceAuthorizationConsentAuthenticationToken) {
 				if (this.logger.isTraceEnabled()) {
 					this.logger.trace("Device authorization consent is required");
@@ -256,7 +250,8 @@ public final class OAuth2DeviceVerificationEndpointFilter extends OncePerRequest
 
 		String clientId = authorizationConsentAuthentication.getClientId();
 		Authentication principal = (Authentication) authorizationConsentAuthentication.getPrincipal();
-		Set<String> requestedScopes = authorizationConsentAuthentication.getRequestedScopes();
+		Set<String> requestedScopes = (authorizationConsentAuthentication.getRequestedScopes() != null)
+				? authorizationConsentAuthentication.getRequestedScopes() : Collections.emptySet();
 		Set<String> authorizedScopes = authorizationConsentAuthentication.getScopes();
 		String state = authorizationConsentAuthentication.getState();
 		String userCode = authorizationConsentAuthentication.getUserCode();
@@ -286,6 +281,7 @@ public final class OAuth2DeviceVerificationEndpointFilter extends OncePerRequest
 	}
 
 	private String resolveConsentUri(HttpServletRequest request) {
+		Assert.hasText(this.consentPage, "consentPage cannot be empty");
 		if (UrlUtils.isAbsoluteUrl(this.consentPage)) {
 			return this.consentPage;
 		}

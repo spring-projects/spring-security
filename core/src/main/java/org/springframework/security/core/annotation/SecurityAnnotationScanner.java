@@ -72,9 +72,9 @@ public interface SecurityAnnotationScanner<A extends Annotation> {
 	 * attributable to the parameter.
 	 *
 	 * <p>
-	 * Implementations should describe their strategy for searching the element and any
+	 * Implementations should describe their strategy for searching the parameter and any
 	 * surrounding class, interfaces, or super-class.
-	 * @param element the element to search
+	 * @param parameter the parameter to search
 	 * @return the synthesized annotation or {@code null} if not found
 	 */
 	@Nullable A scan(Parameter parameter);

@@ -18,6 +18,7 @@ package org.springframework.security.saml2.provider.service.authentication;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
@@ -64,7 +65,7 @@ final class Saml2Utils {
 	static String samlInflate(byte[] b) {
 		try {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			InflaterOutputStream iout = new InflaterOutputStream(out, new Inflater(true));
+			InflaterOutputStream iout = new InflaterOutputStream(new CappedOutputStream(out), new Inflater(true));
 			iout.write(b);
 			iout.finish();
 			return new String(out.toByteArray(), StandardCharsets.UTF_8);
@@ -189,6 +190,29 @@ final class Saml2Utils {
 				}
 			}
 
+		}
+
+	}
+
+	static class CappedOutputStream extends OutputStream {
+
+		private static final long MAX_SIZE = 1024 * 1024;
+
+		private final OutputStream delegate;
+
+		private int size;
+
+		CappedOutputStream(OutputStream delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public void write(int b) throws IOException {
+			if (this.size >= MAX_SIZE) {
+				throw new IOException("SAML payload exceeded maximum size of " + MAX_SIZE);
+			}
+			this.delegate.write(b);
+			this.size++;
 		}
 
 	}

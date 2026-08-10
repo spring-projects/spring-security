@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION", "PLATFORM_CLASS_MAPPED_TO_KOTLIN", "UNCHECKED_CAST")
+
 /*
  * Copyright 2004-present the original author or authors.
  *
@@ -72,7 +74,7 @@ class HttpBasicDslTests {
 
         this.mockMvc.get("/")
                 .andExpect {
-                    header { string("WWW-Authenticate", "Basic realm=\"Realm\"") }
+                    header { string("WWW-Authenticate", "Basic realm=\"Realm\", charset=\"UTF-8\"") }
                 }
     }
 
@@ -108,7 +110,7 @@ class HttpBasicDslTests {
 
         this.mockMvc.get("/")
                 .andExpect {
-                    header { string("WWW-Authenticate", "Basic realm=\"Custom Realm\"") }
+                    header { string("WWW-Authenticate", "Basic realm=\"Custom Realm\", charset=\"UTF-8\"") }
                 }
     }
 

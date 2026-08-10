@@ -37,6 +37,7 @@ import javax.security.auth.x500.X500Principal;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKMatcher;
 import com.nimbusds.jose.jwk.JWKSet;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -48,6 +49,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
@@ -74,12 +76,13 @@ final class X509SelfSignedCertificateVerifier implements Consumer<OAuth2ClientAu
 		OAuth2ClientAuthenticationToken clientAuthentication = clientAuthenticationContext.getAuthentication();
 		RegisteredClient registeredClient = clientAuthenticationContext.getRegisteredClient();
 		X509Certificate[] clientCertificateChain = (X509Certificate[]) clientAuthentication.getCredentials();
+		Assert.notEmpty(clientCertificateChain, "clientCertificateChain cannot be empty");
 		X509Certificate clientCertificate = clientCertificateChain[0];
 
 		X500Principal issuer = clientCertificate.getIssuerX500Principal();
 		X500Principal subject = clientCertificate.getSubjectX500Principal();
 		if (issuer == null || !issuer.equals(subject)) {
-			throwInvalidClient("x509_certificate_issuer");
+			throw invalidClient("x509_certificate_issuer");
 		}
 
 		JWKSet jwkSet = this.jwkSetSupplier.apply(registeredClient);
@@ -95,18 +98,18 @@ final class X509SelfSignedCertificateVerifier implements Consumer<OAuth2ClientAu
 		}
 
 		if (!publicKeyMatches) {
-			throwInvalidClient("x509_certificate");
+			throw invalidClient("x509_certificate");
 		}
 	}
 
-	private static void throwInvalidClient(String parameterName) {
-		throwInvalidClient(parameterName, null);
+	private static OAuth2AuthenticationException invalidClient(String parameterName) {
+		return invalidClient(parameterName, null);
 	}
 
-	private static void throwInvalidClient(String parameterName, Throwable cause) {
+	private static OAuth2AuthenticationException invalidClient(String parameterName, @Nullable Throwable cause) {
 		OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_CLIENT,
 				"Client authentication failed: " + parameterName, ERROR_URI);
-		throw new OAuth2AuthenticationException(error, error.toString(), cause);
+		return new OAuth2AuthenticationException(error, error.toString(), cause);
 	}
 
 	private static final class JwkSetSupplier implements Function<RegisteredClient, JWKSet> {
@@ -128,7 +131,7 @@ final class X509SelfSignedCertificateVerifier implements Consumer<OAuth2ClientAu
 		public JWKSet apply(RegisteredClient registeredClient) {
 			Supplier<JWKSet> jwkSetSupplier = this.jwkSets.computeIfAbsent(registeredClient.getId(), (key) -> {
 				if (!StringUtils.hasText(registeredClient.getClientSettings().getJwkSetUrl())) {
-					throwInvalidClient("client_jwk_set_url");
+					throw invalidClient("client_jwk_set_url");
 				}
 				return new JwkSetHolder(registeredClient.getClientSettings().getJwkSetUrl());
 			});
@@ -136,34 +139,36 @@ final class X509SelfSignedCertificateVerifier implements Consumer<OAuth2ClientAu
 		}
 
 		private JWKSet retrieve(String jwkSetUrl) {
-			URI jwkSetUri = null;
+			final URI jwkSetUri;
 			try {
 				jwkSetUri = new URI(jwkSetUrl);
 			}
 			catch (URISyntaxException ex) {
-				throwInvalidClient("jwk_set_uri", ex);
+				throw invalidClient("jwk_set_uri", ex);
 			}
 
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON, APPLICATION_JWK_SET_JSON));
 			RequestEntity<Void> request = new RequestEntity<>(headers, HttpMethod.GET, jwkSetUri);
-			ResponseEntity<String> response = null;
+			final ResponseEntity<String> response;
 			try {
 				response = this.restOperations.exchange(request, String.class);
 			}
 			catch (Exception ex) {
-				throwInvalidClient("jwk_set_response_error", ex);
+				throw invalidClient("jwk_set_response_error", ex);
 			}
 			if (response.getStatusCode().value() != 200) {
-				throwInvalidClient("jwk_set_response_status");
+				throw invalidClient("jwk_set_response_status");
 			}
 
-			JWKSet jwkSet = null;
+			final JWKSet jwkSet;
 			try {
-				jwkSet = JWKSet.parse(response.getBody());
+				String body = response.getBody();
+				Assert.notNull(body, "response body cannot be null");
+				jwkSet = JWKSet.parse(body);
 			}
 			catch (ParseException ex) {
-				throwInvalidClient("jwk_set_response_body", ex);
+				throw invalidClient("jwk_set_response_body", ex);
 			}
 
 			return jwkSet;
@@ -177,9 +182,9 @@ final class X509SelfSignedCertificateVerifier implements Consumer<OAuth2ClientAu
 
 			private final String jwkSetUrl;
 
-			private JWKSet jwkSet;
+			private @Nullable JWKSet jwkSet;
 
-			private Instant lastUpdatedAt;
+			private @Nullable Instant lastUpdatedAt;
 
 			private JwkSetHolder(String jwkSetUrl) {
 				this.jwkSetUrl = jwkSetUrl;
@@ -204,6 +209,7 @@ final class X509SelfSignedCertificateVerifier implements Consumer<OAuth2ClientAu
 				}
 
 				try {
+					Assert.notNull(this.jwkSet, "jwkSet cannot be null");
 					return this.jwkSet;
 				}
 				finally {
@@ -213,7 +219,7 @@ final class X509SelfSignedCertificateVerifier implements Consumer<OAuth2ClientAu
 
 			private boolean shouldRefresh() {
 				// Refresh every 5 minutes
-				return (this.jwkSet == null
+				return (this.jwkSet == null || this.lastUpdatedAt == null
 						|| this.clock.instant().isAfter(this.lastUpdatedAt.plus(5, ChronoUnit.MINUTES)));
 			}
 

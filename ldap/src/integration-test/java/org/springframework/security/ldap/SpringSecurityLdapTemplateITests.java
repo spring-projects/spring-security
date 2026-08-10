@@ -89,6 +89,7 @@ public class SpringSecurityLdapTemplateITests {
 	// }
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void namingExceptionIsTranslatedCorrectly() {
 		assertThatExceptionOfType(UncategorizedLdapException.class)
 			.isThrownBy(() -> this.template.executeReadOnly((ContextExecutor) (dirContext) -> {

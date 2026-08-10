@@ -28,8 +28,8 @@ import java.util.Map;
 import java.util.Set;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
-import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -40,6 +40,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2TokenExchangeAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.web.OAuth2TokenEndpointFilter;
 import org.springframework.security.web.authentication.AuthenticationConverter;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -66,9 +67,8 @@ public final class OAuth2TokenExchangeAuthenticationConverter implements Authent
 
 	private static final Set<String> SUPPORTED_TOKEN_TYPES = Set.of(ACCESS_TOKEN_TYPE_VALUE, JWT_TOKEN_TYPE_VALUE);
 
-	@Nullable
 	@Override
-	public Authentication convert(HttpServletRequest request) {
+	public @Nullable Authentication convert(HttpServletRequest request) {
 		MultiValueMap<String, String> parameters = OAuth2EndpointUtils.getFormParameters(request);
 
 		// grant_type (REQUIRED)
@@ -76,8 +76,6 @@ public final class OAuth2TokenExchangeAuthenticationConverter implements Authent
 		if (!AuthorizationGrantType.TOKEN_EXCHANGE.getValue().equals(grantType)) {
 			return null;
 		}
-
-		Authentication clientPrincipal = SecurityContextHolder.getContext().getAuthentication();
 
 		// resource (OPTIONAL)
 		List<String> resources = parameters.getOrDefault(OAuth2ParameterNames.RESOURCE, Collections.emptyList());
@@ -95,11 +93,11 @@ public final class OAuth2TokenExchangeAuthenticationConverter implements Authent
 
 		// scope (OPTIONAL)
 		String scope = parameters.getFirst(OAuth2ParameterNames.SCOPE);
-		if (StringUtils.hasText(scope) && parameters.get(OAuth2ParameterNames.SCOPE).size() != 1) {
+		List<String> scopeParams = parameters.get(OAuth2ParameterNames.SCOPE);
+		if (StringUtils.hasText(scope) && scopeParams != null && scopeParams.size() != 1) {
 			OAuth2EndpointUtils.throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.SCOPE,
 					OAuth2EndpointUtils.ACCESS_TOKEN_REQUEST_ERROR_URI);
 		}
-
 		Set<String> requestedScopes = null;
 		if (StringUtils.hasText(scope)) {
 			requestedScopes = new HashSet<>(Arrays.asList(StringUtils.delimitedListToStringArray(scope, " ")));
@@ -108,7 +106,8 @@ public final class OAuth2TokenExchangeAuthenticationConverter implements Authent
 		// requested_token_type (OPTIONAL)
 		String requestedTokenType = parameters.getFirst(OAuth2ParameterNames.REQUESTED_TOKEN_TYPE);
 		if (StringUtils.hasText(requestedTokenType)) {
-			if (parameters.get(OAuth2ParameterNames.REQUESTED_TOKEN_TYPE).size() != 1) {
+			List<String> requestedTokenTypeParams = parameters.get(OAuth2ParameterNames.REQUESTED_TOKEN_TYPE);
+			if (requestedTokenTypeParams == null || requestedTokenTypeParams.size() != 1) {
 				OAuth2EndpointUtils.throwError(OAuth2ErrorCodes.INVALID_REQUEST,
 						OAuth2ParameterNames.REQUESTED_TOKEN_TYPE, OAuth2EndpointUtils.ACCESS_TOKEN_REQUEST_ERROR_URI);
 			}
@@ -118,28 +117,34 @@ public final class OAuth2TokenExchangeAuthenticationConverter implements Authent
 		else {
 			requestedTokenType = ACCESS_TOKEN_TYPE_VALUE;
 		}
+		Assert.notNull(requestedTokenType, "requestedTokenType cannot be null");
 
 		// subject_token (REQUIRED)
 		String subjectToken = parameters.getFirst(OAuth2ParameterNames.SUBJECT_TOKEN);
-		if (!StringUtils.hasText(subjectToken) || parameters.get(OAuth2ParameterNames.SUBJECT_TOKEN).size() != 1) {
+		List<String> subjectTokenParams = parameters.get(OAuth2ParameterNames.SUBJECT_TOKEN);
+		if (!StringUtils.hasText(subjectToken) || subjectTokenParams == null || subjectTokenParams.size() != 1) {
 			OAuth2EndpointUtils.throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.SUBJECT_TOKEN,
 					OAuth2EndpointUtils.ACCESS_TOKEN_REQUEST_ERROR_URI);
 		}
+		Assert.notNull(subjectToken, "subjectToken cannot be null");
 
 		// subject_token_type (REQUIRED)
 		String subjectTokenType = parameters.getFirst(OAuth2ParameterNames.SUBJECT_TOKEN_TYPE);
-		if (!StringUtils.hasText(subjectTokenType)
-				|| parameters.get(OAuth2ParameterNames.SUBJECT_TOKEN_TYPE).size() != 1) {
+		List<String> subjectTokenTypeParams = parameters.get(OAuth2ParameterNames.SUBJECT_TOKEN_TYPE);
+		if (!StringUtils.hasText(subjectTokenType) || subjectTokenTypeParams == null
+				|| subjectTokenTypeParams.size() != 1) {
 			OAuth2EndpointUtils.throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.SUBJECT_TOKEN_TYPE,
 					OAuth2EndpointUtils.ACCESS_TOKEN_REQUEST_ERROR_URI);
 		}
 		else {
 			validateTokenType(OAuth2ParameterNames.SUBJECT_TOKEN_TYPE, subjectTokenType);
 		}
+		Assert.notNull(subjectTokenType, "subjectTokenType cannot be null");
 
 		// actor_token (OPTIONAL, REQUIRED if actor_token_type is provided)
 		String actorToken = parameters.getFirst(OAuth2ParameterNames.ACTOR_TOKEN);
-		if (StringUtils.hasText(actorToken) && parameters.get(OAuth2ParameterNames.ACTOR_TOKEN).size() != 1) {
+		List<String> actorTokenParams = parameters.get(OAuth2ParameterNames.ACTOR_TOKEN);
+		if (StringUtils.hasText(actorToken) && actorTokenParams != null && actorTokenParams.size() != 1) {
 			OAuth2EndpointUtils.throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.ACTOR_TOKEN,
 					OAuth2EndpointUtils.ACCESS_TOKEN_REQUEST_ERROR_URI);
 		}
@@ -147,7 +152,8 @@ public final class OAuth2TokenExchangeAuthenticationConverter implements Authent
 		// actor_token_type (OPTIONAL, REQUIRED if actor_token is provided)
 		String actorTokenType = parameters.getFirst(OAuth2ParameterNames.ACTOR_TOKEN_TYPE);
 		if (StringUtils.hasText(actorTokenType)) {
-			if (parameters.get(OAuth2ParameterNames.ACTOR_TOKEN_TYPE).size() != 1) {
+			List<String> actorTokenTypeParams = parameters.get(OAuth2ParameterNames.ACTOR_TOKEN_TYPE);
+			if (actorTokenTypeParams == null || actorTokenTypeParams.size() != 1) {
 				OAuth2EndpointUtils.throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.ACTOR_TOKEN_TYPE,
 						OAuth2EndpointUtils.ACCESS_TOKEN_REQUEST_ERROR_URI);
 			}
@@ -179,6 +185,9 @@ public final class OAuth2TokenExchangeAuthenticationConverter implements Authent
 
 		// Validate DPoP Proof HTTP Header (if available)
 		OAuth2EndpointUtils.validateAndAddDPoPParametersIfAvailable(request, additionalParameters);
+
+		Authentication clientPrincipal = SecurityContextHolder.getContext().getAuthentication();
+		Assert.notNull(clientPrincipal, "clientPrincipal cannot be null");
 
 		return new OAuth2TokenExchangeAuthenticationToken(requestedTokenType, subjectToken, subjectTokenType,
 				clientPrincipal, actorToken, actorTokenType, new LinkedHashSet<>(resources),

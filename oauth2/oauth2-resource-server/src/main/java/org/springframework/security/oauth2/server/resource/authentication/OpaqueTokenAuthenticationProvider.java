@@ -22,6 +22,7 @@ import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -104,7 +105,7 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 	 * @throws AuthenticationException if authentication failed for some reason
 	 */
 	@Override
-	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+	public @Nullable Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		if (!(authentication instanceof BearerTokenAuthenticationToken bearer)) {
 			return null;
 		}
@@ -129,7 +130,8 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 		}
 		catch (BadOpaqueTokenException failed) {
 			this.logger.debug("Failed to authenticate since token was invalid");
-			throw new InvalidBearerTokenException(failed.getMessage(), failed);
+			throw new InvalidBearerTokenException((failed.getMessage() != null) ? failed.getMessage() : "Invalid token",
+					failed);
 		}
 		catch (OAuth2IntrospectionException failed) {
 			throw new AuthenticationServiceException(failed.getMessage(), failed);

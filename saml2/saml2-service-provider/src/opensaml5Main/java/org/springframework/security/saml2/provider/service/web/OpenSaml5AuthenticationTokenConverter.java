@@ -17,6 +17,8 @@
 package org.springframework.security.saml2.provider.service.web;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
@@ -35,6 +37,7 @@ import org.springframework.util.Assert;
  * @author Josh Cummings
  * @since 6.1
  */
+@NullMarked
 public final class OpenSaml5AuthenticationTokenConverter implements AuthenticationConverter {
 
 	private final BaseOpenSamlAuthenticationTokenConverter delegate;
@@ -76,7 +79,7 @@ public final class OpenSaml5AuthenticationTokenConverter implements Authenticati
 	 * non-existent {@code registrationId}
 	 */
 	@Override
-	public Saml2AuthenticationToken convert(HttpServletRequest request) {
+	public @Nullable Saml2AuthenticationToken convert(HttpServletRequest request) {
 		return this.delegate.convert(request);
 	}
 

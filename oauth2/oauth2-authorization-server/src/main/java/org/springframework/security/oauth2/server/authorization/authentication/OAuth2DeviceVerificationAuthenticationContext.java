@@ -21,7 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsent;
@@ -48,9 +49,8 @@ public final class OAuth2DeviceVerificationAuthenticationContext implements OAut
 	}
 
 	@SuppressWarnings("unchecked")
-	@Nullable
 	@Override
-	public <V> V get(Object key) {
+	public <V> @Nullable V get(Object key) {
 		return hasKey(key) ? (V) this.context.get(key) : null;
 	}
 
@@ -65,7 +65,9 @@ public final class OAuth2DeviceVerificationAuthenticationContext implements OAut
 	 * @return the {@link RegisteredClient}
 	 */
 	public RegisteredClient getRegisteredClient() {
-		return get(RegisteredClient.class);
+		RegisteredClient registeredClient = get(RegisteredClient.class);
+		Assert.notNull(registeredClient, "registeredClient cannot be null");
+		return registeredClient;
 	}
 
 	/**
@@ -73,15 +75,16 @@ public final class OAuth2DeviceVerificationAuthenticationContext implements OAut
 	 * @return the {@link OAuth2Authorization}
 	 */
 	public OAuth2Authorization getAuthorization() {
-		return get(OAuth2Authorization.class);
+		OAuth2Authorization authorization = get(OAuth2Authorization.class);
+		Assert.notNull(authorization, "authorization cannot be null");
+		return authorization;
 	}
 
 	/**
 	 * Returns the {@link OAuth2AuthorizationConsent authorization consent}.
 	 * @return the {@link OAuth2AuthorizationConsent}, or {@code null} if not available
 	 */
-	@Nullable
-	public OAuth2AuthorizationConsent getAuthorizationConsent() {
+	public @Nullable OAuth2AuthorizationConsent getAuthorizationConsent() {
 		return get(OAuth2AuthorizationConsent.class);
 	}
 

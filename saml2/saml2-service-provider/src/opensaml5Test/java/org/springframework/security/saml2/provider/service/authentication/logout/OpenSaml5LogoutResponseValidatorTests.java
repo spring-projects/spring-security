@@ -24,6 +24,7 @@ import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.LogoutResponse;
 import org.opensaml.saml.saml2.core.StatusCode;
 
+import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
@@ -51,13 +52,15 @@ public class OpenSaml5LogoutResponseValidatorTests {
 		RelyingPartyRegistration registration = signing(verifying(registration())).build();
 		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
 			.id("id")
+			.samlRequest("logout_request")
 			.build();
 		LogoutResponse logoutResponse = TestOpenSamlObjects.assertingPartyLogoutResponse(registration);
 		sign(logoutResponse, registration);
 		Saml2LogoutResponse response = post(logoutResponse, registration);
 		Saml2LogoutResponseValidatorParameters parameters = new Saml2LogoutResponseValidatorParameters(response,
 				logoutRequest, registration);
-		this.manager.validate(parameters);
+		Saml2LogoutValidatorResult result = this.manager.validate(parameters);
+		assertThat(result.hasErrors()).isFalse();
 	}
 
 	@Test
@@ -67,13 +70,57 @@ public class OpenSaml5LogoutResponseValidatorTests {
 			.build();
 		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
 			.id("id")
+			.samlRequest("logout_request")
 			.build();
 		LogoutResponse logoutResponse = TestOpenSamlObjects.assertingPartyLogoutResponse(registration);
 		Saml2LogoutResponse response = redirect(logoutResponse, registration,
 				this.saml.withSigningKeys(registration.getSigningX509Credentials()));
 		Saml2LogoutResponseValidatorParameters parameters = new Saml2LogoutResponseValidatorParameters(response,
 				logoutRequest, registration);
-		this.manager.validate(parameters);
+		Saml2LogoutValidatorResult result = this.manager.validate(parameters);
+		assertThat(result.hasErrors()).isFalse();
+	}
+
+	@Test
+	public void handleWhenSignatureVerificationFailsThenDoesNotValidateResponseFurther() {
+		RelyingPartyRegistration registration = registration().build();
+		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
+			.id("id")
+			.samlRequest("logout_request")
+			.build();
+		LogoutResponse logoutResponse = TestOpenSamlObjects.assertingPartyLogoutResponse(registration);
+		sign(logoutResponse, registration);
+		logoutResponse.setDestination("https://wrong-destination.example");
+		logoutResponse.getStatus().getStatusCode().setValue(StatusCode.UNKNOWN_PRINCIPAL);
+		logoutResponse.setInResponseTo("wrong-id");
+		Saml2LogoutResponse response = post(logoutResponse, registration);
+		Saml2LogoutResponseValidatorParameters parameters = new Saml2LogoutResponseValidatorParameters(response,
+				logoutRequest, registration);
+		Saml2LogoutValidatorResult result = this.manager.validate(parameters);
+		assertThat(result.hasErrors()).isTrue();
+		assertThat(result.getErrors()).extracting(Saml2Error::getErrorCode)
+			.containsOnly(Saml2ErrorCodes.INVALID_SIGNATURE);
+	}
+
+	@Test
+	public void handleWhenDestinationStatusAndInResponseToInvalidThenCollectsAllApplicableRequestErrors() {
+		RelyingPartyRegistration registration = registration().build();
+		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
+			.id("id")
+			.samlRequest("logout_request")
+			.build();
+		LogoutResponse logoutResponse = TestOpenSamlObjects.assertingPartyLogoutResponse(registration);
+		logoutResponse.setDestination("https://wrong-destination.example");
+		logoutResponse.getStatus().getStatusCode().setValue(StatusCode.UNKNOWN_PRINCIPAL);
+		logoutResponse.setInResponseTo("wrong-id");
+		sign(logoutResponse, registration);
+		Saml2LogoutResponse response = post(logoutResponse, registration);
+		Saml2LogoutResponseValidatorParameters parameters = new Saml2LogoutResponseValidatorParameters(response,
+				logoutRequest, registration);
+		Saml2LogoutValidatorResult result = this.manager.validate(parameters);
+		assertThat(result.getErrors()).extracting(Saml2Error::getErrorCode)
+			.containsExactly(Saml2ErrorCodes.INVALID_DESTINATION, Saml2ErrorCodes.INVALID_RESPONSE,
+					Saml2ErrorCodes.INVALID_RESPONSE);
 	}
 
 	@Test
@@ -81,6 +128,7 @@ public class OpenSaml5LogoutResponseValidatorTests {
 		RelyingPartyRegistration registration = registration().build();
 		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
 			.id("id")
+			.samlRequest("logout_request")
 			.build();
 		LogoutResponse logoutResponse = TestOpenSamlObjects.assertingPartyLogoutResponse(registration);
 		logoutResponse.getIssuer().setValue("wrong");
@@ -98,6 +146,7 @@ public class OpenSaml5LogoutResponseValidatorTests {
 		RelyingPartyRegistration registration = registration().build();
 		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
 			.id("id")
+			.samlRequest("logout_request")
 			.build();
 		LogoutResponse logoutResponse = TestOpenSamlObjects.assertingPartyLogoutResponse(registration);
 		logoutResponse.setDestination("wrong");
@@ -115,6 +164,7 @@ public class OpenSaml5LogoutResponseValidatorTests {
 		RelyingPartyRegistration registration = registration().build();
 		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
 			.id("id")
+			.samlRequest("logout_request")
 			.build();
 		LogoutResponse logoutResponse = TestOpenSamlObjects.assertingPartyLogoutResponse(registration);
 		logoutResponse.getStatus().getStatusCode().setValue(StatusCode.UNKNOWN_PRINCIPAL);
@@ -133,6 +183,7 @@ public class OpenSaml5LogoutResponseValidatorTests {
 		RelyingPartyRegistration registration = signing(verifying(registration())).build();
 		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
 			.id("id")
+			.samlRequest("logout_request")
 			.build();
 		LogoutResponse logoutResponse = TestOpenSamlObjects.assertingPartyLogoutResponse(registration);
 		sign(logoutResponse, registration);
@@ -145,7 +196,8 @@ public class OpenSaml5LogoutResponseValidatorTests {
 			.build();
 		Saml2LogoutResponseValidatorParameters parameters = new Saml2LogoutResponseValidatorParameters(response,
 				logoutRequest, registration);
-		this.manager.validate(parameters);
+		Saml2LogoutValidatorResult result = this.manager.validate(parameters);
+		assertThat(result.hasErrors()).isFalse();
 	}
 
 	private RelyingPartyRegistration.Builder registration() {

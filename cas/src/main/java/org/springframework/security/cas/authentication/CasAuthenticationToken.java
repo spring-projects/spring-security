@@ -124,7 +124,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(@Nullable final Object obj) {
 		if (!super.equals(obj)) {
 			return false;
 		}

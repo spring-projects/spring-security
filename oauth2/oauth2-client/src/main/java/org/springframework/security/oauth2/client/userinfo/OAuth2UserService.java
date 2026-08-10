@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.client.userinfo;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -46,6 +48,6 @@ public interface OAuth2UserService<R extends OAuth2UserRequest, U extends OAuth2
 	 * @throws OAuth2AuthenticationException if an error occurs while attempting to obtain
 	 * the user attributes from the UserInfo Endpoint
 	 */
-	U loadUser(R userRequest) throws OAuth2AuthenticationException;
+	@Nullable U loadUser(R userRequest) throws OAuth2AuthenticationException;
 
 }

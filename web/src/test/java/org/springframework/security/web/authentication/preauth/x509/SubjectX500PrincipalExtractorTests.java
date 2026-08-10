@@ -54,6 +54,30 @@ public class SubjectX500PrincipalExtractorTests {
 	}
 
 	@Test
+	void extractWhenDnEmbeddedInCnThenExtractsPrincipalName() throws Exception {
+		Object principal = this.extractor.extractPrincipal(X509TestUtils.buildTestCertficateWithEmbeddedDn());
+
+		assertThat(principal).isEqualTo("luke");
+	}
+
+	// gh-19254
+	@Test
+	void extractWhenMultipleCnsThenExtractsMostSpecificCn() throws Exception {
+		Object principal = this.extractor.extractPrincipal(X509TestUtils.buildTestCertificateWithMultipleCns());
+
+		assertThat(principal).isEqualTo("alice");
+	}
+
+	@Test
+	void extractWhenEmailDnEmbeddedInCnThenExtractsEmail() throws Exception {
+		this.extractor.setExtractPrincipalNameFromEmail(true);
+
+		Object principal = this.extractor.extractPrincipal(X509TestUtils.buildTestCertficateWithEmbeddedEmailDn());
+
+		assertThat(principal).isEqualTo("luke@monkeymachine");
+	}
+
+	@Test
 	void setMessageSourceWhenNullThenThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.extractor.setMessageSource(null));
 	}

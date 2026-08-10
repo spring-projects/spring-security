@@ -27,7 +27,7 @@ image:{icondir}/number_4.png[] The browser requests the login page to which it w
 image:{icondir}/number_5.png[] Something within the application, must <<servlet-authentication-form-custom,render the login page>>.
 
 [[servlet-authentication-usernamepasswordauthenticationfilter]]
-When the username and password are submitted, the `UsernamePasswordAuthenticationFilter` creates a `UsernamePasswordAuthenticationToken` which is a type of https://docs.spring.io/spring-security/reference/servlet/authentication/architecture.html#servlet-authentication-authentication[Authentication], by extracting the username and password from the `HttpServletRequest` instance.
+When the username and password are submitted, the `UsernamePasswordAuthenticationFilter` creates a `UsernamePasswordAuthenticationToken` which is a type of xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[Authentication], by extracting the username and password from the `HttpServletRequest` instance.
 The `UsernamePasswordAuthenticationFilter` extends xref:servlet/authentication/architecture.adoc#servlet-authentication-abstractprocessingfilter[AbstractAuthenticationProcessingFilter], so the following diagram should look pretty similar:
 
 .Authenticating Username and Password
@@ -154,6 +154,15 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 }
 ----
 ======
+
+[NOTE]
+====
+The URI passed to `loginPage` (and to `loginProcessingUrl`, if set separately) is matched and redirected to literally.
+If your custom login page is served by an application servlet mapped under a base path, include that prefix in the URI you pass to the DSL.
+For example, if your dispatcher is at `/api/*`:
+
+include-code::./FormLoginServletPathConfiguration[tag=loginPage,indent=0]
+====
 
 [[servlet-authentication-form-custom-html]]
 When the login page is specified in the Spring Security configuration, you are responsible for rendering the page.

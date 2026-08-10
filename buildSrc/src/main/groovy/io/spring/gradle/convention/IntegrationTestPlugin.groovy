@@ -90,7 +90,7 @@ public class IntegrationTestPlugin implements Plugin<Project> {
 		project.plugins.withType(IdeaPlugin) {
 			project.idea {
 				module {
-					testSourceDirs += project.file('src/integration-test/java')
+					testSources.from(project.file('src/integration-test/java'))
 					scopes.TEST.plus += [ project.configurations.integrationTestCompileClasspath ]
 				}
 			}
@@ -105,7 +105,7 @@ public class IntegrationTestPlugin implements Plugin<Project> {
 			project.plugins.withType(IdeaPlugin) {
 				project.idea {
 					module {
-						testSourceDirs += project.file('src/integration-test/groovy')
+						testSources.from(project.file('src/integration-test/groovy'))
 					}
 				}
 			}

@@ -17,6 +17,7 @@
 package org.springframework.security.saml2.provider.service.web;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.security.saml2.core.Saml2Error;
@@ -57,7 +58,7 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 	}
 
 	@Override
-	public Saml2AuthenticationToken convert(HttpServletRequest request) {
+	public @Nullable Saml2AuthenticationToken convert(HttpServletRequest request) {
 		AbstractSaml2AuthenticationRequest authenticationRequest = this.authenticationRequestRepository
 			.loadAuthenticationRequest(request);
 		String relyingPartyRegistrationId = (authenticationRequest != null)
@@ -97,7 +98,7 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 		this.shouldConvertGetRequests = shouldConvertGetRequests;
 	}
 
-	private String decode(HttpServletRequest request) {
+	private @Nullable String decode(HttpServletRequest request) {
 		String encoded = request.getParameter(Saml2ParameterNames.SAML_RESPONSE);
 		if (encoded == null) {
 			return null;

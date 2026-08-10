@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.server.authorization.jackson;
 import java.util.Map;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;
@@ -37,7 +38,7 @@ abstract class JsonNodeUtils {
 	static final TypeReference<Map<String, Object>> STRING_OBJECT_MAP = new TypeReference<>() {
 	};
 
-	static String findStringValue(JsonNode jsonNode, String fieldName) {
+	static @Nullable String findStringValue(@Nullable JsonNode jsonNode, String fieldName) {
 		if (jsonNode == null) {
 			return null;
 		}
@@ -45,7 +46,7 @@ abstract class JsonNodeUtils {
 		return (value != null && value.isString()) ? value.stringValue() : null;
 	}
 
-	static <T> T findValue(JsonNode jsonNode, String fieldName, TypeReference<T> valueTypeReference,
+	static <T> @Nullable T findValue(@Nullable JsonNode jsonNode, String fieldName, TypeReference<T> valueTypeReference,
 			DeserializationContext context) {
 		if (jsonNode == null) {
 			return null;
@@ -55,7 +56,7 @@ abstract class JsonNodeUtils {
 				? context.readTreeAsValue(value, context.getTypeFactory().constructType(valueTypeReference)) : null;
 	}
 
-	static JsonNode findObjectNode(JsonNode jsonNode, String fieldName) {
+	static @Nullable JsonNode findObjectNode(@Nullable JsonNode jsonNode, String fieldName) {
 		if (jsonNode == null) {
 			return null;
 		}

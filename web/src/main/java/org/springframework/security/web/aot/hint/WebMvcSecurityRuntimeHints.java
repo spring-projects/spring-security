@@ -24,6 +24,7 @@ import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.aot.hint.TypeReference;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.web.access.expression.WebSecurityExpressionRoot;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 /**
  * {@link RuntimeHintsRegistrar} for WebMVC classes
@@ -44,6 +45,10 @@ class WebMvcSecurityRuntimeHints implements RuntimeHintsRegistrar {
 					TypeReference
 						.of("org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler$SupplierCsrfToken"),
 					MemberCategory.INVOKE_DECLARED_METHODS);
+		hints.reflection()
+			.registerType(PreAuthenticatedAuthenticationToken.class,
+					(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+							MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.ACCESS_DECLARED_FIELDS));
 
 		ClassPathResource css = new ClassPathResource("org/springframework/security/default-ui.css");
 		if (css.exists()) {

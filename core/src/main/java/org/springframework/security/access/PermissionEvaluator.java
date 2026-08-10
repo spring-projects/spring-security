@@ -18,6 +18,8 @@ package org.springframework.security.access;
 
 import java.io.Serializable;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.security.core.Authentication;
 
@@ -39,7 +41,7 @@ public interface PermissionEvaluator extends AopInfrastructureBean {
 	 * expression system. Not null.
 	 * @return true if the permission is granted, false otherwise
 	 */
-	boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission);
+	boolean hasPermission(Authentication authentication, @Nullable Object targetDomainObject, Object permission);
 
 	/**
 	 * Alternative method for evaluating a permission where only the identifier of the

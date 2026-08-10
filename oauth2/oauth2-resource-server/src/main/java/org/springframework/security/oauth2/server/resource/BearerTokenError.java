@@ -18,6 +18,8 @@ package org.springframework.security.oauth2.server.resource;
 
 import java.io.Serial;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.util.Assert;
@@ -41,14 +43,15 @@ public final class BearerTokenError extends OAuth2Error {
 
 	private final HttpStatus httpStatus;
 
-	private final String scope;
+	private final @Nullable String scope;
 
 	/**
 	 * Create a {@code BearerTokenError} using the provided parameters
 	 * @param errorCode the error code
 	 * @param httpStatus the HTTP status
 	 */
-	public BearerTokenError(String errorCode, HttpStatus httpStatus, String description, String errorUri) {
+	public BearerTokenError(String errorCode, HttpStatus httpStatus, @Nullable String description,
+			@Nullable String errorUri) {
 		this(errorCode, httpStatus, description, errorUri, null);
 	}
 
@@ -60,8 +63,8 @@ public final class BearerTokenError extends OAuth2Error {
 	 * @param errorUri the URI
 	 * @param scope the scope
 	 */
-	public BearerTokenError(String errorCode, HttpStatus httpStatus, String description, String errorUri,
-			String scope) {
+	public BearerTokenError(String errorCode, HttpStatus httpStatus, @Nullable String description,
+			@Nullable String errorUri, @Nullable String scope) {
 		super(errorCode, description, errorUri);
 		Assert.notNull(httpStatus, "httpStatus cannot be null");
 		Assert.isTrue(isDescriptionValid(description),
@@ -85,13 +88,13 @@ public final class BearerTokenError extends OAuth2Error {
 
 	/**
 	 * Return the scope.
-	 * @return the scope
+	 * @return the scope, or {@code null} if not set
 	 */
-	public String getScope() {
+	public @Nullable String getScope() {
 		return this.scope;
 	}
 
-	private static boolean isDescriptionValid(String description) {
+	private static boolean isDescriptionValid(@Nullable String description) {
 		// @formatter:off
 		return description == null || description.chars().allMatch((c) ->
 				withinTheRangeOf(c, 0x20, 0x21) ||
@@ -109,12 +112,12 @@ public final class BearerTokenError extends OAuth2Error {
 		// @formatter:on
 	}
 
-	private static boolean isErrorUriValid(String errorUri) {
+	private static boolean isErrorUriValid(@Nullable String errorUri) {
 		return errorUri == null || errorUri.chars()
 			.allMatch((c) -> c == 0x21 || withinTheRangeOf(c, 0x23, 0x5B) || withinTheRangeOf(c, 0x5D, 0x7E));
 	}
 
-	private static boolean isScopeValid(String scope) {
+	private static boolean isScopeValid(@Nullable String scope) {
 		// @formatter:off
 		return scope == null || scope.chars().allMatch((c) ->
 				withinTheRangeOf(c, 0x20, 0x21) ||

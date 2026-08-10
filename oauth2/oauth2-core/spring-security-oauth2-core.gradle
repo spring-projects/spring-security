@@ -1,3 +1,9 @@
+plugins {
+	id 'compile-warnings-error'
+	id 'security-nullability'
+	id 'javadoc-warnings-error'
+}
+
 apply plugin: 'io.spring.convention.spring-module'
 
 dependencies {

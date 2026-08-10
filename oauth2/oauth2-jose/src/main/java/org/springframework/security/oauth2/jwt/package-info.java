@@ -17,4 +17,7 @@
 /**
  * Core classes and interfaces providing support for JSON Web Token (JWT).
  */
+@NullMarked
 package org.springframework.security.oauth2.jwt;
+
+import org.jspecify.annotations.NullMarked;

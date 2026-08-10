@@ -33,12 +33,14 @@ import org.springframework.security.web.webauthn.api.Bytes;
 import org.springframework.security.web.webauthn.api.COSEAlgorithmIdentifier;
 import org.springframework.security.web.webauthn.api.CredProtectAuthenticationExtensionsClientInput;
 import org.springframework.security.web.webauthn.api.CredentialPropertiesOutput;
+import org.springframework.security.web.webauthn.api.ImmutablePublicKeyCredentialUserEntity;
 import org.springframework.security.web.webauthn.api.PublicKeyCredential;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestOptions;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialType;
 import org.springframework.security.web.webauthn.api.ResidentKeyRequirement;
 import org.springframework.security.web.webauthn.api.UserVerificationRequirement;
+import org.springframework.security.web.webauthn.authentication.WebAuthnAuthentication;
 import org.springframework.security.web.webauthn.management.RelyingPartyPublicKey;
 
 /**
@@ -47,6 +49,7 @@ import org.springframework.security.web.webauthn.management.RelyingPartyPublicKe
  *
  * @author Sebastien Deleuze
  * @author Rob Winch
+ * @author Toshiaki Maki
  * @since 7.0
  */
 @SuppressWarnings("serial")
@@ -61,6 +64,8 @@ public class WebauthnJacksonModule extends SecurityJacksonModule {
 
 	@Override
 	public void configurePolymorphicTypeValidator(BasicPolymorphicTypeValidator.Builder builder) {
+		builder.allowIfSubType(WebAuthnAuthentication.class)
+			.allowIfSubType(ImmutablePublicKeyCredentialUserEntity.class);
 	}
 
 	@Override
@@ -92,6 +97,9 @@ public class WebauthnJacksonModule extends SecurityJacksonModule {
 		context.setMixIn(RelyingPartyPublicKey.class, RelyingPartyPublicKeyMixin.class);
 		context.setMixIn(ResidentKeyRequirement.class, ResidentKeyRequirementMixin.class);
 		context.setMixIn(UserVerificationRequirement.class, UserVerificationRequirementMixin.class);
+		context.setMixIn(WebAuthnAuthentication.class, WebAuthnAuthenticationMixin.class);
+		context.setMixIn(ImmutablePublicKeyCredentialUserEntity.class,
+				ImmutablePublicKeyCredentialUserEntityMixin.class);
 	}
 
 }

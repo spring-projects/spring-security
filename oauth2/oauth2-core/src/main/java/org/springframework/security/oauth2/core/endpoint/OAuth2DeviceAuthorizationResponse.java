@@ -21,6 +21,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.OAuth2DeviceCode;
 import org.springframework.security.oauth2.core.OAuth2UserCode;
 import org.springframework.util.Assert;
@@ -38,17 +40,17 @@ import org.springframework.util.CollectionUtils;
  */
 public final class OAuth2DeviceAuthorizationResponse {
 
-	private OAuth2DeviceCode deviceCode;
+	private @Nullable OAuth2DeviceCode deviceCode;
 
-	private OAuth2UserCode userCode;
+	private @Nullable OAuth2UserCode userCode;
 
-	private String verificationUri;
+	private @Nullable String verificationUri;
 
-	private String verificationUriComplete;
+	private @Nullable String verificationUriComplete;
 
 	private long interval;
 
-	private Map<String, Object> additionalParameters;
+	private @Nullable Map<String, Object> additionalParameters;
 
 	private OAuth2DeviceAuthorizationResponse() {
 	}
@@ -58,6 +60,7 @@ public final class OAuth2DeviceAuthorizationResponse {
 	 * @return the {@link OAuth2DeviceCode}
 	 */
 	public OAuth2DeviceCode getDeviceCode() {
+		Assert.notNull(this.deviceCode, "deviceCode cannot be null");
 		return this.deviceCode;
 	}
 
@@ -66,6 +69,7 @@ public final class OAuth2DeviceAuthorizationResponse {
 	 * @return the {@link OAuth2UserCode}
 	 */
 	public OAuth2UserCode getUserCode() {
+		Assert.notNull(this.userCode, "userCode cannot be null");
 		return this.userCode;
 	}
 
@@ -74,14 +78,16 @@ public final class OAuth2DeviceAuthorizationResponse {
 	 * @return the end-user verification URI
 	 */
 	public String getVerificationUri() {
+		Assert.notNull(this.verificationUri, "verificationUri cannot be null");
 		return this.verificationUri;
 	}
 
 	/**
-	 * Returns the end-user verification URI that includes the user code.
-	 * @return the end-user verification URI that includes the user code
+	 * Returns the end-user verification URI that includes the user code, or {@code null}
+	 * if not present.
+	 * @return the end-user verification URI that includes the user code, or {@code null}
 	 */
-	public String getVerificationUriComplete() {
+	public @Nullable String getVerificationUriComplete() {
 		return this.verificationUriComplete;
 	}
 
@@ -100,6 +106,7 @@ public final class OAuth2DeviceAuthorizationResponse {
 	 * empty.
 	 */
 	public Map<String, Object> getAdditionalParameters() {
+		Assert.notNull(this.additionalParameters, "additionalParameters cannot be null");
 		return this.additionalParameters;
 	}
 
@@ -138,15 +145,15 @@ public final class OAuth2DeviceAuthorizationResponse {
 
 		private final String userCode;
 
-		private String verificationUri;
+		private @Nullable String verificationUri;
 
-		private String verificationUriComplete;
+		private @Nullable String verificationUriComplete;
 
 		private long expiresIn;
 
 		private long interval;
 
-		private Map<String, Object> additionalParameters;
+		private @Nullable Map<String, Object> additionalParameters;
 
 		private Builder(OAuth2DeviceCode deviceCode, OAuth2UserCode userCode) {
 			this.deviceCode = deviceCode.getTokenValue();
@@ -172,10 +179,10 @@ public final class OAuth2DeviceAuthorizationResponse {
 		/**
 		 * Sets the end-user verification URI that includes the user code.
 		 * @param verificationUriComplete the end-user verification URI that includes the
-		 * user code
+		 * user code, may be {@code null}
 		 * @return the {@link Builder}
 		 */
-		public Builder verificationUriComplete(String verificationUriComplete) {
+		public Builder verificationUriComplete(@Nullable String verificationUriComplete) {
 			this.verificationUriComplete = verificationUriComplete;
 			return this;
 		}

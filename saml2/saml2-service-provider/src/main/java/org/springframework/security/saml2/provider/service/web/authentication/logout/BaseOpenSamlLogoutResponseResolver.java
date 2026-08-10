@@ -26,18 +26,21 @@ import java.util.function.Consumer;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 import org.opensaml.core.config.ConfigurationService;
+import org.opensaml.core.xml.XMLObjectBuilder;
+import org.opensaml.core.xml.XMLObjectBuilderFactory;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
-import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
+import org.opensaml.core.xml.schema.XSString;
+import org.opensaml.saml.common.AbstractSAMLObjectBuilder;
+import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.saml.saml2.core.LogoutResponse;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.core.impl.IssuerBuilder;
-import org.opensaml.saml.saml2.core.impl.LogoutRequestUnmarshaller;
 import org.opensaml.saml.saml2.core.impl.LogoutResponseBuilder;
-import org.opensaml.saml.saml2.core.impl.LogoutResponseMarshaller;
 import org.opensaml.saml.saml2.core.impl.StatusBuilder;
 import org.opensaml.saml.saml2.core.impl.StatusCodeBuilder;
 
@@ -70,12 +73,6 @@ final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseRes
 
 	private final Log logger = LogFactory.getLog(getClass());
 
-	private XMLObjectProviderRegistry registry;
-
-	private final LogoutRequestUnmarshaller unmarshaller;
-
-	private final LogoutResponseMarshaller marshaller;
-
 	private final LogoutResponseBuilder logoutResponseBuilder;
 
 	private final IssuerBuilder issuerBuilder;
@@ -86,7 +83,7 @@ final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseRes
 
 	private final OpenSamlOperations saml;
 
-	private final RelyingPartyRegistrationRepository registrations;
+	private final @Nullable RelyingPartyRegistrationRepository registrations;
 
 	private final RelyingPartyRegistrationResolver relyingPartyRegistrationResolver;
 
@@ -98,27 +95,23 @@ final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseRes
 	/**
 	 * Construct a {@link BaseOpenSamlLogoutResponseResolver}
 	 */
-	BaseOpenSamlLogoutResponseResolver(RelyingPartyRegistrationRepository registrations,
+	BaseOpenSamlLogoutResponseResolver(@Nullable RelyingPartyRegistrationRepository registrations,
 			RelyingPartyRegistrationResolver relyingPartyRegistrationResolver, OpenSamlOperations saml) {
 		this.saml = saml;
 		this.registrations = registrations;
 		this.relyingPartyRegistrationResolver = relyingPartyRegistrationResolver;
-		this.registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
-		this.unmarshaller = (LogoutRequestUnmarshaller) XMLObjectProviderRegistrySupport.getUnmarshallerFactory()
-			.getUnmarshaller(LogoutRequest.DEFAULT_ELEMENT_NAME);
-		this.marshaller = (LogoutResponseMarshaller) this.registry.getMarshallerFactory()
-			.getMarshaller(LogoutResponse.DEFAULT_ELEMENT_NAME);
-		Assert.notNull(this.marshaller, "logoutResponseMarshaller must be configured in OpenSAML");
-		this.logoutResponseBuilder = (LogoutResponseBuilder) this.registry.getBuilderFactory()
-			.getBuilder(LogoutResponse.DEFAULT_ELEMENT_NAME);
-		Assert.notNull(this.logoutResponseBuilder, "logoutResponseBuilder must be configured in OpenSAML");
-		this.issuerBuilder = (IssuerBuilder) this.registry.getBuilderFactory().getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
-		Assert.notNull(this.issuerBuilder, "issuerBuilder must be configured in OpenSAML");
-		this.statusBuilder = (StatusBuilder) this.registry.getBuilderFactory().getBuilder(Status.DEFAULT_ELEMENT_NAME);
-		Assert.notNull(this.statusBuilder, "statusBuilder must be configured in OpenSAML");
-		this.statusCodeBuilder = (StatusCodeBuilder) this.registry.getBuilderFactory()
-			.getBuilder(StatusCode.DEFAULT_ELEMENT_NAME);
-		Assert.notNull(this.statusCodeBuilder, "statusCodeBuilder must be configured in OpenSAML");
+		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
+		Assert.notNull(registry, "XMLObjectProviderRegistry cannot be null");
+		XMLObjectBuilderFactory builderFactory = registry.getBuilderFactory();
+		this.logoutResponseBuilder = builder(builderFactory.ensureBuilder(LogoutResponse.DEFAULT_ELEMENT_NAME));
+		this.issuerBuilder = builder(builderFactory.ensureBuilder(Issuer.DEFAULT_ELEMENT_NAME));
+		this.statusBuilder = builder(builderFactory.ensureBuilder(Status.DEFAULT_ELEMENT_NAME));
+		this.statusCodeBuilder = builder(builderFactory.ensureBuilder(StatusCode.DEFAULT_ELEMENT_NAME));
+	}
+
+	private static <T extends SAMLObject, B extends AbstractSAMLObjectBuilder<T>> B builder(
+			XMLObjectBuilder<T> builder) {
+		return (B) builder;
 	}
 
 	/**
@@ -133,23 +126,25 @@ final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseRes
 	 * @return a signed and serialized SAML 2.0 Logout Response
 	 */
 	@Override
-	public Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication) {
+	public @Nullable Saml2LogoutResponse resolve(HttpServletRequest request, @Nullable Authentication authentication) {
 		return resolve(request, authentication, StatusCode.SUCCESS);
 	}
 
 	@Override
-	public Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication,
+	public @Nullable Saml2LogoutResponse resolve(HttpServletRequest request, @Nullable Authentication authentication,
 			Saml2AuthenticationException authenticationException) {
 		return resolve(request, authentication, getSamlStatus(authenticationException));
 	}
 
-	private Saml2LogoutResponse resolve(HttpServletRequest request, Authentication authentication, String statusCode) {
+	private @Nullable Saml2LogoutResponse resolve(HttpServletRequest request, @Nullable Authentication authentication,
+			String statusCode) {
 		LogoutRequest logoutRequest = this.saml.deserialize(extractSamlRequest(request));
 		String registrationId = getRegistrationId(authentication);
 		RelyingPartyRegistration registration = this.relyingPartyRegistrationResolver.resolve(request, registrationId);
 		if (registration == null && this.registrations != null) {
-			String issuer = logoutRequest.getIssuer().getValue();
-			registration = this.registrations.findUniqueByAssertingPartyEntityId(issuer);
+			Issuer issuer = logoutRequest.getIssuer();
+			Assert.notNull(issuer, "LogoutRequest#Issuer cannot be null");
+			registration = this.registrations.findUniqueByAssertingPartyEntityId(getValue(issuer));
 		}
 		if (registration == null) {
 			return null;
@@ -162,12 +157,12 @@ final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseRes
 		LogoutResponse logoutResponse = this.logoutResponseBuilder.buildObject();
 		logoutResponse
 			.setDestination(registration.getAssertingPartyMetadata().getSingleLogoutServiceResponseLocation());
-		Issuer issuer = this.issuerBuilder.buildObject();
+		Issuer issuer = this.issuerBuilder.buildObject(Issuer.DEFAULT_ELEMENT_NAME);
 		issuer.setValue(entityId);
 		logoutResponse.setIssuer(issuer);
-		StatusCode code = this.statusCodeBuilder.buildObject();
+		StatusCode code = this.statusCodeBuilder.buildObject(StatusCode.DEFAULT_ELEMENT_NAME);
 		code.setValue(statusCode);
-		Status status = this.statusBuilder.buildObject();
+		Status status = this.statusBuilder.buildObject(Status.DEFAULT_ELEMENT_NAME);
 		status.setStatusCode(code);
 		logoutResponse.setStatus(status);
 		logoutResponse.setInResponseTo(logoutRequest.getID());
@@ -206,6 +201,12 @@ final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseRes
 		}
 	}
 
+	String getValue(XSString object) {
+		String value = object.getValue();
+		Assert.notNull(value, "required elements must have a value");
+		return value;
+	}
+
 	void setClock(Clock clock) {
 		this.clock = clock;
 	}
@@ -214,7 +215,7 @@ final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseRes
 		this.parametersConsumer = parametersConsumer;
 	}
 
-	private String getRegistrationId(Authentication authentication) {
+	private @Nullable String getRegistrationId(@Nullable Authentication authentication) {
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace("Attempting to resolve registrationId from " + authentication);
 		}
@@ -255,12 +256,12 @@ final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseRes
 
 		private final RelyingPartyRegistration registration;
 
-		private final Authentication authentication;
+		private final @Nullable Authentication authentication;
 
 		private final LogoutRequest logoutRequest;
 
 		LogoutResponseParameters(HttpServletRequest request, RelyingPartyRegistration registration,
-				Authentication authentication, LogoutRequest logoutRequest) {
+				@Nullable Authentication authentication, LogoutRequest logoutRequest) {
 			this.request = request;
 			this.registration = registration;
 			this.authentication = authentication;
@@ -275,7 +276,7 @@ final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseRes
 			return this.registration;
 		}
 
-		Authentication getAuthentication() {
+		@Nullable Authentication getAuthentication() {
 			return this.authentication;
 		}
 

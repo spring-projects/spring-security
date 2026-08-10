@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -31,7 +32,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
@@ -232,13 +232,14 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 
 	private Mono<Void> onAuthenticationSuccess(Authentication authentication, WebFilterExchange webFilterExchange) {
 		OAuth2AuthorizationCodeAuthenticationToken authenticationResult = (OAuth2AuthorizationCodeAuthenticationToken) authentication;
+		Assert.notNull(authenticationResult.getAccessToken(), "accessToken cannot be null");
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(
 				authenticationResult.getClientRegistration(), authenticationResult.getName(),
 				authenticationResult.getAccessToken(), authenticationResult.getRefreshToken());
 		// @formatter:off
 		return this.authenticationSuccessHandler.onAuthenticationSuccess(webFilterExchange, authentication)
 				.then(ReactiveSecurityContextHolder.getContext()
-						.map(SecurityContext::getAuthentication)
+						.flatMap((ctx) -> Mono.justOrEmpty(ctx.getAuthentication()))
 						.defaultIfEmpty(this.anonymousToken)
 						.flatMap((principal) -> this.authorizedClientRepository
 								.saveAuthorizedClient(authorizedClient, principal, webFilterExchange.getExchange())
@@ -255,14 +256,16 @@ public class OAuth2AuthorizationCodeGrantWebFilter implements WebFilter {
 				)
 				.flatMap((exch) -> this.authorizationRequestRepository.loadAuthorizationRequest(exchange)
 						.flatMap((authorizationRequest) -> matchesRedirectUri(exch.getRequest().getURI(),
-								authorizationRequest.getRedirectUri()))
-				)
+								authorizationRequest.getRedirectUri())))
 				.switchIfEmpty(ServerWebExchangeMatcher.MatchResult.notMatch());
 		// @formatter:on
 	}
 
 	private static Mono<ServerWebExchangeMatcher.MatchResult> matchesRedirectUri(URI authorizationResponseUri,
-			String authorizationRequestRedirectUri) {
+			@Nullable String authorizationRequestRedirectUri) {
+		if (authorizationRequestRedirectUri == null) {
+			return ServerWebExchangeMatcher.MatchResult.notMatch();
+		}
 		UriComponents requestUri = UriComponentsBuilder.fromUri(authorizationResponseUri).build();
 		UriComponents redirectUri = UriComponentsBuilder.fromUriString(authorizationRequestRedirectUri).build();
 		Set<Map.Entry<String, List<String>>> requestUriParameters = new LinkedHashSet<>(

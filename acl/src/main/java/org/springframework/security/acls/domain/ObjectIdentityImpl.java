@@ -19,6 +19,8 @@ package org.springframework.security.acls.domain;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -97,7 +99,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 	 * @return <code>true</code> if the presented object matches this object
 	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (obj == null || !(obj instanceof ObjectIdentityImpl)) {
 			return false;
 		}

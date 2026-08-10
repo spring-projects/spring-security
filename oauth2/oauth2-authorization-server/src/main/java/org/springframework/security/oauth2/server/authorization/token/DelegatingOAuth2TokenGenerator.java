@@ -20,7 +20,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.util.Assert;
 
@@ -53,9 +54,8 @@ public final class DelegatingOAuth2TokenGenerator implements OAuth2TokenGenerato
 		this.tokenGenerators = Collections.unmodifiableList(asList(tokenGenerators));
 	}
 
-	@Nullable
 	@Override
-	public OAuth2Token generate(OAuth2TokenContext context) {
+	public @Nullable OAuth2Token generate(OAuth2TokenContext context) {
 		for (OAuth2TokenGenerator<OAuth2Token> tokenGenerator : this.tokenGenerators) {
 			OAuth2Token token = tokenGenerator.generate(context);
 			if (token != null) {

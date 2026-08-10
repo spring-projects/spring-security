@@ -26,6 +26,8 @@ import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterOutputStream;
 
+import org.jspecify.annotations.NullMarked;
+
 import org.springframework.security.saml2.Saml2Exception;
 
 /**
@@ -35,6 +37,7 @@ import org.springframework.security.saml2.Saml2Exception;
  *
  * @author Josh Cummings
  */
+@NullMarked
 final class Saml2Utils {
 
 	private Saml2Utils() {

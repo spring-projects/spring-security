@@ -16,6 +16,8 @@
 
 package org.springframework.security.authorization;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Duration;
 import java.util.Objects;
 
@@ -40,7 +42,10 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @since 7.0
  */
-public final class RequiredFactor {
+public final class RequiredFactor implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = 295501208651764485L;
 
 	private final String authority;
 
@@ -71,7 +76,7 @@ public final class RequiredFactor {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (!(o instanceof RequiredFactor that)) {
 			return false;
 		}
@@ -122,7 +127,7 @@ public final class RequiredFactor {
 		 * @param authority the authority.
 		 * @return the builder.
 		 */
-		public Builder authority(String authority) {
+		public Builder authority(@Nullable String authority) {
 			this.authority = authority;
 			return this;
 		}
@@ -205,7 +210,7 @@ public final class RequiredFactor {
 		 * @param validDuration the {@link Duration}.
 		 * @return
 		 */
-		public Builder validDuration(Duration validDuration) {
+		public Builder validDuration(@Nullable Duration validDuration) {
 			this.validDuration = validDuration;
 			return this;
 		}

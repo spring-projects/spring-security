@@ -24,6 +24,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.saml2.Saml2Exception;
@@ -160,7 +161,7 @@ public final class Saml2MetadataFilter extends OncePerRequestFilter {
 		}
 
 		@Override
-		public Saml2MetadataResponse resolve(HttpServletRequest request) {
+		public @Nullable Saml2MetadataResponse resolve(HttpServletRequest request) {
 			RequestMatcher.MatchResult matcher = this.requestMatcher.matcher(request);
 			if (!matcher.isMatch()) {
 				return null;

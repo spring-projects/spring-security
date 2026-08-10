@@ -100,7 +100,7 @@ public final class HttpSessionCsrfTokenRepository implements CsrfTokenRepository
 	 * @param sessionAttributeName the new attribute name to use
 	 */
 	public void setSessionAttributeName(String sessionAttributeName) {
-		Assert.hasLength(sessionAttributeName, "sessionAttributename cannot be null or empty");
+		Assert.hasLength(sessionAttributeName, "sessionAttributeName cannot be null or empty");
 		this.sessionAttributeName = sessionAttributeName;
 	}
 

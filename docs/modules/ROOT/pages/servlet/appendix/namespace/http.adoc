@@ -34,7 +34,7 @@ The attributes on the `<http>` element control some of the properties on the cor
 Use AuthorizationManager API instead of SecurityMetadataSource (defaults to true)
 
 [[nsa-http-authorization-manager-ref]]
-* **use-authorization-manager**
+* **authorization-manager-ref**
 Use this AuthorizationManager instead of deriving one from <intercept-url> elements
 
 [[nsa-http-access-decision-manager-ref]]
@@ -248,7 +248,7 @@ Optional attribute that specifies the bean name of a `CorsConfigurationSource` t
 
 [[nsa-headers]]
 == <headers>
-This element allows for configuring additional (security) headers to be send with the response.
+This element allows for configuring additional (security) headers to be sent with the response.
 It enables easy configuration for several headers and also allows for setting custom headers through the <<nsa-header,header>> element.
 Additional information, can be found in the xref:features/exploits/headers.adoc#headers[Security Headers] section of the reference.
 

@@ -30,6 +30,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -96,7 +97,7 @@ public final class OAuth2AuthorizationCodeAuthenticationProvider implements Auth
 
 	private final OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator;
 
-	private SessionRegistry sessionRegistry;
+	private @Nullable SessionRegistry sessionRegistry;
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizationCodeAuthenticationProvider} using the
@@ -119,6 +120,7 @@ public final class OAuth2AuthorizationCodeAuthenticationProvider implements Auth
 		OAuth2ClientAuthenticationToken clientPrincipal = OAuth2AuthenticationProviderUtils
 			.getAuthenticatedClientElseThrowInvalidClient(authorizationCodeAuthentication);
 		RegisteredClient registeredClient = clientPrincipal.getRegisteredClient();
+		Assert.notNull(registeredClient, "registeredClient cannot be null");
 
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace("Retrieved registered client");
@@ -136,9 +138,11 @@ public final class OAuth2AuthorizationCodeAuthenticationProvider implements Auth
 
 		OAuth2Authorization.Token<OAuth2AuthorizationCode> authorizationCode = authorization
 			.getToken(OAuth2AuthorizationCode.class);
+		Assert.notNull(authorizationCode, "authorizationCode cannot be null");
 
 		OAuth2AuthorizationRequest authorizationRequest = authorization
 			.getAttribute(OAuth2AuthorizationRequest.class.getName());
+		Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
 
 		if (!registeredClient.getClientId().equals(authorizationRequest.getClientId())) {
 			if (!authorizationCode.isInvalidated()) {
@@ -193,6 +197,7 @@ public final class OAuth2AuthorizationCodeAuthenticationProvider implements Auth
 		}
 
 		Authentication principal = authorization.getAttribute(Principal.class.getName());
+		Assert.notNull(principal, "principal cannot be null");
 
 		// @formatter:off
 		DefaultOAuth2TokenContext.Builder tokenContextBuilder = DefaultOAuth2TokenContext.builder()
@@ -331,10 +336,14 @@ public final class OAuth2AuthorizationCodeAuthenticationProvider implements Auth
 		this.sessionRegistry = sessionRegistry;
 	}
 
-	private SessionInformation getSessionInformation(Authentication principal) {
+	private @Nullable SessionInformation getSessionInformation(Authentication principal) {
 		SessionInformation sessionInformation = null;
 		if (this.sessionRegistry != null) {
-			List<SessionInformation> sessions = this.sessionRegistry.getAllSessions(principal.getPrincipal(), false);
+			Object sessionPrincipal = principal.getPrincipal();
+			if (sessionPrincipal == null) {
+				return null;
+			}
+			List<SessionInformation> sessions = this.sessionRegistry.getAllSessions(sessionPrincipal, false);
 			if (!CollectionUtils.isEmpty(sessions)) {
 				sessionInformation = sessions.get(0);
 				if (sessions.size() > 1) {

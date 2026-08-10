@@ -16,6 +16,8 @@
 
 package org.springframework.security.acls.domain;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.acls.model.Permission;
 
 /**
@@ -52,7 +54,7 @@ public abstract class AbstractPermission implements Permission {
 	}
 
 	@Override
-	public final boolean equals(Object obj) {
+	public final boolean equals(@Nullable Object obj) {
 		if (obj == null) {
 			return false;
 		}

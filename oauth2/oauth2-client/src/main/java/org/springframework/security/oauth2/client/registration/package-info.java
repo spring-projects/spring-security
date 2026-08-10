@@ -18,4 +18,7 @@
  * Classes and interfaces that provide support for
  * {@link org.springframework.security.oauth2.client.registration.ClientRegistration}.
  */
+@NullMarked
 package org.springframework.security.oauth2.client.registration;
+
+import org.jspecify.annotations.NullMarked;

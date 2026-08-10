@@ -60,6 +60,7 @@ import com.nimbusds.jose.util.Base64;
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
@@ -223,8 +224,10 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 		return signedJwt.serialize();
 	}
 
-	private static JWKMatcher createJwkMatcher(JwsHeader headers) {
-		JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(headers.getAlgorithm().getName());
+	private static @Nullable JWKMatcher createJwkMatcher(JwsHeader headers) {
+		JwsAlgorithm algorithm = headers.getAlgorithm();
+		Assert.notNull(algorithm, "JWS header algorithm must not be null");
+		JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(algorithm.getName());
 
 		if (JWSAlgorithm.Family.RSA.contains(jwsAlgorithm) || JWSAlgorithm.Family.EC.contains(jwsAlgorithm)) {
 			// @formatter:off
@@ -283,7 +286,9 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 	}
 
 	private static JWSHeader convert(JwsHeader headers) {
-		JWSHeader.Builder builder = new JWSHeader.Builder(JWSAlgorithm.parse(headers.getAlgorithm().getName()));
+		JwsAlgorithm algorithm = headers.getAlgorithm();
+		Assert.notNull(algorithm, "JWS header algorithm must not be null");
+		JWSHeader.Builder builder = new JWSHeader.Builder(JWSAlgorithm.parse(algorithm.getName()));
 
 		if (headers.getJwkSetUrl() != null) {
 			builder.jwkURL(convertAsURI(JoseHeaderNames.JKU, headers.getJwkSetUrl()));

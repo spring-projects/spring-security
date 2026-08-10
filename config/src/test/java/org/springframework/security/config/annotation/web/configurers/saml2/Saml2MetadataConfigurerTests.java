@@ -30,6 +30,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.config.web.PathPatternRequestMatcherBuilderFactoryBean;
 import org.springframework.security.saml2.provider.service.metadata.OpenSaml5MetadataResolver;
 import org.springframework.security.saml2.provider.service.metadata.RequestMatcherMetadataResponseResolver;
 import org.springframework.security.saml2.provider.service.metadata.Saml2MetadataResponse;
@@ -124,6 +125,15 @@ public class Saml2MetadataConfigurerTests {
 		this.mvc.perform(get("/saml2/metadata")).andExpect(status().isForbidden());
 	}
 
+	// gh-19128
+	@Test
+	void saml2MetadataWhenBuilderBeanWithBasePathThenMetadataUrlIgnoresBasePath() throws Exception {
+		this.spring.register(MetadataBuilderBeanConfig.class).autowire();
+		this.mvc.perform(get("/saml/metadata"))
+			.andExpect(status().isOk())
+			.andExpect(content().string(containsString("md:EntityDescriptor")));
+	}
+
 	@EnableWebSecurity
 	@Configuration
 	@Import(RelyingPartyRegistrationConfig.class)
@@ -135,6 +145,31 @@ public class Saml2MetadataConfigurerTests {
 			http
 				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 				.saml2Metadata(Customizer.withDefaults());
+			return http.build();
+			// @formatter:on
+		}
+
+	}
+
+	// gh-19128
+	@EnableWebSecurity
+	@Configuration
+	@Import(RelyingPartyRegistrationConfig.class)
+	static class MetadataBuilderBeanConfig {
+
+		@Bean
+		PathPatternRequestMatcherBuilderFactoryBean requestMatcherBuilder() {
+			PathPatternRequestMatcherBuilderFactoryBean bean = new PathPatternRequestMatcherBuilderFactoryBean();
+			bean.setBasePath("/spring");
+			return bean;
+		}
+
+		@Bean
+		SecurityFilterChain filters(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+				.saml2Metadata((saml2) -> saml2.metadataUrl("/saml/metadata"));
 			return http.build();
 			// @formatter:on
 		}

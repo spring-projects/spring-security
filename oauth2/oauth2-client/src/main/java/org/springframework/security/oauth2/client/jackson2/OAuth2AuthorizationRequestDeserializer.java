@@ -17,6 +17,8 @@
 package org.springframework.security.oauth2.client.jackson2;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -29,6 +31,7 @@ import com.fasterxml.jackson.databind.util.StdConverter;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest.Builder;
+import org.springframework.util.Assert;
 
 /**
  * A {@code JsonDeserializer} for {@link OAuth2AuthorizationRequest}.
@@ -59,15 +62,25 @@ final class OAuth2AuthorizationRequestDeserializer extends JsonDeserializer<OAut
 		AuthorizationGrantType authorizationGrantType = AUTHORIZATION_GRANT_TYPE_CONVERTER
 			.convert(JsonNodeUtils.findObjectNode(root, "authorizationGrantType"));
 		Builder builder = getBuilder(parser, authorizationGrantType);
-		builder.authorizationUri(JsonNodeUtils.findStringValue(root, "authorizationUri"));
-		builder.clientId(JsonNodeUtils.findStringValue(root, "clientId"));
+		String authorizationUri = JsonNodeUtils.findStringValue(root, "authorizationUri");
+		Assert.hasText(authorizationUri, "authorizationUri cannot be empty");
+		builder.authorizationUri(authorizationUri);
+		String clientId = JsonNodeUtils.findStringValue(root, "clientId");
+		Assert.hasText(clientId, "clientId cannot be empty");
+		builder.clientId(clientId);
 		builder.redirectUri(JsonNodeUtils.findStringValue(root, "redirectUri"));
 		builder.scopes(JsonNodeUtils.findValue(root, "scopes", JsonNodeUtils.STRING_SET, mapper));
 		builder.state(JsonNodeUtils.findStringValue(root, "state"));
-		builder.additionalParameters(
-				JsonNodeUtils.findValue(root, "additionalParameters", JsonNodeUtils.STRING_OBJECT_MAP, mapper));
-		builder.authorizationRequestUri(JsonNodeUtils.findStringValue(root, "authorizationRequestUri"));
-		builder.attributes(JsonNodeUtils.findValue(root, "attributes", JsonNodeUtils.STRING_OBJECT_MAP, mapper));
+		Map<String, Object> additionalParameters = JsonNodeUtils.findValue(root, "additionalParameters",
+				JsonNodeUtils.STRING_OBJECT_MAP, mapper);
+		builder.additionalParameters((additionalParameters != null) ? additionalParameters : Collections.emptyMap());
+		String authorizationRequestUri = JsonNodeUtils.findStringValue(root, "authorizationRequestUri");
+		if (authorizationRequestUri != null) {
+			builder.authorizationRequestUri(authorizationRequestUri);
+		}
+		Map<String, Object> attributes = JsonNodeUtils.findValue(root, "attributes", JsonNodeUtils.STRING_OBJECT_MAP,
+				mapper);
+		builder.attributes((attributes != null) ? attributes : Collections.emptyMap());
 		return builder.build();
 	}
 

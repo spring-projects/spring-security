@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -87,7 +89,7 @@ public final class InMemoryClientRegistrationRepository
 	}
 
 	@Override
-	public ClientRegistration findByRegistrationId(String registrationId) {
+	public @Nullable ClientRegistration findByRegistrationId(String registrationId) {
 		Assert.hasText(registrationId, "registrationId cannot be empty");
 		return this.registrations.get(registrationId);
 	}

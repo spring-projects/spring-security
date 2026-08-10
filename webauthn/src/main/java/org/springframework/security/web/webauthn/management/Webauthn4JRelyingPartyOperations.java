@@ -46,7 +46,6 @@ import com.webauthn4j.data.client.challenge.DefaultChallenge;
 import com.webauthn4j.data.extension.authenticator.AuthenticationExtensionAuthenticatorOutput;
 import com.webauthn4j.data.extension.authenticator.RegistrationExtensionAuthenticatorOutput;
 import com.webauthn4j.server.ServerProperty;
-import org.jspecify.annotations.NullUnmarked;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AuthenticationTrustResolver;
@@ -318,7 +317,8 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 
 	private com.webauthn4j.data.PublicKeyCredentialParameters convertParamToWebauthn4j(
 			PublicKeyCredentialParameters parameter) {
-		if (parameter.getType() != PublicKeyCredentialType.PUBLIC_KEY) {
+		PublicKeyCredentialType credentialType = PublicKeyCredentialType.valueOf(parameter.getType().getValue());
+		if (credentialType != PublicKeyCredentialType.PUBLIC_KEY) {
 			throw new IllegalArgumentException(
 					"Cannot convert unknown credential type " + parameter.getType() + " to webauthn4j");
 		}
@@ -358,7 +358,6 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 			.build();
 	}
 
-	@NullUnmarked
 	private List<CredentialRecord> findCredentialRecords(@Nullable Authentication authentication) {
 		if (!this.trustResolver.isAuthenticated(authentication)) {
 			return Collections.emptyList();

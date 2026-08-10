@@ -19,6 +19,8 @@ package org.springframework.security.oauth2.client.web.client;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -37,7 +39,7 @@ public final class RequestAttributeClientRegistrationIdResolver
 		implements OAuth2ClientHttpRequestInterceptor.ClientRegistrationIdResolver {
 
 	@Override
-	public String resolve(HttpRequest request) {
+	public @Nullable String resolve(HttpRequest request) {
 		return ClientAttributes.resolveClientRegistrationId(request.getAttributes());
 	}
 

@@ -27,7 +27,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
@@ -50,31 +51,31 @@ public class RegisteredClient implements Serializable {
 	@Serial
 	private static final long serialVersionUID = -717282636175335081L;
 
-	private String id;
+	private @Nullable String id;
 
-	private String clientId;
+	private @Nullable String clientId;
 
-	private Instant clientIdIssuedAt;
+	private @Nullable Instant clientIdIssuedAt;
 
-	private String clientSecret;
+	private @Nullable String clientSecret;
 
-	private Instant clientSecretExpiresAt;
+	private @Nullable Instant clientSecretExpiresAt;
 
-	private String clientName;
+	private @Nullable String clientName;
 
-	private Set<ClientAuthenticationMethod> clientAuthenticationMethods;
+	private @Nullable Set<ClientAuthenticationMethod> clientAuthenticationMethods;
 
-	private Set<AuthorizationGrantType> authorizationGrantTypes;
+	private @Nullable Set<AuthorizationGrantType> authorizationGrantTypes;
 
-	private Set<String> redirectUris;
+	private @Nullable Set<String> redirectUris;
 
-	private Set<String> postLogoutRedirectUris;
+	private @Nullable Set<String> postLogoutRedirectUris;
 
-	private Set<String> scopes;
+	private @Nullable Set<String> scopes;
 
-	private ClientSettings clientSettings;
+	private @Nullable ClientSettings clientSettings;
 
-	private TokenSettings tokenSettings;
+	private @Nullable TokenSettings tokenSettings;
 
 	protected RegisteredClient() {
 	}
@@ -84,6 +85,7 @@ public class RegisteredClient implements Serializable {
 	 * @return the identifier for the registration
 	 */
 	public String getId() {
+		Assert.notNull(this.id, "id cannot be null");
 		return this.id;
 	}
 
@@ -92,6 +94,7 @@ public class RegisteredClient implements Serializable {
 	 * @return the client identifier
 	 */
 	public String getClientId() {
+		Assert.notNull(this.clientId, "clientId cannot be null");
 		return this.clientId;
 	}
 
@@ -99,8 +102,7 @@ public class RegisteredClient implements Serializable {
 	 * Returns the time at which the client identifier was issued.
 	 * @return the time at which the client identifier was issued
 	 */
-	@Nullable
-	public Instant getClientIdIssuedAt() {
+	public @Nullable Instant getClientIdIssuedAt() {
 		return this.clientIdIssuedAt;
 	}
 
@@ -108,8 +110,7 @@ public class RegisteredClient implements Serializable {
 	 * Returns the client secret or {@code null} if not available.
 	 * @return the client secret or {@code null} if not available
 	 */
-	@Nullable
-	public String getClientSecret() {
+	public @Nullable String getClientSecret() {
 		return this.clientSecret;
 	}
 
@@ -119,8 +120,7 @@ public class RegisteredClient implements Serializable {
 	 * @return the time at which the client secret expires or {@code null} if it does not
 	 * expire
 	 */
-	@Nullable
-	public Instant getClientSecretExpiresAt() {
+	public @Nullable Instant getClientSecretExpiresAt() {
 		return this.clientSecretExpiresAt;
 	}
 
@@ -129,6 +129,7 @@ public class RegisteredClient implements Serializable {
 	 * @return the client name
 	 */
 	public String getClientName() {
+		Assert.notNull(this.clientName, "clientName cannot be null");
 		return this.clientName;
 	}
 
@@ -139,6 +140,7 @@ public class RegisteredClient implements Serializable {
 	 * method(s)}
 	 */
 	public Set<ClientAuthenticationMethod> getClientAuthenticationMethods() {
+		Assert.notNull(this.clientAuthenticationMethods, "clientAuthenticationMethods cannot be null");
 		return this.clientAuthenticationMethods;
 	}
 
@@ -149,6 +151,7 @@ public class RegisteredClient implements Serializable {
 	 * type(s)}
 	 */
 	public Set<AuthorizationGrantType> getAuthorizationGrantTypes() {
+		Assert.notNull(this.authorizationGrantTypes, "authorizationGrantTypes cannot be null");
 		return this.authorizationGrantTypes;
 	}
 
@@ -157,6 +160,7 @@ public class RegisteredClient implements Serializable {
 	 * @return the {@code Set} of redirect URI(s)
 	 */
 	public Set<String> getRedirectUris() {
+		Assert.notNull(this.redirectUris, "redirectUris cannot be null");
 		return this.redirectUris;
 	}
 
@@ -167,6 +171,7 @@ public class RegisteredClient implements Serializable {
 	 * @return the {@code Set} of post logout redirect URI(s)
 	 */
 	public Set<String> getPostLogoutRedirectUris() {
+		Assert.notNull(this.postLogoutRedirectUris, "postLogoutRedirectUris cannot be null");
 		return this.postLogoutRedirectUris;
 	}
 
@@ -175,6 +180,7 @@ public class RegisteredClient implements Serializable {
 	 * @return the {@code Set} of scope(s)
 	 */
 	public Set<String> getScopes() {
+		Assert.notNull(this.scopes, "scopes cannot be null");
 		return this.scopes;
 	}
 
@@ -183,6 +189,7 @@ public class RegisteredClient implements Serializable {
 	 * @return the {@link ClientSettings}
 	 */
 	public ClientSettings getClientSettings() {
+		Assert.notNull(this.clientSettings, "clientSettings cannot be null");
 		return this.clientSettings;
 	}
 
@@ -191,6 +198,7 @@ public class RegisteredClient implements Serializable {
 	 * @return the {@link TokenSettings}
 	 */
 	public TokenSettings getTokenSettings() {
+		Assert.notNull(this.tokenSettings, "tokenSettings cannot be null");
 		return this.tokenSettings;
 	}
 
@@ -261,17 +269,17 @@ public class RegisteredClient implements Serializable {
 	 */
 	public static class Builder {
 
-		private String id;
+		private @Nullable String id;
 
-		private String clientId;
+		private @Nullable String clientId;
 
-		private Instant clientIdIssuedAt;
+		private @Nullable Instant clientIdIssuedAt;
 
-		private String clientSecret;
+		private @Nullable String clientSecret;
 
-		private Instant clientSecretExpiresAt;
+		private @Nullable Instant clientSecretExpiresAt;
 
-		private String clientName;
+		private @Nullable String clientName;
 
 		private final Set<ClientAuthenticationMethod> clientAuthenticationMethods = new HashSet<>();
 
@@ -283,9 +291,9 @@ public class RegisteredClient implements Serializable {
 
 		private final Set<String> scopes = new HashSet<>();
 
-		private ClientSettings clientSettings;
+		private @Nullable ClientSettings clientSettings;
 
-		private TokenSettings tokenSettings;
+		private @Nullable TokenSettings tokenSettings;
 
 		protected Builder(String id) {
 			this.id = id;

@@ -118,7 +118,7 @@ public class Saml2LogoutRequestFilterTests {
 		verify(this.logoutRequestValidator).validate(any());
 		verify(this.logoutHandler).logout(any(), any(), any());
 		verify(this.logoutResponseResolver).resolve(any(), any());
-		checkResponse(response.getContentAsString(), registration);
+		checkResponse(response, registration);
 		verify(this.securityContextHolderStrategy).getContext();
 	}
 
@@ -165,7 +165,7 @@ public class Saml2LogoutRequestFilterTests {
 
 		this.logoutRequestProcessingFilter.doFilter(request, response, new MockFilterChain());
 
-		checkResponse(response.getContentAsString(), registration);
+		checkResponse(response, registration);
 		verify(this.logoutRequestValidator).validate(any());
 		verify(this.logoutResponseResolver).resolve(any(), any(),
 				argThat((ex) -> ex.getSaml2Error().getErrorCode().equals(Saml2ErrorCodes.INVALID_REQUEST)));
@@ -194,7 +194,7 @@ public class Saml2LogoutRequestFilterTests {
 
 		this.logoutRequestProcessingFilter.doFilterInternal(request, response, new MockFilterChain());
 
-		checkResponse(response.getContentAsString(), registration);
+		checkResponse(response, registration);
 		verify(this.logoutResponseResolver).resolve(any(), any(),
 				argThat((ex) -> ex.getSaml2Error().getErrorCode().equals(Saml2ErrorCodes.INVALID_DESTINATION)));
 		verifyNoInteractions(this.logoutHandler);
@@ -225,7 +225,7 @@ public class Saml2LogoutRequestFilterTests {
 
 		this.logoutRequestProcessingFilter.doFilterInternal(request, response, new MockFilterChain());
 
-		checkResponse(response.getContentAsString(), registration);
+		checkResponse(response, registration);
 		verify(this.logoutResponseResolver).resolve(any(), any(),
 				argThat((ex) -> ex.getSaml2Error().getErrorCode().equals(Saml2ErrorCodes.INVALID_REQUEST)));
 		verifyNoInteractions(this.logoutHandler);
@@ -259,15 +259,14 @@ public class Saml2LogoutRequestFilterTests {
 		verifyNoInteractions(this.logoutHandler);
 	}
 
-	private void checkResponse(String responseContent, RelyingPartyRegistration registration) {
+	private void checkResponse(MockHttpServletResponse response, RelyingPartyRegistration registration)
+			throws Exception {
+		String responseContent = response.getContentAsString();
 		assertThat(responseContent).contains(Saml2ParameterNames.SAML_RESPONSE);
 		assertThat(responseContent)
 			.contains(registration.getAssertingPartyMetadata().getSingleLogoutServiceResponseLocation());
-		assertThat(responseContent).contains(
-				"<meta http-equiv=\"Content-Security-Policy\" content=\"script-src 'sha256-oZhLbc2kO8b8oaYLrUc7uye1MgVKMyLtPqWR4WtKF+c='\">");
-		assertThat(responseContent)
-			.contains("<script>window.onload = function() { document.forms[0].submit(); }</script>");
-
+		assertThat(response.getHeader("Content-Security-Policy")).matches("script-src 'nonce-.+'");
+		assertThat(responseContent).contains("document.getElementById(\"redirect-form\").submit();");
 	}
 
 }

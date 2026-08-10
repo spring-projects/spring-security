@@ -44,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Luke Taylor
  * @since 3.0
  */
+@SuppressWarnings("deprecation")
 public class PrePostAnnotationSecurityMetadataSourceTests {
 
 	private PrePostAnnotationSecurityMetadataSource mds = new PrePostAnnotationSecurityMetadataSource(

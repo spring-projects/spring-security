@@ -5,13 +5,13 @@ pluginManagement {
 }
 
 plugins {
-	id "io.spring.develocity.conventions" version "0.0.24"
+	id "io.spring.develocity.conventions" version "0.0.25"
 }
 
 dependencyResolutionManagement {
 	repositories {
 		mavenCentral()
-		maven { url "https://repo.spring.io/snapshot" }
+		maven { url = "https://repo.spring.io/snapshot" }
 	}
 }
 

@@ -23,6 +23,7 @@ import java.util.function.Consumer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -79,7 +80,7 @@ public final class OAuth2AuthorizationConsentAuthenticationProvider implements A
 
 	private OAuth2TokenGenerator<OAuth2AuthorizationCode> authorizationCodeGenerator = new OAuth2AuthorizationCodeGenerator();
 
-	private Consumer<OAuth2AuthorizationConsentAuthenticationContext> authorizationConsentCustomizer;
+	private @Nullable Consumer<OAuth2AuthorizationConsentAuthenticationContext> authorizationConsentCustomizer;
 
 	/**
 	 * Constructs an {@code OAuth2AuthorizationConsentAuthenticationProvider} using the
@@ -100,7 +101,7 @@ public final class OAuth2AuthorizationConsentAuthenticationProvider implements A
 	}
 
 	@Override
-	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+	public @Nullable Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		if (authentication instanceof OAuth2DeviceAuthorizationConsentAuthenticationToken) {
 			// This is NOT an OAuth 2.0 Authorization Consent for the Authorization Code
 			// Grant,
@@ -114,8 +115,8 @@ public final class OAuth2AuthorizationConsentAuthenticationProvider implements A
 		OAuth2Authorization authorization = this.authorizationService
 			.findByToken(authorizationConsentAuthentication.getState(), STATE_TOKEN_TYPE);
 		if (authorization == null) {
-			throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.STATE, authorizationConsentAuthentication,
-					null, null);
+			throw createException(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.STATE,
+					authorizationConsentAuthentication, null, null);
 		}
 
 		if (this.logger.isTraceEnabled()) {
@@ -125,14 +126,18 @@ public final class OAuth2AuthorizationConsentAuthenticationProvider implements A
 		// The 'in-flight' authorization must be associated to the current principal
 		Authentication principal = (Authentication) authorizationConsentAuthentication.getPrincipal();
 		if (!isPrincipalAuthenticated(principal) || !principal.getName().equals(authorization.getPrincipalName())) {
-			throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.STATE, authorizationConsentAuthentication,
-					null, null);
+			throw createException(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.STATE,
+					authorizationConsentAuthentication, null, null);
 		}
 
 		RegisteredClient registeredClient = this.registeredClientRepository
 			.findByClientId(authorizationConsentAuthentication.getClientId());
-		if (registeredClient == null || !registeredClient.getId().equals(authorization.getRegisteredClientId())) {
-			throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.CLIENT_ID,
+		if (registeredClient == null) {
+			throw createException(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.CLIENT_ID,
+					authorizationConsentAuthentication, null, null);
+		}
+		if (!registeredClient.getId().equals(authorization.getRegisteredClientId())) {
+			throw createException(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.CLIENT_ID,
 					authorizationConsentAuthentication, registeredClient, null);
 		}
 
@@ -142,11 +147,12 @@ public final class OAuth2AuthorizationConsentAuthenticationProvider implements A
 
 		OAuth2AuthorizationRequest authorizationRequest = authorization
 			.getAttribute(OAuth2AuthorizationRequest.class.getName());
+		Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
 		Set<String> requestedScopes = authorizationRequest.getScopes();
 		Set<String> authorizedScopes = new HashSet<>(authorizationConsentAuthentication.getScopes());
 		if (!requestedScopes.containsAll(authorizedScopes)) {
-			throwError(OAuth2ErrorCodes.INVALID_SCOPE, OAuth2ParameterNames.SCOPE, authorizationConsentAuthentication,
-					registeredClient, authorizationRequest);
+			throw createException(OAuth2ErrorCodes.INVALID_SCOPE, OAuth2ParameterNames.SCOPE,
+					authorizationConsentAuthentication, registeredClient, authorizationRequest);
 		}
 
 		if (this.logger.isTraceEnabled()) {
@@ -215,12 +221,12 @@ public final class OAuth2AuthorizationConsentAuthenticationProvider implements A
 			if (this.logger.isTraceEnabled()) {
 				this.logger.trace("Removed authorization");
 			}
-			throwError(OAuth2ErrorCodes.ACCESS_DENIED, OAuth2ParameterNames.CLIENT_ID,
+			throw createException(OAuth2ErrorCodes.ACCESS_DENIED, OAuth2ParameterNames.CLIENT_ID,
 					authorizationConsentAuthentication, registeredClient, authorizationRequest);
 		}
 
 		OAuth2AuthorizationConsent authorizationConsent = authorizationConsentBuilder.build();
-		if (!authorizationConsent.equals(currentAuthorizationConsent)) {
+		if (currentAuthorizationConsent == null || !authorizationConsent.equals(currentAuthorizationConsent)) {
 			this.authorizationConsentService.save(authorizationConsent);
 			if (this.logger.isTraceEnabled()) {
 				this.logger.trace("Saved authorization consent");
@@ -334,16 +340,17 @@ public final class OAuth2AuthorizationConsentAuthenticationProvider implements A
 				&& principal.isAuthenticated();
 	}
 
-	private static void throwError(String errorCode, String parameterName,
-			OAuth2AuthorizationConsentAuthenticationToken authorizationConsentAuthentication,
-			RegisteredClient registeredClient, OAuth2AuthorizationRequest authorizationRequest) {
+	private static OAuth2AuthorizationCodeRequestAuthenticationException createException(String errorCode,
+			String parameterName, OAuth2AuthorizationConsentAuthenticationToken authorizationConsentAuthentication,
+			@Nullable RegisteredClient registeredClient, @Nullable OAuth2AuthorizationRequest authorizationRequest) {
 		OAuth2Error error = new OAuth2Error(errorCode, "OAuth 2.0 Parameter: " + parameterName, ERROR_URI);
-		throwError(error, parameterName, authorizationConsentAuthentication, registeredClient, authorizationRequest);
+		return createException(error, parameterName, authorizationConsentAuthentication, registeredClient,
+				authorizationRequest);
 	}
 
-	private static void throwError(OAuth2Error error, String parameterName,
-			OAuth2AuthorizationConsentAuthenticationToken authorizationConsentAuthentication,
-			RegisteredClient registeredClient, OAuth2AuthorizationRequest authorizationRequest) {
+	private static OAuth2AuthorizationCodeRequestAuthenticationException createException(OAuth2Error error,
+			String parameterName, OAuth2AuthorizationConsentAuthenticationToken authorizationConsentAuthentication,
+			@Nullable RegisteredClient registeredClient, @Nullable OAuth2AuthorizationRequest authorizationRequest) {
 
 		String redirectUri = resolveRedirectUri(authorizationRequest, registeredClient);
 		if (error.getErrorCode().equals(OAuth2ErrorCodes.INVALID_REQUEST)
@@ -363,12 +370,12 @@ public final class OAuth2AuthorizationConsentAuthenticationProvider implements A
 				(Authentication) authorizationConsentAuthentication.getPrincipal(), redirectUri, state, requestedScopes,
 				null);
 
-		throw new OAuth2AuthorizationCodeRequestAuthenticationException(error,
+		return new OAuth2AuthorizationCodeRequestAuthenticationException(error,
 				authorizationCodeRequestAuthenticationResult);
 	}
 
-	private static String resolveRedirectUri(OAuth2AuthorizationRequest authorizationRequest,
-			RegisteredClient registeredClient) {
+	private static @Nullable String resolveRedirectUri(@Nullable OAuth2AuthorizationRequest authorizationRequest,
+			@Nullable RegisteredClient registeredClient) {
 		if (authorizationRequest != null && StringUtils.hasText(authorizationRequest.getRedirectUri())) {
 			return authorizationRequest.getRedirectUri();
 		}

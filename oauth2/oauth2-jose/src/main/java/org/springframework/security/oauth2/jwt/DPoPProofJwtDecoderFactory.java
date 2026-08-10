@@ -185,6 +185,7 @@ public final class DPoPProofJwtDecoderFactory implements JwtDecoderFactory<DPoPP
 			return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
 		}
 
+		@SuppressWarnings("serial")
 		private static final class JtiCache extends LinkedHashMap<String, Long> {
 
 			private static final int MAX_SIZE = 1000;

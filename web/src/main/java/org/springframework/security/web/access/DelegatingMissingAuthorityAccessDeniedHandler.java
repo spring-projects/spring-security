@@ -78,7 +78,7 @@ import org.springframework.util.Assert;
  * @since 7.0
  * @see AuthorizationDeniedException
  * @see AuthorityAuthorizationDecision
- * @see org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer
+ * <code>org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer</code>
  */
 public final class DelegatingMissingAuthorityAccessDeniedHandler implements AccessDeniedHandler {
 

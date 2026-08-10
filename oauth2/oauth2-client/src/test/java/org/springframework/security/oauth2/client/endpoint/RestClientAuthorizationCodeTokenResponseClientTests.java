@@ -364,6 +364,7 @@ public class RestClientAuthorizationCodeTokenResponseClientTests {
 				this.authorizationExchange);
 		Converter<OAuth2AuthorizationCodeGrantRequest, HttpHeaders> headersConverter = mock();
 		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		headers.put("custom-header-name", Collections.singletonList("custom-header-value"));
 		given(headersConverter.convert(grantRequest)).willReturn(headers);
 		this.tokenResponseClient.setHeadersConverter(headersConverter);

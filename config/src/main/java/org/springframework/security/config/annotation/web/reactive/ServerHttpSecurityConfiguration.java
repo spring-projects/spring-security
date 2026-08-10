@@ -167,7 +167,7 @@ class ServerHttpSecurityConfiguration {
 	}
 
 	/**
-	 * Applies all {@code Custmizer<ServerHttpSecurity>} Beans to
+	 * Applies all {@code Customizer<ServerHttpSecurity>} Beans to
 	 * {@link ServerHttpSecurity}.
 	 * @param context the {@link ApplicationContext}
 	 * @param http the {@link ServerHttpSecurity}
@@ -255,7 +255,9 @@ class ServerHttpSecurityConfiguration {
 			if (this.passwordEncoder != null) {
 				manager.setPasswordEncoder(this.passwordEncoder);
 			}
-			manager.setUserDetailsPasswordService(this.userDetailsPasswordService);
+			if (this.userDetailsPasswordService != null) {
+				manager.setUserDetailsPasswordService(this.userDetailsPasswordService);
+			}
 			manager.setCompromisedPasswordChecker(this.compromisedPasswordChecker);
 			return this.postProcessor.postProcess(manager);
 		}

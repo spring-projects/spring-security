@@ -90,8 +90,8 @@ final class HtmlTemplates {
 		String render() {
 			String template = this.template;
 			for (String key : this.values.keySet()) {
-				String pattern = Pattern.quote("{{" + key + "}}");
-				template = template.replaceAll(pattern, this.values.get(key));
+				String pattern = "{{" + key + "}}";
+				template = template.replace(pattern, this.values.get(key));
 			}
 
 			String unusedPlaceholders = Pattern.compile("\\{\\{([a-zA-Z0-9]+)}}")

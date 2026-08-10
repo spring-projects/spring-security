@@ -17,6 +17,7 @@
 package org.springframework.security.web.util.matcher;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Matches any supplied request.
@@ -38,7 +39,7 @@ public final class AnyRequestMatcher implements RequestMatcher {
 
 	@Override
 	@SuppressWarnings("deprecation")
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		return obj instanceof AnyRequestMatcher
 				|| obj instanceof org.springframework.security.web.util.matcher.AnyRequestMatcher;
 	}

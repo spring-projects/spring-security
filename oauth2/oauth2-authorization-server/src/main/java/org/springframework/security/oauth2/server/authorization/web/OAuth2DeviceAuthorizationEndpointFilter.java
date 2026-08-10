@@ -130,6 +130,8 @@ public final class OAuth2DeviceAuthorizationEndpointFilter extends OncePerReques
 
 		try {
 			Authentication deviceAuthorizationRequestAuthentication = this.authenticationConverter.convert(request);
+			Assert.notNull(deviceAuthorizationRequestAuthentication,
+					"deviceAuthorizationRequestAuthentication cannot be null");
 			if (deviceAuthorizationRequestAuthentication instanceof AbstractAuthenticationToken authenticationToken) {
 				authenticationToken.setDetails(this.authenticationDetailsSource.buildDetails(request));
 			}
@@ -218,7 +220,9 @@ public final class OAuth2DeviceAuthorizationEndpointFilter extends OncePerReques
 		OAuth2DeviceAuthorizationRequestAuthenticationToken deviceAuthorizationRequestAuthentication = (OAuth2DeviceAuthorizationRequestAuthenticationToken) authentication;
 
 		OAuth2DeviceCode deviceCode = deviceAuthorizationRequestAuthentication.getDeviceCode();
+		Assert.notNull(deviceCode, "deviceCode cannot be null");
 		OAuth2UserCode userCode = deviceAuthorizationRequestAuthentication.getUserCode();
+		Assert.notNull(userCode, "userCode cannot be null");
 
 		// Generate the fully-qualified verification URI
 		UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(resolveVerificationUri(request));

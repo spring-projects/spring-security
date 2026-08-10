@@ -190,18 +190,19 @@ public class DefaultLoginPageGeneratingFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		filter.doFilter(new MockHttpServletRequest("GET", "/login"), response, this.chain);
 		assertThat(response.getContentAsString()).contains("Request a One-Time Token");
-		assertThat(response.getContentAsString()).contains("""
-				      <form id="ott-form" class="login-form" method="post" action="/ott/authenticate">
-				        <h2>Request a One-Time Token</h2>
+		assertThat(response.getContentAsString()).contains(
+				"""
+						      <form id="ott-form" class="login-form" method="post" action="/ott/authenticate">
+						        <h2>Request a One-Time Token</h2>
 
-				        <p>
-				          <label for="ott-username" class="screenreader">Username</label>
-				          <input type="text" id="ott-username" name="username" placeholder="Username" required>
-				        </p>
+						        <p>
+						          <label for="ott-username" class="screenreader">Username</label>
+						          <input type="text" id="ott-username" name="username" placeholder="Username" required autofocus>
+						        </p>
 
-				        <button class="primary" type="submit" form="ott-form">Send Token</button>
-				      </form>
-				""");
+						        <button class="primary" type="submit" form="ott-form">Send Token</button>
+						      </form>
+						""");
 	}
 
 	@Test
@@ -216,18 +217,19 @@ public class DefaultLoginPageGeneratingFilterTests {
 				FactorGrantedAuthority.OTT_AUTHORITY);
 		filter.doFilter(loginRequest, response, this.chain);
 		assertThat(response.getContentAsString()).contains("Request a One-Time Token");
-		assertThat(response.getContentAsString()).contains("""
-				      <form id="ott-form" class="login-form" method="post" action="/ott/authenticate">
-				        <h2>Request a One-Time Token</h2>
+		assertThat(response.getContentAsString()).contains(
+				"""
+						      <form id="ott-form" class="login-form" method="post" action="/ott/authenticate">
+						        <h2>Request a One-Time Token</h2>
 
-				        <p>
-				          <label for="ott-username" class="screenreader">Username</label>
-				          <input type="text" id="ott-username" name="username" placeholder="Username" required>
-				        </p>
+						        <p>
+						          <label for="ott-username" class="screenreader">Username</label>
+						          <input type="text" id="ott-username" name="username" placeholder="Username" required autofocus>
+						        </p>
 
-				        <button class="primary" type="submit" form="ott-form">Send Token</button>
-				      </form>
-				""");
+						        <button class="primary" type="submit" form="ott-form">Send Token</button>
+						      </form>
+						""");
 		assertThat(response.getContentAsString()).doesNotContain("Password");
 	}
 
@@ -245,18 +247,19 @@ public class DefaultLoginPageGeneratingFilterTests {
 			.get("/login?factor.type=ott&factor.type=password&factor.reason=missing&factor.reason=missing")
 			.build(), response, this.chain);
 		assertThat(response.getContentAsString()).contains("Request a One-Time Token");
-		assertThat(response.getContentAsString()).contains("""
-				      <form id="ott-form" class="login-form" method="post" action="/ott/authenticate">
-				        <h2>Request a One-Time Token</h2>
+		assertThat(response.getContentAsString()).contains(
+				"""
+						      <form id="ott-form" class="login-form" method="post" action="/ott/authenticate">
+						        <h2>Request a One-Time Token</h2>
 
-				        <p>
-				          <label for="ott-username" class="screenreader">Username</label>
-				          <input type="text" id="ott-username" name="username" placeholder="Username" required>
-				        </p>
+						        <p>
+						          <label for="ott-username" class="screenreader">Username</label>
+						          <input type="text" id="ott-username" name="username" placeholder="Username" required autofocus>
+						        </p>
 
-				        <button class="primary" type="submit" form="ott-form">Send Token</button>
-				      </form>
-				""");
+						        <button class="primary" type="submit" form="ott-form">Send Token</button>
+						      </form>
+						""");
 		assertThat(response.getContentAsString()).contains("Password");
 	}
 
@@ -297,6 +300,8 @@ public class DefaultLoginPageGeneratingFilterTests {
 				"""
 						<input type="text" id="ott-username" name="username" value="user" placeholder="Username" required readonly>
 						""");
+		assertThat(response.getContentAsString()).contains("""
+				<button class="primary" type="submit" form="ott-form" autofocus>Send Token</button>""");
 		assertThat(response.getContentAsString()).contains("""
 				<input type="text" id="username" name="username" value="user" placeholder="Username" required readonly>
 				""");

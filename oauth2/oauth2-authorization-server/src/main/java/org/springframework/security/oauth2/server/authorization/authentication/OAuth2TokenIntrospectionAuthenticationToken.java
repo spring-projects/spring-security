@@ -21,7 +21,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenIntrospection;
@@ -46,7 +47,7 @@ public class OAuth2TokenIntrospectionAuthenticationToken extends AbstractAuthent
 
 	private final Authentication clientPrincipal;
 
-	private final String tokenTypeHint;
+	private final @Nullable String tokenTypeHint;
 
 	private final Map<String, Object> additionalParameters;
 
@@ -118,8 +119,7 @@ public class OAuth2TokenIntrospectionAuthenticationToken extends AbstractAuthent
 	 * Returns the token type hint.
 	 * @return the token type hint
 	 */
-	@Nullable
-	public String getTokenTypeHint() {
+	public @Nullable String getTokenTypeHint() {
 		return this.tokenTypeHint;
 	}
 

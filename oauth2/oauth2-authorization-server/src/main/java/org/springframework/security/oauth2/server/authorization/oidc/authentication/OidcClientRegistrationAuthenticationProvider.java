@@ -16,17 +16,16 @@
 
 package org.springframework.security.oauth2.server.authorization.oidc.authentication;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -60,7 +59,6 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.security.oauth2.server.resource.authentication.AbstractOAuth2TokenAuthenticationToken;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -102,6 +100,8 @@ public final class OidcClientRegistrationAuthenticationProvider implements Authe
 
 	private PasswordEncoder passwordEncoder;
 
+	private Consumer<OidcClientRegistrationAuthenticationContext> authenticationValidator;
+
 	/**
 	 * Constructs an {@code OidcClientRegistrationAuthenticationProvider} using the
 	 * provided parameters.
@@ -121,10 +121,11 @@ public final class OidcClientRegistrationAuthenticationProvider implements Authe
 		this.clientRegistrationConverter = new RegisteredClientOidcClientRegistrationConverter();
 		this.registeredClientConverter = new OidcClientRegistrationRegisteredClientConverter();
 		this.passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+		this.authenticationValidator = new OidcClientRegistrationAuthenticationValidator();
 	}
 
 	@Override
-	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+	public @Nullable Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		OidcClientRegistrationAuthenticationToken clientRegistrationAuthentication = (OidcClientRegistrationAuthenticationToken) authentication;
 
 		if (clientRegistrationAuthentication.getClientRegistration() == null) {
@@ -157,6 +158,7 @@ public final class OidcClientRegistrationAuthenticationProvider implements Authe
 		}
 
 		OAuth2Authorization.Token<OAuth2AccessToken> authorizedAccessToken = authorization.getAccessToken();
+		Assert.notNull(authorizedAccessToken, "authorizedAccessToken cannot be null");
 		if (!authorizedAccessToken.isActive()) {
 			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_TOKEN);
 		}
@@ -206,22 +208,40 @@ public final class OidcClientRegistrationAuthenticationProvider implements Authe
 		this.passwordEncoder = passwordEncoder;
 	}
 
+	/**
+	 * Sets the {@code Consumer} providing access to the
+	 * {@link OidcClientRegistrationAuthenticationContext} and is responsible for
+	 * validating specific OpenID Connect 1.0 Client Registration Request parameters
+	 * associated in the {@link OidcClientRegistrationAuthenticationToken}. The default
+	 * authentication validator is {@link OidcClientRegistrationAuthenticationValidator}.
+	 *
+	 * <p>
+	 * <b>NOTE:</b> The authentication validator MUST throw
+	 * {@link OAuth2AuthenticationException} if validation fails.
+	 * @param authenticationValidator the {@code Consumer} providing access to the
+	 * {@link OidcClientRegistrationAuthenticationContext} and is responsible for
+	 * validating specific OpenID Connect 1.0 Client Registration Request parameters
+	 * @since 7.0.5
+	 */
+	public void setAuthenticationValidator(
+			Consumer<OidcClientRegistrationAuthenticationContext> authenticationValidator) {
+		Assert.notNull(authenticationValidator, "authenticationValidator cannot be null");
+		this.authenticationValidator = authenticationValidator;
+	}
+
 	private OidcClientRegistrationAuthenticationToken registerClient(
 			OidcClientRegistrationAuthenticationToken clientRegistrationAuthentication,
 			OAuth2Authorization authorization) {
 
-		if (!isValidRedirectUris(clientRegistrationAuthentication.getClientRegistration().getRedirectUris())) {
-			throwInvalidClientRegistration(OAuth2ErrorCodes.INVALID_REDIRECT_URI,
-					OidcClientMetadataClaimNames.REDIRECT_URIS);
-		}
+		OidcClientRegistration clientRegistrationRequest = clientRegistrationAuthentication.getClientRegistration();
+		Assert.notNull(clientRegistrationRequest, "clientRegistration cannot be null");
 
-		if (!isValidRedirectUris(
-				clientRegistrationAuthentication.getClientRegistration().getPostLogoutRedirectUris())) {
-			throwInvalidClientRegistration("invalid_client_metadata",
-					OidcClientMetadataClaimNames.POST_LOGOUT_REDIRECT_URIS);
-		}
+		OidcClientRegistrationAuthenticationContext authenticationContext = OidcClientRegistrationAuthenticationContext
+			.with(clientRegistrationAuthentication)
+			.build();
+		this.authenticationValidator.accept(authenticationContext);
 
-		if (!isValidTokenEndpointAuthenticationMethod(clientRegistrationAuthentication.getClientRegistration())) {
+		if (!isValidTokenEndpointAuthenticationMethod(clientRegistrationRequest)) {
 			throwInvalidClientRegistration("invalid_client_metadata",
 					OidcClientMetadataClaimNames.TOKEN_ENDPOINT_AUTH_METHOD);
 		}
@@ -230,8 +250,7 @@ public final class OidcClientRegistrationAuthenticationProvider implements Authe
 			this.logger.trace("Validated client registration request parameters");
 		}
 
-		RegisteredClient registeredClient = this.registeredClientConverter
-			.convert(clientRegistrationAuthentication.getClientRegistration());
+		RegisteredClient registeredClient = this.registeredClientConverter.convert(clientRegistrationRequest);
 
 		if (StringUtils.hasText(registeredClient.getClientSecret())) {
 			// Encode the client secret
@@ -240,8 +259,7 @@ public final class OidcClientRegistrationAuthenticationProvider implements Authe
 				.build();
 			this.registeredClientRepository.save(updatedRegisteredClient);
 			if (ClientAuthenticationMethod.CLIENT_SECRET_JWT.getValue()
-				.equals(clientRegistrationAuthentication.getClientRegistration()
-					.getTokenEndpointAuthenticationMethod())) {
+				.equals(clientRegistrationRequest.getTokenEndpointAuthenticationMethod())) {
 				// gh-1344 Return the hashed client_secret
 				registeredClient = updatedRegisteredClient;
 			}
@@ -257,8 +275,10 @@ public final class OidcClientRegistrationAuthenticationProvider implements Authe
 		OAuth2Authorization registeredClientAuthorization = registerAccessToken(registeredClient);
 
 		// Invalidate the "initial" access token as it can only be used once
+		OAuth2Authorization.Token<OAuth2AccessToken> initialAccessToken = authorization.getAccessToken();
+		Assert.notNull(initialAccessToken, "initialAccessToken cannot be null");
 		OAuth2Authorization.Builder builder = OAuth2Authorization.from(authorization)
-			.invalidate(authorization.getAccessToken().getToken());
+			.invalidate(initialAccessToken.getToken());
 		if (authorization.getRefreshToken() != null) {
 			builder.invalidate(authorization.getRefreshToken().getToken());
 		}
@@ -271,8 +291,11 @@ public final class OidcClientRegistrationAuthenticationProvider implements Authe
 
 		Map<String, Object> clientRegistrationClaims = this.clientRegistrationConverter.convert(registeredClient)
 			.getClaims();
+		OAuth2Authorization.Token<OAuth2AccessToken> registrationAccessToken = registeredClientAuthorization
+			.getAccessToken();
+		Assert.notNull(registrationAccessToken, "registrationAccessToken cannot be null");
 		OidcClientRegistration clientRegistration = OidcClientRegistration.withClaims(clientRegistrationClaims)
-			.registrationAccessToken(registeredClientAuthorization.getAccessToken().getToken().getTokenValue())
+			.registrationAccessToken(registrationAccessToken.getToken().getTokenValue())
 			.build();
 
 		if (this.logger.isTraceEnabled()) {
@@ -338,9 +361,11 @@ public final class OidcClientRegistrationAuthenticationProvider implements Authe
 	@SuppressWarnings("unchecked")
 	private static void checkScope(OAuth2Authorization.Token<OAuth2AccessToken> authorizedAccessToken,
 			Set<String> requiredScope) {
+		Map<String, Object> claims = authorizedAccessToken.getClaims();
+		Assert.notNull(claims, "claims cannot be null");
 		Collection<String> authorizedScope = Collections.emptySet();
-		if (authorizedAccessToken.getClaims().containsKey(OAuth2ParameterNames.SCOPE)) {
-			authorizedScope = (Collection<String>) authorizedAccessToken.getClaims().get(OAuth2ParameterNames.SCOPE);
+		if (claims.containsKey(OAuth2ParameterNames.SCOPE)) {
+			authorizedScope = (Collection<String>) claims.get(OAuth2ParameterNames.SCOPE);
 		}
 		if (!authorizedScope.containsAll(requiredScope)) {
 			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INSUFFICIENT_SCOPE);
@@ -349,26 +374,6 @@ public final class OidcClientRegistrationAuthenticationProvider implements Authe
 			// Restrict the access token to only contain the required scope
 			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_TOKEN);
 		}
-	}
-
-	private static boolean isValidRedirectUris(List<String> redirectUris) {
-		if (CollectionUtils.isEmpty(redirectUris)) {
-			return true;
-		}
-
-		for (String redirectUri : redirectUris) {
-			try {
-				URI validRedirectUri = new URI(redirectUri);
-				if (validRedirectUri.getFragment() != null) {
-					return false;
-				}
-			}
-			catch (URISyntaxException ex) {
-				return false;
-			}
-		}
-
-		return true;
 	}
 
 	private static boolean isValidTokenEndpointAuthenticationMethod(OidcClientRegistration clientRegistration) {

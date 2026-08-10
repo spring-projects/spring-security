@@ -19,6 +19,8 @@ package org.springframework.security.acls.jdbc;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.acls.model.ObjectIdentity;
@@ -42,6 +44,6 @@ public interface LookupStrategy {
 	 * {@link NotFoundException}, as a chain of {@link LookupStrategy}s may be used to
 	 * automatically create entries if required)
 	 */
-	Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects, List<Sid> sids);
+	Map<ObjectIdentity, Acl> readAclsById(List<ObjectIdentity> objects, @Nullable List<Sid> sids);
 
 }

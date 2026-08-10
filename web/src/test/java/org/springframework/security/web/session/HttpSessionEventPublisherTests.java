@@ -38,7 +38,7 @@ public class HttpSessionEventPublisherTests {
 	 * It's not that complicated so we'll just run it straight through here.
 	 */
 	@Test
-	public void publishedEventIsReceivedbyListener() {
+	public void publishedEventIsReceivedByListener() {
 		HttpSessionEventPublisher publisher = new HttpSessionEventPublisher();
 		StaticWebApplicationContext context = new StaticWebApplicationContext();
 		MockServletContext servletContext = new MockServletContext();
@@ -66,7 +66,7 @@ public class HttpSessionEventPublisherTests {
 	}
 
 	@Test
-	public void publishedEventIsReceivedbyListenerChildContext() {
+	public void publishedEventIsReceivedByListenerChildContext() {
 		HttpSessionEventPublisher publisher = new HttpSessionEventPublisher();
 		StaticWebApplicationContext context = new StaticWebApplicationContext();
 		MockServletContext servletContext = new MockServletContext();

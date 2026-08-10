@@ -38,7 +38,7 @@ interface EvaluationContextPostProcessor<I> {
 	 * that was passed in.
 	 * @param context the original {@link EvaluationContext}
 	 * @param invocation the security invocation object (i.e. FilterInvocation)
-	 * @return the upated context.
+	 * @return the updated context.
 	 */
 	EvaluationContext postProcess(EvaluationContext context, I invocation);
 

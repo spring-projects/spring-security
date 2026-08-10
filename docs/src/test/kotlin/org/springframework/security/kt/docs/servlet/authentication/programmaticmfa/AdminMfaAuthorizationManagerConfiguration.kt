@@ -14,8 +14,6 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.ott.OneTimeTokenGenerationSuccessHandler
 import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenGenerationSuccessHandler
-import org.springframework.stereotype.Component
-import java.util.function.Supplier
 
 @EnableWebSecurity
 @Configuration(proxyBeanMethods = false)
@@ -40,34 +38,16 @@ internal class AdminMfaAuthorizationManagerConfiguration {
     }
     // end::httpSecurity[]
 
-    // tag::authorizationManager[]
-    @Component
-    internal open class AdminMfaAuthorizationManager : AuthorizationManager<Object> {
-        override fun authorize(
-            authentication: Supplier<out Authentication?>, context: Object): AuthorizationResult {
-            return if ("admin" == authentication.get().name) {
-                var admins =
-                    AllAuthoritiesAuthorizationManager.hasAllAuthorities<Any>(
-                        FactorGrantedAuthority.OTT_AUTHORITY,
-                        FactorGrantedAuthority.PASSWORD_AUTHORITY)
-                // <1>
-                admins.authorize(authentication, context)
-            } else {
-                // <2>
-                AuthorizationDecision(true)
-            }
-        }
-    }
-    // end::authorizationManager[]
-
     // tag::authorizationManagerFactory[]
     @Bean
-    fun authorizationManagerFactory(admins: AdminMfaAuthorizationManager): AuthorizationManagerFactory<Object> {
-        val defaults = DefaultAuthorizationManagerFactory<Object>()
-        // <1>
-        defaults.setAdditionalAuthorization(admins)
-        // <2>
-        return defaults
+    fun authorizationManagerFactory(): AuthorizationManagerFactory<Any> {
+        // <3>
+        return AuthorizationManagerFactories.multiFactor<Any>()
+            // <1>
+            .requireFactors(FactorGrantedAuthority.OTT_AUTHORITY, FactorGrantedAuthority.PASSWORD_AUTHORITY)
+            // <2>
+            .`when` { auth -> "admin" == auth.name }
+            .build()
     }
     // end::authorizationManagerFactory[]
 

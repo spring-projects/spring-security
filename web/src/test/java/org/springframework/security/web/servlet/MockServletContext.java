@@ -28,7 +28,6 @@ import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletRegistration;
 import jakarta.servlet.ServletSecurityElement;
 
-import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.DispatcherServlet;
 
 public class MockServletContext extends org.springframework.mock.web.MockServletContext {
@@ -41,15 +40,13 @@ public class MockServletContext extends org.springframework.mock.web.MockServlet
 		return servletContext;
 	}
 
-	@NonNull
 	@Override
-	public ServletRegistration.Dynamic addServlet(@NonNull String servletName, Class<? extends Servlet> clazz) {
+	public ServletRegistration.Dynamic addServlet(String servletName, Class<? extends Servlet> clazz) {
 		ServletRegistration.Dynamic dynamic = new MockServletRegistration(servletName, clazz);
 		this.registrations.put(servletName, dynamic);
 		return dynamic;
 	}
 
-	@NonNull
 	@Override
 	public Map<String, ? extends ServletRegistration> getServletRegistrations() {
 		return this.registrations;
