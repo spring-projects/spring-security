@@ -420,6 +420,20 @@ http
         .requestMatchers(servlet.matcher("/orders/**")).authenticated()
     )
 ----
+Alternatively, if most of your authorization rules use the same servlet path, you can configure a global `PathPatternRequestMatcher.Builder` bean:
+
+[method,java]
+----
+@Bean
+PathPatternRequestMatcher.Builder requestMatcherBuilder(
+        PathPatternParser mvcPatternParser, DispatcherServletPath servletPath) {
+    PathPatternRequestMatcher.Builder builder = PathPatternRequestMatcher.withPathPatternParser(mvcPatternParser);
+    String path = servletPath.getPath();
+    return "/".equals(path) ? builder : builder.basePath(path);
+}
+----
+
+With this configuration, Spring Security uses the servlet path when creating `RequestMatcher`s from the string-based `requestMatchers` methods.
 
 
 For paths that belong to the default servlet, use `PathPatternRequestMatcher.withDefaults()` instead:
