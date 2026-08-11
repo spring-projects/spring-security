@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.kt.docs.servlet.authentication.onetimetokenaccountstatus
+package org.springframework.security.kt.docs.servlet.authentication.validatingaccountstatus
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
