@@ -43,6 +43,7 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContextImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.lenient;
@@ -75,6 +76,11 @@ class SecurityContextHolderFilterTests {
 	@BeforeEach
 	void setup() {
 		this.filter = new SecurityContextHolderFilter(this.repository);
+	}
+
+	@Test
+	void setSecurityContextRepositoryWhenNullThenThrowsIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setSecurityContextRepository(null));
 	}
 
 	@AfterEach
