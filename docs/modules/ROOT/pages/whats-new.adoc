@@ -1,4 +1,6 @@
 [[new]]
 = What's New in Spring Security 7.2
 
-This is a placeholder for updates to Spring Security 7.2
+== Authentication
+
+* https://github.com/spring-projects/spring-security/issues/17655[gh-17655] - Make One-Time Token xref:servlet/authentication/onetimetoken.adoc#validating-account-status[account status checks opt-in]
