@@ -110,6 +110,7 @@
 *** xref:servlet/exploits/headers.adoc[]
 *** xref:servlet/exploits/http.adoc[]
 *** xref:servlet/exploits/firewall.adoc[]
+*** xref:servlet/exploits/timing.adoc[Timing Attacks]
 ** xref:servlet/integrations/index.adoc[Integrations]
 *** xref:servlet/integrations/concurrency.adoc[Concurrency]
 *** xref:servlet/integrations/localization.adoc[Localization]
