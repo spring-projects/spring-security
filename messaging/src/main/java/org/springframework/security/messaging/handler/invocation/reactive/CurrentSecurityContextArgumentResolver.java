@@ -175,10 +175,7 @@ public class CurrentSecurityContextArgumentResolver implements HandlerMethodArgu
 			StandardEvaluationContext context = new StandardEvaluationContext();
 			context.setRootObject(securityContext);
 			context.setVariable("this", securityContext);
-			if (this.beanResolver != null) {
-				// https://github.com/spring-projects/spring-framework/issues/35371
-				context.setBeanResolver(this.beanResolver);
-			}
+			context.setBeanResolver(this.beanResolver);
 			Expression expression = this.parser.parseExpression(expressionToParse);
 			securityContext = expression.getValue(context);
 		}
