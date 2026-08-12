@@ -123,7 +123,7 @@ public final class PostFilterAuthorizationMethodInterceptor implements Authoriza
 	/**
 	 * Filter a {@code returnedObject} using the {@link PostFilter} annotation that the
 	 * {@link MethodInvocation} specifies.
-	 * @param mi the {@link MethodInvocation} to check check
+	 * @param mi the {@link MethodInvocation} to check
 	 * @return filtered {@code returnedObject}
 	 */
 	@Override
