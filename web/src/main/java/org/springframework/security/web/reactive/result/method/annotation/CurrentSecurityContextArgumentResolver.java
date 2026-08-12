@@ -141,7 +141,6 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 		return securityContext;
 	}
 
-	@SuppressWarnings("NullAway") // https://github.com/spring-projects/spring-framework/issues/35371
 	private @Nullable Object resolveSecurityContextFromAnnotation(CurrentSecurityContext annotation,
 			MethodParameter parameter, Object securityContext) {
 		Object securityContextResult = securityContext;

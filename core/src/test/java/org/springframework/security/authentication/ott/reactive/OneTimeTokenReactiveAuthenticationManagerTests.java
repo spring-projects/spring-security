@@ -18,11 +18,16 @@ package org.springframework.security.authentication.ott.reactive;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import reactor.core.publisher.Mono;
 
+import org.springframework.security.authentication.AccountExpiredException;
+import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.ott.DefaultOneTimeToken;
@@ -103,6 +108,106 @@ public class OneTimeTokenReactiveAuthenticationManagerTests {
 		assertThat(user.getPassword()).isEqualTo(PASSWORD);
 		assertThat(token.isAuthenticated()).isTrue();
 		assertThat(CollectionUtils.isEmpty(authorities)).isFalse();
+	}
+
+	@Test
+	@SuppressWarnings("removal")
+	void authenticateWhenAccountStatusInvalidAndNoUserDetailsCheckerThenAuthenticates() {
+		ReactiveOneTimeTokenService oneTimeTokenService = mock(ReactiveOneTimeTokenService.class);
+		given(oneTimeTokenService.consume(ArgumentMatchers.any(OneTimeTokenAuthenticationToken.class)))
+			.willReturn(Mono.just(new DefaultOneTimeToken(TOKEN, USERNAME, Instant.now())));
+		ReactiveUserDetailsService userDetailsService = mock(ReactiveUserDetailsService.class);
+		User testUser = new User(USERNAME, PASSWORD, false, false, false, false, List.of());
+		given(userDetailsService.findByUsername(eq(USERNAME))).willReturn(Mono.just(testUser));
+
+		this.authenticationManager = new OneTimeTokenReactiveAuthenticationManager(oneTimeTokenService,
+				userDetailsService);
+
+		Authentication authentication = this.authenticationManager
+			.authenticate(OneTimeTokenAuthenticationToken.unauthenticated(TOKEN))
+			.block();
+
+		assertThat(authentication.isAuthenticated()).isTrue();
+	}
+
+	@Test
+	@SuppressWarnings("removal")
+	void authenticateWhenUserDetailsCheckerConfiguredAndAccountLockedThenThrowsLockedException() {
+		ReactiveOneTimeTokenService oneTimeTokenService = mock(ReactiveOneTimeTokenService.class);
+		given(oneTimeTokenService.consume(ArgumentMatchers.any(OneTimeTokenAuthenticationToken.class)))
+			.willReturn(Mono.just(new DefaultOneTimeToken(TOKEN, USERNAME, Instant.now())));
+		ReactiveUserDetailsService userDetailsService = mock(ReactiveUserDetailsService.class);
+		User testUser = new User(USERNAME, PASSWORD, true, true, true, false, List.of());
+		given(userDetailsService.findByUsername(eq(USERNAME))).willReturn(Mono.just(testUser));
+
+		OneTimeTokenReactiveAuthenticationManager manager = new OneTimeTokenReactiveAuthenticationManager(
+				oneTimeTokenService, userDetailsService);
+		manager.setUserDetailsChecker(new AccountStatusUserDetailsChecker());
+		this.authenticationManager = manager;
+
+		// @formatter:off
+		assertThatExceptionOfType(LockedException.class)
+				.isThrownBy(() -> this.authenticationManager.authenticate(OneTimeTokenAuthenticationToken.unauthenticated(TOKEN))
+						.block());
+		// @formatter:on
+	}
+
+	@Test
+	@SuppressWarnings("removal")
+	void authenticateWhenUserDetailsCheckerConfiguredAndAccountDisabledThenThrowsDisabledException() {
+		ReactiveOneTimeTokenService oneTimeTokenService = mock(ReactiveOneTimeTokenService.class);
+		given(oneTimeTokenService.consume(ArgumentMatchers.any(OneTimeTokenAuthenticationToken.class)))
+			.willReturn(Mono.just(new DefaultOneTimeToken(TOKEN, USERNAME, Instant.now())));
+		ReactiveUserDetailsService userDetailsService = mock(ReactiveUserDetailsService.class);
+		User testUser = new User(USERNAME, PASSWORD, false, true, true, true, List.of());
+		given(userDetailsService.findByUsername(eq(USERNAME))).willReturn(Mono.just(testUser));
+
+		OneTimeTokenReactiveAuthenticationManager manager = new OneTimeTokenReactiveAuthenticationManager(
+				oneTimeTokenService, userDetailsService);
+		manager.setUserDetailsChecker(new AccountStatusUserDetailsChecker());
+		this.authenticationManager = manager;
+
+		// @formatter:off
+		assertThatExceptionOfType(DisabledException.class)
+				.isThrownBy(() -> this.authenticationManager.authenticate(OneTimeTokenAuthenticationToken.unauthenticated(TOKEN))
+						.block());
+		// @formatter:on
+	}
+
+	@Test
+	@SuppressWarnings("removal")
+	void authenticateWhenUserDetailsCheckerConfiguredAndAccountExpiredThenThrowsAccountExpiredException() {
+		ReactiveOneTimeTokenService oneTimeTokenService = mock(ReactiveOneTimeTokenService.class);
+		given(oneTimeTokenService.consume(ArgumentMatchers.any(OneTimeTokenAuthenticationToken.class)))
+			.willReturn(Mono.just(new DefaultOneTimeToken(TOKEN, USERNAME, Instant.now())));
+		ReactiveUserDetailsService userDetailsService = mock(ReactiveUserDetailsService.class);
+		User testUser = new User(USERNAME, PASSWORD, true, false, true, true, List.of());
+		given(userDetailsService.findByUsername(eq(USERNAME))).willReturn(Mono.just(testUser));
+
+		OneTimeTokenReactiveAuthenticationManager manager = new OneTimeTokenReactiveAuthenticationManager(
+				oneTimeTokenService, userDetailsService);
+		manager.setUserDetailsChecker(new AccountStatusUserDetailsChecker());
+		this.authenticationManager = manager;
+
+		// @formatter:off
+		assertThatExceptionOfType(AccountExpiredException.class)
+				.isThrownBy(() -> this.authenticationManager.authenticate(OneTimeTokenAuthenticationToken.unauthenticated(TOKEN))
+						.block());
+		// @formatter:on
+	}
+
+	@Test
+	void setUserDetailsCheckerWhenNullThenThrowsIllegalArgumentException() {
+		ReactiveOneTimeTokenService oneTimeTokenService = mock(ReactiveOneTimeTokenService.class);
+		ReactiveUserDetailsService userDetailsService = mock(ReactiveUserDetailsService.class);
+		OneTimeTokenReactiveAuthenticationManager manager = new OneTimeTokenReactiveAuthenticationManager(
+				oneTimeTokenService, userDetailsService);
+
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> manager.setUserDetailsChecker(null))
+				.withMessage("userDetailsChecker cannot be null");
+		// @formatter:on
 	}
 
 	@Test
