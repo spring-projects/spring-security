@@ -4,3 +4,7 @@
 == Authentication
 
 * https://github.com/spring-projects/spring-security/issues/17655[gh-17655] - Make One-Time Token xref:servlet/authentication/onetimetoken.adoc#validating-account-status[account status checks opt-in]
+
+== Web
+
+* Since Spring Framework's `HttpMethod#valueOf` now normalizes casing, `StrictServerWebExchangeFirewall` no longer detects a non-canonical-case HTTP method (for example, `get` instead of `GET`) as a distinct value; such requests are processed as the canonical method instead of being rejected. Applications with a customized `ServerExchangeRejectedHandler` should be aware it is no longer invoked for this case.
