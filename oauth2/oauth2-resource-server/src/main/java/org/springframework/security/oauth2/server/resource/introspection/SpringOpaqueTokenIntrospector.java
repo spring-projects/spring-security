@@ -72,6 +72,7 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
+	@SuppressWarnings("removal")
 	private final RestOperations restOperations;
 
 	private Converter<String, RequestEntity<?>> requestEntityConverter;
@@ -86,6 +87,7 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	 * @deprecated Please use {@link SpringOpaqueTokenIntrospector.Builder}
 	 */
 	@Deprecated(since = "6.5", forRemoval = true)
+	@SuppressWarnings("removal")
 	public SpringOpaqueTokenIntrospector(String introspectionUri, String clientId, String clientSecret) {
 		Assert.notNull(introspectionUri, "introspectionUri cannot be null");
 		Assert.notNull(clientId, "clientId cannot be null");
@@ -103,6 +105,7 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	 * @param introspectionUri The introspection endpoint uri
 	 * @param restOperations The client for performing the introspection request
 	 */
+	@SuppressWarnings("removal")
 	public SpringOpaqueTokenIntrospector(String introspectionUri, RestOperations restOperations) {
 		Assert.notNull(introspectionUri, "introspectionUri cannot be null");
 		Assert.notNull(restOperations, "restOperations cannot be null");
@@ -379,6 +382,7 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		 * @return the {@link SpringOpaqueTokenIntrospector}
 		 * @since 6.5
 		 */
+		@SuppressWarnings("removal")
 		public SpringOpaqueTokenIntrospector build() {
 			Assert.notNull(this.clientId, "clientId cannot be null");
 			Assert.notNull(this.clientSecret, "clientSecret cannot be null");

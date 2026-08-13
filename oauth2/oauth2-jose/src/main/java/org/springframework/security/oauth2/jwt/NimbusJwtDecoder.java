@@ -282,6 +282,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	 * <a target="_blank" href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a>
 	 * uri.
 	 */
+	@SuppressWarnings("removal")
 	public static final class JwkSetUriJwtDecoderBuilder {
 
 		private static final JOSEObjectTypeVerifier<SecurityContext> JWT_TYPE_VERIFIER = new DefaultJOSEObjectTypeVerifier<>(
@@ -577,6 +578,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	 * A RestTemplate with timeouts configured to avoid blocking indefinitely when
 	 * fetching JWK Sets while holding the reentrantLock.
 	 */
+	@SuppressWarnings("removal")
 	private static final class RestTemplateWithDefaultTimeouts extends RestTemplate {
 
 		private RestTemplateWithDefaultTimeouts() {

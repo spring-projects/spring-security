@@ -79,6 +79,7 @@ import org.springframework.web.client.RestTemplate;
  * @author Janne Valkealahti
  *
  */
+@SuppressWarnings("removal")
 public class KerberosRestTemplate extends RestTemplate {
 
 	private static final Credentials credentials = new NullCredentials();

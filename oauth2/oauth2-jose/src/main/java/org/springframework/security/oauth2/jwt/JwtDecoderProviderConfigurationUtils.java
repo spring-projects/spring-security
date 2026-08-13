@@ -63,6 +63,7 @@ final class JwtDecoderProviderConfigurationUtils {
 
 	private static final String OAUTH_METADATA_PATH = "/.well-known/oauth-authorization-server";
 
+	@SuppressWarnings("removal")
 	private static final RestTemplate rest = new RestTemplate();
 
 	static {
@@ -103,6 +104,7 @@ final class JwtDecoderProviderConfigurationUtils {
 		return getConfiguration(oidcIssuerLocation, rest, oidc(oidcIssuerLocation));
 	}
 
+	@SuppressWarnings("removal")
 	static Map<String, Object> getConfigurationForIssuerLocation(String issuer, RestOperations rest) {
 		return getConfiguration(issuer, rest, oidc(issuer), oidcRfc8414(issuer), oauth(issuer));
 	}
@@ -176,6 +178,7 @@ final class JwtDecoderProviderConfigurationUtils {
 		return "(unavailable)";
 	}
 
+	@SuppressWarnings("removal")
 	private static Map<String, Object> getConfiguration(String issuer, RestOperations rest, UriComponents... uris) {
 		String errorMessage = "Unable to resolve the Configuration with the provided Issuer of " + "\"" + issuer + "\"";
 		for (UriComponents uri : uris) {

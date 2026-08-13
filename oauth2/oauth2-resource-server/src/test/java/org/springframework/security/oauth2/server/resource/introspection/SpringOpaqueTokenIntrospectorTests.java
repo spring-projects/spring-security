@@ -57,6 +57,7 @@ import static org.mockito.Mockito.verify;
 /**
  * Tests for {@link SpringOpaqueTokenIntrospector}
  */
+@SuppressWarnings("removal")
 public class SpringOpaqueTokenIntrospectorTests {
 
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<Map<String, Object>>() {

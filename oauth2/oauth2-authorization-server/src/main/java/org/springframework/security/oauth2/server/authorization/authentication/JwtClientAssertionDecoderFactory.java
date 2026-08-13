@@ -94,6 +94,7 @@ public final class JwtClientAssertionDecoderFactory implements JwtDecoderFactory
 		JCA_ALGORITHM_MAPPINGS = Collections.unmodifiableMap(mappings);
 	}
 
+	@SuppressWarnings("removal")
 	private static final RestTemplate restTemplate = new RestTemplate();
 
 	static {

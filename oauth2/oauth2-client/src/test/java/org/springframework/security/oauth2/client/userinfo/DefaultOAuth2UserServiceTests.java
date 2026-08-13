@@ -421,6 +421,7 @@ public class DefaultOAuth2UserServiceTests {
 			.isThrownBy(() -> this.userService.setAttributesConverter(null));
 	}
 
+	@SuppressWarnings("removal")
 	private DefaultOAuth2UserService withMockResponse(Map<String, Object> response) {
 		ResponseEntity<Map<String, Object>> responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
 		Converter<OAuth2UserRequest, RequestEntity<?>> requestEntityConverter = mock(Converter.class);

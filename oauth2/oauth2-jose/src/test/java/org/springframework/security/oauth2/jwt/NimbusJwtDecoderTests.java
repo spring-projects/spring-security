@@ -328,6 +328,7 @@ public class NimbusJwtDecoderTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWhenIssuerLocationThenOk() {
 		String issuer = "https://example.org/issuer";
 		RestOperations restOperations = mock(RestOperations.class);
@@ -344,6 +345,7 @@ public class NimbusJwtDecoderTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWhenDiscoverJwsAlgorithmsThenOk() {
 		RestOperations restOperations = mock(RestOperations.class);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
@@ -357,6 +359,7 @@ public class NimbusJwtDecoderTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWhenIssuerLocationThenRejectsMismatchingIssuers() {
 		String issuer = "https://example.org/wrong-issuer";
 		RestOperations restOperations = mock(RestOperations.class);
@@ -396,6 +399,7 @@ public class NimbusJwtDecoderTests {
 
 	// gh-19474
 	@Test
+	@SuppressWarnings("removal")
 	public void withJwkSetUriWhenDefaultRestOperationsThenUsesConfiguredTimeouts() {
 		try {
 			System.setProperty("sun.net.client.defaultConnectTimeout", "12345");
@@ -691,6 +695,7 @@ public class NimbusJwtDecoderTests {
 
 	// gh-7290
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWhenJwkSetRequestedThenAcceptHeaderJsonAndJwkSetJson() {
 		RestOperations restOperations = mock(RestOperations.class);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
@@ -709,6 +714,7 @@ public class NimbusJwtDecoderTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWhenCacheThenStoreRetrievedJwkSetToCache() {
 		Cache cache = new ConcurrentMapCache("test-jwk-set-cache");
 		RestOperations restOperations = mock(RestOperations.class);
@@ -730,6 +736,7 @@ public class NimbusJwtDecoderTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWhenCacheStoredThenAbleToRetrieveJwkSetFromCache() {
 		Cache cache = new ConcurrentMapCache("test-jwk-set-cache");
 		RestOperations restOperations = mock(RestOperations.class);
@@ -757,6 +764,7 @@ public class NimbusJwtDecoderTests {
 
 	// gh-11621
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWhenCacheThenRetrieveFromCache() throws Exception {
 		RestOperations restOperations = mock(RestOperations.class);
 		Cache cache = new ConcurrentMapCache("cache");
@@ -774,6 +782,7 @@ public class NimbusJwtDecoderTests {
 
 	// gh-11621
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWhenCacheAndUnknownKidShouldTriggerFetchOfJwkSet() throws JOSEException {
 		RestOperations restOperations = mock(RestOperations.class);
 		Cache cache = new ConcurrentMapCache("cache");
@@ -800,6 +809,7 @@ public class NimbusJwtDecoderTests {
 
 	// gh-11621
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWithoutCacheSpecifiedAndUnknownKidShouldTriggerFetchOfJwkSet() throws JOSEException {
 		RestOperations restOperations = mock(RestOperations.class);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class))).willReturn(
@@ -826,6 +836,7 @@ public class NimbusJwtDecoderTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWhenCacheIsConfiguredAndValueLoaderErrorsThenThrowsJwtException() {
 		Cache cache = new ConcurrentMapCache("test-jwk-set-cache");
 		RestOperations restOperations = mock(RestOperations.class);
@@ -845,6 +856,7 @@ public class NimbusJwtDecoderTests {
 
 	// gh-11621
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWhenCacheIsConfiguredAndParseFailsOnCachedValueThenExceptionIgnored() {
 		RestOperations restOperations = mock(RestOperations.class);
 		Cache cache = new ConcurrentMapCache("cache");
@@ -863,6 +875,7 @@ public class NimbusJwtDecoderTests {
 
 	// gh-8730
 	@Test
+	@SuppressWarnings("removal")
 	public void withJwkSetUriWhenUsingCustomTypeHeaderThenRefuseOmittedType() throws Exception {
 		RestOperations restOperations = mock(RestOperations.class);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
@@ -904,6 +917,7 @@ public class NimbusJwtDecoderTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWhenSecretKeyValidateTypeFalseThenSkipsNimbusTypeValidation() throws Exception {
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(TestKeys.DEFAULT_SECRET_KEY)
 			.validateType(false)
