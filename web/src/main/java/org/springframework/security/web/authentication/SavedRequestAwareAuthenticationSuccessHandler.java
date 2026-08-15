@@ -63,7 +63,8 @@ import org.springframework.util.StringUtils;
  * @author Luke Taylor
  * @since 3.0
  */
-public class SavedRequestAwareAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+public class SavedRequestAwareAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler
+		implements HasRequestCacheSetter {
 
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
@@ -90,6 +91,7 @@ public class SavedRequestAwareAuthenticationSuccessHandler extends SimpleUrlAuth
 		getRedirectStrategy().sendRedirect(request, response, targetUrl);
 	}
 
+	@Override
 	public void setRequestCache(RequestCache requestCache) {
 		this.requestCache = requestCache;
 	}
