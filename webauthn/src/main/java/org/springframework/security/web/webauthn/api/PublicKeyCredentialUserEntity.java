@@ -20,6 +20,7 @@ import java.io.Serializable;
 
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.web.webauthn.management.RelyingPartyAuthenticationRequest;
 import org.springframework.security.web.webauthn.management.WebAuthnRelyingPartyOperations;
 
@@ -34,7 +35,7 @@ import org.springframework.security.web.webauthn.management.WebAuthnRelyingParty
  * @since 6.4
  * @see WebAuthnRelyingPartyOperations#authenticate(RelyingPartyAuthenticationRequest)
  */
-public interface PublicKeyCredentialUserEntity extends Serializable {
+public interface PublicKeyCredentialUserEntity extends Serializable, AuthenticatedPrincipal {
 
 	/**
 	 * The <a href=
@@ -42,6 +43,7 @@ public interface PublicKeyCredentialUserEntity extends Serializable {
 	 * property is a human-palatable identifier for a user account.
 	 * @return the name
 	 */
+	@Override
 	String getName();
 
 	/**
