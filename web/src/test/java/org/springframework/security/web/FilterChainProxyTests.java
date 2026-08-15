@@ -22,6 +22,10 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationHandler;
 import io.micrometer.observation.ObservationRegistry;
@@ -38,7 +42,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
+import org.slf4j.LoggerFactory;
 
+import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -49,6 +55,7 @@ import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.servlet.TestMockHttpServletMappings;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -499,6 +506,59 @@ public class FilterChainProxyTests {
 		assertFilterChainObservation(contexts.next(), "after", 3);
 	}
 
+	@Test
+	void doFilterWhenChainHasNameThenDebugLogIncludesNameSuffix() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/users");
+		// MockHttpServletRequest.servletPath defaults to "" not null; UrlUtils.buildRequestUrl prefers it
+		request.setServletPath("/api/users");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain mockChain = new MockFilterChain();
+
+		DefaultSecurityFilterChain named = new DefaultSecurityFilterChain(AnyRequestMatcher.INSTANCE,
+				new MockFilter());
+		named.setBeanName("apiSecurity");
+		FilterChainProxy fcp = new FilterChainProxy(named);
+
+		ListAppender<ILoggingEvent> appender = attachAppender(Level.DEBUG);
+		try {
+			fcp.doFilter(request, response, mockChain);
+			assertThat(appender.list)
+				.extracting(ILoggingEvent::getFormattedMessage)
+				.anyMatch((msg) -> msg.equals("Securing GET /api/users [apiSecurity]"))
+				.anyMatch((msg) -> msg.equals("Secured GET /api/users [apiSecurity]"));
+		}
+		finally {
+			detachAppender(appender);
+		}
+	}
+
+	@Test
+	void doFilterWhenChainHasNoNameThenDebugLogOmitsSuffix() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/users");
+		// MockHttpServletRequest.servletPath defaults to "" not null; UrlUtils.buildRequestUrl prefers it
+		request.setServletPath("/api/users");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain mockChain = new MockFilterChain();
+
+		DefaultSecurityFilterChain unnamed = new DefaultSecurityFilterChain(AnyRequestMatcher.INSTANCE,
+				new MockFilter());
+		// beanName intentionally not set
+		FilterChainProxy fcp = new FilterChainProxy(unnamed);
+
+		ListAppender<ILoggingEvent> appender = attachAppender(Level.DEBUG);
+		try {
+			fcp.doFilter(request, response, mockChain);
+			assertThat(appender.list)
+				.extracting(ILoggingEvent::getFormattedMessage)
+				.anyMatch((msg) -> msg.equals("Securing GET /api/users"))
+				.anyMatch((msg) -> msg.equals("Secured GET /api/users"))
+				.noneMatch((msg) -> msg.contains("["));
+		}
+		finally {
+			detachAppender(appender);
+		}
+	}
+
 	static void assertFilterChainObservation(Observation.Context context, String filterSection, int chainPosition) {
 		assertThat(context).isInstanceOf(ObservationFilterChainDecorator.FilterChainObservationContext.class);
 		ObservationFilterChainDecorator.FilterChainObservationContext filterChainObservationContext = (ObservationFilterChainDecorator.FilterChainObservationContext) context;
@@ -506,6 +566,23 @@ public class FilterChainProxyTests {
 			.isEqualTo(ObservationFilterChainDecorator.FilterChainObservationConvention.CHAIN_OBSERVATION_NAME);
 		assertThat(context.getContextualName()).endsWith(filterSection);
 		assertThat(filterChainObservationContext.getChainPosition()).isEqualTo(chainPosition);
+	}
+
+	private ListAppender<ILoggingEvent> attachAppender(Level level) {
+		ListAppender<ILoggingEvent> appender = new ListAppender<>();
+		appender.start();
+		Logger fcpLogger = (Logger) LoggerFactory.getLogger(FilterChainProxy.class);
+		fcpLogger.setLevel(level);
+		fcpLogger.addAppender(appender);
+		return appender;
+	}
+
+	private void detachAppender(ListAppender<ILoggingEvent> appender) {
+		Logger fcpLogger = (Logger) LoggerFactory.getLogger(FilterChainProxy.class);
+		fcpLogger.detachAppender(appender);
+		// Reset to no explicit level so it inherits from the parent
+		// (org.springframework.security = WARN per logback-test.xml).
+		fcpLogger.setLevel(null);
 	}
 
 	static Filter mockFilter() throws Exception {
