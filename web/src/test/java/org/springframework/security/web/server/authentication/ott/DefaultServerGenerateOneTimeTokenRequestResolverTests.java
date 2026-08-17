@@ -71,4 +71,16 @@ public class DefaultServerGenerateOneTimeTokenRequestResolverTests {
 		assertThat(generateRequest.getExpiresIn()).isEqualTo(Duration.ofSeconds(600));
 	}
 
+	@Test
+	void resolveWhenTokenValueFactorySetThenResolvesGenerateRequest() {
+		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.post("/ott/generate")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.body("username=user"));
+		this.resolver.setTokenValueFactory(() -> "tokenValue");
+
+		GenerateOneTimeTokenRequest generateRequest = this.resolver.resolve(exchange).block();
+
+		assertThat(generateRequest.getTokenValue()).isEqualTo("tokenValue");
+	}
+
 }
