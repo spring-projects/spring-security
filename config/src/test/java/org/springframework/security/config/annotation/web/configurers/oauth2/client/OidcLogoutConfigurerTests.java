@@ -90,6 +90,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -252,6 +253,23 @@ public class OidcLogoutConfigurerTests {
 			.perform(post(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
 				.param("logout_token", logoutToken))
 			.andExpect(status().isOk());
+		this.mvc.perform(get("/token/logout").session(session)).andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void logoutWhenDifferentRestOperationsThenUses() throws Exception {
+		this.spring.register(OidcProviderConfig.class, CustomRestOperationsConfig.class).autowire();
+		String registrationId = this.clientRegistration.getRegistrationId();
+		MockHttpSession session = login();
+		String logoutToken = this.mvc.perform(get("/token/logout").session(session))
+				.andExpect(status().isOk())
+				.andReturn()
+				.getResponse()
+				.getContentAsString();
+		this.mvc
+				.perform(post(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+						.param("logout_token", logoutToken))
+				.andExpect(status().isOk());
 		this.mvc.perform(get("/token/logout").session(session)).andExpect(status().isUnauthorized());
 	}
 
@@ -473,6 +491,70 @@ public class OidcLogoutConfigurerTests {
 					return;
 				}
 				assertThat(cookie).contains("SESSION").doesNotContain("JSESSIONID");
+			});
+			this.server.setDispatcher(dispatcher);
+			return this.server;
+		}
+
+		@PreDestroy
+		void shutdown() throws IOException {
+			this.server.shutdown();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@Import(RegistrationConfig.class)
+	static class CustomRestOperationsConfig {
+
+		private final MockWebServer server = new MockWebServer();
+
+		@Bean
+		@Order(1)
+		SecurityFilterChain filters(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+					.oauth2Login(Customizer.withDefaults())
+					.oidcLogout((oidc) -> oidc
+							.backChannel(Customizer.withDefaults())
+					);
+			// @formatter:on
+
+			return http.build();
+		}
+
+		@Bean
+		OidcSessionRegistry sessionRegistry() {
+			return new InMemoryOidcSessionRegistry();
+		}
+
+		@Bean
+		OidcBackChannelLogoutHandler oidcLogoutHandler(OidcSessionRegistry sessionRegistry) {
+			OidcBackChannelLogoutHandler logoutHandler = new OidcBackChannelLogoutHandler(sessionRegistry);
+
+			RestTemplate restTemplate = new RestTemplate();
+
+			restTemplate.getInterceptors().add((request, body, execution) -> {
+				request.getHeaders().add("X-EXTREMLY-IMPORTANT-CUSTOM-HEADER","IMPORTANT");
+				return execution.execute(request, body);
+			});
+
+			logoutHandler.setRestOperations(restTemplate);
+			return logoutHandler;
+		}
+
+		@Bean
+		MockWebServer web(ObjectProvider<MockMvc> mvc) {
+			MockMvcDispatcher dispatcher = new MockMvcDispatcher(mvc);
+			dispatcher.setAssertion((rr) -> {
+				if(!rr.getRequestUrl().encodedPath().equals("/logout/connect/back-channel/registration-id")){
+					return;
+				}
+
+				String headerValue = rr.getHeaders().get("X-EXTREMLY-IMPORTANT-CUSTOM-HEADER");
+				assertThat(headerValue).isEqualTo("IMPORTANT");
 			});
 			this.server.setDispatcher(dispatcher);
 			return this.server;
