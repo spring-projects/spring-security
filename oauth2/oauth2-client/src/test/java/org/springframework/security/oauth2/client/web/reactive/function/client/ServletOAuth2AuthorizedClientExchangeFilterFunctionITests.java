@@ -168,12 +168,13 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionITests {
 		assertThat(authorizedClientCaptor.getValue().getClientRegistration()).isSameAs(clientRegistration);
 	}
 
+	// gh-19421
 	@Test
 	public void requestWhenNoServletRequestThenAuthorizeAndSendRequest() {
 		RequestContextHolder.resetRequestAttributes();
-		InMemoryOAuth2AuthorizedClientService delegate = new InMemoryOAuth2AuthorizedClientService(
+		final OAuth2AuthorizedClientService delegate = new InMemoryOAuth2AuthorizedClientService(
 				this.clientRegistrationRepository);
-		OAuth2AuthorizedClientService clientService = spy(new OAuth2AuthorizedClientService() {
+		OAuth2AuthorizedClientService authorizedClientService = spy(new OAuth2AuthorizedClientService() {
 			@Override
 			public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId,
 					String principal) {
@@ -192,7 +193,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionITests {
 		});
 		this.authorizedClientFilter = new ServletOAuth2AuthorizedClientExchangeFilterFunction(
 				new AuthorizedClientServiceOAuth2AuthorizedClientManager(this.clientRegistrationRepository,
-						clientService));
+						authorizedClientService));
 		this.webClient = WebClient.builder().apply(this.authorizedClientFilter.oauth2Configuration()).build();
 
 		// @formatter:off
@@ -214,7 +215,6 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionITests {
 			.build();
 		given(this.clientRegistrationRepository.findByRegistrationId(eq(clientRegistration.getRegistrationId())))
 			.willReturn(clientRegistration);
-
 		this.webClient.get()
 			.uri(this.serverUrl)
 			.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction
@@ -225,7 +225,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionITests {
 		assertThat(this.server.getRequestCount()).isEqualTo(2);
 		ArgumentCaptor<OAuth2AuthorizedClient> authorizedClientCaptor = ArgumentCaptor
 			.forClass(OAuth2AuthorizedClient.class);
-		verify(clientService).saveAuthorizedClient(authorizedClientCaptor.capture(), eq(this.authentication));
+		verify(authorizedClientService).saveAuthorizedClient(authorizedClientCaptor.capture(), eq(this.authentication));
 		assertThat(authorizedClientCaptor.getValue().getClientRegistration()).isSameAs(clientRegistration);
 	}
 
