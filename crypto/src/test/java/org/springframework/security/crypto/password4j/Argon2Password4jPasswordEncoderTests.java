@@ -30,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * Tests for {@link Argon2Password4jPasswordEncoder}.
  *
  * @author Mehrdad Bozorgmehr
+ * @author Andrey Litvitski
  */
 class Argon2Password4jPasswordEncoderTests {
 
@@ -68,6 +69,20 @@ class Argon2Password4jPasswordEncoderTests {
 		assertThat(encoded).isNotNull();
 		assertThat(encoded).startsWith("$argon2id");
 		assertThat(encoder.matches(PASSWORD, encoded)).isTrue();
+	}
+
+	@Test
+	void constructorWithPepperShouldWork() {
+		String pepper = "argon-pepper";
+		String wrongPepper = "wrong-pepper";
+		Argon2Function function = AlgorithmFinder.getArgon2Instance();
+		Argon2Password4jPasswordEncoder encoderWithPepper = new Argon2Password4jPasswordEncoder(
+				AlgorithmFinder.getArgon2Instance(), pepper);
+		String encoded = encoderWithPepper.encode(PASSWORD);
+		assertThat(encoderWithPepper.matches(PASSWORD, encoded)).isTrue();
+		Argon2Password4jPasswordEncoder encoderWithWrongPepper = new Argon2Password4jPasswordEncoder(function,
+				wrongPepper);
+		assertThat(encoderWithWrongPepper.matches(PASSWORD, encoded)).isFalse();
 	}
 
 	@ParameterizedTest
