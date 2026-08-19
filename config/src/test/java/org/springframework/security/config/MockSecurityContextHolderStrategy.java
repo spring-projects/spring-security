@@ -25,12 +25,12 @@ public class MockSecurityContextHolderStrategy implements SecurityContextHolderS
 	private SecurityContext context;
 
 	@Override
-	public void clearContext() {
+	public synchronized void clearContext() {
 		this.context = null;
 	}
 
 	@Override
-	public SecurityContext getContext() {
+	public synchronized SecurityContext getContext() {
 		if (this.context == null) {
 			this.context = createEmptyContext();
 		}
@@ -38,7 +38,7 @@ public class MockSecurityContextHolderStrategy implements SecurityContextHolderS
 	}
 
 	@Override
-	public void setContext(SecurityContext context) {
+	public synchronized void setContext(SecurityContext context) {
 		this.context = context;
 	}
 
