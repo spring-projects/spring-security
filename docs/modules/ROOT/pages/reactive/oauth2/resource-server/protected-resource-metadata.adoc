@@ -1,0 +1,28 @@
+[[webflux-oauth2resourceserver-protected-resource-metadata]]
+= OAuth 2.0 Protected Resource Metadata
+
+`ServerHttpSecurity.OAuth2ResourceServerSpec` provides the ability to customize the https://www.rfc-editor.org/rfc/rfc9728.html#section-3[OAuth 2.0 Protected Resource Metadata endpoint].
+It defines an extension point that lets you customize the https://www.rfc-editor.org/rfc/rfc9728.html#section-3.2[OAuth 2.0 Protected Resource Metadata response].
+
+`ServerHttpSecurity.OAuth2ResourceServerSpec` provides the following configuration option:
+
+[source,java]
+----
+@Bean
+public SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
+	http
+		.oauth2ResourceServer((resourceServer) ->
+			resourceServer
+				.protectedResourceMetadata(protectedResourceMetadata ->
+                    protectedResourceMetadata
+                        .protectedResourceMetadataCustomizer(protectedResourceMetadataCustomizer)   <1>
+				)
+		);
+
+	return http.build();
+}
+----
+<1> `protectedResourceMetadataCustomizer()`: The `Consumer` providing access to the `OAuth2ProtectedResourceMetadata.Builder` allowing the ability to customize the claims of the Resource Server's configuration.
+
+`ServerHttpSecurity.OAuth2ResourceServerSpec` configures the `OAuth2ProtectedResourceMetadataWebFilter` and registers it with the Resource Server `SecurityWebFilterChain` `@Bean`.
+`OAuth2ProtectedResourceMetadataWebFilter` is the `WebFilter` that returns the https://www.rfc-editor.org/rfc/rfc9728.html#section-3.2[OAuth2ProtectedResourceMetadata response].

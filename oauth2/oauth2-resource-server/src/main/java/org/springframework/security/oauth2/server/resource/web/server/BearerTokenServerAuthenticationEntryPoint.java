@@ -18,12 +18,14 @@ package org.springframework.security.oauth2.server.resource.web.server;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -32,8 +34,10 @@ import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * An {@link AuthenticationEntryPoint} implementation used to commence authentication of
@@ -43,6 +47,7 @@ import org.springframework.web.server.ServerWebExchange;
  * and populate {@code WWW-Authenticate} HTTP header.
  *
  * @author Rob Winch
+ * @author Andrey Litvitski
  * @since 5.1
  * @see BearerTokenError
  * @see <a href="https://tools.ietf.org/html/rfc6750#section-3" target="_blank">RFC 6750
@@ -52,6 +57,8 @@ public final class BearerTokenServerAuthenticationEntryPoint implements ServerAu
 
 	private @Nullable String realmName;
 
+	private Function<ServerWebExchange, String> resourceMetadataParameterResolver = BearerTokenServerAuthenticationEntryPoint::getResourceMetadataParameter;
+
 	public void setRealmName(@Nullable String realmName) {
 		this.realmName = realmName;
 	}
@@ -60,7 +67,7 @@ public final class BearerTokenServerAuthenticationEntryPoint implements ServerAu
 	public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException authException) {
 		return Mono.defer(() -> {
 			HttpStatus status = getStatus(authException);
-			Map<String, String> parameters = createParameters(authException);
+			Map<String, String> parameters = createParameters(exchange, authException);
 			String wwwAuthenticate = computeWWWAuthenticateHeaderValue(parameters);
 			ServerHttpResponse response = exchange.getResponse();
 			response.getHeaders().set(HttpHeaders.WWW_AUTHENTICATE, wwwAuthenticate);
@@ -69,7 +76,7 @@ public final class BearerTokenServerAuthenticationEntryPoint implements ServerAu
 		});
 	}
 
-	private Map<String, String> createParameters(AuthenticationException authException) {
+	private Map<String, String> createParameters(ServerWebExchange exchange, AuthenticationException authException) {
 		Map<String, String> parameters = new LinkedHashMap<>();
 		if (this.realmName != null) {
 			parameters.put("realm", this.realmName);
@@ -88,6 +95,7 @@ public final class BearerTokenServerAuthenticationEntryPoint implements ServerAu
 				parameters.put("scope", bearerTokenError.getScope());
 			}
 		}
+		parameters.put("resource_metadata", this.resourceMetadataParameterResolver.apply(exchange));
 		return parameters;
 	}
 
@@ -99,6 +107,33 @@ public final class BearerTokenServerAuthenticationEntryPoint implements ServerAu
 			}
 		}
 		return HttpStatus.UNAUTHORIZED;
+	}
+
+	/**
+	 * Set the resolver to compute the {@code resource_metadata} parameter from the
+	 * request.
+	 * @param resourceMetadataParameterResolver
+	 * @since 7.1
+	 */
+	public void setResourceMetadataParameterResolver(
+			Function<ServerWebExchange, String> resourceMetadataParameterResolver) {
+		Assert.notNull(resourceMetadataParameterResolver, "resourceMetadataParameterResolver cannot be null");
+		this.resourceMetadataParameterResolver = resourceMetadataParameterResolver;
+	}
+
+	private static String getResourceMetadataParameter(ServerWebExchange exchange) {
+		ServerHttpRequest request = exchange.getRequest();
+		String path = request.getPath().contextPath().value()
+				+ OAuth2ProtectedResourceMetadataWebFilter.DEFAULT_OAUTH2_PROTECTED_RESOURCE_METADATA_ENDPOINT_URI;
+
+		// @formatter:off
+		return UriComponentsBuilder.fromUri(request.getURI())
+				.replacePath(path)
+				.replaceQuery(null)
+				.fragment(null)
+				.build()
+				.toUriString();
+		// @formatter:on
 	}
 
 	private static String computeWWWAuthenticateHeaderValue(Map<String, String> parameters) {

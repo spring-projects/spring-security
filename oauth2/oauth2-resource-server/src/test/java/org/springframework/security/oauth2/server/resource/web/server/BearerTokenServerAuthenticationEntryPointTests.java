@@ -33,18 +33,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
+ * @author Andrey Litvitski
  * @since 5.1
  */
 public class BearerTokenServerAuthenticationEntryPointTests {
 
 	private BearerTokenServerAuthenticationEntryPoint entryPoint = new BearerTokenServerAuthenticationEntryPoint();
 
-	private MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/"));
+	private MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("http://localhost/"));
 
 	@Test
 	public void commenceWhenNotOAuth2AuthenticationExceptionThenBearer() {
 		this.entryPoint.commence(this.exchange, new BadCredentialsException("")).block();
-		assertThat(getResponse().getHeaders().getFirst(HttpHeaders.WWW_AUTHENTICATE)).isEqualTo("Bearer");
+		assertThat(getResponse().getHeaders().getFirst(HttpHeaders.WWW_AUTHENTICATE))
+			.isEqualTo("Bearer resource_metadata=\"http://localhost/.well-known/oauth-protected-resource\"");
 		assertThat(getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
 
@@ -52,9 +54,28 @@ public class BearerTokenServerAuthenticationEntryPointTests {
 	public void commenceWhenRealmNameThenHasRealmName() {
 		this.entryPoint.setRealmName("Realm");
 		this.entryPoint.commence(this.exchange, new BadCredentialsException("")).block();
-		assertThat(getResponse().getHeaders().getFirst(HttpHeaders.WWW_AUTHENTICATE))
-			.isEqualTo("Bearer realm=\"Realm\"");
+		assertThat(getResponse().getHeaders().getFirst(HttpHeaders.WWW_AUTHENTICATE)).isEqualTo(
+				"Bearer realm=\"Realm\", resource_metadata=\"http://localhost/.well-known/oauth-protected-resource\"");
 		assertThat(getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+	}
+
+	@Test
+	public void commenceWhenContextPathThenContainsContextPathInResourceMetadata() {
+		this.exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("http://localhost/ctx/").contextPath("/ctx"));
+		this.entryPoint.commence(this.exchange, new BadCredentialsException("")).block();
+		assertThat(getResponse().getHeaders().getFirst(HttpHeaders.WWW_AUTHENTICATE))
+			.isEqualTo("Bearer resource_metadata=\"http://localhost/ctx/.well-known/oauth-protected-resource\"");
+	}
+
+	@Test
+	public void commenceWhenResourceMetadataResolverThenContainsResolvedResourceMetadata() {
+		this.exchange.getAttributes().put("resource_id", "https://example.com/resource-from-request");
+		this.entryPoint
+			.setResourceMetadataParameterResolver((exchange) -> exchange.getAttribute("resource_id").toString());
+		this.entryPoint.commence(this.exchange, new BadCredentialsException("")).block();
+		assertThat(getResponse().getHeaders().getFirst(HttpHeaders.WWW_AUTHENTICATE))
+			.isEqualTo("Bearer resource_metadata=\"https://example.com/resource-from-request\"");
 	}
 
 	@Test
@@ -62,8 +83,8 @@ public class BearerTokenServerAuthenticationEntryPointTests {
 		OAuth2Error oauthError = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST);
 		OAuth2AuthenticationException exception = new OAuth2AuthenticationException(oauthError);
 		this.entryPoint.commence(this.exchange, exception).block();
-		assertThat(getResponse().getHeaders().getFirst(HttpHeaders.WWW_AUTHENTICATE))
-			.isEqualTo("Bearer error=\"invalid_request\"");
+		assertThat(getResponse().getHeaders().getFirst(HttpHeaders.WWW_AUTHENTICATE)).isEqualTo(
+				"Bearer error=\"invalid_request\", resource_metadata=\"http://localhost/.well-known/oauth-protected-resource\"");
 		assertThat(getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
 
@@ -73,7 +94,8 @@ public class BearerTokenServerAuthenticationEntryPointTests {
 		OAuth2AuthenticationException exception = new OAuth2AuthenticationException(oauthError);
 		this.entryPoint.commence(this.exchange, exception).block();
 		assertThat(getResponse().getHeaders().getFirst(HttpHeaders.WWW_AUTHENTICATE)).isEqualTo(
-				"Bearer error=\"invalid_request\", error_description=\"Oops\", error_uri=\"https://example.com\"");
+				"Bearer error=\"invalid_request\", error_description=\"Oops\", error_uri=\"https://example.com\", "
+						+ "resource_metadata=\"http://localhost/.well-known/oauth-protected-resource\"");
 		assertThat(getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
 	}
 
@@ -84,7 +106,8 @@ public class BearerTokenServerAuthenticationEntryPointTests {
 		OAuth2AuthenticationException exception = new OAuth2AuthenticationException(oauthError);
 		this.entryPoint.commence(this.exchange, exception).block();
 		assertThat(getResponse().getHeaders().getFirst(HttpHeaders.WWW_AUTHENTICATE)).isEqualTo(
-				"Bearer error=\"invalid_request\", error_description=\"Oops\", error_uri=\"https://example.com\"");
+				"Bearer error=\"invalid_request\", error_description=\"Oops\", error_uri=\"https://example.com\", "
+						+ "resource_metadata=\"http://localhost/.well-known/oauth-protected-resource\"");
 		assertThat(getResponse().getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
 	}
 
