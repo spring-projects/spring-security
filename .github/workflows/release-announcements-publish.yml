@@ -1,0 +1,30 @@
+name: Release Announcements - Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: The version to publish
+        required: true
+        type: string
+
+permissions:
+  actions: write
+  contents: read
+  issues: write
+
+jobs:
+  deploy-schema:
+    name: Deploy Schema
+    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-schema.yml@d6c65d3013c0888e2c9cbae9f4beda610994776c # v1.0.16
+    with:
+      should-deploy-schema: true
+    secrets: inherit
+  publish-release-announcements:
+    name: Publish Release Announcements
+    needs: [ deploy-schema ]
+    if: ${{ !github.event.repository.fork }}
+    uses: spring-io/spring-security-release-tools/.github/workflows/release-announcements-publish.yml@d6c65d3013c0888e2c9cbae9f4beda610994776c # v1.0.16
+    with:
+      version: ${{ inputs.version }}
+    secrets: inherit
