@@ -30,7 +30,7 @@ import org.springframework.util.Assert;
  * @author Max Batischev
  * @since 6.5
  */
-public final class SingleResultAuthorizationManager<C> implements AuthorizationManager<C> {
+public final class SingleResultAuthorizationManager<C extends @Nullable Object> implements AuthorizationManager<C> {
 
 	private static final SingleResultAuthorizationManager<?> DENY_MANAGER = new SingleResultAuthorizationManager<>(
 			new AuthorizationDecision(false));
@@ -54,12 +54,12 @@ public final class SingleResultAuthorizationManager<C> implements AuthorizationM
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <C> SingleResultAuthorizationManager<C> denyAll() {
+	public static <C extends @Nullable Object> SingleResultAuthorizationManager<C> denyAll() {
 		return (SingleResultAuthorizationManager<C>) DENY_MANAGER;
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <C> SingleResultAuthorizationManager<C> permitAll() {
+	public static <C extends @Nullable Object> SingleResultAuthorizationManager<C> permitAll() {
 		return (SingleResultAuthorizationManager<C>) PERMIT_MANAGER;
 	}
 

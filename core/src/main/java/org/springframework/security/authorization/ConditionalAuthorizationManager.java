@@ -41,7 +41,7 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @since 7.1
  */
-public final class ConditionalAuthorizationManager<T> implements AuthorizationManager<T> {
+public final class ConditionalAuthorizationManager<T extends @Nullable Object> implements AuthorizationManager<T> {
 
 	private final Predicate<Authentication> condition;
 
@@ -76,7 +76,7 @@ public final class ConditionalAuthorizationManager<T> implements AuthorizationMa
 	 * not be null)
 	 * @return the builder
 	 */
-	public static <T> Builder<T> when(Predicate<Authentication> condition) {
+	public static <T extends @Nullable Object> Builder<T> when(Predicate<Authentication> condition) {
 		Assert.notNull(condition, "condition cannot be null");
 		return new Builder<>(condition);
 	}
@@ -98,7 +98,7 @@ public final class ConditionalAuthorizationManager<T> implements AuthorizationMa
 	 * @author Rob Winch
 	 * @since 7.1
 	 */
-	public static final class Builder<T> {
+	public static final class Builder<T extends @Nullable Object> {
 
 		private final Predicate<Authentication> condition;
 

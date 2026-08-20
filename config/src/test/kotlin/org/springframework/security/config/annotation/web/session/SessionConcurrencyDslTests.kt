@@ -214,12 +214,12 @@ class SessionConcurrencyDslTests {
 
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-            val isAdmin: AuthorizationManager<Any> = AuthorityAuthorizationManager.hasRole("ADMIN")
+            val isAdmin: AuthorizationManager<Any?> = AuthorityAuthorizationManager.hasRole("ADMIN")
             http {
                 sessionManagement {
                     sessionConcurrency {
                         maximumSessions {
-                            authentication -> if (isAdmin.authorize({ authentication }, "")!!.isGranted) -1 else 1
+                            authentication -> if (isAdmin.authorize({ authentication }, null)!!.isGranted) -1 else 1
                         }
                         maxSessionsPreventsLogin = true
                     }
