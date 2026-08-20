@@ -259,7 +259,9 @@ public final class InetAddressMatchers {
 			if (address.isLoopbackAddress() || address.isLinkLocalAddress() || address.isSiteLocalAddress()) {
 				return true;
 			}
-
+			if (address.isAnyLocalAddress()) {
+				return true;
+			}
 			byte[] rawAddress = address.getAddress();
 
 			if (rawAddress.length == 16) {
