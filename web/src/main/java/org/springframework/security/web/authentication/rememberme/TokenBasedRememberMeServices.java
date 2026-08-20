@@ -225,6 +225,8 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		}
 		if (!StringUtils.hasLength(password)) {
 			UserDetails user = getUserDetailsService().loadUserByUsername(username);
+			Assert.notNull(user, () -> "UserDetailsService " + getUserDetailsService() + " returned null for username "
+					+ username + ". " + "This is an interface contract violation");
 			password = user.getPassword();
 			if (!StringUtils.hasLength(password)) {
 				this.logger.debug("Unable to obtain password for user: " + username);
