@@ -35,7 +35,7 @@ import org.jspecify.annotations.Nullable;
  * building block for more sophisticated token-based solutions. For example,
  * authentication systems that depend on stateless session keys. These could, for
  * instance, place the username inside the user-specified extended information associated
- * with the key). It is important to recognise that we do not intend for this interface to
+ * with the key. It is important to recognise that we do not intend for this interface to
  * be expanded to provide such capabilities directly.
  * </p>
  *
