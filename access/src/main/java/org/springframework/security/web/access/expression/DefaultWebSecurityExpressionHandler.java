@@ -32,7 +32,9 @@ import org.springframework.security.web.FilterInvocation;
  * @author Eddú Meléndez
  * @author Steve Riesenberg
  * @since 3.0
+ * @deprecated in favor of {@link DefaultHttpSecurityExpressionHandler}
  */
+@Deprecated(since = "7.0.0")
 public class DefaultWebSecurityExpressionHandler extends AbstractSecurityExpressionHandler<FilterInvocation>
 		implements SecurityExpressionHandler<FilterInvocation> {
 
