@@ -24,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests for {@link SignatureAlgorithm}
  *
  * @author Joe Grandja
+ * @author Andrey Litvitski
  * @since 5.2
  */
 public class SignatureAlgorithmTests {
@@ -39,6 +40,9 @@ public class SignatureAlgorithmTests {
 		assertThat(SignatureAlgorithm.from(JwsAlgorithms.PS256)).isEqualTo(SignatureAlgorithm.PS256);
 		assertThat(SignatureAlgorithm.from(JwsAlgorithms.PS384)).isEqualTo(SignatureAlgorithm.PS384);
 		assertThat(SignatureAlgorithm.from(JwsAlgorithms.PS512)).isEqualTo(SignatureAlgorithm.PS512);
+		assertThat(SignatureAlgorithm.from(JwsAlgorithms.EdDSA)).isEqualTo(SignatureAlgorithm.EdDSA);
+		assertThat(SignatureAlgorithm.from(JwsAlgorithms.ED448)).isEqualTo(SignatureAlgorithm.ED448);
+		assertThat(SignatureAlgorithm.from(JwsAlgorithms.ED25519)).isEqualTo(SignatureAlgorithm.ED25519);
 	}
 
 	@Test
