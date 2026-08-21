@@ -1,0 +1,95 @@
+/*
+ * Copyright 2004-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.springframework.security.web.server.header;
+
+import java.util.Base64;
+import java.util.Map;
+
+import reactor.core.publisher.Mono;
+
+import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
+import org.springframework.security.crypto.keygen.StringKeyGenerator;
+import org.springframework.util.Assert;
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
+
+/**
+ * A filter which generates a nonce string for Content Security Policy and sets it as an
+ * exchange attribute.
+ *
+ * <p>
+ * {@link org.springframework.security.web.server.header.ContentSecurityPolicyServerHttpHeadersWriter}
+ * can use the attribute to write a nonce-based Content Security Policy header, and a view
+ * technology can render the nonce in generated HTML to allow intended inline
+ * {@code <script>} or {@code <style>} blocks.
+ *
+ * @author Ziqin Wang
+ * @since 7.1
+ */
+public final class ContentSecurityPolicyNonceGeneratingWebFilter implements WebFilter {
+
+	private String attributeName = "_csp_nonce";
+
+	private final StringKeyGenerator nonceGenerator;
+
+	/**
+	 * Creates a new instance.
+	 * @param nonceGenerator a {@link StringKeyGenerator} for generating nonce
+	 * @throws IllegalArgumentException if {@code nonceGenerator} is {@code null}
+	 */
+	public ContentSecurityPolicyNonceGeneratingWebFilter(StringKeyGenerator nonceGenerator) {
+		Assert.notNull(nonceGenerator, "NonceGenerator must not be null");
+		this.nonceGenerator = nonceGenerator;
+	}
+
+	/**
+	 * Creates a new instance.
+	 * <p>
+	 * For each exchange, the created filter will generate a secure random nonce value
+	 * with 128-bit entropy and encode it as a Base64 string without padding.
+	 */
+	public ContentSecurityPolicyNonceGeneratingWebFilter() {
+		this(new Base64StringKeyGenerator(Base64.getEncoder().withoutPadding(), 16));
+	}
+
+	@Override
+	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+		Mono<String> deferredNonce = Mono.fromSupplier(this.nonceGenerator::generateKey).cache();
+		Map<String, Object> attributes = exchange.getAttributes();
+
+		// For internal use
+		attributes.put(ContentSecurityPolicyNonceGeneratingWebFilter.class.getName(), deferredNonce);
+
+		// Exposed to users
+		attributes.put(this.attributeName, deferredNonce);
+
+		return chain.filter(exchange);
+	}
+
+	/**
+	 * Sets the name of the exchange attribute to generate.
+	 * @param attributeName the name of the exchange attribute to generate
+	 * @throws IllegalArgumentException if {@code attributeName} is {@code null} or empty
+	 * string
+	 */
+	public void setAttributeName(String attributeName) {
+		Assert.hasLength(attributeName, "AttributeName must not be null or empty");
+		this.attributeName = attributeName;
+	}
+
+}

@@ -34,9 +34,11 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -183,6 +185,7 @@ import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestHandle
 import org.springframework.security.web.server.csrf.WebSessionServerCsrfTokenRepository;
 import org.springframework.security.web.server.header.CacheControlServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.CompositeServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.ContentSecurityPolicyNonceGeneratingWebFilter;
 import org.springframework.security.web.server.header.ContentSecurityPolicyServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.CrossOriginEmbedderPolicyServerHttpHeadersWriter;
@@ -197,6 +200,7 @@ import org.springframework.security.web.server.header.PermissionsPolicyServerHtt
 import org.springframework.security.web.server.header.ReferrerPolicyServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.ReferrerPolicyServerHttpHeadersWriter.ReferrerPolicy;
 import org.springframework.security.web.server.header.ServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.ServerWebExchangeDelegatingServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.StrictTransportSecurityServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.XXssProtectionServerHttpHeadersWriter;
@@ -2452,12 +2456,11 @@ public class ServerHttpSecurity {
 	 * Configures HTTP Response Headers.
 	 *
 	 * @author Rob Winch
+	 * @author Ziqin Wang
 	 * @since 5.0
 	 * @see #headers(Customizer)
 	 */
 	public final class HeaderSpec {
-
-		private final List<ServerHttpHeadersWriter> writers;
 
 		private CacheControlServerHttpHeadersWriter cacheControl = new CacheControlServerHttpHeadersWriter();
 
@@ -2473,7 +2476,7 @@ public class ServerHttpSecurity {
 
 		private PermissionsPolicyServerHttpHeadersWriter permissionsPolicy = new PermissionsPolicyServerHttpHeadersWriter();
 
-		private ContentSecurityPolicyServerHttpHeadersWriter contentSecurityPolicy = new ContentSecurityPolicyServerHttpHeadersWriter();
+		private ContentSecurityPolicySpec contentSecurityPolicy = new ContentSecurityPolicySpec();
 
 		private ReferrerPolicyServerHttpHeadersWriter referrerPolicy = new ReferrerPolicyServerHttpHeadersWriter();
 
@@ -2483,11 +2486,9 @@ public class ServerHttpSecurity {
 
 		private CrossOriginResourcePolicyServerHttpHeadersWriter crossOriginResourcePolicy = new CrossOriginResourcePolicyServerHttpHeadersWriter();
 
+		private List<ServerHttpHeadersWriter> customHeadersWriters = new ArrayList<>();
+
 		private HeaderSpec() {
-			this.writers = new ArrayList<>(Arrays.asList(this.cacheControl, this.contentTypeOptions, this.hsts,
-					this.frameOptions, this.xss, this.featurePolicy, this.permissionsPolicy, this.contentSecurityPolicy,
-					this.referrerPolicy, this.crossOriginOpenerPolicy, this.crossOriginEmbedderPolicy,
-					this.crossOriginResourcePolicy));
 		}
 
 		/**
@@ -2541,7 +2542,7 @@ public class ServerHttpSecurity {
 		 */
 		public HeaderSpec writer(ServerHttpHeadersWriter serverHttpHeadersWriter) {
 			Assert.notNull(serverHttpHeadersWriter, "serverHttpHeadersWriter cannot be null");
-			this.writers.add(serverHttpHeadersWriter);
+			this.customHeadersWriters.add(serverHttpHeadersWriter);
 			return this;
 		}
 
@@ -2557,9 +2558,18 @@ public class ServerHttpSecurity {
 		}
 
 		protected void configure(ServerHttpSecurity http) {
-			ServerHttpHeadersWriter writer = new CompositeServerHttpHeadersWriter(this.writers);
+			Stream<ServerHttpHeadersWriter> builtInWriters = Stream
+				.of(this.cacheControl, this.contentTypeOptions, this.hsts, this.frameOptions, this.xss,
+						this.featurePolicy, this.permissionsPolicy, this.contentSecurityPolicy.getWriter(),
+						this.referrerPolicy, this.crossOriginOpenerPolicy, this.crossOriginEmbedderPolicy,
+						this.crossOriginResourcePolicy)
+				.filter(Objects::nonNull);
+			ServerHttpHeadersWriter writer = new CompositeServerHttpHeadersWriter(
+					Stream.concat(builtInWriters, this.customHeadersWriters.stream()).toList());
 			HttpHeaderWriterWebFilter result = new HttpHeaderWriterWebFilter(writer);
 			http.addFilterAt(result, SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
+			http.addFilterBefore(this.contentSecurityPolicy.getNonceGeneratingFilter(),
+					SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
 		}
 
 		/**
@@ -2580,7 +2590,7 @@ public class ServerHttpSecurity {
 		 * @return the {@link HeaderSpec} to customize
 		 */
 		public HeaderSpec contentSecurityPolicy(Customizer<ContentSecurityPolicySpec> contentSecurityPolicyCustomizer) {
-			contentSecurityPolicyCustomizer.customize(new ContentSecurityPolicySpec());
+			contentSecurityPolicyCustomizer.customize(this.contentSecurityPolicy);
 			return this;
 		}
 
@@ -2675,7 +2685,7 @@ public class ServerHttpSecurity {
 			 * @return the {@link HeaderSpec} to configure
 			 */
 			public HeaderSpec disable() {
-				HeaderSpec.this.writers.remove(HeaderSpec.this.cacheControl);
+				HeaderSpec.this.cacheControl = null;
 				return HeaderSpec.this;
 			}
 
@@ -2696,7 +2706,7 @@ public class ServerHttpSecurity {
 			 * @return the {@link HeaderSpec} to configure
 			 */
 			public HeaderSpec disable() {
-				HeaderSpec.this.writers.remove(HeaderSpec.this.contentTypeOptions);
+				HeaderSpec.this.contentTypeOptions = null;
 				return HeaderSpec.this;
 			}
 
@@ -2728,7 +2738,7 @@ public class ServerHttpSecurity {
 			 * @return the {@link HeaderSpec} to continue configuring
 			 */
 			public HeaderSpec disable() {
-				HeaderSpec.this.writers.remove(HeaderSpec.this.frameOptions);
+				HeaderSpec.this.frameOptions = null;
 				return HeaderSpec.this;
 			}
 
@@ -2787,7 +2797,7 @@ public class ServerHttpSecurity {
 			 * @return the {@link HeaderSpec} to continue configuring
 			 */
 			public HeaderSpec disable() {
-				HeaderSpec.this.writers.remove(HeaderSpec.this.hsts);
+				HeaderSpec.this.hsts = null;
 				return HeaderSpec.this;
 			}
 
@@ -2808,7 +2818,7 @@ public class ServerHttpSecurity {
 			 * @return the {@link HeaderSpec} to continue configuring
 			 */
 			public HeaderSpec disable() {
-				HeaderSpec.this.writers.remove(HeaderSpec.this.xss);
+				HeaderSpec.this.xss = null;
 				return HeaderSpec.this;
 			}
 
@@ -2836,8 +2846,14 @@ public class ServerHttpSecurity {
 
 			private static final String DEFAULT_SRC_SELF_POLICY = "default-src 'self'";
 
+			private final ContentSecurityPolicyServerHttpHeadersWriter writer = new ContentSecurityPolicyServerHttpHeadersWriter();
+
+			private @Nullable String nonceAttributeName;
+
+			private @Nullable ServerWebExchangeMatcher exchangeMatcher;
+
 			private ContentSecurityPolicySpec() {
-				HeaderSpec.this.contentSecurityPolicy.setPolicyDirectives(DEFAULT_SRC_SELF_POLICY);
+				this.writer.setPolicyDirectives(DEFAULT_SRC_SELF_POLICY);
 			}
 
 			/**
@@ -2846,24 +2862,123 @@ public class ServerHttpSecurity {
 			 * header.
 			 * @param reportOnly whether to only report policy violations
 			 * @return the {@link HeaderSpec} to continue configuring
+			 * @deprecated Use {@link #reportOnly()} instead
 			 */
+			@Deprecated(since = "7.1")
 			public HeaderSpec reportOnly(boolean reportOnly) {
-				HeaderSpec.this.contentSecurityPolicy.setReportOnly(reportOnly);
+				if (reportOnly) {
+					this.reportOnly();
+				}
+				return HeaderSpec.this;
+			}
+
+			/**
+			 * Enables (includes) the {@code Content-Security-Policy-Report-Only} header
+			 * in the response. Otherwise, defaults to the {@code Content-Security-Policy}
+			 * header.
+			 * @return the {@link ContentSecurityPolicySpec} to continue configuring
+			 */
+			public ContentSecurityPolicySpec reportOnly() {
+				this.writer.setReportOnly(true);
+				return this;
+			}
+
+			/**
+			 * Sets the security policy directive(s) to be used in the response header.
+			 * The {@code policyDirectives} may contain {@code {nonce}} as placeholders
+			 * for a generated secure random nonce, e.g., {@code script-src 'self'
+			 * 'nonce-{nonce}'}.
+			 * @param policyDirectives the security policy directive(s)
+			 * @return the {@link HeaderSpec} to continue configuring
+			 * @deprecated Use {@link #directives(String)} instead
+			 */
+			@Deprecated(since = "7.1")
+			public HeaderSpec policyDirectives(String policyDirectives) {
+				this.directives(policyDirectives);
 				return HeaderSpec.this;
 			}
 
 			/**
 			 * Sets the security policy directive(s) to be used in the response header.
+			 * The {@code policyDirectives} may contain {@code {nonce}} as placeholders
+			 * for a generated secure random nonce, e.g., {@code script-src 'self'
+			 * 'nonce-{nonce}'}.
 			 * @param policyDirectives the security policy directive(s)
-			 * @return the {@link HeaderSpec} to continue configuring
+			 * @return the {@link ContentSecurityPolicySpec} to continue configuring
 			 */
-			public HeaderSpec policyDirectives(String policyDirectives) {
-				HeaderSpec.this.contentSecurityPolicy.setPolicyDirectives(policyDirectives);
-				return HeaderSpec.this;
+			public ContentSecurityPolicySpec directives(String policyDirectives) {
+				this.writer.setPolicyDirectives(policyDirectives);
+				return this;
 			}
 
-			private ContentSecurityPolicySpec(String policyDirectives) {
-				HeaderSpec.this.contentSecurityPolicy.setPolicyDirectives(policyDirectives);
+			/**
+			 * Sets the name of the {@link ServerWebExchange#getAttribute(String) exchange
+			 * attribute} for the generated nonce. Views can read this attribute to render
+			 * the nonce in HTML.
+			 * @param nonceAttributeName the name of the nonce attribute
+			 * @return the {@link ContentSecurityPolicySpec} to continue configuring
+			 * @throws IllegalArgumentException if {@code nonceAttributeName} is
+			 * {@code null} or empty
+			 * @since 7.1
+			 */
+			public ContentSecurityPolicySpec nonceAttributeName(String nonceAttributeName) {
+				Assert.hasLength(nonceAttributeName, "NonceAttributeName must not be null or empty");
+				this.nonceAttributeName = nonceAttributeName;
+				return this;
+			}
+
+			/**
+			 * Specifies the {@link ServerWebExchangeMatcher} to use for determining when
+			 * CSP should be applied. The default is to enable CSP in every response if
+			 * {@link HeaderSpec#contentSecurityPolicy(Customizer)} is configured.
+			 * @param matcher the {@link ServerWebExchangeMatcher} to use
+			 * @return the {@link ContentSecurityPolicySpec} to continue configuring
+			 * @throws IllegalArgumentException if {@code matcher} is {@code null}
+			 * @throws IllegalStateException if a {@link ServerWebExchangeMatcher} is
+			 * already configured by a previous call of this method or
+			 * {@link #exchangeMatchers(String...)}
+			 * @since 7.1
+			 * @see #exchangeMatchers(String...)
+			 */
+			public ContentSecurityPolicySpec exchangeMatcher(ServerWebExchangeMatcher matcher) {
+				Assert.notNull(matcher, "Matcher must not be null");
+				Assert.state(this.exchangeMatcher == null, "ExchangeMatcher(s) is already configured");
+				this.exchangeMatcher = matcher;
+				return this;
+			}
+
+			/**
+			 * Specifies the matching path patterns for determining when CSP should be
+			 * applied. The default is to enable CSP in every response if
+			 * {@link HeaderSpec#contentSecurityPolicy(Customizer)} is configured.
+			 * @param pathPatterns the path patterns to be matched with a
+			 * {@link PathPatternParserServerWebExchangeMatcher}
+			 * @return the {@link ContentSecurityPolicySpec} to continue configuring
+			 * @throws IllegalArgumentException if any path pattern is rejected by
+			 * {@link PathPatternParserServerWebExchangeMatcher}
+			 * @throws IllegalStateException if a {@link ServerWebExchangeMatcher} is
+			 * already configured by a previous call of this method or
+			 * {@link #exchangeMatcher(ServerWebExchangeMatcher)}
+			 * @since 7.1
+			 * @see #exchangeMatcher(ServerWebExchangeMatcher)
+			 */
+			public ContentSecurityPolicySpec exchangeMatchers(String... pathPatterns) {
+				return this.exchangeMatcher(ServerWebExchangeMatchers.pathMatchers(pathPatterns));
+			}
+
+			ServerHttpHeadersWriter getWriter() {
+				if (this.exchangeMatcher != null) {
+					return new ServerWebExchangeDelegatingServerHttpHeadersWriter(this.exchangeMatcher, this.writer);
+				}
+				return this.writer;
+			}
+
+			ContentSecurityPolicyNonceGeneratingWebFilter getNonceGeneratingFilter() {
+				var filter = new ContentSecurityPolicyNonceGeneratingWebFilter();
+				if (this.nonceAttributeName != null) {
+					filter.setAttributeName(this.nonceAttributeName);
+				}
+				return filter;
 			}
 
 		}

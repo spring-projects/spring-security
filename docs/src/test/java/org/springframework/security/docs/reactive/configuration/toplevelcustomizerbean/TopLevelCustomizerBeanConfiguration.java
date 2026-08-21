@@ -48,7 +48,7 @@ public class TopLevelCustomizerBeanConfiguration {
 		return (headers) -> headers
 			.contentSecurityPolicy((csp) -> csp
 				// <1>
-				.policyDirectives("object-src 'none'")
+				.directives("object-src 'none'")
 			);
 		// @formatter:on
 	}
