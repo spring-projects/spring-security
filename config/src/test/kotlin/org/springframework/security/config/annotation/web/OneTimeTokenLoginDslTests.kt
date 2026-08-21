@@ -56,6 +56,7 @@ import java.time.Instant
  * Tests for [OneTimeTokenLoginDsl]
  *
  * @author Max Batischev
+ * @author Andrey Litvitski
  */
 @ExtendWith(SpringTestContextExtension::class)
 class OneTimeTokenLoginDslTests {
@@ -140,6 +141,17 @@ class OneTimeTokenLoginDslTests {
         verify { tokenService.generate(expectedGenerateRequest) }
         verify { tokenGenerationSuccessHandler.handle(any(), any(), eq(ott)) }
 
+    }
+
+    @Test
+    fun `request when secure and custom login page then redirects to custom login page`() {
+        spring.register(LoginPageConfig::class.java).autowire()
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/"))
+            .andExpectAll(
+                MockMvcResultMatchers.status().isFound(),
+                MockMvcResultMatchers.redirectedUrl("/log-in")
+            )
     }
 
     private fun getLastToken(): OneTimeToken {
@@ -242,6 +254,33 @@ class OneTimeTokenLoginDslTests {
         open fun ottSuccessHandler(): TestOneTimeTokenGenerationSuccessHandler {
             return TestOneTimeTokenGenerationSuccessHandler("/redirected")
         }
+    }
+
+    @EnableWebSecurity
+    @Configuration(proxyBeanMethods = false)
+    @Import(UserDetailsServiceConfig::class)
+    open class LoginPageConfig {
+
+        @Bean
+        open fun securityFilterChain(
+            http: HttpSecurity,
+            ottSuccessHandler: OneTimeTokenGenerationSuccessHandler
+        ): SecurityFilterChain {
+            http {
+                authorizeHttpRequests {
+                    authorize(anyRequest, authenticated)
+                }
+                oneTimeTokenLogin {
+                    loginPage = "/log-in"
+                    oneTimeTokenGenerationSuccessHandler = ottSuccessHandler
+                }
+            }
+            return http.build()
+        }
+
+        @Bean
+        open fun ottSuccessHandler() =
+            TestOneTimeTokenGenerationSuccessHandler()
     }
 
     @Configuration(proxyBeanMethods = false)
