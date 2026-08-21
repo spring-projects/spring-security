@@ -18,6 +18,7 @@ package org.springframework.security.web.header;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.RequestDispatcher;
@@ -114,6 +115,8 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 
 		private final HttpServletRequest request;
 
+		private final AtomicBoolean headersWritten = new AtomicBoolean(false);
+
 		HeaderWriterResponse(HttpServletRequest request, HttpServletResponse response) {
 			super(response);
 			this.request = request;
@@ -129,7 +132,9 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 			if (isDisableOnResponseCommitted()) {
 				return;
 			}
-			HeaderWriterFilter.this.writeHeaders(this.request, getHttpResponse());
+			if (this.headersWritten.compareAndSet(false, true)) {
+				HeaderWriterFilter.this.writeHeaders(this.request, getHttpResponse());
+			}
 		}
 
 		private HttpServletResponse getHttpResponse() {
