@@ -16,8 +16,13 @@
 
 package org.springframework.security.web.aot.hint;
 
+import java.util.Set;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
@@ -72,6 +77,108 @@ class WebMvcSecurityRuntimeHintsTests {
 	void webauthnJavascriptHasHints() {
 		assertThat(RuntimeHintsPredicates.resource()
 			.forResource("org/springframework/security/spring-security-webauthn.js")).accepts(this.hints);
+	}
+
+	@ParameterizedTest
+	@MethodSource("getJacksonModuleTypes")
+	void jacksonModulesHaveHints(TypeReference moduleType) {
+		assertThat(RuntimeHintsPredicates.reflection()
+			.onType(moduleType)
+			.withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.hints);
+	}
+
+	private static Stream<TypeReference> getJacksonModuleTypes() {
+		return Stream.of(TypeReference.of("org.springframework.security.web.jackson2.WebJackson2Module"),
+				TypeReference.of("org.springframework.security.web.jackson2.WebServletJackson2Module"),
+				TypeReference.of("org.springframework.security.web.server.jackson2.WebServerJackson2Module"),
+				TypeReference.of("org.springframework.security.web.jackson.WebJacksonModule"),
+				TypeReference.of("org.springframework.security.web.jackson.WebServletJacksonModule"),
+				TypeReference.of("org.springframework.security.web.server.jackson.WebServerJacksonModule"));
+	}
+
+	@Test
+	void jacksonHintsUseProvidedClassLoader() {
+		assertJacksonModuleVisibility(hideClasses("tools.jackson.databind.json.JsonMapper"), true, false);
+		assertJacksonModuleVisibility(
+				hideClasses("com.fasterxml.jackson.databind.ObjectMapper", "com.fasterxml.jackson.core.JsonGenerator"),
+				false, true);
+		assertJacksonModuleVisibility(hideClasses("com.fasterxml.jackson.databind.ObjectMapper",
+				"com.fasterxml.jackson.core.JsonGenerator", "tools.jackson.databind.json.JsonMapper"), false, false);
+	}
+
+	private void assertJacksonModuleVisibility(ClassLoader classLoader, boolean jackson2, boolean jackson3) {
+		RuntimeHints hints = new RuntimeHints();
+		new WebMvcSecurityRuntimeHints().registerHints(hints, classLoader);
+		assertThat(hints.reflection()
+			.getTypeHint(TypeReference.of("org.springframework.security.web.jackson2.WebJackson2Module")) != null)
+			.isEqualTo(jackson2);
+		assertThat(hints.reflection()
+			.getTypeHint(TypeReference.of("org.springframework.security.web.jackson.WebJacksonModule")) != null)
+			.isEqualTo(jackson3);
+	}
+
+	@Test
+	void servletJacksonHintsUseProvidedClassLoader() {
+		RuntimeHints hints = new RuntimeHints();
+		new WebMvcSecurityRuntimeHints().registerHints(hints, hideClasses("jakarta.servlet.http.Cookie"));
+		assertThat(hints.reflection()
+			.getTypeHint(TypeReference.of("org.springframework.security.web.jackson2.WebServletJackson2Module")))
+			.isNull();
+		assertThat(hints.reflection()
+			.getTypeHint(TypeReference.of("org.springframework.security.web.jackson.WebServletJacksonModule")))
+			.isNull();
+	}
+
+	private static ClassLoader hideClasses(String... classNames) {
+		Set<String> hiddenClasses = Set.of(classNames);
+		return new ClassLoader(ClassUtils.getDefaultClassLoader()) {
+			@Override
+			protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+				if (hiddenClasses.contains(name)) {
+					throw new ClassNotFoundException(name);
+				}
+				return super.loadClass(name, resolve);
+			}
+		};
+	}
+
+	@ParameterizedTest
+	@MethodSource("getReactiveCsrfMixinTypes")
+	void reactiveCsrfMixinsHaveBindingHints(TypeReference mixinType) {
+		assertThat(RuntimeHintsPredicates.reflection()
+			.onType(mixinType)
+			.withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.hints);
+	}
+
+	private static Stream<TypeReference> getReactiveCsrfMixinTypes() {
+		return Stream.of(
+				TypeReference.of("org.springframework.security.web.server.jackson2.DefaultCsrfServerTokenMixin"),
+				TypeReference.of("org.springframework.security.web.server.jackson.DefaultCsrfServerTokenMixin"));
+	}
+
+	@Test
+	void reactiveCsrfTokenHasBindingHints() {
+		assertThat(RuntimeHintsPredicates.reflection()
+			.onType(TypeReference.of("org.springframework.security.web.server.csrf.DefaultCsrfToken"))
+			.withMemberCategories(MemberCategory.ACCESS_DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+					MemberCategory.INVOKE_DECLARED_METHODS))
+			.accepts(this.hints);
+	}
+
+	@ParameterizedTest
+	@MethodSource("getJacksonDeserializerTypes")
+	void jacksonDeserializersHaveHints(TypeReference deserializerType) {
+		assertThat(RuntimeHintsPredicates.reflection()
+			.onType(deserializerType)
+			.withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.hints);
+	}
+
+	private static Stream<TypeReference> getJacksonDeserializerTypes() {
+		return Stream.of(TypeReference.of("org.springframework.security.web.jackson2.CookieDeserializer"),
+				TypeReference
+					.of("org.springframework.security.web.jackson2.PreAuthenticatedAuthenticationTokenDeserializer"),
+				TypeReference.of("org.springframework.security.web.jackson.CookieDeserializer"), TypeReference
+					.of("org.springframework.security.web.jackson.PreAuthenticatedAuthenticationTokenDeserializer"));
 	}
 
 }

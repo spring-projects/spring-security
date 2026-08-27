@@ -16,6 +16,7 @@
 
 package org.springframework.security.aot.hint;
 
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -148,7 +149,84 @@ class CoreSecurityRuntimeHintsTests {
 	void securityContextHasHints() {
 		assertThat(RuntimeHintsPredicates.reflection()
 			.onType(SecurityContextImpl.class)
-			.withMemberCategories(MemberCategory.INVOKE_PUBLIC_METHODS)).accepts(this.hints);
+			.withMemberCategories(MemberCategory.INVOKE_PUBLIC_METHODS, MemberCategory.ACCESS_DECLARED_FIELDS,
+					MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.INVOKE_DECLARED_METHODS))
+			.accepts(this.hints);
+	}
+
+	@Test
+	void factorGrantedAuthorityHasJacksonBindingHints() {
+		assertThat(RuntimeHintsPredicates.reflection()
+			.onType(TypeReference.of("org.springframework.security.core.authority.FactorGrantedAuthority"))
+			.withMemberCategories(MemberCategory.ACCESS_DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+					MemberCategory.INVOKE_DECLARED_METHODS))
+			.accepts(this.hints);
+	}
+
+	@ParameterizedTest
+	@MethodSource("getJacksonModuleTypes")
+	void jacksonModulesHaveHints(TypeReference moduleType) {
+		assertThat(RuntimeHintsPredicates.reflection()
+			.onType(moduleType)
+			.withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.hints);
+	}
+
+	private static Stream<TypeReference> getJacksonModuleTypes() {
+		return Stream.of(TypeReference.of("org.springframework.security.jackson2.CoreJackson2Module"),
+				TypeReference.of("org.springframework.security.jackson.CoreJacksonModule"));
+	}
+
+	@Test
+	void jacksonHintsUseProvidedClassLoader() {
+		assertJacksonModuleVisibility(hideClasses("tools.jackson.databind.json.JsonMapper"), true, false);
+		assertJacksonModuleVisibility(
+				hideClasses("com.fasterxml.jackson.databind.ObjectMapper", "com.fasterxml.jackson.core.JsonGenerator"),
+				false, true);
+		assertJacksonModuleVisibility(hideClasses("com.fasterxml.jackson.databind.ObjectMapper",
+				"com.fasterxml.jackson.core.JsonGenerator", "tools.jackson.databind.json.JsonMapper"), false, false);
+	}
+
+	private void assertJacksonModuleVisibility(ClassLoader classLoader, boolean jackson2, boolean jackson3) {
+		RuntimeHints hints = new RuntimeHints();
+		new CoreSecurityRuntimeHints().registerHints(hints, classLoader);
+		assertThat(hints.reflection()
+			.getTypeHint(TypeReference.of("org.springframework.security.jackson2.CoreJackson2Module")) != null)
+			.isEqualTo(jackson2);
+		assertThat(hints.reflection()
+			.getTypeHint(TypeReference.of("org.springframework.security.jackson.CoreJacksonModule")) != null)
+			.isEqualTo(jackson3);
+	}
+
+	private static ClassLoader hideClasses(String... classNames) {
+		Set<String> hiddenClasses = Set.of(classNames);
+		return new ClassLoader(ClassUtils.getDefaultClassLoader()) {
+			@Override
+			protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+				if (hiddenClasses.contains(name)) {
+					throw new ClassNotFoundException(name);
+				}
+				return super.loadClass(name, resolve);
+			}
+		};
+	}
+
+	@ParameterizedTest
+	@MethodSource("getJacksonDeserializerTypes")
+	void jacksonDeserializersHaveHints(TypeReference deserializerType) {
+		assertThat(RuntimeHintsPredicates.reflection()
+			.onType(deserializerType)
+			.withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.hints);
+	}
+
+	private static Stream<TypeReference> getJacksonDeserializerTypes() {
+		return Stream.of(TypeReference.of("org.springframework.security.jackson2.UnmodifiableListDeserializer"),
+				TypeReference.of("org.springframework.security.jackson2.UnmodifiableMapDeserializer"),
+				TypeReference.of("org.springframework.security.jackson2.UnmodifiableSetDeserializer"),
+				TypeReference.of("org.springframework.security.jackson2.UserDeserializer"),
+				TypeReference
+					.of("org.springframework.security.jackson2.UsernamePasswordAuthenticationTokenDeserializer"),
+				TypeReference.of("org.springframework.security.jackson.UserDeserializer"), TypeReference
+					.of("org.springframework.security.jackson.UsernamePasswordAuthenticationTokenDeserializer"));
 	}
 
 }
