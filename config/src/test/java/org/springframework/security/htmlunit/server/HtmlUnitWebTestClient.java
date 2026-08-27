@@ -27,7 +27,7 @@ import java.util.StringTokenizer;
 import org.htmlunit.FormEncodingType;
 import org.htmlunit.WebClient;
 import org.htmlunit.WebRequest;
-import org.htmlunit.util.Cookie;
+import org.htmlunit.http.Cookie;
 import org.htmlunit.util.NameValuePair;
 import reactor.core.publisher.Mono;
 
