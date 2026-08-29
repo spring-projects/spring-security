@@ -31,10 +31,12 @@ import org.springframework.security.authentication.password.CompromisedPasswordD
 import org.springframework.security.authentication.password.CompromisedPasswordException;
 import org.springframework.security.authentication.password.ReactiveCompromisedPasswordChecker;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsPasswordService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
@@ -59,7 +61,11 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
+	static final String USER_NOT_FOUND_PASSWORD = "userNotFoundPassword";
+
 	private PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+
+	private volatile @Nullable String userNotFoundEncodedPassword;
 
 	private ReactiveUserDetailsPasswordService userDetailsPasswordService = ReactiveUserDetailsPasswordService.NOOP;
 
@@ -104,9 +110,12 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager
 				? authentication.getCredentials().toString() : null;
 		// @formatter:off
 		return retrieveUser(username)
-				.doOnNext(this.preAuthenticationChecks::check)
+				.onErrorResume(UsernameNotFoundException.class, (ex) -> mitigateAgainstTimingAttack(presentedPassword))
+				.switchIfEmpty(Mono.defer(() -> mitigateAgainstTimingAttack(presentedPassword)))
+				.flatMap((userDetails) -> checkPreAuthentication(userDetails, presentedPassword))
 				.publishOn(this.scheduler)
-				.filter((userDetails) -> this.passwordEncoder.matches(presentedPassword, userDetails.getPassword()))
+				.filter((userDetails) -> presentedPassword != null
+						&& this.passwordEncoder.matches(presentedPassword, userDetails.getPassword()))
 				.switchIfEmpty(Mono.defer(() -> Mono.error(new BadCredentialsException("Invalid Credentials"))))
 				.flatMap((userDetails) -> checkCompromisedPassword(presentedPassword).thenReturn(userDetails))
 				.flatMap((userDetails) -> upgradeEncodingIfNecessary(userDetails, presentedPassword))
@@ -123,6 +132,36 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager
 			.filter(CompromisedPasswordDecision::isCompromised)
 			.flatMap((compromised) -> Mono.error(new CompromisedPasswordException(
 					"The provided password is compromised, please change your password")));
+	}
+
+	private Mono<UserDetails> checkPreAuthentication(UserDetails userDetails, @Nullable String presentedPassword) {
+		try {
+			this.preAuthenticationChecks.check(userDetails);
+		}
+		catch (AuthenticationException ex) {
+			return Mono.fromRunnable(() -> {
+				if (presentedPassword != null) {
+					this.passwordEncoder.matches(presentedPassword, userDetails.getPassword());
+				}
+			}).subscribeOn(this.scheduler).then(Mono.error(ex));
+		}
+		return Mono.just(userDetails);
+	}
+
+	private Mono<UserDetails> mitigateAgainstTimingAttack(@Nullable String presentedPassword) {
+		return Mono.fromRunnable(() -> {
+			if (presentedPassword != null) {
+				prepareTimingAttackProtection();
+				Assert.notNull(this.userNotFoundEncodedPassword, "userNotFoundEncodedPassword cannot be null");
+				this.passwordEncoder.matches(presentedPassword, this.userNotFoundEncodedPassword);
+			}
+		}).subscribeOn(this.scheduler).then(Mono.error(new BadCredentialsException("Invalid Credentials")));
+	}
+
+	private void prepareTimingAttackProtection() {
+		if (this.userNotFoundEncodedPassword == null) {
+			this.userNotFoundEncodedPassword = this.passwordEncoder.encode(USER_NOT_FOUND_PASSWORD);
+		}
 	}
 
 	private Mono<UserDetails> upgradeEncodingIfNecessary(UserDetails userDetails, @Nullable String presentedPassword) {
@@ -149,6 +188,7 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager
 	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
 		Assert.notNull(passwordEncoder, "passwordEncoder cannot be null");
 		this.passwordEncoder = passwordEncoder;
+		this.userNotFoundEncodedPassword = null;
 	}
 
 	/**
