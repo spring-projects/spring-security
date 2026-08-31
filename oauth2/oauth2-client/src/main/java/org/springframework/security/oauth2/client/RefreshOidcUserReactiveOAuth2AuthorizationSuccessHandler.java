@@ -144,8 +144,7 @@ public final class RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler
 
 	/**
 	 * Sets a {@link ServerSecurityContextRepository} to use for refreshing a
-	 * {@link SecurityContext}, defaults to
-	 * {@link WebSessionServerSecurityContextRepository}.
+	 * {@link SecurityContext}.
 	 * @param serverSecurityContextRepository the {@link ServerSecurityContextRepository}
 	 * to use
 	 */
@@ -329,9 +328,9 @@ public final class RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler
 			return Mono.empty();
 		}
 
-		@SuppressWarnings("NullAway")
 		@Override
-		public Mono<Void> save(ServerWebExchange exchange, SecurityContext context) {
+		public Mono<Void> save(ServerWebExchange exchange, @Nullable SecurityContext context) {
+			Assert.notNull(context, "context cannot be null");
 			// Save SecurityContext in WebSession without rotating session id.
 			return exchange.getSession().doOnNext((session) -> {
 				session.getAttributes()
