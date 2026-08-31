@@ -94,6 +94,9 @@ final class IpInetAddressMatcher implements InetAddressMatcher {
 		}
 		byte[] remAddr = toCheck.getAddress();
 		byte[] reqAddr = this.requiredAddress.getAddress();
+		if (remAddr.length != reqAddr.length) {
+			return false;
+		}
 		int nMaskFullBytes = this.nMaskBits / 8;
 		byte finalByte = (byte) (0xFF00 >> (this.nMaskBits & 0x07));
 		for (int i = 0; i < nMaskFullBytes; i++) {
