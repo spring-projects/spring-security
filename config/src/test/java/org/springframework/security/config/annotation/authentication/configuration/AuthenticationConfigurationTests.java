@@ -16,6 +16,11 @@
 
 package org.springframework.security.config.annotation.authentication.configuration;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -264,6 +269,31 @@ public class AuthenticationConfigurationTests {
 		given(ap.supports(any())).willReturn(true);
 		given(ap.authenticate(any())).willReturn(TestAuthentication.authenticatedUser());
 		am.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
+	}
+
+	@Test
+	public void getAuthenticationWhenAuthenticationProviderAndUserDetailsBeanThenWarningUsesConfigurerLogger()
+			throws Exception {
+		Logger rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+		ListAppender<ILoggingEvent> appender = new ListAppender<>();
+		appender.start();
+		rootLogger.addAppender(appender);
+
+		try {
+			this.spring.register(AuthenticationProviderBeanAndUserDetailsServiceConfig.class).autowire();
+
+			this.spring.getContext().getBean(AuthenticationConfiguration.class).getAuthenticationManager();
+
+			assertThat(appender.list)
+				.filteredOn(
+						(event) -> event.getFormattedMessage().contains("UserDetailsService beans will not be used"))
+				.extracting(ILoggingEvent::getLoggerName)
+				.containsExactly(InitializeUserDetailsBeanManagerConfigurer.class.getName());
+		}
+		finally {
+			rootLogger.detachAppender(appender);
+			appender.stop();
+		}
 	}
 
 	// gh-3091
