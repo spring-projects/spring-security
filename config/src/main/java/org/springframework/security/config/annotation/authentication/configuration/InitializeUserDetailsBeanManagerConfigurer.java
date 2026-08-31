@@ -62,7 +62,7 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 
 	class InitializeUserDetailsManagerConfigurer extends GlobalAuthenticationConfigurerAdapter {
 
-		private final Log logger = LogFactory.getLog(getClass());
+		private final Log logger = LogFactory.getLog(InitializeUserDetailsBeanManagerConfigurer.class);
 
 		@Override
 		public void configure(AuthenticationManagerBuilder auth) {
