@@ -24,9 +24,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
@@ -79,7 +82,7 @@ public final class RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler
 			.map((c) -> c.get(ServerWebExchange.class));
 	// @formatter:on
 
-	private ServerSecurityContextRepository serverSecurityContextRepository = new WebSessionServerSecurityContextRepository();
+	private ServerSecurityContextRepository serverSecurityContextRepository = new NonRotatingWebSessionServerSecurityContextRepository();
 
 	private ReactiveJwtDecoderFactory<ClientRegistration> jwtDecoderFactory = new ReactiveOidcIdTokenDecoderFactory();
 
@@ -141,8 +144,7 @@ public final class RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler
 
 	/**
 	 * Sets a {@link ServerSecurityContextRepository} to use for refreshing a
-	 * {@link SecurityContext}, defaults to
-	 * {@link WebSessionServerSecurityContextRepository}.
+	 * {@link SecurityContext}.
 	 * @param serverSecurityContextRepository the {@link ServerSecurityContextRepository}
 	 * to use
 	 */
@@ -314,6 +316,30 @@ public final class RefreshOidcUserReactiveOAuth2AuthorizationSuccessHandler
 		authenticationResult.setDetails(authenticationToken.getDetails());
 		SecurityContext securityContext = new SecurityContextImpl(authenticationResult);
 		return this.serverSecurityContextRepository.save(exchange, securityContext);
+	}
+
+	private static final class NonRotatingWebSessionServerSecurityContextRepository
+			implements ServerSecurityContextRepository {
+
+		private static final Log logger = LogFactory.getLog(NonRotatingWebSessionServerSecurityContextRepository.class);
+
+		@Override
+		public Mono<SecurityContext> load(ServerWebExchange exchange) {
+			return Mono.empty();
+		}
+
+		@Override
+		public Mono<Void> save(ServerWebExchange exchange, @Nullable SecurityContext context) {
+			Assert.notNull(context, "context cannot be null");
+			// Save SecurityContext in WebSession without rotating session id.
+			return exchange.getSession().doOnNext((session) -> {
+				session.getAttributes()
+					.put(WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME, context);
+				logger.debug(LogMessage.format("Saved SecurityContext '%s' in WebSession: '%s'", context, session));
+			}).then();
+
+		}
+
 	}
 
 }
