@@ -28,7 +28,7 @@ jobs:
         milestone-token: ${{ secrets.GITHUB_TOKEN }}
     - name: Compute Next Version
       id: next-version
-      uses: spring-io/spring-release-actions/compute-next-version@a1f321783a0769dd2aea4fad6c2ae2f95a52b885 # 0.0.5
+      uses: spring-io/spring-release-actions/compute-next-version@1b8671612c3eb3d9b9763e2d7b66f1a80d00ee95 # 0.0.6
       with:
         version: ${{ steps.todays-release.outputs.release-version }}
     - name: Schedule Next Milestone
