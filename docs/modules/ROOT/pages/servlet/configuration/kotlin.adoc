@@ -301,11 +301,10 @@ class BankingSecurityConfig {
     @Order(2)                                                          <3>
 	open fun bankingSecurityFilterChain(http: HttpSecurity): SecurityFilterChain {
         val bankingPaths = arrayOf("/accounts/**", "/loans/**", "/credit-cards/**", "/balances/**")
-		val viewBalancePaths = arrayOf("/balances/**")
         http {
             securityMatcher(*bankingPaths)
             authorizeHttpRequests {
-                authorize(viewBalancePaths, hasRole("VIEW_BALANCE"))
+                authorize("/balances/**", hasRole("VIEW_BALANCE"))
 				authorize(anyRequest, hasRole("USER"))
             }
         }
@@ -314,10 +313,14 @@ class BankingSecurityConfig {
 
     @Bean                                                              <4>
 	open fun defaultSecurityFilterChain(http: HttpSecurity): SecurityFilterChain {
-        val allowedPaths = arrayOf("/", "/user-login", "/user-logout", "/notices", "/contact", "/register")
         http {
             authorizeHttpRequests {
-                authorize(allowedPaths, permitAll)
+                authorize("/", permitAll)
+                authorize("/user-login", permitAll)
+                authorize("/user-logout", permitAll)
+                authorize("/notices", permitAll)
+                authorize("/contact", permitAll)
+                authorize("/register", permitAll)
 				authorize(anyRequest, authenticated)
             }
 			formLogin {
