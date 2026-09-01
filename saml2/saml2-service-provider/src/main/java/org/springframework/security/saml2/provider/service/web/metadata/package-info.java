@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
- * Web metadata endpoint support for SAML2 relying party.
+ * Core Spring Security SAML 2.0 abstractions.
  */
 @NullMarked
-package org.springframework.security.saml2.provider.service.web.metadata;
+package org.springframework.security.saml.web.metadata;
 
 import org.jspecify.annotations.NullMarked;

@@ -21,7 +21,6 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import net.shibboleth.shared.xml.ElementSupport;
 import org.jspecify.annotations.Nullable;
 import org.opensaml.core.xml.AbstractXMLObject;
 import org.opensaml.core.xml.AbstractXMLObjectBuilder;
@@ -37,9 +36,11 @@ import org.opensaml.core.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.core.xml.util.IndexedXMLObjectChildrenList;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.AttributeValue;
+import org.springframework.lang.NonNull;
+import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.w3c.dom.Element;
 
-import org.springframework.security.saml2.core.OpenSamlInitializationService;
+import net.shibboleth.shared.xml.ElementSupport;
 
 public final class TestCustomOpenSaml5Objects {
 

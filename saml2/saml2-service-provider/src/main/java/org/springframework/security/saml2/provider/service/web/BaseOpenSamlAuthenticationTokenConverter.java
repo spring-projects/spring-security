@@ -16,15 +16,10 @@
 
 package org.springframework.security.saml2.provider.service.web;
 
-import java.util.Objects;
-
-import jakarta.servlet.http.HttpServletRequest;
-import org.jspecify.annotations.Nullable;
-import org.opensaml.core.xml.schema.XSString;
-import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.Response;
-
 import org.springframework.http.HttpMethod;
+
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
@@ -35,11 +30,12 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers.UriResolver;
 import org.springframework.security.web.authentication.AuthenticationConverter;
+import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
-import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
+import jakarta.servlet.http.HttpServletRequest;
 
 final class BaseOpenSamlAuthenticationTokenConverter implements AuthenticationConverter {
 
@@ -96,8 +92,14 @@ final class BaseOpenSamlAuthenticationTokenConverter implements AuthenticationCo
 	 * @throws Saml2AuthenticationException if the {@link RequestMatcher} specifies a
 	 * non-existent {@code registrationId}
 	 */
+	
 	@Override
+<<<<<<< HEAD
 	public @Nullable Saml2AuthenticationToken convert(HttpServletRequest request) {
+=======
+	@Nullable
+	public Saml2AuthenticationToken convert(HttpServletRequest request) {
+>>>>>>> 46ffe65384 (Added nullable)
 		String serialized = request.getParameter(Saml2ParameterNames.SAML_RESPONSE);
 		if (serialized == null) {
 			return null;
@@ -115,8 +117,9 @@ final class BaseOpenSamlAuthenticationTokenConverter implements AuthenticationCo
 		}
 		return token;
 	}
-
-	private @Nullable Saml2AuthenticationToken tokenByAuthenticationRequest(HttpServletRequest request) {
+	
+	@Nullable
+	private Saml2AuthenticationToken tokenByAuthenticationRequest(HttpServletRequest request) {
 		AbstractSaml2AuthenticationRequest authenticationRequest = this.authenticationRequests
 			.loadAuthenticationRequest(request);
 		if (authenticationRequest == null) {
@@ -129,8 +132,9 @@ final class BaseOpenSamlAuthenticationTokenConverter implements AuthenticationCo
 		RelyingPartyRegistration registration = this.registrations.findByRegistrationId(registrationId);
 		return tokenByRegistration(request, registration, authenticationRequest);
 	}
-
-	private @Nullable Saml2AuthenticationToken tokenByRegistrationId(HttpServletRequest request,
+	
+	@Nullable
+	private Saml2AuthenticationToken tokenByRegistrationId(HttpServletRequest request,
 			RequestMatcher.MatchResult result) {
 		String registrationId = result.getVariables().get("registrationId");
 		if (registrationId == null) {
@@ -140,21 +144,18 @@ final class BaseOpenSamlAuthenticationTokenConverter implements AuthenticationCo
 		return tokenByRegistration(request, registration, null);
 	}
 
-	private @Nullable Saml2AuthenticationToken tokenByEntityId(HttpServletRequest request) {
-		String decoded = decode(request);
-		if (decoded == null) {
-			return null;
-		}
-		Response response = this.saml.deserialize(decoded);
-		Issuer issuer = response.getIssuer();
-		Assert.notNull(issuer, "Response#Issuer cannot be null");
-		RelyingPartyRegistration registration = this.registrations.findUniqueByAssertingPartyEntityId(getValue(issuer));
+	@Nullable
+	private Saml2AuthenticationToken tokenByEntityId(HttpServletRequest request) {
+		Response response = this.saml.deserialize(decode(request));
+		String issuer = response.getIssuer().getValue();
+		RelyingPartyRegistration registration = this.registrations.findUniqueByAssertingPartyEntityId(issuer);
 		return tokenByRegistration(request, registration, null);
 	}
 
-	private @Nullable Saml2AuthenticationToken tokenByRegistration(HttpServletRequest request,
-			@Nullable RelyingPartyRegistration registration,
-			@Nullable AbstractSaml2AuthenticationRequest authenticationRequest) {
+	@Nullable
+	private Saml2AuthenticationToken tokenByRegistration(HttpServletRequest request, 
+			@Nullable RelyingPartyRegistration registration, 
+			@Nulable AbstractSaml2AuthenticationRequest authenticationRequest) {
 		if (registration == null) {
 			return null;
 		}
@@ -205,7 +206,8 @@ final class BaseOpenSamlAuthenticationTokenConverter implements AuthenticationCo
 		this.shouldConvertGetRequests = shouldConvertGetRequests;
 	}
 
-	private @Nullable String decode(HttpServletRequest request) {
+	@Nullable
+	private String decode(HttpServletRequest request) {
 		String encoded = request.getParameter(Saml2ParameterNames.SAML_RESPONSE);
 		boolean isGet = HttpMethod.GET.matches(request.getMethod());
 		if (!this.shouldConvertGetRequests && isGet) {
