@@ -82,6 +82,7 @@ import org.springframework.web.reactive.function.client.WebClient;
  *
  * @author Rob Winch
  * @author Joe Grandja
+ * @author Kai Zander
  * @since 5.1
  * @see ReactiveJwtDecoder
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519">JSON Web Token
@@ -99,8 +100,8 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 
 	private OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefault();
 
-	private Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = MappedJwtClaimSetConverter
-		.withDefaults(Collections.emptyMap());
+	private Converter<Map<String, Object>, Mono<Map<String, Object>>> claimSetConverter = new ReactiveClaimSetConverterAdapter(
+			MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap()));
 
 	/**
 	 * Constructs a {@code NimbusReactiveJwtDecoder} using the provided parameters.
@@ -139,10 +140,37 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	}
 
 	/**
-	 * Use the following {@link Converter} for manipulating the JWT's claim set
+	 * Use the following {@link Converter} for synchronously manipulating the JWT's claim
+	 * set.
+	 * <p>
+	 * Use {@linkplain #setReactiveClaimSetConverter(Converter)} for asynchronously
+	 * manipulating the JWT's claim set.
+	 * <p>
+	 * <b>Note:</b> Configure <i>either</i> a synchronous <i>or</i> an asynchronous
+	 * converter.
 	 * @param claimSetConverter the {@link Converter} to use
+	 * @see #setReactiveClaimSetConverter(Converter)
 	 */
 	public void setClaimSetConverter(Converter<Map<String, Object>, Map<String, Object>> claimSetConverter) {
+		Assert.notNull(claimSetConverter, "claimSetConverter cannot be null");
+		this.claimSetConverter = new ReactiveClaimSetConverterAdapter(claimSetConverter);
+	}
+
+	/**
+	 * Use the following {@link Converter} for manipulating the JWT's claim set in a
+	 * reactive way.
+	 * <p>
+	 * Use {@linkplain #setClaimSetConverter(Converter)} for synchronously manipulating
+	 * the JWT's claim set.
+	 * <p>
+	 * <b>Note:</b> Configure <i>either</i> a synchronous <i>or</i> an asynchronous
+	 * converter.
+	 * @param claimSetConverter the {@link Converter} to use
+	 * @since 7.1
+	 * @see #setClaimSetConverter(Converter)
+	 */
+	public void setReactiveClaimSetConverter(
+			Converter<Map<String, Object>, Mono<Map<String, Object>>> claimSetConverter) {
 		Assert.notNull(claimSetConverter, "claimSetConverter cannot be null");
 		this.claimSetConverter = claimSetConverter;
 	}
@@ -166,7 +194,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		try {
 			// @formatter:off
 			return this.jwtProcessor.convert(parsedToken)
-					.map((set) -> createJwt(parsedToken, set))
+					.flatMap((set) -> createJwt(parsedToken, set))
 					.map(this::validateJwt)
 					.onErrorMap((ex) -> !(ex instanceof IllegalStateException) && !(ex instanceof JwtException),
 							(ex) -> new JwtException("An error occurred while attempting to decode the Jwt: ", ex));
@@ -180,18 +208,16 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		}
 	}
 
-	private Jwt createJwt(JWT parsedJwt, JWTClaimsSet jwtClaimsSet) {
-		try {
+	private Mono<Jwt> createJwt(JWT parsedJwt, JWTClaimsSet jwtClaimsSet) {
+		return this.claimSetConverter.convert(jwtClaimsSet.getClaims()).map((claims) -> {
 			Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
-			Map<String, Object> claims = this.claimSetConverter.convert(jwtClaimsSet.getClaims());
 			return Jwt.withTokenValue(parsedJwt.getParsedString())
 				.headers((h) -> h.putAll(headers))
 				.claims((c) -> c.putAll(claims))
 				.build();
-		}
-		catch (Exception ex) {
-			throw new BadJwtException("An error occurred while attempting to decode the Jwt: " + ex.getMessage(), ex);
-		}
+		})
+			.onErrorMap((ex) -> new BadJwtException(
+					"An error occurred while attempting to decode the Jwt: " + ex.getMessage(), ex));
 	}
 
 	private Jwt validateJwt(Jwt jwt) {
@@ -942,6 +968,17 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 				}
 				throw new BadJwtException("Unsupported algorithm of " + jwt.getHeader().getAlgorithm());
 			};
+		}
+
+	}
+
+	private record ReactiveClaimSetConverterAdapter(Converter<Map<String, Object>, Map<String, Object>> delegate)
+			implements
+				Converter<Map<String, Object>, Mono<Map<String, Object>>> {
+
+		@Override
+		public Mono<Map<String, Object>> convert(Map<String, Object> claims) {
+			return Mono.fromSupplier(() -> this.delegate.convert(claims));
 		}
 
 	}
