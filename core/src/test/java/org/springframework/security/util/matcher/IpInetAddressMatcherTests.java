@@ -105,6 +105,14 @@ class IpInetAddressMatcherTests {
 		assertThat(matcher.matches(InetAddress.getByName("fe80::21f:5bff:fe33:bd68"))).isFalse();
 	}
 
+	// regression test for #19329 "ArrayIndexOutOfBoundsException using IpAddressMatcher"
+	// this test failed with ArrayIndexOutOfBoundsException in Spring Security 7.1.0
+	@Test
+	void matchesWhenIpv4AndIpv6AddressThenFailFast() throws Exception {
+		IpInetAddressMatcher matcher = new IpInetAddressMatcher("::1/128");
+		assertThat(matcher.matches(InetAddress.getByName("0.0.0.0"))).isFalse();
+	}
+
 	@Test
 	void matchesWhenIpv6AndIpv4AddressThenReturnsFalse() throws Exception {
 		IpInetAddressMatcher matcher = new IpInetAddressMatcher("fe80::21f:5bff:fe33:bd68");

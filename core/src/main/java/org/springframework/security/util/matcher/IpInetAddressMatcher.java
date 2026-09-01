@@ -17,7 +17,6 @@
 package org.springframework.security.util.matcher;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Objects;
 
 import org.apache.commons.logging.Log;
@@ -70,23 +69,12 @@ final class IpInetAddressMatcher implements InetAddressMatcher {
 			.format("IP address %s is too short for bitmask of length %d", requiredAddress, this.nMaskBits));
 	}
 
-	private static InetAddress parse(String address) {
-		try {
-			InetAddress result = InetAddress.getByName(address);
-			if (address.matches(".*[a-zA-Z\\-].*$") && !address.contains(":")) {
-				logger.warn("Hostname '" + address + "' resolved to " + result.toString()
-						+ " will be used on IP address matching");
-			}
-			return result;
-		}
-		catch (UnknownHostException ex) {
-			throw new IllegalArgumentException(String.format("Failed to parse address '%s'", address), ex);
-		}
-	}
-
 	@Override
 	public boolean matches(@Nullable InetAddress toCheck) {
 		if (toCheck == null) {
+			return false;
+		}
+		if (!this.requiredAddress.getClass().equals(toCheck.getClass())) {
 			return false;
 		}
 		if (this.nMaskBits < 0) {
