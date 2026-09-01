@@ -344,7 +344,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		if (userAuthoritiesMapper != null) {
 			oauth2LoginAuthenticationProvider.setAuthoritiesMapper(userAuthoritiesMapper);
 		}
-		http.authenticationProvider(this.postProcess(oauth2LoginAuthenticationProvider));
+		http.authenticationProvider((AuthenticationProvider) this.postProcess(oauth2LoginAuthenticationProvider));
 		boolean oidcAuthenticationProviderEnabled = ClassUtils
 			.isPresent("org.springframework.security.oauth2.jwt.JwtDecoder", this.getClass().getClassLoader());
 		if (oidcAuthenticationProviderEnabled) {
@@ -365,7 +365,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 				oidcAuthorizationCodeAuthenticationProvider.setAuthoritiesMapper(userAuthoritiesMapper);
 				oidcAuthorizedClientRefreshedEventListener.setAuthoritiesMapper(userAuthoritiesMapper);
 			}
-			http.authenticationProvider(this.postProcess(oidcAuthorizationCodeAuthenticationProvider));
+			http.authenticationProvider((AuthenticationProvider) this.postProcess(oidcAuthorizationCodeAuthenticationProvider));
 
 			registerDelegateApplicationListener(this.postProcess(oidcAuthorizedClientRefreshedEventListener));
 			configureOidcUserRefreshedEventListener(http);
