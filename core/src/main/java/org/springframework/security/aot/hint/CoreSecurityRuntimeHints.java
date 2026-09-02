@@ -21,6 +21,7 @@ import java.util.stream.Stream;
 
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.aot.hint.BindingReflectionHintsRegistrar;
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
@@ -49,6 +50,7 @@ import org.springframework.security.authentication.ott.OneTimeTokenAuthenticatio
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
+import org.springframework.util.ClassUtils;
 
 /**
  * {@link RuntimeHintsRegistrar} for core classes
@@ -57,6 +59,8 @@ import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
  * @since 6.0
  */
 class CoreSecurityRuntimeHints implements RuntimeHintsRegistrar {
+
+	private final BindingReflectionHintsRegistrar bindingReflectionHintsRegistrar = new BindingReflectionHintsRegistrar();
 
 	@Override
 	public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
@@ -67,6 +71,64 @@ class CoreSecurityRuntimeHints implements RuntimeHintsRegistrar {
 		hints.resources().registerResourceBundle("org.springframework.security.messages");
 		registerDefaultJdbcSchemaFileHint(hints);
 		registerSecurityContextHints(hints);
+		registerJacksonHints(hints, classLoader);
+	}
+
+	private void registerJacksonHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
+		ClassLoader loader = (classLoader != null) ? classLoader : ClassUtils.getDefaultClassLoader();
+		boolean jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", loader)
+				&& ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", loader);
+		boolean jackson3Present = ClassUtils.isPresent("tools.jackson.databind.json.JsonMapper", loader);
+		if (!jackson2Present && !jackson3Present) {
+			return;
+		}
+		hints.reflection()
+			.registerTypes(getJacksonBindingTypes(),
+					(builder) -> builder.withMembers(MemberCategory.ACCESS_DECLARED_FIELDS,
+							MemberCategory.INVOKE_DECLARED_CONSTRUCTORS, MemberCategory.INVOKE_DECLARED_METHODS));
+		if (jackson2Present) {
+			registerJacksonModule(hints, "org.springframework.security.jackson2.CoreJackson2Module");
+			registerJacksonMixins(hints, loader, "org.springframework.security.jackson2",
+					"AnonymousAuthenticationTokenMixin", "BadCredentialsExceptionMixin", "FactorGrantedAuthorityMixin",
+					"OneTimeTokenAuthenticationTokenMixin", "RememberMeAuthenticationTokenMixin",
+					"SimpleGrantedAuthorityMixin", "UnmodifiableListMixin", "UnmodifiableMapMixin",
+					"UnmodifiableSetMixin", "UserMixin", "UsernamePasswordAuthenticationTokenMixin");
+		}
+		if (jackson3Present) {
+			registerJacksonModule(hints, "org.springframework.security.jackson.CoreJacksonModule");
+			registerJacksonMixins(hints, loader, "org.springframework.security.jackson",
+					"AnonymousAuthenticationTokenMixin", "BadCredentialsExceptionMixin", "FactorGrantedAuthorityMixin",
+					"OneTimeTokenAuthenticationMixin", "RememberMeAuthenticationTokenMixin",
+					"SimpleGrantedAuthorityMixin", "TestingAuthenticationTokenMixin", "UserMixin",
+					"UsernamePasswordAuthenticationTokenMixin");
+		}
+	}
+
+	private List<TypeReference> getJacksonBindingTypes() {
+		return List.of(TypeReference.of("org.springframework.security.authentication.AbstractAuthenticationToken"),
+				TypeReference.of("org.springframework.security.authentication.AnonymousAuthenticationToken"),
+				TypeReference.of("org.springframework.security.authentication.BadCredentialsException"),
+				TypeReference.of("org.springframework.security.authentication.RememberMeAuthenticationToken"),
+				TypeReference.of("org.springframework.security.authentication.TestingAuthenticationToken"),
+				TypeReference.of("org.springframework.security.authentication.UsernamePasswordAuthenticationToken"),
+				TypeReference.of("org.springframework.security.authentication.ott.OneTimeTokenAuthentication"),
+				TypeReference.of("org.springframework.security.authentication.ott.OneTimeTokenAuthenticationToken"),
+				TypeReference.of("org.springframework.security.core.authority.FactorGrantedAuthority"),
+				TypeReference.of("org.springframework.security.core.authority.SimpleGrantedAuthority"),
+				TypeReference.of("org.springframework.security.core.context.SecurityContextImpl"),
+				TypeReference.of("org.springframework.security.core.userdetails.User"));
+	}
+
+	private void registerJacksonModule(RuntimeHints hints, String moduleClassName) {
+		hints.reflection().registerType(TypeReference.of(moduleClassName), MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
+	}
+
+	private void registerJacksonMixins(RuntimeHints hints, @Nullable ClassLoader classLoader, String packageName,
+			String... mixinClassNames) {
+		for (String mixinClassName : mixinClassNames) {
+			Class<?> mixinClass = ClassUtils.resolveClassName(packageName + "." + mixinClassName, classLoader);
+			this.bindingReflectionHintsRegistrar.registerReflectionHints(hints.reflection(), mixinClass);
+		}
 	}
 
 	private void registerMethodSecurityHints(RuntimeHints hints) {
