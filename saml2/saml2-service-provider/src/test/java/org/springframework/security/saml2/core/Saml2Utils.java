@@ -20,12 +20,22 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Properties;
+import java.util.ServiceLoader;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterOutputStream;
 
+import org.opensaml.core.config.ConfigurationService;
+import org.opensaml.core.config.InitializationException;
+import org.opensaml.core.config.Initializer;
+import org.opensaml.core.config.provider.PropertiesAdapter;
+import org.opensaml.security.config.GlobalNamedCurveRegistryInitializer;
+import org.opensaml.xmlsec.config.impl.DefaultSecurityConfigurationBootstrap;
 import org.springframework.security.saml2.Saml2Exception;
+
+import static org.opensaml.xmlsec.config.impl.DefaultSecurityConfigurationBootstrap.CONFIG_PROPERTY_ECDH_DEFAULT_KDF;
 
 public final class Saml2Utils {
 
@@ -67,4 +77,21 @@ public final class Saml2Utils {
 		}
 	}
 
+	public static void fipsCompliantOpenSamlInit() {
+		Properties props = new Properties();
+		props.setProperty(CONFIG_PROPERTY_ECDH_DEFAULT_KDF, DefaultSecurityConfigurationBootstrap.PBKDF2);
+		ConfigurationService.setDefaultConfigurationPropertiesSource(() -> new PropertiesAdapter(props));
+		Class<?> toSkip = GlobalNamedCurveRegistryInitializer.class;
+		ServiceLoader.load(Initializer.class).stream()
+				.filter(provider -> provider.type() != toSkip)
+				.forEach(Saml2Utils::init);
+	}
+
+	private static void init(ServiceLoader.Provider<Initializer> provider) {
+		try {
+			provider.get().init();
+		} catch (InitializationException ex) {
+			throw new Saml2Exception(ex);
+		}
+	}
 }
