@@ -204,9 +204,16 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	}
 
 	/**
-	 * The URL to send users if authentication fails. This is a shortcut for invoking
-	 * {@link #failureHandler(AuthenticationFailureHandler)}. The default is
-	 * "/login?error".
+	 * The URL to send users if authentication fails. The default is "/login?error".
+	 * <p>
+	 * When a custom {@link #loginPage(String) login page} is configured, the application
+	 * must process the specified URL to generate an error page.
+	 * </p>
+	 * <p>
+	 * When a custom login page is not configured, the framework processes the specified
+	 * URL and generates the default error page (the default login page with an error
+	 * message). Any application mapping for the specified URL is ignored.
+	 * </p>
 	 * @param authenticationFailureUrl the URL to send users if authentication fails (i.e.
 	 * "/login?error").
 	 * @return the {@link FormLoginConfigurer} for additional customization
