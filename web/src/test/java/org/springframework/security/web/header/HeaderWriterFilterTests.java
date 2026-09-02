@@ -121,12 +121,11 @@ public class HeaderWriterFilterTests {
 		HeaderWriterFilter filter = new HeaderWriterFilter(headerWriters);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		filter.doFilter(request, response, (req, resp) -> {
-			// Calling writeHeaders() directly simulates the race window where an
-			// async thread enters writeHeaders() via onResponseCommitted() but has
-			// not yet called disableOnResponseCommitted().
-			((HeaderWriterFilter.HeaderWriterResponse) resp).writeHeaders();
-		});
+		filter.doFilter(request, response, (req, resp) ->
+		// Calling writeHeaders() directly simulates the race window where an
+		// async thread enters writeHeaders() via onResponseCommitted() but has
+		// not yet called disableOnResponseCommitted().
+		((HeaderWriterFilter.HeaderWriterResponse) resp).writeHeaders());
 		// The finally block in doHeadersAfter also calls writeHeaders().
 		// Without the fix, the header writers would be invoked twice.
 		verify(this.writer1).writeHeaders(any(HttpServletRequest.class), any(HttpServletResponse.class));
