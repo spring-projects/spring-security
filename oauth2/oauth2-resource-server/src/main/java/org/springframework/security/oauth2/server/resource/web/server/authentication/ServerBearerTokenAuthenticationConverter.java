@@ -121,13 +121,17 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 
 	private Flux<String> resolveAccessTokenFromBody(ServerWebExchange exchange) {
 		ServerHttpRequest request = exchange.getRequest();
-		if (!this.allowFormEncodedBodyParameter
-				|| !MediaType.APPLICATION_FORM_URLENCODED.equals(request.getHeaders().getContentType())
+		if (!this.allowFormEncodedBodyParameter || !isFormEncoded(request.getHeaders())
 				|| !HttpMethod.POST.equals(request.getMethod())) {
 			return Flux.empty();
 		}
 
 		return exchange.getFormData().flatMapMany(ServerBearerTokenAuthenticationConverter::resolveTokens);
+	}
+
+	private static boolean isFormEncoded(HttpHeaders headers) {
+		MediaType contentType = headers.getContentType();
+		return contentType != null && contentType.equalsTypeAndSubtype(MediaType.APPLICATION_FORM_URLENCODED);
 	}
 
 	private static Flux<String> resolveTokens(MultiValueMap<String, String> parameters) {
