@@ -49,7 +49,7 @@ class ServerHttpSecurityCustomizerBeanConfiguration {
 			.headers((headers) -> headers
 				.contentSecurityPolicy((csp) -> csp
 					// <1>
-					.directives("object-src 'none'")
+					.policyDirectives("object-src 'none'")
 				)
 			)
 			// <2>

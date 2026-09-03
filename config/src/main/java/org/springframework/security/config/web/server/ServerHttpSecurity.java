@@ -2862,25 +2862,10 @@ public class ServerHttpSecurity {
 			 * header.
 			 * @param reportOnly whether to only report policy violations
 			 * @return the {@link HeaderSpec} to continue configuring
-			 * @deprecated Use {@link #reportOnly()} instead
 			 */
-			@Deprecated(since = "7.1")
 			public HeaderSpec reportOnly(boolean reportOnly) {
-				if (reportOnly) {
-					this.reportOnly();
-				}
+				this.writer.setReportOnly(reportOnly);
 				return HeaderSpec.this;
-			}
-
-			/**
-			 * Enables (includes) the {@code Content-Security-Policy-Report-Only} header
-			 * in the response. Otherwise, defaults to the {@code Content-Security-Policy}
-			 * header.
-			 * @return the {@link ContentSecurityPolicySpec} to continue configuring
-			 */
-			public ContentSecurityPolicySpec reportOnly() {
-				this.writer.setReportOnly(true);
-				return this;
 			}
 
 			/**
@@ -2890,25 +2875,10 @@ public class ServerHttpSecurity {
 			 * 'nonce-{nonce}'}.
 			 * @param policyDirectives the security policy directive(s)
 			 * @return the {@link HeaderSpec} to continue configuring
-			 * @deprecated Use {@link #directives(String)} instead
 			 */
-			@Deprecated(since = "7.1")
 			public HeaderSpec policyDirectives(String policyDirectives) {
-				this.directives(policyDirectives);
-				return HeaderSpec.this;
-			}
-
-			/**
-			 * Sets the security policy directive(s) to be used in the response header.
-			 * The {@code policyDirectives} may contain {@code {nonce}} as placeholders
-			 * for a generated secure random nonce, e.g., {@code script-src 'self'
-			 * 'nonce-{nonce}'}.
-			 * @param policyDirectives the security policy directive(s)
-			 * @return the {@link ContentSecurityPolicySpec} to continue configuring
-			 */
-			public ContentSecurityPolicySpec directives(String policyDirectives) {
 				this.writer.setPolicyDirectives(policyDirectives);
-				return this;
+				return HeaderSpec.this;
 			}
 
 			/**
