@@ -950,7 +950,8 @@ public class NimbusJwtDecoderTests {
 
 		DefaultJWTProcessor<SecurityContext> jwtProcessor = (DefaultJWTProcessor<SecurityContext>) NimbusJwtDecoder
 			.withJwkSetUri(JWK_SET_URI)
-			.jwkSourceBuilderCustomizer((jwkSourceBuilder) -> jwkSourceBuilder.refreshAheadCache(true).rateLimited(true))
+			.jwkSourceBuilderCustomizer(
+					(jwkSourceBuilder) -> jwkSourceBuilder.refreshAheadCache(true).rateLimited(true))
 			.processor();
 		Object jwkSource = ReflectionTestUtils.getField(jwtProcessor.getJWSKeySelector(),
 				JWSVerificationKeySelector.class, "jwkSource");
