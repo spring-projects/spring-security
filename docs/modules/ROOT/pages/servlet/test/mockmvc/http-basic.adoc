@@ -4,25 +4,7 @@ While it has always been possible to authenticate with HTTP Basic, it was a bit 
 Now this can be done using Spring Security's `httpBasic` xref:servlet/test/mockmvc/request-post-processors.adoc[`RequestPostProcessor`].
 For example, the snippet below:
 
-[tabs]
-======
-Java::
-+
-[source,java,role="primary"]
-----
-mvc
-	.perform(get("/").with(httpBasic("user","password")))
-----
-
-Kotlin::
-+
-[source,kotlin,role="secondary"]
-----
-mvc.get("/") {
-    with(httpBasic("user","password"))
-}
-----
-======
+include-code::./HttpBasicAuthenticationTests[tag=http-basic,indent=0]
 
 will attempt to use HTTP Basic to authenticate a user with the username "user" and the password "password" by ensuring the following header is populated on the HTTP Request:
 
