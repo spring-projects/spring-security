@@ -18,6 +18,8 @@ package org.springframework.security.oauth2.server.resource.web;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -88,6 +90,35 @@ public class BearerTokenAuthenticationEntryPointTests {
 		assertThat(response.getStatus()).isEqualTo(401);
 		assertThat(response.getHeader("WWW-Authenticate"))
 			.isEqualTo("Bearer resource_metadata=\"https://example.com/resource-from-request\"");
+	}
+
+	// gh-19639
+	@ParameterizedTest
+	@CsvSource(
+			textBlock = """
+					 , , https://example.com/.well-known/oauth-protected-resource,
+					'', '', https://example.com/.well-known/oauth-protected-resource,
+					/, /, https://example.com/.well-known/oauth-protected-resource,
+					requestUri, contextPath, https://example.com/contextPath/.well-known/oauth-protected-resource/requestUri,
+					/requestUri, /contextPath, https://example.com/contextPath/.well-known/oauth-protected-resource/requestUri,
+					requestUri/, contextPath/, https://example.com/contextPath/.well-known/oauth-protected-resource/requestUri,
+					/requestUri/, /contextPath/, https://example.com/contextPath/.well-known/oauth-protected-resource/requestUri,
+					//requestUri//, //contextPath//, https://example.com/contextPath/.well-known/oauth-protected-resource/requestUri
+					""")
+	public void commenceShouldIncludeContextPathAndRequestUriInResourceMetadata(String requestUri, String contextPath,
+			String expected) {
+
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setScheme("https");
+		request.setServerName("example.com");
+		request.setServerPort(443);
+		request.setContextPath(contextPath);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		this.authenticationEntryPoint.commence(request, response, new BadCredentialsException("test"));
+		assertThat(response.getStatus()).isEqualTo(401);
+		assertThat(response.getHeader("WWW-Authenticate"))
+			.isEqualTo("Bearer resource_metadata=\"%s\"".formatted(expected));
 	}
 
 	@Test
