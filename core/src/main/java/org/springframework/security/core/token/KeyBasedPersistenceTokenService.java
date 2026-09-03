@@ -18,11 +18,11 @@ package org.springframework.security.core.token;
 
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.HexFormat;
 
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -71,6 +71,7 @@ import org.springframework.util.StringUtils;
  * </p>
  *
  * @author Ben Alex
+ * @author Andrey Litvitski
  *
  */
 public class KeyBasedPersistenceTokenService implements TokenService, InitializingBean {
@@ -142,7 +143,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 	private String generatePseudoRandomNumber() {
 		byte[] randomBytes = new byte[this.pseudoRandomNumberBytes];
 		this.secureRandom.nextBytes(randomBytes);
-		return new String(Hex.encode(randomBytes));
+		return new String(HexFormat.of().formatHex(randomBytes));
 	}
 
 	private String computeServerSecretApplicableAt(long time) {

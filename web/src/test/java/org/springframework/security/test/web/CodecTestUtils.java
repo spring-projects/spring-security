@@ -19,8 +19,8 @@ package org.springframework.security.test.web;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.HexFormat;
 
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.util.DigestUtils;
 
 public final class CodecTestUtils {
@@ -58,7 +58,7 @@ public final class CodecTestUtils {
 	public static String algorithmHex(String algorithmName, String data) {
 		try {
 			MessageDigest digest = MessageDigest.getInstance(algorithmName);
-			return new String(Hex.encode(digest.digest(data.getBytes())));
+			return HexFormat.of().formatHex(digest.digest(data.getBytes()));
 		}
 		catch (NoSuchAlgorithmException ex) {
 			throw new IllegalStateException("No " + algorithmName + " algorithm available!");

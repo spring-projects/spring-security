@@ -25,12 +25,12 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Base64;
+import java.util.HexFormat;
 
 import javax.crypto.Cipher;
 
 import org.jspecify.annotations.Nullable;
 
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
 /**
@@ -138,7 +138,7 @@ public class RsaSecretEncryptor implements BytesEncryptor, TextEncryptor, RsaKey
 		this.privateKey = privateKey;
 		this.defaultCharset = Charset.forName(DEFAULT_ENCODING);
 		this.algorithm = algorithm;
-		this.salt = isHex(salt) ? salt : new String(Hex.encode(salt.getBytes(this.defaultCharset)));
+		this.salt = isHex(salt) ? salt : HexFormat.of().formatHex(salt.getBytes(this.defaultCharset));
 		this.gcm = gcm;
 	}
 
@@ -176,8 +176,8 @@ public class RsaSecretEncryptor implements BytesEncryptor, TextEncryptor, RsaKey
 
 	private static byte[] encrypt(byte[] text, PublicKey key, RsaAlgorithm alg, String salt, boolean gcm) {
 		byte[] random = KeyGenerators.secureRandom(16).generateKey();
-		BytesEncryptor aes = gcm ? Encryptors.stronger(new String(Hex.encode(random)), salt)
-				: Encryptors.standard(new String(Hex.encode(random)), salt);
+		BytesEncryptor aes = gcm ? Encryptors.stronger(HexFormat.of().formatHex(random), salt)
+				: Encryptors.standard(HexFormat.of().formatHex(random), salt);
 		try {
 			final Cipher cipher = Cipher.getInstance(alg.getJceName());
 			cipher.init(Cipher.ENCRYPT_MODE, key);
@@ -218,7 +218,7 @@ public class RsaSecretEncryptor implements BytesEncryptor, TextEncryptor, RsaKey
 			input.read(random);
 			final Cipher cipher = Cipher.getInstance(alg.getJceName());
 			cipher.init(Cipher.DECRYPT_MODE, key);
-			String secret = new String(Hex.encode(cipher.doFinal(random)));
+			String secret = HexFormat.of().formatHex(cipher.doFinal(random));
 			byte[] buffer = new byte[text.length - random.length - 2];
 			input.read(buffer);
 			BytesEncryptor aes = gcm ? Encryptors.stronger(secret, salt) : Encryptors.standard(secret, salt);
@@ -235,7 +235,7 @@ public class RsaSecretEncryptor implements BytesEncryptor, TextEncryptor, RsaKey
 
 	private static boolean isHex(String input) {
 		try {
-			Hex.decode(input);
+			HexFormat.of().parseHex(input);
 			return true;
 		}
 		catch (Exception ex) {
