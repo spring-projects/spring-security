@@ -30,7 +30,7 @@ jobs:
   deploy-artifacts:
     name: Deploy Artifacts
     needs: [ build ]
-    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@b92832ecbc7cbe969201e6beafbde0ee400cf095 # v1.0.15
+    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@3f6cc7ffc137ca160061749d5f34dc30d5f36986 # v1.0.17
     with:
       should-deploy-artifacts: ${{ needs.build.outputs.should-deploy-artifacts }}
       default-publish-milestones-central: true
