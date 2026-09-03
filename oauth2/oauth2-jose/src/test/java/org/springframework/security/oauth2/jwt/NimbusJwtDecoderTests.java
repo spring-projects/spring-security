@@ -43,7 +43,10 @@ import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.source.CachingJWKSetSource;
 import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.jwk.source.RefreshAheadCachingJWKSetSource;
+import com.nimbusds.jose.jwk.source.RetryingJWKSetSource;
 import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
 import com.nimbusds.jose.proc.JWSKeySelector;
@@ -99,6 +102,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  * @author Joe Grandja
  * @author Mykyta Bezverkhyi
  * @author Andrey Litvitski
+ * @author Ngoc Nhan
  */
 public class NimbusJwtDecoderTests {
 
@@ -927,6 +931,45 @@ public class NimbusJwtDecoderTests {
 				new JWSHeader.Builder(JWSAlgorithm.HS256).type(JOSEObjectType.JOSE).build(),
 				new JWTClaimsSet.Builder().subject("subject").build());
 		jwtDecoder.decode(jwt.serialize());
+	}
+
+	@Test
+	public void shouldUseCachingJwkSetSource() {
+
+		DefaultJWTProcessor<SecurityContext> jwtProcessor = (DefaultJWTProcessor<SecurityContext>) NimbusJwtDecoder
+			.withJwkSetUri(JWK_SET_URI)
+			.processor();
+		Object jwkSource = ReflectionTestUtils.getField(jwtProcessor.getJWSKeySelector(),
+				JWSVerificationKeySelector.class, "jwkSource");
+		assertThat(jwkSource).isNotNull();
+		assertThat(ReflectionTestUtils.getField(jwkSource, "source")).isInstanceOf(CachingJWKSetSource.class);
+	}
+
+	@Test
+	public void shouldUseRefreshAheadCachingJWKSetSource() {
+
+		DefaultJWTProcessor<SecurityContext> jwtProcessor = (DefaultJWTProcessor<SecurityContext>) NimbusJwtDecoder
+			.withJwkSetUri(JWK_SET_URI)
+			.jwkSourceBuilderCustomizer((jwkSourceBuilder) -> jwkSourceBuilder.refreshAheadCache(true).rateLimited(true))
+			.processor();
+		Object jwkSource = ReflectionTestUtils.getField(jwtProcessor.getJWSKeySelector(),
+				JWSVerificationKeySelector.class, "jwkSource");
+		assertThat(jwkSource).isNotNull();
+		assertThat(ReflectionTestUtils.getField(jwkSource, "source"))
+			.isInstanceOf(RefreshAheadCachingJWKSetSource.class);
+	}
+
+	@Test
+	public void shouldRetryingJWKSetSource() {
+
+		DefaultJWTProcessor<SecurityContext> jwtProcessor = (DefaultJWTProcessor<SecurityContext>) NimbusJwtDecoder
+			.withJwkSetUri(JWK_SET_URI)
+			.jwkSourceBuilderCustomizer((jwkSourceBuilder) -> jwkSourceBuilder.cache(false).retrying(true))
+			.processor();
+		Object jwkSource = ReflectionTestUtils.getField(jwtProcessor.getJWSKeySelector(),
+				JWSVerificationKeySelector.class, "jwkSource");
+		assertThat(jwkSource).isNotNull();
+		assertThat(ReflectionTestUtils.getField(jwkSource, "source")).isInstanceOf(RetryingJWKSetSource.class);
 	}
 
 	private RSAPublicKey key() throws InvalidKeySpecException {
