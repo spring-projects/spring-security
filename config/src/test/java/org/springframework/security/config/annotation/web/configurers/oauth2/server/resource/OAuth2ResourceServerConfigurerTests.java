@@ -604,7 +604,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		// @formatter:off
 		this.mvc.perform(post("/authenticated").header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE).with(bearerToken(token)))
 				.andExpect(status().isUnauthorized())
-				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt","/authenticated"));
+				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt", "/authenticated"));
 		// @formatter:on
 	}
 
@@ -1314,7 +1314,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		// @formatter:off
 		this.mvc.perform(get("/authenticated").with(bearerToken(jwtThree)))
 				.andExpect(status().isUnauthorized())
-				.andExpect(invalidTokenHeader("Invalid issuer","/authenticated"));
+				.andExpect(invalidTokenHeader("Invalid issuer", "/authenticated"));
 		// @formatter:on
 	}
 
