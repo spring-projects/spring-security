@@ -16,11 +16,16 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -464,6 +469,98 @@ public class DPoPProofJwtDecoderFactoryTests {
 
 		JwtDecoder jwtDecoder = this.jwtDecoderFactory.createDecoder(dPoPProofContext);
 		jwtDecoder.decode(dPoPProof.getTokenValue());
+	}
+
+	/**
+	 * With a small {@code maxSize}, filling the cache and then submitting a new proof
+	 * exercises the cache-full rejection: rather than evicting an existing entry (which
+	 * could let a cached {@code jti} be replayed), the proof that cannot be cached is
+	 * rejected. Replaying a proof while the cache still has room confirms replay
+	 * detection. Each proof is signed with its own key so the per-key request limit is
+	 * never the reason for a rejection.
+	 */
+	@Test
+	public void decodeWhenCacheFullThenThrowBadJwtException() throws Exception {
+		DPoPProofReplayValidator.InMemoryCache cache = new DPoPProofReplayValidator.InMemoryCache();
+		cache.setMaxSize(3);
+		cache.setMaxRequestsPerKey(3);
+		DPoPProofReplayValidator replayValidator = new DPoPProofReplayValidator(cache);
+		this.jwtDecoderFactory.setJwtValidatorFactory(
+				DPoPProofJwtDecoderFactory.createDefaultJwtValidatorFactory(List.of(replayValidator)));
+
+		String method = "GET";
+		String targetUri = "https://resource1";
+		RSAKey jwk1 = generateRsaJwk("kid-1");
+		RSAKey jwk2 = generateRsaJwk("kid-2");
+		RSAKey jwk3 = generateRsaJwk("kid-3");
+		RSAKey jwk4 = generateRsaJwk("kid-4");
+		String proof1 = createDPoPProof(createJwtEncoder(jwk1), method, targetUri, createJwsHeader(jwk1), "jti-1");
+		String proof2 = createDPoPProof(createJwtEncoder(jwk2), method, targetUri, createJwsHeader(jwk2), "jti-2");
+		String proof3 = createDPoPProof(createJwtEncoder(jwk3), method, targetUri, createJwsHeader(jwk3), "jti-3");
+		String proof4 = createDPoPProof(createJwtEncoder(jwk4), method, targetUri, createJwsHeader(jwk4), "jti-4");
+
+		// @formatter:off
+		DPoPProofContext dPoPProofContext = DPoPProofContext.withDPoPProof(proof1)
+				.method(method)
+				.targetUri(targetUri)
+				.build();
+		// @formatter:on
+		JwtDecoder jwtDecoder = this.jwtDecoderFactory.createDecoder(dPoPProofContext);
+
+		// Two proofs are accepted and cached; the cache is not yet full
+		jwtDecoder.decode(proof1);
+		jwtDecoder.decode(proof2);
+
+		// Replay detection: proof1 is still cached and there is room, so it is rejected
+		assertThatExceptionOfType(BadJwtException.class).isThrownBy(() -> jwtDecoder.decode(proof1))
+			.withMessageContaining("jti claim is invalid");
+
+		// A third proof fills the cache to its configured maxSize
+		jwtDecoder.decode(proof3);
+
+		// Cache-full rejection: proof4 has an unseen jti with its own key, so it is
+		// rejected because the cache is full, not by replay or the per-key limit
+		assertThatExceptionOfType(BadJwtException.class).isThrownBy(() -> jwtDecoder.decode(proof4))
+			.withMessageContaining("jti claim is invalid");
+	}
+
+	private RSAKey generateRsaJwk(String keyId) throws Exception {
+		KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+		keyPairGenerator.initialize(2048);
+		KeyPair keyPair = keyPairGenerator.generateKeyPair();
+		// @formatter:off
+		return TestJwks.jwk((RSAPublicKey) keyPair.getPublic(), (RSAPrivateKey) keyPair.getPrivate())
+				.keyID(keyId)
+				.build();
+		// @formatter:on
+	}
+
+	private JwsHeader createJwsHeader(RSAKey rsaJwk) {
+		// @formatter:off
+		return JwsHeader.with(SignatureAlgorithm.RS256)
+				.type("dpop+jwt")
+				.jwk(rsaJwk.toPublicJWK().toJSONObject())
+				.build();
+		// @formatter:on
+	}
+
+	private JwtEncoder createJwtEncoder(RSAKey rsaJwk) throws Exception {
+		JWKSource<SecurityContext> jwkSource = mock(JWKSource.class);
+		given(jwkSource.get(any(), any())).willReturn(Collections.singletonList(rsaJwk));
+		return new NimbusJwtEncoder(jwkSource);
+	}
+
+	private String createDPoPProof(JwtEncoder jwtEncoder, String method, String targetUri, JwsHeader jwsHeader,
+			String jti) {
+		// @formatter:off
+		JwtClaimsSet claims = JwtClaimsSet.builder()
+				.issuedAt(Instant.now())
+				.claim("htm", method)
+				.claim("htu", targetUri)
+				.id(jti)
+				.build();
+		// @formatter:on
+		return jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
 	}
 
 }
