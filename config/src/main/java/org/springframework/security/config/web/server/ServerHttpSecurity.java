@@ -34,7 +34,6 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -2461,6 +2460,8 @@ public class ServerHttpSecurity {
 	 */
 	public final class HeaderSpec {
 
+		private final List<ServerHttpHeadersWriter> writers;
+
 		private CacheControlServerHttpHeadersWriter cacheControl = new CacheControlServerHttpHeadersWriter();
 
 		private ContentTypeOptionsServerHttpHeadersWriter contentTypeOptions = new ContentTypeOptionsServerHttpHeadersWriter();
@@ -2485,11 +2486,13 @@ public class ServerHttpSecurity {
 
 		private CrossOriginResourcePolicyServerHttpHeadersWriter crossOriginResourcePolicy = new CrossOriginResourcePolicyServerHttpHeadersWriter();
 
-		private List<ServerHttpHeadersWriter> customHeadersWriters = new ArrayList<>();
-
 		private ContentSecurityPolicyNonceGeneratingWebFilter nonceGeneratingFilter;
 
 		private HeaderSpec() {
+			this.writers = new ArrayList<>(Arrays.asList(this.cacheControl, this.contentTypeOptions, this.hsts,
+					this.frameOptions, this.xss, this.featurePolicy, this.permissionsPolicy, this.contentSecurityPolicy,
+					this.referrerPolicy, this.crossOriginOpenerPolicy, this.crossOriginEmbedderPolicy,
+					this.crossOriginResourcePolicy));
 		}
 
 		/**
@@ -2543,7 +2546,7 @@ public class ServerHttpSecurity {
 		 */
 		public HeaderSpec writer(ServerHttpHeadersWriter serverHttpHeadersWriter) {
 			Assert.notNull(serverHttpHeadersWriter, "serverHttpHeadersWriter cannot be null");
-			this.customHeadersWriters.add(serverHttpHeadersWriter);
+			this.writers.add(serverHttpHeadersWriter);
 			return this;
 		}
 
@@ -2559,13 +2562,7 @@ public class ServerHttpSecurity {
 		}
 
 		protected void configure(ServerHttpSecurity http) {
-			Stream<ServerHttpHeadersWriter> builtInWriters = Stream
-				.of(this.cacheControl, this.contentTypeOptions, this.hsts, this.frameOptions, this.xss,
-						this.featurePolicy, this.permissionsPolicy, this.contentSecurityPolicy, this.referrerPolicy,
-						this.crossOriginOpenerPolicy, this.crossOriginEmbedderPolicy, this.crossOriginResourcePolicy)
-				.filter(Objects::nonNull);
-			ServerHttpHeadersWriter writer = new CompositeServerHttpHeadersWriter(
-					Stream.concat(builtInWriters, this.customHeadersWriters.stream()).toList());
+			ServerHttpHeadersWriter writer = new CompositeServerHttpHeadersWriter(this.writers);
 			HttpHeaderWriterWebFilter result = new HttpHeaderWriterWebFilter(writer);
 			http.addFilterAt(result, SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
 			// nonceGeneratingFilter is instantiated iff CSP is configured
@@ -2687,7 +2684,7 @@ public class ServerHttpSecurity {
 			 * @return the {@link HeaderSpec} to configure
 			 */
 			public HeaderSpec disable() {
-				HeaderSpec.this.cacheControl = null;
+				HeaderSpec.this.writers.remove(HeaderSpec.this.cacheControl);
 				return HeaderSpec.this;
 			}
 
@@ -2708,7 +2705,7 @@ public class ServerHttpSecurity {
 			 * @return the {@link HeaderSpec} to configure
 			 */
 			public HeaderSpec disable() {
-				HeaderSpec.this.contentTypeOptions = null;
+				HeaderSpec.this.writers.remove(HeaderSpec.this.contentTypeOptions);
 				return HeaderSpec.this;
 			}
 
@@ -2740,7 +2737,7 @@ public class ServerHttpSecurity {
 			 * @return the {@link HeaderSpec} to continue configuring
 			 */
 			public HeaderSpec disable() {
-				HeaderSpec.this.frameOptions = null;
+				HeaderSpec.this.writers.remove(HeaderSpec.this.frameOptions);
 				return HeaderSpec.this;
 			}
 
@@ -2799,7 +2796,7 @@ public class ServerHttpSecurity {
 			 * @return the {@link HeaderSpec} to continue configuring
 			 */
 			public HeaderSpec disable() {
-				HeaderSpec.this.hsts = null;
+				HeaderSpec.this.writers.remove(HeaderSpec.this.hsts);
 				return HeaderSpec.this;
 			}
 
@@ -2820,7 +2817,7 @@ public class ServerHttpSecurity {
 			 * @return the {@link HeaderSpec} to continue configuring
 			 */
 			public HeaderSpec disable() {
-				HeaderSpec.this.xss = null;
+				HeaderSpec.this.writers.remove(HeaderSpec.this.xss);
 				return HeaderSpec.this;
 			}
 
