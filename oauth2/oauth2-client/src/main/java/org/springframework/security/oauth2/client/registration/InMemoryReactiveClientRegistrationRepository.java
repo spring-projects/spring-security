@@ -28,13 +28,13 @@ import reactor.core.publisher.Mono;
 import org.springframework.util.Assert;
 
 /**
- * A Reactive {@link ClientRegistrationRepository} that stores
+ * A {@link ReactiveClientRegistrationRepository} that stores
  * {@link ClientRegistration}(s) in-memory.
  *
  * @author Rob Winch
  * @author Ebert Toribio
  * @since 5.1
- * @see ClientRegistrationRepository
+ * @see ReactiveClientRegistrationRepository
  * @see ClientRegistration
  */
 public final class InMemoryReactiveClientRegistrationRepository
