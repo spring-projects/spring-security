@@ -72,7 +72,7 @@ public class DelegatingSecurityContextAsyncTaskExecutor extends DelegatingSecuri
 	}
 
 	@Override
-	public final <T> Future<T> submit(Callable<T> task) {
+	public final <T extends @Nullable Object> Future<T> submit(Callable<T> task) {
 		return getDelegate().submit(wrap(task));
 	}
 
