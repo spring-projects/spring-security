@@ -200,7 +200,6 @@ import org.springframework.security.web.server.header.PermissionsPolicyServerHtt
 import org.springframework.security.web.server.header.ReferrerPolicyServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.ReferrerPolicyServerHttpHeadersWriter.ReferrerPolicy;
 import org.springframework.security.web.server.header.ServerHttpHeadersWriter;
-import org.springframework.security.web.server.header.ServerWebExchangeDelegatingServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.StrictTransportSecurityServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.XXssProtectionServerHttpHeadersWriter;
@@ -2476,7 +2475,7 @@ public class ServerHttpSecurity {
 
 		private PermissionsPolicyServerHttpHeadersWriter permissionsPolicy = new PermissionsPolicyServerHttpHeadersWriter();
 
-		private ContentSecurityPolicySpec contentSecurityPolicy = new ContentSecurityPolicySpec();
+		private ContentSecurityPolicyServerHttpHeadersWriter contentSecurityPolicy = new ContentSecurityPolicyServerHttpHeadersWriter();
 
 		private ReferrerPolicyServerHttpHeadersWriter referrerPolicy = new ReferrerPolicyServerHttpHeadersWriter();
 
@@ -2487,6 +2486,8 @@ public class ServerHttpSecurity {
 		private CrossOriginResourcePolicyServerHttpHeadersWriter crossOriginResourcePolicy = new CrossOriginResourcePolicyServerHttpHeadersWriter();
 
 		private List<ServerHttpHeadersWriter> customHeadersWriters = new ArrayList<>();
+
+		private ContentSecurityPolicyNonceGeneratingWebFilter nonceGeneratingFilter;
 
 		private HeaderSpec() {
 		}
@@ -2560,16 +2561,17 @@ public class ServerHttpSecurity {
 		protected void configure(ServerHttpSecurity http) {
 			Stream<ServerHttpHeadersWriter> builtInWriters = Stream
 				.of(this.cacheControl, this.contentTypeOptions, this.hsts, this.frameOptions, this.xss,
-						this.featurePolicy, this.permissionsPolicy, this.contentSecurityPolicy.getWriter(),
-						this.referrerPolicy, this.crossOriginOpenerPolicy, this.crossOriginEmbedderPolicy,
-						this.crossOriginResourcePolicy)
+						this.featurePolicy, this.permissionsPolicy, this.contentSecurityPolicy, this.referrerPolicy,
+						this.crossOriginOpenerPolicy, this.crossOriginEmbedderPolicy, this.crossOriginResourcePolicy)
 				.filter(Objects::nonNull);
 			ServerHttpHeadersWriter writer = new CompositeServerHttpHeadersWriter(
 					Stream.concat(builtInWriters, this.customHeadersWriters.stream()).toList());
 			HttpHeaderWriterWebFilter result = new HttpHeaderWriterWebFilter(writer);
 			http.addFilterAt(result, SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
-			http.addFilterBefore(this.contentSecurityPolicy.getNonceGeneratingFilter(),
-					SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
+			// nonceGeneratingFilter is instantiated iff CSP is configured
+			if (this.nonceGeneratingFilter != null) {
+				http.addFilterBefore(this.nonceGeneratingFilter, SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
+			}
 		}
 
 		/**
@@ -2590,7 +2592,7 @@ public class ServerHttpSecurity {
 		 * @return the {@link HeaderSpec} to customize
 		 */
 		public HeaderSpec contentSecurityPolicy(Customizer<ContentSecurityPolicySpec> contentSecurityPolicyCustomizer) {
-			contentSecurityPolicyCustomizer.customize(this.contentSecurityPolicy);
+			contentSecurityPolicyCustomizer.customize(new ContentSecurityPolicySpec());
 			return this;
 		}
 
@@ -2846,14 +2848,11 @@ public class ServerHttpSecurity {
 
 			private static final String DEFAULT_SRC_SELF_POLICY = "default-src 'self'";
 
-			private final ContentSecurityPolicyServerHttpHeadersWriter writer = new ContentSecurityPolicyServerHttpHeadersWriter();
-
-			private @Nullable String nonceAttributeName;
-
 			private @Nullable ServerWebExchangeMatcher exchangeMatcher;
 
 			private ContentSecurityPolicySpec() {
-				this.writer.setPolicyDirectives(DEFAULT_SRC_SELF_POLICY);
+				HeaderSpec.this.contentSecurityPolicy.setPolicyDirectives(DEFAULT_SRC_SELF_POLICY);
+				HeaderSpec.this.nonceGeneratingFilter = new ContentSecurityPolicyNonceGeneratingWebFilter();
 			}
 
 			/**
@@ -2864,7 +2863,7 @@ public class ServerHttpSecurity {
 			 * @return the {@link HeaderSpec} to continue configuring
 			 */
 			public HeaderSpec reportOnly(boolean reportOnly) {
-				this.writer.setReportOnly(reportOnly);
+				HeaderSpec.this.contentSecurityPolicy.setReportOnly(reportOnly);
 				return HeaderSpec.this;
 			}
 
@@ -2877,7 +2876,7 @@ public class ServerHttpSecurity {
 			 * @return the {@link HeaderSpec} to continue configuring
 			 */
 			public HeaderSpec policyDirectives(String policyDirectives) {
-				this.writer.setPolicyDirectives(policyDirectives);
+				HeaderSpec.this.contentSecurityPolicy.setPolicyDirectives(policyDirectives);
 				return HeaderSpec.this;
 			}
 
@@ -2893,7 +2892,7 @@ public class ServerHttpSecurity {
 			 */
 			public ContentSecurityPolicySpec nonceAttributeName(String nonceAttributeName) {
 				Assert.hasLength(nonceAttributeName, "NonceAttributeName must not be null or empty");
-				this.nonceAttributeName = nonceAttributeName;
+				HeaderSpec.this.nonceGeneratingFilter.setAttributeName(nonceAttributeName);
 				return this;
 			}
 
@@ -2913,6 +2912,7 @@ public class ServerHttpSecurity {
 			public ContentSecurityPolicySpec exchangeMatcher(ServerWebExchangeMatcher matcher) {
 				Assert.notNull(matcher, "Matcher must not be null");
 				Assert.state(this.exchangeMatcher == null, "ExchangeMatcher(s) is already configured");
+				HeaderSpec.this.contentSecurityPolicy.setExchangeMatcher(matcher);
 				this.exchangeMatcher = matcher;
 				return this;
 			}
@@ -2934,21 +2934,6 @@ public class ServerHttpSecurity {
 			 */
 			public ContentSecurityPolicySpec exchangeMatchers(String... pathPatterns) {
 				return this.exchangeMatcher(ServerWebExchangeMatchers.pathMatchers(pathPatterns));
-			}
-
-			ServerHttpHeadersWriter getWriter() {
-				if (this.exchangeMatcher != null) {
-					return new ServerWebExchangeDelegatingServerHttpHeadersWriter(this.exchangeMatcher, this.writer);
-				}
-				return this.writer;
-			}
-
-			ContentSecurityPolicyNonceGeneratingWebFilter getNonceGeneratingFilter() {
-				var filter = new ContentSecurityPolicyNonceGeneratingWebFilter();
-				if (this.nonceAttributeName != null) {
-					filter.setAttributeName(this.nonceAttributeName);
-				}
-				return filter;
 			}
 
 		}

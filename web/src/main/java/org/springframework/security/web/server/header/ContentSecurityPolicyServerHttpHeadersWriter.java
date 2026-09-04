@@ -22,6 +22,8 @@ import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -63,6 +65,8 @@ public final class ContentSecurityPolicyServerHttpHeadersWriter implements Serve
 
 	private static final String NONCE_PLACEHOLDER = "{nonce}";
 
+	private ServerWebExchangeMatcher exchangeMatcher = ServerWebExchangeMatchers.anyExchange();
+
 	private @Nullable String policyDirectives;
 
 	private boolean reportOnly;
@@ -71,31 +75,45 @@ public final class ContentSecurityPolicyServerHttpHeadersWriter implements Serve
 
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {
-		return Mono.justOrEmpty(this.policyDirectives).flatMap((csp) -> {
-			String headerName = resolveHeader(this.reportOnly);
-			HttpHeaders headers = exchange.getResponse().getHeaders();
+		return Mono.justOrEmpty(this.policyDirectives)
+			.filterWhen((ignored) -> this.exchangeMatcher.matches(exchange)
+				.map(ServerWebExchangeMatcher.MatchResult::isMatch))
+			.flatMap((csp) -> {
+				String headerName = resolveHeader(this.reportOnly);
+				HttpHeaders headers = exchange.getResponse().getHeaders();
 
-			if (headers.containsHeader(headerName)) {
-				return Mono.empty();
-			}
+				if (headers.containsHeader(headerName)) {
+					return Mono.empty();
+				}
 
-			if (!this.isNonceBased) {
-				headers.put(headerName, List.of(csp));
-				return Mono.empty();
-			}
+				if (!this.isNonceBased) {
+					headers.put(headerName, List.of(csp));
+					return Mono.empty();
+				}
 
-			Mono<String> deferredNonce = exchange
-				.getAttribute(ContentSecurityPolicyNonceGeneratingWebFilter.class.getName());
-			if (deferredNonce == null) {
-				return Mono.error(new IllegalStateException(
-						"Failed to replace {nonce} placeholders since no nonce found as an exchange attribute "
-								+ ContentSecurityPolicyNonceGeneratingWebFilter.class.getName()));
-			}
-			return deferredNonce.flatMap((nonce) -> {
-				headers.put(headerName, List.of(csp.replace(NONCE_PLACEHOLDER, nonce)));
-				return Mono.empty();
+				Mono<String> deferredNonce = exchange
+					.getAttribute(ContentSecurityPolicyNonceGeneratingWebFilter.class.getName());
+				if (deferredNonce == null) {
+					return Mono.error(new IllegalStateException(
+							"Failed to replace {nonce} placeholders since no nonce found as an exchange attribute "
+									+ ContentSecurityPolicyNonceGeneratingWebFilter.class.getName()));
+				}
+				return deferredNonce
+					.doOnNext((nonce) -> headers.put(headerName, List.of(csp.replace(NONCE_PLACEHOLDER, nonce))))
+					.then();
 			});
-		});
+	}
+
+	/**
+	 * Sets the {@link ServerWebExchangeMatcher} which determines whether CSP should be
+	 * written. The default is to write CSP unconditionally.
+	 * @param exchangeMatcher the {@link ServerWebExchangeMatcher} to use
+	 * @throws IllegalArgumentException if {@code exchangeMatcher} is null
+	 * @since 7.2
+	 */
+	public void setExchangeMatcher(ServerWebExchangeMatcher exchangeMatcher) {
+		Assert.notNull(exchangeMatcher, "exchangeMatcher cannot be null");
+		this.exchangeMatcher = exchangeMatcher;
 	}
 
 	/**

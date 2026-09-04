@@ -23,6 +23,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.web.header.ContentSecurityPolicyNonceGeneratingFilter;
 import org.springframework.security.web.header.HeaderWriter;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
 /**
@@ -122,6 +124,8 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 
 	private static final String NONCE_PLACEHOLDER = "{nonce}";
 
+	private RequestMatcher requestMatcher = AnyRequestMatcher.INSTANCE;
+
 	private String policyDirectives;
 
 	private boolean reportOnly;
@@ -153,6 +157,9 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 	@Override
 	@SuppressWarnings("unchecked")
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
+		if (!this.requestMatcher.matches(request)) {
+			return;
+		}
 		String headerName = (!this.reportOnly) ? CONTENT_SECURITY_POLICY_HEADER
 				: CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER;
 		if (!response.containsHeader(headerName)) {
@@ -170,6 +177,18 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 			}
 			response.setHeader(headerName, csp);
 		}
+	}
+
+	/**
+	 * Sets the {@link RequestMatcher} which determines whether CSP should be written. The
+	 * default is to write CSP unconditionally.
+	 * @param requestMatcher the {@link RequestMatcher} to use
+	 * @throws IllegalArgumentException if {@code requestMatcher} is null
+	 * @since 7.2
+	 */
+	public void setRequestMatcher(RequestMatcher requestMatcher) {
+		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
+		this.requestMatcher = requestMatcher;
 	}
 
 	/**
@@ -196,8 +215,9 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 
 	@Override
 	public String toString() {
-		return getClass().getName() + " [policyDirectives=" + this.policyDirectives + "; reportOnly=" + this.reportOnly
-				+ "; isNonceBased=" + this.isNonceBased + "]";
+		return getClass().getName() + " [requestMatcher=" + this.requestMatcher + "; policyDirectives="
+				+ this.policyDirectives + "; reportOnly=" + this.reportOnly + "; isNonceBased=" + this.isNonceBased
+				+ "]";
 	}
 
 }

@@ -38,7 +38,6 @@ import org.springframework.security.web.header.writers.ContentSecurityPolicyHead
 import org.springframework.security.web.header.writers.CrossOriginEmbedderPolicyHeaderWriter;
 import org.springframework.security.web.header.writers.CrossOriginOpenerPolicyHeaderWriter;
 import org.springframework.security.web.header.writers.CrossOriginResourcePolicyHeaderWriter;
-import org.springframework.security.web.header.writers.DelegatingRequestMatcherHeaderWriter;
 import org.springframework.security.web.header.writers.FeaturePolicyHeaderWriter;
 import org.springframework.security.web.header.writers.HpkpHeaderWriter;
 import org.springframework.security.web.header.writers.HstsHeaderWriter;
@@ -253,6 +252,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	public HeadersConfigurer<H> contentSecurityPolicy(
 			Customizer<ContentSecurityPolicyConfig> contentSecurityCustomizer) {
 		this.contentSecurityPolicy.writer = new ContentSecurityPolicyHeaderWriter();
+		this.contentSecurityPolicy.nonceGeneratingFilter = new ContentSecurityPolicyNonceGeneratingFilter();
 		contentSecurityCustomizer.customize(this.contentSecurityPolicy);
 		return HeadersConfigurer.this;
 	}
@@ -280,7 +280,10 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	public void configure(H http) {
 		HeaderWriterFilter headersFilter = createHeaderWriterFilter();
 		http.addFilter(headersFilter);
-		http.addFilterBefore(this.contentSecurityPolicy.getNonceGeneratingFilter(), HeaderWriterFilter.class);
+		// nonceGeneratingFilter is instantiated iff CSP is configured
+		if (this.contentSecurityPolicy.nonceGeneratingFilter != null) {
+			http.addFilterBefore(this.contentSecurityPolicy.nonceGeneratingFilter, HeaderWriterFilter.class);
+		}
 	}
 
 	/**
@@ -310,7 +313,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		addIfNotNull(writers, this.hsts.writer);
 		addIfNotNull(writers, this.frameOptions.writer);
 		addIfNotNull(writers, this.hpkp.writer);
-		addIfNotNull(writers, this.contentSecurityPolicy.getWriter());
+		addIfNotNull(writers, this.contentSecurityPolicy.writer);
 		addIfNotNull(writers, this.referrerPolicy.writer);
 		addIfNotNull(writers, this.featurePolicy.writer);
 		addIfNotNull(writers, this.permissionsPolicy.writer);
@@ -945,7 +948,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 
 		private ContentSecurityPolicyHeaderWriter writer;
 
-		private @Nullable String nonceAttributeName;
+		private ContentSecurityPolicyNonceGeneratingFilter nonceGeneratingFilter;
 
 		private @Nullable RequestMatcher requestMatcher;
 
@@ -986,7 +989,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 */
 		public ContentSecurityPolicyConfig nonceAttributeName(String nonceAttributeName) {
 			Assert.hasLength(nonceAttributeName, "NonceAttributeName must not be null or empty");
-			this.nonceAttributeName = nonceAttributeName;
+			this.nonceGeneratingFilter.setAttributeName(nonceAttributeName);
 			return this;
 		}
 
@@ -1005,6 +1008,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		public ContentSecurityPolicyConfig requestMatcher(RequestMatcher requestMatcher) {
 			Assert.notNull(requestMatcher, "RequestMatcher cannot be null");
 			Assert.state(this.requestMatcher == null, "RequestMatcher(s) is already configured");
+			this.writer.setRequestMatcher(requestMatcher);
 			this.requestMatcher = requestMatcher;
 			return this;
 		}
@@ -1027,21 +1031,6 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 			PathPatternRequestMatcher.Builder builder = HeadersConfigurer.this.getRequestMatcherBuilder();
 			OrRequestMatcher matcher = new OrRequestMatcher(Arrays.stream(pathPatterns).map(builder::matcher).toList());
 			return this.requestMatcher(matcher);
-		}
-
-		HeaderWriter getWriter() {
-			if (this.requestMatcher != null) {
-				return new DelegatingRequestMatcherHeaderWriter(this.requestMatcher, this.writer);
-			}
-			return this.writer;
-		}
-
-		ContentSecurityPolicyNonceGeneratingFilter getNonceGeneratingFilter() {
-			var filter = new ContentSecurityPolicyNonceGeneratingFilter();
-			if (this.nonceAttributeName != null) {
-				filter.setAttributeName(this.nonceAttributeName);
-			}
-			return filter;
 		}
 
 	}
