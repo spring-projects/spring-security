@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Kerberos ticket validation and authentication based on Sun's JAAS implementation.
+ */
 @NullMarked
 package org.springframework.security.kerberos.authentication.sun;
 

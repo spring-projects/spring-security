@@ -208,7 +208,7 @@ public abstract class SecurityExpressionRoot<T extends @Nullable Object> impleme
 
 	/**
 	 * Convenience method to access {@link Authentication#getPrincipal()} from
-	 * {@link #getAuthentication()}
+	 * {@link #getAuthentication()}.
 	 * @return the {@code Principal} being authenticated or the authenticated principal
 	 * after authentication.
 	 */

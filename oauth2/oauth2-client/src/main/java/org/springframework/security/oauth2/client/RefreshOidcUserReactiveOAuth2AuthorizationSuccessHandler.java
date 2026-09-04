@@ -61,7 +61,7 @@ import org.springframework.web.server.ServerWebExchange;
  * in the {@link SecurityContext} if the refreshed {@link OidcIdToken} is valid according
  * to <a href=
  * "https://openid.net/specs/openid-connect-core-1_0.html#RefreshTokenResponse">OpenID
- * Connect Core 1.0 - Section 12.2 Successful Refresh Response</a>
+ * Connect Core 1.0 - Section 12.2 Successful Refresh Response</a>.
  *
  * @author Evgeniy Cheban
  * @since 7.1
