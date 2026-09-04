@@ -94,7 +94,7 @@ public class Saml2AuthenticationException extends AuthenticationException {
 	}
 
 	/**
-	 * Get the associated {@link Saml2Error}
+	 * Get the associated {@link Saml2Error}.
 	 * @return the associated {@link Saml2Error}
 	 */
 	public Saml2Error getSaml2Error() {

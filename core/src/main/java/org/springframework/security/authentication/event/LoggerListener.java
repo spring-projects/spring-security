@@ -36,7 +36,7 @@ public class LoggerListener implements ApplicationListener<AbstractAuthenticatio
 
 	/**
 	 * If set to true, {@link InteractiveAuthenticationSuccessEvent} will be logged
-	 * (defaults to true)
+	 * (defaults to true).
 	 */
 	private boolean logInteractiveAuthenticationSuccessEvents = true;
 

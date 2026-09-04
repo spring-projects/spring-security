@@ -33,6 +33,8 @@ import org.springframework.util.StopWatch;
 import static org.assertj.core.api.Assertions.fail;
 
 /**
+ * Performance tests for pointcut-based method security.
+ *
  * @author Luke Taylor
  */
 @ContextConfiguration(locations = { "/protect-pointcut-performance-app-context.xml" })

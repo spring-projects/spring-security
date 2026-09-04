@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Support for authenticating to backend services using Kerberos.
+ */
 @NullMarked
 package org.springframework.security.kerberos.client;
 

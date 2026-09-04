@@ -36,7 +36,8 @@ import org.jspecify.annotations.Nullable;
 public interface OAuth2TokenIntrospectionClaimAccessor extends ClaimAccessor {
 
 	/**
-	 * Returns the indicator {@code (active)} whether or not the token is currently active
+	 * Returns the indicator {@code (active)} whether or not the token is currently
+	 * active.
 	 * @return the indicator whether or not the token is currently active
 	 */
 	default boolean isActive() {

@@ -106,7 +106,7 @@ public final class SecurityMockServerConfigurers {
 	}
 
 	/**
-	 * Sets up Spring Security's {@link WebTestClient} test support
+	 * Sets up Spring Security's {@link WebTestClient} test support.
 	 * @return the MockServerConfigurer to use
 	 */
 	public static MockServerConfigurer springSecurity() {
@@ -121,7 +121,7 @@ public final class SecurityMockServerConfigurers {
 	}
 
 	/**
-	 * Updates the ServerWebExchange to use the provided Authentication as the Principal
+	 * Updates the ServerWebExchange to use the provided Authentication as the Principal.
 	 * @param authentication the Authentication to use.
 	 * @return the configurer to use
 	 */
@@ -132,7 +132,7 @@ public final class SecurityMockServerConfigurers {
 
 	/**
 	 * Updates the ServerWebExchange to use the provided UserDetails to create a
-	 * UsernamePasswordAuthenticationToken as the Principal
+	 * UsernamePasswordAuthenticationToken as the Principal.
 	 * @param userDetails the UserDetails to use.
 	 * @return the configurer to use
 	 */
@@ -493,7 +493,7 @@ public final class SecurityMockServerConfigurers {
 		}
 
 		/**
-		 * Use the given {@link Jwt}
+		 * Use the given {@link Jwt}.
 		 * @param jwt The {@link Jwt} to use
 		 * @return the {@link JwtMutator} for further configuration
 		 */
@@ -503,7 +503,7 @@ public final class SecurityMockServerConfigurers {
 		}
 
 		/**
-		 * Use the provided authorities in the token
+		 * Use the provided authorities in the token.
 		 * @param authorities the authorities to use
 		 * @return the {@link JwtMutator} for further configuration
 		 */
@@ -514,7 +514,7 @@ public final class SecurityMockServerConfigurers {
 		}
 
 		/**
-		 * Use the provided authorities in the token
+		 * Use the provided authorities in the token.
 		 * @param authorities the authorities to use
 		 * @return the {@link JwtMutator} for further configuration
 		 */
@@ -526,7 +526,7 @@ public final class SecurityMockServerConfigurers {
 
 		/**
 		 * Provides the configured {@link Jwt} so that custom authorities can be derived
-		 * from it
+		 * from it.
 		 * @param authoritiesConverter the conversion strategy from {@link Jwt} to a
 		 * {@link Collection} of {@link GrantedAuthority}s
 		 * @return the {@link JwtMutator} for further configuration
@@ -569,6 +569,8 @@ public final class SecurityMockServerConfigurers {
 	}
 
 	/**
+	 * Configures a mock authenticated opaque token for use in tests.
+	 *
 	 * @author Josh Cummings
 	 * @since 5.3
 	 */
@@ -584,7 +586,7 @@ public final class SecurityMockServerConfigurers {
 		}
 
 		/**
-		 * Mutate the attributes using the given {@link Consumer}
+		 * Mutate the attributes using the given {@link Consumer}.
 		 * @param attributesConsumer The {@link Consumer} for mutating the {@code Map} of
 		 * attributes
 		 * @return the {@link OpaqueTokenMutator} for further configuration
@@ -601,7 +603,7 @@ public final class SecurityMockServerConfigurers {
 		}
 
 		/**
-		 * Use the provided authorities in the resulting principal
+		 * Use the provided authorities in the resulting principal.
 		 * @param authorities the authorities to use
 		 * @return the {@link OpaqueTokenMutator} for further configuration
 		 */
@@ -613,7 +615,7 @@ public final class SecurityMockServerConfigurers {
 		}
 
 		/**
-		 * Use the provided authorities in the resulting principal
+		 * Use the provided authorities in the resulting principal.
 		 * @param authorities the authorities to use
 		 * @return the {@link OpaqueTokenMutator} for further configuration
 		 */
@@ -625,7 +627,7 @@ public final class SecurityMockServerConfigurers {
 		}
 
 		/**
-		 * Use the provided principal
+		 * Use the provided principal.
 		 * @param principal the principal to use
 		 * @return the {@link OpaqueTokenMutator} for further configuration
 		 */
@@ -720,6 +722,8 @@ public final class SecurityMockServerConfigurers {
 	}
 
 	/**
+	 * Configures a mock authenticated OAuth2 login for use in tests.
+	 *
 	 * @author Josh Cummings
 	 * @since 5.3
 	 */
@@ -743,7 +747,7 @@ public final class SecurityMockServerConfigurers {
 		}
 
 		/**
-		 * Use the provided authorities in the {@link Authentication}
+		 * Use the provided authorities in the {@link Authentication}.
 		 * @param authorities the authorities to use
 		 * @return the {@link OAuth2LoginMutator} for further configuration
 		 */
@@ -755,7 +759,7 @@ public final class SecurityMockServerConfigurers {
 		}
 
 		/**
-		 * Use the provided authorities in the {@link Authentication}
+		 * Use the provided authorities in the {@link Authentication}.
 		 * @param authorities the authorities to use
 		 * @return the {@link OAuth2LoginMutator} for further configuration
 		 */
@@ -767,7 +771,7 @@ public final class SecurityMockServerConfigurers {
 		}
 
 		/**
-		 * Mutate the attributes using the given {@link Consumer}
+		 * Mutate the attributes using the given {@link Consumer}.
 		 * @param attributesConsumer The {@link Consumer} for mutating the {@code Map} of
 		 * attributes
 		 * @return the {@link OAuth2LoginMutator} for further configuration
@@ -874,6 +878,8 @@ public final class SecurityMockServerConfigurers {
 	}
 
 	/**
+	 * Configures a mock authenticated OIDC login for use in tests.
+	 *
 	 * @author Josh Cummings
 	 * @since 5.3
 	 */
@@ -898,7 +904,7 @@ public final class SecurityMockServerConfigurers {
 		}
 
 		/**
-		 * Use the provided authorities in the {@link Authentication}
+		 * Use the provided authorities in the {@link Authentication}.
 		 * @param authorities the authorities to use
 		 * @return the {@link OidcLoginMutator} for further configuration
 		 */
@@ -910,7 +916,7 @@ public final class SecurityMockServerConfigurers {
 		}
 
 		/**
-		 * Use the provided authorities in the {@link Authentication}
+		 * Use the provided authorities in the {@link Authentication}.
 		 * @param authorities the authorities to use
 		 * @return the {@link OidcLoginMutator} for further configuration
 		 */
@@ -922,7 +928,7 @@ public final class SecurityMockServerConfigurers {
 		}
 
 		/**
-		 * Use the provided {@link OidcIdToken} when constructing the authenticated user
+		 * Use the provided {@link OidcIdToken} when constructing the authenticated user.
 		 * @param idTokenBuilderConsumer a {@link Consumer} of a
 		 * {@link OidcIdToken.Builder}
 		 * @return the {@link OidcLoginMutator} for further configuration
@@ -937,7 +943,7 @@ public final class SecurityMockServerConfigurers {
 		}
 
 		/**
-		 * Use the provided {@link OidcUserInfo} when constructing the authenticated user
+		 * Use the provided {@link OidcUserInfo} when constructing the authenticated user.
 		 * @param userInfoBuilderConsumer a {@link Consumer} of a
 		 * {@link OidcUserInfo.Builder}
 		 * @return the {@link OidcLoginMutator} for further configuration
@@ -1052,6 +1058,8 @@ public final class SecurityMockServerConfigurers {
 	}
 
 	/**
+	 * Configures a mock authorized OAuth2 client for use in tests.
+	 *
 	 * @author Josh Cummings
 	 * @since 5.3
 	 */
@@ -1076,7 +1084,7 @@ public final class SecurityMockServerConfigurers {
 		}
 
 		/**
-		 * Use this {@link ClientRegistration}
+		 * Use this {@link ClientRegistration}.
 		 * @param clientRegistration
 		 * @return the
 		 * {@link SecurityMockMvcRequestPostProcessors.OAuth2ClientRequestPostProcessor}
@@ -1088,7 +1096,7 @@ public final class SecurityMockServerConfigurers {
 		}
 
 		/**
-		 * Use this {@link Consumer} to configure a {@link ClientRegistration}
+		 * Use this {@link Consumer} to configure a {@link ClientRegistration}.
 		 * @param clientRegistrationConfigurer the {@link ClientRegistration} configurer
 		 * @return the
 		 * {@link SecurityMockMvcRequestPostProcessors.OAuth2ClientRequestPostProcessor}
@@ -1103,7 +1111,7 @@ public final class SecurityMockServerConfigurers {
 		}
 
 		/**
-		 * Use this as the resource owner's principal name
+		 * Use this as the resource owner's principal name.
 		 * @param principalName the resource owner's principal name
 		 * @return the {@link OAuth2ClientMutator} for further configuration
 		 */
@@ -1114,7 +1122,7 @@ public final class SecurityMockServerConfigurers {
 		}
 
 		/**
-		 * Use this {@link OAuth2AccessToken}
+		 * Use this {@link OAuth2AccessToken}.
 		 * @param accessToken the {@link OAuth2AccessToken} to use
 		 * @return the
 		 * {@link SecurityMockMvcRequestPostProcessors.OAuth2ClientRequestPostProcessor}
@@ -1181,7 +1189,7 @@ public final class SecurityMockServerConfigurers {
 
 		/**
 		 * Used to wrap the {@link OAuth2AuthorizedClientRepository} to provide support
-		 * for testing when the request is wrapped
+		 * for testing when the request is wrapped.
 		 */
 		private static final class TestOAuth2AuthorizedClientManager implements ReactiveOAuth2AuthorizedClientManager {
 
@@ -1218,7 +1226,7 @@ public final class SecurityMockServerConfigurers {
 
 		/**
 		 * Used to wrap the {@link OAuth2AuthorizedClientRepository} to provide support
-		 * for testing when the request is wrapped
+		 * for testing when the request is wrapped.
 		 */
 		static final class TestOAuth2AuthorizedClientRepository implements ServerOAuth2AuthorizedClientRepository {
 

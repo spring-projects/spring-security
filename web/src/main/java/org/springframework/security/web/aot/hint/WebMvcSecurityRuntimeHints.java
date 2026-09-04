@@ -27,7 +27,7 @@ import org.springframework.security.web.access.expression.WebSecurityExpressionR
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 /**
- * {@link RuntimeHintsRegistrar} for WebMVC classes
+ * {@link RuntimeHintsRegistrar} for WebMVC classes.
  *
  * @author Marcus Da Coregio
  * @author Daniel Garnier-Moiroux

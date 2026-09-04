@@ -24,7 +24,7 @@ import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.aot.hint.TypeReference;
 
 /**
- * {@link RuntimeHintsRegistrar} for LDAP Security resources and classes
+ * {@link RuntimeHintsRegistrar} for LDAP Security resources and classes.
  *
  * @author Marcus Da Coregio
  * @since 6.0

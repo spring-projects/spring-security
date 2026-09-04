@@ -95,16 +95,16 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	 */
 	LdapUsernameToDnMapper usernameMapper = new DefaultLdapUsernameToDnMapper("cn=users", "uid");
 
-	/** The DN under which groups are stored */
+	/** The DN under which groups are stored. */
 	private LdapName groupSearchBase = LdapNameBuilder.newInstance("cn=groups").build();
 
-	/** Password attribute name */
+	/** Password attribute name. */
 	private String passwordAttributeName = "userPassword";
 
 	/** The attribute which corresponds to the role name of a group. */
 	private String groupRoleAttributeName = "cn";
 
-	/** The attribute which contains members of a group */
+	/** The attribute which contains members of a group. */
 	private String groupMemberAttributeName = "uniquemember";
 
 	private String rolePrefix = "ROLE_";
@@ -121,7 +121,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
 	private final LdapTemplate template;
 
-	/** Default context mapper used to create a set of roles from a list of attributes */
+	/** Default context mapper used to create a set of roles from a list of attributes. */
 	private AttributesMapper<GrantedAuthority> roleMapper = (attributes) -> {
 		Attribute roleAttr = attributes.get(this.groupRoleAttributeName);
 		NamingEnumeration<?> ne = roleAttr.getAll();
@@ -203,6 +203,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	}
 
 	/**
+	 * Obtains the granted authorities for the given user via the group search.
 	 * @param dn the distinguished name of the entry - may be either relative to the base
 	 * context or a complete DN including the name of the context (either is supported).
 	 * @param username the user whose roles are required.

@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Support for scanning and synthesizing Spring Security parameter annotations.
+ */
 @NullMarked
 package org.springframework.security.core.annotation;
 

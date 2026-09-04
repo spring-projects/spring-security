@@ -103,7 +103,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	private final ApplicationContext context;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @see HttpSecurity#csrf(Customizer)
 	 */
 	public CsrfConfigurer(ApplicationContext context) {

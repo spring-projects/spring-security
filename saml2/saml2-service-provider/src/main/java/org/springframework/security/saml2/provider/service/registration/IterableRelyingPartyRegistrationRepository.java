@@ -18,7 +18,7 @@ package org.springframework.security.saml2.provider.service.registration;
 
 /**
  * An interface that simplifies APIs which require the
- * {@link RelyingPartyRegistrationRepository} to also be {@link Iterable}
+ * {@link RelyingPartyRegistrationRepository} to also be {@link Iterable}.
  *
  * @author Josh Cummings
  * @since 6.4

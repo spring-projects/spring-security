@@ -60,7 +60,7 @@ public class AuthenticatedReactiveAuthorizationManager<T> implements ReactiveAut
 	}
 
 	/**
-	 * Gets an instance of {@link AuthenticatedReactiveAuthorizationManager}
+	 * Gets an instance of {@link AuthenticatedReactiveAuthorizationManager}.
 	 * @param <T>
 	 * @return
 	 */

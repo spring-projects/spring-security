@@ -44,7 +44,7 @@ public class DelegatingAuthenticationFailureHandler implements AuthenticationFai
 	private final AuthenticationFailureHandler defaultHandler;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param handlers a map of the {@link AuthenticationException} class to the
 	 * {@link AuthenticationFailureHandler} that should be used. Each is considered in the
 	 * order they are specified and only the first {@link AuthenticationFailureHandler} is

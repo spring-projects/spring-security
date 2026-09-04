@@ -17,7 +17,9 @@
 package org.springframework.security.oauth2.server.authorization.jackson;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import tools.jackson.databind.annotation.JsonDeserialize;
 
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -31,10 +33,10 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
  * @see OAuth2AuthorizationRequest
  * @see OAuth2AuthorizationRequestDeserializer
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+@JsonTypeInfo(use = Id.CLASS)
 @JsonDeserialize(using = OAuth2AuthorizationRequestDeserializer.class)
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
-		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE,
+		isGetterVisibility = Visibility.NONE)
 abstract class OAuth2AuthorizationRequestMixin {
 
 }

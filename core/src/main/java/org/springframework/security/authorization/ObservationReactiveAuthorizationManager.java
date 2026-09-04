@@ -32,7 +32,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
 /**
- * An {@link ReactiveAuthorizationManager} that observes the authentication
+ * An {@link ReactiveAuthorizationManager} that observes the authentication.
  *
  * @author Josh Cummings
  * @since 6.0
@@ -83,7 +83,7 @@ public final class ObservationReactiveAuthorizationManager<T>
 	}
 
 	/**
-	 * Use the provided convention for reporting observation data
+	 * Use the provided convention for reporting observation data.
 	 * @param convention The provided convention
 	 *
 	 * @since 6.1

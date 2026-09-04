@@ -25,6 +25,9 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.config.debug.SecurityDebugBeanFactoryPostProcessor;
 
 /**
+ * Parses the {@code debug} element to register a
+ * {@link SecurityDebugBeanFactoryPostProcessor}.
+ *
  * @author Luke Taylor
  */
 public class DebugBeanDefinitionParser implements BeanDefinitionParser {

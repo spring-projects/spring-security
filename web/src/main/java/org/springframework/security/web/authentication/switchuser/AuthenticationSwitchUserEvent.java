@@ -37,7 +37,7 @@ public class AuthenticationSwitchUserEvent extends AbstractAuthenticationEvent {
 	private final @Nullable UserDetails targetUser;
 
 	/**
-	 * Switch user context event constructor
+	 * Switch user context event constructor.
 	 * @param authentication The current <code>Authentication</code> object
 	 * @param targetUser The target user
 	 */

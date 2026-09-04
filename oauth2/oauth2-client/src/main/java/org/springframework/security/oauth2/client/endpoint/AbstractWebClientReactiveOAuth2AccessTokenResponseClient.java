@@ -243,7 +243,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 
 	/**
 	 * Sets the {@link BodyExtractor} that will be used to decode the
-	 * {@link OAuth2AccessTokenResponse}
+	 * {@link OAuth2AccessTokenResponse}.
 	 * @param bodyExtractor the {@link BodyExtractor} that will be used to decode the
 	 * {@link OAuth2AccessTokenResponse}
 	 * @since 5.6

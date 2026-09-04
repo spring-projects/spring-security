@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Support for SPNEGO/Kerberos authentication in web applications.
+ */
 @NullMarked
 package org.springframework.security.kerberos.web.authentication;
 

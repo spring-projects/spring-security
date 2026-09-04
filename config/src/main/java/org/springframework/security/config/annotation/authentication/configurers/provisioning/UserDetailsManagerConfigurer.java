@@ -112,7 +112,7 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 		private final C builder;
 
 		/**
-		 * Creates a new instance
+		 * Creates a new instance.
 		 * @param builder the builder to return
 		 */
 		private UserDetailsBuilder(C builder) {

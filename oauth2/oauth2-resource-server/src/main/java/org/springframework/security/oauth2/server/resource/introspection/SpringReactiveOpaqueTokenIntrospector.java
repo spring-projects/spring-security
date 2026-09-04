@@ -74,7 +74,7 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 
 	/**
 	 * Creates a {@code OpaqueTokenReactiveAuthenticationManager} with the provided
-	 * parameters
+	 * parameters.
 	 * @param introspectionUri The introspection endpoint uri
 	 * @param clientId The URL-encoded client id authorized to introspect
 	 * @param clientSecret The URL-encoded client secret authorized to introspect
@@ -91,7 +91,7 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 
 	/**
 	 * Creates a {@code OpaqueTokenReactiveAuthenticationManager} with the provided
-	 * parameters
+	 * parameters.
 	 * @param introspectionUri The introspection endpoint uri
 	 * @param webClient The client for performing the introspection request
 	 */
@@ -231,7 +231,7 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 
 	/**
 	 * Creates a {@code SpringReactiveOpaqueTokenIntrospector.Builder} with the given
-	 * introspection endpoint uri
+	 * introspection endpoint uri.
 	 * @param introspectionUri The introspection endpoint uri
 	 * @return the {@link SpringReactiveOpaqueTokenIntrospector.Builder}
 	 * @since 6.5
@@ -329,7 +329,7 @@ public class SpringReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		}
 
 		/**
-		 * Creates a {@code SpringReactiveOpaqueTokenIntrospector}
+		 * Creates a {@code SpringReactiveOpaqueTokenIntrospector}.
 		 * @return the {@link SpringReactiveOpaqueTokenIntrospector}
 		 * @since 6.5
 		 */

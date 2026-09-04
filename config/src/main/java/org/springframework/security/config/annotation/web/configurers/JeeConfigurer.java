@@ -78,7 +78,7 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends Abstr
 	private Set<String> mappableRoles = new HashSet<>();
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @see HttpSecurity#jee(Customizer)
 	 */
 	public JeeConfigurer() {
@@ -185,7 +185,7 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends Abstr
 	 * Populates a {@link PreAuthenticatedAuthenticationProvider} into
 	 * {@link HttpSecurity#authenticationProvider(org.springframework.security.authentication.AuthenticationProvider)}
 	 * and a {@link Http403ForbiddenEntryPoint} into
-	 * {@link HttpSecurityBuilder#setSharedObject(Class, Object)}
+	 * {@link HttpSecurityBuilder#setSharedObject(Class, Object)}.
 	 *
 	 * @see SecurityConfigurer#init(org.springframework.security.config.annotation.SecurityBuilder)
 	 */

@@ -21,7 +21,7 @@ import java.io.Serializable;
 import jakarta.servlet.http.Cookie;
 
 /**
- * Stores off the values of a cookie in a serializable holder
+ * Stores off the values of a cookie in a serializable holder.
  *
  * @author Ray Krueger
  */

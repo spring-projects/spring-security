@@ -24,7 +24,7 @@ import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.util.Assert;
 
 /**
- * Inserts the Cross-Origin-Opener-Policy header
+ * Inserts the Cross-Origin-Opener-Policy header.
  *
  * @author Marcus Da Coregio
  * @since 5.7
@@ -40,7 +40,7 @@ public final class CrossOriginOpenerPolicyHeaderWriter implements HeaderWriter {
 
 	/**
 	 * Sets the {@link CrossOriginOpenerPolicy} value to be used in the
-	 * {@code Cross-Origin-Opener-Policy} header
+	 * {@code Cross-Origin-Opener-Policy} header.
 	 * @param openerPolicy the {@link CrossOriginOpenerPolicy} to use
 	 */
 	public void setPolicy(CrossOriginOpenerPolicy openerPolicy) {

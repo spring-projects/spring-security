@@ -24,7 +24,7 @@ import tools.jackson.databind.ser.std.StdSerializer;
 import org.springframework.security.web.webauthn.api.Bytes;
 
 /**
- * Jackson serializer for {@link Bytes}
+ * Jackson serializer for {@link Bytes}.
  *
  * @author Rob Winch
  * @since 6.4

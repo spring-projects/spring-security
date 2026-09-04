@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+/**
+ * Support for discovering parameter names annotated with Spring Security parameter
+ * annotations.
+ */
 @NullMarked
 package org.springframework.security.core.parameters;
 

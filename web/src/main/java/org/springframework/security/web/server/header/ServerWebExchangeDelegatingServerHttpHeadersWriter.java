@@ -35,7 +35,7 @@ public final class ServerWebExchangeDelegatingServerHttpHeadersWriter implements
 	private final ServerWebExchangeMatcherEntry<ServerHttpHeadersWriter> headersWriter;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param headersWriter the {@link ServerWebExchangeMatcherEntry} holding a
 	 * {@link ServerWebExchangeMatcher} and the {@link ServerHttpHeadersWriter} to invoke
 	 * if the matcher returns a match.
@@ -49,7 +49,7 @@ public final class ServerWebExchangeDelegatingServerHttpHeadersWriter implements
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param webExchangeMatcher the {@link ServerWebExchangeMatcher} to use. If it
 	 * returns a match, the delegateHeadersWriter is invoked.
 	 * @param delegateHeadersWriter the {@link ServerHttpHeadersWriter} to invoke if the

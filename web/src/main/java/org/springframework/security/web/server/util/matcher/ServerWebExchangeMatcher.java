@@ -32,14 +32,14 @@ import org.springframework.web.server.ServerWebExchange;
 public interface ServerWebExchangeMatcher {
 
 	/**
-	 * Determines if a request matches or not
+	 * Determines if a request matches or not.
 	 * @param exchange
 	 * @return
 	 */
 	Mono<MatchResult> matches(ServerWebExchange exchange);
 
 	/**
-	 * The result of matching
+	 * The result of matching.
 	 */
 	class MatchResult {
 
@@ -57,7 +57,7 @@ public interface ServerWebExchangeMatcher {
 		}
 
 		/**
-		 * Gets potential variables and their values
+		 * Gets potential variables and their values.
 		 * @return
 		 */
 		public Map<String, Object> getVariables() {
@@ -65,7 +65,7 @@ public interface ServerWebExchangeMatcher {
 		}
 
 		/**
-		 * Creates an instance of {@link MatchResult} that is a match with no variables
+		 * Creates an instance of {@link MatchResult} that is a match with no variables.
 		 * @return
 		 */
 		public static Mono<MatchResult> match() {
@@ -75,7 +75,7 @@ public interface ServerWebExchangeMatcher {
 		/**
 		 *
 		 * Creates an instance of {@link MatchResult} that is a match with the specified
-		 * variables
+		 * variables.
 		 * @param variables
 		 * @return
 		 */

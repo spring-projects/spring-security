@@ -55,7 +55,7 @@ public final class OpenSaml5MetadataResolver implements Saml2MetadataResolver {
 	}
 
 	/**
-	 * Set a {@link Consumer} for modifying the OpenSAML {@link EntityDescriptor}
+	 * Set a {@link Consumer} for modifying the OpenSAML {@link EntityDescriptor}.
 	 * @param entityDescriptorCustomizer a consumer that accepts an
 	 * {@link EntityDescriptorParameters}
 	 * @since 5.7
@@ -86,7 +86,7 @@ public final class OpenSaml5MetadataResolver implements Saml2MetadataResolver {
 
 	/**
 	 * A tuple containing an OpenSAML {@link EntityDescriptor} and its associated
-	 * {@link RelyingPartyRegistration}
+	 * {@link RelyingPartyRegistration}.
 	 *
 	 * @since 5.7
 	 */

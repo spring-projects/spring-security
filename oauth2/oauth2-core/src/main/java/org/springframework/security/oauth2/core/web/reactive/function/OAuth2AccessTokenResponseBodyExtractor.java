@@ -43,7 +43,7 @@ import org.springframework.web.reactive.function.BodyExtractors;
 
 /**
  * Provides a way to create an {@link OAuth2AccessTokenResponse} from a
- * {@link ReactiveHttpInputMessage}
+ * {@link ReactiveHttpInputMessage}.
  *
  * @author Rob Winch
  * @since 5.1

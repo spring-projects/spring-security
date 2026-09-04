@@ -20,7 +20,7 @@ import org.springframework.expression.EvaluationContext;
 
 /**
  *
- * /** Allows post processing the {@link EvaluationContext}
+ * /** Allows post processing the {@link EvaluationContext}.
  *
  * <p>
  * This API is intentionally kept package scope as it may evolve over time.

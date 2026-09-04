@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.security.authorization.AuthorizationResult;
 
 /**
- * An interface used to define a strategy to handle denied method invocations
+ * An interface used to define a strategy to handle denied method invocations.
  *
  * @author Marcus da Coregio
  * @since 6.3

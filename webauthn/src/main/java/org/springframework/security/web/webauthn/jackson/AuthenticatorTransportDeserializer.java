@@ -25,7 +25,7 @@ import tools.jackson.databind.deser.std.StdDeserializer;
 import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
 
 /**
- * Jackson deserializer for {@link AuthenticatorTransport}
+ * Jackson deserializer for {@link AuthenticatorTransport}.
  *
  * @author Rob Winch
  * @since 6.4

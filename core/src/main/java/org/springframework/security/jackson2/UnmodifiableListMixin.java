@@ -20,6 +20,8 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
@@ -39,13 +41,13 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * @deprecated as of 7.0
  */
 @SuppressWarnings("removal")
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+@JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY)
 @JsonDeserialize(using = UnmodifiableListDeserializer.class)
 @Deprecated(forRemoval = true)
 class UnmodifiableListMixin {
 
 	/**
-	 * Mixin Constructor
+	 * Mixin Constructor.
 	 * @param s the Set
 	 */
 	@JsonCreator

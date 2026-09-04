@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Support for delegating application events to listeners registered at runtime.
+ */
 @NullMarked
 package org.springframework.security.context;
 

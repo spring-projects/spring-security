@@ -31,7 +31,7 @@ import org.springframework.web.reactive.function.BodyExtractor;
 public abstract class OAuth2BodyExtractors {
 
 	/**
-	 * Extractor to decode an {@link OAuth2AccessTokenResponse}
+	 * Extractor to decode an {@link OAuth2AccessTokenResponse}.
 	 * @return a BodyExtractor for {@link OAuth2AccessTokenResponse}
 	 */
 	public static BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> oauth2AccessTokenResponse() {

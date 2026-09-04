@@ -30,37 +30,37 @@ package org.springframework.security.oauth2.client.oidc.authentication.logout;
 public final class LogoutTokenClaimNames {
 
 	/**
-	 * {@code jti} - the JTI identifier
+	 * {@code jti} - the JTI identifier.
 	 */
 	public static final String JTI = "jti";
 
 	/**
-	 * {@code iss} - the Issuer identifier
+	 * {@code iss} - the Issuer identifier.
 	 */
 	public static final String ISS = "iss";
 
 	/**
-	 * {@code sub} - the Subject identifier
+	 * {@code sub} - the Subject identifier.
 	 */
 	public static final String SUB = "sub";
 
 	/**
-	 * {@code aud} - the Audience(s) that the ID Token is intended for
+	 * {@code aud} - the Audience(s) that the ID Token is intended for.
 	 */
 	public static final String AUD = "aud";
 
 	/**
-	 * {@code iat} - the time at which the ID Token was issued
+	 * {@code iat} - the time at which the ID Token was issued.
 	 */
 	public static final String IAT = "iat";
 
 	/**
-	 * {@code events} - a JSON object that identifies this token as a logout token
+	 * {@code events} - a JSON object that identifies this token as a logout token.
 	 */
 	public static final String EVENTS = "events";
 
 	/**
-	 * {@code sid} - the session id for the OIDC provider
+	 * {@code sid} - the session id for the OIDC provider.
 	 */
 	public static final String SID = "sid";
 

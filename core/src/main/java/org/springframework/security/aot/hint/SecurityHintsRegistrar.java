@@ -57,7 +57,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 public interface SecurityHintsRegistrar {
 
 	/**
-	 * Register hints after preparing them through Security's infrastructural beans
+	 * Register hints after preparing them through Security's infrastructural beans.
 	 * @param hints the registration target for any AOT hints
 	 * @param beanFactory the bean factory
 	 */

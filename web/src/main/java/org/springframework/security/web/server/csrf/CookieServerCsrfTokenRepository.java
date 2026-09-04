@@ -126,7 +126,7 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	}
 
 	/**
-	 * Sets the cookie name
+	 * Sets the cookie name.
 	 * @param cookieName The cookie name
 	 */
 	public void setCookieName(String cookieName) {
@@ -135,7 +135,7 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	}
 
 	/**
-	 * Sets the parameter name
+	 * Sets the parameter name.
 	 * @param parameterName The parameter name
 	 */
 	public void setParameterName(String parameterName) {
@@ -144,7 +144,7 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	}
 
 	/**
-	 * Sets the header name
+	 * Sets the header name.
 	 * @param headerName The header name
 	 */
 	public void setHeaderName(String headerName) {
@@ -153,7 +153,7 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	}
 
 	/**
-	 * Sets the cookie path
+	 * Sets the cookie path.
 	 * @param cookiePath The cookie path
 	 */
 	public void setCookiePath(String cookiePath) {

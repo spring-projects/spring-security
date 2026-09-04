@@ -17,6 +17,8 @@
 package org.springframework.security.crypto.encrypt;
 
 /**
+ * A holder for an RSA public key.
+ *
  * @author Dave Syer
  * @since 6.3
  */

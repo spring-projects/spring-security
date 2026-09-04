@@ -40,7 +40,7 @@ public class HttpStatusServerAccessDeniedHandler implements ServerAccessDeniedHa
 	private final HttpStatus httpStatus;
 
 	/**
-	 * Creates an instance with the provided status
+	 * Creates an instance with the provided status.
 	 * @param httpStatus the status to use
 	 */
 	public HttpStatusServerAccessDeniedHandler(HttpStatus httpStatus) {

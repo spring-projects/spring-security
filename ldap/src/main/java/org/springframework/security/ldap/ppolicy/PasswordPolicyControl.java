@@ -37,7 +37,7 @@ import org.jspecify.annotations.Nullable;
 public class PasswordPolicyControl implements Control {
 
 	/**
-	 * OID of the Password Policy Control
+	 * OID of the Password Policy Control.
 	 */
 	public static final String OID = "1.3.6.1.4.1.42.2.27.8.5.1";
 

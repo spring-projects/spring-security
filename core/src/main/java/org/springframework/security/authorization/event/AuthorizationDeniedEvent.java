@@ -35,6 +35,8 @@ import org.springframework.security.core.Authentication;
 public class AuthorizationDeniedEvent<T> extends AuthorizationEvent implements ResolvableTypeProvider {
 
 	/**
+	 * Creates a new instance using the given authentication, object, and authorization
+	 * result.
 	 * @since 6.4
 	 */
 	public AuthorizationDeniedEvent(Supplier<Authentication> authentication, T object, AuthorizationResult result) {
@@ -42,7 +44,7 @@ public class AuthorizationDeniedEvent<T> extends AuthorizationEvent implements R
 	}
 
 	/**
-	 * Get the object to which access was requested
+	 * Get the object to which access was requested.
 	 * @return the object to which access was requested
 	 * @since 5.8
 	 */

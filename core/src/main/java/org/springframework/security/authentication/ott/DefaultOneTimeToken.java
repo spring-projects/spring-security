@@ -22,7 +22,7 @@ import java.time.Instant;
 import org.springframework.util.Assert;
 
 /**
- * A default implementation of {@link OneTimeToken}
+ * A default implementation of {@link OneTimeToken}.
  *
  * @author Marcus da Coregio
  * @since 6.4

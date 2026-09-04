@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Argon2 password encoding support.
+ */
 @NullMarked
 package org.springframework.security.crypto.argon2;
 

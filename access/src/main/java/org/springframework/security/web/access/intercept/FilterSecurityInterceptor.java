@@ -54,7 +54,7 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 	private boolean observeOncePerRequest = false;
 
 	/**
-	 * Not used (we rely on IoC container lifecycle services instead)
+	 * Not used (we rely on IoC container lifecycle services instead).
 	 * @param arg0 ignored
 	 *
 	 */
@@ -63,7 +63,7 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 	}
 
 	/**
-	 * Not used (we rely on IoC container lifecycle services instead)
+	 * Not used (we rely on IoC container lifecycle services instead).
 	 */
 	@Override
 	public void destroy() {

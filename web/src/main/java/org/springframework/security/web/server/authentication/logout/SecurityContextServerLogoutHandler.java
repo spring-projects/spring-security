@@ -26,7 +26,7 @@ import org.springframework.util.Assert;
 
 /**
  * A {@link ServerLogoutHandler} which removes the SecurityContext using the provided
- * {@link ServerSecurityContextRepository}
+ * {@link ServerSecurityContextRepository}.
  *
  * @author Rob Winch
  * @since 5.0

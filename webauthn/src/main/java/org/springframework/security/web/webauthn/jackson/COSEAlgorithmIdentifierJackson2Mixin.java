@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.security.web.webauthn.api.COSEAlgorithmIdentifier;
 
 /**
- * Jackson mixin for {@link COSEAlgorithmIdentifier}
+ * Jackson mixin for {@link COSEAlgorithmIdentifier}.
  *
  * @author Rob Winch
  * @since 6.4

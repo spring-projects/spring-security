@@ -33,7 +33,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 /**
- * Provides factory methods for creating {@code OAuth2TokenValidator<Jwt>}
+ * Provides factory methods for creating {@code OAuth2TokenValidator<Jwt>}.
  *
  * @author Josh Cummings
  * @author Rob Winch
@@ -222,7 +222,7 @@ public final class JwtValidators {
 		}
 
 		/**
-		 * Build the validator
+		 * Build the validator.
 		 * @return the RFC 9068 validator
 		 */
 		public OAuth2TokenValidator<Jwt> build() {

@@ -83,7 +83,7 @@ public final class AuthorizeReturnObjectHintsRegistrar implements SecurityHintsR
 	}
 
 	/**
-	 * Construct this registrar
+	 * Construct this registrar.
 	 * @param proxyFactory the proxy factory to use to produce the proxy class
 	 * implementations to be registered
 	 * @param classes the classes to proxy

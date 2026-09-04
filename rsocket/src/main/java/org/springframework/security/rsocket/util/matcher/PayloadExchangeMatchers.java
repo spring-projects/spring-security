@@ -19,6 +19,8 @@ package org.springframework.security.rsocket.util.matcher;
 import org.springframework.security.rsocket.api.PayloadExchangeType;
 
 /**
+ * Static factory methods for creating common {@link PayloadExchangeMatcher} instances.
+ *
  * @author Rob Winch
  */
 public final class PayloadExchangeMatchers {
