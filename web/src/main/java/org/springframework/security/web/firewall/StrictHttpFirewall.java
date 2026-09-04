@@ -657,7 +657,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 	}
 
 	/**
-	 * Provides the existing encoded url blocklist which can add/remove entries from
+	 * Provides the existing encoded url blocklist which can add/remove entries from.
 	 * @return the existing encoded url blocklist, never null
 	 */
 	public Set<String> getEncodedUrlBlocklist() {
@@ -665,7 +665,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 	}
 
 	/**
-	 * Provides the existing decoded url blocklist which can add/remove entries from
+	 * Provides the existing decoded url blocklist which can add/remove entries from.
 	 * @return the existing decoded url blocklist, never null
 	 */
 	public Set<String> getDecodedUrlBlocklist() {
@@ -673,7 +673,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 	}
 
 	/**
-	 * Provides the existing encoded url blocklist which can add/remove entries from
+	 * Provides the existing encoded url blocklist which can add/remove entries from.
 	 * @return the existing encoded url blocklist, never null
 	 * @deprecated Use {@link #getEncodedUrlBlocklist()} instead
 	 */
@@ -683,7 +683,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 	}
 
 	/**
-	 * Provides the existing decoded url blocklist which can add/remove entries from
+	 * Provides the existing decoded url blocklist which can add/remove entries from.
 	 * @return the existing decoded url blocklist, never null
 	 *
 	 */

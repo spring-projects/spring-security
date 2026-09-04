@@ -90,7 +90,7 @@ final class BaseOpenSamlLogoutRequestResolver implements Saml2LogoutRequestResol
 	};
 
 	/**
-	 * Construct a {@link BaseOpenSamlLogoutRequestResolver}
+	 * Construct a {@link BaseOpenSamlLogoutRequestResolver}.
 	 */
 	BaseOpenSamlLogoutRequestResolver(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver,
 			OpenSamlOperations saml) {

@@ -39,7 +39,7 @@ public final class CrossOriginOpenerPolicyServerHttpHeadersWriter implements Ser
 
 	/**
 	 * Sets the {@link CrossOriginOpenerPolicy} value to be used in the
-	 * {@code Cross-Origin-Opener-Policy} header
+	 * {@code Cross-Origin-Opener-Policy} header.
 	 * @param openerPolicy the {@link CrossOriginOpenerPolicy} to use
 	 */
 	public void setPolicy(CrossOriginOpenerPolicy openerPolicy) {

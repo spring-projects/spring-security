@@ -93,6 +93,7 @@ public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor, 
 	}
 
 	/**
+	 * Sets the message source to use for resolving error messages.
 	 * @since 5.5
 	 */
 	@Override

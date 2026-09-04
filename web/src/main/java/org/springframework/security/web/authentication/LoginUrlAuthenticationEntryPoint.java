@@ -90,6 +90,7 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	/**
+	 * Creates a new instance using the given login form URL.
 	 * @param loginFormUrl URL where the login page can be found. Should either be
 	 * relative to the web-app context path (include a leading {@code /}) or an absolute
 	 * URL.

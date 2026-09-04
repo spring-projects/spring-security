@@ -46,7 +46,7 @@ public final class OpenSaml5AuthenticationRequestResolver implements Saml2Authen
 	private final BaseOpenSamlAuthenticationRequestResolver delegate;
 
 	/**
-	 * Construct an {@link OpenSaml5AuthenticationRequestResolver}
+	 * Construct an {@link OpenSaml5AuthenticationRequestResolver}.
 	 * @param registrations a repository for relying and asserting party configuration
 	 * @since 6.1
 	 */
@@ -60,7 +60,7 @@ public final class OpenSaml5AuthenticationRequestResolver implements Saml2Authen
 	}
 
 	/**
-	 * Construct a {@link OpenSaml5AuthenticationRequestResolver}
+	 * Construct a {@link OpenSaml5AuthenticationRequestResolver}.
 	 */
 	public OpenSaml5AuthenticationRequestResolver(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
 		this.delegate = new BaseOpenSamlAuthenticationRequestResolver(relyingPartyRegistrationResolver,
@@ -73,7 +73,7 @@ public final class OpenSaml5AuthenticationRequestResolver implements Saml2Authen
 	}
 
 	/**
-	 * Set a {@link Consumer} for modifying the OpenSAML {@link AuthnRequest}
+	 * Set a {@link Consumer} for modifying the OpenSAML {@link AuthnRequest}.
 	 * @param contextConsumer a consumer that accepts an {@link AuthnRequestContext}
 	 */
 	public void setAuthnRequestCustomizer(Consumer<AuthnRequestContext> contextConsumer) {
@@ -86,7 +86,7 @@ public final class OpenSaml5AuthenticationRequestResolver implements Saml2Authen
 	/**
 	 * Set the {@link RequestMatcher} to use for setting the
 	 * {@link BaseOpenSamlAuthenticationRequestResolver#setRequestMatcher(RequestMatcher)}
-	 * (RequestMatcher)}
+	 * (RequestMatcher)}.
 	 * @param requestMatcher the {@link RequestMatcher} to identify authentication
 	 * requests.
 	 * @since 5.8
@@ -97,7 +97,7 @@ public final class OpenSaml5AuthenticationRequestResolver implements Saml2Authen
 	}
 
 	/**
-	 * Use this {@link Clock} for generating the issued {@link Instant}
+	 * Use this {@link Clock} for generating the issued {@link Instant}.
 	 * @param clock the {@link Clock} to use
 	 */
 	public void setClock(Clock clock) {
@@ -106,7 +106,7 @@ public final class OpenSaml5AuthenticationRequestResolver implements Saml2Authen
 	}
 
 	/**
-	 * Use this {@link Converter} to compute the RelayState
+	 * Use this {@link Converter} to compute the RelayState.
 	 * @param relayStateResolver the {@link Converter} to use
 	 * @since 5.8
 	 */

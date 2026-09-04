@@ -24,7 +24,7 @@ import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEnti
 
 /**
  * An API for <a href="https://www.w3.org/TR/webauthn-3/#sctn-rp-operations">WebAuthn
- * Relying Party Operations</a>
+ * Relying Party Operations</a>.
  *
  * @author Rob Winch
  * @since 6.4
@@ -62,7 +62,7 @@ public interface WebAuthnRelyingPartyOperations {
 	PublicKeyCredentialRequestOptions createCredentialRequestOptions(PublicKeyCredentialRequestOptionsRequest request);
 
 	/**
-	 * Authenticates the {@link RelyingPartyAuthenticationRequest} passed in
+	 * Authenticates the {@link RelyingPartyAuthenticationRequest} passed in.
 	 * @param request the {@link RelyingPartyAuthenticationRequest}
 	 * @return the principal name (e.g. username) if authentication was successful
 	 * @throws RuntimeException if authentication fails

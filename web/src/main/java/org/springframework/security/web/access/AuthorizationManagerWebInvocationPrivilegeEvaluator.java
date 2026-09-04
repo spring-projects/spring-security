@@ -29,7 +29,7 @@ import org.springframework.web.context.ServletContextAware;
 
 /**
  * An implementation of {@link WebInvocationPrivilegeEvaluator} which delegates the checks
- * to an instance of {@link AuthorizationManager}
+ * to an instance of {@link AuthorizationManager}.
  *
  * @author Marcus Da Coregio
  * @since 5.5.5
@@ -88,7 +88,7 @@ public final class AuthorizationManagerWebInvocationPrivilegeEvaluator
 
 		/**
 		 * Return the {@link HttpServletRequest} that is passed into the
-		 * {@link AuthorizationManager}
+		 * {@link AuthorizationManager}.
 		 * @param request the {@link HttpServletRequest} created by the
 		 * {@link WebInvocationPrivilegeEvaluator}
 		 * @return the {@link HttpServletRequest} that is passed into the

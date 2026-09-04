@@ -114,7 +114,7 @@ public class SwitchUserWebFilter implements WebFilter {
 	private ServerWebExchangeMatcher exitUserMatcher = createMatcher("/logout/impersonate");
 
 	/**
-	 * Creates a filter for the user context switching
+	 * Creates a filter for the user context switching.
 	 * @param userDetailsService The <tt>UserDetailsService</tt> which will be used to
 	 * load information for the user that is being switched to.
 	 * @param successHandler Used to define custom behaviour on a successful switch or
@@ -134,7 +134,7 @@ public class SwitchUserWebFilter implements WebFilter {
 	}
 
 	/**
-	 * Creates a filter for the user context switching
+	 * Creates a filter for the user context switching.
 	 * @param userDetailsService The <tt>UserDetailsService</tt> which will be used to
 	 * load information for the user that is being switched to.
 	 * @param successTargetUrl Sets the URL to go to after a successful switch / exit user

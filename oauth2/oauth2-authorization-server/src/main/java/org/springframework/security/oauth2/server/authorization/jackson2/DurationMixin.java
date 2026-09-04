@@ -19,10 +19,12 @@ package org.springframework.security.oauth2.server.authorization.jackson2;
 import java.time.Duration;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 /**
  * This mixin class is used to serialize/deserialize {@link Duration}.
@@ -32,10 +34,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @see Duration
  * @deprecated as of 7.0
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.NONE, getterVisibility = JsonAutoDetect.Visibility.NONE,
-		isGetterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE,
-		creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonTypeInfo(use = Id.CLASS)
+@JsonAutoDetect(fieldVisibility = Visibility.NONE, getterVisibility = Visibility.NONE,
+		isGetterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, creatorVisibility = Visibility.NONE)
 @Deprecated(forRemoval = true)
 abstract class DurationMixin {
 

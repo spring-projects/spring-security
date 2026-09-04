@@ -36,7 +36,7 @@ import org.springframework.util.Assert;
 /**
  * A Spring Security-aware <code>HttpServletRequestWrapper</code>, which uses the
  * <code>SecurityContext</code>-defined <code>Authentication</code> object to implement
- * the servlet API security methods:
+ * the servlet API security methods:.
  *
  * <ul>
  * <li>{@link #getUserPrincipal()}</li>
@@ -73,7 +73,7 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param request the original {@link HttpServletRequest}
 	 * @param trustResolver the {@link AuthenticationTrustResolver} to use. Cannot be
 	 * null.
@@ -89,7 +89,7 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 	}
 
 	/**
-	 * Obtain the current active <code>Authentication</code>
+	 * Obtain the current active <code>Authentication</code>.
 	 * @return the authentication object or <code>null</code>
 	 */
 	private @Nullable Authentication getAuthentication() {

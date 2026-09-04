@@ -21,7 +21,7 @@ import java.io.Serial;
 import org.springframework.security.core.AuthenticationException;
 
 /**
- * Indicates that the provided password is compromised
+ * Indicates that the provided password is compromised.
  *
  * @author Marcus da Coregio
  * @since 6.3

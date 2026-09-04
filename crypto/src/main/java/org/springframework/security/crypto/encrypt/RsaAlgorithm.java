@@ -17,6 +17,8 @@
 package org.springframework.security.crypto.encrypt;
 
 /**
+ * The RSA algorithm and padding scheme to use when encrypting or decrypting.
+ *
  * @author Dave Syer
  * @since 6.3
  */

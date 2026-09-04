@@ -19,7 +19,7 @@ package org.springframework.security.saml2.provider.service.authentication.logou
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 
 /**
- * A holder of the parameters needed to invoke {@link Saml2LogoutResponseValidator}
+ * A holder of the parameters needed to invoke {@link Saml2LogoutResponseValidator}.
  *
  * @author Josh Cummings
  * @since 5.6
@@ -33,7 +33,7 @@ public class Saml2LogoutResponseValidatorParameters {
 	private final RelyingPartyRegistration registration;
 
 	/**
-	 * Construct a {@link Saml2LogoutRequestValidatorParameters}
+	 * Construct a {@link Saml2LogoutRequestValidatorParameters}.
 	 * @param response the SAML 2.0 Logout Response received from the asserting party
 	 * @param request the SAML 2.0 Logout Request send by this application
 	 * @param registration the associated {@link RelyingPartyRegistration}
@@ -62,7 +62,7 @@ public class Saml2LogoutResponseValidatorParameters {
 	}
 
 	/**
-	 * The {@link RelyingPartyRegistration} representing this relying party
+	 * The {@link RelyingPartyRegistration} representing this relying party.
 	 * @return the relying party
 	 */
 	public RelyingPartyRegistration getRelyingPartyRegistration() {

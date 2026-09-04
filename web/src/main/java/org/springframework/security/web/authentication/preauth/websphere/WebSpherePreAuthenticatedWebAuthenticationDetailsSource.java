@@ -74,6 +74,7 @@ public class WebSpherePreAuthenticatedWebAuthenticationDetailsSource implements
 	}
 
 	/**
+	 * Sets the {@code Attributes2GrantedAuthoritiesMapper} to use.
 	 * @param mapper The Attributes2GrantedAuthoritiesMapper to use for converting the WAS
 	 * groups to authorities
 	 */

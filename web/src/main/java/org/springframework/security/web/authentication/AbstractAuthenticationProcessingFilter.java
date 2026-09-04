@@ -161,6 +161,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	private boolean mfaEnabled;
 
 	/**
+	 * Creates a new instance.
 	 * @param defaultFilterProcessesUrl the default value for <tt>filterProcessesUrl</tt>.
 	 */
 	protected AbstractAuthenticationProcessingFilter(String defaultFilterProcessesUrl) {
@@ -168,7 +169,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param requiresAuthenticationRequestMatcher the {@link RequestMatcher} used to
 	 * determine if authentication is required. Cannot be null.
 	 */
@@ -179,7 +180,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 
 	/**
 	 * Creates a new instance with a default filterProcessesUrl and an
-	 * {@link AuthenticationManager}
+	 * {@link AuthenticationManager}.
 	 * @param defaultFilterProcessesUrl the default value for <tt>filterProcessesUrl</tt>.
 	 * @param authenticationManager the {@link AuthenticationManager} used to authenticate
 	 * an {@link Authentication} object. Cannot be null.
@@ -192,7 +193,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 
 	/**
 	 * Creates a new instance with a {@link RequestMatcher} and an
-	 * {@link AuthenticationManager}
+	 * {@link AuthenticationManager}.
 	 * @param requiresAuthenticationRequestMatcher the {@link RequestMatcher} used to
 	 * determine if authentication is required. Cannot be null.
 	 * @param authenticationManager the {@link AuthenticationManager} used to authenticate
@@ -441,7 +442,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	}
 
 	/**
-	 * Sets the URL that determines if authentication is required
+	 * Sets the URL that determines if authentication is required.
 	 * @param filterProcessesUrl
 	 */
 	public void setFilterProcessesUrl(String filterProcessesUrl) {

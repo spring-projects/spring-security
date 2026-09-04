@@ -33,14 +33,14 @@ public interface SecurityWebFilterChain {
 
 	/**
 	 * Determines if this {@link SecurityWebFilterChain} matches the provided
-	 * {@link ServerWebExchange}
+	 * {@link ServerWebExchange}.
 	 * @param exchange the {@link ServerWebExchange}
 	 * @return true if it matches, else false
 	 */
 	Mono<Boolean> matches(ServerWebExchange exchange);
 
 	/**
-	 * The {@link WebFilter} to use
+	 * The {@link WebFilter} to use.
 	 * @return
 	 */
 	Flux<WebFilter> getWebFilters();

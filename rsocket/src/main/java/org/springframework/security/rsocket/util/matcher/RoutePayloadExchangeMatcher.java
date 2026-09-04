@@ -29,6 +29,8 @@ import org.springframework.util.RouteMatcher;
 // FIXME: Pay attention to the package this goes into. It requires spring-messaging for the MetadataExtractor.
 
 /**
+ * A {@link PayloadExchangeMatcher} that matches based on the request's route.
+ *
  * @author Rob Winch
  * @since 5.2
  */

@@ -18,6 +18,7 @@ package org.springframework.security.oauth2.server.authorization.jackson2;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 /**
  * This mixin class is used to serialize/deserialize {@link String} array.
@@ -28,7 +29,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @deprecated as of 7.0
  */
 @Deprecated(forRemoval = true)
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+@JsonTypeInfo(use = Id.CLASS)
 abstract class StringArrayMixin {
 
 	@JsonCreator

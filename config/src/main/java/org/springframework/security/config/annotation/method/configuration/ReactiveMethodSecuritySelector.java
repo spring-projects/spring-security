@@ -30,6 +30,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 /**
+ * Selects the imports to register for {@link EnableReactiveMethodSecurity}.
+ *
  * @author Rob Winch
  * @author Evgeniy Cheban
  * @since 5.0

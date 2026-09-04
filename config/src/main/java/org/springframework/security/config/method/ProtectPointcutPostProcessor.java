@@ -183,6 +183,8 @@ final class ProtectPointcutPostProcessor implements BeanPostProcessor {
 	}
 
 	/**
+	 * Replaces the textual boolean operators in the given pointcut expression with their
+	 * symbolic equivalents.
 	 * @see org.springframework.aop.aspectj.AspectJExpressionPointcut#replaceBooleanOperators
 	 */
 	private String replaceBooleanOperators(String pcExpr) {

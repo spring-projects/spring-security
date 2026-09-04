@@ -71,6 +71,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	}
 
 	/**
+	 * Returns the attributes2grantedAuthoritiesMap.
 	 * @return Returns the attributes2grantedAuthoritiesMap.
 	 */
 	public Map<String, Collection<GrantedAuthority>> getAttributes2grantedAuthoritiesMap() {
@@ -78,6 +79,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	}
 
 	/**
+	 * Sets the attributes2grantedAuthoritiesMap to use.
 	 * @param attributes2grantedAuthoritiesMap The attributes2grantedAuthoritiesMap to
 	 * set.
 	 */
@@ -89,7 +91,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	}
 
 	/**
-	 * Preprocess the given map to convert all the values to GrantedAuthority collections
+	 * Preprocess the given map to convert all the values to GrantedAuthority collections.
 	 * @param orgMap The map to process
 	 * @return the processed Map
 	 */
@@ -104,7 +106,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	}
 
 	/**
-	 * Convert the given value to a collection of Granted Authorities
+	 * Convert the given value to a collection of Granted Authorities.
 	 * @param value The value to convert to a GrantedAuthority Collection
 	 * @return Collection containing the GrantedAuthority Collection
 	 */
@@ -163,7 +165,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	}
 
 	/**
-	 *
+	 * Returns the mappable attributes.
 	 * @see org.springframework.security.core.authority.mapping.MappableAttributesRetriever#getMappableAttributes()
 	 */
 	@Override
@@ -172,6 +174,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	}
 
 	/**
+	 * Returns the stringSeparator.
 	 * @return Returns the stringSeparator.
 	 */
 	public String getStringSeparator() {
@@ -179,6 +182,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	}
 
 	/**
+	 * Sets the stringSeparator to use.
 	 * @param stringSeparator The stringSeparator to set.
 	 */
 	public void setStringSeparator(String stringSeparator) {

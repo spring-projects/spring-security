@@ -31,7 +31,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public interface RedirectStrategy {
 
 	/**
-	 * Performs a redirect to the supplied URL
+	 * Performs a redirect to the supplied URL.
 	 * @param request the current request
 	 * @param response the response to redirect
 	 * @param url the target URL to redirect to, for example "/login"

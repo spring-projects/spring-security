@@ -140,7 +140,7 @@ public class JdbcUserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B
 	}
 
 	/**
-	 * Defines the {@link UserCache} to use
+	 * Defines the {@link UserCache} to use.
 	 * @param userCache the {@link UserCache} to use
 	 * @return the {@link JdbcUserDetailsManagerConfigurer} for further customizations
 	 */

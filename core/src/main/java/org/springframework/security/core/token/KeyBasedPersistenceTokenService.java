@@ -137,6 +137,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 	}
 
 	/**
+	 * Generates a pseudo random number.
 	 * @return a pseudo random number (hex encoded)
 	 */
 	private String generatePseudoRandomNumber() {
@@ -150,6 +151,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 	}
 
 	/**
+	 * Sets the server secret to use.
 	 * @param serverSecret the new secret, which can contain a ":" if desired (never being
 	 * sent to the client)
 	 */
@@ -162,6 +164,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 	}
 
 	/**
+	 * Sets the number of bytes to use for the pseudo random number.
 	 * @param pseudoRandomNumberBytes changes the number of bytes issued (must be &gt;= 0;
 	 * defaults to 256)
 	 */

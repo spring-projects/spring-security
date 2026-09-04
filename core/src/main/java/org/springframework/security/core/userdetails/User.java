@@ -207,7 +207,7 @@ public class User implements UserDetails, CredentialsContainer {
 	}
 
 	/**
-	 * Creates a UserBuilder with a specified username
+	 * Creates a UserBuilder with a specified username.
 	 * @param username the username to use
 	 * @return the UserBuilder
 	 */
@@ -216,7 +216,7 @@ public class User implements UserDetails, CredentialsContainer {
 	}
 
 	/**
-	 * Creates a UserBuilder
+	 * Creates a UserBuilder.
 	 * @return the UserBuilder
 	 */
 	public static UserBuilder builder() {
@@ -344,7 +344,7 @@ public class User implements UserDetails, CredentialsContainer {
 		private Function<@Nullable String, @Nullable String> passwordEncoder = (password) -> password;
 
 		/**
-		 * Creates a new instance
+		 * Creates a new instance.
 		 */
 		private UserBuilder() {
 		}

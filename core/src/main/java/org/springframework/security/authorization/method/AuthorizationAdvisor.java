@@ -23,7 +23,7 @@ import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.core.Ordered;
 
 /**
- * An interface that indicates method security advice
+ * An interface that indicates method security advice.
  *
  * @author Josh Cummings
  * @since 6.3

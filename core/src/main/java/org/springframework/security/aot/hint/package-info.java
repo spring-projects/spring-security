@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Ahead-of-time hints for Spring Security's core classes.
+ */
 @NullMarked
 package org.springframework.security.aot.hint;
 

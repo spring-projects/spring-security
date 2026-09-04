@@ -38,7 +38,7 @@ public final class DefaultCsrfToken implements CsrfToken {
 	private final String headerName;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param headerName the HTTP header name to use
 	 * @param parameterName the HTTP parameter name to use
 	 * @param token the value of the token (i.e. expected value of the HTTP parameter of

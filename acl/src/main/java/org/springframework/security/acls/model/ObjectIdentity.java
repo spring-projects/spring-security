@@ -37,6 +37,7 @@ import org.jspecify.annotations.Nullable;
 public interface ObjectIdentity extends Serializable {
 
 	/**
+	 * Compares this <tt>ObjectIdentity</tt> to the given object for equality.
 	 * @param obj to be compared
 	 * @return <tt>true</tt> if the objects are equal, <tt>false</tt> otherwise
 	 * @see Object#equals(Object)
@@ -67,6 +68,7 @@ public interface ObjectIdentity extends Serializable {
 	String getType();
 
 	/**
+	 * Returns a hash code representation of the <tt>ObjectIdentity</tt>.
 	 * @return a hash code representation of the <tt>ObjectIdentity</tt>
 	 * @see Object#hashCode()
 	 */

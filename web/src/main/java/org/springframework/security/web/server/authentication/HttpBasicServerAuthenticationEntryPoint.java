@@ -51,7 +51,7 @@ public class HttpBasicServerAuthenticationEntryPoint implements ServerAuthentica
 	}
 
 	/**
-	 * Sets the realm to be used
+	 * Sets the realm to be used.
 	 * @param realm the realm. Default is "Realm"
 	 */
 	public void setRealm(String realm) {

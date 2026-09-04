@@ -34,6 +34,8 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
 import org.springframework.util.StringUtils;
 
 /**
+ * Parses the {@code form-login} element.
+ *
  * @author Luke Taylor
  * @author Ben Alex
  * @author Rob Winch

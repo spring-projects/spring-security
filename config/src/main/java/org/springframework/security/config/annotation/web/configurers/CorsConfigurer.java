@@ -49,7 +49,7 @@ public class CorsConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHt
 	private PreFlightRequestHandler preFlightRequestHandler;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 *
 	 * @see HttpSecurity#cors(Customizer)
 	 */
@@ -148,7 +148,7 @@ public class CorsConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHt
 
 		/**
 		 * This needs to be isolated into a separate class as Spring MVC is an optional
-		 * dependency and will potentially cause ClassLoading issues
+		 * dependency and will potentially cause ClassLoading issues.
 		 * @param context
 		 * @return
 		 */

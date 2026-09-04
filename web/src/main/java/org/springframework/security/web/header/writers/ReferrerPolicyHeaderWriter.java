@@ -90,6 +90,7 @@ public class ReferrerPolicyHeaderWriter implements HeaderWriter {
 	}
 
 	/**
+	 * Writes the Referrer-Policy header to the response.
 	 * @see org.springframework.security.web.header.HeaderWriter#writeHeaders(HttpServletRequest,
 	 * HttpServletResponse)
 	 */

@@ -17,6 +17,8 @@
 package org.springframework.security.integration.multiannotation;
 
 /**
+ * Default implementation of {@link SecuredService}.
+ *
  * @author Luke Taylor
  */
 public class SecuredServiceImpl implements SecuredService {

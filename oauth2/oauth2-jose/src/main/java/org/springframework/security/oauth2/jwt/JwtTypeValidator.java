@@ -50,7 +50,7 @@ public final class JwtTypeValidator implements OAuth2TokenValidator<Jwt> {
 	}
 
 	/**
-	 * Require that the {@code typ} header be {@code JWT} or absent
+	 * Require that the {@code typ} header be {@code JWT} or absent.
 	 */
 	public static JwtTypeValidator jwt() {
 		JwtTypeValidator validator = new JwtTypeValidator(List.of("JWT"));

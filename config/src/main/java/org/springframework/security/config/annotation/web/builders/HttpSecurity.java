@@ -159,7 +159,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	private AuthenticationManager authenticationManager;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param objectPostProcessor the {@link ObjectPostProcessor} that should be used
 	 * @param authenticationBuilder the {@link AuthenticationManagerBuilder} to use for
 	 * additional updates
@@ -2092,7 +2092,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	}
 
 	/**
-	 * Allows mapping HTTP requests that this {@link HttpSecurity} will be used for
+	 * Allows mapping HTTP requests that this {@link HttpSecurity} will be used for.
 	 *
 	 * @author Rob Winch
 	 * @since 3.2

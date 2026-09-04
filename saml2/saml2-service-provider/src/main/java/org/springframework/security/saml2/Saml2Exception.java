@@ -19,6 +19,8 @@ package org.springframework.security.saml2;
 import java.io.Serial;
 
 /**
+ * A generic exception for SAML 2.0 related errors.
+ *
  * @since 5.2
  */
 public class Saml2Exception extends RuntimeException {

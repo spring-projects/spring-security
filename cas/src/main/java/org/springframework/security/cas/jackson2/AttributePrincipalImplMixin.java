@@ -19,10 +19,13 @@ package org.springframework.security.cas.jackson2;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import org.apereo.cas.client.proxy.ProxyRetriever;
 
 /**
@@ -47,15 +50,15 @@ import org.apereo.cas.client.proxy.ProxyRetriever;
  */
 @SuppressWarnings("removal")
 @Deprecated(forRemoval = true)
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
-		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY)
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE,
+		isGetterVisibility = Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class AttributePrincipalImplMixin {
 
 	/**
 	 * Mixin Constructor helps in deserialize
-	 * {@link org.apereo.cas.client.authentication.AttributePrincipalImpl}
+	 * {@link org.apereo.cas.client.authentication.AttributePrincipalImpl}.
 	 * @param name the unique identifier for the principal.
 	 * @param attributes the key/value pairs for this principal.
 	 * @param proxyGrantingTicket the ticket associated with this principal.

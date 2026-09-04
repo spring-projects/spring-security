@@ -105,7 +105,7 @@ final class OAuth2ResourceServerBeanDefinitionParser implements BeanDefinitionPa
 
 	/**
 	 * Parse a &lt;oauth2-resource-server&gt; element and return the corresponding
-	 * {@link BearerTokenAuthenticationFilter}
+	 * {@link BearerTokenAuthenticationFilter}.
 	 * @param oauth2ResourceServer the &lt;oauth2-resource-server&gt; element.
 	 * @param pc the {@link ParserContext}
 	 * @return a {@link BeanDefinition} representing a

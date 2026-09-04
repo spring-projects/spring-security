@@ -22,6 +22,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 
 /**
+ * A {@link GrantedAuthoritiesMapper} that maps authorities to their reachable authorities
+ * using a {@link RoleHierarchy}.
+ *
  * @author Luke Taylor
  */
 public class RoleHierarchyAuthoritiesMapper implements GrantedAuthoritiesMapper {

@@ -41,7 +41,7 @@ public class WebFilterExchange {
 	}
 
 	/**
-	 * Get the exchange
+	 * Get the exchange.
 	 * @return the exchange. Cannot be {@code null}
 	 */
 	public ServerWebExchange getExchange() {
@@ -49,7 +49,7 @@ public class WebFilterExchange {
 	}
 
 	/**
-	 * The filter chain
+	 * The filter chain.
 	 * @return the filter chain. Cannot be {@code null}
 	 */
 	public WebFilterChain getChain() {

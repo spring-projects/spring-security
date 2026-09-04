@@ -29,7 +29,7 @@ import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
 
 /**
- * A {@link SocketAcceptorInterceptor} that applies the {@link PayloadInterceptor}s
+ * A {@link SocketAcceptorInterceptor} that applies the {@link PayloadInterceptor}s.
  *
  * @author Rob Winch
  * @since 5.2

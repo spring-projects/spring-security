@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Support for propagating the SecurityContext to Spring's TaskExecutor abstraction.
+ */
 @NullMarked
 package org.springframework.security.task;
 

@@ -55,7 +55,7 @@ public final class AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository
 	private ServerOAuth2AuthorizedClientRepository anonymousAuthorizedClientRepository = new WebSessionServerOAuth2AuthorizedClientRepository();
 
 	/**
-	 * Creates an instance
+	 * Creates an instance.
 	 * @param authorizedClientService the authorized client service
 	 */
 	public AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(

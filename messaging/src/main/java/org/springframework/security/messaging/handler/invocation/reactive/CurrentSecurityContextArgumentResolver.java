@@ -112,7 +112,7 @@ public class CurrentSecurityContextArgumentResolver implements HandlerMethodArgu
 	private ReactiveAdapterRegistry adapterRegistry = ReactiveAdapterRegistry.getSharedInstance();
 
 	/**
-	 * Sets the {@link BeanResolver} to be used on the expressions
+	 * Sets the {@link BeanResolver} to be used on the expressions.
 	 * @param beanResolver the {@link BeanResolver} to use
 	 */
 	public void setBeanResolver(BeanResolver beanResolver) {

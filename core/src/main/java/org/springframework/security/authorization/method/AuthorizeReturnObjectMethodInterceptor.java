@@ -32,7 +32,7 @@ import org.springframework.util.ClassUtils;
 
 /**
  * A method interceptor that applies the given {@link AuthorizationProxyFactory} to any
- * return value annotated with {@link AuthorizeReturnObject}
+ * return value annotated with {@link AuthorizeReturnObject}.
  *
  * @author Josh Cummings
  * @since 6.3
@@ -50,7 +50,7 @@ public final class AuthorizeReturnObjectMethodInterceptor implements Authorizati
 	private int order = AuthorizationInterceptorsOrder.SECURE_RESULT.getOrder();
 
 	/**
-	 * Construct the interceptor
+	 * Construct the interceptor.
 	 *
 	 * <p>
 	 * Using this constructor requires you to specify
@@ -78,7 +78,7 @@ public final class AuthorizeReturnObjectMethodInterceptor implements Authorizati
 	}
 
 	/**
-	 * Use this {@link AuthorizationProxyFactory}
+	 * Use this {@link AuthorizationProxyFactory}.
 	 * @param authorizationProxyFactory the proxy factory to use
 	 * @since 6.5
 	 */

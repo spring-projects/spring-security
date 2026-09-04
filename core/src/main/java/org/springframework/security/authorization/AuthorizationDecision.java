@@ -19,6 +19,8 @@ package org.springframework.security.authorization;
 import java.io.Serial;
 
 /**
+ * The result of an authorization decision indicating whether access is granted.
+ *
  * @author Rob Winch
  * @since 5.0
  */

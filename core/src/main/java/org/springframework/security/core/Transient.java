@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
 
 /**
  * A marker for {@link Authentication}s that should never be stored across requests, for
- * example a bearer token authentication
+ * example a bearer token authentication.
  *
  * @author Josh Cummings
  * @since 5.1

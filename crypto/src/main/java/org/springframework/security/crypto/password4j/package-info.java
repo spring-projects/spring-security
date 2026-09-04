@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Password encoding support backed by the password4j library.
+ */
 @NullMarked
 package org.springframework.security.crypto.password4j;
 

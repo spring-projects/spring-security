@@ -22,7 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
 
 /**
- * Handles log out
+ * Handles log out.
  *
  * @author Rob Winch
  * @since 5.0
@@ -31,7 +31,7 @@ import org.springframework.security.web.server.WebFilterExchange;
 public interface ServerLogoutHandler {
 
 	/**
-	 * Invoked when log out is requested
+	 * Invoked when log out is requested.
 	 * @param exchange the exchange
 	 * @param authentication the {@link Authentication}
 	 * @return a completion notification (success or error)

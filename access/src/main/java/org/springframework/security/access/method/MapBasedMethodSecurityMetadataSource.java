@@ -59,12 +59,12 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 	private @Nullable ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
 	/**
-	 * Map from RegisteredMethod to ConfigAttribute list
+	 * Map from RegisteredMethod to ConfigAttribute list.
 	 */
 	protected final Map<RegisteredMethod, List<ConfigAttribute>> methodMap = new HashMap<>();
 
 	/**
-	 * Map from RegisteredMethod to name pattern used for registration
+	 * Map from RegisteredMethod to name pattern used for registration.
 	 */
 	private final Map<RegisteredMethod, String> nameMap = new HashMap<>();
 
@@ -72,7 +72,7 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 	}
 
 	/**
-	 * Creates the <tt>MapBasedMethodSecurityMetadataSource</tt> from a
+	 * Creates the <tt>MapBasedMethodSecurityMetadataSource</tt> from a.
 	 * @param methodMap map of method names to <tt>ConfigAttribute</tt>s.
 	 */
 	public MapBasedMethodSecurityMetadataSource(Map<String, List<ConfigAttribute>> methodMap) {
@@ -236,6 +236,7 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 	}
 
 	/**
+	 * Returns the size of the method map.
 	 * @return map size (for unit tests and diagnostics)
 	 */
 	public int getMethodMapSize() {

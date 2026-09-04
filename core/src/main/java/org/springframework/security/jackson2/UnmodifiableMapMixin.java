@@ -20,6 +20,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
@@ -39,7 +40,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * @deprecated as of 7.0
  */
 @SuppressWarnings("removal")
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+@JsonTypeInfo(use = Id.CLASS)
 @JsonDeserialize(using = UnmodifiableMapDeserializer.class)
 @Deprecated(forRemoval = true)
 class UnmodifiableMapMixin {

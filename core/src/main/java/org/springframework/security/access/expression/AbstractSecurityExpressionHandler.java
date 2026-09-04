@@ -145,6 +145,7 @@ public abstract class AbstractSecurityExpressionHandler<T>
 	}
 
 	/**
+	 * Returns the {@link RoleHierarchy} to use.
 	 * @deprecated Use {@link #getDefaultAuthorizationManagerFactory()} instead
 	 */
 	@Deprecated(since = "7.0")
@@ -153,6 +154,7 @@ public abstract class AbstractSecurityExpressionHandler<T>
 	}
 
 	/**
+	 * Sets the {@link RoleHierarchy} to use.
 	 * @deprecated Use
 	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
 	 */

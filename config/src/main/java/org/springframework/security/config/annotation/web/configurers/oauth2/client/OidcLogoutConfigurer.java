@@ -89,7 +89,7 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	/**
-	 * Sets the registry for managing the OIDC client-provider session link
+	 * Sets the registry for managing the OIDC client-provider session link.
 	 * @param oidcSessionRegistry the {@link OidcSessionRegistry} to use
 	 * @return the {@link OAuth2LoginConfigurer} for further configuration
 	 */
@@ -100,7 +100,7 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	/**
-	 * Configure OIDC Back-Channel Logout using the provided {@link Consumer}
+	 * Configure OIDC Back-Channel Logout using the provided {@link Consumer}.
 	 * @return the {@link OidcLogoutConfigurer} for further configuration
 	 */
 	public OidcLogoutConfigurer<B> backChannel(Customizer<BackChannelLogoutConfigurer> backChannelLogoutConfigurer) {
@@ -119,7 +119,7 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	/**
-	 * A configurer for configuring OIDC Back-Channel Logout
+	 * A configurer for configuring OIDC Back-Channel Logout.
 	 */
 	public final class BackChannelLogoutConfigurer {
 

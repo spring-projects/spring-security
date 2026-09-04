@@ -32,6 +32,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
+ * Tests for the {@code ldap-server} XML namespace element.
+ *
  * @author Luke Taylor
  * @author Rob Winch
  */

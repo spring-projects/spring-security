@@ -19,7 +19,7 @@ package org.springframework.security.authorization;
 import org.springframework.expression.Expression;
 
 /**
- * Represents an {@link AuthorizationDecision} based on a {@link Expression}
+ * Represents an {@link AuthorizationDecision} based on a {@link Expression}.
  *
  * @author Marcus Da Coregio
  * @since 5.8

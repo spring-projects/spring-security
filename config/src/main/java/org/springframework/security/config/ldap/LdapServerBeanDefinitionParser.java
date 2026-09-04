@@ -38,6 +38,9 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * Parses the {@code <ldap-server>} element to register an embedded or a
+ * context-source-based LDAP server.
+ *
  * @author Luke Taylor
  * @author Eddú Meléndez
  * @author Evgeniy Cheban
@@ -71,7 +74,7 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String OPT_DEFAULT_LDIF_FILE = "classpath*:*.ldif";
 
-	/** Defines the port the LDAP_PROVIDER server should run on */
+	/** Defines the port the LDAP_PROVIDER server should run on. */
 	public static final String ATT_PORT = "port";
 
 	private static final String RANDOM_PORT = "0";

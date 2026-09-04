@@ -17,6 +17,8 @@
 package org.springframework.security.ldap.ppolicy;
 
 /**
+ * Provides access to LDAP password policy data for a user.
+ *
  * @author Luke Taylor
  * @since 3.0
  */

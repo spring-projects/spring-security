@@ -19,6 +19,8 @@ package org.springframework.security.web.server.csrf;
 import java.io.Serializable;
 
 /**
+ * Represents a CSRF token used to protect against CSRF attacks.
+ *
  * @author Rob Winch
  * @since 5.0
  */

@@ -153,7 +153,7 @@ public class PreAuthenticatedAuthenticationProvider implements AuthenticationPro
 	}
 
 	/**
-	 * Sets authorities that this provider should grant once authentication completes
+	 * Sets authorities that this provider should grant once authentication completes.
 	 * @param grantedAuthoritySupplier the supplier that grants authorities
 	 */
 	public void setGrantedAuthoritySupplier(Supplier<Collection<GrantedAuthority>> grantedAuthoritySupplier) {

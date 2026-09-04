@@ -20,7 +20,7 @@ import org.springframework.test.context.TestContext;
 
 /**
  * Represents the events on the methods of
- * {@link org.springframework.test.context.TestExecutionListener}
+ * {@link org.springframework.test.context.TestExecutionListener}.
  *
  * @author Rob Winch
  * @since 5.1

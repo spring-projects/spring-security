@@ -75,6 +75,8 @@ public class HttpSessionEventPublisher implements HttpSessionListener, HttpSessi
 	}
 
 	/**
+	 * Handles the HttpSessionEvent by publishing a {@link HttpSessionIdChangedEvent} to
+	 * the application appContext.
 	 * @inheritDoc
 	 */
 	@Override

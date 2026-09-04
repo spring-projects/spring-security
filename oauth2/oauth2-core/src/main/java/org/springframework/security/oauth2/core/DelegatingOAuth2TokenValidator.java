@@ -23,7 +23,7 @@ import java.util.Collection;
 import org.springframework.util.Assert;
 
 /**
- * A composite validator
+ * A composite validator.
  *
  * @param <T> the type of {@link OAuth2Token} this validator validates
  * @author Josh Cummings

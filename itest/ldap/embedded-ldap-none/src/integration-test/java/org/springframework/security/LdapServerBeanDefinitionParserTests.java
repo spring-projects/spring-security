@@ -25,6 +25,9 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
+ * Tests that the {@code ldap-server} element fails when no embedded LDAP server is
+ * provided.
+ *
  * @author Eddú Meléndez
  */
 public class LdapServerBeanDefinitionParserTests {

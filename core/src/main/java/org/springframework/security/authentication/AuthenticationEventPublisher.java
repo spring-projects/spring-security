@@ -20,6 +20,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
 /**
+ * Publishes {@link Authentication} success and failure events.
+ *
  * @author Luke Taylor
  * @since 3.0
  */

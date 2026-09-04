@@ -30,6 +30,9 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 
 /**
+ * A {@link WebFilter} that determines if an authenticated request is authorized to access
+ * the requested resource.
+ *
  * @author Rob Winch
  * @author Mathieu Ouellet
  * @since 5.0

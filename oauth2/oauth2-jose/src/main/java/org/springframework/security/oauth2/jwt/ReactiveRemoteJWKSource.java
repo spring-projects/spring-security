@@ -34,6 +34,8 @@ import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
+ * A {@link ReactiveJWKSource} that retrieves and caches a JWK set from a remote URL.
+ *
  * @author Rob Winch
  * @since 5.1
  */

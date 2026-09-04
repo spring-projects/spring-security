@@ -24,7 +24,7 @@ import java.util.Collections;
 import org.springframework.util.Assert;
 
 /**
- * A result emitted from an {@link OAuth2TokenValidator} validation attempt
+ * A result emitted from an {@link OAuth2TokenValidator} validation attempt.
  *
  * @author Josh Cummings
  * @since 5.1
@@ -41,7 +41,7 @@ public final class OAuth2TokenValidatorResult {
 	}
 
 	/**
-	 * Say whether this result indicates success
+	 * Say whether this result indicates success.
 	 * @return whether this result has errors
 	 */
 	public boolean hasErrors() {
@@ -49,7 +49,7 @@ public final class OAuth2TokenValidatorResult {
 	}
 
 	/**
-	 * Return error details regarding the validation attempt
+	 * Return error details regarding the validation attempt.
 	 * @return the collection of results in this result, if any; returns an empty list
 	 * otherwise
 	 */
@@ -58,7 +58,7 @@ public final class OAuth2TokenValidatorResult {
 	}
 
 	/**
-	 * Construct a successful {@link OAuth2TokenValidatorResult}
+	 * Construct a successful {@link OAuth2TokenValidatorResult}.
 	 * @return an {@link OAuth2TokenValidatorResult} with no errors
 	 */
 	public static OAuth2TokenValidatorResult success() {
@@ -66,7 +66,7 @@ public final class OAuth2TokenValidatorResult {
 	}
 
 	/**
-	 * Construct a failure {@link OAuth2TokenValidatorResult} with the provided detail
+	 * Construct a failure {@link OAuth2TokenValidatorResult} with the provided detail.
 	 * @param errors the list of errors
 	 * @return an {@link OAuth2TokenValidatorResult} with the errors specified
 	 */
@@ -75,7 +75,7 @@ public final class OAuth2TokenValidatorResult {
 	}
 
 	/**
-	 * Construct a failure {@link OAuth2TokenValidatorResult} with the provided detail
+	 * Construct a failure {@link OAuth2TokenValidatorResult} with the provided detail.
 	 * @param errors the list of errors
 	 * @return an {@link OAuth2TokenValidatorResult} with the errors specified
 	 */

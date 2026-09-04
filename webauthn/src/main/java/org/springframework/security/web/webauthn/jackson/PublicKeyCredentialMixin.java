@@ -22,7 +22,7 @@ import tools.jackson.databind.annotation.JsonPOJOBuilder;
 import org.springframework.security.web.webauthn.api.PublicKeyCredential;
 
 /**
- * Jackson mixin for {@link PublicKeyCredential}
+ * Jackson mixin for {@link PublicKeyCredential}.
  *
  * @author Rob Winch
  * @since 6.4

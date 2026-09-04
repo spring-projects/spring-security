@@ -57,7 +57,7 @@ import org.springframework.test.web.servlet.MockMvc;
 public @interface WithUserDetails {
 
 	/**
-	 * The username to look up in the {@link UserDetailsService}
+	 * The username to look up in the {@link UserDetailsService}.
 	 * @return
 	 */
 	String value() default "user";

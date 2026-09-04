@@ -41,6 +41,7 @@ public class OneTimeTokenAuthenticationToken extends AbstractAuthenticationToken
 	private @Nullable String tokenValue;
 
 	/**
+	 * Creates an unauthenticated token.
 	 * @deprecated Please use constructor that takes a {@link String} instead
 	 */
 	@Deprecated(forRemoval = true, since = "7.0")
@@ -55,6 +56,7 @@ public class OneTimeTokenAuthenticationToken extends AbstractAuthenticationToken
 	}
 
 	/**
+	 * Creates an authenticated token.
 	 * @deprecated Please use {@link OneTimeTokenAuthentication} instead
 	 */
 	@Deprecated(forRemoval = true, since = "7.0")
@@ -65,7 +67,7 @@ public class OneTimeTokenAuthenticationToken extends AbstractAuthenticationToken
 	}
 
 	/**
-	 * Creates an unauthenticated token
+	 * Creates an unauthenticated token.
 	 * @param tokenValue the one-time token value
 	 * @return an unauthenticated {@link OneTimeTokenAuthenticationToken}
 	 * @deprecated Please use constructor that takes a {@link String} instead
@@ -76,7 +78,7 @@ public class OneTimeTokenAuthenticationToken extends AbstractAuthenticationToken
 	}
 
 	/**
-	 * Creates an unauthenticated token
+	 * Creates an unauthenticated token.
 	 * @param principal the principal
 	 * @param tokenValue the one-time token value
 	 * @return an unauthenticated {@link OneTimeTokenAuthenticationToken}
@@ -88,7 +90,7 @@ public class OneTimeTokenAuthenticationToken extends AbstractAuthenticationToken
 	}
 
 	/**
-	 * Creates an unauthenticated token
+	 * Creates an unauthenticated token.
 	 * @param principal the principal
 	 * @param authorities the principal authorities
 	 * @return an authenticated {@link OneTimeTokenAuthenticationToken}
@@ -101,7 +103,7 @@ public class OneTimeTokenAuthenticationToken extends AbstractAuthenticationToken
 	}
 
 	/**
-	 * Returns the one-time token value
+	 * Returns the one-time token value.
 	 * @return
 	 */
 	public @Nullable String getTokenValue() {

@@ -90,7 +90,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param sessionRegistry the SessionRegistry to use
 	 * @param expiredUrl the URL to redirect to
 	 * @deprecated use
@@ -154,7 +154,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 	}
 
 	/**
-	 * Determine the URL for expiration
+	 * Determine the URL for expiration.
 	 * @param request the HttpServletRequest
 	 * @param info the {@link SessionInformation}
 	 * @return the URL for expiration
@@ -190,7 +190,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 	}
 
 	/**
-	 * Set list of {@link LogoutHandler}
+	 * Set list of {@link LogoutHandler}.
 	 * @param handlers list of {@link LogoutHandler}
 	 * @since 5.2.0
 	 */
@@ -200,7 +200,7 @@ public class ConcurrentSessionFilter extends GenericFilterBean {
 
 	/**
 	 * Sets the {@link RedirectStrategy} used with
-	 * {@link #ConcurrentSessionFilter(SessionRegistry, String)}
+	 * {@link #ConcurrentSessionFilter(SessionRegistry, String)}.
 	 * @param redirectStrategy the {@link RedirectStrategy} to use
 	 * @deprecated use
 	 * {@link #ConcurrentSessionFilter(SessionRegistry, SessionInformationExpiredStrategy)}

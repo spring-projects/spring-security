@@ -17,6 +17,8 @@
 package org.springframework.security.integration.multiannotation;
 
 /**
+ * Default implementation of {@link PreAuthorizeService}.
+ *
  * @author Luke Taylor
  */
 public class PreAuthorizeServiceImpl implements PreAuthorizeService {

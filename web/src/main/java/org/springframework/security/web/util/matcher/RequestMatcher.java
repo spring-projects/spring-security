@@ -52,7 +52,7 @@ public interface RequestMatcher {
 
 	/**
 	 * The result of matching against an HttpServletRequest contains the status, true or
-	 * false, of the match and if present, any variables extracted from the match
+	 * false, of the match and if present, any variables extracted from the match.
 	 *
 	 * @since 5.2
 	 */
@@ -68,6 +68,7 @@ public interface RequestMatcher {
 		}
 
 		/**
+		 * Returns whether the comparison against the HttpServletRequest produced a match.
 		 * @return true if the comparison against the HttpServletRequest produced a
 		 * successful match
 		 */
@@ -77,7 +78,7 @@ public interface RequestMatcher {
 
 		/**
 		 * Returns the extracted variable values where the key is the variable name and
-		 * the value is the variable value
+		 * the value is the variable value.
 		 * @return a map containing key-value pairs representing extracted variable names
 		 * and variable values
 		 */
@@ -86,7 +87,7 @@ public interface RequestMatcher {
 		}
 
 		/**
-		 * Creates an instance of {@link MatchResult} that is a match with no variables
+		 * Creates an instance of {@link MatchResult} that is a match with no variables.
 		 * @return {@link MatchResult} that is a match with no variables
 		 */
 		public static MatchResult match() {
@@ -95,7 +96,7 @@ public interface RequestMatcher {
 
 		/**
 		 * Creates an instance of {@link MatchResult} that is a match with the specified
-		 * variables
+		 * variables.
 		 * @param variables the specified variables
 		 * @return {@link MatchResult} that is a match with the specified variables
 		 */

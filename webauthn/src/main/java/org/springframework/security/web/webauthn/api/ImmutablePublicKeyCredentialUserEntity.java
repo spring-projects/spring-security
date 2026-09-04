@@ -129,7 +129,7 @@ public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCr
 	}
 
 	/**
-	 * Create a new {@link PublicKeyCredentialUserEntityBuilder}
+	 * Create a new {@link PublicKeyCredentialUserEntityBuilder}.
 	 * @return a new {@link PublicKeyCredentialUserEntityBuilder}
 	 */
 	public static PublicKeyCredentialUserEntityBuilder builder() {
@@ -202,7 +202,7 @@ public final class ImmutablePublicKeyCredentialUserEntity implements PublicKeyCr
 		}
 
 		/**
-		 * Builds a new {@link PublicKeyCredentialUserEntity}
+		 * Builds a new {@link PublicKeyCredentialUserEntity}.
 		 * @return a new {@link PublicKeyCredentialUserEntity}
 		 */
 		public PublicKeyCredentialUserEntity build() {

@@ -38,20 +38,20 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
 @SuppressWarnings("removal")
 public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements PersistentTokenRepository {
 
-	/** Default SQL for creating the database table to store the tokens */
+	/** Default SQL for creating the database table to store the tokens. */
 	public static final String CREATE_TABLE_SQL = "create table persistent_logins (username varchar(64) not null, series varchar(64) primary key, "
 			+ "token varchar(64) not null, last_used timestamp not null)";
 
-	/** The default SQL used by the <tt>getTokenBySeries</tt> query */
+	/** The default SQL used by the <tt>getTokenBySeries</tt> query. */
 	public static final String DEF_TOKEN_BY_SERIES_SQL = "select username,series,token,last_used from persistent_logins where series = ?";
 
-	/** The default SQL used by <tt>createNewToken</tt> */
+	/** The default SQL used by <tt>createNewToken</tt>. */
 	public static final String DEF_INSERT_TOKEN_SQL = "insert into persistent_logins (username, series, token, last_used) values(?,?,?,?)";
 
-	/** The default SQL used by <tt>updateToken</tt> */
+	/** The default SQL used by <tt>updateToken</tt>. */
 	public static final String DEF_UPDATE_TOKEN_SQL = "update persistent_logins set token = ?, last_used = ? where series = ?";
 
-	/** The default SQL used by <tt>removeUserTokens</tt> */
+	/** The default SQL used by <tt>removeUserTokens</tt>. */
 	public static final String DEF_REMOVE_USER_TOKENS_SQL = "delete from persistent_logins where username = ?";
 
 	private String tokensBySeriesSql = DEF_TOKEN_BY_SERIES_SQL;

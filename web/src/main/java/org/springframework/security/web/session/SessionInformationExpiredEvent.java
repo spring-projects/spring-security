@@ -41,7 +41,7 @@ public final class SessionInformationExpiredEvent extends ApplicationEvent {
 	private final @Nullable FilterChain filterChain;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param sessionInformation the SessionInformation that is expired
 	 * @param request the HttpServletRequest
 	 * @param response the HttpServletResponse
@@ -52,7 +52,7 @@ public final class SessionInformationExpiredEvent extends ApplicationEvent {
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param sessionInformation the SessionInformation that is expired
 	 * @param request the HttpServletRequest
 	 * @param response the HttpServletResponse
@@ -70,6 +70,7 @@ public final class SessionInformationExpiredEvent extends ApplicationEvent {
 	}
 
 	/**
+	 * Returns the request.
 	 * @return the request
 	 */
 	public HttpServletRequest getRequest() {
@@ -77,6 +78,7 @@ public final class SessionInformationExpiredEvent extends ApplicationEvent {
 	}
 
 	/**
+	 * Returns the response.
 	 * @return the response
 	 */
 	public HttpServletResponse getResponse() {
@@ -88,6 +90,7 @@ public final class SessionInformationExpiredEvent extends ApplicationEvent {
 	}
 
 	/**
+	 * Returns the filter chain.
 	 * @return the filter chain. Can be {@code null}.
 	 * @since 6.4
 	 */

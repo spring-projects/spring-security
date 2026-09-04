@@ -22,7 +22,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
 /**
- * Finds additional required authorities for the provided {@link Authentication#getName()}
+ * Finds additional required authorities for the provided
+ * {@link Authentication#getName()}.
  *
  * @author Rob Winch
  * @since 7.0

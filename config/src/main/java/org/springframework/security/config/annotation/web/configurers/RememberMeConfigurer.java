@@ -85,7 +85,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<RememberMeConfigurer<H>, H> {
 
 	/**
-	 * The default name for remember me parameter name and remember me cookie name
+	 * The default name for remember me parameter name and remember me cookie name.
 	 */
 	private static final String DEFAULT_REMEMBER_ME_NAME = "remember-me";
 
@@ -114,13 +114,13 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	private Boolean alwaysRemember;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 */
 	public RememberMeConfigurer() {
 	}
 
 	/**
-	 * Allows specifying how long (in seconds) a token is valid for
+	 * Allows specifying how long (in seconds) a token is valid for.
 	 * @param tokenValiditySeconds
 	 * @return {@link RememberMeConfigurer} for further customization
 	 * @see AbstractRememberMeServices#setTokenValiditySeconds(int)
@@ -388,7 +388,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Creates {@link TokenBasedRememberMeServices}
+	 * Creates {@link TokenBasedRememberMeServices}.
 	 * @param http the {@link HttpSecurity} to lookup shared objects
 	 * @param key the {@link #key(String)}
 	 * @return the {@link TokenBasedRememberMeServices}
@@ -399,7 +399,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Creates {@link PersistentTokenBasedRememberMeServices}
+	 * Creates {@link PersistentTokenBasedRememberMeServices}.
 	 * @param http the {@link HttpSecurity} to lookup shared objects
 	 * @param key the {@link #key(String)}
 	 * @return the {@link PersistentTokenBasedRememberMeServices}

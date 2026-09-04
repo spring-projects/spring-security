@@ -28,7 +28,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.util.Assert;
 
 /**
- * Adapts a {@link AuthenticationEntryPoint} into a {@link AuthenticationFailureHandler}
+ * Adapts a {@link AuthenticationEntryPoint} into a {@link AuthenticationFailureHandler}.
  *
  * @author Sergey Bespalov
  * @since 5.2.0
@@ -59,7 +59,7 @@ public class AuthenticationEntryPointFailureHandler implements AuthenticationFai
 	}
 
 	/**
-	 * Set whether to rethrow {@link AuthenticationServiceException}s (defaults to true)
+	 * Set whether to rethrow {@link AuthenticationServiceException}s (defaults to true).
 	 * @param rethrowAuthenticationServiceException whether to rethrow
 	 * {@link AuthenticationServiceException}s
 	 * @since 5.8

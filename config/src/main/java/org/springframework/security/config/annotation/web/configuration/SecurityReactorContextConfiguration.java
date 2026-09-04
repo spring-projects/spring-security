@@ -200,7 +200,7 @@ class SecurityReactorContextConfiguration {
 	}
 
 	/**
-	 * A map that computes each value when {@link #get} is invoked
+	 * A map that computes each value when {@link #get} is invoked.
 	 */
 	static class LoadingMap<K, V> implements Map<K, V> {
 
