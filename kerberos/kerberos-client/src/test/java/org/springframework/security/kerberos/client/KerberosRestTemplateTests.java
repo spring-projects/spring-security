@@ -38,7 +38,7 @@ import org.springframework.security.kerberos.test.MiniKdc;
 import org.springframework.web.client.HttpClientErrorException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class KerberosRestTemplateTests extends KerberosSecurityTestcase {
 
@@ -93,14 +93,15 @@ class KerberosRestTemplateTests extends KerberosSecurityTestcase {
 
 	@Test
 	void throwsOriginalException() {
-		assertThatThrownBy(() -> restTemplate.getForObject(this.baseUrl + "/notfound", String.class))
-				.isInstanceOf(HttpClientErrorException.NotFound.class);
+		assertThatExceptionOfType(HttpClientErrorException.NotFound.class)
+			.isThrownBy(() -> this.restTemplate.getForObject(this.baseUrl + "/notfound", String.class));
 	}
 
 	private void setUpClient() {
 		Map<String, Object> loginOptions = new HashMap<>();
 		loginOptions.put("refreshKrb5Config", "true");
-		this.restTemplate = new KerberosRestTemplate(this.clientKeytab.getAbsolutePath(), this.clientPrincipal, loginOptions);
+		this.restTemplate = new KerberosRestTemplate(this.clientKeytab.getAbsolutePath(), this.clientPrincipal,
+				loginOptions);
 	}
 
 	private MockResponse getRequest(RecordedRequest request, byte[] body, String contentType) {
