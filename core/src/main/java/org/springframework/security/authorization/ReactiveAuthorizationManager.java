@@ -33,7 +33,7 @@ import org.springframework.security.core.Authentication;
 public interface ReactiveAuthorizationManager<@Nullable T> {
 
 	/**
-	 * Determines if access should be granted for a specific authentication and object
+	 * Determines if access should be granted for a specific authentication and object.
 	 * @param authentication the Authentication to check
 	 * @param object the object to check
 	 * @return an empty Mono if authorization is granted or a Mono error if access is

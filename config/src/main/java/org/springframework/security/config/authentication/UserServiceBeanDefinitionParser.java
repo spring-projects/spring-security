@@ -37,6 +37,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 
 /**
+ * Parses the {@code user-service} element.
+ *
  * @author Luke Taylor
  * @author Ben Alex
  */

@@ -23,7 +23,8 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 /**
- * A {@link ReactiveJwtDecoder} that lazily initializes another {@link ReactiveJwtDecoder}
+ * A {@link ReactiveJwtDecoder} that lazily initializes another
+ * {@link ReactiveJwtDecoder}.
  *
  * @author Josh Cummings
  * @since 5.6

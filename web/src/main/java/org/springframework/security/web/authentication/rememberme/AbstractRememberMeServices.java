@@ -490,6 +490,7 @@ public abstract class AbstractRememberMeServices
 	}
 
 	/**
+	 * Sets the {@link MessageSource} used to resolve messages.
 	 * @since 5.5
 	 */
 	@Override

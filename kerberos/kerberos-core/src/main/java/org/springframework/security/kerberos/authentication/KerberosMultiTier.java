@@ -45,7 +45,7 @@ public final class KerberosMultiTier {
 	public static final Oid KERBEROS_OID = createOid(KERBEROS_OID_STRING);
 
 	/**
-	 * Create a new ticket for the
+	 * Create a new ticket for the.
 	 * @param authentication
 	 * @param username
 	 * @param lifetimeInSeconds

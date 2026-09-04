@@ -66,7 +66,7 @@ public class AuthenticationManagerBuilder
 	private AuthenticationEventPublisher eventPublisher;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param objectPostProcessor the {@link ObjectPostProcessor} instance to use.
 	 */
 	public AuthenticationManagerBuilder(ObjectPostProcessor<Object> objectPostProcessor) {
@@ -92,7 +92,7 @@ public class AuthenticationManagerBuilder
 	}
 
 	/**
-	 * Sets the {@link AuthenticationEventPublisher}
+	 * Sets the {@link AuthenticationEventPublisher}.
 	 * @param eventPublisher the {@link AuthenticationEventPublisher} to use
 	 * @return the {@link AuthenticationManagerBuilder} for further customizations
 	 */
@@ -103,6 +103,7 @@ public class AuthenticationManagerBuilder
 	}
 
 	/**
+	 * Sets whether the {@link AuthenticationManager} should clear the credentials.
 	 * @param eraseCredentials true if {@link AuthenticationManager} should clear the
 	 * credentials from the {@link Authentication} object after authenticating
 	 * @return the {@link AuthenticationManagerBuilder} for further customizations

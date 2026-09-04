@@ -126,7 +126,7 @@ public final class PublicKeyCredential<R extends AuthenticatorResponse> implemen
 	}
 
 	/**
-	 * Creates a new {@link PublicKeyCredentialBuilder}
+	 * Creates a new {@link PublicKeyCredentialBuilder}.
 	 * @param <T> the response type
 	 * @return the {@link PublicKeyCredentialBuilder}
 	 */
@@ -135,7 +135,7 @@ public final class PublicKeyCredential<R extends AuthenticatorResponse> implemen
 	}
 
 	/**
-	 * The {@link PublicKeyCredentialBuilder}
+	 * The {@link PublicKeyCredentialBuilder}.
 	 *
 	 * @param <R> the response type
 	 * @author Rob Winch
@@ -162,7 +162,7 @@ public final class PublicKeyCredential<R extends AuthenticatorResponse> implemen
 		}
 
 		/**
-		 * Sets the {@link #getId()} property
+		 * Sets the {@link #getId()} property.
 		 * @param id the id
 		 * @return the PublicKeyCredentialBuilder
 		 */
@@ -223,7 +223,7 @@ public final class PublicKeyCredential<R extends AuthenticatorResponse> implemen
 		}
 
 		/**
-		 * Creates a new {@link PublicKeyCredential}
+		 * Creates a new {@link PublicKeyCredential}.
 		 * @return a new {@link PublicKeyCredential}
 		 */
 		public PublicKeyCredential<R> build() {

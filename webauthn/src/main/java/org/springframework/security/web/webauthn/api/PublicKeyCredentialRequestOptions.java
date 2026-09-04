@@ -133,7 +133,7 @@ public final class PublicKeyCredentialRequestOptions implements Serializable {
 	}
 
 	/**
-	 * Creates a {@link PublicKeyCredentialRequestOptionsBuilder}
+	 * Creates a {@link PublicKeyCredentialRequestOptionsBuilder}.
 	 * @return the {@link PublicKeyCredentialRequestOptionsBuilder}
 	 */
 	public static PublicKeyCredentialRequestOptionsBuilder builder() {
@@ -196,7 +196,7 @@ public final class PublicKeyCredentialRequestOptions implements Serializable {
 		}
 
 		/**
-		 * Sets the {@link #getAllowCredentials()} property
+		 * Sets the {@link #getAllowCredentials()} property.
 		 * @param allowCredentials the allowed credentials
 		 * @return the {@link PublicKeyCredentialRequestOptionsBuilder}
 		 */
@@ -218,7 +218,7 @@ public final class PublicKeyCredentialRequestOptions implements Serializable {
 		}
 
 		/**
-		 * Sets the {@link #getExtensions()} property
+		 * Sets the {@link #getExtensions()} property.
 		 * @param extensions the extensions
 		 * @return the {@link PublicKeyCredentialRequestOptionsBuilder}
 		 */
@@ -228,7 +228,7 @@ public final class PublicKeyCredentialRequestOptions implements Serializable {
 		}
 
 		/**
-		 * Allows customizing the {@link PublicKeyCredentialRequestOptionsBuilder}
+		 * Allows customizing the {@link PublicKeyCredentialRequestOptionsBuilder}.
 		 * @param customizer the {@link Consumer} used to customize the builder
 		 * @return the {@link PublicKeyCredentialRequestOptionsBuilder}
 		 */
@@ -239,7 +239,7 @@ public final class PublicKeyCredentialRequestOptions implements Serializable {
 		}
 
 		/**
-		 * Builds a new {@link PublicKeyCredentialRequestOptions}
+		 * Builds a new {@link PublicKeyCredentialRequestOptions}.
 		 * @return a new {@link PublicKeyCredentialRequestOptions}
 		 */
 		public PublicKeyCredentialRequestOptions build() {

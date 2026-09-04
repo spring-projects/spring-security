@@ -83,7 +83,7 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 	private DelegatingMissingAuthorityAccessDeniedHandler.@Nullable Builder missingAuthoritiesHandlerBuilder;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @see HttpSecurity#exceptionHandling(Customizer)
 	 */
 	public ExceptionHandlingConfigurer() {
@@ -91,7 +91,7 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Shortcut to specify the {@link AccessDeniedHandler} to be used is a specific error
-	 * page
+	 * page.
 	 * @param accessDeniedUrl the URL to the access denied page (i.e. /errors/401)
 	 * @return the {@link ExceptionHandlingConfigurer} for further customization
 	 * @see AccessDeniedHandlerImpl
@@ -104,7 +104,7 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Specifies the {@link AccessDeniedHandler} to be used
+	 * Specifies the {@link AccessDeniedHandler} to be used.
 	 * @param accessDeniedHandler the {@link AccessDeniedHandler} to be used
 	 * @return the {@link ExceptionHandlingConfigurer} for further customization
 	 */
@@ -213,7 +213,7 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Gets any explicitly configured {@link AuthenticationEntryPoint}
+	 * Gets any explicitly configured {@link AuthenticationEntryPoint}.
 	 * @return
 	 */
 	AuthenticationEntryPoint getAuthenticationEntryPoint() {
@@ -242,7 +242,7 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Gets the {@link AccessDeniedHandler} according to the rules specified by
-	 * {@link #accessDeniedHandler(AccessDeniedHandler)}
+	 * {@link #accessDeniedHandler(AccessDeniedHandler)}.
 	 * @param http the {@link HttpSecurity} used to look up shared
 	 * {@link AccessDeniedHandler}
 	 * @return the {@link AccessDeniedHandler} to use
@@ -257,7 +257,7 @@ public final class ExceptionHandlingConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Gets the {@link AuthenticationEntryPoint} according to the rules specified by
-	 * {@link #authenticationEntryPoint(AuthenticationEntryPoint)}
+	 * {@link #authenticationEntryPoint(AuthenticationEntryPoint)}.
 	 * @param http the {@link HttpSecurity} used to look up shared
 	 * {@link AuthenticationEntryPoint}
 	 * @return the {@link AuthenticationEntryPoint} to use

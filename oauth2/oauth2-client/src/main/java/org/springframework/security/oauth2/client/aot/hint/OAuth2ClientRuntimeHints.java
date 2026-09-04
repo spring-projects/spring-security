@@ -20,7 +20,7 @@ import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 
 /**
- * {@link RuntimeHintsRegistrar} for OAuth2 Client
+ * {@link RuntimeHintsRegistrar} for OAuth2 Client.
  *
  * @author Marcus Da Coregio
  * @since 6.0

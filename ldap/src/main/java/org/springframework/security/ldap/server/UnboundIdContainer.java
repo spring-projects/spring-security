@@ -39,6 +39,8 @@ import org.springframework.lang.NonNull;
 import org.springframework.util.StringUtils;
 
 /**
+ * An {@link EmbeddedLdapServerContainer} backed by an UnboundID in-memory LDAP server.
+ *
  * @author Eddú Meléndez
  */
 public class UnboundIdContainer

@@ -130,7 +130,7 @@ public final class CurrentSecurityContextArgumentResolver implements HandlerMeth
 	}
 
 	/**
-	 * Set the {@link BeanResolver} to be used on the expressions
+	 * Set the {@link BeanResolver} to be used on the expressions.
 	 * @param beanResolver the {@link BeanResolver} to use
 	 */
 	public void setBeanResolver(BeanResolver beanResolver) {

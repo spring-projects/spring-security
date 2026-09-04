@@ -132,7 +132,7 @@ public final class DelegatingSecurityContextCallable<V> implements Callable<V> {
 	 * Creates a {@link DelegatingSecurityContextCallable} and with the given
 	 * {@link Callable} and {@link SecurityContext}, but if the securityContext is null
 	 * will default to the current {@link SecurityContext} on the
-	 * {@link SecurityContextHolder}
+	 * {@link SecurityContextHolder}.
 	 * @param delegate the delegate {@link DelegatingSecurityContextCallable} to run with
 	 * the specified {@link SecurityContext}. Cannot be null.
 	 * @param securityContext the {@link SecurityContext} to establish for the delegate

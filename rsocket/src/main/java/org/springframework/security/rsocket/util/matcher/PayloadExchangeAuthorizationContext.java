@@ -22,6 +22,8 @@ import java.util.Map;
 import org.springframework.security.rsocket.api.PayloadExchange;
 
 /**
+ * The context used for authorizing a {@link PayloadExchange}.
+ *
  * @author Rob Winch
  * @since 5.2
  */

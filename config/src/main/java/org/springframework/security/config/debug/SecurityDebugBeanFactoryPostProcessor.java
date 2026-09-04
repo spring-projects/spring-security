@@ -29,6 +29,9 @@ import org.springframework.security.config.BeanIds;
 import org.springframework.security.web.debug.DebugFilter;
 
 /**
+ * Wraps the {@code FilterChainProxy} bean definition with a {@link DebugFilter} to enable
+ * security debugging.
+ *
  * @author Luke Taylor
  * @author Rob Winch
  */

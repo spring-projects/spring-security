@@ -60,7 +60,7 @@ final class OidcBackChannelLogoutAuthenticationProvider implements Authenticatio
 	private JwtDecoderFactory<ClientRegistration> logoutTokenDecoderFactory;
 
 	/**
-	 * Construct an {@link OidcBackChannelLogoutAuthenticationProvider}
+	 * Construct an {@link OidcBackChannelLogoutAuthenticationProvider}.
 	 */
 	OidcBackChannelLogoutAuthenticationProvider() {
 		JwtTypeValidator type = new JwtTypeValidator("JWT", "logout+jwt");

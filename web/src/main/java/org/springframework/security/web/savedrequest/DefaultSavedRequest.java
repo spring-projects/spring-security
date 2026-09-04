@@ -139,7 +139,7 @@ public class DefaultSavedRequest implements SavedRequest {
 	}
 
 	/**
-	 * Private constructor invoked through Builder
+	 * Private constructor invoked through Builder.
 	 */
 	private DefaultSavedRequest(Builder builder) {
 		this.contextPath = builder.contextPath;
@@ -156,6 +156,7 @@ public class DefaultSavedRequest implements SavedRequest {
 	}
 
 	/**
+	 * Adds the given cookies.
 	 * @since 4.2
 	 */
 	private void addCookies(Cookie[] cookies) {
@@ -176,6 +177,7 @@ public class DefaultSavedRequest implements SavedRequest {
 	}
 
 	/**
+	 * Adds the given locales.
 	 * @since 4.2
 	 */
 	private void addLocales(Enumeration<Locale> locales) {
@@ -190,6 +192,7 @@ public class DefaultSavedRequest implements SavedRequest {
 	}
 
 	/**
+	 * Adds the given request parameters.
 	 * @since 4.2
 	 */
 	private void addParameters(Map<String, String[]> parameters) {
@@ -333,6 +336,8 @@ public class DefaultSavedRequest implements SavedRequest {
 	}
 
 	/**
+	 * Builder for {@link DefaultSavedRequest}.
+	 *
 	 * @since 4.2
 	 */
 	@JsonIgnoreProperties(ignoreUnknown = true)

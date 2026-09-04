@@ -55,7 +55,7 @@ final class BaseOpenSamlAuthenticationTokenConverter implements AuthenticationCo
 
 	/**
 	 * Constructs a {@link BaseOpenSamlAuthenticationTokenConverter} given a repository
-	 * for {@link RelyingPartyRegistration}s
+	 * for {@link RelyingPartyRegistration}s.
 	 * @param registrations the repository for {@link RelyingPartyRegistration}s
 	 * {@link RelyingPartyRegistration}s
 	 */

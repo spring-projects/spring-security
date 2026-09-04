@@ -48,14 +48,14 @@ final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
 	private final DelegateFilter delegateFilter;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 */
 	SecurityMockMvcConfigurer() {
 		this.delegateFilter = new DelegateFilter();
 	}
 
 	/**
-	 * Creates a new instance with the provided {@link jakarta.servlet.Filter}
+	 * Creates a new instance with the provided {@link jakarta.servlet.Filter}.
 	 * @param springSecurityFilterChain the {@link jakarta.servlet.Filter} to use
 	 */
 	SecurityMockMvcConfigurer(Filter springSecurityFilterChain) {

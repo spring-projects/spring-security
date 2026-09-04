@@ -165,7 +165,7 @@ public class LdapUserDetailsMapper implements UserDetailsContextMapper {
 	}
 
 	/**
-	 * The prefix that should be applied to the role names
+	 * The prefix that should be applied to the role names.
 	 * @param rolePrefix the prefix (defaults to "ROLE_").
 	 */
 	public void setRolePrefix(String rolePrefix) {

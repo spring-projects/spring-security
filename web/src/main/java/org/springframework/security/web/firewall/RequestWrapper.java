@@ -136,6 +136,7 @@ final class RequestWrapper extends FirewalledRequest {
 		private final String path;
 
 		/**
+		 * Creates a new instance for the given path.
 		 * @param path the {@code path} that will be used to obtain the delegate
 		 * {@link RequestDispatcher} from the original {@link HttpServletRequest}.
 		 */

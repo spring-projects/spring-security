@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.security.web.webauthn.api.CredentialPropertiesOutput;
 
 /**
- * Jackson mixin for {@link CredentialPropertiesOutput}
+ * Jackson mixin for {@link CredentialPropertiesOutput}.
  *
  * @author Rob Winch
  * @since 6.4

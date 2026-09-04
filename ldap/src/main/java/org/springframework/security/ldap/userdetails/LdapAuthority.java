@@ -42,7 +42,7 @@ public class LdapAuthority implements GrantedAuthority {
 	private final Map<String, List<String>> attributes;
 
 	/**
-	 * Constructs an LdapAuthority that has a role and a DN but no other attributes
+	 * Constructs an LdapAuthority that has a role and a DN but no other attributes.
 	 * @param role the principal's role
 	 * @param dn the distinguished name
 	 */
@@ -51,7 +51,7 @@ public class LdapAuthority implements GrantedAuthority {
 	}
 
 	/**
-	 * Constructs an LdapAuthority with the given role, DN and other LDAP attributes
+	 * Constructs an LdapAuthority with the given role, DN and other LDAP attributes.
 	 * @param role the principal's role
 	 * @param dn the distinguished name
 	 * @param attributes additional LDAP attributes
@@ -65,7 +65,7 @@ public class LdapAuthority implements GrantedAuthority {
 	}
 
 	/**
-	 * Returns the LDAP attributes
+	 * Returns the LDAP attributes.
 	 * @return the LDAP attributes, map can be null
 	 */
 	public Map<String, List<String>> getAttributes() {
@@ -73,7 +73,7 @@ public class LdapAuthority implements GrantedAuthority {
 	}
 
 	/**
-	 * Returns the DN for this LDAP authority
+	 * Returns the DN for this LDAP authority.
 	 * @return the distinguished name
 	 */
 	public String getDn() {
@@ -81,7 +81,7 @@ public class LdapAuthority implements GrantedAuthority {
 	}
 
 	/**
-	 * Returns the values for a specific attribute
+	 * Returns the values for a specific attribute.
 	 * @param name the attribute name
 	 * @return a String array, never null but may be zero length
 	 */
@@ -94,7 +94,7 @@ public class LdapAuthority implements GrantedAuthority {
 	}
 
 	/**
-	 * Returns the first attribute value for a specified attribute
+	 * Returns the first attribute value for a specified attribute.
 	 * @param name the attribute name
 	 * @return the first attribute value for a specified attribute, may be null
 	 */

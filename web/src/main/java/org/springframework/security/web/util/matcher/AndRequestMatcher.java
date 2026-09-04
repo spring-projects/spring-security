@@ -38,7 +38,7 @@ public final class AndRequestMatcher implements RequestMatcher {
 	private final List<RequestMatcher> requestMatchers;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param requestMatchers the {@link RequestMatcher} instances to try
 	 */
 	public AndRequestMatcher(List<RequestMatcher> requestMatchers) {
@@ -48,7 +48,7 @@ public final class AndRequestMatcher implements RequestMatcher {
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param requestMatchers the {@link RequestMatcher} instances to try
 	 */
 	public AndRequestMatcher(RequestMatcher... requestMatchers) {

@@ -26,13 +26,15 @@ import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.util.matcher.IpAddressMatcher;
 
 /**
+ * The {@link SecurityExpressionRoot} used for web security expressions.
+ *
  * @author Steve Riesenberg
  * @since 7.0
  */
 final class FilterInvocationExpressionRoot extends SecurityExpressionRoot<FilterInvocation> {
 
 	/**
-	 * Allows direct access to the request object
+	 * Allows direct access to the request object.
 	 */
 	public final HttpServletRequest request;
 

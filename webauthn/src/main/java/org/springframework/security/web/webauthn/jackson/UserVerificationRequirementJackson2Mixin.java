@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.security.web.webauthn.api.UserVerificationRequirement;
 
 /**
- * Jackson mixin for {@link UserVerificationRequirement}
+ * Jackson mixin for {@link UserVerificationRequirement}.
  *
  * @author Rob Winch
  * @since 6.4

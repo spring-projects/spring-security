@@ -19,10 +19,13 @@ package org.springframework.security.jackson2;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import org.springframework.security.core.GrantedAuthority;
 
@@ -48,9 +51,9 @@ import org.springframework.security.core.GrantedAuthority;
  * Jackson 3
  */
 @SuppressWarnings("removal")
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, isGetterVisibility = JsonAutoDetect.Visibility.NONE,
-		getterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.ANY)
+@JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY)
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, isGetterVisibility = Visibility.NONE,
+		getterVisibility = Visibility.NONE, creatorVisibility = Visibility.ANY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Deprecated(forRemoval = true)
 class AnonymousAuthenticationTokenMixin {

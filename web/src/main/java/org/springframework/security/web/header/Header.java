@@ -24,7 +24,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.util.Assert;
 
 /**
- * Represents a Header to be added to the {@link HttpServletResponse}
+ * Represents a Header to be added to the {@link HttpServletResponse}.
  */
 public final class Header {
 
@@ -33,7 +33,7 @@ public final class Header {
 	private final List<String> headerValues;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param headerName the name of the header
 	 * @param headerValues the values of the header
 	 */

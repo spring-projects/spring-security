@@ -191,7 +191,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 
 		/**
 		 * Adds the authority to the list, unless it is already there, in which case it is
-		 * ignored
+		 * ignored.
 		 */
 		public void addAuthority(GrantedAuthority a) {
 			if (!hasAuthority(a)) {

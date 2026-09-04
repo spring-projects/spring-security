@@ -70,7 +70,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 
 	/**
 	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the
-	 * provided parameters
+	 * provided parameters.
 	 * @param trustedIssuers an array of trusted issuers
 	 * @since 6.2
 	 */
@@ -80,7 +80,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 
 	/**
 	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the
-	 * provided parameters
+	 * provided parameters.
 	 * @param trustedIssuers a collection of trusted issuers
 	 * @since 6.2
 	 */
@@ -91,7 +91,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 
 	/**
 	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the
-	 * provided parameters
+	 * provided parameters.
 	 * @param trustedIssuers a predicate to validate issuers
 	 * @since 6.2
 	 */
@@ -130,7 +130,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 
 	/**
 	 * Return an {@link AuthenticationManager} based off of the `iss` claim found in the
-	 * request's bearer token
+	 * request's bearer token.
 	 * @throws OAuth2AuthenticationException if the bearer token is malformed or an
 	 * {@link ReactiveAuthenticationManager} can't be derived from the issuer
 	 */

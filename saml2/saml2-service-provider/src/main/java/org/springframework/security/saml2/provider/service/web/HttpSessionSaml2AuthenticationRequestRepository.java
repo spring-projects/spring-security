@@ -25,7 +25,7 @@ import org.springframework.security.saml2.provider.service.authentication.Abstra
 /**
  * A {@link Saml2AuthenticationRequestRepository} implementation that uses
  * {@link HttpSession} to store and retrieve the
- * {@link AbstractSaml2AuthenticationRequest}
+ * {@link AbstractSaml2AuthenticationRequest}.
  *
  * @author Marcus Da Coregio
  * @since 5.6

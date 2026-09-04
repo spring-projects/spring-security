@@ -26,7 +26,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.web.access.expression.WebSecurityExpressionRoot;
 
 /**
- * {@link RuntimeHintsRegistrar} for WebMVC classes
+ * {@link RuntimeHintsRegistrar} for WebMVC classes.
  *
  * @author Marcus Da Coregio
  * @author Daniel Garnier-Moiroux

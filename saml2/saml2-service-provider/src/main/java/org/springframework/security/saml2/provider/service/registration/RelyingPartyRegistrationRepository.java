@@ -17,7 +17,7 @@
 package org.springframework.security.saml2.provider.service.registration;
 
 /**
- * A repository for {@link RelyingPartyRegistration}s
+ * A repository for {@link RelyingPartyRegistration}s.
  *
  * @author Filip Hanik
  * @author Josh Cummings

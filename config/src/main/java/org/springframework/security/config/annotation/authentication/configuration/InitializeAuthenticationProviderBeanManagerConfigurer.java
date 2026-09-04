@@ -42,6 +42,7 @@ class InitializeAuthenticationProviderBeanManagerConfigurer extends GlobalAuthen
 	private final ApplicationContext context;
 
 	/**
+	 * Creates a new instance.
 	 * @param context the ApplicationContext to look up beans.
 	 */
 	InitializeAuthenticationProviderBeanManagerConfigurer(ApplicationContext context) {

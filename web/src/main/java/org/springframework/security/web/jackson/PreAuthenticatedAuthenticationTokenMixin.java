@@ -17,7 +17,9 @@
 package org.springframework.security.web.jackson;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import tools.jackson.databind.annotation.JsonDeserialize;
 
 import org.springframework.security.jackson.SecurityJacksonModules;
@@ -34,9 +36,9 @@ import org.springframework.security.jackson.SecurityJacksonModules;
  * @see WebJacksonModule
  * @see SecurityJacksonModules
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
-		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonTypeInfo(use = Id.CLASS)
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE,
+		isGetterVisibility = Visibility.NONE)
 @JsonDeserialize(using = PreAuthenticatedAuthenticationTokenDeserializer.class)
 abstract class PreAuthenticatedAuthenticationTokenMixin {
 

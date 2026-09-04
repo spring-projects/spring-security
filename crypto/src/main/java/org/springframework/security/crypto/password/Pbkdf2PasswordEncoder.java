@@ -234,7 +234,7 @@ public class Pbkdf2PasswordEncoder extends AbstractValidatingPasswordEncoder {
 	}
 
 	/**
-	 * The Algorithm used for creating the {@link SecretKeyFactory}
+	 * The Algorithm used for creating the {@link SecretKeyFactory}.
 	 *
 	 * @since 5.0
 	 */

@@ -32,7 +32,7 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.util.ClassUtils;
 
 /**
- * A filter chain validator for filter chains built by {@link WebSecurity}
+ * A filter chain validator for filter chains built by {@link WebSecurity}.
  *
  * @author Josh Cummings
  * @author Max Batischev

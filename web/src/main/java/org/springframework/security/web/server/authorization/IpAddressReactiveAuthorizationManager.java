@@ -27,7 +27,7 @@ import org.springframework.util.Assert;
 
 /**
  * A {@link ReactiveAuthorizationManager}, that determines if the current request contains
- * the specified address or range of addresses
+ * the specified address or range of addresses.
  *
  * @author Guirong Hu
  * @since 5.7

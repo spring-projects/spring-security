@@ -53,7 +53,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
 
 /**
- * Exports the authentication {@link Configuration}
+ * Exports the authentication {@link Configuration}.
  *
  * @author Rob Winch
  * @author Ngoc Nhan
@@ -264,7 +264,7 @@ public class AuthenticationConfiguration {
 		private PasswordEncoder defaultPasswordEncoder;
 
 		/**
-		 * Creates a new instance
+		 * Creates a new instance.
 		 * @param objectPostProcessor the {@link ObjectPostProcessor} instance to use.
 		 */
 		DefaultPasswordEncoderAuthenticationManagerBuilder(ObjectPostProcessor<Object> objectPostProcessor,

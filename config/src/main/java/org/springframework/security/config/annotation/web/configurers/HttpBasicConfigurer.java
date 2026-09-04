@@ -98,7 +98,7 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>>
 	private SecurityContextRepository securityContextRepository;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @see HttpSecurity#httpBasic(Customizer)
 	 */
 	public HttpBasicConfigurer() {

@@ -69,7 +69,7 @@ public class BearerTokenServerAccessDeniedHandler implements ServerAccessDeniedH
 	}
 
 	/**
-	 * Set the default realm name to use in the bearer token error response
+	 * Set the default realm name to use in the bearer token error response.
 	 * @param realmName
 	 */
 	public final void setRealmName(String realmName) {

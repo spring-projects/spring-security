@@ -59,6 +59,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
+ * Integration tests for RSocket JWT authentication.
+ *
  * @author Rob Winch
  */
 @ContextConfiguration

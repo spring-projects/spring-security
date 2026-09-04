@@ -33,7 +33,7 @@ import org.springframework.web.context.ServletContextAware;
 /**
  * A {@link WebInvocationPrivilegeEvaluator} which delegates to a list of
  * {@link WebInvocationPrivilegeEvaluator} based on a
- * {@link org.springframework.security.web.util.matcher.RequestMatcher} evaluation
+ * {@link org.springframework.security.web.util.matcher.RequestMatcher} evaluation.
  *
  * @author Marcus Da Coregio
  * @since 5.5.5

@@ -22,7 +22,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.util.Assert;
 
 /**
- * Utilities for interacting with {@link HttpHeaders}
+ * Utilities for interacting with {@link HttpHeaders}.
  *
  * @author Rob Winch
  * @since 5.1
@@ -34,7 +34,7 @@ public final class SecurityHeaders {
 
 	/**
 	 * Sets the provided value as a Bearer token in a header with the name of
-	 * {@link HttpHeaders#AUTHORIZATION}
+	 * {@link HttpHeaders#AUTHORIZATION}.
 	 * @param bearerTokenValue the bear token value
 	 * @return a {@link Consumer} that sets the header.
 	 */

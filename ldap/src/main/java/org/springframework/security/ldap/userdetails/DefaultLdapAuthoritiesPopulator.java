@@ -107,12 +107,12 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	private static final Log logger = LogFactory.getLog(DefaultLdapAuthoritiesPopulator.class);
 
 	/**
-	 * A default role which will be assigned to all authenticated users if set
+	 * A default role which will be assigned to all authenticated users if set.
 	 */
 	private GrantedAuthority defaultRole;
 
 	/**
-	 * Template that will be used for searching
+	 * Template that will be used for searching.
 	 */
 	private final SpringSecurityLdapTemplate ldapTemplate;
 
@@ -123,12 +123,12 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	private final SearchControls searchControls = new SearchControls();
 
 	/**
-	 * The ID of the attribute which contains the role name for a group
+	 * The ID of the attribute which contains the role name for a group.
 	 */
 	private String groupRoleAttribute = "cn";
 
 	/**
-	 * The base DN from which the search for group membership should be performed
+	 * The base DN from which the search for group membership should be performed.
 	 */
 	private final String groupSearchBase;
 
@@ -138,12 +138,12 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	private String groupSearchFilter = "(member={0})";
 
 	/**
-	 * The role prefix that will be prepended to each role name
+	 * The role prefix that will be prepended to each role name.
 	 */
 	private String rolePrefix = "ROLE_";
 
 	/**
-	 * Should we convert the role name to uppercase
+	 * Should we convert the role name to uppercase.
 	 */
 	private boolean convertToUpperCase = true;
 
@@ -251,7 +251,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	}
 
 	/**
-	 * Convert the role to uppercase
+	 * Convert the role to uppercase.
 	 */
 	public void setConvertToUpperCase(boolean convertToUpperCase) {
 		this.convertToUpperCase = convertToUpperCase;
@@ -328,7 +328,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
 	/**
 	 * Returns the attribute name of the LDAP attribute that will be mapped to the role
-	 * name Method available so that classes extending this can override
+	 * name Method available so that classes extending this can override.
 	 * @return the attribute name used for role mapping
 	 * @see #setGroupRoleAttribute(String)
 	 */
@@ -338,7 +338,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
 	/**
 	 * Returns the search filter configured for this populator Method available so that
-	 * classes extending this can override
+	 * classes extending this can override.
 	 * @return the search filter
 	 * @see #setGroupSearchFilter(String)
 	 */
@@ -348,7 +348,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
 	/**
 	 * Returns the role prefix used by this populator Method available so that classes
-	 * extending this can override
+	 * extending this can override.
 	 * @return the role prefix
 	 * @see #setRolePrefix(String)
 	 */
@@ -358,7 +358,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
 	/**
 	 * Returns true if role names are converted to uppercase Method available so that
-	 * classes extending this can override
+	 * classes extending this can override.
 	 * @return true if role names are converted to uppercase.
 	 * @see #setConvertToUpperCase(boolean)
 	 */
@@ -368,7 +368,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 
 	/**
 	 * Returns the search controls Method available so that classes extending this can
-	 * override the search controls used
+	 * override the search controls used.
 	 * @return the search controls
 	 */
 	private SearchControls getSearchControls() {

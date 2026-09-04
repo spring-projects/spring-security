@@ -60,6 +60,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
+ * Integration tests for RSocket security observations.
+ *
  * @author Rob Winch
  */
 @ContextConfiguration

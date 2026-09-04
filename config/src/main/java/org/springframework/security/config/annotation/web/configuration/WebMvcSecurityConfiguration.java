@@ -118,14 +118,14 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 	static class CompositeFilterChainProxy extends FilterChainProxy {
 
 		/**
-		 * Used for {@link #doFilter(ServletRequest, ServletResponse, FilterChain)}
+		 * Used for {@link #doFilter(ServletRequest, ServletResponse, FilterChain)}.
 		 */
 		private final Filter doFilterDelegate;
 
 		private final FilterChainProxy springSecurityFilterChain;
 
 		/**
-		 * Creates a new instance
+		 * Creates a new instance.
 		 * @param filters the Filters to delegate to. One of which must be
 		 * FilterChainProxy.
 		 */
@@ -197,7 +197,7 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 		}
 
 		/**
-		 * Creates the Filter to delegate to for doFilter
+		 * Creates the Filter to delegate to for doFilter.
 		 * @param filters the Filters to delegate to.
 		 * @return the Filter for doFilter
 		 */
@@ -208,7 +208,7 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 		}
 
 		/**
-		 * Find the FilterChainProxy in a List of Filter
+		 * Find the FilterChainProxy in a List of Filter.
 		 * @param filters
 		 * @return non-null FilterChainProxy
 		 * @throws IllegalStateException if the FilterChainProxy cannot be found

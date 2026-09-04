@@ -30,6 +30,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
+ * Integration tests for {@link UnboundIdContainer}.
+ *
  * @author Eddú Meléndez
  */
 public class UnboundIdContainerTests {

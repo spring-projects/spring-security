@@ -48,7 +48,7 @@ public final class ChannelSecurityInterceptor extends AbstractSecurityIntercepto
 	private final MessageSecurityMetadataSource metadataSource;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param metadataSource the MessageSecurityMetadataSource to use. Cannot be null.
 	 *
 	 * @see DefaultMessageSecurityMetadataSource

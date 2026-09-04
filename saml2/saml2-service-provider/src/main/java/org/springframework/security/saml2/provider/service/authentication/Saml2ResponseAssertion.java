@@ -23,7 +23,7 @@ import java.util.Map;
 import org.springframework.util.Assert;
 
 /**
- * An OpenSAML-based implementation of {@link Saml2ResponseAssertionAccessor}
+ * An OpenSAML-based implementation of {@link Saml2ResponseAssertionAccessor}.
  *
  * @author Josh Cummings
  * @since 7.0

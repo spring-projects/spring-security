@@ -25,7 +25,7 @@ import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
 
 /**
- * Result of ticket validation
+ * Result of ticket validation.
  */
 public final class KerberosTicketValidation {
 

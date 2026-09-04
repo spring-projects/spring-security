@@ -138,7 +138,7 @@ public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPo
 	}
 
 	/**
-	 * EntryPoint which is used when no RequestMatcher returned true
+	 * EntryPoint which is used when no RequestMatcher returned true.
 	 * @deprecated Use
 	 * {@link #DelegatingAuthenticationEntryPoint(AuthenticationEntryPoint, List)}
 	 */
@@ -154,7 +154,7 @@ public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPo
 	}
 
 	/**
-	 * Creates a new {@link Builder}
+	 * Creates a new {@link Builder}.
 	 * @return the new {@link Builder}
 	 */
 	public static Builder builder() {

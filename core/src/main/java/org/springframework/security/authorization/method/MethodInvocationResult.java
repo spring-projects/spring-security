@@ -35,7 +35,7 @@ public class MethodInvocationResult {
 	private @Nullable final Object result;
 
 	/**
-	 * Construct a {@link MethodInvocationResult} with the provided parameters
+	 * Construct a {@link MethodInvocationResult} with the provided parameters.
 	 * @param methodInvocation the already-invoked {@link MethodInvocation}
 	 * @param result the value returned from the {@link MethodInvocation}
 	 */
@@ -46,7 +46,7 @@ public class MethodInvocationResult {
 	}
 
 	/**
-	 * Return the already-invoked {@link MethodInvocation}
+	 * Return the already-invoked {@link MethodInvocation}.
 	 * @return the already-invoked {@link MethodInvocation}
 	 */
 	public MethodInvocation getMethodInvocation() {
@@ -54,7 +54,7 @@ public class MethodInvocationResult {
 	}
 
 	/**
-	 * Return the result of the already-invoked {@link MethodInvocation}
+	 * Return the result of the already-invoked {@link MethodInvocation}.
 	 * @return the result
 	 */
 	public @Nullable Object getResult() {

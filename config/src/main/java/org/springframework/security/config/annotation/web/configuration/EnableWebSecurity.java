@@ -30,7 +30,7 @@ import org.springframework.security.web.SecurityFilterChain;
 /**
  * Add this annotation to an {@code @Configuration} class to have the Spring Security
  * configuration defined in any {@link WebSecurityConfigurer} or more likely by exposing a
- * {@link SecurityFilterChain} bean:
+ * {@link SecurityFilterChain} bean:.
  *
  * <pre class="code">
  * &#064;Configuration

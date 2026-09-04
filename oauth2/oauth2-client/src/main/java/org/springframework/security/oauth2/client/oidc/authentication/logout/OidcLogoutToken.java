@@ -71,7 +71,7 @@ public class OidcLogoutToken extends AbstractOAuth2Token implements LogoutTokenC
 	}
 
 	/**
-	 * Create a {@link OidcLogoutToken.Builder} based on the given token value
+	 * Create a {@link OidcLogoutToken.Builder} based on the given token value.
 	 * @param tokenValue the token value to use
 	 * @return the {@link OidcLogoutToken.Builder} for further configuration
 	 */
@@ -80,7 +80,7 @@ public class OidcLogoutToken extends AbstractOAuth2Token implements LogoutTokenC
 	}
 
 	/**
-	 * A builder for {@link OidcLogoutToken}s
+	 * A builder for {@link OidcLogoutToken}s.
 	 *
 	 * @author Josh Cummings
 	 */
@@ -97,7 +97,7 @@ public class OidcLogoutToken extends AbstractOAuth2Token implements LogoutTokenC
 		}
 
 		/**
-		 * Use this token value in the resulting {@link OidcLogoutToken}
+		 * Use this token value in the resulting {@link OidcLogoutToken}.
 		 * @param tokenValue The token value to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -107,7 +107,7 @@ public class OidcLogoutToken extends AbstractOAuth2Token implements LogoutTokenC
 		}
 
 		/**
-		 * Use this claim in the resulting {@link OidcLogoutToken}
+		 * Use this claim in the resulting {@link OidcLogoutToken}.
 		 * @param name The claim name
 		 * @param value The claim value
 		 * @return the {@link Builder} for further configurations
@@ -129,7 +129,7 @@ public class OidcLogoutToken extends AbstractOAuth2Token implements LogoutTokenC
 		}
 
 		/**
-		 * Use this audience in the resulting {@link OidcLogoutToken}
+		 * Use this audience in the resulting {@link OidcLogoutToken}.
 		 * @param audience The audience(s) to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -138,7 +138,7 @@ public class OidcLogoutToken extends AbstractOAuth2Token implements LogoutTokenC
 		}
 
 		/**
-		 * Use this issued-at timestamp in the resulting {@link OidcLogoutToken}
+		 * Use this issued-at timestamp in the resulting {@link OidcLogoutToken}.
 		 * @param issuedAt The issued-at timestamp to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -147,7 +147,7 @@ public class OidcLogoutToken extends AbstractOAuth2Token implements LogoutTokenC
 		}
 
 		/**
-		 * Use this issuer in the resulting {@link OidcLogoutToken}
+		 * Use this issuer in the resulting {@link OidcLogoutToken}.
 		 * @param issuer The issuer to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -156,7 +156,7 @@ public class OidcLogoutToken extends AbstractOAuth2Token implements LogoutTokenC
 		}
 
 		/**
-		 * Use this id to identify the resulting {@link OidcLogoutToken}
+		 * Use this id to identify the resulting {@link OidcLogoutToken}.
 		 * @param jti The unique identifier to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -165,7 +165,7 @@ public class OidcLogoutToken extends AbstractOAuth2Token implements LogoutTokenC
 		}
 
 		/**
-		 * Use this subject in the resulting {@link OidcLogoutToken}
+		 * Use this subject in the resulting {@link OidcLogoutToken}.
 		 * @param subject The subject to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -174,7 +174,7 @@ public class OidcLogoutToken extends AbstractOAuth2Token implements LogoutTokenC
 		}
 
 		/**
-		 * A JSON object that identifies this token as a logout token
+		 * A JSON object that identifies this token as a logout token.
 		 * @param events The JSON object to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -183,7 +183,7 @@ public class OidcLogoutToken extends AbstractOAuth2Token implements LogoutTokenC
 		}
 
 		/**
-		 * Use this session id to correlate the OIDC Provider session
+		 * Use this session id to correlate the OIDC Provider session.
 		 * @param sessionId The session id to use
 		 * @return the {@link Builder} for further configurations
 		 */

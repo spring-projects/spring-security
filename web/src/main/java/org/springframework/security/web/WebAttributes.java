@@ -46,7 +46,7 @@ public final class WebAttributes {
 
 	/**
 	 * Set as a request attribute to override the default
-	 * {@link WebInvocationPrivilegeEvaluator}
+	 * {@link WebInvocationPrivilegeEvaluator}.
 	 *
 	 * @since 3.1.3
 	 * @see WebInvocationPrivilegeEvaluator

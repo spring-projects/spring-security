@@ -39,7 +39,7 @@ class OidcLogoutAuthenticationToken extends AbstractAuthenticationToken {
 	private final ClientRegistration clientRegistration;
 
 	/**
-	 * Construct an {@link OidcLogoutAuthenticationToken}
+	 * Construct an {@link OidcLogoutAuthenticationToken}.
 	 * @param logoutToken a signed, serialized OIDC Logout token
 	 * @param clientRegistration the {@link ClientRegistration client} associated with
 	 * this token; this is usually derived from material in the logout HTTP request
@@ -67,7 +67,7 @@ class OidcLogoutAuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	/**
-	 * Get the signed, serialized OIDC Logout token
+	 * Get the signed, serialized OIDC Logout token.
 	 * @return the logout token
 	 */
 	String getLogoutToken() {
@@ -75,7 +75,7 @@ class OidcLogoutAuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	/**
-	 * Get the {@link ClientRegistration} associated with this logout token
+	 * Get the {@link ClientRegistration} associated with this logout token.
 	 * @return the {@link ClientRegistration}
 	 */
 	ClientRegistration getClientRegistration() {

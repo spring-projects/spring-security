@@ -40,7 +40,7 @@ public class OidcSessionInformation extends SessionInformation {
 	private final Map<String, String> authorities;
 
 	/**
-	 * Construct an {@link OidcSessionInformation}
+	 * Construct an {@link OidcSessionInformation}.
 	 * @param sessionId the Client's session id
 	 * @param authorities any material that authorizes operating on the session
 	 * @param user the OIDC Provider's session and end user
@@ -51,7 +51,7 @@ public class OidcSessionInformation extends SessionInformation {
 	}
 
 	/**
-	 * Any material needed to authorize operations on this session
+	 * Any material needed to authorize operations on this session.
 	 * @return the {@link Map} of credentials
 	 */
 	public Map<String, String> getAuthorities() {
@@ -67,7 +67,7 @@ public class OidcSessionInformation extends SessionInformation {
 	}
 
 	/**
-	 * Copy this {@link OidcSessionInformation}, using a new session identifier
+	 * Copy this {@link OidcSessionInformation}, using a new session identifier.
 	 * @param sessionId the new session identifier to use
 	 * @return a new {@link OidcSessionInformation} instance
 	 */

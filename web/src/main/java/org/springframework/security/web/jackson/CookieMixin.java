@@ -17,11 +17,13 @@
 package org.springframework.security.web.jackson;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import tools.jackson.databind.annotation.JsonDeserialize;
 
 /**
- * Mixin class to serialize/deserialize {@link jakarta.servlet.http.Cookie}
+ * Mixin class to serialize/deserialize {@link jakarta.servlet.http.Cookie}.
  *
  * @author Sebastien Deleuze
  * @author Jitendra Singh
@@ -29,9 +31,9 @@ import tools.jackson.databind.annotation.JsonDeserialize;
  * @see WebServletJacksonModule
  * @see org.springframework.security.jackson.SecurityJacksonModules
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+@JsonTypeInfo(use = Id.CLASS)
 @JsonDeserialize(using = CookieDeserializer.class)
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, isGetterVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, isGetterVisibility = Visibility.NONE)
 abstract class CookieMixin {
 
 }

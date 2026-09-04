@@ -53,7 +53,7 @@ import org.springframework.security.web.webauthn.registration.WebAuthnRegistrati
 import org.springframework.util.Assert;
 
 /**
- * Configures WebAuthn for Spring Security applications
+ * Configures WebAuthn for Spring Security applications.
  *
  * @param <H> the type of builder
  * @author Rob Winch
@@ -86,7 +86,7 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Sets the relying party name
+	 * Sets the relying party name.
 	 * @param rpName the relying party name
 	 * @return the {@link WebAuthnConfigurer} for further customization
 	 */
@@ -97,7 +97,7 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Convenience method for {@link #allowedOrigins(Set)}
+	 * Convenience method for {@link #allowedOrigins(Set)}.
 	 * @param allowedOrigins the allowed origins
 	 * @return the {@link WebAuthnConfigurer} for further customization
 	 * @see #allowedOrigins(Set)
@@ -143,7 +143,7 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Sets PublicKeyCredentialCreationOptionsRepository
+	 * Sets PublicKeyCredentialCreationOptionsRepository.
 	 * @param creationOptionsRepository the creationOptionsRepository
 	 * @return the {@link WebAuthnConfigurer} for further customization
 	 */

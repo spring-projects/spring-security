@@ -43,7 +43,7 @@ final class DefaultServiceAuthenticationDetails extends WebAuthenticationDetails
 	private final String serviceUrl;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param request the current {@link HttpServletRequest} to obtain the
 	 * {@link #getServiceUrl()} from.
 	 * @param artifactPattern the {@link Pattern} that will be used to clean up the query

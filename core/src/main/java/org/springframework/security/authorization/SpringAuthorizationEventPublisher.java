@@ -46,7 +46,7 @@ public final class SpringAuthorizationEventPublisher implements AuthorizationEve
 	private Predicate<AuthorizationResult> shouldPublishResult = (result) -> !result.isGranted();
 
 	/**
-	 * Construct this publisher using Spring's {@link ApplicationEventPublisher}
+	 * Construct this publisher using Spring's {@link ApplicationEventPublisher}.
 	 * @param eventPublisher
 	 */
 	public SpringAuthorizationEventPublisher(ApplicationEventPublisher eventPublisher) {

@@ -135,6 +135,7 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 	private LdapAuthoritiesPopulator authoritiesPopulator = new DefaultActiveDirectoryAuthoritiesPopulator();
 
 	/**
+	 * Creates a new instance with the given domain, LDAP url, and root DN.
 	 * @param domain the domain name (can be null or empty)
 	 * @param url an LDAP url (or multiple space-delimited URLs).
 	 * @param rootDn the root DN (can be null or empty)
@@ -149,6 +150,8 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 	}
 
 	/**
+	 * Creates a new instance with the given domain and LDAP url, deriving the root DN
+	 * from the domain.
 	 * @param domain the domain name (can be null or empty)
 	 * @param url an LDAP url (or multiple URLs)
 	 */

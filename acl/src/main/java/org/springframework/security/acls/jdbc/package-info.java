@@ -15,6 +15,6 @@
  */
 
 /**
- * JDBC-based persistence of ACL information
+ * JDBC-based persistence of ACL information.
  */
 package org.springframework.security.acls.jdbc;

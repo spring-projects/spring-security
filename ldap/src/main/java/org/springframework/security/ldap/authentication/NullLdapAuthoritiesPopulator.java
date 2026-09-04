@@ -24,6 +24,9 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 
 /**
+ * A {@link LdapAuthoritiesPopulator} which always returns an empty collection of
+ * authorities.
+ *
  * @author Luke Taylor
  * @since 3.0
  */

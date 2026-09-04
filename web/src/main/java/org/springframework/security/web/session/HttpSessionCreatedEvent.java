@@ -22,7 +22,7 @@ import org.springframework.security.core.session.SessionCreationEvent;
 
 /**
  * Published by the {@link HttpSessionEventPublisher} when an {@code HttpSession} is
- * created by the container
+ * created by the container.
  *
  * @author Ray Krueger
  * @author Luke Taylor

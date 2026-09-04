@@ -128,7 +128,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	private LogoutResponseConfigurer logoutResponseConfigurer;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @see HttpSecurity#logout(Customizer)
 	 */
 	public Saml2LogoutConfigurer(ApplicationContext context) {
@@ -340,7 +340,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 
 		/**
 		 * Use this {@link LogoutHandler} for processing a logout request from the
-		 * asserting party
+		 * asserting party.
 		 * @param authenticator the {@link Saml2LogoutRequestValidator} to use
 		 * @return the {@link LogoutRequestConfigurer} for further customizations
 		 */
@@ -351,7 +351,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 
 		/**
 		 * Use this {@link Saml2LogoutRequestResolver} for producing a logout request to
-		 * send to the asserting party
+		 * send to the asserting party.
 		 * @param logoutRequestResolver the {@link Saml2LogoutRequestResolver} to use
 		 * @return the {@link LogoutRequestConfigurer} for further customizations
 		 */
@@ -361,7 +361,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		/**
-		 * Use this {@link Saml2LogoutRequestRepository} for storing logout requests
+		 * Use this {@link Saml2LogoutRequestRepository} for storing logout requests.
 		 * @param logoutRequestRepository the {@link Saml2LogoutRequestRepository} to use
 		 * @return the {@link LogoutRequestConfigurer} for further customizations
 		 */
@@ -422,7 +422,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 
 		/**
 		 * Use this {@link LogoutHandler} for processing a logout response from the
-		 * asserting party
+		 * asserting party.
 		 * @param authenticator the {@link AuthenticationManager} to use
 		 * @return the {@link LogoutRequestConfigurer} for further customizations
 		 */
@@ -433,7 +433,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 
 		/**
 		 * Use this {@link Saml2LogoutRequestResolver} for producing a logout response to
-		 * send to the asserting party
+		 * send to the asserting party.
 		 * @param logoutResponseResolver the {@link Saml2LogoutResponseResolver} to use
 		 * @return the {@link LogoutRequestConfigurer} for further customizations
 		 */

@@ -31,6 +31,7 @@ import org.springframework.util.Assert;
  * <p>
  * Forward Authentication Failure Handler
  * </p>
+ * .
  *
  * @author Shazin Sadakath
  * @since 4.1
@@ -40,6 +41,7 @@ public class ForwardAuthenticationFailureHandler implements AuthenticationFailur
 	private final String forwardUrl;
 
 	/**
+	 * Creates a new instance which forwards to the given URL on authentication failure.
 	 * @param forwardUrl
 	 */
 	public ForwardAuthenticationFailureHandler(String forwardUrl) {

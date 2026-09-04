@@ -112,7 +112,7 @@ public final class RelyingPartyRegistrationPlaceholderResolvers {
 	}
 
 	/**
-	 * A class for resolving {@link RelyingPartyRegistration} URIs
+	 * A class for resolving {@link RelyingPartyRegistration} URIs.
 	 */
 	public static final class UriResolver {
 

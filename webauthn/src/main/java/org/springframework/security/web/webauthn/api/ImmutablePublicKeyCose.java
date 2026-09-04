@@ -24,7 +24,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 /**
- * An immutable {@link PublicKeyCose}
+ * An immutable {@link PublicKeyCose}.
  *
  * @author Rob Winch
  * @since 6.4
@@ -48,7 +48,7 @@ public class ImmutablePublicKeyCose implements PublicKeyCose {
 	}
 
 	/**
-	 * Creates a new instance form a Base64 URL encoded String
+	 * Creates a new instance form a Base64 URL encoded String.
 	 * @param base64EncodedString the base64EncodedString encoded String
 	 * @return
 	 */

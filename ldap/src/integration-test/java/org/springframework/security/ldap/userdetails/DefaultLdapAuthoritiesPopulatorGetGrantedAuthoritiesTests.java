@@ -38,6 +38,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
+ * Tests for {@link DefaultLdapAuthoritiesPopulator#getGrantedAuthorities}.
+ *
  * @author Dayan Kodippily
  */
 @ExtendWith(SpringExtension.class)

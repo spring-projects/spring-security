@@ -35,39 +35,46 @@ public final class ClientAuthenticationMethod implements Serializable {
 	private static final long serialVersionUID = 620L;
 
 	/**
+	 * The client_secret_basic authentication method.
 	 * @since 5.5
 	 */
 	public static final ClientAuthenticationMethod CLIENT_SECRET_BASIC = new ClientAuthenticationMethod(
 			"client_secret_basic");
 
 	/**
+	 * The client_secret_post authentication method.
 	 * @since 5.5
 	 */
 	public static final ClientAuthenticationMethod CLIENT_SECRET_POST = new ClientAuthenticationMethod(
 			"client_secret_post");
 
 	/**
+	 * The client_secret_jwt authentication method.
 	 * @since 5.5
 	 */
 	public static final ClientAuthenticationMethod CLIENT_SECRET_JWT = new ClientAuthenticationMethod(
 			"client_secret_jwt");
 
 	/**
+	 * The private_key_jwt authentication method.
 	 * @since 5.5
 	 */
 	public static final ClientAuthenticationMethod PRIVATE_KEY_JWT = new ClientAuthenticationMethod("private_key_jwt");
 
 	/**
+	 * The none authentication method.
 	 * @since 5.2
 	 */
 	public static final ClientAuthenticationMethod NONE = new ClientAuthenticationMethod("none");
 
 	/**
+	 * The tls_client_auth authentication method.
 	 * @since 6.3
 	 */
 	public static final ClientAuthenticationMethod TLS_CLIENT_AUTH = new ClientAuthenticationMethod("tls_client_auth");
 
 	/**
+	 * The self_signed_tls_client_auth authentication method.
 	 * @since 6.3
 	 */
 	public static final ClientAuthenticationMethod SELF_SIGNED_TLS_CLIENT_AUTH = new ClientAuthenticationMethod(

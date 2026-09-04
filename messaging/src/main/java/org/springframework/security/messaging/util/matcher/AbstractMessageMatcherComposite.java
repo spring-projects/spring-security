@@ -25,7 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 /**
- * Abstract {@link MessageMatcher} containing multiple {@link MessageMatcher}
+ * Abstract {@link MessageMatcher} containing multiple {@link MessageMatcher}.
  *
  * @since 4.0
  */
@@ -34,6 +34,7 @@ public abstract class AbstractMessageMatcherComposite<T> implements MessageMatch
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	/**
+	 * The logger used by subclasses.
 	 * @deprecated since 5.4 in favor of {@link #logger}
 	 */
 	@Deprecated
@@ -42,7 +43,7 @@ public abstract class AbstractMessageMatcherComposite<T> implements MessageMatch
 	private final List<MessageMatcher<T>> messageMatchers;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param messageMatchers the {@link MessageMatcher} instances to try
 	 */
 	AbstractMessageMatcherComposite(List<MessageMatcher<T>> messageMatchers) {
@@ -53,7 +54,7 @@ public abstract class AbstractMessageMatcherComposite<T> implements MessageMatch
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param messageMatchers the {@link MessageMatcher} instances to try
 	 */
 	@SafeVarargs

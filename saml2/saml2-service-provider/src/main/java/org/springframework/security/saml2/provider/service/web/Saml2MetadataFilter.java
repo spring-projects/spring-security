@@ -38,7 +38,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * A {@link jakarta.servlet.Filter} that returns the metadata for a Relying Party
+ * A {@link jakarta.servlet.Filter} that returns the metadata for a Relying Party.
  *
  * @author Jakub Kubrynski
  * @author Josh Cummings
@@ -74,7 +74,7 @@ public final class Saml2MetadataFilter extends OncePerRequestFilter {
 	}
 
 	/**
-	 * Constructs an instance of {@link Saml2MetadataFilter}
+	 * Constructs an instance of {@link Saml2MetadataFilter}.
 	 * @param metadataResponseResolver the strategy for producing metadata
 	 * @since 6.1
 	 */
@@ -114,7 +114,7 @@ public final class Saml2MetadataFilter extends OncePerRequestFilter {
 
 	/**
 	 * Set the {@link RequestMatcher} that determines whether this filter should handle
-	 * the incoming {@link HttpServletRequest}
+	 * the incoming {@link HttpServletRequest}.
 	 * @param requestMatcher the {@link RequestMatcher} to identify requests for metadata
 	 */
 	public void setRequestMatcher(RequestMatcher requestMatcher) {

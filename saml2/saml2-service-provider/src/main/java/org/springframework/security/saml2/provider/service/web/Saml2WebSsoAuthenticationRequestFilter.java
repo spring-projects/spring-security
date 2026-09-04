@@ -71,7 +71,7 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 
 	/**
 	 * Construct a {@link Saml2WebSsoAuthenticationRequestFilter} with the strategy for
-	 * resolving the {@code AuthnRequest}
+	 * resolving the {@code AuthnRequest}.
 	 * @param authenticationRequestResolver the strategy for resolving the
 	 * {@code AuthnRequest}
 	 * @since 5.7
@@ -83,7 +83,7 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 
 	/**
 	 * Use the given {@link Saml2AuthenticationRequestRepository} to save the
-	 * authentication request
+	 * authentication request.
 	 * @param authenticationRequestRepository the
 	 * {@link Saml2AuthenticationRequestRepository} to use
 	 * @since 5.6

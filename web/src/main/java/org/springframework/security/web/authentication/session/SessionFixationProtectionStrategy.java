@@ -99,6 +99,7 @@ public class SessionFixationProtectionStrategy extends AbstractSessionFixationPr
 	}
 
 	/**
+	 * Transfers the given attributes into the new session.
 	 * @param attributes the attributes which were extracted from the original session by
 	 * {@code extractAttributes}
 	 * @param newSession the newly created session

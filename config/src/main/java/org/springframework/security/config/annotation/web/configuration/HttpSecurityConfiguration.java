@@ -255,7 +255,7 @@ class HttpSecurityConfiguration {
 		private PasswordEncoder defaultPasswordEncoder;
 
 		/**
-		 * Creates a new instance
+		 * Creates a new instance.
 		 * @param objectPostProcessor the {@link ObjectPostProcessor} instance to use.
 		 */
 		DefaultPasswordEncoderAuthenticationManagerBuilder(ObjectPostProcessor<Object> objectPostProcessor,

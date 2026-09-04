@@ -40,7 +40,7 @@ import org.springframework.security.saml2.core.Saml2X509Credential;
 
 /**
  * A {@link RelyingPartyRegistration.AssertingPartyDetails} that contains
- * OpenSAML-specific members
+ * OpenSAML-specific members.
  *
  * @author Josh Cummings
  * @since 5.7
@@ -63,7 +63,7 @@ public final class OpenSamlAssertingPartyDetails extends RelyingPartyRegistratio
 
 	/**
 	 * Get the {@link EntityDescriptor} that underlies this
-	 * {@link org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.AssertingPartyDetails}
+	 * {@link org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.AssertingPartyDetails}.
 	 * @return the {@link EntityDescriptor}
 	 */
 	public EntityDescriptor getEntityDescriptor() {
@@ -72,7 +72,7 @@ public final class OpenSamlAssertingPartyDetails extends RelyingPartyRegistratio
 
 	/**
 	 * Use this {@link EntityDescriptor} to begin building an
-	 * {@link org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.AssertingPartyDetails}
+	 * {@link org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.AssertingPartyDetails}.
 	 * @param entity the {@link EntityDescriptor} to use
 	 * @return the
 	 * {@link org.springframework.security.saml2.provider.service.registration.OpenSamlAssertingPartyDetails.Builder}
@@ -203,7 +203,7 @@ public final class OpenSamlAssertingPartyDetails extends RelyingPartyRegistratio
 	/**
 	 * An OpenSAML version of
 	 * {@link org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.AssertingPartyDetails.Builder}
-	 * that contains the underlying {@link EntityDescriptor}
+	 * that contains the underlying {@link EntityDescriptor}.
 	 */
 	public static final class Builder extends RelyingPartyRegistration.AssertingPartyDetails.Builder {
 
@@ -295,7 +295,7 @@ public final class OpenSamlAssertingPartyDetails extends RelyingPartyRegistratio
 
 		/**
 		 * Build an
-		 * {@link org.springframework.security.saml2.provider.service.registration.OpenSamlAssertingPartyDetails}
+		 * {@link org.springframework.security.saml2.provider.service.registration.OpenSamlAssertingPartyDetails}.
 		 * @return
 		 */
 		@Override

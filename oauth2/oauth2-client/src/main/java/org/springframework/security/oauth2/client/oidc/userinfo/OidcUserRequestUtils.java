@@ -31,7 +31,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.util.StringUtils;
 
 /**
- * Utilities for working with the {@link OidcUserRequest}
+ * Utilities for working with the {@link OidcUserRequest}.
  *
  * @author Rob Winch
  * @since 5.1

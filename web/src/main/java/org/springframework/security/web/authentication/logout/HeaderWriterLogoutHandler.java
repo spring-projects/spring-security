@@ -25,6 +25,9 @@ import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.util.Assert;
 
 /**
+ * A {@link LogoutHandler} that writes headers to the response on logout using the given
+ * {@link HeaderWriter}.
+ *
  * @author Rafiullah Hamedy
  * @since 5.2
  */
@@ -33,7 +36,7 @@ public final class HeaderWriterLogoutHandler implements LogoutHandler {
 	private final HeaderWriter headerWriter;
 
 	/**
-	 * Constructs a new instance using the passed {@link HeaderWriter} implementation
+	 * Constructs a new instance using the passed {@link HeaderWriter} implementation.
 	 * @param headerWriter
 	 * @throws IllegalArgumentException if headerWriter is null.
 	 */
