@@ -18,7 +18,7 @@ jobs:
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
     - name: Compute Version
       id: compute-version
-      uses: spring-io/spring-release-actions/compute-version@a1f321783a0769dd2aea4fad6c2ae2f95a52b885 # 0.0.5
+      uses: spring-io/spring-release-actions/compute-version@1b8671612c3eb3d9b9763e2d7b66f1a80d00ee95 # 0.0.6
     - name: Get Today's Release Version
       id: todays-release
       uses: spring-io/spring-release-actions/get-todays-release-version@1b8671612c3eb3d9b9763e2d7b66f1a80d00ee95 # 0.0.6
@@ -32,7 +32,7 @@ jobs:
       with:
         version: ${{ steps.todays-release.outputs.release-version }}
     - name: Schedule Next Milestone
-      uses: spring-io/spring-release-actions/schedule-milestone@a1f321783a0769dd2aea4fad6c2ae2f95a52b885 # 0.0.5
+      uses: spring-io/spring-release-actions/schedule-milestone@1b8671612c3eb3d9b9763e2d7b66f1a80d00ee95 # 0.0.6
       with:
         version: ${{ steps.next-version.outputs.version }}
         version-date: ${{ steps.next-version.outputs.version-date }}
