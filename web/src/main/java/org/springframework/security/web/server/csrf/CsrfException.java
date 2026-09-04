@@ -21,7 +21,7 @@ import java.io.Serial;
 import org.springframework.security.access.AccessDeniedException;
 
 /**
- * Thrown when an invalid or missing {@link CsrfToken} is found in the ServerWebExchange
+ * Thrown when an invalid or missing {@link CsrfToken} is found in the ServerWebExchange.
  *
  * @author Rob Winch
  * @since 5.0

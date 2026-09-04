@@ -342,7 +342,7 @@ public class MiniKdc {
 	}
 
 	/**
-	 * Stops the MiniKdc
+	 * Stops the MiniKdc.
 	 */
 	public synchronized void stop() {
 		if (this.simpleKdc != null) {

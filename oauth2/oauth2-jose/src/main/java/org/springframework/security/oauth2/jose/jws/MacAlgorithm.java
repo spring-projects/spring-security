@@ -35,17 +35,17 @@ package org.springframework.security.oauth2.jose.jws;
 public enum MacAlgorithm implements JwsAlgorithm {
 
 	/**
-	 * HMAC using SHA-256 (Required)
+	 * HMAC using SHA-256 (Required).
 	 */
 	HS256(JwsAlgorithms.HS256),
 
 	/**
-	 * HMAC using SHA-384 (Optional)
+	 * HMAC using SHA-384 (Optional).
 	 */
 	HS384(JwsAlgorithms.HS384),
 
 	/**
-	 * HMAC using SHA-512 (Optional)
+	 * HMAC using SHA-512 (Optional).
 	 */
 	HS512(JwsAlgorithms.HS512);
 

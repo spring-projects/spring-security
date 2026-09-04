@@ -154,7 +154,7 @@ public final class MediaTypeRequestMatcher implements RequestMatcher {
 	private Set<MediaType> ignoredMediaTypes = Collections.emptySet();
 
 	/**
-	 * Creates an instance
+	 * Creates an instance.
 	 * @param matchingMediaTypes the {@link MediaType} that will make the http request.
 	 * @since 5.2
 	 */
@@ -163,7 +163,7 @@ public final class MediaTypeRequestMatcher implements RequestMatcher {
 	}
 
 	/**
-	 * Creates an instance
+	 * Creates an instance.
 	 * @param matchingMediaTypes the {@link MediaType} that will make the http request.
 	 * @since 5.2
 	 */
@@ -172,7 +172,7 @@ public final class MediaTypeRequestMatcher implements RequestMatcher {
 	}
 
 	/**
-	 * Creates an instance
+	 * Creates an instance.
 	 * @param contentNegotiationStrategy the {@link ContentNegotiationStrategy} to use
 	 * @param matchingMediaTypes the {@link MediaType} that will make the
 	 * {@link RequestMatcher} return true
@@ -183,7 +183,7 @@ public final class MediaTypeRequestMatcher implements RequestMatcher {
 	}
 
 	/**
-	 * Creates an instance
+	 * Creates an instance.
 	 * @param contentNegotiationStrategy the {@link ContentNegotiationStrategy} to use
 	 * @param matchingMediaTypes the {@link MediaType} that will make the
 	 * {@link RequestMatcher} return true

@@ -51,12 +51,12 @@ public abstract class SecurityExpressionRoot<T extends @Nullable Object> impleme
 	private AuthorizationManagerFactory<T> authorizationManagerFactory = new DefaultAuthorizationManagerFactory<>();
 
 	/**
-	 * Allows "permitAll" expression
+	 * Allows "permitAll" expression.
 	 */
 	public final boolean permitAll = true;
 
 	/**
-	 * Allows "denyAll" expression
+	 * Allows "denyAll" expression.
 	 */
 	public final boolean denyAll = false;
 
@@ -73,7 +73,7 @@ public abstract class SecurityExpressionRoot<T extends @Nullable Object> impleme
 	public final String admin = "administration";
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param authentication the {@link Authentication} to use. Cannot be null.
 	 * @deprecated Use {@link #SecurityExpressionRoot(Supplier, Object)} instead
 	 */
@@ -207,7 +207,7 @@ public abstract class SecurityExpressionRoot<T extends @Nullable Object> impleme
 
 	/**
 	 * Convenience method to access {@link Authentication#getPrincipal()} from
-	 * {@link #getAuthentication()}
+	 * {@link #getAuthentication()}.
 	 * @return
 	 */
 	public @Nullable Object getPrincipal() {
@@ -215,6 +215,7 @@ public abstract class SecurityExpressionRoot<T extends @Nullable Object> impleme
 	}
 
 	/**
+	 * Sets the {@link AuthenticationTrustResolver} to use.
 	 * @deprecated Use
 	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
 	 */
@@ -224,6 +225,7 @@ public abstract class SecurityExpressionRoot<T extends @Nullable Object> impleme
 	}
 
 	/**
+	 * Sets the {@link RoleHierarchy} to use.
 	 * @deprecated Use
 	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
 	 */

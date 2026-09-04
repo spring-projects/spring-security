@@ -164,6 +164,7 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 	}
 
 	/**
+	 * Converts a {@code URL} value to a string for use in equality/hashCode checks.
 	 * @return {@code URL} converted to a string since {@code URL} shouldn't be used for
 	 * equality/hashCode. For other instances the value is returned as is.
 	 */

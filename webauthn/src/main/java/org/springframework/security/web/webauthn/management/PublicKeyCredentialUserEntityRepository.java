@@ -31,7 +31,7 @@ public interface PublicKeyCredentialUserEntityRepository {
 
 	/**
 	 * Finds the {@link PublicKeyCredentialUserEntity} by
-	 * {@link PublicKeyCredentialUserEntity#getId()}
+	 * {@link PublicKeyCredentialUserEntity#getId()}.
 	 * @param id the id to lookup the username by
 	 * @return the username or null if not found.
 	 */

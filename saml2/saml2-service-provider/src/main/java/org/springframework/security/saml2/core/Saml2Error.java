@@ -51,7 +51,7 @@ public class Saml2Error implements Serializable {
 	}
 
 	/**
-	 * Construct an {@link Saml2ErrorCodes#INVALID_RESPONSE} error
+	 * Construct an {@link Saml2ErrorCodes#INVALID_RESPONSE} error.
 	 * @param description the error description
 	 * @return the resulting {@link Saml2Error}
 	 * @since 7.0
@@ -61,7 +61,7 @@ public class Saml2Error implements Serializable {
 	}
 
 	/**
-	 * Construct an {@link Saml2ErrorCodes#INTERNAL_VALIDATION_ERROR} error
+	 * Construct an {@link Saml2ErrorCodes#INTERNAL_VALIDATION_ERROR} error.
 	 * @param description the error description
 	 * @return the resulting {@link Saml2Error}
 	 * @since 7.0
@@ -71,7 +71,7 @@ public class Saml2Error implements Serializable {
 	}
 
 	/**
-	 * Construct an {@link Saml2ErrorCodes#MALFORMED_RESPONSE_DATA} error
+	 * Construct an {@link Saml2ErrorCodes#MALFORMED_RESPONSE_DATA} error.
 	 * @param description the error description
 	 * @return the resulting {@link Saml2Error}
 	 * @since 7.0
@@ -81,7 +81,7 @@ public class Saml2Error implements Serializable {
 	}
 
 	/**
-	 * Construct an {@link Saml2ErrorCodes#DECRYPTION_ERROR} error
+	 * Construct an {@link Saml2ErrorCodes#DECRYPTION_ERROR} error.
 	 * @param description the error description
 	 * @return the resulting {@link Saml2Error}
 	 * @since 7.0
@@ -91,7 +91,7 @@ public class Saml2Error implements Serializable {
 	}
 
 	/**
-	 * Construct an {@link Saml2ErrorCodes#RELYING_PARTY_REGISTRATION_NOT_FOUND} error
+	 * Construct an {@link Saml2ErrorCodes#RELYING_PARTY_REGISTRATION_NOT_FOUND} error.
 	 * @param description the error description
 	 * @return the resulting {@link Saml2Error}
 	 * @since 7.0
@@ -101,7 +101,7 @@ public class Saml2Error implements Serializable {
 	}
 
 	/**
-	 * Construct an {@link Saml2ErrorCodes#SUBJECT_NOT_FOUND} error
+	 * Construct an {@link Saml2ErrorCodes#SUBJECT_NOT_FOUND} error.
 	 * @param description the error description
 	 * @return the resulting {@link Saml2Error}
 	 * @since 7.0

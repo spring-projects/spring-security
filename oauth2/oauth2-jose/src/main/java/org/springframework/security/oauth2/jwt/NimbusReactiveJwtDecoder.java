@@ -138,7 +138,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	}
 
 	/**
-	 * Use the following {@link Converter} for manipulating the JWT's claim set
+	 * Use the following {@link Converter} for manipulating the JWT's claim set.
 	 * @param claimSetConverter the {@link Converter} to use
 	 */
 	public void setClaimSetConverter(Converter<Map<String, Object>, Map<String, Object>> claimSetConverter) {
@@ -258,7 +258,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	}
 
 	/**
-	 * Use the given public key to validate JWTs
+	 * Use the given public key to validate JWTs.
 	 * @param key the public key to use
 	 * @return a {@link PublicKeyReactiveJwtDecoderBuilder} for further configurations
 	 *
@@ -280,7 +280,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	}
 
 	/**
-	 * Use the given {@link Function} to validate JWTs
+	 * Use the given {@link Function} to validate JWTs.
 	 * @param source the {@link Function}
 	 * @return a {@link JwkSourceReactiveJwtDecoderBuilder} for further configurations
 	 *

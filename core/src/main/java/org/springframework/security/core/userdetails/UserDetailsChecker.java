@@ -35,7 +35,7 @@ package org.springframework.security.core.userdetails;
 public interface UserDetailsChecker {
 
 	/**
-	 * Examines the User
+	 * Examines the User.
 	 * @param toCheck the UserDetails instance whose status should be checked.
 	 */
 	void check(UserDetails toCheck);

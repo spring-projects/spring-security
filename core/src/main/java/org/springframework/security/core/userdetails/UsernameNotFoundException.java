@@ -68,7 +68,7 @@ public class UsernameNotFoundException extends AuthenticationException {
 	}
 
 	/**
-	 * Construct an exception based on a specific username
+	 * Construct an exception based on a specific username.
 	 * @param username the invalid username
 	 * @return the {@link UsernameNotFoundException}
 	 * @since 7.0
@@ -78,7 +78,7 @@ public class UsernameNotFoundException extends AuthenticationException {
 	}
 
 	/**
-	 * Construct an exception based on a specific username
+	 * Construct an exception based on a specific username.
 	 * @param username the invalid username
 	 * @param cause any underlying cause
 	 * @return the {@link UsernameNotFoundException}
@@ -89,7 +89,7 @@ public class UsernameNotFoundException extends AuthenticationException {
 	}
 
 	/**
-	 * Get the username that couldn't be found
+	 * Get the username that couldn't be found.
 	 * @return the username
 	 * @since 7.0
 	 */

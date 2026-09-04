@@ -83,7 +83,7 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 	private OpaqueTokenAuthenticationConverter authenticationConverter = OpaqueTokenAuthenticationProvider::convert;
 
 	/**
-	 * Creates a {@code OpaqueTokenAuthenticationProvider} with the provided parameters
+	 * Creates a {@code OpaqueTokenAuthenticationProvider} with the provided parameters.
 	 * @param introspector The {@link OpaqueTokenIntrospector} to use
 	 */
 	public OpaqueTokenAuthenticationProvider(OpaqueTokenIntrospector introspector) {

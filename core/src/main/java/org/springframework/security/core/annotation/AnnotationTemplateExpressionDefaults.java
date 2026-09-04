@@ -18,7 +18,7 @@ package org.springframework.security.core.annotation;
 
 /**
  * A component for configuring the expression attribute template of the parsed Spring
- * Security annotation
+ * Security annotation.
  *
  * @author DingHao
  * @since 6.4

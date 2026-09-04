@@ -68,7 +68,7 @@ public interface AssertingPartyMetadata extends Serializable {
 
 	/**
 	 * Get all verification {@link Saml2X509Credential}s associated with this asserting
-	 * party
+	 * party.
 	 * @return all verification {@link Saml2X509Credential}s associated with this
 	 * asserting party
 	 * @since 5.4
@@ -77,7 +77,7 @@ public interface AssertingPartyMetadata extends Serializable {
 
 	/**
 	 * Get all encryption {@link Saml2X509Credential}s associated with this asserting
-	 * party
+	 * party.
 	 * @return all encryption {@link Saml2X509Credential}s associated with this asserting
 	 * party
 	 * @since 5.4
@@ -170,7 +170,7 @@ public interface AssertingPartyMetadata extends Serializable {
 		B wantAuthnRequestsSigned(boolean wantAuthnRequestsSigned);
 
 		/**
-		 * Apply this {@link Consumer} to the list of SigningMethod Algorithms
+		 * Apply this {@link Consumer} to the list of SigningMethod Algorithms.
 		 * @param signingMethodAlgorithmsConsumer a {@link Consumer} of the list of
 		 * SigningMethod Algorithms
 		 * @return this {@link B} for further configuration
@@ -179,7 +179,7 @@ public interface AssertingPartyMetadata extends Serializable {
 		B signingAlgorithms(Consumer<List<String>> signingMethodAlgorithmsConsumer);
 
 		/**
-		 * Apply this {@link Consumer} to the list of {@link Saml2X509Credential}s
+		 * Apply this {@link Consumer} to the list of {@link Saml2X509Credential}s.
 		 * @param credentialsConsumer a {@link Consumer} of the {@link List} of
 		 * {@link Saml2X509Credential}s
 		 * @return the {@link RelyingPartyRegistration.Builder} for further configuration
@@ -188,7 +188,7 @@ public interface AssertingPartyMetadata extends Serializable {
 		B verificationX509Credentials(Consumer<Collection<Saml2X509Credential>> credentialsConsumer);
 
 		/**
-		 * Apply this {@link Consumer} to the list of {@link Saml2X509Credential}s
+		 * Apply this {@link Consumer} to the list of {@link Saml2X509Credential}s.
 		 * @param credentialsConsumer a {@link Consumer} of the {@link List} of
 		 * {@link Saml2X509Credential}s
 		 * @return the {@link RelyingPartyRegistration.Builder} for further configuration
@@ -267,7 +267,7 @@ public interface AssertingPartyMetadata extends Serializable {
 
 		/**
 		 * Creates an immutable ProviderDetails object representing the configuration for
-		 * an Identity Provider, IDP
+		 * an Identity Provider, IDP.
 		 * @return immutable ProviderDetails object
 		 */
 		AssertingPartyMetadata build();

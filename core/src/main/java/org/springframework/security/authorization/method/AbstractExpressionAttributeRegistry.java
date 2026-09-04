@@ -30,7 +30,7 @@ import org.springframework.security.core.annotation.AnnotationTemplateExpression
 import org.springframework.util.Assert;
 
 /**
- * For internal use only, as this contract is likely to change
+ * For internal use only, as this contract is likely to change.
  *
  * @author Evgeniy Cheban
  * @author DingHao

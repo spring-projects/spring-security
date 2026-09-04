@@ -40,7 +40,7 @@ public final class BearerTokenErrors {
 	}
 
 	/**
-	 * Create a {@link BearerTokenError} caused by an invalid request
+	 * Create a {@link BearerTokenError} caused by an invalid request.
 	 * @param message a description of the error
 	 * @return a {@link BearerTokenError}
 	 */
@@ -57,7 +57,7 @@ public final class BearerTokenErrors {
 	}
 
 	/**
-	 * Create a {@link BearerTokenError} caused by an invalid token
+	 * Create a {@link BearerTokenError} caused by an invalid token.
 	 * @param message a description of the error
 	 * @return a {@link BearerTokenError}
 	 */
@@ -74,7 +74,7 @@ public final class BearerTokenErrors {
 	}
 
 	/**
-	 * Create a {@link BearerTokenError} caused by an invalid token
+	 * Create a {@link BearerTokenError} caused by an invalid token.
 	 * @param scope the scope attribute to use in the error
 	 * @return a {@link BearerTokenError}
 	 */

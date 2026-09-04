@@ -35,7 +35,7 @@ public class InMemoryUserDetailsManagerConfigurer<B extends ProviderManagerBuild
 		extends UserDetailsManagerConfigurer<B, InMemoryUserDetailsManagerConfigurer<B>> {
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 */
 	public InMemoryUserDetailsManagerConfigurer() {
 		super(new InMemoryUserDetailsManager(new ArrayList<>()));

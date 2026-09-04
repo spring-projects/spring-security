@@ -166,7 +166,7 @@ public final class SecurityMockMvcResultMatchers {
 		}
 
 		/**
-		 * Allows for any validating the authentication with arbitrary assertions
+		 * Allows for any validating the authentication with arbitrary assertions.
 		 * @param assertAuthentication the Consumer which validates the authentication
 		 * @return the AuthenticatedMatcher to perform additional assertions
 		 */
@@ -176,7 +176,7 @@ public final class SecurityMockMvcResultMatchers {
 		}
 
 		/**
-		 * Specifies the expected username
+		 * Specifies the expected username.
 		 * @param expected the expected username
 		 * @return the {@link AuthenticatedMatcher} for further customization
 		 */
@@ -185,7 +185,7 @@ public final class SecurityMockMvcResultMatchers {
 		}
 
 		/**
-		 * Specifies the expected {@link SecurityContext}
+		 * Specifies the expected {@link SecurityContext}.
 		 * @param expected the expected {@link SecurityContext}
 		 * @return the {@link AuthenticatedMatcher} for further customization
 		 */
@@ -195,7 +195,7 @@ public final class SecurityMockMvcResultMatchers {
 		}
 
 		/**
-		 * Specifies the expected {@link Authentication}
+		 * Specifies the expected {@link Authentication}.
 		 * @param expected the expected {@link Authentication}
 		 * @return the {@link AuthenticatedMatcher} for further customization
 		 */
@@ -205,7 +205,7 @@ public final class SecurityMockMvcResultMatchers {
 		}
 
 		/**
-		 * Specifies the expected principal
+		 * Specifies the expected principal.
 		 * @param expected the expected principal
 		 * @return the {@link AuthenticatedMatcher} for further customization
 		 */
@@ -215,7 +215,7 @@ public final class SecurityMockMvcResultMatchers {
 		}
 
 		/**
-		 * Specifies the expected {@link Authentication#getName()}
+		 * Specifies the expected {@link Authentication#getName()}.
 		 * @param expected the expected {@link Authentication#getName()}
 		 * @return the {@link AuthenticatedMatcher} for further customization
 		 */
@@ -225,7 +225,7 @@ public final class SecurityMockMvcResultMatchers {
 		}
 
 		/**
-		 * Specifies the {@link GrantedAuthority#getAuthority()}
+		 * Specifies the {@link GrantedAuthority#getAuthority()}.
 		 * @param authorities the authorityNames
 		 * @return the {@link AuthenticatedMatcher} for further customization
 		 */
@@ -236,7 +236,7 @@ public final class SecurityMockMvcResultMatchers {
 		}
 
 		/**
-		 * Specifies the {@link Authentication#getAuthorities()}
+		 * Specifies the {@link Authentication#getAuthorities()}.
 		 * @param expected the {@link Authentication#getAuthorities()}
 		 * @return the {@link AuthenticatedMatcher} for further customization
 		 */

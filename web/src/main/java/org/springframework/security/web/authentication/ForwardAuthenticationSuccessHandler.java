@@ -30,6 +30,7 @@ import org.springframework.util.Assert;
  * <p>
  * Forward Authentication Success Handler
  * </p>
+ * .
  *
  * @author Shazin Sadakath
  * @since 4.1
@@ -40,6 +41,7 @@ public class ForwardAuthenticationSuccessHandler implements AuthenticationSucces
 	private final String forwardUrl;
 
 	/**
+	 * Creates a new instance that forwards to the given URL.
 	 * @param forwardUrl
 	 */
 	public ForwardAuthenticationSuccessHandler(String forwardUrl) {

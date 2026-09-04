@@ -99,7 +99,7 @@ public class WithSecurityContextTestExecutionListener extends AbstractTestExecut
 	}
 
 	/**
-	 * If configured before test execution sets the SecurityContext
+	 * If configured before test execution sets the SecurityContext.
 	 * @since 5.1
 	 */
 	@NullUnmarked

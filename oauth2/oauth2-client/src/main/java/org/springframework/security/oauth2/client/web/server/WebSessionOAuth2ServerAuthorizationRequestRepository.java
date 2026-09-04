@@ -96,7 +96,7 @@ public final class WebSessionOAuth2ServerAuthorizationRequestRepository
 	}
 
 	/**
-	 * Gets the state parameter from the {@link ServerHttpRequest}
+	 * Gets the state parameter from the {@link ServerHttpRequest}.
 	 * @param exchange the exchange to use
 	 * @return the state parameter or null if not found
 	 */

@@ -31,6 +31,7 @@ import org.springframework.security.core.Authentication;
 public interface PermissionEvaluator extends AopInfrastructureBean {
 
 	/**
+	 * Determines whether the user has the given permission for the given domain object.
 	 * @param authentication represents the user in question. Should not be null.
 	 * @param targetDomainObject the domain object for which permissions should be
 	 * checked. May be null in which case implementations should return false, as the null

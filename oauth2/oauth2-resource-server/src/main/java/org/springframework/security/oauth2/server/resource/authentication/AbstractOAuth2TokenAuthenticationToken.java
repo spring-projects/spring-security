@@ -118,7 +118,7 @@ public abstract class AbstractOAuth2TokenAuthenticationToken<T extends OAuth2Tok
 	public abstract Map<String, Object> getTokenAttributes();
 
 	/**
-	 * A builder for {@link AbstractOAuth2TokenAuthenticationToken} implementations
+	 * A builder for {@link AbstractOAuth2TokenAuthenticationToken} implementations.
 	 *
 	 * @param <B>
 	 * @since 7.0

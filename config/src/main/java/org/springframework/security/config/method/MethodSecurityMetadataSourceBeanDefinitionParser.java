@@ -34,6 +34,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 
 /**
+ * Parses the {@code method-security-metadata-source} element.
+ *
  * @author Luke Taylor
  * @since 3.1
  * @deprecated Use {@code <intercept-methods>}, {@code <method-security>}, or

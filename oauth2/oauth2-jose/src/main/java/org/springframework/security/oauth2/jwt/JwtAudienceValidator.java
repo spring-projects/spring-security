@@ -33,7 +33,7 @@ public final class JwtAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	private final JwtClaimValidator<Collection<String>> validator;
 
 	/**
-	 * Constructs a {@link JwtAudienceValidator} using the provided parameters
+	 * Constructs a {@link JwtAudienceValidator} using the provided parameters.
 	 * @param audience - The audience that each {@link Jwt} should have.
 	 */
 	public JwtAudienceValidator(String audience) {

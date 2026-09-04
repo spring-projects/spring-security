@@ -29,7 +29,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
 /**
- * Matches if any of the provided {@link ServerWebExchangeMatcher} match
+ * Matches if any of the provided {@link ServerWebExchangeMatcher} match.
  *
  * @author Rob Winch
  * @author Mathieu Ouellet

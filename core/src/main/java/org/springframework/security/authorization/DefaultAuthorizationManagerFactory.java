@@ -75,7 +75,7 @@ public final class DefaultAuthorizationManagerFactory<T extends @Nullable Object
 
 	/**
 	 * Sets additional authorization to be applied to the returned
-	 * {@link AuthorizationManager} for the following methods:
+	 * {@link AuthorizationManager} for the following methods:.
 	 *
 	 * <ul>
 	 * <li>{@link #hasRole(String)}</li>

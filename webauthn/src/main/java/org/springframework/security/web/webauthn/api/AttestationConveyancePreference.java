@@ -81,7 +81,7 @@ public final class AttestationConveyancePreference {
 	}
 
 	/**
-	 * Gets an instance of {@link AttestationConveyancePreference}
+	 * Gets an instance of {@link AttestationConveyancePreference}.
 	 * @param value the {@link #getValue()}
 	 * @return an {@link AttestationConveyancePreference}
 	 */

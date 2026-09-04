@@ -36,7 +36,7 @@ public class NegatedRequestMatcher implements RequestMatcher {
 	private final RequestMatcher requestMatcher;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param requestMatcher the {@link RequestMatcher} that will be negated.
 	 */
 	public NegatedRequestMatcher(RequestMatcher requestMatcher) {

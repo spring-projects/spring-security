@@ -21,6 +21,9 @@ import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 
 /**
+ * A {@link GrantedAuthoritiesMapper} that performs no mapping, returning the given
+ * authorities unchanged.
+ *
  * @author Luke Taylor
  */
 public class NullAuthoritiesMapper implements GrantedAuthoritiesMapper {

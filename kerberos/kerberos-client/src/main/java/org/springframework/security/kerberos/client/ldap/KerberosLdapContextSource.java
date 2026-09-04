@@ -130,7 +130,7 @@ public class KerberosLdapContextSource extends DefaultSpringSecurityContextSourc
 	}
 
 	/**
-	 * The login configuration to get the serviceSubject from LoginContext
+	 * The login configuration to get the serviceSubject from LoginContext.
 	 * @param loginConfig the login config
 	 */
 	public void setLoginConfig(Configuration loginConfig) {

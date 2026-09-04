@@ -23,7 +23,7 @@ import org.springframework.security.authorization.AuthorizationResult;
 
 /**
  * An implementation of {@link MethodAuthorizationDeniedHandler} that throws
- * {@link AuthorizationDeniedException}
+ * {@link AuthorizationDeniedException}.
  *
  * @author Marcus da Coregio
  * @since 6.3

@@ -144,7 +144,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	private ServletContext servletContext;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param objectPostProcessor the {@link ObjectPostProcessor} to use
 	 * @see WebSecurityConfiguration
 	 */
@@ -279,7 +279,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	}
 
 	/**
-	 * Executes the Runnable immediately after the build takes place
+	 * Executes the Runnable immediately after the build takes place.
 	 * @param postBuildAction
 	 * @return the {@link WebSecurity} for further customizations
 	 */
@@ -290,7 +290,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 
 	/**
 	 * Sets the handler to handle
-	 * {@link org.springframework.security.web.firewall.RequestRejectedException}
+	 * {@link org.springframework.security.web.firewall.RequestRejectedException}.
 	 * @param requestRejectedHandler
 	 * @return the {@link WebSecurity} for further customizations
 	 * @since 5.7

@@ -85,7 +85,7 @@ public final class PublicKeyCredentialDescriptor implements Serializable {
 	}
 
 	/**
-	 * Creates a new {@link PublicKeyCredentialDescriptorBuilder}
+	 * Creates a new {@link PublicKeyCredentialDescriptorBuilder}.
 	 * @return a new {@link PublicKeyCredentialDescriptorBuilder}
 	 */
 	public static PublicKeyCredentialDescriptorBuilder builder() {
@@ -93,7 +93,7 @@ public final class PublicKeyCredentialDescriptor implements Serializable {
 	}
 
 	/**
-	 * Used to create {@link PublicKeyCredentialDescriptor}
+	 * Used to create {@link PublicKeyCredentialDescriptor}.
 	 *
 	 * @author Rob Winch
 	 * @since 6.4
@@ -149,7 +149,7 @@ public final class PublicKeyCredentialDescriptor implements Serializable {
 		}
 
 		/**
-		 * Create a new {@link PublicKeyCredentialDescriptor}
+		 * Create a new {@link PublicKeyCredentialDescriptor}.
 		 * @return a new {@link PublicKeyCredentialDescriptor}
 		 */
 		public PublicKeyCredentialDescriptor build() {

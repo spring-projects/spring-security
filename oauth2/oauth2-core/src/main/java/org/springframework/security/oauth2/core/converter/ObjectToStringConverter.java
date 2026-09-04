@@ -23,6 +23,9 @@ import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.GenericConverter;
 
 /**
+ * A {@link GenericConverter} that converts an {@code Object} to a {@code String} by
+ * calling {@code toString()}.
+ *
  * @author Joe Grandja
  * @since 5.2
  */

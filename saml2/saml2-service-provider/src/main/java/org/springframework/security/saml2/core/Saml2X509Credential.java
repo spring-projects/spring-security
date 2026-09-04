@@ -47,7 +47,7 @@ public final class Saml2X509Credential implements Serializable {
 	private final Set<Saml2X509CredentialType> credentialTypes;
 
 	/**
-	 * Creates a {@link Saml2X509Credential} using the provided parameters
+	 * Creates a {@link Saml2X509Credential} using the provided parameters.
 	 * @param certificate the credential's public certificate
 	 * @param types the credential's intended usages, must be one of
 	 * {@link Saml2X509CredentialType#VERIFICATION} or
@@ -59,7 +59,7 @@ public final class Saml2X509Credential implements Serializable {
 	}
 
 	/**
-	 * Creates a {@link Saml2X509Credential} using the provided parameters
+	 * Creates a {@link Saml2X509Credential} using the provided parameters.
 	 * @param privateKey the credential's private key
 	 * @param certificate the credential's public certificate
 	 * @param types the credential's intended usages, must be one of
@@ -72,7 +72,7 @@ public final class Saml2X509Credential implements Serializable {
 	}
 
 	/**
-	 * Creates a {@link Saml2X509Credential} using the provided parameters
+	 * Creates a {@link Saml2X509Credential} using the provided parameters.
 	 * @param privateKey the credential's private key
 	 * @param certificate the credential's public certificate
 	 * @param types the credential's intended usages
@@ -136,7 +136,7 @@ public final class Saml2X509Credential implements Serializable {
 	}
 
 	/**
-	 * Get the private key for this credential
+	 * Get the private key for this credential.
 	 * @return the private key, may be null
 	 * @see #Saml2X509Credential(PrivateKey, X509Certificate, Saml2X509CredentialType...)
 	 */
@@ -145,7 +145,7 @@ public final class Saml2X509Credential implements Serializable {
 	}
 
 	/**
-	 * Get the public certificate for this credential
+	 * Get the public certificate for this credential.
 	 * @return the public certificate
 	 */
 	public X509Certificate getCertificate() {
@@ -153,7 +153,7 @@ public final class Saml2X509Credential implements Serializable {
 	}
 
 	/**
-	 * Indicate whether this credential can be used for signing
+	 * Indicate whether this credential can be used for signing.
 	 * @return true if the credential has a {@link Saml2X509CredentialType#SIGNING} type
 	 */
 	public boolean isSigningCredential() {
@@ -161,7 +161,7 @@ public final class Saml2X509Credential implements Serializable {
 	}
 
 	/**
-	 * Indicate whether this credential can be used for decryption
+	 * Indicate whether this credential can be used for decryption.
 	 * @return true if the credential has a {@link Saml2X509CredentialType#DECRYPTION}
 	 * type
 	 */
@@ -170,7 +170,7 @@ public final class Saml2X509Credential implements Serializable {
 	}
 
 	/**
-	 * Indicate whether this credential can be used for verification
+	 * Indicate whether this credential can be used for verification.
 	 * @return true if the credential has a {@link Saml2X509CredentialType#VERIFICATION}
 	 * type
 	 */
@@ -179,7 +179,7 @@ public final class Saml2X509Credential implements Serializable {
 	}
 
 	/**
-	 * Indicate whether this credential can be used for encryption
+	 * Indicate whether this credential can be used for encryption.
 	 * @return true if the credential has a {@link Saml2X509CredentialType#ENCRYPTION}
 	 * type
 	 */
@@ -188,7 +188,7 @@ public final class Saml2X509Credential implements Serializable {
 	}
 
 	/**
-	 * List all this credential's intended usages
+	 * List all this credential's intended usages.
 	 * @return the set of this credential's intended usages
 	 */
 	public Set<Saml2X509CredentialType> getCredentialTypes() {

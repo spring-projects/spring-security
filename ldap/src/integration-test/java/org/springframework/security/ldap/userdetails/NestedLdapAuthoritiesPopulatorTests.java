@@ -35,6 +35,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
+ * Integration tests for {@link NestedLdapAuthoritiesPopulator}.
+ *
  * @author Filip Hanik
  * @author Eddú Meléndez
  */

@@ -28,6 +28,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 
 /**
+ * A {@link SecurityContextRepository} that delegates to a list of other
+ * {@link SecurityContextRepository} instances.
+ *
  * @author Steve Riesenberg
  * @author Josh Cummings
  * @since 5.8
@@ -46,6 +49,7 @@ public final class DelegatingSecurityContextRepository implements SecurityContex
 	}
 
 	/**
+	 * Loads the security context by delegating to each configured repository.
 	 * @deprecated
 	 * @see SecurityContextRepository#loadContext
 	 */

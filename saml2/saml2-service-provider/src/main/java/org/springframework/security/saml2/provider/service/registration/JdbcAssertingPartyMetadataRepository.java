@@ -133,7 +133,7 @@ public final class JdbcAssertingPartyMetadataRepository implements AssertingPart
 	}
 
 	/**
-	 * Persist this {@link AssertingPartyMetadata}
+	 * Persist this {@link AssertingPartyMetadata}.
 	 * @param metadata the metadata to persist
 	 */
 	public void save(AssertingPartyMetadata metadata) {

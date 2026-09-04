@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Key generation utilities.
+ */
 @NullMarked
 package org.springframework.security.crypto.keygen;
 

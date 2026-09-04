@@ -53,7 +53,7 @@ public final class OpenSaml5LogoutRequestResolver implements Saml2LogoutRequestR
 	}
 
 	/**
-	 * Construct a {@link OpenSaml5LogoutRequestResolver}
+	 * Construct a {@link OpenSaml5LogoutRequestResolver}.
 	 */
 	public OpenSaml5LogoutRequestResolver(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
 		this.delegate = new BaseOpenSamlLogoutRequestResolver(relyingPartyRegistrationResolver,
@@ -69,7 +69,7 @@ public final class OpenSaml5LogoutRequestResolver implements Saml2LogoutRequestR
 	}
 
 	/**
-	 * Set a {@link Consumer} for modifying the OpenSAML {@link LogoutRequest}
+	 * Set a {@link Consumer} for modifying the OpenSAML {@link LogoutRequest}.
 	 * @param parametersConsumer a consumer that accepts an
 	 * {@link LogoutRequestParameters}
 	 */
@@ -80,7 +80,7 @@ public final class OpenSaml5LogoutRequestResolver implements Saml2LogoutRequestR
 	}
 
 	/**
-	 * Use this {@link Clock} for determining the issued {@link Instant}
+	 * Use this {@link Clock} for determining the issued {@link Instant}.
 	 * @param clock the {@link Clock} to use
 	 */
 	public void setClock(Clock clock) {
@@ -89,7 +89,7 @@ public final class OpenSaml5LogoutRequestResolver implements Saml2LogoutRequestR
 	}
 
 	/**
-	 * Use this {@link Converter} to compute the RelayState
+	 * Use this {@link Converter} to compute the RelayState.
 	 * @param relayStateResolver the {@link Converter} to use
 	 * @since 6.1
 	 */

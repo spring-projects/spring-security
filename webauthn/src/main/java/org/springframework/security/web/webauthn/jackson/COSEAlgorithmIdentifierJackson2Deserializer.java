@@ -27,7 +27,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.security.web.webauthn.api.COSEAlgorithmIdentifier;
 
 /**
- * Jackson serializer for {@link COSEAlgorithmIdentifier}
+ * Jackson serializer for {@link COSEAlgorithmIdentifier}.
  *
  * @author Rob Winch
  * @since 6.4

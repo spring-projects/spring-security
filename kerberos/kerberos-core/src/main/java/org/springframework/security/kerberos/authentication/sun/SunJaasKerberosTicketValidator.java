@@ -140,6 +140,8 @@ public class SunJaasKerberosTicketValidator implements KerberosTicketValidator, 
 	}
 
 	/**
+	 * Sets whether to validate the ticket using a copy of the service subject, as needed
+	 * in multi-tier deployments.
 	 * @param multiTier
 	 */
 	public void setMultiTier(boolean multiTier) {

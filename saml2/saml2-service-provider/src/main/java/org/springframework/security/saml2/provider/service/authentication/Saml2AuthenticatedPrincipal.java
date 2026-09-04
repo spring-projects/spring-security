@@ -38,7 +38,7 @@ import org.springframework.util.CollectionUtils;
 public interface Saml2AuthenticatedPrincipal extends AuthenticatedPrincipal {
 
 	/**
-	 * Get the first value of Saml2 token attribute by name
+	 * Get the first value of Saml2 token attribute by name.
 	 * @param name the name of the attribute
 	 * @param <A> the type of the attribute
 	 * @return the first attribute value or {@code null} otherwise
@@ -51,7 +51,7 @@ public interface Saml2AuthenticatedPrincipal extends AuthenticatedPrincipal {
 	}
 
 	/**
-	 * Get the Saml2 token attribute by name
+	 * Get the Saml2 token attribute by name.
 	 * @param name the name of the attribute
 	 * @param <A> the type of the attribute
 	 * @return the attribute or {@code null} otherwise
@@ -63,7 +63,7 @@ public interface Saml2AuthenticatedPrincipal extends AuthenticatedPrincipal {
 	}
 
 	/**
-	 * Get the Saml2 token attributes
+	 * Get the Saml2 token attributes.
 	 * @return the Saml2 token attributes
 	 * @since 5.4
 	 */
@@ -72,7 +72,7 @@ public interface Saml2AuthenticatedPrincipal extends AuthenticatedPrincipal {
 	}
 
 	/**
-	 * Get the {@link RelyingPartyRegistration} identifier
+	 * Get the {@link RelyingPartyRegistration} identifier.
 	 * @return the {@link RelyingPartyRegistration} identifier
 	 * @since 5.6
 	 */

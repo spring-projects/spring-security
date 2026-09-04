@@ -19,6 +19,8 @@ package org.springframework.security.integration.multiannotation;
 import org.springframework.security.access.annotation.Secured;
 
 /**
+ * A test service secured with {@link Secured}.
+ *
  * @author Luke Taylor
  */
 public interface SecuredService {

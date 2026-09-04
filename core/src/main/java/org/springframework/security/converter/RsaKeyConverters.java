@@ -40,7 +40,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
 
 /**
- * Used for creating {@link java.security.Key} converter instances
+ * Used for creating {@link java.security.Key} converter instances.
  *
  * @author Josh Cummings
  * @author Shazin Sadakath

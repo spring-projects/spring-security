@@ -28,6 +28,9 @@ import org.springframework.core.convert.converter.ConditionalGenericConverter;
 import org.springframework.util.ClassUtils;
 
 /**
+ * A {@link ConditionalGenericConverter} that converts an arbitrary {@code Object} to a
+ * {@code List} of {@code String}.
+ *
  * @author Joe Grandja
  * @since 5.2
  */

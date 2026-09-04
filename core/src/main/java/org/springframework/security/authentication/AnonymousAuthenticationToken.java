@@ -48,7 +48,7 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
 	}
 
 	/**
-	 * Constructor helps in Jackson Deserialization
+	 * Constructor helps in Jackson Deserialization.
 	 * @param keyHash hashCode of provided Key, constructed by above constructor
 	 * @param principal the principal (typically a <code>UserDetails</code>)
 	 * @param authorities the authorities granted to the principal
@@ -88,7 +88,7 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
 	}
 
 	/**
-	 * Always returns an empty <code>String</code>
+	 * Always returns an empty <code>String</code>.
 	 * @return an empty String
 	 */
 	@Override

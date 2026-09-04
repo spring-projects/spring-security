@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 import org.springframework.context.ApplicationEvent;
 
 /**
- * An event that represents a change in {@link SecurityContext}
+ * An event that represents a change in {@link SecurityContext}.
  *
  * @author Josh Cummings
  * @since 5.6
@@ -36,7 +36,7 @@ public class SecurityContextChangedEvent extends ApplicationEvent {
 	private final Supplier<SecurityContext> newContext;
 
 	/**
-	 * Construct an event
+	 * Construct an event.
 	 * @param oldContext the old security context
 	 * @param newContext the new security context, use
 	 * {@link SecurityContextChangedEvent#NO_CONTEXT} for if the context is cleared
@@ -49,7 +49,7 @@ public class SecurityContextChangedEvent extends ApplicationEvent {
 	}
 
 	/**
-	 * Construct an event
+	 * Construct an event.
 	 * @param oldContext the old security context
 	 * @param newContext the new security context
 	 */
@@ -59,7 +59,7 @@ public class SecurityContextChangedEvent extends ApplicationEvent {
 
 	/**
 	 * Get the {@link SecurityContext} set on the {@link SecurityContextHolder}
-	 * immediately previous to this event
+	 * immediately previous to this event.
 	 * @return the previous {@link SecurityContext}
 	 */
 	public SecurityContext getOldContext() {
@@ -68,7 +68,7 @@ public class SecurityContextChangedEvent extends ApplicationEvent {
 
 	/**
 	 * Get the {@link SecurityContext} set on the {@link SecurityContextHolder} as of this
-	 * event
+	 * event.
 	 * @return the current {@link SecurityContext}
 	 */
 	public SecurityContext getNewContext() {

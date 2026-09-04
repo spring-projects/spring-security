@@ -48,7 +48,7 @@ public class Saml2Authentication extends AbstractAuthenticationToken {
 	private final String saml2Response;
 
 	/**
-	 * Construct a {@link Saml2Authentication} using the provided parameters
+	 * Construct a {@link Saml2Authentication} using the provided parameters.
 	 * @param principal the logged in user
 	 * @param saml2Response the SAML 2.0 response used to authenticate the user
 	 * @param authorities the authorities for the logged in user

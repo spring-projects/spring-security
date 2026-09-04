@@ -67,7 +67,7 @@ public final class Saml2LogoutResponse {
 
 	/**
 	 * Get the response location of the asserting party's <a href=
-	 * "https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService</a>
+	 * "https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService</a>.
 	 * @return the SingleLogoutService response location
 	 */
 	public String getResponseLocation() {
@@ -76,7 +76,7 @@ public final class Saml2LogoutResponse {
 
 	/**
 	 * Get the binding for the asserting party's <a href=
-	 * "https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService</a>
+	 * "https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService</a>.
 	 * @return the SingleLogoutService binding
 	 */
 	public Saml2MessageBinding getBinding() {
@@ -84,7 +84,7 @@ public final class Saml2LogoutResponse {
 	}
 
 	/**
-	 * Get the signed and serialized &lt;saml2:LogoutResponse&gt; payload
+	 * Get the signed and serialized &lt;saml2:LogoutResponse&gt; payload.
 	 * @return the signed and serialized &lt;saml2:LogoutResponse&gt; payload
 	 */
 	public String getSamlResponse() {
@@ -92,7 +92,7 @@ public final class Saml2LogoutResponse {
 	}
 
 	/**
-	 * The relay state associated with this Logout Request
+	 * The relay state associated with this Logout Request.
 	 * @return the relay state
 	 */
 	public String getRelayState() {
@@ -102,7 +102,7 @@ public final class Saml2LogoutResponse {
 	/**
 	 * Get the {@code name} parameter, a short-hand for <code>
 	 *	getParameters().get(name)
-	 * </code>
+	 * </code>.
 	 *
 	 * Useful when specifying additional query parameters for the Logout Response
 	 * @param name the parameter's name
@@ -113,7 +113,7 @@ public final class Saml2LogoutResponse {
 	}
 
 	/**
-	 * Get all parameters
+	 * Get all parameters.
 	 *
 	 * Useful when specifying additional query parameters for the Logout Response
 	 * @return the Logout Response query parameters
@@ -133,7 +133,7 @@ public final class Saml2LogoutResponse {
 	}
 
 	/**
-	 * Create a {@link Builder} instance from this {@link RelyingPartyRegistration}
+	 * Create a {@link Builder} instance from this {@link RelyingPartyRegistration}.
 	 *
 	 * Specifically, this will pull the <a href=
 	 * "https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService</a>
@@ -202,7 +202,7 @@ public final class Saml2LogoutResponse {
 
 		/**
 		 * Use this value for the relay state when sending the Logout Request to the
-		 * asserting party
+		 * asserting party.
 		 *
 		 * It should not be URL-encoded as this will be done when the response is sent
 		 * @param relayState the relay state
@@ -214,7 +214,7 @@ public final class Saml2LogoutResponse {
 		}
 
 		/**
-		 * Use this {@link Consumer} to modify the set of query parameters
+		 * Use this {@link Consumer} to modify the set of query parameters.
 		 *
 		 * No parameter should be URL-encoded as this will be done when the response is
 		 * sent, though any signature specified should be Base64-encoded
@@ -242,7 +242,7 @@ public final class Saml2LogoutResponse {
 		}
 
 		/**
-		 * Build the {@link Saml2LogoutResponse}
+		 * Build the {@link Saml2LogoutResponse}.
 		 * @return a constructed {@link Saml2LogoutResponse}
 		 */
 		public Saml2LogoutResponse build() {

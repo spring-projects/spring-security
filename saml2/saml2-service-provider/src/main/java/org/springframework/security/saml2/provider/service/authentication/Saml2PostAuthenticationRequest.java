@@ -41,6 +41,7 @@ public class Saml2PostAuthenticationRequest extends AbstractSaml2AuthenticationR
 	}
 
 	/**
+	 * Returns {@link Saml2MessageBinding#POST}.
 	 * @return {@link Saml2MessageBinding#POST}
 	 */
 	@Override

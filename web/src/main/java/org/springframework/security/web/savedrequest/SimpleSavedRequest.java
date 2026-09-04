@@ -29,7 +29,7 @@ import jakarta.servlet.http.Cookie;
 import org.springframework.util.Assert;
 
 /**
- * A Bean implementation of SavedRequest
+ * A Bean implementation of SavedRequest.
  *
  * @author Rob Winch
  * @since 5.1

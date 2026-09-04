@@ -34,7 +34,7 @@ public abstract class UserDetailsAwareConfigurer<B extends ProviderManagerBuilde
 		extends SecurityConfigurerAdapter<AuthenticationManager, B> {
 
 	/**
-	 * Gets the {@link UserDetailsService} or null if it is not available
+	 * Gets the {@link UserDetailsService} or null if it is not available.
 	 * @return the {@link UserDetailsService} or null if it is not available
 	 */
 	public abstract U getUserDetailsService();

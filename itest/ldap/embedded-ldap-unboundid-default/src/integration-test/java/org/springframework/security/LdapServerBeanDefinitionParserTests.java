@@ -27,6 +27,8 @@ import org.springframework.security.ldap.server.UnboundIdContainer;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
+ * Tests for the {@code ldap-server} bean definition parser.
+ *
  * @author Eddú Meléndez
  */
 public class LdapServerBeanDefinitionParserTests {

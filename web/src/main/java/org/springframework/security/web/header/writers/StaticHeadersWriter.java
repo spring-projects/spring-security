@@ -39,7 +39,7 @@ public class StaticHeadersWriter implements HeaderWriter {
 	private final List<Header> headers;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param headers the {@link Header} instances to use
 	 */
 	public StaticHeadersWriter(List<Header> headers) {
@@ -48,7 +48,7 @@ public class StaticHeadersWriter implements HeaderWriter {
 	}
 
 	/**
-	 * Creates a new instance with a single header
+	 * Creates a new instance with a single header.
 	 * @param headerName the name of the header
 	 * @param headerValues the values for the header
 	 */

@@ -262,7 +262,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 
 	/**
 	 * Configures the builder with {@link #defaultRequest()} and adds this as a
-	 * {@link ExchangeFilterFunction}
+	 * {@link ExchangeFilterFunction}.
 	 * @return the {@link Consumer} to configure the builder
 	 */
 	public Consumer<WebClient.Builder> oauth2Configuration() {

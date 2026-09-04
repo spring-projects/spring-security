@@ -172,7 +172,8 @@ public class RelyingPartyRegistration implements Serializable {
 	}
 
 	/**
-	 * Copy the properties in this {@link RelyingPartyRegistration} into a {@link Builder}
+	 * Copy the properties in this {@link RelyingPartyRegistration} into a
+	 * {@link Builder}.
 	 * @return a {@link Builder} based off of the properties in this
 	 * {@link RelyingPartyRegistration}
 	 * @since 6.1
@@ -191,7 +192,7 @@ public class RelyingPartyRegistration implements Serializable {
 	}
 
 	/**
-	 * Get the unique registration id for this RP/AP pair
+	 * Get the unique registration id for this RP/AP pair.
 	 * @return the unique registration id for this RP/AP pair
 	 */
 	public String getRegistrationId() {
@@ -332,7 +333,7 @@ public class RelyingPartyRegistration implements Serializable {
 
 	/**
 	 * Get the {@link Collection} of decryption {@link Saml2X509Credential}s associated
-	 * with this relying party
+	 * with this relying party.
 	 * @return the {@link Collection} of decryption {@link Saml2X509Credential}s
 	 * associated with this relying party
 	 * @since 5.4
@@ -343,7 +344,7 @@ public class RelyingPartyRegistration implements Serializable {
 
 	/**
 	 * Get the {@link Collection} of signing {@link Saml2X509Credential}s associated with
-	 * this relying party
+	 * this relying party.
 	 * @return the {@link Collection} of signing {@link Saml2X509Credential}s associated
 	 * with this relying party
 	 * @since 5.4
@@ -353,7 +354,7 @@ public class RelyingPartyRegistration implements Serializable {
 	}
 
 	/**
-	 * Get the metadata for the Asserting Party
+	 * Get the metadata for the Asserting Party.
 	 * @return the {@link AssertingPartyMetadata}
 	 * @since 6.4
 	 */
@@ -363,7 +364,7 @@ public class RelyingPartyRegistration implements Serializable {
 
 	/**
 	 * Creates a {@code RelyingPartyRegistration} {@link Builder} with a known
-	 * {@code registrationId}
+	 * {@code registrationId}.
 	 * @param registrationId a string identifier for the {@code RelyingPartyRegistration}
 	 * @return {@code Builder} to create a {@code RelyingPartyRegistration} object
 	 */
@@ -387,7 +388,7 @@ public class RelyingPartyRegistration implements Serializable {
 	}
 
 	/**
-	 * The configuration metadata of the Asserting party
+	 * The configuration metadata of the Asserting party.
 	 *
 	 * @since 5.4
 	 */
@@ -491,7 +492,7 @@ public class RelyingPartyRegistration implements Serializable {
 
 		/**
 		 * Get all verification {@link Saml2X509Credential}s associated with this
-		 * asserting party
+		 * asserting party.
 		 * @return all verification {@link Saml2X509Credential}s associated with this
 		 * asserting party
 		 * @since 5.4
@@ -502,7 +503,7 @@ public class RelyingPartyRegistration implements Serializable {
 
 		/**
 		 * Get all encryption {@link Saml2X509Credential}s associated with this asserting
-		 * party
+		 * party.
 		 * @return all encryption {@link Saml2X509Credential}s associated with this
 		 * asserting party
 		 * @since 5.4
@@ -645,7 +646,7 @@ public class RelyingPartyRegistration implements Serializable {
 			}
 
 			/**
-			 * Apply this {@link Consumer} to the list of SigningMethod Algorithms
+			 * Apply this {@link Consumer} to the list of SigningMethod Algorithms.
 			 * @param signingMethodAlgorithmsConsumer a {@link Consumer} of the list of
 			 * SigningMethod Algorithms
 			 * @return this {@link AssertingPartyDetails.Builder} for further
@@ -658,7 +659,7 @@ public class RelyingPartyRegistration implements Serializable {
 			}
 
 			/**
-			 * Apply this {@link Consumer} to the list of {@link Saml2X509Credential}s
+			 * Apply this {@link Consumer} to the list of {@link Saml2X509Credential}s.
 			 * @param credentialsConsumer a {@link Consumer} of the {@link List} of
 			 * {@link Saml2X509Credential}s
 			 * @return the {@link RelyingPartyRegistration.Builder} for further
@@ -671,7 +672,7 @@ public class RelyingPartyRegistration implements Serializable {
 			}
 
 			/**
-			 * Apply this {@link Consumer} to the list of {@link Saml2X509Credential}s
+			 * Apply this {@link Consumer} to the list of {@link Saml2X509Credential}s.
 			 * @param credentialsConsumer a {@link Consumer} of the {@link List} of
 			 * {@link Saml2X509Credential}s
 			 * @return the {@link RelyingPartyRegistration.Builder} for further
@@ -770,7 +771,7 @@ public class RelyingPartyRegistration implements Serializable {
 
 			/**
 			 * Creates an immutable ProviderDetails object representing the configuration
-			 * for an Identity Provider, IDP
+			 * for an Identity Provider, IDP.
 			 * @return immutable ProviderDetails object
 			 */
 			public AssertingPartyDetails build() {
@@ -851,7 +852,7 @@ public class RelyingPartyRegistration implements Serializable {
 		/**
 		 * Apply this {@link Consumer} to the {@link Collection} of
 		 * {@link Saml2X509Credential}s for the purposes of modifying the
-		 * {@link Collection}
+		 * {@link Collection}.
 		 * @param credentialsConsumer - the {@link Consumer} for modifying the
 		 * {@link Collection}
 		 * @return the {@link Builder} for further configuration
@@ -865,7 +866,7 @@ public class RelyingPartyRegistration implements Serializable {
 		/**
 		 * Apply this {@link Consumer} to the {@link Collection} of
 		 * {@link Saml2X509Credential}s for the purposes of modifying the
-		 * {@link Collection}
+		 * {@link Collection}.
 		 * @param credentialsConsumer - the {@link Consumer} for modifying the
 		 * {@link Collection}
 		 * @return the {@link Builder} for further configuration
@@ -989,7 +990,7 @@ public class RelyingPartyRegistration implements Serializable {
 		}
 
 		/**
-		 * Set the NameID format
+		 * Set the NameID format.
 		 * @param nameIdFormat the given NameID format
 		 * @return the {@link Builder} for further configuration
 		 * @since 5.7
@@ -1018,7 +1019,7 @@ public class RelyingPartyRegistration implements Serializable {
 		}
 
 		/**
-		 * Apply this {@link Consumer} to further configure the Asserting Party metadata
+		 * Apply this {@link Consumer} to further configure the Asserting Party metadata.
 		 * @param assertingPartyMetadata The {@link Consumer} to apply
 		 * @return the {@link Builder} for further configuration
 		 * @since 6.4
@@ -1030,7 +1031,7 @@ public class RelyingPartyRegistration implements Serializable {
 
 		/**
 		 * Constructs a RelyingPartyRegistration object based on the builder
-		 * configurations
+		 * configurations.
 		 * @return a RelyingPartyRegistration instance
 		 */
 		public RelyingPartyRegistration build() {

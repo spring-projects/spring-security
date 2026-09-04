@@ -143,7 +143,7 @@ public final class AllRequiredFactorsAuthorizationManager<T> implements Authoriz
 	}
 
 	/**
-	 * Creates a new {@link Builder}
+	 * Creates a new {@link Builder}.
 	 * @return
 	 */
 	public static <T> Builder<T> builder() {

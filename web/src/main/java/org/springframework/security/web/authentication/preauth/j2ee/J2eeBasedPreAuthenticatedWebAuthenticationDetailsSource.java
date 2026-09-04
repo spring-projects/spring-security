@@ -50,7 +50,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource implements
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	/**
-	 * The role attributes returned by the configured {@code MappableAttributesRetriever}
+	 * The role attributes returned by the configured {@code MappableAttributesRetriever}.
 	 */
 	@SuppressWarnings("NullAway.Init")
 	protected Set<String> j2eeMappableRoles;
@@ -103,6 +103,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource implements
 	}
 
 	/**
+	 * Sets the {@code MappableAttributesRetriever} to use.
 	 * @param aJ2eeMappableRolesRetriever The MappableAttributesRetriever to use
 	 */
 	public void setMappableRolesRetriever(MappableAttributesRetriever aJ2eeMappableRolesRetriever) {
@@ -110,6 +111,7 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource implements
 	}
 
 	/**
+	 * Sets the {@code Attributes2GrantedAuthoritiesMapper} to use.
 	 * @param mapper The Attributes2GrantedAuthoritiesMapper to use
 	 */
 	public void setUserRoles2GrantedAuthoritiesMapper(Attributes2GrantedAuthoritiesMapper mapper) {

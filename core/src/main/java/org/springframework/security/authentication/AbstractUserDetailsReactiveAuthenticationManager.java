@@ -189,6 +189,7 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager
 	}
 
 	/**
+	 * Sets the {@link MessageSource} used to resolve exception messages.
 	 * @since 5.5
 	 */
 	@Override

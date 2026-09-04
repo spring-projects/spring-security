@@ -48,6 +48,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 
 /**
+ * Parses {@code <relying-party-registration>} elements into
+ * {@link RelyingPartyRegistration} bean definitions.
+ *
  * @author Marcus da Coregio
  * @since 5.7
  */

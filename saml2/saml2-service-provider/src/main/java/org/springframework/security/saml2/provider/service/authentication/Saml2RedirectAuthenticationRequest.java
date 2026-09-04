@@ -47,7 +47,7 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 	}
 
 	/**
-	 * Returns the SigAlg value for {@link Saml2MessageBinding#REDIRECT} requests
+	 * Returns the SigAlg value for {@link Saml2MessageBinding#REDIRECT} requests.
 	 * @return the SigAlg value
 	 */
 	public String getSigAlg() {
@@ -55,7 +55,7 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 	}
 
 	/**
-	 * Returns the Signature value for {@link Saml2MessageBinding#REDIRECT} requests
+	 * Returns the Signature value for {@link Saml2MessageBinding#REDIRECT} requests.
 	 * @return the Signature value
 	 */
 	public String getSignature() {
@@ -63,6 +63,7 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 	}
 
 	/**
+	 * Returns the binding used to send this request.
 	 * @return {@link Saml2MessageBinding#REDIRECT}
 	 */
 	@Override
@@ -96,7 +97,7 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 		}
 
 		/**
-		 * Sets the {@code SigAlg} parameter that will accompany this AuthNRequest
+		 * Sets the {@code SigAlg} parameter that will accompany this AuthNRequest.
 		 * @param sigAlg the SigAlg parameter value.
 		 * @return this object
 		 */
@@ -106,7 +107,7 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 		}
 
 		/**
-		 * Sets the {@code Signature} parameter that will accompany this AuthNRequest
+		 * Sets the {@code Signature} parameter that will accompany this AuthNRequest.
 		 * @param signature the Signature parameter value.
 		 * @return this object
 		 */

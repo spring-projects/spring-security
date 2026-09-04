@@ -35,13 +35,13 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 public final class OidcProviderMetadataClaimNames extends OAuth2AuthorizationServerMetadataClaimNames {
 
 	/**
-	 * {@code subject_types_supported} - the Subject Identifier types supported
+	 * {@code subject_types_supported} - the Subject Identifier types supported.
 	 */
 	public static final String SUBJECT_TYPES_SUPPORTED = "subject_types_supported";
 
 	/**
 	 * {@code id_token_signing_alg_values_supported} - the {@link JwsAlgorithm JWS}
-	 * signing algorithms supported for the {@link OidcIdToken ID Token}
+	 * signing algorithms supported for the {@link OidcIdToken ID Token}.
 	 */
 	public static final String ID_TOKEN_SIGNING_ALG_VALUES_SUPPORTED = "id_token_signing_alg_values_supported";
 

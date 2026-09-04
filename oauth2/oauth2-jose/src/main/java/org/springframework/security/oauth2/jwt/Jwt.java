@@ -93,7 +93,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 	}
 
 	/**
-	 * Return a {@link Jwt.Builder}
+	 * Return a {@link Jwt.Builder}.
 	 * @return A {@link Jwt.Builder}
 	 */
 	public static Builder withTokenValue(String tokenValue) {
@@ -101,7 +101,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 	}
 
 	/**
-	 * Helps configure a {@link Jwt}
+	 * Helps configure a {@link Jwt}.
 	 *
 	 * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
 	 * @author Josh Cummings
@@ -120,7 +120,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		}
 
 		/**
-		 * Use this token value in the resulting {@link Jwt}
+		 * Use this token value in the resulting {@link Jwt}.
 		 * @param tokenValue The token value to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -130,7 +130,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		}
 
 		/**
-		 * Use this claim in the resulting {@link Jwt}
+		 * Use this claim in the resulting {@link Jwt}.
 		 * @param name The claim name
 		 * @param value The claim value
 		 * @return the {@link Builder} for further configurations
@@ -152,7 +152,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		}
 
 		/**
-		 * Use this header in the resulting {@link Jwt}
+		 * Use this header in the resulting {@link Jwt}.
 		 * @param name The header name
 		 * @param value The header value
 		 * @return the {@link Builder} for further configurations
@@ -174,7 +174,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		}
 
 		/**
-		 * Use this audience in the resulting {@link Jwt}
+		 * Use this audience in the resulting {@link Jwt}.
 		 * @param audience The audience(s) to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -183,7 +183,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		}
 
 		/**
-		 * Use this expiration in the resulting {@link Jwt}
+		 * Use this expiration in the resulting {@link Jwt}.
 		 * @param expiresAt The expiration to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -193,7 +193,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		}
 
 		/**
-		 * Use this identifier in the resulting {@link Jwt}
+		 * Use this identifier in the resulting {@link Jwt}.
 		 * @param jti The identifier to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -203,7 +203,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		}
 
 		/**
-		 * Use this issued-at timestamp in the resulting {@link Jwt}
+		 * Use this issued-at timestamp in the resulting {@link Jwt}.
 		 * @param issuedAt The issued-at timestamp to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -213,7 +213,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		}
 
 		/**
-		 * Use this issuer in the resulting {@link Jwt}
+		 * Use this issuer in the resulting {@link Jwt}.
 		 * @param issuer The issuer to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -223,7 +223,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		}
 
 		/**
-		 * Use this not-before timestamp in the resulting {@link Jwt}
+		 * Use this not-before timestamp in the resulting {@link Jwt}.
 		 * @param notBefore The not-before timestamp to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -233,7 +233,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		}
 
 		/**
-		 * Use this subject in the resulting {@link Jwt}
+		 * Use this subject in the resulting {@link Jwt}.
 		 * @param subject The subject to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -243,7 +243,7 @@ public class Jwt extends AbstractOAuth2Token implements JwtClaimAccessor {
 		}
 
 		/**
-		 * Build the {@link Jwt}
+		 * Build the {@link Jwt}.
 		 * @return The constructed {@link Jwt}
 		 */
 		public Jwt build() {

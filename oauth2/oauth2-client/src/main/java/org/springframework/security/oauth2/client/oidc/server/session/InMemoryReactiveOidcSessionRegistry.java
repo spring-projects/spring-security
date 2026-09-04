@@ -25,7 +25,7 @@ import org.springframework.security.oauth2.client.oidc.session.OidcSessionInform
 
 /**
  * An in-memory implementation of
- * {@link org.springframework.security.oauth2.client.oidc.server.session.ReactiveOidcSessionRegistry}
+ * {@link org.springframework.security.oauth2.client.oidc.server.session.ReactiveOidcSessionRegistry}.
  *
  * @author Josh Cummings
  * @since 6.2

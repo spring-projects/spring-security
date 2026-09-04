@@ -92,7 +92,7 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 	private final ChannelRequestMatcherRegistry REGISTRY;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @see HttpSecurity#requiresChannel(Customizer)
 	 */
 	public ChannelSecurityConfigurer(ApplicationContext context) {
@@ -147,6 +147,9 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
+	 * Allows registering {@link RequestMatcher}s that should be mapped to a channel
+	 * requirement.
+	 *
 	 * @deprecated no replacement planned
 	 */
 	@Deprecated
@@ -174,7 +177,7 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 
 		/**
 		 * Sets the {@link ChannelProcessor} instances to use in
-		 * {@link ChannelDecisionManagerImpl}
+		 * {@link ChannelDecisionManagerImpl}.
 		 * @param channelProcessors
 		 * @return the {@link ChannelSecurityConfigurer} for further customizations
 		 */
@@ -185,7 +188,7 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 
 		/**
 		 * Sets the {@link RedirectStrategy} instances to use in
-		 * {@link RetryWithHttpEntryPoint} and {@link RetryWithHttpsEntryPoint}
+		 * {@link RetryWithHttpEntryPoint} and {@link RetryWithHttpsEntryPoint}.
 		 * @param redirectStrategy
 		 * @return the {@link ChannelSecurityConfigurer} for further customizations
 		 */
@@ -197,6 +200,9 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
+	 * Allows registering a channel requirement for the previously specified
+	 * {@link RequestMatcher}s.
+	 *
 	 * @deprecated no replacement planned
 	 */
 	@Deprecated

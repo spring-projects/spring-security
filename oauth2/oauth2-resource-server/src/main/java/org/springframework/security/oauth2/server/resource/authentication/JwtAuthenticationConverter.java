@@ -28,6 +28,9 @@ import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.util.Assert;
 
 /**
+ * A {@link Converter} that converts a {@link Jwt} to an
+ * {@link AbstractAuthenticationToken}.
+ *
  * @author Rob Winch
  * @author Josh Cummings
  * @author Evgeniy Cheban

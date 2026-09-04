@@ -80,7 +80,7 @@ public class WebSessionServerCsrfTokenRepository implements ServerCsrfTokenRepos
 
 	/**
 	 * Sets the {@link ServerWebExchange} parameter name that the {@link CsrfToken} is
-	 * expected to appear on
+	 * expected to appear on.
 	 * @param parameterName the new parameter name to use
 	 */
 	public void setParameterName(String parameterName) {
@@ -99,7 +99,7 @@ public class WebSessionServerCsrfTokenRepository implements ServerCsrfTokenRepos
 	}
 
 	/**
-	 * Sets the {@link WebSession} attribute name that the {@link CsrfToken} is stored in
+	 * Sets the {@link WebSession} attribute name that the {@link CsrfToken} is stored in.
 	 * @param sessionAttributeName the new attribute name to use
 	 */
 	public void setSessionAttributeName(String sessionAttributeName) {

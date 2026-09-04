@@ -36,7 +36,7 @@ public final class WhiteListedAllowFromStrategy extends AbstractRequestParameter
 	private final Collection<String> allowed;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param allowed the origins that are allowed.
 	 */
 	public WhiteListedAllowFromStrategy(Collection<String> allowed) {

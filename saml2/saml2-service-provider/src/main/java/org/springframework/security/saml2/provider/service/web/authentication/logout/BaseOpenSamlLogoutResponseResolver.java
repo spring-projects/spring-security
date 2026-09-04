@@ -96,7 +96,7 @@ final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseRes
 	};
 
 	/**
-	 * Construct a {@link BaseOpenSamlLogoutResponseResolver}
+	 * Construct a {@link BaseOpenSamlLogoutResponseResolver}.
 	 */
 	BaseOpenSamlLogoutResponseResolver(RelyingPartyRegistrationRepository registrations,
 			RelyingPartyRegistrationResolver relyingPartyRegistrationResolver, OpenSamlOperations saml) {

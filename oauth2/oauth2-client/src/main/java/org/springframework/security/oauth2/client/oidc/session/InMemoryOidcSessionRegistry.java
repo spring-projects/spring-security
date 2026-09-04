@@ -31,7 +31,7 @@ import org.springframework.security.oauth2.client.oidc.authentication.logout.Log
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcLogoutToken;
 
 /**
- * An in-memory implementation of {@link OidcSessionRegistry}
+ * An in-memory implementation of {@link OidcSessionRegistry}.
  *
  * @author Josh Cummings
  * @since 6.2

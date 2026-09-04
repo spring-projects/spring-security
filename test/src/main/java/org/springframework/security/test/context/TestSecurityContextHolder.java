@@ -113,7 +113,7 @@ public final class TestSecurityContextHolder {
 
 	/**
 	 * Gets the default {@link SecurityContext} by delegating to the
-	 * {@link SecurityContextHolder}
+	 * {@link SecurityContextHolder}.
 	 * @return the default {@link SecurityContext}
 	 */
 	private static SecurityContext getDefaultContext() {

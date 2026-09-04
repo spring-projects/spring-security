@@ -64,7 +64,7 @@ public final class PublicKeyCredentialRpEntity {
 	}
 
 	/**
-	 * Creates a new {@link PublicKeyCredentialRpEntityBuilder}
+	 * Creates a new {@link PublicKeyCredentialRpEntityBuilder}.
 	 * @return a new {@link PublicKeyCredentialRpEntityBuilder}
 	 */
 	public static PublicKeyCredentialRpEntityBuilder builder() {

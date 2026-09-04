@@ -46,7 +46,7 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 
 	/**
 	 * Constructs a {@link Saml2AuthenticationTokenConverter} given a strategy for
-	 * resolving {@link RelyingPartyRegistration}s
+	 * resolving {@link RelyingPartyRegistration}s.
 	 * @param relyingPartyRegistrationResolver the strategy for resolving
 	 * {@link RelyingPartyRegistration}s
 	 */

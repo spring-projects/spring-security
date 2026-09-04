@@ -21,7 +21,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 
 /**
- * A contract for resolving a {@link RelyingPartyRegistration} from the HTTP request
+ * A contract for resolving a {@link RelyingPartyRegistration} from the HTTP request.
  *
  * @author Josh Cummings
  * @since 5.6
@@ -30,7 +30,7 @@ public interface RelyingPartyRegistrationResolver {
 
 	/**
 	 * Resolve a {@link RelyingPartyRegistration} from the HTTP request, using the
-	 * {@code relyingPartyRegistrationId}, if it is provided
+	 * {@code relyingPartyRegistrationId}, if it is provided.
 	 * @param request the HTTP request
 	 * @param relyingPartyRegistrationId the {@link RelyingPartyRegistration} identifier
 	 * @return the resolved {@link RelyingPartyRegistration}

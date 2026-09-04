@@ -90,7 +90,7 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 	}
 
 	/**
-	 * Set the default realm name to use in the bearer token error response
+	 * Set the default realm name to use in the bearer token error response.
 	 * @param realmName
 	 */
 	public void setRealmName(String realmName) {

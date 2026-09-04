@@ -45,7 +45,7 @@ public final class AuthenticatorSelectionCriteria {
 	// compatibility with WebAuthn Level 1
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param authenticatorAttachment the authenticator attachment
 	 * @param residentKey the resident key requirement
 	 * @param userVerification the user verification
@@ -103,7 +103,7 @@ public final class AuthenticatorSelectionCriteria {
 	}
 
 	/**
-	 * Creates a new {@link AuthenticatorSelectionCriteriaBuilder}
+	 * Creates a new {@link AuthenticatorSelectionCriteriaBuilder}.
 	 * @return a new {@link AuthenticatorSelectionCriteriaBuilder}
 	 */
 	public static AuthenticatorSelectionCriteriaBuilder builder() {
@@ -111,7 +111,7 @@ public final class AuthenticatorSelectionCriteria {
 	}
 
 	/**
-	 * Creates a {@link AuthenticatorSelectionCriteria}
+	 * Creates a {@link AuthenticatorSelectionCriteria}.
 	 *
 	 * @author Rob Winch
 	 * @since 6.4
@@ -159,7 +159,7 @@ public final class AuthenticatorSelectionCriteria {
 		}
 
 		/**
-		 * Builds a {@link AuthenticatorSelectionCriteria}
+		 * Builds a {@link AuthenticatorSelectionCriteria}.
 		 * @return a new {@link AuthenticatorSelectionCriteria}
 		 */
 		public AuthenticatorSelectionCriteria build() {

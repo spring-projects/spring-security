@@ -45,7 +45,7 @@ class OidcBackChannelLogoutAuthentication extends AbstractAuthenticationToken {
 	private final ClientRegistration clientRegistration;
 
 	/**
-	 * Construct an {@link OidcBackChannelLogoutAuthentication}
+	 * Construct an {@link OidcBackChannelLogoutAuthentication}.
 	 * @param logoutToken a deserialized, verified OIDC Logout Token
 	 */
 	OidcBackChannelLogoutAuthentication(OidcLogoutToken logoutToken, ClientRegistration clientRegistration) {

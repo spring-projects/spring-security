@@ -102,7 +102,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	private OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefault();
 
 	/**
-	 * Configures a {@link NimbusJwtDecoder} with the given parameters
+	 * Configures a {@link NimbusJwtDecoder} with the given parameters.
 	 * @param jwtProcessor - the {@link JWTProcessor} to use
 	 */
 	public NimbusJwtDecoder(JWTProcessor<SecurityContext> jwtProcessor) {
@@ -111,7 +111,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	}
 
 	/**
-	 * Use this {@link Jwt} Validator
+	 * Use this {@link Jwt} Validator.
 	 * @param jwtValidator - the Jwt Validator to use
 	 */
 	public void setJwtValidator(OAuth2TokenValidator<Jwt> jwtValidator) {
@@ -120,7 +120,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	}
 
 	/**
-	 * Use the following {@link Converter} for manipulating the JWT's claim set
+	 * Use the following {@link Converter} for manipulating the JWT's claim set.
 	 * @param claimSetConverter the {@link Converter} to use
 	 */
 	public void setClaimSetConverter(Converter<Map<String, Object>, Map<String, Object>> claimSetConverter) {
@@ -129,7 +129,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	}
 
 	/**
-	 * Decode and validate the JWT from its compact claims representation format
+	 * Decode and validate the JWT from its compact claims representation format.
 	 * @param token the JWT value
 	 * @return a validated {@link Jwt}
 	 * @throws JwtException when the token is malformed or otherwise invalid
@@ -247,7 +247,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	}
 
 	/**
-	 * Use the given public key to validate JWTs
+	 * Use the given public key to validate JWTs.
 	 * @param key the public key to use
 	 * @return a {@link PublicKeyJwtDecoderBuilder} for further configurations
 	 */

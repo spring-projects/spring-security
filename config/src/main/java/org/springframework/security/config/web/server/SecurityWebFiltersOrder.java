@@ -17,6 +17,8 @@
 package org.springframework.security.config.web.server;
 
 /**
+ * The default order of filters used in WebFlux security configuration.
+ *
  * @author Rob Winch
  * @since 5.0
  */
@@ -27,37 +29,41 @@ public enum SecurityWebFiltersOrder {
 	HTTP_HEADERS_WRITER,
 
 	/**
+	 * Instance of HttpsRedirectWebFilter.
 	 * {@link org.springframework.security.web.server.transport.HttpsRedirectWebFilter}
 	 */
 	HTTPS_REDIRECT,
 
 	/**
+	 * Instance of CorsWebFilter.
 	 * {@link org.springframework.web.cors.reactive.CorsWebFilter}
 	 */
 	CORS,
 
 	/**
+	 * Instance of CsrfWebFilter.
 	 * {@link org.springframework.security.web.server.csrf.CsrfWebFilter}
 	 */
 	CSRF,
 
 	/**
+	 * Instance of ReactorContextWebFilter.
 	 * {@link org.springframework.security.web.server.context.ReactorContextWebFilter}
 	 */
 	REACTOR_CONTEXT,
 
 	/**
-	 * Instance of AuthenticationWebFilter
+	 * Instance of AuthenticationWebFilter.
 	 */
 	HTTP_BASIC,
 
 	/**
-	 * Instance of AuthenticationWebFilter
+	 * Instance of AuthenticationWebFilter.
 	 */
 	FORM_LOGIN, AUTHENTICATION,
 
 	/**
-	 * Instance of AnonymousAuthenticationWebFilter
+	 * Instance of AnonymousAuthenticationWebFilter.
 	 */
 	ANONYMOUS_AUTHENTICATION,
 
@@ -68,21 +74,25 @@ public enum SecurityWebFiltersOrder {
 	LOGOUT_PAGE_GENERATING,
 
 	/**
+	 * Instance of GenerateOneTimeTokenWebFilter.
 	 * {@link org.springframework.security.web.server.authentication.ott.GenerateOneTimeTokenWebFilter}
 	 */
 	ONE_TIME_TOKEN,
 
 	/**
+	 * Instance of OneTimeTokenSubmitPageGeneratingWebFilter.
 	 * {@link org.springframework.security.web.server.ui.OneTimeTokenSubmitPageGeneratingWebFilter}
 	 */
 	ONE_TIME_TOKEN_SUBMIT_PAGE_GENERATING,
 
 	/**
+	 * Instance of SecurityContextServerWebExchangeWebFilter.
 	 * {@link org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter}
 	 */
 	SECURITY_CONTEXT_SERVER_WEB_EXCHANGE,
 
 	/**
+	 * Instance of ServerRequestCacheWebFilter.
 	 * {@link org.springframework.security.web.server.savedrequest.ServerRequestCacheWebFilter}
 	 */
 	SERVER_REQUEST_CACHE,

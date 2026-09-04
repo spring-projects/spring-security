@@ -237,6 +237,7 @@ public class ExceptionTranslationFilter extends GenericFilterBean implements Mes
 	}
 
 	/**
+	 * Sets the {@link MessageSource} used to resolve exception messages.
 	 * @since 5.5
 	 */
 	@Override
@@ -263,6 +264,7 @@ public class ExceptionTranslationFilter extends GenericFilterBean implements Mes
 	private static final class DefaultThrowableAnalyzer extends ThrowableAnalyzer {
 
 		/**
+		 * Registers extractors for unwrapping {@code ServletException}s.
 		 * @see org.springframework.security.web.util.ThrowableAnalyzer#initExtractorMap()
 		 */
 		@Override

@@ -24,6 +24,9 @@ import org.springframework.security.config.Elements;
 import org.springframework.util.StringUtils;
 
 /**
+ * Parses the {@code jdbc-user-service} element to configure a
+ * {@code JdbcUserDetailsManager}.
+ *
  * @author Luke Taylor
  */
 public class JdbcUserServiceBeanDefinitionParser extends AbstractUserDetailsServiceBeanDefinitionParser {

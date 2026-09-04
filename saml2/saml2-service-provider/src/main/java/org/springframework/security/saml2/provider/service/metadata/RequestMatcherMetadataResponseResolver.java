@@ -22,7 +22,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * An implementation of {@link Saml2MetadataResponseResolver} that identifies which
- * {@link RelyingPartyRegistration}s to use with a {@link RequestMatcher}
+ * {@link RelyingPartyRegistration}s to use with a {@link RequestMatcher}.
  *
  * @author Josh Cummings
  * @since 6.1
@@ -35,7 +35,7 @@ public final class RequestMatcherMetadataResponseResolver extends
 
 	/**
 	 * Construct a
-	 * {@link org.springframework.security.saml2.provider.service.web.metadata.RequestMatcherMetadataResponseResolver}
+	 * {@link org.springframework.security.saml2.provider.service.web.metadata.RequestMatcherMetadataResponseResolver}.
 	 * @param registrations the source for relying party metadata
 	 * @param metadata the strategy for converting {@link RelyingPartyRegistration}s into
 	 * metadata

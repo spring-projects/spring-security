@@ -29,7 +29,7 @@ import org.springframework.util.Assert;
 
 /**
  * An OpenSAML-based implementation of
- * {@link Saml2LogoutRequestValidatorParametersResolver}
+ * {@link Saml2LogoutRequestValidatorParametersResolver}.
  */
 public final class OpenSaml5LogoutRequestValidatorParametersResolver
 		implements Saml2LogoutRequestValidatorParametersResolver {
@@ -41,7 +41,7 @@ public final class OpenSaml5LogoutRequestValidatorParametersResolver
 	private final BaseOpenSamlLogoutRequestValidatorParametersResolver delegate;
 
 	/**
-	 * Constructs a {@link OpenSaml5LogoutRequestValidatorParametersResolver}
+	 * Constructs a {@link OpenSaml5LogoutRequestValidatorParametersResolver}.
 	 */
 	public OpenSaml5LogoutRequestValidatorParametersResolver(RelyingPartyRegistrationRepository registrations) {
 		Assert.notNull(registrations, "relyingPartyRegistrationRepository cannot be null");

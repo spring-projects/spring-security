@@ -139,6 +139,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 	private static final String MESSAGE_MATCHER_BUILDER_BEAN_NAME = "HttpConfigurationBuilder-pathPatternMessageMatcherBuilder";
 
 	/**
+	 * Parses the element into a {@link BeanDefinition}.
 	 * @param element
 	 * @param parserContext
 	 * @return the {@link BeanDefinition}

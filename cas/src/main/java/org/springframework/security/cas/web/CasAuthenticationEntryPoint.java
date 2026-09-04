@@ -154,7 +154,7 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
 	}
 
 	/**
-	 * Sets the {@link RedirectStrategy} to use
+	 * Sets the {@link RedirectStrategy} to use.
 	 * @param redirectStrategy the {@link RedirectStrategy} to use
 	 * @since 6.3
 	 */

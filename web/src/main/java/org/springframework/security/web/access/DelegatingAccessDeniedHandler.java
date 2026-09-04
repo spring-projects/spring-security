@@ -43,7 +43,7 @@ public final class DelegatingAccessDeniedHandler implements AccessDeniedHandler 
 	private final AccessDeniedHandler defaultHandler;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param handlers a map of the {@link AccessDeniedException} class to the
 	 * {@link AccessDeniedHandler} that should be used. Each is considered in the order
 	 * they are specified and only the first {@link AccessDeniedHandler} is ued.

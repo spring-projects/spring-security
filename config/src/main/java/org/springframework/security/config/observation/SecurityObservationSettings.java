@@ -45,7 +45,7 @@ public final class SecurityObservationSettings {
 	}
 
 	/**
-	 * Make no Spring Security observations
+	 * Make no Spring Security observations.
 	 * @return a {@link SecurityObservationSettings} with all exclusions turned on
 	 */
 	public static SecurityObservationSettings noObservations() {
@@ -53,7 +53,7 @@ public final class SecurityObservationSettings {
 	}
 
 	/**
-	 * Begin the configuration of a {@link SecurityObservationSettings}
+	 * Begin the configuration of a {@link SecurityObservationSettings}.
 	 * @return a {@link Builder} where filter chain observations are off and authn/authz
 	 * observations are on
 	 */
@@ -74,7 +74,7 @@ public final class SecurityObservationSettings {
 	}
 
 	/**
-	 * A builder for configuring a {@link SecurityObservationSettings}
+	 * A builder for configuring a {@link SecurityObservationSettings}.
 	 */
 	public static final class Builder {
 

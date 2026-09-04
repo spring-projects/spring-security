@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Converters for reading RSA keys.
+ */
 @NullMarked
 package org.springframework.security.converter;
 

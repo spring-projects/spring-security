@@ -72,7 +72,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 
 	private static final boolean RETURN_OBJECT = true;
 
-	/** Default search controls */
+	/** Default search controls. */
 	private SearchControls searchControls = new SearchControls();
 
 	public SpringSecurityLdapTemplate(ContextSource contextSource) {
@@ -215,7 +215,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	/**
 	 * Extracts String values for a specified attribute name and places them in the map
 	 * representing the ldap record If a value is not of type String, it will derive it's
-	 * value from the {@link Object#toString()}
+	 * value from the {@link Object#toString()}.
 	 * @param adapter - the adapter that contains the values
 	 * @param record - the map holding the attribute names and values
 	 * @param attributeName - the name for which to fetch the values from
