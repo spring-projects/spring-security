@@ -39,7 +39,7 @@ public final class CrossOriginResourcePolicyServerHttpHeadersWriter implements S
 
 	/**
 	 * Sets the {@link CrossOriginResourcePolicy} value to be used in the
-	 * {@code Cross-Origin-Embedder-Policy} header
+	 * {@code Cross-Origin-Embedder-Policy} header.
 	 * @param resourcePolicy the {@link CrossOriginResourcePolicy} to use
 	 */
 	public void setPolicy(CrossOriginResourcePolicy resourcePolicy) {

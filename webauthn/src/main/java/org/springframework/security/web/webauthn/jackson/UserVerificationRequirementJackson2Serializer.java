@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import org.springframework.security.web.webauthn.api.UserVerificationRequirement;
 
 /**
- * Jackson serializer for {@link UserVerificationRequirement}
+ * Jackson serializer for {@link UserVerificationRequirement}.
  *
  * @author Rob Winch
  * @since 6.4

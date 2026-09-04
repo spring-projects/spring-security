@@ -38,7 +38,7 @@ public class SimpMessageTypeMatcher implements MessageMatcher<Object> {
 	private final SimpMessageType typeToMatch;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param typeToMatch the {@link SimpMessageType} that will result in a match. Cannot
 	 * be null.
 	 */

@@ -27,6 +27,8 @@ import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.GenericConverter;
 
 /**
+ * A {@link GenericConverter} that converts an {@link Object} to an {@link Instant}.
+ *
  * @author Joe Grandja
  * @since 5.2
  */

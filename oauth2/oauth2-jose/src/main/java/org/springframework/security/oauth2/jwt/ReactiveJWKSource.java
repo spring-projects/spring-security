@@ -23,7 +23,7 @@ import com.nimbusds.jose.jwk.JWKSelector;
 import reactor.core.publisher.Mono;
 
 /**
- * A reactive version of {@link com.nimbusds.jose.jwk.source.JWKSource}
+ * A reactive version of {@link com.nimbusds.jose.jwk.source.JWKSource}.
  *
  * @author Rob Winch
  * @since 5.1

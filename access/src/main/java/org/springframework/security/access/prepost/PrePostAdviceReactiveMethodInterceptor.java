@@ -74,7 +74,7 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 	private static final int RETURN_TYPE_METHOD_PARAMETER_INDEX = -1;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param attributeSource the {@link MethodSecurityMetadataSource} to use
 	 * @param preInvocationAdvice the {@link PreInvocationAuthorizationAdvice} to use
 	 * @param postInvocationAdvice the {@link PostInvocationAuthorizationAdvice} to use

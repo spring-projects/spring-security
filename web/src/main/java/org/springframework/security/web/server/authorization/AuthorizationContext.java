@@ -22,6 +22,9 @@ import java.util.Map;
 import org.springframework.web.server.ServerWebExchange;
 
 /**
+ * Contains the {@link ServerWebExchange} and any extracted URI template variables used
+ * during authorization.
+ *
  * @author Rob Winch
  * @since 5.0
  */

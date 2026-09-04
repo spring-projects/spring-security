@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Factories for creating commonly used PasswordEncoder instances.
+ */
 @NullMarked
 package org.springframework.security.crypto.factory;
 

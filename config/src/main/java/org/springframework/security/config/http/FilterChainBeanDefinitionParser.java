@@ -31,6 +31,9 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
+ * Parses a {@code filter-chain} element into a {@link DefaultSecurityFilterChain} bean
+ * definition.
+ *
  * @author Luke Taylor
  */
 public class FilterChainBeanDefinitionParser implements BeanDefinitionParser {

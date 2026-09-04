@@ -37,7 +37,7 @@ public interface ReactiveSessionRegistry {
 	Flux<ReactiveSessionInformation> getAllSessions(Object principal);
 
 	/**
-	 * Saves the {@link ReactiveSessionInformation}
+	 * Saves the {@link ReactiveSessionInformation}.
 	 * @param information the {@link ReactiveSessionInformation} to save
 	 * @return a {@link Mono} that completes when the session is saved
 	 */
@@ -58,7 +58,7 @@ public interface ReactiveSessionRegistry {
 	Mono<ReactiveSessionInformation> removeSessionInformation(String sessionId);
 
 	/**
-	 * Updates the last accessed time of the {@link ReactiveSessionInformation}
+	 * Updates the last accessed time of the {@link ReactiveSessionInformation}.
 	 * @param sessionId the session identifier
 	 * @return a {@link Mono} that completes when the session is updated
 	 */

@@ -72,7 +72,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 	}
 
 	/**
-	 * Private constructor for Jackson Deserialization support
+	 * Private constructor for Jackson Deserialization support.
 	 * @param keyHash hashCode of provided key to identify if this object made by a given
 	 * {@link CasAuthenticationProvider}
 	 * @param principal typically the UserDetails object (cannot be <code>null</code>)
@@ -182,7 +182,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 	}
 
 	/**
-	 * A builder of {@link CasAuthenticationToken} instances
+	 * A builder of {@link CasAuthenticationToken} instances.
 	 *
 	 * @since 7.0
 	 */
@@ -208,7 +208,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 		}
 
 		/**
-		 * Use this key
+		 * Use this key.
 		 * @param key the key to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -232,7 +232,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 		}
 
 		/**
-		 * Use this {@link UserDetails}
+		 * Use this {@link UserDetails}.
 		 * @param userDetails the {@link UserDetails} to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -242,7 +242,7 @@ public class CasAuthenticationToken extends AbstractAuthenticationToken implemen
 		}
 
 		/**
-		 * Use this {@link Assertion}
+		 * Use this {@link Assertion}.
 		 * @param assertion the {@link Assertion} to use
 		 * @return the {@link Builder} for further configurations
 		 */

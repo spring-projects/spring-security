@@ -52,7 +52,7 @@ public class MediaTypeServerWebExchangeMatcher implements ServerWebExchangeMatch
 	private Set<MediaType> ignoredMediaTypes = Collections.emptySet();
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param matchingMediaTypes the types to match on
 	 */
 	public MediaTypeServerWebExchangeMatcher(MediaType... matchingMediaTypes) {
@@ -62,7 +62,7 @@ public class MediaTypeServerWebExchangeMatcher implements ServerWebExchangeMatch
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param matchingMediaTypes the types to match on
 	 */
 	public MediaTypeServerWebExchangeMatcher(Collection<MediaType> matchingMediaTypes) {

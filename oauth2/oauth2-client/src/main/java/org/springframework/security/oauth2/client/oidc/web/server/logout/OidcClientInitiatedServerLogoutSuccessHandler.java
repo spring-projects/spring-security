@@ -64,7 +64,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 
 	/**
 	 * Constructs an {@link OidcClientInitiatedServerLogoutSuccessHandler} with the
-	 * provided parameters
+	 * provided parameters.
 	 * @param clientRegistrationRepository The
 	 * {@link ReactiveClientRegistrationRepository} to use to derive the
 	 * end_session_endpoint value
@@ -184,7 +184,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 
 	/**
 	 * The URL to redirect to after successfully logging out when not originally an OIDC
-	 * login
+	 * login.
 	 * @param logoutSuccessUrl the url to redirect to. Default is "/login?logout".
 	 */
 	public void setLogoutSuccessUrl(URI logoutSuccessUrl) {
@@ -194,7 +194,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 
 	/**
 	 * Set the {@link Converter} that converts {@link RedirectUriParameters} to redirect
-	 * URI
+	 * URI.
 	 * @param redirectUriResolver {@link Converter}
 	 * @since 6.5
 	 */
@@ -205,7 +205,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 
 	/**
 	 * Set the {@link ServerRedirectStrategy} to use, default
-	 * {@link DefaultServerRedirectStrategy}
+	 * {@link DefaultServerRedirectStrategy}.
 	 * @param redirectStrategy {@link ServerRedirectStrategy}
 	 * @since 6.5
 	 */

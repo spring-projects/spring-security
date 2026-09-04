@@ -247,6 +247,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	}
 
 	/**
+	 * Returns the current {@link AuthenticationTrustResolver}.
 	 * @return The current {@link AuthenticationTrustResolver}
 	 * @deprecated Use
 	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
@@ -266,6 +267,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	}
 
 	/**
+	 * Returns the current {@link ParameterNameDiscoverer}.
 	 * @return The current {@link ParameterNameDiscoverer}
 	 */
 	protected ParameterNameDiscoverer getParameterNameDiscoverer() {
@@ -313,6 +315,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	}
 
 	/**
+	 * Returns the default role prefix.
 	 * @return The default role prefix
 	 * @deprecated Use
 	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead

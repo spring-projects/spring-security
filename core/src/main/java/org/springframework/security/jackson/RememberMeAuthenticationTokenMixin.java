@@ -19,10 +19,13 @@ package org.springframework.security.jackson;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import org.springframework.security.core.GrantedAuthority;
 
@@ -37,9 +40,9 @@ import org.springframework.security.core.GrantedAuthority;
  * @see CoreJacksonModule
  * @see SecurityJacksonModules
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
-		isGetterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.ANY)
+@JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY)
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE,
+		isGetterVisibility = Visibility.NONE, creatorVisibility = Visibility.ANY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class RememberMeAuthenticationTokenMixin {
 

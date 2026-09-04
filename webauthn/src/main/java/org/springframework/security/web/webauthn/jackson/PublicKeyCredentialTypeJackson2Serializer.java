@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialType;
 
 /**
- * Jackson serializer for {@link PublicKeyCredentialType}
+ * Jackson serializer for {@link PublicKeyCredentialType}.
  *
  * @author Rob Winch
  * @since 6.4

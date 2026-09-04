@@ -38,6 +38,7 @@ public class DenyAllPermissionEvaluator implements PermissionEvaluator {
 	private final Log logger = LogFactory.getLog(getClass());
 
 	/**
+	 * Always denies permission.
 	 * @return false always
 	 */
 	@Override
@@ -48,6 +49,7 @@ public class DenyAllPermissionEvaluator implements PermissionEvaluator {
 	}
 
 	/**
+	 * Always denies permission.
 	 * @return false always
 	 */
 	@Override

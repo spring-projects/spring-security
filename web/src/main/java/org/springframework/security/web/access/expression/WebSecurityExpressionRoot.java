@@ -28,6 +28,8 @@ import org.springframework.security.web.access.intercept.RequestAuthorizationCon
 import org.springframework.security.web.util.matcher.IpAddressMatcher;
 
 /**
+ * The {@link SecurityExpressionRoot} used for web security expression evaluation.
+ *
  * @author Luke Taylor
  * @author Evgeniy Cheban
  * @author Steve Riesenberg
@@ -36,11 +38,13 @@ import org.springframework.security.web.util.matcher.IpAddressMatcher;
 public class WebSecurityExpressionRoot extends SecurityExpressionRoot<RequestAuthorizationContext> {
 
 	/**
-	 * Allows direct access to the request object
+	 * Allows direct access to the request object.
 	 */
 	public final HttpServletRequest request;
 
 	/**
+	 * Creates an instance for the given {@link Authentication} and
+	 * {@link FilterInvocation}.
 	 * @deprecated Use
 	 * {@link #WebSecurityExpressionRoot(Supplier, RequestAuthorizationContext)} instead
 	 */

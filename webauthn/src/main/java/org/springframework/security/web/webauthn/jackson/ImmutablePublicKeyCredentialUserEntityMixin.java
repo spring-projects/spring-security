@@ -22,7 +22,7 @@ import org.springframework.security.web.webauthn.api.Bytes;
 import org.springframework.security.web.webauthn.api.ImmutablePublicKeyCredentialUserEntity;
 
 /**
- * Jackson mixin for {@link ImmutablePublicKeyCredentialUserEntity}
+ * Jackson mixin for {@link ImmutablePublicKeyCredentialUserEntity}.
  *
  * @author Toshiaki Maki
  * @since 7.0.4

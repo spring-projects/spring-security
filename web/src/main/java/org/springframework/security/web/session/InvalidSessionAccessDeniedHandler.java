@@ -27,7 +27,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.util.Assert;
 
 /**
- * An adapter of {@link InvalidSessionStrategy} to {@link AccessDeniedHandler}
+ * An adapter of {@link InvalidSessionStrategy} to {@link AccessDeniedHandler}.
  *
  * @author Rob Winch
  * @since 3.2
@@ -37,7 +37,7 @@ public final class InvalidSessionAccessDeniedHandler implements AccessDeniedHand
 	private final InvalidSessionStrategy invalidSessionStrategy;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param invalidSessionStrategy the {@link InvalidSessionStrategy} to delegate to
 	 */
 	public InvalidSessionAccessDeniedHandler(InvalidSessionStrategy invalidSessionStrategy) {

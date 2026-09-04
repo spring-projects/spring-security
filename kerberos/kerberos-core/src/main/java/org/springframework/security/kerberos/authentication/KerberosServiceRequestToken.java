@@ -96,7 +96,7 @@ public class KerberosServiceRequestToken extends AbstractAuthenticationToken imp
 	}
 
 	/**
-	 * equals() is based only on the Kerberos token
+	 * equals() is based only on the Kerberos token.
 	 */
 	@Override
 	public boolean equals(@Nullable Object obj) {
@@ -120,7 +120,7 @@ public class KerberosServiceRequestToken extends AbstractAuthenticationToken imp
 	}
 
 	/**
-	 * Calculates hashcode based on the Kerberos token
+	 * Calculates hashcode based on the Kerberos token.
 	 */
 	@Override
 	public int hashCode() {
@@ -141,7 +141,7 @@ public class KerberosServiceRequestToken extends AbstractAuthenticationToken imp
 	}
 
 	/**
-	 * Returns the Kerberos token
+	 * Returns the Kerberos token.
 	 * @return the token data
 	 */
 	public byte[] getToken() {
@@ -149,7 +149,7 @@ public class KerberosServiceRequestToken extends AbstractAuthenticationToken imp
 	}
 
 	/**
-	 * Gets the ticket validation
+	 * Gets the ticket validation.
 	 * @return the ticket validation (which will be null if the token is unauthenticated)
 	 */
 	public @Nullable KerberosTicketValidation getTicketValidation() {
@@ -157,7 +157,7 @@ public class KerberosServiceRequestToken extends AbstractAuthenticationToken imp
 	}
 
 	/**
-	 * Determines whether an authenticated token has a response token
+	 * Determines whether an authenticated token has a response token.
 	 * @return whether a response token is available
 	 */
 	public boolean hasResponseToken() {
@@ -179,7 +179,7 @@ public class KerberosServiceRequestToken extends AbstractAuthenticationToken imp
 	}
 
 	/**
-	 * Unwraps an encrypted message using the gss context
+	 * Unwraps an encrypted message using the gss context.
 	 * @param data the data
 	 * @param offset data offset
 	 * @param length data length
@@ -203,7 +203,7 @@ public class KerberosServiceRequestToken extends AbstractAuthenticationToken imp
 	}
 
 	/**
-	 * Unwraps an encrypted message using the gss context
+	 * Unwraps an encrypted message using the gss context.
 	 * @param data the data
 	 * @return the decrypted message
 	 * @throws PrivilegedActionException if jaas throws and error
@@ -213,7 +213,7 @@ public class KerberosServiceRequestToken extends AbstractAuthenticationToken imp
 	}
 
 	/**
-	 * Wraps an message using the gss context
+	 * Wraps an message using the gss context.
 	 * @param data the data
 	 * @param offset data offset
 	 * @param length data length
@@ -237,7 +237,7 @@ public class KerberosServiceRequestToken extends AbstractAuthenticationToken imp
 	}
 
 	/**
-	 * Wraps an message using the gss context
+	 * Wraps an message using the gss context.
 	 * @param data the data
 	 * @return the encrypted message
 	 * @throws PrivilegedActionException if jaas throws and error

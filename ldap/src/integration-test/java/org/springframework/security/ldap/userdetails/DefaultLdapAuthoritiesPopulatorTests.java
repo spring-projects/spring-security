@@ -40,6 +40,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
+ * Integration tests for {@link DefaultLdapAuthoritiesPopulator}.
+ *
  * @author Luke Taylor
  * @author Eddú Meléndez
  */

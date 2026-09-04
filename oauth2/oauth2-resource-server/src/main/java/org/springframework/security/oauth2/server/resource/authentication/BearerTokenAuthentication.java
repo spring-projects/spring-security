@@ -45,7 +45,7 @@ public class BearerTokenAuthentication extends AbstractOAuth2TokenAuthentication
 	private final Map<String, Object> attributes;
 
 	/**
-	 * Constructs a {@link BearerTokenAuthentication} with the provided arguments
+	 * Constructs a {@link BearerTokenAuthentication} with the provided arguments.
 	 * @param principal The OAuth 2.0 attributes
 	 * @param credentials The verified token
 	 * @param authorities The authorities associated with the given token
@@ -75,7 +75,7 @@ public class BearerTokenAuthentication extends AbstractOAuth2TokenAuthentication
 	}
 
 	/**
-	 * A builder preserving the concrete {@link Authentication} type
+	 * A builder preserving the concrete {@link Authentication} type.
 	 *
 	 * @since 7.0
 	 */
@@ -103,7 +103,7 @@ public class BearerTokenAuthentication extends AbstractOAuth2TokenAuthentication
 		}
 
 		/**
-		 * A synonym for {@link #token(OAuth2AccessToken)}
+		 * A synonym for {@link #token(OAuth2AccessToken)}.
 		 * @param token the token to use
 		 * @return the {@link Builder} for further configurations
 		 */

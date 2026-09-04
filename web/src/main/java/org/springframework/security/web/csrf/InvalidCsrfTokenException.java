@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * Thrown when an expected {@link CsrfToken} exists, but it does not match the value
- * present on the {@link HttpServletRequest}
+ * present on the {@link HttpServletRequest}.
  *
  * @author Rob Winch
  * @since 3.2
@@ -34,6 +34,7 @@ public class InvalidCsrfTokenException extends CsrfException {
 	private static final long serialVersionUID = -7745955098435417418L;
 
 	/**
+	 * Creates a new instance.
 	 * @param expectedAccessToken
 	 * @param actualAccessToken
 	 */

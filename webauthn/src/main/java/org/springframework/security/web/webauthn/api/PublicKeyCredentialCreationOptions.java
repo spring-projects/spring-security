@@ -174,7 +174,7 @@ public final class PublicKeyCredentialCreationOptions implements Serializable {
 	}
 
 	/**
-	 * Creates a new {@link PublicKeyCredentialCreationOptions}
+	 * Creates a new {@link PublicKeyCredentialCreationOptions}.
 	 * @return a new {@link PublicKeyCredentialCreationOptions}
 	 */
 	public static PublicKeyCredentialCreationOptionsBuilder builder() {
@@ -332,7 +332,7 @@ public final class PublicKeyCredentialCreationOptions implements Serializable {
 		}
 
 		/**
-		 * Builds a new {@link PublicKeyCredentialCreationOptions}
+		 * Builds a new {@link PublicKeyCredentialCreationOptions}.
 		 * @return the new {@link PublicKeyCredentialCreationOptions}
 		 */
 		public PublicKeyCredentialCreationOptions build() {

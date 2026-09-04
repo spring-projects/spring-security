@@ -34,6 +34,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
+ * Integration tests for {@link DefaultSpringSecurityContextSource}.
+ *
  * @author Luke Taylor
  * @author Eddú Meléndez
  */

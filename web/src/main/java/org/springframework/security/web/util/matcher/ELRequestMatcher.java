@@ -26,7 +26,7 @@ import org.springframework.security.web.authentication.DelegatingAuthenticationE
 import org.springframework.util.Assert;
 
 /**
- * A RequestMatcher implementation which uses a SpEL expression
+ * A RequestMatcher implementation which uses a SpEL expression.
  *
  * <p>
  * With the default EvaluationContext ({@link ELRequestMatcherContext}) you can use
@@ -60,7 +60,7 @@ public class ELRequestMatcher implements RequestMatcher {
 
 	/**
 	 * Subclasses can override this methode if they want to use a different EL root
-	 * context
+	 * context.
 	 * @return EL root context which is used to evaluate the expression
 	 */
 	public EvaluationContext createELContext(HttpServletRequest request) {

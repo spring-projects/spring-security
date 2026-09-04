@@ -42,6 +42,7 @@ public abstract class SessionDestroyedEvent extends AbstractSessionEvent {
 	public abstract List<SecurityContext> getSecurityContexts();
 
 	/**
+	 * Provides the identifier associated with the destroyed session.
 	 * @return the identifier associated with the destroyed session.
 	 */
 	public abstract String getId();

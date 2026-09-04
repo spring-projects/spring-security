@@ -21,7 +21,7 @@ import tools.jackson.databind.annotation.JsonSerialize;
 import org.springframework.security.web.webauthn.api.AttestationConveyancePreference;
 
 /**
- * Jackson mixin for {@link AttestationConveyancePreference}
+ * Jackson mixin for {@link AttestationConveyancePreference}.
  *
  * @author Rob Winch
  * @since 6.4

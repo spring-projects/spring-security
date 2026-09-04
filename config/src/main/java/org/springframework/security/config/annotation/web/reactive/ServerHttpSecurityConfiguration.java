@@ -51,6 +51,9 @@ import org.springframework.web.reactive.result.method.annotation.ArgumentResolve
 import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
+ * Configuration that exposes a {@link ServerHttpSecurity} bean for use in WebFlux
+ * security configuration.
+ *
  * @author Rob Winch
  * @author Dan Zheng
  * @since 5.0

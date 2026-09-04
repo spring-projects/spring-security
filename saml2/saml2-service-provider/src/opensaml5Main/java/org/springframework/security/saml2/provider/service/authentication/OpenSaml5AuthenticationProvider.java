@@ -123,7 +123,7 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 	private final BaseOpenSamlAuthenticationProvider delegate;
 
 	/**
-	 * Creates an {@link OpenSaml5AuthenticationProvider}
+	 * Creates an {@link OpenSaml5AuthenticationProvider}.
 	 */
 	public OpenSaml5AuthenticationProvider() {
 		this.delegate = new BaseOpenSamlAuthenticationProvider(new OpenSaml5Template());
@@ -409,6 +409,7 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 	}
 
 	/**
+	 * Authenticates the given SAML 2.0 authentication request.
 	 * @param authentication the authentication request object, must be of type
 	 * {@link Saml2AuthenticationToken}
 	 * @return {@link Saml2Authentication} if the assertion is valid
@@ -490,7 +491,7 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 
 	/**
 	 * A response validator that checks the {@code InResponseTo} value against the
-	 * correlating {@link AbstractSaml2AuthenticationRequest}
+	 * correlating {@link AbstractSaml2AuthenticationRequest}.
 	 *
 	 * @since 6.5
 	 */
@@ -508,7 +509,7 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 
 	/**
 	 * A response validator that compares the {@code Destination} value to the configured
-	 * {@link RelyingPartyRegistration#getAssertionConsumerServiceLocation()}
+	 * {@link RelyingPartyRegistration#getAssertionConsumerServiceLocation()}.
 	 *
 	 * @since 6.5
 	 */
@@ -533,7 +534,7 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 
 	/**
 	 * A response validator that compares the {@code Issuer} value to the configured
-	 * {@link AssertingPartyMetadata#getEntityId()}
+	 * {@link AssertingPartyMetadata#getEntityId()}.
 	 *
 	 * @since 6.5
 	 */
@@ -559,7 +560,7 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 
 	/**
 	 * A composite response validator that confirms a {@code SUCCESS} status, that there
-	 * is at least one assertion, and any other configured converters
+	 * is at least one assertion, and any other configured converters.
 	 *
 	 * @since 6.5
 	 * @see InResponseToValidator
@@ -656,7 +657,7 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 		}
 
 		/**
-		 * Validate this assertion
+		 * Validate this assertion.
 		 * @param token the assertion to validate
 		 * @return the validation result
 		 */
@@ -666,7 +667,7 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 
 		/**
 		 * Mutate the map of OpenSAML {@link ValidationContext} parameters using the given
-		 * {@code paramsConsumer}
+		 * {@code paramsConsumer}.
 		 * @param paramsConsumer the context parameters mutator
 		 */
 		public void setValidationContextParameters(Consumer<Map<String, Object>> paramsConsumer) {
@@ -714,7 +715,7 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 		}
 
 		/**
-		 * Create the default assertion validator
+		 * Create the default assertion validator.
 		 * @return the default assertion validator
 		 */
 		public static AssertionValidator withDefaults() {
@@ -722,7 +723,7 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 		}
 
 		/**
-		 * Use a builder to configure aspects of the validator
+		 * Use a builder to configure aspects of the validator.
 		 * @return the {@link Builder} for configuration {@link AssertionValidator}
 		 */
 		public static Builder builder() {
@@ -820,7 +821,7 @@ public final class OpenSaml5AuthenticationProvider implements AuthenticationProv
 			}
 
 			/**
-			 * Build the {@link AssertionValidator}
+			 * Build the {@link AssertionValidator}.
 			 * @return the {@link AssertionValidator}
 			 */
 			public AssertionValidator build() {

@@ -65,7 +65,7 @@ public class UserDetailsByNameServiceWrapper<T extends Authentication>
 	}
 
 	/**
-	 * Get the UserDetails object from the wrapped UserDetailsService implementation
+	 * Get the UserDetails object from the wrapped UserDetailsService implementation.
 	 */
 	@Override
 	public UserDetails loadUserDetails(T authentication) throws UsernameNotFoundException {
@@ -73,7 +73,7 @@ public class UserDetailsByNameServiceWrapper<T extends Authentication>
 	}
 
 	/**
-	 * Set the wrapped UserDetailsService implementation
+	 * Set the wrapped UserDetailsService implementation.
 	 * @param aUserDetailsService The wrapped UserDetailsService to set
 	 */
 	public void setUserDetailsService(UserDetailsService aUserDetailsService) {

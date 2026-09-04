@@ -20,11 +20,13 @@ import java.util.Map;
 import java.util.function.Function;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import org.jspecify.annotations.NullUnmarked;
 
 import org.springframework.security.jackson2.SecurityJackson2Modules;
@@ -49,8 +51,8 @@ import org.springframework.security.saml2.provider.service.registration.Saml2Mes
  */
 @SuppressWarnings("removal")
 @Deprecated(forRemoval = true)
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonTypeInfo(use = Id.CLASS)
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @NullUnmarked
 class Saml2LogoutRequestMixin {

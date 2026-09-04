@@ -82,7 +82,7 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 	}
 
 	/**
-	 * Gets the state parameter from the {@link HttpServletRequest}
+	 * Gets the state parameter from the {@link HttpServletRequest}.
 	 * @param request the request to use
 	 * @return the state parameter or null if not found
 	 */

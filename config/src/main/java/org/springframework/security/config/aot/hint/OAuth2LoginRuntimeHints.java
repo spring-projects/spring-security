@@ -22,7 +22,7 @@ import org.springframework.aot.hint.RuntimeHintsRegistrar;
 
 /**
  * {@link RuntimeHintsRegistrar} for
- * {@link org.springframework.security.config.web.server.ServerHttpSecurity}
+ * {@link org.springframework.security.config.web.server.ServerHttpSecurity}.
  *
  * @author Marcus Da Coregio
  * @since 6.0.2

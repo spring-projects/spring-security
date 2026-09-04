@@ -65,6 +65,7 @@ public class DefaultMessageSecurityExpressionHandler<T> extends AbstractSecurity
 	}
 
 	/**
+	 * Sets the {@link AuthenticationTrustResolver} to use.
 	 * @deprecated Use
 	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
 	 */

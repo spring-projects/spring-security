@@ -37,7 +37,7 @@ import org.springframework.security.saml2.provider.service.registration.TestRely
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link OpenSaml5LogoutResponseValidator}
+ * Tests for {@link OpenSaml5LogoutResponseValidator}.
  *
  * @author Josh Cummings
  */

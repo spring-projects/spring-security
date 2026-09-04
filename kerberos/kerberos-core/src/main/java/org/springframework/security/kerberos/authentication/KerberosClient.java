@@ -17,6 +17,8 @@
 package org.springframework.security.kerberos.authentication;
 
 /**
+ * Logs in a user against a Kerberos server.
+ *
  * @author Mike Wiesner
  * @author Bogdan Mustiata
  * @since 1.0

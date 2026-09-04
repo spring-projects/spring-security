@@ -27,7 +27,7 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.util.pattern.PathPattern;
 
 /**
- * Provides factory methods for creating common {@link ServerWebExchangeMatcher}
+ * Provides factory methods for creating common {@link ServerWebExchangeMatcher}.
  *
  * @author Rob Winch
  * @since 5.0
@@ -86,7 +86,7 @@ public abstract class ServerWebExchangeMatchers {
 	}
 
 	/**
-	 * Creates a matcher that will match on any of the provided matchers
+	 * Creates a matcher that will match on any of the provided matchers.
 	 * @param matchers the matchers to match on
 	 * @return the matcher to use
 	 */
@@ -95,7 +95,7 @@ public abstract class ServerWebExchangeMatchers {
 	}
 
 	/**
-	 * Matches any exchange
+	 * Matches any exchange.
 	 * @return the matcher to use
 	 */
 	@SuppressWarnings("Convert2Lambda")

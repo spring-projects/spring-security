@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Reactive support for one-time token authentication.
+ */
 @NullMarked
 package org.springframework.security.authentication.ott.reactive;
 

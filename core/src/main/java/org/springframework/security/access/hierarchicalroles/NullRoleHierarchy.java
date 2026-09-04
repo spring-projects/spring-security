@@ -21,6 +21,9 @@ import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 
 /**
+ * A {@link RoleHierarchy} that performs no mapping, returning the given authorities
+ * unchanged.
+ *
  * @author Luke Taylor
  * @since 3.0
  */

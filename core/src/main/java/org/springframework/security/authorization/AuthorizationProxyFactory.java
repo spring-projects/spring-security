@@ -19,7 +19,7 @@ package org.springframework.security.authorization;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A factory for wrapping arbitrary objects in authorization-related advice
+ * A factory for wrapping arbitrary objects in authorization-related advice.
  *
  * @author Josh Cummings
  * @author daewon kim

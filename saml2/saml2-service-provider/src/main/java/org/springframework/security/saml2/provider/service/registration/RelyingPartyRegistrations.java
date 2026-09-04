@@ -29,7 +29,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.saml2.Saml2Exception;
 
 /**
- * A utility class for constructing instances of {@link RelyingPartyRegistration}
+ * A utility class for constructing instances of {@link RelyingPartyRegistration}.
  *
  * @author Josh Cummings
  * @author Ryan Cassar

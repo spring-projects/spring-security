@@ -18,7 +18,7 @@ package org.springframework.security.authentication;
 
 /**
  * An interface for resolving an {@link AuthenticationManager} based on the provided
- * context
+ * context.
  *
  * @author Josh Cummings
  * @since 5.2
@@ -26,7 +26,7 @@ package org.springframework.security.authentication;
 public interface AuthenticationManagerResolver<C> {
 
 	/**
-	 * Resolve an {@link AuthenticationManager} from a provided context
+	 * Resolve an {@link AuthenticationManager} from a provided context.
 	 * @param context
 	 * @return the {@link AuthenticationManager} to use
 	 */

@@ -35,7 +35,7 @@ class ReactiveJWKSourceAdapter implements ReactiveJWKSource {
 	private final JWKSource<SecurityContext> source;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param source
 	 */
 	ReactiveJWKSourceAdapter(JWKSource<SecurityContext> source) {

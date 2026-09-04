@@ -145,6 +145,7 @@ public final class SecurityJackson2Modules {
 	}
 
 	/**
+	 * Returns the list of available security modules in classpath.
 	 * @param loader the ClassLoader to use
 	 * @return List of available security modules in classpath.
 	 */
@@ -175,6 +176,7 @@ public final class SecurityJackson2Modules {
 	}
 
 	/**
+	 * Loads the given class and adds an instance of it to the given list of modules.
 	 * @param loader the ClassLoader to use
 	 * @param modules list of the modules to add
 	 * @param className name of the class to instantiate
@@ -201,7 +203,7 @@ public final class SecurityJackson2Modules {
 	/**
 	 * An implementation of {@link ObjectMapper.DefaultTypeResolverBuilder} that inserts
 	 * an {@code allow all} {@link PolymorphicTypeValidator} and overrides the
-	 * {@code TypeIdResolver}
+	 * {@code TypeIdResolver}.
 	 *
 	 * @author Rob Winch
 	 */

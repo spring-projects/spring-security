@@ -19,7 +19,7 @@ package org.springframework.security.saml2.provider.service.registration;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A repository for {@link RelyingPartyRegistration}s
+ * A repository for {@link RelyingPartyRegistration}s.
  *
  * @author Filip Hanik
  * @author Josh Cummings
