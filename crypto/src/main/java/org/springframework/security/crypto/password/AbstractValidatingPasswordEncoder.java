@@ -19,7 +19,6 @@ package org.springframework.security.crypto.password;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.lang.Contract;
-import org.springframework.util.StringUtils;
 
 /**
  * An abstract {@link PasswordEncoder} that implementers can use for expecting the
@@ -46,7 +45,7 @@ public abstract class AbstractValidatingPasswordEncoder implements PasswordEncod
 
 	@Override
 	public final boolean matches(@Nullable CharSequence rawPassword, @Nullable String encodedPassword) {
-		if (!StringUtils.hasLength(rawPassword) || !StringUtils.hasLength(encodedPassword)) {
+		if (rawPassword == null || rawPassword.isEmpty() || encodedPassword == null || encodedPassword.isEmpty()) {
 			return false;
 		}
 		return matchesNonNull(rawPassword.toString(), encodedPassword);
@@ -56,7 +55,7 @@ public abstract class AbstractValidatingPasswordEncoder implements PasswordEncod
 
 	@Override
 	public final boolean upgradeEncoding(@Nullable String encodedPassword) {
-		if (!StringUtils.hasLength(encodedPassword)) {
+		if (encodedPassword == null || encodedPassword.isEmpty()) {
 			return false;
 		}
 		return upgradeEncodingNonNull(encodedPassword);
