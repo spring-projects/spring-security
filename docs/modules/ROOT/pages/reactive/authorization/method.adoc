@@ -1,7 +1,7 @@
 [[jc-erms]]
 = EnableReactiveMethodSecurity
 
-Spring Security supports method security by using https://projectreactor.io/docs/core/release/reference/#context[Reactor's Context], which is set up by `ReactiveSecurityContextHolder`.
+Spring Security supports method security by using https://projectreactor.io/docs/core/release/reference/advancedFeatures/context.html[Reactor's Context], which is set up by `ReactiveSecurityContextHolder`.
 The following example shows how to retrieve the currently logged in user's message:
 
 [NOTE]
