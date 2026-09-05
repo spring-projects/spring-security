@@ -465,8 +465,8 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 
 	/**
 	 * Indicates if the filter chain should be continued prior to delegation to
-	 * {@link #successfulAuthentication(HttpServletRequest, HttpServletResponse, FilterChain, Authentication)}
-	 * , which may be useful in certain environment (such as Tapestry applications).
+	 * {@link #successfulAuthentication(HttpServletRequest, HttpServletResponse, FilterChain, Authentication)},
+	 * which may be useful in certain environment (such as Tapestry applications).
 	 * Defaults to <code>false</code>.
 	 */
 	public void setContinueChainBeforeSuccessfulAuthentication(boolean continueChainBeforeSuccessfulAuthentication) {
