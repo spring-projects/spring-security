@@ -146,7 +146,7 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 	/**
 	 * Creates a principal-like sid from the authentication information.
 	 * @param authentication the authentication information that can provide principal and
-	 * thus the sid's id will be dependant on the value inside
+	 * thus the sid's id will be dependent on the value inside
 	 * @return a sid with the ID taken from the authentication information
 	 */
 	protected Sid createCurrentUser(Authentication authentication) {

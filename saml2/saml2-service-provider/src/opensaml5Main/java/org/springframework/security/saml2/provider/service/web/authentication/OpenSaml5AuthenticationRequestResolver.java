@@ -82,8 +82,7 @@ public final class OpenSaml5AuthenticationRequestResolver implements Saml2Authen
 
 	/**
 	 * Set the {@link RequestMatcher} to use for setting the
-	 * {@link BaseOpenSamlAuthenticationRequestResolver#setRequestMatcher(RequestMatcher)}
-	 * (RequestMatcher)}.
+	 * {@link BaseOpenSamlAuthenticationRequestResolver#setRequestMatcher(RequestMatcher)}.
 	 * @param requestMatcher the {@link RequestMatcher} to identify authentication
 	 * requests.
 	 * @since 5.8

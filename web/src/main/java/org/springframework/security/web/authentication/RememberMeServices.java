@@ -30,7 +30,7 @@ import org.springframework.security.core.Authentication;
  * {@link org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter
  * AbstractAuthenticationProcessingFilter} and
  * {@link org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter
- * RememberMeAuthenticationFilter} will call the methods provided by an implementation of
+ * RememberMeAuthenticationFilter}) will call the methods provided by an implementation of
  * this interface.
  * <p>
  * Implementations may implement any type of remember-me capability they wish. Rolling

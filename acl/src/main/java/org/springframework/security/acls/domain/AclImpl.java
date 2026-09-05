@@ -90,9 +90,9 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 	 * @param aclAuthorizationStrategy authorization strategy
 	 * @param grantingStrategy the {@code PermissionGrantingStrategy} which will be used
 	 * by the {@code isGranted()} method
-	 * @param parentAcl the parent (may be may be {@code null})
-	 * @param loadedSids the loaded SIDs if only a subset were loaded (may be {@code null}
-	 * )
+	 * @param parentAcl the parent (may be {@code null})
+	 * @param loadedSids the loaded SIDs if only a subset were loaded (may be
+	 * {@code null})
 	 * @param entriesInheriting if ACEs from the parent should inherit into this ACL
 	 * @param owner the owner (required)
 	 */
