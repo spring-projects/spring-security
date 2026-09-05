@@ -49,7 +49,7 @@ import org.springframework.util.Assert;
 
 /**
  * This <tt>MappableAttributesRetriever</tt> implementation reads the list of defined J2EE
- * roles from a <tt>web.xml</tt> file and returns these from {
+ * roles from a <tt>web.xml</tt> file and returns these from
  * {@link #getMappableAttributes()}.
  *
  * @author Ruud Senden

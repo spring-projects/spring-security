@@ -99,7 +99,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  *
  * <p>
  * If you get a "GSSException: Channel binding mismatch (Mechanism level:ChannelBinding
- * not provided!) have a look at this
+ * not provided!)", please have a look at this
  * <a href="https://bugs.sun.com/view_bug.do?bug_id=6851973">bug</a>.
  * </p>
  * <p>
