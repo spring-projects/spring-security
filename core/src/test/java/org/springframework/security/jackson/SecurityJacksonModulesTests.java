@@ -16,7 +16,11 @@
 
 package org.springframework.security.jackson;
 
+import java.net.URI;
+import java.net.URL;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.junit.jupiter.api.Test;
@@ -70,6 +74,18 @@ public class SecurityJacksonModulesTests {
 		String json = mapper.writeValueAsString(user);
 		User deserializedUer = mapper.readerFor(User.class).readValue(json);
 		assertThat(deserializedUer).isEqualTo(user);
+	}
+
+	@Test
+	public void deserializeWhenMapContainsUrlThenDeserializes() throws Exception {
+		ClassLoader loader = getClass().getClassLoader();
+		List<JacksonModule> modules = SecurityJacksonModules.getModules(loader);
+		JsonMapper mapper = JsonMapper.builder().addModules(modules).build();
+		Map<String, Object> map = new LinkedHashMap<>();
+		map.put("url", URI.create("https://example.com").toURL());
+		String json = mapper.writeValueAsString(map);
+		Map<String, Object> deserialized = mapper.readerFor(Map.class).readValue(json);
+		assertThat(deserialized.get("url")).isInstanceOf(URL.class).hasToString("https://example.com");
 	}
 
 	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
