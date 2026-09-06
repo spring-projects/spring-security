@@ -20,6 +20,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 
+import javax.sql.DataSource;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
@@ -27,18 +31,15 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
+import org.springframework.jdbc.core.simple.JdbcClient;
 
 /**
  * JDBC based persistent login token repository implementation.
  *
- * @author Luke Taylor
- * @since 2.0
- * @deprecated Use {@link JdbcPersistentTokenRepository}
+ * @author Andrey Litvitski
+ * @since 7.1.0
  */
-@Deprecated(since = "7.1.0")
-@SuppressWarnings("removal")
-public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements PersistentTokenRepository {
+public class JdbcPersistentTokenRepository implements PersistentTokenRepository {
 
 	/** Default SQL for creating the database table to store the tokens */
 	public static final String CREATE_TABLE_SQL = "create table persistent_logins (username varchar(64) not null, series varchar(64) primary key, "
@@ -66,29 +67,41 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
 
 	private boolean createTableOnStartup;
 
-	@Override
-	protected void initDao() {
-		if (this.createTableOnStartup) {
-			getTemplate().execute(CREATE_TABLE_SQL);
-		}
+	private final JdbcClient jdbcClient;
+
+	protected final Log logger = LogFactory.getLog(this.getClass());
+
+	public JdbcPersistentTokenRepository(JdbcClient jdbcClient) {
+		this.jdbcClient = jdbcClient;
+	}
+
+	public JdbcPersistentTokenRepository(DataSource dataSource) {
+		this.jdbcClient = JdbcClient.create(dataSource);
+	}
+
+	public JdbcPersistentTokenRepository(JdbcTemplate jdbcTemplate) {
+		this.jdbcClient = JdbcClient.create(jdbcTemplate);
 	}
 
 	@Override
 	public void createNewToken(PersistentRememberMeToken token) {
-		getTemplate().update(this.insertTokenSql, token.getUsername(), token.getSeries(), token.getTokenValue(),
-				token.getDate());
+		this.jdbcClient.sql(this.insertTokenSql)
+			.param(token.getUsername())
+			.param(token.getSeries())
+			.param(token.getTokenValue())
+			.param(token.getDate())
+			.update();
 	}
 
 	@Override
 	public void updateToken(String series, String tokenValue, Date lastUsed) {
-		getTemplate().update(this.updateTokenSql, tokenValue, lastUsed, series);
+		this.jdbcClient.sql(this.updateTokenSql).param(tokenValue).param(lastUsed).param(series).update();
 	}
 
 	/**
-	 * Loads the token data for the supplied series identifier.
-	 *
-	 * If an error occurs, it will be reported and null will be returned (since the result
-	 * should just be a failed persistent login).
+	 * Loads the token data for the supplied series identifier. If an error occurs, it
+	 * will be reported and null will be returned (since the result should just be a
+	 * failed persistent login).
 	 * @param seriesId
 	 * @return the token matching the series, or null if no match found or an exception
 	 * occurred.
@@ -96,7 +109,10 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
 	@Override
 	public @Nullable PersistentRememberMeToken getTokenForSeries(String seriesId) {
 		try {
-			return getTemplate().queryForObject(this.tokensBySeriesSql, this::createRememberMeToken, seriesId);
+			return this.jdbcClient.sql(this.tokensBySeriesSql)
+				.param(seriesId)
+				.query(this::createRememberMeToken)
+				.single();
 		}
 		catch (EmptyResultDataAccessException ex) {
 			this.logger.debug(LogMessage.format("Querying token for series '%s' returned no results.", seriesId), ex);
@@ -118,7 +134,7 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
 
 	@Override
 	public void removeUserTokens(String username) {
-		getTemplate().update(this.removeUserTokensSql, username);
+		this.jdbcClient.sql(this.removeUserTokensSql).param(username).update();
 	}
 
 	/**
@@ -130,12 +146,10 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
 		this.createTableOnStartup = createTableOnStartup;
 	}
 
-	private JdbcTemplate getTemplate() {
-		@Nullable JdbcTemplate result = super.getJdbcTemplate();
-		if (result == null) {
-			throw new IllegalStateException("JdbcTemplate was removed");
+	protected void initDao() {
+		if (this.createTableOnStartup) {
+			this.jdbcClient.sql(CREATE_TABLE_SQL).update();
 		}
-		return result;
 	}
 
 }

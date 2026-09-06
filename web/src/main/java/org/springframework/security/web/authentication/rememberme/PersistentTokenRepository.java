@@ -28,6 +28,7 @@ import org.jspecify.annotations.Nullable;
  * @since 2.0
  * @see JdbcTokenRepositoryImpl
  * @see InMemoryTokenRepositoryImpl
+ * @see JdbcPersistentTokenRepository
  */
 public interface PersistentTokenRepository {
 
