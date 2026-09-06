@@ -116,9 +116,9 @@ import org.springframework.util.Assert;
  */
 public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 
-	public static final String CONTENT_SECURITY_POLICY_HEADER = "Content-Security-Policy";
+	private static final String CONTENT_SECURITY_POLICY_HEADER = "Content-Security-Policy";
 
-	public static final String CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER = "Content-Security-Policy-Report-Only";
+	private static final String CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER = "Content-Security-Policy-Report-Only";
 
 	private static final String DEFAULT_SRC_SELF_POLICY = "default-src 'self'";
 

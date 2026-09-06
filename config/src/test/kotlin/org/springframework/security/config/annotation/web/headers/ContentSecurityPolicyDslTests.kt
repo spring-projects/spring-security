@@ -31,11 +31,13 @@ import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.header.writers.ContentSecurityPolicyHeaderWriter
 import org.springframework.security.web.util.matcher.AnyRequestMatcher
 import org.springframework.security.web.util.matcher.RequestMatcher
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+
+private val CONTENT_SECURITY_POLICY = "Content-Security-Policy";
+private val CONTENT_SECURITY_POLICY_REPORT_ONLY = "Content-Security-Policy-Report-Only"
 
 /**
  * Tests for [ContentSecurityPolicyDsl]
@@ -58,7 +60,7 @@ class ContentSecurityPolicyDslTests {
         this.mockMvc.get("/") {
             secure = true
         }.andExpect {
-            header { string(ContentSecurityPolicyHeaderWriter.CONTENT_SECURITY_POLICY_HEADER, "default-src 'self'") }
+            header { string(CONTENT_SECURITY_POLICY, "default-src 'self'") }
         }
     }
 
@@ -84,10 +86,7 @@ class ContentSecurityPolicyDslTests {
         this.mockMvc.get("/") {
             secure = true
         }.andExpect {
-            header {
-                string(ContentSecurityPolicyHeaderWriter.CONTENT_SECURITY_POLICY_HEADER,
-                    "default-src 'self'; script-src trustedscripts.example.com")
-            }
+            header { string(CONTENT_SECURITY_POLICY, "default-src 'self'; script-src trustedscripts.example.com") }
         }
     }
 
@@ -115,10 +114,7 @@ class ContentSecurityPolicyDslTests {
         this.mockMvc.get("/") {
             secure = true
         }.andExpect {
-            header {
-                string(ContentSecurityPolicyHeaderWriter.CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER,
-                    "default-src 'self'")
-            }
+            header { string(CONTENT_SECURITY_POLICY_REPORT_ONLY, "default-src 'self'") }
         }
     }
 
@@ -147,8 +143,7 @@ class ContentSecurityPolicyDslTests {
             secure = true
         }.andExpect {
             header {
-                string(ContentSecurityPolicyHeaderWriter.CONTENT_SECURITY_POLICY_HEADER,
-                    matchesPattern("^script-src 'self' 'nonce-[A-Za-z0-9+/]{22,}={0,2}'$"))
+                string(CONTENT_SECURITY_POLICY, matchesPattern("^script-src 'self' 'nonce-[A-Za-z0-9+/]{22,}={0,2}'$"))
             }
         }
     }
@@ -178,8 +173,7 @@ class ContentSecurityPolicyDslTests {
             secure = true
         }.andExpect {
             header {
-                string(ContentSecurityPolicyHeaderWriter.CONTENT_SECURITY_POLICY_HEADER,
-                    matchesPattern("^script-src 'self' 'nonce-[A-Za-z0-9+/]{22,}={0,2}'$"))
+                string(CONTENT_SECURITY_POLICY, matchesPattern("^script-src 'self' 'nonce-[A-Za-z0-9+/]{22,}={0,2}'$"))
             }
         }
     }
@@ -211,15 +205,14 @@ class ContentSecurityPolicyDslTests {
             accept = MediaType.TEXT_HTML
         }.andExpect {
             header {
-                string(ContentSecurityPolicyHeaderWriter.CONTENT_SECURITY_POLICY_HEADER,
-                    "default-src 'self'")
+                string(CONTENT_SECURITY_POLICY, "default-src 'self'")
             }
         }
         this.mockMvc.get("/") {
             secure = true
             accept = MediaType.TEXT_PLAIN
         }.andExpect {
-            header { doesNotExist(ContentSecurityPolicyHeaderWriter.CONTENT_SECURITY_POLICY_HEADER) }
+            header { doesNotExist(CONTENT_SECURITY_POLICY) }
         }
     }
 
@@ -252,22 +245,20 @@ class ContentSecurityPolicyDslTests {
             secure = true
         }.andExpect {
             header {
-                string(ContentSecurityPolicyHeaderWriter.CONTENT_SECURITY_POLICY_HEADER,
-                    "default-src 'self'")
+                string(CONTENT_SECURITY_POLICY, "default-src 'self'")
             }
         }
         this.mockMvc.get("/bar/foo") {
             secure = true
         }.andExpect {
             header {
-                string(ContentSecurityPolicyHeaderWriter.CONTENT_SECURITY_POLICY_HEADER,
-                    "default-src 'self'")
+                string(CONTENT_SECURITY_POLICY, "default-src 'self'")
             }
         }
         this.mockMvc.get("/foobar") {
             secure = true
         }.andExpect {
-            header { doesNotExist(ContentSecurityPolicyHeaderWriter.CONTENT_SECURITY_POLICY_HEADER) }
+            header { doesNotExist(CONTENT_SECURITY_POLICY) }
         }
     }
 
