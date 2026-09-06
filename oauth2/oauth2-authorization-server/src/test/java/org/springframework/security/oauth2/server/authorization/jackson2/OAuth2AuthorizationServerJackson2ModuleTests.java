@@ -28,6 +28,8 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
@@ -66,6 +68,19 @@ public class OAuth2AuthorizationServerJackson2ModuleTests {
 	@Test
 	public void readValueWhenOAuth2AuthorizationAttributesThenSuccess() throws Exception {
 		Authentication principal = new UsernamePasswordAuthenticationToken("principal", "credentials");
+		OAuth2Authorization authorization = TestOAuth2Authorizations.authorization()
+			.attributes((attrs) -> attrs.put(Principal.class.getName(), principal))
+			.build();
+		Map<String, Object> attributes = authorization.getAttributes();
+		String json = this.objectMapper.writeValueAsString(attributes);
+		assertThat(this.objectMapper.readValue(json, STRING_OBJECT_MAP)).isEqualTo(attributes);
+	}
+
+	@Test
+	public void readValueWhenOAuth2AuthorizationAttributesWithFactorGrantedAuthorityThenSuccess() throws Exception {
+		Authentication principal = UsernamePasswordAuthenticationToken.authenticated("principal", "credentials",
+				List.of(new SimpleGrantedAuthority("ROLE_USER"),
+						FactorGrantedAuthority.fromAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY)));
 		OAuth2Authorization authorization = TestOAuth2Authorizations.authorization()
 			.attributes((attrs) -> attrs.put(Principal.class.getName(), principal))
 			.build();
