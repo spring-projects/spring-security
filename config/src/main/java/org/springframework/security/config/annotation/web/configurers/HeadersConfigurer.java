@@ -985,7 +985,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @return the {@link ContentSecurityPolicyConfig} for additional configuration
 		 * @throws IllegalArgumentException if {@code nonceAttributeName} is {@code null}
 		 * or empty
-		 * @since 7.1
+		 * @since 7.2
 		 */
 		public ContentSecurityPolicyConfig nonceAttributeName(String nonceAttributeName) {
 			Assert.hasLength(nonceAttributeName, "NonceAttributeName must not be null or empty");
@@ -1002,7 +1002,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @throws IllegalArgumentException if {@code requestMatcher} is null
 		 * @throws IllegalStateException if a {@link RequestMatcher} is already configured
 		 * by a previous call of this method or {@link #requestMatchers(String...)}
-		 * @since 7.1
+		 * @since 7.2
 		 * @see #requestMatchers(String...)
 		 */
 		public ContentSecurityPolicyConfig requestMatcher(RequestMatcher requestMatcher) {
@@ -1024,7 +1024,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * {@link PathPatternRequestMatcher.Builder#matcher(String)}
 		 * @throws IllegalStateException if a {@link RequestMatcher} is already configured
 		 * by a previous call of this method or {@link #requestMatcher(RequestMatcher)}
-		 * @since 7.1
+		 * @since 7.2
 		 * @see #requestMatcher(RequestMatcher)
 		 */
 		public ContentSecurityPolicyConfig requestMatchers(String... pathPatterns) {

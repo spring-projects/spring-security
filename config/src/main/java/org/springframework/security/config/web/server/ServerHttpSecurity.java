@@ -2885,7 +2885,7 @@ public class ServerHttpSecurity {
 			 * @return the {@link ContentSecurityPolicySpec} to continue configuring
 			 * @throws IllegalArgumentException if {@code nonceAttributeName} is
 			 * {@code null} or empty
-			 * @since 7.1
+			 * @since 7.2
 			 */
 			public ContentSecurityPolicySpec nonceAttributeName(String nonceAttributeName) {
 				Assert.hasLength(nonceAttributeName, "NonceAttributeName must not be null or empty");
@@ -2903,7 +2903,7 @@ public class ServerHttpSecurity {
 			 * @throws IllegalStateException if a {@link ServerWebExchangeMatcher} is
 			 * already configured by a previous call of this method or
 			 * {@link #exchangeMatchers(String...)}
-			 * @since 7.1
+			 * @since 7.2
 			 * @see #exchangeMatchers(String...)
 			 */
 			public ContentSecurityPolicySpec exchangeMatcher(ServerWebExchangeMatcher matcher) {
@@ -2926,7 +2926,7 @@ public class ServerHttpSecurity {
 			 * @throws IllegalStateException if a {@link ServerWebExchangeMatcher} is
 			 * already configured by a previous call of this method or
 			 * {@link #exchangeMatcher(ServerWebExchangeMatcher)}
-			 * @since 7.1
+			 * @since 7.2
 			 * @see #exchangeMatcher(ServerWebExchangeMatcher)
 			 */
 			public ContentSecurityPolicySpec exchangeMatchers(String... pathPatterns) {

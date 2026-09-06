@@ -40,7 +40,7 @@ import org.springframework.web.server.WebFilterChain;
  * {@code <script>} or {@code <style>} blocks.
  *
  * @author Ziqin Wang
- * @since 7.1
+ * @since 7.2
  */
 public final class ContentSecurityPolicyNonceGeneratingWebFilter implements WebFilter {
 

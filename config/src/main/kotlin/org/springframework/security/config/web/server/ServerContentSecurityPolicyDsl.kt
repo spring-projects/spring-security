@@ -41,7 +41,7 @@ class ServerContentSecurityPolicyDsl {
     /**
      * The name of the request attribute for the generated nonce. Views can read this
      * attribute to render the nonce in HTML.
-     * @since 7.1
+     * @since 7.2
      */
     var nonceAttributeName: String? = null
 
@@ -50,7 +50,7 @@ class ServerContentSecurityPolicyDsl {
      * The default is to enable CSP in every response if [ServerHeadersDsl.contentSecurityPolicy]
      * is configured.
      * You can configure either this property or [exchangeMatchers], but not both.
-     * @since 7.1
+     * @since 7.2
      * @see exchangeMatchers
      */
     var exchangeMatcher: ServerWebExchangeMatcher? = null
@@ -64,7 +64,7 @@ class ServerContentSecurityPolicyDsl {
      * You can configure either this method or [exchangeMatcher], but not both.
      * @param pathPatterns the path patterns to be matched with a
      * [org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher]
-     * @since 7.1
+     * @since 7.2
      * @see exchangeMatcher
      */
     fun exchangeMatchers(vararg pathPatterns: String) {

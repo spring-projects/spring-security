@@ -42,7 +42,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * {@code <script>} or {@code <style>} blocks.
  *
  * @author Ziqin Wang
- * @since 7.1
+ * @since 7.2
  */
 public final class ContentSecurityPolicyNonceGeneratingFilter extends OncePerRequestFilter {
 

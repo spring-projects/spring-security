@@ -43,7 +43,7 @@ class ContentSecurityPolicyDsl {
     /**
      * The name of the servlet request attribute for the generated nonce. Views can read
      * this attribute to render the nonce in HTML.
-     * @since 7.1
+     * @since 7.2
      */
     var nonceAttributeName: String? = null
 
@@ -53,7 +53,7 @@ class ContentSecurityPolicyDsl {
      * [org.springframework.security.config.annotation.web.HeadersDsl.contentSecurityPolicy]
      * is configured.
      * You can configure either this property or [requestMatchers], but not both.
-     * @since 7.1
+     * @since 7.2
      * @see requestMatchers
      */
     var requestMatcher: RequestMatcher? = null
@@ -68,7 +68,7 @@ class ContentSecurityPolicyDsl {
      * You can configure either this method or [requestMatcher], but not both.
      * @param pathPatterns the path patterns to be matched with a
      * [org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher]
-     * @since 7.1
+     * @since 7.2
      * @see requestMatcher
      */
     fun requestMatchers(vararg pathPatterns: String) {
