@@ -23,14 +23,15 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
+import org.springframework.security.web.header.ContentSecurityPolicyNonce;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 
 /**
- * A filter which generates a nonce string for Content Security Policy and sets it as an
- * exchange attribute.
+ * A filter which generates a {@link ContentSecurityPolicyNonce nonce} for Content
+ * Security Policy and sets it as an exchange attribute.
  *
  * <p>
  * {@link org.springframework.security.web.server.header.ContentSecurityPolicyServerHttpHeadersWriter}
@@ -43,7 +44,7 @@ import org.springframework.web.server.WebFilterChain;
  */
 public final class ContentSecurityPolicyNonceGeneratingWebFilter implements WebFilter {
 
-	private String attributeName = "_csp_nonce";
+	private String attributeName = "_csp";
 
 	private final StringKeyGenerator nonceGenerator;
 
@@ -69,11 +70,13 @@ public final class ContentSecurityPolicyNonceGeneratingWebFilter implements WebF
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		Mono<String> deferredNonce = Mono.fromSupplier(this.nonceGenerator::generateKey).cache();
+		Mono<? extends ContentSecurityPolicyNonce> deferredNonce = Mono
+			.fromSupplier(() -> new SimpleContentSecurityPolicyNonce(this.nonceGenerator.generateKey()))
+			.cache();
 		Map<String, Object> attributes = exchange.getAttributes();
 
 		// For internal use
-		attributes.put(ContentSecurityPolicyNonceGeneratingWebFilter.class.getName(), deferredNonce);
+		attributes.put(ContentSecurityPolicyNonce.class.getName(), deferredNonce);
 
 		// Exposed to users
 		attributes.put(this.attributeName, deferredNonce);
@@ -90,6 +93,21 @@ public final class ContentSecurityPolicyNonceGeneratingWebFilter implements WebF
 	public void setAttributeName(String attributeName) {
 		Assert.hasLength(attributeName, "AttributeName must not be null or empty");
 		this.attributeName = attributeName;
+	}
+
+	private static final class SimpleContentSecurityPolicyNonce implements ContentSecurityPolicyNonce {
+
+		private final String nonce;
+
+		private SimpleContentSecurityPolicyNonce(String nonce) {
+			this.nonce = nonce;
+		}
+
+		@Override
+		public String getNonce() {
+			return this.nonce;
+		}
+
 	}
 
 }

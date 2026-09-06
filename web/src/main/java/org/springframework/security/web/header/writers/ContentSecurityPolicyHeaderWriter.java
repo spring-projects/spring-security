@@ -16,12 +16,10 @@
 
 package org.springframework.security.web.header.writers;
 
-import java.util.function.Supplier;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.springframework.security.web.header.ContentSecurityPolicyNonceGeneratingFilter;
+import org.springframework.security.web.header.ContentSecurityPolicyNonce;
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -70,18 +68,18 @@ import org.springframework.util.Assert;
  * <p>
  * To ease writing nonce-based CSP headers, this class replaces the {@code {nonce}}
  * placeholder in the {@code policyDirectives} with a real nonce value read from a servlet
- * request attribute named {@code _csp_nonce} (or another configured attribute name). A
+ * request attribute. A
  * {@link org.springframework.security.web.header.ContentSecurityPolicyNonceGeneratingFilter}
- * can be configured to generate a unique secure random {@code _csp_nonce} attribute for
- * each request.
+ * can be configured to generate a unique secure random {@link ContentSecurityPolicyNonce}
+ * attribute for each request.
  * </p>
  *
  * <p>
  * For example, if the configured {@code policyDirectives} is {@code script-src 'self'
  * 'nonce-{nonce}'}, and a
  * {@link org.springframework.security.web.header.ContentSecurityPolicyNonceGeneratingFilter}
- * has set the {@code _csp_nonce} attribute to {@code "Nc3n83cnSAd3wc3Sasdfn9"}, then the
- * written HTTP header value would be
+ * has set a {@link ContentSecurityPolicyNonce} of {@code "Nc3n83cnSAd3wc3Sasdfn9"}, then
+ * the written HTTP header value would be
  * {@code script-src 'self' 'nonce-Nc3n83cnSAd3wc3Sasdfn9'}.
  * </p>
  *
@@ -165,12 +163,12 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 		if (!response.containsHeader(headerName)) {
 			String csp;
 			if (this.isNonceBased) {
-				Supplier<String> deferredNonce = (Supplier<String>) request
-					.getAttribute(ContentSecurityPolicyNonceGeneratingFilter.class.getName());
-				Assert.state(deferredNonce != null,
+				ContentSecurityPolicyNonce nonce = (ContentSecurityPolicyNonce) request
+					.getAttribute(ContentSecurityPolicyNonce.class.getName());
+				Assert.state(nonce != null,
 						() -> "Failed to replace {nonce} placeholders since no nonce found as a request attribute "
-								+ ContentSecurityPolicyNonceGeneratingFilter.class.getName());
-				csp = this.policyDirectives.replace(NONCE_PLACEHOLDER, deferredNonce.get());
+								+ ContentSecurityPolicyNonce.class.getName());
+				csp = this.policyDirectives.replace(NONCE_PLACEHOLDER, nonce.getNonce());
 			}
 			else {
 				csp = this.policyDirectives;

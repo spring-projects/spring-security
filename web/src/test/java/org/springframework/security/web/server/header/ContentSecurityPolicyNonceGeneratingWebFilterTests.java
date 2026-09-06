@@ -24,12 +24,15 @@ import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
+import org.springframework.security.web.header.ContentSecurityPolicyNonce;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
@@ -39,7 +42,7 @@ import static org.mockito.Mockito.mock;
  */
 class ContentSecurityPolicyNonceGeneratingWebFilterTests {
 
-	private static final String DEFAULT_ATTRIBUTE_NAME = "_csp_nonce";
+	private static final String DEFAULT_ATTRIBUTE_NAME = "_csp";
 
 	private static final int MIN_STRENGTH_IN_BYTE = 16;
 
@@ -51,16 +54,20 @@ class ContentSecurityPolicyNonceGeneratingWebFilterTests {
 
 		WebFilter filter = new ContentSecurityPolicyNonceGeneratingWebFilter();
 		StepVerifier.create(filter.filter(exchange, chain)).verifyComplete();
-		Mono<String> internalDeferredNonce = exchange
-			.getRequiredAttribute(ContentSecurityPolicyNonceGeneratingWebFilter.class.getName());
-		Mono<String> deferredNonce = exchange.getRequiredAttribute(DEFAULT_ATTRIBUTE_NAME);
+		Mono<ContentSecurityPolicyNonce> internalDeferredNonce = exchange
+			.getRequiredAttribute(ContentSecurityPolicyNonce.class.getName());
+		Mono<ContentSecurityPolicyNonce> deferredNonce = exchange.getRequiredAttribute(DEFAULT_ATTRIBUTE_NAME);
 
 		int minExpectedLength = (int) Math.ceil(4.0 / 3 * MIN_STRENGTH_IN_BYTE);
 		StepVerifier.create(internalDeferredNonce)
-			.assertNext((nonce) -> assertThat(nonce).isBase64().hasSizeGreaterThanOrEqualTo(minExpectedLength))
+			.assertNext((nonce) -> assertThat(nonce).extracting(ContentSecurityPolicyNonce::getNonce, as(STRING))
+				.isBase64()
+				.hasSizeGreaterThanOrEqualTo(minExpectedLength))
 			.verifyComplete();
 		StepVerifier.create(deferredNonce)
-			.assertNext((nonce) -> assertThat(nonce).isBase64().hasSizeGreaterThanOrEqualTo(minExpectedLength))
+			.assertNext((nonce) -> assertThat(nonce).extracting(ContentSecurityPolicyNonce::getNonce, as(STRING))
+				.isBase64()
+				.hasSizeGreaterThanOrEqualTo(minExpectedLength))
 			.verifyComplete();
 		then(chain).should().filter(exchange);
 	}
@@ -75,12 +82,18 @@ class ContentSecurityPolicyNonceGeneratingWebFilterTests {
 		var filter = new ContentSecurityPolicyNonceGeneratingWebFilter();
 		filter.setAttributeName(customAttributeName);
 		StepVerifier.create(filter.filter(exchange, chain)).verifyComplete();
-		Mono<String> internalDeferredNonce = exchange
-			.getRequiredAttribute(ContentSecurityPolicyNonceGeneratingWebFilter.class.getName());
-		Mono<String> deferredNonce = exchange.getRequiredAttribute(customAttributeName);
+		Mono<ContentSecurityPolicyNonce> internalDeferredNonce = exchange
+			.getRequiredAttribute(ContentSecurityPolicyNonce.class.getName());
+		Mono<ContentSecurityPolicyNonce> deferredNonce = exchange.getRequiredAttribute(customAttributeName);
 
-		StepVerifier.create(internalDeferredNonce).assertNext((nonce) -> assertThat(nonce).isBase64()).verifyComplete();
-		StepVerifier.create(deferredNonce).assertNext((nonce) -> assertThat(nonce).isBase64()).verifyComplete();
+		StepVerifier.create(internalDeferredNonce)
+			.assertNext((nonce) -> assertThat(nonce).extracting(ContentSecurityPolicyNonce::getNonce, as(STRING))
+				.isBase64())
+			.verifyComplete();
+		StepVerifier.create(deferredNonce)
+			.assertNext((nonce) -> assertThat(nonce).extracting(ContentSecurityPolicyNonce::getNonce, as(STRING))
+				.isBase64())
+			.verifyComplete();
 		then(chain).should().filter(exchange);
 	}
 
@@ -95,12 +108,16 @@ class ContentSecurityPolicyNonceGeneratingWebFilterTests {
 
 		WebFilter filter = new ContentSecurityPolicyNonceGeneratingWebFilter(nonceGenerator);
 		StepVerifier.create(filter.filter(exchange, chain)).verifyComplete();
-		Mono<String> internalDeferredNonce = exchange
-			.getRequiredAttribute(ContentSecurityPolicyNonceGeneratingWebFilter.class.getName());
-		Mono<String> deferredNonce = exchange.getRequiredAttribute(DEFAULT_ATTRIBUTE_NAME);
+		Mono<ContentSecurityPolicyNonce> internalDeferredNonce = exchange
+			.getRequiredAttribute(ContentSecurityPolicyNonce.class.getName());
+		Mono<ContentSecurityPolicyNonce> deferredNonce = exchange.getRequiredAttribute(DEFAULT_ATTRIBUTE_NAME);
 
-		StepVerifier.create(internalDeferredNonce).expectNext(nonce).verifyComplete();
-		StepVerifier.create(deferredNonce).expectNext(nonce).verifyComplete();
+		StepVerifier.create(internalDeferredNonce)
+			.expectNextMatches((cspNonce) -> cspNonce.getNonce().equals(nonce))
+			.verifyComplete();
+		StepVerifier.create(deferredNonce)
+			.expectNextMatches((cspNonce) -> cspNonce.getNonce().equals(nonce))
+			.verifyComplete();
 		then(nonceGenerator).should().generateKey();
 	}
 

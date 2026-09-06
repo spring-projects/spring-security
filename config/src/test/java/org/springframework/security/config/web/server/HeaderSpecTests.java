@@ -29,6 +29,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
+import org.springframework.security.web.header.ContentSecurityPolicyNonce;
 import org.springframework.security.web.server.header.ContentSecurityPolicyServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.CrossOriginEmbedderPolicyServerHttpHeadersWriter;
@@ -665,8 +666,8 @@ public class HeaderSpecTests {
 
 		@GetMapping(produces = MediaType.TEXT_HTML_VALUE)
 		@ResponseBody
-		Mono<String> defaultAttribute(@RequestAttribute("_csp_nonce") Mono<String> cspNonce) {
-			return cspNonce.map("""
+		Mono<String> defaultAttribute(@RequestAttribute("_csp") Mono<ContentSecurityPolicyNonce> cspNonce) {
+			return cspNonce.map(ContentSecurityPolicyNonce::getNonce).map("""
 					<!DOCTYPE html>
 					<html>
 					<head><script nonce="%s"></script></head>
@@ -677,8 +678,8 @@ public class HeaderSpecTests {
 
 		@GetMapping(path = "/custom", produces = MediaType.TEXT_HTML_VALUE)
 		@ResponseBody
-		Mono<String> custom(@RequestAttribute("CUSTOM_NONCE") Mono<String> cspNonce) {
-			return cspNonce.map("""
+		Mono<String> custom(@RequestAttribute("CUSTOM_NONCE") Mono<ContentSecurityPolicyNonce> cspNonce) {
+			return cspNonce.map(ContentSecurityPolicyNonce::getNonce).map("""
 					<!DOCTYPE html>
 					<html>
 					<head><script nonce="%s"></script></head>

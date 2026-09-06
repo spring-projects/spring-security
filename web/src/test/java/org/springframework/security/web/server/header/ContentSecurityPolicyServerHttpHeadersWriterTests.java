@@ -24,6 +24,7 @@ import reactor.test.StepVerifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
+import org.springframework.security.web.header.ContentSecurityPolicyNonce;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -100,7 +101,8 @@ public class ContentSecurityPolicyServerHttpHeadersWriterTests {
 	public void writeNonceBasedCspWhenNoncePresent() {
 		this.writer.setPolicyDirectives("script-src 'nonce-{nonce}'; style-src 'nonce-{nonce}'");
 		this.exchange.getAttributes()
-			.put(ContentSecurityPolicyNonceGeneratingWebFilter.class.getName(), Mono.just("Test+Nonce+Value"));
+			.put(ContentSecurityPolicyNonce.class.getName(),
+					Mono.just((ContentSecurityPolicyNonce) () -> "Test+Nonce+Value"));
 		StepVerifier.create(this.writer.writeHttpHeaders(this.exchange)).verifyComplete();
 		HttpHeaders headers = this.exchange.getResponse().getHeaders();
 		assertThat(headers.get(CONTENT_SECURITY_POLICY_HEADER))
@@ -113,7 +115,7 @@ public class ContentSecurityPolicyServerHttpHeadersWriterTests {
 		StepVerifier.create(this.writer.writeHttpHeaders(this.exchange))
 			.expectErrorSatisfies((ex) -> assertThat(ex).isInstanceOf(IllegalStateException.class)
 				.hasMessage("Failed to replace {nonce} placeholders since no nonce found as an exchange attribute "
-						+ ContentSecurityPolicyNonceGeneratingWebFilter.class.getName()))
+						+ ContentSecurityPolicyNonce.class.getName()))
 			.verify();
 	}
 

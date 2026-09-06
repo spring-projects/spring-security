@@ -19,7 +19,6 @@ package org.springframework.security.config.annotation.web.configurers;
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import com.google.common.net.HttpHeaders;
@@ -37,6 +36,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.header.ContentSecurityPolicyNonce;
 import org.springframework.security.web.header.writers.CrossOriginEmbedderPolicyHeaderWriter;
 import org.springframework.security.web.header.writers.CrossOriginOpenerPolicyHeaderWriter;
 import org.springframework.security.web.header.writers.CrossOriginResourcePolicyHeaderWriter;
@@ -1173,26 +1173,26 @@ public class HeadersConfigurerTests {
 
 		@GetMapping(produces = MediaType.TEXT_HTML_VALUE)
 		@ResponseBody
-		String defaultAttribute(@RequestAttribute("_csp_nonce") Supplier<String> cspNonce) {
+		String defaultAttribute(@RequestAttribute("_csp") ContentSecurityPolicyNonce cspNonce) {
 			return """
 					<!DOCTYPE html>
 					<html>
 					<head><script nonce="%s"></script></head>
 					<body>Default</body>
 					</html>
-					""".formatted(cspNonce.get());
+					""".formatted(cspNonce.getNonce());
 		}
 
 		@GetMapping(path = "/custom", produces = MediaType.TEXT_HTML_VALUE)
 		@ResponseBody
-		String custom(@RequestAttribute("CUSTOM_NONCE") Supplier<String> cspNonce) {
+		String custom(@RequestAttribute("CUSTOM_NONCE") ContentSecurityPolicyNonce cspNonce) {
 			return """
 					<!DOCTYPE html>
 					<html>
 					<head><script nonce="%s"></script></head>
 					<body>Custom</body>
 					</html>
-					""".formatted(cspNonce.get());
+					""".formatted(cspNonce.getNonce());
 		}
 
 	}

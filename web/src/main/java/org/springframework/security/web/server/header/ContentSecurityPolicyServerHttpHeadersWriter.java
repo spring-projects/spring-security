@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.web.header.ContentSecurityPolicyNonce;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.util.Assert;
@@ -41,16 +42,17 @@ import org.springframework.web.server.ServerWebExchange;
  * <p>
  * To ease writing nonce-based CSP headers, this class replaces the {@code {nonce}}
  * placeholder in the {@code policyDirectives} with a real nonce value read from a
- * {@link ServerWebExchange#getAttribute(String) request attribute} named
- * {@code _csp_nonce} (or another configured attribute name). A
+ * {@link ServerWebExchange#getAttribute(String) request attribute}. A
  * {@link ContentSecurityPolicyNonceGeneratingWebFilter} can be configured to generate a
- * unique secure random {@code _csp_nonce} attribute for each request.
+ * unique secure random {@code Mono<ContentSecurityPolicyNonce>} attribute for each
+ * request.
  *
  * <p>
  * For example, if the configured {@code policyDirectives} is {@code script-src 'self'
- * 'nonce-{nonce}'}, and a {@link ContentSecurityPolicyNonceGeneratingWebFilter} has set
- * the {@code _csp_nonce} attribute to {@code "Nc3n83cnSAd3wc3Sasdfn9"}, then the written
- * HTTP header value would be {@code script-src 'self' 'nonce-Nc3n83cnSAd3wc3Sasdfn9'}.
+ * 'nonce-{nonce}'}, and a {@link ContentSecurityPolicyNonceGeneratingWebFilter} has set a
+ * {@link ContentSecurityPolicyNonce} of {@code "Nc3n83cnSAd3wc3Sasdfn9"}, then the
+ * written HTTP header value would be
+ * {@code script-src 'self' 'nonce-Nc3n83cnSAd3wc3Sasdfn9'}.
  *
  * @author Vedran Pavic
  * @author Ziqin Wang
@@ -91,16 +93,17 @@ public final class ContentSecurityPolicyServerHttpHeadersWriter implements Serve
 					return Mono.empty();
 				}
 
-				Mono<String> deferredNonce = exchange
-					.getAttribute(ContentSecurityPolicyNonceGeneratingWebFilter.class.getName());
+				Mono<? extends ContentSecurityPolicyNonce> deferredNonce = exchange
+					.getAttribute(ContentSecurityPolicyNonce.class.getName());
 				if (deferredNonce == null) {
 					return Mono.error(new IllegalStateException(
 							"Failed to replace {nonce} placeholders since no nonce found as an exchange attribute "
-									+ ContentSecurityPolicyNonceGeneratingWebFilter.class.getName()));
+									+ ContentSecurityPolicyNonce.class.getName()));
 				}
-				return deferredNonce
-					.doOnNext((nonce) -> headers.put(headerName, List.of(csp.replace(NONCE_PLACEHOLDER, nonce))))
-					.then();
+				return deferredNonce.doOnNext((ContentSecurityPolicyNonce nonce) -> {
+					String cspWithNonce = csp.replace(NONCE_PLACEHOLDER, nonce.getNonce());
+					headers.put(headerName, List.of(cspWithNonce));
+				}).then();
 			});
 	}
 

@@ -32,8 +32,8 @@ import org.springframework.util.function.SingletonSupplier;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * A filter which generates a nonce string for Content Security Policy and sets it as a
- * request attribute.
+ * A filter which generates a {@link ContentSecurityPolicyNonce nonce} for Content
+ * Security Policy and sets it as a request attribute.
  *
  * <p>
  * {@link org.springframework.security.web.header.writers.ContentSecurityPolicyHeaderWriter}
@@ -46,7 +46,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  */
 public final class ContentSecurityPolicyNonceGeneratingFilter extends OncePerRequestFilter {
 
-	private String attributeName = "_csp_nonce";
+	private String attributeName = "_csp";
 
 	private final StringKeyGenerator nonceGenerator;
 
@@ -74,10 +74,10 @@ public final class ContentSecurityPolicyNonceGeneratingFilter extends OncePerReq
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
-		Supplier<String> deferredNonce = SingletonSupplier.of(this.nonceGenerator::generateKey);
+		ContentSecurityPolicyNonce deferredNonce = new DeferredContentSecurityPolicyNonce(this.nonceGenerator);
 
 		// For internal use
-		request.setAttribute(ContentSecurityPolicyNonceGeneratingFilter.class.getName(), deferredNonce);
+		request.setAttribute(ContentSecurityPolicyNonce.class.getName(), deferredNonce);
 
 		// Exposed to users
 		request.setAttribute(this.attributeName, deferredNonce);
@@ -94,6 +94,21 @@ public final class ContentSecurityPolicyNonceGeneratingFilter extends OncePerReq
 	public void setAttributeName(String attributeName) {
 		Assert.hasLength(attributeName, "AttributeName must not be null or empty");
 		this.attributeName = attributeName;
+	}
+
+	private static final class DeferredContentSecurityPolicyNonce implements ContentSecurityPolicyNonce {
+
+		private final Supplier<String> delegate;
+
+		private DeferredContentSecurityPolicyNonce(StringKeyGenerator nonceGenerator) {
+			this.delegate = SingletonSupplier.of(nonceGenerator::generateKey);
+		}
+
+		@Override
+		public String getNonce() {
+			return this.delegate.get();
+		}
+
 	}
 
 }

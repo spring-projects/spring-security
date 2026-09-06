@@ -16,8 +16,6 @@
 
 package org.springframework.security.web.header;
 
-import java.util.function.Supplier;
-
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,7 +43,7 @@ import static org.mockito.Mockito.spy;
  */
 class ContentSecurityPolicyNonceGeneratingFilterTests {
 
-	private static final String DEFAULT_ATTRIBUTE_NAME = "_csp_nonce";
+	private static final String DEFAULT_ATTRIBUTE_NAME = "_csp";
 
 	private static final int MIN_STRENGTH_IN_BYTE = 16;
 
@@ -59,13 +57,13 @@ class ContentSecurityPolicyNonceGeneratingFilterTests {
 		filter.doFilter(request, response, chain);
 
 		int minExpectedLength = (int) Math.ceil(4.0 / 3 * MIN_STRENGTH_IN_BYTE);
-		assertThat(request.getAttribute(ContentSecurityPolicyNonceGeneratingFilter.class.getName()))
-			.asInstanceOf(type(Supplier.class))
-			.extracting(Supplier::get, as(STRING))
+		assertThat(request.getAttribute(ContentSecurityPolicyNonce.class.getName()))
+			.asInstanceOf(type(ContentSecurityPolicyNonce.class))
+			.extracting(ContentSecurityPolicyNonce::getNonce, as(STRING))
 			.isBase64()
 			.hasSizeGreaterThanOrEqualTo(minExpectedLength);
-		assertThat(request.getAttribute(DEFAULT_ATTRIBUTE_NAME)).asInstanceOf(type(Supplier.class))
-			.extracting(Supplier::get, as(STRING))
+		assertThat(request.getAttribute(DEFAULT_ATTRIBUTE_NAME)).asInstanceOf(type(ContentSecurityPolicyNonce.class))
+			.extracting(ContentSecurityPolicyNonce::getNonce, as(STRING))
 			.isBase64()
 			.hasSizeGreaterThanOrEqualTo(minExpectedLength);
 		then(chain).should().doFilter(request, response);
@@ -82,12 +80,12 @@ class ContentSecurityPolicyNonceGeneratingFilterTests {
 		filter.setAttributeName(customAttributeName);
 		filter.doFilter(request, response, chain);
 
-		assertThat(request.getAttribute(ContentSecurityPolicyNonceGeneratingFilter.class.getName()))
-			.asInstanceOf(type(Supplier.class))
-			.extracting(Supplier::get, as(STRING))
+		assertThat(request.getAttribute(ContentSecurityPolicyNonce.class.getName()))
+			.asInstanceOf(type(ContentSecurityPolicyNonce.class))
+			.extracting(ContentSecurityPolicyNonce::getNonce, as(STRING))
 			.isBase64();
-		assertThat(request.getAttribute(customAttributeName)).asInstanceOf(type(Supplier.class))
-			.extracting(Supplier::get, as(STRING))
+		assertThat(request.getAttribute(customAttributeName)).asInstanceOf(type(ContentSecurityPolicyNonce.class))
+			.extracting(ContentSecurityPolicyNonce::getNonce, as(STRING))
 			.isBase64();
 		then(chain).should().doFilter(request, response);
 	}
@@ -104,12 +102,12 @@ class ContentSecurityPolicyNonceGeneratingFilterTests {
 		Filter filter = new ContentSecurityPolicyNonceGeneratingFilter(nonceGenerator);
 		filter.doFilter(request, response, chain);
 
-		assertThat(request.getAttribute(ContentSecurityPolicyNonceGeneratingFilter.class.getName()))
-			.asInstanceOf(type(Supplier.class))
-			.extracting(Supplier::get, as(STRING))
+		assertThat(request.getAttribute(ContentSecurityPolicyNonce.class.getName()))
+			.asInstanceOf(type(ContentSecurityPolicyNonce.class))
+			.extracting(ContentSecurityPolicyNonce::getNonce, as(STRING))
 			.isSameAs(nonce);
-		assertThat(request.getAttribute(DEFAULT_ATTRIBUTE_NAME)).asInstanceOf(type(Supplier.class))
-			.extracting(Supplier::get, as(STRING))
+		assertThat(request.getAttribute(DEFAULT_ATTRIBUTE_NAME)).asInstanceOf(type(ContentSecurityPolicyNonce.class))
+			.extracting(ContentSecurityPolicyNonce::getNonce, as(STRING))
 			.isSameAs(nonce);
 		then(nonceGenerator).should().generateKey();
 	}
