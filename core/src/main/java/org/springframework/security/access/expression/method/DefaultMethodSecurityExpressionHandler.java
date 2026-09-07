@@ -205,6 +205,9 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 			MethodSecurityExpressionOperations rootObject) {
 		Map<K, V> retain = new LinkedHashMap<>(filterTarget.size());
 		this.logger.debug(LogMessage.format("Filtering map with %s elements", filterTarget.size()));
+		if (this.permissionCacheOptimizer != null) {
+			this.permissionCacheOptimizer.cachePermissionsFor(rootObject.getAuthentication(), filterTarget.entrySet());
+		}
 		for (Map.Entry<K, V> filterObject : filterTarget.entrySet()) {
 			rootObject.setFilterObject(filterObject);
 			if (ExpressionUtils.evaluateAsBoolean(filterExpression, ctx)) {
