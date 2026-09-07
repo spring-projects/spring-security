@@ -396,6 +396,18 @@ public class TokenBasedRememberMeServicesTests {
 	}
 
 	@Test
+	public void loginSuccessWhenUserDetailsServiceReturnsNullThenNoCookieIsSet() {
+		// gh-19535
+		udsWillReturnNull();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addParameter(AbstractRememberMeServices.DEFAULT_PARAMETER, "true");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		this.services.loginSuccess(request, response, new TestingAuthenticationToken("someone", null, "ROLE_ABC"));
+		Cookie cookie = response.getCookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
+		assertThat(cookie).isNull();
+	}
+
+	@Test
 	public void loginSuccessWhenDefaultEncodingAlgorithmThenContainsAlgorithmName() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addParameter(AbstractRememberMeServices.DEFAULT_PARAMETER, "true");
