@@ -18,6 +18,8 @@ package org.springframework.security.oauth2.client.endpoint;
 
 import java.util.function.Consumer;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.converter.FormHttpMessageConverter;
@@ -75,7 +77,7 @@ public abstract class AbstractRestClientOAuth2AccessTokenResponseClient<T extend
 
 	private Converter<T, HttpHeaders> headersConverter = new DefaultOAuth2TokenRequestHeadersConverter<>();
 
-	private Converter<T, MultiValueMap<String, String>> parametersConverter = new DefaultOAuth2TokenRequestParametersConverter<>();
+	private Converter<T, @Nullable MultiValueMap<String, String>> parametersConverter = new DefaultOAuth2TokenRequestParametersConverter<>();
 
 	private Consumer<MultiValueMap<String, String>> parametersCustomizer = (parameters) -> {
 	};
@@ -202,7 +204,8 @@ public abstract class AbstractRestClientOAuth2AccessTokenResponseClient<T extend
 	 * @param parametersConverter the {@link Converter} used for converting the
 	 * {@link AbstractOAuth2AuthorizationGrantRequest} to {@link MultiValueMap}
 	 */
-	public final void setParametersConverter(Converter<T, MultiValueMap<String, String>> parametersConverter) {
+	public final void setParametersConverter(
+			Converter<T, @Nullable MultiValueMap<String, String>> parametersConverter) {
 		Assert.notNull(parametersConverter, "parametersConverter cannot be null");
 		if (parametersConverter instanceof DefaultOAuth2TokenRequestParametersConverter) {
 			this.parametersConverter = parametersConverter;
@@ -231,9 +234,10 @@ public abstract class AbstractRestClientOAuth2AccessTokenResponseClient<T extend
 	 * {@link Converter} used for converting the
 	 * {@link AbstractOAuth2AuthorizationGrantRequest} to a {@link MultiValueMap}
 	 */
-	public final void addParametersConverter(Converter<T, MultiValueMap<String, String>> parametersConverter) {
+	public final void addParametersConverter(
+			Converter<T, @Nullable MultiValueMap<String, String>> parametersConverter) {
 		Assert.notNull(parametersConverter, "parametersConverter cannot be null");
-		Converter<T, MultiValueMap<String, String>> currentParametersConverter = this.parametersConverter;
+		Converter<T, @Nullable MultiValueMap<String, String>> currentParametersConverter = this.parametersConverter;
 		this.parametersConverter = (authorizationGrantRequest) -> {
 			MultiValueMap<String, String> parameters = currentParametersConverter.convert(authorizationGrantRequest);
 			if (parameters == null) {
