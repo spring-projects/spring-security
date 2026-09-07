@@ -22,6 +22,8 @@ import java.util.regex.Pattern;
 import jakarta.servlet.http.HttpServletRequest;
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.util.StringUtils;
+
 /**
  * Provides static methods for composing URLs.
  * <p>
@@ -67,7 +69,12 @@ public final class UrlUtils {
 		}
 		// Use the requestURI as it is encoded (RFC 3986) and hence suitable for
 		// redirects.
-		url.append(requestURI);
+		if (StringUtils.hasText(requestURI)) {
+			if (requestURI.charAt(0) != '/') {
+				url.append("/");
+			}
+			url.append(requestURI);
+		}
 		if (queryString != null) {
 			url.append("?").append(queryString);
 		}

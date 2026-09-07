@@ -183,7 +183,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
 				.andExpect(status().isUnauthorized())
-				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt"));
+				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt", "/"));
 		// @formatter:on
 	}
 
@@ -215,7 +215,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/").header("Authorization", "Bearer an\"invalid\"token"))
 				.andExpect(status().isUnauthorized())
-				.andExpect(invalidTokenHeader("Bearer token is malformed"));
+				.andExpect(invalidTokenHeader("Bearer token is malformed", "/"));
 		// @formatter:on
 	}
 
@@ -227,7 +227,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
 				.andExpect(status().isUnauthorized())
-				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt: Malformed payload"));
+				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt: Malformed payload", "/"));
 		// @formatter:on
 	}
 
@@ -238,7 +238,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
 				.andExpect(status().isUnauthorized())
-				.andExpect(invalidTokenHeader("Unsupported algorithm of none"));
+				.andExpect(invalidTokenHeader("Unsupported algorithm of none", "/"));
 		// @formatter:on
 	}
 
@@ -250,7 +250,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
 				.andExpect(status().isUnauthorized())
-				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt"));
+				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt", "/"));
 		// @formatter:on
 	}
 
@@ -342,7 +342,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
 				.andExpect(status().isUnauthorized())
-				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt"));
+				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt", "/"));
 		// @formatter:on
 	}
 
@@ -398,7 +398,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(post("/authenticated").header("Authorization", "Bearer " + token))
 				.andExpect(status().isUnauthorized())
-				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt"));
+				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt", "/authenticated"));
 		// @formatter:on
 	}
 
@@ -621,7 +621,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
 				.andExpect(status().isUnauthorized())
-				.andExpect(invalidTokenHeader("Jwt expired at"));
+				.andExpect(invalidTokenHeader("Jwt expired at", "/"));
 		// @formatter:on
 	}
 
@@ -661,7 +661,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		String token = this.token("WrongSignature");
 		// @formatter:off
 		this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
-				.andExpect(invalidTokenHeader("signature"));
+				.andExpect(invalidTokenHeader("signature", "/"));
 		// @formatter:on
 	}
 
@@ -671,7 +671,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		String token = this.token("WrongAlgorithm");
 		// @formatter:off
 		this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
-				.andExpect(invalidTokenHeader("algorithm"));
+				.andExpect(invalidTokenHeader("algorithm", "/"));
 		// @formatter:on
 	}
 
@@ -779,7 +779,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/authenticated").header("Authorization", "Bearer " + jwtThree))
 				.andExpect(status().isUnauthorized())
-				.andExpect(invalidTokenHeader("Invalid issuer"));
+				.andExpect(invalidTokenHeader("Invalid issuer", "/authenticated"));
 		// @formatter:on
 	}
 
@@ -934,13 +934,15 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 								", " + "resource_metadata=\"http://localhost/.well-known/oauth-protected-resource\"")));
 	}
 
-	private static ResultMatcher invalidTokenHeader(String message) {
+	private static ResultMatcher invalidTokenHeader(String message, String endpoint) {
+		String path = "/".equals(endpoint) ? "" : endpoint;
 		return header().string(HttpHeaders.WWW_AUTHENTICATE,
 				AllOf.allOf(new StringStartsWith("Bearer " + "error=\"invalid_token\", " + "error_description=\""),
 						new StringContains(message),
 						new StringContains(", " + "error_uri=\"https://tools.ietf.org/html/rfc6750#section-3.1\""),
 						new StringEndsWith(
-								", " + "resource_metadata=\"http://localhost/.well-known/oauth-protected-resource\"")));
+								", resource_metadata=\"http://localhost/.well-known/oauth-protected-resource%s\""
+									.formatted(path))));
 	}
 
 	private static ResultMatcher insufficientScopeHeader() {
