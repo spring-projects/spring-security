@@ -19,12 +19,14 @@ package org.springframework.security.config.annotation.web.configurers;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AnonymousAuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -40,6 +42,7 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
  *
  * @author Rob Winch
  * @author DingHao
+ * @author Ngoc Nhan
  * @since 3.2
  */
 public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>>
@@ -53,15 +56,20 @@ public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private Object principal = "anonymousUser";
 
-	private List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS");
+	private List<GrantedAuthority> authorities;
 
 	private String computedKey;
 
 	/**
 	 * Creates a new instance.
+	 * @param context the {@link ApplicationContext} to use
 	 * @see HttpSecurity#anonymous(Customizer)
 	 */
-	public AnonymousConfigurer() {
+	public AnonymousConfigurer(ApplicationContext context) {
+		GrantedAuthorityDefaults grantedAuthorityDefaults = context.getBeanProvider(GrantedAuthorityDefaults.class)
+			.getIfAvailable();
+		String rolePrefix = (grantedAuthorityDefaults != null) ? grantedAuthorityDefaults.getRolePrefix() : "ROLE_";
+		this.authorities = AuthorityUtils.createAuthorityList(rolePrefix + "ANONYMOUS");
 	}
 
 	/**

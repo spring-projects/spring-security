@@ -117,6 +117,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  * Security.
  *
  * @author Rob Winch
+ * @author Ngoc Nhan
  * @since 4.0
  */
 public final class SecurityMockMvcRequestPostProcessors {
@@ -346,7 +347,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * </code> </pre>
 	 * @return the {@link RequestPostProcessor} to use
 	 */
-	public static RequestPostProcessor anonymous() {
+	public static AnonymousRequestPostProcessor anonymous() {
 		return new AnonymousRequestPostProcessor();
 	}
 
@@ -1020,16 +1021,64 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 	}
 
-	private static class AnonymousRequestPostProcessor extends SecurityContextRequestPostProcessorSupport
+	public static final class AnonymousRequestPostProcessor extends SecurityContextRequestPostProcessorSupport
 			implements RequestPostProcessor {
 
-		private AuthenticationRequestPostProcessor delegate = new AuthenticationRequestPostProcessor(
-				new AnonymousAuthenticationToken("key", "anonymous",
-						AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
+		private String key = "key";
+
+		private Object principal = "anonymous";
+
+		private Collection<? extends GrantedAuthority> authorities = AuthorityUtils
+			.createAuthorityList("ROLE_ANONYMOUS");
 
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-			return this.delegate.postProcessRequest(request);
+			AuthenticationRequestPostProcessor delegate = new AuthenticationRequestPostProcessor(
+					this.createAnonymous());
+			return delegate.postProcessRequest(request);
+		}
+
+		/**
+		 * Creates a new {@link AnonymousAuthenticationToken}
+		 * @return the {@link AnonymousAuthenticationToken} for the principal
+		 */
+		private AnonymousAuthenticationToken createAnonymous() {
+			return new AnonymousAuthenticationToken(this.key, this.principal, this.authorities);
+		}
+
+		/**
+		 * Populates the user's {@link GrantedAuthority}'s. The default is
+		 * {@code ROLE_ANONYMOUS}.
+		 * @param authorities the authorities to grant to the anonymous user
+		 * @return the {@link AnonymousRequestPostProcessor} for further customizations
+		 */
+		public AnonymousRequestPostProcessor authorities(String... authorities) {
+			Assert.notNull(authorities, "authorities cannot be null");
+			this.authorities = AuthorityUtils.createAuthorityList(authorities);
+			return this;
+		}
+
+		/**
+		 * Sets the key used to identify the anonymous user.
+		 * @param key the key to use
+		 * @return the {@link AnonymousRequestPostProcessor} for further customizations
+		 */
+		public AnonymousRequestPostProcessor key(String key) {
+			Assert.hasLength(key, "key cannot be null or empty");
+			this.key = key;
+			return this;
+		}
+
+		/**
+		 * Sets the principal for the anonymous user.
+		 * @param principal the principal to use
+		 * @return the {@link AnonymousRequestPostProcessor} for further customizations
+		 */
+		public AnonymousRequestPostProcessor principal(Object principal) {
+			Assert.notNull(principal, "principal cannot be null");
+			Assert.isTrue(!"".equals(principal), "principal cannot be empty");
+			this.principal = principal;
+			return this;
 		}
 
 	}
