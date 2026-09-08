@@ -377,7 +377,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * Creates the {@link RememberMeServices} to use when none is provided. The result is
 	 * either {@link PersistentTokenRepository} (if a {@link PersistentTokenRepository} is
-	 * specified, else {@link TokenBasedRememberMeServices}.
+	 * specified, else {@link TokenBasedRememberMeServices}).
 	 * @param http the {@link HttpSecurity} to lookup shared objects
 	 * @param key the {@link #key(String)}
 	 * @return the {@link RememberMeServices} to use

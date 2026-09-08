@@ -103,7 +103,7 @@ public class UserDetailsManagerConfigurer<B extends ProviderManagerBuilder<B>, C
 
 	/**
 	 * Builds the user to be added. At minimum the username, password, and authorities
-	 * should provided. The remaining attributes have reasonable defaults.
+	 * should be provided. The remaining attributes have reasonable defaults.
 	 */
 	public final class UserDetailsBuilder {
 
