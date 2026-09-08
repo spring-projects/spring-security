@@ -483,8 +483,7 @@ public class OAuth2LoginSecurityConfig {
 			Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
 
 			authorities.forEach(authority -> {
-				if (OidcUserAuthority.class.isInstance(authority)) {
-					OidcUserAuthority oidcUserAuthority = (OidcUserAuthority)authority;
+				if (authority instanceof OidcUserAuthority oidcUserAuthority) {
 
 					OidcIdToken idToken = oidcUserAuthority.getIdToken();
 					OidcUserInfo userInfo = oidcUserAuthority.getUserInfo();
@@ -492,8 +491,7 @@ public class OAuth2LoginSecurityConfig {
 					// Map the claims found in idToken and/or userInfo
 					// to one or more GrantedAuthority's and add it to mappedAuthorities
 
-				} else if (OAuth2UserAuthority.class.isInstance(authority)) {
-					OAuth2UserAuthority oauth2UserAuthority = (OAuth2UserAuthority)authority;
+				} else if (authority instanceof OAuth2UserAuthority oauth2UserAuthority) {
 
 					Map<String, Object> userAttributes = oauth2UserAuthority.getAttributes();
 
