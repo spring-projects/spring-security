@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -121,7 +123,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	 * to the given result collection.
 	 * @param value The value to convert to a GrantedAuthority Collection
 	 */
-	private void addGrantedAuthorityCollection(Collection<GrantedAuthority> result, Object value) {
+	private void addGrantedAuthorityCollection(Collection<GrantedAuthority> result, @Nullable Object value) {
 		if (value == null) {
 			return;
 		}
