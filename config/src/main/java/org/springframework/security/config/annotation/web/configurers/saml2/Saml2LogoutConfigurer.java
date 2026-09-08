@@ -82,7 +82,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * The following configuration options are available:
  *
  * <ul>
- * <li>{@link #logoutUrl} - The URL to to process SAML 2.0 Logout</li>
+ * <li>{@link #logoutUrl} - The URL to process SAML 2.0 Logout</li>
  * <li>{@link LogoutRequestConfigurer#logoutRequestValidator} - The
  * {@link AuthenticationManager} for authenticating SAML 2.0 Logout Requests</li>
  * <li>{@link LogoutRequestConfigurer#logoutRequestResolver} - The
