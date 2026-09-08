@@ -51,7 +51,7 @@ jakarta-websocket-jakarta-websocket-client-api = { module = "jakarta.websocket:j
 jakarta-xml-bind-jakarta-xml-bind-api = "jakarta.xml.bind:jakarta.xml.bind-api:4.0.5"
 ldapsdk = "ldapsdk:ldapsdk:4.1"
 net-sourceforge-htmlunit = "net.sourceforge.htmlunit:htmlunit:2.70.0"
-org-htmlunit-htmlunit = "org.htmlunit:htmlunit:4.21.0"
+org-htmlunit-htmlunit = "org.htmlunit:htmlunit:5.5.0"
 org-apache-httpcomponents-httpclient = "org.apache.httpcomponents.client5:httpclient5:5.6.4"
 org-apache-kerby-simplekdc='org.apache.kerby:kerb-simplekdc:2.1.2'
 org-apache-maven-maven-resolver-provider = "org.apache.maven:maven-resolver-provider:3.9.16"
