@@ -1039,7 +1039,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Creates a new {@link AnonymousAuthenticationToken}
+		 * Creates a new {@link AnonymousAuthenticationToken}.
 		 * @return the {@link AnonymousAuthenticationToken} for the principal
 		 */
 		private AnonymousAuthenticationToken createAnonymous() {
