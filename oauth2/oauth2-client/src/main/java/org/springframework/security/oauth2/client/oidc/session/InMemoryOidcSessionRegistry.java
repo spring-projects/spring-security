@@ -50,7 +50,7 @@ public final class InMemoryOidcSessionRegistry implements OidcSessionRegistry {
 	}
 
 	@Override
-	public OidcSessionInformation removeSessionInformation(String clientSessionId) {
+	public @Nullable OidcSessionInformation removeSessionInformation(String clientSessionId) {
 		OidcSessionInformation information = this.sessions.remove(clientSessionId);
 		if (information != null) {
 			this.logger.trace("Removed client session");
