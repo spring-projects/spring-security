@@ -28,7 +28,7 @@ import org.springframework.security.saml2.provider.service.registration.TestRely
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link OpenSaml5MetadataResolver}
+ * Tests for {@link OpenSaml5MetadataResolver}.
  */
 public class OpenSaml5MetadataResolverTests {
 

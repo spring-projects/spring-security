@@ -42,7 +42,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * Adds {@link RsaKeyConverters} to the configured {@link ConversionService} or
- * {@link PropertyEditor}s
+ * {@link PropertyEditor}s.
  *
  * @author Josh Cummings
  * @since 5.2
@@ -117,7 +117,7 @@ public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProc
 		private final Converter<String, T> delegate;
 
 		/**
-		 * Construct a {@link ResourceKeyConverterAdapter} with the provided parameters
+		 * Construct a {@link ResourceKeyConverterAdapter} with the provided parameters.
 		 * @param delegate converts a stream of key material into a {@link Key}
 		 */
 		ResourceKeyConverterAdapter(Converter<InputStream, T> delegate) {
@@ -133,7 +133,7 @@ public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProc
 		}
 
 		/**
-		 * Use this {@link ResourceLoader} to read the key material
+		 * Use this {@link ResourceLoader} to read the key material.
 		 * @param resourceLoader the {@link ResourceLoader} to use
 		 */
 		void setResourceLoader(ResourceLoader resourceLoader) {

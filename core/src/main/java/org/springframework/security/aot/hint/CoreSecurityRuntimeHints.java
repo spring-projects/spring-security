@@ -51,7 +51,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 
 /**
- * {@link RuntimeHintsRegistrar} for core classes
+ * {@link RuntimeHintsRegistrar} for core classes.
  *
  * @author Marcus Da Coregio
  * @since 6.0

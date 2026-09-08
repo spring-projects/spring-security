@@ -20,7 +20,7 @@ import reactor.core.publisher.Mono;
 
 /**
  * An interface for resolving a {@link ReactiveAuthenticationManager} based on the
- * provided context
+ * provided context.
  *
  * @author Rafiullah Hamedy
  * @since 5.2

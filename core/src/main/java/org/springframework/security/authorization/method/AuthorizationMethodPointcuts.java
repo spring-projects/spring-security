@@ -29,6 +29,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreFilter;
 
 /**
+ * Provides {@link Pointcut}s for Spring Security's method authorization annotations.
+ *
  * @author Josh Cummings
  * @author Evgeniy Cheban
  */

@@ -103,7 +103,7 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	/**
-	 * Get the resolved {@link RelyingPartyRegistration} associated with the request
+	 * Get the resolved {@link RelyingPartyRegistration} associated with the request.
 	 * @return the resolved {@link RelyingPartyRegistration}
 	 * @since 5.4
 	 */
@@ -112,7 +112,7 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	/**
-	 * Returns inflated and decoded XML representation of the SAML 2 Response
+	 * Returns inflated and decoded XML representation of the SAML 2 Response.
 	 * @return inflated and decoded XML representation of the SAML 2 Response
 	 */
 	public String getSaml2Response() {
@@ -120,6 +120,7 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	/**
+	 * Always returns false, as this token represents an unauthenticated request.
 	 * @return false
 	 */
 	@Override
@@ -138,7 +139,7 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 
 	/**
 	 * Returns the authentication request sent to the assertion party or {@code null} if
-	 * no authentication request is present
+	 * no authentication request is present.
 	 * @return the authentication request sent to the assertion party
 	 * @since 5.6
 	 */

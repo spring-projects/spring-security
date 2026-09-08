@@ -101,7 +101,7 @@ public class OAuth2AuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	/**
-	 * A builder of {@link OAuth2AuthenticationToken} instances
+	 * A builder of {@link OAuth2AuthenticationToken} instances.
 	 *
 	 * @since 7.0
 	 */

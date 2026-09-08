@@ -24,7 +24,7 @@ import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
- * Jackson serializer for {@link Duration}
+ * Jackson serializer for {@link Duration}.
  *
  * @author Rob Winch
  * @since 6.4

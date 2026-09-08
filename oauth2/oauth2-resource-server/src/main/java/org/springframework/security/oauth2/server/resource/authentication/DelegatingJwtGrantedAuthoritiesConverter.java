@@ -58,7 +58,7 @@ public class DelegatingJwtGrantedAuthoritiesConverter implements Converter<Jwt, 
 
 	/**
 	 * Constructs a {@link DelegatingJwtGrantedAuthoritiesConverter} using the provided
-	 * {@link Collection} of {@link Converter}s
+	 * {@link Collection} of {@link Converter}s.
 	 * @param authoritiesConverters the {@link Collection} of {@link Converter}s to use
 	 */
 	public DelegatingJwtGrantedAuthoritiesConverter(
@@ -69,7 +69,7 @@ public class DelegatingJwtGrantedAuthoritiesConverter implements Converter<Jwt, 
 
 	/**
 	 * Constructs a {@link DelegatingJwtGrantedAuthoritiesConverter} using the provided
-	 * array of {@link Converter}s
+	 * array of {@link Converter}s.
 	 * @param authoritiesConverters the array of {@link Converter}s to use
 	 */
 	@SafeVarargs

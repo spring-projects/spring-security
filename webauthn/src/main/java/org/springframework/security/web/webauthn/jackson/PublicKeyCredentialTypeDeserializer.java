@@ -24,7 +24,7 @@ import tools.jackson.databind.deser.std.StdDeserializer;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialType;
 
 /**
- * Jackson deserializer for {@link PublicKeyCredentialType}
+ * Jackson deserializer for {@link PublicKeyCredentialType}.
  *
  * @author Rob Winch
  * @since 6.4

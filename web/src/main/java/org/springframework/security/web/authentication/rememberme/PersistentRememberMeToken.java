@@ -19,6 +19,8 @@ package org.springframework.security.web.authentication.rememberme;
 import java.util.Date;
 
 /**
+ * Represents the persistent state of a remember-me token.
+ *
  * @author Luke Taylor
  */
 public class PersistentRememberMeToken {

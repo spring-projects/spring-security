@@ -223,7 +223,7 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 			private final List<? extends MessageMatcher<?>> messageMatchers;
 
 			/**
-			 * Creates a new instance
+			 * Creates a new instance.
 			 * @param messageMatchers the {@link MessageMatcher} instances to map to this
 			 * constraint
 			 */
@@ -331,7 +331,7 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 			}
 
 			/**
-			 * Allows specifying that Messages are secured by an arbitrary expression
+			 * Allows specifying that Messages are secured by an arbitrary expression.
 			 * @param authorizationManager the {@link AuthorizationManager} to secure the
 			 * destinations
 			 * @return the {@link Builder} for further customization

@@ -41,7 +41,7 @@ import org.springframework.security.core.parameters.AnnotationParameterNameDisco
 public @interface P {
 
 	/**
-	 * The parameter name
+	 * The parameter name.
 	 * @return
 	 */
 	String value();

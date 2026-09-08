@@ -68,7 +68,7 @@ public final class UserVerificationRequirement implements Serializable {
 	}
 
 	/**
-	 * Gets the value
+	 * Gets the value.
 	 * @return the value
 	 */
 	public String getValue() {

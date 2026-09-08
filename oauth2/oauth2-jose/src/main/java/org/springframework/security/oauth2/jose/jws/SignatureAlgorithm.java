@@ -37,47 +37,47 @@ import org.jspecify.annotations.Nullable;
 public enum SignatureAlgorithm implements JwsAlgorithm {
 
 	/**
-	 * RSASSA-PKCS1-v1_5 using SHA-256 (Recommended)
+	 * RSASSA-PKCS1-v1_5 using SHA-256 (Recommended).
 	 */
 	RS256(JwsAlgorithms.RS256),
 
 	/**
-	 * RSASSA-PKCS1-v1_5 using SHA-384 (Optional)
+	 * RSASSA-PKCS1-v1_5 using SHA-384 (Optional).
 	 */
 	RS384(JwsAlgorithms.RS384),
 
 	/**
-	 * RSASSA-PKCS1-v1_5 using SHA-512 (Optional)
+	 * RSASSA-PKCS1-v1_5 using SHA-512 (Optional).
 	 */
 	RS512(JwsAlgorithms.RS512),
 
 	/**
-	 * ECDSA using P-256 and SHA-256 (Recommended+)
+	 * ECDSA using P-256 and SHA-256 (Recommended+).
 	 */
 	ES256(JwsAlgorithms.ES256),
 
 	/**
-	 * ECDSA using P-384 and SHA-384 (Optional)
+	 * ECDSA using P-384 and SHA-384 (Optional).
 	 */
 	ES384(JwsAlgorithms.ES384),
 
 	/**
-	 * ECDSA using P-521 and SHA-512 (Optional)
+	 * ECDSA using P-521 and SHA-512 (Optional).
 	 */
 	ES512(JwsAlgorithms.ES512),
 
 	/**
-	 * RSASSA-PSS using SHA-256 and MGF1 with SHA-256 (Optional)
+	 * RSASSA-PSS using SHA-256 and MGF1 with SHA-256 (Optional).
 	 */
 	PS256(JwsAlgorithms.PS256),
 
 	/**
-	 * RSASSA-PSS using SHA-384 and MGF1 with SHA-384 (Optional)
+	 * RSASSA-PSS using SHA-384 and MGF1 with SHA-384 (Optional).
 	 */
 	PS384(JwsAlgorithms.PS384),
 
 	/**
-	 * RSASSA-PSS using SHA-512 and MGF1 with SHA-512 (Optional)
+	 * RSASSA-PSS using SHA-512 and MGF1 with SHA-512 (Optional).
 	 */
 	PS512(JwsAlgorithms.PS512);
 

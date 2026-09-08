@@ -30,7 +30,7 @@ import org.springframework.messaging.Message;
 public final class OrMessageMatcher<T> extends AbstractMessageMatcherComposite<T> {
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param messageMatchers the {@link MessageMatcher} instances to try
 	 */
 	public OrMessageMatcher(List<MessageMatcher<T>> messageMatchers) {
@@ -38,7 +38,7 @@ public final class OrMessageMatcher<T> extends AbstractMessageMatcherComposite<T
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param messageMatchers the {@link MessageMatcher} instances to try
 	 */
 	@SafeVarargs

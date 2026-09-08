@@ -32,6 +32,8 @@ import org.springframework.security.web.RedirectStrategy;
 import org.springframework.util.Assert;
 
 /**
+ * A {@link ChannelEntryPoint} that retries the request on a different scheme and port.
+ *
  * @author Luke Taylor
  * @deprecated please use
  * {@link org.springframework.security.web.transport.HttpsRedirectFilter} and its
@@ -45,12 +47,12 @@ public abstract class AbstractRetryEntryPoint implements ChannelEntryPoint {
 	private PortMapper portMapper = new PortMapperImpl();
 
 	/**
-	 * The scheme ("http://" or "https://")
+	 * The scheme ("http://" or "https://").
 	 */
 	private final String scheme;
 
 	/**
-	 * The standard port for the scheme (80 for http, 443 for https)
+	 * The standard port for the scheme (80 for http, 443 for https).
 	 */
 	private final int standardPort;
 

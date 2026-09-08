@@ -34,7 +34,7 @@ import org.springframework.web.server.ServerWebExchange;
 
 /**
  * A {@link ServerAuthenticationEntryPoint} which delegates to multiple
- * {@link ServerAuthenticationEntryPoint} based on a {@link ServerWebExchangeMatcher}
+ * {@link ServerAuthenticationEntryPoint} based on a {@link ServerWebExchangeMatcher}.
  *
  * @author Rob Winch
  * @author Mathieu Ouellet
@@ -80,7 +80,7 @@ public class DelegatingServerAuthenticationEntryPoint implements ServerAuthentic
 	}
 
 	/**
-	 * EntryPoint which is used when no RequestMatcher returned true
+	 * EntryPoint which is used when no RequestMatcher returned true.
 	 */
 	public void setDefaultEntryPoint(ServerAuthenticationEntryPoint defaultEntryPoint) {
 		this.defaultEntryPoint = defaultEntryPoint;

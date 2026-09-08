@@ -48,7 +48,7 @@ public final class DefaultGenerateOneTimeTokenRequestResolver implements Generat
 	}
 
 	/**
-	 * Sets one-time token expiration time
+	 * Sets one-time token expiration time.
 	 * @param expiresIn one-time token expiration time
 	 */
 	public void setExpiresIn(Duration expiresIn) {

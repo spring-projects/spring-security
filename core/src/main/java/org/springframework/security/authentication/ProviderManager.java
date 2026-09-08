@@ -102,7 +102,8 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 	private boolean eraseCredentialsAfterAuthentication = true;
 
 	/**
-	 * Construct a {@link ProviderManager} using the given {@link AuthenticationProvider}s
+	 * Construct a {@link ProviderManager} using the given
+	 * {@link AuthenticationProvider}s.
 	 * @param providers the {@link AuthenticationProvider}s to use
 	 */
 	public ProviderManager(AuthenticationProvider... providers) {
@@ -110,7 +111,8 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 	}
 
 	/**
-	 * Construct a {@link ProviderManager} using the given {@link AuthenticationProvider}s
+	 * Construct a {@link ProviderManager} using the given
+	 * {@link AuthenticationProvider}s.
 	 * @param providers the {@link AuthenticationProvider}s to use
 	 */
 	public ProviderManager(List<AuthenticationProvider> providers) {
@@ -118,7 +120,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 	}
 
 	/**
-	 * Construct a {@link ProviderManager} using the provided parameters
+	 * Construct a {@link ProviderManager} using the provided parameters.
 	 * @param providers the {@link AuthenticationProvider}s to use
 	 * @param parent a parent {@link AuthenticationManager} to fall back to
 	 */

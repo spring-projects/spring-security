@@ -33,7 +33,7 @@ import org.springframework.web.server.ServerWebExchange;
 public interface ServerRequestCache {
 
 	/**
-	 * Save the {@link ServerHttpRequest}
+	 * Save the {@link ServerHttpRequest}.
 	 * @param exchange the exchange to save
 	 * @return Return a {@code Mono<Void>} which only replays complete and error signals
 	 * from this {@link Mono}.
@@ -41,7 +41,7 @@ public interface ServerRequestCache {
 	Mono<Void> saveRequest(ServerWebExchange exchange);
 
 	/**
-	 * Get the URI that can be redirected to trigger the saved request to be used
+	 * Get the URI that can be redirected to trigger the saved request to be used.
 	 * @param exchange the exchange to obtain the saved {@link ServerHttpRequest} from
 	 * @return the URI that can be redirected to trigger the saved request to be used
 	 */
@@ -49,7 +49,7 @@ public interface ServerRequestCache {
 
 	/**
 	 * If the provided {@link ServerWebExchange} matches the saved
-	 * {@link ServerHttpRequest} gets the saved {@link ServerHttpRequest}
+	 * {@link ServerHttpRequest} gets the saved {@link ServerHttpRequest}.
 	 * @param exchange the exchange to obtain the request from
 	 * @return the {@link ServerHttpRequest}
 	 */

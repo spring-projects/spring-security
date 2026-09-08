@@ -26,7 +26,7 @@ import org.ietf.jgss.GSSCredential;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Result of ticket validation
+ * Result of ticket validation.
  */
 public final class KerberosTicketValidation {
 

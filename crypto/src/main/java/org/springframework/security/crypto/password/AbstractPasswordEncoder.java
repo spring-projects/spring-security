@@ -24,7 +24,7 @@ import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.security.crypto.util.EncodingUtils;
 
 /**
- * Abstract base class for password encoders
+ * Abstract base class for password encoders.
  *
  * @author Rob Worsnop
  */

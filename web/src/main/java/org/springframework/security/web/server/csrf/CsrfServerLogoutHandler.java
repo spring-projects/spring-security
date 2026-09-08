@@ -36,7 +36,7 @@ public class CsrfServerLogoutHandler implements ServerLogoutHandler {
 	private final ServerCsrfTokenRepository csrfTokenRepository;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param csrfTokenRepository The {@link ServerCsrfTokenRepository} to use
 	 */
 	public CsrfServerLogoutHandler(ServerCsrfTokenRepository csrfTokenRepository) {
@@ -45,7 +45,7 @@ public class CsrfServerLogoutHandler implements ServerLogoutHandler {
 	}
 
 	/**
-	 * Clears the {@link CsrfToken}
+	 * Clears the {@link CsrfToken}.
 	 * @param exchange the exchange
 	 * @param authentication the {@link Authentication}
 	 * @return A completion notification (success or error)

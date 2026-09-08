@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.security.web.webauthn.api.ResidentKeyRequirement;
 
 /**
- * Jackson mixin for {@link ResidentKeyRequirement}
+ * Jackson mixin for {@link ResidentKeyRequirement}.
  *
  * @author Rob Winch
  * @since 6.4

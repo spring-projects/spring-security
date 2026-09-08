@@ -24,7 +24,7 @@ import tools.jackson.databind.ser.std.StdSerializer;
 import org.springframework.security.web.webauthn.api.AuthenticatorAttachment;
 
 /**
- * Jackson serializer for {@link AuthenticatorAttachment}
+ * Jackson serializer for {@link AuthenticatorAttachment}.
  *
  * @author Rob Winch
  * @since 6.4

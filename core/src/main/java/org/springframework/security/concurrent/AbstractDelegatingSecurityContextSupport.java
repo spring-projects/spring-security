@@ -28,7 +28,7 @@ import org.springframework.util.Assert;
 /**
  * An internal support class that wraps {@link Callable} with
  * {@link DelegatingSecurityContextCallable} and {@link Runnable} with
- * {@link DelegatingSecurityContextRunnable}
+ * {@link DelegatingSecurityContextRunnable}.
  *
  * @author Rob Winch
  * @since 3.2

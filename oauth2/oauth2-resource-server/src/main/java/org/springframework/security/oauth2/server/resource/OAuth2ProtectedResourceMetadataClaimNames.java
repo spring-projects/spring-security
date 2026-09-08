@@ -29,19 +29,19 @@ public final class OAuth2ProtectedResourceMetadataClaimNames {
 
 	/**
 	 * {@code resource} - the {@code URL} the protected resource asserts as its resource
-	 * identifier
+	 * identifier.
 	 */
 	public static final String RESOURCE = "resource";
 
 	/**
 	 * {@code authorization_servers} - a list of {@code issuer} identifier {@code URL}'s,
-	 * for authorization servers that can be used with this protected resource
+	 * for authorization servers that can be used with this protected resource.
 	 */
 	public static final String AUTHORIZATION_SERVERS = "authorization_servers";
 
 	/**
 	 * {@code scopes_supported} - a list of {@code scope} values supported, that are used
-	 * in authorization requests to request access to this protected resource
+	 * in authorization requests to request access to this protected resource.
 	 */
 	public static final String SCOPES_SUPPORTED = "scopes_supported";
 
@@ -54,13 +54,13 @@ public final class OAuth2ProtectedResourceMetadataClaimNames {
 
 	/**
 	 * {@code resource_name} - the name of the protected resource intended for display to
-	 * the end user
+	 * the end user.
 	 */
 	public static final String RESOURCE_NAME = "resource_name";
 
 	/**
 	 * {@code tls_client_certificate_bound_access_tokens} - {@code true} to indicate
-	 * protected resource support for mutual-TLS client certificate-bound access tokens
+	 * protected resource support for mutual-TLS client certificate-bound access tokens.
 	 */
 	public static final String TLS_CLIENT_CERTIFICATE_BOUND_ACCESS_TOKENS = "tls_client_certificate_bound_access_tokens";
 

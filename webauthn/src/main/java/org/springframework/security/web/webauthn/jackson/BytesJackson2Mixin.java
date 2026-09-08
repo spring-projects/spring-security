@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.security.web.webauthn.api.Bytes;
 
 /**
- * Jackson mixin for {@link Bytes}
+ * Jackson mixin for {@link Bytes}.
  *
  * @author Rob Winch
  * @since 6.4

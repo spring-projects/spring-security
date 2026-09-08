@@ -110,6 +110,7 @@ public class WebXmlMappableAttributesRetriever
 	}
 
 	/**
+	 * Parses the given InputStream into a {@link Document}.
 	 * @return Document for the specified InputStream
 	 */
 	private Document getDocument(InputStream aStream) {

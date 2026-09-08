@@ -28,6 +28,8 @@ import org.springframework.core.Ordered;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 
 /**
+ * Enables Spring Security reactive method security.
+ *
  * @author Rob Winch
  * @since 5.0
  */

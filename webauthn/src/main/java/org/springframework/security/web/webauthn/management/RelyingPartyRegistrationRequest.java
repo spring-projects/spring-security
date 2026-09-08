@@ -19,6 +19,8 @@ package org.springframework.security.web.webauthn.management;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
 
 /**
+ * A request to register a credential with the relying party.
+ *
  * @author Rob Winch
  * @since 6.4
  * @see WebAuthnRelyingPartyOperations#registerCredential(RelyingPartyRegistrationRequest)

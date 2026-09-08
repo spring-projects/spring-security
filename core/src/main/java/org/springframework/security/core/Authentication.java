@@ -160,7 +160,7 @@ public interface Authentication extends Principal, Serializable {
 	}
 
 	/**
-	 * A builder based on a given {@link Authentication} instance
+	 * A builder based on a given {@link Authentication} instance.
 	 *
 	 * @author Josh Cummings
 	 * @since 7.0
@@ -227,7 +227,7 @@ public interface Authentication extends Principal, Serializable {
 		B principal(@Nullable Object principal);
 
 		/**
-		 * Mark this authentication as authenticated or not
+		 * Mark this authentication as authenticated or not.
 		 * @param authenticated whether this is an authenticated {@link Authentication}
 		 * instance
 		 * @return the {@link Builder} for additional configuration
@@ -236,7 +236,7 @@ public interface Authentication extends Principal, Serializable {
 		B authenticated(boolean authenticated);
 
 		/**
-		 * Build an {@link Authentication} instance
+		 * Build an {@link Authentication} instance.
 		 * @return the {@link Authentication} instance
 		 */
 		Authentication build();

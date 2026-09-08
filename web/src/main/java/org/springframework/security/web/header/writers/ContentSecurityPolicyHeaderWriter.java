@@ -102,7 +102,7 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param policyDirectives maps to {@link #setPolicyDirectives(String)}
 	 * @throws IllegalArgumentException if policyDirectives is null or empty
 	 */
@@ -112,6 +112,7 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 	}
 
 	/**
+	 * Writes the Content-Security-Policy (or report-only) header to the response.
 	 * @see org.springframework.security.web.header.HeaderWriter#writeHeaders(jakarta.servlet.http.HttpServletRequest,
 	 * jakarta.servlet.http.HttpServletResponse)
 	 */

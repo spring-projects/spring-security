@@ -31,6 +31,7 @@ public class WebAuthenticationDetailsSource
 		implements AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> {
 
 	/**
+	 * Builds the {@code WebAuthenticationDetails} from the given request.
 	 * @param context the {@code HttpServletRequest} object.
 	 * @return the {@code WebAuthenticationDetails} containing information about the
 	 * current request

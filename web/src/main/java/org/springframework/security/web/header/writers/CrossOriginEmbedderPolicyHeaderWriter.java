@@ -40,7 +40,7 @@ public final class CrossOriginEmbedderPolicyHeaderWriter implements HeaderWriter
 
 	/**
 	 * Sets the {@link CrossOriginEmbedderPolicy} value to be used in the
-	 * {@code Cross-Origin-Embedder-Policy} header
+	 * {@code Cross-Origin-Embedder-Policy} header.
 	 * @param embedderPolicy the {@link CrossOriginEmbedderPolicy} to use
 	 */
 	public void setPolicy(CrossOriginEmbedderPolicy embedderPolicy) {

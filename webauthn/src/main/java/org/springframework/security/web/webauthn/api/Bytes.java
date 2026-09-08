@@ -46,7 +46,7 @@ public final class Bytes implements Serializable {
 	private final byte[] bytes;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param bytes the raw base64UrlString that will be encoded.
 	 */
 	public Bytes(byte[] bytes) {

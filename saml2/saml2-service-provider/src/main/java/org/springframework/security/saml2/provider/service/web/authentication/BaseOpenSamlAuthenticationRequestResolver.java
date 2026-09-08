@@ -101,7 +101,7 @@ class BaseOpenSamlAuthenticationRequestResolver implements Saml2AuthenticationRe
 
 	/**
 	 * Construct a {@link BaseOpenSamlAuthenticationRequestResolver} using the provided
-	 * parameters
+	 * parameters.
 	 * @param relyingPartyRegistrationResolver a strategy for resolving the
 	 * {@link RelyingPartyRegistration} from the {@link HttpServletRequest}
 	 */

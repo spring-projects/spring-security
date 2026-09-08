@@ -49,7 +49,7 @@ public final class CacheControlHeadersWriter implements HeaderWriter {
 	private final HeaderWriter delegate;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 */
 	public CacheControlHeadersWriter() {
 		this.delegate = new StaticHeadersWriter(createHeaders());

@@ -50,7 +50,7 @@ public final class FastHttpDateFormat {
 			new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.US) };
 
 	/**
-	 * GMT time zone - all HTTP dates are on GMT
+	 * GMT time zone - all HTTP dates are on GMT.
 	 */
 	protected static final TimeZone gmtZone = TimeZone.getTimeZone("GMT");
 

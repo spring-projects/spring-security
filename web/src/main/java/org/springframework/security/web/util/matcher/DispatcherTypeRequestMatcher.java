@@ -39,7 +39,8 @@ public class DispatcherTypeRequestMatcher implements RequestMatcher {
 	private final @Nullable HttpMethod httpMethod;
 
 	/**
-	 * Creates an instance which matches requests with the provided {@link DispatcherType}
+	 * Creates an instance which matches requests with the provided
+	 * {@link DispatcherType}.
 	 * @param dispatcherType the type to match against
 	 */
 	public DispatcherTypeRequestMatcher(DispatcherType dispatcherType) {
@@ -48,7 +49,7 @@ public class DispatcherTypeRequestMatcher implements RequestMatcher {
 
 	/**
 	 * Creates an instance which matches requests with the provided {@link DispatcherType}
-	 * and {@link HttpMethod}
+	 * and {@link HttpMethod}.
 	 * @param dispatcherType the type to match against
 	 * @param httpMethod the HTTP method to match. May be null to match all methods.
 	 */

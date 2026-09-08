@@ -24,6 +24,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 
 /**
+ * The default factory for creating an {@link OAuth2TokenValidator} for an OIDC ID token.
+ *
  * @author Joe Grandja
  * @since 5.2
  */

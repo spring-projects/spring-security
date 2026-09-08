@@ -86,7 +86,7 @@ public final class Saml2LogoutRequest implements Serializable {
 	}
 
 	/**
-	 * The unique identifier for this Logout Request
+	 * The unique identifier for this Logout Request.
 	 * @return the Logout Request identifier
 	 */
 	public @Nullable String getId() {
@@ -95,7 +95,7 @@ public final class Saml2LogoutRequest implements Serializable {
 
 	/**
 	 * Get the location of the asserting party's <a href=
-	 * "https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService</a>
+	 * "https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService</a>.
 	 * @return the SingleLogoutService location
 	 */
 	public String getLocation() {
@@ -104,7 +104,7 @@ public final class Saml2LogoutRequest implements Serializable {
 
 	/**
 	 * Get the binding for the asserting party's <a href=
-	 * "https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService</a>
+	 * "https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService</a>.
 	 * @return the SingleLogoutService binding
 	 */
 	public Saml2MessageBinding getBinding() {
@@ -112,7 +112,7 @@ public final class Saml2LogoutRequest implements Serializable {
 	}
 
 	/**
-	 * Get the signed and serialized &lt;saml2:LogoutRequest&gt; payload
+	 * Get the signed and serialized &lt;saml2:LogoutRequest&gt; payload.
 	 * @return the signed and serialized &lt;saml2:LogoutRequest&gt; payload
 	 */
 	public String getSamlRequest() {
@@ -122,7 +122,7 @@ public final class Saml2LogoutRequest implements Serializable {
 	}
 
 	/**
-	 * The relay state associated with this Logout Request
+	 * The relay state associated with this Logout Request.
 	 * @return the relay state
 	 */
 	public @Nullable String getRelayState() {
@@ -132,7 +132,7 @@ public final class Saml2LogoutRequest implements Serializable {
 	/**
 	 * Get the {@code name} parameters, a short-hand for <code>
 	 * getParameters().get(name)
-	 * </code>
+	 * </code>.
 	 *
 	 * Useful when specifying additional query parameters for the Logout Request
 	 * @param name the parameter's name
@@ -143,7 +143,7 @@ public final class Saml2LogoutRequest implements Serializable {
 	}
 
 	/**
-	 * Get all parameters
+	 * Get all parameters.
 	 *
 	 * Useful when specifying additional query parameters for the Logout Request
 	 * @return the Logout Request query parameters
@@ -164,7 +164,7 @@ public final class Saml2LogoutRequest implements Serializable {
 
 	/**
 	 * The identifier for the {@link RelyingPartyRegistration} associated with this Logout
-	 * Request
+	 * Request.
 	 * @return the {@link RelyingPartyRegistration} id
 	 */
 	public String getRelyingPartyRegistrationId() {
@@ -172,7 +172,7 @@ public final class Saml2LogoutRequest implements Serializable {
 	}
 
 	/**
-	 * Create a {@link Builder} instance from this {@link RelyingPartyRegistration}
+	 * Create a {@link Builder} instance from this {@link RelyingPartyRegistration}.
 	 *
 	 * Specifically, this will pull the <a href=
 	 * "https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService</a>
@@ -246,7 +246,7 @@ public final class Saml2LogoutRequest implements Serializable {
 
 		/**
 		 * Use this value for the relay state when sending the Logout Request to the
-		 * asserting party
+		 * asserting party.
 		 *
 		 * It should not be URL-encoded as this will be done when the request is sent
 		 * @param relayState the relay state
@@ -258,7 +258,7 @@ public final class Saml2LogoutRequest implements Serializable {
 		}
 
 		/**
-		 * This is the unique id used in the {@link #samlRequest}
+		 * This is the unique id used in the {@link #samlRequest}.
 		 * @param id the Logout Request id
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -268,7 +268,7 @@ public final class Saml2LogoutRequest implements Serializable {
 		}
 
 		/**
-		 * Use this {@link Consumer} to modify the set of query parameters
+		 * Use this {@link Consumer} to modify the set of query parameters.
 		 *
 		 * No parameter should be URL-encoded as this will be done when the request is
 		 * sent
@@ -296,7 +296,7 @@ public final class Saml2LogoutRequest implements Serializable {
 		}
 
 		/**
-		 * Build the {@link Saml2LogoutRequest}
+		 * Build the {@link Saml2LogoutRequest}.
 		 * @return a constructed {@link Saml2LogoutRequest}
 		 */
 		public Saml2LogoutRequest build() {

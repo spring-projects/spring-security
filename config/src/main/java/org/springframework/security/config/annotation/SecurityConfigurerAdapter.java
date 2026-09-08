@@ -115,7 +115,7 @@ public abstract class SecurityConfigurerAdapter<O, B extends SecurityBuilder<O>>
 		}
 
 		/**
-		 * Adds an {@link ObjectPostProcessor} to use
+		 * Adds an {@link ObjectPostProcessor} to use.
 		 * @param objectPostProcessor the {@link ObjectPostProcessor} to add
 		 * @return true if the {@link ObjectPostProcessor} was added, else false
 		 */

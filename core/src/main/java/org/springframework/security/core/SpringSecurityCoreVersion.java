@@ -61,7 +61,7 @@ public final class SpringSecurityCoreVersion {
 	}
 
 	/**
-	 * Perform version checks with specific min Spring Version
+	 * Perform version checks with specific min Spring Version.
 	 * @param minSpringVersion
 	 */
 	private static void performVersionChecks(@Nullable String minSpringVersion) {

@@ -109,7 +109,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	private final CrossOriginResourcePolicyConfig crossOriginResourcePolicy = new CrossOriginResourcePolicyConfig();
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 *
 	 * @see HttpSecurity#headers(Customizer)
 	 */
@@ -117,7 +117,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Adds a {@link HeaderWriter} instance
+	 * Adds a {@link HeaderWriter} instance.
 	 * @param headerWriter the {@link HeaderWriter} instance to add
 	 * @return the {@link HeadersConfigurer} for additional customizations
 	 */
@@ -130,7 +130,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * Configures the {@link XContentTypeOptionsHeaderWriter} which inserts the
 	 * <a href= "https://msdn.microsoft.com/en-us/library/ie/gg622941(v=vs.85).aspx"
-	 * >X-Content-Type-Options</a>:
+	 * >X-Content-Type-Options</a>:.
 	 *
 	 * <pre>
 	 * X-Content-Type-Options: nosniff
@@ -145,7 +145,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * <strong>Note this is not comprehensive XSS protection!</strong>
+	 * <strong>Note this is not comprehensive XSS protection!</strong>.
 	 *
 	 * <p>
 	 * Allows customizing the {@link XXssProtectionHeaderWriter} which adds the <a href=
@@ -276,7 +276,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Creates the {@link HeaderWriter}
+	 * Creates the {@link HeaderWriter}.
 	 * @return the {@link HeaderWriter}
 	 */
 	private HeaderWriterFilter createHeaderWriterFilter() {
@@ -504,7 +504,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		/**
-		 * Ensures that Content Type Options is enabled
+		 * Ensures that Content Type Options is enabled.
 		 * @return the {@link ContentTypeOptionsConfig} for additional customization
 		 */
 		private ContentTypeOptionsConfig enable() {
@@ -559,7 +559,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		/**
-		 * Disables X-XSS-Protection header (does not include it)
+		 * Disables X-XSS-Protection header (does not include it).
 		 * @return the {@link HeadersConfigurer} for additional configuration
 		 */
 		public HeadersConfigurer<H> disable() {
@@ -589,7 +589,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		/**
-		 * Disables Cache Control
+		 * Disables Cache Control.
 		 * @return the {@link HeadersConfigurer} for additional configuration
 		 */
 		public HeadersConfigurer<H> disable() {
@@ -686,7 +686,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		/**
-		 * Disables Strict Transport Security
+		 * Disables Strict Transport Security.
 		 * @return the {@link HeadersConfigurer} for additional configuration
 		 */
 		public HeadersConfigurer<H> disable() {
@@ -695,7 +695,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		/**
-		 * Ensures that Strict-Transport-Security is enabled if it is not already
+		 * Ensures that Strict-Transport-Security is enabled if it is not already.
 		 * @return the {@link HstsConfig} for additional customization
 		 */
 		private HstsConfig enable() {
@@ -761,6 +761,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
+	 * Configures the HTTP Public Key Pinning (HPKP) header.
+	 *
 	 * @deprecated see <a href=
 	 * "https://owasp.org/www-community/controls/Certificate_and_Public_Key_Pinning">Certificate
 	 * and Public Key Pinning</a> for more context
@@ -921,7 +923,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 
 		/**
 		 * Ensures that Public-Key-Pins or Public-Key-Pins-Report-Only is enabled if it is
-		 * not already
+		 * not already.
 		 * @return the {@link HstsConfig} for additional customization
 		 */
 		private HpkpConfig enable() {
@@ -1029,7 +1031,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		/**
-		 * Sets the policy to be used in the {@code Cross-Origin-Opener-Policy} header
+		 * Sets the policy to be used in the {@code Cross-Origin-Opener-Policy} header.
 		 * @param openerPolicy a {@code Cross-Origin-Opener-Policy}
 		 * @return the {@link CrossOriginOpenerPolicyConfig} for additional configuration
 		 * @throws IllegalArgumentException if openerPolicy is null
@@ -1050,7 +1052,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		/**
-		 * Sets the policy to be used in the {@code Cross-Origin-Embedder-Policy} header
+		 * Sets the policy to be used in the {@code Cross-Origin-Embedder-Policy} header.
 		 * @param embedderPolicy a {@code Cross-Origin-Embedder-Policy}
 		 * @return the {@link CrossOriginEmbedderPolicyConfig} for additional
 		 * configuration
@@ -1072,7 +1074,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		/**
-		 * Sets the policy to be used in the {@code Cross-Origin-Resource-Policy} header
+		 * Sets the policy to be used in the {@code Cross-Origin-Resource-Policy} header.
 		 * @param resourcePolicy a {@code Cross-Origin-Resource-Policy}
 		 * @return the {@link CrossOriginResourcePolicyConfig} for additional
 		 * configuration

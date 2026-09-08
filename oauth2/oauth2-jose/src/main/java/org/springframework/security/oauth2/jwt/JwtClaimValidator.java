@@ -29,7 +29,7 @@ import org.springframework.util.Assert;
 
 /**
  * Validates a claim in a {@link Jwt} against a provided
- * {@link java.util.function.Predicate}
+ * {@link java.util.function.Predicate}.
  *
  * @author Zeeshan Adnan
  * @since 5.3
@@ -45,7 +45,7 @@ public final class JwtClaimValidator<T> implements OAuth2TokenValidator<Jwt> {
 	private final OAuth2Error error;
 
 	/**
-	 * Constructs a {@link JwtClaimValidator} using the provided parameters
+	 * Constructs a {@link JwtClaimValidator} using the provided parameters.
 	 * @param claim - is the name of the claim in {@link Jwt} to validate.
 	 * @param test - is the predicate function for the claim to test against.
 	 */

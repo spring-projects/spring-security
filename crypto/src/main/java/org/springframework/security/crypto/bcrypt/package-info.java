@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * BCrypt password encoding support.
+ */
 @NullMarked
 package org.springframework.security.crypto.bcrypt;
 

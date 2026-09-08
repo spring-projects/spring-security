@@ -30,7 +30,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
 /**
- * Delegates to logout handlers based on matched request matchers
+ * Delegates to logout handlers based on matched request matchers.
  *
  * @author Shazin Sadakath
  * @author Rob Winch
@@ -64,7 +64,7 @@ public class DelegatingLogoutSuccessHandler implements LogoutSuccessHandler {
 	}
 
 	/**
-	 * Sets the default {@link LogoutSuccessHandler} if no other handlers available
+	 * Sets the default {@link LogoutSuccessHandler} if no other handlers available.
 	 * @param defaultLogoutSuccessHandler the defaultLogoutSuccessHandler to set
 	 */
 	public void setDefaultLogoutSuccessHandler(LogoutSuccessHandler defaultLogoutSuccessHandler) {

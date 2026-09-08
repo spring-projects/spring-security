@@ -46,7 +46,7 @@ import org.springframework.web.reactive.result.method.HandlerMethodArgumentResol
 import org.springframework.web.server.ServerWebExchange;
 
 /**
- * Resolves the {@link SecurityContext}
+ * Resolves the {@link SecurityContext}.
  *
  * @author Dan Zheng
  * @author DingHao
@@ -70,7 +70,7 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 	}
 
 	/**
-	 * Sets the {@link BeanResolver} to be used on the expressions
+	 * Sets the {@link BeanResolver} to be used on the expressions.
 	 * @param beanResolver the {@link BeanResolver} to use
 	 */
 	public void setBeanResolver(BeanResolver beanResolver) {

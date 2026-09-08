@@ -33,6 +33,8 @@ import org.springframework.security.saml2.provider.service.web.authentication.Op
 import org.springframework.util.StringUtils;
 
 /**
+ * Utility methods shared by the SAML 2.0 login bean definition parsers.
+ *
  * @author Marcus da Coregio
  * @since 5.7
  */

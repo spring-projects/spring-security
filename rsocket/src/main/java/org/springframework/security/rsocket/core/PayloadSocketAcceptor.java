@@ -35,6 +35,9 @@ import org.springframework.util.MimeTypeUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * A {@link SocketAcceptor} that applies {@link PayloadInterceptor} instances to the setup
+ * exchange before delegating to accept the connection.
+ *
  * @author Rob Winch
  * @since 5.2
  */

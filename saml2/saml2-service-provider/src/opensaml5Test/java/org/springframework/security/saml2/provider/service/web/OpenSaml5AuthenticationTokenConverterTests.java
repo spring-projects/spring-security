@@ -54,7 +54,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests for {@link OpenSaml5AuthenticationTokenConverter}
+ * Tests for {@link OpenSaml5AuthenticationTokenConverter}.
  */
 @ExtendWith(MockitoExtension.class)
 public final class OpenSaml5AuthenticationTokenConverterTests {

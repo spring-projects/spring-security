@@ -19,6 +19,8 @@ package org.springframework.security.web.webauthn.jackson;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
+ * Jackson mixin for serializing {@code CredProtectAuthenticationExtensionsClientInput}.
+ *
  * @deprecated as of 7.0 in favor of
  * {@link org.springframework.security.web.webauthn.jackson.CredProtectAuthenticationExtensionsClientInputMixin}
  * based on Jackson 3

@@ -15,7 +15,7 @@
  */
 
 /**
- * Package for AOT Hints
+ * Package for AOT Hints.
  */
 @NullMarked
 package org.springframework.security.ldap.aot.hint;

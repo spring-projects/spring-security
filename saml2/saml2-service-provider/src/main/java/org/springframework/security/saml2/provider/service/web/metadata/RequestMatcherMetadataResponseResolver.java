@@ -44,7 +44,7 @@ import static org.springframework.security.web.servlet.util.matcher.PathPatternR
 
 /**
  * An implementation of {@link Saml2MetadataResponseResolver} that identifies which
- * {@link RelyingPartyRegistration}s to use with a {@link RequestMatcher}
+ * {@link RelyingPartyRegistration}s to use with a {@link RequestMatcher}.
  *
  * @author Josh Cummings
  * @since 6.1
@@ -64,7 +64,7 @@ public class RequestMatcherMetadataResponseResolver implements Saml2MetadataResp
 	private final Saml2MetadataResolver metadata;
 
 	/**
-	 * Construct a {@link RequestMatcherMetadataResponseResolver}
+	 * Construct a {@link RequestMatcherMetadataResponseResolver}.
 	 * @param registrations the source for relying party metadata
 	 * @param metadata the strategy for converting {@link RelyingPartyRegistration}s into
 	 * metadata

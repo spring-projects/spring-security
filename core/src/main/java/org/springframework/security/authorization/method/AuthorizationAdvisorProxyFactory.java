@@ -317,7 +317,7 @@ public final class AuthorizationAdvisorProxyFactory implements AuthorizationProx
 		 * The default {@link TargetVisitor}, which will proxy {@link Class} instances as
 		 * well as instances contained in reactive types (if reactor is present),
 		 * collection types, and other container types like {@link Optional} and
-		 * {@link Supplier}
+		 * {@link Supplier}.
 		 */
 		static TargetVisitor defaults() {
 			return AuthorizationAdvisorProxyFactory.DEFAULT_VISITOR;

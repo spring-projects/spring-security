@@ -54,7 +54,7 @@ public final class PostFilterAuthorizationMethodInterceptor implements Authoriza
 
 	/**
 	 * Creates a {@link PostFilterAuthorizationMethodInterceptor} using the provided
-	 * parameters
+	 * parameters.
 	 */
 	public PostFilterAuthorizationMethodInterceptor() {
 		this.pointcut = AuthorizationMethodPointcuts.forAnnotations(PostFilter.class);

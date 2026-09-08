@@ -23,6 +23,8 @@ import org.springframework.expression.ParseException;
 import org.springframework.security.access.prepost.PostInvocationAttribute;
 
 /**
+ * A {@link PostInvocationAttribute} based on filter and authorize expressions.
+ *
  * @author Luke Taylor
  * @since 3.0
  * @deprecated Use

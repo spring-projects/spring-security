@@ -31,6 +31,8 @@ import java.io.Serializable;
 public interface ObjectIdentityGenerator {
 
 	/**
+	 * Creates an {@link ObjectIdentity} using the supplied identifier and type
+	 * information.
 	 * @param id the identifier of the domain object, not null
 	 * @param type the type of the object (often a class name), not null
 	 * @return the identity constructed using the supplied identifier and type

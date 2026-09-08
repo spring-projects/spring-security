@@ -90,7 +90,7 @@ public final class SimpleAuthorityMapper implements GrantedAuthoritiesMapper, In
 
 	/**
 	 * Sets the prefix which should be added to the authority name (if it doesn't already
-	 * exist)
+	 * exist).
 	 * @param prefix the prefix, typically to satisfy the behaviour of an
 	 * {@code AccessDecisionVoter}.
 	 */
@@ -116,7 +116,7 @@ public final class SimpleAuthorityMapper implements GrantedAuthoritiesMapper, In
 	}
 
 	/**
-	 * Sets a default authority to be assigned to all users
+	 * Sets a default authority to be assigned to all users.
 	 * @param authority the name of the authority to be assigned to all users.
 	 */
 	public void setDefaultAuthority(String authority) {

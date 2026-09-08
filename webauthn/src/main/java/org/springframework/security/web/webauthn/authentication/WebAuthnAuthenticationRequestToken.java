@@ -51,7 +51,7 @@ public class WebAuthnAuthenticationRequestToken extends AbstractAuthenticationTo
 	}
 
 	/**
-	 * Gets the {@link RelyingPartyAuthenticationRequest}
+	 * Gets the {@link RelyingPartyAuthenticationRequest}.
 	 * @return the {@link RelyingPartyAuthenticationRequest}
 	 */
 	public RelyingPartyAuthenticationRequest getWebAuthnRequest() {

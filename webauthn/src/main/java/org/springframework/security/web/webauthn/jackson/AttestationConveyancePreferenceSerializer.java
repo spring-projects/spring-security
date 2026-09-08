@@ -24,7 +24,7 @@ import tools.jackson.databind.ser.std.StdSerializer;
 import org.springframework.security.web.webauthn.api.AttestationConveyancePreference;
 
 /**
- * Jackson serializer for {@link AttestationConveyancePreference}
+ * Jackson serializer for {@link AttestationConveyancePreference}.
  *
  * @author Rob Winch
  * @since 6.4

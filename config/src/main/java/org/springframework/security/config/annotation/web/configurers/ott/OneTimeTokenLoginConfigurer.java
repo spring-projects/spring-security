@@ -304,7 +304,7 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Configures the {@link OneTimeTokenService} used to generate and consume
-	 * {@link OneTimeToken}
+	 * {@link OneTimeToken}.
 	 * @param oneTimeTokenService
 	 */
 	public OneTimeTokenLoginConfigurer<H> tokenService(OneTimeTokenService oneTimeTokenService) {
@@ -394,6 +394,7 @@ public final class OneTimeTokenLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
+	 * Returns the {@link ApplicationContext}.
 	 * @deprecated Use this.context instead
 	 */
 	@Deprecated

@@ -41,7 +41,7 @@ public class WebSessionServerSecurityContextRepository implements ServerSecurity
 	private static final Log logger = LogFactory.getLog(WebSessionServerSecurityContextRepository.class);
 
 	/**
-	 * The default session attribute name to save and load the {@link SecurityContext}
+	 * The default session attribute name to save and load the {@link SecurityContext}.
 	 */
 	public static final String DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME = "SPRING_SECURITY_CONTEXT";
 
@@ -50,7 +50,7 @@ public class WebSessionServerSecurityContextRepository implements ServerSecurity
 	private boolean cacheSecurityContext;
 
 	/**
-	 * Sets the session attribute name used to save and load the {@link SecurityContext}
+	 * Sets the session attribute name used to save and load the {@link SecurityContext}.
 	 * @param springSecurityContextAttrName the session attribute name to use to save and
 	 * load the {@link SecurityContext}
 	 */

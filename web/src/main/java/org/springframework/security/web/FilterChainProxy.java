@@ -273,6 +273,8 @@ public class FilterChainProxy extends GenericFilterBean {
 	}
 
 	/**
+	 * Returns the list of {@code SecurityFilterChain}s which will be matched against and
+	 * applied to incoming requests.
 	 * @return the list of {@code SecurityFilterChain}s which will be matched against and
 	 * applied to incoming requests.
 	 */
@@ -302,7 +304,7 @@ public class FilterChainProxy extends GenericFilterBean {
 	}
 
 	/**
-	 * Used to decorate the original {@link FilterChain} for each request
+	 * Used to decorate the original {@link FilterChain} for each request.
 	 *
 	 * <p>
 	 * By default, this decorates the filter chain with a {@link VirtualFilterChain} that
@@ -433,7 +435,7 @@ public class FilterChainProxy extends GenericFilterBean {
 	}
 
 	/**
-	 * A {@link FilterChainDecorator} that uses the {@link VirtualFilterChain}
+	 * A {@link FilterChainDecorator} that uses the {@link VirtualFilterChain}.
 	 *
 	 * @author Josh Cummings
 	 * @since 6.0

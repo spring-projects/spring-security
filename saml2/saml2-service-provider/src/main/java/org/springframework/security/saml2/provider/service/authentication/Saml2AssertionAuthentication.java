@@ -78,7 +78,7 @@ public class Saml2AssertionAuthentication extends Saml2Authentication {
 	}
 
 	/**
-	 * A builder of {@link Saml2AssertionAuthentication} instances
+	 * A builder of {@link Saml2AssertionAuthentication} instances.
 	 *
 	 * @since 7.0
 	 */
@@ -110,7 +110,7 @@ public class Saml2AssertionAuthentication extends Saml2Authentication {
 		}
 
 		/**
-		 * Use this registration id
+		 * Use this registration id.
 		 * @param relyingPartyRegistrationId the
 		 * {@link RelyingPartyRegistration#getRegistrationId} to use
 		 * @return the {@link Builder} for further configurations

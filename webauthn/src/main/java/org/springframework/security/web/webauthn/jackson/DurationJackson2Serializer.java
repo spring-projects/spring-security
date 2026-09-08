@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 /**
- * Jackson serializer for {@link Duration}
+ * Jackson serializer for {@link Duration}.
  *
  * @author Rob Winch
  * @since 6.4

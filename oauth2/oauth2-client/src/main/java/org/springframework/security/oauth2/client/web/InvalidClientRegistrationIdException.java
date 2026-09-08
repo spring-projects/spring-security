@@ -17,6 +17,8 @@
 package org.springframework.security.oauth2.client.web;
 
 /**
+ * Thrown when a client registration id cannot be resolved.
+ *
  * @author Steve Riesenberg
  * @since 5.8
  */
@@ -24,6 +26,7 @@ package org.springframework.security.oauth2.client.web;
 class InvalidClientRegistrationIdException extends IllegalArgumentException {
 
 	/**
+	 * Creates a new instance with the given message.
 	 * @param message the exception message
 	 */
 	InvalidClientRegistrationIdException(String message) {

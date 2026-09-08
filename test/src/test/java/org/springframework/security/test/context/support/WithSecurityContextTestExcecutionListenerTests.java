@@ -40,6 +40,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.test.context.NestedTestConfiguration;
+import org.springframework.test.context.NestedTestConfiguration.EnclosingConfiguration;
 import org.springframework.test.context.TestContext;
 import org.springframework.test.context.TestExecutionListener;
 import org.springframework.test.context.jdbc.SqlScriptsTestExecutionListener;
@@ -222,7 +223,7 @@ public class WithSecurityContextTestExcecutionListenerTests {
 	}
 
 	@WithMockUser
-	@NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
+	@NestedTestConfiguration(EnclosingConfiguration.OVERRIDE)
 	class OverrideOuterClass {
 
 		class InnerClass {

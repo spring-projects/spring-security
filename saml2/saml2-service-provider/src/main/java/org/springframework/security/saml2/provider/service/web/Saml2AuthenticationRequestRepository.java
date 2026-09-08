@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 
 /**
- * A repository for {@link AbstractSaml2AuthenticationRequest}
+ * A repository for {@link AbstractSaml2AuthenticationRequest}.
  *
  * @param <T> the type of SAML 2.0 Authentication Request
  * @author Marcus Da Coregio
@@ -32,7 +32,7 @@ import org.springframework.security.saml2.provider.service.authentication.Abstra
 public interface Saml2AuthenticationRequestRepository<T extends AbstractSaml2AuthenticationRequest> {
 
 	/**
-	 * Loads the {@link AbstractSaml2AuthenticationRequest} from the request
+	 * Loads the {@link AbstractSaml2AuthenticationRequest} from the request.
 	 * @param request the current request
 	 * @return the {@link AbstractSaml2AuthenticationRequest} or {@code null} if it is not
 	 * present
@@ -41,7 +41,7 @@ public interface Saml2AuthenticationRequestRepository<T extends AbstractSaml2Aut
 
 	/**
 	 * Saves the current authentication request using the {@link HttpServletRequest} and
-	 * {@link HttpServletResponse}
+	 * {@link HttpServletResponse}.
 	 * @param authenticationRequest the {@link AbstractSaml2AuthenticationRequest}
 	 * @param request the current request
 	 * @param response the current response
@@ -50,7 +50,7 @@ public interface Saml2AuthenticationRequestRepository<T extends AbstractSaml2Aut
 
 	/**
 	 * Removes the authentication request using the {@link HttpServletRequest} and
-	 * {@link HttpServletResponse}
+	 * {@link HttpServletResponse}.
 	 * @param request the current request
 	 * @param response the current response
 	 * @return the removed {@link AbstractSaml2AuthenticationRequest} or {@code null} if

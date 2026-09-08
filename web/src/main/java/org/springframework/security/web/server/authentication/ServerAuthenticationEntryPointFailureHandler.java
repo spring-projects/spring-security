@@ -26,7 +26,7 @@ import org.springframework.util.Assert;
 
 /**
  * Adapts a {@link ServerAuthenticationEntryPoint} into a
- * {@link ServerAuthenticationFailureHandler}
+ * {@link ServerAuthenticationFailureHandler}.
  *
  * @author Rob Winch
  * @since 5.0
@@ -54,7 +54,7 @@ public class ServerAuthenticationEntryPointFailureHandler implements ServerAuthe
 	}
 
 	/**
-	 * Set whether to rethrow {@link AuthenticationServiceException}s (defaults to true)
+	 * Set whether to rethrow {@link AuthenticationServiceException}s (defaults to true).
 	 * @param rethrowAuthenticationServiceException whether to rethrow
 	 * {@link AuthenticationServiceException}s
 	 * @since 5.8

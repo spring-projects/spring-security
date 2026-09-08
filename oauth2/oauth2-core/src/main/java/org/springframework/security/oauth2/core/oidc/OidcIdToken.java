@@ -78,7 +78,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 	}
 
 	/**
-	 * Create a {@link Builder} based on the given token value
+	 * Create a {@link Builder} based on the given token value.
 	 * @param tokenValue the token value to use
 	 * @return the {@link Builder} for further configuration
 	 * @since 5.3
@@ -88,7 +88,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 	}
 
 	/**
-	 * A builder for {@link OidcIdToken}s
+	 * A builder for {@link OidcIdToken}s.
 	 *
 	 * @author Josh Cummings
 	 * @since 5.3
@@ -104,7 +104,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		}
 
 		/**
-		 * Use this token value in the resulting {@link OidcIdToken}
+		 * Use this token value in the resulting {@link OidcIdToken}.
 		 * @param tokenValue The token value to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -114,7 +114,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		}
 
 		/**
-		 * Use this claim in the resulting {@link OidcIdToken}
+		 * Use this claim in the resulting {@link OidcIdToken}.
 		 * @param name The claim name
 		 * @param value The claim value
 		 * @return the {@link Builder} for further configurations
@@ -136,7 +136,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		}
 
 		/**
-		 * Use this access token hash in the resulting {@link OidcIdToken}
+		 * Use this access token hash in the resulting {@link OidcIdToken}.
 		 * @param accessTokenHash The access token hash to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -145,7 +145,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		}
 
 		/**
-		 * Use this audience in the resulting {@link OidcIdToken}
+		 * Use this audience in the resulting {@link OidcIdToken}.
 		 * @param audience The audience(s) to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -154,7 +154,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		}
 
 		/**
-		 * Use this authentication {@link Instant} in the resulting {@link OidcIdToken}
+		 * Use this authentication {@link Instant} in the resulting {@link OidcIdToken}.
 		 * @param authenticatedAt The authentication {@link Instant} to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -164,7 +164,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 
 		/**
 		 * Use this authentication context class reference in the resulting
-		 * {@link OidcIdToken}
+		 * {@link OidcIdToken}.
 		 * @param authenticationContextClass The authentication context class reference to
 		 * use
 		 * @return the {@link Builder} for further configurations
@@ -174,7 +174,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		}
 
 		/**
-		 * Use these authentication methods in the resulting {@link OidcIdToken}
+		 * Use these authentication methods in the resulting {@link OidcIdToken}.
 		 * @param authenticationMethods The authentication methods to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -183,7 +183,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		}
 
 		/**
-		 * Use this authorization code hash in the resulting {@link OidcIdToken}
+		 * Use this authorization code hash in the resulting {@link OidcIdToken}.
 		 * @param authorizationCodeHash The authorization code hash to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -192,7 +192,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		}
 
 		/**
-		 * Use this authorized party in the resulting {@link OidcIdToken}
+		 * Use this authorized party in the resulting {@link OidcIdToken}.
 		 * @param authorizedParty The authorized party to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -201,7 +201,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		}
 
 		/**
-		 * Use this expiration in the resulting {@link OidcIdToken}
+		 * Use this expiration in the resulting {@link OidcIdToken}.
 		 * @param expiresAt The expiration to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -210,7 +210,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		}
 
 		/**
-		 * Use this issued-at timestamp in the resulting {@link OidcIdToken}
+		 * Use this issued-at timestamp in the resulting {@link OidcIdToken}.
 		 * @param issuedAt The issued-at timestamp to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -219,7 +219,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		}
 
 		/**
-		 * Use this issuer in the resulting {@link OidcIdToken}
+		 * Use this issuer in the resulting {@link OidcIdToken}.
 		 * @param issuer The issuer to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -228,7 +228,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		}
 
 		/**
-		 * Use this nonce in the resulting {@link OidcIdToken}
+		 * Use this nonce in the resulting {@link OidcIdToken}.
 		 * @param nonce The nonce to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -237,7 +237,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		}
 
 		/**
-		 * Use this subject in the resulting {@link OidcIdToken}
+		 * Use this subject in the resulting {@link OidcIdToken}.
 		 * @param subject The subject to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -246,7 +246,7 @@ public class OidcIdToken extends AbstractOAuth2Token implements IdTokenClaimAcce
 		}
 
 		/**
-		 * Build the {@link OidcIdToken}
+		 * Build the {@link OidcIdToken}.
 		 * @return The constructed {@link OidcIdToken}
 		 */
 		public OidcIdToken build() {

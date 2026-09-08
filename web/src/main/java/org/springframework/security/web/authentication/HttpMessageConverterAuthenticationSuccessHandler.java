@@ -35,7 +35,7 @@ import org.springframework.util.Assert;
 
 /**
  * An {@link AuthenticationSuccessHandler} that writes a JSON response with the redirect
- * URL and an authenticated status similar to:
+ * URL and an authenticated status similar to:.
  *
  * <code>
  *     {

@@ -80,7 +80,7 @@ public class WebAuthnAuthentication extends AbstractAuthenticationToken {
 	}
 
 	/**
-	 * A builder of {@link WebAuthnAuthentication} instances
+	 * A builder of {@link WebAuthnAuthentication} instances.
 	 *
 	 * @since 7.0
 	 */

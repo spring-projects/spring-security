@@ -58,7 +58,7 @@ public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>>
 	private String computedKey;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @see HttpSecurity#anonymous(Customizer)
 	 */
 	public AnonymousConfigurer() {
@@ -78,7 +78,7 @@ public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Sets the principal for {@link Authentication} objects of anonymous users
+	 * Sets the principal for {@link Authentication} objects of anonymous users.
 	 * @param principal used for the {@link Authentication} object of anonymous users
 	 * @return the {@link AnonymousConfigurer} for further customization of anonymous
 	 * authentication
@@ -90,7 +90,7 @@ public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Sets the {@link org.springframework.security.core.Authentication#getAuthorities()}
-	 * for anonymous users
+	 * for anonymous users.
 	 * @param authorities Sets the
 	 * {@link org.springframework.security.core.Authentication#getAuthorities()} for
 	 * anonymous users
@@ -104,7 +104,7 @@ public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Sets the {@link org.springframework.security.core.Authentication#getAuthorities()}
-	 * for anonymous users
+	 * for anonymous users.
 	 * @param authorities Sets the
 	 * {@link org.springframework.security.core.Authentication#getAuthorities()} for
 	 * anonymous users (i.e. "ROLE_ANONYMOUS")

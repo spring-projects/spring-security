@@ -23,7 +23,7 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.util.Assert;
 
 /**
- * Validates the "iss" claim in a {@link Jwt}, that is matches a configured value
+ * Validates the "iss" claim in a {@link Jwt}, that is matches a configured value.
  *
  * @author Josh Cummings
  * @since 5.1
@@ -33,7 +33,7 @@ public final class JwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
 	private final JwtClaimValidator<Object> validator;
 
 	/**
-	 * Constructs a {@link JwtIssuerValidator} using the provided parameters
+	 * Constructs a {@link JwtIssuerValidator} using the provided parameters.
 	 * @param issuer - The issuer that each {@link Jwt} should have.
 	 */
 	public JwtIssuerValidator(String issuer) {

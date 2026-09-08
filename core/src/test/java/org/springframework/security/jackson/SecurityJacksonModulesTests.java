@@ -19,6 +19,7 @@ package org.springframework.security.jackson;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JacksonModule;
 import tools.jackson.databind.json.JsonMapper;
@@ -72,7 +73,7 @@ public class SecurityJacksonModulesTests {
 		assertThat(deserializedUer).isEqualTo(user);
 	}
 
-	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+	@JsonTypeInfo(use = Id.CLASS)
 	private static class TestGrantedAuthority implements GrantedAuthority {
 
 		@Override

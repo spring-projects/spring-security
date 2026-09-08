@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Symmetric and asymmetric encryption support.
+ */
 @NullMarked
 package org.springframework.security.crypto.encrypt;
 

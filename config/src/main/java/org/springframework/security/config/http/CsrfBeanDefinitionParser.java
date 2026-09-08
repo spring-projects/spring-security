@@ -128,7 +128,7 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	/**
-	 * Populate the AccessDeniedHandler on the {@link CsrfFilter}
+	 * Populate the AccessDeniedHandler on the {@link CsrfFilter}.
 	 * @param invalidSessionStrategy the {@link InvalidSessionStrategy} to use
 	 * @param defaultDeniedHandler the {@link AccessDeniedHandler} to use
 	 */

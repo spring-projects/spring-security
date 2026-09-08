@@ -39,6 +39,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 /**
+ * Tests for the {@code ldap-user-service} bean definition parser.
+ *
  * @author Luke Taylor
  * @author Rob Winch
  * @author Eddú Meléndez

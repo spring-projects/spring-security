@@ -25,7 +25,7 @@ import org.springframework.security.authorization.event.AuthorizationGrantedEven
 import org.springframework.security.core.Authentication;
 
 /**
- * A contract for publishing authorization events
+ * A contract for publishing authorization events.
  *
  * @author Parikshit Dutta
  * @author Josh Cummings

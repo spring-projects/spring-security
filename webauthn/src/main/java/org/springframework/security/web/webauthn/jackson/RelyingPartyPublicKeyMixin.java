@@ -23,7 +23,7 @@ import org.springframework.security.web.webauthn.api.PublicKeyCredential;
 import org.springframework.security.web.webauthn.management.RelyingPartyPublicKey;
 
 /**
- * Jackson mixin for {@link RelyingPartyPublicKey}
+ * Jackson mixin for {@link RelyingPartyPublicKey}.
  *
  * @author Rob Winch
  * @since 6.4

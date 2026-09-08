@@ -27,6 +27,9 @@ import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.ConditionalGenericConverter;
 
 /**
+ * A {@link ConditionalGenericConverter} that converts a {@code Map} to a
+ * {@code Map<String, Object>}.
+ *
  * @author Joe Grandja
  * @since 5.2
  */

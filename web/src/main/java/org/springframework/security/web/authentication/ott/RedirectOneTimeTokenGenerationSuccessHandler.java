@@ -28,7 +28,7 @@ import org.springframework.util.Assert;
 
 /**
  * A {@link OneTimeTokenGenerationSuccessHandler} that performs a redirect to a specific
- * location
+ * location.
  *
  * @author Marcus da Coregio
  * @since 6.4

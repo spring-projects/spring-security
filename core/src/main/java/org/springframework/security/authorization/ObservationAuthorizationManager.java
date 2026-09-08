@@ -36,7 +36,7 @@ import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.util.Assert;
 
 /**
- * An {@link AuthorizationManager} that observes the authorization
+ * An {@link AuthorizationManager} that observes the authorization.
  *
  * @author Josh Cummings
  * @since 6.0
@@ -90,7 +90,7 @@ public final class ObservationAuthorizationManager<T>
 	}
 
 	/**
-	 * Use the provided convention for reporting observation data
+	 * Use the provided convention for reporting observation data.
 	 * @param convention The provided convention
 	 *
 	 * @since 6.1

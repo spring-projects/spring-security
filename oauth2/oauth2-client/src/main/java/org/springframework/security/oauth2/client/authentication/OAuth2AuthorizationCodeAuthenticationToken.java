@@ -151,7 +151,7 @@ public class OAuth2AuthorizationCodeAuthenticationToken extends AbstractAuthenti
 	}
 
 	/**
-	 * Returns the additional parameters
+	 * Returns the additional parameters.
 	 * @return the additional parameters
 	 */
 	public Map<String, Object> getAdditionalParameters() {

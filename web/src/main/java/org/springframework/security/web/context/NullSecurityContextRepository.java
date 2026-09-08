@@ -26,6 +26,9 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
 
 /**
+ * A {@link SecurityContextRepository} that never persists or loads a
+ * {@link SecurityContext}.
+ *
  * @author Luke Taylor
  * @since 3.1
  */
@@ -40,6 +43,7 @@ public final class NullSecurityContextRepository implements SecurityContextRepos
 	}
 
 	/**
+	 * Returns an empty {@link SecurityContext}.
 	 * @deprecated please see {@link SecurityContextRepository#loadContext}
 	 */
 	@Override

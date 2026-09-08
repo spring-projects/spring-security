@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
 
 /**
- * Jackson serializer for {@link AuthenticatorTransport}
+ * Jackson serializer for {@link AuthenticatorTransport}.
  *
  * @author Rob Winch
  * @since 6.4

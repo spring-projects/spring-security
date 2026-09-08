@@ -227,7 +227,7 @@ public final class RestClientOpaqueTokenIntrospector implements OpaqueTokenIntro
 
 	/**
 	 * Creates a {@code RestClientOpaqueTokenIntrospector.Builder} with the given
-	 * introspection endpoint uri
+	 * introspection endpoint uri.
 	 * @param introspectionUri The introspection endpoint uri
 	 * @return the {@link RestClientOpaqueTokenIntrospector.Builder}
 	 */
@@ -320,7 +320,7 @@ public final class RestClientOpaqueTokenIntrospector implements OpaqueTokenIntro
 		}
 
 		/**
-		 * Creates a {@code RestClientOpaqueTokenIntrospector}
+		 * Creates a {@code RestClientOpaqueTokenIntrospector}.
 		 * @return the {@link RestClientOpaqueTokenIntrospector}
 		 */
 		public RestClientOpaqueTokenIntrospector build() {

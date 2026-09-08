@@ -23,6 +23,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.Nullable;
 
 /**
+ * A {@link DeferredCsrfToken} that lazily loads (and generates and saves, if missing) the
+ * {@link CsrfToken} from a {@link CsrfTokenRepository}.
+ *
  * @author Rob Winch
  * @author Steve Riesenberg
  * @since 5.8

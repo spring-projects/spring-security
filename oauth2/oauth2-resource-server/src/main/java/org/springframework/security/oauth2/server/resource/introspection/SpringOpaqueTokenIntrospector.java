@@ -80,7 +80,7 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	private Converter<OAuth2TokenIntrospectionClaimAccessor, ? extends OAuth2AuthenticatedPrincipal> authenticationConverter = this::defaultAuthenticationConverter;
 
 	/**
-	 * Creates a {@code OpaqueTokenAuthenticationProvider} with the provided parameters
+	 * Creates a {@code OpaqueTokenAuthenticationProvider} with the provided parameters.
 	 * @param introspectionUri The introspection endpoint uri
 	 * @param clientId The URL-encoded client id authorized to introspect
 	 * @param clientSecret The URL-encoded client secret authorized to introspect
@@ -281,7 +281,7 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 
 	/**
 	 * Creates a {@code SpringOpaqueTokenIntrospector.Builder} with the given
-	 * introspection endpoint uri
+	 * introspection endpoint uri.
 	 * @param introspectionUri The introspection endpoint uri
 	 * @return the {@link SpringOpaqueTokenIntrospector.Builder}
 	 * @since 6.5
@@ -378,7 +378,7 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		}
 
 		/**
-		 * Creates a {@code SpringOpaqueTokenIntrospector}
+		 * Creates a {@code SpringOpaqueTokenIntrospector}.
 		 * @return the {@link SpringOpaqueTokenIntrospector}
 		 * @since 6.5
 		 */

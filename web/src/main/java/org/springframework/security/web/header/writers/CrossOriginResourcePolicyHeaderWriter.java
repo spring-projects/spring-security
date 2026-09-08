@@ -24,7 +24,7 @@ import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.util.Assert;
 
 /**
- * Inserts Cross-Origin-Resource-Policy header
+ * Inserts Cross-Origin-Resource-Policy header.
  *
  * @author Marcus Da Coregio
  * @since 5.7
@@ -40,7 +40,7 @@ public final class CrossOriginResourcePolicyHeaderWriter implements HeaderWriter
 
 	/**
 	 * Sets the {@link CrossOriginResourcePolicy} value to be used in the
-	 * {@code Cross-Origin-Resource-Policy} header
+	 * {@code Cross-Origin-Resource-Policy} header.
 	 * @param resourcePolicy the {@link CrossOriginResourcePolicy} to use
 	 */
 	public void setPolicy(CrossOriginResourcePolicy resourcePolicy) {

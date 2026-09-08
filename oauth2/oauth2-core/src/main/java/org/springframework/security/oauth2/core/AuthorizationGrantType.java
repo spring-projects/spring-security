@@ -49,18 +49,21 @@ public final class AuthorizationGrantType implements Serializable {
 	public static final AuthorizationGrantType CLIENT_CREDENTIALS = new AuthorizationGrantType("client_credentials");
 
 	/**
+	 * The jwt-bearer authorization grant type.
 	 * @since 5.5
 	 */
 	public static final AuthorizationGrantType JWT_BEARER = new AuthorizationGrantType(
 			"urn:ietf:params:oauth:grant-type:jwt-bearer");
 
 	/**
+	 * The device_code authorization grant type.
 	 * @since 6.1
 	 */
 	public static final AuthorizationGrantType DEVICE_CODE = new AuthorizationGrantType(
 			"urn:ietf:params:oauth:grant-type:device_code");
 
 	/**
+	 * The token-exchange authorization grant type.
 	 * @since 6.3
 	 */
 	public static final AuthorizationGrantType TOKEN_EXCHANGE = new AuthorizationGrantType(

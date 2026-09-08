@@ -152,7 +152,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 	}
 
 	/**
-	 * Checks the filter list for possible errors and logs them
+	 * Checks the filter list for possible errors and logs them.
 	 */
 	private void checkFilterStack(List<Filter> filters) {
 		checkForDuplicates(SecurityContextPersistenceFilter.class, filters);

@@ -22,7 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 
 /**
- * A holder of the parameters needed to invoke {@link Saml2LogoutRequestValidator}
+ * A holder of the parameters needed to invoke {@link Saml2LogoutRequestValidator}.
  *
  * @author Josh Cummings
  * @since 5.6
@@ -36,7 +36,7 @@ public class Saml2LogoutRequestValidatorParameters {
 	private final @Nullable Authentication authentication;
 
 	/**
-	 * Construct a {@link Saml2LogoutRequestValidatorParameters}
+	 * Construct a {@link Saml2LogoutRequestValidatorParameters}.
 	 * @param request the SAML 2.0 Logout Request received from the asserting party
 	 * @param registration the associated {@link RelyingPartyRegistration}
 	 * @param authentication the current user
@@ -57,7 +57,7 @@ public class Saml2LogoutRequestValidatorParameters {
 	}
 
 	/**
-	 * The {@link RelyingPartyRegistration} representing this relying party
+	 * The {@link RelyingPartyRegistration} representing this relying party.
 	 * @return the relying party
 	 */
 	public RelyingPartyRegistration getRelyingPartyRegistration() {
@@ -65,7 +65,7 @@ public class Saml2LogoutRequestValidatorParameters {
 	}
 
 	/**
-	 * The current {@link Authentication}
+	 * The current {@link Authentication}.
 	 * @return the authenticated user
 	 */
 	public @Nullable Authentication getAuthentication() {
