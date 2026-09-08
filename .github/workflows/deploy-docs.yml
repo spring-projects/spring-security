@@ -17,11 +17,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v7
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         fetch-depth: 5
     - name: Set Up Gradle
-      uses: spring-io/spring-gradle-build-action@v2
+      uses: spring-io/spring-gradle-build-action@c8668747d7c264864c8c7f7026d0d277d14a78dc # v2.0.6
       with:
         # Use JDK 17 since 6.5.x Kotlin version does not support JDK 25 and thus will fail
         java-version: '17'
@@ -37,14 +37,14 @@ jobs:
     - name: Copy the cache to be included in the site
       run: cp -rf build/antora/inject-collector-cache-config-extension/.cache build/site/
     - name: Publish Docs
-      uses: spring-io/spring-doc-actions/rsync-antora-reference@v0.0.22
+      uses: spring-io/spring-doc-actions/rsync-antora-reference@415e2b11a766ba64799fffb5c97a4f7e17f677cf # v0.0.22
       with:
         docs-username: ${{ secrets.DOCS_USERNAME }}
         docs-host: ${{ secrets.DOCS_HOST }}
         docs-ssh-key: ${{ secrets.DOCS_SSH_KEY }}
         docs-ssh-host-key: ${{ secrets.DOCS_SSH_HOST_KEY }}
     - name: Bust Clouflare Cache
-      uses: spring-io/spring-doc-actions/bust-cloudflare-antora-cache@v0.0.22
+      uses: spring-io/spring-doc-actions/bust-cloudflare-antora-cache@415e2b11a766ba64799fffb5c97a4f7e17f677cf # v0.0.22
       with:
         context-root: spring-security
         cloudflare-zone-id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
