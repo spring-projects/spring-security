@@ -16,10 +16,6 @@
 
 package org.springframework.security.oauth2.jwt;
 
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -490,14 +486,18 @@ public class DPoPProofJwtDecoderFactoryTests {
 
 		String method = "GET";
 		String targetUri = "https://resource1";
-		RSAKey jwk1 = generateRsaJwk("kid-1");
-		RSAKey jwk2 = generateRsaJwk("kid-2");
-		RSAKey jwk3 = generateRsaJwk("kid-3");
-		RSAKey jwk4 = generateRsaJwk("kid-4");
-		String proof1 = createDPoPProof(createJwtEncoder(jwk1), method, targetUri, createJwsHeader(jwk1), "jti-1");
-		String proof2 = createDPoPProof(createJwtEncoder(jwk2), method, targetUri, createJwsHeader(jwk2), "jti-2");
-		String proof3 = createDPoPProof(createJwtEncoder(jwk3), method, targetUri, createJwsHeader(jwk3), "jti-3");
-		String proof4 = createDPoPProof(createJwtEncoder(jwk4), method, targetUri, createJwsHeader(jwk4), "jti-4");
+		RSAKey jwk1 = TestJwks.generateRsa().keyID("kid-1").build();
+		RSAKey jwk2 = TestJwks.generateRsa().keyID("kid-2").build();
+		RSAKey jwk3 = TestJwks.generateRsa().keyID("kid-3").build();
+		RSAKey jwk4 = TestJwks.generateRsa().keyID("kid-4").build();
+		String proof1 = createJwt(createJwtEncoder(jwk1), createJwsHeader(jwk1),
+				createJwtClaims(method, targetUri, "jti-1"));
+		String proof2 = createJwt(createJwtEncoder(jwk2), createJwsHeader(jwk2),
+				createJwtClaims(method, targetUri, "jti-2"));
+		String proof3 = createJwt(createJwtEncoder(jwk3), createJwsHeader(jwk3),
+				createJwtClaims(method, targetUri, "jti-3"));
+		String proof4 = createJwt(createJwtEncoder(jwk4), createJwsHeader(jwk4),
+				createJwtClaims(method, targetUri, "jti-4"));
 
 		// @formatter:off
 		DPoPProofContext dPoPProofContext = DPoPProofContext.withDPoPProof(proof1)
@@ -505,6 +505,7 @@ public class DPoPProofJwtDecoderFactoryTests {
 				.targetUri(targetUri)
 				.build();
 		// @formatter:on
+
 		JwtDecoder jwtDecoder = this.jwtDecoderFactory.createDecoder(dPoPProofContext);
 
 		// Two proofs are accepted and cached; the cache is not yet full
@@ -524,18 +525,7 @@ public class DPoPProofJwtDecoderFactoryTests {
 			.withMessageContaining("jti claim is invalid");
 	}
 
-	private RSAKey generateRsaJwk(String keyId) throws Exception {
-		KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-		keyPairGenerator.initialize(2048);
-		KeyPair keyPair = keyPairGenerator.generateKeyPair();
-		// @formatter:off
-		return TestJwks.jwk((RSAPublicKey) keyPair.getPublic(), (RSAPrivateKey) keyPair.getPrivate())
-				.keyID(keyId)
-				.build();
-		// @formatter:on
-	}
-
-	private JwsHeader createJwsHeader(RSAKey rsaJwk) {
+	private static JwsHeader createJwsHeader(RSAKey rsaJwk) {
 		// @formatter:off
 		return JwsHeader.with(SignatureAlgorithm.RS256)
 				.type("dpop+jwt")
@@ -544,22 +534,24 @@ public class DPoPProofJwtDecoderFactoryTests {
 		// @formatter:on
 	}
 
-	private JwtEncoder createJwtEncoder(RSAKey rsaJwk) throws Exception {
-		JWKSource<SecurityContext> jwkSource = mock(JWKSource.class);
-		given(jwkSource.get(any(), any())).willReturn(Collections.singletonList(rsaJwk));
-		return new NimbusJwtEncoder(jwkSource);
-	}
-
-	private String createDPoPProof(JwtEncoder jwtEncoder, String method, String targetUri, JwsHeader jwsHeader,
-			String jti) {
+	private static JwtClaimsSet createJwtClaims(String method, String targetUri, String jti) {
 		// @formatter:off
-		JwtClaimsSet claims = JwtClaimsSet.builder()
+		return JwtClaimsSet.builder()
 				.issuedAt(Instant.now())
 				.claim("htm", method)
 				.claim("htu", targetUri)
 				.id(jti)
 				.build();
 		// @formatter:on
+	}
+
+	private static JwtEncoder createJwtEncoder(RSAKey rsaJwk) throws Exception {
+		JWKSource<SecurityContext> jwkSource = mock(JWKSource.class);
+		given(jwkSource.get(any(), any())).willReturn(Collections.singletonList(rsaJwk));
+		return new NimbusJwtEncoder(jwkSource);
+	}
+
+	private static String createJwt(JwtEncoder jwtEncoder, JwsHeader jwsHeader, JwtClaimsSet claims) {
 		return jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
 	}
 
