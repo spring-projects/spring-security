@@ -96,6 +96,24 @@ public class WebSessionServerRequestCacheTests {
 	}
 
 	@Test
+	public void saveRequestGetRequestWhenManifestJsonThenNotFound() {
+		MockServerWebExchange exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("/manifest.json").accept(MediaType.TEXT_HTML));
+		this.cache.saveRequest(exchange).block();
+		URI saved = this.cache.getRedirectUri(exchange).block();
+		assertThat(saved).isNull();
+	}
+
+	@Test
+	public void saveRequestGetRequestWhenManifestWebmanifestThenNotFound() {
+		MockServerWebExchange exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("/manifest.webmanifest").accept(MediaType.TEXT_HTML));
+		this.cache.saveRequest(exchange).block();
+		URI saved = this.cache.getRedirectUri(exchange).block();
+		assertThat(saved).isNull();
+	}
+
+	@Test
 	public void saveRequestGetRequestWhenPostThenNotFound() {
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.post("/secured/"));
 		this.cache.saveRequest(exchange).block();

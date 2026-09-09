@@ -182,7 +182,10 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
 			// apple-touch-icon-precomposed.png,
 			// and sized variants (e.g. apple-touch-icon-152x152.png) even without a
 			// matching <link> tag in the page
-			"/apple-touch-icon*.png" };
+			"/apple-touch-icon*.png",
+			// Chromium browsers fetch the web app manifest in the background to
+			// evaluate PWA installability
+			"/manifest.json", "/manifest.webmanifest" };
 
 	private RequestMatcher getIgnoredBackgroundRequestMatcher() {
 		List<RequestMatcher> matchers = new ArrayList<>();
