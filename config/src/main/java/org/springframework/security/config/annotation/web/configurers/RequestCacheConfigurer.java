@@ -185,7 +185,10 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
 			"/apple-touch-icon*.png",
 			// Chromium browsers fetch the web app manifest in the background to
 			// evaluate PWA installability
-			"/manifest.json", "/manifest.webmanifest" };
+			"/manifest.json", "/manifest.webmanifest",
+			// Legacy IE11/Edge fetch browserconfig.xml in the background to
+			// configure pinned-site tiles
+			"/browserconfig.xml" };
 
 	private RequestMatcher getIgnoredBackgroundRequestMatcher() {
 		List<RequestMatcher> matchers = new ArrayList<>();

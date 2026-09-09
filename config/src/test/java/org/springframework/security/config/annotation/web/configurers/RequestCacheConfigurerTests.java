@@ -186,6 +186,20 @@ public class RequestCacheConfigurerTests {
 		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
 	}
 
+	@Test
+	public void getWhenBookmarkedUrlIsBrowserConfigXmlThenPostAuthenticationRedirectsToRoot() throws Exception {
+		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/browserconfig.xml"))
+				.andExpect(redirectedUrl("/login"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
+		// ignores browserconfig.xml
+		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
+	}
+
 	// SEC-2321
 	@Test
 	public void getWhenBookmarkedRequestIsApplicationJsonThenPostAuthenticationRedirectsToRoot() throws Exception {
