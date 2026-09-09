@@ -114,6 +114,106 @@ public class RequestCacheConfigurerTests {
 		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
 	}
 
+	@Test
+	public void getWhenBookmarkedUrlIsAppleTouchIconThenPostAuthenticationRedirectsToRoot() throws Exception {
+		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/apple-touch-icon.png"))
+				.andExpect(redirectedUrl("/login"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
+		// ignores apple-touch-icon.png
+		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
+	}
+
+	@Test
+	public void getWhenBookmarkedUrlIsAppleTouchIconPrecomposedThenPostAuthenticationRedirectsToRoot()
+			throws Exception {
+		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/apple-touch-icon-precomposed.png"))
+				.andExpect(redirectedUrl("/login"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
+		// ignores apple-touch-icon-precomposed.png
+		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
+	}
+
+	@Test
+	public void getWhenBookmarkedUrlIsAppleTouchIconSizedPrecomposedThenPostAuthenticationRedirectsToRoot()
+			throws Exception {
+		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/apple-touch-icon-152x152-precomposed.png"))
+				.andExpect(redirectedUrl("/login"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
+		// ignores apple-touch-icon-152x152-precomposed.png
+		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
+	}
+
+	@Test
+	public void getWhenBookmarkedUrlIsManifestJsonThenPostAuthenticationRedirectsToRoot() throws Exception {
+		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/manifest.json"))
+				.andExpect(redirectedUrl("/login"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
+		// ignores manifest.json
+		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
+	}
+
+	@Test
+	public void getWhenBookmarkedUrlIsManifestWebmanifestThenPostAuthenticationRedirectsToRoot() throws Exception {
+		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/manifest.webmanifest"))
+				.andExpect(redirectedUrl("/login"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
+		// ignores manifest.webmanifest
+		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
+	}
+
+	@Test
+	public void getWhenBookmarkedUrlIsBrowserConfigXmlThenPostAuthenticationRedirectsToRoot() throws Exception {
+		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/browserconfig.xml"))
+				.andExpect(redirectedUrl("/login"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
+		// ignores browserconfig.xml
+		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
+	}
+
+	@Test
+	public void getWhenBookmarkedUrlIsChromeDevtoolsJsonThenPostAuthenticationRedirectsToRoot() throws Exception {
+		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/.well-known/appspecific/com.chrome.devtools.json"))
+				.andExpect(redirectedUrl("/login"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
+		// ignores /.well-known/appspecific/com.chrome.devtools.json
+		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
+	}
+
 	// SEC-2321
 	@Test
 	public void getWhenBookmarkedRequestIsApplicationJsonThenPostAuthenticationRedirectsToRoot() throws Exception {
