@@ -200,6 +200,20 @@ public class RequestCacheConfigurerTests {
 		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
 	}
 
+	@Test
+	public void getWhenBookmarkedUrlIsChromeDevtoolsJsonThenPostAuthenticationRedirectsToRoot() throws Exception {
+		this.spring.register(RequestCacheDefaultsConfig.class, DefaultSecurityConfig.class).autowire();
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/.well-known/appspecific/com.chrome.devtools.json"))
+				.andExpect(redirectedUrl("/login"))
+				.andReturn()
+				.getRequest()
+				.getSession();
+		// @formatter:on
+		// ignores /.well-known/appspecific/com.chrome.devtools.json
+		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("/"));
+	}
+
 	// SEC-2321
 	@Test
 	public void getWhenBookmarkedRequestIsApplicationJsonThenPostAuthenticationRedirectsToRoot() throws Exception {

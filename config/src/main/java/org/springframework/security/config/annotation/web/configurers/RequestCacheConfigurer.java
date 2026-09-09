@@ -188,7 +188,10 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
 			"/manifest.json", "/manifest.webmanifest",
 			// Legacy IE11/Edge fetch browserconfig.xml in the background to
 			// configure pinned-site tiles
-			"/browserconfig.xml" };
+			"/browserconfig.xml",
+			// Chrome DevTools itself (not the page, not the user) requests this to
+			// discover an Automatic Workspace Folder mapping for local source editing
+			"/.well-known/appspecific/com.chrome.devtools.json" };
 
 	private RequestMatcher getIgnoredBackgroundRequestMatcher() {
 		List<RequestMatcher> matchers = new ArrayList<>();

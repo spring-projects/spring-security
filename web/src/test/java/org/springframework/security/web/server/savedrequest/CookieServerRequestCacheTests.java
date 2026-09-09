@@ -132,6 +132,16 @@ public class CookieServerRequestCacheTests {
 	}
 
 	@Test
+	public void saveRequestWhenGetRequestChromeDevtoolsJsonThenNoCookie() {
+		MockServerWebExchange exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("/.well-known/appspecific/com.chrome.devtools.json")
+				.accept(MediaType.TEXT_HTML));
+		this.cache.saveRequest(exchange).block();
+		MultiValueMap<String, ResponseCookie> cookies = exchange.getResponse().getCookies();
+		assertThat(cookies).isEmpty();
+	}
+
+	@Test
 	public void saveRequestWhenPostRequestThenNoCookie() {
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.post("/secured/"));
 		this.cache.saveRequest(exchange).block();
