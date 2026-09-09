@@ -158,13 +158,25 @@ public class CookieServerRequestCache implements ServerRequestCache {
 				StandardCharsets.UTF_8);
 	}
 
+	/**
+	 * Path patterns for requests that browsers request automatically in the background
+	 * (e.g. to display an icon), and that should therefore never be saved as the URL to
+	 * redirect to after authentication succeeds.
+	 */
+	private static final String[] IGNORED_BACKGROUND_REQUEST_PATTERNS = { "/favicon.*",
+			// Safari/WebKit request apple-touch-icon.png,
+			// apple-touch-icon-precomposed.png,
+			// and sized variants (e.g. apple-touch-icon-152x152.png) even without a
+			// matching <link> tag in the page
+			"/apple-touch-icon*.png" };
+
 	private static ServerWebExchangeMatcher createDefaultRequestMatcher() {
 		ServerWebExchangeMatcher get = ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/**");
-		ServerWebExchangeMatcher notFavicon = new NegatedServerWebExchangeMatcher(
-				ServerWebExchangeMatchers.pathMatchers("/favicon.*"));
+		ServerWebExchangeMatcher notIgnoredBackgroundRequest = new NegatedServerWebExchangeMatcher(
+				ServerWebExchangeMatchers.pathMatchers(IGNORED_BACKGROUND_REQUEST_PATTERNS));
 		MediaTypeServerWebExchangeMatcher html = new MediaTypeServerWebExchangeMatcher(MediaType.TEXT_HTML);
 		html.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
-		return new AndServerWebExchangeMatcher(get, notFavicon, html);
+		return new AndServerWebExchangeMatcher(get, notIgnoredBackgroundRequest, html);
 	}
 
 }

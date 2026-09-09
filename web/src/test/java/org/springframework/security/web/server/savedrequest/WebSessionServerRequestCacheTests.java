@@ -69,6 +69,33 @@ public class WebSessionServerRequestCacheTests {
 	}
 
 	@Test
+	public void saveRequestGetRequestWhenAppleTouchIconThenNotFound() {
+		MockServerWebExchange exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("/apple-touch-icon.png").accept(MediaType.TEXT_HTML));
+		this.cache.saveRequest(exchange).block();
+		URI saved = this.cache.getRedirectUri(exchange).block();
+		assertThat(saved).isNull();
+	}
+
+	@Test
+	public void saveRequestGetRequestWhenAppleTouchIconPrecomposedThenNotFound() {
+		MockServerWebExchange exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("/apple-touch-icon-precomposed.png").accept(MediaType.TEXT_HTML));
+		this.cache.saveRequest(exchange).block();
+		URI saved = this.cache.getRedirectUri(exchange).block();
+		assertThat(saved).isNull();
+	}
+
+	@Test
+	public void saveRequestGetRequestWhenAppleTouchIconSizedPrecomposedThenNotFound() {
+		MockServerWebExchange exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("/apple-touch-icon-152x152-precomposed.png").accept(MediaType.TEXT_HTML));
+		this.cache.saveRequest(exchange).block();
+		URI saved = this.cache.getRedirectUri(exchange).block();
+		assertThat(saved).isNull();
+	}
+
+	@Test
 	public void saveRequestGetRequestWhenPostThenNotFound() {
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.post("/secured/"));
 		this.cache.saveRequest(exchange).block();
