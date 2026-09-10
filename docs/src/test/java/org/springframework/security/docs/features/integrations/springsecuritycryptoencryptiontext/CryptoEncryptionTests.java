@@ -14,33 +14,14 @@
  * limitations under the License.
  */
 
-package org.springframework.security.docs.features.integrations.cryptography;
+package org.springframework.security.docs.features.integrations.springsecuritycryptoencryptiontext;
 
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.crypto.encrypt.AesCbcBytesEncryptor;
-import org.springframework.security.crypto.encrypt.AesGcmBytesEncryptor;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 class CryptoEncryptionTests {
-
-	// tag::bytes-encryptor[]
-	@Test
-	void bytesEncryptor() {
-		String salt = KeyGenerators.string().generateKey();
-		AesGcmBytesEncryptor.withPassword("password", salt).build();
-	}
-	// end::bytes-encryptor[]
-
-	// tag::generate-salt[]
-	@Test
-	void generateSalt() {
-		String salt = KeyGenerators.string().generateKey(); // generates a random 8-byte salt that is then hex-encoded
-		assertThat(salt).isNotEmpty();
-	}
-	// end::generate-salt[]
 
 	// tag::aes-cbc-bytes-encryptor[]
 	@Test

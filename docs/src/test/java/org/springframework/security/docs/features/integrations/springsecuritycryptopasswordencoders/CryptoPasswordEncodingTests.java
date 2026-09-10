@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.docs.features.integrations.cryptography;
+package org.springframework.security.docs.features.integrations.springsecuritycryptopasswordencoders;
 
 import org.junit.jupiter.api.Test;
 

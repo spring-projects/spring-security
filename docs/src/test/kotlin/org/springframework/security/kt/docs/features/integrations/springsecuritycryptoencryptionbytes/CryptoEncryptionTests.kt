@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.kt.docs.features.integrations.cryptography
+package org.springframework.security.kt.docs.features.integrations.springsecuritycryptoencryptionbytes
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.kt.docs.features.integrations.cryptography
+package org.springframework.security.kt.docs.features.integrations.springsecuritycryptopasswordencoders
 
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.kt.docs.features.integrations.cryptography
+package org.springframework.security.kt.docs.features.integrations._byteskeygenerator
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -44,12 +44,5 @@ class CryptoKeyGeneratorTests {
         KeyGenerators.shared(16)
     }
     // end::bytes-key-generator-shared[]
-
-    // tag::string-key-generator[]
-    @Test
-    fun stringKeyGenerator() {
-        KeyGenerators.string()
-    }
-    // end::string-key-generator[]
 
 }
