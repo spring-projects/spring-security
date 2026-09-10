@@ -38,6 +38,7 @@ import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -158,6 +159,21 @@ public class RefreshTokenOAuth2AuthorizedClientProviderTests {
 				.build();
 		// @formatter:on
 		assertThat(this.authorizedClientProvider.authorize(authorizationContext)).isNull();
+	}
+
+	@Test
+	public void authorizeWhenAuthorizedAndAccessTokenNotExpiredThenDoesNotInitializeDefaultAccessTokenResponseClient() {
+		RefreshTokenOAuth2AuthorizedClientProvider authorizedClientProvider = new RefreshTokenOAuth2AuthorizedClientProvider();
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
+				this.principal.getName(), TestOAuth2AccessTokens.noScopes(), this.authorizedClient.getRefreshToken());
+		// @formatter:off
+		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
+				.withAuthorizedClient(authorizedClient)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
+		assertThat(authorizedClientProvider.authorize(authorizationContext)).isNull();
+		assertThat(ReflectionTestUtils.getField(authorizedClientProvider, "accessTokenResponseClient")).isNull();
 	}
 
 	// gh-7511

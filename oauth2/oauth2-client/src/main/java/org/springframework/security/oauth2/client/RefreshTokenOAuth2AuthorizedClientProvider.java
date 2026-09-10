@@ -50,7 +50,7 @@ import org.springframework.util.Assert;
 public final class RefreshTokenOAuth2AuthorizedClientProvider
 		implements OAuth2AuthorizedClientProvider, ApplicationEventPublisherAware {
 
-	private OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient = new RestClientRefreshTokenTokenResponseClient();
+	private @Nullable OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> accessTokenResponseClient;
 
 	private @Nullable ApplicationEventPublisher applicationEventPublisher;
 
@@ -114,12 +114,19 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider
 	private OAuth2AccessTokenResponse getTokenResponse(OAuth2AuthorizedClient authorizedClient,
 			OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest) {
 		try {
-			return this.accessTokenResponseClient.getTokenResponse(refreshTokenGrantRequest);
+			return getAccessTokenResponseClient().getTokenResponse(refreshTokenGrantRequest);
 		}
 		catch (OAuth2AuthorizationException ex) {
 			throw new ClientAuthorizationException(ex.getError(),
 					authorizedClient.getClientRegistration().getRegistrationId(), ex);
 		}
+	}
+
+	private OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> getAccessTokenResponseClient() {
+		if (this.accessTokenResponseClient == null) {
+			this.accessTokenResponseClient = new RestClientRefreshTokenTokenResponseClient();
+		}
+		return this.accessTokenResponseClient;
 	}
 
 	private boolean hasTokenExpired(OAuth2Token token) {
