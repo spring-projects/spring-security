@@ -20,3 +20,7 @@ import chai from "chai";
 // By default, chai truncates at 40 characters, making it difficult to
 // compare e.g. error messages
 chai.config.truncateThreshold = 0;
+
+// Node defines `navigator` as a getter-only global, which the tests replace with
+// a stub. Redefine it as a writable property so that assignment works.
+Object.defineProperty(globalThis, "navigator", { value: undefined, writable: true, configurable: true });
