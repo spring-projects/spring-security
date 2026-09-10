@@ -247,7 +247,11 @@ public class AclImpl implements Acl, MutableAcl, AuditableAcl, OwnershipAcl {
 	@Override
 	public void setParent(@Nullable Acl newParent) {
 		this.aclAuthorizationStrategy.securityCheck(this, AclAuthorizationStrategy.CHANGE_GENERAL);
-		Assert.isTrue(newParent == null || !newParent.equals(this), "Cannot be the parent of yourself");
+		Acl parent = newParent;
+		while (parent != null) {
+			Assert.isTrue(parent != this, "Cannot create a circular parent relationship");
+			parent = parent.getParentAcl();
+		}
 		this.parentAcl = newParent;
 	}
 
