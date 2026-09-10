@@ -128,8 +128,6 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 
 	private boolean reportOnly;
 
-	private boolean isNonceBased;
-
 	/**
 	 * Creates a new instance. Default value: default-src 'self'
 	 */
@@ -162,7 +160,7 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 				: CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER;
 		if (!response.containsHeader(headerName)) {
 			String csp;
-			if (this.isNonceBased) {
+			if (this.policyDirectives.contains(NONCE_PLACEHOLDER)) {
 				ContentSecurityPolicyNonce nonce = (ContentSecurityPolicyNonce) request
 					.getAttribute(ContentSecurityPolicyNonce.class.getName());
 				Assert.state(nonce != null,
@@ -199,7 +197,6 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 	public void setPolicyDirectives(String policyDirectives) {
 		Assert.hasLength(policyDirectives, "policyDirectives cannot be null or empty");
 		this.policyDirectives = policyDirectives;
-		this.isNonceBased = policyDirectives.contains(NONCE_PLACEHOLDER);
 	}
 
 	/**
@@ -214,8 +211,7 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 	@Override
 	public String toString() {
 		return getClass().getName() + " [requestMatcher=" + this.requestMatcher + "; policyDirectives="
-				+ this.policyDirectives + "; reportOnly=" + this.reportOnly + "; isNonceBased=" + this.isNonceBased
-				+ "]";
+				+ this.policyDirectives + "; reportOnly=" + this.reportOnly + "]";
 	}
 
 }
