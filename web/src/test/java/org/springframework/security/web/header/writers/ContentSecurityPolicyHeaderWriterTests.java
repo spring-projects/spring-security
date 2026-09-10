@@ -21,13 +21,16 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.web.header.ContentSecurityPolicyNonce;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * @author Joe Grandja
  * @author Ankur Pathak
+ * @author Ziqin Wang
  */
 public class ContentSecurityPolicyHeaderWriterTests {
 
@@ -124,6 +127,24 @@ public class ContentSecurityPolicyHeaderWriterTests {
 		this.writer.setReportOnly(true);
 		this.writer.writeHeaders(this.request, this.response);
 		assertThat(this.response.getHeader(CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER)).isSameAs(value);
+	}
+
+	@Test
+	public void writeNonceBasedCspWhenNoncePresent() {
+		this.writer.setPolicyDirectives("script-src 'nonce-{nonce}'; style-src 'nonce-{nonce}'");
+		this.request.setAttribute(ContentSecurityPolicyNonce.class.getName(),
+				(ContentSecurityPolicyNonce) () -> "Test+Nonce+Value");
+		this.writer.writeHeaders(this.request, this.response);
+		assertThat(this.response.getHeader(CONTENT_SECURITY_POLICY_HEADER))
+			.isEqualTo("script-src 'nonce-Test+Nonce+Value'; style-src 'nonce-Test+Nonce+Value'");
+	}
+
+	@Test
+	public void writeNonceBasedCspWhenNonceUnsetThenThrows() {
+		this.writer.setPolicyDirectives("script-src 'nonce-{nonce}'");
+		assertThatIllegalStateException().isThrownBy(() -> this.writer.writeHeaders(this.request, this.response))
+			.withMessage("Failed to replace {nonce} placeholders since no nonce found as a request attribute "
+					+ ContentSecurityPolicyNonce.class.getName());
 	}
 
 }

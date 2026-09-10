@@ -36,6 +36,7 @@ import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -84,6 +85,16 @@ public class CompositeServerHttpHeadersWriterTests {
 		StepVerifier.create(result).expectComplete().verify();
 		verify(this.writer1).writeHttpHeaders(this.exchange);
 		verify(this.writer2).writeHttpHeaders(this.exchange);
+	}
+
+	@Test
+	void writeHttpHeadersWhenSomeWriterThrowsThenOthersStillWrite() {
+		given(this.writer1.writeHttpHeaders(this.exchange)).willReturn(Mono.error(new RuntimeException()));
+		given(this.writer2.writeHttpHeaders(this.exchange)).willReturn(Mono.empty());
+		Mono<Void> result = this.writer.writeHttpHeaders(this.exchange);
+		StepVerifier.create(result).expectError().verify();
+		then(this.writer1).should().writeHttpHeaders(this.exchange);
+		then(this.writer2).should().writeHttpHeaders(this.exchange);
 	}
 
 	@Test
