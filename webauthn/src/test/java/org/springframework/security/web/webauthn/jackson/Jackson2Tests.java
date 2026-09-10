@@ -63,6 +63,14 @@ class Jackson2Tests {
 	}
 
 	@Test
+	void readAuthenticatorTransportWhenUnknownThenPreservesValue() throws Exception {
+		AuthenticatorTransport transport = this.mapper.readValue("\"cable\"", AuthenticatorTransport.class);
+
+		assertThat(transport).isNotNull();
+		assertThat(transport.getValue()).isEqualTo("cable");
+	}
+
+	@Test
 	void readAuthenticatorAttachment() throws Exception {
 		AuthenticatorAttachment value = this.mapper.readValue("\"cross-platform\"", AuthenticatorAttachment.class);
 		assertThat(value).isEqualTo(AuthenticatorAttachment.CROSS_PLATFORM);
