@@ -17,6 +17,12 @@
 package org.springframework.security.oauth2.client;
 
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -40,9 +46,11 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -227,6 +235,60 @@ public class AuthorizedClientServiceOAuth2AuthorizedClientManagerTests {
 		verify(this.authorizationSuccessHandler).onAuthorizationSuccess(eq(this.authorizedClient), eq(this.principal),
 				any());
 		verify(this.authorizedClientService).saveAuthorizedClient(eq(this.authorizedClient), eq(this.principal));
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void authorizeWhenCalledConcurrentlyThenOnlyOneAuthorizationRequest() throws Exception {
+		given(this.clientRegistrationRepository.findByRegistrationId(eq(this.clientRegistration.getRegistrationId())))
+			.willReturn(this.clientRegistration);
+
+		AtomicReference<OAuth2AuthorizedClient> storedAuthorizedClient = new AtomicReference<>();
+
+		CountDownLatch authorizationStarted = new CountDownLatch(1);
+		CountDownLatch continueAuthorization = new CountDownLatch(1);
+
+		given(this.authorizedClientService.loadAuthorizedClient(eq(this.clientRegistration.getRegistrationId()),
+				eq(this.principal.getName())))
+			.willAnswer((invocation) -> storedAuthorizedClient.get());
+
+		given(this.authorizedClientProvider.authorize(any(OAuth2AuthorizationContext.class)))
+			.willAnswer((invocation) -> {
+				authorizationStarted.countDown();
+				continueAuthorization.await(5, TimeUnit.SECONDS);
+				return this.authorizedClient;
+			});
+
+		willAnswer((invocation) -> {
+			storedAuthorizedClient.set(this.authorizedClient);
+			return null;
+		}).given(this.authorizedClientService).saveAuthorizedClient(eq(this.authorizedClient), eq(this.principal));
+
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest
+			.withClientRegistrationId(this.clientRegistration.getRegistrationId())
+			.principal(this.principal)
+			.build();
+
+		ExecutorService executor = Executors.newFixedThreadPool(2);
+		try {
+			Future<OAuth2AuthorizedClient> first = executor
+				.submit(() -> this.authorizedClientManager.authorize(authorizeRequest));
+
+			assertThat(authorizationStarted.await(5, TimeUnit.SECONDS)).isTrue();
+
+			Future<OAuth2AuthorizedClient> second = executor
+				.submit(() -> this.authorizedClientManager.authorize(authorizeRequest));
+
+			continueAuthorization.countDown();
+
+			assertThat(first.get(5, TimeUnit.SECONDS)).isSameAs(this.authorizedClient);
+			assertThat(second.get(5, TimeUnit.SECONDS)).isSameAs(this.authorizedClient);
+		}
+		finally {
+			executor.shutdownNow();
+		}
+
+		verify(this.authorizedClientProvider, times(1)).authorize(any(OAuth2AuthorizationContext.class));
 	}
 
 	@SuppressWarnings("unchecked")
