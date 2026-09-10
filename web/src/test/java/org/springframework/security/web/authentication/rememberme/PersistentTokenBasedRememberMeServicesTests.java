@@ -130,6 +130,18 @@ public class PersistentTokenBasedRememberMeServicesTests {
 		this.services.logout(request, response, null);
 	}
 
+
+	@Test
+	public void logoutWhenAuthenticationIsNullAndRememberMeCookieIsPresentThenClearsUsersToken() {
+		this.services = create(new PersistentRememberMeToken("joe", "series", "token", new Date()));
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setCookies(new Cookie("mycookiename", this.services.encodeCookie(new String[] { "series", "token" })));
+
+		this.services.logout(request, new MockHttpServletResponse(), null);
+
+		assertThat(this.repo.getRemovedUsername()).isEqualTo("joe");
+	}
+
 	private PersistentTokenBasedRememberMeServices create(PersistentRememberMeToken token) {
 		this.repo = new MockTokenRepository(token);
 		PersistentTokenBasedRememberMeServices services = new PersistentTokenBasedRememberMeServices("key",
@@ -165,8 +177,15 @@ public class PersistentTokenBasedRememberMeServicesTests {
 
 		@Override
 		public void removeUserTokens(String username) {
+			this.removedUsername = username;
 		}
 
+
+		private String removedUsername;
+
+		String getRemovedUsername() {
+			return this.removedUsername;
+		}
 		PersistentRememberMeToken getStoredToken() {
 			return this.storedToken;
 		}
