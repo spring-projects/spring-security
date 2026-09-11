@@ -21,6 +21,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 
@@ -30,6 +31,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
@@ -87,6 +89,8 @@ import org.springframework.util.Assert;
  * Token Response</a>
  */
 public class OidcAuthorizationCodeAuthenticationProvider implements AuthenticationProvider {
+
+	private static final String AUTHORITY = FactorGrantedAuthority.AUTHORIZATION_CODE_AUTHORITY;
 
 	private static final String INVALID_STATE_PARAMETER_ERROR_CODE = "invalid_state_parameter";
 
@@ -162,8 +166,9 @@ public class OidcAuthorizationCodeAuthenticationProvider implements Authenticati
 		OidcUser oidcUser = this.userService.loadUser(new OidcUserRequest(clientRegistration,
 				accessTokenResponse.getAccessToken(), idToken, additionalParameters));
 		Assert.notNull(oidcUser, "oidcUser cannot be null");
-		Collection<? extends GrantedAuthority> mappedAuthorities = this.authoritiesMapper
-			.mapAuthorities(oidcUser.getAuthorities());
+		Collection<GrantedAuthority> mappedAuthorities = new LinkedHashSet<>(
+				this.authoritiesMapper.mapAuthorities(oidcUser.getAuthorities()));
+		mappedAuthorities.add(FactorGrantedAuthority.fromAuthority(AUTHORITY));
 		OAuth2LoginAuthenticationToken authenticationResult = new OAuth2LoginAuthenticationToken(
 				authorizationCodeAuthentication.getClientRegistration(),
 				authorizationCodeAuthentication.getAuthorizationExchange(), oidcUser, mappedAuthorities,
