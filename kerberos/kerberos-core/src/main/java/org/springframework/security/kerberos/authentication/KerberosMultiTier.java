@@ -53,6 +53,7 @@ public final class KerberosMultiTier {
 	 * @param targetService
 	 * @return
 	 */
+	@SuppressWarnings("removal")
 	public static Authentication authenticateService(Authentication authentication, final String username,
 			final int lifetimeInSeconds, final String targetService) {
 

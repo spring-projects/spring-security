@@ -110,6 +110,7 @@ public class KerberosLdapContextSource extends DefaultSpringSecurityContextSourc
 		Subject serviceSubject = login();
 
 		final NamingException[] suppressedException = new NamingException[] { null };
+		@SuppressWarnings("removal")
 		DirContext dirContext = Subject.doAs(serviceSubject, new PrivilegedAction<@Nullable DirContext>() {
 
 			@Override
