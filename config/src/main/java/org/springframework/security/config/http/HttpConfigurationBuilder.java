@@ -438,7 +438,7 @@ class HttpConfigurationBuilder {
 		if (sessionMgmtElt != null) {
 			if (this.sessionPolicy == SessionCreationPolicy.STATELESS) {
 				this.pc.getReaderContext()
-					.error(Elements.SESSION_MANAGEMENT + "  cannot be used" + " in combination with "
+					.error(Elements.SESSION_MANAGEMENT + " cannot be used" + " in combination with "
 							+ ATT_CREATE_SESSION + "='" + SessionCreationPolicy.STATELESS + "'",
 							this.pc.extractSource(sessionMgmtElt));
 			}
