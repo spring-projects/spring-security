@@ -17,6 +17,7 @@
 package org.springframework.security.crypto.encrypt;
 
 import java.security.spec.AlgorithmParameterSpec;
+import java.util.HexFormat;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -27,7 +28,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.jspecify.annotations.Nullable;
 
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.security.crypto.util.EncodingUtils;
@@ -102,7 +102,7 @@ public final class AesBytesEncryptor implements BytesEncryptor {
 	public AesBytesEncryptor(String password, CharSequence salt, @Nullable BytesKeyGenerator ivGenerator,
 			CipherAlgorithm alg) {
 		this(CipherUtils.newSecretKey("PBKDF2WithHmacSHA1",
-				new PBEKeySpec(password.toCharArray(), Hex.decode(salt), 1024, 256)), ivGenerator, alg);
+				new PBEKeySpec(password.toCharArray(), HexFormat.of().parseHex(salt), 1024, 256)), ivGenerator, alg);
 	}
 
 	/**

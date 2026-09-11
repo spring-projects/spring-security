@@ -18,8 +18,7 @@ package org.springframework.security.core.token;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import org.springframework.security.crypto.codec.Hex;
+import java.util.HexFormat;
 
 /**
  * Provides SHA512 digest methods.
@@ -73,7 +72,7 @@ public abstract class Sha512DigestUtils {
 	 * @return SHA digest as a hex string
 	 */
 	public static String shaHex(byte[] data) {
-		return new String(Hex.encode(sha(data)));
+		return HexFormat.of().formatHex(sha(data));
 	}
 
 	/**
@@ -82,7 +81,7 @@ public abstract class Sha512DigestUtils {
 	 * @return SHA digest as a hex string
 	 */
 	public static String shaHex(String data) {
-		return new String(Hex.encode(sha(data)));
+		return HexFormat.of().formatHex(sha(data));
 	}
 
 }

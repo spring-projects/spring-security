@@ -20,6 +20,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HexFormat;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,7 +29,6 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -184,7 +184,7 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		String data = username + ":" + tokenExpiryTime + ":" + password + ":" + getKey();
 		try {
 			MessageDigest digest = MessageDigest.getInstance(this.encodingAlgorithm.getDigestAlgorithm());
-			return new String(Hex.encode(digest.digest(data.getBytes())));
+			return HexFormat.of().formatHex(digest.digest(data.getBytes()));
 		}
 		catch (NoSuchAlgorithmException ex) {
 			throw new IllegalStateException("No " + this.encodingAlgorithm.name() + " algorithm available!");
@@ -200,7 +200,7 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		String data = username + ":" + tokenExpiryTime + ":" + password + ":" + getKey();
 		try {
 			MessageDigest digest = MessageDigest.getInstance(algorithm.getDigestAlgorithm());
-			return new String(Hex.encode(digest.digest(data.getBytes())));
+			return HexFormat.of().formatHex(digest.digest(data.getBytes()));
 		}
 		catch (NoSuchAlgorithmException ex) {
 			throw new IllegalStateException("No " + algorithm.name() + " algorithm available!");

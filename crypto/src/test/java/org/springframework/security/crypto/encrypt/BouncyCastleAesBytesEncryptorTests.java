@@ -17,13 +17,13 @@
 package org.springframework.security.crypto.encrypt;
 
 import java.security.SecureRandom;
+import java.util.HexFormat;
 import java.util.UUID;
 
 import org.bouncycastle.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,7 +44,7 @@ public class BouncyCastleAesBytesEncryptorTests {
 		this.password = UUID.randomUUID().toString();
 		byte[] saltBytes = new byte[16];
 		secureRandom.nextBytes(saltBytes);
-		this.salt = new String(Hex.encode(saltBytes));
+		this.salt = HexFormat.of().formatHex(saltBytes);
 		this.testData = new byte[1024 * 1024];
 		secureRandom.nextBytes(this.testData);
 	}
