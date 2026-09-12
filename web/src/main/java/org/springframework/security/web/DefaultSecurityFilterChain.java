@@ -90,6 +90,17 @@ public final class DefaultSecurityFilterChain implements SecurityFilterChain, Be
 		return this.requestMatcher.matches(request);
 	}
 
+	/**
+	 * Returns the Spring bean name of this chain when registered as a bean
+	 * (via {@link BeanNameAware}); otherwise {@code null}.
+	 * @return the bean name, or {@code null} if not registered as a bean
+	 * @since 7.1
+	 */
+	@Override
+	public @Nullable String getName() {
+		return this.beanName;
+	}
+
 	@Override
 	public String toString() {
 		List<String> filterNames = new ArrayList<>();
