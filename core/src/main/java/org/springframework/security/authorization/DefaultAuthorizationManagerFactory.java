@@ -146,7 +146,12 @@ public final class DefaultAuthorizationManagerFactory<T extends @Nullable Object
 
 	@Override
 	public AuthorizationManager<T> anonymous() {
-		return createManager(AuthenticatedAuthorizationManager.anonymous());
+		// Unlike authenticated()/fullyAuthenticated()/rememberMe(), anonymous() does not
+		// apply additionalAuthorization, consistent with the permitAll()/denyAll()
+		// defaults.
+		AuthenticatedAuthorizationManager<T> manager = AuthenticatedAuthorizationManager.anonymous();
+		manager.setTrustResolver(this.trustResolver);
+		return manager;
 	}
 
 	private AuthorizationManager<T> createManager(AuthorityAuthorizationManager<T> authorizationManager) {
