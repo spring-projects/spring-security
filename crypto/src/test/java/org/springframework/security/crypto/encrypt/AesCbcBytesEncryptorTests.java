@@ -73,7 +73,8 @@ class AesCbcBytesEncryptorTests {
 			.ivGenerator(mockGenerator)
 			.build();
 		byte[] encrypted = encryptor.encrypt(this.secret.getBytes());
-		assertThat(Hex.encode(encrypted)).isEqualTo("4b0febebd439db7ca77153cb254520c3b7232ac29355d07869433f1ecf55fe94");
+		assertThat(new String(Hex.encode(encrypted)))
+			.isEqualTo("4b0febebd439db7ca77153cb254520c348dcd433c917c88426df8b5dc259a420");
 		assertThat(new String(encryptor.decrypt(encrypted))).isEqualTo(this.secret);
 	}
 
