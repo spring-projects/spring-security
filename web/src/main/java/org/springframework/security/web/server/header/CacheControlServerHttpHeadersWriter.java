@@ -37,17 +37,17 @@ import org.springframework.web.server.ServerWebExchange;
 public class CacheControlServerHttpHeadersWriter implements ServerHttpHeadersWriter {
 
 	/**
-	 * The value for expires value
+	 * The value for expires value.
 	 */
 	public static final String EXPIRES_VALUE = "0";
 
 	/**
-	 * The value for pragma value
+	 * The value for pragma value.
 	 */
 	public static final String PRAGMA_VALUE = "no-cache";
 
 	/**
-	 * The value for cache control value
+	 * The value for cache control value.
 	 */
 	public static final String CACHE_CONTROL_VALUE = "no-cache, no-store, max-age=0, must-revalidate";
 
@@ -59,7 +59,7 @@ public class CacheControlServerHttpHeadersWriter implements ServerHttpHeadersWri
 	public static final String CACHE_CONTRTOL_VALUE = CACHE_CONTROL_VALUE;
 
 	/**
-	 * The delegate to write all the cache control related headers
+	 * The delegate to write all the cache control related headers.
 	 */
 	private static final ServerHttpHeadersWriter CACHE_HEADERS = StaticServerHttpHeadersWriter.builder()
 		.header(HttpHeaders.CACHE_CONTROL, CacheControlServerHttpHeadersWriter.CACHE_CONTROL_VALUE)

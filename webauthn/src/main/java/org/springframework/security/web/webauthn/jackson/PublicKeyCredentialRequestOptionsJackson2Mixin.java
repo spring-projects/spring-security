@@ -19,13 +19,14 @@ package org.springframework.security.web.webauthn.jackson;
 import java.time.Duration;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestOptions;
 
 /**
- * Jackson mixin for {@link PublicKeyCredentialRequestOptions}
+ * Jackson mixin for {@link PublicKeyCredentialRequestOptions}.
  *
  * @author Rob Winch
  * @since 6.4
@@ -35,7 +36,7 @@ import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestO
  */
 @SuppressWarnings("removal")
 @Deprecated(forRemoval = true)
-@JsonInclude(content = JsonInclude.Include.NON_NULL)
+@JsonInclude(content = Include.NON_NULL)
 class PublicKeyCredentialRequestOptionsJackson2Mixin {
 
 	@JsonSerialize(using = DurationJackson2Serializer.class)

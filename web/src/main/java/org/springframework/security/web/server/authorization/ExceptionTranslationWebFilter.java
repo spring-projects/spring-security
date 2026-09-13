@@ -35,6 +35,9 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 
 /**
+ * A {@link WebFilter} that translates {@link AuthenticationException}s and
+ * {@link AccessDeniedException}s into the appropriate HTTP response.
+ *
  * @author Rob Winch
  * @author César Revert
  * @since 5.0
@@ -77,7 +80,7 @@ public class ExceptionTranslationWebFilter implements WebFilter {
 	}
 
 	/**
-	 * Sets the authentication entry point used when authentication is required
+	 * Sets the authentication entry point used when authentication is required.
 	 * @param authenticationEntryPoint the authentication entry point to use. Default is
 	 * {@link HttpBasicServerAuthenticationEntryPoint}
 	 */

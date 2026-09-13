@@ -45,7 +45,7 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 	private CsrfTokenRequestHandler requestHandler = new XorCsrfTokenRequestAttributeHandler();
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param tokenRepository the {@link CsrfTokenRepository} to use
 	 */
 	public CsrfAuthenticationStrategy(CsrfTokenRepository tokenRepository) {

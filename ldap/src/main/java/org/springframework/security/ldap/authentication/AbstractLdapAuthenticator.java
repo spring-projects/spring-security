@@ -45,7 +45,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
 
 	/**
 	 * Optional search object which can be used to locate a user when a simple DN match
-	 * isn't sufficient
+	 * isn't sufficient.
 	 */
 	private @Nullable LdapUserSearch userSearch;
 
@@ -58,7 +58,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, In
 	private String @Nullable [] userAttributes = null;
 
 	// private String[] userDnPattern = null;
-	/** Stores the patterns which are used as potential DN matches */
+	/** Stores the patterns which are used as potential DN matches. */
 	private MessageFormat @Nullable [] userDnFormat = null;
 
 	/**

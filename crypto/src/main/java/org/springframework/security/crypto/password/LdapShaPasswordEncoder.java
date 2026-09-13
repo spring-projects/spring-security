@@ -48,7 +48,7 @@ import org.springframework.security.crypto.keygen.KeyGenerators;
 @Deprecated
 public class LdapShaPasswordEncoder extends AbstractValidatingPasswordEncoder {
 
-	/** The number of bytes in a SHA hash */
+	/** The number of bytes in a SHA hash. */
 	private static final int SHA_LENGTH = 20;
 
 	private static final String SSHA_PREFIX = "{SSHA}";

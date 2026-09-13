@@ -1,22 +1,15 @@
 [[new]]
-= What's New in Spring Security 7.1
+= What's New in Spring Security 7.2
 
-== Core
+== Authentication
 
-* https://github.com/spring-projects/spring-security/pull/18634[gh-18634] - Added javadoc:org.springframework.security.util.matcher.InetAddressMatcher[]
-* https://github.com/spring-projects/spring-security/issues/18960[gh-18960] - Added xref:servlet/authentication/mfa.adoc#all-factors-anyof[AllRequiredFactorsAuthorizationManager.anyOf]
+* https://github.com/spring-projects/spring-security/issues/17655[gh-17655] - Make One-Time Token xref:servlet/authentication/onetimetoken.adoc#validating-account-status[account status checks opt-in]
 
 == Web
-* https://github.com/spring-projects/spring-security/issues/18755[gh-18755] - Include `charset` in `WWW-Authenticate` header
-* Added xref:servlet/authorization/architecture.adoc#authz-conditional-authorization-manager[ConditionalAuthorizationManager]
-* Added `when` and `withWhen` conditions to `AuthorizationManagerFactories.multiFactor()` for xref:servlet/authentication/mfa.adoc#programmatic-mfa[Programmatic MFA]
-* Added `MultiFactorCondition.WEBAUTHN_REGISTERED` to `@EnableMultiFactorAuthentication(when = ...)` for xref:servlet/authentication/mfa.adoc#mfa-when-webauthn-registered[conditionally requiring MFA for WebAuthn Users]
-* https://github.com/spring-projects/spring-security/issues/18926[gh-18926] - xref:servlet/integrations/cors.adoc[Add `PreFlightRequestFilter` Support]
+
+* Since Spring Framework's `HttpMethod#valueOf` now normalizes casing, `StrictServerWebExchangeFirewall` no longer detects a non-canonical-case HTTP method (for example, `get` instead of `GET`) as a distinct value; such requests are processed as the canonical method instead of being rejected. Applications with a customized `ServerExchangeRejectedHandler` should be aware it is no longer invoked for this case.
 
 == OAuth 2.0
 
-* https://github.com/spring-projects/spring-security/issues/18745[gh-18745] - Add RestClientOpaqueTokenIntrospector
+* https://github.com/spring-projects/spring-security/pull/18895[gh-18895] - Add `authenticationSuccessHandler` to the Reactive Resource Server DSL
 
-== WebAuthn
-
-* https://github.com/spring-projects/spring-security/issues/18113[gh-18113] - Publish Authentication Events in WebAuthn

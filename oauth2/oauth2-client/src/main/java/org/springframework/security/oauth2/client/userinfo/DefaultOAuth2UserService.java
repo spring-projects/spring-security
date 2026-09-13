@@ -79,8 +79,10 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 	private Converter<OAuth2UserRequest, Converter<Map<String, Object>, Map<String, Object>>> attributesConverter = (
 			request) -> (attributes) -> attributes;
 
+	@SuppressWarnings("removal")
 	private RestOperations restOperations;
 
+	@SuppressWarnings("removal")
 	public DefaultOAuth2UserService() {
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
@@ -224,6 +226,7 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 	 * resource
 	 * @since 5.1
 	 */
+	@SuppressWarnings("removal")
 	public final void setRestOperations(RestOperations restOperations) {
 		Assert.notNull(restOperations, "restOperations cannot be null");
 		this.restOperations = restOperations;

@@ -17,7 +17,7 @@
 package org.springframework.security.access.hierarchicalroles;
 
 /**
- * Exception that is thrown because of a cycle in the role hierarchy definition
+ * Exception that is thrown because of a cycle in the role hierarchy definition.
  *
  * @author Michael Mayr
  */

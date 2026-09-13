@@ -43,7 +43,7 @@ public final class ObservationSecurityContextChangedListener implements Security
 	private final ObservationRegistry registry;
 
 	/**
-	 * Create a {@link ObservationSecurityContextChangedListener}
+	 * Create a {@link ObservationSecurityContextChangedListener}.
 	 * @param registry the {@link ObservationRegistry} for looking up the surrounding
 	 * {@link Observation}
 	 */

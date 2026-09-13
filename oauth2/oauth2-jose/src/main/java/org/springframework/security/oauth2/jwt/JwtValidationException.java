@@ -25,7 +25,7 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.util.Assert;
 
 /**
- * An exception that results from an unsuccessful {@link OAuth2TokenValidatorResult}
+ * An exception that results from an unsuccessful {@link OAuth2TokenValidatorResult}.
  *
  * @author Josh Cummings
  * @since 5.1
@@ -38,7 +38,7 @@ public class JwtValidationException extends BadJwtException {
 	private final Collection<OAuth2Error> errors;
 
 	/**
-	 * Constructs a {@link JwtValidationException} using the provided parameters
+	 * Constructs a {@link JwtValidationException} using the provided parameters.
 	 *
 	 * While each {@link OAuth2Error} does contain an error description, this constructor
 	 * can take an overarching description that encapsulates the composition of failures
@@ -63,7 +63,7 @@ public class JwtValidationException extends BadJwtException {
 	}
 
 	/**
-	 * Return the list of {@link OAuth2Error}s associated with this exception
+	 * Return the list of {@link OAuth2Error}s associated with this exception.
 	 * @return the list of {@link OAuth2Error}s associated with this exception
 	 */
 	public Collection<OAuth2Error> getErrors() {

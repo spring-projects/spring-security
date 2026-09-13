@@ -44,7 +44,7 @@ public final class RequestMatcherDelegatingAccessDeniedHandler implements Access
 	private final AccessDeniedHandler defaultHandler;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param handlers a map of {@link RequestMatcher}s to {@link AccessDeniedHandler}s
 	 * that should be used. Each is considered in the order they are specified and only
 	 * the first {@link AccessDeniedHandler} is used.

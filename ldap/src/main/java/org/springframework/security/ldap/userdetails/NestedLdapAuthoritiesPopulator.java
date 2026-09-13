@@ -127,12 +127,12 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 	private static final Log logger = LogFactory.getLog(NestedLdapAuthoritiesPopulator.class);
 
 	/**
-	 * The attribute names to retrieve for each LDAP group
+	 * The attribute names to retrieve for each LDAP group.
 	 */
 	private Set<String> attributeNames = new HashSet<>();
 
 	/**
-	 * Maximum search depth - represents the number of recursive searches performed
+	 * Maximum search depth - represents the number of recursive searches performed.
 	 */
 	private int maxSearchDepth = 10;
 
@@ -159,7 +159,7 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 	}
 
 	/**
-	 * Performs the nested group search
+	 * Performs the nested group search.
 	 * @param userDn - the userDN to search for, will become the group DN for subsequent
 	 * searches
 	 * @param username - the username of the user
@@ -209,7 +209,7 @@ public class NestedLdapAuthoritiesPopulator extends DefaultLdapAuthoritiesPopula
 
 	/**
 	 * Returns the attribute names that this populator has been configured to retrieve
-	 * Value can be null, represents fetch all attributes
+	 * Value can be null, represents fetch all attributes.
 	 * @return the attribute names or null for all
 	 */
 	private Set<String> getAttributeNames() {

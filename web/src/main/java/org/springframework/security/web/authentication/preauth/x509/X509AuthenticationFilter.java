@@ -25,6 +25,9 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 
 /**
+ * A pre-authentication filter that extracts the principal from an X.509 client
+ * certificate.
+ *
  * @author Luke Taylor
  */
 public class X509AuthenticationFilter extends AbstractPreAuthenticatedProcessingFilter {

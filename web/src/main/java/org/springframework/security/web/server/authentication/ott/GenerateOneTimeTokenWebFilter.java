@@ -75,7 +75,7 @@ public final class GenerateOneTimeTokenWebFilter implements WebFilter {
 
 	/**
 	 * Use the given {@link ServerGenerateOneTimeTokenRequestResolver} to resolve the
-	 * request, defaults to {@link DefaultServerGenerateOneTimeTokenRequestResolver}
+	 * request, defaults to {@link DefaultServerGenerateOneTimeTokenRequestResolver}.
 	 * @param requestResolver {@link ServerGenerateOneTimeTokenRequestResolver}
 	 * @since 6.5
 	 */

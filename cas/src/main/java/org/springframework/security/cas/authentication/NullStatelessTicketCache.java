@@ -32,6 +32,7 @@ import org.jspecify.annotations.Nullable;
 public final class NullStatelessTicketCache implements StatelessTicketCache {
 
 	/**
+	 * Always returns {@code null} since tickets are not stored.
 	 * @return null since we are not storing any tickets.
 	 */
 	@Override

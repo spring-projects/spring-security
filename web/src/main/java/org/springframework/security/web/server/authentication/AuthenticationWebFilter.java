@@ -87,7 +87,7 @@ public class AuthenticationWebFilter implements WebFilter {
 	private ServerWebExchangeMatcher requiresAuthenticationMatcher = ServerWebExchangeMatchers.anyExchange();
 
 	/**
-	 * Creates an instance
+	 * Creates an instance.
 	 * @param authenticationManager the authentication manager to use
 	 */
 	public AuthenticationWebFilter(ReactiveAuthenticationManager authenticationManager) {
@@ -96,7 +96,7 @@ public class AuthenticationWebFilter implements WebFilter {
 	}
 
 	/**
-	 * Creates an instance
+	 * Creates an instance.
 	 * @param authenticationManagerResolver the authentication manager resolver to use
 	 * @since 5.3
 	 */

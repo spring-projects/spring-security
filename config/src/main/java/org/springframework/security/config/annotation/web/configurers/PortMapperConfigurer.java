@@ -40,7 +40,7 @@ public final class PortMapperConfigurer<H extends HttpSecurityBuilder<H>>
 	private Map<String, String> httpsPortMappings = new HashMap<>();
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 */
 	public PortMapperConfigurer() {
 	}
@@ -56,7 +56,7 @@ public final class PortMapperConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Adds a port mapping
+	 * Adds a port mapping.
 	 * @param httpPort the HTTP port that maps to a specific HTTPS port.
 	 * @return {@link HttpPortMapping} to define the HTTPS port
 	 */
@@ -96,7 +96,7 @@ public final class PortMapperConfigurer<H extends HttpSecurityBuilder<H>>
 		private final int httpPort;
 
 		/**
-		 * Creates a new instance
+		 * Creates a new instance.
 		 * @param httpPort
 		 * @see PortMapperConfigurer#http(int)
 		 */

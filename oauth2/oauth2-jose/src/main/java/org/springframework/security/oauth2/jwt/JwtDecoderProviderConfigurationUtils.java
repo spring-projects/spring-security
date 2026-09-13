@@ -63,14 +63,13 @@ final class JwtDecoderProviderConfigurationUtils {
 
 	private static final String OAUTH_METADATA_PATH = "/.well-known/oauth-authorization-server";
 
+	@SuppressWarnings("removal")
 	private static final RestTemplate rest = new RestTemplate();
 
 	static {
-		int connectTimeout = Integer.parseInt(System.getProperty("sun.net.client.defaultConnectTimeout", "30000"));
-		int readTimeout = Integer.parseInt(System.getProperty("sun.net.client.defaultReadTimeout", "30000"));
 		SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-		requestFactory.setConnectTimeout(connectTimeout);
-		requestFactory.setReadTimeout(readTimeout);
+		requestFactory.setConnectTimeout(getConnectTimeout());
+		requestFactory.setReadTimeout(getReadTimeout());
 		rest.setRequestFactory(requestFactory);
 	}
 
@@ -80,10 +79,32 @@ final class JwtDecoderProviderConfigurationUtils {
 	private JwtDecoderProviderConfigurationUtils() {
 	}
 
+	/**
+	 * Returns the default HTTP connect timeout, in milliseconds, for fetching
+	 * provider/JWK Set metadata. Honors the JDK's
+	 * {@code sun.net.client.defaultConnectTimeout} system property when set, otherwise
+	 * defaults to 30 seconds.
+	 * @return the default HTTP connect timeout, in milliseconds
+	 */
+	static int getConnectTimeout() {
+		return Integer.parseInt(System.getProperty("sun.net.client.defaultConnectTimeout", "30000"));
+	}
+
+	/**
+	 * Returns the default HTTP read timeout, in milliseconds, for fetching provider/JWK
+	 * Set metadata. Honors the JDK's {@code sun.net.client.defaultReadTimeout} system
+	 * property when set, otherwise defaults to 30 seconds.
+	 * @return the default HTTP read timeout, in milliseconds
+	 */
+	static int getReadTimeout() {
+		return Integer.parseInt(System.getProperty("sun.net.client.defaultReadTimeout", "30000"));
+	}
+
 	static Map<String, Object> getConfigurationForOidcIssuerLocation(String oidcIssuerLocation) {
 		return getConfiguration(oidcIssuerLocation, rest, oidc(oidcIssuerLocation));
 	}
 
+	@SuppressWarnings("removal")
 	static Map<String, Object> getConfigurationForIssuerLocation(String issuer, RestOperations rest) {
 		return getConfiguration(issuer, rest, oidc(issuer), oidcRfc8414(issuer), oauth(issuer));
 	}
@@ -157,6 +178,7 @@ final class JwtDecoderProviderConfigurationUtils {
 		return "(unavailable)";
 	}
 
+	@SuppressWarnings("removal")
 	private static Map<String, Object> getConfiguration(String issuer, RestOperations rest, UriComponents... uris) {
 		String errorMessage = "Unable to resolve the Configuration with the provided Issuer of " + "\"" + issuer + "\"";
 		for (UriComponents uri : uris) {

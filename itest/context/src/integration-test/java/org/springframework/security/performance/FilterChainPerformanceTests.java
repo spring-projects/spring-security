@@ -43,6 +43,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.StopWatch;
 
 /**
+ * Performance tests for invoking the {@link FilterChainProxy}.
+ *
  * @author Luke Taylor
  * @since 2.0
  */
@@ -121,7 +123,7 @@ public class FilterChainPerformanceTests {
 
 	/**
 	 * Creates data from 1 to N_AUTHORITIES in steps of 10, performing N_INVOCATIONS for
-	 * each
+	 * each.
 	 */
 	@Test
 	public void provideDataOnScalingWithNumberOfAuthoritiesUserHas() throws Exception {

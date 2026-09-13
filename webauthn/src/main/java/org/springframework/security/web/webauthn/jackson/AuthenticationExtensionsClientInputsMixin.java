@@ -21,7 +21,7 @@ import tools.jackson.databind.annotation.JsonSerialize;
 import org.springframework.security.web.webauthn.api.AuthenticationExtensionsClientInputs;
 
 /**
- * Jackson mixin for {@link AuthenticationExtensionsClientInputs}
+ * Jackson mixin for {@link AuthenticationExtensionsClientInputs}.
  *
  * @author Rob Winch
  * @since 6.4

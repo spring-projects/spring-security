@@ -120,7 +120,7 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 	}
 
 	/**
-	 * A builder for {@link JwtAuthenticationToken} instances
+	 * A builder for {@link JwtAuthenticationToken} instances.
 	 *
 	 * @since 7.0
 	 * @see Authentication.Builder
@@ -135,7 +135,7 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 		}
 
 		/**
-		 * A synonym for {@link #token(Jwt)}
+		 * A synonym for {@link #token(Jwt)}.
 		 * @return the {@link Builder} for further configurations
 		 */
 		@Override
@@ -145,7 +145,7 @@ public class JwtAuthenticationToken extends AbstractOAuth2TokenAuthenticationTok
 		}
 
 		/**
-		 * A synonym for {@link #token(Jwt)}
+		 * A synonym for {@link #token(Jwt)}.
 		 * @return the {@link Builder} for further configurations
 		 */
 		@Override

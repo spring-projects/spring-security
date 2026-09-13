@@ -46,7 +46,7 @@ class MessageExpressionConfigAttribute implements ConfigAttribute, EvaluationCon
 	private final MessageMatcher<Object> matcher;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param authorizeExpression the {@link Expression} to use. Cannot be null
 	 * @param matcher the {@link MessageMatcher} used to match the messages.
 	 */

@@ -28,39 +28,39 @@ package org.springframework.security.oauth2.server.authorization;
 public class OAuth2ClientMetadataClaimNames {
 
 	/**
-	 * {@code client_id} - the Client Identifier
+	 * {@code client_id} - the Client Identifier.
 	 */
 	public static final String CLIENT_ID = "client_id";
 
 	/**
-	 * {@code client_id_issued_at} - the time at which the Client Identifier was issued
+	 * {@code client_id_issued_at} - the time at which the Client Identifier was issued.
 	 */
 	public static final String CLIENT_ID_ISSUED_AT = "client_id_issued_at";
 
 	/**
-	 * {@code client_secret} - the Client Secret
+	 * {@code client_secret} - the Client Secret.
 	 */
 	public static final String CLIENT_SECRET = "client_secret";
 
 	/**
 	 * {@code client_secret_expires_at} - the time at which the {@code client_secret} will
-	 * expire or 0 if it will not expire
+	 * expire or 0 if it will not expire.
 	 */
 	public static final String CLIENT_SECRET_EXPIRES_AT = "client_secret_expires_at";
 
 	/**
-	 * {@code client_name} - the name of the Client to be presented to the End-User
+	 * {@code client_name} - the name of the Client to be presented to the End-User.
 	 */
 	public static final String CLIENT_NAME = "client_name";
 
 	/**
-	 * {@code redirect_uris} - the redirection {@code URI} values used by the Client
+	 * {@code redirect_uris} - the redirection {@code URI} values used by the Client.
 	 */
 	public static final String REDIRECT_URIS = "redirect_uris";
 
 	/**
 	 * {@code token_endpoint_auth_method} - the authentication method used by the Client
-	 * for the Token Endpoint
+	 * for the Token Endpoint.
 	 */
 	public static final String TOKEN_ENDPOINT_AUTH_METHOD = "token_endpoint_auth_method";
 
@@ -83,7 +83,7 @@ public class OAuth2ClientMetadataClaimNames {
 	public static final String SCOPE = "scope";
 
 	/**
-	 * {@code jwks_uri} - the {@code URL} for the Client's JSON Web Key Set
+	 * {@code jwks_uri} - the {@code URL} for the Client's JSON Web Key Set.
 	 */
 	public static final String JWKS_URI = "jwks_uri";
 

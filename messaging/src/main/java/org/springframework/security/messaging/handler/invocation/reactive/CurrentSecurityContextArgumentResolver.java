@@ -112,7 +112,7 @@ public class CurrentSecurityContextArgumentResolver implements HandlerMethodArgu
 	private ReactiveAdapterRegistry adapterRegistry = ReactiveAdapterRegistry.getSharedInstance();
 
 	/**
-	 * Sets the {@link BeanResolver} to be used on the expressions
+	 * Sets the {@link BeanResolver} to be used on the expressions.
 	 * @param beanResolver the {@link BeanResolver} to use
 	 */
 	public void setBeanResolver(BeanResolver beanResolver) {
@@ -175,10 +175,7 @@ public class CurrentSecurityContextArgumentResolver implements HandlerMethodArgu
 			StandardEvaluationContext context = new StandardEvaluationContext();
 			context.setRootObject(securityContext);
 			context.setVariable("this", securityContext);
-			if (this.beanResolver != null) {
-				// https://github.com/spring-projects/spring-framework/issues/35371
-				context.setBeanResolver(this.beanResolver);
-			}
+			context.setBeanResolver(this.beanResolver);
 			Expression expression = this.parser.parseExpression(expressionToParse);
 			securityContext = expression.getValue(context);
 		}

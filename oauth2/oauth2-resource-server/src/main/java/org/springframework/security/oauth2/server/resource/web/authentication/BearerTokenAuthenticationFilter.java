@@ -94,7 +94,8 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 	private SecurityContextRepository securityContextRepository = new RequestAttributeSecurityContextRepository();
 
 	/**
-	 * Construct a {@code BearerTokenAuthenticationFilter} using the provided parameter(s)
+	 * Construct a {@code BearerTokenAuthenticationFilter} using the provided
+	 * parameter(s).
 	 * @param authenticationManagerResolver
 	 */
 	public BearerTokenAuthenticationFilter(
@@ -103,7 +104,8 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 	}
 
 	/**
-	 * Construct a {@code BearerTokenAuthenticationFilter} using the provided parameter(s)
+	 * Construct a {@code BearerTokenAuthenticationFilter} using the provided
+	 * parameter(s).
 	 * @param authenticationManager
 	 */
 	public BearerTokenAuthenticationFilter(AuthenticationManager authenticationManager) {
@@ -111,7 +113,7 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 	}
 
 	/**
-	 * Construct this filter using the provided parameters
+	 * Construct this filter using the provided parameters.
 	 * @param authenticationManager the {@link AuthenticationManager} to use
 	 * @param authenticationConverter the {@link AuthenticationConverter} to use
 	 * @since 7.0
@@ -128,7 +130,7 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 	}
 
 	/**
-	 * Construct this filter using the provided parameters
+	 * Construct this filter using the provided parameters.
 	 * @param authenticationManagerResolver the {@link AuthenticationManagerResolver} to
 	 * use
 	 * @param authenticationConverter the {@link AuthenticationConverter} to use

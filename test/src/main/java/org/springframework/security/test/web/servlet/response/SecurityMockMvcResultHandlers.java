@@ -24,7 +24,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultHandler;
 
 /**
- * Security related {@link MockMvc} {@link ResultHandler}s
+ * Security related {@link MockMvc} {@link ResultHandler}s.
  *
  * @author Marcus da Coregio
  * @since 5.6
@@ -36,7 +36,7 @@ public final class SecurityMockMvcResultHandlers {
 
 	/**
 	 * Exports the {@link SecurityContext} from {@link TestSecurityContextHolder} to
-	 * {@link SecurityContextHolder}
+	 * {@link SecurityContextHolder}.
 	 */
 	public static ResultHandler exportTestSecurityContext() {
 		return new ExportTestSecurityContextHandler();
@@ -44,7 +44,7 @@ public final class SecurityMockMvcResultHandlers {
 
 	/**
 	 * A {@link ResultHandler} that copies the {@link SecurityContext} from
-	 * {@link TestSecurityContextHolder} to {@link SecurityContextHolder}
+	 * {@link TestSecurityContextHolder} to {@link SecurityContextHolder}.
 	 *
 	 * @author Marcus da Coregio
 	 * @since 5.6

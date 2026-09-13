@@ -27,7 +27,7 @@ import org.springframework.security.authentication.ott.OneTimeTokenAuthenticatio
 import org.springframework.util.Assert;
 
 /**
- * Reactive adapter for {@link InMemoryOneTimeTokenService}
+ * Reactive adapter for {@link InMemoryOneTimeTokenService}.
  *
  * @author Max Batischev
  * @since 6.4

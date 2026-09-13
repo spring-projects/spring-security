@@ -23,7 +23,7 @@ import java.util.Collection;
 import org.springframework.util.Assert;
 
 /**
- * A composite validator
+ * A composite validator.
  *
  * @param <T> the type of {@link OAuth2Token} this validator validates
  * @author Josh Cummings
@@ -32,6 +32,8 @@ import org.springframework.util.Assert;
 public final class DelegatingOAuth2TokenValidator<T extends OAuth2Token> implements OAuth2TokenValidator<T> {
 
 	private final Collection<OAuth2TokenValidator<T>> tokenValidators;
+
+	private boolean failOnError;
 
 	/**
 	 * Constructs a {@code DelegatingOAuth2TokenValidator} using the provided validators.
@@ -57,8 +59,20 @@ public final class DelegatingOAuth2TokenValidator<T extends OAuth2Token> impleme
 		Collection<OAuth2Error> errors = new ArrayList<>();
 		for (OAuth2TokenValidator<T> validator : this.tokenValidators) {
 			errors.addAll(validator.validate(token).getErrors());
+			if (!errors.isEmpty() && this.failOnError) {
+				return OAuth2TokenValidatorResult.failure(errors);
+			}
 		}
 		return OAuth2TokenValidatorResult.failure(errors);
+	}
+
+	/**
+	 * Fail-fast when a delegate errors, defaults to {@code false}.
+	 * @param failOnError fail-fast when a delegate errors
+	 * @since 6.5.12
+	 */
+	public void setFailOnError(boolean failOnError) {
+		this.failOnError = failOnError;
 	}
 
 }

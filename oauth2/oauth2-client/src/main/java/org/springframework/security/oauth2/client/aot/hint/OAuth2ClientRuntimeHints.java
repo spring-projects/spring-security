@@ -25,7 +25,7 @@ import org.springframework.aot.hint.TypeReference;
 import org.springframework.util.ClassUtils;
 
 /**
- * {@link RuntimeHintsRegistrar} for OAuth2 Client
+ * {@link RuntimeHintsRegistrar} for OAuth2 Client.
  *
  * @author Marcus Da Coregio
  * @since 6.0

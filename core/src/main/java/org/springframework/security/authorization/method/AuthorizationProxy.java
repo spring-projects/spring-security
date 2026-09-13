@@ -48,7 +48,7 @@ import org.springframework.aop.RawTargetAccess;
 public interface AuthorizationProxy extends RawTargetAccess {
 
 	/**
-	 * Access underlying target object
+	 * Access underlying target object.
 	 * @return the target object
 	 */
 	Object toAuthorizedTarget();

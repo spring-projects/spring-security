@@ -41,7 +41,7 @@ public class ContextSourceSettingPostProcessor implements BeanFactoryPostProcess
 
 	/**
 	 * If set to true, a bean parser has indicated that the default context source name
-	 * needs to be set
+	 * needs to be set.
 	 */
 	private boolean defaultNameRequired;
 

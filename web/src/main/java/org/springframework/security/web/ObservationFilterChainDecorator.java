@@ -44,7 +44,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * A {@link org.springframework.security.web.FilterChainProxy.FilterChainDecorator} that
- * wraps the chain in before and after observations
+ * wraps the chain in before and after observations.
  *
  * @author Josh Cummings
  * @author Nikita Konev

@@ -72,7 +72,7 @@ public final class SecurityMockMvcRequestBuilders {
 
 	/**
 	 * Creates a logout request (including any necessary {@link CsrfToken}) to the
-	 * specified {@code logoutUrl}
+	 * specified {@code logoutUrl}.
 	 * @param logoutUrl the logout request URL
 	 * @return the LogoutRequestBuilder for additional customizations
 	 */
@@ -81,7 +81,7 @@ public final class SecurityMockMvcRequestBuilders {
 	}
 
 	/**
-	 * Creates a logout request (including any necessary {@link CsrfToken})
+	 * Creates a logout request (including any necessary {@link CsrfToken}).
 	 *
 	 * @author Rob Winch
 	 * @since 4.0

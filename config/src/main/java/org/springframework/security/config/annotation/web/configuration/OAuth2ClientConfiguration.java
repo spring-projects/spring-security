@@ -101,6 +101,8 @@ final class OAuth2ClientConfiguration {
 	}
 
 	/**
+	 * Configures the infrastructure beans for the {@code OAuth2AuthorizedClientManager}.
+	 *
 	 * @author Joe Grandja
 	 * @since 6.2.0
 	 */

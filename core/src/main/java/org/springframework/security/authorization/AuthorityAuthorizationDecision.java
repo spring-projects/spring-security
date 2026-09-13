@@ -22,7 +22,7 @@ import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 
 /**
- * Represents an {@link AuthorizationDecision} based on a collection of authorities
+ * Represents an {@link AuthorizationDecision} based on a collection of authorities.
  *
  * @author Marcus Da Coregio
  * @since 5.6

@@ -150,7 +150,7 @@ This means that we are running our `Runnable` with the same user that was used t
 
 == Spring Security Concurrency Classes
 
-See the {security-api-url}index.html[Javadoc] for additional integrations with both the Java concurrent APIs and the Spring Task abstractions.
+See the xref:attachment$api/java/index.html[Javadoc] for additional integrations with both the Java concurrent APIs and the Spring Task abstractions.
 They are self-explanatory once you understand the previous code.
 
 * javadoc:org.springframework.security.concurrent.DelegatingSecurityContextCallable[]

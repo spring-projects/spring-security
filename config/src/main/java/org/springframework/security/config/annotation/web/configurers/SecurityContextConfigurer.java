@@ -70,14 +70,14 @@ public final class SecurityContextConfigurer<H extends HttpSecurityBuilder<H>>
 	private boolean requireExplicitSave = true;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @see HttpSecurity#securityContext(Customizer)
 	 */
 	public SecurityContextConfigurer() {
 	}
 
 	/**
-	 * Specifies the shared {@link SecurityContextRepository} that is to be used
+	 * Specifies the shared {@link SecurityContextRepository} that is to be used.
 	 * @param securityContextRepository the {@link SecurityContextRepository} to use
 	 * @return the {@link HttpSecurity} for further customizations
 	 */

@@ -38,6 +38,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
+ * Integration tests for concurrent session management.
+ *
  * @author Luke Taylor
  */
 public class ConcurrentSessionManagementTests extends AbstractWebServerIntegrationTests {

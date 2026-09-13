@@ -28,7 +28,7 @@ import org.springframework.security.core.Authentication;
 public interface SecurityExpressionOperations {
 
 	/**
-	 * Gets the {@link Authentication} used for evaluating the expressions
+	 * Gets the {@link Authentication} used for evaluating the expressions.
 	 * @return the {@link Authentication} for evaluating the expressions
 	 */
 	Authentication getAuthentication();
@@ -88,25 +88,25 @@ public interface SecurityExpressionOperations {
 	boolean permitAll();
 
 	/**
-	 * Always denies access
+	 * Always denies access.
 	 * @return false
 	 */
 	boolean denyAll();
 
 	/**
-	 * Determines if the {@link #getAuthentication()} is anonymous
+	 * Determines if the {@link #getAuthentication()} is anonymous.
 	 * @return true if the user is anonymous, else false
 	 */
 	boolean isAnonymous();
 
 	/**
-	 * Determines if the {@link #getAuthentication()} is authenticated
+	 * Determines if the {@link #getAuthentication()} is authenticated.
 	 * @return true if the {@link #getAuthentication()} is authenticated, else false
 	 */
 	boolean isAuthenticated();
 
 	/**
-	 * Determines if the {@link #getAuthentication()} was authenticated using remember me
+	 * Determines if the {@link #getAuthentication()} was authenticated using remember me.
 	 * @return true if the {@link #getAuthentication()} authenticated using remember me,
 	 * else false
 	 */
@@ -114,7 +114,7 @@ public interface SecurityExpressionOperations {
 
 	/**
 	 * Determines if the {@link #getAuthentication()} authenticated without the use of
-	 * remember me
+	 * remember me.
 	 * @return true if the {@link #getAuthentication()} authenticated without the use of
 	 * remember me, else false
 	 */
@@ -122,7 +122,7 @@ public interface SecurityExpressionOperations {
 
 	/**
 	 * Determines if the {@link #getAuthentication()} has permission to access the target
-	 * given the permission
+	 * given the permission.
 	 * @param target the target domain object to check permission on
 	 * @param permission the permission to check on the domain object (i.e. "read",
 	 * "write", etc.).

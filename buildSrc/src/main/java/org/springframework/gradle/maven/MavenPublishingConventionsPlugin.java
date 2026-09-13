@@ -22,6 +22,12 @@ public class MavenPublishingConventionsPlugin implements Plugin<Project> {
 			@Override
 			public void execute(MavenPublishPlugin mavenPublish) {
 				PublishingExtension publishing = project.getExtensions().getByType(PublishingExtension.class);
+				if (project.hasProperty("deploymentRepository")) {
+					publishing.getRepositories().maven((mavenRepository) -> {
+						mavenRepository.setUrl(project.property("deploymentRepository"));
+						mavenRepository.setName("deployment");
+					});
+				}
 				publishing.getPublications().withType(MavenPublication.class)
 						.all((mavenPublication) -> MavenPublishingConventionsPlugin.this.customizePom(mavenPublication.getPom(), project));
 				MavenPublishingConventionsPlugin.this.customizeJavaPlugin(project);

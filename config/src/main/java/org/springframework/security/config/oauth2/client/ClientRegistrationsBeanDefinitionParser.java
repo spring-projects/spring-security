@@ -41,6 +41,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 
 /**
+ * Parses the {@code client-registrations} element.
+ *
  * @author Ruby Hartono
  * @author Evgeniy Cheban
  * @since 5.3

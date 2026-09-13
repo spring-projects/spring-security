@@ -51,6 +51,7 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 	private long contentWritten;
 
 	/**
+	 * Creates a new instance.
 	 * @param response the response to be wrapped
 	 */
 	public OnCommittedResponseWrapper(HttpServletResponse response) {
@@ -131,13 +132,13 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 
 	/**
 	 * Implement the logic for handling the
-	 * {@link jakarta.servlet.http.HttpServletResponse} being committed
+	 * {@link jakarta.servlet.http.HttpServletResponse} being committed.
 	 */
 	protected abstract void onResponseCommitted();
 
 	/**
 	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked
-	 * before calling the superclass <code>sendError()</code>
+	 * before calling the superclass <code>sendError()</code>.
 	 */
 	@Override
 	public final void sendError(int sc) throws IOException {
@@ -147,7 +148,7 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 
 	/**
 	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked
-	 * before calling the superclass <code>sendError()</code>
+	 * before calling the superclass <code>sendError()</code>.
 	 */
 	@Override
 	public final void sendError(int sc, @Nullable String msg) throws IOException {
@@ -157,7 +158,7 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 
 	/**
 	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked
-	 * before calling the superclass <code>sendRedirect()</code>
+	 * before calling the superclass <code>sendRedirect()</code>.
 	 */
 	@Override
 	public final void sendRedirect(@Nullable String location) throws IOException {
@@ -168,7 +169,7 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 	/**
 	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked
 	 * before calling the calling <code>getOutputStream().close()</code> or
-	 * <code>getOutputStream().flush()</code>
+	 * <code>getOutputStream().flush()</code>.
 	 */
 	@Override
 	public ServletOutputStream getOutputStream() throws IOException {
@@ -178,7 +179,7 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 	/**
 	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked
 	 * before calling the <code>getWriter().close()</code> or
-	 * <code>getWriter().flush()</code>
+	 * <code>getWriter().flush()</code>.
 	 */
 	@Override
 	public PrintWriter getWriter() throws IOException {
@@ -187,7 +188,7 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 
 	/**
 	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked
-	 * before calling the superclass <code>flushBuffer()</code>
+	 * before calling the superclass <code>flushBuffer()</code>.
 	 */
 	@Override
 	public void flushBuffer() throws IOException {

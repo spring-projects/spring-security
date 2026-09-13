@@ -169,7 +169,7 @@ public class HttpSessionRequestCache implements RequestCache {
 	/**
 	 * Specify the name of a query parameter that is added to the URL that specifies the
 	 * request cache should be checked in
-	 * {@link #getMatchingRequest(HttpServletRequest, HttpServletResponse)}
+	 * {@link #getMatchingRequest(HttpServletRequest, HttpServletResponse)}.
 	 * @param matchingRequestParameterName the parameter name that must be in the request
 	 * for {@link #getMatchingRequest(HttpServletRequest, HttpServletResponse)} to check
 	 * the session. Default is "continue".

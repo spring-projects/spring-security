@@ -78,6 +78,70 @@ public class CookieServerRequestCacheTests {
 	}
 
 	@Test
+	public void saveRequestWhenGetRequestAppleTouchIconThenNoCookie() {
+		MockServerWebExchange exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("/apple-touch-icon.png").accept(MediaType.TEXT_HTML));
+		this.cache.saveRequest(exchange).block();
+		MultiValueMap<String, ResponseCookie> cookies = exchange.getResponse().getCookies();
+		assertThat(cookies).isEmpty();
+	}
+
+	@Test
+	public void saveRequestWhenGetRequestAppleTouchIconPrecomposedThenNoCookie() {
+		MockServerWebExchange exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("/apple-touch-icon-precomposed.png").accept(MediaType.TEXT_HTML));
+		this.cache.saveRequest(exchange).block();
+		MultiValueMap<String, ResponseCookie> cookies = exchange.getResponse().getCookies();
+		assertThat(cookies).isEmpty();
+	}
+
+	@Test
+	public void saveRequestWhenGetRequestAppleTouchIconSizedPrecomposedThenNoCookie() {
+		MockServerWebExchange exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("/apple-touch-icon-152x152-precomposed.png").accept(MediaType.TEXT_HTML));
+		this.cache.saveRequest(exchange).block();
+		MultiValueMap<String, ResponseCookie> cookies = exchange.getResponse().getCookies();
+		assertThat(cookies).isEmpty();
+	}
+
+	@Test
+	public void saveRequestWhenGetRequestManifestJsonThenNoCookie() {
+		MockServerWebExchange exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("/manifest.json").accept(MediaType.TEXT_HTML));
+		this.cache.saveRequest(exchange).block();
+		MultiValueMap<String, ResponseCookie> cookies = exchange.getResponse().getCookies();
+		assertThat(cookies).isEmpty();
+	}
+
+	@Test
+	public void saveRequestWhenGetRequestManifestWebmanifestThenNoCookie() {
+		MockServerWebExchange exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("/manifest.webmanifest").accept(MediaType.TEXT_HTML));
+		this.cache.saveRequest(exchange).block();
+		MultiValueMap<String, ResponseCookie> cookies = exchange.getResponse().getCookies();
+		assertThat(cookies).isEmpty();
+	}
+
+	@Test
+	public void saveRequestWhenGetRequestBrowserConfigXmlThenNoCookie() {
+		MockServerWebExchange exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("/browserconfig.xml").accept(MediaType.TEXT_HTML));
+		this.cache.saveRequest(exchange).block();
+		MultiValueMap<String, ResponseCookie> cookies = exchange.getResponse().getCookies();
+		assertThat(cookies).isEmpty();
+	}
+
+	@Test
+	public void saveRequestWhenGetRequestChromeDevtoolsJsonThenNoCookie() {
+		MockServerWebExchange exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("/.well-known/appspecific/com.chrome.devtools.json")
+				.accept(MediaType.TEXT_HTML));
+		this.cache.saveRequest(exchange).block();
+		MultiValueMap<String, ResponseCookie> cookies = exchange.getResponse().getCookies();
+		assertThat(cookies).isEmpty();
+	}
+
+	@Test
 	public void saveRequestWhenPostRequestThenNoCookie() {
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.post("/secured/"));
 		this.cache.saveRequest(exchange).block();

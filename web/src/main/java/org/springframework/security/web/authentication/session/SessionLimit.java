@@ -36,7 +36,7 @@ public interface SessionLimit extends Function<Authentication, Integer> {
 	SessionLimit UNLIMITED = (authentication) -> -1;
 
 	/**
-	 * Creates a {@link SessionLimit} that always returns the given value for any user
+	 * Creates a {@link SessionLimit} that always returns the given value for any user.
 	 * @param maxSessions the maximum number of sessions allowed
 	 * @return a {@link SessionLimit} instance that returns the given value.
 	 */

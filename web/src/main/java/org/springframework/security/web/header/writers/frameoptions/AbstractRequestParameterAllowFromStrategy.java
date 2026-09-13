@@ -43,7 +43,7 @@ public abstract class AbstractRequestParameterAllowFromStrategy implements Allow
 
 	private String allowFromParameterName = DEFAULT_ORIGIN_REQUEST_PARAMETER;
 
-	/** Logger for use by subclasses */
+	/** Logger for use by subclasses. */
 	protected final Log log = LogFactory.getLog(getClass());
 
 	AbstractRequestParameterAllowFromStrategy() {

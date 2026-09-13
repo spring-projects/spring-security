@@ -155,7 +155,7 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 
 	/**
 	 * Attempts to login the user given the Authentication objects principal and
-	 * credential
+	 * credential.
 	 * @param auth The Authentication object to be authenticated.
 	 * @return The authenticated Authentication object, with it's grantedAuthorities set.
 	 * @throws AuthenticationException This implementation does not handle 'locked' or
@@ -373,7 +373,7 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 	}
 
 	/**
-	 * Wrapper class for JAASAuthenticationCallbackHandlers
+	 * Wrapper class for JAASAuthenticationCallbackHandlers.
 	 */
 	private class InternalCallbackHandler implements CallbackHandler {
 

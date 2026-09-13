@@ -38,7 +38,7 @@ public interface Saml2ResponseAssertionAccessor extends Serializable {
 	List<String> getSessionIndexes();
 
 	/**
-	 * Get the first value of Saml2 token attribute by name
+	 * Get the first value of Saml2 token attribute by name.
 	 * @param name the name of the attribute
 	 * @param <A> the type of the attribute
 	 * @return the first attribute value or {@code null} otherwise
@@ -49,7 +49,7 @@ public interface Saml2ResponseAssertionAccessor extends Serializable {
 	}
 
 	/**
-	 * Get the Saml2 token attribute by name
+	 * Get the Saml2 token attribute by name.
 	 * @param name the name of the attribute
 	 * @param <A> the type of the attribute
 	 * @return the attribute or {@code null} otherwise

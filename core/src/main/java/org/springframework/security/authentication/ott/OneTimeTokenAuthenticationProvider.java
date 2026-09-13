@@ -19,6 +19,7 @@ package org.springframework.security.authentication.ott;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -26,6 +27,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.Assert;
@@ -36,6 +38,7 @@ import org.springframework.util.Assert;
  * {@link UserDetailsService} to fetch user authorities.
  *
  * @author Marcus da Coregio
+ * @author Andrey Litvitski
  * @since 6.4
  */
 public final class OneTimeTokenAuthenticationProvider implements AuthenticationProvider {
@@ -45,6 +48,9 @@ public final class OneTimeTokenAuthenticationProvider implements AuthenticationP
 	private final OneTimeTokenService oneTimeTokenService;
 
 	private final UserDetailsService userDetailsService;
+
+	private UserDetailsChecker userDetailsChecker = (user) -> {
+	};
 
 	public OneTimeTokenAuthenticationProvider(OneTimeTokenService oneTimeTokenService,
 			UserDetailsService userDetailsService) {
@@ -63,6 +69,7 @@ public final class OneTimeTokenAuthenticationProvider implements AuthenticationP
 		}
 		try {
 			UserDetails user = this.userDetailsService.loadUserByUsername(consumed.getUsername());
+			this.userDetailsChecker.check(user);
 			Collection<GrantedAuthority> authorities = new HashSet<>(user.getAuthorities());
 			authorities.add(FactorGrantedAuthority.fromAuthority(AUTHORITY));
 			OneTimeTokenAuthentication authenticated = new OneTimeTokenAuthentication(user, authorities);
@@ -77,6 +84,23 @@ public final class OneTimeTokenAuthenticationProvider implements AuthenticationP
 	@Override
 	public boolean supports(Class<?> authentication) {
 		return OneTimeTokenAuthenticationToken.class.isAssignableFrom(authentication);
+	}
+
+	/**
+	 * Use this {@link UserDetailsChecker} to verify the status of the loaded
+	 * {@link UserDetails} after authentication.
+	 *
+	 * <p>
+	 * By default, no checks are performed, keeping this provider's behavior consistent
+	 * with earlier versions of Spring Security. To reject authentication for accounts
+	 * that are locked, disabled, or expired, provide a
+	 * {@link AccountStatusUserDetailsChecker}.
+	 * @param userDetailsChecker the {@link UserDetailsChecker} to use
+	 * @since 7.2
+	 */
+	public void setUserDetailsChecker(UserDetailsChecker userDetailsChecker) {
+		Assert.notNull(userDetailsChecker, "userDetailsChecker cannot be null");
+		this.userDetailsChecker = userDetailsChecker;
 	}
 
 }

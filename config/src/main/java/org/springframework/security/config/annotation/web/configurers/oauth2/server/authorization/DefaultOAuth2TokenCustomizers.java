@@ -43,6 +43,9 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.util.CollectionUtils;
 
 /**
+ * Default {@link OAuth2TokenCustomizer} implementations for the OAuth2 Authorization
+ * Server.
+ *
  * @author Joe Grandja
  * @author Steve Riesenberg
  * @since 7.0

@@ -37,7 +37,7 @@ public final class OrRequestMatcher implements RequestMatcher {
 	private final List<? extends RequestMatcher> requestMatchers;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param requestMatchers the {@link RequestMatcher} instances to try
 	 */
 	public OrRequestMatcher(List<? extends RequestMatcher> requestMatchers) {
@@ -47,7 +47,7 @@ public final class OrRequestMatcher implements RequestMatcher {
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param requestMatchers the {@link RequestMatcher} instances to try
 	 */
 	public OrRequestMatcher(RequestMatcher... requestMatchers) {

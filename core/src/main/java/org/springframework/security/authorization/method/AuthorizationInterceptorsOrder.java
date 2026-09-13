@@ -19,7 +19,7 @@ package org.springframework.security.authorization.method;
 import org.springframework.aop.Advisor;
 
 /**
- * Ordering of Spring Security's authorization {@link Advisor}s
+ * Ordering of Spring Security's authorization {@link Advisor}s.
  *
  * @author Josh Cummings
  * @since 5.6
@@ -33,7 +33,7 @@ public enum AuthorizationInterceptorsOrder {
 	FIRST(Integer.MIN_VALUE),
 
 	/**
-	 * {@link PreFilterAuthorizationMethodInterceptor}
+	 * The order for the {@link PreFilterAuthorizationMethodInterceptor}.
 	 */
 	PRE_FILTER,
 
@@ -48,7 +48,7 @@ public enum AuthorizationInterceptorsOrder {
 	POST_AUTHORIZE(500),
 
 	/**
-	 * {@link PostFilterAuthorizationMethodInterceptor}
+	 * The order for the {@link PostFilterAuthorizationMethodInterceptor}.
 	 */
 	POST_FILTER(600),
 

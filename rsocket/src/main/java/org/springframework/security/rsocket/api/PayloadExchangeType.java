@@ -17,7 +17,7 @@
 package org.springframework.security.rsocket.api;
 
 /**
- * The {@link PayloadExchange} type
+ * The {@link PayloadExchange} type.
  *
  * @author Rob Winch
  * @since 5.2

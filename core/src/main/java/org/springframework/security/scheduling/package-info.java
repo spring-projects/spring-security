@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Support for propagating the SecurityContext to Spring's task scheduling abstraction.
+ */
 @NullMarked
 package org.springframework.security.scheduling;
 

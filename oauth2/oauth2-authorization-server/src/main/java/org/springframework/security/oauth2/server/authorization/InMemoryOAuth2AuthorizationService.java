@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2DeviceCode;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
@@ -191,38 +192,38 @@ public final class InMemoryOAuth2AuthorizationService implements OAuth2Authoriza
 	}
 
 	private static boolean matchesState(OAuth2Authorization authorization, String token) {
-		return token.equals(authorization.getAttribute(OAuth2ParameterNames.STATE));
+		return Utf8.isEqual(authorization.getAttribute(OAuth2ParameterNames.STATE), token);
 	}
 
 	private static boolean matchesAuthorizationCode(OAuth2Authorization authorization, String token) {
 		OAuth2Authorization.Token<OAuth2AuthorizationCode> authorizationCode = authorization
 			.getToken(OAuth2AuthorizationCode.class);
-		return authorizationCode != null && authorizationCode.getToken().getTokenValue().equals(token);
+		return authorizationCode != null && Utf8.isEqual(authorizationCode.getToken().getTokenValue(), token);
 	}
 
 	private static boolean matchesAccessToken(OAuth2Authorization authorization, String token) {
 		OAuth2Authorization.Token<OAuth2AccessToken> accessToken = authorization.getToken(OAuth2AccessToken.class);
-		return accessToken != null && accessToken.getToken().getTokenValue().equals(token);
+		return accessToken != null && Utf8.isEqual(accessToken.getToken().getTokenValue(), token);
 	}
 
 	private static boolean matchesRefreshToken(OAuth2Authorization authorization, String token) {
 		OAuth2Authorization.Token<OAuth2RefreshToken> refreshToken = authorization.getToken(OAuth2RefreshToken.class);
-		return refreshToken != null && refreshToken.getToken().getTokenValue().equals(token);
+		return refreshToken != null && Utf8.isEqual(refreshToken.getToken().getTokenValue(), token);
 	}
 
 	private static boolean matchesIdToken(OAuth2Authorization authorization, String token) {
 		OAuth2Authorization.Token<OidcIdToken> idToken = authorization.getToken(OidcIdToken.class);
-		return idToken != null && idToken.getToken().getTokenValue().equals(token);
+		return idToken != null && Utf8.isEqual(idToken.getToken().getTokenValue(), token);
 	}
 
 	private static boolean matchesDeviceCode(OAuth2Authorization authorization, String token) {
 		OAuth2Authorization.Token<OAuth2DeviceCode> deviceCode = authorization.getToken(OAuth2DeviceCode.class);
-		return deviceCode != null && deviceCode.getToken().getTokenValue().equals(token);
+		return deviceCode != null && Utf8.isEqual(deviceCode.getToken().getTokenValue(), token);
 	}
 
 	private static boolean matchesUserCode(OAuth2Authorization authorization, String token) {
 		OAuth2Authorization.Token<OAuth2UserCode> userCode = authorization.getToken(OAuth2UserCode.class);
-		return userCode != null && userCode.getToken().getTokenValue().equals(token);
+		return userCode != null && Utf8.isEqual(userCode.getToken().getTokenValue(), token);
 	}
 
 	@SuppressWarnings("serial")

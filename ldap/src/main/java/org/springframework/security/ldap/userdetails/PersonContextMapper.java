@@ -25,6 +25,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.Assert;
 
 /**
+ * A {@link UserDetailsContextMapper} which maps to and from a {@link Person}.
+ *
  * @author Luke Taylor
  */
 public class PersonContextMapper implements UserDetailsContextMapper {

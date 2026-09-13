@@ -47,6 +47,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 /**
+ * Integration tests for {@link LdapUserDetailsManager}.
+ *
  * @author Luke Taylor
  * @author Eddú Meléndez
  * @author Roman Zabaluev

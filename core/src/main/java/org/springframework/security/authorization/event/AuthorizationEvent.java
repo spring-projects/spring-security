@@ -43,7 +43,7 @@ public class AuthorizationEvent extends ApplicationEvent {
 	private final AuthorizationResult result;
 
 	/**
-	 * Construct an {@link AuthorizationEvent}
+	 * Construct an {@link AuthorizationEvent}.
 	 * @param authentication the principal requiring access
 	 * @param object the object to which access was requested
 	 * @param result whether authorization was granted or denied
@@ -56,7 +56,7 @@ public class AuthorizationEvent extends ApplicationEvent {
 	}
 
 	/**
-	 * Construct an {@link AuthorizationEvent}
+	 * Construct an {@link AuthorizationEvent}.
 	 * @param authentication the principal requiring access
 	 * @param object the object to which access was requested
 	 * @param result whether authorization was granted or denied
@@ -69,7 +69,7 @@ public class AuthorizationEvent extends ApplicationEvent {
 	}
 
 	/**
-	 * Get the principal requiring access
+	 * Get the principal requiring access.
 	 * @return the principal requiring access
 	 */
 	public Supplier<Authentication> getAuthentication() {
@@ -77,7 +77,7 @@ public class AuthorizationEvent extends ApplicationEvent {
 	}
 
 	/**
-	 * Get the object to which access was requested
+	 * Get the object to which access was requested.
 	 * @return the object to which access was requested
 	 */
 	public Object getObject() {
@@ -85,7 +85,7 @@ public class AuthorizationEvent extends ApplicationEvent {
 	}
 
 	/**
-	 * Get the response to the principal's request
+	 * Get the response to the principal's request.
 	 * @return the response to the principal's request
 	 * @since 6.4
 	 */

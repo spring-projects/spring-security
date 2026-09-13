@@ -20,10 +20,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.ldap.userdetails.LdapAuthority;
@@ -39,8 +41,8 @@ import org.springframework.security.ldap.userdetails.LdapAuthority;
  */
 @SuppressWarnings("removal")
 @Deprecated(forRemoval = true)
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonTypeInfo(use = Id.CLASS)
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
 abstract class LdapAuthorityMixin {
 

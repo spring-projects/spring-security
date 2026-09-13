@@ -154,6 +154,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 	}
 
 	/**
+	 * Returns the messages.
 	 * @return the messages
 	 */
 	protected MessageSourceAccessor getMessages() {

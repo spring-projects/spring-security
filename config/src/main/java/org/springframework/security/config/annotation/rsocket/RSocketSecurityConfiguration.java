@@ -30,6 +30,8 @@ import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
+ * {@link Configuration} for RSocket security infrastructure beans.
+ *
  * @author Rob Winch
  * @since 5.2
  */

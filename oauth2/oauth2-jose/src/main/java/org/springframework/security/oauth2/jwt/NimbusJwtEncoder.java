@@ -424,7 +424,7 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 	}
 
 	/**
-	 * Creates a builder for constructing a {@link NimbusJwtEncoder} using the provided
+	 * Creates a builder for constructing a {@link NimbusJwtEncoder} using the provided.
 	 * @param publicKey the {@link RSAPublicKey} and @Param privateKey the
 	 * {@link RSAPrivateKey} to use for signing JWTs
 	 * @return a {@link RsaKeyPairJwtEncoderBuilder}
@@ -435,7 +435,7 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 	}
 
 	/**
-	 * Creates a builder for constructing a {@link NimbusJwtEncoder} using the provided
+	 * Creates a builder for constructing a {@link NimbusJwtEncoder} using the provided.
 	 * @param publicKey the {@link ECPublicKey} and @param privateKey the
 	 * {@link ECPrivateKey} to use for signing JWTs
 	 * @return a {@link EcKeyPairJwtEncoderBuilder}
@@ -446,7 +446,7 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 	}
 
 	/**
-	 * Creates a builder for constructing a {@link NimbusJwtEncoder} using the provided
+	 * Creates a builder for constructing a {@link NimbusJwtEncoder} using the provided.
 	 * @param secretKey
 	 * @return a {@link SecretKeyJwtEncoderBuilder} for configuring the {@link JWK}
 	 * @since 7.0

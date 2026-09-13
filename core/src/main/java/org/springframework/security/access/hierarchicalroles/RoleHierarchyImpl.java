@@ -84,7 +84,7 @@ public final class RoleHierarchyImpl implements RoleHierarchy {
 
 	/**
 	 * {@code rolesReachableInOneOrMoreStepsMap} is a Map that under the key of a specific
-	 * role name contains a set of all roles reachable from this role in 1 or more steps
+	 * role name contains a set of all roles reachable from this role in 1 or more steps.
 	 */
 	private final Map<String, Set<GrantedAuthority>> rolesReachableInOneOrMoreStepsMap;
 
@@ -94,7 +94,7 @@ public final class RoleHierarchyImpl implements RoleHierarchy {
 
 	/**
 	 * Create a role hierarchy instance with the given definition, similar to the
-	 * following:
+	 * following:.
 	 *
 	 * <pre>
 	 *     ROLE_A &gt; ROLE_B
@@ -110,7 +110,7 @@ public final class RoleHierarchyImpl implements RoleHierarchy {
 
 	/**
 	 * Factory method that creates a {@link Builder} instance with the default role prefix
-	 * "ROLE_"
+	 * "ROLE_".
 	 * @return a {@link Builder} instance with the default role prefix "ROLE_"
 	 * @since 6.3
 	 */

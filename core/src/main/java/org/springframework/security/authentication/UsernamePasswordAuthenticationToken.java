@@ -136,7 +136,7 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 	}
 
 	/**
-	 * A builder of {@link UsernamePasswordAuthenticationToken} instances
+	 * A builder of {@link UsernamePasswordAuthenticationToken} instances.
 	 *
 	 * @since 7.0
 	 */

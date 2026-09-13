@@ -38,7 +38,7 @@ public final class RegExpAllowFromStrategy extends AbstractRequestParameterAllow
 	private final Pattern pattern;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param pattern the Pattern to compare against the HTTP parameter value. If the
 	 * pattern matches, the domain will be allowed, else denied.
 	 */

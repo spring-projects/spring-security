@@ -63,6 +63,7 @@ public class AnonymousAuthenticationWebFilter implements WebFilter {
 	}
 
 	/**
+	 * Creates a filter with the given key, principal, and authorities.
 	 * @param key key the key to identify tokens created by this filter
 	 * @param principal the principal which will be used to represent anonymous users
 	 * @param authorities the authority list for anonymous users

@@ -53,7 +53,7 @@ public abstract class AbstractSaml2AuthenticationRequest implements Serializable
 	private final @Nullable String id;
 
 	/**
-	 * Mandatory constructor for the {@link AbstractSaml2AuthenticationRequest}
+	 * Mandatory constructor for the {@link AbstractSaml2AuthenticationRequest}.
 	 * @param samlRequest - the SAMLRequest XML data, SAML encoded, cannot be empty or
 	 * null
 	 * @param relayState - RelayState value that accompanies the request, may be null
@@ -87,7 +87,7 @@ public abstract class AbstractSaml2AuthenticationRequest implements Serializable
 	}
 
 	/**
-	 * Returns the RelayState value, if present in the parameters
+	 * Returns the RelayState value, if present in the parameters.
 	 * @return the RelayState value, or null if not available
 	 */
 	public @Nullable String getRelayState() {
@@ -104,7 +104,7 @@ public abstract class AbstractSaml2AuthenticationRequest implements Serializable
 
 	/**
 	 * The identifier for the {@link RelyingPartyRegistration} associated with this
-	 * request
+	 * request.
 	 * @return the {@link RelyingPartyRegistration} id
 	 * @since 5.8
 	 */
@@ -113,7 +113,7 @@ public abstract class AbstractSaml2AuthenticationRequest implements Serializable
 	}
 
 	/**
-	 * The unique identifier for this Authentication Request
+	 * The unique identifier for this Authentication Request.
 	 * @return the Authentication Request identifier
 	 * @since 5.8
 	 */
@@ -145,6 +145,7 @@ public abstract class AbstractSaml2AuthenticationRequest implements Serializable
 		@Nullable String id;
 
 		/**
+		 * Creates a new Builder.
 		 * @deprecated Use {@link #Builder(RelyingPartyRegistration)} instead
 		 */
 		@Deprecated
@@ -152,7 +153,7 @@ public abstract class AbstractSaml2AuthenticationRequest implements Serializable
 		}
 
 		/**
-		 * Creates a new Builder with relying party registration
+		 * Creates a new Builder with relying party registration.
 		 * @param registration the registration of the relying party.
 		 * @since 5.8
 		 */
@@ -161,7 +162,7 @@ public abstract class AbstractSaml2AuthenticationRequest implements Serializable
 		}
 
 		/**
-		 * Casting the return as the generic subtype, when returning itself
+		 * Casting the return as the generic subtype, when returning itself.
 		 * @return this object
 		 */
 		@SuppressWarnings("unchecked")
@@ -170,7 +171,7 @@ public abstract class AbstractSaml2AuthenticationRequest implements Serializable
 		}
 
 		/**
-		 * Sets the {@code RelayState} parameter that will accompany this AuthNRequest
+		 * Sets the {@code RelayState} parameter that will accompany this AuthNRequest.
 		 * @param relayState the relay state value, unencoded. if null or empty, the
 		 * parameter will be removed from the map.
 		 * @return this object
@@ -181,7 +182,7 @@ public abstract class AbstractSaml2AuthenticationRequest implements Serializable
 		}
 
 		/**
-		 * Sets the {@code SAMLRequest} parameter that will accompany this AuthNRequest
+		 * Sets the {@code SAMLRequest} parameter that will accompany this AuthNRequest.
 		 * @param samlRequest the SAMLRequest parameter.
 		 * @return this object
 		 */
@@ -192,7 +193,7 @@ public abstract class AbstractSaml2AuthenticationRequest implements Serializable
 
 		/**
 		 * Sets the {@code authenticationRequestUri}, a URL that will receive the
-		 * AuthNRequest message
+		 * AuthNRequest message.
 		 * @param authenticationRequestUri the relay state value, unencoded.
 		 * @return this object
 		 */
@@ -202,7 +203,7 @@ public abstract class AbstractSaml2AuthenticationRequest implements Serializable
 		}
 
 		/**
-		 * This is the unique id used in the {@link #samlRequest}
+		 * This is the unique id used in the {@link #samlRequest}.
 		 * @param id the SAML2 request id
 		 * @return the {@link AbstractSaml2AuthenticationRequest.Builder} for further
 		 * configurations

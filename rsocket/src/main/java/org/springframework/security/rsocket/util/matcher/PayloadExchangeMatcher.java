@@ -34,14 +34,14 @@ import org.springframework.security.rsocket.api.PayloadExchange;
 public interface PayloadExchangeMatcher {
 
 	/**
-	 * Determines if a request matches or not
+	 * Determines if a request matches or not.
 	 * @param exchange
 	 * @return
 	 */
 	Mono<MatchResult> matches(PayloadExchange exchange);
 
 	/**
-	 * The result of matching
+	 * The result of matching.
 	 */
 	class MatchResult {
 
@@ -59,7 +59,7 @@ public interface PayloadExchangeMatcher {
 		}
 
 		/**
-		 * Gets potential variables and their values
+		 * Gets potential variables and their values.
 		 * @return
 		 */
 		public @Nullable Map<String, Object> getVariables() {
@@ -67,7 +67,7 @@ public interface PayloadExchangeMatcher {
 		}
 
 		/**
-		 * Creates an instance of {@link MatchResult} that is a match with no variables
+		 * Creates an instance of {@link MatchResult} that is a match with no variables.
 		 * @return
 		 */
 		public static Mono<MatchResult> match() {
@@ -77,7 +77,7 @@ public interface PayloadExchangeMatcher {
 		/**
 		 *
 		 * Creates an instance of {@link MatchResult} that is a match with the specified
-		 * variables
+		 * variables.
 		 * @param variables
 		 * @return
 		 */

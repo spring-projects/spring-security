@@ -31,7 +31,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * A logout handler which clears either - A defined list of cookie names, using the
- * context path as the cookie path OR - A given list of Cookies
+ * context path as the cookie path OR - A given list of Cookies.
  *
  * @author Luke Taylor
  * @author Onur Kagan Ozcan
@@ -59,6 +59,7 @@ public final class CookieClearingLogoutHandler implements LogoutHandler {
 	}
 
 	/**
+	 * Creates a new instance.
 	 * @param cookiesToClear - One or more Cookie objects that must have maxAge of 0
 	 * @since 5.2
 	 */

@@ -35,6 +35,7 @@ public class DefaultLdapUsernameToDnMapper implements LdapUsernameToDnMapper {
 	private final String usernameAttribute;
 
 	/**
+	 * Creates a new instance using the given base DN and username attribute.
 	 * @param userDnBase the base name of the DN
 	 * @param usernameAttribute the attribute to append for the username component.
 	 */

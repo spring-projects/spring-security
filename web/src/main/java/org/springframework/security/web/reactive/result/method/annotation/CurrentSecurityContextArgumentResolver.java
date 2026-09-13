@@ -46,7 +46,7 @@ import org.springframework.web.reactive.result.method.HandlerMethodArgumentResol
 import org.springframework.web.server.ServerWebExchange;
 
 /**
- * Resolves the {@link SecurityContext}
+ * Resolves the {@link SecurityContext}.
  *
  * @author Dan Zheng
  * @author DingHao
@@ -70,7 +70,7 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 	}
 
 	/**
-	 * Sets the {@link BeanResolver} to be used on the expressions
+	 * Sets the {@link BeanResolver} to be used on the expressions.
 	 * @param beanResolver the {@link BeanResolver} to use
 	 */
 	public void setBeanResolver(BeanResolver beanResolver) {
@@ -141,7 +141,6 @@ public class CurrentSecurityContextArgumentResolver extends HandlerMethodArgumen
 		return securityContext;
 	}
 
-	@SuppressWarnings("NullAway") // https://github.com/spring-projects/spring-framework/issues/35371
 	private @Nullable Object resolveSecurityContextFromAnnotation(CurrentSecurityContext annotation,
 			MethodParameter parameter, Object securityContext) {
 		Object securityContextResult = securityContext;

@@ -46,7 +46,7 @@ import static org.springframework.security.web.servlet.util.matcher.PathPatternR
 
 /**
  * An OpenSAML-based implementation of
- * {@link Saml2LogoutRequestValidatorParametersResolver}
+ * {@link Saml2LogoutRequestValidatorParametersResolver}.
  */
 final class BaseOpenSamlLogoutRequestValidatorParametersResolver
 		implements Saml2LogoutRequestValidatorParametersResolver {
@@ -63,7 +63,7 @@ final class BaseOpenSamlLogoutRequestValidatorParametersResolver
 			pathPattern("/logout/saml2/slo"));
 
 	/**
-	 * Constructs a {@link BaseOpenSamlLogoutRequestValidatorParametersResolver}
+	 * Constructs a {@link BaseOpenSamlLogoutRequestValidatorParametersResolver}.
 	 */
 	BaseOpenSamlLogoutRequestValidatorParametersResolver(OpenSamlOperations saml,
 			RelyingPartyRegistrationRepository registrations) {

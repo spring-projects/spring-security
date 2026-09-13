@@ -22,7 +22,7 @@ import tools.jackson.databind.annotation.JsonSerialize;
 import org.springframework.security.web.webauthn.api.AuthenticatorAttachment;
 
 /**
- * Jackson mixin for {@link AuthenticatorAttachment}
+ * Jackson mixin for {@link AuthenticatorAttachment}.
  *
  * @author Rob Winch
  * @since 6.4

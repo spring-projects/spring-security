@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * SCrypt password encoding support.
+ */
 @NullMarked
 package org.springframework.security.crypto.scrypt;
 

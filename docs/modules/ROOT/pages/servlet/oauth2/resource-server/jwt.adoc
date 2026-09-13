@@ -1622,6 +1622,7 @@ fun jwtDecoder(): JwtDecoder {
 == Configuring Timeouts
 
 By default, Resource Server uses connection and socket timeouts of 30 seconds each for coordinating with the authorization server.
+You can override these defaults without changing any code by setting the JDK's `sun.net.client.defaultConnectTimeout` and `sun.net.client.defaultReadTimeout` system properties (in milliseconds).
 
 This may be too short in some scenarios.
 Further, it doesn't take into account more sophisticated patterns like back-off and discovery.

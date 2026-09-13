@@ -38,6 +38,7 @@ public class AuthorizationGrantedEvent<T> extends AuthorizationEvent implements 
 	private static final long serialVersionUID = -8690818228055810339L;
 
 	/**
+	 * Creates a new instance.
 	 * @since 6.4
 	 */
 	public AuthorizationGrantedEvent(Supplier<Authentication> authentication, T object, AuthorizationResult result) {
@@ -45,7 +46,7 @@ public class AuthorizationGrantedEvent<T> extends AuthorizationEvent implements 
 	}
 
 	/**
-	 * Get the object to which access was requested
+	 * Get the object to which access was requested.
 	 * @return the object to which access was requested
 	 * @since 5.8
 	 */

@@ -193,7 +193,7 @@ public class OAuth2AuthenticationTokenMixinTests {
 		OAuth2AuthenticationToken deserialized = this.mapper.readValue(json, OAuth2AuthenticationToken.class);
 		DefaultOidcUser deserializedUser = (DefaultOidcUser) deserialized.getPrincipal();
 		assertThat(deserializedUser.getIdToken().getClaims().get(IdTokenClaimNames.ISS)).isInstanceOf(URL.class)
-				.hasToString("https://example.com/issuer");
+			.hasToString("https://example.com/issuer");
 	}
 
 	private static String asJson(OAuth2AuthenticationToken authentication) {

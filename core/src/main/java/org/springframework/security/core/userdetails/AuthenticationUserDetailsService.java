@@ -28,6 +28,7 @@ import org.springframework.security.core.Authentication;
 public interface AuthenticationUserDetailsService<T extends Authentication> {
 
 	/**
+	 * Loads the {@link UserDetails} for the given authentication token.
 	 * @param token The pre-authenticated authentication token
 	 * @return UserDetails for the given authentication token, never null.
 	 * @throws UsernameNotFoundException if no user details can be found for the given

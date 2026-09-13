@@ -49,6 +49,7 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 	private final ApplicationContext context;
 
 	/**
+	 * Creates a new instance using the given {@link ApplicationContext}.
 	 * @param context
 	 */
 	InitializeUserDetailsBeanManagerConfigurer(ApplicationContext context) {
@@ -112,6 +113,8 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 		}
 
 		/**
+		 * Returns a bean of the requested class if there's just a single registered
+		 * component, null otherwise.
 		 * @return a bean of the requested class if there's just a single registered
 		 * component, null otherwise.
 		 */

@@ -33,7 +33,7 @@ import org.springframework.util.ObjectUtils;
 
 /**
  * An implementation of {@link OAuth2TokenValidator} for verifying claims in a Jwt-based
- * access token
+ * access token.
  *
  * <p>
  * Because clocks can differ between the Jwt source, say the Authorization Server, and its
@@ -62,7 +62,7 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 	private Clock clock = Clock.systemUTC();
 
 	/**
-	 * A basic instance with no custom verification and the default max clock skew
+	 * A basic instance with no custom verification and the default max clock skew.
 	 */
 	public JwtTimestampValidator() {
 		this(DEFAULT_MAX_CLOCK_SKEW);
@@ -124,7 +124,7 @@ public final class JwtTimestampValidator implements OAuth2TokenValidator<Jwt> {
 	}
 
 	/**
-	 * Use this {@link Clock} with {@link Instant#now()} for assessing timestamp validity
+	 * Use this {@link Clock} with {@link Instant#now()} for assessing timestamp validity.
 	 * @param clock
 	 */
 	public void setClock(Clock clock) {

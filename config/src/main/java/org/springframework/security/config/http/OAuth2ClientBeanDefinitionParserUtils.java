@@ -26,6 +26,8 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.util.StringUtils;
 
 /**
+ * Utility methods used by OAuth2 client XML namespace bean definition parsers.
+ *
  * @author Joe Grandja
  * @since 5.4
  */

@@ -22,7 +22,7 @@ import org.springframework.lang.Contract;
 import org.springframework.security.core.Authentication;
 
 /**
- * Evaluates <code>Authentication</code> tokens
+ * Evaluates <code>Authentication</code> tokens.
  *
  * @author Ben Alex
  */

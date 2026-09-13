@@ -182,6 +182,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Josh Cummings
  * @author Evgeniy Cheban
  */
+@SuppressWarnings("removal")
 @ExtendWith(SpringTestContextExtension.class)
 public class OAuth2ResourceServerConfigurerTests {
 

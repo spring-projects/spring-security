@@ -19,10 +19,12 @@ package org.springframework.security.oauth2.client.jackson2;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
@@ -41,9 +43,9 @@ import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
  * on Jackson 3
  */
 @Deprecated(forRemoval = true)
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
-		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonTypeInfo(use = Id.CLASS)
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE,
+		isGetterVisibility = Visibility.NONE)
 @JsonIgnoreProperties(value = { "attributes" }, ignoreUnknown = true)
 abstract class DefaultOidcUserMixin {
 

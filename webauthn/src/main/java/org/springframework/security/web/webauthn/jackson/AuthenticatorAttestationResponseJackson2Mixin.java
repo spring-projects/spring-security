@@ -27,7 +27,7 @@ import org.springframework.security.web.webauthn.api.AuthenticatorAttestationRes
 import org.springframework.security.web.webauthn.api.AuthenticatorTransport;
 
 /**
- * Jackson mixin for {@link AuthenticatorAttestationResponse}
+ * Jackson mixin for {@link AuthenticatorAttestationResponse}.
  *
  * @author Rob Winch
  * @since 6.4

@@ -30,6 +30,7 @@ public class PreAuthenticatedCredentialsNotFoundException extends Authentication
 	}
 
 	/**
+	 * Creates a new instance with the given message and cause.
 	 * @param message The message for the Exception
 	 * @param cause The Exception that caused this Exception.
 	 */

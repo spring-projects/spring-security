@@ -66,7 +66,7 @@ public final class AuthenticatorAttestationResponse extends AuthenticatorRespons
 	 * The <a href=
 	 * "https://www.w3.org/TR/webauthn-3/#dom-authenticatorattestationresponse-gettransports">transports</a>
 	 * returns the <a href=
-	 * "https://www.w3.org/TR/webauthn-3/#dom-authenticatorattestationresponse-transports-slot">transports</a>
+	 * "https://www.w3.org/TR/webauthn-3/#dom-authenticatorattestationresponse-transports-slot">transports</a>.
 	 * @return the transports
 	 */
 	public @Nullable List<AuthenticatorTransport> getTransports() {

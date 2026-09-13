@@ -26,7 +26,7 @@ import org.springframework.web.server.ServerWebExchangeDecorator;
 
 /**
  * Overrides the {@link ServerWebExchange#getPrincipal()} with the provided
- * SecurityContext
+ * SecurityContext.
  *
  * @author Rob Winch
  * @since 5.0

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JacksonModule;
 import tools.jackson.databind.json.JsonMapper;
@@ -88,7 +89,7 @@ public class SecurityJacksonModulesTests {
 		assertThat(deserialized.get("url")).isInstanceOf(URL.class).hasToString("https://example.com");
 	}
 
-	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+	@JsonTypeInfo(use = Id.CLASS)
 	private static class TestGrantedAuthority implements GrantedAuthority {
 
 		@Override

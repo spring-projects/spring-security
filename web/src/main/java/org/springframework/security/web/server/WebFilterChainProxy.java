@@ -99,7 +99,7 @@ public class WebFilterChainProxy implements WebFilter {
 	}
 
 	/**
-	 * Used to decorate the original {@link WebFilterChain} for each request
+	 * Used to decorate the original {@link WebFilterChain} for each request.
 	 *
 	 * <p>
 	 * By default, this decorates the filter chain with a {@link DefaultWebFilterChain}
@@ -144,7 +144,7 @@ public class WebFilterChainProxy implements WebFilter {
 	}
 
 	/**
-	 * A {@link WebFilterChainDecorator} that uses the {@link DefaultWebFilterChain}
+	 * A {@link WebFilterChainDecorator} that uses the {@link DefaultWebFilterChain}.
 	 *
 	 * @author Josh Cummings
 	 * @since 6.0

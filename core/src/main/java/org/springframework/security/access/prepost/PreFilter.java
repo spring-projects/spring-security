@@ -49,12 +49,14 @@ import java.lang.annotation.Target;
 public @interface PreFilter {
 
 	/**
+	 * Returns the Spring-EL expression to be evaluated.
 	 * @return the Spring-EL expression to be evaluated before invoking the protected
 	 * method
 	 */
 	String value();
 
 	/**
+	 * Returns the name of the parameter to filter.
 	 * @return the name of the parameter which should be filtered (must be a non-null
 	 * collection instance) If the method contains a single collection argument, then this
 	 * attribute can be omitted.

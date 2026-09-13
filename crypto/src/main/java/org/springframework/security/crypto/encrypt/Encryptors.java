@@ -16,7 +16,6 @@
 
 package org.springframework.security.crypto.encrypt;
 
-import org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgorithm;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
 /**
@@ -42,9 +41,14 @@ public final class Encryptors {
 	 * not be shared
 	 * @param salt a hex-encoded, random, site-global salt value to use to generate the
 	 * key
+	 * @deprecated Use {@link AesGcmBytesEncryptor#withPassword(String, CharSequence)}
+	 * instead.
 	 */
+	@Deprecated
+	@SuppressWarnings("deprecation")
 	public static BytesEncryptor stronger(CharSequence password, CharSequence salt) {
-		return new AesBytesEncryptor(password.toString(), salt, KeyGenerators.secureRandom(16), CipherAlgorithm.GCM);
+		return new AesBytesEncryptor(password.toString(), salt, KeyGenerators.secureRandom(16),
+				AesBytesEncryptor.CipherAlgorithm.GCM);
 	}
 
 	/**
@@ -53,18 +57,16 @@ public final class Encryptors {
 	 * Function #2). Salts the password to prevent dictionary attacks against the key. The
 	 * provided salt is expected to be hex-encoded; it should be random and at least 8
 	 * bytes in length. Also applies a random 16-byte initialization vector to ensure each
-	 * encrypted message will be unique. Requires Java 6. NOTE: This mode is not
-	 * <a href="https://en.wikipedia.org/wiki/Authenticated_encryption">authenticated</a>
-	 * and does not provide any guarantees about the authenticity of the data. For a more
-	 * secure alternative, users should prefer
-	 * {@link #stronger(CharSequence, CharSequence)}.
+	 * encrypted message will be unique. Requires Java 6.
 	 * @param password the password used to generate the encryptor's secret key; should
 	 * not be shared
 	 * @param salt a hex-encoded, random, site-global salt value to use to generate the
 	 * key
-	 *
-	 * @see Encryptors#stronger(CharSequence, CharSequence)
+	 * @deprecated Use {@link AesCbcBytesEncryptor#withPassword(String, CharSequence)}
+	 * instead.
 	 */
+	@Deprecated
+	@SuppressWarnings("deprecation")
 	public static BytesEncryptor standard(CharSequence password, CharSequence salt) {
 		return new AesBytesEncryptor(password.toString(), salt, KeyGenerators.secureRandom(16));
 	}
@@ -74,8 +76,12 @@ public final class Encryptors {
 	 * text is hex-encoded.
 	 * @param password the password used to generate the encryptor's secret key; should
 	 * not be shared
+	 * @deprecated Use {@link AesGcmBytesEncryptor#withPassword(String, CharSequence)}
+	 * instead.
 	 * @see Encryptors#stronger(CharSequence, CharSequence)
 	 */
+	@Deprecated
+	@SuppressWarnings("deprecation")
 	public static TextEncryptor delux(CharSequence password, CharSequence salt) {
 		return new HexEncodingTextEncryptor(stronger(password, salt));
 	}
@@ -85,8 +91,12 @@ public final class Encryptors {
 	 * text is hex-encoded.
 	 * @param password the password used to generate the encryptor's secret key; should
 	 * not be shared
+	 * @deprecated Use {@link AesCbcBytesEncryptor#withPassword(String, CharSequence)}
+	 * instead.
 	 * @see Encryptors#standard(CharSequence, CharSequence)
 	 */
+	@Deprecated
+	@SuppressWarnings("deprecation")
 	public static TextEncryptor text(CharSequence password, CharSequence salt) {
 		return new HexEncodingTextEncryptor(standard(password, salt));
 	}

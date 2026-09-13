@@ -18,6 +18,9 @@ package org.springframework.security.config.http;
 
 import java.util.Arrays;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -35,6 +38,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.PreFlightRequestHandler;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -67,6 +71,14 @@ public class HttpCorsConfigTests {
 					"Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext");
 	}
 
+	// FIXME: Spring Framework 7.1 removed HandlerMappingIntrospector, which this test's
+	// implicit (no configuration-source-ref) <cors/> scenario relied on to add CORS
+	// headers to a plain, non-preflight request before authorization runs. Per
+	// https://github.com/spring-projects/spring-framework/issues/36481, this was "never
+	// an intended way of using HandlerMappingIntrospector" and is not coming back;
+	// decide whether to update this test's expectations (e.g. require an explicit
+	// CorsConfigurationSource bean) or remove the assertion, then re-enable.
+	@Disabled
 	@Test
 	public void getWhenUsingCorsThenDoesSpringSecurityCorsHandshake() throws Exception {
 		this.spring.configLocations(this.xml("WithCors")).autowire();
@@ -103,6 +115,19 @@ public class HttpCorsConfigTests {
 		this.mvc.perform(options("/").with(this.preflight()))
 				.andExpect(corsResponseHeaders())
 				.andExpect(status().isOk());
+		// @formatter:on
+	}
+
+	@Test
+	public void optionsWhenUsingPreFlightRequestHandlerThenHandlesPreFlightRequest() throws Exception {
+		this.spring.configLocations(this.xml("WithPreFlightRequestHandler")).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/").with(this.approved()))
+				.andExpect(header().doesNotExist("X-Pre-Flight"))
+				.andExpect(status().isIAmATeapot());
+		this.mvc.perform(options("/").with(this.preflight()))
+				.andExpect(status().isOk())
+				.andExpect(header().exists("X-Pre-Flight"));
 		// @formatter:on
 	}
 
@@ -154,6 +179,15 @@ public class HttpCorsConfigTests {
 			configuration.setAllowedOrigins(Arrays.asList("*"));
 			configuration.setAllowedMethods(Arrays.asList(RequestMethod.GET.name(), RequestMethod.POST.name()));
 			super.registerCorsConfiguration("/**", configuration);
+		}
+
+	}
+
+	static class MyPreFlightRequestHandler implements PreFlightRequestHandler {
+
+		@Override
+		public void handlePreFlight(HttpServletRequest request, HttpServletResponse response) {
+			response.addHeader("X-Pre-Flight", "Handled");
 		}
 
 	}

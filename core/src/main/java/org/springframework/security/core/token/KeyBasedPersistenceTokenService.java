@@ -132,11 +132,12 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 		// Verification
 		String content = creationTime + ":" + pseudoRandomNumber + ":" + extendedInfo.toString();
 		String expectedSha512Hex = Sha512DigestUtils.shaHex(content + ":" + serverSecret);
-		Assert.isTrue(expectedSha512Hex.equals(sha1Hex), "Key verification failure");
+		Assert.isTrue(Utf8.isEqual(expectedSha512Hex, sha1Hex), "Key verification failure");
 		return new DefaultToken(key, creationTime, extendedInfo.toString());
 	}
 
 	/**
+	 * Generates a pseudo random number.
 	 * @return a pseudo random number (hex encoded)
 	 */
 	private String generatePseudoRandomNumber() {
@@ -150,6 +151,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 	}
 
 	/**
+	 * Sets the server secret to use.
 	 * @param serverSecret the new secret, which can contain a ":" if desired (never being
 	 * sent to the client)
 	 */
@@ -162,6 +164,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 	}
 
 	/**
+	 * Sets the number of bytes to use for the pseudo random number.
 	 * @param pseudoRandomNumberBytes changes the number of bytes issued (must be &gt;= 0;
 	 * defaults to 256)
 	 */

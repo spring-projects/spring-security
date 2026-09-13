@@ -77,6 +77,7 @@ public final class RequestAttributeSecurityContextRepository implements Security
 	}
 
 	/**
+	 * Loads the {@link SecurityContext} from the request attribute.
 	 * @deprecated please see {@link SecurityContextRepository#loadContext}
 	 */
 	@Override

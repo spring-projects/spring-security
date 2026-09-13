@@ -22,7 +22,7 @@ import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.security.core.Authentication;
 
 /**
- * Allows permissions to be pre-cached when using pre or post filtering with expressions
+ * Allows permissions to be pre-cached when using pre or post filtering with expressions.
  *
  * @author Luke Taylor
  * @since 3.1

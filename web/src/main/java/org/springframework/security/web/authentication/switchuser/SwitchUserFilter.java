@@ -493,6 +493,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 	}
 
 	/**
+	 * Sets the {@link SwitchUserAuthorityChanger} to use.
 	 * @param switchUserAuthorityChanger to use to fine-tune the authorities granted to
 	 * subclasses (may be null if SwitchUserFilter should not fine-tune the authorities)
 	 */

@@ -36,14 +36,15 @@ public final class PathPatternMessageMatcherBuilderFactoryBean
 
 	/**
 	 * Create {@link PathPatternMessageMatcher}s using
-	 * {@link PathPatternParser#defaultInstance}
+	 * {@link PathPatternParser#defaultInstance}.
 	 */
 	public PathPatternMessageMatcherBuilderFactoryBean() {
 
 	}
 
 	/**
-	 * Create {@link PathPatternMessageMatcher}s using the given {@link PathPatternParser}
+	 * Create {@link PathPatternMessageMatcher}s using the given
+	 * {@link PathPatternParser}.
 	 * @param parser the {@link PathPatternParser} to use
 	 */
 	public PathPatternMessageMatcherBuilderFactoryBean(PathPatternParser parser) {

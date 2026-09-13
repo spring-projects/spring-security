@@ -33,13 +33,13 @@ import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEnti
 public interface UserCredentialRepository {
 
 	/**
-	 * Deletes an entry by credential id
+	 * Deletes an entry by credential id.
 	 * @param credentialId {@link CredentialRecord#getCredentialId()}
 	 */
 	void delete(Bytes credentialId);
 
 	/**
-	 * Saves a {@link CredentialRecord}
+	 * Saves a {@link CredentialRecord}.
 	 * @param credentialRecord the {@link CredentialRecord} to save.
 	 */
 	void save(CredentialRecord credentialRecord);

@@ -17,6 +17,7 @@
 package org.springframework.security.config.ldap;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 
 import org.w3c.dom.Element;
@@ -37,6 +38,9 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * Parses the {@code <ldap-server>} element to register an embedded or a
+ * context-source-based LDAP server.
+ *
  * @author Luke Taylor
  * @author Eddú Meléndez
  * @author Evgeniy Cheban
@@ -70,7 +74,7 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String OPT_DEFAULT_LDIF_FILE = "classpath*:*.ldif";
 
-	/** Defines the port the LDAP_PROVIDER server should run on */
+	/** Defines the port the LDAP_PROVIDER server should run on. */
 	public static final String ATT_PORT = "port";
 
 	private static final String RANDOM_PORT = "0";
@@ -188,7 +192,7 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private String getDefaultPort() {
-		try (ServerSocket serverSocket = new ServerSocket(DEFAULT_PORT)) {
+		try (ServerSocket serverSocket = new ServerSocket(DEFAULT_PORT, 50, InetAddress.getLoopbackAddress())) {
 			return String.valueOf(serverSocket.getLocalPort());
 		}
 		catch (IOException ex) {

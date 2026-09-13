@@ -20,7 +20,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 /**
- * Allows testing mixing of different annotation types
+ * Allows testing mixing of different annotation types.
  *
  * @author Luke Taylor
  */

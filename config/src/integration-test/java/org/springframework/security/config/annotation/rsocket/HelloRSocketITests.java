@@ -50,6 +50,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
+ * Integration tests for securing RSocket requests and responses.
+ *
  * @author Rob Winch
  */
 @ContextConfiguration

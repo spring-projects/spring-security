@@ -35,7 +35,7 @@ public class UserDetailsServiceConfigurer<B extends ProviderManagerBuilder<B>, C
 		extends AbstractDaoAuthenticationConfigurer<B, C, U> {
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param userDetailsService the {@link UserDetailsService} that should be used
 	 */
 	public UserDetailsServiceConfigurer(U userDetailsService) {

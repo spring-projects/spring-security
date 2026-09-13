@@ -27,7 +27,7 @@ import org.springframework.security.core.Authentication;
 
 /**
  * Facade which isolates Spring Security's requirements for evaluating security
- * expressions from the implementation of the underlying expression objects
+ * expressions from the implementation of the underlying expression objects.
  *
  * @author Luke Taylor
  * @author Evgeniy Cheban
@@ -36,6 +36,7 @@ import org.springframework.security.core.Authentication;
 public interface SecurityExpressionHandler<T> extends AopInfrastructureBean {
 
 	/**
+	 * Returns an expression parser for the expressions used by the implementation.
 	 * @return an expression parser for the expressions used by the implementation.
 	 */
 	ExpressionParser getExpressionParser();

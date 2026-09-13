@@ -30,6 +30,9 @@ import org.springframework.security.access.prepost.PostInvocationAuthorizationAd
 import org.springframework.security.core.Authentication;
 
 /**
+ * A {@link PostInvocationAuthorizationAdvice} that applies {@code PostFilter} and
+ * {@code PostAuthorize} expressions.
+ *
  * @author Luke Taylor
  * @since 3.0
  * @deprecated Use

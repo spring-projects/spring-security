@@ -34,7 +34,7 @@ import org.springframework.web.server.ServerWebExchange;
 
 /**
  * An {@link AuthenticationConverter} that extracts the OIDC Logout Token authentication
- * request
+ * request.
  *
  * @author Josh Cummings
  * @since 6.2

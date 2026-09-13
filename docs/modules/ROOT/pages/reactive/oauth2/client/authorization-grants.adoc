@@ -695,7 +695,7 @@ class OAuth2ClientController {
 [NOTE]
 ====
 `ServerWebExchange` is an OPTIONAL attribute.
-If not provided, it will be obtained from the https://projectreactor.io/docs/core/release/reference/#context[Reactor's Context] via the key `ServerWebExchange.class`.
+If not provided, it will be obtained from the https://projectreactor.io/docs/core/release/reference/advancedFeatures/context.html[Reactor's Context] via the key `ServerWebExchange.class`.
 ====
 
 [[oauth2-client-jwt-bearer]]

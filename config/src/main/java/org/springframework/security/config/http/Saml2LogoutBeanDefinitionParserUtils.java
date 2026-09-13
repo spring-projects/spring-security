@@ -31,6 +31,8 @@ import org.springframework.security.saml2.provider.service.web.authentication.lo
 import org.springframework.util.StringUtils;
 
 /**
+ * Utility methods for parsing SAML 2.0 logout XML configuration elements.
+ *
  * @author Marcus da Coregio
  * @since 5.7
  */

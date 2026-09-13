@@ -25,7 +25,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.util.Assert;
 
 /**
- * An {@link AuthenticationManager} that observes the authentication
+ * An {@link AuthenticationManager} that observes the authentication.
  *
  * @author Josh Cummings
  * @since 6.0
@@ -59,7 +59,7 @@ public final class ObservationAuthenticationManager implements AuthenticationMan
 	}
 
 	/**
-	 * Use the provided convention for reporting observation data
+	 * Use the provided convention for reporting observation data.
 	 * @param convention The provided convention
 	 *
 	 * @since 6.1

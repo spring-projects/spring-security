@@ -124,6 +124,22 @@ public class InMemoryUserDetailsManagerTests {
 	}
 
 	@Test
+	public void changePasswordWhenCurrentUsernameIsNotInLowercaseThenChangesPassword() {
+		UserDetails userNotLowerCase = User.withUserDetails(PasswordEncodedUser.user()).username("User").build();
+		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager(userNotLowerCase);
+		Authentication authentication = new UsernamePasswordAuthenticationToken("User", userNotLowerCase.getPassword(),
+				userNotLowerCase.getAuthorities());
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		manager.setSecurityContextHolderStrategy(strategy);
+
+		String newPassword = "newPassword";
+		manager.changePassword(userNotLowerCase.getPassword(), newPassword);
+
+		assertThat(manager.loadUserByUsername("User").getPassword()).isEqualTo(newPassword);
+	}
+
+	@Test
 	public void createUserWhenUserAlreadyExistsThenException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.manager.createUser(this.user))
 			.withMessage("user should not exist");

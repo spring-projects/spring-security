@@ -36,6 +36,7 @@ import org.jspecify.annotations.Nullable;
 public interface SavedRequest extends java.io.Serializable {
 
 	/**
+	 * Returns the URL for the saved request.
 	 * @return the URL for the saved request, allowing a redirect to be performed.
 	 */
 	String getRedirectUrl();

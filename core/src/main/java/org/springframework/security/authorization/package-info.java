@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Core authorization support, including AuthorizationManager implementations.
+ */
 @NullMarked
 package org.springframework.security.authorization;
 

@@ -31,6 +31,8 @@ import javax.crypto.Cipher;
 import org.jspecify.annotations.Nullable;
 
 /**
+ * An encryptor that uses RSA keys directly, without wrapping via a keystore.
+ *
  * @author Dave Syer
  * @since 6.3
  */

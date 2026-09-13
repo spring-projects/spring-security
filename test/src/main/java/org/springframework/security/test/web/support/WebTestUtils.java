@@ -41,7 +41,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
- * A utility class for testing spring security
+ * A utility class for testing spring security.
  *
  * @author Rob Winch
  * @since 4.0

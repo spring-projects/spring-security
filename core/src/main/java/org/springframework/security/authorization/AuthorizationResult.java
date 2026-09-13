@@ -19,7 +19,7 @@ package org.springframework.security.authorization;
 import java.io.Serializable;
 
 /**
- * Represents an authorization result
+ * Represents an authorization result.
  *
  * @author Marcus da Coregio
  * @since 6.3
@@ -27,6 +27,7 @@ import java.io.Serializable;
 public interface AuthorizationResult extends Serializable {
 
 	/**
+	 * Returns whether the access has been granted.
 	 * @return whether the access has been granted
 	 */
 	boolean isGranted();

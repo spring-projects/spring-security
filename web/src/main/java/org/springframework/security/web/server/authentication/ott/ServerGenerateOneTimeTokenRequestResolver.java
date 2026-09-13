@@ -31,7 +31,7 @@ import org.springframework.web.server.ServerWebExchange;
 public interface ServerGenerateOneTimeTokenRequestResolver {
 
 	/**
-	 * Resolves {@link GenerateOneTimeTokenRequest} from {@link ServerWebExchange}
+	 * Resolves {@link GenerateOneTimeTokenRequest} from {@link ServerWebExchange}.
 	 * @param exchange {@link ServerWebExchange} to resolve
 	 * @return {@link GenerateOneTimeTokenRequest}
 	 */

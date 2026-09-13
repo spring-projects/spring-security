@@ -31,6 +31,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 
 /**
+ * A factory for reading key pairs and secret keys from a Java {@link KeyStore}.
+ *
  * @author Dave Syer
  * @author Tim Ysewyn
  * @since 6.3

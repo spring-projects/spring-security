@@ -27,7 +27,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.util.Assert;
 
 /**
- * An {@link ReactiveAuthenticationManager} that observes the authentication
+ * An {@link ReactiveAuthenticationManager} that observes the authentication.
  *
  * @author Josh Cummings
  * @since 6.0
@@ -66,7 +66,7 @@ public class ObservationReactiveAuthenticationManager implements ReactiveAuthent
 	}
 
 	/**
-	 * Use the provided convention for reporting observation data
+	 * Use the provided convention for reporting observation data.
 	 * @param convention The provided convention
 	 *
 	 * @since 6.1

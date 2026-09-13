@@ -33,7 +33,7 @@ import org.springframework.security.oauth2.client.oidc.authentication.logout.Log
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcLogoutToken;
 
 /**
- * An in-memory implementation of {@link OidcSessionRegistry}
+ * An in-memory implementation of {@link OidcSessionRegistry}.
  *
  * @author Josh Cummings
  * @since 6.2
@@ -50,7 +50,7 @@ public final class InMemoryOidcSessionRegistry implements OidcSessionRegistry {
 	}
 
 	@Override
-	public OidcSessionInformation removeSessionInformation(String clientSessionId) {
+	public @Nullable OidcSessionInformation removeSessionInformation(String clientSessionId) {
 		OidcSessionInformation information = this.sessions.remove(clientSessionId);
 		if (information != null) {
 			this.logger.trace("Removed client session");

@@ -55,14 +55,14 @@ public final class PreFilterAuthorizationMethodInterceptor implements Authorizat
 
 	/**
 	 * Creates a {@link PreFilterAuthorizationMethodInterceptor} using the provided
-	 * parameters
+	 * parameters.
 	 */
 	public PreFilterAuthorizationMethodInterceptor() {
 		this.pointcut = AuthorizationMethodPointcuts.forAnnotations(PreFilter.class);
 	}
 
 	/**
-	 * Use this {@link MethodSecurityExpressionHandler}
+	 * Use this {@link MethodSecurityExpressionHandler}.
 	 * @param expressionHandler the {@link MethodSecurityExpressionHandler} to use
 	 */
 	public void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {

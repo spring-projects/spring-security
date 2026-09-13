@@ -36,7 +36,7 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Test open SAML signatures
+ * Test open SAML signatures.
  */
 public class OpenSaml5SigningUtilsTests {
 

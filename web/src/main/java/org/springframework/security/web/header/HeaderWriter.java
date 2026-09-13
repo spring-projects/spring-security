@@ -20,7 +20,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Contract for writing headers to a {@link HttpServletResponse}
+ * Contract for writing headers to a {@link HttpServletResponse}.
  *
  * @author Marten Deinum
  * @author Rob Winch

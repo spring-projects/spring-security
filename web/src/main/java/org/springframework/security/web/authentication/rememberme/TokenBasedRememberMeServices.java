@@ -108,7 +108,7 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 	}
 
 	/**
-	 * Construct the instance with the parameters provided
+	 * Construct the instance with the parameters provided.
 	 * @param key the signature key
 	 * @param userDetailsService the {@link UserDetailsService}
 	 * @param encodingAlgorithm the {@link RememberMeTokenAlgorithm} used to encode the
@@ -245,7 +245,7 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 	}
 
 	/**
-	 * Sets the algorithm to be used to match the token signature
+	 * Sets the algorithm to be used to match the token signature.
 	 * @param matchingAlgorithm the matching algorithm
 	 * @since 5.8
 	 */

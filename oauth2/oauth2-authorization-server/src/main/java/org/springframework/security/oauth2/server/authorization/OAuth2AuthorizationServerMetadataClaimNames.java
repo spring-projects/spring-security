@@ -46,7 +46,7 @@ public class OAuth2AuthorizationServerMetadataClaimNames {
 
 	/**
 	 * {@code issuer} - the {@code URL} the Authorization Server asserts as its Issuer
-	 * Identifier
+	 * Identifier.
 	 */
 	public static final String ISSUER = "issuer";
 
@@ -80,7 +80,7 @@ public class OAuth2AuthorizationServerMetadataClaimNames {
 	public static final String TOKEN_ENDPOINT_AUTH_METHODS_SUPPORTED = "token_endpoint_auth_methods_supported";
 
 	/**
-	 * {@code jwks_uri} - the {@code URL} of the JSON Web Key Set
+	 * {@code jwks_uri} - the {@code URL} of the JSON Web Key Set.
 	 */
 	public static final String JWKS_URI = "jwks_uri";
 
@@ -132,19 +132,19 @@ public class OAuth2AuthorizationServerMetadataClaimNames {
 
 	/**
 	 * {@code code_challenge_methods_supported} - the Proof Key for Code Exchange (PKCE)
-	 * {@code code_challenge_method} values supported
+	 * {@code code_challenge_method} values supported.
 	 */
 	public static final String CODE_CHALLENGE_METHODS_SUPPORTED = "code_challenge_methods_supported";
 
 	/**
 	 * {@code tls_client_certificate_bound_access_tokens} - {@code true} to indicate
-	 * support for mutual-TLS client certificate-bound access tokens
+	 * support for mutual-TLS client certificate-bound access tokens.
 	 */
 	public static final String TLS_CLIENT_CERTIFICATE_BOUND_ACCESS_TOKENS = "tls_client_certificate_bound_access_tokens";
 
 	/**
 	 * {@code dpop_signing_alg_values_supported} - the {@link JwsAlgorithms JSON Web
-	 * Signature (JWS) algorithms} supported for DPoP Proof JWTs
+	 * Signature (JWS) algorithms} supported for DPoP Proof JWTs.
 	 */
 	public static final String DPOP_SIGNING_ALG_VALUES_SUPPORTED = "dpop_signing_alg_values_supported";
 

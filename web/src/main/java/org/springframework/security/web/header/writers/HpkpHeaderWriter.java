@@ -139,7 +139,7 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	private String hpkpHeaderValue;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param maxAgeInSeconds maps to {@link #setMaxAgeInSeconds(long)}
 	 * @param includeSubDomains maps to {@link #setIncludeSubDomains(boolean)}
 	 * @param reportOnly maps to {@link #setReportOnly(boolean)}
@@ -152,7 +152,7 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param maxAgeInSeconds maps to {@link #setMaxAgeInSeconds(long)}
 	 * @param includeSubDomains maps to {@link #setIncludeSubDomains(boolean)}
 	 */
@@ -161,7 +161,7 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param maxAgeInSeconds maps to {@link #setMaxAgeInSeconds(long)}
 	 */
 	public HpkpHeaderWriter(long maxAgeInSeconds) {
@@ -169,7 +169,7 @@ public final class HpkpHeaderWriter implements HeaderWriter {
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 */
 	public HpkpHeaderWriter() {
 		this(DEFAULT_MAX_AGE_SECONDS);

@@ -103,7 +103,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	private OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefault();
 
 	/**
-	 * Configures a {@link NimbusJwtDecoder} with the given parameters
+	 * Configures a {@link NimbusJwtDecoder} with the given parameters.
 	 * @param jwtProcessor - the {@link JWTProcessor} to use
 	 */
 	public NimbusJwtDecoder(JWTProcessor<SecurityContext> jwtProcessor) {
@@ -112,7 +112,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	}
 
 	/**
-	 * Use this {@link Jwt} Validator
+	 * Use this {@link Jwt} Validator.
 	 * @param jwtValidator - the Jwt Validator to use
 	 */
 	public void setJwtValidator(OAuth2TokenValidator<Jwt> jwtValidator) {
@@ -121,7 +121,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	}
 
 	/**
-	 * Use the following {@link Converter} for manipulating the JWT's claim set
+	 * Use the following {@link Converter} for manipulating the JWT's claim set.
 	 * @param claimSetConverter the {@link Converter} to use
 	 */
 	public void setClaimSetConverter(Converter<Map<String, Object>, Map<String, Object>> claimSetConverter) {
@@ -130,7 +130,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	}
 
 	/**
-	 * Decode and validate the JWT from its compact claims representation format
+	 * Decode and validate the JWT from its compact claims representation format.
 	 * @param token the JWT value
 	 * @return a validated {@link Jwt}
 	 * @throws JwtException when the token is malformed or otherwise invalid
@@ -250,7 +250,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	}
 
 	/**
-	 * Use the given public key to validate JWTs
+	 * Use the given public key to validate JWTs.
 	 * @param key the public key to use
 	 * @return a {@link PublicKeyJwtDecoderBuilder} for further configurations
 	 */
@@ -282,6 +282,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	 * <a target="_blank" href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a>
 	 * uri.
 	 */
+	@SuppressWarnings("removal")
 	public static final class JwkSetUriJwtDecoderBuilder {
 
 		private static final JOSEObjectTypeVerifier<SecurityContext> JWT_TYPE_VERIFIER = new DefaultJOSEObjectTypeVerifier<>(
@@ -299,7 +300,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		private final Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
 
-		private RestOperations restOperations = new RestTemplateWithNimbusDefaultTimeouts();
+		private RestOperations restOperations = new RestTemplateWithDefaultTimeouts();
 
 		private Cache cache = new NoOpCache("default");
 
@@ -577,12 +578,13 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	 * A RestTemplate with timeouts configured to avoid blocking indefinitely when
 	 * fetching JWK Sets while holding the reentrantLock.
 	 */
-	private static final class RestTemplateWithNimbusDefaultTimeouts extends RestTemplate {
+	@SuppressWarnings("removal")
+	private static final class RestTemplateWithDefaultTimeouts extends RestTemplate {
 
-		private RestTemplateWithNimbusDefaultTimeouts() {
+		private RestTemplateWithDefaultTimeouts() {
 			SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-			requestFactory.setConnectTimeout(JWKSourceBuilder.DEFAULT_HTTP_CONNECT_TIMEOUT);
-			requestFactory.setReadTimeout(JWKSourceBuilder.DEFAULT_HTTP_READ_TIMEOUT);
+			requestFactory.setConnectTimeout(JwtDecoderProviderConfigurationUtils.getConnectTimeout());
+			requestFactory.setReadTimeout(JwtDecoderProviderConfigurationUtils.getReadTimeout());
 			setRequestFactory(requestFactory);
 		}
 

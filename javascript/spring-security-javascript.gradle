@@ -23,7 +23,7 @@ plugins {
 
 node {
     download = true
-    version = '20.17.0'
+    version = '24.21.0'
 }
 
 tasks.named('check') {

@@ -22,6 +22,9 @@ import org.springframework.test.context.support.AbstractTestExecutionListener;
 import org.springframework.util.Assert;
 
 /**
+ * A {@link TestExecutionListener} that delegates all its methods to another
+ * {@link TestExecutionListener}.
+ *
  * @author Rob Winch
  * @since 5.0
  */

@@ -30,7 +30,7 @@ import org.springframework.web.server.ServerWebExchange;
 
 /**
  * A {@link ServerAccessDeniedHandler} which delegates to multiple
- * {@link ServerAccessDeniedHandler}s based on a {@link ServerWebExchangeMatcher}
+ * {@link ServerAccessDeniedHandler}s based on a {@link ServerWebExchangeMatcher}.
  *
  * @author Josh Cummings
  * @since 5.1
@@ -45,7 +45,7 @@ public class ServerWebExchangeDelegatingServerAccessDeniedHandler implements Ser
 	};
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param handlers a list of {@link ServerWebExchangeMatcher}/
 	 * {@link ServerAccessDeniedHandler} pairs that should be used. Each is considered in
 	 * the order they are specified and only the first {@link ServerAccessDeniedHandler}
@@ -56,7 +56,7 @@ public class ServerWebExchangeDelegatingServerAccessDeniedHandler implements Ser
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param handlers a list of {@link ServerWebExchangeMatcher}/
 	 * {@link ServerAccessDeniedHandler} pairs that should be used. Each is considered in
 	 * the order they are specified and only the first {@link ServerAccessDeniedHandler}

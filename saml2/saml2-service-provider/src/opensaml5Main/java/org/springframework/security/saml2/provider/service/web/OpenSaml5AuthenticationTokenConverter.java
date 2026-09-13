@@ -44,7 +44,7 @@ public final class OpenSaml5AuthenticationTokenConverter implements Authenticati
 
 	/**
 	 * Constructs a {@link OpenSaml5AuthenticationTokenConverter} given a repository for
-	 * {@link RelyingPartyRegistration}s
+	 * {@link RelyingPartyRegistration}s.
 	 * @param registrations the repository for {@link RelyingPartyRegistration}s
 	 * {@link RelyingPartyRegistration}s
 	 */

@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Support for checking whether a password has been compromised.
+ */
 @NullMarked
 package org.springframework.security.authentication.password;
 

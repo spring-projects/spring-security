@@ -41,14 +41,14 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 	private final XFrameOptionsMode frameOptionsMode;
 
 	/**
-	 * Creates an instance with {@link XFrameOptionsMode#DENY}
+	 * Creates an instance with {@link XFrameOptionsMode#DENY}.
 	 */
 	public XFrameOptionsHeaderWriter() {
 		this(XFrameOptionsMode.DENY);
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param frameOptionsMode the {@link XFrameOptionsMode} to use. If using
 	 * {@link XFrameOptionsMode#ALLOW_FROM}, use Content-Security-Policy with the <a href=
 	 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors">frame-ancestors</a>
@@ -121,6 +121,7 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 		SAMEORIGIN("SAMEORIGIN"),
 
 		/**
+		 * Allows the page to be framed only by the specified origin.
 		 * @deprecated ALLOW-FROM is an obsolete directive that no longer works in modern
 		 * browsers. Instead use Content-Security-Policy with the <a href=
 		 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors">frame-ancestors</a>

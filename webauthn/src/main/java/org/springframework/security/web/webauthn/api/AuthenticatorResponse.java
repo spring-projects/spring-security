@@ -33,7 +33,7 @@ public abstract class AuthenticatorResponse implements Serializable {
 	private final Bytes clientDataJSON;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param clientDataJSON the {@link #getClientDataJSON()}
 	 */
 	AuthenticatorResponse(Bytes clientDataJSON) {

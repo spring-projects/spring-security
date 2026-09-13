@@ -72,6 +72,7 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
+	@SuppressWarnings("removal")
 	private final RestOperations restOperations;
 
 	private Converter<String, RequestEntity<?>> requestEntityConverter;
@@ -79,13 +80,14 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	private Converter<OAuth2TokenIntrospectionClaimAccessor, ? extends OAuth2AuthenticatedPrincipal> authenticationConverter = this::defaultAuthenticationConverter;
 
 	/**
-	 * Creates a {@code OpaqueTokenAuthenticationProvider} with the provided parameters
+	 * Creates a {@code OpaqueTokenAuthenticationProvider} with the provided parameters.
 	 * @param introspectionUri The introspection endpoint uri
 	 * @param clientId The URL-encoded client id authorized to introspect
 	 * @param clientSecret The URL-encoded client secret authorized to introspect
 	 * @deprecated Please use {@link SpringOpaqueTokenIntrospector.Builder}
 	 */
 	@Deprecated(since = "6.5", forRemoval = true)
+	@SuppressWarnings("removal")
 	public SpringOpaqueTokenIntrospector(String introspectionUri, String clientId, String clientSecret) {
 		Assert.notNull(introspectionUri, "introspectionUri cannot be null");
 		Assert.notNull(clientId, "clientId cannot be null");
@@ -103,6 +105,7 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	 * @param introspectionUri The introspection endpoint uri
 	 * @param restOperations The client for performing the introspection request
 	 */
+	@SuppressWarnings("removal")
 	public SpringOpaqueTokenIntrospector(String introspectionUri, RestOperations restOperations) {
 		Assert.notNull(introspectionUri, "introspectionUri cannot be null");
 		Assert.notNull(restOperations, "restOperations cannot be null");
@@ -278,7 +281,7 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 
 	/**
 	 * Creates a {@code SpringOpaqueTokenIntrospector.Builder} with the given
-	 * introspection endpoint uri
+	 * introspection endpoint uri.
 	 * @param introspectionUri The introspection endpoint uri
 	 * @return the {@link SpringOpaqueTokenIntrospector.Builder}
 	 * @since 6.5
@@ -375,10 +378,11 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		}
 
 		/**
-		 * Creates a {@code SpringOpaqueTokenIntrospector}
+		 * Creates a {@code SpringOpaqueTokenIntrospector}.
 		 * @return the {@link SpringOpaqueTokenIntrospector}
 		 * @since 6.5
 		 */
+		@SuppressWarnings("removal")
 		public SpringOpaqueTokenIntrospector build() {
 			Assert.notNull(this.clientId, "clientId cannot be null");
 			Assert.notNull(this.clientSecret, "clientSecret cannot be null");

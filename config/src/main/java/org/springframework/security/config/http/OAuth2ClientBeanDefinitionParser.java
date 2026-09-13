@@ -33,6 +33,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 
 /**
+ * Parses OAuth2 Client XML configuration elements.
+ *
  * @author Joe Grandja
  * @since 5.3
  */

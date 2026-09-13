@@ -53,6 +53,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
+ * Integration tests for connecting to an {@link RSocketMessageHandler} secured server.
+ *
  * @author Rob Winch
  * @author Luis Felipe Vega
  * @author Jesús Ascama Arias

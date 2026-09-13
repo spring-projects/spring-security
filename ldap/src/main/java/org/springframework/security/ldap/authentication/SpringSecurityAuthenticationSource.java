@@ -69,6 +69,7 @@ public class SpringSecurityAuthenticationSource implements AuthenticationSource 
 	}
 
 	/**
+	 * Returns the credentials of the logged in user.
 	 * @see org.springframework.ldap.core.AuthenticationSource#getCredentials()
 	 */
 	@Override

@@ -61,7 +61,9 @@ public final class GrantedAuthorityFromAssertionAttributesUserDetailsService
 			if (value != null) {
 				if (value instanceof List) {
 					for (Object o : (List<?>) value) {
-						grantedAuthorities.add(createSimpleGrantedAuthority(o));
+						if (o != null) {
+							grantedAuthorities.add(createSimpleGrantedAuthority(o));
+						}
 					}
 				}
 				else {

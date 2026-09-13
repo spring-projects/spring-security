@@ -105,7 +105,7 @@ public abstract class AbstractConfigAttributeRequestMatcherRegistry<C> extends A
 
 	/**
 	 * Creates the mapping of {@link RequestMatcher} to {@link Collection} of
-	 * {@link ConfigAttribute} instances
+	 * {@link ConfigAttribute} instances.
 	 * @return the mapping of {@link RequestMatcher} to {@link Collection} of
 	 * {@link ConfigAttribute} instances. Cannot be null.
 	 */
@@ -123,7 +123,7 @@ public abstract class AbstractConfigAttributeRequestMatcherRegistry<C> extends A
 
 	/**
 	 * A mapping of {@link RequestMatcher} to {@link Collection} of
-	 * {@link ConfigAttribute} instances
+	 * {@link ConfigAttribute} instances.
 	 */
 	static final class UrlMapping {
 

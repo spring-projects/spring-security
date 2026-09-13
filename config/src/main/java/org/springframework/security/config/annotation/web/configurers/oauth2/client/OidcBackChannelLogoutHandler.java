@@ -63,6 +63,7 @@ public final class OidcBackChannelLogoutHandler implements LogoutHandler {
 
 	private final OidcSessionRegistry sessionRegistry;
 
+	@SuppressWarnings("removal")
 	private RestOperations restOperations = new RestTemplate();
 
 	private String logoutUri = "{baseUrl}/logout/connect/back-channel/{registrationId}";

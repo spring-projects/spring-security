@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Support for running an embedded Kerberos KDC in tests.
+ */
 @NullMarked
 package org.springframework.security.kerberos.test;
 

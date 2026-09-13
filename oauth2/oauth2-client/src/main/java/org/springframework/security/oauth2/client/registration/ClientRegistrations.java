@@ -60,6 +60,7 @@ public final class ClientRegistrations {
 
 	private static final String OAUTH_METADATA_PATH = "/.well-known/oauth-authorization-server";
 
+	@SuppressWarnings("removal")
 	private static final RestTemplate rest = new RestTemplate();
 
 	static {

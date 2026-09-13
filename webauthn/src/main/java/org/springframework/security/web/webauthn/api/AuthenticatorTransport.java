@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.webauthn.api;
 
+import java.io.ObjectStreamException;
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -119,6 +120,27 @@ public final class AuthenticatorTransport implements Serializable {
 
 	public static AuthenticatorTransport[] values() {
 		return new AuthenticatorTransport[] { USB, NFC, BLE, HYBRID, INTERNAL };
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof AuthenticatorTransport other)) {
+			return false;
+		}
+		return this.value.equals(other.value);
+	}
+
+	@Override
+	public int hashCode() {
+		return this.value.hashCode();
+	}
+
+	@Serial
+	private Object readResolve() throws ObjectStreamException {
+		return valueOf(this.value);
 	}
 
 }

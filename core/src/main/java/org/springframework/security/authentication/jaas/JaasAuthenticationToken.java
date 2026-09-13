@@ -27,7 +27,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 /**
  * UsernamePasswordAuthenticationToken extension to carry the Jaas LoginContext that the
- * user was logged into
+ * user was logged into.
  *
  * @author Ray Krueger
  */
@@ -63,7 +63,7 @@ public class JaasAuthenticationToken extends UsernamePasswordAuthenticationToken
 	}
 
 	/**
-	 * A builder of {@link JaasAuthenticationToken} instances
+	 * A builder of {@link JaasAuthenticationToken} instances.
 	 *
 	 * @since 7.0
 	 */
@@ -77,7 +77,7 @@ public class JaasAuthenticationToken extends UsernamePasswordAuthenticationToken
 		}
 
 		/**
-		 * Use this {@link LoginContext}
+		 * Use this {@link LoginContext}.
 		 * @param loginContext the {@link LoginContext} to use
 		 * @return the {@link Builder} for further configurations
 		 */

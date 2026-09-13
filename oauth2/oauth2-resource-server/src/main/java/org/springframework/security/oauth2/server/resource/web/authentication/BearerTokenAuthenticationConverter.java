@@ -31,7 +31,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * Implementation of {@link AuthenticationConverter}, that converts request to
- * {@link BearerTokenAuthenticationToken}
+ * {@link BearerTokenAuthenticationToken}.
  *
  * @author Max Batischev
  * @author Josh Cummings

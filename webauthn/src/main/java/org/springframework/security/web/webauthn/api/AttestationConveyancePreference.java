@@ -87,7 +87,7 @@ public final class AttestationConveyancePreference implements Serializable {
 	}
 
 	/**
-	 * Gets an instance of {@link AttestationConveyancePreference}
+	 * Gets an instance of {@link AttestationConveyancePreference}.
 	 * @param value the {@link #getValue()}
 	 * @return an {@link AttestationConveyancePreference}
 	 */

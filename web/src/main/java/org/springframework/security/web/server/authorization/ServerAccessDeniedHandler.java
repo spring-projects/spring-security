@@ -22,6 +22,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.server.ServerWebExchange;
 
 /**
+ * Handles a denied access attempt for a reactive web application.
+ *
  * @author Rob Winch
  * @since 5.0
  */

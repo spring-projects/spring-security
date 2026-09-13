@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 import org.springframework.util.function.SingletonSupplier;
 
 /**
- * A {@link JwtDecoder} that lazily initializes another {@link JwtDecoder}
+ * A {@link JwtDecoder} that lazily initializes another {@link JwtDecoder}.
  *
  * @author Josh Cummings
  * @since 5.6

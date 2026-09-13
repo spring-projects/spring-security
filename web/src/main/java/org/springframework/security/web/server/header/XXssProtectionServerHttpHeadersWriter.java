@@ -38,7 +38,7 @@ public class XXssProtectionServerHttpHeadersWriter implements ServerHttpHeadersW
 	private HeaderValue headerValue;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 */
 	public XXssProtectionServerHttpHeadersWriter() {
 		this.headerValue = HeaderValue.DISABLED;

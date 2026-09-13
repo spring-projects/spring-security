@@ -49,6 +49,7 @@ public class RegisterSessionAuthenticationStrategy implements SessionAuthenticat
 	private final SessionRegistry sessionRegistry;
 
 	/**
+	 * Creates a new instance.
 	 * @param sessionRegistry the session registry which should be updated when the
 	 * authenticated session is changed.
 	 */

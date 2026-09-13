@@ -91,6 +91,12 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 	}
 
 	@Test
+	public void setPostAuthenticationChecksWhenNullThenIllegalArgumentException() {
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.manager.setPostAuthenticationChecks(null));
+	}
+
+	@Test
 	public void authenticateWhenCustomSchedulerThenUsed() {
 		given(this.scheduler.schedule(any())).willAnswer((a) -> {
 			Runnable r = a.getArgument(0);

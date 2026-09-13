@@ -17,16 +17,17 @@
 package org.springframework.security.web.webauthn.jackson;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import org.springframework.security.web.webauthn.api.AuthenticatorSelectionCriteria;
 
 /**
- * Jackson mixin for {@link AuthenticatorSelectionCriteria}
+ * Jackson mixin for {@link AuthenticatorSelectionCriteria}.
  *
  * @author Rob Winch
  * @since 6.4
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(Include.NON_NULL)
 abstract class AuthenticatorSelectionCriteriaMixin {
 
 }

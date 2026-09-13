@@ -98,7 +98,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 
 	/**
 	 * SecurityContext instance used to check for equality with default (unauthenticated)
-	 * content
+	 * content.
 	 */
 	private Object contextObject = this.securityContextHolderStrategy.createEmptyContext();
 
@@ -202,6 +202,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 	}
 
 	/**
+	 * Reads the {@link SecurityContext} from the given session, if present.
 	 * @param httpSession the session obtained from the request.
 	 */
 	private @Nullable SecurityContext readSecurityContextFromSession(HttpSession httpSession) {

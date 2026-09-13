@@ -107,7 +107,7 @@ public final class PathPatternRequestMatcherBuilderFactoryBean implements
 
 	/**
 	 * Use this as the base path for patterns built by the resulting
-	 * {@link PathPatternRequestMatcher.Builder} instance
+	 * {@link PathPatternRequestMatcher.Builder} instance.
 	 * @param basePath the base path to use
 	 * @since 7.0
 	 * @see PathPatternRequestMatcher.Builder#basePath(String)

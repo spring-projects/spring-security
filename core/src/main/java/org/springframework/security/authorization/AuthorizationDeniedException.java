@@ -22,7 +22,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.util.Assert;
 
 /**
- * An {@link AccessDeniedException} that contains the {@link AuthorizationResult}
+ * An {@link AccessDeniedException} that contains the {@link AuthorizationResult}.
  *
  * @author Marcus da Coregio
  * @since 6.3

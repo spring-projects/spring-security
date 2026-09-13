@@ -26,6 +26,8 @@ import org.springframework.security.rsocket.core.SecuritySocketAcceptorIntercept
 import org.springframework.security.rsocket.util.matcher.PayloadExchangeMatcher.MatchResult;
 
 /**
+ * {@link Configuration} that exposes a {@link SecuritySocketAcceptorInterceptor} bean.
+ *
  * @author Rob Winch
  * @since 5.2
  */

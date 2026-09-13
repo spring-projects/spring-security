@@ -46,7 +46,7 @@ import org.springframework.web.reactive.result.method.HandlerMethodArgumentResol
 import org.springframework.web.server.ServerWebExchange;
 
 /**
- * Resolves the Authentication
+ * Resolves the Authentication.
  *
  * @author Rob Winch
  * @author DingHao
@@ -70,7 +70,7 @@ public class AuthenticationPrincipalArgumentResolver extends HandlerMethodArgume
 	}
 
 	/**
-	 * Sets the {@link BeanResolver} to be used on the expressions
+	 * Sets the {@link BeanResolver} to be used on the expressions.
 	 * @param beanResolver the {@link BeanResolver} to use
 	 */
 	public void setBeanResolver(BeanResolver beanResolver) {
@@ -95,7 +95,6 @@ public class AuthenticationPrincipalArgumentResolver extends HandlerMethodArgume
 			});
 	}
 
-	@SuppressWarnings("NullAway") // https://github.com/spring-projects/spring-framework/issues/35371
 	private @Nullable Object resolvePrincipal(MethodParameter parameter, @Nullable Object principal) {
 		AuthenticationPrincipal annotation = findMethodAnnotation(parameter);
 		if (annotation == null) {

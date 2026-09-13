@@ -31,7 +31,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
 /**
- * Matches if all the provided {@link ServerWebExchangeMatcher} match
+ * Matches if all the provided {@link ServerWebExchangeMatcher} match.
  *
  * @author Rob Winch
  * @author Mathieu Ouellet

@@ -79,6 +79,7 @@ public class ConcurrentSessionControlAuthenticationStrategy
 	private SessionLimit sessionLimit = SessionLimit.of(1);
 
 	/**
+	 * Creates a new instance using the given session registry.
 	 * @param sessionRegistry the session registry which should be updated when the
 	 * authenticated session is changed.
 	 */

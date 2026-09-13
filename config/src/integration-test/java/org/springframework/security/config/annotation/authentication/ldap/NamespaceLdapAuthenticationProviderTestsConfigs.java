@@ -25,6 +25,8 @@ import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.PersonContextMapper;
 
 /**
+ * Test configurations for namespace-based LDAP {@code AuthenticationProvider} setup.
+ *
  * @author Rob Winch
  *
  */

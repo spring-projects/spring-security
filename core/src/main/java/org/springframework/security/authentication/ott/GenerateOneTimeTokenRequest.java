@@ -21,7 +21,7 @@ import java.time.Duration;
 import org.springframework.util.Assert;
 
 /**
- * Class to store information related to an One-Time Token authentication request
+ * Class to store information related to an One-Time Token authentication request.
  *
  * @author Marcus da Coregio
  * @since 6.4

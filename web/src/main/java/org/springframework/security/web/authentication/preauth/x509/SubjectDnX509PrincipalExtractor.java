@@ -76,7 +76,7 @@ public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor, 
 	}
 
 	/**
-	 * Sets the regular expression which will by used to extract the user name from the
+	 * Sets the regular expression which will be used to extract the user name from the
 	 * certificate's Subject DN.
 	 * <p>
 	 * It should contain a single group; for example the default expression
@@ -93,6 +93,7 @@ public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor, 
 	}
 
 	/**
+	 * Sets the message source to use for resolving error messages.
 	 * @since 5.5
 	 */
 	@Override

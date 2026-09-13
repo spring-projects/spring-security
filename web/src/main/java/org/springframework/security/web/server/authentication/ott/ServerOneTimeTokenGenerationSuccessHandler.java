@@ -31,7 +31,7 @@ import org.springframework.web.server.ServerWebExchange;
 public interface ServerOneTimeTokenGenerationSuccessHandler {
 
 	/**
-	 * Handles generated one-time tokens
+	 * Handles generated one-time tokens.
 	 * @param exchange the {@link ServerWebExchange} to use
 	 * @param oneTimeToken the {@link OneTimeToken} to handle
 	 * @return a completion handling (success or error)

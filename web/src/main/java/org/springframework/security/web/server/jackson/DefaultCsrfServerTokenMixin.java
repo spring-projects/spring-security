@@ -19,6 +19,7 @@ package org.springframework.security.web.server.jackson;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 /**
  * Jackson mixin class to serialize/deserialize
@@ -30,7 +31,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @since 7.0
  * @see WebServerJacksonModule
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+@JsonTypeInfo(use = Id.CLASS)
 class DefaultCsrfServerTokenMixin {
 
 	/**

@@ -17,7 +17,7 @@ permissions:
 jobs:
   build:
     name: Build
-    uses: spring-io/spring-security-release-tools/.github/workflows/build.yml@b92832ecbc7cbe969201e6beafbde0ee400cf095 # v1.0.15
+    uses: spring-io/spring-security-release-tools/.github/workflows/build.yml@3f6cc7ffc137ca160061749d5f34dc30d5f36986 # v1.0.17
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest ]
@@ -30,7 +30,7 @@ jobs:
   deploy-artifacts:
     name: Deploy Artifacts
     needs: [ build ]
-    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@b92832ecbc7cbe969201e6beafbde0ee400cf095 # v1.0.15
+    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@3f6cc7ffc137ca160061749d5f34dc30d5f36986 # v1.0.17
     with:
       should-deploy-artifacts: ${{ needs.build.outputs.should-deploy-artifacts }}
       default-publish-milestones-central: true
@@ -39,31 +39,18 @@ jobs:
   deploy-schema:
     name: Deploy Schema
     needs: [ build ]
-    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-schema.yml@b92832ecbc7cbe969201e6beafbde0ee400cf095 # v1.0.15
+    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-schema.yml@3f6cc7ffc137ca160061749d5f34dc30d5f36986 # v1.0.17
     with:
       should-deploy-schema: ${{ needs.build.outputs.should-deploy-artifacts }}
       java-version: 25
     secrets: inherit
-  perform-release:
-    name: Perform Release
-    needs: [ deploy-artifacts, deploy-schema ]
-    uses: spring-io/spring-security-release-tools/.github/workflows/perform-release.yml@b92832ecbc7cbe969201e6beafbde0ee400cf095 # v1.0.15
-    with:
-      should-perform-release: ${{ needs.deploy-artifacts.outputs.artifacts-deployed }}
-      project-version: ${{ needs.deploy-artifacts.outputs.project-version }}
-      milestone-repo-url: https://repo1.maven.org/maven2
-      release-repo-url: https://repo1.maven.org/maven2
-      artifact-path: org/springframework/security/spring-security-core
-      slack-announcing-id: spring-security-announcing
-      java-version: 25
-    secrets: inherit
   send-notification:
     name: Send Notification
-    needs: [ perform-release ]
+    needs: [ deploy-artifacts, deploy-schema ]
     if: ${{ !success() }}
     runs-on: ubuntu-latest
     steps:
       - name: Send Notification
-        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@b92832ecbc7cbe969201e6beafbde0ee400cf095 # v1.0.15
+        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@3f6cc7ffc137ca160061749d5f34dc30d5f36986 # v1.0.17
         with:
           webhook-url: ${{ secrets.SPRING_SECURITY_CI_GCHAT_WEBHOOK_URL }}

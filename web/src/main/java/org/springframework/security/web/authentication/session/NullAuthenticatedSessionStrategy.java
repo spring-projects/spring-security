@@ -23,6 +23,8 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.Authentication;
 
 /**
+ * A {@link SessionAuthenticationStrategy} which takes no action.
+ *
  * @author Luke Taylor
  * @since 3.0
  */

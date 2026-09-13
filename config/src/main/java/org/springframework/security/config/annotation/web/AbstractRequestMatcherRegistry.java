@@ -61,7 +61,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	}
 
 	/**
-	 * Gets the {@link ApplicationContext}
+	 * Gets the {@link ApplicationContext}.
 	 * @return the {@link ApplicationContext}
 	 */
 	protected final ApplicationContext getApplicationContext() {
@@ -111,7 +111,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 
 	/**
 	 * Associates a list of {@link RequestMatcher} instances with the
-	 * {@link AbstractRequestMatcherRegistry}
+	 * {@link AbstractRequestMatcherRegistry}.
 	 * @param requestMatchers the {@link RequestMatcher} instances
 	 * @return the object that is chained after creating the {@link RequestMatcher}
 	 */
@@ -203,6 +203,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 * If a specific {@link RequestMatcher} must be specified, use
 	 * {@link #requestMatchers(RequestMatcher...)} instead
 	 * </p>
+	 * .
 	 * @param method the {@link HttpMethod} to use or {@code null} for any
 	 * {@link HttpMethod}.
 	 * @return the object that is chained after creating the {@link RequestMatcher}.

@@ -24,7 +24,7 @@ import java.time.Duration
  *
  * @author Eleftheria Stein
  * @since 5.4
- * @property maxAge he value for the max-age directive of the Strict-Transport-Security
+ * @property maxAge the value for the max-age directive of the Strict-Transport-Security
  * header.
  * @property includeSubdomains if true, subdomains should be considered HSTS Hosts too.
  * @property preload if true, preload will be included in HSTS Header.

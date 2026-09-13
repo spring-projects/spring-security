@@ -27,7 +27,7 @@ import org.springframework.security.core.session.SessionDestroyedEvent;
 
 /**
  * Published by the {@link HttpSessionEventPublisher} when a HttpSession is removed from
- * the container
+ * the container.
  *
  * @author Ray Krueger
  * @author Luke Taylor

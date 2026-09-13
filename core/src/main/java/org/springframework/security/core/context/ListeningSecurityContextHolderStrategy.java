@@ -66,7 +66,7 @@ public final class ListeningSecurityContextHolderStrategy implements SecurityCon
 
 	/**
 	 * Construct a {@link ListeningSecurityContextHolderStrategy} based on
-	 * {@link ThreadLocalSecurityContextHolderStrategy}
+	 * {@link ThreadLocalSecurityContextHolderStrategy}.
 	 * @param listeners the listeners that should be notified when the
 	 * {@link SecurityContext} is {@link #setContext(SecurityContext) set} or
 	 * {@link #clearContext() cleared}
@@ -79,7 +79,7 @@ public final class ListeningSecurityContextHolderStrategy implements SecurityCon
 
 	/**
 	 * Construct a {@link ListeningSecurityContextHolderStrategy} based on
-	 * {@link ThreadLocalSecurityContextHolderStrategy}
+	 * {@link ThreadLocalSecurityContextHolderStrategy}.
 	 * @param listeners the listeners that should be notified when the
 	 * {@link SecurityContext} is {@link #setContext(SecurityContext) set} or
 	 * {@link #clearContext() cleared}
@@ -91,7 +91,7 @@ public final class ListeningSecurityContextHolderStrategy implements SecurityCon
 	}
 
 	/**
-	 * Construct a {@link ListeningSecurityContextHolderStrategy}
+	 * Construct a {@link ListeningSecurityContextHolderStrategy}.
 	 * @param listeners the listeners that should be notified when the
 	 * {@link SecurityContext} is {@link #setContext(SecurityContext) set} or
 	 * {@link #clearContext() cleared}
@@ -108,7 +108,7 @@ public final class ListeningSecurityContextHolderStrategy implements SecurityCon
 	}
 
 	/**
-	 * Construct a {@link ListeningSecurityContextHolderStrategy}
+	 * Construct a {@link ListeningSecurityContextHolderStrategy}.
 	 * @param listeners the listeners that should be notified when the
 	 * {@link SecurityContext} is {@link #setContext(SecurityContext) set} or
 	 * {@link #clearContext() cleared}

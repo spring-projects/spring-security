@@ -28,6 +28,10 @@ import org.springframework.web.util.pattern.PathPattern;
 import org.springframework.web.util.pattern.PathPatternParser;
 
 /**
+ * A base class for registering {@link ServerWebExchangeMatcher}s. For example, it might
+ * allow for specifying which {@link ServerWebExchangeMatcher} require a certain level of
+ * authorization.
+ *
  * @author Rob Winch
  * @since 5.0
  */
@@ -94,7 +98,7 @@ public abstract class AbstractServerWebExchangeMatcherRegistry<T> {
 	}
 
 	/**
-	 * Associates a list of {@link ServerWebExchangeMatcher} instances
+	 * Associates a list of {@link ServerWebExchangeMatcher} instances.
 	 * @param matchers the {@link ServerWebExchangeMatcher} instances
 	 * @return the object that is chained after creating the
 	 * {@link ServerWebExchangeMatcher}
@@ -117,7 +121,7 @@ public abstract class AbstractServerWebExchangeMatcherRegistry<T> {
 	}
 
 	/**
-	 * Associates a {@link ServerWebExchangeMatcher} instances
+	 * Associates a {@link ServerWebExchangeMatcher} instances.
 	 * @param matcher the {@link ServerWebExchangeMatcher} instance
 	 * @return the object that is chained after creating the
 	 * {@link ServerWebExchangeMatcher}

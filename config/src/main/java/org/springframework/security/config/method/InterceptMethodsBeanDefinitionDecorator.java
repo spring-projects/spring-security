@@ -45,6 +45,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 
 /**
+ * Decorates a bean definition with the {@code intercept-methods} element.
+ *
  * @author Luke Taylor
  * @author Ben Alex
  *

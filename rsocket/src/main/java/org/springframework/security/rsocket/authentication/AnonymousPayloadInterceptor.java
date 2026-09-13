@@ -32,7 +32,7 @@ import org.springframework.util.Assert;
 
 /**
  * If {@link ReactiveSecurityContextHolder} is empty populates an
- * {@code AnonymousAuthenticationToken}
+ * {@code AnonymousAuthenticationToken}.
  *
  * @author Rob Winch
  * @since 5.2
@@ -57,6 +57,7 @@ public class AnonymousPayloadInterceptor implements PayloadInterceptor, Ordered 
 	}
 
 	/**
+	 * Creates a filter with the given principal and authorities.
 	 * @param key key the key to identify tokens created by this filter
 	 * @param principal the principal which will be used to represent anonymous users
 	 * @param authorities the authority list for anonymous users

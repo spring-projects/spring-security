@@ -45,7 +45,7 @@ public class PortMapperImpl implements PortMapper {
 
 	/**
 	 * Returns the translated (Integer -&gt; Integer) version of the original port mapping
-	 * specified via setHttpsPortMapping()
+	 * specified via setHttpsPortMapping().
 	 */
 	public Map<Integer, Integer> getTranslatedPortMappings() {
 		return this.httpsPortMappings;

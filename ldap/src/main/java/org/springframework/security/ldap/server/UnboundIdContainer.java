@@ -17,6 +17,7 @@
 package org.springframework.security.ldap.server;
 
 import java.io.InputStream;
+import java.net.InetAddress;
 
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
@@ -40,6 +41,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
+ * An {@link EmbeddedLdapServerContainer} backed by an UnboundID in-memory LDAP server.
+ *
  * @author Eddú Meléndez
  */
 public class UnboundIdContainer
@@ -98,7 +101,8 @@ public class UnboundIdContainer
 		try {
 			InMemoryDirectoryServerConfig config = new InMemoryDirectoryServerConfig(this.defaultPartitionSuffix);
 			config.addAdditionalBindCredentials("uid=admin,ou=system", "secret");
-			config.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig("LDAP", this.port));
+			config.setListenerConfigs(
+					InMemoryListenerConfig.createLDAPConfig("LDAP", InetAddress.getLoopbackAddress(), this.port, null));
 			config.setEnforceSingleStructuralObjectClass(false);
 			config.setEnforceAttributeSyntaxCompliance(true);
 			DN dn = new DN(this.defaultPartitionSuffix);

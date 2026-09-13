@@ -128,7 +128,7 @@ public abstract class AbstractSecurityWebApplicationInitializer implements WebAp
 	}
 
 	/**
-	 * Registers the springSecurityFilterChain
+	 * Registers the springSecurityFilterChain.
 	 * @param servletContext the {@link ServletContext}
 	 */
 	private void insertSpringSecurityFilterChain(ServletContext servletContext) {

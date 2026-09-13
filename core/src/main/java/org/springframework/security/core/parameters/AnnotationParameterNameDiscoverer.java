@@ -179,7 +179,7 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 	private interface ParameterNameFactory<T extends AccessibleObject> {
 
 		/**
-		 * Gets the {@link Annotation}s at a specified index
+		 * Gets the {@link Annotation}s at a specified index.
 		 * @param t
 		 * @return
 		 */

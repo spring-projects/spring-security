@@ -47,7 +47,7 @@ public class WebAuthenticationDetails implements Serializable {
 	}
 
 	/**
-	 * Constructor to add Jackson2 serialize/deserialize support
+	 * Constructor to add Jackson2 serialize/deserialize support.
 	 * @param remoteAddress remote address of current request
 	 * @param sessionId session id
 	 * @since 5.7

@@ -35,6 +35,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 import reactor.util.context.Context;
 
 import org.springframework.http.HttpHeaders;
@@ -77,6 +78,7 @@ import org.springframework.web.reactive.function.client.ExchangeFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -320,6 +322,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 		doReturn(Mono.just(authorizedClient)).when(this.authorizedClientRepository)
 			.loadAuthorizedClient(eq(clientRegistration.getRegistrationId()), eq(this.authentication),
 					eq(this.exchange));
+		// Capture the original session id.
+		String originalSessionId = this.exchange.getSession().map(WebSession::getId).block();
 		this.webClient.get()
 			.uri(this.serverUrl)
 			.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction
@@ -356,6 +360,10 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 				assertThat(oidcUser.getSubject()).isEqualTo("subject-1234");
 				assertThat(oidcUser.getName()).isEqualTo("refreshed-username");
 			});
+		// Verify that session id was not changed.
+		StepVerifier.create(this.exchange.getSession())
+			.assertNext((session) -> assertThat(session.getId()).isEqualTo(originalSessionId))
+			.verifyComplete();
 	}
 
 	@Test

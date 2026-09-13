@@ -69,6 +69,70 @@ public class WebSessionServerRequestCacheTests {
 	}
 
 	@Test
+	public void saveRequestGetRequestWhenAppleTouchIconThenNotFound() {
+		MockServerWebExchange exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("/apple-touch-icon.png").accept(MediaType.TEXT_HTML));
+		this.cache.saveRequest(exchange).block();
+		URI saved = this.cache.getRedirectUri(exchange).block();
+		assertThat(saved).isNull();
+	}
+
+	@Test
+	public void saveRequestGetRequestWhenAppleTouchIconPrecomposedThenNotFound() {
+		MockServerWebExchange exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("/apple-touch-icon-precomposed.png").accept(MediaType.TEXT_HTML));
+		this.cache.saveRequest(exchange).block();
+		URI saved = this.cache.getRedirectUri(exchange).block();
+		assertThat(saved).isNull();
+	}
+
+	@Test
+	public void saveRequestGetRequestWhenAppleTouchIconSizedPrecomposedThenNotFound() {
+		MockServerWebExchange exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("/apple-touch-icon-152x152-precomposed.png").accept(MediaType.TEXT_HTML));
+		this.cache.saveRequest(exchange).block();
+		URI saved = this.cache.getRedirectUri(exchange).block();
+		assertThat(saved).isNull();
+	}
+
+	@Test
+	public void saveRequestGetRequestWhenManifestJsonThenNotFound() {
+		MockServerWebExchange exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("/manifest.json").accept(MediaType.TEXT_HTML));
+		this.cache.saveRequest(exchange).block();
+		URI saved = this.cache.getRedirectUri(exchange).block();
+		assertThat(saved).isNull();
+	}
+
+	@Test
+	public void saveRequestGetRequestWhenManifestWebmanifestThenNotFound() {
+		MockServerWebExchange exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("/manifest.webmanifest").accept(MediaType.TEXT_HTML));
+		this.cache.saveRequest(exchange).block();
+		URI saved = this.cache.getRedirectUri(exchange).block();
+		assertThat(saved).isNull();
+	}
+
+	@Test
+	public void saveRequestGetRequestWhenBrowserConfigXmlThenNotFound() {
+		MockServerWebExchange exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("/browserconfig.xml").accept(MediaType.TEXT_HTML));
+		this.cache.saveRequest(exchange).block();
+		URI saved = this.cache.getRedirectUri(exchange).block();
+		assertThat(saved).isNull();
+	}
+
+	@Test
+	public void saveRequestGetRequestWhenChromeDevtoolsJsonThenNotFound() {
+		MockServerWebExchange exchange = MockServerWebExchange
+			.from(MockServerHttpRequest.get("/.well-known/appspecific/com.chrome.devtools.json")
+				.accept(MediaType.TEXT_HTML));
+		this.cache.saveRequest(exchange).block();
+		URI saved = this.cache.getRedirectUri(exchange).block();
+		assertThat(saved).isNull();
+	}
+
+	@Test
 	public void saveRequestGetRequestWhenPostThenNotFound() {
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.post("/secured/"));
 		this.cache.saveRequest(exchange).block();

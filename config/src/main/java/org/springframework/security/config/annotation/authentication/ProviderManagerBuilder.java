@@ -22,7 +22,7 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.SecurityBuilder;
 
 /**
- * Interface for operating on a SecurityBuilder that creates a {@link ProviderManager}
+ * Interface for operating on a SecurityBuilder that creates a {@link ProviderManager}.
  *
  * @param <B> the type of the {@link SecurityBuilder}
  * @author Rob Winch

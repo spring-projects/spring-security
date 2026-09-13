@@ -20,10 +20,13 @@ import java.util.Date;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import org.apereo.cas.client.authentication.AttributePrincipal;
 
 /**
@@ -49,15 +52,15 @@ import org.apereo.cas.client.authentication.AttributePrincipal;
  */
 @SuppressWarnings("removal")
 @Deprecated(forRemoval = true)
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
-		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY)
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE,
+		isGetterVisibility = Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class AssertionImplMixin {
 
 	/**
 	 * Mixin Constructor helps in deserialize
-	 * {@link org.apereo.cas.client.validation.AssertionImpl}
+	 * {@link org.apereo.cas.client.validation.AssertionImpl}.
 	 * @param principal the Principal to associate with the Assertion.
 	 * @param validFromDate when the assertion is valid from.
 	 * @param validUntilDate when the assertion is valid to.
