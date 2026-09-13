@@ -38,12 +38,18 @@ import org.springframework.util.Assert;
  * Default implementation of
  * {@link org.springframework.security.core.session.SessionRegistry SessionRegistry} which
  * listens for {@link org.springframework.security.core.session.SessionDestroyedEvent
- * SessionDestroyedEvent}s published in the Spring application context.
+ * SessionDestroyedEvent}s and
+ * {@link org.springframework.security.core.session.SessionIdChangedEvent
+ * SessionIdChangedEvent}s published in the Spring application context.
  * <p>
- * For this class to function correctly in a web application, it is important that you
- * register an <a href="
- * {@docRoot}/org/springframework/security/web/session/HttpSessionEventPublisher.html">HttpSessionEventPublisher</a> in
- * the <tt>web.xml</tt> file so that this class is notified of sessions that expire.
+ * For this class to be notified of sessions that expire, you must register an <a href="
+ * {@docRoot}/org/springframework/security/web/session/HttpSessionEventPublisher.html">HttpSessionEventPublisher</a>
+ * in the {@code web.xml} file (or equivalent servlet container configuration).
+ * <p>
+ * Session ID changes that occur as part of session fixation protection (e.g. via
+ * {@link org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy})
+ * are tracked automatically without requiring
+ * {@code HttpSessionEventPublisher} to be registered.
  *
  * @author Ben Alex
  * @author Luke Taylor
