@@ -16,11 +16,13 @@ dependencies {
 	api 'org.springframework:spring-messaging'
 
 	optional project(':spring-security-web')
+	optional project(':spring-security-oauth2-resource-server')
 	optional 'org.springframework:spring-websocket'
 	optional 'io.projectreactor:reactor-core'
 	optional 'jakarta.servlet:jakarta.servlet-api'
 
 	testImplementation project(path: ':spring-security-core', configuration: 'tests')
+	testImplementation project(':spring-security-oauth2-jose')
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
 	testImplementation "org.junit.jupiter:junit-jupiter-params"
