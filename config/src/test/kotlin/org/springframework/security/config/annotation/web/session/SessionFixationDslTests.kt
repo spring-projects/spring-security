@@ -28,6 +28,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.config.annotation.web.invoke
+import org.springframework.security.config.test.SessionRequestPostProcessors.requestedSession
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
@@ -59,7 +60,7 @@ class SessionFixationDslTests {
 
         val result = this.mockMvc.perform(MockMvcRequestBuilders.get("/")
                 .with(httpBasic("user", "password"))
-                .session(givenSession))
+                .with(requestedSession(givenSession)))
                 .andReturn()
 
         val resultingSession = result.request.getSession(false)
@@ -96,7 +97,7 @@ class SessionFixationDslTests {
 
         val result = this.mockMvc.perform(MockMvcRequestBuilders.get("/")
                 .with(httpBasic("user", "password"))
-                .session(givenSession))
+                .with(requestedSession(givenSession)))
                 .andReturn()
 
         val resultingSession = result.request.getSession(false)
@@ -133,7 +134,7 @@ class SessionFixationDslTests {
 
         val result = this.mockMvc.perform(MockMvcRequestBuilders.get("/")
                 .with(httpBasic("user", "password"))
-                .session(givenSession))
+                .with(requestedSession(givenSession)))
                 .andReturn()
 
         val resultingSession = result.request.getSession(false)

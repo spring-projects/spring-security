@@ -28,6 +28,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.config.test.SessionRequestPostProcessors.requestedSession
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.core.Authentication
@@ -122,7 +123,7 @@ class SessionManagementDslTests {
 
         this.mockMvc.perform(get("/")
             .with(authentication(authentication))
-            .session(session))
+            .with(requestedSession(session)))
             .andExpect(status().isFound)
             .andExpect(redirectedUrl("/session-auth-error"))
     }
@@ -154,7 +155,7 @@ class SessionManagementDslTests {
 
         this.mockMvc.perform(get("/")
             .with(authentication(authentication))
-            .session(session))
+            .with(requestedSession(session)))
             .andExpect(status().isFound)
             .andExpect(redirectedUrl("/session-auth-error"))
     }
