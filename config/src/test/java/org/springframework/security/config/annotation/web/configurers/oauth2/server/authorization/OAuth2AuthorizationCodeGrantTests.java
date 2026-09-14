@@ -1167,6 +1167,12 @@ public class OAuth2AuthorizationCodeGrantTests {
 		assertThat(authorization).isNotNull();
 	}
 
+	// gh-19152
+	@Test
+	public void requestWhenAuthorizationEndpointWithCustomAuthenticationProviderThenContextLoads() {
+		this.spring.register(AuthorizationServerConfigurationCustomAuthenticationProvider.class).autowire();
+	}
+
 	private static OAuth2Authorization createAuthorization(RegisteredClient registeredClient) {
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE, S256_CODE_CHALLENGE);
@@ -1585,6 +1591,35 @@ public class OAuth2AuthorizationCodeGrantTests {
 									.pushedAuthorizationRequestEndpoint(Customizer.withDefaults())
 									.authorizationEndpoint((authorizationEndpoint) ->
 											authorizationEndpoint.consentPage(consentPage))
+					)
+					.authorizeHttpRequests((authorize) ->
+							authorize.anyRequest().authenticated()
+					);
+			return http.build();
+		}
+		// @formatter:on
+
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
+	static class AuthorizationServerConfigurationCustomAuthenticationProvider extends AuthorizationServerConfiguration {
+
+		private final AuthenticationProvider authenticationProvider = mock(AuthenticationProvider.class);
+
+		// @formatter:off
+		@Bean
+		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.authorizationEndpoint((authorizationEndpoint) ->
+											authorizationEndpoint
+													.authenticationProviders((authenticationProviders) -> {
+														authenticationProviders.clear();
+														authenticationProviders.add(this.authenticationProvider);
+													})
+									)
 					)
 					.authorizeHttpRequests((authorize) ->
 							authorize.anyRequest().authenticated()

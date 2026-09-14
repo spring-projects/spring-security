@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -265,6 +266,31 @@ public final class OAuth2AuthorizationEndpointConfigurer extends AbstractOAuth2C
 					.invokeMethod(method, authenticationProvider);
 			}
 		});
+		if (this.authorizationCodeRequestAuthenticationValidatorComposite == null) {
+			// gh-19152
+			Field field = ReflectionUtils.findField(OAuth2AuthorizationCodeRequestAuthenticationValidator.class,
+					"DEFAULT_AUTHORIZATION_GRANT_TYPE_VALIDATOR");
+			ReflectionUtils.makeAccessible(field);
+			Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> authorizationGrantTypeValidator = (Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext>) ReflectionUtils
+				.getField(field, null);
+
+			field = ReflectionUtils.findField(OAuth2AuthorizationCodeRequestAuthenticationValidator.class,
+					"DEFAULT_CODE_CHALLENGE_VALIDATOR");
+			ReflectionUtils.makeAccessible(field);
+			Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> codeChallengeValidator = (Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext>) ReflectionUtils
+				.getField(field, null);
+
+			field = ReflectionUtils.findField(OAuth2AuthorizationCodeRequestAuthenticationValidator.class,
+					"DEFAULT_PROMPT_VALIDATOR");
+			ReflectionUtils.makeAccessible(field);
+			Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> promptValidator = (Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext>) ReflectionUtils
+				.getField(field, null);
+
+			this.authorizationCodeRequestAuthenticationValidatorComposite = authorizationGrantTypeValidator
+				.andThen(new OAuth2AuthorizationCodeRequestAuthenticationValidator())
+				.andThen(codeChallengeValidator)
+				.andThen(promptValidator);
+		}
 	}
 
 	@Override
