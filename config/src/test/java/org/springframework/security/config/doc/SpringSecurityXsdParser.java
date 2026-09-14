@@ -141,7 +141,7 @@ public class SpringSecurityXsdParser {
 
 	/**
 	 * Processes an individual attributeGroup by obtaining all the attributes and then
-	 * looking for more attributeGroup elements and prcessing them.
+	 * looking for more attributeGroup elements and processing them.
 	 * @param e
 	 * @return all the attributes for a specific attributeGroup and any child
 	 * attributeGroups
