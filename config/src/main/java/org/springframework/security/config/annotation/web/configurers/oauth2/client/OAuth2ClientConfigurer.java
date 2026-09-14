@@ -37,6 +37,8 @@ import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequest
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.util.Assert;
 
@@ -177,6 +179,10 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 
 		private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 
+		private AuthenticationSuccessHandler authenticationSuccessHandler;
+
+		private AuthenticationFailureHandler authenticationFailureHandler;
+
 		private AuthorizationCodeGrantConfigurer() {
 		}
 
@@ -228,6 +234,40 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 				OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient) {
 			Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 			this.accessTokenResponseClient = accessTokenResponseClient;
+			return this;
+		}
+
+		/**
+		 * Sets the {@link AuthenticationSuccessHandler} used by the
+		 * {@link OAuth2AuthorizationCodeGrantFilter} after the Authorization Response has
+		 * been processed and the authorized client has been saved. The default redirects
+		 * to the previously saved request (if any) or to the {@code redirect_uri}.
+		 * @param authenticationSuccessHandler the {@link AuthenticationSuccessHandler} to
+		 * use
+		 * @return the {@link AuthorizationCodeGrantConfigurer} for further configuration
+		 * @since 7.2
+		 */
+		public AuthorizationCodeGrantConfigurer authenticationSuccessHandler(
+				AuthenticationSuccessHandler authenticationSuccessHandler) {
+			Assert.notNull(authenticationSuccessHandler, "authenticationSuccessHandler cannot be null");
+			this.authenticationSuccessHandler = authenticationSuccessHandler;
+			return this;
+		}
+
+		/**
+		 * Sets the {@link AuthenticationFailureHandler} used by the
+		 * {@link OAuth2AuthorizationCodeGrantFilter} when the Authorization Response is
+		 * rejected. The default redirects to the {@code redirect_uri} with the error
+		 * parameters appended.
+		 * @param authenticationFailureHandler the {@link AuthenticationFailureHandler} to
+		 * use
+		 * @return the {@link AuthorizationCodeGrantConfigurer} for further configuration
+		 * @since 7.2
+		 */
+		public AuthorizationCodeGrantConfigurer authenticationFailureHandler(
+				AuthenticationFailureHandler authenticationFailureHandler) {
+			Assert.notNull(authenticationFailureHandler, "authenticationFailureHandler cannot be null");
+			this.authenticationFailureHandler = authenticationFailureHandler;
 			return this;
 		}
 
@@ -287,6 +327,12 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 			RequestCache requestCache = builder.getSharedObject(RequestCache.class);
 			if (requestCache != null) {
 				authorizationCodeGrantFilter.setRequestCache(requestCache);
+			}
+			if (this.authenticationSuccessHandler != null) {
+				authorizationCodeGrantFilter.setAuthenticationSuccessHandler(this.authenticationSuccessHandler);
+			}
+			if (this.authenticationFailureHandler != null) {
+				authorizationCodeGrantFilter.setAuthenticationFailureHandler(this.authenticationFailureHandler);
 			}
 			return authorizationCodeGrantFilter;
 		}
