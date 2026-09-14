@@ -19,6 +19,9 @@ package org.springframework.security.oauth2.client;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import org.jspecify.annotations.Nullable;
@@ -84,6 +87,20 @@ public final class AuthorizedClientServiceOAuth2AuthorizedClientManager implemen
 
 	private final OAuth2AuthorizedClientService authorizedClientService;
 
+	/**
+	 * Tracks authorization requests currently in progress.
+	 *
+	 * <p>
+	 * The key is composed of the client registration id and principal name. The value
+	 * represents the authorization operation currently in progress.
+	 *
+	 * <p>
+	 * A concurrent authorization request for the same client registration and principal
+	 * waits for the existing authorization operation to complete rather than invoking the
+	 * provider again.
+	 */
+	private final Map<OAuth2AuthorizedClientId, CompletableFuture<OAuth2AuthorizedClient>> authorizationRequests = new ConcurrentHashMap<>();
+
 	private OAuth2AuthorizedClientProvider authorizedClientProvider;
 
 	private Function<OAuth2AuthorizeRequest, Map<String, Object>> contextAttributesMapper;
@@ -114,32 +131,115 @@ public final class AuthorizedClientServiceOAuth2AuthorizedClientManager implemen
 					.removeAuthorizedClient(clientRegistrationId, principal.getName()));
 	}
 
+	private OAuth2AuthorizedClientId getAuthorizationRequestId(String clientRegistrationId, Authentication principal) {
+		return new OAuth2AuthorizedClientId(clientRegistrationId, principal.getName());
+	}
+
 	@Override
 	public @Nullable OAuth2AuthorizedClient authorize(OAuth2AuthorizeRequest authorizeRequest) {
 		Assert.notNull(authorizeRequest, "authorizeRequest cannot be null");
+
 		String clientRegistrationId = authorizeRequest.getClientRegistrationId();
 		OAuth2AuthorizedClient authorizedClient = authorizeRequest.getAuthorizedClient();
 		Authentication principal = authorizeRequest.getPrincipal();
-		OAuth2AuthorizationContext.Builder contextBuilder;
+
 		if (authorizedClient != null) {
-			contextBuilder = OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient);
+			OAuth2AuthorizationContext.Builder contextBuilder = OAuth2AuthorizationContext
+				.withAuthorizedClient(authorizedClient);
+			return authorize(authorizeRequest, principal, contextBuilder);
 		}
-		else {
-			ClientRegistration clientRegistration = this.clientRegistrationRepository
-				.findByRegistrationId(clientRegistrationId);
-			Assert.notNull(clientRegistration,
-					"Could not find ClientRegistration with id '" + clientRegistrationId + "'");
+
+		OAuth2AuthorizedClientId authorizationKey = getAuthorizationRequestId(clientRegistrationId, principal);
+
+		CompletableFuture<OAuth2AuthorizedClient> authorizationRequest = new CompletableFuture<>();
+
+		/*
+		 * Atomically register this authorization request.
+		 *
+		 * If another thread has already registered an authorization request for the same
+		 * client registration and principal, that request becomes the owner and this
+		 * thread waits for its result.
+		 */
+		CompletableFuture<OAuth2AuthorizedClient> existingAuthorizationRequest = this.authorizationRequests
+			.putIfAbsent(authorizationKey, authorizationRequest);
+
+		if (existingAuthorizationRequest != null) {
+			return waitForAuthorization(existingAuthorizationRequest);
+		}
+
+		try {
 			authorizedClient = this.authorizedClientService.loadAuthorizedClient(clientRegistrationId,
 					principal.getName());
+
 			if (authorizedClient != null) {
-				contextBuilder = OAuth2AuthorizationContext.withAuthorizedClient(authorizedClient);
+				OAuth2AuthorizationContext.Builder contextBuilder = OAuth2AuthorizationContext
+					.withAuthorizedClient(authorizedClient);
+
+				OAuth2AuthorizedClient result = authorize(authorizeRequest, principal, contextBuilder);
+				authorizationRequest.complete(result);
+				return result;
 			}
-			else {
-				contextBuilder = OAuth2AuthorizationContext.withClientRegistration(clientRegistration);
-			}
+
+			ClientRegistration clientRegistration = this.clientRegistrationRepository
+				.findByRegistrationId(clientRegistrationId);
+
+			Assert.notNull(clientRegistration,
+					"Could not find ClientRegistration with id '" + clientRegistrationId + "'");
+
+			OAuth2AuthorizationContext.Builder contextBuilder = OAuth2AuthorizationContext
+				.withClientRegistration(clientRegistration);
+
+			OAuth2AuthorizedClient result = authorize(authorizeRequest, principal, contextBuilder);
+			authorizationRequest.complete(result);
+			return result;
 		}
+		catch (RuntimeException ex) {
+			authorizationRequest.completeExceptionally(ex);
+			throw ex;
+		}
+		catch (Error ex) {
+			authorizationRequest.completeExceptionally(ex);
+			throw ex;
+		}
+		finally {
+			/*
+			 * Only remove the future that this thread inserted.
+			 *
+			 * The conditional remove prevents a completed authorization request from
+			 * accidentally removing a newer request for the same key.
+			 */
+			this.authorizationRequests.remove(authorizationKey, authorizationRequest);
+		}
+	}
+
+	@Nullable private OAuth2AuthorizedClient waitForAuthorization(
+			CompletableFuture<OAuth2AuthorizedClient> authorizationRequest) {
+
+		try {
+			return authorizationRequest.join();
+		}
+		catch (CompletionException ex) {
+			Throwable cause = ex.getCause();
+
+			if (cause instanceof RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+
+			if (cause instanceof Error error) {
+				throw error;
+			}
+
+			throw ex;
+		}
+	}
+
+	@Nullable private OAuth2AuthorizedClient authorize(OAuth2AuthorizeRequest authorizeRequest, Authentication principal,
+			OAuth2AuthorizationContext.Builder contextBuilder) {
+
 		OAuth2AuthorizationContext authorizationContext = buildAuthorizationContext(authorizeRequest, principal,
 				contextBuilder);
+
+		OAuth2AuthorizedClient authorizedClient;
 		try {
 			authorizedClient = this.authorizedClientProvider.authorize(authorizationContext);
 		}
@@ -147,6 +247,7 @@ public final class AuthorizedClientServiceOAuth2AuthorizedClientManager implemen
 			this.authorizationFailureHandler.onAuthorizationFailure(ex, principal, Collections.emptyMap());
 			throw ex;
 		}
+
 		if (authorizedClient != null) {
 			this.authorizationSuccessHandler.onAuthorizationSuccess(authorizedClient, principal,
 					Collections.emptyMap());
@@ -160,6 +261,7 @@ public final class AuthorizedClientServiceOAuth2AuthorizedClientManager implemen
 				return authorizationContext.getAuthorizedClient();
 			}
 		}
+
 		return authorizedClient;
 	}
 
