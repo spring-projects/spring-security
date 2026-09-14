@@ -61,6 +61,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.config.test.SessionRequestPostProcessors.requestedSession;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -394,7 +395,9 @@ public class SessionManagementConfigTests {
 		MockHttpSession session = new MockHttpSession();
 		String sessionId = session.getId();
 		// @formatter:off
-		MvcResult result = this.mvc.perform(get("/auth").session(session).with(httpBasic("user", "password")))
+		MvcResult result = this.mvc.perform(get("/auth")
+				.with(requestedSession(session))
+				.with(httpBasic("user", "password")))
 				.andExpect(session())
 				.andReturn();
 		// @formatter:on
