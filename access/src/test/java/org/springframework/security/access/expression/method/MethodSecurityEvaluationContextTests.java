@@ -70,7 +70,7 @@ public class MethodSecurityEvaluationContextTests {
 		@Override
 		public void setVariable(String name, @Nullable Object value) {
 			if (name == null) {
-				throw new IllegalArgumentException("name  should not be null");
+				throw new IllegalArgumentException("name should not be null");
 			}
 			else {
 				super.setVariable(name, value);

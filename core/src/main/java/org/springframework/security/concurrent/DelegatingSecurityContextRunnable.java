@@ -137,14 +137,14 @@ public final class DelegatingSecurityContextRunnable implements Runnable {
 	 * @return
 	 */
 	public static Runnable create(Runnable delegate, @Nullable SecurityContext securityContext) {
-		Assert.notNull(delegate, "delegate cannot be  null");
+		Assert.notNull(delegate, "delegate cannot be null");
 		return (securityContext != null) ? new DelegatingSecurityContextRunnable(delegate, securityContext)
 				: new DelegatingSecurityContextRunnable(delegate);
 	}
 
 	static Runnable create(Runnable delegate, @Nullable SecurityContext securityContext,
 			SecurityContextHolderStrategy securityContextHolderStrategy) {
-		Assert.notNull(delegate, "delegate cannot be  null");
+		Assert.notNull(delegate, "delegate cannot be null");
 		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
 		DelegatingSecurityContextRunnable runnable = (securityContext != null)
 				? new DelegatingSecurityContextRunnable(delegate, securityContext)
