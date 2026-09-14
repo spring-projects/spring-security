@@ -231,7 +231,7 @@ public class Pbkdf2PasswordEncoderTests {
 			long end = System.currentTimeMillis();
 			long diff = end - start;
 			avg = diff / count;
-			System.out.println("Avgerage " + avg);
+			System.out.println("Average " + avg);
 		}
 		System.out.println("Iterations " + iterations);
 	}
