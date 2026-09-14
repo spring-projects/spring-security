@@ -12,4 +12,5 @@
 == OAuth 2.0
 
 * https://github.com/spring-projects/spring-security/pull/18895[gh-18895] - Add `authenticationSuccessHandler` to the Reactive Resource Server DSL
+* https://github.com/spring-projects/spring-security/issues/19051[gh-19051] - Add xref:servlet/oauth2/client/authorization-grants.adoc#oauth2-client-authorization-code-authorization-response-handlers[success and failure handlers] to `oauth2Client().authorizationCodeGrant()`
 
