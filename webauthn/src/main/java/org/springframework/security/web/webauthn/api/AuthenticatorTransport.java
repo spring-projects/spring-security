@@ -87,7 +87,7 @@ public final class AuthenticatorTransport implements Serializable {
 	}
 
 	/**
-	 * Get's the value.
+	 * Gets the value.
 	 * @return the value.
 	 */
 	public String getValue() {

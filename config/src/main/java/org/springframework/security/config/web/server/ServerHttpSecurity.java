@@ -1424,7 +1424,7 @@ public class ServerHttpSecurity {
 			}
 
 			/**
-			 * Require a specific role. This is a shorcut for
+			 * Require a specific role. This is a shortcut for
 			 * {@link #hasAuthority(String)}
 			 * @param role the role (i.e. "USER" would require "ROLE_USER")
 			 * @return the {@link AuthorizeExchangeSpec} to configure
