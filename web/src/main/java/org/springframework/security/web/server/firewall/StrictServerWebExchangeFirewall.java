@@ -813,7 +813,7 @@ public class StrictServerWebExchangeFirewall implements ServerWebExchangeFirewal
 				}
 
 				@Override
-				public Builder contextPath(String contextPath) {
+				public Builder contextPath(@Nullable String contextPath) {
 					return new StrictFirewallBuilder(this.delegate.contextPath(contextPath));
 				}
 
