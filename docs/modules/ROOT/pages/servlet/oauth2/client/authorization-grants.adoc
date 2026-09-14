@@ -361,6 +361,93 @@ Xml::
 ----
 ======
 
+[[oauth2-client-authorization-code-authorization-response]]
+=== Handling the Authorization Response
+
+The `OAuth2AuthorizationCodeGrantFilter` processes the Authorization Response (the callback) by exchanging the authorization code for an access token and saving the resulting `OAuth2AuthorizedClient`.
+It then invokes an `AuthenticationSuccessHandler`, which by default redirects the end-user's user-agent to the request that was saved before the authorization was initiated (if any) or to the `redirect_uri`.
+If the Authorization Response is rejected, it invokes an `AuthenticationFailureHandler` with an `OAuth2AuthenticationException` carrying the `OAuth2Error`; by default, this redirects to the `redirect_uri` with the `error`, `error_description` and `error_uri` parameters appended.
+
+You can replace either handler, for example to forward the request within the web context instead of redirecting, or to render an error page:
+
+.Authorization Response Handlers Configuration
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Configuration
+@EnableWebSecurity
+public class OAuth2ClientSecurityConfig {
+
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http
+			.oauth2Client((oauth2) -> oauth2
+				.authorizationCodeGrant((codeGrant) -> codeGrant
+					.authenticationSuccessHandler(new ForwardAuthenticationSuccessHandler("/authorized"))
+					.authenticationFailureHandler(new SimpleUrlAuthenticationFailureHandler("/authorization-failed"))
+					// ...
+				)
+			);
+		return http.build();
+	}
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+@EnableWebSecurity
+class OAuth2ClientSecurityConfig {
+
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
+        http {
+            oauth2Client {
+                authorizationCodeGrant {
+                    authenticationSuccessHandler = ForwardAuthenticationSuccessHandler("/authorized")
+                    authenticationFailureHandler = SimpleUrlAuthenticationFailureHandler("/authorization-failed")
+                }
+            }
+        }
+        return http.build()
+    }
+}
+----
+
+Xml::
++
+[source,xml,role="secondary"]
+----
+<http>
+	<oauth2-client>
+		<authorization-code-grant
+				authentication-success-handler-ref="authenticationSuccessHandler"
+				authentication-failure-handler-ref="authenticationFailureHandler"/>
+	</oauth2-client>
+</http>
+
+<bean id="authenticationSuccessHandler"
+		class="org.springframework.security.web.authentication.ForwardAuthenticationSuccessHandler">
+	<constructor-arg value="/authorized"/>
+</bean>
+<bean id="authenticationFailureHandler"
+		class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
+	<constructor-arg value="/authorization-failed"/>
+</bean>
+----
+======
+
+[TIP]
+====
+The `AuthenticationSuccessHandler` receives the `OAuth2AuthorizationCodeAuthenticationToken`, which exposes the `OAuth2AuthorizationExchange` and the tokens obtained, so a custom handler can, for example, carry parameters of the Authorization Response over to the target.
+When you provide your own success handler, the `RequestCache` is no longer consulted by the filter; use `SavedRequestAwareAuthenticationSuccessHandler` if you want to keep that behavior.
+====
+
 [[oauth2-client-authorization-code-access-token]]
 === Requesting an Access Token
 
