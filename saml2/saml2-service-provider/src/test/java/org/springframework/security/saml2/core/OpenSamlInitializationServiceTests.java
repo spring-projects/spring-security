@@ -31,17 +31,34 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  *
  * @author Josh Cummings
  */
-public class OpenSamlInitializationServiceTests {
+class OpenSamlInitializationServiceTests {
 
 	@Test
-	public void initializeWhenInvokedMultipleTimesThenInitializesOnce() {
+	void initializeWhenInvokedMultipleTimesThenInitializesOnce() {
 		OpenSamlInitializationService.initialize();
 		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
 		assertThat(registry.getBuilderFactory().getBuilder(AuthnRequest.DEFAULT_ELEMENT_NAME)).isNotNull();
 		assertThatExceptionOfType(Saml2Exception.class)
-			.isThrownBy(() -> OpenSamlInitializationService.requireInitialize((r) -> {
+			.isThrownBy(() -> OpenSamlInitializationService.requireInitialize(r -> {
 			}))
 			.withMessageContaining("OpenSAML was already initialized previously");
 	}
 
+	@Test
+	void initializedAlreadyWhenInitializedThenReturnsTrue() {
+	 	Saml2Utils.fipsCompliantOpenSamlInit();
+		assertThat(OpenSamlInitializationService.initializedAlready()).isIn(true, false);
+		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
+		assertThat(registry.getBuilderFactory().getBuilder(AuthnRequest.DEFAULT_ELEMENT_NAME)).isNotNull();
+	}
+
+	@Test
+	void initializedAlreadyWhenInitializedThenReturnsBuildIsNull() {
+		if (OpenSamlInitializationService.initializedAlready()) {
+			XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
+			assertThat(registry.getBuilderFactory().getBuilder(AuthnRequest.DEFAULT_ELEMENT_NAME)).isNotNull();
+		} else {
+			assertThat(ConfigurationService.get(XMLObjectProviderRegistry.class)).isNull();
+		}
+	}
 }
