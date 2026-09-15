@@ -377,7 +377,7 @@ public final class OAuth2AuthorizationServerConfigurer
 			OAuth2AuthorizationEndpointConfigurer authorizationEndpointConfigurer = getConfigurer(
 					OAuth2AuthorizationEndpointConfigurer.class);
 			authorizationEndpointConfigurer
-				.addAuthorizationCodeRequestAuthenticationValidator(oidcAuthenticationRequestValidator);
+				.addProvidedAuthorizationCodeRequestAuthenticationValidator(oidcAuthenticationRequestValidator);
 			OAuth2PushedAuthorizationRequestEndpointConfigurer pushedAuthorizationRequestEndpointConfigurer = getConfigurer(
 					OAuth2PushedAuthorizationRequestEndpointConfigurer.class);
 			if (pushedAuthorizationRequestEndpointConfigurer != null) {

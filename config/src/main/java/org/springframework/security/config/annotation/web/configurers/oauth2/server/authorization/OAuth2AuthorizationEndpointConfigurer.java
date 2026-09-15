@@ -16,13 +16,10 @@
 
 package org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import jakarta.servlet.Filter;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpMethod;
@@ -55,7 +52,6 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -89,7 +85,7 @@ public final class OAuth2AuthorizationEndpointConfigurer extends AbstractOAuth2C
 
 	private Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> authorizationCodeRequestAuthenticationValidator;
 
-	private Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> authorizationCodeRequestAuthenticationValidatorComposite;
+	private Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> providedAuthorizationCodeRequestAuthenticationValidator;
 
 	private SessionAuthenticationStrategy sessionAuthenticationStrategy;
 
@@ -229,11 +225,34 @@ public final class OAuth2AuthorizationEndpointConfigurer extends AbstractOAuth2C
 		return this;
 	}
 
-	void addAuthorizationCodeRequestAuthenticationValidator(
+	/**
+	 * Sets the {@code Consumer} providing access to the
+	 * {@link OAuth2AuthorizationCodeRequestAuthenticationContext} and is responsible for
+	 * validating specific OAuth 2.0 Authorization Request parameters associated in the
+	 * {@link OAuth2AuthorizationCodeRequestAuthenticationToken}. The default
+	 * authentication validator is
+	 * {@link OAuth2AuthorizationCodeRequestAuthenticationValidator}.
+	 *
+	 * <p>
+	 * <b>NOTE:</b> The authentication validator MUST throw
+	 * {@link OAuth2AuthorizationCodeRequestAuthenticationException} if validation fails.
+	 * @param authenticationValidator the {@code Consumer} providing access to the
+	 * {@link OAuth2AuthorizationCodeRequestAuthenticationContext} and is responsible for
+	 * validating specific OAuth 2.0 Authorization Request parameters
+	 * @return the {@link OAuth2AuthorizationEndpointConfigurer} for further configuration
+	 * @since 7.2
+	 */
+	public OAuth2AuthorizationEndpointConfigurer authorizationCodeRequestAuthenticationValidator(
 			Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> authenticationValidator) {
-		this.authorizationCodeRequestAuthenticationValidator = (this.authorizationCodeRequestAuthenticationValidator == null)
+		this.authorizationCodeRequestAuthenticationValidator = authenticationValidator;
+		return this;
+	}
+
+	void addProvidedAuthorizationCodeRequestAuthenticationValidator(
+			Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> authenticationValidator) {
+		this.providedAuthorizationCodeRequestAuthenticationValidator = (this.providedAuthorizationCodeRequestAuthenticationValidator == null)
 				? authenticationValidator
-				: this.authorizationCodeRequestAuthenticationValidator.andThen(authenticationValidator);
+				: this.providedAuthorizationCodeRequestAuthenticationValidator.andThen(authenticationValidator);
 	}
 
 	void setSessionAuthenticationStrategy(SessionAuthenticationStrategy sessionAuthenticationStrategy) {
@@ -256,41 +275,8 @@ public final class OAuth2AuthorizationEndpointConfigurer extends AbstractOAuth2C
 			authenticationProviders.addAll(0, this.authenticationProviders);
 		}
 		this.authenticationProvidersConsumer.accept(authenticationProviders);
-		authenticationProviders.forEach((authenticationProvider) -> {
-			httpSecurity.authenticationProvider(postProcess(authenticationProvider));
-			if (authenticationProvider instanceof OAuth2AuthorizationCodeRequestAuthenticationProvider) {
-				Method method = ReflectionUtils.findMethod(OAuth2AuthorizationCodeRequestAuthenticationProvider.class,
-						"getAuthenticationValidatorComposite");
-				ReflectionUtils.makeAccessible(method);
-				this.authorizationCodeRequestAuthenticationValidatorComposite = (Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext>) ReflectionUtils
-					.invokeMethod(method, authenticationProvider);
-			}
-		});
-		if (this.authorizationCodeRequestAuthenticationValidatorComposite == null) {
-			// gh-19152
-			Field field = ReflectionUtils.findField(OAuth2AuthorizationCodeRequestAuthenticationValidator.class,
-					"DEFAULT_AUTHORIZATION_GRANT_TYPE_VALIDATOR");
-			ReflectionUtils.makeAccessible(field);
-			Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> authorizationGrantTypeValidator = (Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext>) ReflectionUtils
-				.getField(field, null);
-
-			field = ReflectionUtils.findField(OAuth2AuthorizationCodeRequestAuthenticationValidator.class,
-					"DEFAULT_CODE_CHALLENGE_VALIDATOR");
-			ReflectionUtils.makeAccessible(field);
-			Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> codeChallengeValidator = (Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext>) ReflectionUtils
-				.getField(field, null);
-
-			field = ReflectionUtils.findField(OAuth2AuthorizationCodeRequestAuthenticationValidator.class,
-					"DEFAULT_PROMPT_VALIDATOR");
-			ReflectionUtils.makeAccessible(field);
-			Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> promptValidator = (Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext>) ReflectionUtils
-				.getField(field, null);
-
-			this.authorizationCodeRequestAuthenticationValidatorComposite = authorizationGrantTypeValidator
-				.andThen(new OAuth2AuthorizationCodeRequestAuthenticationValidator())
-				.andThen(codeChallengeValidator)
-				.andThen(promptValidator);
-		}
+		authenticationProviders.forEach(
+				(authenticationProvider) -> httpSecurity.authenticationProvider(postProcess(authenticationProvider)));
 	}
 
 	@Override
@@ -324,17 +310,14 @@ public final class OAuth2AuthorizationEndpointConfigurer extends AbstractOAuth2C
 			authorizationEndpointFilter.setSessionAuthenticationStrategy(this.sessionAuthenticationStrategy);
 		}
 		httpSecurity.addFilterAfter(postProcess(authorizationEndpointFilter), AuthorizationFilter.class);
-		// Create and add
-		// OAuth2AuthorizationEndpointFilter.OAuth2AuthorizationCodeRequestValidatingFilter
-		Method method = ReflectionUtils.findMethod(OAuth2AuthorizationEndpointFilter.class,
-				"createAuthorizationCodeRequestValidatingFilter", RegisteredClientRepository.class, Consumer.class);
-		ReflectionUtils.makeAccessible(method);
+
 		RegisteredClientRepository registeredClientRepository = OAuth2ConfigurerUtils
 			.getRegisteredClientRepository(httpSecurity);
-		Filter authorizationCodeRequestValidatingFilter = (Filter) ReflectionUtils.invokeMethod(method,
-				authorizationEndpointFilter, registeredClientRepository,
-				this.authorizationCodeRequestAuthenticationValidatorComposite);
-		httpSecurity.addFilterBefore(postProcess(authorizationCodeRequestValidatingFilter),
+		OAuth2AuthorizationEndpointFilter.OAuth2AuthorizationCodeRequestPreValidationFilter authorizationCodeRequestPreValidationFilter = authorizationEndpointFilter.new OAuth2AuthorizationCodeRequestPreValidationFilter(
+				registeredClientRepository);
+		authorizationCodeRequestPreValidationFilter
+			.setAuthenticationValidator(getAuthorizationCodeRequestAuthenticationValidator());
+		httpSecurity.addFilterBefore(postProcess(authorizationCodeRequestPreValidationFilter),
 				AbstractPreAuthenticatedProcessingFilter.class);
 	}
 
@@ -359,11 +342,8 @@ public final class OAuth2AuthorizationEndpointConfigurer extends AbstractOAuth2C
 				OAuth2ConfigurerUtils.getRegisteredClientRepository(httpSecurity),
 				OAuth2ConfigurerUtils.getAuthorizationService(httpSecurity),
 				OAuth2ConfigurerUtils.getAuthorizationConsentService(httpSecurity));
-		if (this.authorizationCodeRequestAuthenticationValidator != null) {
-			authorizationCodeRequestAuthenticationProvider
-				.setAuthenticationValidator(new OAuth2AuthorizationCodeRequestAuthenticationValidator()
-					.andThen(this.authorizationCodeRequestAuthenticationValidator));
-		}
+		authorizationCodeRequestAuthenticationProvider
+			.setAuthenticationValidator(getAuthorizationCodeRequestAuthenticationValidator());
 		authenticationProviders.add(authorizationCodeRequestAuthenticationProvider);
 
 		OAuth2AuthorizationConsentAuthenticationProvider authorizationConsentAuthenticationProvider = new OAuth2AuthorizationConsentAuthenticationProvider(
@@ -373,6 +353,18 @@ public final class OAuth2AuthorizationEndpointConfigurer extends AbstractOAuth2C
 		authenticationProviders.add(authorizationConsentAuthenticationProvider);
 
 		return authenticationProviders;
+	}
+
+	private Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> getAuthorizationCodeRequestAuthenticationValidator() {
+		Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> authenticationValidator = this.authorizationCodeRequestAuthenticationValidator;
+		if (authenticationValidator == null) {
+			authenticationValidator = new OAuth2AuthorizationCodeRequestAuthenticationValidator();
+		}
+		if (this.providedAuthorizationCodeRequestAuthenticationValidator != null) {
+			authenticationValidator = authenticationValidator
+				.andThen(this.providedAuthorizationCodeRequestAuthenticationValidator);
+		}
+		return authenticationValidator;
 	}
 
 }

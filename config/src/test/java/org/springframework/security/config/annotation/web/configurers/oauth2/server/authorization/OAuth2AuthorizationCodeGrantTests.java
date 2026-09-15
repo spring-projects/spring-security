@@ -890,7 +890,8 @@ public class OAuth2AuthorizationCodeGrantTests {
 				|| converter instanceof OAuth2AuthorizationCodeRequestAuthenticationConverter
 				|| converter instanceof OAuth2AuthorizationConsentAuthenticationConverter);
 
-		verify(authorizationRequestAuthenticationProvider).authenticate(eq(authorizationCodeRequestAuthentication));
+		verify(authorizationRequestAuthenticationProvider).authenticate(eq(
+				OAuth2AuthorizationCodeRequestAuthenticationToken.validated(authorizationCodeRequestAuthentication)));
 
 		@SuppressWarnings("unchecked")
 		ArgumentCaptor<List<AuthenticationProvider>> authenticationProvidersCaptor = ArgumentCaptor
