@@ -261,7 +261,7 @@ Java::
 @Bean
 SecurityObservationSettings allSpringSecurityObservations() {
 	return SecurityObservationSettings.withDefaults()
-            .shouldObserveFilterChains(true).build();
+            .shouldObserveRequests(true).build();
 }
 ----
 
@@ -271,8 +271,8 @@ Kotlin::
 ----
 @Bean
 fun allSpringSecurityObservations(): SecurityObservationSettings {
-    return SecurityObservationSettings.builder()
-            .shouldObserveFilterChains(true).build()
+    return SecurityObservationSettings.withDefaults()
+            .shouldObserveRequests(true).build()
 }
 ----
 ======
