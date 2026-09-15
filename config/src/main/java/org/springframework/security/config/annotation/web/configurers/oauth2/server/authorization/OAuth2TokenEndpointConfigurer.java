@@ -40,6 +40,7 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2DeviceCodeAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2RefreshTokenAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2TokenExchangeAuthenticationProvider;
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2TokenExchangeSubjectTokenResolver;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.security.oauth2.server.authorization.web.OAuth2TokenEndpointFilter;
@@ -271,6 +272,11 @@ public final class OAuth2TokenEndpointConfigurer extends AbstractOAuth2Configure
 
 		OAuth2TokenExchangeAuthenticationProvider tokenExchangeAuthenticationProvider = new OAuth2TokenExchangeAuthenticationProvider(
 				authorizationService, tokenGenerator);
+		OAuth2TokenExchangeSubjectTokenResolver subjectTokenResolver = OAuth2ConfigurerUtils
+			.getOptionalBean(httpSecurity, OAuth2TokenExchangeSubjectTokenResolver.class);
+		if (subjectTokenResolver != null) {
+			tokenExchangeAuthenticationProvider.setSubjectTokenResolver(subjectTokenResolver);
+		}
 		authenticationProviders.add(tokenExchangeAuthenticationProvider);
 
 		return authenticationProviders;
