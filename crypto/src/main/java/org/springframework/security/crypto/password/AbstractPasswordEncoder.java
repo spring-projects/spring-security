@@ -17,8 +17,8 @@
 package org.springframework.security.crypto.password;
 
 import java.security.MessageDigest;
+import java.util.HexFormat;
 
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.security.crypto.util.EncodingUtils;
@@ -40,12 +40,12 @@ public abstract class AbstractPasswordEncoder extends AbstractValidatingPassword
 	protected String encodeNonNullPassword(String rawPassword) {
 		byte[] salt = this.saltGenerator.generateKey();
 		byte[] encoded = encodeAndConcatenate(rawPassword, salt);
-		return String.valueOf(Hex.encode(encoded));
+		return String.valueOf(HexFormat.of().formatHex(encoded));
 	}
 
 	@Override
 	protected boolean matchesNonNull(String rawPassword, String encodedPassword) {
-		byte[] digested = Hex.decode(encodedPassword);
+		byte[] digested = HexFormat.of().parseHex(encodedPassword);
 		byte[] salt = EncodingUtils.subArray(digested, 0, this.saltGenerator.getKeyLength());
 		return matchesNonNull(digested, encodeAndConcatenate(rawPassword, salt));
 	}

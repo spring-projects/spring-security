@@ -17,10 +17,10 @@
 package org.springframework.security.crypto.password;
 
 import java.util.Arrays;
+import java.util.HexFormat;
 
 import org.junit.jupiter.api.Test;
 
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -116,9 +116,9 @@ public class Pbkdf2PasswordEncoderTests {
 		final int saltLength = KeyGenerators.secureRandom().getKeyLength();
 		String encodedPassword = "ab1146a8458d4ce4e65789e5a3f60e423373cfa10b01abd23739e5ae2fdc37f8e9ede4ae6da65264";
 		String originalEncodedPassword = "ab1146a8458d4ce4ab1146a8458d4ce4e65789e5a3f60e423373cfa10b01abd23739e5ae2fdc37f8e9ede4ae6da65264";
-		byte[] originalBytes = Hex.decode(originalEncodedPassword);
+		byte[] originalBytes = HexFormat.of().parseHex(originalEncodedPassword);
 		byte[] fixedBytes = Arrays.copyOfRange(originalBytes, saltLength, originalBytes.length);
-		String fixedHex = String.valueOf(Hex.encode(fixedBytes));
+		String fixedHex = String.valueOf(HexFormat.of().formatHex(fixedBytes));
 		assertThat(fixedHex).isEqualTo(encodedPassword);
 	}
 

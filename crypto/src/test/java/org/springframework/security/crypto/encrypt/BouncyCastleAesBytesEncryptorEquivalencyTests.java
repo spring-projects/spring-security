@@ -19,13 +19,13 @@ package org.springframework.security.crypto.encrypt;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.HexFormat;
 import java.util.Random;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgorithm;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
@@ -49,7 +49,7 @@ public class BouncyCastleAesBytesEncryptorEquivalencyTests {
 		/** insecure salt byte, recommend 64 or larger than 64 */
 		byte[] saltBytes = new byte[16];
 		this.secureRandom.nextBytes(saltBytes);
-		this.salt = new String(Hex.encode(saltBytes));
+		this.salt = HexFormat.of().formatHex(saltBytes);
 	}
 
 	@Test

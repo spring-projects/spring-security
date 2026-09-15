@@ -16,12 +16,13 @@
 
 package org.springframework.security.crypto.encrypt;
 
+import java.util.HexFormat;
+
 import javax.crypto.SecretKey;
 import javax.crypto.spec.PBEKeySpec;
 
 import org.junit.jupiter.api.Test;
 
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder.SecretKeyFactoryAlgorithm;
@@ -53,7 +54,8 @@ class AesGcmBytesEncryptorTests {
 	@Test
 	void roundtripWhenUsingSecretKeyThenEncryptsAndDecrypts() {
 		CryptoAssumptions.assumeGCMJCE();
-		PBEKeySpec keySpec = new PBEKeySpec(this.password.toCharArray(), Hex.decode(this.hexSalt), 1024, 256);
+		PBEKeySpec keySpec = new PBEKeySpec(this.password.toCharArray(), HexFormat.of().parseHex(this.hexSalt), 1024,
+				256);
 		SecretKey secretKey = CipherUtils.newSecretKey(SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1.name(), keySpec);
 		AesGcmBytesEncryptor encryptor = AesGcmBytesEncryptor.withSecretKey(secretKey).build();
 		byte[] encrypted = encryptor.encrypt(this.secret.getBytes());
@@ -64,13 +66,13 @@ class AesGcmBytesEncryptorTests {
 	void encryptWhenUsingMockIvThenProducesKnownCiphertext() {
 		CryptoAssumptions.assumeGCMJCE();
 		BytesKeyGenerator mockGenerator = mock(BytesKeyGenerator.class);
-		given(mockGenerator.generateKey()).willReturn(Hex.decode("4b0febebd439db7ca77153cb254520c3"));
+		given(mockGenerator.generateKey()).willReturn(HexFormat.of().parseHex("4b0febebd439db7ca77153cb254520c3"));
 		given(mockGenerator.getKeyLength()).willReturn(16);
 		AesGcmBytesEncryptor encryptor = AesGcmBytesEncryptor.withPassword(this.password, this.hexSalt)
 			.ivGenerator(mockGenerator)
 			.build();
 		byte[] encrypted = encryptor.encrypt(this.secret.getBytes());
-		assertThat(Hex.encode(encrypted))
+		assertThat(HexFormat.of().formatHex(encrypted))
 			.isEqualTo("4b0febebd439db7ca77153cb254520c3e4d61ae38207b4e42b820d311dc3d4e0e2f37ed5ee");
 		assertThat(new String(encryptor.decrypt(encrypted))).isEqualTo(this.secret);
 	}
@@ -89,7 +91,8 @@ class AesGcmBytesEncryptorTests {
 	@SuppressWarnings("deprecation")
 	void withSecretWhenAesBytesEncryptorEncryptsThenDecrypts() {
 		CryptoAssumptions.assumeGCMJCE();
-		PBEKeySpec keySpec = new PBEKeySpec(this.password.toCharArray(), Hex.decode(this.hexSalt), 1024, 256);
+		PBEKeySpec keySpec = new PBEKeySpec(this.password.toCharArray(), HexFormat.of().parseHex(this.hexSalt), 1024,
+				256);
 		SecretKey key = CipherUtils.newSecretKey(SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1.name(), keySpec);
 		AesBytesEncryptor deprecated = new AesBytesEncryptor(key, KeyGenerators.secureRandom(16),
 				AesBytesEncryptor.CipherAlgorithm.GCM);
@@ -102,7 +105,8 @@ class AesGcmBytesEncryptorTests {
 	@SuppressWarnings("deprecation")
 	void aesBytesEncryptorWhenEncryptsThenAesGcmBytesEncryptorDecrypts() {
 		CryptoAssumptions.assumeGCMJCE();
-		PBEKeySpec keySpec = new PBEKeySpec(this.password.toCharArray(), Hex.decode(this.hexSalt), 1024, 256);
+		PBEKeySpec keySpec = new PBEKeySpec(this.password.toCharArray(), HexFormat.of().parseHex(this.hexSalt), 1024,
+				256);
 		SecretKey key = CipherUtils.newSecretKey(SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1.name(), keySpec);
 		AesGcmBytesEncryptor encryptor = AesGcmBytesEncryptor.withSecretKey(key)
 			.ivGenerator(KeyGenerators.secureRandom(12))
