@@ -16,6 +16,7 @@
 
 package org.springframework.security.jackson;
 
+import java.net.URL;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -73,6 +74,7 @@ public class CoreJacksonModule extends SecurityJacksonModule {
 	public void configurePolymorphicTypeValidator(BasicPolymorphicTypeValidator.Builder builder) {
 		builder.allowIfSubType(Instant.class)
 			.allowIfSubType(Duration.class)
+			.allowIfSubType(URL.class)
 			.allowIfSubType(SimpleGrantedAuthority.class)
 			.allowIfSubType(FactorGrantedAuthority.class)
 			.allowIfSubType(UsernamePasswordAuthenticationToken.class)
