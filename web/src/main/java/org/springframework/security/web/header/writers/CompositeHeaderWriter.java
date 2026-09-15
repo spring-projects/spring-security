@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.header.writers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,7 +47,21 @@ public class CompositeHeaderWriter implements HeaderWriter {
 
 	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
-		this.headerWriters.forEach((headerWriter) -> headerWriter.writeHeaders(request, response));
+		List<RuntimeException> exceptions = new ArrayList<>();
+		this.headerWriters.forEach((headerWriter) -> {
+			// Don't fail fast so that other protection headers could still be written
+			try {
+				headerWriter.writeHeaders(request, response);
+			}
+			catch (RuntimeException ex) {
+				exceptions.add(ex);
+			}
+		});
+		if (!exceptions.isEmpty()) {
+			RuntimeException ex = new RuntimeException("Exception(s) thrown when writing headers");
+			exceptions.forEach(ex::addSuppressed);
+			throw ex;
+		}
 	}
 
 }
