@@ -7,7 +7,7 @@ dependencies {
 	constraints {
 		project.rootProject.allprojects { p ->
 			p.plugins.withType(SpringModulePlugin) {
-				api p
+				api p.dependencyFactory.createProjectDependency(p.path)
 			}
 		}
 	}
