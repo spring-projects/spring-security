@@ -37,6 +37,8 @@ import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequest
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.util.Assert;
 
@@ -177,6 +179,10 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 
 		private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 
+		private AuthenticationSuccessHandler successHandler;
+
+		private AuthenticationFailureHandler failureHandler;
+
 		private AuthorizationCodeGrantConfigurer() {
 		}
 
@@ -228,6 +234,34 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 				OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient) {
 			Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 			this.accessTokenResponseClient = accessTokenResponseClient;
+			return this;
+		}
+
+		/**
+		 * Sets the {@link AuthenticationSuccessHandler} used for handling a successful
+		 * Authorization Response.
+		 * @param successHandler the {@link AuthenticationSuccessHandler} to use
+		 * @return the {@link AuthorizationCodeGrantConfigurer} for further configuration
+		 * @since 7.2
+		 * @see OAuth2AuthorizationCodeGrantFilter#setAuthenticationSuccessHandler(AuthenticationSuccessHandler)
+		 */
+		public AuthorizationCodeGrantConfigurer successHandler(AuthenticationSuccessHandler successHandler) {
+			Assert.notNull(successHandler, "successHandler cannot be null");
+			this.successHandler = successHandler;
+			return this;
+		}
+
+		/**
+		 * Sets the {@link AuthenticationFailureHandler} used for handling a failed
+		 * Authorization Response.
+		 * @param failureHandler the {@link AuthenticationFailureHandler} to use
+		 * @return the {@link AuthorizationCodeGrantConfigurer} for further configuration
+		 * @since 7.2
+		 * @see OAuth2AuthorizationCodeGrantFilter#setAuthenticationFailureHandler(AuthenticationFailureHandler)
+		 */
+		public AuthorizationCodeGrantConfigurer failureHandler(AuthenticationFailureHandler failureHandler) {
+			Assert.notNull(failureHandler, "failureHandler cannot be null");
+			this.failureHandler = failureHandler;
 			return this;
 		}
 
@@ -287,6 +321,12 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 			RequestCache requestCache = builder.getSharedObject(RequestCache.class);
 			if (requestCache != null) {
 				authorizationCodeGrantFilter.setRequestCache(requestCache);
+			}
+			if (this.successHandler != null) {
+				authorizationCodeGrantFilter.setAuthenticationSuccessHandler(this.successHandler);
+			}
+			if (this.failureHandler != null) {
+				authorizationCodeGrantFilter.setAuthenticationFailureHandler(this.failureHandler);
 			}
 			return authorizationCodeGrantFilter;
 		}
