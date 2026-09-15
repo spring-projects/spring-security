@@ -28,6 +28,7 @@
 		<property name="avoidStaticImportExcludes" value="org.springframework.security.config.annotation.SecurityContextChangedListenerArgumentMatchers.*" />
 		<property name="avoidStaticImportExcludes" value="org.springframework.security.web.csrf.CsrfTokenAssert.*" />
 		<property name="avoidStaticImportExcludes" value="org.springframework.security.web.servlet.TestMockHttpServletRequests.*" />
+		<property name="avoidStaticImportExcludes" value="org.springframework.security.config.test.SessionRequestPostProcessors.*" />
 		<property name="avoidStaticImportExcludes" value="org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.*" />
 		<property name="avoidStaticImportExcludes" value="org.springframework.security.web.util.matcher.RegexRequestMatcher.*" />
 		<property name="avoidStaticImportExcludes" value="org.springframework.core.annotation.MergedAnnotations.SearchStrategy.*" />
