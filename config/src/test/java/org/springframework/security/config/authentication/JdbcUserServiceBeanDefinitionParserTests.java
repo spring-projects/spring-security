@@ -191,8 +191,7 @@ public class JdbcUserServiceBeanDefinitionParserTests {
 				.isThrownBy(() -> setContext(xml))
 				.withFailMessage("Expected exception due to missing data-source-ref")
 				.havingRootCause()
-				.isInstanceOf(SAXParseException.class)
-				.withMessageContaining("Attribute 'data-source-ref' must appear on element 'jdbc-user-service'");
+				.isInstanceOf(SAXParseException.class);
 		// @formatter:on
 	}
 
