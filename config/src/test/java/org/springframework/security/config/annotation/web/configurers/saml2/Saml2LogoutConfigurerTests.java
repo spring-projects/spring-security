@@ -197,6 +197,19 @@ public class Saml2LogoutConfigurerTests {
 		verify(logoutHandler).logout(any(), any(), any());
 	}
 
+	// gh-10821
+	@Test
+	public void saml2LogoutWhenLogoutRequestMatcherConfiguredThenUses() throws Exception {
+		this.spring.register(Saml2LogoutRequestMatcherConfig.class).autowire();
+		MvcResult result = this.mvc.perform(post("/signout").with(authentication(this.user)).with(csrf()))
+			.andExpect(status().isFound())
+			.andReturn();
+		String location = result.getResponse().getHeader("Location");
+		LogoutHandler logoutHandler = this.spring.getContext().getBean(LogoutHandler.class);
+		assertThat(location).startsWith("https://ap.example.org/logout/saml2/request");
+		verify(logoutHandler).logout(any(), any(), any());
+	}
+
 	// gh-19128
 	@Test
 	public void saml2LogoutWhenBuilderBeanWithBasePathThenLogoutUrlIgnoresBasePath() throws Exception {
@@ -640,6 +653,35 @@ public class Saml2LogoutConfigurerTests {
 		@Bean
 		LogoutSuccessHandler logoutSuccessHandler() {
 			return this.mockLogoutSuccessHandler;
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@Import(Saml2LoginConfigBeans.class)
+	static class Saml2LogoutRequestMatcherConfig {
+
+		LogoutHandler mockLogoutHandler = mock(LogoutHandler.class);
+
+		@Bean
+		SecurityFilterChain web(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+				.logout((logout) -> logout
+					.logoutRequestMatcher(pathPattern(HttpMethod.POST, "/signout"))
+					.addLogoutHandler(this.mockLogoutHandler)
+				)
+				.saml2Login(withDefaults())
+				.saml2Logout(withDefaults());
+			return http.build();
+			// @formatter:on
+		}
+
+		@Bean
+		LogoutHandler logoutHandler() {
+			return this.mockLogoutHandler;
 		}
 
 	}
