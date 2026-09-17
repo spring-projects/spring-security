@@ -65,6 +65,7 @@ import org.springframework.security.oauth2.jwt.DPoPProofReplayValidator;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
@@ -76,6 +77,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -104,6 +108,9 @@ public class DPoPAuthenticationTests {
 	private static NimbusJwtEncoder clientJwtEncoder;
 
 	public final SpringTestContext spring = new SpringTestContext(this);
+
+	@Autowired(required = false)
+	private JwtDecoderFactory<DPoPProofContext> dPoPProofVerifierFactory;
 
 	@Autowired
 	private MockMvc mvc;
@@ -182,6 +189,22 @@ public class DPoPAuthenticationTests {
 				.andExpect(status().isOk())
 				.andExpect(content().string("resource1"));
 		// @formatter:on
+	}
+
+	@Test
+	public void requestWhenCustomDPoPProofVerifierFactoryThenUsed() throws Exception {
+		this.spring.register(SecurityConfigWithDPoPProofVerifierFactory.class, ResourceEndpoints.class).autowire();
+		Set<String> scope = Collections.singleton("resource1.read");
+		String accessToken = generateAccessToken(scope, CLIENT_EC_KEY);
+		String dPoPProof = generateDPoPProof(HttpMethod.GET.name(), "http://localhost/resource1", accessToken);
+		// @formatter:off
+		this.mvc.perform(get("/resource1")
+						.header(HttpHeaders.AUTHORIZATION, "DPoP " + accessToken)
+						.header("DPoP", dPoPProof))
+				.andExpect(status().isOk())
+				.andExpect(content().string("resource1"));
+		// @formatter:on
+		verify(this.dPoPProofVerifierFactory).createDecoder(any());
 	}
 
 	private static String generateAccessToken(Set<String> scope, JWK jwk) {
@@ -283,6 +306,40 @@ public class DPoPAuthenticationTests {
 					return authenticationProvider;
 				}
 			};
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class SecurityConfigWithDPoPProofVerifierFactory {
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((authorize) -> authorize
+						.requestMatchers("/resource1").hasAnyAuthority("SCOPE_resource1.read", "SCOPE_resource1.write")
+						.requestMatchers("/resource2").hasAnyAuthority("SCOPE_resource2.read", "SCOPE_resource2.write")
+						.anyRequest().authenticated()
+				)
+				.oauth2ResourceServer((oauth2) -> oauth2
+						.jwt(Customizer.withDefaults())
+						.dPoP((dPoP) -> dPoP.dPoPProofVerifierFactory(this.dPoPProofVerifierFactory()))
+				);
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		NimbusJwtDecoder jwtDecoder() {
+			return NimbusJwtDecoder.withPublicKey(PROVIDER_RSA_PUBLIC_KEY).build();
+		}
+
+		@Bean
+		JwtDecoderFactory<DPoPProofContext> dPoPProofVerifierFactory() {
+			return spy(new DPoPProofJwtDecoderFactory());
 		}
 
 	}

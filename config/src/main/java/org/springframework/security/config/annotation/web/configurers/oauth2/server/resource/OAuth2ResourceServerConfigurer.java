@@ -43,8 +43,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.jwt.DPoPProofContext;
+import org.springframework.security.oauth2.jwt.DPoPProofJwtDecoderFactory;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.OAuth2ProtectedResourceMetadata;
 import org.springframework.security.oauth2.server.resource.authentication.DPoPAuthenticationProvider;
@@ -82,7 +85,6 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
@@ -171,14 +173,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<OAuth2ResourceServerConfigurer<H>, H> {
-
-	private static final boolean dPoPAuthenticationAvailable;
-
-	static {
-		ClassLoader classLoader = OAuth2ResourceServerConfigurer.class.getClassLoader();
-		dPoPAuthenticationAvailable = ClassUtils
-			.isPresent("org.springframework.security.oauth2.jwt.DPoPProofJwtDecoderFactory", classLoader);
-	}
 
 	private static final RequestHeaderRequestMatcher X_REQUESTED_WITH = new RequestHeaderRequestMatcher(
 			"X-Requested-With", "XMLHttpRequest");
@@ -330,7 +324,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		filter = postProcess(filter);
 		http.addFilter(filter);
 
-		if (dPoPAuthenticationAvailable && this.dPoPConfigurer != null) {
+		if (this.dPoPConfigurer != null) {
 			this.dPoPConfigurer.configure(http);
 		}
 
@@ -649,6 +643,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 		private AuthenticationFailureHandler authenticationFailureHandler;
 
+		private JwtDecoderFactory<DPoPProofContext> dPoPProofVerifierFactory;
+
 		/**
 		 * Sets the {@link RequestMatcher} used when matching the
 		 * {@link HttpServletRequest} to a DPoP-protected resource request.
@@ -705,9 +701,27 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			return this;
 		}
 
+		/**
+		 * Sets the {@link JwtDecoderFactory} that provides a {@link JwtDecoder} for the
+		 * specified {@link DPoPProofContext} and is used for authenticating a DPoP Proof
+		 * {@link Jwt}. The default factory is {@link DPoPProofJwtDecoderFactory}.
+		 * @param dPoPProofVerifierFactory the {@link JwtDecoderFactory} that provides a
+		 * {@link JwtDecoder} for the specified {@link DPoPProofContext}
+		 * @return the {@link DPoPConfigurer} for further configuration
+		 * @since 7.2
+		 */
+		public DPoPConfigurer dPoPProofVerifierFactory(JwtDecoderFactory<DPoPProofContext> dPoPProofVerifierFactory) {
+			Assert.notNull(dPoPProofVerifierFactory, "dPoPProofVerifierFactory cannot be null");
+			this.dPoPProofVerifierFactory = dPoPProofVerifierFactory;
+			return this;
+		}
+
 		private void configure(H http) {
 			DPoPAuthenticationProvider authenticationProvider = new DPoPAuthenticationProvider(
 					getTokenAuthenticationManager(http));
+			if (this.dPoPProofVerifierFactory != null) {
+				authenticationProvider.setDPoPProofVerifierFactory(this.dPoPProofVerifierFactory);
+			}
 			http.authenticationProvider(postProcess(authenticationProvider));
 			AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
 			AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManager,
