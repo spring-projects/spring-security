@@ -99,6 +99,7 @@ dependencies {
 	implementation libs.org.sonarsource.scanner.gradle.sonarqube.gradle.plugin
 	implementation libs.com.squareup.okhttp3.okhttp
 	implementation libs.io.spring.security.release.plugin
+	implementation libs.io.spring.security.project.plugin
 
 	testImplementation platform(libs.org.junit.junit.bom)
 	testImplementation platform(libs.org.mockito.mockito.bom)
