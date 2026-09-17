@@ -126,6 +126,24 @@ public class Argon2PasswordEncoder extends AbstractValidatingPasswordEncoder {
 		return Argon2EncodingUtils.encode(hash, params);
 	}
 
+	protected String encodeNonNullPassword(char[] rawPassword) {
+		byte[] salt = this.saltGenerator.generateKey();
+		byte[] hash = new byte[this.hashLength];
+		// @formatter:off
+		Argon2Parameters params = new Argon2Parameters
+				.Builder(Argon2Parameters.ARGON2_id)
+				.withSalt(salt)
+				.withParallelism(this.parallelism)
+				.withMemoryAsKB(this.memory)
+				.withIterations(this.iterations)
+				.build();
+		// @formatter:on
+		Argon2BytesGenerator generator = new Argon2BytesGenerator();
+		generator.init(params);
+		generator.generateBytes(rawPassword, hash);
+		return Argon2EncodingUtils.encode(hash, params);
+	}
+
 	@Override
 	protected boolean matchesNonNull(String rawPassword, String encodedPassword) {
 		Argon2EncodingUtils.Argon2Hash decoded;
@@ -143,7 +161,22 @@ public class Argon2PasswordEncoder extends AbstractValidatingPasswordEncoder {
 		return constantTimeArrayEquals(decoded.getHash(), hashBytes);
 	}
 
-	@Override
+	protected boolean matchesNonNull(char[] rawPassword, String encodedPassword) {
+		Argon2EncodingUtils.Argon2Hash decoded;
+		try {
+			decoded = Argon2EncodingUtils.decode(encodedPassword);
+		}
+		catch (IllegalArgumentException ex) {
+			this.logger.warn("Malformed password hash", ex);
+			return false;
+		}
+		byte[] hashBytes = new byte[decoded.getHash().length];
+		Argon2BytesGenerator generator = new Argon2BytesGenerator();
+		generator.init(decoded.getParameters());
+		generator.generateBytes(rawPassword, hashBytes);
+		return constantTimeArrayEquals(decoded.getHash(), hashBytes);
+	}
+
 	protected boolean upgradeEncodingNonNull(String encodedPassword) {
 		Argon2Parameters parameters = Argon2EncodingUtils.decode(encodedPassword).getParameters();
 		return parameters.getMemory() < this.memory || parameters.getIterations() < this.iterations;
