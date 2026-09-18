@@ -77,6 +77,7 @@ public class SunJaasKerberosTicketValidator implements KerberosTicketValidator, 
 
 	private static final Log LOG = LogFactory.getLog(SunJaasKerberosTicketValidator.class);
 
+	@SuppressWarnings("removal")
 	@Override
 	public KerberosTicketValidation validateTicket(byte[] token) {
 		try {
