@@ -16,6 +16,7 @@
 
 package org.springframework.security.core.context;
 
+import java.lang.ScopedValue;
 import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
@@ -91,7 +92,7 @@ public class ScopedSecurityContextHolderStrategy implements SecurityContextHolde
 	}
 
 	private SecurityContextScopedValueHolder retrieveSecurityContextScopedValueHolder() {
-		if (SECURITY_CONTEXT.isBound()) {
+		if (isBound()) {
 			return SECURITY_CONTEXT.get();
 		}
 		else {
@@ -110,6 +111,10 @@ public class ScopedSecurityContextHolderStrategy implements SecurityContextHolde
 		retrieveSecurityContextScopedValueHolder().setSecurityContext(notNullDeferredContext);
 	}
 
+	public boolean isBound() {
+		return SECURITY_CONTEXT.isBound();
+	}
+
 	/**
 	 * Binds an instance of {@link ScopedValue},
 	 * {@link ScopedSecurityContextHolderStrategy#SECURITY_CONTEXT}, to an instance of
@@ -117,6 +122,10 @@ public class ScopedSecurityContextHolderStrategy implements SecurityContextHolde
 	 */
 	public static void runWhere(Supplier<SecurityContext> deferredContext, Runnable r) {
 		ScopedValue.where(SECURITY_CONTEXT, new SecurityContextScopedValueHolder(deferredContext)).run(r);
+	}
+
+	public static <R, X extends Throwable> R callWhere(Supplier<SecurityContext> deferredContext, ScopedValue.CallableOp<? extends R, X> op) throws X {
+		return ScopedValue.where(SECURITY_CONTEXT, new SecurityContextScopedValueHolder(deferredContext)).call(op);
 	}
 
 	/**

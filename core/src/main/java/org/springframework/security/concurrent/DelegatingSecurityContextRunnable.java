@@ -18,10 +18,13 @@ package org.springframework.security.concurrent;
 
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.security.core.context.ScopedSecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
+
+import java.util.function.Supplier;
 
 /**
  * <p>
@@ -90,17 +93,21 @@ public final class DelegatingSecurityContextRunnable implements Runnable {
 
 	@Override
 	public void run() {
-		this.originalSecurityContext = this.securityContextHolderStrategy.getContext();
+		this.originalSecurityContext = tryGetOriginalSecurityContext();
 		try {
+			if (this.securityContextHolderStrategy instanceof ScopedSecurityContextHolderStrategy) {
+				Supplier<SecurityContext> deferredSecurityContext = () -> this.delegateSecurityContext;
+				ScopedSecurityContextHolderStrategy.runWhere(deferredSecurityContext, this.delegate);
+				return;
+			}
+
 			this.securityContextHolderStrategy.setContext(this.delegateSecurityContext);
 			this.delegate.run();
-		}
-		finally {
+		} finally {
 			SecurityContext emptyContext = this.securityContextHolderStrategy.createEmptyContext();
 			if (emptyContext.equals(this.originalSecurityContext)) {
 				this.securityContextHolderStrategy.clearContext();
-			}
-			else {
+			} else {
 				this.securityContextHolderStrategy.setContext(this.originalSecurityContext);
 			}
 			this.originalSecurityContext = null;
@@ -151,6 +158,13 @@ public final class DelegatingSecurityContextRunnable implements Runnable {
 				: new DelegatingSecurityContextRunnable(delegate);
 		runnable.setSecurityContextHolderStrategy(securityContextHolderStrategy);
 		return runnable;
+	}
+
+	private SecurityContext tryGetOriginalSecurityContext() {
+		if (this.securityContextHolderStrategy instanceof ScopedSecurityContextHolderStrategy strategy && !strategy.isBound()) {
+			return strategy.createEmptyContext();
+		}
+		return this.securityContextHolderStrategy.getContext();
 	}
 
 }

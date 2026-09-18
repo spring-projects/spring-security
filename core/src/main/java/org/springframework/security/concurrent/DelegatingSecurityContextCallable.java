@@ -17,9 +17,11 @@
 package org.springframework.security.concurrent;
 
 import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.security.core.context.ScopedSecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -92,17 +94,37 @@ public final class DelegatingSecurityContextCallable<V> implements Callable<V> {
 
 	@Override
 	public V call() throws Exception {
-		this.originalSecurityContext = this.securityContextHolderStrategy.getContext();
+		this.originalSecurityContext = tryGetOriginalSecurityContext();
 		try {
+			if (this.securityContextHolderStrategy instanceof ScopedSecurityContextHolderStrategy) {
+				Supplier<SecurityContext> deferredSecurityContext = () -> this.delegateSecurityContext;
+				return ScopedSecurityContextHolderStrategy.callWhere(deferredSecurityContext, () -> {
+					try {
+						return this.delegate.call();
+					} catch (Exception e) {
+						if (e instanceof RuntimeException runtimeException) {
+							throw runtimeException;
+						}
+						throw new RuntimeException(e);
+					}
+				});
+			}
+
 			this.securityContextHolderStrategy.setContext(this.delegateSecurityContext);
 			return this.delegate.call();
-		}
-		finally {
+		} catch (RuntimeException e) {
+			Throwable cause = e.getCause();
+
+			if (cause instanceof Exception ex && !(cause instanceof RuntimeException)) {
+				throw ex;
+			}
+
+			throw e;
+		} finally {
 			SecurityContext emptyContext = this.securityContextHolderStrategy.createEmptyContext();
 			if (emptyContext.equals(this.originalSecurityContext)) {
 				this.securityContextHolderStrategy.clearContext();
-			}
-			else {
+			} else {
 				this.securityContextHolderStrategy.setContext(this.originalSecurityContext);
 			}
 			this.originalSecurityContext = null;
@@ -153,6 +175,13 @@ public final class DelegatingSecurityContextCallable<V> implements Callable<V> {
 				: new DelegatingSecurityContextCallable<>(delegate);
 		callable.setSecurityContextHolderStrategy(securityContextHolderStrategy);
 		return callable;
+	}
+
+	private SecurityContext tryGetOriginalSecurityContext() {
+		if (this.securityContextHolderStrategy instanceof ScopedSecurityContextHolderStrategy strategy && !strategy.isBound()) {
+			return strategy.createEmptyContext();
+		}
+		return this.securityContextHolderStrategy.getContext();
 	}
 
 }
