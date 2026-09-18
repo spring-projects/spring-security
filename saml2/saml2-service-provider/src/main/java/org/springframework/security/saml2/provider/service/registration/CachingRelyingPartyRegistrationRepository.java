@@ -79,7 +79,7 @@ public final class CachingRelyingPartyRegistrationRepository implements Iterable
 	private IterableRelyingPartyRegistrationRepository registrations() {
 		IterableRelyingPartyRegistrationRepository registrations = this.cache.get("registrations",
 				this.registrationLoader);
-		Assert.notNull(registrations, "cache loader failed to return a repostory instance");
+		Assert.notNull(registrations, "cache loader failed to return a repository instance");
 		return registrations;
 	}
 

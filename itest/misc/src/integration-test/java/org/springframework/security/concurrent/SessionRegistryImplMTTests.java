@@ -76,7 +76,7 @@ public class SessionRegistryImplMTTests extends TestCase {
 	public void testConcurrentRemovalIsSafe() {
 		Object principal = "Some principal object";
 		SessionRegistryImpl sessionregistry = new SessionRegistryImpl();
-		// The session list (effectivelly the containers sessions).
+		// The session list (effectively the containers sessions).
 		Set sessions = Collections.synchronizedSet(new HashSet());
 		Thread registerer = new Thread(new SessionRegisterer(principal, sessionregistry, 100, sessions));
 
