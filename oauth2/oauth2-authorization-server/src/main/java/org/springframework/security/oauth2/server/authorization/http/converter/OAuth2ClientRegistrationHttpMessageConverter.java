@@ -180,6 +180,10 @@ public class OAuth2ClientRegistrationHttpMessageConverter
 			if (clientSecretExpiresAt instanceof Number && clientSecretExpiresAt.equals(0)) {
 				parsedClaims.remove(OAuth2ClientMetadataClaimNames.CLIENT_SECRET_EXPIRES_AT);
 			}
+			if (parsedClaims.get(OAuth2ClientMetadataClaimNames.SCOPE) instanceof Collection<?> scopes
+					&& CollectionUtils.isEmpty(scopes)) {
+				parsedClaims.remove(OAuth2ClientMetadataClaimNames.SCOPE);
+			}
 			return OAuth2ClientRegistration.withClaims(parsedClaims).build();
 		}
 
